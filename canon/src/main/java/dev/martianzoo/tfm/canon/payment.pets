@@ -1,3 +1,5 @@
+// TODO docstring the hell out of this stuff
+
 CLASS BuyCard : Owned,  Signal {  // Hack for TerraLabs, but being able to delay
   This: -3, ProjectCard           // the -3 could potentially be exploited. TODO
 }

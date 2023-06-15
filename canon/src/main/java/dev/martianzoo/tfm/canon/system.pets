@@ -1,32 +1,42 @@
-ABSTRACT CLASS Component {                             // the single root of the whole hierarchy
+"The single root of the class hierarchy"
+ABSTRACT CLASS Component {
   DEFAULT +Component!
   DEFAULT -Component!
 }
 
+"Has no real gameplay meaning; a class extends it just to be less user-visible in logs etc."
 ABSTRACT CLASS System {
-  CLASS Class<Component> { HAS =1 This }               // magic rule: only a single name can go
-                                                       // inside the <>; the `Class<Foo>` type is
-                                                       // abstract iff the Foo class is abstract
+  "Magic rules: only a single class name can go inside <>; `Class<Foo` is concrete iff `Foo` is"
+  CLASS Class<Component> { HAS =1 This }
+
+  "Anything that cannot exist after the task queue clears (i.e., the action ends)"
   ABSTRACT CLASS Temporary {
     // This: (MAX 0 Temporary: Ok)                     // technically right but too visible
-    ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
-      This:: -This!                                    // things can still be triggered by it
-                                                       // TODO ! is supposed to be unnecessary here
 
-      CLASS Ok : AutoLoad                              // magic rule: this should not be allowed to
-                                                       // trigger anything
-      CLASS Die { HAS MAX 0 This }                     // impossible to create, which is the point
+    "A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
+    ABSTRACT CLASS Signal {
+      This:: -This!                                    // TODO ! is supposed to be unnecessary here
+
+      "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
+      CLASS Ok : AutoLoad
+
+      "A component you can't create; the task queue will refuse to enqueue an attempt to"
+      CLASS Die { HAS MAX 0 This }
     }
+
+    "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
     ABSTRACT CLASS Barrier
   }
 
-  CLASS Engine {                                       // this is the very first component created,
-    HAS MAX 1 This                                     // and kicks everything else off
-  }
+  "The very first component created, which kicks the rest off; acts like a player for non-player tasks"
+  CLASS Engine { HAS MAX 1 This }
 }
 
-ABSTRACT CLASS AutoLoad                                // extend this to always get loaded
+"A class extends this to make sure it is always loaded even if never referenced by anything"
+ABSTRACT CLASS AutoLoad
 
-ABSTRACT CLASS Custom                                  // these never *actually* get created
+"Instances of this type never exist; instead, gains get rewritten according to custom.kt"
+ABSTRACT CLASS Custom
 
-ABSTRACT CLASS Atomized                                // magic rule: see `Transformers.atomizer()`
+"Extend this to have plural instructions auto-split (note `2 OceanTile` is impossible otherwise!)"
+ABSTRACT CLASS Atomized

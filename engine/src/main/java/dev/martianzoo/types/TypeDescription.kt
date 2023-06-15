@@ -13,6 +13,8 @@ public class TypeDescription public constructor(mtype: MType) {
 
   val classShortName: ClassName by mclass::shortName
 
+  val docstring: String? by mclass::docstring
+
   val superclassNames: Set<ClassName> = mclass.getAllSuperclasses().classNames()
   val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.getAllSubclasses())
 

@@ -1,4 +1,6 @@
-ABSTRACT CLASS Anyone[ANY] {                      // aka Player
+"Would be named Player except that `-4 Plant<Anyone>?` is more readable"
+ABSTRACT CLASS Anyone[ANY] {
+  "A player who can own things; currently this is all players, but we could introduce Npc"
   ABSTRACT CLASS Owner {
     HAS =1 This
 
@@ -12,26 +14,37 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
   }
 }
 
+"Everything owned by a player must be a subclass of this"
 ABSTRACT CLASS Owned<Anyone> {
   DEFAULT Owned<Owner>                            // affects ALL refs to subtypes that don't give
                                                   // an owner... the only default of this kind
+  "Well it's a victory point"
   CLASS VictoryPoint[VP]
 
+  "One step on the terraform rating track; you start with 20 of them"
   CLASS TerraformRating[TR] {
     ProductionPhase: 1
     End: VictoryPoint
   }
 
+  "Anything represented by a copper cube IRL, perhaps except for SRR resources (not sure)"
   ABSTRACT CLASS Resource[RES] {
     ABSTRACT CLASS StandardResource[SR] {
       CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P], Energy[E], Heat[H]
     }
   }
 
+  "Each instance of this creates an instance of a standard resource during ProductionPhase"
   CLASS Production<Class<StandardResource>> : AutoLoad { Production2Phase: StandardResource }
 
-  ABSTRACT CLASS Milestone[MIL] { End: 5 VictoryPoint }
+  "A milestone already claimed; unclaimed milestones exist only as a Class<ThatMilestoneType>"
+  ABSTRACT CLASS Milestone[MIL] {
+    HAS MAX 3 Milestone
 
+    End: 5 VictoryPoint
+  }
+
+  "Performs energy-to-heat conversion for a player; exists only so that Supercapacitors can remove it"
   CLASS SuperHack {
     HAS MAX 1 This
     ProductionPhase:: 999 Heat FROM Energy.
@@ -43,6 +56,7 @@ ABSTRACT CLASS Owned<Anyone> {
   // damage to mostly just Specialist, Generalist, and Robinson. It is bug-prone, but all the
   // alternatives appear to be worse. This makes `PROD[1]` extremely dodgy -- almost worth taking
   // steps to ban, except that it does actually work just fine for Banker anyway.
+  "You didn't see this"
   CLASS GrossHack : System {
     This: PROD[5]
     ProductionPhase: -5!

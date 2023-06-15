@@ -1,21 +1,32 @@
+"Every game must have exactly one of these (Tharsis, etc.)"
 ABSTRACT CLASS MarsMap { HAS =1 This }
 
+"A hexagonal area where a tile can go (note the game does not call these 'spaces')"
 ABSTRACT CLASS Area {
   HAS =1 This
   HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
 
+  "One of the 61 areas on the planet itself"
   ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
     Tile<This>:: CreateAdjacencies<This>
 
+    "An unreserved area"
     ABSTRACT CLASS LandArea[LA] {
       ABSTRACT CLASS VolcanicArea[VA]
     }
+
+    "An area reserved for oceans"
     ABSTRACT CLASS WaterArea[WA]
+
+    "An area reserved for Noctis City"
     ABSTRACT CLASS NoctisArea[NA]
   }
+
+  "An area not on Mars (yes, it includes the one for Stanford Torus)"
   ABSTRACT CLASS RemoteArea[RA]
 }
 
+"A tile; if it's not on an Area / not in play, it doesn't exist yet"
 ABSTRACT CLASS Tile<Area> {
   CLASS OceanTile[OT] : Tile<MarsArea>, GlobalParameter {
     HAS MAX 9 OceanTile                                // `HAS MAX 9 This` wouldn't work!
@@ -24,6 +35,7 @@ ABSTRACT CLASS Tile<Area> {
     ForwardAdjacency<This, Tile>: 2                    // but then the tile would trigger itself
   }
 
+  "Any tile that gets a player cube: city tile, greenery tile, or special tile"
   ABSTRACT CLASS OwnedTile : Owned, Tile {             // TODO removing Owned breaks shit
     CLASS GreeneryTile[GT] : Tile<MarsArea> {
       DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // should be `HAS?`
@@ -43,10 +55,13 @@ ABSTRACT CLASS Tile<Area> {
   }
 }
 
+"Adding a Tile automatically creates one of these per adjacent area"
 CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
 
+"When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created"
 ABSTRACT CLASS Adjacency<Tile, Tile> : System, AutoLoad {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
+"Triggers creating Neighbors and Adjacencies"
 CLASS CreateAdjacencies<MarsArea>: Custom

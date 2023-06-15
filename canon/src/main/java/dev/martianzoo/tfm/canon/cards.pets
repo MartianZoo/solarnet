@@ -1,28 +1,42 @@
+"Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard"
 ABSTRACT CLASS Card : Owned {                   // a quantity that stays fixed as cards are played
+
+  "A generic card in your hand"
   ABSTRACT CLASS CardBack[CB] {
     CLASS CorporationCard                       // once a card is played and becomes a CardFront,
     CLASS PreludeCard                           // nothing in the game ever cares what kind of a
     CLASS ProjectCard                           // CardBack it used to be... well, that USED to be
   }                                             // true until "Double Down" in Dec 2022
 
+  "A card in play: face-up on the table"
   ABSTRACT CLASS CardFront[CF] {                // specific CardFronts come from `cards.json5`
+    "A blue *project* card"
     ABSTRACT CLASS ActiveCard
+
+    "A green *project* card"
     ABSTRACT CLASS AutomatedCard
+
+    "A red *project* card"
     ABSTRACT CLASS EventCard {
       This: PlayedEvent<Class<This>> FROM This  // ideally this wouldn't happen until EOT
     }
 
+    "A CardFront that can collect resources"
     ABSTRACT CLASS ResourceCard<Class<CardResource>>
   }
 
+  "A card in your played-events pile"
   CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be Class<EventCard>, all thanks to PharmU
     End: GetEventVps<Class<CardFront>>
   }
 }
 
+"(Like anything extending Custom) an implementation detail that you can look up in custom.kt if desired"
 CLASS GetEventVps<Class<CardFront>> : Owned, Custom // need Owned?
 
+"Anything that 'lives on' a card / couldn't exist without the card"
 ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned<Anyone> {
+
   ABSTRACT CLASS Tag : Atomized {
     HAS MAX 2 This
 
@@ -34,12 +48,16 @@ ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned<Anyone> {
   }
 
   // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.
+  "A resource cube living on some particular card, such as `Animal<Pets>`"
   ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>> {
     DEFAULT +CardResource.
+
+    "A particular kind of CardResource"
     CLASS Animal[ANI], Microbe[MIC], Science[SCI], Floater[FLO], Asteroid[AST]
   }
 }
 
+"Cards like Indentured Workers leave this in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned, Generational {
   PlayCard:: -This!                             // TODO shouldn't need the bang
 }

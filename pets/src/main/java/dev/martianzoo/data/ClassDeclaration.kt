@@ -53,6 +53,7 @@ internal constructor(
     /** The merged contents of any `DEFAULT` clauses in the class body. */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
 
+    public val docstring: String? = null,
     /**
      * Any additional Pets elements belonging to this class that aren't given for the previous
      * arguments.

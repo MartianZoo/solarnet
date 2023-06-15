@@ -22,6 +22,9 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 
 /** A base class for parsing objects. */
 internal abstract class PetTokenizer {
+
+  internal val _docString = regex(Regex("""  "[^"]*"  """.trim()))
+
   internal val _arrow = literal("->", "arrow")
   internal val _doubleColon = literal("::", "doubleColon")
   internal val _questionColon = literal("?:", "questionColon")

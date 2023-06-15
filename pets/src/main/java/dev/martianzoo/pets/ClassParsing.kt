@@ -57,11 +57,12 @@ internal object ClassParsing : PetTokenizer() {
 
     val signature: Parser<Signature> =
         classFullName and
-        dependencies and
-        optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
-        supertypeList map { (name, deps, short, supes) ->
-          Signature(name, short, deps, supes)
-        }
+            dependencies and
+            optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
+            supertypeList map
+            { (name, deps, short, supes) ->
+              Signature(name, short, deps, supes)
+            }
 
     // This should only be included in the bodiless case
     val moreSignatures: Parser<MoreSignatures> =
@@ -73,31 +74,34 @@ internal object ClassParsing : PetTokenizer() {
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
-        Expression.parser() and
-        intensity map { (expr, int) ->
-          require(expr.refinement == null)
-          DefaultsDeclaration(
-              gainOnly = OneDefault(expr.arguments, int),
-              forClass = expr.className,
-          )
-        }
+            Expression.parser() and
+            intensity map
+            { (expr, int) ->
+              require(expr.refinement == null)
+              DefaultsDeclaration(
+                  gainOnly = OneDefault(expr.arguments, int),
+                  forClass = expr.className,
+              )
+            }
 
     private val removeOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('-') and
-        Expression.parser() and
-        intensity map { (expr, int) ->
-          require(expr.refinement == null)
-          DefaultsDeclaration(
-              removeOnly = OneDefault(expr.arguments, int),
-              forClass = expr.className,
-          )
-        }
+            Expression.parser() and
+            intensity map
+            { (expr, int) ->
+              require(expr.refinement == null)
+              DefaultsDeclaration(
+                  removeOnly = OneDefault(expr.arguments, int),
+                  forClass = expr.className,
+              )
+            }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
-      Expression.parser() map {
-        require(it.refinement == null)
-        DefaultsDeclaration(universal = OneDefault(it.arguments), forClass = it.className)
-      }
+      Expression.parser() map
+          {
+            require(it.refinement == null)
+            DefaultsDeclaration(universal = OneDefault(it.arguments), forClass = it.className)
+          }
     }
 
     private val default: Parser<DefaultsDeclaration> =
@@ -105,9 +109,9 @@ internal object ClassParsing : PetTokenizer() {
 
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
-        (default map ::DefaultsElement) or
-        (Effect.parser() map { EffectElement(it) }) or
-        (Action.parser() map { ActionElement(it) })
+            (default map ::DefaultsElement) or
+            (Effect.parser() map { EffectElement(it) }) or
+            (Action.parser() map { ActionElement(it) })
   }
 
   internal object Declarations {
@@ -122,13 +126,18 @@ internal object ClassParsing : PetTokenizer() {
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
 
+    private val docstring: Parser<String> =
+        _docString map { it.text.substring(1, it.text.length - 1) }
+
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
-        kind and
-        signature and
-        (multilineBody or moreSignatures) map { (kind, sig, bodyOrSigs) ->
-          bodyOrSigs.convert(kind, sig)
-        }
+            optional(docstring and skip(nls)) and
+            kind and
+            signature and
+            (multilineBody or moreSignatures) map
+            { (doc, kind, sig, bodyOrSigs) ->
+              bodyOrSigs.convert(kind, sig, doc)
+            }
 
     // a declaration group that can be nested, that in this case *IS* nested
     private val nestedGroup: Parser<NestedDeclGroup> = nestableGroup map ::NestedDeclGroup
@@ -140,15 +149,17 @@ internal object ClassParsing : PetTokenizer() {
 
     private val oneLineBody: Parser<Body> =
         skipChar('{') and
-        separatedTerms(bodyElementExceptNestedClasses, char(';')) and
-        skipChar('}') map ClassParsing::Body
+            separatedTerms(bodyElementExceptNestedClasses, char(';')) and
+            skipChar('}') map
+            ClassParsing::Body
 
     val oneLineDecl: Parser<ClassDeclaration> =
         kind and
-        signature and
-        optional(oneLineBody) map { (kind, sig, body) ->
-          NestableDeclGroup(kind, sig, body ?: Body()).finishOnlyDecl()
-        }
+            signature and
+            optional(oneLineBody) map
+            { (kind, sig, body) ->
+              NestableDeclGroup(kind, sig, body ?: Body()).finishOnlyDecl()
+            }
   }
 
   // The rest of the file is temporary types used only during parsing.
@@ -172,21 +183,27 @@ internal object ClassParsing : PetTokenizer() {
   }
 
   internal sealed class MoreSignaturesOrBody {
-    abstract fun convert(kind: ClassKind, firstSignature: Signature): NestableDeclGroup
+    abstract fun convert(
+        kind: ClassKind,
+        firstSignature: Signature,
+        docstring: String?
+    ): NestableDeclGroup
   }
 
   internal class MoreSignatures(private val moreSignatures: List<Signature>) :
       MoreSignaturesOrBody() {
-    override fun convert(kind: ClassKind, firstSignature: Signature) =
+    override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
         NestableDeclGroup(
-            (firstSignature plus moreSignatures).map { IncompleteNestableDecl(kind, it) },
+            (firstSignature plus moreSignatures).map {
+              IncompleteNestableDecl(kind, it, docstring)
+            },
         )
   }
 
   internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
     constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
 
-    override fun convert(kind: ClassKind, firstSignature: Signature) =
+    override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
         NestableDeclGroup(kind, firstSignature, this)
 
     private inline fun <reified E : BodyElement> getAll() = elements.get<E>()
@@ -248,8 +265,9 @@ internal object ClassParsing : PetTokenizer() {
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
       constructor(
           kind: ClassKind,
-          signature: Signature
-      ) : this(signature.asDeclaration.copy(kind = kind))
+          signature: Signature,
+          docstring: String?
+      ) : this(signature.asDeclaration.copy(kind = kind, docstring = docstring))
 
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it

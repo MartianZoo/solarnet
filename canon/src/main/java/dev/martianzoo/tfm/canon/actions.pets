@@ -1,18 +1,31 @@
+
+"Any component that responds to `UseAction` signals, such as an action card or a standard project"
 ABSTRACT CLASS HasActions {
+
+  "Any of the basic choices a player can make on their turn"
   ABSTRACT CLASS StandardAction { HAS =1 This }
+
+  "A standard project, as the game defines it (but excluding Sell Patents)"
   ABSTRACT CLASS StandardProject { HAS =1 This }
+
   ABSTRACT CLASS ActionCard : CardFront
 }
 
+"A Signal a player sends to indicate an action they want to perform"
 ABSTRACT CLASS UseAction<HasActions> [UA] : Owned, Signal {
   This: MAX 0 Mandate: Ok                       // Should always be doable at least by end
+
+  "A component can offer up to three actions; the digit (1, 2, 3) indicates which one"
   CLASS UseAction1[UA1], UseAction2[UA2], UseAction3[UA3]
 }
 
+"Indicates that an action card has already been used this generation"
 CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 
+"This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
 CLASS NewTurn : Owned, Signal
 
+"Instead of taking an action you can gain this, and be out for the rest of the generation"
 CLASS Pass : Owned, Generational { HAS MAX 1 This }
 
 ABSTRACT CLASS Mandate: Owned, HasActions {

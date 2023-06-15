@@ -7,6 +7,7 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.classDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.types.MClassLoader
@@ -16,6 +17,14 @@ import org.junit.jupiter.api.Test
 internal class CanonClassesTest {
   companion object {
     val table = MClassLoader(Canon).loadEverything()
+  }
+
+  @Test
+  fun docstrings() {
+    assertThat(classDeclaration(cn("VictoryPoint")).docstring)
+        .isEqualTo("Well it's a victory point")
+    assertThat(classDeclaration(cn("Floater")).docstring)
+        .isEqualTo("A particular kind of CardResource")
   }
 
   @Test
@@ -79,8 +88,7 @@ internal class CanonClassesTest {
     loader.load(cn("OceanTile")).apply {
       // assertThat(directDependencyKeys).isEmpty()
       // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
-      assertThat(directSuperclasses.classNames())
-          .containsExactly(cn("GlobalParameter"), cn("Tile"))
+      assertThat(directSuperclasses.classNames()).containsExactly(cn("GlobalParameter"), cn("Tile"))
       assertThat(getAllSuperclasses().classNames())
           .containsExactly(
               cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))

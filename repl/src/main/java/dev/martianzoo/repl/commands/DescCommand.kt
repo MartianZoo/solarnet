@@ -63,6 +63,7 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
       val classStuff =
           """
           Class `$classDisplay`:
+            docstring:   ${desc.docstring}
             subclasses:  $subclassesDisplay
             subclasses:  ${desc.superclassNames}
             invariants:  ${desc.classInvariants.joinToString().ifEmpty { "(none)" }}

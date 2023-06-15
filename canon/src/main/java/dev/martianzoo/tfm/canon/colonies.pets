@@ -10,6 +10,7 @@
 //     Trade<This>: ResetProduction<This>
 //   }
 
+"A colony tile, such as Pluto"
 ABSTRACT CLASS ColonyTile {
   HAS MAX 1 This,  MAX 3 Colony<This>, MAX 1 Trade<This>
 
@@ -28,19 +29,26 @@ ABSTRACT CLASS ColonyTile {
   ProductionPhase: ColonyProduction<This>.
 }
 
+"One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
   Trade<Anyone, ColonyTile>: GiveColonyBonus<ColonyTile>
 }
 
+"A Trade operation; it persists so we can tell the ColonyTile and TradeFleet are occupied"
 // A trade fleet sitting on a colony tile is represented by one of these, which go away at gen end
 CLASS Trade<ColonyTile, TradeFleet> : Owned, Generational
 
+"A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
 CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
 
+"An implementation detail used to trigger colony bonuses to be paid out"
 CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
+
+"An implementation detail used to trigger a colony tile's 'white cube' to move left"
 CLASS ResetProduction<ColonyTile> : Signal
 
+"One of the 8 trade fleets players can own; sadly each is distinct even though you don't care about the difference"
 ABSTRACT CLASS TradeFleet : Owned {
   HAS MAX 1 Trade<This>
 
@@ -54,8 +62,10 @@ ABSTRACT CLASS TradeFleet : Owned {
   CLASS TradeFleetH { HAS MAX 1 TradeFleetH }
 }
 
+"To add a colony tile to the game (like Aridor does), gain this"
 CLASS AddColonyTile<Class<ColonyTile>> : Custom, AutoLoad
 
+"If a ColonyTile gives card resources, one of these is created first instead"
 CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
   This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This // thanks Aridor
   ResourceCard<Class<CardResource>>: ColonyTile FROM This

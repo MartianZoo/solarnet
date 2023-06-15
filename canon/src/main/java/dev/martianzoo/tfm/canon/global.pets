@@ -3,6 +3,7 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
+"A catch-all for arbitrary global effects that don't seem to belong anywhere else"
 CLASS TerraformingMars : System, AutoLoad {
   HAS =1 This
 
@@ -14,12 +15,14 @@ CLASS TerraformingMars : System, AutoLoad {
   Pay<Class<Titanium>>:: -3 Owed                       // should be innocuous for TradeSA...
 }
 
+"A single step along a global parameter track; creating one gives the active player (if any) a TR"
 ABSTRACT CLASS GlobalParameter : Atomized {
   DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
   DEFAULT -GlobalParameter.
 
   This: TerraformRating                                // transformed to `This BY Owner: TR<Owner>`
 
+  "Represents 2 degrees C of temperature increase"
   CLASS TemperatureStep[TEMP] {
     HAS MAX 19 This
     This IF =3 This: PROD[Heat]
@@ -27,11 +30,13 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     This IF =15 This: OceanTile
   }
 
+  "Represents a 1% increase in oxygen level"
   CLASS OxygenStep[O2] {
     HAS MAX 14 This
     This IF =8 This: TemperatureStep
   }
 
+  "Represents a 2% increase in Venus... terraformedness"
   CLASS VenusStep[VEN] {
     HAS MAX 15 This
     This IF =4 This: ProjectCard
@@ -40,9 +45,13 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   // OceanTile is in maps-tiles.pets
 }
 
+"Tells what generation we're in; mostly matters in solo games"
 CLASS Generation { HAS 1 This }
+
+"Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational { Generation:: -This. }    // things that disappear between gens
 
+"The current game phase; there is always exactly one of these in existence"
 ABSTRACT CLASS Phase : AutoLoad {
   HAS =1 Phase                                         // weird that this works, but it does
 
@@ -59,9 +68,11 @@ ABSTRACT CLASS Phase : AutoLoad {
   CLASS ProductionPhase {
     This: Production2Phase FROM This
   }
+  "An unfortunate implementation detail seemingly forced by Supercapacitors :-("
   CLASS Production2Phase
   CLASS ResearchPhase { This:: Generation }
   CLASS EndPhase : AutoLoad { This:: End }
 }
 
+"This Signal causes components to pay out victory points, after which the game terminates"
 CLASS End : Signal

@@ -63,6 +63,8 @@ internal constructor(
    */
   public val shortName: ClassName by declaration::shortName
 
+  val docstring: String? by declaration::docstring
+
   init {
     require((declaration.custom) == (custom != null)) { declaration }
   }
