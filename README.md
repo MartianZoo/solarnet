@@ -28,7 +28,9 @@
 
 * If you play a game IRL or on the app, you can sort of "log" it in Solarnet and then be able to ask all kinds of questions like "How much money did AdvancedAlloys actually save me that game?"
 
-* It basically works. See the Issues tab for exceptions. At the moment I have 397 cards working, including most of each expansion but Turmoil.
+* It works! See the Issues tab for exceptions. At the moment there are almost 400 cards working, including most of each expansion but Turmoil.
+
+* It's been a 1-person project for about 3 years, which I would love to change.
 
 * What's the point? There is no point. It's just fun.
 
