@@ -2,27 +2,23 @@
 
 ### What are the goals of this engine?
 
-My goals for Solarnet, in descending order:
+Solarnet's goals in descending order:
 
-1. Correctness -- I want it to *eventually* implement the game rules with absolute unswerving fidelity. I might never get there but I'm working hard at it.
-2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and adding cards is not the priority at the moment (there are 365 of them already).
-3. Simplicity -- (I'm trying hard to keep the Pets language as simple as I can. That may be surprising as you try to learn it.)
-4. Composability -- I'm writing this as series of libraries that other TfM-related projects could theoretically use for other purposes. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a game state), "repl" (the command-line interface), and "canon" (a data set containing the officially published cards and other components).
+1. Correctness -- I want it to *eventually* implement the game rules with absolute fidelity. It's doing pretty well so far.
+2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and adding cards is not the priority at the moment (I have 397 out of 455 working already).
+3. Simplicity -- I'm trying to keep the Pets language (and the engine itself) as simple and elegant as I can. This will be a constant push-and-pull, though.
+4. Composability -- I'm writing this as series of libraries that other TfM-related projects could theoretically use for other purposes. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a game state), "repl" (the command-line interface), and "canon" (a data set containing the officially published cards and other components). At some point I plan to cleave off all the actually-TfM-specific parts of it into another separate module.
 
 Please notice **what is not on this list**!
 
-1. Performance -- this library is allowed to be slow as hell, and I don't care! At every turn I'm preferring more readable, more bug-proof code over fast code. I hope that with help we'll also have a faster engine one day (Aerobrake?), but if we do, we'll have Solarnet to parity-test it against. The best way to get the fast engine is to first be very very careful with the correctness of the slow engine.
-2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. Depending on your view it is either **not a user interface** or it is a **very, very bad user interface**. And I plan for it to always stay that way. You cannot actually play a whole game using it. But you'll be able to set up scenarios and find out what happens. It is just a small program to let you interact directly with the engine library.
+1. Performance -- it's okay if this library is slow, as long as running the unit tests doesn't annoy me too grotesquely. We should either make sure it is *very* well-tested before adding any even-slightly-risky optimizations, or actually leave it slow and create a *second* optimized engine (call it "Aerobrake"), which we can parity-test against Solarnet. In these ways we can get performance without risking correctness. But this is not even on my mind at all right now.
+2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. It is a **very, very bad user interface** and I plan for it to always stay that way. It is just a small program to let you interact directly with the engine library.
 
 ### Could this engine be used for other games?
 
-Maybe, but I'm not sure it would be a good fit.
+Any board game with entirely discrete mechanics *can* be implemented on Solarnet, but it wouldn't necessarily be a good fit.
 
-It's true that the game engine itself doesn't really know anything about plants, city tiles, action cards, etc. All that comes from `components.pets` and `player.pets`. There is a lot of custom code for converting data in the .json files into class declarations, but you just wouldn't use that.
-
-Nevertheless, everything about the engine and the Pets language is designed toward TfM's peculiarities. The deep mechanical nature of the game. I would expect most any other game would feel shoehorned in. Except perhaps _TfM: Ares Expedition_.
-
-The perfect candidate would be a game that relies heavily on triggered effects and... counting things. However, I still wouldn't recommend trying this anytime soon. Maybe in 2024.
+It's true that the game engine itself doesn't really know anything about plants, city tiles, action cards, etc. All that comes from the `.pets` and `.json5` files. Nevertheless, everything about the engine and the Pets language has designed toward TfM's peculiarities -- the deep mechanical nature of the game. I would expect most other games would probably feel "shoehorned in". Still, it might be worth doing that shoehorning anyway; I'm really not sure. The perfect candidate would be a game that relies heavily on triggered effects and... counting things. Again, not really a high priority.
 
 ### Why is using the REPL such a pain in the ass?
 
@@ -30,22 +26,18 @@ You're speaking directly to the engine API, and the engine is extremely low-leve
 
 ### Where are the rest of the cards?
 
-There are only about 365 cards supported. There should be issues filed about most of the rest.
-
-### Why no Colonies?
-
-It actually looks surprisingly easy to add. We just have bigger problems, is all.
+There are currently 397 out of 455 cards supported. The rest are listed at [cards-to-add](cards-to-add.md).
 
 ### Why no Turmoil?
 
-It'll be a bit of a monster to add. But totally doable.
+Turmoil is completely doable but will be completely gross. I'm not in any hurry for it.
 
 ### Could I add my own fan cards?
 
 That's part of the idea, for sure! However, a couple caveats:
 
 * There's no actual provision for how to bring fan cards into the system, so for now you would just fork the project and edit the cards.json file. We can talk about a better way to do it, for sure.
-* If your fan card mixes existing game mechanics in different ways you'll probably be fine, but if it does things far enough out of the ordinary that the engine/language doesn't support it, I'm not going to be inclined to add the features you want. It's so much more important to focus on getting the published cards working.
+* This will work fine if your fan cards remix existing game mechanics in new ways. If they do things further out of the ordinary you'd just have to write some custom code (like we have in `custom.kt`)... but if it's *further* out of the ordinary than that you might be out of luck. I don't plan on adding a feature unless some officially published card needs it. At some point we could maintain two forks though.
 
 ### What could potentially get built around this?
 
@@ -60,15 +52,11 @@ _Who knows!?_ I can't wait to be surprised. But here are some thoughts I have.
 
 ### Can we please improve the error messages? They're almost mocking me.
 
-Yeah. The more interest I hear in people messing around with this thing, the more effort I'll put into those error messages.
-
-### Why do I see code doing things in such absurdly slow ways?
-
-Right now, as long as I can type stuff into the REPL and not be annoyed at the slowness of the response, there's no problem to solve. I also care a lot about keeping the code as easy to understand as possible, since the whole thing is so damned complicated by nature.
+Yeah. I try to improve them, but so far I've been the only user. The more other people are trying to use this the more effort I'll be putting into making that a better experience.
 
 ### What do the FryxFolk think of this project?
 
-I'll let you know if they respond.
+They haven't responded yet.
 
 ### Why is it in Kotlin?
 
@@ -78,4 +66,4 @@ Several reasons
 * It interoperates well with Java, Javascript, and other things
 * It's an awesome language
 * IntelliJ IDEA is an incredible product
-* 
+
