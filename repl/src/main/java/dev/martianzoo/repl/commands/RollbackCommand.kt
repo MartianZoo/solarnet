@@ -17,7 +17,7 @@ internal class RollbackCommand(val repl: ReplSession) : ReplCommand("rollback") 
       """
 
   override fun withArgs(args: String): List<String> {
-    repl.tfm.game.timeline.rollBack(Checkpoint(args.toInt()))
+    repl.game.timeline.rollBack(Checkpoint(args.toInt()))
     return listOf("Rollback done")
   }
 }

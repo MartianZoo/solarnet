@@ -8,12 +8,23 @@ import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.OperationBody
+import dev.martianzoo.engine.Gameplay.OperationLayer
+import dev.martianzoo.engine.Gameplay.TaskLayer
+import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.util.Multiset
 import kotlin.reflect.KClass
 
+/**
+ * All modifications to a game state (not counting rollbacks) are done via this interface.
+ *
+ * It should not be possible to break the game state through this interface, except by calling
+ * [godMode] which will then let you do whatever the heck you want. Or, the instance returned by
+ * [godMode] could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods
+ * you don't need; see those interfaces for more explanation.
+ */
 interface Gameplay {
 
   // READ OPERATIONS
@@ -143,4 +154,4 @@ interface Gameplay {
   }
 }
 
-typealias BodyLambda = OperationBody.() -> Unit
+internal typealias BodyLambda = OperationBody.() -> Unit

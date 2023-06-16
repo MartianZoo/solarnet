@@ -9,6 +9,10 @@ import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.Updater
 import javax.inject.Inject
 
+/**
+ * Supports checkpoints and rollbacks to those checkpoints (and thereby, failure-atomic
+ * interactions).
+ */
 @GameScoped
 public class Timeline @Inject constructor(val reader: GameReader) {
   // These classes aren't public, but Timeline is, so they can't be constructor properties.

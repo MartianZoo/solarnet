@@ -23,10 +23,12 @@ import org.junit.jupiter.api.assertThrows
 class ColoniesBasicRulesTest {
   val normal = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
   val setup = GameSetup(Canon, "BRMC", 4, normal)
-  val engine = Engine.newGame(setup).tfm(ENGINE)
-  val p1 = engine.asPlayer(PLAYER1)
+  val game = Engine.newGame(setup)
+  val engine = game.tfm(ENGINE)
+  val p1 = game.tfm(PLAYER1)
 
-  fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, engine, string)
+  fun TaskResult.expect(string: String) =
+      TestHelpers.assertNetChanges(this, game, engine, string)
 
   @BeforeEach
   fun setUp() {

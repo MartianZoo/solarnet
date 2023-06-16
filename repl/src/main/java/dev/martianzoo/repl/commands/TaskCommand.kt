@@ -43,11 +43,11 @@ internal class TaskCommand(val repl: ReplSession) : ReplCommand("task") {
           }
           "prepare" -> {
             repl.tfm.prepareTask(id)
-            return repl.tfm.game.tasks.extract { "$it" }
+            return repl.game.tasks.extract { "$it" }
           }
           null -> repl.tfm.tryTask(id)
           else ->
-            repl.tfm.game.timeline.atomic {
+            repl.game.timeline.atomic {
               repl.tfm.reviseTask(id, rest)
                 if (id in repl.game.tasks) repl.tfm.tryTask(id)
               }

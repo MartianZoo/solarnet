@@ -45,7 +45,8 @@ abstract class AbstractSoloTest {
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
   }
 
-  protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, me, string)
+  protected fun TaskResult.expect(string: String) =
+      TestHelpers.assertNetChanges(this, game, me, string)
 
   protected fun assertCounts(vararg pairs: Pair<Int, String>) = me.assertCounts(*pairs)
 

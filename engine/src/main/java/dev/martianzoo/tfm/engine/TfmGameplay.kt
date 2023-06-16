@@ -13,8 +13,12 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 
+/**
+ * Wraps and extends a [Gameplay] instance to provide much more convenient functions specific to
+ * *Terraforming Mars*.
+ */
 public class TfmGameplay(
-    public val game: Game,
+    private val game: Game,
     override val player: Player,
     internal val gameplay: TurnLayer = game.gameplay(player) as TurnLayer,
 ) : TurnLayer by gameplay {

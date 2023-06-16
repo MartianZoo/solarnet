@@ -24,7 +24,7 @@ import javax.inject.Inject
 @GameScoped
 public class Game
 @Inject
-constructor(
+internal constructor(
     /** The current state of the "board". */
     public val components: ComponentGraph,
 

@@ -16,8 +16,7 @@ import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.MType
 
 /**
- * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
- * case unrelated to what instances actually exist in a game state, use [MType] instead.
+ * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these.
  */
 public data class Component internal constructor(internal val mtype: MType) :
     HasClassName, HasExpression {

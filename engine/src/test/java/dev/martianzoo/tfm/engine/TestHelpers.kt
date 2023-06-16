@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.TaskResult
+import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
@@ -28,9 +29,9 @@ object TestHelpers {
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
-  fun assertNetChanges(result: TaskResult, tfm: TfmGameplay, expectedAsInstructions: String) {
+  fun assertNetChanges(result: TaskResult, game: Game, tfm: TfmGameplay, expectedAsInstructions: String) {
     val preprocessor =
-        with(Transformers(tfm.game.classes)) {
+        with(Transformers(game.classes)) {
           chain(
               useFullNames(),
               insertExpressionDefaults(THIS.expression),

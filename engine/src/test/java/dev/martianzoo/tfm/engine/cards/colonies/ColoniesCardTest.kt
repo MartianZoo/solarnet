@@ -23,7 +23,8 @@ abstract class ColoniesCardTest {
   protected val p1 = game.tfm(PLAYER1)
   protected val p2 = game.tfm(PLAYER2)
 
-  protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, eng, string)
+  protected fun TaskResult.expect(string: String) =
+      TestHelpers.assertNetChanges(this, game, eng, string)
 
   @BeforeEach
   fun commonSetup() {

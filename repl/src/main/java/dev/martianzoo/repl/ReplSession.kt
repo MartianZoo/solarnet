@@ -142,7 +142,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
     val taskLines =
         if (newTasks.any()) {
           listOf("New tasks pending:") +
-              tfm.game.tasks
+              game.tasks
                   .extract { if (it.id in newTasks) it.toStringWithoutCause() else null }
                   .filterNotNull()
         } else {

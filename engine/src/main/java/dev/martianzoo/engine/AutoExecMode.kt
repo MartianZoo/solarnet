@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+/** Specifies to what extent you want the engine to execute tasks automatically. */
 enum class AutoExecMode {
   /** Nothing is executed automatically. */
   NONE,
