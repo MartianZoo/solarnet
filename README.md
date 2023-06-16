@@ -63,7 +63,8 @@ None of this is polished or anything.
 I haven't written too much yet. It will help to understand what kind of docs you would like to see next; right now, I could just write a million things on a million topics.
 
 * A [FAQ](docs/faq.md)
-* Overview of [component types](docs/component-types.md) -- a good place to start
+* [Cheat sheet](docs/cheat-sheet.md)
+* Overview of [component types](docs/component-types.md) -- not a bad place to start
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md) (incomplete)
 * API docs -- see below
