@@ -1,59 +1,42 @@
 # Solarnet
 
-Solarnet is an open-source **game engine** for the superlative 2016 board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*, published by [FryxGames](http://fryxgames.se).
+* Solarnet is a game engine library for the board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*.
 
-It's not a way to *play* the game. For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) (please [buy a physical copy](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2) too!). There is also an official app for sale in the usual places, but I can't vouch for it.
+* It's not a way to *play* the game; see the excellent [open-source app](http://terraforming-mars.herokuapp.com) (which this is unrelated to).
 
-This project is written from scratch, unrelated to other codebases.
+* Its job is to *know the rules of the game*: who can do what when, and what happens if they do? The "pure logic part" of the game.
 
-## Intro video
+* Solarnet is not ready for prime-time.
 
-This is my [first unrehearsed intro/demo](https://www.youtube.com/watch?v=btCLcFLvV2I).
+* Card behaviors etc. are written in a (usually-)simple language called Pets that resembles the icon language on the printed cards. Examples:
 
-## Why another game engine?
+| Class | Example Pets syntax |
+| ----- | ------------------- |
+| `LargeConvoy` | `This: OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal` |
+| `ElectroCatapult` | `Plant OR Steel -> 7` |
+| `ArcticAlgae` | `OceanTile BY Anyone: 2 Plant` |
+| `Insulation` | `This: PROD[X Megacredit FROM Heat]` |
+| `CitySP` | `25 -> CityTile, PROD[1]` |
+| `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint` |
+| `CityTile` | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
-The game engine is the "pure logic" part of a game implementation. It's like a big calculator, and its only job is to *know the rules* of the game perfectly. Basically, who can do what when? And what happens if they do?
+* Yup, this means you can easily add your own fan cards to it, particularly if they only remix existing game mechanics in new ways. This will basically tell you how your fan cards are "supposed to" interact with the official cards (to the extent you want to know that).
 
-Inside the open-source app mentioned above is *already* an extremely accurate (>99.9%) game engine. And inside the official app mentioned above is already a game engine. So why do we need a third?
+* It has a crappy command-line UI (a "REPL") you can use to interact with it, or you can write what you want to do with it as a unit test.
 
-We don't! I just thought it would be fun and hard, and had some new ideas for how to do it.
+* The engine has some smarts to it. It lets you perform your turn effects in any order, but it can tell if there's only one task you could do next, or if there's only one possible choice you could make (i.e., so it can make it for you).
 
-What's different about solarnet is that all the game components that have heterogeneous behaviors (cards, milestones, map areas, etc.) are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except the ones that do). Instead, they're described using a specification language called **Pets** that's highly tailored to the particular needs of this particular game.
+* If you play a game IRL or on the app, you can sort of "log" it in Solarnet and then be able to ask all kinds of questions like "How much money did AdvancedAlloys actually save me that game?"
 
-Pets specifications should in theory be convertible to natural-language instructions, or even into the iconographic language you see on the printed cards. But the relevant part today is that these strings are all Solarnet needs to read in order to actually execute the card correctly.
+* It basically works. See the Issues tab for exceptions. At the moment I have 397 cards working, including most of each expansion but Turmoil.
 
-## Help is welcome
+* What's the point? There is no point. It's just fun.
 
-We've been a team of one for a long time, and jumping in won't be trivial. But "we" would love to spend time helping you get going.
+## Messing around with it?
 
-Some ideas
+You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.com/invite/3vpKDktmde) and ask lots of questions. VERY few people have tried it yet who aren't me. Not much will be self-explanatory yet.
 
-* Hop on the [discord](https://discord.com/invite/3vpKDktmde) (it is very little-used so far) and ask whatever.
-* Try reading and commenting on current [issues/feature-requests](http://github.com/MartianZoo/solarnet/issues). Some are relatively standalone.
-* Grab the code, run the REPL and try messing around with it to see what it does.
-* Anything that results in you asking me questions is actually helpful. There's a lot of stuff here and I don't know what to document or do a video about next.
-
-## Learning more
-
-### Videos
-
-* [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I), not very polished. It's best if you know the game pretty well.
-* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90) for an audience of hardcore software people but who might not know TfM well.
-* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me trying to add a brand new card (Supercapacitors) to Solarnet in real time.
-
-### Docs
-
-There is much unwritten, sorry.
-
-* Overview of [component types](docs/component-types.md) -- a good place to start
-* Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
-* The Pets [type system](docs/type-system.md) (incomplete)
-* A [FAQ](docs/faq.md) that should be pretty readable without technical expertise I think
-* API docs -- see below
-
-### Mess around with it?
-
-If you have git and Java stuff working already, this *should* be all it takes to start playing around:
+It is *supposed* to be as simple to get going as:
 
 ```
 git clone https://github.com/MartianZoo/solarnet.git
@@ -62,15 +45,33 @@ cd solarnet
 help
 ```
 
-Of course, it won't work, because nothing ever works. I'd be *willing* to help, but sadly I actually know almost nothing about Build Stuff. Note `rego` is a shell script so I dunno if that's usable on Windows.
+But you are pretty likely to not get far on your own, right now. I hope to improve this over time.
 
-You can also browse the [Pets source files](https://github.com/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) to see where all the game components come from. You can change it around or attempt to add your own custom cards.
+## Learning more
+
+### Videos
+
+* [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I), not very polished. For this video it's best if you know the game pretty well.
+* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90) for an audience of hardcore software people; it still helps to know the game but I try to cover some basics.
+* ["Logging" a real game](https://youtu.be/se8svQH-GOE) (long; watch on 2x, skip around) 
+* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me trying to add a brand new card (Supercapacitors) to Solarnet in real time.
+* Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) how the game components are defined? Just don't expect everything to make sense right away.
+
+### Docs
+
+I haven't written too much yet. It will help to understand what kind of docs you would like to see next; right now, I could just write a million things on a million topics.
+
+* A [FAQ](docs/faq.md)
+* Overview of [component types](docs/component-types.md) -- a good place to start
+* Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
+* The Pets [type system](docs/type-system.md) (incomplete)
+* API docs -- see below
 
 ### Poke around in the implementation?
 
 Start with the generated API doc view (which hides private things). I don't know how to host it properly, so you'd have to `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`. That would help give you an idea of which source files you want to dig further into.
 
-It's all written in [Kotlin](https://kotlinlang.org), which should in theory make the libraries usable from Java, JavaScript, and some other environments. I don't know many details about this yet.
+It's all written in [Kotlin](https://kotlinlang.org), which should in theory make the libraries usable from Java, JavaScript, and some other environments. I don't know how trivial or not that will be to do, but it certainly won't require porting the whole thing.
 
 ## Who are you
 
