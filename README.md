@@ -16,6 +16,7 @@
 | `ElectroCatapult` | `Plant OR Steel -> 7` |
 | `ArcticAlgae` | `OceanTile BY Anyone: 2 Plant` |
 | `Insulation` | `This: PROD[X Megacredit FROM Heat]` |
+| `EarthCatapult` | `PlayCard: -2 Owed<Megacredit>` |
 | `CitySP` | `25 -> CityTile, PROD[1]` |
 | `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint` |
 | `CityTile` | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
@@ -30,13 +31,13 @@
 
 * It works! See the Issues tab for exceptions. I'm closing in on having 400 cards working, including most of each expansion but Turmoil. (Turmoil is totally feasible, just gnarly, and I'd like to put it off for a while.)
 
-* It's been a 1-person project for about 3 years, but I'd love to change that.
+* It's been a 1-person project for about three years now, but I'd love to change that.
 
 * What's the point? There is no point. It's just fun.
 
 ## Messing around with it?
 
-You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.com/invite/3vpKDktmde) and ask lots of questions. VERY few people have tried it yet who aren't me. Very little of this will be self-explanatory yet.
+You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.com/invite/3vpKDktmde) and ask lots of questions. Almost no one but me has tried to do much with it yet. It won't be self-explanatory (sorry).
 
 It is *supposed* to be as simple to get going as:
 
@@ -56,9 +57,9 @@ But in these early days, you're unlikely to get far on your own. I want to impro
 None of this is polished or anything.
 
 * [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I). For this video it's best if you know the game pretty well.
-* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90) for an audience of more hardcore software people; it still helps to know the game but I try to cover the basics.
-* ["Logging" a real game](https://youtu.be/se8svQH-GOE) (long; watch on 2x, skip around) 
-* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me trying to add a brand new card (Supercapacitors) to Solarnet in real time.
+* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90). This one was for an audience of more hardcore software people; it still helps to know the game, but maybe less crucially than for the previous video.
+* [Watch as I "log" a real game](https://youtu.be/se8svQH-GOE) (I explain stuff, but it's long; watch on at least 1.5x). 
+* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me add a brand new card (Supercapacitors) to Solarnet in about a half hour.
 
 ### Docs
 
@@ -79,7 +80,7 @@ It should be interesting, just don't expect everything to make sense right away.
 
 ### Poke around in the implementation?
 
-Start with the generated API doc view (which hides private things). I don't know how to host it properly, so you'd have to `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`. That would help give you an idea of which source files you want to dig further into.
+Start with the generated API doc view (because it hides private things). I don't know how to host it properly, so you'd have to `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`. That would help give you an idea of which source files you want to dig further into.
 
 It's all written in [Kotlin](https://kotlinlang.org), which should in theory make the libraries usable from Java, JavaScript, and some other environments. I don't know how trivial or not that will be to do, but it certainly won't require porting the whole thing.
 
