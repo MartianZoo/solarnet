@@ -1,12 +1,10 @@
 # Solarnet
 
-* Solarnet is a game engine library for the board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*.
+* Solarnet is a work-in-progress game engine library for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*.
 
-* It's not a way to *play* the game; see the excellent [open-source app](http://terraforming-mars.herokuapp.com) (which this is unrelated to).
+* It's not a way to *play* the game; for that see the excellent [open-source app](http://terraforming-mars.herokuapp.com) (which this is unrelated to).
 
-* Its job is to *know the rules of the game*: who can do what when, and what happens if they do? The "pure logic part" of the game.
-
-* Solarnet is not ready for prime-time.
+* Its only job is to *know the rules of the game*: who can do what when, and what happens if they do? It covers the "pure logic part" of the game.
 
 * Card behaviors etc. are written in a (usually-)simple language called Pets that resembles the icon language on the printed cards. Examples:
 
@@ -20,17 +18,17 @@
 | `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint` |
 | `CityTile` | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
-* Yup, this means you can easily add your own fan cards to it, particularly if they only remix existing game mechanics in new ways. This will basically tell you how your fan cards are "supposed to" interact with the official cards (to the extent you want to know that).
+* This means you can "easily" add your own fan cards to it, particularly if they only remix existing game mechanics in new ways. (I'd be reluctant to add features needed *only* by fan cards, but you can also "shell out" to custom code when you need to.)
 
-* It has a crappy command-line UI (a "REPL") you can use to interact with it, or you can write what you want to do with it as a unit test.
+* It has a crappy command-line UI (a "REPL") you can use to interact with it, or you can write what you want to do as a unit test.
 
-* The engine has some smarts to it. It lets you perform your turn effects in any order, but it can tell if there's only one task you could do next, or if there's only one possible choice you could make (i.e., so it can make it for you).
+* The engine has some smarts. It lets you perform your turn effects in any order (per the game rules), but it can tell if there's only one task you could do next, and it can tell when you actually need to make a choice about something and when you don't.
 
-* If you play a game IRL or on the app, you can sort of "log" it in Solarnet and then be able to ask all kinds of questions like "How much money did AdvancedAlloys actually save me that game?"
+* If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask all kinds of questions like "How much money did AdvancedAlloys actually save me that game?"
 
-* It works! See the Issues tab for exceptions. At the moment there are almost 400 cards working, including most of each expansion but Turmoil.
+* It works! See the Issues tab for exceptions. At the moment there are almost 400 cards working, including most of each expansion but Turmoil. (Turmoil is totally possible, but rather gnarly and I'd like to put it off a while.)
 
-* It's been a 1-person project for about 3 years, which I would love to change.
+* It's been a 1-person project for about 3 years, and I would really love to change that.
 
 * What's the point? There is no point. It's just fun.
 
@@ -47,17 +45,18 @@ cd solarnet
 help
 ```
 
-But you are pretty likely to not get far on your own, right now. I hope to improve this over time.
+But in these early days, you're unlikely to get far on your own. I really want to improve that, but there's no better way for that to happen than for YOU to try and tell me how it goes!
 
 ## Learning more
 
 ### Videos
 
-* [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I), not very polished. For this video it's best if you know the game pretty well.
-* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90) for an audience of hardcore software people; it still helps to know the game but I try to cover some basics.
+None of this is polished or anything.
+
+* [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I). For this video it's best if you know the game pretty well.
+* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90) for an audience of more hardcore software people; it still helps to know the game but I try to cover the basics.
 * ["Logging" a real game](https://youtu.be/se8svQH-GOE) (long; watch on 2x, skip around) 
 * [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me trying to add a brand new card (Supercapacitors) to Solarnet in real time.
-* Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) how the game components are defined? Just don't expect everything to make sense right away.
 
 ### Docs
 
@@ -68,6 +67,12 @@ I haven't written too much yet. It will help to understand what kind of docs you
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md) (incomplete)
 * API docs -- see below
+
+### Browse?
+
+Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) how the game components are defined?
+
+Don't expect everything to make sense right away; just breeze over the things that don't.
 
 ### Poke around in the implementation?
 
