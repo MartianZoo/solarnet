@@ -58,11 +58,10 @@ internal class MClassLoader(
   }
 
   /** The `Component` class, which is the root of the class hierarchy. */
-  override val componentClass: MClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
+  override val componentClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
-  override val classClass: MClass =
-      MClass(decl(CLASS), this, directSuperclasses = listOf(componentClass))
+  override val classClass = MClass(decl(CLASS), this, directSuperclasses = listOf(componentClass))
 
   private val loadedClasses =
       mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
@@ -97,11 +96,10 @@ internal class MClassLoader(
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
   override fun resolve(type: Type): MType = type as? MType ?: resolve(type.expressionFull)
 
+  private val allClasses: Set<MClass> by lazy { loadedClasses.values.map { it!! }.toSet() }
+
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
-  override val allClasses: Set<MClass> by lazy {
-    require(frozen)
-    loadedClasses.values.map { it!! }.toSet()
-  }
+  override fun allClasses() = allClasses.also { require(frozen) }
 
   // LOADING
 

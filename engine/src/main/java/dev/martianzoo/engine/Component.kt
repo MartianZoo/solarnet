@@ -5,11 +5,13 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.Type
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.Transforming
+import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -17,16 +19,12 @@ import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.MType
 
 /** An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. */
-public data class Component internal constructor(internal val mtype: MType) :
-    HasClassName, HasExpression {
-  companion object {
-    public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)
-    public fun HasExpression.toComponent(game: GameReader) = expressionFull.toComponent(game)
-  }
-
+public class Component internal constructor(private val mtype: MType) : Type by mtype {
   init {
     if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
   }
+
+  val isCustom: Boolean = mtype.root.custom != null
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
@@ -34,51 +32,59 @@ public data class Component internal constructor(internal val mtype: MType) :
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [MClass.dependencies].
    */
-  public val dependencyComponents: List<Component> by lazy {
-    mtype.typeDependencies.map { it.boundType.toComponent() }
-  }
+  public val dependencyComponents: List<Component> =
+      mtype.typeDependencies.map { it.boundType.toComponent() }
 
-  public val owner: Player? by lazy {
-    if (mtype.narrows(mtype.loader.resolve(OWNER.expression))) {
-      Player(className)
-    } else {
-      mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className?.let(::Player)
-    }
-  }
+  public val owner: Player? =
+      if (hasType(mtype.loader.resolve(OWNER.expression))) {
+        Player(className)
+      } else {
+        val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0))
+        dep?.let { Player(dep.className) }
+      }
 
   private val xerForEffects: PetTransformer by lazy {
     with(Transformers(mtype.loader)) {
-      PetTransformer.chain(
+      chain(
           substituter(mtype.root.defaultType, mtype),
-          owner?.let(Transforming::replaceOwnerWith),
-          Transforming.replaceThisExpressionsWith(expression),
+          owner?.let(::replaceOwnerWith),
+          replaceThisExpressionsWith(expression),
       )
     }
   }
 
   private val xerForCustom: PetTransformer by lazy {
     with(Transformers(mtype.loader)) {
-      PetTransformer.chain(
+      chain(
           standardPreprocess(),
           substituter(mtype.root.baseType, mtype),
-          owner?.let(Transforming::replaceOwnerWith),
+          owner?.let(::replaceOwnerWith),
       )
     }
   }
 
-  public val effects: List<Effect> by lazy { mtype.root.classEffects.map(xerForEffects::transform) }
-
-  override val className by mtype::className
-  override val expression by mtype::expression
-
-  override val expressionFull by mtype::expressionFull
-
-  override fun toString() = "[${mtype.expressionFull}]"
+  internal val effects: List<Effect> by lazy {
+    mtype.root.classEffects.map(xerForEffects::transform)
+  }
 
   fun hasType(supertype: Type) = mtype.narrows(supertype)
+
+  fun hasType(supertype: Type, info: TypeInfo) = mtype.narrows(supertype, info)
 
   fun prepareCustom(reader: GameReader): Instruction {
     val translated = mtype.root.custom!!.prepare(reader, mtype)
     return xerForCustom.transform(translated)
+  }
+
+  override fun equals(other: Any?) = other is Component && other.mtype == mtype
+
+  override fun hashCode() = mtype.hashCode()
+
+  override fun toString() = "[${mtype.expressionFull}]"
+
+  companion object {
+    public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)
+    public fun HasExpression.toComponent(game: GameReader) =
+        this as? Component ?: expression.toComponent(game)
   }
 }

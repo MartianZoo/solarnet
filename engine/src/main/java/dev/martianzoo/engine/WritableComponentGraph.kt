@@ -24,7 +24,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
       multiset.size
     } else if (parentType.abstract) {
       multiset.entries
-          .filter { (e, _) -> e.mtype.narrows(parentType, info) }
+          .filter { (e, _) -> e.hasType(parentType, info) }
           .sumOf { (_, ct) -> ct }
     } else {
       countComponent(parentType.toComponent())
@@ -33,7 +33,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
 
   override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
     return if (parentType.abstract) {
-      multiset.elements.any { it.mtype.narrows(parentType, info) }
+      multiset.elements.any { it.hasType(parentType, info) }
     } else {
       parentType.toComponent() in multiset
     }
@@ -45,7 +45,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
     return if (parentType.className == COMPONENT) {
       HashMultiset.of(multiset)
     } else if (parentType.abstract) {
-      multiset.filter { it.mtype.narrows(parentType, info) }
+      multiset.filter { it.hasType(parentType, info) }
     } else {
       val cpt = parentType.toComponent()
       HashMultiset<Component>().also { it.add(cpt, multiset.count(cpt)) }
@@ -69,7 +69,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
     if (countComponent(removing) == count) {
       if (multiset.elements.any { removing in it.dependencyComponents }) {
         val dependents = multiset.elements.filter { removing in it.dependencyComponents }
-        throw ExistingDependentsException(dependents.map { it.mtype })
+        throw ExistingDependentsException(dependents)
       }
     }
   }

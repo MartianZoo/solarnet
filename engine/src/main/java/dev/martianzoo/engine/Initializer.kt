@@ -32,8 +32,8 @@ constructor(
     exec("$ENGINE!")
     fakeCause = Cause(ENGINE.expression, 0)
 
-    table.allClasses
-        .filter { c -> c.singleton }
+    table.allClasses()
+        .filter { c -> c.isSingletonType() }
         .flatMap { it.baseType.concreteSubtypesSameClass() }
         .forEach { exec("${it.expression}!") }
 

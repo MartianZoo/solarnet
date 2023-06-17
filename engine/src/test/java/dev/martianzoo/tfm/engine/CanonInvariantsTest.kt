@@ -25,7 +25,7 @@ internal class CanonInvariantsTest {
     val limiter = Limiter(table, WritableComponentGraph(effector))
 
     fun checkTypeLimits(s: String, vararg pairs: Pair<String, IntRange>) {
-      val c = table.resolve(parse<Expression>(s)).toComponent()
+      val c = table.resolve(parse<Expression>(s))
       val actual =
           limiter
               .applicableRangeRestrictions(c)

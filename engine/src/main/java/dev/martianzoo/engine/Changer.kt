@@ -29,7 +29,7 @@ constructor(
       cause: Cause?,
       orRemoveOneDependent: Boolean,
   ): Pair<ChangeEvent, Boolean> {
-    listOfNotNull(gaining, removing).forEach { require(it.mtype.root.custom == null) }
+    listOfNotNull(gaining, removing).forEach { require(!it.isCustom) }
     try {
       return doSingleChange(count, gaining, removing, cause) to true
     } catch (e: ExistingDependentsException) {
@@ -40,8 +40,14 @@ constructor(
 
   private fun removeAll(dependent: Type, cause: Cause?): ChangeEvent {
     val component = dependent.toComponent(reader)
-    val count = reader.countComponent(component.mtype)
-    return change(count, null, component, cause, true).first
+    val count = reader.countComponent(component)
+    return change(
+        count = count,
+        gaining = null,
+        removing = component,
+        cause = cause,
+        orRemoveOneDependent = true
+    ).first
   }
 
   private fun doSingleChange(

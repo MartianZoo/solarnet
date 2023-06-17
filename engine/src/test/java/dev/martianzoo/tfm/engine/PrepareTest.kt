@@ -16,15 +16,13 @@ import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 internal class PrepareTest {
-  val table = MClassLoader(Canon.SIMPLE_GAME)
-  val xers = Transformers(table)
   val game: Game = newGame(Canon.SIMPLE_GAME)
-  val instructor: Instructor = Instructor(game.reader, Limiter(table, game.components), null, null)
+  val instructor: Instructor =
+      Instructor(game.reader, Limiter(game.classes, game.components), null, null, game.classes)
 
   init {
     game.tfm(PLAYER1).godMode().sneak("Plant, 10 ProjectCard, PROD[-1]")
@@ -32,10 +30,10 @@ internal class PrepareTest {
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-            Prod.deprodify(xers.table),
-            xers.insertDefaults(),
-            replaceOwnerWith(PLAYER1),
-        )
+        Prod.deprodify(Transformers(game.classes).table),
+        Transformers(game.classes).insertDefaults(),
+        replaceOwnerWith(PLAYER1),
+    )
         .transform(instr)
   }
 

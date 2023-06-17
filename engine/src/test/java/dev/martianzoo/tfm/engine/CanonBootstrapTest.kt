@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.engine.Component
+import dev.martianzoo.api.Type
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.types.MType
+import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -43,15 +43,14 @@ private class CanonBootstrapTest {
   @Test
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3)).reader
-    val starting =
-        game.getComponents(game.resolve(COMPONENT.expression)).map { (it as MType).toComponent() }
+    val starting: Multiset<out Type> = game.getComponents(game.resolve(COMPONENT.expression))
 
     // 19 duplicate TR and 4 duplicate PROD[M]
     assertThat(starting).hasSize(starting.elements.size + 69)
 
-    val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
+    val isArea: (Type) -> Boolean = { it.toString().startsWith("[Tharsis_") }
     // val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
-    val isClass: (Component) -> Boolean = { it.toString().startsWith("[Class<") }
+    val isClass: (Type) -> Boolean = { it.toString().startsWith("[Class<") }
 
     assertThat(starting.count(isArea)).isEqualTo(61)
     // assertThat(starting.count(isBorder)).isEqualTo(312)
@@ -62,8 +61,8 @@ private class CanonBootstrapTest {
           isArea(it) ||
               // isBorder(it) ||
               isClass(it) ||
-              it.hasType(game.resolve(parse("TerraformRating"))) ||
-              it.hasType(game.resolve(parse("Production<Class<Megacredit>>")))
+              it.narrows(game.resolve(parse("TerraformRating"))) ||
+              it.narrows(game.resolve(parse("Production<Class<Megacredit>>")))
         }
     assertThat(theRest.toStrings())
         .containsExactly(

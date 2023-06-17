@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
@@ -24,7 +25,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
   val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {
     val multimap = mutableMapOf<MClass, MutableList<RangeRestriction>>()
 
-    table.allClasses
+    table.allClasses()
         .flatMap { mclass ->
           mclass.invariants().map {
             var expr = (it as Counting).scaledEx.expression
@@ -53,7 +54,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
   fun findLimit(gaining: Component?, removing: Component?): Int {
     if (gaining != null) {
       val missingDeps = gaining.dependencyComponents.filter { it !in components }
-      if (missingDeps.any()) throw DependencyException(missingDeps.map { it.mtype })
+      if (missingDeps.any()) throw DependencyException(missingDeps)
     }
 
     // We must ignore any that are in common; the transmutation must hold them constant
@@ -71,15 +72,15 @@ constructor(private val table: MClassTable, private val components: ComponentGra
     return (headroom + footroom).minOrNull() ?: MAX_VALUE
   }
 
-  fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
-    val mclass = component?.mtype?.root ?: return setOf()
-    val allRestrictions = rangeRestrictionsByClass[mclass] ?: listOf()
+  fun applicableRangeRestrictions(type: Type?): Set<SimpleRangeRestriction> {
+    val mtype = type?.let { table.resolve(it) } ?: return setOf()
+    val allRestrictions = rangeRestrictionsByClass[mtype.root] ?: listOf()
     val ourRestrictions =
         allRestrictions.mapNotNull {
-          val simple = it.bindThisTo(component.mtype)
-          if (component.mtype.narrows(simple.mtype)) simple else null
+          val simple = it.bindThisTo(mtype)
+          if (mtype.narrows(simple.mtype)) simple else null
         }
-    return ourRestrictions.toSet() + SimpleRangeRestriction(component.mtype, 0..MAX_VALUE)
+    return ourRestrictions.toSet() + SimpleRangeRestriction(mtype, 0..MAX_VALUE)
   }
 
   sealed class RangeRestriction {

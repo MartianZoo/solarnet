@@ -29,21 +29,21 @@ internal class CanonClassesTest {
 
   @Test
   fun childlessAbstractClass() {
-    val anomalies = table.allClasses.filter { it.abstract && it.getDirectSubclasses().none() }
+    val anomalies = table.allClasses().filter { it.abstract && it.getDirectSubclasses().none() }
     assertThat(anomalies).isEmpty()
   }
 
   @Test
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
-    val anomalies = table.allClasses.filter { it.abstract && it.getDirectSubclasses().size == 1 }
+    val anomalies = table.allClasses().filter { it.abstract && it.getDirectSubclasses().size == 1 }
     assertThat(anomalies.classNames()).containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"))
   }
 
   @Test
   fun concreteExtendingConcrete() {
     val map = mutableListOf<Pair<ClassName, ClassName>>()
-    table.allClasses
+    table.allClasses()
         .filterNot { it.abstract }
         .forEach { sup ->
           (sup.getAllSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }

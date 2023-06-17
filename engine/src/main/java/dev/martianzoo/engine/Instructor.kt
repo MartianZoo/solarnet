@@ -30,6 +30,7 @@ import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import javax.inject.Inject
 import kotlin.math.min
@@ -43,6 +44,7 @@ constructor(
     private val limiter: Limiter,
     private val changer: Changer?,
     private val effector: Effector?,
+    private val table: MClassTable,
 ) {
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> {
@@ -205,7 +207,7 @@ constructor(
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
       // TODO could be smarter, like if the instr is mandatory and only one cpt type can satisfy
-      r = reader.getComponents(r).singleOrNull() as MType? ?: r
+      r = reader.getComponents(r).singleOrNull()?.let { table.resolve(it.expression) } ?: r
     }
     return g to r
   }

@@ -126,18 +126,18 @@ internal constructor(
   internal fun getProperSuperclasses(): Set<MClass> = getAllSuperclasses() - this
 
   private val allSubclasses: Set<MClass> by lazy {
-    loader.allClasses.filter { this in it.getAllSuperclasses() }.toSet()
+    loader.allClasses().filter { this in it.getAllSuperclasses() }.toSet()
   }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   internal fun getAllSubclasses(): Set<MClass> = allSubclasses
 
   internal fun getDirectSubclasses(): Set<MClass> =
-      loader.allClasses.filter { this in it.directSuperclasses }.toSet()
+      loader.allClasses().filter { this in it.directSuperclasses }.toSet()
 
   private val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
-        loader.allClasses
+        loader.allClasses()
             .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
             .all(::isSupertypeOf)
   }
@@ -255,7 +255,7 @@ internal constructor(
     }
   }
 
-  val singleton: Boolean =
+  fun isSingletonType(): Boolean =
       invariants().any {
         (it as Counting).range.first == 1 && it.scaledEx.expression == THIS.expression
       }
