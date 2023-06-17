@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.repl.ReplSession
-import dev.martianzoo.tfm.repl.commands.BoardCommand.PlayerBoardToText
-import dev.martianzoo.tfm.repl.commands.MapCommand
+import dev.martianzoo.tfm.repl.commands.TfmBoardCommand.PlayerBoardToText
+import dev.martianzoo.tfm.repl.commands.TfmMapCommand
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
@@ -194,7 +194,7 @@ private class ReplSessionTest {
     assertThat(repl.command("tasks")).isEmpty()
     assertThat(repl.tfm.count("Tile")).isEqualTo(8)
 
-    assertThat(repl.command(MapCommand(repl)))
+    assertThat(repl.command(TfmMapCommand(repl)))
         .containsExactlyElementsIn(
             """
                                    1    2    3    4    5    6    7    8    9

@@ -17,7 +17,7 @@ import dev.martianzoo.tfm.repl.TfmColor.SPECIAL_TILE
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
-internal class MapCommand(val repl: ReplSession) : ReplCommand("map") {
+internal class TfmMapCommand(val repl: ReplSession) : ReplCommand("tfm_map") {
   override val usage = "map"
   override val help = """
         I mean it shows a map.

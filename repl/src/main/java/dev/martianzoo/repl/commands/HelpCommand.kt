@@ -42,33 +42,35 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
         Type `help <command name>` to learn more.,
   
         CONTROL
-          help                -> shows this message
-          newgame BHV 3       -> erases current game and starts 3p game with Base/Hellas/Venus
+          newgame             -> erases current game and starts a new one with given setup
+          rebuild             -> erases current game and rebuilds the REPL (after code changes)
+          become <player>     -> changes the default player for queries & executions
+          as <player> <cmd>   -> temporarily changes default player to run a single command
+          script <filename>   -> reads a file and performs REPL commands as if typed
           exit                -> go waste time differently
-          rebuild             -> restart after code changes (game is forgotten)
-          become Player1      -> makes Player1 the default player for queries & executions
-          as Player1 <cmd>    -> does <cmd> as if you'd typed just that, but as Player1
-          script mygame       -> reads file `mygame` and performs REPL commands as if typed
         QUERYING
-          has MAX 3 OceanTile -> evaluates a requirement (true/false) in the current game state
-          count Plant         -> counts how many Plants the default player has
-          list Tile           -> list all Tiles (categorized)
-          board               -> displays an extremely bad looking player board
-          map                 -> displays an extremely bad looking Mars board
+          has <requirement>   -> evaluates a requirement (true/false) in the current game state
+          count <metric>      -> counts something in the game state, like `count Tag<Player2>`
+          list <expression>   -> lists all instances of some type in the current game state
         EXECUTION
-          exec PROD[3 Heat]   -> gives the default player 3 heat production
+          exec <instruction>  -> initiates an arbitrary instruction if current mode allows it
           tasks               -> shows your current to-do list
-          task F              -> do task F on your to-do list, as-is
-          task F Plant        -> do task F, substituting `Plant` for an abstract instruction
-          task F drop         -> bye task F
-          turn                -> begin new turn for current player (necessary only in blue mode)
-          auto off            -> turns off autoexec (run tasks manually but can't break integrity)
-          mode yellow         -> switches to Yellow Mode (also try red, green, blue, purple)
+          task <taskid>       -> performs a task on your to-do list
+          turn                -> begins a new turn for current player (necessary only in blue mode)
+          phase <name>        -> begins a new game phase (e.g. `as Engine phase Action`)
+          auto <mode>         -> changes the auto-execute mode
+          mode <mode>         -> changes repl modes (more power vs. more game integrity)
         HISTORY
-          log                 -> shows events that have happened in the current game
-          rollback 123        -> undoes recent events up to and *including* event 123
+          log [full]          -> shows events that have happened in the current game
+          rollback <id>       -> returns the game to an earlier state, forgetting everything since
           history             -> shows your *command* history (as you typed it)
         METADATA
-          desc Microbe<Ants>  -> describes the Microbe<Ants> type in detail
+          desc <expression>   -> describes a type like `Microbe<Ants>` in great detail
+        TERRAFORMING MARS
+          tfm_board           -> displays an extremely bad looking player board
+          tfm_map             -> displays an extremely bad looking Mars board
+          tfm_play <card>     -> plays a Terraforming Mars card (shortcut)
+          tfm_pay <amt> <res> -> pays some amount of MC/Steel/etc for something (shortcut)
+          tfm_sample          -> executes one of the hardcoded sample games
       """.trimIndent()
 }

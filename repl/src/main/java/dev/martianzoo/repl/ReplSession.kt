@@ -50,8 +50,8 @@ import dev.martianzoo.tfm.repl.TfmColor.HEAT
 import dev.martianzoo.tfm.repl.TfmColor.MEGACREDIT
 import dev.martianzoo.tfm.repl.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.repl.TfmColor.PLANT
-import dev.martianzoo.tfm.repl.commands.BoardCommand
-import dev.martianzoo.tfm.repl.commands.MapCommand
+import dev.martianzoo.tfm.repl.commands.TfmBoardCommand
+import dev.martianzoo.tfm.repl.commands.TfmMapCommand
 import dev.martianzoo.tfm.repl.commands.TfmPayCommand
 import dev.martianzoo.tfm.repl.commands.TfmPlayCommand
 import dev.martianzoo.tfm.repl.commands.TfmSampleCommand
@@ -102,7 +102,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
               AsCommand(this),
               AutoCommand(this),
               BecomeCommand(this),
-              BoardCommand(this),
+              TfmBoardCommand(this),
               CountCommand(this),
               DescCommand(this),
               ExecCommand(this),
@@ -111,7 +111,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
               HistoryCommand(this),
               ListCommand(this),
               LogCommand(this),
-              MapCommand(this),
+              TfmMapCommand(this),
               ModeCommand(this),
               NewGameCommand(this),
               PhaseCommand(this),

@@ -112,7 +112,7 @@ class TaskRevisionTest {
   }
 
   @Test
-  fun `narrowing to "Ok" automatically handles the task`() {
+  fun `narrowing to Ok automatically handles the task`() {
     initiate("2 Plant?")
 
     writer.reviseTask(A, "Ok")

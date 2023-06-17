@@ -83,9 +83,7 @@ object SampleGames {
     p2.cardAction2("Factorum")
     p2.playProject("AquiferPumping", 14, steel = 2)
     p1.cardAction1("DevelopmentCenter")
-    p1.cardAction1("InventorsGuild") {
-      doTask("BuyCard")
-    }
+    p1.cardAction1("InventorsGuild") { doTask("BuyCard") }
     p2.cardAction1("AquiferPumping") {
       doTask("8 Pay<Class<M>> FROM M")
       doTask("OceanTile<Tharsis_2_6>")
@@ -215,7 +213,7 @@ object SampleGames {
     p1.cardAction1("StratosphericBirds")
     p1.cardAction1("MoholeLake") { doTask("Animal<StratosphericBirds>") }
 
-    if (gens-- == 0) return game
+    if (gens == 0) return game
     engine.nextGeneration(3, 2)
 
     p1.cardAction1("DevelopmentCenter")
@@ -242,9 +240,7 @@ object SampleGames {
       doTask("Asteroid<RotatorImpacts>")
       doTask("Ok")
     }
-    p1.cardAction1("FloatingHabs") {
-      doTask("Floater<ExtractorBalloons>")
-    }
+    p1.cardAction1("FloatingHabs") { doTask("Floater<ExtractorBalloons>") }
     p1.cardAction2("ExtractorBalloons")
     p2.playProject("EcologicalZone", 10) { doTask("EzTile<Tharsis_4_5>") }
     p2.playProject("Harvest", 2)
@@ -261,11 +257,9 @@ object SampleGames {
     p2.sellPatents(2)
     p2.playProject("KelpFarming", 15)
     p1.playProject("Trees", 13)
-    p1.godMode().sneak("-8, 5 VP")
     p2.cardAction1("SearchForLife") { doTask("Ok") }
     p1.playProject("VenusianInsects", 5)
     p1.cardAction1("VenusianInsects")
-    p1.godMode().sneak("-14, 5 VP")
 
     return game
   }

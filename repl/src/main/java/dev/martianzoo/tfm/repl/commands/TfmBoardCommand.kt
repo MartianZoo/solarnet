@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.repl.TfmColor.PLANT
 import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
-internal class BoardCommand(val repl: ReplSession) : ReplCommand("board") {
+internal class TfmBoardCommand(val repl: ReplSession) : ReplCommand("tfm_board") {
   override val usage = "board [PlayerN]"
   override val help =
       """
