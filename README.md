@@ -10,7 +10,7 @@
 
 * It's a standalone library. Its only job is to *know the rules of the game*: who can do what when, and what happens if they do? It covers the "pure logic part" of the game. You can set up game situations and see what happens. (I do not blame you if it's quite incomprehensible what this could possibly useful for. :-))
 
-* Card behaviors etc. are written in a language called Pets that closely resembles the game's existing iconographic language. Examples:
+* Card behaviors etc. are written in a language called Pets that closely resembles the game's existing iconographic language. These strings are ALL the game engine needs to know about a card in order to play it correctly. Examples:
 
 | Class | Example Pets syntax |
 | ----- | ------------------- |
