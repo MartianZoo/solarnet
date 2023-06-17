@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class SoloGame0611Test : AbstractSoloTest() {
   // @Test // for profiling
   fun ten() {
-    repeat (10) {
+    repeat(10) {
       commonSetup()
       letsPlay()
     }

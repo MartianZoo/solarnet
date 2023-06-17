@@ -55,10 +55,7 @@ internal abstract class PetTokenizer {
 
   internal val intensity =
       optional(
-          (char('!') asJust MANDATORY) or
-          (char('.') asJust AMAP) or
-          (char('?') asJust OPTIONAL)
-      )
+          (char('!') asJust MANDATORY) or (char('.') asJust AMAP) or (char('?') asJust OPTIONAL))
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }

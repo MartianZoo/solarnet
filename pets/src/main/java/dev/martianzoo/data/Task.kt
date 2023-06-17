@@ -109,11 +109,11 @@ public data class Task(
   private fun normalizeForTask(instruction: Instruction): Instruction {
     return when (instruction) {
       is Change ->
-        if (instruction.gaining != DIE.expression) {
-          instruction
-        } else {
-          throw DeadEndException("a Die instruction was reached")
-        }
+          if (instruction.gaining != DIE.expression) {
+            instruction
+          } else {
+            throw DeadEndException("a Die instruction was reached")
+          }
       is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Or -> Or.create(instruction.instructions.map(::normalizeForTask).toSet())

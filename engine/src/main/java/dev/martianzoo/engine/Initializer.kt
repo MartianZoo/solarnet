@@ -39,9 +39,7 @@ constructor(
 
     // Colonies-specific setup... TODO where does this really belong?
     if ("C" in setup.bundles) {
-      setup.colonyTiles.forEach {
-        exec("AddColonyTile<Class<${it.className}>>")
-      }
+      setup.colonyTiles.forEach { exec("AddColonyTile<Class<${it.className}>>") }
 
       var letter = "A"
       (setup.players() - ENGINE).forEach {

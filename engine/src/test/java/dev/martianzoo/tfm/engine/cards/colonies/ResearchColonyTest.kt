@@ -10,13 +10,9 @@ class ResearchColonyTest : ColoniesCardTest() {
   fun `can put a colony where you already have one`() {
     p1.godMode().manual("Colony<Luna>")
     assertThrows<NarrowingException> {
-      p1.stdProject("BuildColonySP") {
-        doTask("Colony<Luna>")
-      }
+      p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
     }
-    p1.playProject("ResearchColony", 20) {
-      doTask("Colony<Luna>")
-    }.expect("-20, Colony<Luna>")
+    p1.playProject("ResearchColony", 20) { doTask("Colony<Luna>") }.expect("-20, Colony<Luna>")
   }
 
   @Test
@@ -25,9 +21,7 @@ class ResearchColonyTest : ColoniesCardTest() {
     p2.godMode().manual("Colony<Luna>")
     p2.godMode().manual("Colony<Luna>")
     assertThrows<LimitsException> {
-      p1.playProject("ResearchColony", 20) {
-        doTask("Colony<Luna>")
-      }
+      p1.playProject("ResearchColony", 20) { doTask("Colony<Luna>") }
     }
   }
 }

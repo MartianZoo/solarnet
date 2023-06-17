@@ -146,10 +146,11 @@ sealed class Requirement : PetElement() {
     fun parser(): Parser<Requirement> {
       return parser {
         val orReq =
-            separatedTerms(atomParser(), _or) map {
-              val set = it.toSet()
-              if (set.size == 1) set.first() else Or(set)
-            }
+            separatedTerms(atomParser(), _or) map
+                {
+                  val set = it.toSet()
+                  if (set.size == 1) set.first() else Or(set)
+                }
 
         commaSeparated(orReq) map { if (it.size == 1) it.first() else And(it) }
       }
@@ -165,9 +166,11 @@ sealed class Requirement : PetElement() {
           val scalarAndOptionalEx = rawScalar and optional(Expression.parser())
           val optionalScalarAndEx = optional(rawScalar) and Expression.parser()
 
-          scalarAndOptionalEx or optionalScalarAndEx map { (scalar, expr) ->
-            scaledEx(ActualScalar(scalar ?: 1), expr)
-          }
+          scalarAndOptionalEx or
+              optionalScalarAndEx map
+              { (scalar, expr) ->
+                scaledEx(ActualScalar(scalar ?: 1), expr)
+              }
         }
 
         val min = scaledEx map Requirement::Min

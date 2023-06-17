@@ -29,14 +29,19 @@ object TestHelpers {
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
-  fun assertNetChanges(result: TaskResult, game: Game, tfm: TfmGameplay, expectedAsInstructions: String) {
+  fun assertNetChanges(
+      result: TaskResult,
+      game: Game,
+      tfm: TfmGameplay,
+      expectedAsInstructions: String
+  ) {
     val preprocessor =
         with(Transformers(game.classes)) {
           chain(
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
               Prod.deprodify(table),
-              replaceOwnerWith(tfm.player)
+              replaceOwnerWith(tfm.player),
           )
         }
 

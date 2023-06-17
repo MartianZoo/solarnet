@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.repl.commands
 
-import dev.martianzoo.api.SystemClasses
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
@@ -23,7 +23,7 @@ internal class TfmPayCommand(val repl: ReplSession) : ReplCommand("tfm_pay") {
             gains.map {
               val sex = (it as Gain).scaledEx
               val currency = sex.expression
-              val pay = ClassName.cn("Pay").of(SystemClasses.CLASS.of(currency))
+              val pay = ClassName.cn("Pay").of(CLASS.of(currency))
               Transmute(SimpleFrom(pay, currency), sex.scalar)
             })
     return TaskCommand(repl).withArgs(ins.toString())

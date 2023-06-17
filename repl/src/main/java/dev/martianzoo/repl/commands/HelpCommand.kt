@@ -24,10 +24,7 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
         } else {
           return try {
             val docstring = repl.game.classes.getClass(cn(arg)).docstring
-            listOf(
-                "Class `$arg`: \"$docstring\"",
-                "Type `desc $arg` for super gory details."
-            )
+            listOf("Class `$arg`: \"$docstring\"", "Type `desc $arg` for super gory details.")
           } catch (e: Exception) {
             listOf("¯\\_(ツ)_/¯ Type `help` for help")
           }
@@ -72,5 +69,6 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
           tfm_play <card>     -> plays a Terraforming Mars card (shortcut)
           tfm_pay <amt> <res> -> pays some amount of MC/Steel/etc for something (shortcut)
           tfm_sample          -> executes one of the hardcoded sample games
-      """.trimIndent()
+      """
+          .trimIndent()
 }

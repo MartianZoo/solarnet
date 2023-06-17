@@ -2,7 +2,8 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses
+import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
@@ -15,9 +16,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.MType
 
-/**
- * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these.
- */
+/** An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. */
 public data class Component internal constructor(internal val mtype: MType) :
     HasClassName, HasExpression {
   companion object {
@@ -32,18 +31,18 @@ public data class Component internal constructor(internal val mtype: MType) :
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
    * [ComponentGraph] unless *all* of the returned components do. Note that a class type like
-   * `Class<Tile>` has an empty dependency list, despite its appearance. The list order
-   * corresponds to [MClass.dependencies].
+   * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
+   * to [MClass.dependencies].
    */
   public val dependencyComponents: List<Component> by lazy {
-    mtype.typeDependencies.map { it.boundType.toComponent() } as List<Component>
+    mtype.typeDependencies.map { it.boundType.toComponent() }
   }
 
   public val owner: Player? by lazy {
-    if (mtype.narrows(mtype.loader.resolve(SystemClasses.OWNER.expression))) {
+    if (mtype.narrows(mtype.loader.resolve(OWNER.expression))) {
       Player(className)
     } else {
-      mtype.dependencies.getIfPresent(Key(SystemClasses.OWNED, 0))?.className?.let(::Player)
+      mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className?.let(::Player)
     }
   }
 
@@ -67,9 +66,7 @@ public data class Component internal constructor(internal val mtype: MType) :
     }
   }
 
-  public val effects: List<Effect> by lazy {
-    mtype.root.classEffects.map(xerForEffects::transform)
-  }
+  public val effects: List<Effect> by lazy { mtype.root.classEffects.map(xerForEffects::transform) }
 
   override val className by mtype::className
   override val expression by mtype::expression

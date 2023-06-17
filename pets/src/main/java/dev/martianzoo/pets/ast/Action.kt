@@ -54,8 +54,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       init {
         when (cost) {
           is Or,
-          is Multi
-          -> throw PetSyntaxException("Break into separate Per instructions")
+          is Multi -> throw PetSyntaxException("Break into separate Per instructions")
           is Per -> throw PetSyntaxException("Might support in future?")
           else -> {}
         }
@@ -115,19 +114,23 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
           val atomCost = transform or spend
 
           val perCost =
-              atomCost and optional(skipChar('/') and Metric.parser()) map { (cost, met) ->
-                if (met == null) cost else Per(cost, met)
-              }
+              atomCost and
+                  optional(skipChar('/') and Metric.parser()) map
+                  { (cost, met) ->
+                    if (met == null) cost else Per(cost, met)
+                  }
 
           val orCost =
-              separatedTerms(perCost or group(parser()), _or) map {
-                val set = it.toSet()
-                if (set.size == 1) set.first() else Or(set)
-              }
+              separatedTerms(perCost or group(parser()), _or) map
+                  {
+                    val set = it.toSet()
+                    if (set.size == 1) set.first() else Or(set)
+                  }
 
-          commaSeparated(orCost or group(parser())) map {
-            if (it.size == 1) it.first() else Multi(it)
-          }
+          commaSeparated(orCost or group(parser())) map
+              {
+                if (it.size == 1) it.first() else Multi(it)
+              }
         }
       }
     }
@@ -136,7 +139,10 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
   internal companion object : PetTokenizer() {
     fun parser(): Parser<Action> =
         optional(Cost.parser()) and
-        skip(_arrow) and
-            Instruction.parser() map { (c, i) -> Action(c, i) }
+            skip(_arrow) and
+            Instruction.parser() map
+            { (c, i) ->
+              Action(c, i)
+            }
   }
 }

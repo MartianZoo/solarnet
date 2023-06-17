@@ -28,6 +28,5 @@ internal class HistoryCommand(val repl: ReplSession) : ReplCommand("history") {
     return fmt(history.drop(drop))
   }
 
-  private fun fmt(entries: Iterable<Entry>) =
-      entries.map { "${it.index() + 1}: ${it.line()}" }
+  private fun fmt(entries: Iterable<Entry>) = entries.map { "${it.index() + 1}: ${it.line()}" }
 }

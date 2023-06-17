@@ -8,7 +8,7 @@ import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.data.TfmClasses
+import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.tfm.repl.TfmColor
 import dev.martianzoo.tfm.repl.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.GREENERY_TILE
@@ -99,7 +99,7 @@ internal class TfmMapCommand(val repl: ReplSession) : ReplCommand("tfm_map") {
 
     fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
       if (area == null) return "" to TfmColor.NONE
-      val expression = TfmClasses.TILE.of(area.className)
+      val expression = TILE.of(area.className)
       val tile = game.getComponents(game.resolve(expression)).singleOrNull()
       return tile?.let(::describe) ?: describeEmpty(area)
     }
@@ -119,7 +119,8 @@ internal class TfmMapCommand(val repl: ReplSession) : ReplCommand("tfm_map") {
     fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
     private fun describe(tile: Type): Pair<String, TfmColor> {
-      fun isIt(tile: Type, kind: String) = tile.narrows(game.resolve(ClassName.cn(kind).expression), game)
+      fun isIt(tile: Type, kind: String) =
+          tile.narrows(game.resolve(ClassName.cn(kind).expression), game)
 
       val kind: Pair<String, TfmColor> =
           when {
@@ -136,5 +137,4 @@ internal class TfmMapCommand(val repl: ReplSession) : ReplCommand("tfm_map") {
       return "[${kind.first}$player]" to kind.second
     }
   }
-
 }

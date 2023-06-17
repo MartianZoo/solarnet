@@ -65,8 +65,17 @@ abstract class AbstractSoloTest {
   }
 
   protected fun assertTags(
-      but: Int = 0, spt: Int = 0, sct: Int = 0, pot: Int = 0, eat: Int = 0, jot: Int = 0,
-      vet: Int = 0, plt: Int = 0, mit: Int = 0, ant: Int = 0, cit: Int = 0
+      but: Int = 0,
+      spt: Int = 0,
+      sct: Int = 0,
+      pot: Int = 0,
+      eat: Int = 0,
+      jot: Int = 0,
+      vet: Int = 0,
+      plt: Int = 0,
+      mit: Int = 0,
+      ant: Int = 0,
+      cit: Int = 0
   ) {
     me.assertCounts(
         but to "BuildingTag",
@@ -84,9 +93,7 @@ abstract class AbstractSoloTest {
 
   protected fun assertDashRight(events: Int, tagless: Int, cities: Int) {
     assertCounts(
-        events to "PlayedEvent",
-        tagless to "CardFront(HAS MAX 0 Tag)",
-        cities to "CityTile")
+        events to "PlayedEvent", tagless to "CardFront(HAS MAX 0 Tag)", cities to "CityTile")
   }
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int) {
@@ -98,7 +105,7 @@ abstract class AbstractSoloTest {
   }
 
   protected fun assertVps(expected: Int) {
-    engine.phase("End") {  // TODO should really do production too!
+    engine.phase("End") { // TODO should really do production too!
       me.assertCounts(expected to "VP")
       throw AbortOperationException()
     }

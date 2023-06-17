@@ -208,9 +208,7 @@ internal constructor(
 
   internal val defaultsDecl by declaration::defaultsDeclaration
 
-  internal val defaults: Defaults by lazy {
-    Defaults.forClass(this)
-  }
+  internal val defaults: Defaults by lazy { Defaults.forClass(this) }
 
   // EFFECTS
 

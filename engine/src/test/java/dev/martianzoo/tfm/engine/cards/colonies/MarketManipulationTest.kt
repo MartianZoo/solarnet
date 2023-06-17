@@ -36,7 +36,6 @@ class MarketManipulationTest : ColoniesCardTest() {
     }
   }
 
-
   @Test
   fun `you can't raise a track if it's already at the top`() {
     eng.godMode().manual("5 ColonyProduction<Luna>")

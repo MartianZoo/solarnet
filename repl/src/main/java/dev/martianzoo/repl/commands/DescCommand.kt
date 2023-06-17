@@ -1,6 +1,6 @@
 package dev.martianzoo.repl.commands
 
-import dev.martianzoo.api.SystemClasses
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.ast.Expression
@@ -26,7 +26,7 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
         if (args == "random") {
           val type =
               repl.tfm.reader
-                  .resolve(SystemClasses.CLASS.expression)
+                  .resolve(CLASS.expression)
                   .let(repl.tfm.reader::getComponents)
                   .expressions()
                   .map { it.arguments.single() }
@@ -75,7 +75,8 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
                          """)}
 
 
-        """.trimIndent()
+        """
+              .trimIndent()
 
       val typeStuff =
           """
@@ -84,7 +85,8 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
             long form:   ${mtype.expressionFull}
             supertypes:  ${desc.supertypes.joinToString { "${it.expressionFull}" }}
             cmpt types:  ${desc.componentTypesCount}
-        """.trimIndent()
+        """
+              .trimIndent()
 
       val componentStuff =
           if (mtype.abstract) {
@@ -96,11 +98,11 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
             Component `[${mtype.expressionFull}]`:
               effects:     ${desc.componentEffects.joinToString("""
                            """)}
-          """.trimIndent()
+          """
+                .trimIndent()
           }
 
       return classStuff + typeStuff + componentStuff
     }
   }
-
 }

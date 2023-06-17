@@ -33,8 +33,10 @@ public class Summarizer @Inject constructor(val events: EventLog, val reader: Ga
   }
 
   fun allTypesEver(): List<Expression> {
-    return events.changesSinceSetup().flatMap {
-      listOfNotNull(it.change.gaining, it.change.removing)
-    }.distinct().sortedBy { it.toString() }
+    return events
+        .changesSinceSetup()
+        .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }
+        .distinct()
+        .sortedBy { it.toString() }
   }
 }

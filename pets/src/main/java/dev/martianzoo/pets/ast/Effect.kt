@@ -116,11 +116,9 @@ public data class Effect(
       override fun toString(): String {
         return when (inner) {
           is OnGainOf,
-          is WhenGain
-          -> "X $inner"
+          is WhenGain -> "X $inner"
           is OnRemoveOf,
-          is WhenRemove
-          -> "-X ${inner.toString().substring(1)}"
+          is WhenRemove -> "-X ${inner.toString().substring(1)}"
         }
       }
     }
@@ -130,9 +128,7 @@ public data class Effect(
       override fun toString() = "$transformKind[$inner]"
 
       init {
-        if (inner !is OnGainOf &&
-            inner !is OnRemoveOf &&
-            inner !is XTrigger) {
+        if (inner !is OnGainOf && inner !is OnRemoveOf && inner !is XTrigger) {
           throw PetSyntaxException("only gain/remove trigger can go in transform block")
         }
       }

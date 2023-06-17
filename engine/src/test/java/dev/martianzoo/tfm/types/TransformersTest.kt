@@ -75,14 +75,12 @@ class TransformersTest {
     val prodden: Effect =
         parse(
             "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
-                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
-        )
+                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
     val expected: Effect =
         parse(
             "Production<Class<Plant>>:" +
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
-                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
-        )
+                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat")
     val deprodden: Effect = Prod.deprodify(transformers.table).transform(prodden)
     assertThat(deprodden).isEqualTo(expected)
   }

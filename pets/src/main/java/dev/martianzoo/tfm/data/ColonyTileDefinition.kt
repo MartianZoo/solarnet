@@ -21,7 +21,7 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
   override val asClassDeclaration: ClassDeclaration by lazy {
     with(data) {
       Parsing.parseClasses(
-          """
+              """
             CLASS $name : ColonyTile {
               Colony<This>: $placementBonus
               GiveColonyBonus<This>: $colonyBonus
@@ -35,7 +35,8 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
               Trade<This> IF =6 ColonyProduction<This>: ${tradeIncome[6]}
               Trade<This>: ResetProduction<This>
             }
-          """).single()
+          """)
+          .single()
     }
   }
 

@@ -139,8 +139,7 @@ public abstract class TfmAuthority : Authority {
   // COLONY TILES
 
   /** Returns the milestone by the given [name]. */
-  public fun colonyTile(name: ClassName): ColonyTileDefinition =
-      colonyTileByClassName[name]!!
+  public fun colonyTile(name: ClassName): ColonyTileDefinition = colonyTileByClassName[name]!!
 
   /** Every milestone this authority knows about. */
   public abstract val colonyTileDefinitions: Set<ColonyTileDefinition>

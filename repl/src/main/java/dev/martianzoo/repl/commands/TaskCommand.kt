@@ -47,8 +47,8 @@ internal class TaskCommand(val repl: ReplSession) : ReplCommand("task") {
           }
           null -> repl.tfm.tryTask(id)
           else ->
-            repl.game.timeline.atomic {
-              repl.tfm.reviseTask(id, rest)
+              repl.game.timeline.atomic {
+                repl.tfm.reviseTask(id, rest)
                 if (id in repl.game.tasks) repl.tfm.tryTask(id)
               }
         }

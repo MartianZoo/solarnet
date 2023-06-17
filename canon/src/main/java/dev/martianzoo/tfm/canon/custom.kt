@@ -46,7 +46,7 @@ internal val canonCustomClasses =
         GainLowestProduction,
         CopyProductionBox,
         CopyPrelude,
-        AddColonyTile
+        AddColonyTile,
     )
 
 private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
@@ -110,11 +110,7 @@ private object CheckCardRequirement : CustomClass("CheckCardRequirement") {
 }
 
 private object HandleCardCost : CustomClass("HandleCardCost") {
-  override fun translate(
-      reader: GameReader,
-      owner: Type,
-      cardFrontClassType: Type
-  ): Instruction {
+  override fun translate(reader: GameReader, owner: Type, cardFrontClassType: Type): Instruction {
     val card: CardDefinition = cardFromClassType(cardFrontClassType, reader)
     if (card.cost == 0) return NoOp
 

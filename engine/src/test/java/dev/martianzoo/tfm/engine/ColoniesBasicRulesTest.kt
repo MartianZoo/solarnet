@@ -27,8 +27,7 @@ class ColoniesBasicRulesTest {
   val engine = game.tfm(ENGINE)
   val p1 = game.tfm(PLAYER1)
 
-  fun TaskResult.expect(string: String) =
-      TestHelpers.assertNetChanges(this, game, engine, string)
+  fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, engine, string)
 
   @BeforeEach
   fun setUp() {
@@ -124,7 +123,6 @@ class ColoniesBasicRulesTest {
 
     p1.stdProject("BuildColonySP") {
       doTask("Colony<Luna>")
-
       // Take the placement bonus printed inside the track.
     }.expect("-17, PROD[2]")
 
@@ -161,7 +159,6 @@ class ColoniesBasicRulesTest {
     p1.assertCounts(6 to "ColonyProduction<Luna>")
     p1.stdAction("TradeSA", 2) {
       doTask("Trade<Luna, TradeFleetA>")
-
       // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
       // trade income, and give the local colony owners their colony bonus.
     }.expect("19 Megacredit<P1>, 2 Megacredit<P2>, -3 E<P1>")

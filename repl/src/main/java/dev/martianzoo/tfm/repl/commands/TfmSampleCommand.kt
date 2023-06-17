@@ -9,11 +9,13 @@ import dev.martianzoo.tfm.repl.SampleGames
 
 internal class TfmSampleCommand(val repl: ReplSession) : ReplCommand("tfm_sample") {
   override val usage: String = "sample <id> <generations>"
-  override val help = """
+  override val help =
+      """
     Executes a sample game so you have useful stuff to look at. For now the only id we have is
     "A" so enjoy it. After that say how many generations of the sample game you want it to play
     through; 0 means to stop right after the prelude phase.
-  """.trimIndent()
+  """
+          .trimIndent()
 
   override fun withArgs(args: String): List<String> {
     val (id, gens) = args.trim().split(Regex("\\s+"))

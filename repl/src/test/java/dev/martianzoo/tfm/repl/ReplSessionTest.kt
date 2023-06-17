@@ -115,7 +115,9 @@ private class ReplSessionTest {
           0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> FOR Player1 BY Accept<Player1, Class<Megacredit>> BECAUSE 0000
           0000: +InventorsGuild<Player1> FROM ProjectCard<Player1> FOR Player1 BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
           0000: +ScienceTag<Player1, InventorsGuild<Player1>> FOR Player1 BY InventorsGuild<Player1> BECAUSE 0000
-        """.trimIndent().split("\n")
+        """
+            .trimIndent()
+            .split("\n")
 
     // TODO The "MAX 0 Barrier" one should have said "(currently impossible)"
     // also why is there a random blank line up there??

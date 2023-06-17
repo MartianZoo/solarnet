@@ -18,16 +18,17 @@ import dev.martianzoo.util.toSetStrict
  * that will take a while.
  */
 public object Canon : TfmAuthority() {
-  private val PETS_FILENAMES = setOf(
-      "system.pets",
-      "global.pets",
-      "maps-tiles.pets",
-      "player.pets",
-      "cards.pets",
-      "actions.pets",
-      "payment.pets",
-      "colonies.pets",
-  )
+  private val PETS_FILENAMES =
+      setOf(
+          "system.pets",
+          "global.pets",
+          "maps-tiles.pets",
+          "player.pets",
+          "cards.pets",
+          "actions.pets",
+          "payment.pets",
+          "colonies.pets",
+      )
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
     PETS_FILENAMES.flatMap { parseClasses(readResource(it)) }.toSetStrict()

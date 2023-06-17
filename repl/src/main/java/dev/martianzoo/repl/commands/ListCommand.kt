@@ -1,6 +1,6 @@
 package dev.martianzoo.repl.commands
 
-import dev.martianzoo.api.SystemClasses
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.repl.ReplCommand
@@ -13,7 +13,7 @@ internal class ListCommand(val repl: ReplSession) : ReplCommand("list") {
         This command is super broken right now.
       """
   override val isReadOnly = true
-  override fun noArgs() = withArgs(SystemClasses.COMPONENT.toString())
+  override fun noArgs() = withArgs("$COMPONENT")
 
   override fun withArgs(args: String): List<String> {
     val expr: Expression = repl.tfm.parse(args)

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 // This isn't really a test specific to this card, just testing task reordering
-class MinorityRefugeTest: ColoniesCardTest() {
+class MinorityRefugeTest : ColoniesCardTest() {
   @Test
   fun `if too low on mc prod forced to pick Luna`() {
     p1.godMode().manual("PROD[-5]")

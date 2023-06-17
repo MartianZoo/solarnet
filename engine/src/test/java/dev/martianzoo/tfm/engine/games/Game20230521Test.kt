@@ -36,8 +36,7 @@ class Game20230521Test {
         I had to cheat in a couple places; search for TODO or godMode().
     */
 
-    fun TaskResult.expect(string: String) =
-        assertNetChanges(this, game, engine, string)
+    fun TaskResult.expect(string: String) = assertNetChanges(this, game, engine, string)
 
     // Good luck Player1!
     // Good luck Player2!

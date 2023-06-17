@@ -75,7 +75,10 @@ public data class Expression(
 
         ClassName.parser() and
             optionalList(argumentList) and
-            optional(refinement) map { (clazz, args, ref) -> Expression(clazz, args, ref) }
+            optional(refinement) map
+            { (clazz, args, ref) ->
+              Expression(clazz, args, ref)
+            }
       }
     }
   }
