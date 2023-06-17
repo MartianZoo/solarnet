@@ -6,6 +6,8 @@
 
 * It's not a way to *play* the game; for that see the excellent [open-source app](http://github.com/terraforming-mars/terraforming-mars) (which this is unrelated to).
 
+* It's a work in progress! Try to look at it for what it could become rather than what it is right now. :-)
+
 * It's a standalone library. Its only job is to *know the rules of the game*: who can do what when, and what happens if they do? It covers the "pure logic part" of the game. You can set up game situations and see what happens. (I do not blame you if it's quite incomprehensible what this could possibly useful for. :-))
 
 * Card behaviors etc. are written in a language called Pets that closely resembles the game's existing iconographic language. Examples:
@@ -23,7 +25,7 @@
 
 * This means that you can easily add your own fan cards to it, without actual "programming", as long as they don't require entire new mechanics. (The code is not yet arranged to make this *convenient* though.)
 
-* It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test.
+* It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/test/java/dev/martianzoo/tfm/engine/games/Game20230521Test.kt)).
 
 * The engine has some smarts. It lets you perform your turn effects in any order (per the game rules), but it can tell if there's only one task you could do next, and it can tell when you actually need to make a choice about something and when you don't.
 
