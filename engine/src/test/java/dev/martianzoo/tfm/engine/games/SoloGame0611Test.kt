@@ -6,7 +6,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import org.junit.jupiter.api.Test
 
 class SoloGame0611Test : AbstractSoloTest() {
-  @Test // for profiling
+  // @Test // for profiling
   fun ten() {
     repeat (10) {
       commonSetup()
