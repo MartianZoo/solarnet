@@ -20,17 +20,17 @@ class TransformersTest {
     checkApplyDefaults("OceanTile", "OceanTile<WaterArea>.")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
-        "CityTile", "CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!")
+        "CityTile", "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!")
     checkApplyDefaults("-CityTile", "-CityTile<Owner>!")
-    checkApplyDefaults("CityTile<WaterArea>", "CityTile<Owner, WaterArea>!")
-    checkApplyDefaults("CityTile<Owner, WaterArea>", "CityTile<Owner, WaterArea>!")
-    checkApplyDefaults("CityTile<Anyone, WaterArea>", "CityTile<Anyone, WaterArea>!")
-    checkApplyDefaults("CityTile<Player3, WaterArea>", "CityTile<Player3, WaterArea>!")
+    checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
+    checkApplyDefaults("CityTile<Owner, WaterArea>", "CityTile<WaterArea, Owner>!")
+    checkApplyDefaults("CityTile<Anyone, WaterArea>", "CityTile<WaterArea, Anyone>!")
+    checkApplyDefaults("CityTile<Player3, WaterArea>", "CityTile<WaterArea, Player3>!")
 
-    checkApplyDefaults("CityTile<This>", "CityTile<Owner, This>!", cn("Area").expression)
+    checkApplyDefaults("CityTile<This>", "CityTile<This, Owner>!", cn("Area").expression)
     checkApplyDefaults(
         "CityTile<This>",
-        "CityTile<This, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
+        "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), This>!",
         cn("Owner").expression)
 
     checkApplyDefaults("OwnedTile", "OwnedTile<Owner>!")
@@ -38,7 +38,7 @@ class TransformersTest {
     checkApplyDefaults(
         "LandArea(HAS Neighbor<OwnedTile>)", "LandArea(HAS Neighbor<OwnedTile<Owner>>)!")
     checkApplyDefaults(
-        "GreeneryTile", "GreeneryTile<Owner, LandArea(HAS Neighbor<OwnedTile<Owner>>)>!")
+        "GreeneryTile", "GreeneryTile<LandArea(HAS Neighbor<OwnedTile<Owner>>), Owner>!")
   }
 
   private companion object {

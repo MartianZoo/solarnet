@@ -25,8 +25,7 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
     val (expression, type) =
         if (args == "random") {
           val type =
-              repl.tfm.reader
-                  .resolve(CLASS.expression)
+              repl.tfm.resolve("$CLASS")
                   .let(repl.tfm.reader::getComponents)
                   .expressions()
                   .map { it.arguments.single() }

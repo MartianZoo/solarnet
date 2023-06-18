@@ -22,20 +22,20 @@ constructor(
 
     fun exec(instruction: String) {
       with(gameplay.godMode()) {
-        addTasks(instruction, fakeCause)
+        addTasks("$instruction!", fakeCause) // TODO why ! ?
         do {
           doTask(tasks.ids().first())
         } while (tasks.ids().any())
       }
     }
 
-    exec("$ENGINE!")
+    exec("$ENGINE")
     fakeCause = Cause(ENGINE.expression, 0)
 
     table.allClasses()
         .filter { c -> c.isSingletonType() }
         .flatMap { it.baseType.concreteSubtypesSameClass() }
-        .forEach { exec("${it.expression}!") }
+        .forEach { exec("${it.expression}") }
 
     // Colonies-specific setup... TODO where does this really belong?
     if ("C" in setup.bundles) {
@@ -43,10 +43,11 @@ constructor(
 
       var letter = "A"
       (setup.players() - ENGINE).forEach {
-        exec("TradeFleet$letter<$it>!")
+        exec("TradeFleet$letter<$it>")
         letter = "${letter[0] + 1}"
       }
     }
-    timeline.setupFinished()
+    timeline.initializationFinished()
+    exec("SetupPhase")
   }
 }

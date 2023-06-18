@@ -16,10 +16,11 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MType
 
 /** An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. */
-public class Component internal constructor(private val mtype: MType) : Type by mtype {
+public class Component internal constructor(private val mtype: MType) : Type {
   init {
     if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
   }
@@ -37,7 +38,7 @@ public class Component internal constructor(private val mtype: MType) : Type by 
 
   public val owner: Player? =
       if (hasType(mtype.loader.resolve(OWNER.expression))) {
-        Player(className)
+        Player(mtype.className)
       } else {
         val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0))
         dep?.let { Player(dep.className) }
@@ -75,6 +76,15 @@ public class Component internal constructor(private val mtype: MType) : Type by 
     val translated = mtype.root.custom!!.prepare(reader, mtype)
     return xerForCustom.transform(translated)
   }
+
+  // TODO this whole section should be replaceable by just adding `by mtype` after `Type` in the
+  // class signature. Doing that works from inside IDEA but gets CCE from command line
+  override val abstract by mtype::abstract
+  override val refinement by mtype::refinement
+  override val className by mtype::className
+  override val expression by mtype::expression
+  override val expressionFull by mtype::expressionFull
+  override fun narrows(that: Type, info: TypeInfo) = mtype.narrows(that, info)
 
   override fun equals(other: Any?) = other is Component && other.mtype == mtype
 

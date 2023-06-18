@@ -4,8 +4,9 @@ ABSTRACT CLASS Anyone[ANY] {
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    This: 20 TerraformRating<This>, GrossHack<This>, SuperHack<This>
+    This: GrossHack<This>, Entropy<This>
 
+    SetupPhase:: 20 TerraformRating<This>
     CorporationPhase:: CorporationCard
     PreludePhase:: 2 PreludeCard
     ResearchPhase: 4 BuyCard<This>?
@@ -45,7 +46,7 @@ ABSTRACT CLASS Owned<Anyone> {
   }
 
   "Performs energy-to-heat conversion for a player; exists only so that Supercapacitors can remove it"
-  CLASS SuperHack {
+  CLASS Entropy {
     HAS MAX 1 This
     ProductionPhase:: 999 Heat FROM Energy.
   }

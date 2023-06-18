@@ -36,7 +36,7 @@ ABSTRACT CLASS Tile<Area> {
   }
 
   "Any tile that gets a player cube: city tile, greenery tile, or special tile"
-  ABSTRACT CLASS OwnedTile : Owned, Tile {             // TODO removing Owned breaks shit
+  ABSTRACT CLASS OwnedTile : Owned {
     CLASS GreeneryTile[GT] : Tile<MarsArea> {
       DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // should be `HAS?`
 

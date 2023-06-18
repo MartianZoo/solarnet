@@ -64,5 +64,5 @@ internal class TimelineImpl @Inject constructor(
     return events.activitySince(checkpoint)
   }
 
-  internal fun setupFinished() = events.setStartPoint()
+  internal fun initializationFinished() = events.setStartPoint()
 }

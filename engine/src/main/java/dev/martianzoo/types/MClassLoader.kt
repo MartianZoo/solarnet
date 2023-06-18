@@ -52,10 +52,7 @@ internal class MClassLoader(
     freeze()
   }
 
-  fun isAutoLoad(c: ClassDeclaration): Boolean {
-    return c.className == AUTO_LOAD ||
-        c.supertypes.any { isAutoLoad(authority.classDeclaration(it.className)) }
-  }
+  private val cache = mutableMapOf<Expression, MType>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
   override val componentClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
@@ -77,8 +74,6 @@ internal class MClassLoader(
     if (name !in loadedClasses) throw Exceptions.classNotFound(name)
     return loadedClasses[name] ?: error("reentrancy happened")
   }
-
-  private val cache = mutableMapOf<Expression, MType>()
 
   /** Returns the [MType] represented by [expression]. */
   override fun resolve(expression: Expression): MType {
@@ -121,7 +116,7 @@ internal class MClassLoader(
   private val queue = ArrayDeque<ClassName>()
 
   /** Equivalent to calling [load] on every class name (or shortName) in [names]. */
-  internal fun loadAll(names: Collection<ClassName>) {
+  private fun loadAll(names: Collection<ClassName>) {
     queue += names
     while (queue.any()) {
       loadAndMaybeEnqueueRelated(queue.removeFirst())
@@ -137,7 +132,7 @@ internal class MClassLoader(
     return newClass
   }
 
-  internal fun loadSingle(idOrName: ClassName): MClass =
+  private fun loadSingle(idOrName: ClassName): MClass =
       if (frozen) {
         getClass(idOrName)
       } else {
@@ -178,8 +173,7 @@ internal class MClassLoader(
     return mclass
   }
 
-  internal var frozen: Boolean = false
-    private set
+  private var frozen: Boolean = false
 
   internal fun freeze(): MClassTable {
     require(!frozen)
@@ -192,8 +186,6 @@ internal class MClassLoader(
     loadedClasses.keys
   }
 
-  private fun decl(cn: ClassName) = authority.classDeclaration(cn)
-
   internal fun checkAllTypes(node: PetNode) =
       node.visitDescendants {
         if (it is Expression) {
@@ -204,12 +196,16 @@ internal class MClassLoader(
         }
       }
 
-  // fun randomType(): MType =
-  //     allClasses.random().baseType.concreteSubtypesSameClass().toList().random()
+  override fun toString() = "loader$id"
+
+  private fun decl(cn: ClassName) = authority.classDeclaration(cn)
+
+  private fun isAutoLoad(c: ClassDeclaration): Boolean {
+    return c.className == AUTO_LOAD ||
+        c.supertypes.any { isAutoLoad(authority.classDeclaration(it.className)) }
+  }
 
   private val id = nextId++
-
-  override fun toString() = "loader$id"
 
   private companion object {
     var nextId: Int = 0

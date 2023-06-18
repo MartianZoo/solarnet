@@ -135,13 +135,6 @@ internal constructor(
   internal fun getDirectSubclasses(): Set<MClass> =
       loader.allClasses().filter { this in it.directSuperclasses }.toSet()
 
-  private val intersectionType: Boolean by lazy {
-    directSuperclasses.size >= 2 &&
-        loader.allClasses()
-            .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
-            .all(::isSupertypeOf)
-  }
-
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
    * that is, no other [MClass] in this [MClassTable] is a subclass of all of them unless it is also
@@ -151,23 +144,15 @@ internal constructor(
    */
   internal fun isIntersectionType(): Boolean = intersectionType
 
+  private val intersectionType: Boolean by lazy {
+    directSuperclasses.size >= 2 &&
+        loader
+            .allClasses()
+            .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
+            .all(::isSupertypeOf)
+  }
+
   // DEPENDENCIES
-
-  // TODO eager init causes some cycle
-  internal val dependencies: DependencySet by lazy {
-    if (className == CLASS) {
-      depsForClassType(loader.componentClass)
-    } else {
-      inheritedDeps.merge(declaredDeps) { _, _ -> throw AssertionError() }
-    }
-  }
-
-  internal val declaredDeps: DependencySet by lazy {
-    DependencySet.of(declaration.dependencies.mapIndexed(::createDep))
-  }
-
-  private fun createDep(i: Int, dep: Expression) =
-      TypeDependency(Key(className, i), loader.resolve(dep))
 
   private val inheritedDeps: DependencySet by lazy {
     val list: List<DependencySet> =
@@ -180,6 +165,23 @@ internal constructor(
           }
         }
     glb(list) ?: DependencySet.of()
+  }
+
+  // property because we don't retain `declaration`
+  private val declaredDeps by lazy {
+    DependencySet.of(
+        declaration.dependencies.mapIndexed { i, dep ->
+          TypeDependency(Key(className, i), loader.resolve(dep))
+        })
+  }
+
+  // `by lazy` enables dependency cycles, yay
+  internal val dependencies: DependencySet by lazy {
+    if (className == CLASS) {
+      depsForClassType(loader.componentClass)
+    } else {
+      inheritedDeps.merge(declaredDeps) { _, _ -> error("unexpected") }
+    }
   }
 
   // GETTING TYPES

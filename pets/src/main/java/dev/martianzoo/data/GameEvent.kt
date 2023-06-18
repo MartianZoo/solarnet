@@ -2,7 +2,6 @@ package dev.martianzoo.data
 
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.pre
-import dev.martianzoo.util.wrap
 
 sealed class GameEvent {
   abstract val ordinal: Int
@@ -10,13 +9,19 @@ sealed class GameEvent {
 
   sealed class TaskEvent : GameEvent() {
     abstract val task: Task
+
+    internal fun taskToString() =
+        buildString {
+          append("$ordinal: +Task${task.id} { ${task.instruction}")
+          task.then?.let { append(" THEN $it") }
+          append(" }")
+          task.whyPending?.let { append(" ($it)") }
+        }
   }
 
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
     override val owner by task::owner
-    override fun toString() =
-        "$ordinal: +Task${task.id} { ${task.instruction} } ${task.cause}" +
-            task.whyPending.wrap(" (", ")") // TODO then
+    override fun toString() = taskToString()
   }
 
   data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
@@ -34,9 +39,7 @@ sealed class GameEvent {
     }
 
     override val owner by task::owner
-    override fun toString() =
-        "$ordinal: Task${task.id} { ${task.instruction}" +
-            " (${task.whyPending}) FROM Task${task.id}"
+    override fun toString() = taskToString() + " FROM Task${task.id}"
   }
 
   /** All interesting information about a state change that happened in a game. */

@@ -51,7 +51,7 @@ private class CanonEffectsTest {
     assertThat(classEffectsOf("Gyropolis"))
         .containsExactly(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
-            "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!," +
+            "This: CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!," +
                 " PROD[-2 Energy<Owner>!," +
                 " Megacredit<Owner>! / VenusTag<Owner>," +
                 " Megacredit<Owner>! / EarthTag<Owner>]")
@@ -98,7 +98,7 @@ private class CanonEffectsTest {
         .containsExactly(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
-                " CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
+                " CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
             "CityTile<Anyone>: PROD[Megacredit<Owner>!]")
   }
 

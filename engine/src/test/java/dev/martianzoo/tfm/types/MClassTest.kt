@@ -24,7 +24,7 @@ private class MClassTest {
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
     assertThat(cpt.getAllSuperclasses().classNames()).containsExactly(COMPONENT)
-    assertThat(cpt.declaredDeps.keys).isEmpty()
+    assertThat(cpt.dependencies.keys).isEmpty()
   }
 
   @Test
@@ -35,7 +35,7 @@ private class MClassTest {
     assertThat(foo.abstract).isFalse()
     assertThat(foo.directSuperclasses.classNames()).containsExactly(COMPONENT)
     assertThat(foo.getAllSuperclasses().classNames()).containsExactly(COMPONENT, cn("Foo"))
-    assertThat(foo.declaredDeps.keys).isEmpty()
+    assertThat(foo.dependencies.keys).isEmpty()
   }
 
   @Test
@@ -45,7 +45,7 @@ private class MClassTest {
     assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
     assertThat(bar.getAllSuperclasses().classNames())
         .containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
-    assertThat(bar.declaredDeps.keys).isEmpty()
+    assertThat(bar.dependencies.keys).isEmpty()
   }
 
   @Test
@@ -55,7 +55,7 @@ private class MClassTest {
     assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
     assertThat(bar.getAllSuperclasses().classNames())
         .containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
-    assertThat(bar.declaredDeps.keys).isEmpty()
+    assertThat(bar.dependencies.keys).isEmpty()
   }
 
   @Test
@@ -82,7 +82,7 @@ private class MClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     assertThat(bar.directSuperclasses.classNames()).containsExactly(COMPONENT)
-    assertThat(bar.declaredDeps.keys).containsExactly(Key(cn("Bar"), 0))
+    assertThat(bar.dependencies.keys).containsExactly(Key(cn("Bar"), 0))
   }
 
   @Test

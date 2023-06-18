@@ -7,8 +7,7 @@
 CLASS TerraformingMars : System, AutoLoad {
   HAS =1 This
 
-  This: SetupPhase
-
+  SetupPhase: Generation
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed
@@ -46,7 +45,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 }
 
 "Tells what generation we're in; mostly matters in solo games"
-CLASS Generation { HAS 1 This }
+CLASS Generation
 
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational { Generation:: -This. }

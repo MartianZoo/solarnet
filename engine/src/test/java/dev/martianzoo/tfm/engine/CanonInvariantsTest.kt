@@ -42,7 +42,6 @@ internal class CanonInvariantsTest {
     checkComponentLimit("Tharsis_5_5", 1..1)
     checkComponentLimit("PlayCardSA", 1..1)
     checkComponentLimit("PowerPlantSP", 1..1)
-    checkComponentLimit("Generation", 1..MAX_VALUE)
 
     checkComponentLimit("OxygenStep", 0..14)
     checkComponentLimit("TemperatureStep", 0..19)
