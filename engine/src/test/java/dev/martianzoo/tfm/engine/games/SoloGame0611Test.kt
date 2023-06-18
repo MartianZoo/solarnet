@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.games
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 
 class SoloGame0611Test : AbstractSoloTest() {
