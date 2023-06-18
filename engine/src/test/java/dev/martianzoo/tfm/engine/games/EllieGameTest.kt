@@ -1,32 +1,26 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 
-class EllieGameTest {
+class EllieGameTest : AbstractFullGameTest() {
+  override fun setup() = GameSetup(Canon, "BRHXP", 2)
+
   @Test
   fun game() {
-    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.tfm(ENGINE)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-
-    eng.phase("Corporation")
+    engine.phase("Corporation")
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    eng.phase("Prelude")
+    engine.phase("Prelude")
 
     p1.playPrelude("UnmiContractor")
     p1.playPrelude("CorporateArchives")
@@ -35,7 +29,7 @@ class EllieGameTest {
 
     // Action!
 
-    eng.phase("Action")
+    engine.phase("Action")
 
     p1.playProject("MediaGroup", 6)
     p1.playProject("Sabotage", 1) { doTask("-7 M<P2>") }
@@ -54,7 +48,7 @@ class EllieGameTest {
 
     // Generation 2
 
-    eng.nextGeneration(1, 3)
+    engine.nextGeneration(1, 3)
 
     p2.sellPatents(1)
     p2.playProject("VestaShipyard", 15)
@@ -78,7 +72,7 @@ class EllieGameTest {
 
     // Generation 2
 
-    eng.nextGeneration(3, 1)
+    engine.nextGeneration(3, 1)
 
     p1.cardAction1("DevelopmentCenter")
     p1.playProject("ImmigrantCity", 1, steel = 5) {
@@ -88,70 +82,50 @@ class EllieGameTest {
 
     // Check counts, shared stuff first
 
-    assertThat(eng.counts("Generation")).containsExactly(3)
-    assertThat(eng.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(1, 0, 0)
+    assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 1)
 
     with(p1) {
-      assertThat(this.count("TerraformRating")).isEqualTo(24)
-
-      assertThat(production().values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
-
-      assertThat(counts("M, S, T, P, E, H")).containsExactly(16, 3, 0, 0, 0, 1).inOrder()
-
-      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-          .containsExactly(7, 12, 5, 4, 1)
-
-      // tag abbreviations
-      assertThat(counts("Tag, BUT, SPT, SCT, POT, EAT, JOT, CIT"))
-          .containsExactly(16, 5, 1, 3, 1, 4, 1, 1)
-          .inOrder()
-
-      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
+      assertCounts(24 to "TerraformRating")
+      assertProduction(m = 5, s = 0, t = 0, p = 0, e = 0, h = 1)
+      assertResources(m = 16, s = 3, t = 0, p = 0, e = 0, h = 1)
+      assertCounts(7 to "ProjectCard", 12 to "CardFront")
+      assertCounts(5 to "ActiveCard", 4 to "AutomatedCard", 1 to "PlayedEvent")
+      assertTags(but = 5, spt = 1, sct = 3, pot = 1, eat = 4, jot = 1, cit = 1)
+      assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
     with(p2) {
-      assertThat(this.count("TerraformRating")).isEqualTo(25)
-
-      assertThat(production().values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
-
-      assertThat(counts("M, S, T, P, E, H")).containsExactly(18, 0, 1, 6, 1, 3).inOrder()
-
-      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-          .containsExactly(9, 5, 1, 2, 2)
-
-      assertThat(counts("Tag, SPT, SCT, JOT, PLT")).containsExactly(6, 1, 3, 1, 1).inOrder()
-
-      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(0, 0, 0).inOrder()
+      assertCounts(25 to "TerraformRating")
+      assertProduction(m = -4, s = 0, t = 1, p = 3, e = 1, h = 1)
+      assertResources(m = 18, s = 0, t = 1, p = 6, e = 1, h = 3)
+      assertCounts(9 to "ProjectCard", 5 to "CardFront")
+      assertCounts(1 to "ActiveCard", 2 to "AutomatedCard", 2 to "PlayedEvent")
+      assertTags(spt = 1, sct = 3, jot = 1, plt = 1)
+      assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    // To check VPs we have to fake the game ending
-
-    eng.phase("End") {
-      // TODO why does P1 have 1 more point than I expect?
-      // Should be 23 2 1 1 -1 / 25 1 1 1
-      eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")
-      throw AbortOperationException()
-    }
+    // TODO why does P1 have 1 more point than I expect?
+    // Should be 23 2 1 1 -1 / 25 1 1 1
+    p1.assertVps(27)
+    p2.assertVps(28)
   }
 
   @Test
   fun earlyGameWithNoPrelude() {
     val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
-    val eng = game.tfm(ENGINE)
+    val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    eng.phase("Corporation")
+    engine.phase("Corporation")
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    eng.phase("Action")
+    engine.phase("Action")
 
     p1.playProject("MediaGroup", 6)
     p1.playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
 
     p2.playProject("Research", 11)
   }
-
-  fun TfmGameplay.counts(s: String) = s.split(",").map { this.count(it) }
 }

@@ -3,31 +3,20 @@ package dev.martianzoo.tfm.engine.games
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.data.Player.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.TaskResult
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
-import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestHelpers.assertNetChanges
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
-import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class Game20230521Test {
+class Game20230521Test : AbstractFullGameTest() {
+
+  override fun setup() = GameSetup(Canon, "BRMVPXT", 2)
+
   @Test
   fun game() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMVPXT", 2))
-    val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-
     /*
         The // comments below are log messages taken directly from the herokuapp.
         After every generation is a giant block of assertions, which use the
@@ -35,8 +24,6 @@ class Game20230521Test {
 
         I had to cheat in a couple places; search for TODO or godMode().
     */
-
-    fun TaskResult.expect(string: String) = assertNetChanges(this, game, engine, string)
 
     // Good luck Player1!
     // Good luck Player2!
@@ -148,7 +135,7 @@ class Game20230521Test {
       assertProds(5 to "M", 3 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
       assertCounts(23 to "M", 5 to "S", 0 to "T", 0 to "P", 0 to "E", 1 to "H")
       assertDashMiddle(played = 6, actions = 1, vp = 23, tr = 23, hand = 7)
-      assertTags(2 to "BUT", 1 to "SCT", 2 to "EAT")
+      assertTags(but = 2, sct = 1, eat = 2)
       assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
@@ -156,11 +143,11 @@ class Game20230521Test {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 0 to "E", 3 to "H")
       assertCounts(15 to "M", 1 to "S", 3 to "T", 2 to "P", 0 to "E", 3 to "H")
       assertDashMiddle(played = 7, actions = 2, vp = 20, tr = 20, hand = 5)
-      assertTags(2 to "BUT", 1 to "SPT", 1 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertTags(but = 2, spt = 1, sct = 1, pot = 1, jot = 1, plt = 1, mit = 1)
       assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
+    assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
     // Player2 used Factorum action
     // Player2 drew Gyropolis
@@ -221,7 +208,7 @@ class Game20230521Test {
       assertProds(4 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 0 to "H")
       assertCounts(27 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
       assertDashMiddle(played = 10, actions = 3, vp = 23, tr = 23, hand = 7)
-      assertTags(3 to "BUT", 1 to "SPT", 2 to "SCT", 1 to "POT", 3 to "EAT", 1 to "VET")
+      assertTags(but = 3, spt = 1, sct = 2, pot = 1, eat = 3, vet = 1)
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
@@ -229,11 +216,11 @@ class Game20230521Test {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 0 to "E", 3 to "H")
       assertCounts(21 to "M", 1 to "S", 4 to "T", 3 to "P", 0 to "E", 6 to "H")
       assertDashMiddle(played = 8, actions = 2, vp = 22, tr = 21, hand = 7)
-      assertTags(3 to "BUT", 1 to "SPT", 2 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertTags(but = 3, spt = 1, sct = 2, pot = 1, jot = 1, plt = 1, mit = 1)
       assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 2)
+    assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 2)
 
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
@@ -306,7 +293,7 @@ class Game20230521Test {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
       assertCounts(44 to "M", 3 to "S", 0 to "T", 1 to "P", 1 to "E", 10 to "H")
       assertDashMiddle(played = 13, actions = 3, vp = 21, tr = 23, hand = 6)
-      assertTags(4 to "BUT", 2 to "SPT", 2 to "SCT", 1 to "POT", 3 to "EAT", 1 to "VET", 1 to "CIT")
+      assertTags(but = 4, spt = 2, sct = 2, pot = 1, eat = 3, vet = 1, cit = 1)
       assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
     }
 
@@ -314,11 +301,11 @@ class Game20230521Test {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
       assertCounts(29 to "M", 2 to "S", 1 to "T", 4 to "P", 1 to "E", 9 to "H")
       assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 7)
-      assertTags(3 to "BUT", 2 to "SPT", 3 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertTags(but = 3, spt = 2, sct = 3, pot = 1, jot = 1, plt = 1, mit = 1)
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 2)
+    assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 2)
 
     // Player2 used Factorum action
     // Player2 drew Jovian Embassy
@@ -403,7 +390,7 @@ class Game20230521Test {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 4 to "E", 2 to "H")
       assertCounts(28 to "M", 3 to "S", 0 to "T", 1 to "P", 4 to "E", 11 to "H")
       assertDashMiddle(played = 15, actions = 3, vp = 26, tr = 27, hand = 9)
-      assertTags(5 to "BUT", 2 to "SPT", 2 to "SCT", 2 to "POT", 3 to "EAT", 1 to "VET", 1 to "CIT")
+      assertTags(but = 5, spt = 2, sct = 2, pot = 2, eat = 3, vet = 1, cit = 1)
       assertCounts(3 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
     }
 
@@ -411,11 +398,11 @@ class Game20230521Test {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
       assertCounts(15 to "M", 1 to "S", 2 to "T", 7 to "P", 1 to "E", 13 to "H")
       assertDashMiddle(played = 12, actions = 4, vp = 26, tr = 24, hand = 11)
-      assertTags(4 to "BUT", 2 to "SPT", 4 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertTags(but = 4, spt = 2, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 5, temp = -24, oxygen = 0, oceans = 1, venus = 8)
+    assertSidebar(gen = 5, temp = -24, oxygen = 0, oceans = 1, venus = 8)
 
     checkSummaryAfterGen4(game)
 
@@ -518,7 +505,7 @@ class Game20230521Test {
       assertProds(9 to "M", 3 to "S", 0 to "T", 0 to "P", 5 to "E", 3 to "H")
       assertCounts(31 to "M", 3 to "S", 0 to "T", 4 to "P", 5 to "E", 15 to "H")
       assertDashMiddle(played = 18, actions = 3, vp = 29, tr = 29, hand = 11)
-      assertTags(7 to "BUT", 2 to "SPT", 2 to "SCT", 3 to "POT", 3 to "EAT", 1 to "VET", 2 to "CIT")
+      assertTags(but = 7, spt = 2, sct = 2, pot = 3, eat = 3, vet = 1, cit = 2)
       assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -526,11 +513,11 @@ class Game20230521Test {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
       assertCounts(21 to "M", 1 to "S", 1 to "T", 8 to "P", 1 to "E", 9 to "H")
       assertDashMiddle(played = 13, actions = 5, vp = 29, tr = 27, hand = 12)
-      assertTags(4 to "BUT", 3 to "SPT", 4 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertTags(but = 4, spt = 3, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
+    assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
     // TODO this *should* work, but doesn't, so we have to fake it.
     assertThrows<DependencyException> { p2.stdAction("ConvertPlantsSA") }
@@ -656,8 +643,8 @@ class Game20230521Test {
       assertCounts(40 to "M", 7 to "S", 1 to "T", 5 to "P", 4 to "E", 14 to "H")
       assertDashMiddle(played = 27, actions = 3, vp = 34, tr = 30, hand = 10)
       assertTags(
-          9 to "BUT", 5 to "SPT", 4 to "SCT", 3 to "POT", 5 to "EAT", 1 to "JOT",
-          4 to "VET", 1 to "PLT", 2 to "CIT")
+          but = 9, spt = 5, sct = 4, pot = 3, eat = 5, jot = 1,
+          vet = 4, plt = 1, cit = 2)
       assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -665,11 +652,11 @@ class Game20230521Test {
       assertProds(0 to "M", 2 to "S", 1 to "T", 1 to "P", 2 to "E", 3 to "H")
       assertCounts(32 to "M", 2 to "S", 1 to "T", 3 to "P", 2 to "E", 5 to "H")
       assertDashMiddle(played = 15, actions = 5, vp = 34, tr = 31, hand = 13)
-      assertTags(6 to "BUT", 3 to "SPT", 4 to "SCT", 2 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertTags(but = 6, spt = 3, sct = 4, pot = 2, jot = 1, plt = 1, mit = 1)
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 7, temp = -14, oxygen = 1, oceans = 3, venus = 12)
+    assertSidebar(gen = 7, temp = -14, oxygen = 1, oceans = 3, venus = 12)
 
     // Player1 claimed Builder milestone
     p1.stdAction("ClaimMilestoneSA") {
@@ -764,8 +751,8 @@ class Game20230521Test {
       assertCounts(44 to "M", 12 to "S", 2 to "T", 6 to "P", 8 to "E", 16 to "H")
       assertDashMiddle(played = 31, actions = 5, vp = 41, tr = 31, hand = 10)
       assertTags(
-          9 to "BUT", 5 to "SPT", 5 to "SCT", 4 to "POT", 5 to "EAT", 1 to "JOT",
-          6 to "VET", 1 to "PLT", 1 to "ANT", 2 to "CIT")
+          but = 9, spt = 5, sct = 5, pot = 4, eat = 5, jot = 1,
+          vet = 6, plt = 1, ant = 1, cit = 2)
       assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -773,12 +760,12 @@ class Game20230521Test {
       assertProds(0 to "M", 2 to "S", 2 to "T", 1 to "P", 4 to "E", 3 to "H")
       assertCounts(25 to "M", 2 to "S", 3 to "T", 6 to "P", 4 to "E", 8 to "H")
       assertDashMiddle(played = 20, actions = 6, vp = 36, tr = 31, hand = 11)
-      assertTags(8 to "BUT", 3 to "SPT", 4 to "SCT", 3 to "POT", 1 to "EAT", 1 to "JOT",
-          1 to "PLT", 1 to "MIT")
+      assertTags(but = 8, spt = 3, sct = 4, pot = 3, eat = 1, jot = 1,
+          plt = 1, mit = 1)
       assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
+    assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
 
     // Player2 played Advanced Alloys
     // Player2 is using their Mars University effect to draw a card by discarding a card.
@@ -901,8 +888,8 @@ class Game20230521Test {
       assertProds(27 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
       assertCounts(56 to "M", 5 to "S", 1 to "T", 4 to "P", 8 to "E", 18 to "H")
       assertDashMiddle(played = 34, actions = 7, vp = 58, tr = 38, hand = 12)
-      assertTags(10 to "BUT", 6 to "SPT", 5 to "SCT", 4 to "POT", 5 to "EAT",
-          1 to "JOT", 8 to "VET", 1 to "PLT", 1 to "ANT", 2 to "CIT")
+      assertTags(but = 10, spt = 6, sct = 5, pot = 4, eat = 5,
+          jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
       assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -910,12 +897,12 @@ class Game20230521Test {
       assertProds(0 to "M", 2 to "S", 3 to "T", 1 to "P", 3 to "E", 3 to "H")
       assertCounts(28 to "M", 2 to "S", 5 to "T", 3 to "P", 3 to "E", 5 to "H")
       assertDashMiddle(played = 23, actions = 7, vp = 41, tr = 34, hand = 13)
-      assertTags(9 to "BUT", 3 to "SPT", 6 to "SCT", 3 to "POT", 1 to "EAT",
-          1 to "JOT", 1 to "VET", 1 to "PLT", 1 to "MIT")
+      assertTags(but = 9, spt = 3, sct = 6, pot = 3, eat = 1,
+          jot = 1, vet = 1, plt = 1, mit = 1)
       assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 9, temp = -6, oxygen = 3, oceans = 4, venus = 18)
+    assertSidebar(gen = 9, temp = -6, oxygen = 3, oceans = 4, venus = 18)
 
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
@@ -1103,8 +1090,8 @@ class Game20230521Test {
       assertCounts(66 to "M", 5 to "S", 1 to "T", 10 to "P", 9 to "E", 16 to "H")
       assertDashMiddle(played = 40, actions = 8, vp = 78, tr = 42, hand = 8)
       assertTags(
-          13 to "BUT", 6 to "SPT", 5 to "SCT", 4 to "POT", 5 to "EAT", 1 to "JOT",
-          9 to "VET", 3 to "PLT", 1 to "MIT", 1 to "ANT", 2 to "CIT")
+          but = 13, spt = 6, sct = 5, pot = 4, eat = 5, jot = 1,
+          vet = 9, plt = 3, mit = 1, ant = 1, cit = 2)
       assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -1112,12 +1099,12 @@ class Game20230521Test {
       assertProds(3 to "M", 2 to "S", 3 to "T", 4 to "P", 3 to "E", 3 to "H")
       assertCounts(36 to "M", 3 to "S", 3 to "T", 10 to "P", 3 to "E", 9 to "H")
       assertDashMiddle(played = 28, actions = 7, vp = 58, tr = 41, hand = 13)
-      assertTags(10 to "BUT", 3 to "SPT", 7 to "SCT", 3 to "POT", 1 to "EAT",
-          1 to "JOT", 1 to "VET", 3 to "PLT", 1 to "MIT", 1 to "ANT")
+      assertTags(but = 10, spt = 3, sct = 7, pot = 3, eat = 1,
+          jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
       assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
+    assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
 
     val summ = Summarizer(game)
     assertThat(summ.net("Manutech", "Resource")).isEqualTo(92)
@@ -1397,35 +1384,5 @@ class Game20230521Test {
 
     // This is ludicrous
     // assertThat(summer.net("Component", "Component")).isEqualTo(163)
-  }
-
-  private fun TfmGameplay.assertTags(vararg pair: Pair<Int, String>) {
-    assertCounts(*pair)
-    assertThat(this.count("Tag")).isEqualTo(pair.toList().sumOf { it.first })
-  }
-
-  private fun TfmGameplay.assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int) {
-    assertCounts(gen to "Generation")
-    assertThat(temperatureC()).isEqualTo(temp)
-    assertThat(oxygenPercent()).isEqualTo(oxygen)
-    assertCounts(oceans to "OceanTile")
-    assertThat(venusPercent()).isEqualTo(venus)
-  }
-
-  private fun TfmGameplay.assertDashMiddle(played: Int, actions: Int, vp: Int, tr: Int, hand: Int) {
-    assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront + PlayedEvent")
-    assertActions(actions)
-    assertVps(vp)
-  }
-
-  private fun TfmGameplay.assertVps(expected: Int) {
-    phase("End") {
-      assertCounts(expected to "VP")
-      throw AbortOperationException()
-    }
-  }
-
-  private fun TfmGameplay.assertActions(expected: Int) {
-    assertThat(this.count("ActionCard") - this.count("ActionUsedMarker")).isEqualTo(expected)
   }
 }

@@ -10,6 +10,7 @@ class SoloGame0611Test : AbstractSoloTest() {
   fun ten() {
     repeat(10) {
       commonSetup()
+      soloSetup()
       letsPlay()
     }
   }
