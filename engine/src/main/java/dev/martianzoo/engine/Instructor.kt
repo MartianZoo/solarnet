@@ -190,7 +190,7 @@ constructor(
     }
   }
 
-  // Still spending 35% of time in this method
+  // Still spending 25% of solo game time in this method
   // TODO make it faster and/or need it less
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
     var g = gaining?.let(reader::resolve) as MType?

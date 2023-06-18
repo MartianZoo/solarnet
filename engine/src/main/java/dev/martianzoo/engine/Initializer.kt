@@ -17,6 +17,7 @@ constructor(
     private val setup: GameSetup,
     private val tasks: TaskQueue,
 ) {
+  // TODO this is taking 14% of total solo game time
   fun initialize() {
     var fakeCause: Cause? = null
 

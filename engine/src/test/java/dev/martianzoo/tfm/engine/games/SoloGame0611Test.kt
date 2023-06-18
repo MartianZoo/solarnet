@@ -1,27 +1,24 @@
 package dev.martianzoo.tfm.engine.games
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 
 class SoloGame0611Test : AbstractSoloTest() {
   // @Test // for profiling
-  fun ten() {
-    repeat(10) {
+  fun fifty() {
+    repeat(50) {
       commonSetup()
       soloSetup()
       letsPlay()
     }
   }
 
+  override fun cityAreas() = "Hellas_5_1" to "Hellas_8_4"
+  override fun greeneryAreas() = "Hellas_6_2" to "Hellas_9_5"
+
   @Test
   fun letsPlay() {
-    engine.phase("Corporation")
-    opponent.godMode().sneak("CityTile<H51>, GreeneryTile<H62>")
-    opponent.godMode().sneak("CityTile<H84>, GreeneryTile<H95>")
-
     with(me) {
       playCorp("ValleyTrust", 5).expect("5 ProjectCard")
 
@@ -113,14 +110,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       pass()
       nextGeneration(3, 0)
 
-      // TODO save trouble by not using SA in the first place
-      autoExecMode = NONE
-      stdAction("ConvertPlantsSA") {
-        doTask(game.tasks.ids().first()) // mandate
-        doTask("-8 Plant")
-        godMode().dropTask(game.tasks.ids().single())
-      }
-      autoExecMode = FIRST
+      // TODO
+      godMode().manual("-8 Plant")
       godMode().manual("GreeneryTile<H97>") { doTask("OceanTile<H56>") }.expect("2 TR, Card, -6")
 
       cardAction1(SubCrustMeasurements)
