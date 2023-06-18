@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.OWNER
@@ -8,8 +8,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
 import org.junit.jupiter.api.Test
 
 private class MTypeTest {

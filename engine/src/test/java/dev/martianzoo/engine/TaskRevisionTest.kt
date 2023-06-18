@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.LimitsException
@@ -9,8 +9,6 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.canon.Canon
 import kotlin.reflect.KClass

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions

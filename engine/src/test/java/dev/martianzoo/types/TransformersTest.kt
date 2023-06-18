@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
@@ -9,7 +9,6 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.engine.Prod
-import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 
 class TransformersTest {

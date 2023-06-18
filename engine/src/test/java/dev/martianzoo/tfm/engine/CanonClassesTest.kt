@@ -9,8 +9,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.classDeclaration
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.types.te
 import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.te
 import org.junit.jupiter.api.Test
 
 /** Tests for the Canon data set. */

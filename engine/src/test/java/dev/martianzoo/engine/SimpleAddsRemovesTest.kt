@@ -1,13 +1,12 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.types.te
+import dev.martianzoo.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 

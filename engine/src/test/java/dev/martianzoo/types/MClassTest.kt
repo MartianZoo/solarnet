@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.CLASS
@@ -8,9 +8,6 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.MClass
-import dev.martianzoo.types.MClassLoader
-import dev.martianzoo.types.MClassTable
 import dev.martianzoo.util.toSetStrict
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
