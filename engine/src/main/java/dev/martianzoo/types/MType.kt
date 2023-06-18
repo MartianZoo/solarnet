@@ -37,6 +37,7 @@ internal constructor(
   override fun isSubtypeOf(that: MType) = narrows(that)
 
   // Nearest common subtype
+  // TODO allocating 28 MB per solo game
   override fun glb(that: MType): MType? {
     val glbClass = (root glb that.root) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
@@ -117,6 +118,7 @@ internal constructor(
     }
   }
 
+  // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
   override fun narrows(that: Type, info: TypeInfo): Boolean {
     that as? MType ?: error("")
     if (!root.isSubtypeOf(that.root)) return false
