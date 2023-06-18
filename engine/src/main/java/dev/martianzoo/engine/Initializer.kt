@@ -11,11 +11,11 @@ import javax.inject.Inject
 internal class Initializer
 @Inject
 constructor(
-    val gameplay: Gameplay,
-    val table: MClassTable,
-    val timeline: Timeline,
-    val setup: GameSetup,
-    val tasks: TaskQueue,
+    private val gameplay: Gameplay,
+    private val table: MClassTable,
+    private val timeline: TimelineImpl,
+    private val setup: GameSetup,
+    private val tasks: TaskQueue,
 ) {
   fun initialize() {
     var fakeCause: Cause? = null

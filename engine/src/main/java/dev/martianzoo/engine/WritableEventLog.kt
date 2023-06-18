@@ -19,8 +19,10 @@ import javax.inject.Inject
 
 @GameScoped
 internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, ChangeLogger {
-  val events: MutableList<GameEvent> = mutableListOf()
-  override val size: Int by events::size
+  private val events: MutableList<GameEvent> = mutableListOf()
+  internal val size: Int by events::size
+
+  internal fun eventsToRollBack(ordinal: Int) = events.subList(ordinal, events.size)
 
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
@@ -66,11 +68,9 @@ internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, 
     return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
   }
 
-  override fun checkpoint() = Checkpoint(size)
-
   private lateinit var start: Checkpoint
 
   fun setStartPoint() {
-    start = checkpoint()
+    start = Checkpoint(size)
   }
 }

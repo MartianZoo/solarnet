@@ -24,7 +24,7 @@ public class Component internal constructor(private val mtype: MType) : Type by 
     if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
   }
 
-  val isCustom: Boolean = mtype.root.custom != null
+  internal val isCustom: Boolean = mtype.root.custom != null
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a

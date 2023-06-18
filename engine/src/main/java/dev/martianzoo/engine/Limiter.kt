@@ -21,11 +21,12 @@ import kotlin.Int.Companion.MAX_VALUE
 internal class Limiter
 @Inject
 constructor(private val table: MClassTable, private val components: ComponentGraph) {
-
-  val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {
+  // visible for testing
+  internal val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {
     val multimap = mutableMapOf<MClass, MutableList<RangeRestriction>>()
 
-    table.allClasses()
+    table
+        .allClasses()
         .flatMap { mclass ->
           mclass.invariants().map {
             var expr = (it as Counting).scaledEx.expression
@@ -83,14 +84,16 @@ constructor(private val table: MClassTable, private val components: ComponentGra
     return ourRestrictions.toSet() + SimpleRangeRestriction(mtype, 0..MAX_VALUE)
   }
 
-  sealed class RangeRestriction {
+  internal sealed class RangeRestriction {
     abstract val range: IntRange
     abstract val mclass: MClass
 
-    abstract fun bindThisTo(mtype: MType): SimpleRangeRestriction
+    internal abstract fun bindThisTo(mtype: MType): SimpleRangeRestriction
 
-    data class SimpleRangeRestriction(val mtype: MType, override val range: IntRange) :
-        RangeRestriction() {
+    internal data class SimpleRangeRestriction(
+        val mtype: MType,
+        override val range: IntRange
+    ) : RangeRestriction() {
       override val mclass = mtype.root
 
       override fun bindThisTo(mtype: MType) = this
@@ -104,8 +107,8 @@ constructor(private val table: MClassTable, private val components: ComponentGra
       }
     }
 
-    data class UnboundRangeRestriction(
-        val expression: Expression,
+    internal data class UnboundRangeRestriction(
+        private val expression: Expression,
         override val mclass: MClass,
         override val range: IntRange
     ) : RangeRestriction() {

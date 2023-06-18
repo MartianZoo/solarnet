@@ -10,15 +10,6 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  * complete game state could be reconstructed by replaying these events.
  */
 public interface EventLog {
-
-  val size: Int
-
-  /**
-   * Returns a [Checkpoint] that can be passed to [Game.rollBack] to return the game to its present
-   * state, or to any of the `-Since` methods.
-   */
-  fun checkpoint(): Checkpoint
-
   /** Returns all change events since game setup was concluded. */
   fun changesSinceSetup(): List<GameEvent.ChangeEvent>
   fun entriesSinceSetup(): List<GameEvent>

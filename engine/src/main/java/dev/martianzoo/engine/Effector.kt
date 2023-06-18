@@ -38,7 +38,7 @@ internal class Effector
 @Inject
 constructor(
     reader: Provider<GameReader>,
-    val table: MClassTable,
+    private val table: MClassTable,
 ) {
   private val reader: GameReader by lazy(reader::get)
   private val registry = HashMultiset<ActiveEffect>()
@@ -134,7 +134,7 @@ constructor(
         reader: GameReader,
     ): Hit?
 
-    abstract val classToCheck: ClassName?
+    internal abstract val classToCheck: ClassName?
 
     private data class Regular(val match: Expression, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(

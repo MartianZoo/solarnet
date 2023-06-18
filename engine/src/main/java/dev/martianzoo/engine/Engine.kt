@@ -54,6 +54,7 @@ public object Engine {
     @Provides fun changelog(x: WritableEventLog): ChangeLogger = x
     @Provides fun listener(x: WritableEventLog): TaskListener = x
     @Provides fun reader(x: GameReaderImpl): GameReader = x
+    @Provides fun timeline(x: TimelineImpl): Timeline = x
   }
 
   @Scope annotation class GameScoped
