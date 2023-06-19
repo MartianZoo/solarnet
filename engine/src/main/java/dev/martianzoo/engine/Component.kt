@@ -20,10 +20,12 @@ import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MType
 
 /** An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. */
-public class Component internal constructor(private val mtype: MType) : Type {
+public class Component internal constructor(private val mtype: MType): HasExpression by mtype {
   init {
     if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
   }
+
+  internal val type by ::mtype
 
   internal val isCustom: Boolean = mtype.root.custom != null
 
@@ -76,15 +78,6 @@ public class Component internal constructor(private val mtype: MType) : Type {
     val translated = mtype.root.custom!!.prepare(reader, mtype)
     return xerForCustom.transform(translated)
   }
-
-  // TODO this whole section should be replaceable by just adding `by mtype` after `Type` in the
-  // class signature. Doing that works from inside IDEA but gets CCE from command line
-  override val abstract by mtype::abstract
-  override val refinement by mtype::refinement
-  override val className by mtype::className
-  override val expression by mtype::expression
-  override val expressionFull by mtype::expressionFull
-  override fun narrows(that: Type, info: TypeInfo) = mtype.narrows(that, info)
 
   override fun equals(other: Any?) = other is Component && other.mtype == mtype
 

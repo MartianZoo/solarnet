@@ -57,8 +57,8 @@ public object Engine {
     @Provides fun timeline(x: TimelineImpl): Timeline = x
   }
 
-  @Scope annotation class GameScoped
-  @Scope annotation class PlayerScoped
+  @Scope internal annotation class GameScoped
+  @Scope internal annotation class PlayerScoped
 
   @PlayerScoped
   @Subcomponent(modules = [PlayerModule::class])

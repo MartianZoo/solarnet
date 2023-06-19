@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
@@ -55,7 +54,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
   fun findLimit(gaining: Component?, removing: Component?): Int {
     if (gaining != null) {
       val missingDeps = gaining.dependencyComponents.filter { it !in components }
-      if (missingDeps.any()) throw DependencyException(missingDeps)
+      if (missingDeps.any()) throw DependencyException(missingDeps.map { it.type })
     }
 
     // We must ignore any that are in common; the transmutation must hold them constant
@@ -73,8 +72,8 @@ constructor(private val table: MClassTable, private val components: ComponentGra
     return (headroom + footroom).minOrNull() ?: MAX_VALUE
   }
 
-  fun applicableRangeRestrictions(type: Type?): Set<SimpleRangeRestriction> {
-    val mtype = type?.let { table.resolve(it) } ?: return setOf()
+  fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
+    val mtype = component?.type?.let { table.resolve(it) } ?: return setOf()
     val allRestrictions = rangeRestrictionsByClass[mtype.root] ?: listOf()
     val ourRestrictions =
         allRestrictions.mapNotNull {

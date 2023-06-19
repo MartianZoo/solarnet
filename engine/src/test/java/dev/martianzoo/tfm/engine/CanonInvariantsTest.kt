@@ -28,7 +28,7 @@ internal class CanonInvariantsTest {
       val c = table.resolve(parse<Expression>(s))
       val actual =
           limiter
-              .applicableRangeRestrictions(c)
+              .applicableRangeRestrictions(c.toComponent())
               .filter { it.range != 0..MAX_VALUE }
               .map { it.mtype.expression.toString() to it.range }
       assertThat(actual).containsExactly(*pairs)

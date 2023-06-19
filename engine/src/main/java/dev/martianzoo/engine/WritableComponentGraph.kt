@@ -69,7 +69,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
     if (countComponent(removing) == count) {
       if (multiset.elements.any { removing in it.dependencyComponents }) {
         val dependents = multiset.elements.filter { removing in it.dependencyComponents }
-        throw ExistingDependentsException(dependents)
+        throw ExistingDependentsException(dependents.map { it.type })
       }
     }
   }

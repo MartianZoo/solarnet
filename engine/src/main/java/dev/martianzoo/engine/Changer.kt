@@ -40,7 +40,7 @@ constructor(
 
   private fun removeAll(dependent: Type, cause: Cause?): ChangeEvent {
     val component = dependent.toComponent(reader)
-    val count = reader.countComponent(component)
+    val count = reader.countComponent(dependent)
     return change(
         count = count,
         gaining = null,

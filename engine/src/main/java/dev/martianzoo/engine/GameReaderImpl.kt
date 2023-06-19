@@ -81,7 +81,7 @@ constructor(
       components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) =
-      components.getAll(table.resolve(type), this)
+      components.getAll(table.resolve(type), this).map { it.type }
 
   override fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P =
       preprocess(Parsing.parse(type, text))
