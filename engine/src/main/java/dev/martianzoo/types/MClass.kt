@@ -6,6 +6,7 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
@@ -17,13 +18,16 @@ import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
 import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
@@ -229,24 +233,31 @@ internal constructor(
     getAllSuperclasses().flatMap { it.directClassEffects() }.toSetStrict()
   }
 
-  private fun directClassEffects(): List<Effect> {
-    val transformer =
-        if (OWNED !in getAllSuperclasses().classNames()) {
-          chain(
-              attachToClassTransformer,
-              loader.transformers.fixEffectForUnownedContext(),
-          )
-        } else {
-          attachToClassTransformer
-        }
-
-    return declaredEffects.map { transformer.transform(it) }
-  }
+  private fun directClassEffects() = declaredEffects.map(attachToClassTransformer::transform)
 
   private val attachToClassTransformer: PetTransformer by lazy {
     val weirdExpression = className.has(Min(scaledEx(1, OK)))
     val xers = loader.transformers
-    chain(xers.insertDefaults(weirdExpression), xers.atomizer())
+    chain(
+        xers.insertDefaults(weirdExpression),
+        xers.atomizer(),
+        Prod.deprodify(loader),
+        fixEffectForUnownedContext(),
+    )
+  }
+
+  private fun fixEffectForUnownedContext(): PetTransformer? {
+    if (allSuperclasses.any { it.className == OWNED }) return null
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {
+          @Suppress("UNCHECKED_CAST")
+          node.copy(trigger = ByTrigger(node.trigger, OWNER)) as P
+        } else {
+          transformChildren(node)
+        }
+      }
+    }
   }
 
   // OTHER

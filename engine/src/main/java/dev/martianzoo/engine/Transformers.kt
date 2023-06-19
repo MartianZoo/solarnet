@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.PetTransformer
@@ -10,8 +9,6 @@ import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -34,8 +31,6 @@ import javax.inject.Inject
 
 @GameScoped
 internal class Transformers @Inject constructor(val table: MClassTable) {
-
-  public fun standardPreprocess() = chain(useFullNames(), atomizer(), insertDefaults())
 
   public fun useFullNames() =
       object : PetTransformer() {
@@ -173,7 +168,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
   private fun insertDefaultsIntoExpr(
       original: Expression,
       defaultDeps: DependencySet,
-      contextCpt: Expression = THIS.expression,
+      contextCpt: Expression,
       table: MClassTable,
   ): Expression {
 
@@ -214,22 +209,6 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
     }
   }
 
-  // We check if MartianIndustries reifies CardFront(HAS 1 BuildingTag)
-  // by testing the requirement `1 BuildingTag<MartianIndustries>`
-  internal fun refinementMangler(proposed: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return if (node is Expression) {
-          val modded = table.resolve(node).specialize(listOf(proposed))
-          @Suppress("UNCHECKED_CAST")
-          modded.expressionFull as P
-        } else {
-          transformChildren(node)
-        }
-      }
-    }
-  }
-
   internal fun findSubstitutions(
       gendeps: DependencySet,
       specdeps: DependencySet,
@@ -246,21 +225,5 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
           }
         }
         .toMap()
-  }
-
-  // Only use this if the context object is unowned!
-  fun fixEffectForUnownedContext(): PetTransformer {
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {
-          // no need to recurse on the components
-          val effect: Effect = node.copy(trigger = ByTrigger(node.trigger, OWNER))
-          @Suppress("UNCHECKED_CAST")
-          effect as P
-        } else {
-          transformChildren(node)
-        }
-      }
-    }
   }
 }

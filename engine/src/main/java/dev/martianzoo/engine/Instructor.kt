@@ -30,6 +30,7 @@ import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import javax.inject.Inject
@@ -150,7 +151,7 @@ constructor(
 
     if (g?.root?.custom != null) {
       require(r == null) { "custom class instructions can only be pure gains" }
-      val translated = reader.preprocess(gaining!!.prepareCustom(reader))
+      val translated = Prod.deprodify(table).transform(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }
 

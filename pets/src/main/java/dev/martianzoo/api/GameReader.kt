@@ -3,10 +3,8 @@ package dev.martianzoo.api
 import dev.martianzoo.data.Authority
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.util.Multiset
-import kotlin.reflect.KClass
 
 /** A readable view of the state of a game in progress. */
 interface GameReader : TypeInfo {
@@ -32,13 +30,4 @@ interface GameReader : TypeInfo {
 
   /** Returns the types of all concrete components in the current game state. */
   fun getComponents(type: Type): Multiset<out Type>
-
-  fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
-
-  fun <P : PetElement> preprocess(node: P): P
-
-  companion object {
-    inline fun <reified P : PetElement> GameReader.parse(text: String): P =
-        parseInternal(P::class, text)
-  }
 }

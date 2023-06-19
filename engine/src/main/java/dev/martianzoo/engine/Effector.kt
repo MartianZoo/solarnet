@@ -8,10 +8,10 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.engine.Effector.Subscription.Companion
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.BasicTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -26,31 +26,32 @@ import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.engine.Prod
-import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import javax.inject.Inject
 import javax.inject.Provider
 
 @GameScoped
-internal class Effector
-@Inject
-constructor(
-    reader: Provider<GameReader>,
-    private val table: MClassTable,
-) {
-  private val reader: GameReader by lazy(reader::get)
+internal class Effector @Inject constructor(reader: Provider<GameReader>?) {
+  private val reader: GameReader by lazy { reader!!.get() }
   private val registry = HashMultiset<ActiveEffect>()
 
-  // Called by WritableComponentGraph.update
-  fun update(component: Component, delta: Int) {
-    for (fx in activeEffects(component)) {
-      registry.setCount(fx, registry.count(fx) + delta)
-    }
+  private val effects = mutableMapOf<Component, List<ActiveEffect>>()
+
+  internal fun add(component: Component, delta: Int) =
+      activeEffects(component).forEach { registry.add(it, delta) }
+
+  internal fun mustRemove(component: Component, delta: Int) =
+      activeEffects(component).forEach { registry.mustRemove(it, delta) }
+
+  private fun activeEffects(component: Component): List<ActiveEffect> {
+    fun activeEffect(fx: Effect) =
+        ActiveEffect(
+            Subscription.from(fx.trigger, component), fx.automatic, fx.instruction, component)
+
+    return effects.computeIfAbsent(component) { it.effects.map(::activeEffect) }
   }
 
-  // Called by Instructor.executeChange
   fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
       fireSelfEffects(triggerEvent, automatic) + fireOtherEffects(triggerEvent, automatic)
 
@@ -66,22 +67,6 @@ constructor(
       registry.entries
           .filter { (fx, _) -> automatic == null || fx.automatic == automatic }
           .mapNotNull { (fx, ct) -> fx.onChangeToOther(triggerEvent, reader)?.times(ct) }
-
-  private val effects = mutableMapOf<Component, List<ActiveEffect>>()
-
-  private fun activeEffects(component: Component): List<ActiveEffect> {
-    return effects.computeIfAbsent(component) {
-      it.effects.map {
-        val deprodded = Prod.deprodify(table).transform(it)
-        ActiveEffect(
-            Companion.from(deprodded.trigger, component),
-            deprodded.automatic,
-            deprodded.instruction,
-            component,
-        )
-      }
-    }
-  }
 
   private data class ActiveEffect(
       private val subscription: Subscription,

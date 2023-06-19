@@ -5,14 +5,11 @@ import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.GameScoped
-import dev.martianzoo.pets.Parsing
-import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Metric.Plus
 import dev.martianzoo.pets.ast.Metric.Scaled
-import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.And
 import dev.martianzoo.pets.ast.Requirement.Counting
@@ -22,11 +19,9 @@ import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 import kotlin.math.min
-import kotlin.reflect.KClass
 
 @GameScoped
 internal class GameReaderImpl
@@ -59,6 +54,7 @@ constructor(
             is Exact -> actual == target
           }
         }
+
         is Or -> requirement.requirements.any { has(it) }
         is And -> requirement.requirements.all { has(it) }
         is Requirement.Transform -> error("should have been transformed by now: $requirement")
@@ -83,9 +79,4 @@ constructor(
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.type }
 
-  override fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P =
-      preprocess(Parsing.parse(type, text))
-
-  override fun <P : PetElement> preprocess(node: P) =
-      chain(transformers.standardPreprocess(), Prod.deprodify(table)).transform(node)
 }

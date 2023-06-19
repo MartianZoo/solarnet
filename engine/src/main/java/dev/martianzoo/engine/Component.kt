@@ -8,7 +8,6 @@ import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
@@ -20,7 +19,7 @@ import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MType
 
 /** An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. */
-public class Component internal constructor(private val mtype: MType): HasExpression by mtype {
+public class Component internal constructor(private val mtype: MType) : HasExpression by mtype {
   init {
     if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
   }
@@ -46,28 +45,16 @@ public class Component internal constructor(private val mtype: MType): HasExpres
         dep?.let { Player(dep.className) }
       }
 
-  private val xerForEffects: PetTransformer by lazy {
-    with(Transformers(mtype.loader)) {
-      chain(
-          substituter(mtype.root.defaultType, mtype),
-          owner?.let(::replaceOwnerWith),
-          replaceThisExpressionsWith(expression),
-      )
-    }
-  }
-
-  private val xerForCustom: PetTransformer by lazy {
-    with(Transformers(mtype.loader)) {
-      chain(
-          standardPreprocess(),
-          substituter(mtype.root.baseType, mtype),
-          owner?.let(::replaceOwnerWith),
-      )
-    }
-  }
-
   internal val effects: List<Effect> by lazy {
-    mtype.root.classEffects.map(xerForEffects::transform)
+    val classEffectTransformer =
+        with(Transformers(mtype.loader)) {
+          chain(
+              substituter(mtype.root.defaultType, mtype),
+              owner?.let(::replaceOwnerWith),
+              replaceThisExpressionsWith(expression),
+          )
+        }
+    mtype.root.classEffects.map(classEffectTransformer::transform)
   }
 
   fun hasType(supertype: Type) = mtype.narrows(supertype)
@@ -75,8 +62,12 @@ public class Component internal constructor(private val mtype: MType): HasExpres
   fun hasType(supertype: Type, info: TypeInfo) = mtype.narrows(supertype, info)
 
   fun prepareCustom(reader: GameReader): Instruction {
+    val customOutputTransformer =
+        with(Transformers(mtype.loader)) {
+          chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
+        }
     val translated = mtype.root.custom!!.prepare(reader, mtype)
-    return xerForCustom.transform(translated)
+    return customOutputTransformer.transform(translated)
   }
 
   override fun equals(other: Any?) = other is Component && other.mtype == mtype

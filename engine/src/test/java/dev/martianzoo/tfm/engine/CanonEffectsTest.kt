@@ -4,10 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -21,12 +19,6 @@ private class CanonEffectsTest {
 
   fun classEffectsOf(name: String, table: MClassTable) =
       table.getClass(cn(name)).classEffects.toStrings()
-
-  fun componentEffectsOf(type: String): List<String> {
-    val table = MClassLoader(GameSetup(Canon, "BM", 2))
-    val card = table.resolve(te(type))
-    return card.toComponent().effects.toStrings()
-  }
 
   @Test
   fun sabotage() {

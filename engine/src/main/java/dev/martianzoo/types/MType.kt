@@ -5,7 +5,9 @@ import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component
 import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
@@ -111,7 +113,7 @@ internal constructor(
 
     val refin = that.refinement
     if (refin != null) {
-      val requirement = root.loader.transformers.refinementMangler(expressionFull).transform(refin)
+      val requirement = refinementMangler(expressionFull).transform(refin)
       if (!info.has(requirement)) {
         throw Exceptions.refinementNotMet(requirement)
       }
@@ -125,8 +127,24 @@ internal constructor(
     if (!dependencies.narrows(that.dependencies, info)) return false
 
     val refin = that.refinement ?: return true
-    val requirement = root.loader.transformers.refinementMangler(expressionFull).transform(refin)
+    val requirement = refinementMangler(expressionFull).transform(refin)
     return info.has(requirement)
+  }
+
+  // We check if MartianIndustries reifies CardFront(HAS 1 BuildingTag)
+  // by testing the requirement `1 BuildingTag<MartianIndustries>`
+  private fun refinementMangler(proposed: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is Expression) {
+          val modded = root.loader.resolve(node).specialize(listOf(proposed))
+          @Suppress("UNCHECKED_CAST")
+          modded.expressionFull as P
+        } else {
+          transformChildren(node)
+        }
+      }
+    }
   }
 
   private val asComponent: Component? by lazy { if (abstract) null else Component(this) }

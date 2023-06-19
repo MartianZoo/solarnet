@@ -11,10 +11,14 @@ import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.engine.Gameplay.OperationBody
+import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
@@ -30,11 +34,13 @@ import kotlin.reflect.KClass
 internal class ApiTranslation
 @Inject
 constructor(
+    override val player: Player,
     private val reader: GameReader,
     private val timeline: Timeline,
     private val impl: Implementations,
-    override val player: Player,
     private val tasks: TaskQueue,
+    private val table: MClassTable,
+    private val xers: Transformers,
 ) : GodMode { // so it really implements all gameplay layers
 
   override var autoExecMode: AutoExecMode = FIRST
@@ -70,8 +76,16 @@ constructor(
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
-  override fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P =
-      replaceOwnerWith(player).transform(reader.parseInternal(type, text))
+  private val preprocessor = chain(
+      xers.useFullNames(),
+      xers.atomizer(),
+      xers.insertDefaults(),
+      replaceOwnerWith(player),
+      Prod.deprodify(table),
+  )
+
+  override fun <P : PetElement> parseInternal(type: KClass<P>, text: String) =
+      preprocessor.transform(Parsing.parse(type, text))
 
   // CHANGES
 

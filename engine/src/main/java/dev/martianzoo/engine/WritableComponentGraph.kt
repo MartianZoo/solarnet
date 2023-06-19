@@ -56,11 +56,11 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
     removing?.let { r ->
       checkDependents(count, r)
       multiset.mustRemove(r, count)
-      effector.update(r, -count)
+      effector.mustRemove(r, count)
     }
     gaining?.let { g ->
       multiset.add(g, count)
-      effector.update(g, count)
+      effector.add(g, count)
     }
     return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
   }
