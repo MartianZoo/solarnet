@@ -4,16 +4,14 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
-| 074 | Viral Enhancers            | linkages              |
+| XC3 | Splice Tactical Genomics   | none?                 |
 | 008 | Capital                    | concrete              |
 | 206 | Special Design             | adjustreqt            |
 | P10 | Ecology Experts            | adjustreqt            |
 | 153 | Adaptation Technology      | adjustreqt            |
 | B05 | Inventrix                  | adjustreqt            |
 | V04 | Morning Star Inc.          | adjustreqt            |
-| XC3 | Splice Tactical Genomics   | linkages, outofturn   |
 | PC5 | Vitor                      | awards                |
-| CC1 | Aridor                     | aridor                |
 | B00 | Beginner Corporation       | beginner              |
 | XC1 | Arcadian Communities       | community             |
 | 066 | Land Claim                 | community             |
@@ -31,6 +29,7 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | 064 | Mining Area                | customreqt?           |
 | X05 | Interplanetary Trade       | distinct              |
 | X20 | Diversity Support          | distinct              |
+| CC1 | Aridor                     | distinct              |
 | B03 | Helion                     | helion                |
 | 222 | Dirigibles                 | payresource           |
 | P39 | Psychrophiles              | payresource           |

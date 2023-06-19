@@ -77,19 +77,15 @@ constructor(
               gaining = gaining,
               removing = removing,
               cause = cause,
-              orRemoveOneDependent = true)
+              orRemoveOneDependent = true
+          )
 
-      val consequences: List<Task> = try {
-        effector!!.fire(result)
-      } catch (e: Exception) {
-        println("triggers from $result")
-        throw e
-      }
-      val (now, later) = consequences.partition { it.next }
+      // TODO is it a problem that we don't use a queue here?
+      val now = effector!!.fire(result, automatic = true)
       for (task in now) {
         split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
       }
-      deferred += later
+      deferred += effector.fire(result, automatic = false)
       if (done) break
     }
   }

@@ -916,7 +916,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "SpaceTag<EventCard>: 3, 3 Heat" ],
+      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
       "cost": 7,
       "projectKind": "ACTIVE"
     },
@@ -2508,6 +2508,17 @@
       "projectKind": "ACTIVE"
     },
 
+    // Viral Enhancers
+    {
+      "id": "074",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "MicrobeTag" ],
+      "effects": [ "CardFront(HAS BioTag): Plant OR CardResource<CardFront(HAS BioTag)>" ],
+      "cost": 9,
+      "projectKind": "ACTIVE"
+    },
+
     // Quantum Extractor
     {
       "id": "079",
@@ -2962,7 +2973,7 @@
       "deck": "PROJECT",
       "immediate": "Card195Effect",
       "effects": [ "End: -VictoryPoint" ],
-      "components": [ "CLASS Card195Effect : NextCardEffect { PlayCard: -8 Owed }" ],
+      "components": [ "CLASS Card195Effect : NextCardEffect { PlayCard:: -8 Owed }" ],
       "cost": 0,
       "projectKind": "EVENT"
     },
@@ -3798,7 +3809,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "CardC05Effect",
       "effects": [ "End: -VictoryPoint" ],
-      "components": [ "CLASS CardC05Effect : NextCardEffect { PlayCard: -16 Owed }" ],
+      "components": [ "CLASS CardC05Effect : NextCardEffect { PlayCard:: -16 Owed }" ],
       "requirement": "2 EarthTag",
       "cost": 5,
       "projectKind": "EVENT"

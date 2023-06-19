@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Type
+import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -30,6 +31,10 @@ public class TypeDescription public constructor(mtype: MType) {
 
   val supertypes: List<Type> =
       mclass.getAllSuperclasses().map { it.withAllDependencies(mtype.dependencies) }
+
+  val substitutions =
+      Transformers(mtype.loader)
+          .findSubstitutions(mtype.root.defaultType.dependencies, mtype.dependencies)
 
   val componentTypesCount: Int = mtype.allConcreteSubtypes().take(100).count()
 

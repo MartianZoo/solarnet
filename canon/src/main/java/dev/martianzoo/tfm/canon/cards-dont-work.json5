@@ -117,17 +117,6 @@
       "projectKind": "AUTOMATED"
     },
 
-    // Viral Enhancers
-    {
-      "id": "074",
-      "bundle": "R",
-      "deck": "PROJECT",
-      "tags": [ "ScienceTag", "MicrobeTag" ],
-      "effects": [ "CardFront(HAS BioTag): Plant OR CardResource<CardFront(HAS BioTag)>" ],
-      "cost": 9,
-      "projectKind": "ACTIVE"
-    },
-
     // Research Coordination
     {
       "id": "P40",

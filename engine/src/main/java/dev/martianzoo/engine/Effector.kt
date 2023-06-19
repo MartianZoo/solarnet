@@ -51,20 +51,21 @@ constructor(
   }
 
   // Called by Instructor.executeChange
-  fun fire(triggerEvent: ChangeEvent): List<Task> =
-      fireSelfEffects(triggerEvent) + fireOtherEffects(triggerEvent)
+  fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
+      fireSelfEffects(triggerEvent, automatic) + fireOtherEffects(triggerEvent, automatic)
 
-  private fun fireSelfEffects(triggerEvent: ChangeEvent): List<Task> =
+  private fun fireSelfEffects(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
       listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
           .map(reader::resolve)
           .map { (it as MType).toComponent() }
           .flatMap { activeEffects(it) }
+          .filter { automatic == null || it.automatic == automatic }
           .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
 
-  private fun fireOtherEffects(triggerEvent: ChangeEvent): List<Task> =
-      registry.entries.mapNotNull { (fx, ct) ->
-        fx.onChangeToOther(triggerEvent, reader)?.times(ct)
-      }
+  private fun fireOtherEffects(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
+      registry.entries
+          .filter { (fx, _) -> automatic == null || fx.automatic == automatic }
+          .mapNotNull { (fx, ct) -> fx.onChangeToOther(triggerEvent, reader)?.times(ct) }
 
   private val effects = mutableMapOf<Component, List<ActiveEffect>>()
 
@@ -84,7 +85,7 @@ constructor(
 
   private data class ActiveEffect(
       private val subscription: Subscription,
-      private val automatic: Boolean,
+      internal val automatic: Boolean,
       private val instruction: Instruction,
       private val context: Component,
   ) {

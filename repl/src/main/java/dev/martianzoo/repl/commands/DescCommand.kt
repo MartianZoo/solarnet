@@ -84,6 +84,7 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
             long form:   ${mtype.expressionFull}
             supertypes:  ${desc.supertypes.joinToString { "${it.expressionFull}" }}
             cmpt types:  ${desc.componentTypesCount}
+            subs:        ${desc.substitutions}
         """
               .trimIndent()
 
