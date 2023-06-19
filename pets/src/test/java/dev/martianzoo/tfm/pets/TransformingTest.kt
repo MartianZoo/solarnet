@@ -33,11 +33,11 @@ private class TransformingTest {
     checkActionToEffect(
         "Microbe<Anyone> -> Microbe<This>!",
         1,
-        "UseAction1<This>: Microbe<This> FROM Microbe<Anyone>!",
+        "UseAction1<This>: -Microbe<Anyone>! THEN Microbe<This>!",
     )
 
     // t's not its job to recognize nonsense
-    checkActionToEffect("Plant -> Plant", 2, "UseAction2<This>: Plant FROM Plant!")
+    checkActionToEffect("Plant -> Plant", 2, "UseAction2<This>: -Plant! THEN Plant") // TODO ! ?
   }
 
   @Test

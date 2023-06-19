@@ -121,7 +121,7 @@ public class TfmGameplay(
   }
 
   fun sellPatents(count: Int) =
-      stdAction("SellPatents") { doTask("$count Megacredit FROM ProjectCard") }
+      stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
 
   fun phase(phase: String, body: BodyLambda = {}) {
     asPlayer(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)

@@ -79,7 +79,12 @@ constructor(
               cause = cause,
               orRemoveOneDependent = true)
 
-      val consequences: List<Task> = effector!!.fire(result)
+      val consequences: List<Task> = try {
+        effector!!.fire(result)
+      } catch (e: Exception) {
+        println("triggers from $result")
+        throw e
+      }
       val (now, later) = consequences.partition { it.next }
       for (task in now) {
         split(task.instruction).forEach { doExecute(it, task.cause, deferred) }

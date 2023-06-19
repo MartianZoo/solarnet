@@ -16,7 +16,6 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
-import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.util.toSetStrict
 
@@ -61,11 +60,6 @@ public object Transforming {
     val rhs = action.instruction
 
     if (lhs == null) return rhs
-
-    // Handle the Ants case
-    Transmute.tryMerge(lhs, rhs)?.let {
-      return it
-    }
 
     // Nested THENs are just silly
     val allInstructions =
