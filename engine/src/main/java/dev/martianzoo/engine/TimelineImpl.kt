@@ -7,7 +7,6 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.Updater
-import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.engine.Timeline.Checkpoint
 import javax.inject.Inject
 
@@ -48,11 +47,8 @@ internal class TimelineImpl @Inject constructor(
     subList.clear()
   }
 
-  /**
-   * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
-   * Within the block you can throw [AbortOperationException] to roll everything back but have this
-   * method complete normally.
-   */
+  internal class AbortOperationException : Exception()
+
   override fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
     try {

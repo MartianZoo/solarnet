@@ -4,7 +4,6 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
@@ -33,8 +32,7 @@ class InsulationTest {
 
         doTask("PROD[2 Megacredit FROM Heat]")
         assertProds(1 to "M", 1 to "H")
-
-        throw AbortOperationException() // TODO a way to roll back without aborting?
+        abort()
       }
 
       playProject("Insulation", 2) { doFirstTask("PROD[Megacredit FROM Heat]") }

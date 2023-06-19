@@ -13,8 +13,6 @@ interface Timeline {
    */
   fun atomic(block: () -> Unit): TaskResult
 
-  class AbortOperationException : Exception()
-
   public data class Checkpoint(internal val ordinal: Int) {
     init {
       require(ordinal >= 0)

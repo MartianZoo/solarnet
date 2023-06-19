@@ -7,7 +7,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
-import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers
@@ -112,7 +111,7 @@ abstract class AbstractFullGameTest {
   protected fun TfmGameplay.assertVps(expected: Int) {
     engine.phase("End") { // TODO should really do production too!
       assertCounts(expected to "VP")
-      throw AbortOperationException()
+      abort()
     }
   }
 

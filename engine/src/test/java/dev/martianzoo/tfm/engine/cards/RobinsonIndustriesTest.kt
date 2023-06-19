@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
@@ -70,13 +69,13 @@ class RobinsonIndustriesTest {
                 "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
         doTask("PROD[1]")
         assertProds(1 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
-        throw AbortOperationException()
+        abort()
       }
 
       cardAction1("RobinsonIndustries") {
         doTask("PROD[T]")
         assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 1 to "H")
-        throw AbortOperationException()
+        abort()
       }
 
       assertThrows<NarrowingException> {

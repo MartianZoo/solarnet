@@ -50,9 +50,9 @@ private class CanonBootstrapTest {
     // 19 duplicate TR and 4 duplicate PROD[M]
     assertThat(starting).hasSize(starting.elements.size + 69)
 
-    val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
+    val isArea: (Component) -> Boolean = { it.toString().startsWith("Tharsis_") }
     // val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
-    val isClass: (Component) -> Boolean = { it.toString().startsWith("[Class<") }
+    val isClass: (Component) -> Boolean = { it.toString().startsWith("Class<") }
 
     assertThat(starting.count(isArea)).isEqualTo(61)
     // assertThat(starting.count(isBorder)).isEqualTo(312)
@@ -68,39 +68,19 @@ private class CanonBootstrapTest {
         }
     assertThat(theRest.toStrings())
         .containsExactly(
-            "[Engine]",
-            "[TerraformingMars]",
-            "[SetupPhase]",
-            "[Tharsis]",
-            "[Area021]",
-            "[Area081]",
-            "[FloatingInSpace]",
-            "[Player1]",
-            "[Player2]",
-            "[Player3]",
-            "[PlayCardSA]",
-            "[UseStandardProjectSA]",
-            "[ClaimMilestoneSA]",
-            "[UseCardActionSA]",
-            "[ConvertHeatSA]",
-            "[ConvertPlantsSA]",
-            "[HandleMandates]",
-            "[SellPatents]",
-            "[PowerPlantSP]",
-            "[AsteroidSP]",
-            "[AquiferSP]",
-            "[GreenerySP]",
-            "[CitySP]",
-            "[GrossHack<Player1>]",
-            "[GrossHack<Player2>]",
-            "[GrossHack<Player3>]",
-            "[Entropy<Player1>]",
-            "[Entropy<Player2>]",
-            "[Entropy<Player3>]",
-            "[TrWatcher<Player1>]",
-            "[TrWatcher<Player2>]",
-            "[TrWatcher<Player3>]",
-            "[Generation]",
+            "Engine",
+            "TerraformingMars",
+            "SetupPhase",
+            "Tharsis",
+            "Area021", "Area081", "FloatingInSpace",
+            "Player1", "Player2", "Player3",
+            "PlayCardSA", "UseStandardProjectSA", "ClaimMilestoneSA", "UseCardActionSA",
+            "ConvertHeatSA", "ConvertPlantsSA", "HandleMandates", "SellPatents",
+            "PowerPlantSP", "AsteroidSP", "AquiferSP", "GreenerySP", "CitySP",
+            "GrossHack<Player1>", "GrossHack<Player2>", "GrossHack<Player3>",
+            "Entropy<Player1>", "Entropy<Player2>", "Entropy<Player3>",
+            "TrWatcher<Player1>", "TrWatcher<Player2>", "TrWatcher<Player3>",
+            "Generation",
         )
   }
 }

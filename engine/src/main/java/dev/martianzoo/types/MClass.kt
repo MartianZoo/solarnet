@@ -52,10 +52,9 @@ internal constructor(
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
     internal val directSuperclasses: List<MClass> = superclasses(declaration, loader),
-    internal val custom: CustomClass? = null, // TODO move?
 ) : HasClassName, Hierarchical<MClass> {
 
-  /** The name of this class, in UpperCamelCase. */
+  /** The name of this class, in UpperCamelCase. */ // (TODO validate that?)
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   /**
@@ -63,11 +62,8 @@ internal constructor(
    */
   public val shortName: ClassName by declaration::shortName
 
-  val docstring: String? by declaration::docstring
-
-  init {
-    require((declaration.custom) == (custom != null)) { declaration }
-  }
+  /** A textual explanation for this class. */
+  public val docstring: String? by declaration::docstring
 
   // HIERARCHY
 
@@ -214,7 +210,15 @@ internal constructor(
 
   // EFFECTS
 
-  internal val rawEffects: Set<Effect> by declaration::effects
+  val custom: CustomClass? =
+      if (declaration.custom) {
+        loader.authority.customClass(className)
+      } else {
+        require(loader.authority.customClasses.none { it.className == className })
+        null
+      }
+
+  internal val declaredEffects: Set<Effect> by declaration::effects
 
   /**
    * The effects belonging to this class; similar to those found on the [declaration], but processed
@@ -236,7 +240,7 @@ internal constructor(
           attachToClassTransformer
         }
 
-    return rawEffects.map { transformer.transform(it) }
+    return declaredEffects.map { transformer.transform(it) }
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {

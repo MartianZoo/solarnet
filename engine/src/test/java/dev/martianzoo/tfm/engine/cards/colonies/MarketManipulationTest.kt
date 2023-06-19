@@ -50,7 +50,6 @@ class MarketManipulationTest : ColoniesCardTest() {
   @Test
   fun `you can't raise and lower the same track`() {
     p1.playProject("MarketManipulation", 1) {
-      // TODO is that the right exception type?
       assertThrows<ExpressionException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Luna>")
       }

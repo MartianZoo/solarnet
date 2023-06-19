@@ -48,7 +48,7 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
         boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
 
-    override fun toString() = "$key=${expressionFull}"
+    override fun toString() = "$key=$expressionFull"
 
     // Hierarchy
 

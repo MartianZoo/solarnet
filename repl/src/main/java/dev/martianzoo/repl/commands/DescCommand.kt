@@ -95,7 +95,7 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
             """
 
 
-            Component `[${mtype.expressionFull}]`:
+            Component `${mtype.expressionFull}`:
               effects:     ${desc.componentEffects.joinToString("""
                            """)}
           """

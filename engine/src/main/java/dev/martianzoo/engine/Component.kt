@@ -83,7 +83,7 @@ public class Component internal constructor(private val mtype: MType): HasExpres
 
   override fun hashCode() = mtype.hashCode()
 
-  override fun toString() = "[${mtype.expressionFull}]"
+  override fun toString() = "$mtype"
 
   companion object {
     public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)

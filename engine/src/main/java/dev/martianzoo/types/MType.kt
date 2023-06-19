@@ -132,9 +132,9 @@ internal constructor(
   private val asComponent: Component? by lazy { if (abstract) null else Component(this) }
 
   fun toComponent(): Component {
-    require(!abstract)
+    require(!abstract) { "type is abstract: $expressionFull" }
     return asComponent!!
   }
 
-  override fun toString() = "$expressionFull@${root.loader}"
+  override fun toString() = "$expression"
 }

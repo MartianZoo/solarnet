@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.AUTO_LOAD
@@ -159,14 +158,7 @@ internal class MClassLoader(
     loadedClasses[long] = null
     loadedClasses[short] = null
 
-    val custom: CustomClass? =
-        if (decl.custom) {
-          authority.customClass(long)
-        } else {
-          require(authority.customClasses.none { it.className == long })
-          null
-        }
-    val mclass = MClass(decl, this, custom = custom)
+    val mclass = MClass(decl, this)
     loadedClasses[long] = mclass
     loadedClasses[short] = mclass
 

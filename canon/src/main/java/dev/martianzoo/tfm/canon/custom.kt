@@ -74,7 +74,7 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   private fun tileOn(area: AreaDefinition, reader: GameReader): Expression? {
     val tileType: Type = reader.resolve(TILE.of(area.className))
     val tiles = reader.getComponents(tileType)
-    return tiles.singleOrNull()?.expressionFull
+    return tiles.singleOrNull()?.expression
   }
 
   fun <E> neighborsInHexGrid(grid: Grid<E>, r: Int, c: Int): List<E> {

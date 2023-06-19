@@ -11,7 +11,7 @@ import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
-import dev.martianzoo.engine.Timeline.AbortOperationException
+import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.util.Multiset
