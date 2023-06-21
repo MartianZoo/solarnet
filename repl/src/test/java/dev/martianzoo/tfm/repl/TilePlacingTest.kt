@@ -31,7 +31,28 @@ class TilePlacingTest {
   }
 
   @Test
-  fun greeneryNextToOwned() {
+  fun greeneryNextToOwned_notPossible() {
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
+
+    with(game.tfm(PLAYER1)) {
+      godMode().sneak("100")
+      phase("Action")
+      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_3>") }
+      assertThrows<NarrowingException> {
+        stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+      }
+      // Yer surrounded!
+      game.tfm(PLAYER2).godMode().manual("GT<M32>, GT<M33>, GT<M42>, GT<M44>")
+
+      // So now you should be able to.... crapola. TODO
+      assertThrows<NarrowingException> {
+        stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+      }
+    }
+  }
+
+  @Test
+  fun greeneryNextToOwned_possible() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
 
     with(game.tfm(PLAYER1)) {

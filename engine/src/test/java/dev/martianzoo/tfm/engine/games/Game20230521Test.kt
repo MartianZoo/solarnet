@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine.games
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.engine.Game
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
@@ -47,11 +46,12 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1's megacredits production increased by 1
       // You drew UNMI Contractor and Corporate Archives
       playPrelude("NewPartner") {
-        // Player1 played UNMI Contractor
-        // Player1 drew 1 card(s)
-        // You drew Ganymede Colony
-        playPrelude("UnmiContractor")
-      }.expect("PROD[1], 1, ProjectCard, 3 TR")
+            // Player1 played UNMI Contractor
+            // Player1 drew 1 card(s)
+            // You drew Ganymede Colony
+            playPrelude("UnmiContractor")
+          }
+          .expect("PROD[1], 1, ProjectCard, 3 TR")
 
       // Player1 played Allied Bank
       // Player1's megacredits production increased by 4
@@ -353,9 +353,10 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.cardAction2("RotatorImpacts")
     // Player2 used Search For Life action
     p2.cardAction1("SearchForLife") {
-      // Player2 revealed and discarded Cartel
-      doTask("Ok")
-    }.expect("-1")
+          // Player2 revealed and discarded Cartel
+          doTask("Ok")
+        }
+        .expect("-1")
 
     // Player1 used Convert Heat standard action
     p1.stdAction("ConvertHeatSA")
@@ -483,10 +484,11 @@ class Game20230521Test : AbstractFullGameTest() {
     // You drew Bushes
     // Player2 gained 2 plants from Arctic Algae
     p2.cardAction1("AquiferPumping") {
-      doTask("6 Pay<Class<M>> FROM M")
-      doTask("Pay<Class<S>> FROM S")
-      doTask("OceanTile<Tharsis_1_4>")
-    }.expect("ProjectCard<P2>, 2 Plant<P2>")
+          doTask("6 Pay<Class<M>> FROM M")
+          doTask("Pay<Class<S>> FROM S")
+          doTask("OceanTile<Tharsis_1_4>")
+        }
+        .expect("ProjectCard<P2>, 2 Plant<P2>")
 
     // Player1 passed
     p1.pass()
@@ -520,14 +522,14 @@ class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
     // TODO this *should* work, but doesn't, so we have to fake it.
-    assertThrows<DependencyException> { p2.stdAction("ConvertPlantsSA") }
-    with(p2.godMode()) {
-      // Player2 used Convert Plants standard action
+    assertThrows<Exception> { p2.stdAction("ConvertPlantsSA") }
+    // Player2 used Convert Plants standard action
+    p2.stdAction("ConvertPlantsSA") {
       // Player2 placed greenery tile on row 8 position 4
       // Player2 drew 1 card(s)
       // You drew Medical Lab
-      manual("-8 Plant THEN GreeneryTile<Tharsis_8_7>").expect("ProjectCard") // r-5+c
-    }
+      doTask("GreeneryTile<Tharsis_8_7>")  // r-5 + c
+    }.expect("ProjectCard")
     // Player2 used Factorum action
     // 3 card(s) were discarded
     // Player2 drew Mine
@@ -550,12 +552,13 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.playProject("PowerPlantCard", 2, steel = 1)
     // Player2 used Aquifer Pumping action
     p2.cardAction1("AquiferPumping") {
-      doTask("8 Pay<Class<M>> FROM M")
-      doTask("Ok") // stupid steel
-      // Player2 placed ocean tile on row 1 position 5
-      // Player2 gained 2 plants from Arctic Algae
-      doTask("OceanTile<Tharsis_1_5>")
-    }.expect("-4, 2 Plant") // 4 back from adjacent oceans
+          doTask("8 Pay<Class<M>> FROM M")
+          doTask("Ok") // stupid steel
+          // Player2 placed ocean tile on row 1 position 5
+          // Player2 gained 2 plants from Arctic Algae
+          doTask("OceanTile<Tharsis_1_5>")
+        }
+        .expect("-4, 2 Plant") // 4 back from adjacent oceans
 
     // Player1 played Olympus Conference
     p1.playProject("OlympusConference", 1, steel = 3).expect("Science<OlympusConference>")
@@ -617,8 +620,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 drew 1 card(s)
     // You drew Power Infrastructure
     p1.playProject("LagrangeObservatory", 6, titanium = 1) {
-      doTask("ProjectCard FROM Science<OlympusConference>") // I don't have to choose the card
-    }.expect("ProjectCard<P1>") // -1 played, +1 from card itself, +1 from olympus
+          doTask("ProjectCard FROM Science<OlympusConference>") // I don't have to choose the card
+        }
+        .expect("ProjectCard<P1>") // -1 played, +1 from card itself, +1 from olympus
     // Player1 played Venus Governor
     // Player1's megacredits production increased by 2
     p1.playProject("VenusGovernor", 4).expect("2 VenusTag<P1>")
@@ -642,9 +646,7 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 4 to "E", 3 to "H")
       assertCounts(40 to "M", 7 to "S", 1 to "T", 5 to "P", 4 to "E", 14 to "H")
       assertDashMiddle(played = 27, actions = 3, vp = 34, tr = 30, hand = 10)
-      assertTags(
-          but = 9, spt = 5, sct = 4, pot = 3, eat = 5, jot = 1,
-          vet = 4, plt = 1, cit = 2)
+      assertTags(but = 9, spt = 5, sct = 4, pot = 3, eat = 5, jot = 1, vet = 4, plt = 1, cit = 2)
       assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -660,8 +662,9 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 claimed Builder milestone
     p1.stdAction("ClaimMilestoneSA") {
-      doTask("Builder") // TODO sort of expected it to autopick
-    }.expect("-8, Milestone")
+          doTask("Builder") // TODO sort of expected it to autopick
+        }
+        .expect("-8, Milestone")
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
     // You drew Quantum Extractor
@@ -702,9 +705,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Development Center action with Project Inspection
     // Player1 drew 1 card(s)
     // You drew Floating Habs
-    p1.playProject("ProjectInspection", 0) {
-      doTask("UseAction1<DevelopmentCenter>")
-    }.expect("PlayedEvent, Card, -E")
+    p1.playProject("ProjectInspection", 0) { doTask("UseAction1<DevelopmentCenter>") }
+        .expect("PlayedEvent, Card, -E")
 
     // Player2 used Factorum action
     // Player2's energy production increased by 1
@@ -719,9 +721,10 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.playProject("FloatingHabs", 5)
     // Player1 used Floating Habs action
     p1.cardAction1("FloatingHabs") {
-      // Player1 added 1 floater(s) to Deuterium Export
-      doTask("Floater<DeuteriumExport>")
-    }.expect("-2, Floater")
+          // Player1 added 1 floater(s) to Deuterium Export
+          doTask("Floater<DeuteriumExport>")
+        }
+        .expect("-2, Floater")
 
     // Player2 played Titanium Mine
     // Player2's titanium production increased by 1
@@ -751,8 +754,7 @@ class Game20230521Test : AbstractFullGameTest() {
       assertCounts(44 to "M", 12 to "S", 2 to "T", 6 to "P", 8 to "E", 16 to "H")
       assertDashMiddle(played = 31, actions = 5, vp = 41, tr = 31, hand = 10)
       assertTags(
-          but = 9, spt = 5, sct = 5, pot = 4, eat = 5, jot = 1,
-          vet = 6, plt = 1, ant = 1, cit = 2)
+          but = 9, spt = 5, sct = 5, pot = 4, eat = 5, jot = 1, vet = 6, plt = 1, ant = 1, cit = 2)
       assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -760,8 +762,7 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(0 to "M", 2 to "S", 2 to "T", 1 to "P", 4 to "E", 3 to "H")
       assertCounts(25 to "M", 2 to "S", 3 to "T", 6 to "P", 4 to "E", 8 to "H")
       assertDashMiddle(played = 20, actions = 6, vp = 36, tr = 31, hand = 11)
-      assertTags(but = 8, spt = 3, sct = 4, pot = 3, eat = 1, jot = 1,
-          plt = 1, mit = 1)
+      assertTags(but = 8, spt = 3, sct = 4, pot = 3, eat = 1, jot = 1, plt = 1, mit = 1)
       assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
@@ -825,9 +826,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 placed ocean tile on row 5 position 5
     // Player1's plants amount increased by 2
     // Player2 gained 2 plants from Arctic Algae
-    p1.playProject("MoholeLake", 7, steel = 12) {
-      doTask("OceanTile<Tharsis_5_5>")
-    }.expect("7 Plant, TEMP, 2 TR<P1>, -7")
+    p1.playProject("MoholeLake", 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
+        .expect("7 Plant, TEMP, 2 TR<P1>, -7")
     // Player1 claimed Terraformer milestone
     p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer") }.expect("-8")
 
@@ -838,8 +838,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 drew 1 card(s)
     // You drew Herbivores
     p2.stdAction("ConvertPlantsSA") {
-      doTask("GreeneryTile<Tharsis_8_6>") // r+c-5
-    }.expect("-8 Plant, Card")
+          doTask("GreeneryTile<Tharsis_8_6>") // r+c-5
+        }
+        .expect("-8 Plant, Card")
 
     // Player1 used Inventors' Guild action
     p1.cardAction1("InventorsGuild") {
@@ -853,9 +854,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Bio Printing Facility action
     // Player2's plants amount increased by 2
     p2.cardAction1("BioPrintingFacility") {
-      // TODO how would I choose 0 animals instead? Senseless move, but legal.
-      doTask("2 Plant")
-    }.expect("2 Plant, -2 E")
+          // TODO how would I choose 0 animals instead? Senseless move, but legal.
+          doTask("2 Plant")
+        }
+        .expect("2 Plant, -2 E")
     // Player2 passed
     p2.pass()
 
@@ -872,8 +874,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Mohole Lake action
     // Player1 added 1 animal(s) to Stratospheric Birds
     p1.cardAction1("MoholeLake") {
-      doTask("Animal<StratosphericBirds>") // TODO should this have autoexecuted?
-    }.expect("Animal<StratosphericBirds>")
+          doTask("Animal<StratosphericBirds>") // TODO should this have autoexecuted?
+        }
+        .expect("Animal<StratosphericBirds>")
     // Player1 passed
     p1.pass()
 
@@ -888,8 +891,8 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(27 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
       assertCounts(56 to "M", 5 to "S", 1 to "T", 4 to "P", 8 to "E", 18 to "H")
       assertDashMiddle(played = 34, actions = 7, vp = 58, tr = 38, hand = 12)
-      assertTags(but = 10, spt = 6, sct = 5, pot = 4, eat = 5,
-          jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
+      assertTags(
+          but = 10, spt = 6, sct = 5, pot = 4, eat = 5, jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
       assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -897,8 +900,7 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(0 to "M", 2 to "S", 3 to "T", 1 to "P", 3 to "E", 3 to "H")
       assertCounts(28 to "M", 2 to "S", 5 to "T", 3 to "P", 3 to "E", 5 to "H")
       assertDashMiddle(played = 23, actions = 7, vp = 41, tr = 34, hand = 13)
-      assertTags(but = 9, spt = 3, sct = 6, pot = 3, eat = 1,
-          jot = 1, vet = 1, plt = 1, mit = 1)
+      assertTags(but = 9, spt = 3, sct = 6, pot = 3, eat = 1, jot = 1, vet = 1, plt = 1, mit = 1)
       assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
@@ -982,10 +984,11 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Ecological Zone
     // Player2 added 2 animal(s) to Ecological Zone
     p2.playProject("EcologicalZone", 10) {
-      // Player2 placed Ecological Zone tile on row 4 position 5
-      // Player2's plants amount increased by 2
-      doTask("EzTile<Tharsis_4_5>")
-    }.expect("2 Animal, 2 Plant")
+          // Player2 placed Ecological Zone tile on row 4 position 5
+          // Player2's plants amount increased by 2
+          doTask("EzTile<Tharsis_4_5>")
+        }
+        .expect("2 Animal, 2 Plant")
 
     // Player2 played Harvest
     // Player2's megacredits amount increased by 12
@@ -1013,9 +1016,10 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Mohole Lake action
     p1.cardAction1("MoholeLake") {
-      // Player1 added 1 animal(s) to Stratospheric Birds
-      doTask("Animal<StratosphericBirds>")
-    }.expect("Animal")
+          // Player1 added 1 animal(s) to Stratospheric Birds
+          doTask("Animal<StratosphericBirds>")
+        }
+        .expect("Animal")
     // Player1 used Stratospheric Birds action
     p1.cardAction1("StratosphericBirds").expect("Animal")
 
@@ -1090,8 +1094,17 @@ class Game20230521Test : AbstractFullGameTest() {
       assertCounts(66 to "M", 5 to "S", 1 to "T", 10 to "P", 9 to "E", 16 to "H")
       assertDashMiddle(played = 40, actions = 8, vp = 78, tr = 42, hand = 8)
       assertTags(
-          but = 13, spt = 6, sct = 5, pot = 4, eat = 5, jot = 1,
-          vet = 9, plt = 3, mit = 1, ant = 1, cit = 2)
+          but = 13,
+          spt = 6,
+          sct = 5,
+          pot = 4,
+          eat = 5,
+          jot = 1,
+          vet = 9,
+          plt = 3,
+          mit = 1,
+          ant = 1,
+          cit = 2)
       assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -1099,8 +1112,8 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(3 to "M", 2 to "S", 3 to "T", 4 to "P", 3 to "E", 3 to "H")
       assertCounts(36 to "M", 3 to "S", 3 to "T", 10 to "P", 3 to "E", 9 to "H")
       assertDashMiddle(played = 28, actions = 7, vp = 58, tr = 41, hand = 13)
-      assertTags(but = 10, spt = 3, sct = 7, pot = 3, eat = 1,
-          jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
+      assertTags(
+          but = 10, spt = 3, sct = 7, pot = 3, eat = 1, jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
       assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 

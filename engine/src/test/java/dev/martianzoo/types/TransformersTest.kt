@@ -37,7 +37,7 @@ class TransformersTest {
     checkApplyDefaults(
         "LandArea(HAS Neighbor<OwnedTile>)", "LandArea(HAS Neighbor<OwnedTile<Owner>>)!")
     checkApplyDefaults(
-        "GreeneryTile", "GreeneryTile<LandArea(HAS Neighbor<OwnedTile<Owner>>), Owner>!")
+        "GreeneryTile", "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>), Owner>!")
   }
 
   private companion object {

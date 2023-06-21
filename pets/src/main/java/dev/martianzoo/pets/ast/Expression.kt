@@ -6,10 +6,14 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.utils.Tuple2
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.Type
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.Requirement.Exact
+import dev.martianzoo.pets.ast.Requirement.Min
 
 /**
  * A noun expression in Pets language, which is a particular *representation* of a type. An
@@ -27,7 +31,14 @@ public data class Expression(
     override val className: ClassName,
     val arguments: List<Expression> = listOf(),
     val refinement: Requirement? = null,
+    val forgiving: Boolean = false
 ) : PetElement(), HasClassName {
+
+  init {
+    if (forgiving && refinement !is Min && refinement !is Exact) {
+      throw PetSyntaxException("HAS? can only be used with Min/Exact requirements")
+    }
+  }
 
   override fun visitChildren(visitor: Visitor) =
       visitor.visit(listOf(className) + arguments + refinement)
@@ -35,7 +46,11 @@ public data class Expression(
   override fun toString() = buildString {
     append(className)
     if (arguments.any()) append(arguments.joinToString(", ", "<", ">"))
-    if (refinement != null) append("(HAS $refinement)")
+    if (refinement != null) {
+      append("(HAS")
+      if (forgiving) append ("?")
+      append(" $refinement)")
+    }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
@@ -60,9 +75,9 @@ public data class Expression(
    * Returns this expression with the given refinement. This expression must not already have a
    * refinement.
    */
-  fun has(refinement: Requirement?): Expression {
+  fun has(refinement: Requirement?, forgiving: Boolean): Expression {
     require(this.refinement == null)
-    return if (refinement != null) copy(refinement = refinement) else this
+    return if (refinement != null) copy(refinement = refinement, forgiving = forgiving) else this
   }
 
   override val kind = Expression::class
@@ -71,13 +86,14 @@ public data class Expression(
     fun parser(): Parser<Expression> {
       return parser {
         val argumentList = skipChar('<') and commaSeparated(parser()) and skipChar('>')
-        val refinement = group(skip(_has) and Requirement.parser())
+        val refinement: Parser<Tuple2<Boolean, Requirement>> =
+            group(skip(_has) and isPresent(char('?')) and Requirement.parser())
 
         ClassName.parser() and
             optionalList(argumentList) and
             optional(refinement) map
             { (clazz, args, ref) ->
-              Expression(clazz, args, ref)
+              Expression(clazz, args, ref?.t2, ref?.t1 == true)
             }
       }
     }

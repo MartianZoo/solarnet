@@ -110,9 +110,10 @@ class SoloGame0611Test : AbstractSoloTest() {
       pass()
       nextGeneration(3, 0)
 
-      // TODO
-      godMode().manual("-8 Plant")
-      godMode().manual("GreeneryTile<H97>") { doTask("OceanTile<H56>") }.expect("2 TR, Card, -6")
+      stdAction("ConvertPlantsSA") {
+        doTask("GreeneryTile<H97>")
+        doTask("OceanTile<H56>")
+      }.expect("2 TR, Card, -6")
 
       cardAction1(SubCrustMeasurements)
       cardAction1(ForcedPrecipitation).expect("-2")

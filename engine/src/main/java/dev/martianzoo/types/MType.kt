@@ -9,6 +9,9 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.Max
+import dev.martianzoo.pets.ast.Requirement.Or
+import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
 
@@ -23,6 +26,7 @@ internal constructor(
     internal val root: MClass,
     internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
+    val forgiving: Boolean = false,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
   internal val loader by root::loader
   internal val typeDependencies = dependencies.typeDependencies()
@@ -44,21 +48,32 @@ internal constructor(
     val glbClass = (root glb that.root) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
     val glbRefin = Requirement.join(this.refinement, that.refinement)
-    return glbClass.withAllDependencies(glbDeps).refine(glbRefin)
+    require(refinement == null || that.refinement == null || forgiving == that.forgiving)
+    return glbClass.withAllDependencies(glbDeps).refine(glbRefin, forgiving || that.forgiving)
   }
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
-  override fun lub(that: MType): MType =
-      (root lub that.root)
-          .withAllDependencies(dependencies lub that.dependencies)
-          .refine(setOf(refinement, that.refinement).singleOrNull())
+  override fun lub(that: MType): MType {
+    val unrefined: MType =
+        (root lub that.root).withAllDependencies(dependencies lub that.dependencies)
+
+    return if (refinement != null && that.refinement == null) {
+      unrefined.refine(refinement, forgiving)
+    } else if (that.refinement != null && refinement == null) {
+      unrefined.refine(that.refinement, that.forgiving)
+    } else {
+      unrefined
+    }
+  }
 
   internal fun specialize(specs: List<Expression>): MType =
       copy(dependencies = dependencies.specialize(specs))
 
-  public fun refine(newRef: Requirement?): MType =
-      copy(refinement = Requirement.join(refinement, newRef))
+  public fun refine(newRef: Requirement?, forgiving: Boolean): MType =
+      copy(
+          refinement = Requirement.join(refinement, newRef),
+          forgiving = forgiving || this.forgiving)
 
   override val expression: Expression by lazy {
     toExpressionUsingSpecs(narrowedDependencies.expressions())
@@ -71,7 +86,7 @@ internal constructor(
   internal val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
-    val expression = root.className.of(specs).has(refinement)
+    val expression = className.of(specs).has(refinement, forgiving)
     val roundTrip = loader.resolve(expression)
     require(roundTrip == this) { "$expression" }
     return expression
@@ -111,9 +126,8 @@ internal constructor(
     root.ensureNarrows(that.root, info)
     dependencies.ensureNarrows(that.dependencies, info)
 
-    val refin = that.refinement
-    if (refin != null) {
-      val requirement = refinementMangler(expressionFull).transform(refin)
+    if (that.refinement != null) {
+      val requirement = formRequirement(expressionFull, that.expressionFull)
       if (!info.has(requirement)) {
         throw Exceptions.refinementNotMet(requirement)
       }
@@ -126,25 +140,30 @@ internal constructor(
     if (!root.isSubtypeOf(that.root)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
-    val refin = that.refinement ?: return true
-    val requirement = refinementMangler(expressionFull).transform(refin)
+    that.refinement ?: return true
+    val requirement = formRequirement(expressionFull, that.expressionFull)
     return info.has(requirement)
   }
 
-  // We check if MartianIndustries reifies CardFront(HAS 1 BuildingTag)
-  // by testing the requirement `1 BuildingTag<MartianIndustries>`
-  private fun refinementMangler(proposed: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return if (node is Expression) {
-          val modded = root.loader.resolve(node).specialize(listOf(proposed))
-          @Suppress("UNCHECKED_CAST")
-          modded.expressionFull as P
-        } else {
-          transformChildren(node)
+  private fun formRequirement(narrow: Expression, wide: Expression): Requirement {
+
+    fun refinementMangler(proposed: Expression): PetTransformer {
+      return object : PetTransformer() {
+        override fun <P : PetNode> transform(node: P): P {
+          return if (node is Expression) {
+            val modded = root.loader.resolve(node).specialize(listOf(proposed))
+            @Suppress("UNCHECKED_CAST")
+            modded.expressionFull as P
+          } else {
+            transformChildren(node)
+          }
         }
       }
     }
+
+    val transformed = refinementMangler(narrow).transform(wide.refinement!!)
+    if (!wide.forgiving) return transformed
+    return Or(transformed, Max(ScaledExpression.scaledEx(0, wide.copy(forgiving = false))))
   }
 
   private val asComponent: Component? by lazy { if (abstract) null else Component(this) }

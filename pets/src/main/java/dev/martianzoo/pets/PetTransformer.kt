@@ -74,7 +74,7 @@ public abstract class PetTransformer protected constructor() {
       val rewritten =
           when (this) {
             is ClassName -> this
-            is Expression -> Expression(x(className), x(arguments), x(refinement))
+            is Expression -> Expression(x(className), x(arguments), x(refinement), forgiving)
             is ScaledExpression -> ScaledExpression(x(scalar), x(expression))
             is Scalar -> this
             is Metric ->

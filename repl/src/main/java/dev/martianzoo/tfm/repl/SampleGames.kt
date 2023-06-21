@@ -128,7 +128,7 @@ object SampleGames {
     if (gens-- == 0) return game
     engine.nextGeneration(4, 2)
 
-    p2.godMode().manual("-8 Plant THEN GreeneryTile<Tharsis_8_7>")
+    p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_7>") }
     p2.cardAction2("Factorum")
     p1.cardAction1("DevelopmentCenter")
     p1.cardAction1("InventorsGuild") { doTask("BuyCard") }
