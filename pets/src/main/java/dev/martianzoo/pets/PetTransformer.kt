@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Metric
@@ -74,7 +75,8 @@ public abstract class PetTransformer protected constructor() {
       val rewritten =
           when (this) {
             is ClassName -> this
-            is Expression -> Expression(x(className), x(arguments), x(refinement), forgiving)
+            is Refinement -> Refinement(x(requirement), forgiving)
+            is Expression -> Expression(x(className), x(arguments), x(refinement))
             is ScaledExpression -> ScaledExpression(x(scalar), x(expression))
             is Scalar -> this
             is Metric ->

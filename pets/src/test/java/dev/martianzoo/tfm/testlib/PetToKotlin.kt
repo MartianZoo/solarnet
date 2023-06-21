@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
@@ -40,6 +41,7 @@ internal object PetToKotlin {
       return when (this) {
         null -> "null"
         is ClassName -> "cn(\"$this\")"
+        is Refinement -> "TODO"
         is Expression -> {
           p2k(className) +
               (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +

@@ -7,11 +7,12 @@ import dev.martianzoo.engine.Component
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.ast.ScaledExpression
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
 
@@ -25,9 +26,9 @@ public data class MType
 internal constructor(
     internal val root: MClass,
     internal val dependencies: DependencySet,
-    override val refinement: Requirement? = null,
-    val forgiving: Boolean = false,
+    override val refinement: Refinement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
+
   internal val loader by root::loader
   internal val typeDependencies = dependencies.typeDependencies()
 
@@ -47,9 +48,8 @@ internal constructor(
   override fun glb(that: MType): MType? {
     val glbClass = (root glb that.root) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
-    val glbRefin = Requirement.join(this.refinement, that.refinement)
-    require(refinement == null || that.refinement == null || forgiving == that.forgiving)
-    return glbClass.withAllDependencies(glbDeps).refine(glbRefin, forgiving || that.forgiving)
+    val glbRefin = Refinement.join(this.refinement, that.refinement)
+    return glbClass.withAllDependencies(glbDeps).refine(glbRefin)
   }
 
   // Nearest common supertype
@@ -59,9 +59,9 @@ internal constructor(
         (root lub that.root).withAllDependencies(dependencies lub that.dependencies)
 
     return if (refinement != null && that.refinement == null) {
-      unrefined.refine(refinement, forgiving)
+      unrefined.refine(refinement)
     } else if (that.refinement != null && refinement == null) {
-      unrefined.refine(that.refinement, that.forgiving)
+      unrefined.refine(that.refinement)
     } else {
       unrefined
     }
@@ -70,10 +70,7 @@ internal constructor(
   internal fun specialize(specs: List<Expression>): MType =
       copy(dependencies = dependencies.specialize(specs))
 
-  public fun refine(newRef: Requirement?, forgiving: Boolean): MType =
-      copy(
-          refinement = Requirement.join(refinement, newRef),
-          forgiving = forgiving || this.forgiving)
+  public fun refine(newRef: Refinement?) = copy(refinement = Refinement.join(refinement, newRef))
 
   override val expression: Expression by lazy {
     toExpressionUsingSpecs(narrowedDependencies.expressions())
@@ -86,7 +83,7 @@ internal constructor(
   internal val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
-    val expression = className.of(specs).has(refinement, forgiving)
+    val expression = className.of(specs).has(refinement)
     val roundTrip = loader.resolve(expression)
     require(roundTrip == this) { "$expression" }
     return expression
@@ -161,9 +158,15 @@ internal constructor(
       }
     }
 
-    val transformed = refinementMangler(narrow).transform(wide.refinement!!)
-    if (!wide.forgiving) return transformed
-    return Or(transformed, Max(ScaledExpression.scaledEx(0, wide.copy(forgiving = false))))
+    val refin = wide.refinement!!
+    val transformed = refinementMangler(narrow).transform(refin.requirement)
+    return if (refin.forgiving) {
+      Or(
+          transformed,
+          Max(scaledEx(0, wide.copy(refinement = refin.copy(forgiving = false)))))
+    } else {
+      transformed
+    }
   }
 
   private val asComponent: Component? by lazy { if (abstract) null else Component(this) }

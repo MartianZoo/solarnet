@@ -4,7 +4,7 @@ import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Expression.Refinement
 
 /**
  * A type, for which an [Expression] is only a textual representation. There are many ways in which
@@ -20,5 +20,5 @@ interface Type : HasExpression, HasClassName {
   fun narrows(that: Type, info: TypeInfo = StubTypeInfo): Boolean
 
   /** The optional requirement attached to this type. */
-  val refinement: Requirement?
+  val refinement: Refinement?
 }

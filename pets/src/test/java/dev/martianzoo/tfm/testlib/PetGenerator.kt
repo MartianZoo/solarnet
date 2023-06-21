@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
@@ -41,11 +42,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
       register(Expression::class) {
-        Expression(
-            recurse(),
-            listOfSize(choose(specSizes)),
-            refinement(),
-            choose(6 to false, 1 to true))
+        Expression(recurse(), listOfSize(choose(specSizes)), refinement())
       }
       register { scaledEx(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT, 3 to recurse())) }
 
@@ -142,7 +139,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           return if (args.all { it is ExpressionAsFrom }) {
             ExpressionAsFrom(expression)
           } else {
-            ComplexFrom(expression.className, args, expression.refinement)
+            ComplexFrom(expression.className, args, expression.refinement?.requirement)
           }
         }
         convert(into)
@@ -203,7 +200,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     }
 
     fun RandomGenerator<PetNode>.refinement() =
-        chooseS(9 to { null }, 1 to { recurse<Requirement>() })
+        chooseS(
+            7 to { null },
+            1 to { Refinement(recurse(), choose(6 to false, 1 to true)) })
 
     fun RandomGenerator<PetNode>.randomName() =
         choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")

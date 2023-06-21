@@ -80,7 +80,7 @@ internal class MClassLoader(
         ?: try {
           getClass(expression.className)
               .specialize(expression.arguments)
-              .refine(expression.refinement, expression.forgiving)
+              .refine(expression.refinement)
               .also { cache[expression] = it }
         } catch (e: Exception) {
           throw ExpressionException("can't resolve $expression", e)
