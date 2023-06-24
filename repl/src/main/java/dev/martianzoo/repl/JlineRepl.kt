@@ -10,9 +10,9 @@ import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp.Capability
 
-public class JlineRepl {
+internal class JlineRepl {
   private val historyFile = Path(System.getProperty("user.home") + "/.rego_history")
-  val terminal: Terminal =
+  private val terminal: Terminal =
       TerminalBuilder.builder().color(true).build().also {
         // it.enterRawMode()
         it.puts(Capability.enter_ca_mode)
@@ -21,7 +21,7 @@ public class JlineRepl {
 
   val history = DefaultHistory()
 
-  val reader: LineReader =
+  private val reader: LineReader =
       LineReaderBuilder.builder().terminal(terminal).history(history).build().also {
         history.attach(it)
         history.read(historyFile, /* checkDuplicates= */ false)

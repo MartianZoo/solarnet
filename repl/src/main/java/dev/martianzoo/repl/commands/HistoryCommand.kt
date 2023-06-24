@@ -3,7 +3,6 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
-import org.jline.reader.History.Entry
 import org.jline.reader.impl.history.DefaultHistory
 
 internal class HistoryCommand(val repl: ReplSession) : ReplCommand("history") {
@@ -18,15 +17,13 @@ internal class HistoryCommand(val repl: ReplSession) : ReplCommand("history") {
         library if curious.
       """
   override val isReadOnly = true
-  val history: DefaultHistory? = repl.jline?.history
+  private val history: DefaultHistory? = repl.jline?.history
 
-  override fun noArgs() = fmt(history!!)
+  override fun noArgs() = history!!.map { "${it.index() + 1}: ${it.line()}" }
 
   override fun withArgs(args: String): List<String> {
     val max = args.toIntOrNull() ?: throw UsageException()
     val drop = (history!!.size() - max).coerceIn(0, null)
-    return fmt(history.drop(drop))
+    return history.drop(drop).map { "${it.index() + 1}: ${it.line()}" }
   }
-
-  private fun fmt(entries: Iterable<Entry>) = entries.map { "${it.index() + 1}: ${it.line()}" }
 }

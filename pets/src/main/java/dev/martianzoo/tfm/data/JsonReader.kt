@@ -101,6 +101,7 @@ public object JsonReader {
     class Legend(private val table: Map<Char, String>) {
 
       fun getType(code: String) = cn(lookUp(code[0]))
+
       fun getBonus(code: String): String? {
         val q = ArrayDeque(code.substring(1).toList())
         val result = generateSequence {

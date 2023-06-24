@@ -26,6 +26,20 @@ interface Grid<E> : Set<E> {
   // all diagonals have size = grid height, using additional nulls as necessary
   fun diagonal(columnMinusRow: Int): List<E?>
 
+  fun cardinalNeighbors(r: Int, c: Int): List<E> =
+      listOfNotNull(
+          this[r - 1, c + 0],
+          this[r + 0, c - 1],
+          this[r + 0, c + 1],
+          this[r + 1, c + 0],
+      )
+
+  fun hexNeighbors(r: Int, c: Int): List<E> =
+      cardinalNeighbors(r, c) + listOfNotNull(this[r - 1, c - 1], this[r + 1, c + 1])
+
+  fun allNeighbors(r: Int, c: Int): List<E> =
+      hexNeighbors(r, c) + listOfNotNull(this[r - 1, c + 1], this[r + 1, c - 1])
+
   companion object {
     fun <E> empty(): Grid<E> {
       return mutableGrid(listOf<E>(), { 0 }, { 0 }).immutable()

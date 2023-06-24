@@ -25,12 +25,12 @@ internal class TfmMapCommand(val repl: ReplSession) : ReplCommand("tfm_map") {
   override val isReadOnly = true
   override fun noArgs() = MapToText(repl.tfm.reader, repl.jline != null).map()
 
-  internal class MapToText(private val game: GameReader, val useColors: Boolean = true) {
+  internal class MapToText(private val game: GameReader, private val useColors: Boolean = true) {
     // my terminal app tries to show characters with H:W of 11:5
     // for a near-perfect hex grid you want 13:15
     // divide and you get 33:13 and fortunately that's pretty close to 5:2 (8:3 would be yikes)
-    val horizStretch: Int = 5
-    val vertStretch: Int = 2
+    private val horizStretch: Int = 5
+    private val vertStretch: Int = 2
 
     internal fun map(): List<String> {
       val grid: Grid<AreaDefinition> = ApiUtils.mapDefinition(game).areas
@@ -70,7 +70,7 @@ internal class TfmMapCommand(val repl: ReplSession) : ReplCommand("tfm_map") {
       }
     }
 
-    class CenteringAppender(val sb: StringBuilder) {
+    private class CenteringAppender(val sb: StringBuilder) {
       var weird: Boolean = false
       fun append(s: String) = sb.append(s)!!
       fun appendHalfSpaces(n: Int) {

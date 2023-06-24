@@ -30,22 +30,15 @@ constructor(
       orRemoveOneDependent: Boolean,
   ): Pair<ChangeEvent, Boolean> {
     listOfNotNull(gaining, removing).forEach { require(!it.isCustom) }
-    try {
-      return doSingleChange(count, gaining, removing, cause) to true
-    } catch (e: ExistingDependentsException) {
-      if (orRemoveOneDependent) return removeAll(e.dependents.first(), cause) to false
-      throw e
-    }
-  }
 
-  private fun doSingleChange(
-      count: Int,
-      gaining: Component?,
-      removing: Component?,
-      cause: Cause?
-  ): ChangeEvent {
-    val change = updater.update(count, gaining, removing)
-    return changeLog.addChangeEvent(change, player, cause)
+    return try {
+      val change = updater.update(count, gaining, removing)
+      changeLog.addChangeEvent(change, player, cause) to true
+
+    } catch (e: ExistingDependentsException) {
+      if (!orRemoveOneDependent) throw e
+      removeAll(e.dependents.first(), cause) to false
+    }
   }
 
   private fun removeAll(dependent: Type, cause: Cause?): ChangeEvent =

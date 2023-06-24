@@ -58,7 +58,8 @@ internal constructor(
     internal val directSuperclasses: List<MClass> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<MClass> {
 
-  /** The name of this class, in UpperCamelCase. */ // (TODO validate that?)
+  /** The name of this class, in UpperCamelCase. */
+  // (TODO validate that?)
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   /**
@@ -230,10 +231,11 @@ internal constructor(
    * where they will be processed further.
    */
   internal val classEffects: Set<Effect> by lazy {
-    getAllSuperclasses().flatMap { it.directClassEffects() }.toSetStrict()
-  }
+    fun directClassEffects(mclass: MClass) =
+        mclass.declaredEffects.map(mclass.attachToClassTransformer::transform)
 
-  private fun directClassEffects() = declaredEffects.map(attachToClassTransformer::transform)
+    getAllSuperclasses().flatMap(::directClassEffects).toSetStrict()
+  }
 
   private val attachToClassTransformer: PetTransformer by lazy {
     val weirdExpression = className.has(Min(scaledEx(1, OK)))

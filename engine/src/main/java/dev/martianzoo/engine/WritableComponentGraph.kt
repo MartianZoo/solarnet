@@ -12,7 +12,7 @@ import dev.martianzoo.util.Multiset
 import javax.inject.Inject
 
 @GameScoped
-internal class WritableComponentGraph @Inject constructor(internal val effector: Effector) :
+internal class WritableComponentGraph @Inject constructor(private val effector: Effector) :
     ComponentGraph, Updater {
 
   private val multiset: HashMultiset<Component> = HashMultiset()

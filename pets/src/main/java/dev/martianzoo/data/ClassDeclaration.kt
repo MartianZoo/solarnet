@@ -102,11 +102,6 @@ internal constructor(
         }
 
     companion object {
-      fun merge(ones: Collection<OneDefault>): OneDefault {
-        val deps = ones.map { it.specs }.firstOrNull { it.any() } ?: listOf()
-        val intensity = ones.firstNotNullOfOrNull { it.intensity }
-        return OneDefault(deps, intensity)
-      }
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         return DefaultsDeclaration(
             universal = merge(defs.map { it.universal }),
@@ -114,6 +109,11 @@ internal constructor(
             removeOnly = merge(defs.map { it.removeOnly }),
             forClass = defs.mapNotNull { it.forClass }.singleOrNull(),
         )
+      }
+      private fun merge(ones: Collection<OneDefault>): OneDefault {
+        val deps = ones.map { it.specs }.firstOrNull { it.any() } ?: listOf()
+        val intensity = ones.firstNotNullOfOrNull { it.intensity }
+        return OneDefault(deps, intensity)
       }
     }
 

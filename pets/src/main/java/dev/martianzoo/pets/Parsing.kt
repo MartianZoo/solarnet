@@ -38,9 +38,12 @@ public object Parsing {
    * examples can be reviewed in `components.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
-    val tokens = TokenCache.tokenize(stripLineComments(declarationsSource))
+    val stripped = lineCommentRegex.replace(declarationsSource, "\n")
+    val tokens = TokenCache.tokenize(stripped)
     return parseRepeated(Declarations.topLevelGroup, tokens).flatten()
   }
+
+  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
 
   /**
    * Parses a *single-line* class declaration. If it has a body with multiple elements, they are
@@ -189,8 +192,4 @@ public object Parsing {
 
     throw RuntimeException(message.toString())
   }
-
-  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
-
-  private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
 }

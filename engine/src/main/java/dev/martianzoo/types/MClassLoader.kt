@@ -35,6 +35,10 @@ internal class MClassLoader(
 ) : MClassTable() {
   @Inject
   constructor(setup: GameSetup) : this(setup.authority) {
+    fun isAutoLoad(c: ClassDeclaration): Boolean =
+        c.className == AUTO_LOAD ||
+            c.supertypes.any { isAutoLoad(decl(it.className)) }
+
     loadAll(setup.players().classNames())
     loadAll(authority.allClassDeclarations.filterValues(::isAutoLoad).keys)
     loadAll(setup.allDefinitions().classNames())
@@ -184,11 +188,6 @@ internal class MClassLoader(
   override fun toString() = "loader$id"
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
-
-  private fun isAutoLoad(c: ClassDeclaration): Boolean {
-    return c.className == AUTO_LOAD ||
-        c.supertypes.any { isAutoLoad(authority.classDeclaration(it.className)) }
-  }
 
   private val id = nextId++
 

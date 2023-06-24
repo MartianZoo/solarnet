@@ -12,7 +12,8 @@ class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
   fun <T : B> put(type: KClass<T>, value: T) = doPut(type, value)
 
   private fun doPut(type: KClass<out B>, value: B) {
-    map.computeIfAbsent(type) { mutableListOf() } += value
+    val list = map.computeIfAbsent(type) { mutableListOf() }
+    list += value
   }
 
   inline operator fun <reified T : B> plusAssign(value: T) {

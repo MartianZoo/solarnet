@@ -32,7 +32,7 @@ public sealed class PetNode {
   protected open fun precedence(): Int = Int.MAX_VALUE
 
   /**
-   * Invokes [Visitor.visit] for each immediate child node of this [PetNode] (but not for this
+   * Invokes [Visitor.maybeVisit] for each immediate child node of this [PetNode] (but not for this
    * node).
    */
   protected abstract fun visitChildren(visitor: Visitor)
@@ -81,13 +81,11 @@ public sealed class PetNode {
 
   /** See [PetNode.visitChildren]. */
   protected class Visitor(val shouldContinue: (PetNode) -> Boolean) {
-    public fun visit(nodes: Iterable<PetNode?>) = nodes.forEach(::visit)
+    public fun visit(nodes: Iterable<PetNode?>) = nodes.forEach(::maybeVisit)
     public fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
 
-    private fun visit(node: PetNode?) {
-      if (node != null) {
-        if (shouldContinue(node)) node.visitChildren(this)
-      }
+    private fun maybeVisit(node: PetNode?) {
+      node?.let { if (shouldContinue(it)) it.visitChildren(this) }
     }
   }
 

@@ -53,40 +53,33 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   override fun translate(reader: GameReader, areaType: Type): Instruction {
     val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
     val area = grid.firstOrNull { it.className == areaType.className } ?: error(areaType)
-    val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
-    val newTile: Expression = tileOn(area, reader)!! // creating it is what got us here
+    val neighborAreas: List<AreaDefinition> = grid.hexNeighbors(area.row, area.column)
+
+    fun tileOn(area: AreaDefinition): Expression? {
+      val tileType: Type = reader.resolve(TILE.of(area.className))
+      val tiles = reader.getComponents(tileType)
+      return tiles.singleOrNull()?.expression
+    }
+
+    val newTile: Expression = tileOn(area)!! // creating it is what got us here
 
     val neighbors: List<Expression> =
         neighborAreas.map { cn("Neighbor").of(newTile, it.className.expression) }
+
     val adjacencies: List<Expression> =
         neighborAreas
-            .mapNotNull { tileOn(it, reader) }
+            .mapNotNull(::tileOn)
             .flatMap {
               listOf(
                   cn("ForwardAdjacency").of(it, newTile),
                   cn("BackwardAdjacency").of(newTile, it),
               )
             }
+
     // I don't think we care whether this returns Multi or Then
     return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
   }
 
-  private fun tileOn(area: AreaDefinition, reader: GameReader): Expression? {
-    val tileType: Type = reader.resolve(TILE.of(area.className))
-    val tiles = reader.getComponents(tileType)
-    return tiles.singleOrNull()?.expression
-  }
-
-  fun <E> neighborsInHexGrid(grid: Grid<E>, r: Int, c: Int): List<E> {
-    return listOfNotNull(
-        grid[r - 1, c - 1],
-        grid[r - 1, c + 0],
-        grid[r + 0, c - 1],
-        grid[r + 0, c + 1],
-        grid[r + 1, c + 0],
-        grid[r + 1, c + 1],
-    )
-  }
 }
 
 private object CheckCardDeck : CustomClass("CheckCardDeck") {

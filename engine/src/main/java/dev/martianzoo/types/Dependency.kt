@@ -103,7 +103,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
       return (boundClass glb boundOf(that))?.let(::copy)
     }
 
-    override fun lub(that: Dependency): FakeDependency = copy(boundClass lub boundOf(that))
+    override fun lub(that: Dependency): FakeDependency =
+        FakeDependency(boundClass lub boundOf(that))
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
         boundClass.ensureNarrows(boundOf(that), info)
@@ -115,7 +116,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun intersect(expression: Expression): FakeDependency? {
       if (!expression.simple) return null
-      return glb(copy(boundClass.loader.getClass(expression.className)))
+      val mclass = boundClass.loader.getClass(expression.className)
+      return glb(FakeDependency(mclass))
     }
   }
 

@@ -164,7 +164,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
       require(keyList.any())
     }
 
-    fun prepend(key: Key) = copy(listOf(key) + keyList)
+    fun prepend(key: Key) = DependencyPath(listOf(key) + keyList)
     fun drop(i: Int) = DependencyPath(keyList.drop(i))
 
     fun isProperSuffixOf(other: DependencyPath): Boolean {

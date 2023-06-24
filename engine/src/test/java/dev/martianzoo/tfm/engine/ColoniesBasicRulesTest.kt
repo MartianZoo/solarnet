@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 /** Comment lines are quotes directly from the rulebook. */
-class ColoniesBasicRulesTest {
+internal class ColoniesBasicRulesTest {
   val normal = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
   val setup = GameSetup(Canon, "BRMC", 4, normal)
   val game = Engine.newGame(setup)

@@ -28,5 +28,5 @@ public object TfmClasses {
   val MEGACREDIT = cn("Megacredit")
 
   // Okay so it's not really a class name
-  val PROD = "PROD"
+  const val PROD = "PROD"
 }

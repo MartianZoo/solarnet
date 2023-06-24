@@ -29,7 +29,7 @@ internal class TfmBoardCommand(val repl: ReplSession) : ReplCommand("tfm_board")
 
   internal class PlayerBoardToText(
       private val tfm: TfmGameplay,
-      val useColors: Boolean = true,
+      private val useColors: Boolean = true,
   ) {
 
     internal fun board(): List<String> {

@@ -16,10 +16,10 @@ import javax.inject.Inject
  */
 @GameScoped
 internal class TimelineImpl @Inject constructor(
-    val reader: GameReader,
-    val updater: Updater,
-    val events: WritableEventLog,
-    val tasks: WritableTaskQueue,
+    private val reader: GameReader,
+    private val updater: Updater,
+    private val events: WritableEventLog,
+    private val tasks: WritableTaskQueue,
 ) : Timeline {
 
   override fun checkpoint() = Checkpoint(events.size)

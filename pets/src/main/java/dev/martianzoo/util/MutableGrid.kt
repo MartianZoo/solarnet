@@ -32,6 +32,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   }
 
   private fun all() = rows.flatten().filterNotNull().toSet()
+
   override val size
     get() = all().size
 

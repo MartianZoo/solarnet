@@ -12,16 +12,16 @@
 
 * Card behaviors etc. are written in a language called Pets that closely resembles the game's existing iconographic language. These strings are ALL the game engine needs to know about a card in order to play it correctly. Examples:
 
-| Class | Example Pets syntax |
-| ----- | ------------------- |
-| `LargeConvoy` | `This: OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal` |
-| `ElectroCatapult` | `Plant OR Steel -> 7` |
-| `ArcticAlgae` | `OceanTile BY Anyone: 2 Plant` |
-| `Insulation` | `This: PROD[X Megacredit FROM Heat]` |
-| `EarthCatapult` | `PlayCard: -2 Owed<Megacredit>` |
-| `CitySP` | `25 -> CityTile, PROD[1]` |
-| `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint` |
-| `CityTile` | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
+| Class             | Example Pets syntax                                         |
+|-------------------|-------------------------------------------------------------|
+| `LargeConvoy`     | `This: OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal`       |
+| `ElectroCatapult` | `Plant OR Steel -> 7`                                       |
+| `ArcticAlgae`     | `OceanTile BY Anyone: 2 Plant`                              |
+| `Insulation`      | `This: PROD[X Megacredit FROM Heat]`                        |
+| `EarthCatapult`   | `PlayCard: -2 Owed<Megacredit>`                             |
+| `CitySP`          | `25 -> CityTile, PROD[1]`                                   |
+| `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint`                   |
+| `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
 * This means that you can easily add your own fan cards to it, without actual "programming", as long as they don't require entire new mechanics. (The code is not yet arranged to make this *convenient* though.)
 

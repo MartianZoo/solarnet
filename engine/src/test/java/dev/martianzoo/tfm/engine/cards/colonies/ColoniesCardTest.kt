@@ -15,9 +15,9 @@ import dev.martianzoo.util.toSetStrict
 import org.junit.jupiter.api.BeforeEach
 
 abstract class ColoniesCardTest {
-  protected val tiles: Set<ClassName> =
+  protected val colonyTiles: Set<ClassName> =
       setOf("Luna", "Io", "Triton", "Europa", /*delayed*/ "Titan").toSetStrict(::cn)
-  protected val setup = GameSetup(Canon, "BRMC", 3, tiles)
+  protected val setup = GameSetup(Canon, "BRMC", 3, colonyTiles)
   protected val game = Engine.newGame(setup)
   protected val eng = game.tfm(ENGINE)
   protected val p1 = game.tfm(PLAYER1)
