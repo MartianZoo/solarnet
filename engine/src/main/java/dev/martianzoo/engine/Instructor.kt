@@ -199,8 +199,8 @@ constructor(
     var r = removing?.let(reader::resolve) as MType?
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
-      val missing =
-          g.dependencies.typeDependencies().map { it.boundType }.filter { !reader.containsAny(it) }
+      val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
+      val missing = dependencyComponents.filterNot(reader::containsAny)
       if (missing.any()) throw DependencyException(missing)
 
       g = g.singleConcreteSubtype() ?: g

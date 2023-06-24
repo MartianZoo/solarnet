@@ -31,7 +31,7 @@ internal constructor(
 
     /**
      * A short name for the class (1-4 characters, all upper case letters or digits). All
-     * [className]s and [shortNames] loaded for a game share the same single namespace.
+     * [className]s and [shortName]s loaded for a game share the same single namespace.
      */
     public val shortName: ClassName = className,
 

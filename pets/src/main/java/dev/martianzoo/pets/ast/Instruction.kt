@@ -207,23 +207,6 @@ public sealed class Instruction : PetElement() {
     override fun precedence() = if (fromEx is SimpleFrom) 7 else 10
 
     companion object {
-      fun tryMerge(left: Instruction, right: Instruction): Transmute? {
-        val gain: Gain = if (left is Gain) left else right as? Gain ?: return null
-        val remove: Remove =
-            if (left == gain) {
-              (right as? Remove)
-            } else {
-              (left as? Remove)
-            }
-                ?: return null
-
-        val scalar = gain.scaledEx.scalar
-
-        if (remove.scaledEx.scalar != scalar) return null
-        val intensity = setOfNotNull(gain.intensity, remove.intensity).singleOrNull() ?: return null
-        return Transmute(
-            SimpleFrom(gain.scaledEx.expression, remove.scaledEx.expression), scalar, intensity)
-      }
     }
   }
 
@@ -523,7 +506,7 @@ public sealed class Instruction : PetElement() {
             ScaledExpression.parser() and
                 optional(intensity) map
                 { (ste, int) ->
-                  Gain.gain(ste, int)
+                  gain(ste, int)
                 }
 
         val remove: Parser<Remove> =

@@ -17,8 +17,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
-data class ScaledExpression
-constructor(
+data class ScaledExpression(
     val scalar: Scalar,
     val expression: Expression = MEGACREDIT,
 ) : PetNode() {

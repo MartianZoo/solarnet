@@ -27,9 +27,9 @@ import kotlin.math.min
 internal class GameReaderImpl
 @Inject
 constructor(
-    private val table: MClassTable,
+    private val table: MClassTable, // TODO rename to classes?
     private val components: ComponentGraph,
-    internal val transformers: Transformers,
+    internal val transformers: Transformers, // TODO private
 ) : GameReader, TypeInfo {
 
   override val authority: TfmAuthority = table.authority as TfmAuthority
@@ -54,7 +54,6 @@ constructor(
             is Exact -> actual == target
           }
         }
-
         is Or -> requirement.requirements.any { has(it) }
         is And -> requirement.requirements.all { has(it) }
         is Requirement.Transform -> error("should have been transformed by now: $requirement")

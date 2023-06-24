@@ -63,8 +63,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   override val abstract = deps.any { it.abstract }
 
-  override fun isSubtypeOf(that: DependencySet) =
-      that.deps.all { thatDep: Dependency -> this.get(thatDep.key).isSubtypeOf(thatDep) }
+  override fun isSubtypeOf(that: DependencySet) = that.deps.all { get(it.key).isSubtypeOf(it) }
 
   override fun glb(that: DependencySet): DependencySet? =
       merge(that) { a, b -> (a glb b) ?: return@glb null }
@@ -91,8 +90,6 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
         }
     return of(merged)
   }
-
-  fun overlayOn(that: DependencySet) = merge(that) { ours, _ -> ours }
 
   fun minus(that: DependencySet) = of(this.deps - that.deps)
 
@@ -135,8 +132,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
         })
   }
 
-  /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
-  public fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {
+  fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {
     return if (isForClassType(deps)) {
       mtype.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
     } else {

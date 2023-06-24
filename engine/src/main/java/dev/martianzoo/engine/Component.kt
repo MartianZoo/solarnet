@@ -37,35 +37,36 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
   public val dependencyComponents: List<Component> =
       mtype.typeDependencies.map { it.boundType.toComponent() }
 
-  public val owner: Player? =
-      if (hasType(mtype.loader.resolve(OWNER.expression))) {
-        Player(mtype.className)
-      } else {
-        val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0))
-        dep?.let { Player(dep.className) }
-      }
+  public val owner: Player? = run {
+    val name =
+        if (hasType(mtype.loader.resolve(OWNER.expression))) {
+          mtype
+        } else {
+          mtype.dependencies.getIfPresent(Key(OWNED, 0))
+        } ?: return@run null
+    Player(name.className)
+  }
 
   internal val effects: List<Effect> by lazy {
     val classEffectTransformer =
-        with(Transformers(mtype.loader)) {
-          chain(
-              substituter(mtype.root.defaultType, mtype),
-              owner?.let(::replaceOwnerWith),
-              replaceThisExpressionsWith(expression),
-          )
-        }
+        chain(
+            Transformers(mtype.loader).substituter(mtype.root.defaultType, mtype),
+            owner?.let(::replaceOwnerWith),
+            replaceThisExpressionsWith(expression),
+        )
     mtype.root.classEffects.map(classEffectTransformer::transform)
   }
 
-  fun hasType(supertype: Type) = mtype.narrows(supertype)
+  // TODO hmm
+  fun hasType(supertype: Type, info: TypeInfo? = null) =
+      info?.let { mtype.narrows(supertype, it) } ?: mtype.narrows(supertype)
 
-  fun hasType(supertype: Type, info: TypeInfo) = mtype.narrows(supertype, info)
+  private val customOutputTransformer =
+      with(Transformers(mtype.loader)) {
+        chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
+      }
 
   fun prepareCustom(reader: GameReader): Instruction {
-    val customOutputTransformer =
-        with(Transformers(mtype.loader)) {
-          chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
-        }
     val translated = mtype.root.custom!!.prepare(reader, mtype)
     return customOutputTransformer.transform(translated)
   }

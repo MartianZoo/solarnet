@@ -7,7 +7,6 @@ import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
-import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName
@@ -84,7 +83,7 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>?) {
       val player = context.owner ?: triggerEvent.owner
       val hit = subscription.checkForHit(triggerEvent, player, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task(TaskId("ZZ"), player, automatic, hit(instruction), cause = cause)
+      return Task.noid(player, automatic, hit(instruction), cause = cause)
     }
   }
 

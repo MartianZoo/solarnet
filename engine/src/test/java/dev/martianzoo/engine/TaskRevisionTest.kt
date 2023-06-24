@@ -8,7 +8,6 @@ import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.canon.Canon
 import kotlin.reflect.KClass
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.assertThrows
 
 class TaskRevisionTest {
   private val A = TaskId("A")
-  private val NO_CHANGE = TaskResult()
   private val game = Engine.newGame(Canon.SIMPLE_GAME)
 
   // Kinda gross

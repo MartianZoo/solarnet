@@ -33,15 +33,4 @@ enum class TfmColor(val hexString: String) {
         .style(AttributedStyle.DEFAULT)
         .toAnsi()
   }
-
-  fun background(string: String): String {
-    val r = hexString.substring(0, 2).toInt(16)
-    val g = hexString.substring(2, 4).toInt(16)
-    val b = hexString.substring(4, 6).toInt(16)
-    return AttributedStringBuilder()
-        .style(AttributedStyle.DEFAULT.background(r, g, b))
-        .append(string)
-        .style(AttributedStyle.DEFAULT)
-        .toAnsi()
-  }
 }

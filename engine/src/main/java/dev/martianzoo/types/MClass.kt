@@ -158,8 +158,8 @@ internal constructor(
     val list: List<DependencySet> =
         directSupertypes().map { supertype ->
           val replacer = replacer(supertype.className, className)
-          supertype.dependencies.map { mtype ->
-            val depExpr = mtype.expressionFull
+          supertype.dependencies.map {
+            val depExpr = it.expressionFull
             val newArgs = depExpr.arguments.map(replacer::transform)
             loader.resolve(depExpr.replaceArguments(newArgs))
           }
@@ -225,7 +225,7 @@ internal constructor(
   internal val declaredEffects: Set<Effect> by declaration::effects
 
   /**
-   * The effects belonging to this class; similar to those found on the [declaration], but processed
+   * The effects belonging to this class; similar to those found on the declaration, but processed
    * as far as we are able to. These effects will belong to every [MType] built from this class,
    * where they will be processed further.
    */

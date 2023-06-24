@@ -27,7 +27,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import kotlin.math.pow
-import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Assertions.fail
@@ -234,12 +233,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           .that(regurgitated)
           .isEqualTo(originalStringOut)
     }
-  }
-
-  inline fun <reified T : PetNode> findAverageTextLength(): Int {
-    val samples = 1000
-    val sum = (1..samples).sumOf { makeRandomNode<T>().toString().length }
-    return (sum.toDouble() / samples).roundToInt()
   }
 
   inline fun <reified T : PetNode> printTestStrings(count: Int) {

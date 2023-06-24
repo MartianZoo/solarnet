@@ -76,11 +76,6 @@ private class MTypeTest {
       assertThat(type(supper).isSubtypeOf(type(subb))).isFalse()
     }
 
-    fun checkUnrelated(subb: String, supper: String) {
-      assertThat(type(subb).isSubtypeOf(type(supper))).isFalse()
-      assertThat(type(supper).isSubtypeOf(type(subb))).isFalse()
-    }
-
     checkProperSubtypes("Complex1<Foo2, Bar1, Qux1>", "Complex1<Foo1, Bar1, Qux1>")
     checkProperSubtypes("Complex1<Foo1, Bar2, Qux1>", "Complex1<Foo1, Bar1, Qux1>")
     checkProperSubtypes("Complex1<Foo1, Bar1, Qux2>", "Complex1<Foo1, Bar1, Qux1>")

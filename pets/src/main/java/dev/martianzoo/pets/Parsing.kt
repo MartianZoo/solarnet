@@ -69,7 +69,7 @@ public object Parsing {
 
   /** Version of [parse] for use from Java. */
   public fun <P : PetNode> parse(expectedType: Class<P>, source: String) =
-      Parsing.parse(expectedType.kotlin, source)
+      parse(expectedType.kotlin, source)
 
   internal fun <T> parse(
       parser: Parser<T>,

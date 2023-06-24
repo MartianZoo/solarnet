@@ -39,8 +39,8 @@ constructor(
     private val timeline: Timeline,
     private val impl: Implementations,
     private val tasks: TaskQueue,
-    private val table: MClassTable,
-    private val xers: Transformers,
+    table: MClassTable,
+    xers: Transformers,
 ) : GodMode { // so it really implements all gameplay layers
 
   override var autoExecMode: AutoExecMode = FIRST

@@ -104,7 +104,6 @@ public object JsonReader {
       fun getBonus(code: String): String? {
         val q = ArrayDeque(code.substring(1).toList())
         val result = generateSequence {
-          @Suppress("KotlinConstantConditions") // a bogus warning
           if (q.any()) {
             when (val next = q.removeFirst()) {
               in '2'..'9' -> "$next ${lookUp(q.removeFirst())}"

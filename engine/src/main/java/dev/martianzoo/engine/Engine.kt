@@ -28,18 +28,21 @@ public object Engine {
     component.game.playerComponents =
         setup.players().associateWith { p ->
           component.player(PlayerModule(p)).also {
-            if (p == ENGINE) it.initter.initialize() // not ideal
+            if (p == ENGINE) it.initter.initialize() // TODO not ideal
           }
         }
 
     return component.game
   }
 
+  @Scope internal annotation class GameScoped
+  @Scope internal annotation class PlayerScoped
+
   @GameScoped
   @dagger.Component(modules = [GameModule::class])
   internal interface GameComponent {
     val game: Game
-    val table: MClassTable
+    val table: MClassTable // TODO rename to classes
     fun player(module: PlayerModule): PlayerComponent
   }
 
@@ -56,9 +59,6 @@ public object Engine {
     @Provides fun reader(x: GameReaderImpl): GameReader = x
     @Provides fun timeline(x: TimelineImpl): Timeline = x
   }
-
-  @Scope internal annotation class GameScoped
-  @Scope internal annotation class PlayerScoped
 
   @PlayerScoped
   @Subcomponent(modules = [PlayerModule::class])

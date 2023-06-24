@@ -27,20 +27,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
     table
         .allClasses()
         .flatMap { mclass ->
-          mclass.invariants().map {
-            var expr = (it as Counting).scaledEx.expression
-
-            // Simplify it if we can
-            if (mclass.concreteTypes().drop(1).none()) {
-              expr = replaceThisExpressionsWith(mclass.className.expression).transform(expr)
-            }
-
-            if (THIS in expr.descendantsOfType<ClassName>()) {
-              UnboundRangeRestriction(expr, mclass, it.range)
-            } else {
-              SimpleRangeRestriction(table.resolve(expr), it.range)
-            }
-          }
+          mclass.invariants().map { toRangeRestriction(it as Counting, mclass) }
         }
         .forEach { restriction ->
           restriction.mclass.getAllSubclasses().forEach {
@@ -49,6 +36,21 @@ constructor(private val table: MClassTable, private val components: ComponentGra
           }
         }
     multimap
+  }
+
+  private fun toRangeRestriction(it: Counting, mclass: MClass): RangeRestriction {
+    var expr = it.scaledEx.expression
+
+    // Simplify it if we can
+    if (mclass.concreteTypes().drop(1).none()) {
+      expr = replaceThisExpressionsWith(mclass.className.expression).transform(expr)
+    }
+
+    return if (THIS in expr.descendantsOfType<ClassName>()) {
+      UnboundRangeRestriction(expr, mclass, it.range)
+    } else {
+      SimpleRangeRestriction(table.resolve(expr), it.range)
+    }
   }
 
   fun findLimit(gaining: Component?, removing: Component?): Int {
@@ -89,10 +91,8 @@ constructor(private val table: MClassTable, private val components: ComponentGra
 
     internal abstract fun bindThisTo(mtype: MType): SimpleRangeRestriction
 
-    internal data class SimpleRangeRestriction(
-        val mtype: MType,
-        override val range: IntRange
-    ) : RangeRestriction() {
+    internal data class SimpleRangeRestriction(val mtype: MType, override val range: IntRange) :
+        RangeRestriction() {
       override val mclass = mtype.root
 
       override fun bindThisTo(mtype: MType) = this

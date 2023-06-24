@@ -9,7 +9,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.Type
 import dev.martianzoo.pets.HasClassName
-import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Min
@@ -45,20 +44,9 @@ public data class Expression(
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
   val simple: Boolean = arguments.isEmpty() && refinement == null
 
-  @JvmName("extractAndAppendArguments")
-  fun appendArguments(moreArgs: List<HasExpression>): Expression =
-      appendArguments(moreArgs.map { it.expression })
-
-  fun appendArguments(vararg moreArgs: HasExpression): Expression =
-      appendArguments(moreArgs.toList())
-
-  fun appendArguments(moreArgs: List<Expression>): Expression =
-      replaceArguments(arguments + moreArgs)
-
-  fun appendArguments(vararg moreArgs: Expression): Expression = appendArguments(moreArgs.toList())
+  fun appendArguments(moreArgs: List<Expression>) = replaceArguments(arguments + moreArgs)
 
   fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
-  fun replaceArguments(vararg newArgs: Expression): Expression = replaceArguments(newArgs.toList())
 
   /**
    * Returns this expression with the given refinement. This expression must not already have a

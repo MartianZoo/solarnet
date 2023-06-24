@@ -8,8 +8,8 @@ interface Timeline {
 
   /**
    * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
-   * Within the block you can throw [AbortOperationException] to roll everything back but have this
-   * method complete normally.
+   * Within the block you can call `abort` to roll everything back but still have this method
+   * complete normally.
    */
   fun atomic(block: () -> Unit): TaskResult
 

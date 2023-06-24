@@ -210,9 +210,8 @@ constructor(
   private fun replace1WithN(replacement: Task) {
     val split = split(replacement.instruction)
     if (split.size == 1) {
-      val reason = replacement.whyPending?.let { "(was: $it)" }
       val one = split.instructions[0]
-      tasks.editTask(replacement.copy(instructionIn = one, whyPending = reason))
+      tasks.editTask(replacement.copy(instructionIn = one))
     } else {
       tasks.addTasks(split, replacement.owner, replacement.cause)
       handleTask(replacement.id)

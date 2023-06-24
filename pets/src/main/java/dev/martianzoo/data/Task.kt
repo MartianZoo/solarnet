@@ -70,38 +70,6 @@ public data class Task(
     }
   }
 
-  companion object {
-    public fun newTasks(
-        firstId: TaskId,
-        owner: Player,
-        instruction: InstructionGroup,
-        cause: Cause?
-    ): List<Task> {
-      var nextId = firstId
-      return instruction.map { newTask(nextId, owner, it, cause).also { nextId = nextId.next() } }
-    }
-
-    public fun newTask(
-        id: TaskId,
-        owner: Player,
-        instruction: Instruction,
-        cause: Cause?,
-        automatic: Boolean = false
-    ): Task {
-      val task = Task(id, owner, automatic, instruction, cause = cause)
-      val normal = task.instruction
-
-      return if (normal is Then && !normal.keepLinked()) {
-        task.copy(
-            instructionIn = normal.instructions.first(),
-            thenIn = Then.create(normal.instructions.drop(1)),
-        )
-      } else {
-        task
-      }
-    }
-  }
-
   operator fun times(factor: Int): Task {
     return copy(instructionIn = instruction * factor, thenIn = then?.times(factor))
   }
@@ -145,6 +113,45 @@ public data class Task(
     append(instruction)
     then?.let { append(" (THEN $it)") }
     whyPending?.let { append(" ($it)") }
+  }
+
+  companion object {
+    public fun newTasks(
+        firstId: TaskId,
+        owner: Player,
+        instruction: InstructionGroup,
+        cause: Cause?
+    ): List<Task> {
+      var nextId = firstId
+      return instruction.map { newTask(nextId, owner, it, cause).also { nextId = nextId.next() } }
+    }
+
+    public fun newTask(
+        id: TaskId,
+        owner: Player,
+        instruction: Instruction,
+        cause: Cause?,
+        automatic: Boolean = false
+    ): Task {
+      val task = Task(id, owner, automatic, instruction, cause = cause)
+      val normal = task.instruction
+
+      return if (normal is Then && !normal.keepLinked()) {
+        task.copy(
+            instructionIn = normal.instructions.first(),
+            thenIn = Then.create(normal.instructions.drop(1)),
+        )
+      } else {
+        task
+      }
+    }
+
+    fun noid(
+        player: Player,
+        automatic: Boolean,
+        hit: Instruction,
+        cause: Cause,
+    ) = Task(TaskId("ZZ"), player, automatic, hit, cause = cause)
   }
 
   data class TaskId(val s: String) : Comparable<TaskId> {

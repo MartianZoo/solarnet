@@ -82,12 +82,7 @@ internal constructor(
 
   internal val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
 
-  private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
-    val expression = className.of(specs).has(refinement)
-    val roundTrip = loader.resolve(expression)
-    require(roundTrip == this) { "$expression" }
-    return expression
-  }
+  private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**
    * Returns every possible [MType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
@@ -133,8 +128,7 @@ internal constructor(
 
   // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
   override fun narrows(that: Type, info: TypeInfo): Boolean {
-    that as? MType ?: error("")
-    if (!root.isSubtypeOf(that.root)) return false
+    if (!root.isSubtypeOf((that as MType).root)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
     that.refinement ?: return true

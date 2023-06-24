@@ -38,18 +38,6 @@ constructor(
     }
   }
 
-  private fun removeAll(dependent: Type, cause: Cause?): ChangeEvent {
-    val component = dependent.toComponent(reader)
-    val count = reader.countComponent(dependent)
-    return change(
-        count = count,
-        gaining = null,
-        removing = component,
-        cause = cause,
-        orRemoveOneDependent = true
-    ).first
-  }
-
   private fun doSingleChange(
       count: Int,
       gaining: Component?,
@@ -59,4 +47,13 @@ constructor(
     val change = updater.update(count, gaining, removing)
     return changeLog.addChangeEvent(change, player, cause)
   }
+
+  private fun removeAll(dependent: Type, cause: Cause?): ChangeEvent =
+      change(
+              count = reader.countComponent(dependent),
+              gaining = null,
+              removing = dependent.toComponent(reader),
+              cause = cause,
+              orRemoveOneDependent = true)
+          .first
 }

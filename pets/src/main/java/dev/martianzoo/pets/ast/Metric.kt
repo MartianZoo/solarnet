@@ -24,6 +24,7 @@ sealed class Metric : PetElement() {
     override fun precedence() = 12
   }
 
+  // TODO rename inner, like the others
   data class Scaled(val unit: Int, val metric: Metric) : Metric() {
     init {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")

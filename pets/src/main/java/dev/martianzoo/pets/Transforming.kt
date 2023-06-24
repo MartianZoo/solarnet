@@ -34,16 +34,6 @@ public object Transforming {
           replacer(THIS.expression, contextType),
       )
 
-  /**
-   * Reverses the effect of [replaceThisExpressionsWith] (though it will also turn [contextType]
-   * expressions into `This` that didn't start out that way).
-   */
-  public fun replaceWithThisExpressions(contextType: Expression): PetTransformer =
-      chain(
-          replacer(contextType, THIS.expression),
-          replacer(contextType.className.classExpression(), THIS.classExpression()),
-      )
-
   /** Replaces each occurrence of `Owner` with the given player. */
   public fun replaceOwnerWith(owner: Player): PetTransformer =
       if (owner == ENGINE) noOp() else replacer(OWNER.expression, owner.expression)

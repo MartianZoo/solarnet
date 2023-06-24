@@ -76,6 +76,7 @@ internal class MClassLoader(
 
   /** Returns the [MType] represented by [expression]. */
   override fun resolve(expression: Expression): MType {
+    // Avoiding computeIfAbsent due to CME
     return cache[expression]
         ?: try {
           getClass(expression.className)
@@ -125,10 +126,10 @@ internal class MClassLoader(
   internal fun loadAndMaybeEnqueueRelated(next: ClassName): MClass {
     if (next in loadedClasses) return loadedClasses[next] ?: error("reentrant")
     val declaration = decl(next)
-    val newClass = loadSingle(next, declaration)
-    val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
-    queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
-    return newClass
+    return loadSingle(next, declaration).also {
+      val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
+      queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
+    }
   }
 
   private fun loadSingle(idOrName: ClassName): MClass =
@@ -149,20 +150,12 @@ internal class MClassLoader(
   private fun construct(decl: ClassDeclaration): MClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
-    val (long, short) = decl.className to decl.shortName
-
-    require(long !in loadedClasses) { long }
-    require(short !in loadedClasses) { short }
-
-    // signal with `null` that loading is in process, so we can detect infinite recursion
-    loadedClasses[long] = null
-    loadedClasses[short] = null
-
-    val mclass = MClass(decl, this)
-    loadedClasses[long] = mclass
-    loadedClasses[short] = mclass
-
-    return mclass
+    fun store(c: MClass?) {
+      loadedClasses[decl.className] = c
+      loadedClasses[decl.shortName] = c
+    }
+    store(null) // to detect reentrancy
+    return MClass(decl, this).also(::store)
   }
 
   private var frozen: Boolean = false
