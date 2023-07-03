@@ -37,8 +37,8 @@ internal object PetToKotlin {
   }
 
   fun p2k(n: PetNode?): String {
-    n.apply {
-      return when (this) {
+    return with(n) {
+      when (this) {
         null -> "null"
         is ClassName -> "cn(\"$this\")"
         is Refinement -> "TODO"

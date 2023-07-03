@@ -77,7 +77,7 @@ internal class CanonClassesTest {
   fun component() {
     val loader = MClassLoader(Canon)
 
-    loader.componentClass.apply {
+    with(loader.componentClass) {
       assertThat(className).isEqualTo(COMPONENT)
       assertThat(abstract).isTrue()
       // assertThat(directDependencyKeys).isEmpty()
@@ -85,7 +85,7 @@ internal class CanonClassesTest {
       assertThat(directSuperclasses).isEmpty()
     }
 
-    loader.load(cn("OceanTile")).apply {
+    with(loader.load(cn("OceanTile"))) {
       // assertThat(directDependencyKeys).isEmpty()
       // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
       assertThat(directSuperclasses.classNames()).containsExactly(cn("GlobalParameter"), cn("Tile"))

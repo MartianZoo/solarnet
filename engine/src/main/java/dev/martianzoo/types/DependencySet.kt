@@ -28,16 +28,16 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   fun flatten(): Map<DependencyPath, MClass> {
     return deps
-        .flatMap {
+        .flatMap { dep: Dependency ->
           // Throwing away refinements & links...
-          val result = mutableListOf(DependencyPath(it.key) to it.boundClass)
-          if (it is TypeDependency) {
-            result +=
-                it.boundType.dependencies.flatten().map { (depPath, boundClass) ->
-                  depPath.prepend(it.key) to boundClass
-                }
+          buildList {
+            add(DependencyPath(dep.key) to dep.boundClass)
+            if (dep is TypeDependency) {
+              dep.boundType.dependencies.flatten().forEach { (depPath, boundClass) ->
+                add(depPath.prepend(dep.key) to boundClass)
+              }
+            }
           }
-          result
         }
         .toMap()
   }
@@ -114,22 +114,20 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
    * order to the input expressions.
    */
   fun matchPartial(args: List<Expression>): DependencySet {
-    val usedDeps = mutableSetOf<Dependency>()
+    val alreadyMatchedDeps = mutableSetOf<Dependency>()
 
-    fun dependency(arg: Expression, it: Dependency): Dependency? {
-      val intersectionType: Dependency? = it.intersect(arg)
-      return if (intersectionType != null && usedDeps.add(it)) {
-        intersectionType
-      } else {
-        null
-      }
+    fun tryMatch(arg: Expression, dep: Dependency): Dependency? {
+      if (dep in alreadyMatchedDeps) return null
+      val intersection: Dependency = dep.intersect(arg) ?: return null
+      alreadyMatchedDeps += dep
+      return intersection
     }
 
-    return of(
-        args.map { arg ->
-          deps.firstNotNullOfOrNull { dependency(arg, it) }
-              ?: throw Exceptions.badExpression(arg, toString())
-        })
+    fun matchToDependency(arg: Expression) =
+        deps.firstNotNullOfOrNull { tryMatch(arg, it) }
+            ?: throw Exceptions.badExpression(arg, toString())
+
+    return DependencySet.of(args.map(::matchToDependency))
   }
 
   fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {

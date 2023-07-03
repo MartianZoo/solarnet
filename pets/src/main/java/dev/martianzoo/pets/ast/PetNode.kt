@@ -4,7 +4,6 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.ast.Instruction.Gain
 import kotlin.reflect.KClass
-import kotlin.reflect.safeCast
 
 /** An API object that can be represented as PETS source code. */
 public sealed class PetNode {
@@ -57,13 +56,14 @@ public sealed class PetNode {
   public inline fun <reified P : PetNode> descendantsOfType(): List<P> = descendantsOfType(P::class)
 
   /** Non-reified form of [descendantsOfType]. */
-  public fun <P : PetNode> descendantsOfType(type: KClass<P>): List<P> {
-    val found = mutableListOf<P?>()
+  public fun <P : PetNode> descendantsOfType(type: KClass<P>): List<P> = buildList {
     visitDescendants {
-      found += type.safeCast(it)
+      @Suppress("UNCHECKED_CAST")
+      if (type.isInstance(it)) {
+        add(it as P)
+      }
       true
     }
-    return found.filterNotNull()
   }
 
   /**

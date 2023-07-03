@@ -48,11 +48,8 @@ constructor(
     private val table: MClassTable,
 ) {
 
-  fun execute(instruction: Instruction, cause: Cause?): List<Task> {
-    val list = mutableListOf<Task>()
-    doExecute(instruction, cause, list)
-    return list
-  }
+  fun execute(instruction: Instruction, cause: Cause?): List<Task> =
+      buildList { doExecute(instruction, cause, this) }
 
   private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>) {
     when (val prepped = prepare(instruction)) { // idempotent?

@@ -25,13 +25,10 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val component = DaggerEngine_GameComponent.builder().gameModule(GameModule(setup)).build()
 
-    component.game.playerComponents =
-        setup.players().associateWith { p ->
-          component.player(PlayerModule(p)).also {
-            if (p == ENGINE) it.initter.initialize() // TODO not ideal
-          }
-        }
+    val pcs = setup.players().associateWith { component.player(PlayerModule(it)) }
+    pcs[ENGINE]!!.initter.initialize()
 
+    component.game.playerComponents = pcs
     return component.game
   }
 

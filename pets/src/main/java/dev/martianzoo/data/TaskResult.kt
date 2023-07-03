@@ -26,16 +26,13 @@ public data class TaskResult(
         map[it] = count - change.count
       }
     }
-    return map.entries.mapNotNull { (expr, count) ->
-      if (count == 0) {
-        null
-      } else {
-        StateChange(
-            count = count.absoluteValue,
-            gaining = if (count > 0) expr else null,
-            removing = if (count < 0) expr else null,
-        )
-      }
-    }
+    return map.filterValues { it != 0 }
+        .map { (expr, count) ->
+          StateChange(
+              count = count.absoluteValue,
+              gaining = if (count > 0) expr else null,
+              removing = if (count < 0) expr else null,
+          )
+        }
   }
 }
