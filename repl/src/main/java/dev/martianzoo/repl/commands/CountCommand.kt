@@ -15,7 +15,9 @@ internal class CountCommand(val repl: ReplSession) : ReplCommand("count") {
   override val isReadOnly = true
 
   override fun withArgs(args: String): List<String> {
-    val count = repl.tfm.count(args)
-    return listOf("$count ${repl.tfm.parse<Metric>(args)}")
+    // TODO this is awkward; also remove dep on `tfm`
+    val metric: Metric = repl.game.gameplay(repl.tfm.player).parse(args)
+    val count = repl.game.reader.count(metric)
+    return listOf("$count $metric")
   }
 }

@@ -23,6 +23,7 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
 
   override fun withArgs(args: String): List<String> {
     val (expression, type) =
+        // TODO remove deps on `tfm`
         if (args == "random") {
           val type =
               repl.tfm.resolve("$CLASS")

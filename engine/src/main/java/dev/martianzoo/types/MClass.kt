@@ -55,7 +55,7 @@ internal constructor(
     internal val loader: MClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    internal val directSuperclasses: List<MClass> = superclasses(declaration, loader),
+    val directSuperclasses: List<MClass> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<MClass> {
 
   /** The name of this class, in UpperCamelCase. */
@@ -74,7 +74,7 @@ internal constructor(
 
   override val abstract: Boolean by declaration::abstract
 
-  override fun isSubtypeOf(that: MClass): Boolean = that in getAllSuperclasses()
+  override fun isSubtypeOf(that: MClass): Boolean = that in allSuperclasses()
 
   override fun glb(that: MClass): MClass? =
       when {
@@ -91,7 +91,7 @@ internal constructor(
 
   override fun lub(that: MClass): MClass {
     val commonSupers: Set<MClass> = this.allSuperclasses.intersect(that.allSuperclasses)
-    val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.getProperSuperclasses() }.toSet()
+    val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
     val candidates: Set<MClass> = commonSupers - supersOfSupers
     // This is a weird and stupid heuristic, but does it really matter which one we pick?
     return candidates.maxBy {
@@ -122,18 +122,18 @@ internal constructor(
   }
 
   /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
-  internal fun getAllSuperclasses(): Set<MClass> = allSuperclasses
+  fun allSuperclasses(): Set<MClass> = allSuperclasses
 
-  internal fun getProperSuperclasses(): Set<MClass> = getAllSuperclasses() - this
+  fun properSuperclasses(): Set<MClass> = allSuperclasses() - this
 
   private val allSubclasses: Set<MClass> by lazy {
-    loader.allClasses().filter { this in it.getAllSuperclasses() }.toSet()
+    loader.allClasses().filter { this in it.allSuperclasses() }.toSet()
   }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  internal fun getAllSubclasses(): Set<MClass> = allSubclasses
+  fun allSubclasses(): Set<MClass> = allSubclasses
 
-  internal fun getDirectSubclasses(): Set<MClass> =
+  fun directSubclasses(): Set<MClass> =
       loader.allClasses().filter { this in it.directSuperclasses }.toSet()
 
   /**
@@ -191,7 +191,7 @@ internal constructor(
       MType(this, deps.subMapInOrder(dependencies.keys))
 
   /** Least upper bound of all types with mclass==this */
-  internal val baseType: MType by lazy { withAllDependencies(dependencies) }
+  val baseType: MType by lazy { withAllDependencies(dependencies) }
 
   internal val defaultType: MType by lazy {
     loader.resolve(Transformers(loader).insertDefaults().transform(className.expression))
@@ -234,7 +234,7 @@ internal constructor(
     fun directClassEffects(mclass: MClass) =
         mclass.declaredEffects.map(mclass.attachToClassTransformer::transform)
 
-    getAllSuperclasses().flatMap(::directClassEffects).toSetStrict()
+    allSuperclasses().flatMap(::directClassEffects).toSetStrict()
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {
@@ -270,7 +270,7 @@ internal constructor(
     return if (abstract) {
       setOf()
     } else {
-      getAllSuperclasses().flatMap { it.directInvariants }.toSet()
+      allSuperclasses().flatMap { it.directInvariants }.toSet()
     }
   }
 

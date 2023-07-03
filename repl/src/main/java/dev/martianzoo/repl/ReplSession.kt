@@ -67,7 +67,7 @@ internal fun main() {
 
 internal class ReplSession(val jline: JlineRepl? = null) {
   lateinit var setup: GameSetup
-  lateinit var game: Game
+  lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   lateinit var tfm: TfmGameplay
 
   var mode: ReplMode = GREEN

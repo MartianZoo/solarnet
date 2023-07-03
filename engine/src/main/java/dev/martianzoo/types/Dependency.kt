@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.Hierarchical
 
-internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasClassName {
+public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasClassName {
   abstract val key: Key
 
   /**

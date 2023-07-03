@@ -20,6 +20,7 @@ internal class AutoCommand(val repl: ReplSession) : ReplCommand("auto") {
         until you `exit` or `rebuild`, even across games.
       """
 
+  // TODO don't depend on `tfm`?
   override fun noArgs() = listOf("Autoexec mode is: ${repl.tfm.autoExecMode}")
 
   override fun withArgs(args: String): List<String> {

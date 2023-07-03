@@ -19,7 +19,7 @@ object Prod {
       return PetTransformer.noOp()
     }
     val classNames =
-        table.getClass(STANDARD_RESOURCE).getAllSubclasses().flatMap {
+        table.getClass(STANDARD_RESOURCE).allSubclasses().flatMap {
           setOf(it.className, it.shortName)
         }
 

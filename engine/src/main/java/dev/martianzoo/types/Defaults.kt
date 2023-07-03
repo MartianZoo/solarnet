@@ -38,10 +38,10 @@ internal data class Defaults(
       fun extractFromClass(c: MClass): T? = extractor(c.defaultsDecl)
 
       val haveDefault: List<MClass> =
-          mclass.getAllSuperclasses().filter { extractFromClass(it) != null }
+          mclass.allSuperclasses().filter { extractFromClass(it) != null }
 
       // Anything that was overridden by *any* of our superclasses must be discarded
-      val lasdfasdf = haveDefault.flatMap { it.getProperSuperclasses() }.toSet()
+      val lasdfasdf = haveDefault.flatMap { it.properSuperclasses() }.toSet()
       val inheritFrom = haveDefault - lasdfasdf
       val candidates: List<T> = inheritFrom.map { extractFromClass(it)!! }.distinct()
 

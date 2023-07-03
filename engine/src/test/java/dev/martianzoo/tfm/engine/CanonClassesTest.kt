@@ -29,14 +29,14 @@ internal class CanonClassesTest {
 
   @Test
   fun childlessAbstractClass() {
-    val anomalies = table.allClasses().filter { it.abstract && it.getDirectSubclasses().none() }
+    val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().none() }
     assertThat(anomalies).isEmpty()
   }
 
   @Test
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
-    val anomalies = table.allClasses().filter { it.abstract && it.getDirectSubclasses().size == 1 }
+    val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
     assertThat(anomalies.classNames()).containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"))
   }
 
@@ -46,7 +46,7 @@ internal class CanonClassesTest {
     table.allClasses()
         .filterNot { it.abstract }
         .forEach { sup ->
-          (sup.getAllSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }
+          (sup.allSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }
         }
     assertThat(map).containsExactly() // cn("CityTile") to cn("CapitalTile"))
   }
@@ -89,7 +89,7 @@ internal class CanonClassesTest {
       // assertThat(directDependencyKeys).isEmpty()
       // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
       assertThat(directSuperclasses.classNames()).containsExactly(cn("GlobalParameter"), cn("Tile"))
-      assertThat(getAllSuperclasses().classNames())
+      assertThat(allSuperclasses().classNames())
           .containsExactly(
               cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
 

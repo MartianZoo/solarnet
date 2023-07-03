@@ -17,7 +17,8 @@ internal class AsCommand(val repl: ReplSession) : ReplCommand("as") {
   override fun withArgs(args: String): List<String> {
     val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
-    // This is a sad way to do it TODO
+    // TODO Better way to do it??
+    // TODO don't depend on `tfm`
     val saved = repl.tfm
     return try {
       repl.tfm = repl.game.tfm(repl.player(player))

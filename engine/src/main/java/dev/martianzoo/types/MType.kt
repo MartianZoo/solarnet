@@ -24,8 +24,8 @@ import dev.martianzoo.util.Reifiable
  */
 public data class MType
 internal constructor(
-    internal val root: MClass,
-    internal val dependencies: DependencySet,
+    val root: MClass,
+    val dependencies: DependencySet,
     override val refinement: Refinement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
 
@@ -112,7 +112,7 @@ internal constructor(
       if (root.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
 
   internal fun concreteSubclasses(mclass: MClass) =
-      mclass.getAllSubclasses().asSequence().filter { !it.abstract }
+      mclass.allSubclasses().asSequence().filter { !it.abstract }
 
   override fun ensureNarrows(that: MType, info: TypeInfo) {
     root.ensureNarrows(that.root, info)

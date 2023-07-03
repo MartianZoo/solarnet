@@ -16,8 +16,8 @@ public class TypeDescription public constructor(mtype: MType) {
 
   val docstring: String? by mclass::docstring
 
-  val superclassNames: Set<ClassName> = mclass.getAllSuperclasses().classNames()
-  val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.getAllSubclasses())
+  val superclassNames: Set<ClassName> = mclass.allSuperclasses().classNames()
+  val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.allSubclasses())
 
   val rawClassEffects: Set<Effect> by mclass::declaredEffects
   val classEffects: Set<Effect> by mclass::classEffects
@@ -30,7 +30,7 @@ public class TypeDescription public constructor(mtype: MType) {
       (baseType as MType).concreteSubtypesSameClass().take(100).count()
 
   val supertypes: List<Type> =
-      mclass.getAllSuperclasses().map { it.withAllDependencies(mtype.dependencies) }
+      mclass.allSuperclasses().map { it.withAllDependencies(mtype.dependencies) }
 
   val substitutions =
       Transformers(mtype.loader)
@@ -42,7 +42,7 @@ public class TypeDescription public constructor(mtype: MType) {
 
   private fun descendingBySubclassCount(classes: Iterable<MClass>): Set<ClassName> =
       classes
-          .sortedWith(compareBy({ -it.getAllSubclasses().size }, { it.className }))
+          .sortedWith(compareBy({ -it.allSubclasses().size }, { it.className }))
           .classNames()
           .toSetStrict()
 }

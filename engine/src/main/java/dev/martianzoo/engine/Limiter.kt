@@ -30,7 +30,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
           mclass.invariants().map { toRangeRestriction(it as Counting, mclass) }
         }
         .forEach { restriction ->
-          restriction.mclass.getAllSubclasses().forEach {
+          restriction.mclass.allSubclasses().forEach {
             val list = multimap.computeIfAbsent(it) { mutableListOf() }
             list += restriction
           }

@@ -13,7 +13,7 @@ import dev.martianzoo.util.cartesianProduct
 import dev.martianzoo.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-internal class DependencySet private constructor(private val deps: Set<Dependency>) :
+public class DependencySet private constructor(private val deps: Set<Dependency>) :
     Hierarchical<DependencySet> {
 
   companion object {
@@ -142,7 +142,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   fun singleConcreteSubtype(): DependencySet? {
     return if (isForClassType(deps)) {
       val abs: MClass = getClassForClassType(deps)
-      val conc = abs.getAllSubclasses().singleOrNull { !it.abstract }
+      val conc = abs.allSubclasses().singleOrNull { !it.abstract }
       return conc?.let { depsForClassType(it) }
     } else {
       map { it.singleConcreteSubtype() ?: return null }

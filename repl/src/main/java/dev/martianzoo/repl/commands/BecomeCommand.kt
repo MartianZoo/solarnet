@@ -14,6 +14,7 @@ internal class BecomeCommand(val repl: ReplSession) : ReplCommand("become") {
         engine things.
       """
 
+  // TODO don't depend on `tfm`?
   override fun noArgs(): List<String> {
     repl.tfm = repl.game.tfm(Player.ENGINE)
     return listOf("Okay, you are the game engine now")
