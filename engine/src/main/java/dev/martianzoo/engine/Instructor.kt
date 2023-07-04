@@ -198,6 +198,8 @@ constructor(
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
       val missing = dependencyComponents.filterNot(reader::containsAny)
+
+      // TODO this needs to not happen (or be intercepted) if the instruction is non-mandatory!
       if (missing.any()) throw DependencyException(missing)
 
       g = g.singleConcreteSubtype() ?: g
