@@ -27,14 +27,14 @@ import kotlin.math.min
 internal class GameReaderImpl
 @Inject
 constructor(
-    private val table: MClassTable, // TODO rename to classes?
+    private val classes: MClassTable,
     private val components: ComponentGraph,
     internal val transformers: Transformers, // TODO private
 ) : GameReader, TypeInfo {
 
-  override val authority: TfmAuthority = table.authority as TfmAuthority
+  override val authority: TfmAuthority = classes.authority as TfmAuthority
 
-  override fun resolve(expression: Expression) = table.resolve(expression)
+  override fun resolve(expression: Expression) = classes.resolve(expression)
 
   // Next 3 are for TypeInfo interface
 
@@ -68,14 +68,14 @@ constructor(
         is Metric.Transform -> error("should have been transformed by now: $metric")
       }
 
-  override fun count(type: Type) = components.count(table.resolve(type), this)
+  override fun count(type: Type) = components.count(classes.resolve(type), this)
 
-  override fun containsAny(type: Type) = components.containsAny(table.resolve(type), this)
+  override fun containsAny(type: Type) = components.containsAny(classes.resolve(type), this)
 
   override fun countComponent(concreteType: Type) =
       components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) =
-      components.getAll(table.resolve(type), this).map { it.type }
+      components.getAll(classes.resolve(type), this).map { it.type }
 
 }

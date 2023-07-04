@@ -27,7 +27,7 @@ internal class PrepareTest {
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-        Prod.deprodify(Transformers(game.classes).table),
+        Prod.deprodify(Transformers(game.classes).classes),
         Transformers(game.classes).insertDefaults(),
         replaceOwnerWith(PLAYER1),
     )

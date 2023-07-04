@@ -19,12 +19,12 @@ import kotlin.Int.Companion.MAX_VALUE
 @GameScoped
 internal class Limiter
 @Inject
-constructor(private val table: MClassTable, private val components: ComponentGraph) {
+constructor(private val classes: MClassTable, private val components: ComponentGraph) {
   // visible for testing
   internal val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {
     val multimap = mutableMapOf<MClass, MutableList<RangeRestriction>>()
 
-    table
+    classes
         .allClasses()
         .flatMap { mclass ->
           mclass.invariants().map { toRangeRestriction(it as Counting, mclass) }
@@ -49,7 +49,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
     return if (THIS in expr.descendantsOfType<ClassName>()) {
       UnboundRangeRestriction(expr, mclass, it.range)
     } else {
-      SimpleRangeRestriction(table.resolve(expr), it.range)
+      SimpleRangeRestriction(classes.resolve(expr), it.range)
     }
   }
 
@@ -75,7 +75,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
   }
 
   fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
-    val mtype = component?.type?.let { table.resolve(it) } ?: return setOf()
+    val mtype = component?.type?.let { classes.resolve(it) } ?: return setOf()
     val allRestrictions = rangeRestrictionsByClass[mtype.root] ?: listOf()
     val ourRestrictions =
         allRestrictions.mapNotNull {

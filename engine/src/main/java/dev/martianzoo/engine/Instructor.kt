@@ -45,7 +45,7 @@ constructor(
     private val limiter: Limiter,
     private val changer: Changer?,
     private val effector: Effector?,
-    private val table: MClassTable,
+    private val classes: MClassTable,
 ) {
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
@@ -148,7 +148,7 @@ constructor(
 
     if (g?.root?.custom != null) {
       require(r == null) { "custom class instructions can only be pure gains" }
-      val translated = Prod.deprodify(table).transform(gaining!!.prepareCustom(reader))
+      val translated = Prod.deprodify(classes).transform(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }
 
@@ -206,7 +206,7 @@ constructor(
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
       // TODO could be smarter, like if the instr is mandatory and only one cpt type can satisfy
-      r = reader.getComponents(r).singleOrNull()?.let { table.resolve(it.expression) } ?: r
+      r = reader.getComponents(r).singleOrNull()?.let { classes.resolve(it.expression) } ?: r
     }
     return g to r
   }

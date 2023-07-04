@@ -12,7 +12,7 @@ internal class Initializer
 @Inject
 constructor(
     private val gameplay: Gameplay,
-    private val table: MClassTable,
+    private val classes: MClassTable,
     private val timeline: TimelineImpl,
     private val setup: GameSetup,
     private val tasks: TaskQueue,
@@ -33,7 +33,7 @@ constructor(
     exec("$ENGINE")
     fakeCause = Cause(ENGINE.expression, 0)
 
-    table.allClasses()
+    classes.allClasses()
         .filter { c -> c.isSingletonType() }
         .flatMap { it.baseType.concreteSubtypesSameClass() }
         .forEach { exec("${it.expression}") }

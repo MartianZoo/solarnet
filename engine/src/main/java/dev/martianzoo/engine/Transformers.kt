@@ -30,14 +30,14 @@ import dev.martianzoo.types.MType
 import javax.inject.Inject
 
 @GameScoped
-internal class Transformers @Inject constructor(val table: MClassTable) {
+internal class Transformers @Inject constructor(val classes: MClassTable) {
 
   public fun useFullNames() =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
-            table.resolve(node.expression).className as P
+            classes.resolve(node.expression).className as P
           } else {
             transformChildren(node)
           }
@@ -47,7 +47,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
   public fun atomizer(): PetTransformer {
     val atomized =
         try {
-          table.getClass(ATOMIZED)
+          classes.getClass(ATOMIZED)
         } catch (e: Exception) {
           return noOp()
         }
@@ -73,7 +73,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
         if (sc !is ActualScalar ||
             sc.value == 1 ||
             THIS in scex.expression ||
-            !table.resolve(scex.expression).root.isSubtypeOf(atomized)) {
+            !classes.resolve(scex.expression).root.isSubtypeOf(atomized)) {
           return node
         }
 
@@ -115,13 +115,13 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val spec: DefaultSpec = extractor(table.getClass(original.className).defaults)
+          val spec: DefaultSpec = extractor(classes.getClass(original.className).defaults)
           val fixed =
               insertDefaultsIntoExpr(
                   original,
                   spec.dependencies,
                   context,
-                  table,
+                  classes,
               )
           val intensity = node.intensity ?: spec.intensity
 
@@ -154,8 +154,8 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
-        val defaultDeps = table.getClass(node.className).defaults.allUsages.dependencies
-        val result = insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, table)
+        val defaultDeps = classes.getClass(node.className).defaults.allUsages.dependencies
+        val result = insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, classes)
         @Suppress("UNCHECKED_CAST") return result as P
       }
     }

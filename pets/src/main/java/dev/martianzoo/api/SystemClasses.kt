@@ -13,7 +13,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  */
 public object SystemClasses {
   // A special fake class name that doesn't actually point to a class
-  // TODO consider making Ok and Die like that too?
   public val THIS = cn("This")
 
   // Classes defined in system.pets

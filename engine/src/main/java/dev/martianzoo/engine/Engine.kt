@@ -39,7 +39,7 @@ public object Engine {
   @dagger.Component(modules = [GameModule::class])
   internal interface GameComponent {
     val game: Game
-    val table: MClassTable // TODO rename to classes
+    val classes: MClassTable
     fun player(module: PlayerModule): PlayerComponent
   }
 

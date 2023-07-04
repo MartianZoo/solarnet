@@ -40,7 +40,7 @@ object TestHelpers {
           chain(
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
-              Prod.deprodify(table),
+              Prod.deprodify(classes),
               replaceOwnerWith(tfm.player),
           )
         }
