@@ -10,7 +10,7 @@
 
 * It's not polished enough for anyone to "just use" -- not even close! But if you're intrepid I could really use your help to *get* it into that state. If you're not in a "roll up your sleeves, dig in, ask questions" mode, you *will* find it frustrating. Sorry!
 
-* Card behaviors etc. are written in a language called Pets that closely resembles the game's existing iconographic language. These strings are ALL the game engine needs to know about a card in order to play it correctly. Examples:
+* The unique behavior of a card, milestone, map area, colony tile, etc. is written in a language called Pets. These strings are ALL the game engine needs to know about a card (etc.) in order to play it correctly. Some examples:
 
 | Class             | Example Pets syntax                                         |
 |-------------------|-------------------------------------------------------------|
@@ -23,7 +23,7 @@
 | `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint`                   |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
-* This means that you can easily add your own fan cards to it, without actual "programming", as long as they don't require entire new mechanics.
+* Yes, this means that you can "easily" add your own fan cards to it, without actual "programming" (so long as they adhere to the basic mechanical patterns of the existing cards well enough).
 
 * It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([very long example that plays through an entire game](https://github.com/MartianZoo/solarnet/blob/main/engine/src/test/java/dev/martianzoo/tfm/engine/games/Game20230521Test.kt)).
 
@@ -31,9 +31,7 @@
 
 * It works! See the Issues tab for exceptions. I have just about 400 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
 
-* It's been a 1-person project for about three years now, but I'd love to change that.
-
-## Messing around with it?
+## Play around with it?
 
 You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.com/invite/3vpKDktmde) and ask lots of questions. Almost no one but me has tried to do much with it yet. It won't be self-explanatory (sorry).
 
@@ -46,7 +44,7 @@ cd solarnet
 help
 ```
 
-But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes!
+But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
 
 ## Learning more
 
