@@ -1,9 +1,9 @@
 package dev.martianzoo.repl.commands
 
+import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 internal class AsCommand(val repl: ReplSession) : ReplCommand("as") {
   override val usage = "as <PlayerN> <full command>"
@@ -18,13 +18,12 @@ internal class AsCommand(val repl: ReplSession) : ReplCommand("as") {
     val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
     // TODO Better way to do it??
-    // TODO don't depend on `tfm`
-    val saved = repl.tfm
+    val saved = repl.gameplay
     return try {
-      repl.tfm = repl.game.tfm(repl.player(player))
+      repl.gameplay = repl.game.gameplay(repl.player(player)) as TurnLayer
       repl.command(rest)
     } finally {
-      repl.tfm = saved
+      repl.gameplay = saved
     }
   }
 }

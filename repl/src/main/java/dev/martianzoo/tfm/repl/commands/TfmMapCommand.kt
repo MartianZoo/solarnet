@@ -4,7 +4,6 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
@@ -17,13 +16,13 @@ import dev.martianzoo.tfm.repl.TfmColor.SPECIAL_TILE
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
-internal class TfmMapCommand(val repl: ReplSession) : ReplCommand("tfm_map") {
+internal class TfmMapCommand(repl: ReplSession) : AbstractTfmCommand(repl, "tfm_map") {
   override val usage = "map"
   override val help = """
         I mean it shows a map.
       """
   override val isReadOnly = true
-  override fun noArgs() = MapToText(repl.tfm.reader, repl.jline != null).map()
+  override fun noArgs() = MapToText(repl.game.reader, repl.jline != null).map()
 
   internal class MapToText(private val game: GameReader, private val useColors: Boolean = true) {
     // my terminal app tries to show characters with H:W of 11:5

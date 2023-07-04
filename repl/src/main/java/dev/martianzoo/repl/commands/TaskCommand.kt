@@ -23,7 +23,7 @@ internal class TaskCommand(val repl: ReplSession) : ReplCommand("task") {
     val split = Regex("\\s+").split(args, 2)
     val first = split.firstOrNull() ?: throw UsageException()
     if (!first.matches(Regex("[A-Z]{1,2}"))) {
-      return repl.describeExecutionResults(repl.tfm.tryTask(args))
+      return repl.describeExecutionResults(repl.gameplay.tryTask(args))
     }
 
     val id = TaskId(first.uppercase())
@@ -42,14 +42,14 @@ internal class TaskCommand(val repl: ReplSession) : ReplCommand("task") {
             return listOf("Task $id deleted")
           }
           "prepare" -> {
-            repl.tfm.prepareTask(id)
+            repl.gameplay.prepareTask(id)
             return repl.game.tasks.extract { "$it" }
           }
-          null -> repl.tfm.tryTask(id)
+          null -> repl.gameplay.tryTask(id)
           else ->
               repl.game.timeline.atomic {
-                repl.tfm.reviseTask(id, rest)
-                if (id in repl.game.tasks) repl.tfm.tryTask(id)
+                repl.gameplay.reviseTask(id, rest)
+                if (id in repl.game.tasks) repl.gameplay.tryTask(id)
               }
         }
     return repl.describeExecutionResults(result)

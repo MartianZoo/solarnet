@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.repl.commands
 
 import dev.martianzoo.data.Player
+import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.repl.SampleGames
 
 internal class TfmSampleCommand(val repl: ReplSession) : ReplCommand("tfm_sample") {
@@ -23,7 +23,7 @@ internal class TfmSampleCommand(val repl: ReplSession) : ReplCommand("tfm_sample
 
     repl.game = SampleGames.sampleGame(gens.toInt())
     repl.setup = repl.game.setup
-    repl.tfm = repl.game.tfm(Player.ENGINE) // default autoexec mode
+    repl.gameplay = repl.game.gameplay(Player.ENGINE) as TurnLayer // default autoexec mode
     return listOf("Okay, did that.")
   }
 }

@@ -10,6 +10,7 @@ import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
+import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.repl.Access.BlueMode
 import dev.martianzoo.repl.Access.GreenMode
@@ -42,8 +43,6 @@ import dev.martianzoo.repl.commands.TasksCommand
 import dev.martianzoo.repl.commands.TurnCommand
 import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.repl.TfmColor
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
 import dev.martianzoo.tfm.repl.TfmColor.HEAT
@@ -68,14 +67,14 @@ internal fun main() {
 internal class ReplSession(val jline: JlineRepl? = null) {
   lateinit var setup: GameSetup
   lateinit var game: Game // TODO maybe remove and just have reader/events/...?
-  lateinit var tfm: TfmGameplay
+  lateinit var gameplay: TurnLayer
 
   var mode: ReplMode = GREEN
 
   fun newGame(setup: GameSetup) {
     this.setup = setup
     game = Engine.newGame(setup)
-    tfm = game.tfm(ENGINE) // default autoexec mode
+    gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
   }
 
   init {
@@ -85,7 +84,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
   fun loop() = jline!!.loop(::prompt, ::command, welcome)
 
   private fun prompt(): String {
-    return with(tfm) {
+    return with(gameplay) {
       val bundles = setup.bundles.joinToString("")
       val phase = list("Phase").single()
       val checkpoint = game.timeline.checkpoint()
@@ -128,15 +127,15 @@ internal class ReplSession(val jline: JlineRepl? = null) {
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...
   when (mode) {
-        RED -> RedMode(tfm.godMode())
-        YELLOW -> YellowMode(tfm.godMode())
-        GREEN -> GreenMode(tfm.godMode())
-        BLUE -> BlueMode(tfm.godMode())
-        PURPLE -> PurpleMode(tfm.godMode())
+        RED -> RedMode(gameplay.godMode())
+        YELLOW -> YellowMode(gameplay.godMode())
+        GREEN -> GreenMode(gameplay.godMode())
+        BLUE -> BlueMode(gameplay.godMode())
+        PURPLE -> PurpleMode(gameplay.godMode())
       }
 
   fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes = result.changes.filterNot { isSystem(it, tfm.reader) }.toStrings()
+    val changes = result.changes.filterNot { isSystem(it, game.reader) }.toStrings()
 
     val newTasks: Set<TaskId> = result.tasksSpawned
     val taskLines =
@@ -209,7 +208,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
 
   fun player(name: String): Player {
     // In case a shortname was used
-    val type: MType = tfm.reader.resolve(cn(name).expression) as MType
+    val type: MType = game.reader.resolve(cn(name).expression) as MType
     return Player(type.className)
   }
 }

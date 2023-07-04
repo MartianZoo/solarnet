@@ -21,20 +21,12 @@ internal class ListCommand(val repl: ReplSession) : ReplCommand("list") {
     val output = mutableListOf<String>()
 
     // have to use tfm to personalize it to the current player TODO
-    val parentType: MType = repl.tfm.resolve(args) as MType
+    val parentType: MType = repl.gameplay.resolve(args) as MType
 
-    // When applicable we want to include an explicit `<Anyone>` for clarity's sake
-//    val displayType = try {
-//      val expr: Expression = parentType.expression
-//      val newExpr = expr.replaceArguments(listOf(ANYONE.of()) + expr.arguments)
-//      repl.game.reader.resolve(newExpr)
-//      newExpr
-//    } catch (ignore: Exception) {
-//      parentType.expression
-//    }
+    // TODO When applicable include an explicit `<Anyone>` for clarity's sake
     val displayType = parentType.expression
 
-    val allComponents: Multiset<out Type> = repl.tfm.reader.getComponents(parentType)
+    val allComponents: Multiset<out Type> = repl.game.reader.getComponents(parentType)
     if (allComponents.none()) return listOf("0 $displayType")
 
     val directSubclassTypes: List<MType> = parentType.root.directSubclasses().map {

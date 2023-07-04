@@ -2,11 +2,66 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.repl.ReplSession
+import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.repl.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.repl.commands.TfmMapCommand
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
+
+  @Test
+  fun testBasicRunthrough() {
+    val repl = ReplSession()
+
+    fun command(c: String, expected: String) {
+      val results = repl.command(c).map { it.replace(digitsRegex, "0000").replace(letterRegex, "Z") }
+      assertThat(results).containsExactlyElementsIn(expected.split("\n")).inOrder()
+    }
+
+    command("newgame BRMPX 3", "New 3-player game created with bundles: BRMPX")
+    command("tfm_sample A 3", "Okay, did that.")
+    command(
+        "tfm_board P1",
+        """
+            Player1   TR: 23   Tiles: 1
+          +---------+---------+---------+
+          |  M:  17 |  S:   0 |  T:   0 |
+          | prod  7 | prod  3 | prod  0 |
+          +---------+---------+---------+
+          |  P:   1 |  E:   1    H:   8 |
+          | prod  0 | prod  1 | prod  1 |
+          +---------+---------+---------+
+    """.trimIndent())
+    command("count CityTile", "1 CityTile<Owner>")
+    command("become P2", "Hi, Player2")
+    command("count CityTile", "0 CityTile<Player2>")
+    command("count Resource", "24 Resource<Player2>")
+    command("mode blue", "Mode BLUE: Turn integrity: must perform a valid game turn for this phase")
+    command(
+        "turn",
+        """
+          New tasks pending:
+          Z* [Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
+        """.trimIndent())
+    command("task UseAction1<ConvertHeatSA>", "Can't remove 8 Heat<Player2>: max possible is 6")
+    command("mode red", "Mode RED: Change integrity: make changes without triggered effects")
+    command("exec 2 Heat", "0000: +2 Heat<Player2> FOR Player2 (manual)")
+    command(
+        "task UseAction1<ConvertHeatSA>",
+        """
+          0000: -8 Heat<Player2> FOR Player2 BY ConvertHeatSA BECAUSE 0000
+          0000: +TemperatureStep FOR Player2 BY ConvertHeatSA BECAUSE 0000
+          0000: +TerraformRating<Player2> FOR Player2 BY TemperatureStep BECAUSE 0000
+        """.trimIndent())
+    command(
+        "list GlobalParameter",
+        """
+          3 GlobalParameter:
+            2 TemperatureStep
+            1 VenusStep
+        """.trimIndent())
+  }
+
   @Test
   fun game20230521() {
     val repl = ReplSession()
@@ -172,7 +227,9 @@ private class ReplSessionTest {
     repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
-    val board = PlayerBoardToText(repl.tfm, false).board()
+    val board =
+        PlayerBoardToText(TfmGameplay(repl.game, repl.gameplay.player, repl.gameplay), false)
+            .board()
     assertThat(board)
         .containsExactly(
             "  Player1   TR: 20   Tiles: 0",
@@ -194,7 +251,7 @@ private class ReplSessionTest {
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>")
     repl.command("as Player2 exec GT<M45>, CT<M66>, MaTile<M99>")
     assertThat(repl.command("tasks")).isEmpty()
-    assertThat(repl.tfm.count("Tile")).isEqualTo(8)
+    assertThat(repl.gameplay.count("Tile")).isEqualTo(8)
 
     assertThat(repl.command(TfmMapCommand(repl)))
         .containsExactlyElementsIn(

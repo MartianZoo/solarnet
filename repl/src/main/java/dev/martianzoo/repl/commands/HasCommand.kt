@@ -15,8 +15,7 @@ internal class HasCommand(val repl: ReplSession) : ReplCommand("has") {
   override val isReadOnly = true
 
   override fun withArgs(args: String): List<String> {
-    // TODO don't depend on `tfm`
-    val result = repl.tfm.has(args)
-    return listOf("$result: ${repl.tfm.parse<Requirement>(args)}")
+    val result = repl.gameplay.has(args)
+    return listOf("$result: ${repl.gameplay.parse<Requirement>(args)}")
   }
 }

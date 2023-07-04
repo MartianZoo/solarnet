@@ -1,9 +1,9 @@
 package dev.martianzoo.repl.commands
 
 import dev.martianzoo.data.Player
+import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 internal class BecomeCommand(val repl: ReplSession) : ReplCommand("become") {
   override val usage = "become [PlayerN]"
@@ -14,14 +14,13 @@ internal class BecomeCommand(val repl: ReplSession) : ReplCommand("become") {
         engine things.
       """
 
-  // TODO don't depend on `tfm`?
   override fun noArgs(): List<String> {
-    repl.tfm = repl.game.tfm(Player.ENGINE)
+    repl.gameplay = repl.game.gameplay(Player.ENGINE) as TurnLayer
     return listOf("Okay, you are the game engine now")
   }
 
   override fun withArgs(args: String): List<String> {
-    repl.tfm = repl.game.tfm(repl.player(args))
-    return listOf("Hi, ${repl.tfm.player}")
+    repl.gameplay = repl.game.gameplay(repl.player(args)) as TurnLayer
+    return listOf("Hi, ${repl.gameplay.player}")
   }
 }

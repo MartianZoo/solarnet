@@ -23,21 +23,20 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
 
   override fun withArgs(args: String): List<String> {
     val (expression, type) =
-        // TODO remove deps on `tfm`
         if (args == "random") {
           val type =
-              repl.tfm.resolve("$CLASS")
-                  .let(repl.tfm.reader::getComponents)
+              repl.gameplay.resolve("$CLASS")
+                  .let(repl.game.reader::getComponents)
                   .expressions()
                   .map { it.arguments.single() }
                   .random()
-                  .let { repl.tfm.reader.resolve(it) as MType }
+                  .let { repl.game.reader.resolve(it) as MType }
                   .concreteSubtypesSameClass()
                   .random()
           type.expressionFull to type
         } else {
-          val expression: Expression = repl.tfm.parse(args)
-          expression to repl.game.reader.resolve(expression) as MType
+          val expression: Expression = repl.gameplay.parse(args)
+          expression to repl.gameplay.resolve(args) as MType
         }
     return listOf(MTypeToText.describe(expression, type))
   }

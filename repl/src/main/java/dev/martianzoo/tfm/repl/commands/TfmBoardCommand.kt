@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.repl.commands
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric.Count
-import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -14,18 +13,18 @@ import dev.martianzoo.tfm.repl.TfmColor.PLANT
 import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
-internal class TfmBoardCommand(val repl: ReplSession) : ReplCommand("tfm_board") {
-  override val usage = "board [PlayerN]"
+internal class TfmBoardCommand(repl: ReplSession) : AbstractTfmCommand(repl, "tfm_board") {
+  override val usage = "tfm_board [PlayerN]"
   override val help =
       """
         Shows a crappy player board for the named player, or the current player by default.
       """
   override val isReadOnly = true
 
-  override fun noArgs(): List<String> = PlayerBoardToText(repl.tfm, repl.jline != null).board()
+  override fun noArgs(): List<String> = PlayerBoardToText(tfm(), repl.jline != null).board()
 
   override fun withArgs(args: String) =
-      PlayerBoardToText(repl.tfm.asPlayer(repl.player(args)), repl.jline != null).board()
+      PlayerBoardToText(tfm().asPlayer(repl.player(args)), repl.jline != null).board()
 
   internal class PlayerBoardToText(
       private val tfm: TfmGameplay,

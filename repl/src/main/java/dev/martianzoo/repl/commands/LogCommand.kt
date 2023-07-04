@@ -19,7 +19,7 @@ internal class LogCommand(val repl: ReplSession) : ReplCommand("log") {
   override fun noArgs() =
       repl.game.events
           .changesSinceSetup()
-          .filterNot { repl.isSystem(it, repl.tfm.reader) }
+          .filterNot { repl.isSystem(it, repl.game.reader) }
           .toStrings()
 
   override fun withArgs(args: String): List<String> {
