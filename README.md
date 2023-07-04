@@ -52,7 +52,7 @@ But in these early days, you're unlikely to get far on your own. I want to impro
 
 ### Join the discord
 
-[This invite](https://discord.gg/MfQJgYsE9) should work until Aug 2?
+[This invite](https://discord.com/invite/3vpKDktmde) should work (please let me know if it doesn't?).
 
 ### Videos
 
@@ -89,3 +89,5 @@ It's all written in [Kotlin](https://kotlinlang.org), which should in theory mak
 ## Who are you
 
 http://kevinb9n.github.io
+
+I'd be happy to hear from you at kevinb9n@gmail.com.
