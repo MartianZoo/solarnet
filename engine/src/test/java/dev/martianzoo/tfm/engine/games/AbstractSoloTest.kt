@@ -20,6 +20,8 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     opponent = p2
 
     me.godMode().manual("-6 TR")
+    if ("C" in setup().bundles) me.godMode().manual("PROD[-2]")
+
     opponent.godMode().manual(
         "CityTile<${cityAreas().first}>, GreeneryTile<${greeneryAreas().first}>")
     opponent.godMode().manual(
@@ -30,5 +32,11 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     opponent.godMode().sneak("PROD[99, 99 S, 99 T, 99 P, 99 E, 99 H]")
 
     engine.phase("Corporation")
+  }
+
+  protected fun nextRound(wgt: String, cardsBought: Int) {
+    p1.pass()
+    opponent.godMode().manual(wgt) // TODO make WGT part of actual game rules
+    engine.nextGeneration(cardsBought, 0)
   }
 }

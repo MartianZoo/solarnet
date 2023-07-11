@@ -37,7 +37,7 @@ abstract class AbstractFullGameTest {
     p1.assertResources(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
     p1.assertDashMiddle(played = 0, actions = 0, vp = 0, tr = 0, hand = 0)
     p1.assertTags(but = 0, spt = 0) // ...
-    p1.assertDashRight(events = 0, tagless = 0, cities = 0)
+    p1.assertDashRight(events = 0, tagless = 0, cities = 0, colonies = 0)
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
   }
 
@@ -93,9 +93,17 @@ abstract class AbstractFullGameTest {
     }
   }
 
-  protected fun TfmGameplay.assertDashRight(events: Int, tagless: Int, cities: Int) {
+  protected fun TfmGameplay.assertDashRight(
+      events: Int,
+      tagless: Int,
+      cities: Int,
+      colonies: Int = 0
+  ) {
     assertCounts(
-        events to "PlayedEvent", tagless to "CardFront(HAS MAX 0 Tag)", cities to "CityTile")
+        events to "PlayedEvent",
+        tagless to "CardFront(HAS MAX 0 Tag)",
+        cities to "CityTile")
+    if ("C" in setup().bundles) assertCounts(colonies to "Colony")
   }
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {

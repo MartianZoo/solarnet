@@ -80,7 +80,7 @@ public class TfmGameplay(
   ): TaskResult {
     return turn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
-        doTask("UseAction1<PlayCardSA>")
+        doFirstTask("UseAction1<PlayCardSA>") // "first" because HeadStart
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 

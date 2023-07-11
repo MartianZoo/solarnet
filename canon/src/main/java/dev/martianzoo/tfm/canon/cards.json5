@@ -3218,6 +3218,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "CityTag" ],
       "immediate": "PROD[-Energy, Titanium], CityTile<Area220>",
+      "effects": [ "End: 3 VictoryPoint" ],
       "components": [ "CLASS Area220 : RemoteArea" ],
       "requirement": "4 ScienceTag",
       "cost": 15,
