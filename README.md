@@ -2,15 +2,15 @@
 
 ## Fast facts
 
-* Solarnet is a work-in-progress game engine for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*.
+* Solarnet is a **work-in-progress** game engine for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*.
 
 * It's not a way to *play* the game; for that see the excellent [open-source app](http://github.com/terraforming-mars/terraforming-mars) (which this is unrelated to).
 
-* It's a work in progress! Try to look at it for what it could become rather than what it is right now. :-)
+* It's a standalone library. Its only job is to *know the rules of the game*: who can do what when, and what happens if they do? It covers the "pure logic part" of the game. You can set up game situations and see what happens ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/test/java/dev/martianzoo/tfm/engine/cards/ExcentricSponsorTest.kt)).
 
-* It's a standalone library. Its only job is to *know the rules of the game*: who can do what when, and what happens if they do? It covers the "pure logic part" of the game. You can set up game situations and see what happens. (I do not blame you if it's quite incomprehensible what this could possibly useful for. :-))
+* It's not polished enough for anyone to "just use" -- not even close! But if you're intrepid I could really use your help to *get* it into that state. If you're not in a "roll up your sleeves, dig in, ask questions" mode, you *will* find it frustrating. Sorry!
 
-* Card behaviors etc. are written in a language called Pets that closely resembles the game's existing iconographic language. These strings are ALL the game engine needs to know about a card in order to play it correctly. Examples:
+* The unique behavior of a card, milestone, map area, colony tile, etc. is written in a language called Pets. These strings are ALL the game engine needs to know about a card (etc.) in order to play it correctly. Some examples:
 
 | Class             | Example Pets syntax                                         |
 |-------------------|-------------------------------------------------------------|
@@ -23,21 +23,15 @@
 | `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint`                   |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
-* This means that you can easily add your own fan cards to it, without actual "programming", as long as they don't require entire new mechanics. (The code is not yet arranged to make this *convenient* though.)
+* Yes, this means that you can "easily" add your own fan cards to it, without actual "programming" (so long as they adhere to the basic mechanical patterns of the existing cards well enough).
 
-* It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/test/java/dev/martianzoo/tfm/engine/games/Game20230521Test.kt)).
+* It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([very long example that plays through an entire game](https://github.com/MartianZoo/solarnet/blob/main/engine/src/test/java/dev/martianzoo/tfm/engine/games/Game20230521Test.kt)).
 
-* The engine has some smarts. It lets you perform your turn effects in any order (per the game rules), but it can tell if there's only one task you could do next, and it can tell when you actually need to make a choice about something and when you don't.
+* If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did AdvancedAlloys actually save me that game?" fairly easily. (But so far this requires writing actual code.)
 
-* If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask all kinds of questions like "How much money did AdvancedAlloys actually save me that game?"
+* It works! See the Issues tab for exceptions. I have just about 400 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
 
-* It works! See the Issues tab for exceptions. I'm closing in on having 400 cards working, including most of each expansion but Turmoil. (Turmoil is totally feasible, just gnarly, and I'd like to put it off for a while.)
-
-* It's been a 1-person project for about three years now, but I'd love to change that.
-
-* What's the point? There is no point. It's just fun.
-
-## Messing around with it?
+## Play around with it?
 
 You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.com/invite/3vpKDktmde) and ask lots of questions. Almost no one but me has tried to do much with it yet. It won't be self-explanatory (sorry).
 
@@ -50,22 +44,26 @@ cd solarnet
 help
 ```
 
-But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes!
+But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
 
 ## Learning more
+
+### Join the discord
+
+[This invite](https://discord.com/invite/3vpKDktmde) should work (please let me know if it doesn't?).
 
 ### Videos
 
 None of this is polished or anything.
 
-* [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I). For this video it's best if you know the game pretty well.
-* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90). This one was for an audience of more hardcore software people; it still helps to know the game, but maybe less crucially than for the previous video.
-* [Watch as I "log" a real game](https://youtu.be/se8svQH-GOE) (I explain stuff, but it's long; watch on at least 1.5x). 
+* [First overview and REPL demo](https://www.youtube.com/watch?v=btCLcFLvV2I). For this video it's best if you know the game pretty well.
+* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90). This one was for an audience of more hardcore software people, and I tried to make it a little more understandable for those who aren't experts in the game already.
+* [Watch as I "log" a real game](https://youtu.be/se8svQH-GOE) (I explain a bunch of stuff, but it's long; watch on high-speed). 
 * [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me add a brand new card (Supercapacitors) to Solarnet in about a half hour.
 
 ### Docs
 
-I haven't written too much yet. It will help to understand what kind of docs you would like to see next; from where I sit there are just too many different things I could write about to choose.
+I haven't written too much yet. There are too many things I could write down next, so it would really help to hear which topics you most want to see.
 
 * A [FAQ](docs/faq.md)
 * [Cheat sheet](docs/cheat-sheet.md)
@@ -78,11 +76,11 @@ I haven't written too much yet. It will help to understand what kind of docs you
 
 Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) how the game components are defined?
 
-It should be interesting, just don't expect everything to make sense right away. Try to just breeze over the things that don't.
+Just breeze past all the things that don't make sense. Some of it will!
 
 ### Poke around in the implementation?
 
-Start with the generated API doc view (because it hides private things). I don't know how to host it properly, so you'd have to `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`. That would help give you an idea of which source files you want to dig further into.
+If you can generate the docs (clone, `./gradlew dokkaHtmlMultiModule`, then look at `docs/api/index.html`) that would be the ideal way to start.
 
 It's all written in [Kotlin](https://kotlinlang.org), which should in theory make the libraries usable from Java, JavaScript, and some other environments. I don't know how trivial or not that will be to do, but it certainly won't require porting the whole thing.
 
@@ -90,4 +88,4 @@ It's all written in [Kotlin](https://kotlinlang.org), which should in theory mak
 
 http://kevinb9n.github.io
 
-Your thoughts and questions are welcome at kevinb9n@gmail.com or by whatever other means.
+I'd be happy to hear from you at kevinb9n@gmail.com.
