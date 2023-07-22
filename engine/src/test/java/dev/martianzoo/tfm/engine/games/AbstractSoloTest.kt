@@ -22,14 +22,15 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     me.godMode().manual("-6 TR")
     if ("C" in setup().bundles) me.godMode().manual("PROD[-2]")
 
-    opponent.godMode().manual(
-        "CityTile<${cityAreas().first}>, GreeneryTile<${greeneryAreas().first}>")
-    opponent.godMode().manual(
-        "CityTile<${cityAreas().second}>, GreeneryTile<${greeneryAreas().second}>")
-    opponent.godMode().manual("-2 OxygenStep")
+    val opp = opponent.godMode()
+    opp.manual("CityTile<${cityAreas().first}>")
+    opp.manual("GreeneryTile<${greeneryAreas().first}>")
+    opp.manual("CityTile<${cityAreas().second}>")
+    opp.manual("GreeneryTile<${greeneryAreas().second}>")
+    opp.manual("-2 OxygenStep!")
 
-    opponent.godMode().sneak("99, 99 S, 99 T, 99 P, 99 E, 99 H")
-    opponent.godMode().sneak("PROD[99, 99 S, 99 T, 99 P, 99 E, 99 H]")
+    opp.manual("99, 99 S, 99 T, 99 P, 99 E, 99 H")
+    opp.manual("PROD[99, 99 S, 99 T, 99 P, 99 E, 99 H]")
 
     engine.phase("Corporation")
   }

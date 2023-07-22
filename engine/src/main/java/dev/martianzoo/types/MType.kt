@@ -155,9 +155,7 @@ internal constructor(
     val refin = wide.refinement!!
     val transformed = refinementMangler(narrow).transform(refin.requirement)
     return if (refin.forgiving) {
-      Or(
-          transformed,
-          Max(scaledEx(0, wide.copy(refinement = refin.copy(forgiving = false)))))
+      Or(transformed, Max(scaledEx(0, wide.copy(refinement = refin.copy(forgiving = false)))))
     } else {
       transformed
     }

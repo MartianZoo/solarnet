@@ -77,5 +77,4 @@ constructor(
 
   override fun getComponents(type: Type) =
       components.getAll(classes.resolve(type), this).map { it.type }
-
 }

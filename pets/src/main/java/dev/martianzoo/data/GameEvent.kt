@@ -10,13 +10,12 @@ sealed class GameEvent {
   sealed class TaskEvent : GameEvent() {
     abstract val task: Task
 
-    internal fun taskToString() =
-        buildString {
-          append("$ordinal: +Task${task.id} { ${task.instruction}")
-          task.then?.let { append(" THEN $it") }
-          append(" }")
-          task.whyPending?.let { append(" ($it)") }
-        }
+    internal fun taskToString() = buildString {
+      append("$ordinal: +Task${task.id} { ${task.instruction}")
+      task.then?.let { append(" THEN $it") }
+      append(" }")
+      task.whyPending?.let { append(" ($it)") }
+    }
   }
 
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {

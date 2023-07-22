@@ -24,9 +24,8 @@ class ViralEnhancersTest {
     engine.phase("Action")
     p1.playProject("ViralEnhancers", 9).expect("Plant")
     p1.playProject("IndustrialMicrobes", 12).expect("Plant")
-    p1.playProject("NitriteReducingBacteria", 11) {
-      doTask("Microbe<NitriteReducingBacteria>")
-    }.expect("4 Microbe")
+    p1.playProject("NitriteReducingBacteria", 11) { doTask("Microbe<NitriteReducingBacteria>") }
+        .expect("4 Microbe")
 
     p1.playProject("RegolithEaters", 13) {
       doTask("Plant")
@@ -38,8 +37,6 @@ class ViralEnhancersTest {
     }
 
     // TODO it should not be allowing this!
-    p1.playProject("RegolithEaters", 13) {
-      doTask("Microbe<NitriteReducingBacteria>")
-    }
+    p1.playProject("RegolithEaters", 13) { doTask("Microbe<NitriteReducingBacteria>") }
   }
 }

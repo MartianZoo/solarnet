@@ -34,7 +34,6 @@ constructor(
     return try {
       val change = updater.update(count, gaining, removing)
       changeLog.addChangeEvent(change, player, cause) to true
-
     } catch (e: ExistingDependentsException) {
       if (!orRemoveOneDependent) throw e
       removeAll(e.dependents.first(), cause) to false

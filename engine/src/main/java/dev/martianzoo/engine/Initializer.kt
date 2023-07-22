@@ -33,7 +33,8 @@ constructor(
     exec("$ENGINE")
     fakeCause = Cause(ENGINE.expression, 0)
 
-    classes.allClasses()
+    classes
+        .allClasses()
         .filter { c -> c.isSingletonType() }
         .flatMap { it.baseType.concreteSubtypesSameClass() }
         .forEach { exec("${it.expression}") }

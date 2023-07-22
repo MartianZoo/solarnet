@@ -36,8 +36,7 @@ internal class MClassLoader(
   @Inject
   constructor(setup: GameSetup) : this(setup.authority) {
     fun isAutoLoad(c: ClassDeclaration): Boolean =
-        c.className == AUTO_LOAD ||
-            c.supertypes.any { isAutoLoad(decl(it.className)) }
+        c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }
 
     loadAll(setup.players().classNames())
     loadAll(authority.allClassDeclarations.filterValues(::isAutoLoad).keys)

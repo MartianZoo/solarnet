@@ -199,9 +199,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     }
 
     fun RandomGenerator<PetNode>.refinement() =
-        chooseS(
-            7 to { null },
-            1 to { Refinement(recurse(), choose(6 to false, 1 to true)) })
+        chooseS(7 to { null }, 1 to { Refinement(recurse(), choose(6 to false, 1 to true)) })
 
     fun RandomGenerator<PetNode>.randomName() =
         choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")

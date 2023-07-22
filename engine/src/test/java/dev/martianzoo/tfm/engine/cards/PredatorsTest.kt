@@ -34,8 +34,6 @@ class PredatorsTest {
 
     engine.nextGeneration(0, 0)
     p2.godMode().sneak("Birds, Animal<Birds>")
-    p1.cardAction1("Predators") {
-      doTask("-Animal<P2, Birds<P2>>")
-    }
+    p1.cardAction1("Predators") { doTask("-Animal<P2, Birds<P2>>") }
   }
 }

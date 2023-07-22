@@ -48,8 +48,9 @@ constructor(
     private val classes: MClassTable,
 ) {
 
-  fun execute(instruction: Instruction, cause: Cause?): List<Task> =
-      buildList { doExecute(instruction, cause, this) }
+  fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
+    doExecute(instruction, cause, this)
+  }
 
   private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>) {
     when (val prepped = prepare(instruction)) { // idempotent?
@@ -75,7 +76,7 @@ constructor(
               gaining = gaining,
               removing = removing,
               cause = cause,
-              orRemoveOneDependent = true
+              orRemoveOneDependent = true,
           )
 
       // TODO is it a problem that we don't use a queue here?

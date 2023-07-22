@@ -43,8 +43,8 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
           mtype
         } else {
           mtype.dependencies.getIfPresent(Key(OWNED, 0))
-        } ?: return@run null
-    Player(name.className)
+        }
+    name?.let { Player(it.className) }
   }
 
   internal val effects: List<Effect> by lazy {

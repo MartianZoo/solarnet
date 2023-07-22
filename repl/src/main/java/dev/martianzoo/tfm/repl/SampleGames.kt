@@ -38,9 +38,7 @@ object SampleGames {
     p1.stdProject("PowerPlantSP")
     p1.playProject("BuildingIndustries", 4, steel = 1)
     p2.playProject("RotatorImpacts", titanium = 2)
-    p2.cardAction1("RotatorImpacts") {
-      p2.pay(titanium = 2)
-    }
+    p2.cardAction1("RotatorImpacts") { p2.pay(titanium = 2) }
     p2.playProject("CarbonateProcessing", 6)
     p2.playProject("Archaebacteria", 6)
 
@@ -69,9 +67,7 @@ object SampleGames {
     p1.playProject("CorporateStronghold", 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
     p1.playProject("OptimalAerobraking", 7)
     p2.playProject("TransNeptuneProbe", 0, titanium = 2)
-    p2.cardAction1("RotatorImpacts") {
-      p2.pay(6)
-    }
+    p2.cardAction1("RotatorImpacts") { p2.pay(6) }
     p1.cardAction2("DeuteriumExport")
     p1.playProject("ImportedGhg", 4)
 

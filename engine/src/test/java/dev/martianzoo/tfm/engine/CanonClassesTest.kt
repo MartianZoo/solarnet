@@ -43,7 +43,8 @@ internal class CanonClassesTest {
   @Test
   fun concreteExtendingConcrete() {
     val map = mutableListOf<Pair<ClassName, ClassName>>()
-    table.allClasses()
+    table
+        .allClasses()
         .filterNot { it.abstract }
         .forEach { sup ->
           (sup.allSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }

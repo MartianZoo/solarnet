@@ -29,19 +29,19 @@ internal class ListCommand(val repl: ReplSession) : ReplCommand("list") {
     val allComponents: Multiset<out Type> = repl.game.reader.getComponents(parentType)
     if (allComponents.none()) return listOf("0 $displayType")
 
-    val directSubclassTypes: List<MType> = parentType.root.directSubclasses().map {
-      (it.baseType glb parentType)!!
-    }.ifEmpty { listOf(parentType) }
+    val directSubclassTypes: List<MType> =
+        parentType.root
+            .directSubclasses()
+            .map { (it.baseType glb parentType)!! }
+            .ifEmpty { listOf(parentType) }
 
     var listing = HashMultiset<MType>()
-    directSubclassTypes.forEach {
-      listing.add(it, repl.game.components.count(it, StubTypeInfo))
-    }
+    directSubclassTypes.forEach { listing.add(it, repl.game.components.count(it, StubTypeInfo)) }
 
-//    if (listing.elements.size == 1) {
-//      if (parentType.dependencies.keys.any()) {
-//      }
-//    }
+    // if (listing.elements.size == 1) {
+    //   if (parentType.dependencies.keys.any()) {
+    //   }
+    // }
 
     output += buildString {
       append("${allComponents.size} $displayType")
@@ -49,7 +49,6 @@ internal class ListCommand(val repl: ReplSession) : ReplCommand("list") {
       if (overlaps > 0) append(" ($overlaps overlaps)")
       append(":")
     }
-
 
     val x = listing.entries.sortedByDescending { (_, ct) -> ct }
 

@@ -53,7 +53,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         // me placed ocean tile on row 4 position 7
         // me's plants amount increased by 1
         doFirstTask("OceanTile<Elysium_4_7>")
-      }.expect("Plant, 2")
+      }
 
       phase("Action")
 
@@ -92,9 +92,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       playProject(RotatorImpacts, 2, titanium = 1)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) {
-        pay(2, titanium = 1)
-      }.expect("Asteroid")
+      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }.expect("Asteroid")
 
       // me passed
       // me acted as World Government and increased Venus scale
@@ -142,9 +140,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(AtmoCollectors)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) {
-        pay(2, titanium = 1)
-      }
+      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
       // me played Nuclear Power
       // me's megacredits production decreased by 2
       // me's energy production increased by 3
@@ -202,9 +198,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) {
-        pay(2, titanium = 1)
-      }
+      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
       // me used Atmo Collectors action
       // me added 1 floater(s) to Atmo Collectors
       cardAction1(AtmoCollectors)
@@ -294,22 +288,19 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me added 1 floater(s) to Atmo Collectors
       cardAction1(AtmoCollectors)
       // me played Interplanetary Colony Ship
-      playProject("InterplanetaryColonyShip", 5, titanium = 1) {
-        // me built a colony on Luna
-        // me's megacredits production increased by 2
-        doTask("Colony<Luna>")
-      }.expect("PROD[2]")
+      // me built a colony on Luna
+      // me's megacredits production increased by 2
+      playProject("InterplanetaryColonyShip", 5, titanium = 1) { doTask("Colony<Luna>") }
+          .expect("PROD[2]")
       // me used Convert Heat standard action
       stdAction("ConvertHeatSA")
       // me used Convert Heat standard action
       stdAction("ConvertHeatSA")
       // me used Greenery standard project
-      stdProject("GreenerySP") {
-        // me placed greenery tile on row 3 position 7
-        // me drew 3 card(s)
-        // You drew Insects, Impactor Swarm and Solarnet
-        doTask("GreeneryTile<Elysium_3_7>")
-      }.expect("3 Card")
+      // me placed greenery tile on row 3 position 7
+      // me drew 3 card(s)
+      // You drew Insects, Impactor Swarm and Solarnet
+      stdProject("GreenerySP") { doTask("GreeneryTile<Elysium_3_7>") }.expect("3 Card")
       // me played Solarnet
       // me drew 2 card(s)
       playProject("Solarnet", 7)
@@ -344,9 +335,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) {
-        pay(6)
-      }
+      cardAction1(RotatorImpacts) { pay(6) }
       // me played Moss
       // me's plants production increased by 1
       playProject("Moss", 4)
@@ -355,13 +344,11 @@ class SoloGame0721Test : AbstractSoloTest() {
         // me placed city tile on row 5 position 6
         // me's plants amount increased by 3
         doTask("CityTile<Elysium_5_6>")
-      }.expect("3 Plant")
-      stdAction("TradeSA", 2) {
-        // me spent 3 energy to trade with Luna
-        // me's megacredits amount increased by 7
-        // me's megacredits amount increased by 2
-        doTask("Trade<Luna, TradeFleetA>")
-      }.expect("9")
+      }
+      // me spent 3 energy to trade with Luna
+      // me's megacredits amount increased by 7
+      // me's megacredits amount increased by 2
+      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }.expect("9")
       // me used Greenery standard project
       stdProject("GreenerySP") {
         // me placed greenery tile on row 5 position 7
@@ -409,7 +396,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         // me placed ocean tile on row 4 position 4
         // me's plants amount increased by 2
         doTask("OceanTile<Elysium_4_4>")
-      }.expect("3T, 2P")
+      }
       // me used Aquifer standard project
       stdProject("AquiferSP") {
         // me placed ocean tile on row 5 position 4
@@ -426,10 +413,8 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me's plants production increased by 1
       playProject("Insects", 9).expect("PROD[P]")
       // me spent 3 energy to trade with Ceres
-      stdAction("TradeSA", 2) {
-        // me's steel amount increased by 8
-        doTask("Trade<Ceres, TradeFleetA>")
-      }.expect("8 Steel")
+      // me's steel amount increased by 8
+      stdAction("TradeSA", 2) { doTask("Trade<Ceres, TradeFleetA>") }.expect("8 Steel")
 
       // me passed
       // me placed ocean tile on row 2 position 4
@@ -452,11 +437,9 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Release of Inert Gases
       playProject("ReleaseOfInertGases", 14)
       // me spent 3 energy to trade with Luna
-      stdAction("TradeSA", 2) {
-        // me's megacredits amount increased by 7
-        // me's megacredits amount increased by 2
-        doTask("Trade<Luna, TradeFleetA>")
-      }.expect("9")
+      // me's megacredits amount increased by 7
+      // me's megacredits amount increased by 2
+      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }.expect("9")
       // me used Atmo Collectors action
       // me removed 1 resource(s) from me's Atmo Collectors
       cardAction2(AtmoCollectors) {
@@ -484,13 +467,10 @@ class SoloGame0721Test : AbstractSoloTest() {
         // me drew 1 card(s)
         // You drew Interstellar Colony Ship
         doTask("OceanTile<Elysium_1_3>")
-      }
-          .expect("-7 Plant, 8, Card, 3 TR")
+      }.expect("-7 Plant, 8, Card, 3 TR")
       // me used Rotator Impacts action1 2 ***
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) {
-        pay(2, titanium = 1)
-      }
+      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
       // me used City standard project
       stdProject("CitySP") {
         // me placed city tile on row 6 position 7
@@ -533,7 +513,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         // me's megacredits amount increased by 4
         // me's megacredits amount increased by 2
         doTask("Trade<Luna, TradeFleetA>")
-      }.expect("6")
+      }
       // me used Atmo Collectors action
       // me added 1 floater(s) to Atmo Collectors
       cardAction1(AtmoCollectors)

@@ -100,9 +100,7 @@ abstract class AbstractFullGameTest {
       colonies: Int = 0
   ) {
     assertCounts(
-        events to "PlayedEvent",
-        tagless to "CardFront(HAS MAX 0 Tag)",
-        cities to "CityTile")
+        events to "PlayedEvent", tagless to "CardFront(HAS MAX 0 Tag)", cities to "CityTile")
     if ("C" in setup().bundles) assertCounts(colonies to "Colony")
   }
 

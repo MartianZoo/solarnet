@@ -25,7 +25,8 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
     val (expression, type) =
         if (args == "random") {
           val type =
-              repl.gameplay.resolve("$CLASS")
+              repl.gameplay
+                  .resolve("$CLASS")
                   .let(repl.game.reader::getComponents)
                   .expressions()
                   .map { it.arguments.single() }

@@ -67,19 +67,16 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
         neighborAreas.map { cn("Neighbor").of(newTile, it.className.expression) }
 
     val adjacencies: List<Expression> =
-        neighborAreas
-            .mapNotNull(::tileOn)
-            .flatMap {
-              listOf(
-                  cn("ForwardAdjacency").of(it, newTile),
-                  cn("BackwardAdjacency").of(newTile, it),
-              )
-            }
+        neighborAreas.mapNotNull(::tileOn).flatMap {
+          listOf(
+              cn("ForwardAdjacency").of(it, newTile),
+              cn("BackwardAdjacency").of(newTile, it),
+          )
+        }
 
     // I don't think we care whether this returns Multi or Then
     return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
   }
-
 }
 
 private object CheckCardDeck : CustomClass("CheckCardDeck") {

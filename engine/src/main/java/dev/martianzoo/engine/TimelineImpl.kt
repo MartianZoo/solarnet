@@ -15,7 +15,9 @@ import javax.inject.Inject
  * interactions).
  */
 @GameScoped
-internal class TimelineImpl @Inject constructor(
+internal class TimelineImpl
+@Inject
+constructor(
     private val reader: GameReader,
     private val updater: Updater,
     private val events: WritableEventLog,
@@ -35,13 +37,13 @@ internal class TimelineImpl @Inject constructor(
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)
         is ChangeEvent ->
-          with(entry.change) {
-            updater.update(
-                count = count,
-                gaining = removing?.toComponent(reader),
-                removing = gaining?.toComponent(reader),
-            )
-          }
+            with(entry.change) {
+              updater.update(
+                  count = count,
+                  gaining = removing?.toComponent(reader),
+                  removing = gaining?.toComponent(reader),
+              )
+            }
       }
     }
     subList.clear()

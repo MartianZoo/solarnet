@@ -205,9 +205,6 @@ public sealed class Instruction : PetElement() {
         super.safeToNestIn(container) && (fromEx !is SimpleFrom || container !is Or)
 
     override fun precedence() = if (fromEx is SimpleFrom) 7 else 10
-
-    companion object {
-    }
   }
 
   data class Per(val inner: Instruction, val metric: Metric) : Instruction() {
@@ -503,11 +500,7 @@ public sealed class Instruction : PetElement() {
     internal fun parser(): Parser<Instruction> {
       return parser {
         val gain: Parser<Instruction> =
-            ScaledExpression.parser() and
-                optional(intensity) map
-                { (ste, int) ->
-                  gain(ste, int)
-                }
+            ScaledExpression.parser() and optional(intensity) map { (ste, int) -> gain(ste, int) }
 
         val remove: Parser<Remove> =
             skipChar('-') and

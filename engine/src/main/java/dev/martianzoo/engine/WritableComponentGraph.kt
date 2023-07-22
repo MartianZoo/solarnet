@@ -23,9 +23,7 @@ internal class WritableComponentGraph @Inject constructor(private val effector: 
     return if (parentType.className == COMPONENT) {
       multiset.size
     } else if (parentType.abstract) {
-      multiset.entries
-          .filter { (e, _) -> e.hasType(parentType, info) }
-          .sumOf { (_, ct) -> ct }
+      multiset.entries.filter { (e, _) -> e.hasType(parentType, info) }.sumOf { (_, ct) -> ct }
     } else {
       countComponent(parentType.toComponent())
     }

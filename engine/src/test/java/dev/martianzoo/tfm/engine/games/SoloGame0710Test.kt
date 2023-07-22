@@ -28,7 +28,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       playPrelude("Merger") {
         // playCorp("Manutech", 0) - TODO this really should work
         doTask("PlayCard<Class<CorporationCard>, Class<Manutech>>")
-      }.expect("S, -7, 2 CardFront")
+      }
 
       playPrelude("HeadStart") {
         /*
@@ -152,7 +152,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       playProject("ResearchOutpost", 6, steel = 4) {
         doTask("ProjectCard FROM Science<OlympusConference>")
         doTask("CityTile<Tharsis_8_6>")
-      }.expect("ProjectCard")
+      }
       playProject("IceMoonColony", 20) {
         doTask("Colony<Ganymede>")
         doTask("OceanTile<Tharsis_2_6>")

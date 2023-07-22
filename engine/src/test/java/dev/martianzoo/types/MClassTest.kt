@@ -40,8 +40,7 @@ private class MClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader.getClass(cn("Bar"))
     assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
-    assertThat(bar.allSuperclasses().classNames())
-        .containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
+    assertThat(bar.allSuperclasses().classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
     assertThat(bar.dependencies.keys).isEmpty()
   }
 
@@ -50,8 +49,7 @@ private class MClassTest {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader.getClass(cn("Bar"))
     assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
-    assertThat(bar.allSuperclasses().classNames())
-        .containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
+    assertThat(bar.allSuperclasses().classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
     assertThat(bar.dependencies.keys).isEmpty()
   }
 

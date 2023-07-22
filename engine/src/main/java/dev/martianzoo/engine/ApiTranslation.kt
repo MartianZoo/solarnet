@@ -76,13 +76,14 @@ constructor(
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
-  private val preprocessor = chain(
-      xers.useFullNames(),
-      xers.atomizer(),
-      xers.insertDefaults(),
-      replaceOwnerWith(player),
-      Prod.deprodify(table),
-  )
+  private val preprocessor =
+      chain(
+          xers.useFullNames(),
+          xers.atomizer(),
+          xers.insertDefaults(),
+          replaceOwnerWith(player),
+          Prod.deprodify(table),
+      )
 
   override fun <P : PetElement> parseInternal(type: KClass<P>, text: String) =
       preprocessor.transform(Parsing.parse(type, text))

@@ -14,7 +14,8 @@ private class ReplSessionTest {
     val repl = ReplSession()
 
     fun command(c: String, expected: String) {
-      val results = repl.command(c).map { it.replace(digitsRegex, "0000").replace(letterRegex, "Z") }
+      val results =
+          repl.command(c).map { it.replace(digitsRegex, "0000").replace(letterRegex, "Z") }
       assertThat(results).containsExactlyElementsIn(expected.split("\n")).inOrder()
     }
 

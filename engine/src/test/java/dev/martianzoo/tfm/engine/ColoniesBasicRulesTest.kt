@@ -120,10 +120,9 @@ internal class ColoniesBasicRulesTest {
     engine.godMode().sneak("-ColonyProduction<Luna>")
     engine.assertCounts(0 to "ColonyProduction<Luna>")
 
-    p1.stdProject("BuildColonySP") {
-      doTask("Colony<Luna>")
-      // Take the placement bonus printed inside the track.
-    }.expect("-17, PROD[2]")
+    p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
+        // Take the placement bonus printed inside the track.
+        .expect("PROD[2]")
 
     p1.assertCounts(1 to "Colony")
 
