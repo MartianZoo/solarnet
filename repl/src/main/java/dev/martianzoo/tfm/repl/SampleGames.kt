@@ -39,8 +39,7 @@ object SampleGames {
     p1.playProject("BuildingIndustries", 4, steel = 1)
     p2.playProject("RotatorImpacts", titanium = 2)
     p2.cardAction1("RotatorImpacts") {
-      doTask("2 Pay<Class<T>> FROM T")
-      doFirstTask("Ok")
+      p2.pay(titanium = 2)
     }
     p2.playProject("CarbonateProcessing", 6)
     p2.playProject("Archaebacteria", 6)
@@ -71,8 +70,7 @@ object SampleGames {
     p1.playProject("OptimalAerobraking", 7)
     p2.playProject("TransNeptuneProbe", 0, titanium = 2)
     p2.cardAction1("RotatorImpacts") {
-      doFirstTask("6 Pay<Class<M>> FROM M")
-      doFirstTask("Ok")
+      p2.pay(6)
     }
     p1.cardAction2("DeuteriumExport")
     p1.playProject("ImportedGhg", 4)
@@ -85,9 +83,8 @@ object SampleGames {
     p1.cardAction1("DevelopmentCenter")
     p1.cardAction1("InventorsGuild") { doTask("BuyCard") }
     p2.cardAction1("AquiferPumping") {
-      doTask("8 Pay<Class<M>> FROM M")
+      p2.pay(8)
       doTask("OceanTile<Tharsis_2_6>")
-      doTask("Ok")
     }
     p2.playProject("SearchForLife", 3)
     p1.cardAction1("DeuteriumExport")
@@ -112,16 +109,14 @@ object SampleGames {
     p1.cardAction2("DeuteriumExport")
     p1.playProject("DomedCrater", 18, steel = 3) { doTask("CityTile<Tharsis_3_4>") }
     p2.cardAction1("DirectedImpactors") {
-      doTask("6 Pay<Class<M>> FROM M")
-      doTask("Ok")
+      p2.pay(6)
       doTask("Asteroid<RotatorImpacts>")
     }
     p2.cardAction2("RotatorImpacts")
     p1.playProject("FueledGenerators", 1)
     p2.stdAction("ConvertHeatSA")
     p2.cardAction1("AquiferPumping") {
-      doTask("6 Pay<Class<M>> FROM M")
-      doTask("Pay<Class<S>> FROM S")
+      p2.pay(6, steel = 1)
       doTask("OceanTile<Tharsis_1_4>")
     }
 
@@ -134,15 +129,13 @@ object SampleGames {
     p1.cardAction1("InventorsGuild") { doTask("BuyCard") }
     p2.playProject("PowerPlantCard", 2, steel = 1)
     p2.cardAction1("AquiferPumping") {
-      doTask("8 Pay<Class<M>> FROM M")
-      doTask("Ok")
+      p2.pay(8)
       doTask("OceanTile<Tharsis_1_5>")
     }
     p1.playProject("OlympusConference", 1, steel = 3)
     p1.playProject("SisterPlanetSupport", 4)
     p2.cardAction1("DirectedImpactors") {
-      doTask("3 Pay<Class<M>> FROM M")
-      doTask("1 Pay<Class<T>> FROM T")
+      p2.pay(3, titanium = 1)
       doTask("Asteroid<RotatorImpacts>")
     }
     p2.cardAction2("RotatorImpacts")
@@ -193,8 +186,7 @@ object SampleGames {
     p1.cardAction1("DevelopmentCenter")
     p2.cardAction1("AiCentral")
     p2.cardAction1("DirectedImpactors") {
-      doTask("1 Pay<Class<T>> FROM T")
-      doTask("2 Pay<Class<M>> FROM M")
+      p2.pay(2, titanium = 1)
       doTask("Asteroid<RotatorImpacts>")
     }
     p1.playProject("SulphurExports", 13, titanium = 2)
@@ -227,8 +219,7 @@ object SampleGames {
     p1.stdAction("ConvertHeatSA")
     p1.stdAction("ConvertHeatSA")
     p2.cardAction1("AquiferPumping") {
-      doTask("3 Pay<Class<S>> FROM S")
-      doTask("Ok")
+      p2.pay(steel = 3)
       doTask("OceanTile<Tharsis_5_6>")
     }
     p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_9_7>") }
@@ -236,9 +227,8 @@ object SampleGames {
     p1.playProject("SfMemorial", 1, steel = 2)
     p2.stdAction("ClaimMilestoneSA") { doTask("Gardener") }
     p2.cardAction1("DirectedImpactors") {
-      doTask("6 Pay<Class<M>> FROM M")
+      p2.pay(6)
       doTask("Asteroid<RotatorImpacts>")
-      doTask("Ok")
     }
     p1.cardAction1("FloatingHabs") { doTask("Floater<ExtractorBalloons>") }
     p1.cardAction2("ExtractorBalloons")

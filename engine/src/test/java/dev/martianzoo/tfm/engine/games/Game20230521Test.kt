@@ -105,10 +105,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Rotator Impacts
     p2.playProject("RotatorImpacts", titanium = 2)
     // Player2 used Rotator Impacts action
+    // Player2 added 1 asteroid(s) to Rotator Impacts
     p2.cardAction1("RotatorImpacts") {
-      doTask("2 Pay<Class<T>> FROM T")
-      // Player2 added 1 asteroid(s) to Rotator Impacts
-      doFirstTask("Ok") // take care of the Accept<Megacredit>, yuck TODO
+      p2.pay(titanium = 2)
     }
 
     // Player1 passed
@@ -260,9 +259,8 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.playProject("TransNeptuneProbe", 0, titanium = 2)
     // Player2 used Rotator Impacts action
     p2.cardAction1("RotatorImpacts") {
-      doFirstTask("6 Pay<Class<M>> FROM M")
+      p2.pay(6)
       // Player2 added 1 asteroid(s) to Rotator Impacts
-      doFirstTask("Ok") // titanium, ugh
     }
 
     // Player1 used Deuterium Export action
@@ -326,13 +324,12 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Aquifer Pumping action
     p2.cardAction1("AquiferPumping") {
-      doTask("8 Pay<Class<M>> FROM M")
+      p2.pay(8)
       // Player2 placed ocean tile on row 2 position 6
       // Player2 drew 2 card(s)
       // You drew Deimos Down:promo and Kelp Farming
       // Player2 gained 2 plants from Arctic Algae
       doTask("OceanTile<Tharsis_2_6>")
-      doTask("Ok") // stupid steel
     }
     // Player2 played Search For Life
     // Player2 is using their Mars University effect to draw a card by discarding a card.
@@ -459,9 +456,8 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Directed Impactors action
     p2.cardAction1("DirectedImpactors") {
+      p2.pay(6)
       // Player2 added 1 asteroid(s) to Rotator Impacts
-      doTask("6 Pay<Class<M>> FROM M")
-      doTask("Ok") // titanium
       doTask("Asteroid<RotatorImpacts>")
     }
     // Player2 used Rotator Impacts action
@@ -484,11 +480,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // You drew Bushes
     // Player2 gained 2 plants from Arctic Algae
     p2.cardAction1("AquiferPumping") {
-          doTask("6 Pay<Class<M>> FROM M")
-          doTask("Pay<Class<S>> FROM S")
-          doTask("OceanTile<Tharsis_1_4>")
-        }
-        .expect("ProjectCard<P2>, 2 Plant<P2>")
+      p2.pay(6, steel = 1)
+      doTask("OceanTile<Tharsis_1_4>")
+    }.expect("ProjectCard<P2>, 2 Plant<P2>")
 
     // Player1 passed
     p1.pass()
@@ -552,13 +546,11 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.playProject("PowerPlantCard", 2, steel = 1)
     // Player2 used Aquifer Pumping action
     p2.cardAction1("AquiferPumping") {
-          doTask("8 Pay<Class<M>> FROM M")
-          doTask("Ok") // stupid steel
-          // Player2 placed ocean tile on row 1 position 5
-          // Player2 gained 2 plants from Arctic Algae
-          doTask("OceanTile<Tharsis_1_5>")
-        }
-        .expect("-4, 2 Plant") // 4 back from adjacent oceans
+      p2.pay(8)
+      // Player2 placed ocean tile on row 1 position 5
+      // Player2 gained 2 plants from Arctic Algae
+      doTask("OceanTile<Tharsis_1_5>")
+    }.expect("-4, 2 Plant") // 4 back from adjacent oceans
 
     // Player1 played Olympus Conference
     p1.playProject("OlympusConference", 1, steel = 3).expect("Science<OlympusConference>")
@@ -568,8 +560,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Directed Impactors action
     p2.cardAction1("DirectedImpactors") {
-      doTask("3 Pay<Class<M>> FROM M")
-      doTask("1 Pay<Class<T>> FROM T")
+      p2.pay(3, titanium = 1)
       // Player2 added 1 asteroid(s) to Rotator Impacts
       doTask("Asteroid<RotatorImpacts>")
     }
@@ -797,8 +788,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.cardAction1("AiCentral").expect("2 Card<P2>")
     // Player2 used Directed Impactors action
     p2.cardAction1("DirectedImpactors") {
-      doTask("1 Pay<Class<T>> FROM T")
-      doTask("2 Pay<Class<M>> FROM M")
+      p2.pay(2, titanium = 1)
       // Player2 added 1 asteroid(s) to Rotator Impacts
       doTask("Asteroid<RotatorImpacts>")
     }
@@ -941,8 +931,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Aquifer Pumping action
     p2.cardAction1("AquiferPumping") {
-      doTask("3 Pay<Class<S>> FROM S")
-      doTask("Ok")
+      p2.pay(steel = 3)
       // Player2 placed ocean tile on row 5 position 6
       // Player2's plants amount increased by 2
       // Player2 gained 2 plants from Arctic Algae
@@ -965,10 +954,9 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.stdAction("ClaimMilestoneSA") { doTask("Gardener") }
     // Player2 used Directed Impactors action
     p2.cardAction1("DirectedImpactors") {
-      doTask("6 Pay<Class<M>> FROM M")
+      p2.pay(6)
       // Player2 added 1 asteroid(s) to Rotator Impacts
       doTask("Asteroid<RotatorImpacts>")
-      doTask("Ok")
     }
 
     // Player1 used Floating Habs action

@@ -121,6 +121,8 @@ interface Gameplay {
 
     fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
+    fun continueManual(body: BodyLambda = {}): TaskResult
+
     fun finish(body: BodyLambda = {}): TaskResult
   }
 

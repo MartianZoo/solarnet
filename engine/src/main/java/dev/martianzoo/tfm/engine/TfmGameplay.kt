@@ -84,6 +84,17 @@ public class TfmGameplay(
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
+      pay(megacredits, steel, titanium)
+      body()
+      autoExecNow()
+    }
+  }
+  fun pay(
+      megacredits: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0,
+  ): TaskResult {
+    return godMode().continueManual {
       fun pay(cost: Int, currency: String) {
         if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
       }
@@ -103,8 +114,6 @@ public class TfmGameplay(
       tasks
           .matching { it.cause?.context?.className == cn("Accept") }
           .forEach { reviseTask(it, "Ok") } // "executes" automatically
-      autoExecNow()
-      body()
       autoExecNow()
     }
   }

@@ -109,6 +109,10 @@ constructor(
     return atomic { impl.beginManual(parse(initialInstruction), autoExecMode) { Adapter().body() } }
   }
 
+  override fun continueManual(body: BodyLambda): TaskResult {
+    return atomic { impl.continueManual(autoExecMode) { Adapter().body() } }
+  }
+
   override fun finish(body: BodyLambda): TaskResult {
     return atomic { impl.complete(autoExecMode) { Adapter().body() } }
   }

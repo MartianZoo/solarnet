@@ -69,15 +69,17 @@ constructor(
   fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     require(tasks.isEmpty()) { tasks }
     addTasks(initialInstruction).forEach(::doTask)
+    continueManual(autoExec, body)
+  }
+
+  fun continueManual(autoExec: AutoExecMode, body: () -> Unit) {
     autoExecNow(autoExec)
     body()
+    autoExecNow(autoExec)
   }
 
   fun complete(autoExec: AutoExecMode, body: () -> Unit) {
-    autoExecNow(autoExec)
-    body()
-    autoExecNow(autoExec)
-
+    continueManual(autoExec, body)
     require(tasks.isEmpty()) {
       "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
     }
