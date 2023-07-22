@@ -1461,7 +1461,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[Plant]",
+      "immediate": "PROD[Energy]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 11,
       "projectKind": "AUTOMATED"
