@@ -15,7 +15,7 @@ ABSTRACT CLASS System {
 
     "A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
     ABSTRACT CLASS Signal {
-      This:: -This!                                    // TODO ! is supposed to be unnecessary here
+      This:: -This!
 
       "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
       CLASS Ok : AutoLoad

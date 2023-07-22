@@ -107,7 +107,6 @@ internal class ColoniesBasicRulesTest {
     // And just to show that it would have worked otherwise
     p1.playProject("Pets", 10)
     p1.stdAction("TradeSA") {
-      // TODO should it have chosen automatically?
       doTask("Trade<Miranda, TradeFleetA>")
       doTask("Animal<Pets>")
     }

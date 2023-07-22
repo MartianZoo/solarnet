@@ -16,10 +16,6 @@ public object Exceptions {
           "No class with name or id `$className` in current game (check bundles, check spelling)",
       )
 
-  // TODO why unused?
-  fun badClassExpression(specs: List<Expression>) =
-      ExpressionException("must contain a single class name: `Class<${specs.joinToString()}>`")
-
   fun badExpression(specExpression: Expression, deps: String) =
       ExpressionException("can't match `$specExpression` to any of: `$deps`")
 
@@ -42,13 +38,6 @@ public object Exceptions {
       RequirementException("requirement not met: `$reqt` / $message")
 
   fun refinementNotMet(reqt: Requirement) = NarrowingException("requirement not met: `$reqt`")
-
-  // TODO why unused?
-  fun badSneak(instruction: Instruction) =
-      PetException("can only sneak simple changes, not: `$instruction`")
-
-  // TODO why unused?
-  fun mustClearTasks() = NotNowException("you have tasks")
 
   // TOP-LEVEL EXCEPTIONS
 

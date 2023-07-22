@@ -36,7 +36,7 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
 
   protected fun nextRound(wgt: String, cardsBought: Int) {
     p1.pass()
-    opponent.godMode().manual(wgt) // TODO make WGT part of actual game rules
+    opponent.godMode().manual(wgt)
     engine.nextGeneration(cardsBought, 0)
   }
 }

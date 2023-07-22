@@ -12,7 +12,7 @@ class CryoSleepTest : ColoniesCardTest() {
   @Test
   fun testMegacredit() {
     p1.stdAction("TradeSA", 1) {
-      doTask("Trade<Io, TradeFleetA>") // TODO auto-choose
+      doTask("Trade<Io, TradeFleetA>")
     }.expect("-8, 3 Heat")
   }
 

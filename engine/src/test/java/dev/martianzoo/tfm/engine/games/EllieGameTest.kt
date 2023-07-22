@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.engine.games
 
+import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -22,7 +24,7 @@ class EllieGameTest : AbstractFullGameTest() {
 
     engine.phase("Prelude")
 
-    p1.playPrelude("UnmiContractor")
+    p1.playPrelude("UnmiContractor") // 3 TR<P1>
     p1.playPrelude("CorporateArchives")
     p2.playPrelude("BiosphereSupport")
     p2.playPrelude("SocietySupport")
@@ -34,13 +36,13 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.playProject("MediaGroup", 6)
     p1.playProject("Sabotage", 1) { doTask("-7 M<P2>") }
 
-    p2.playProject("Research", 11)
-    p2.playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip
+    p2.playProject("Research", 11) // 1 VP<P2>, 2 TR<P2>
+    p2.playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<P2>
 
     p1.pass()
 
     p2.playProject("SearchForLife", 3) {
-      doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
+      doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<P2>
     }
     p2.cardAction1("SearchForLife") { doTask("Ok") } // no microbe
 
@@ -51,12 +53,12 @@ class EllieGameTest : AbstractFullGameTest() {
     engine.nextGeneration(1, 3)
 
     p2.sellPatents(1)
-    p2.playProject("VestaShipyard", 15)
+    p2.playProject("VestaShipyard", 15) // 1 VP<P2>
     p2.pass()
 
     with(p1) {
-      playProject("EarthCatapult", 23)
-      playProject("OlympusConference", steel = 4)
+      playProject("EarthCatapult", 23) // 2 VP<P1>
+      playProject("OlympusConference", steel = 4) // 1 VP<P1>
 
       playProject("DevelopmentCenter", 1, steel = 4) {
         doTask("ProjectCard FROM Science<OlympusConference>")
@@ -64,8 +66,8 @@ class EllieGameTest : AbstractFullGameTest() {
 
       playProject("GeothermalPower", 1, steel = 4)
 
-      playProject("MirandaResort", 10)
-      playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") }
+      playProject("MirandaResort", 10) // 1 VP<P1>
+      playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
       playProject("MicroMills", 1)
       pass()
     }
@@ -77,7 +79,7 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.cardAction1("DevelopmentCenter")
     p1.playProject("ImmigrantCity", 1, steel = 5) {
       doTask("CityTile<Hellas_9_7>")
-      doTask("OceanTile<Hellas_5_6>")
+      doTask("OceanTile<Hellas_5_6>") // 1 TR<P1>
     }
 
     // Check counts, shared stuff first
@@ -104,10 +106,21 @@ class EllieGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    // TODO why does P1 have 1 more point than I expect?
-    // Should be 23 2 1 1 -1 / 25 1 1 1
-    p1.assertVps(27)
-    p2.assertVps(28)
+    engine.phase("End")
+
+    val sum = Summarizer(game)
+    assertThat(sum.net("GreeneryTile", "VictoryPoint")).isEqualTo(0)
+    assertThat(sum.net("CityTile", "VictoryPoint")).isEqualTo(0)
+
+    p1.assertCounts(24 to "TR<P1>")
+    p1.assertCounts(27 to "VP<P1>")
+    assertThat(sum.net("Card", "VP<P1>")).isEqualTo(3)
+
+    p2.assertCounts(25 to "TR<P2>")
+    assertThat(sum.net("PharmacyUnion", "TR<P2>")).isEqualTo(5)
+
+    p2.assertCounts(28 to "VictoryPoint")
+    assertThat(sum.net("Card", "VP<P2>")).isEqualTo(3)
   }
 
   @Test

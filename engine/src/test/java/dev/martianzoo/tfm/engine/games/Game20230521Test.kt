@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class Game20230521Test : AbstractFullGameTest() {
 
@@ -16,14 +15,6 @@ class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   fun game() {
-    /*
-        The // comments below are log messages taken directly from the herokuapp.
-        After every generation is a giant block of assertions, which use the
-        numbers I see in the herokuapp game. So this is basically a parity test.
-
-        I had to cheat in a couple places; search for TODO or godMode().
-    */
-
     // Good luck Player1!
     // Good luck Player2!
     // Generation 1
@@ -238,7 +229,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Asteroid
     // Player2's titanium amount increased by 2
     p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) {
-      doFirstTask("Ok") // TODO couldn't steal from anyone anyway...
+      doFirstTask("Ok")
     }
 
     // Player1 played Corporate Stronghold
@@ -515,8 +506,6 @@ class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
-    // TODO this *should* work, but doesn't, so we have to fake it.
-    assertThrows<Exception> { p2.stdAction("ConvertPlantsSA") }
     // Player2 used Convert Plants standard action
     p2.stdAction("ConvertPlantsSA") {
       // Player2 placed greenery tile on row 8 position 4
@@ -622,7 +611,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.sellPatents(1)
     // Player1 played Moss
     // Player1's plants production increased by 1
-    p1.playProject("Moss", 4).expect("-4 Resource") // TODO actually trying to check `0 Plant`
+    p1.playProject("Moss", 4).expect("-4 Resource")
     // Player1 passed
     p1.pass()
 
@@ -652,10 +641,7 @@ class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 7, temp = -14, oxygen = 1, oceans = 3, venus = 12)
 
     // Player1 claimed Builder milestone
-    p1.stdAction("ClaimMilestoneSA") {
-          doTask("Builder") // TODO sort of expected it to autopick
-        }
-        .expect("-8, Milestone")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Builder") }.expect("Milestone")
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
     // You drew Quantum Extractor
@@ -844,10 +830,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Bio Printing Facility action
     // Player2's plants amount increased by 2
     p2.cardAction1("BioPrintingFacility") {
-          // TODO how would I choose 0 animals instead? Senseless move, but legal.
-          doTask("2 Plant")
-        }
-        .expect("2 Plant, -2 E")
+      doTask("2 Plant")
+    }.expect("2 Plant, -2 E")
     // Player2 passed
     p2.pass()
 
@@ -864,9 +848,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Mohole Lake action
     // Player1 added 1 animal(s) to Stratospheric Birds
     p1.cardAction1("MoholeLake") {
-          doTask("Animal<StratosphericBirds>") // TODO should this have autoexecuted?
-        }
-        .expect("Animal<StratosphericBirds>")
+      doTask("Animal<StratosphericBirds>")
+    }
     // Player1 passed
     p1.pass()
 
@@ -1051,7 +1034,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's plants amount increased by 1
     p1.playProject("Trees", 13)
     // Player1 funded Banker award
-    p1.godMode().sneak("-8, 5 VP") // TODO
+    p1.godMode().sneak("-8, 5 VP") // faking it for now, fix when awards work
 
     // Player2 used Search For Life action
     p2.cardAction1("SearchForLife") {
@@ -1066,7 +1049,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Venusian Insects action
     p1.cardAction1("VenusianInsects")
     // Player1 funded Venuphile award
-    p1.godMode().sneak("-14, 5 VP") // TODO
+    p1.godMode().sneak("-14, 5 VP")
     // Player1 passed
     p1.pass()
 

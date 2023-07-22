@@ -17,7 +17,7 @@
     {
       "id": "SAE",
       "bundle": "B",
-      "action": "-> UseAction<ActionCard>, ActionUsedMarker<ActionCard>" // TODO THEN
+      "action": "-> UseAction<ActionCard>, ActionUsedMarker<ActionCard>"
     },
 
     // Convert plants

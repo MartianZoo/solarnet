@@ -171,6 +171,9 @@ private object CopyPrelude : CustomClass("CopyPrelude") {
     if (card.deck != PRELUDE) {
       throw NarrowingException("Card ${card.className} is not a prelude card")
     }
+    if (card.className == cn("DoubleDown")) {
+      throw NarrowingException("Cute, but Double Down can't copy itself")
+    }
     return card.immediate ?: NoOp
   }
 }
@@ -188,7 +191,6 @@ private object AddColonyTile : CustomClass("AddColonyTile") {
   }
 }
 
-// TODO wow bad hak
 fun card(cardType: HasClassName, reader: GameReader) =
     (reader.authority as TfmAuthority).card(cardType.className)
 

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.RecoverableException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
@@ -32,8 +31,7 @@ class DoubleDownTest {
         assertThrows<DependencyException>("exist") { doFirstTask("CopyPrelude<MartianIndustries>") }
         assertThrows<DependencyException>("mine") { doFirstTask("CopyPrelude<UnmiContractor>") }
         assertThrows<NarrowingException>("prelude") { doFirstTask("CopyPrelude<PharmacyUnion>") }
-        // TODO which one?
-        assertThrows<RecoverableException>("other") { doFirstTask("CopyPrelude<DoubleDown>") }
+        assertThrows<NarrowingException>("other") { doFirstTask("CopyPrelude<DoubleDown>") }
 
         doFirstTask("CopyPrelude<BiosphereSupport>")
         assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()

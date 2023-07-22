@@ -209,7 +209,7 @@
       "id": "C46",
       "bundle": "C",
       "deck": "PROJECT",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // TODO before!
+      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // too late!
       "cost": 6,
       "projectKind": "ACTIVE"
     },
@@ -221,7 +221,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "Colony",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // TODO before!
+      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // too late!
       "cost": 18,
       "projectKind": "ACTIVE"
     }

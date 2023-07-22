@@ -83,7 +83,7 @@ constructor(
     require(tasks.isEmpty()) {
       "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
     }
-    require(reader.has(parse("MAX 0 $TEMPORARY"))) // TODO make game rules do this
+    require(reader.has(parse("MAX 0 $TEMPORARY")))
   }
 
   @Suppress("ControlFlowWithEmptyBody")

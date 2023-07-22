@@ -29,7 +29,7 @@ internal class GameReaderImpl
 constructor(
     private val classes: MClassTable,
     private val components: ComponentGraph,
-    internal val transformers: Transformers, // TODO private
+    internal val transformers: Transformers,
 ) : GameReader, TypeInfo {
 
   override val authority: TfmAuthority = classes.authority as TfmAuthority

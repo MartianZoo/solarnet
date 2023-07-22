@@ -615,7 +615,6 @@
       "bundle": "X",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
-      "effects": [ "CopyPrelude<DoubleDown>:: Die" ],
       "components": [ "CLASS CopyPrelude : Cardbound, Custom" ]
     },
 

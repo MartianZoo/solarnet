@@ -57,7 +57,6 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
     mtype.root.classEffects.map(classEffectTransformer::transform)
   }
 
-  // TODO hmm
   fun hasType(supertype: Type, info: TypeInfo? = null) =
       info?.let { mtype.narrows(supertype, it) } ?: mtype.narrows(supertype)
 

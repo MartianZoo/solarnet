@@ -60,6 +60,6 @@ ABSTRACT CLASS Owned<Anyone> {
   "You didn't see this"
   CLASS GrossHack : System {
     This: PROD[5]
-    ProductionPhase: -5!
+    ProductionPhase: -5
   }
 }
