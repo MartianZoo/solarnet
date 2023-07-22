@@ -161,7 +161,6 @@ internal class Transformers @Inject constructor(val classes: MClassTable) {
     }
   }
 
-  // Excluding THIS because we won't find it as an actual class... TODO is this the right thing?
   private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
 
   // only has to modify the args/specs

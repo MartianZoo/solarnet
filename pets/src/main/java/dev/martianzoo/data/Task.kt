@@ -54,7 +54,7 @@ public data class Task(
   val instruction = normalizeForTask(instructionIn)
 
   /** Normalized form of [thenIn]. */
-  val then: Instruction? by lazy { // TODO InstructionGroup??
+  val then: Instruction? by lazy { // should it be InstructionGroup?
     if (thenIn != null) {
       val normed = normalizeForTask(thenIn)
       if (normed != NoOp) return@lazy normed

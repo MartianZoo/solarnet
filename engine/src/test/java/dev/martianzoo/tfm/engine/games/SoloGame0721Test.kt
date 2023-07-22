@@ -14,12 +14,12 @@ class SoloGame0721Test : AbstractSoloTest() {
     return GameSetup(Canon, "BREVPCTX", 2, colonyTiles)
   }
 
-  // TODO calculate the areas based on the cards drawn
+  // Could at some point calculate these automatically from cards drawn
 
-  // Drew and discarded Decomposers (cost 5) to place a 2
-  // Drew and discarded Land Claim (cost 1) to place a 0
-  // Drew and discarded Greenhouses (cost 6) to place a 2
-  // Drew and discarded Luna Metropolis (cost 21) to place a 0
+  // Drew and discarded Decomposers (cost 5) to place a city
+  // Drew and discarded Land Claim (cost 1) to place a greenery
+  // Drew and discarded Greenhouses (cost 6) to place a city
+  // Drew and discarded Luna Metropolis (cost 21) to place a greenery
   override fun cityAreas(): Pair<String, String> = "Elysium_2_6" to "Elysium_8_9"
   override fun greeneryAreas(): Pair<String, String> = "Elysium_1_5" to "Elysium_7_8"
 
@@ -217,7 +217,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me's steel amount increased by 2
       playProject("MiningExpedition", 12) { doTask("-2 Plant<P2>") }.expect("2 Steel, TR")
 
-      // TODO had to hack around this - Flooding should have been banned
+      // NOTE: this is a hack, because I should have banned Flooding
       // me played Flooding
       // me placed ocean tile on row 4 position 6
       // me's plants amount increased by 1
@@ -572,7 +572,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
       assertCounts(0 to "ProjectCard", 69 to "TR", 32 to "CardFront + PlayedEvent")
       assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
-      assertSidebar(gen = 12, temp = 4, oxygen = 14, oceans = 8, venus = 30) // TODO oxygen = 12
+      assertSidebar(gen = 12, temp = 4, oxygen = 14, oceans = 8, venus = 30) // oxygen = 12
 
       assertTags(5, 7, 0, 5, 5, 1, 3, 2, 1, 0, 0)
 
@@ -583,6 +583,9 @@ class SoloGame0721Test : AbstractSoloTest() {
       assertThat(sum.net("Card", "VictoryPoint<P1>")).isEqualTo(5)
       assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
+
+      // it's really 99 but we faked Flooding. note herokuapp says 111.
+      assertThat(sum.net("ActionPhase", "UseAction<P1>")).isEqualTo(98)
     }
   }
 }

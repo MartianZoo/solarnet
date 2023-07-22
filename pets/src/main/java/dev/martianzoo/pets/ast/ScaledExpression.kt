@@ -14,16 +14,17 @@ import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.util.Reifiable
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
 data class ScaledExpression(
     val scalar: Scalar,
-    val expression: Expression = MEGACREDIT,
+    val expression: Expression = MEGACREDIT.of(),
 ) : PetNode() {
   public companion object {
     public fun scaledEx(scalar: Scalar, expression: Expression? = null) =
-        ScaledExpression(scalar, expression ?: MEGACREDIT)
+        ScaledExpression(scalar, expression ?: MEGACREDIT.of())
 
     public fun scaledEx(value: Int? = null, expression: Expression? = null) =
         scaledEx(ActualScalar(value ?: 1), expression)
@@ -35,9 +36,6 @@ data class ScaledExpression(
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
-
-    // TODO need to make this type not special
-    internal val MEGACREDIT = ClassName.cn("Megacredit").expression
   }
 
   override fun visitChildren(visitor: Visitor) = visitor.visit(scalar, expression)
@@ -49,7 +47,7 @@ data class ScaledExpression(
 
   fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
       when {
-        !forceExpression && expression == MEGACREDIT -> "$scalar"
+        !forceExpression && expression == MEGACREDIT.of() -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
         else -> "$scalar $expression"
       }

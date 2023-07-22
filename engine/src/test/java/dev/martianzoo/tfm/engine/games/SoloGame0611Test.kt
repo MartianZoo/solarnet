@@ -118,7 +118,6 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements)
       cardAction1(ForcedPrecipitation).expect("-2")
       cardAction1(RegolithEaters).expect("Microbe")
-      // TODO want to expect 0 ProjectCard
       playProject("ResearchOutpost", 12, steel = 2) { doTask("CityTile<H76>") }
 
       playProject("Cartel", 7).expect("PROD[5]")

@@ -99,7 +99,7 @@ public class TfmGameplay(
         if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
       }
 
-      // TODO should prevent overpayment in actual game rules somehow
+      // Should prevent overpayment in actual game rules somehow (#19)
       pay(titanium, "Titanium")
       pay(steel, "Steel")
 

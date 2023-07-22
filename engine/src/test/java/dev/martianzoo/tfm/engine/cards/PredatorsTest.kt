@@ -26,7 +26,7 @@ class PredatorsTest {
   fun test() {
     p1.godMode().manual("Predators") // skip requirements
 
-    // There's no stealable animal - TODO exception type?
+    // There's no stealable animal - TODO exception type is wrong
     assertThrows<Exception> { p1.cardAction1("Predators") }
 
     p1.godMode().manual("Animal<Predators>")

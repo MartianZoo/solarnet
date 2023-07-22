@@ -46,7 +46,7 @@ object TestHelpers {
         }
 
     // Abusing the fact that these strings just happen to resemble instruction strings... except
-    // that this is currently preventing 0 TODO
+    // that this is currently preventing 0, sigh
     val instruction = preprocessor.transform(Parsing.parse<Instruction>(expectedAsInstructions))
 
     val expectedCountsToTypes: List<Pair<Int, Expression>> =

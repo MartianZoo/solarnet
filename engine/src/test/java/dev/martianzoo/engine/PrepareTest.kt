@@ -90,7 +90,7 @@ internal class PrepareTest {
     assertThrows<RequirementException>("1") { preprocessAndPrepare("30 TR: Plant") }
   }
 
-  // @Test TODO
+  @Test
   fun testPrepareOr() {
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +

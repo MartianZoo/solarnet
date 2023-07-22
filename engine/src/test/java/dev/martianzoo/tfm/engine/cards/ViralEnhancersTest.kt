@@ -36,7 +36,6 @@ class ViralEnhancersTest {
       abort()
     }
 
-    // TODO it should not be allowing this!
     p1.playProject("RegolithEaters", 13) { doTask("Microbe<NitriteReducingBacteria>") }
   }
 }

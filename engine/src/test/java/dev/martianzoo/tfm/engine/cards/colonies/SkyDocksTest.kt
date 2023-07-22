@@ -20,12 +20,12 @@ class SkyDocksTest : ColoniesCardTest() {
     }
 
     p1.stdAction("TradeSA", 1) {
-      // Just to show that we can't use a trade fleet we don't have
+      // Can't use a trade fleet we don't have
       assertThrows<DependencyException> { doTask("Trade<Luna, TradeFleetE>") }
       doTask("Trade<Luna, TradeFleetA>")
     }
     p1.stdAction("TradeSA", 1) {
-      // Just to show that we can't use a trade fleet we already used TODO
+      // Why isn't this failing?? #62
       // assertThrows<LimitsException> { doTask("Trade<Triton, TradeFleetA>") }
       doTask("Trade<Triton, TradeFleetD>")
     }

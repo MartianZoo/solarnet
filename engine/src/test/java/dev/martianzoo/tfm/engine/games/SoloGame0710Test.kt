@@ -79,7 +79,6 @@ class SoloGame0710Test : AbstractSoloTest() {
       nextRound("VenusStep", 1)
 
       playProject("EnergySaving", 15)
-      // TODO shouldn't have to specify TradeFleetA; it's the only one I have
       stdAction("TradeSA", 2) { doTask("Trade<Callisto, TradeFleetA>") }.expect("4 E")
 
       nextRound("OceanTile<Tharsis_5_5>", 1)
@@ -158,7 +157,7 @@ class SoloGame0710Test : AbstractSoloTest() {
         doTask("OceanTile<Tharsis_2_6>")
       }
       stdProject("AirScrappingSP").expect("-12")
-      cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") } // TODO auto-choose
+      cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede, TradeFleetA>") }
       sellPatents(3)
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_7>") }
@@ -183,11 +182,13 @@ class SoloGame0710Test : AbstractSoloTest() {
       val GhgProducingBacteria = "GhgProducingBacteria"
       playProject(GhgProducingBacteria, 7) { doTask("Plant") }
       playProject("ImportedNitrogen", 0, titanium = 5) {
-        doTask("3 Microbe<$GhgProducingBacteria>") // TODO auto-choose
-        doTask("2 Animal<$SubZeroSaltFish>") // TODO auto-choose
+        doTask("3 Microbe<$GhgProducingBacteria>")
+        doTask("2 Animal<$SubZeroSaltFish>")
       }
       cardAction2(GhgProducingBacteria) { doTask("OceanTile<Tharsis_1_2>") }
-      playProject("ArtificialLake", 2, steel = 4) { doTask("OceanTile<Tharsis_6_6>!") } // TODO !
+
+      // TODO: this ! really should not be necessary
+      playProject("ArtificialLake", 2, steel = 4) { doTask("OceanTile<Tharsis_6_6>!") }
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_5_2>") }
 
       val RefugeeCamps = "RefugeeCamps"
@@ -246,7 +247,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdProject("CitySP") { doTask("CityTile<Tharsis_9_5>") }
       playProject("SpacePort", 3, steel = 6) {
         doTask("CityTile<Tharsis_6_2>")
-        doTask("TradeFleetC") // TODO auto-choose, somehow
+        doTask("TradeFleetC")
       }
       sellPatents(1)
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede, TradeFleetA>") }
@@ -267,7 +268,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertCounts(121 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
-      // TODO: count actions somehow and expect to come up with 106?
+      assertThat(sum.net("ActionPhase", "UseAction<P1>")).isEqualTo(93) // note UI says 106
     }
   }
 }

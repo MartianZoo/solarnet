@@ -37,7 +37,7 @@ private class TransformingTest {
     )
 
     // t's not its job to recognize nonsense
-    checkActionToEffect("Plant -> Plant", 2, "UseAction2<This>: -Plant! THEN Plant") // TODO ! ?
+    checkActionToEffect("Plant -> Plant", 2, "UseAction2<This>: -Plant! THEN Plant")
   }
 
   @Test

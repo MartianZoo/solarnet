@@ -44,7 +44,7 @@ class TilePlacingTest {
       // Yer surrounded!
       game.tfm(PLAYER2).godMode().manual("GT<M32>, GT<M33>, GT<M42>, GT<M44>")
 
-      // So now you should be able to.... crapola. TODO
+      // So now you should be able to do this, but oops, you can't. (#33)
       assertThrows<NarrowingException> {
         stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
       }
