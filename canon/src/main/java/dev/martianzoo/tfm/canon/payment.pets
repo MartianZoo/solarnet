@@ -35,3 +35,7 @@ ABSTRACT CLASS PaymentMechanic<Class<Resource>> : Owned, Temporary {
     This:: -Owed<Class<Resource>>
   }
 }
+
+CLASS PayCardResource<ResourceCard> : Owned, Signal {
+  // This:: -CardResource<ResourceCard>!
+}

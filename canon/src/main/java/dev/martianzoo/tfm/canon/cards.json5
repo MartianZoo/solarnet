@@ -3107,9 +3107,9 @@
       "tags": [ "MicrobeTag" ],
       "actions": [ "-> Microbe<This>" ],
       "effects": [
-        "PlayTag<Class<PlantTag>>: X PayPsychrophile FROM Microbe<This>?",
+        "PlayTag<Class<PlantTag>>: X PayCardResource<This>?",
+        "PayCardResource<This>:: -Microbe<This>! THEN -2 Owed."
       ],
-      "components": [ "CLASS PayPsychrophile : Signal { This:: -2 Owed }" ],
       "resourceType": "Microbe",
       "cost": 2,
       "projectKind": "ACTIVE"
@@ -3263,9 +3263,9 @@
       "tags": [ "VenusTag" ],
       "actions": [ "-> Floater" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>: X PayDirigible FROM Floater<This>?",
+        "PlayTag<Class<VenusTag>>: X PayCardResource<This>?",
+        "PayCardResource<This>:: -Floater<This>! THEN -3 Owed."
       ],
-      "components": [ "CLASS PayDirigible : Signal { This:: -3 Owed }" ],
       "resourceType": "Floater",
       "cost": 11,
       "projectKind": "ACTIVE"

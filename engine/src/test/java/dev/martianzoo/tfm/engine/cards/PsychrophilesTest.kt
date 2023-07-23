@@ -41,7 +41,7 @@ class PsychrophilesTest {
   @Test
   fun spendOne() {
     with(p1) {
-      playProject("AdaptedLichen", 7) { doTask("PayPsychrophile FROM Microbe<Psychrophiles>") }
+      playProject("AdaptedLichen", 7) { doTask("PayCardResource<Psychrophiles>") }
       assertCounts(4 to "Microbe", 1 to "AdaptedLichen")
     }
   }
@@ -49,7 +49,7 @@ class PsychrophilesTest {
   @Test
   fun overspend() {
     with(p1) {
-      playProject("AdaptedLichen", 0) { doTask("5 PayPsychrophile FROM Microbe<Psychrophiles>") }
+      playProject("AdaptedLichen", 0) { doTask("5 PayCardResource<Psychrophiles>") }
       assertCounts(0 to "Microbe", 1 to "AdaptedLichen")
     }
   }
