@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.tfm.pets.testSampleStrings
-import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -72,10 +71,5 @@ private class EffectTest {
     val eff: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     // ef, og, te, cn, te, cn, pr, or, tr, sc, fr, te, cn, te, cn, ga, ste, te, cn
     assertThat(eff.descendantCount()).isEqualTo(19)
-  }
-
-  // @Test
-  fun genGrossApiCalls() {
-    PetGenerator(0.95).generateTestApiConstructions<Effect>(20)
   }
 }

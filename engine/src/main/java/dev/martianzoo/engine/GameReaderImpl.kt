@@ -62,8 +62,8 @@ constructor(
   override fun count(metric: Metric): Int =
       when (metric) {
         is Count -> components.count(resolve(metric.expression), this)
-        is Scaled -> count(metric.metric) / metric.unit
-        is Metric.Max -> min(count(metric.metric), metric.maximum)
+        is Scaled -> count(metric.inner) / metric.unit
+        is Metric.Max -> min(count(metric.inner), metric.maximum)
         is Plus -> metric.metrics.sumOf(::count)
         is Metric.Transform -> error("should have been transformed by now: $metric")
       }

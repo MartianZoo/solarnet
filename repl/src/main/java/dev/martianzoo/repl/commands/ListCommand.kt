@@ -19,8 +19,6 @@ internal class ListCommand(val repl: ReplSession) : ReplCommand("list") {
 
   override fun withArgs(args: String): List<String> {
     val output = mutableListOf<String>()
-
-    // have to use tfm to personalize it to the current player TODO
     val parentType: MType = repl.gameplay.resolve(args) as MType
 
     // TODO When applicable include an explicit `<Anyone>` for clarity's sake

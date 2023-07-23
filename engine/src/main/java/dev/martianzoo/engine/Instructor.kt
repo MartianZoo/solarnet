@@ -79,7 +79,6 @@ constructor(
               orRemoveOneDependent = true,
           )
 
-      // TODO is it a problem that we don't use a queue here?
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
         split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
@@ -191,7 +190,6 @@ constructor(
   }
 
   // Still spending 25% of solo game time in this method
-  // TODO make it faster and/or need it less
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
     var g = gaining?.let(reader::resolve) as MType?
     var r = removing?.let(reader::resolve) as MType?
@@ -208,7 +206,6 @@ constructor(
 
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
-      // TODO could be smarter, like if the instr is mandatory and only one cpt type can satisfy
       r = reader.getComponents(r).singleOrNull()?.let { classes.resolve(it.expression) } ?: r
     }
     return g to r

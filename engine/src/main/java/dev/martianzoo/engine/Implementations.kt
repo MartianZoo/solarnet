@@ -300,5 +300,5 @@ constructor(
   }
 
   private fun execute(instruction: String, fakeCause: Cause? = null): Unit =
-      addTasks(parse(instruction), fakeCause).forEach(::doTask) // TODO where to share this?
+      addTasks(parse(instruction), fakeCause).forEach(::doTask)
 }

@@ -19,9 +19,7 @@ class OptimalAerobrakingTest {
 
       godMode().sneak("5 ProjectCard, OptimalAerobraking, 14")
       assertCounts(14 to "Megacredit", 0 to "Heat")
-      playProject("AsteroidCard", 14) {
-        doTask("Ok") // but there's no one to steal from anyway TODO
-      }
+      playProject("AsteroidCard", 14) { doTask("Ok") }
       assertCounts(3 to "Megacredit", 3 to "Heat")
     }
   }

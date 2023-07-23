@@ -59,7 +59,6 @@ internal constructor(
 ) : HasClassName, Hierarchical<MClass> {
 
   /** The name of this class, in UpperCamelCase. */
-  // (TODO validate that?)
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   /**

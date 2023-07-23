@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
-import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -62,10 +61,5 @@ private class ActionTest {
   @Test
   fun testSampleStrings() {
     testSampleStrings<Action>(inputs)
-  }
-
-  // @Test
-  fun genGrossApiCalls() {
-    PetGenerator(0.9).generateTestApiConstructions<Action>(20)
   }
 }

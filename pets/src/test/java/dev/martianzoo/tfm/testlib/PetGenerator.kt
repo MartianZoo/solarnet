@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.testlib
 
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.OWNER
@@ -25,11 +26,9 @@ import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PROD
-import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import kotlin.math.pow
 import kotlin.random.Random
 import kotlin.reflect.KClass
-import org.junit.jupiter.api.Assertions.fail
 
 internal class PetGenerator(scaling: (Int) -> Double) :
     RandomGenerator<PetNode>(Registry, scaling) {
@@ -56,7 +55,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register(Metric::class) { recurse(choose(metricTypes)) }
       register { Metric.Count(recurse()) }
       register { Metric.Scaled(choose(2, 2, 3), recurse()) }
-      register { Metric.Max(metric = recurse(), maximum = choose(5, 11)) }
+      register { Metric.Max(inner = recurse(), maximum = choose(5, 11)) }
       register { Metric.Plus(listOfSize(choose(2, 2, 2, 3, 4))) }
       register { Metric.Transform(recurse(), PROD) }
 
@@ -215,21 +214,14 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val originalStringOut = randomNode.toString()
 
-      val reparsedNode =
-          try {
-            parse(type, originalStringOut)
-          } catch (e: Exception) {
-            fail("node was ${p2k(randomNode)}", e)
-          }
+      val reparsedNode = parse(type, originalStringOut)
 
       assertWithMessage("intermediate string form was $originalStringOut")
           .that(reparsedNode)
           .isEqualTo(randomNode)
 
       val regurgitated = reparsedNode.toString()
-      assertWithMessage("intermediate parsed form was:\n${p2k(reparsedNode)}")
-          .that(regurgitated)
-          .isEqualTo(originalStringOut)
+      assertThat(regurgitated).isEqualTo(originalStringOut)
     }
   }
 
@@ -260,13 +252,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
     }
     return set.toList()
-  }
-
-  inline fun <reified T : PetNode> generateTestApiConstructions(count: Int = 10) {
-    for (i in 1..count) {
-      val node = makeRandomNode<T>()
-      println("checkBothWays(\"$node\", ${p2k(node)})")
-    }
   }
 
   inline fun <reified T : PetNode> uniqueNodes(

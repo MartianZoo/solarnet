@@ -7,7 +7,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /** A player, or [ENGINE]. */
-// TODO shouldn't limit to 5
 data class Player(override val className: ClassName) : HasClassName, HasExpression {
   init {
     require(isValid(className.toString())) { className }

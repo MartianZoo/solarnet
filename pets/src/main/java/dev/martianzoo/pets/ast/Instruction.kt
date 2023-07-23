@@ -285,7 +285,6 @@ public sealed class Instruction : PetElement() {
     final override fun toString() = instructions.joinToString(connector()) { groupPartIfNeeded(it) }
   }
 
-  // TODO: make it binary
   data class Then(override val instructions: List<Instruction>) :
       CompositeInstruction(instructions) {
     init {
