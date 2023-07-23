@@ -3099,6 +3099,22 @@
       "projectKind": "EVENT"
     },
 
+    // Psychrophiles
+    {
+      "id": "P39",
+      "bundle": "P",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "actions": [ "-> Microbe<This>" ],
+      "effects": [
+        "PlayTag<Class<PlantTag>>: X PayPsychrophile FROM Microbe<This>?",
+      ],
+      "components": [ "CLASS PayPsychrophile : Signal { This:: -2 Owed }" ],
+      "resourceType": "Microbe",
+      "cost": 2,
+      "projectKind": "ACTIVE"
+    },
+
     // SF Memorial
     {
       "id": "P41",
@@ -3234,6 +3250,22 @@
         "-> Floater<This>",
         "Floater<This> -> PROD[Energy]"
       ],
+      "resourceType": "Floater",
+      "cost": 11,
+      "projectKind": "ACTIVE"
+    },
+
+    // Dirigibles
+    {
+      "id": "222",
+      "bundle": "V",
+      "deck": "PROJECT",
+      "tags": [ "VenusTag" ],
+      "actions": [ "-> Floater" ],
+      "effects": [
+        "PlayTag<Class<VenusTag>>: X PayDirigible FROM Floater<This>?",
+      ],
+      "components": [ "CLASS PayDirigible : Signal { This:: -3 Owed }" ],
       "resourceType": "Floater",
       "cost": 11,
       "projectKind": "ACTIVE"

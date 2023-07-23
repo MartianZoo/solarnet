@@ -31,8 +31,6 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | X20 | Diversity Support          | distinct              |
 | CC1 | Aridor                     | distinct              |
 | B03 | Helion                     | helion                |
-| 222 | Dirigibles                 | payresource           |
-| P39 | Psychrophiles              | payresource           |
 | CC5 | Stormcraft Incorporated    | payresource           |
 | X06 | Law Suit                   | playerplayer          |
 | 210 | Self-Replicating Robots    | selfrep               |
