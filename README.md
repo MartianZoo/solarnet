@@ -50,14 +50,15 @@ But in these early days, you're unlikely to get far on your own. I want to impro
 
 ### Join the discord
 
-[This invite](https://discord.com/invite/3vpKDktmde) should work (please let me know if it doesn't?).
+[This invite](https://discord.com/invite/3vpKDktmde) should work (please let me know if it doesn't, contact info at bottom).
 
 ### Videos
 
 None of this is polished or anything.
 
-* [First overview and REPL demo](https://www.youtube.com/watch?v=btCLcFLvV2I). For this video it's best if you know the game pretty well.
-* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90). This one was for an audience of more hardcore software people, and I tried to make it a little more understandable for those who aren't experts in the game already.
+* [Aug 2023 demo](https://youtu.be/xaUOMUaWG7Q). This video is the most current. It's best for software type people who are also familiar with the game.
+* [First overview and REPL demo](https://www.youtube.com/watch?v=btCLcFLvV2I). This also assumes some familiarity with the game, and also includes a demo, but it also has some introductory slides that explain a few things better. The demo part is somewhat outdated.
+* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90). A presentation I gave April 2023 for an audience of more hardcore software people. Tried to make it a little more understandable for those who aren't experts in the game already.
 * [Watch as I "log" a real game](https://youtu.be/se8svQH-GOE) (I explain a bunch of stuff, but it's long; watch on high-speed). 
 * [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me add a brand new card (Supercapacitors) to Solarnet in about a half hour.
 
@@ -82,10 +83,10 @@ Just breeze past all the things that don't make sense. Some of it will!
 
 If you can generate the docs (clone, `./gradlew dokkaHtmlMultiModule`, then look at `docs/api/index.html`) that would be the ideal way to start.
 
-I wrote it in [Kotlin](https://kotlinlang.org) because that makes the library usable from Java, JavaScript, and some other environments. There might be nontrivial effort involved to make that happen, but the point is that it wouldn't require porting the whole thing manually. That's pretty cool...
+I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thing usable from Java, JavaScript, and some other environments as well. Getting those working might not be trivial (?) but at least won't require a port.
 
 ## Who are you
 
 http://kevinb9n.github.io
 
-I'd be happy to hear from you at kevinb9n@gmail.com.
+I'd be more than glad to hear from you at kevinb9n@gmail.com.
