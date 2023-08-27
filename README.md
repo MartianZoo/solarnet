@@ -50,7 +50,7 @@ But in these early days, you're unlikely to get far on your own. I want to impro
 
 ### Join the discord
 
-[This invite](https://discord.com/invite/3vpKDktmde) should work (please let me know if it doesn't, contact info at bottom).
+Please do. [This invite](https://discord.gg/KruKmJfPY) should work until Sept 25...
 
 ### Videos
 
