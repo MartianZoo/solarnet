@@ -33,7 +33,7 @@
 
 ## Play around with it?
 
-You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.com/invite/3vpKDktmde) and ask lots of questions. Almost no one but me has tried to do much with it yet. It won't be self-explanatory (sorry).
+You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.gg/8tX5g4Yx3T) and ask lots of questions. Almost no one but me has tried to do much with it yet. It won't be self-explanatory (sorry).
 
 It is *supposed* to be as simple to get going as:
 
@@ -50,7 +50,7 @@ But in these early days, you're unlikely to get far on your own. I want to impro
 
 ### Join the discord
 
-Please do. [This invite](https://discord.gg/KruKmJfPY) should work until Sept 25...
+Please do. [This invite](https://discord.gg/8tX5g4Yx3T) should work...
 
 ### Videos
 
