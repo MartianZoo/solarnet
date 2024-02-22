@@ -73,7 +73,7 @@ private class ReplSessionTest {
           become P1; turn; tfm_play Manutech; task 5 BuyCard
           become P2; turn; tfm_play Factorum; task 4 BuyCard
 
-          as Engine phase Prelude
+          phase Prelude
 
           become P1
           turn; tfm_play NewPartner; tfm_play UnmiContractor
@@ -83,7 +83,7 @@ private class ReplSessionTest {
           turn; tfm_play AcquiredSpaceAgency
           turn; tfm_play IoResearchOutpost
 
-          as Engine phase Action
+          phase Action
 
           become P1
           turn; task UseAction1<PlayCardSA>; tfm_play InventorsGuild; tfm_pay 9

@@ -18,11 +18,7 @@ sealed class Access {
   abstract fun phase(phase: String): TaskResult
 
   internal fun doPhase(gameplay: OperationLayer, phase: String): TaskResult =
-      if (gameplay.player == ENGINE) {
-        gameplay.beginManual("${phase}Phase FROM Phase")
-      } else {
-        throw UsageException("Only Engine can do this")
-      }
+      gameplay.beginManual("${phase}Phase FROM Phase")
 
   open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
