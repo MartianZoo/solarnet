@@ -18,14 +18,14 @@ internal class TfmPayCommand(val repl: ReplSession) : ReplCommand("tfm_pay") {
   override fun withArgs(args: String): List<String> {
     val gains: List<Instruction> = Instruction.split(Parsing.parse(args)).instructions
 
-    val ins =
-        Multi.create(
+    val ins: List<String> =
             gains.map {
               val sex = (it as Gain).scaledEx
               val currency = sex.expression
               val pay = ClassName.cn("Pay").of(CLASS.of(currency))
-              Transmute(SimpleFrom(pay, currency), sex.scalar)
-            })
-    return TaskCommand(repl).withArgs(ins.toString())
+              Transmute(SimpleFrom(pay, currency), sex.scalar).toString()
+            }
+    val cmd = TaskCommand(repl)
+    return ins.flatMap { cmd.withArgs(it) }
   }
 }
