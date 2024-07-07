@@ -77,6 +77,8 @@ I haven't written too much yet. There are too many things I could write down nex
 
 Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) how the game components are defined?
 
+The cards are also here in [spreadsheet form](https://docs.google.com/spreadsheets/d/1A3Gt_X_0Y-6DodJNJN1C2pvy75zOnVEJgQN-dGITKDk/edit?usp=sharing) which can be easier to read.
+
 Just breeze past all the things that don't make sense. Some of it will!
 
 ### Poke around in the implementation?
