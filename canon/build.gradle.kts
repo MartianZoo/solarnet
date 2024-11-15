@@ -1,7 +1,7 @@
 import java.net.URL
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.8.0"
+  id("org.jetbrains.kotlin.jvm") version "1.9.21"
   id("org.jetbrains.dokka") version "1.7.10"
 }
 
@@ -10,8 +10,8 @@ kotlin { jvmToolchain(11) }
 dependencies {
   implementation(project(":pets"))
 
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.21"))
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.21")
 
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")

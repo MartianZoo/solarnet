@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.net.URL
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.8.0"
+  id("org.jetbrains.kotlin.jvm") version "1.9.21"
   id("com.github.johnrengelman.shadow") version "7.1.2"
   id("org.jetbrains.dokka") version "1.7.10"
   `java-library`
@@ -11,8 +11,8 @@ plugins {
 kotlin { jvmToolchain(11) }
 
 dependencies {
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.21"))
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.21")
 
   implementation("org.jline:jline:3.21.0")
 

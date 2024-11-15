@@ -3,7 +3,7 @@ import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.8.0"
+  id("org.jetbrains.kotlin.jvm") version "1.9.21"
   id("org.jetbrains.dokka") version "1.7.10"
 }
 
@@ -43,3 +43,4 @@ tasks.dokkaHtmlMultiModule {
 dependencies {
   implementation(kotlin("stdlib"))
 }
+
