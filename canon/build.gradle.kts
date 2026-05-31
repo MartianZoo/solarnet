@@ -1,20 +1,20 @@
 import java.net.URL
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.9.21"
-  id("org.jetbrains.dokka") version "1.7.10"
+  id("org.jetbrains.kotlin.jvm") version "2.1.20"
+  id("org.jetbrains.dokka") version "1.9.20"
 }
 
-kotlin { jvmToolchain(11) }
+kotlin { jvmToolchain(21) }
 
 dependencies {
   implementation(project(":pets"))
 
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.21"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.21")
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.1.20"))
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20")
 
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
-  testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testImplementation("com.google.truth:truth:1.1.3")
 
   testImplementation(project(mapOf("path" to ":engine")))

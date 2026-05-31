@@ -3,8 +3,8 @@ import org.jetbrains.dokka.DokkaConfiguration.Visibility
 import org.jetbrains.dokka.gradle.DokkaTaskPartial
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.9.21"
-  id("org.jetbrains.dokka") version "1.7.10"
+  id("org.jetbrains.kotlin.jvm") version "2.1.20"
+  id("org.jetbrains.dokka") version "1.9.20"
 }
 
 repositories { mavenCentral() }
@@ -18,7 +18,7 @@ subprojects {
     dokkaSourceSets.configureEach {
       displayName.set("Solarnet/Pets")
       documentedVisibilities.set(setOf(Visibility.PUBLIC, Visibility.PROTECTED))
-      jdkVersion.set(17)
+      jdkVersion.set(21)
       skipEmptyPackages.set(true)
       suppressInheritedMembers.set(true)
     }

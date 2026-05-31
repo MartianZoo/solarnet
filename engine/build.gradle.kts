@@ -1,24 +1,24 @@
 import java.net.URL
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.9.21"
-  id("org.jetbrains.dokka") version "1.7.10"
+  id("org.jetbrains.kotlin.jvm") version "2.1.20"
+  id("org.jetbrains.dokka") version "1.9.20"
   kotlin("kapt")
   `java-library`
 }
 
-kotlin { jvmToolchain(11) }
+kotlin { jvmToolchain(21) }
 
 dependencies {
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.21"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.21")
-  implementation("com.google.dagger:dagger:2.46.1")
-  kapt("com.google.dagger:dagger-compiler:2.46.1")
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.1.20"))
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20")
+  implementation("com.google.dagger:dagger:2.55")
+  kapt("com.google.dagger:dagger-compiler:2.55")
 
-  testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testImplementation("com.google.truth:truth:1.1.3")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
-  kaptTest("com.google.dagger:dagger-compiler:2.46.1")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
+  kaptTest("com.google.dagger:dagger-compiler:2.55")
 
   implementation(project(":pets"))
 
@@ -38,4 +38,3 @@ tasks.dokkaHtml.configure {
     }
   }
 }
-
