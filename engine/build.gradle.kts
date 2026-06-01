@@ -1,8 +1,8 @@
 import java.net.URL
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "2.1.20"
-  id("org.jetbrains.dokka") version "1.9.20"
+  id("org.jetbrains.kotlin.jvm")
+  id("org.jetbrains.dokka")
   id("com.google.devtools.ksp") version "2.1.20-1.0.32"
   `java-library`
 }
@@ -10,8 +10,6 @@ plugins {
 kotlin { jvmToolchain(21) }
 
 dependencies {
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.1.20"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20")
   implementation("com.google.dagger:dagger:2.55")
   ksp("com.google.dagger:dagger-compiler:2.55")
 

@@ -1,16 +1,13 @@
 import java.net.URL
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "2.1.20"
-  id("org.jetbrains.dokka") version "1.9.20"
+  id("org.jetbrains.kotlin.jvm")
+  id("org.jetbrains.dokka")
 }
 
 kotlin { jvmToolchain(21) }
 
 dependencies {
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.1.20"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20")
-
   implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
   implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
 

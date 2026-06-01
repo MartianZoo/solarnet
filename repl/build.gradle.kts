@@ -2,18 +2,15 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.net.URL
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "2.1.20"
+  id("org.jetbrains.kotlin.jvm")
   id("com.github.johnrengelman.shadow") version "8.1.1"
-  id("org.jetbrains.dokka") version "1.9.20"
+  id("org.jetbrains.dokka")
   `java-library`
 }
 
 kotlin { jvmToolchain(21) }
 
 dependencies {
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.1.20"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.20")
-
   implementation("org.jline:jline:3.21.0")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
