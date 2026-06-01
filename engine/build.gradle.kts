@@ -7,8 +7,6 @@ plugins {
   `java-library`
 }
 
-kotlin { jvmToolchain(21) }
-
 dependencies {
   implementation("com.google.dagger:dagger:2.55")
   ksp("com.google.dagger:dagger-compiler:2.55")
@@ -21,7 +19,6 @@ dependencies {
   implementation(project(":pets"))
 
   testImplementation(project(":canon")) // easiest to test the engine this way
-  testImplementation(project(":pets")) // eep
 }
 
 tasks.dokkaHtml.configure {

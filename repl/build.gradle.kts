@@ -8,8 +8,6 @@ plugins {
   `java-library`
 }
 
-kotlin { jvmToolchain(21) }
-
 dependencies {
   implementation("org.jline:jline:3.21.0")
 
@@ -21,8 +19,6 @@ dependencies {
   implementation(project(":engine"))
   implementation(project(":canon"))
 
-  testImplementation(project(":canon"))
-  testImplementation(project(":pets"))
 }
 
 tasks.dokkaHtml.configure {

@@ -5,8 +5,6 @@ plugins {
   id("org.jetbrains.dokka")
 }
 
-kotlin { jvmToolchain(21) }
-
 dependencies {
   implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
   implementation("com.squareup.moshi:moshi-kotlin:1.14.0")

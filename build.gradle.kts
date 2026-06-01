@@ -24,6 +24,12 @@ subprojects {
     }
   }
 
+  pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+    extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+      jvmToolchain(21)
+    }
+  }
+
   tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
@@ -38,9 +44,5 @@ tasks.dokkaHtmlMultiModule {
   moduleName.set("Solarnet/Pets")
   outputDirectory.set(rootProject.file("docs/api"))
   includes.from("docs/packages.md")
-}
-
-dependencies {
-  implementation(kotlin("stdlib"))
 }
 

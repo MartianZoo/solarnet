@@ -5,8 +5,6 @@ plugins {
   id("org.jetbrains.dokka")
 }
 
-kotlin { jvmToolchain(21) }
-
 dependencies {
   implementation(project(":pets"))
 
@@ -14,8 +12,8 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testImplementation("com.google.truth:truth:1.1.3")
 
-  testImplementation(project(mapOf("path" to ":engine")))
-  testImplementation(project(mapOf("path" to ":repl")))
+  testImplementation(project(":engine"))
+  testImplementation(project(":repl"))
 }
 
 sourceSets {
