@@ -138,6 +138,7 @@ public sealed class Instruction : PetElement() {
     }
   }
 
+  @ExposedCopyVisibility
   public data class Gain
   internal constructor(
       val scaledEx: ScaledExpression,

@@ -21,8 +21,7 @@ import dev.martianzoo.pets.ast.Requirement
  * The information provided here is not very "cooked"; that cooking happens in
  * `dev.martianzoo.types`.
  */
-public data class ClassDeclaration
-internal constructor(
+public data class ClassDeclaration(
     /**
      * The primary name for the class, as an upper camel case word. Class declarations having the
      * same [className] or [shortName] can't be used together in the same game.

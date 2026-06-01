@@ -48,6 +48,7 @@ public data class Effect(
       override fun toString() = "-This"
     }
 
+    @ConsistentCopyVisibility
     data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {
@@ -67,6 +68,7 @@ public data class Effect(
       override fun toString() = "$expression"
     }
 
+    @ConsistentCopyVisibility
     data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {

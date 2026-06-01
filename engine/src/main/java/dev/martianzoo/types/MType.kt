@@ -22,8 +22,7 @@ import dev.martianzoo.util.Reifiable
  * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
  * state.
  */
-public data class MType
-internal constructor(
+public data class MType(
     val root: MClass,
     val dependencies: DependencySet,
     override val refinement: Refinement? = null,

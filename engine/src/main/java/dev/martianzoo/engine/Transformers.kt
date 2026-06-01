@@ -138,7 +138,6 @@ internal class Transformers @Inject constructor(val classes: MClassTable) {
                       }
                   Transmute(fixedFrom, node.count, intensity)
                 }
-                else -> error("what?")
               }
 
           @Suppress("UNCHECKED_CAST")
