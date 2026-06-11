@@ -31,6 +31,8 @@
 
 * It's **not polished enough** for anyone to "just use" -- not even close! But if you're intrepid I could really use your help to *get* it into that state. If you're not in a "roll up your sleeves, dig in, ask questions" mode, you *will* find it frustrating. Sorry!
 
+* NO IT IS NOT VIBE CODED. :-) Sorry, I get defensive. This whole thing was made by hand. Now I am experimenting with Claude's help in small ways. The only code I commit is code that I personally understand and vouch for.
+
 ## Play around with it?
 
 You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.gg/8tX5g4Yx3T) and ask lots of questions. Almost no one but me has tried to do much with it yet. It won't be self-explanatory (sorry).
