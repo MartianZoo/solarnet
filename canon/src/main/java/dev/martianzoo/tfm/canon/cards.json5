@@ -3105,6 +3105,7 @@
       "bundle": "P",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
+      "requirement": "MAX 5 TemperatureStep",
       "actions": [ "-> Microbe<This>" ],
       "effects": [
         "PlayTag<Class<PlantTag>>: X PayCardResource<This>?",
@@ -4030,7 +4031,7 @@
       "deck": "PROJECT",
       "tags": [ "EarthTag", "EarthTag" ],
       "immediate": "PROD[2]",
-      "requirement": "2 EarthTag",
+      "requirement": "3 EarthTag",
       "cost": 4,
       "projectKind": "AUTOMATED"
     },
@@ -4461,6 +4462,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
+      "requirement": "2 ScienceTag",
       "effects": [ "Pay<Class<Titanium>>:: -Owed" ],
       "cost": 3,
       "projectKind": "ACTIVE"

@@ -179,7 +179,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [ "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed" ],
-      "cost": 11,
+      "cost": 12,
       "projectKind": "ACTIVE"
     },
 
