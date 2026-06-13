@@ -2,13 +2,11 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Player
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.PlayerComponent
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
-import javax.inject.Inject
 
 /**
  * The mutable state of a game in progress. This state is the aggregation of three mutable child
@@ -21,10 +19,7 @@ import javax.inject.Inject
  * The component graph can be queried programmatically, but a [GameReader] is also provided which
  * can answer queries expressed as a Pets [Metric] or [Requirement].
  */
-@GameScoped
-public class Game
-@Inject
-internal constructor(
+public class Game internal constructor(
     /** The current state of the "board". */
     public val components: ComponentGraph,
 

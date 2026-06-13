@@ -8,13 +8,9 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.ChangeLogger
-import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.engine.Engine.Updater
-import javax.inject.Inject
 
-@PlayerScoped
 internal class Changer
-@Inject
 constructor(
     private val reader: GameReader,
     private val updater: Updater,

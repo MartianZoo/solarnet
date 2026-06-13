@@ -4,15 +4,12 @@ import dev.martianzoo.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.Updater
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
-import javax.inject.Inject
 
-@GameScoped
-internal class WritableComponentGraph @Inject constructor(private val effector: Effector) :
+internal class WritableComponentGraph constructor(private val effector: Effector) :
     ComponentGraph, Updater {
 
   private val multiset: HashMultiset<Component> = HashMultiset()

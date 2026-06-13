@@ -5,18 +5,14 @@ import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.TaskEvent
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.Updater
 import dev.martianzoo.engine.Timeline.Checkpoint
-import javax.inject.Inject
 
 /**
  * Supports checkpoints and rollbacks to those checkpoints (and thereby, failure-atomic
  * interactions).
  */
-@GameScoped
 internal class TimelineImpl
-@Inject
 constructor(
     private val reader: GameReader,
     private val updater: Updater,

@@ -1,8 +1,5 @@
 package dev.martianzoo.engine
 
-import dagger.Module
-import dagger.Provides
-import dagger.Subcomponent
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
@@ -16,62 +13,64 @@ import dev.martianzoo.data.Task
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.MClassTable
-import javax.inject.Scope
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.scopedOf
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
+import org.koin.dsl.koinApplication
+import org.koin.dsl.module
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
   /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
   public fun newGame(setup: GameSetup): Game {
-    val component = DaggerEngine_GameComponent.builder().gameModule(GameModule(setup)).build()
+    val koin = koinApplication { modules(gameModule(setup)) }.koin
 
-    val pcs = setup.players().associateWith { component.player(PlayerModule(it)) }
-    pcs[ENGINE]!!.initter.initialize()
-
-    component.game.playerComponents = pcs
-    return component.game
+    val game = koin.get<Game>()
+    val playerComponents = setup.players().associateWith { player ->
+      val scope = koin.createScope<PlayerScopeId>("$player")
+      scope.declare(player)
+      scope.get<PlayerComponent>()
+    }
+    playerComponents[ENGINE]!!.initter.initialize()
+    game.playerComponents = playerComponents
+    return game
   }
 
-  @Scope internal annotation class GameScoped
-  @Scope internal annotation class PlayerScoped
+  private class PlayerScopeId
 
-  @GameScoped
-  @dagger.Component(modules = [GameModule::class])
-  internal interface GameComponent {
-    val game: Game
-    val classes: MClassTable
-    fun player(module: PlayerModule): PlayerComponent
+  private fun gameModule(setup: GameSetup) = module {
+    single { setup }
+    single { MClassLoader(setup) } bind MClassTable::class
+    single { Effector { get<GameReaderImpl>() } }
+    singleOf(::WritableEventLog) {
+      bind<EventLog>()
+      bind<TaskListener>()
+      bind<ChangeLogger>()
+    }
+    singleOf(::WritableComponentGraph) {
+      bind<ComponentGraph>()
+      bind<Updater>()
+    }
+    singleOf(::WritableTaskQueue) { bind<TaskQueue>() }
+    singleOf(::Transformers)
+    singleOf(::GameReaderImpl) { bind<GameReader>() }
+    singleOf(::TimelineImpl) { bind<Timeline>() }
+    singleOf(::Limiter)
+    singleOf(::Game)
+
+    scope<PlayerScopeId> {
+      scopedOf(::Changer)
+      scoped { Instructor(get(), get(), get(), get(), get()) } // Changer? and Effector? are nullable
+      scopedOf(::Implementations)
+      scopedOf(::ApiTranslation) { bind<Gameplay>() }
+      scopedOf(::Initializer)
+      scopedOf(::PlayerComponent)
+    }
   }
 
-  @Module
-  internal class GameModule(private val setup: GameSetup) {
-    @Provides fun setup(): GameSetup = setup
-    @Provides fun table(x: MClassLoader): MClassTable = x
-    @Provides fun components(x: WritableComponentGraph): ComponentGraph = x
-    @Provides fun updater(x: WritableComponentGraph): Updater = x
-    @Provides fun tasks(x: WritableTaskQueue): TaskQueue = x
-    @Provides fun events(x: WritableEventLog): EventLog = x
-    @Provides fun changelog(x: WritableEventLog): ChangeLogger = x
-    @Provides fun listener(x: WritableEventLog): TaskListener = x
-    @Provides fun reader(x: GameReaderImpl): GameReader = x
-    @Provides fun timeline(x: TimelineImpl): Timeline = x
-  }
-
-  @PlayerScoped
-  @Subcomponent(modules = [PlayerModule::class])
-  internal interface PlayerComponent {
-    val gameplay: Gameplay
-    val initter: Initializer // only used for Engine
-  }
-
-  @Module
-  internal class PlayerModule(private val player: Player) {
-    @Provides fun player(): Player = player
-    @Provides fun gameplay(x: ApiTranslation): Gameplay = x
-  }
-
-  // Some minor helper interfaces... many classes just need one small part of another class's
-  // functionality, and I wanted to try to expose less.
+  internal data class PlayerComponent(val gameplay: Gameplay, val initter: Initializer)
 
   internal interface ChangeLogger {
     fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent

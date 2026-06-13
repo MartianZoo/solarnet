@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
@@ -27,10 +26,8 @@ import dev.martianzoo.types.DependencySet
 import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
-import javax.inject.Inject
 
-@GameScoped
-internal class Transformers @Inject constructor(val classes: MClassTable) {
+internal class Transformers constructor(val classes: MClassTable) {
 
   public fun useFullNames() =
       object : PetTransformer() {

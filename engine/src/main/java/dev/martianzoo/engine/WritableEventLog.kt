@@ -12,13 +12,10 @@ import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine.ChangeLogger
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.TaskListener
 import dev.martianzoo.engine.Timeline.Checkpoint
-import javax.inject.Inject
 
-@GameScoped
-internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, ChangeLogger {
+internal class WritableEventLog constructor() : EventLog, TaskListener, ChangeLogger {
   private val events: MutableList<GameEvent> = mutableListOf()
   internal val size: Int by events::size
 

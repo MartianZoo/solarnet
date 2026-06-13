@@ -14,7 +14,6 @@ import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Task
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -33,13 +32,10 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
-import javax.inject.Inject
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-@PlayerScoped
 internal class Instructor
-@Inject
 constructor(
     private val reader: GameReader,
     private val limiter: Limiter,

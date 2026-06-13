@@ -14,17 +14,13 @@ import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import javax.inject.Inject
 
-@PlayerScoped
 internal class Implementations
-@Inject
 constructor(
     private val tasks: WritableTaskQueue,
     private val reader: GameReader,

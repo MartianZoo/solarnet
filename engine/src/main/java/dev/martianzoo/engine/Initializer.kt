@@ -2,14 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player.Companion.ENGINE
-import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
-import javax.inject.Inject
 
-@PlayerScoped
 internal class Initializer
-@Inject
 constructor(
     private val gameplay: Gameplay,
     private val classes: MClassTable,

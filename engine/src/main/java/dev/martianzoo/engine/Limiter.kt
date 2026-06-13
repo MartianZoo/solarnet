@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
 import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
@@ -13,12 +12,9 @@ import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
-import javax.inject.Inject
 import kotlin.Int.Companion.MAX_VALUE
 
-@GameScoped
 internal class Limiter
-@Inject
 constructor(private val classes: MClassTable, private val components: ComponentGraph) {
   // visible for testing
   internal val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {

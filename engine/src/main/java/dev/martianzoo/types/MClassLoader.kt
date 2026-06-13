@@ -9,7 +9,6 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
@@ -18,14 +17,12 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.GameSetup
-import javax.inject.Inject
 
 /**
  * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.allSubclasses] to work.
  */
-@GameScoped
 internal class MClassLoader(
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class
@@ -33,7 +30,7 @@ internal class MClassLoader(
      */
     override val authority: Authority,
 ) : MClassTable() {
-  @Inject
+ 
   constructor(setup: GameSetup) : this(setup.authority) {
     fun isAutoLoad(c: ClassDeclaration): Boolean =
         c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }

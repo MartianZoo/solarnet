@@ -4,7 +4,6 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
@@ -20,12 +19,9 @@ import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.types.MClassTable
-import javax.inject.Inject
 import kotlin.math.min
 
-@GameScoped
 internal class GameReaderImpl
-@Inject
 constructor(
     private val classes: MClassTable,
     private val components: ComponentGraph,

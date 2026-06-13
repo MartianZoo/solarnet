@@ -7,7 +7,6 @@ import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -27,12 +26,8 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
-import javax.inject.Inject
-import javax.inject.Provider
-
-@GameScoped
-internal class Effector @Inject constructor(reader: Provider<GameReader>?) {
-  private val reader: GameReader by lazy { reader!!.get() }
+internal class Effector(readerProvider: (() -> GameReader)? = null) {
+  private val reader: GameReader by lazy { readerProvider!!() }
   private val registry = HashMultiset<ActiveEffect>()
 
   private val effects = mutableMapOf<Component, List<ActiveEffect>>()

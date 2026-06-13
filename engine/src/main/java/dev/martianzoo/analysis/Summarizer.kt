@@ -7,9 +7,8 @@ import dev.martianzoo.engine.EventLog
 import dev.martianzoo.engine.Game
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
-import javax.inject.Inject
 
-public class Summarizer @Inject constructor(val events: EventLog, val reader: GameReader) {
+public class Summarizer constructor(val events: EventLog, val reader: GameReader) {
   constructor(game: Game) : this(game.events, game.reader)
 
   fun net(byType: String, ofType: String): Int = net(parse<Expression>(byType), parse(ofType))

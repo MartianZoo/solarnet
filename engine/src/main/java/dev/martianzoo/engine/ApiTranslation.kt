@@ -7,7 +7,6 @@ import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.engine.Gameplay.OperationBody
@@ -23,16 +22,13 @@ import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
-import javax.inject.Inject
 import kotlin.reflect.KClass
 
 /**
  * An experiment in having a "generatable" class do the work of both parsing strings to PetElements,
  * adding atomicity, and producing TaskResults.
  */
-@PlayerScoped
 internal class ApiTranslation
-@Inject
 constructor(
     override val player: Player,
     private val reader: GameReader,

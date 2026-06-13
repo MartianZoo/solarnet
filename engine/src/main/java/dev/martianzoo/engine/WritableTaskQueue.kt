@@ -8,12 +8,10 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.TaskListener
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.InstructionGroup
 import dev.martianzoo.util.toSetStrict
-import javax.inject.Inject
 
 /**
  * ... With any change to the task queue, a set of normalizations is *always* applied. Here, the
@@ -31,8 +29,7 @@ import javax.inject.Inject
  * * A concrete task with [Task.next] set is guaranteed to execute successfully
  * * New tasks created have the same owner and cause as the original. Prepared tasks cannot be split
  */
-@GameScoped
-internal class WritableTaskQueue @Inject constructor(private val events: TaskListener) : TaskQueue {
+internal class WritableTaskQueue constructor(private val events: TaskListener) : TaskQueue {
   private val taskSet: MutableSet<Task> = mutableSetOf()
 
   // OVERRIDES / READ-ONLY OPERATIONS
