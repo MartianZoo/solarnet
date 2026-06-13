@@ -43,7 +43,7 @@ public object Engine {
   private fun gameModule(setup: GameSetup) = module {
     single { setup }
     single { MClassLoader(setup) } bind MClassTable::class
-    single { Effector { get<GameReaderImpl>() } }
+    single { Effector(lazy { get<GameReaderImpl>() }) }
     singleOf(::WritableEventLog) {
       bind<EventLog>()
       bind<TaskListener>()
