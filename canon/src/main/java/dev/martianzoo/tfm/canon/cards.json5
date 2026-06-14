@@ -806,7 +806,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "3 Plant OR 3 Microbe OR 3 Animal, OceanTile",
+      "immediate": "3 Plant OR 3 Microbe OR 2 Animal, OceanTile",
       "cost": 16,
       "projectKind": "EVENT"
     },
@@ -3675,7 +3675,7 @@
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [
         "-> Microbe<CardFront(HAS VenusTag)>",
-        "2 Microbe<This> -> VenusTag"
+        "2 Microbe<This> -> VenusStep"
       ],
       "resourceType": "Microbe",
       "requirement": "3 VenusStep",
