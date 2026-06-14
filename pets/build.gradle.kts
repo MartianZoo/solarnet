@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-  implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
+  implementation("com.github.kevinb9n:better-parse:cdf8a45")
   implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")

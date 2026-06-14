@@ -10,7 +10,10 @@ plugins {
 repositories { mavenCentral() }
 
 subprojects {
-  repositories { mavenCentral() }
+  repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+  }
 
   apply(plugin = "org.jetbrains.dokka")
 
