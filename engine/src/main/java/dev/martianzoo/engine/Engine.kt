@@ -70,7 +70,7 @@ public object Engine {
     }
   }
 
-  internal data class PlayerComponent(val gameplay: Gameplay, val initter: Initializer)
+  internal data class PlayerComponent(internal val gameplay: Gameplay, internal val initter: Initializer)
 
   internal interface ChangeLogger {
     fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent

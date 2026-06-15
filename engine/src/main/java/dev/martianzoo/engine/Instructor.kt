@@ -35,8 +35,7 @@ import dev.martianzoo.types.MType
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-internal class Instructor
-constructor(
+internal class Instructor(
     private val reader: GameReader,
     private val limiter: Limiter,
     private val changer: Changer?,
@@ -44,7 +43,7 @@ constructor(
     private val classes: MClassTable,
 ) {
 
-  fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
+  internal fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
     doExecute(instruction, cause, this)
   }
 
@@ -98,7 +97,7 @@ constructor(
    * * Prepares each option of an [Or]
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate] *
    */
-  fun prepare(unprepared: Instruction) = doPrepare(unprepared)
+  internal fun prepare(unprepared: Instruction) = doPrepare(unprepared)
 
   private fun doPrepare(unprepared: Instruction): Instruction {
     return when (unprepared) {

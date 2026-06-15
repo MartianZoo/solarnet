@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * [godMode] could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods
  * you don't need; see those interfaces for more explanation.
  */
-interface Gameplay {
+public interface Gameplay {
 
   // READ OPERATIONS
 
@@ -154,7 +154,7 @@ interface Gameplay {
     fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
   }
 
-  companion object {
+  public companion object {
     public inline fun <reified P : PetElement> Gameplay.parse(text: String): P =
         parseInternal(P::class, text)
   }

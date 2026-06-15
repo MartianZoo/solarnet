@@ -5,8 +5,7 @@ import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
 
-internal class Initializer
-constructor(
+internal class Initializer(
     private val gameplay: Gameplay,
     private val classes: MClassTable,
     private val timeline: TimelineImpl,
@@ -14,7 +13,7 @@ constructor(
     private val tasks: TaskQueue,
 ) {
   // Taking 14% of total solo game time
-  fun initialize() {
+  internal fun initialize() {
     var fakeCause: Cause? = null
 
     fun exec(instruction: String) {

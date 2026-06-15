@@ -9,14 +9,14 @@ import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
-internal class WritableComponentGraph constructor(private val effector: Effector) :
+internal class WritableComponentGraph(private val effector: Effector) :
     ComponentGraph, Updater {
 
   private val multiset: HashMultiset<Component> = HashMultiset()
 
-  override operator fun contains(component: Component) = component in multiset.elements
+  public override operator fun contains(component: Component) = component in multiset.elements
 
-  override fun count(parentType: MType, info: TypeInfo): Int {
+  public override fun count(parentType: MType, info: TypeInfo): Int {
     return if (parentType.className == COMPONENT) {
       multiset.size
     } else if (parentType.abstract) {
@@ -26,7 +26,7 @@ internal class WritableComponentGraph constructor(private val effector: Effector
     }
   }
 
-  override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
+  public override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
     return if (parentType.abstract) {
       multiset.elements.any { it.hasType(parentType, info) }
     } else {
@@ -34,9 +34,9 @@ internal class WritableComponentGraph constructor(private val effector: Effector
     }
   }
 
-  override fun countComponent(component: Component) = multiset.count(component)
+  public override fun countComponent(component: Component) = multiset.count(component)
 
-  override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
+  public override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
     return if (parentType.className == COMPONENT) {
       HashMultiset.of(multiset)
     } else if (parentType.abstract) {
@@ -47,7 +47,7 @@ internal class WritableComponentGraph constructor(private val effector: Effector
     }
   }
 
-  override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
+  public override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
     removing?.let { r ->
       checkDependents(count, r)
       multiset.mustRemove(r, count)

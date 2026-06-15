@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.data.TaskResult
 
-interface Timeline {
+public interface Timeline {
   fun checkpoint(): Checkpoint
   fun rollBack(checkpoint: Checkpoint)
 
@@ -17,6 +17,6 @@ interface Timeline {
     init {
       require(ordinal >= 0)
     }
-    override fun toString() = "$ordinal"
+    public override fun toString() = "$ordinal"
   }
 }

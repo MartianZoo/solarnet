@@ -12,17 +12,16 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  * Supports checkpoints and rollbacks to those checkpoints (and thereby, failure-atomic
  * interactions).
  */
-internal class TimelineImpl
-constructor(
+internal class TimelineImpl(
     private val reader: GameReader,
     private val updater: Updater,
     private val events: WritableEventLog,
     private val tasks: WritableTaskQueue,
 ) : Timeline {
 
-  override fun checkpoint() = Checkpoint(events.size)
+  public override fun checkpoint() = Checkpoint(events.size)
 
-  override fun rollBack(checkpoint: Checkpoint) {
+  public override fun rollBack(checkpoint: Checkpoint) {
 
     val ordinal = checkpoint.ordinal
     require(ordinal <= events.size)
@@ -47,7 +46,7 @@ constructor(
 
   internal class AbortOperationException : Exception()
 
-  override fun atomic(block: () -> Unit): TaskResult {
+  public override fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
     try {
       block()

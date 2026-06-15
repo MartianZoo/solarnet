@@ -27,9 +27,9 @@ import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 
-internal class Transformers constructor(val classes: MClassTable) {
+internal class Transformers(internal val classes: MClassTable) {
 
-  public fun useFullNames() =
+  internal fun useFullNames() =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is ClassName) {
@@ -41,7 +41,7 @@ internal class Transformers constructor(val classes: MClassTable) {
         }
       }
 
-  public fun atomizer(): PetTransformer {
+  internal fun atomizer(): PetTransformer {
     val atomized =
         try {
           classes.getClass(ATOMIZED)
@@ -83,12 +83,12 @@ internal class Transformers constructor(val classes: MClassTable) {
     }
   }
 
-  public fun insertDefaults() = insertDefaults(THIS.expression)
+  internal fun insertDefaults() = insertDefaults(THIS.expression)
 
-  public fun insertDefaults(context: Expression) =
+  internal fun insertDefaults(context: Expression) =
       chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
-  public fun insertGainRemoveDefaults(context: Expression): PetTransformer {
+  internal fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         val result: PetNode =
@@ -144,7 +144,7 @@ internal class Transformers constructor(val classes: MClassTable) {
     }
   }
 
-  public fun insertExpressionDefaults(context: Expression): PetTransformer {
+  internal fun insertExpressionDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         if (node !is Expression) return transformChildren(node)

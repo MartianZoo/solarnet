@@ -29,23 +29,23 @@ import dev.martianzoo.util.toSetStrict
  * * A concrete task with [Task.next] set is guaranteed to execute successfully
  * * New tasks created have the same owner and cause as the original. Prepared tasks cannot be split
  */
-internal class WritableTaskQueue constructor(private val events: TaskListener) : TaskQueue {
+internal class WritableTaskQueue(private val events: TaskListener) : TaskQueue {
   private val taskSet: MutableSet<Task> = mutableSetOf()
 
   // OVERRIDES / READ-ONLY OPERATIONS
 
-  override fun ids() = taskSet.toSetStrict { it.id }
+  public override fun ids() = taskSet.toSetStrict { it.id }
 
-  override fun contains(id: TaskId) = taskSet.any { it.id == id }
+  public override fun contains(id: TaskId) = taskSet.any { it.id == id }
 
-  override fun matching(predicate: (Task) -> Boolean) =
+  public override fun matching(predicate: (Task) -> Boolean) =
       taskSet.filter(predicate).toSetStrict { it.id }
 
-  override fun <T> extract(extractor: (Task) -> T) = taskSet.map(extractor)
+  public override fun <T> extract(extractor: (Task) -> T) = taskSet.map(extractor)
 
-  override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
+  public override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
 
-  fun getTaskData(id: TaskId) =
+  internal fun getTaskData(id: TaskId) =
       taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
 
   private fun nextAvailableId() =
@@ -113,5 +113,5 @@ internal class WritableTaskQueue constructor(private val events: TaskListener) :
     require(taskSet.remove(task))
   }
 
-  override fun toString() = taskSet.joinToString("\n")
+  public override fun toString() = taskSet.joinToString("\n")
 }

@@ -57,7 +57,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
     mtype.root.classEffects.map(classEffectTransformer::transform)
   }
 
-  fun hasType(supertype: Type, info: TypeInfo? = null) =
+  public fun hasType(supertype: Type, info: TypeInfo? = null) =
       info?.let { mtype.narrows(supertype, it) } ?: mtype.narrows(supertype)
 
   private val customOutputTransformer =
@@ -65,18 +65,18 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
         chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
       }
 
-  fun prepareCustom(reader: GameReader): Instruction {
+  public fun prepareCustom(reader: GameReader): Instruction {
     val translated = mtype.root.custom!!.prepare(reader, mtype)
     return customOutputTransformer.transform(translated)
   }
 
-  override fun equals(other: Any?) = other is Component && other.mtype == mtype
+  public override fun equals(other: Any?) = other is Component && other.mtype == mtype
 
-  override fun hashCode() = mtype.hashCode()
+  public override fun hashCode() = mtype.hashCode()
 
-  override fun toString() = "$mtype"
+  public override fun toString() = "$mtype"
 
-  companion object {
+  public companion object {
     public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)
     public fun HasExpression.toComponent(game: GameReader) =
         this as? Component ?: expression.toComponent(game)

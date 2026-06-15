@@ -26,6 +26,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
+
 internal class Effector(readerProvider: Lazy<GameReader>? = null) {
   private val reader: GameReader by lazy { readerProvider!!.value }
   private val registry = HashMultiset<ActiveEffect>()
@@ -46,7 +47,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     return effects.computeIfAbsent(component) { it.effects.map(::activeEffect) }
   }
 
-  fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
+  internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
       fireSelfEffects(triggerEvent, automatic) + fireOtherEffects(triggerEvent, automatic)
 
   private fun fireSelfEffects(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =

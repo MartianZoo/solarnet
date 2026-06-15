@@ -15,21 +15,21 @@ import dev.martianzoo.engine.Engine.ChangeLogger
 import dev.martianzoo.engine.Engine.TaskListener
 import dev.martianzoo.engine.Timeline.Checkpoint
 
-internal class WritableEventLog constructor() : EventLog, TaskListener, ChangeLogger {
+internal class WritableEventLog() : EventLog, TaskListener, ChangeLogger {
   private val events: MutableList<GameEvent> = mutableListOf()
   internal val size: Int by events::size
 
   internal fun eventsToRollBack(ordinal: Int) = events.subList(ordinal, events.size)
 
-  override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
+  public override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
-  override fun changesSinceSetup() = changesSince(start)
+  public override fun changesSinceSetup() = changesSince(start)
 
-  override fun entriesSinceSetup() = entriesSince(start)
+  public override fun entriesSinceSetup() = entriesSince(start)
 
   // we don't treat a replacement task as new...
-  override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> = buildSet {
+  public override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> = buildSet {
     entriesSince(checkpoint).forEach {
       when (it) {
         is TaskAddedEvent -> add(it.task.id)
@@ -39,33 +39,33 @@ internal class WritableEventLog constructor() : EventLog, TaskListener, ChangeLo
     }
   }
 
-  override fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
+  public override fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
       events.subList(checkpoint.ordinal, size).toList()
 
-  override fun activitySince(checkpoint: Checkpoint) =
+  public override fun activitySince(checkpoint: Checkpoint) =
       TaskResult(changesSince(checkpoint), newTasksSince(checkpoint))
 
-  fun <E : GameEvent> addEntry(entry: E): E {
+  internal fun <E : GameEvent> addEntry(entry: E): E {
     require(entry.ordinal == size)
     events += entry
     return entry
   }
 
-  override fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
+  public override fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
       addEntry(ChangeEvent(size, player, change, cause))
 
-  override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
+  public override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
-  override fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
+  public override fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  override fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
+  public override fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
     require(oldTask.id == newTask.id)
     return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
   }
 
   private lateinit var start: Checkpoint
 
-  fun setStartPoint() {
+  internal fun setStartPoint() {
     start = Checkpoint(size)
   }
 }

@@ -10,15 +10,14 @@ import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.ChangeLogger
 import dev.martianzoo.engine.Engine.Updater
 
-internal class Changer
-constructor(
+internal class Changer(
     private val reader: GameReader,
     private val updater: Updater,
     private val changeLog: ChangeLogger,
     private val player: Player,
 ) {
 
-  fun change(
+  internal fun change(
       count: Int,
       gaining: Component?,
       removing: Component?,

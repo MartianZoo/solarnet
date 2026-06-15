@@ -14,8 +14,7 @@ import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import kotlin.Int.Companion.MAX_VALUE
 
-internal class Limiter
-constructor(private val classes: MClassTable, private val components: ComponentGraph) {
+internal class Limiter(private val classes: MClassTable, private val components: ComponentGraph) {
   // visible for testing
   internal val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {
     val multimap = mutableMapOf<MClass, MutableList<RangeRestriction>>()
@@ -49,7 +48,7 @@ constructor(private val classes: MClassTable, private val components: ComponentG
     }
   }
 
-  fun findLimit(gaining: Component?, removing: Component?): Int {
+  internal fun findLimit(gaining: Component?, removing: Component?): Int {
     if (gaining != null) {
       val missingDeps = gaining.dependencyComponents.filter { it !in components }
       if (missingDeps.any()) throw DependencyException(missingDeps.map { it.type })
@@ -70,7 +69,7 @@ constructor(private val classes: MClassTable, private val components: ComponentG
     return (headroom + footroom).minOrNull() ?: MAX_VALUE
   }
 
-  fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
+  internal fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
     val mtype = component?.type?.let { classes.resolve(it) } ?: return setOf()
     val allRestrictions = rangeRestrictionsByClass[mtype.root] ?: listOf()
     val ourRestrictions =
@@ -82,18 +81,18 @@ constructor(private val classes: MClassTable, private val components: ComponentG
   }
 
   internal sealed class RangeRestriction {
-    abstract val range: IntRange
-    abstract val mclass: MClass
+    internal abstract val range: IntRange
+    internal abstract val mclass: MClass
 
     internal abstract fun bindThisTo(mtype: MType): SimpleRangeRestriction
 
-    internal data class SimpleRangeRestriction(val mtype: MType, override val range: IntRange) :
+    internal data class SimpleRangeRestriction(internal val mtype: MType, internal override val range: IntRange) :
         RangeRestriction() {
-      override val mclass = mtype.root
+      internal override val mclass = mtype.root
 
-      override fun bindThisTo(mtype: MType) = this
+      internal override fun bindThisTo(mtype: MType) = this
 
-      override fun toString() = buildString {
+      public override fun toString() = buildString {
         append(mtype.expression)
         append(" ")
         append(range.first)
@@ -104,15 +103,15 @@ constructor(private val classes: MClassTable, private val components: ComponentG
 
     internal data class UnboundRangeRestriction(
         private val expression: Expression,
-        override val mclass: MClass,
-        override val range: IntRange
+        internal override val mclass: MClass,
+        internal override val range: IntRange
     ) : RangeRestriction() {
-      override fun bindThisTo(mtype: MType): SimpleRangeRestriction {
+      internal override fun bindThisTo(mtype: MType): SimpleRangeRestriction {
         val expr = replaceThisExpressionsWith(mtype.expression).transform(expression)
         return SimpleRangeRestriction(mclass.loader.resolve(expr), range)
       }
 
-      override fun toString() = "$expression $mclass $range"
+      public override fun toString() = "$expression $mclass $range"
     }
   }
 }

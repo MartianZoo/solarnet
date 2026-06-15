@@ -20,8 +20,7 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
-internal class Implementations
-constructor(
+internal class Implementations(
     private val tasks: WritableTaskQueue,
     private val reader: GameReader,
     private val timeline: Timeline,
@@ -32,7 +31,7 @@ constructor(
 
   // CHANGES LAYER
 
-  fun sneak(changes: Instruction, cause: Cause? = null) {
+  internal fun sneak(changes: Instruction, cause: Cause? = null) {
     split(changes).map {
       val count = (it as Change).count as ActualScalar
       changer.change(
@@ -47,34 +46,34 @@ constructor(
 
   // TASKS LAYER
 
-  fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskId> {
+  internal fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskId> {
     val prepped = split(instruction)
     return tasks.addTasks(prepped, player, firstCause).map { it.task.id }
   }
 
-  fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
+  internal fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
   // OPERATIONS LAYER
 
-  fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     require(tasks.isEmpty()) { tasks }
     addTasks(initialInstruction).forEach(::doTask)
     complete(autoExec, body)
   }
 
-  fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     require(tasks.isEmpty()) { tasks }
     addTasks(initialInstruction).forEach(::doTask)
     continueManual(autoExec, body)
   }
 
-  fun continueManual(autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun continueManual(autoExec: AutoExecMode, body: () -> Unit) {
     autoExecNow(autoExec)
     body()
     autoExecNow(autoExec)
   }
 
-  fun complete(autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun complete(autoExec: AutoExecMode, body: () -> Unit) {
     continueManual(autoExec, body)
     require(tasks.isEmpty()) {
       "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
@@ -83,7 +82,7 @@ constructor(
   }
 
   @Suppress("ControlFlowWithEmptyBody")
-  fun autoExecNow(mode: AutoExecMode) {
+  internal fun autoExecNow(mode: AutoExecMode) {
     while (autoExecNext(mode)) {}
   }
 
@@ -154,11 +153,11 @@ constructor(
 
   // TURNS LAYER
 
-  fun startTurn() = execute("NewTurn<$player>!")
+  internal fun startTurn() = execute("NewTurn<$player>!")
 
   // GAMES LAYER
 
-  fun reviseTask(taskId: TaskId, revised: Instruction) {
+  internal fun reviseTask(taskId: TaskId, revised: Instruction) {
     val task = tasks.getTaskData(taskId)
     if (player != task.owner) {
       throw TaskException("$player can't revise a task owned by ${task.owner}")
@@ -171,7 +170,7 @@ constructor(
     }
   }
 
-  fun canPrepareTask(taskId: TaskId): Boolean {
+  internal fun canPrepareTask(taskId: TaskId): Boolean {
     // TODO better way
     dontCutTheLine(taskId)
     val unprepared = tasks.getTaskData(taskId).instruction
@@ -183,7 +182,7 @@ constructor(
     }
   }
 
-  fun prepareTask(taskId: TaskId): TaskId? =
+  internal fun prepareTask(taskId: TaskId): TaskId? =
       doPrepare(tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
 
   private fun lookAheadForTrouble(taskId: TaskId) {
@@ -216,14 +215,14 @@ constructor(
     }
   }
 
-  fun doFirstTask(revised: Instruction? = null) {
+  internal fun doFirstTask(revised: Instruction? = null) {
     val id = tasks.ids().min()
     prepareTask(id)
     if (id in tasks && revised != null) reviseTask(id, revised)
     if (id in tasks) doTask(id)
   }
 
-  fun doTask(taskId: TaskId) {
+  internal fun doTask(taskId: TaskId) {
     val prepared = doPrepare(tasks.getTaskData(taskId)) ?: return
     val preparedTask = tasks.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
@@ -231,7 +230,7 @@ constructor(
     handleTask(taskId)
   }
 
-  fun doTask(revised: Instruction) {
+  internal fun doTask(revised: Instruction) {
     val id = matchingTask(revised)
     prepareTask(id)
     if (id in tasks) reviseTask(id, revised)
@@ -257,7 +256,7 @@ constructor(
         ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
   }
 
-  fun tryTask(id: TaskId) {
+  internal fun tryTask(id: TaskId) {
     try {
       timeline.atomic {
         prepareTask(id)
@@ -270,7 +269,7 @@ constructor(
     }
   }
 
-  fun tryTask(revised: Instruction) {
+  internal fun tryTask(revised: Instruction) {
     val id = matchingTask(revised)
     try {
       doTask(revised)
@@ -282,7 +281,7 @@ constructor(
   }
 
   // Similar to tryTask, but a NotNowException is unrecoverable in this case
-  fun tryPreparedTask(): Boolean /* did I do stuff? */ {
+  internal fun tryPreparedTask(): Boolean /* did I do stuff? */ {
     val taskId = tasks.preparedTask()!!
     return try {
       doTask(taskId)
