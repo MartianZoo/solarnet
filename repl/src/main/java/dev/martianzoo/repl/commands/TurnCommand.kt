@@ -3,7 +3,7 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class TurnCommand(val repl: ReplSession) : ReplCommand("turn") {
+internal class TurnCommand(private val repl: ReplSession) : ReplCommand("turn") {
   override val usage = "turn"
   override val help =
       """

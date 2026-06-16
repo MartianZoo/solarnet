@@ -5,7 +5,7 @@ import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.commands.TaskCommand
 
-internal class TfmPlayCommand(val repl: ReplSession) : ReplCommand("tfm_play") {
+internal class TfmPlayCommand(private val repl: ReplSession) : ReplCommand("tfm_play") {
   override val usage: String = "tfm_play <CardName>"
   override val help: String = ""
   override fun withArgs(args: String): List<String> {

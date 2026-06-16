@@ -70,11 +70,11 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
     return customOutputTransformer.transform(translated)
   }
 
-  public override fun equals(other: Any?) = other is Component && other.mtype == mtype
+  override fun equals(other: Any?) = other is Component && other.mtype == mtype
 
-  public override fun hashCode() = mtype.hashCode()
+  override fun hashCode() = mtype.hashCode()
 
-  public override fun toString() = "$mtype"
+  override fun toString() = "$mtype"
 
   public companion object {
     public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)

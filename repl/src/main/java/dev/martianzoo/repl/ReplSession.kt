@@ -57,21 +57,21 @@ import dev.martianzoo.tfm.repl.commands.TfmSampleCommand
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.toStrings
 
-internal fun main() {
+internal fun main() { // JVM entry point for the shadow JAR
   val jline = JlineRepl()
   val repl = ReplSession(jline)
   repl.loop()
   println("Bye")
 }
 
-internal class ReplSession(val jline: JlineRepl? = null) {
-  lateinit var setup: GameSetup
-  lateinit var game: Game // TODO maybe remove and just have reader/events/...?
-  lateinit var gameplay: TurnLayer
+internal class ReplSession(internal val jline: JlineRepl? = null) {
+  internal lateinit var setup: GameSetup
+  internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
+  internal lateinit var gameplay: TurnLayer
 
-  var mode: ReplMode = GREEN
+  internal var mode: ReplMode = GREEN
 
-  fun newGame(setup: GameSetup) {
+  internal fun newGame(setup: GameSetup) {
     this.setup = setup
     game = Engine.newGame(setup)
     gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
@@ -81,7 +81,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
     newGame(SIMPLE_GAME)
   }
 
-  fun loop() = jline!!.loop(::prompt, ::command, welcome)
+  internal fun loop() = jline!!.loop(::prompt, ::command, welcome)
 
   private fun prompt(): String {
     return with(gameplay) {
@@ -134,7 +134,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
         PURPLE -> PurpleMode(gameplay.godMode())
       }
 
-  fun describeExecutionResults(result: TaskResult): List<String> {
+  internal fun describeExecutionResults(result: TaskResult): List<String> {
     val changes = result.changes.filterNot { isSystem(it, game.reader) }.toStrings()
 
     val newTasks: Set<TaskId> = result.tasksSpawned
@@ -156,7 +156,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
     }
   }
 
-  fun isSystem(event: ChangeEvent, game: GameReader): Boolean {
+  internal fun isSystem(event: ChangeEvent, game: GameReader): Boolean {
     val g = event.change.gaining
     val r = event.change.removing
 
@@ -170,7 +170,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
     return false
   }
 
-  public fun command(wholeCommand: String): List<String> {
+  internal fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")
     val groups = inputRegex.matchEntire(stripped)?.groupValues
     return if (groups == null) {
@@ -198,7 +198,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
     }
   }
 
-  public enum class ReplMode(val message: String, val color: TfmColor) {
+  internal enum class ReplMode(public val message: String, public val color: TfmColor) {
     RED("Change integrity: make changes without triggered effects", HEAT),
     YELLOW("Task integrity: changes have consequences", MEGACREDIT),
     GREEN("Operation integrity: clear task queue before starting new operation", PLANT),
@@ -206,7 +206,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
     PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),
   }
 
-  fun player(name: String): Player {
+  internal fun player(name: String): Player {
     // In case a shortname was used
     val type: MType = game.reader.resolve(cn(name).expression) as MType
     return Player(type.className)

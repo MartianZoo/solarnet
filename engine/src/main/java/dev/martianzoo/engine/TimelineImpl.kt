@@ -19,9 +19,9 @@ internal class TimelineImpl(
     private val tasks: WritableTaskQueue,
 ) : Timeline {
 
-  public override fun checkpoint() = Checkpoint(events.size)
+  override fun checkpoint() = Checkpoint(events.size)
 
-  public override fun rollBack(checkpoint: Checkpoint) {
+  override fun rollBack(checkpoint: Checkpoint) {
 
     val ordinal = checkpoint.ordinal
     require(ordinal <= events.size)
@@ -46,7 +46,7 @@ internal class TimelineImpl(
 
   internal class AbortOperationException : Exception()
 
-  public override fun atomic(block: () -> Unit): TaskResult {
+  override fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
     try {
       block()

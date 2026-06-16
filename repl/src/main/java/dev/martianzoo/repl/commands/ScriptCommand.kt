@@ -4,7 +4,7 @@ import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import java.io.File
 
-internal class ScriptCommand(val repl: ReplSession) : ReplCommand("script") {
+internal class ScriptCommand(private val repl: ReplSession) : ReplCommand("script") {
   override val usage = "script <filename>"
   override val help =
       """

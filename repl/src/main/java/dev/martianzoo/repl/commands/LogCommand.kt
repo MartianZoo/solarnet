@@ -6,7 +6,7 @@ import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 import dev.martianzoo.util.toStrings
 
-internal class LogCommand(val repl: ReplSession) : ReplCommand("log") {
+internal class LogCommand(private val repl: ReplSession) : ReplCommand("log") {
   override val usage = "log [full]"
   override val help =
       """

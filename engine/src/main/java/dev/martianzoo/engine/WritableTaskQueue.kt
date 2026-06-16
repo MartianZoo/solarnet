@@ -34,16 +34,16 @@ internal class WritableTaskQueue(private val events: TaskListener) : TaskQueue {
 
   // OVERRIDES / READ-ONLY OPERATIONS
 
-  public override fun ids() = taskSet.toSetStrict { it.id }
+  override fun ids() = taskSet.toSetStrict { it.id }
 
-  public override fun contains(id: TaskId) = taskSet.any { it.id == id }
+  override fun contains(id: TaskId) = taskSet.any { it.id == id }
 
-  public override fun matching(predicate: (Task) -> Boolean) =
+  override fun matching(predicate: (Task) -> Boolean) =
       taskSet.filter(predicate).toSetStrict { it.id }
 
-  public override fun <T> extract(extractor: (Task) -> T) = taskSet.map(extractor)
+  override fun <T> extract(extractor: (Task) -> T) = taskSet.map(extractor)
 
-  public override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
+  override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
 
   internal fun getTaskData(id: TaskId) =
       taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
@@ -113,5 +113,5 @@ internal class WritableTaskQueue(private val events: TaskListener) : TaskQueue {
     require(taskSet.remove(task))
   }
 
-  public override fun toString() = taskSet.joinToString("\n")
+  override fun toString() = taskSet.joinToString("\n")
 }

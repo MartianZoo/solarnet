@@ -9,7 +9,7 @@ import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
-internal class ListCommand(val repl: ReplSession) : ReplCommand("list") {
+internal class ListCommand(private val repl: ReplSession) : ReplCommand("list") {
   override val usage = "list <Expression>"
   override val help = """
         This command is super broken right now.

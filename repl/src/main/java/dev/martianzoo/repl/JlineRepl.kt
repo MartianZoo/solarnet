@@ -19,7 +19,7 @@ internal class JlineRepl {
         it.puts(Capability.keypad_xmit)
       }
 
-  val history = DefaultHistory()
+  internal val history = DefaultHistory()
 
   private val reader: LineReader =
       LineReaderBuilder.builder().terminal(terminal).history(history).build().also {
@@ -27,7 +27,7 @@ internal class JlineRepl {
         history.read(historyFile, /* checkDuplicates= */ false)
       }
 
-  fun loop(prompt: () -> String, handler: (String) -> List<String>, welcome: String) {
+  internal fun loop(prompt: () -> String, handler: (String) -> List<String>, welcome: String) {
     var first = true
     while (true) {
       fun end() = history.append(historyFile, true)

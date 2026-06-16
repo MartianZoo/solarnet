@@ -21,15 +21,15 @@ internal class WritableEventLog() : EventLog, TaskListener, ChangeLogger {
 
   internal fun eventsToRollBack(ordinal: Int) = events.subList(ordinal, events.size)
 
-  public override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
+  override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
-  public override fun changesSinceSetup() = changesSince(start)
+  override fun changesSinceSetup() = changesSince(start)
 
-  public override fun entriesSinceSetup() = entriesSince(start)
+  override fun entriesSinceSetup() = entriesSince(start)
 
   // we don't treat a replacement task as new...
-  public override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> = buildSet {
+  override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> = buildSet {
     entriesSince(checkpoint).forEach {
       when (it) {
         is TaskAddedEvent -> add(it.task.id)
@@ -39,10 +39,10 @@ internal class WritableEventLog() : EventLog, TaskListener, ChangeLogger {
     }
   }
 
-  public override fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
+  override fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
       events.subList(checkpoint.ordinal, size).toList()
 
-  public override fun activitySince(checkpoint: Checkpoint) =
+  override fun activitySince(checkpoint: Checkpoint) =
       TaskResult(changesSince(checkpoint), newTasksSince(checkpoint))
 
   internal fun <E : GameEvent> addEntry(entry: E): E {
@@ -51,14 +51,14 @@ internal class WritableEventLog() : EventLog, TaskListener, ChangeLogger {
     return entry
   }
 
-  public override fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
+  override fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
       addEntry(ChangeEvent(size, player, change, cause))
 
-  public override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
+  override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
-  public override fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
+  override fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  public override fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
+  override fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
     require(oldTask.id == newTask.id)
     return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
   }

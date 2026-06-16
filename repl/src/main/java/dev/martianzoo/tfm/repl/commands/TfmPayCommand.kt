@@ -12,7 +12,7 @@ import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.commands.TaskCommand
 
-internal class TfmPayCommand(val repl: ReplSession) : ReplCommand("tfm_pay") {
+internal class TfmPayCommand(private val repl: ReplSession) : ReplCommand("tfm_pay") {
   override val usage: String = "tfm_pay <amount resource>"
   override val help: String = ""
   override fun withArgs(args: String): List<String> {

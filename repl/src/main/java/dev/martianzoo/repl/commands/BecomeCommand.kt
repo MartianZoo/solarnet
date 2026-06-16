@@ -5,7 +5,7 @@ import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class BecomeCommand(val repl: ReplSession) : ReplCommand("become") {
+internal class BecomeCommand(private val repl: ReplSession) : ReplCommand("become") {
   override val usage = "become [PlayerN]"
   override val help =
       """

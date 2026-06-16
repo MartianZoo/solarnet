@@ -27,18 +27,18 @@ internal class GameReaderImpl(
     internal val transformers: Transformers,
 ) : GameReader, TypeInfo {
 
-  public override val authority: TfmAuthority = classes.authority as TfmAuthority
+  override val authority: TfmAuthority = classes.authority as TfmAuthority
 
-  public override fun resolve(expression: Expression) = classes.resolve(expression)
+  override fun resolve(expression: Expression) = classes.resolve(expression)
 
   // Next 3 are for TypeInfo interface
 
-  public override fun isAbstract(e: Expression) = resolve(e).abstract
+  override fun isAbstract(e: Expression) = resolve(e).abstract
 
-  public override fun ensureNarrows(wide: Expression, narrow: Expression) =
+  override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)
 
-  public override fun has(requirement: Requirement): Boolean =
+  override fun has(requirement: Requirement): Boolean =
       when (requirement) {
         is Counting -> {
           val actual = count(Count(requirement.scaledEx.expression))
@@ -54,7 +54,7 @@ internal class GameReaderImpl(
         is Requirement.Transform -> error("should have been transformed by now: $requirement")
       }
 
-  public override fun count(metric: Metric): Int =
+  override fun count(metric: Metric): Int =
       when (metric) {
         is Count -> components.count(resolve(metric.expression), this)
         is Scaled -> count(metric.inner) / metric.unit
@@ -63,13 +63,13 @@ internal class GameReaderImpl(
         is Metric.Transform -> error("should have been transformed by now: $metric")
       }
 
-  public override fun count(type: Type) = components.count(classes.resolve(type), this)
+  override fun count(type: Type) = components.count(classes.resolve(type), this)
 
-  public override fun containsAny(type: Type) = components.containsAny(classes.resolve(type), this)
+  override fun containsAny(type: Type) = components.containsAny(classes.resolve(type), this)
 
-  public override fun countComponent(concreteType: Type) =
+  override fun countComponent(concreteType: Type) =
       components.countComponent(concreteType.toComponent(this))
 
-  public override fun getComponents(type: Type) =
+  override fun getComponents(type: Type) =
       components.getAll(classes.resolve(type), this).map { it.type }
 }

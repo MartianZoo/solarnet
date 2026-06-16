@@ -5,7 +5,7 @@ import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 import dev.martianzoo.tfm.data.GameSetup
 
-internal class NewGameCommand(val repl: ReplSession) : ReplCommand("newgame") {
+internal class NewGameCommand(private val repl: ReplSession) : ReplCommand("newgame") {
   override val usage = "newgame <bundles> <player count>"
   override val help =
       """

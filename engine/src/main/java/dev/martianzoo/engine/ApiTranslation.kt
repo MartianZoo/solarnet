@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * adding atomicity, and producing TaskResults.
  */
 internal class ApiTranslation(
-    public override val player: Player,
+    override val player: Player,
     private val reader: GameReader,
     private val timeline: Timeline,
     private val impl: Implementations,
@@ -38,7 +38,7 @@ internal class ApiTranslation(
     xers: Transformers,
 ) : GodMode { // so it really implements all gameplay layers
 
-  public override var autoExecMode: AutoExecMode = FIRST
+  override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
       if (newMode != field) {
         field = newMode
@@ -46,15 +46,15 @@ internal class ApiTranslation(
       }
     }
 
-  public override fun godMode(): GodMode = this
+  override fun godMode(): GodMode = this
 
   // READ-ONLY
 
-  public override fun has(requirement: String) = reader.has(parse(requirement))
+  override fun has(requirement: String) = reader.has(parse(requirement))
 
-  public override fun count(metric: String) = reader.count(parse<Metric>(metric))
+  override fun count(metric: String) = reader.count(parse<Metric>(metric))
 
-  public override fun list(type: String): Multiset<Expression> {
+  override fun list(type: String): Multiset<Expression> {
     val typeToList: MType = reader.resolve(parse(type)) as MType
     val allComponents: Multiset<out Type> = reader.getComponents(typeToList)
 
@@ -69,7 +69,7 @@ internal class ApiTranslation(
     return result
   }
 
-  public override fun resolve(expression: String) = reader.resolve(parse(expression))
+  override fun resolve(expression: String) = reader.resolve(parse(expression))
 
   private val preprocessor =
       chain(
@@ -80,67 +80,67 @@ internal class ApiTranslation(
           Prod.deprodify(table),
       )
 
-  public override fun <P : PetElement> parseInternal(type: KClass<P>, text: String) =
+  override fun <P : PetElement> parseInternal(type: KClass<P>, text: String) =
       preprocessor.transform(Parsing.parse(type, text))
 
   // CHANGES
 
-  public override fun sneak(changes: String, fakeCause: Cause?) =
+  override fun sneak(changes: String, fakeCause: Cause?) =
       timeline.atomic { impl.sneak(parse(changes), fakeCause) }
 
   // TASKS
 
-  public override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> =
+  override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> =
       impl.addTasks(parse(instruction), firstCause)
 
-  public override fun dropTask(taskId: TaskId) = impl.dropTask(taskId)
+  override fun dropTask(taskId: TaskId) = impl.dropTask(taskId)
 
   // OPERATIONS
 
-  public override fun manual(initialInstruction: String, body: BodyLambda): TaskResult {
+  override fun manual(initialInstruction: String, body: BodyLambda): TaskResult {
     return atomic { impl.manual(parse(initialInstruction), autoExecMode) { Adapter().body() } }
   }
 
-  public override fun beginManual(initialInstruction: String, body: BodyLambda): TaskResult {
+  override fun beginManual(initialInstruction: String, body: BodyLambda): TaskResult {
     return atomic { impl.beginManual(parse(initialInstruction), autoExecMode) { Adapter().body() } }
   }
 
-  public override fun continueManual(body: BodyLambda): TaskResult {
+  override fun continueManual(body: BodyLambda): TaskResult {
     return atomic { impl.continueManual(autoExecMode) { Adapter().body() } }
   }
 
-  public override fun finish(body: BodyLambda): TaskResult {
+  override fun finish(body: BodyLambda): TaskResult {
     return atomic { impl.complete(autoExecMode) { Adapter().body() } }
   }
 
   private inner class Adapter : OperationBody {
-    public override val tasks by this@ApiTranslation::tasks
-    public override val reader by this@ApiTranslation::reader
+    override val tasks by this@ApiTranslation::tasks
+    override val reader by this@ApiTranslation::reader
 
-    public override fun doFirstTask(revised: String) {
+    override fun doFirstTask(revised: String) {
       this@ApiTranslation.doFirstTask(revised)
     }
 
-    public override fun doTask(revised: String) {
+    override fun doTask(revised: String) {
       this@ApiTranslation.doTask(revised)
     }
 
-    public override fun tryTask(revised: String) {
+    override fun tryTask(revised: String) {
       this@ApiTranslation.tryTask(revised)
     }
 
-    public override fun autoExecNow() {
+    override fun autoExecNow() {
       atomic {}
     }
   }
 
-  public override fun autoExecNow() = atomic {}
+  override fun autoExecNow() = atomic {}
 
   // TURNS
 
-  public override fun startTurn() = atomic { impl.startTurn() }
+  override fun startTurn() = atomic { impl.startTurn() }
 
-  public override fun turn(body: BodyLambda): TaskResult {
+  override fun turn(body: BodyLambda): TaskResult {
     return if (tasks.isEmpty()) {
       manual("NewTurn", body)
     } else {
@@ -152,26 +152,26 @@ internal class ApiTranslation(
   // This layer is only usable if you have a running workflow, so that >0 players always have a
   // task in their queue at any given time
 
-  public override fun reviseTask(taskId: TaskId, revised: String) =
+  override fun reviseTask(taskId: TaskId, revised: String) =
       timeline.atomic { impl.reviseTask(taskId, parse(revised)) }
 
-  public override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
+  override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
 
-  public override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
+  override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
 
-  public override fun doFirstTask(revised: String?) = atomic {
+  override fun doFirstTask(revised: String?) = atomic {
     impl.doFirstTask(revised?.let { parse(it) })
   }
 
-  public override fun doTask(taskId: TaskId) = atomic { impl.doTask(taskId) }
+  override fun doTask(taskId: TaskId) = atomic { impl.doTask(taskId) }
 
-  public override fun doTask(revised: String) = atomic { impl.doTask(parse(revised)) }
+  override fun doTask(revised: String) = atomic { impl.doTask(parse(revised)) }
 
-  public override fun tryTask(taskId: TaskId) = atomic { impl.tryTask(taskId) }
+  override fun tryTask(taskId: TaskId) = atomic { impl.tryTask(taskId) }
 
-  public override fun tryTask(revised: String) = atomic { impl.tryTask(parse(revised)) }
+  override fun tryTask(revised: String) = atomic { impl.tryTask(parse(revised)) }
 
-  public override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
+  override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
 
   private fun atomic(block: () -> Unit) =
       timeline.atomic {

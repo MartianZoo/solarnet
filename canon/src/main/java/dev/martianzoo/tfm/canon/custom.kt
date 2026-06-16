@@ -126,7 +126,7 @@ private object GetEventVps : CustomClass("GetEventVps") {
     val fx = cardFromClassType(classType, reader).effects
     return Multi.create(fx.filter { it.trigger == end }.map { it.instruction })
   }
-  val end: Trigger = parse("End")
+  private val end: Trigger = parse("End")
 }
 
 // For Robinson Industries
@@ -188,7 +188,7 @@ private object AddColonyTile : CustomClass("AddColonyTile") {
   }
 }
 
-fun card(cardType: HasClassName, reader: GameReader) =
+private fun card(cardType: HasClassName, reader: GameReader) =
     (reader.authority as TfmAuthority).card(cardType.className)
 
 private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {

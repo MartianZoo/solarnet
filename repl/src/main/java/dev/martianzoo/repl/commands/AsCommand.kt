@@ -5,7 +5,7 @@ import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 
-internal class AsCommand(val repl: ReplSession) : ReplCommand("as") {
+internal class AsCommand(private val repl: ReplSession) : ReplCommand("as") {
   override val usage = "as <PlayerN> <full command>"
   override val help =
       """

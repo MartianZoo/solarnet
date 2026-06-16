@@ -92,7 +92,7 @@ internal class Limiter(private val classes: MClassTable, private val components:
 
       internal override fun bindThisTo(mtype: MType) = this
 
-      public override fun toString() = buildString {
+      override fun toString() = buildString {
         append(mtype.expression)
         append(" ")
         append(range.first)
@@ -111,7 +111,7 @@ internal class Limiter(private val classes: MClassTable, private val components:
         return SimpleRangeRestriction(mclass.loader.resolve(expr), range)
       }
 
-      public override fun toString() = "$expression $mclass $range"
+      override fun toString() = "$expression $mclass $range"
     }
   }
 }

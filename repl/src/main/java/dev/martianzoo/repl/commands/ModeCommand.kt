@@ -5,7 +5,7 @@ import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.ReplMode
 import dev.martianzoo.repl.ReplSession.UsageException
 
-internal class ModeCommand(val repl: ReplSession) : ReplCommand("mode") {
+internal class ModeCommand(private val repl: ReplSession) : ReplCommand("mode") {
   override val usage = "mode <mode name>"
   override val help =
       """

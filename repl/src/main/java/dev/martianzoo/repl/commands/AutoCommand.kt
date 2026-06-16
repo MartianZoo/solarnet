@@ -7,7 +7,7 @@ import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 
-internal class AutoCommand(val repl: ReplSession) : ReplCommand("auto") {
+internal class AutoCommand(private val repl: ReplSession) : ReplCommand("auto") {
   override val usage = "auto [none|safe|first]"
   override val help =
       """

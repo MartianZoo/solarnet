@@ -6,7 +6,7 @@ import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 
-internal class TaskCommand(val repl: ReplSession) : ReplCommand("task") {
+internal class TaskCommand(private val repl: ReplSession) : ReplCommand("task") {
   override val usage = "task <id> [<Instruction> | drop]"
   override val help =
       """

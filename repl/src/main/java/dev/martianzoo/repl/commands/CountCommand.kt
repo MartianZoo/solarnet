@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class CountCommand(val repl: ReplSession) : ReplCommand("count") {
+internal class CountCommand(private val repl: ReplSession) : ReplCommand("count") {
   override val usage = "count <Metric>"
   override val help =
       """

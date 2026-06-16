@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.repl
 import org.jline.utils.AttributedStringBuilder
 import org.jline.utils.AttributedStyle
 
-enum class TfmColor(val hexString: String) {
+internal enum class TfmColor(val hexString: String) {
   MEGACREDIT("f4d400"),
   STEEL("c8621e"),
   TITANIUM("777777"),
@@ -23,7 +23,7 @@ enum class TfmColor(val hexString: String) {
   NONE("cccccc"),
   ;
 
-  fun foreground(string: String): String {
+  internal fun foreground(string: String): String {
     val r = hexString.substring(0, 2).toInt(16)
     val g = hexString.substring(2, 4).toInt(16)
     val b = hexString.substring(4, 6).toInt(16)

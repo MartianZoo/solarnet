@@ -11,7 +11,7 @@ import dev.martianzoo.types.TypeDescription
 import dev.martianzoo.util.iff
 import dev.martianzoo.util.random
 
-internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
+internal class DescCommand(private val repl: ReplSession) : ReplCommand("desc") {
   override val usage = "desc <Expression>"
   override val help =
       """
@@ -44,7 +44,7 @@ internal class DescCommand(val repl: ReplSession) : ReplCommand("desc") {
 
   object MTypeToText {
     /** A detailed multi-line description of a type. */
-    public fun describe(expression: Expression, mtype: MType): String {
+    internal fun describe(expression: Expression, mtype: MType): String {
 
       val desc = TypeDescription(mtype)
 

@@ -3,7 +3,7 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class ExecCommand(val repl: ReplSession) : ReplCommand("exec") {
+internal class ExecCommand(private val repl: ReplSession) : ReplCommand("exec") {
   override val usage = "exec <Instruction>"
   override val help =
       """

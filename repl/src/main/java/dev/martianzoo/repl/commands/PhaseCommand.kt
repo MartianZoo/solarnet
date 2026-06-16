@@ -7,7 +7,7 @@ import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class PhaseCommand(val repl: ReplSession) : ReplCommand("phase") {
+internal class PhaseCommand(private val repl: ReplSession) : ReplCommand("phase") {
   override val usage = "phase <phase name>"
   override val help =
       """

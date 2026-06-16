@@ -3,7 +3,7 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class TasksCommand(val repl: ReplSession) : ReplCommand("tasks") {
+internal class TasksCommand(private val repl: ReplSession) : ReplCommand("tasks") {
   override val usage = "tasks"
   override val help =
       """

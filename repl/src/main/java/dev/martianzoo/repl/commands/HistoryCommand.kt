@@ -5,7 +5,7 @@ import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 import org.jline.reader.impl.history.DefaultHistory
 
-internal class HistoryCommand(val repl: ReplSession) : ReplCommand("history") {
+internal class HistoryCommand(private val repl: ReplSession) : ReplCommand("history") {
   override val usage = "history <count>"
   override val help =
       """

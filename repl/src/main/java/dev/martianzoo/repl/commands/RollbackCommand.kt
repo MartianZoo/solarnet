@@ -4,7 +4,7 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class RollbackCommand(val repl: ReplSession) : ReplCommand("rollback") {
+internal class RollbackCommand(private val repl: ReplSession) : ReplCommand("rollback") {
   override val usage = "rollback <logid>"
   override val help =
       """

@@ -9,8 +9,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
-object SampleGames {
-  fun sampleGame(generations: Int): Game {
+internal object SampleGames {
+  internal fun sampleGame(generations: Int): Game {
     var gens = generations
 
     val game = Engine.newGame(GameSetup(Canon, "BRMVPXT", 2))

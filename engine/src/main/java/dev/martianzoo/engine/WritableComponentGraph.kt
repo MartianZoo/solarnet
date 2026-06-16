@@ -14,9 +14,9 @@ internal class WritableComponentGraph(private val effector: Effector) :
 
   private val multiset: HashMultiset<Component> = HashMultiset()
 
-  public override operator fun contains(component: Component) = component in multiset.elements
+  override operator fun contains(component: Component) = component in multiset.elements
 
-  public override fun count(parentType: MType, info: TypeInfo): Int {
+  override fun count(parentType: MType, info: TypeInfo): Int {
     return if (parentType.className == COMPONENT) {
       multiset.size
     } else if (parentType.abstract) {
@@ -26,7 +26,7 @@ internal class WritableComponentGraph(private val effector: Effector) :
     }
   }
 
-  public override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
+  override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
     return if (parentType.abstract) {
       multiset.elements.any { it.hasType(parentType, info) }
     } else {
@@ -34,9 +34,9 @@ internal class WritableComponentGraph(private val effector: Effector) :
     }
   }
 
-  public override fun countComponent(component: Component) = multiset.count(component)
+  override fun countComponent(component: Component) = multiset.count(component)
 
-  public override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
+  override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
     return if (parentType.className == COMPONENT) {
       HashMultiset.of(multiset)
     } else if (parentType.abstract) {
@@ -47,7 +47,7 @@ internal class WritableComponentGraph(private val effector: Effector) :
     }
   }
 
-  public override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
+  override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
     removing?.let { r ->
       checkDependents(count, r)
       multiset.mustRemove(r, count)

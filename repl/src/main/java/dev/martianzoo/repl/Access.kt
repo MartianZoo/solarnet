@@ -10,27 +10,27 @@ import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplSession.UsageException
 
-sealed class Access {
-  abstract fun exec(instruction: String): TaskResult
+internal sealed class Access {
+  public abstract fun exec(instruction: String): TaskResult
 
-  abstract fun newTurn(): TaskResult
+  public abstract fun newTurn(): TaskResult
 
-  abstract fun phase(phase: String): TaskResult
+  public abstract fun phase(phase: String): TaskResult
 
   internal fun doPhase(gameplay: OperationLayer, phase: String): TaskResult =
       gameplay.beginManual("${phase}Phase FROM Phase")
 
-  open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
+  public open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
   // PURPLE: Game integrity: the engine fully controls the workflow
-  class PurpleMode(val gameplay: Gameplay) : Access() {
+  internal class PurpleMode(private val gameplay: Gameplay) : Access() {
     override fun phase(phase: String): TaskResult = error("not allowed in this mode")
     override fun newTurn(): TaskResult = error("not allowed in this mode")
     override fun exec(instruction: String): TaskResult = error("not allowed in this mode")
   }
 
   // BLUE: Turn integrity: must perform a valid game turn for this phase
-  class BlueMode(gameplayIn: Gameplay) : Access() {
+  internal class BlueMode(gameplayIn: Gameplay) : Access() {
     private val gameplay = gameplayIn as TurnLayer
     override fun phase(phase: String): TaskResult = doPhase(gameplay as OperationLayer, phase)
     override fun newTurn() = gameplay.startTurn()
@@ -38,7 +38,7 @@ sealed class Access {
   }
 
   // GREEN: Operation integrity: clear task queue before starting new operation
-  class GreenMode(gameplayIn: Gameplay) : Access() {
+  internal class GreenMode(gameplayIn: Gameplay) : Access() {
     private val gameplay = gameplayIn as OperationLayer
     override fun phase(phase: String): TaskResult = doPhase(gameplay, phase)
     override fun newTurn() = gameplay.startTurn()
@@ -46,7 +46,7 @@ sealed class Access {
   }
 
   // YELLOW: Task integrity: changes have consequences
-  class YellowMode(gameplayIn: Gameplay) : Access() {
+  internal class YellowMode(gameplayIn: Gameplay) : Access() {
     private val gameplay = gameplayIn as TaskLayer
     override fun phase(phase: String): TaskResult = doPhase(gameplay, phase)
     override fun newTurn() = gameplay.startTurn()
@@ -57,7 +57,7 @@ sealed class Access {
   }
 
   // RED: Change integrity: make changes without triggered effects
-  class RedMode(gameplayIn: Gameplay) : Access() {
+  internal class RedMode(gameplayIn: Gameplay) : Access() {
     private val gameplay = gameplayIn as GodMode
     override fun phase(phase: String): TaskResult = doPhase(gameplay, phase)
     override fun newTurn() = gameplay.startTurn()

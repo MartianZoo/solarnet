@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
-internal class HasCommand(val repl: ReplSession) : ReplCommand("has") {
+internal class HasCommand(private val repl: ReplSession) : ReplCommand("has") {
   override val usage = "has <Requirement>"
   override val help =
       """

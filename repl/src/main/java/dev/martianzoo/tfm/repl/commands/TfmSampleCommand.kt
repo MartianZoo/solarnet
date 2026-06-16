@@ -7,7 +7,7 @@ import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 import dev.martianzoo.tfm.repl.SampleGames
 
-internal class TfmSampleCommand(val repl: ReplSession) : ReplCommand("tfm_sample") {
+internal class TfmSampleCommand(private val repl: ReplSession) : ReplCommand("tfm_sample") {
   override val usage: String = "sample <id> <generations>"
   override val help =
       """

@@ -96,7 +96,7 @@ internal class TfmMapCommand(repl: ReplSession) : AbstractTfmCommand(repl, "tfm_
       }
     }
 
-    fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
+    private fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
       if (area == null) return "" to TfmColor.NONE
       val expression = TILE.of(area.className)
       val tile = game.getComponents(game.resolve(expression)).singleOrNull()
@@ -115,7 +115,7 @@ internal class TfmMapCommand(repl: ReplSession) : AbstractTfmCommand(repl, "tfm_
       return area.code to color
     }
 
-    fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
+    private fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
     private fun describe(tile: Type): Pair<String, TfmColor> {
       fun isIt(tile: Type, kind: String) =

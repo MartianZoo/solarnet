@@ -17,6 +17,6 @@ public interface Timeline {
     init {
       require(ordinal >= 0)
     }
-    public override fun toString() = "$ordinal"
+    override fun toString() = "$ordinal"
   }
 }
