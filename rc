@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Thin client for a running rego server (start one with: ./rego --serve)
+
+readonly PORT=2315
+readonly MAX_RETRIES=3
+
+# Capture the caller's working directory before any cd
+readonly CALLER_DIR="$PWD"
+
+# Absolutize the path argument of a 'script' command so the server (which runs in
+# the project root) can find the file regardless of where the client was invoked from.
+cmd="$*"
+if [[ "$cmd" =~ ^[[:space:]]*script[[:space:]]+(.+)[[:space:]]*$ ]]; then
+    script_path="${BASH_REMATCH[1]}"
+    abs_path="$(cd "$CALLER_DIR" && realpath "$script_path" 2>/dev/null)" \
+        || abs_path="$CALLER_DIR/$script_path"
+    cmd="script $abs_path"
+fi
+
+for attempt in $(seq 1 $MAX_RETRIES); do
+    if exec 3<>/dev/tcp/localhost/$PORT 2>/dev/null; then
+        printf '%s\n' "$cmd" >&3
+
+        while IFS= read -r line <&3; do
+            [[ "$line" == "---END---" ]] && break
+            printf '%s\n' "$line"
+        done
+        exec 3>&-
+        exit 0
+    fi
+
+    (( attempt < MAX_RETRIES )) && sleep 1
+done
+
+printf 'Error: no rego server on port %d (start one with: ./rego --serve)\n' "$PORT" >&2
+exit 1

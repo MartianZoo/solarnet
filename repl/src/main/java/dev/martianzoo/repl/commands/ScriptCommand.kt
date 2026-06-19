@@ -11,6 +11,7 @@ internal class ScriptCommand(private val repl: ReplSession) : ReplCommand("scrip
         Reads from the given filename (expressed relative to the solarnet/ directory) and executes
         every command in it, as if you had typed it directly at the prompt, until reaching the
         line "stop" or the end of file. You probably don't want to put "exit" in that file.
+        TODO: detect and reject "exit" within script files (it shuts down the server in server mode)
       """
 
   override fun withArgs(args: String) =

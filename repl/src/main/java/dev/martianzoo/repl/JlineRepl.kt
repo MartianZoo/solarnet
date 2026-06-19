@@ -40,21 +40,10 @@ internal class JlineRepl {
           }
       first = false
 
-      for (chunk in entireLine.split(";").map { it.trim() }) {
-        when (chunk.trim().lowercase()) {
-          "exit" -> return end()
-          "rebuild" -> {
-            end()
-            exitProcess(5) // see /rego
-          }
-          else ->
-              try {
-                handler(chunk).forEach(::println)
-              } catch (e: Exception) {
-                e.printStackTrace()
-              }
-        }
-        println()
+      when (entireLine.trim().lowercase()) {
+        "exit" -> return end()
+        "rebuild" -> { end(); exitProcess(5) } // see /rego
+        else -> handler(entireLine).forEach(::println)
       }
     }
   }

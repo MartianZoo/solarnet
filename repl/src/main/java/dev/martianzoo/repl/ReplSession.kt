@@ -23,6 +23,7 @@ import dev.martianzoo.repl.ReplSession.ReplMode.PURPLE
 import dev.martianzoo.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.repl.commands.AsCommand
+import dev.martianzoo.repl.commands.StatusCommand
 import dev.martianzoo.repl.commands.AutoCommand
 import dev.martianzoo.repl.commands.BecomeCommand
 import dev.martianzoo.repl.commands.CountCommand
@@ -57,7 +58,11 @@ import dev.martianzoo.tfm.repl.commands.TfmSampleCommand
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.toStrings
 
-internal fun main() { // JVM entry point for the shadow JAR
+internal fun main(args: Array<String>) { // JVM entry point for the shadow JAR
+  if ("--serve" in args) {
+    ReplServer().run()
+    return
+  }
   val jline = JlineRepl()
   val repl = ReplSession(jline)
   repl.loop()
@@ -81,20 +86,37 @@ internal class ReplSession(internal val jline: JlineRepl? = null) {
     newGame(SIMPLE_GAME)
   }
 
-  internal fun loop() = jline!!.loop(::prompt, ::command, welcome)
+  internal fun loop() = jline!!.loop(::prompt, ::executeAll, welcome)
 
-  private fun prompt(): String {
-    return with(gameplay) {
-      val bundles = setup.bundles.joinToString("")
-      val phase = list("Phase").single()
-      val checkpoint = game.timeline.checkpoint()
-      mode.color.foreground("$bundles $phase $player/${setup.players} @$checkpoint> ")
-    }
-  }
+  private fun prompt() = mode.color.foreground(promptPlain())
+
+  internal fun promptPlain(): String =
+      with(gameplay) {
+        val bundles = setup.bundles.joinToString("")
+        val phase = list("Phase").single()
+        val checkpoint = game.timeline.checkpoint()
+        "$bundles $phase $player/${setup.players} @$checkpoint> "
+      }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
   internal class UsageException(message: String? = null) : Exception(message ?: "")
+
+  // Splits on semicolons and executes each chunk; used by both interactive and server modes.
+  internal fun executeAll(input: String): List<String> {
+    val allOutput = mutableListOf<String>()
+    for (chunk in input.split(";").map { it.trim() }.filter { it.isNotEmpty() }) {
+      val lines =
+          try {
+            command(chunk)
+          } catch (e: Exception) {
+            listOf("Error: ${e.message ?: e.toString()}")
+          }
+      allOutput += lines
+      allOutput += ""
+    }
+    return allOutput
+  }
 
   internal val commands =
       listOf(
@@ -116,6 +138,7 @@ internal class ReplSession(internal val jline: JlineRepl? = null) {
               PhaseCommand(this),
               RollbackCommand(this),
               ScriptCommand(this),
+              StatusCommand(this),
               TaskCommand(this),
               TasksCommand(this),
               TurnCommand(this),

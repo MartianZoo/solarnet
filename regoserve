@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Build and start a background rego server on port 2315. Use ./rc to send commands.
+
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+
+./gradlew :repl:shadowJar || exit
+java -jar repl/build/libs/repl-all.jar --serve &
+disown
+echo "Rego server starting on port 2315 (use ./rc to send commands)..."
