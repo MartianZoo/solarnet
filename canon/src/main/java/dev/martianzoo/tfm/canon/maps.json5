@@ -36,7 +36,7 @@
         ], [
                  "",   "",   "",  "LSS", "L", "LC", "LC",  "L", "LT"
         ], [
-              "",   "",   "",   "",  "LSS","LSS", "L",  "L", "WTT"               // row 9
+              "",   "",   "",   "",  "LS", "LSS", "L",  "L", "WTT"               // row 9
         ]
       ]
     },  // Why all those extra "",s? This approach lets us support *any* map shape, by having you

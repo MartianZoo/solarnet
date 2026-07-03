@@ -1111,168 +1111,281 @@ class Game20230521Test : AbstractFullGameTest() {
     assertThat(summ.net("TR<P2>", "Megacredit<P1>")).isEqualTo(0)
 
     // Player2 played Hired Raiders
-    // Player1's steel amount decreased by 2 stolen by Player2
+    p2.playProject("HiredRaiders", 0) {
+      // Player1's steel amount decreased by 2 stolen by Player2
+      doTask("2 Steel<P2 FROM P1>")
+    }
     // Player2 used Convert Heat standard action
+    p2.stdAction("ConvertHeatSA")
+
     // Player1 used Convert Heat standard action
+    p1.stdAction("ConvertHeatSA")
     // Player1 used City standard project
-    // Player1 placed city tile on row 7 position 4
+    p1.stdProject("CitySP") {
+      // Player1 placed city tile on row 7 position 4
+      doTask("CityTile<Tharsis_7_6>")
+    }
+
     // Player2 used Convert Plants standard action
-    // Player2 placed greenery tile on row 9 position 2
-    // Player2's steel amount increased by 2
+    p2.stdAction("ConvertPlantsSA") {
+      // Player2 placed greenery tile on row 9 position 2
+      doTask("GreeneryTile<Tharsis_9_6>")
+      // Player2's steel amount increased by 2
+    }.expect("2 Steel")
+
     // Player2 used AI Central action
     // Player2 drew 2 card(s)
     // You drew Energy Tapping and Wave Power
+    p2.cardAction1("AiCentral")
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
     // You drew Energy Saving
+    p1.cardAction1("DevelopmentCenter")
     // Player1 used Inventors' Guild action
     // Player1 bought 0 card(s)
     // You drew no cards
+    p1.cardAction1("InventorsGuild") { doTask("Ok") }
     // Player2 played Mercurian Alloys
+    p2.playProject("MercurianAlloys", 1)
     // Player2 played Aerial Mappers
+    p2.playProject("AerialMappers", 9)
     // Player1 played Lava Tube Settlement
     // Player1's megacredits production increased by 2
     // Player1's energy production decreased by 1
     // Player1 placed city tile on row 2 position 2
     // Player1's steel amount increased by 1
+    p1.playProject("LavaTubeSettlement", 6, steel = 3) { doTask("CityTile<Tharsis_2_2>") }
+        .expect("-2 Steel")
     // Player1 played Urbanized Area
     // Player1's megacredits production increased by 2
     // Player1's energy production decreased by 1
     // Player1 placed city tile on row 2 position 3
+    p1.playProject("UrbanizedArea", 7, steel = 1) { doTask("CityTile<Tharsis_2_3>") }
     // Player2 played Atmoscoop
     // Player2 added 2 floater(s) to Aerial Mappers
+    p2.playProject("Atmoscoop", 5, titanium = 3) {
+      val scaleChoice =
+          tasks
+              .matching {
+                "${it.instruction}".contains("TemperatureStep") &&
+                    "${it.instruction}".contains("VenusStep")
+              }
+              .single()
+      p2.godMode().dropTask(scaleChoice)
+      doTask("2 Floater<AerialMappers>")
+    }
+    // TODO: Atmoscoop's `2 TemperatureStep OR 2 VenusStep` cannot currently be narrowed to the
+    // Venus branch because the first OR arm is a Multi; keep the game state aligned manually.
+    p2.godMode().manual("2 VenusStep")
+
     // Player2 used Aerial Mappers action
     // Player2 removed 1 resource(s) from Player2's Aerial Mappers
     // Player2 drew 1 card(s)
     // You drew Magnetic Field Generators:promo
+    p2.cardAction2("AerialMappers")
     // Player1 played Nitrogen-Rich Asteroid
     // Player1's plants production increased by 4
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
+    p1.playProject("NitrogenRichAsteroid", 26, titanium = 1) { doTask("PROD[4 Plant]") }
+        .expect("3 Heat")
     // Player1 used Convert Plants standard action
     // Player1 placed greenery tile on row 3 position 3
+    p1.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_3_3>") }
     // Player2 used Bio Printing Facility action
     // Player2 added 1 animal(s) to Ecological Zone
+    p2.cardAction1("BioPrintingFacility") { doTask("Animal<EcologicalZone>") }
     // Player2 used Directed Impactors action
     // Player2 added 1 asteroid(s) to Rotator Impacts
+    p2.cardAction1("DirectedImpactors") {
+      p2.pay(6)
+      doTask("Asteroid<RotatorImpacts>")
+    }
     // Player1 used Venusian Insects action
+    p1.cardAction1("VenusianInsects")
     // Player1 used Stratospheric Birds action
+    p1.cardAction1("StratosphericBirds")
     // Player2 used Rotator Impacts action
     // Player2 removed 1 resource(s) from Player2's Rotator Impacts
     // Player2 removed an asteroid resource to increase Venus scale 1 step
+    p2.cardAction2("RotatorImpacts").expect("VenusStep")
     // Player2 used Aquifer Pumping action
     // Player2 placed ocean tile on row 9 position 5
     // Player2's titanium amount increased by 2
     // Player2 gained 2 plants from Arctic Algae
+    p2.cardAction1("AquiferPumping") {
+      p2.pay(2, steel = 2)
+      doTask("OceanTile<Tharsis_9_9>")
+    }.expect("2 Titanium, 2 Plant")
     // Player1 played Power Infrastructure
+    p1.playProject("PowerInfrastructure", 4)
     // Player1 used Power Infrastructure action
     // Player1's megacredits amount increased by 8
+    p1.cardAction1("PowerInfrastructure") { doTask("-8 Energy THEN 8") }
     // Player2 used Factorum action
     // Player2 drew Electro Catapult
+    p2.cardAction2("Factorum")
     // Player2 used Sell Patents standard project
     // Player2 sold 2 patents
+    p2.sellPatents(2)
     // Player1 used Deuterium Export action
+    p1.cardAction1("DeuteriumExport")
     // Player1 used Extractor Balloons action
     // Player1 added 1 floater(s) to Extractor Balloons
+    p1.cardAction1("ExtractorBalloons")
     // Player2 played Bushes
     // Player2's plants production increased by 2
     // Player2's plants amount increased by 2
     // Player2 added 1 animal(s) to Ecological Zone
+    p2.playProject("Bushes", 8)
     // Player2 played Energy Tapping
     // Player1's energy production decreased by 1 stolen by Player2
+    p2.playProject("EnergyTapping", 1) { doTask("PROD[-Energy<P1>]") }
     // Player1 used Floating Habs action
     // Player1 added 1 floater(s) to Floating Habs
+    p1.cardAction1("FloatingHabs") { doTask("Floater<FloatingHabs>") }
     // Player1 used Mohole Lake action
     // Player1 added 1 animal(s) to Stratospheric Birds
+    p1.cardAction1("MoholeLake") { doTask("Animal<StratosphericBirds>") }
     // Player2 played Nuclear Power
     // Player2's megacredits production decreased by 2
     // Player2's energy production increased by 3
+    p2.playProject("NuclearPower", steel = 3)
     // Player2 played Biomass Combustors
     // Player2's energy production increased by 2
     // Player1's plants production decreased by 1 by Player2
+    p2.playProject("BiomassCombustors", steel = 1) { doTask("PROD[-Plant<P1>]") }
     // Player1 passed
+    p1.pass()
     // Player2 used Search For Life action
     // Player2 revealed and discarded Geothermal Power
+    p2.cardAction1("SearchForLife") { doTask("Ok") }
     // Player2 passed
+    p2.pass()
     // Generation 11
     // Player1 bought 2 card(s)
     // You drew Business Network and Gene Repair
     // Player2 bought 1 card(s)
     // You drew Towing A Comet
+    engine.nextGeneration(2, 1)
     // Player1 played Imported Nitrogen
     // Player1's plants amount increased by 4
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 3 microbe(s) to Venusian Insects
     // Player1 added 2 animal(s) to Stratospheric Birds
+    p1.playProject("ImportedNitrogen", 18) {
+      doTask("3 Microbe<VenusianInsects>")
+      doTask("2 Animal<StratosphericBirds>")
+    }
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
     // You drew Peroxide Power
+    p1.cardAction1("DevelopmentCenter")
     // Player2 used AI Central action
     // Player2 drew 2 card(s)
     // You drew Media Group and Cloud Seeding
+    p2.cardAction1("AiCentral")
     // Player2 used Factorum action
     // 9 card(s) were discarded
     // Player2 drew Deep Well Heating
+    p2.cardAction2("Factorum")
     // Player1 used Convert Plants standard action
     // Player1 placed greenery tile on row 2 position 4
+    p1.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_2_4>") }
     // Player1 used Inventors' Guild action
     // Player1 bought 0 card(s)
     // You drew no cards
+    p1.cardAction1("InventorsGuild") { doTask("Ok") }
     // Player2 played Media Group
+    p2.playProject("MediaGroup", 4)
     // Player2 played Mining Expedition
     // Player2's steel amount increased by 2
     // Player1's plants amount decreased by 2 by Player2
+    p2.playProject("MiningExpedition", 10) { doTask("-2 Plant<P1>") }
     // Player1 used Power Infrastructure action
     // Player1's megacredits amount increased by 5
+    p1.cardAction1("PowerInfrastructure") { doTask("-5 Energy THEN 5") }
     // Player1 used Extractor Balloons action
     // Player1 added 1 floater(s) to Extractor Balloons
+    p1.cardAction1("ExtractorBalloons")
     // Player2 used Bio Printing Facility action
     // Player2 added 1 animal(s) to Ecological Zone
+    p2.cardAction1("BioPrintingFacility") { doTask("Animal<EcologicalZone>") }
     // Player2 used Aquifer Pumping action
     // Player2 placed ocean tile on row 5 position 4
     // Player2's plants amount increased by 2
     // Player2 gained 2 plants from Arctic Algae
+    p2.cardAction1("AquiferPumping") {
+      p2.pay(2, steel = 2)
+      doTask("OceanTile<Tharsis_5_4>")
+    }
     // Player1 played Business Network
     // Player1's megacredits production decreased by 1
+    p1.playProject("BusinessNetwork", 1).expect("PROD[-1]")
     // Player1 used Business Network action
     // Player1 bought 1 card(s)
     // You drew Standard Technology
+    p1.cardAction1("BusinessNetwork") { doTask("BuyCard") }
     // Player2 used City standard project
     // Player2 placed city tile on row 8 position 2
+    p2.stdProject("CitySP") {
+      doTask("CityTile<Tharsis_8_5>")
+    }
     // Player2 used Convert Plants standard action
-    // Player2 placed greenery tile on row 8 position 1
-    // Player2's steel amount increased by 2
+    p2.stdAction("ConvertPlantsSA") {
+      // Player2 placed greenery tile on row 8 position 1
+      doTask("GreeneryTile<Tharsis_8_4>")
+      // Player2's steel amount increased by 2
+    }.expect("2 Steel")
     // Player1 used Deuterium Export action
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
     // Player1's energy production increased by 1
+    p1.cardAction2("DeuteriumExport").expect("PROD[Energy]")
     // Player1 used Floating Habs action
     // Player1 added 1 floater(s) to Floating Habs
+    p1.cardAction1("FloatingHabs") { doTask("Floater<FloatingHabs>") }
     // Player2 used Convert Plants standard action
-    // Player2 placed greenery tile on row 9 position 1
-    // Player2's steel amount increased by 1
+    p2.stdAction("ConvertPlantsSA") {
+      // Player2 placed greenery tile on row 9 position 1
+      doTask("GreeneryTile<Tharsis_9_5>")
+      // Player2's steel amount increased by 1
+    }.expect("Steel")
     // Player2 used Aerial Mappers action
     // Player2 removed 1 resource(s) from Player2's Aerial Mappers
     // Player2 drew 1 card(s)
     // You drew Penguins
+    p2.cardAction2("AerialMappers")
     // Player1 used Stratospheric Birds action
+    p1.cardAction1("StratosphericBirds")
     // Player1 used Mohole Lake action
     // Player1 added 1 animal(s) to Stratospheric Birds
+    p1.cardAction1("MoholeLake") { doTask("Animal<StratosphericBirds>") }
     // Player2 played Magnetic Field Generators:promo
     // Player2's plants production increased by 2
     // Player2's energy production decreased by 4
-    // Player2 placed Magnetic Field Generators tile on row 6 position 5
-    // Player2's plants amount increased by 1
+    p2.playProject("MagneticFieldGeneratorsPromo", 5, steel = 5) {
+      // Player2 placed Magnetic Field Generators tile on row 6 position 5
+      doTask("MfgTile<Tharsis_6_6>")
+      // Player2's plants amount increased by 1
+    }.expect("PROD[-4 Energy, 2 Plant], 3 TR, Plant")
     // Player2 played Towing A Comet
     // Player2's plants amount increased by 2
-    // Player2 placed ocean tile on row 6 position 7
-    // Player2's plants amount increased by 1
-    // Player2 gained 2 plants from Arctic Algae
+    p2.playProject("TowingAComet", 1, titanium = 4) {
+      // Player2 placed ocean tile on row 6 position 7
+      doTask("OceanTile<Tharsis_6_8>")
+      // Player2's plants amount increased by 1
+      // Player2 gained 2 plants from Arctic Algae
+    }.expect("5 Plant")
     // Player1 used Venusian Insects action
+    p1.cardAction1("VenusianInsects")
     // Player1 played Standard Technology
     // Player1 removed 1 resource(s) from Player1's Olympus Conference
     // Player1 drew 1 card(s)
     // You drew Zeppelins
+    p1.playProject("StandardTechnology", 6) {
+      doTask("ProjectCard FROM Science<OlympusConference>")
+    }
     // Player2 played Atalanta Planitia Lab
     // Player2 drew 2 card(s)
     // You drew House Printing and Robot Pollinators
@@ -1280,51 +1393,91 @@ class Game20230521Test : AbstractFullGameTest() {
     // You discarded Cloud Seeding
     // Player2 drew 1 card(s)
     // You drew Corroder Suits
+    p2.playProject("AtalantaPlanitiaLab", 8)
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents
+    p2.sellPatents(3)
+    engine.assertCounts(9 to "OceanTile")
     // Player1 played Large Convoy
     // Player1 drew 2 card(s)
     // You drew Water Splitting Plant and Martian Survey
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 4 animal(s) to Stratospheric Birds
+    p1.playProject("LargeConvoy", 28, titanium = 1) {
+      // The oceans are already capped, but this task currently does not self-refine to `Ok`.
+      val cappedOcean =
+          tasks.matching { "${it.instruction}" == "OceanTile<WaterArea>." }.single()
+      p1.godMode().dropTask(cappedOcean)
+      doTask("4 Animal<StratosphericBirds>")
+    }.expect("ProjectCard, 3 Heat, 4 Animal")
     // Player1 played Water Splitting Plant
+    p1.playProject("WaterSplittingPlant", steel = 4)
     // Player2 played Robot Pollinators
     // Player2's plants production increased by 1
     // Player2's plants amount increased by 4
+    p2.playProject("RobotPollinators", 7).expect("PROD[Plant], 4 Plant")
     // Player2 used Convert Plants standard action
     // Player2 placed greenery tile on row 7 position 2
+    p2.stdAction("ConvertPlantsSA") {
+      doTask("GreeneryTile<Tharsis_7_4>")
+    }
     // Player1 played Media Archives
     // Player1's megacredits amount increased by 16
+    p1.playProject("MediaArchives", 5)
     // Player1 used Greenery standard project
     // Player1's megacredits amount increased by 3
-    // Player1 placed greenery tile on row 5 position 7
-    // Player1's plants amount increased by 2
+    p1.stdProject("GreenerySP") {
+      // Player1 placed greenery tile on row 5 position 7
+      doTask("GreeneryTile<Tharsis_5_7>")
+      // Player1's plants amount increased by 2
+    }
     // Player2 played Greenhouses
     // Player2's plants amount increased by 6
     // Player2 added 1 animal(s) to Ecological Zone
+    p2.playProject("Greenhouses", 1, steel = 1).expect("6 Plant, Animal")
     // Player2 used Convert Plants standard action
     // Player2 placed greenery tile on row 9 position 4
+    p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_9_8>") }
     // Player1 funded Thermalist award
+    p1.godMode().sneak("-20, 5 VP")
     // Player1 used Convert Plants standard action
-    // Player1 placed greenery tile on row 4 position 4
-    // Player1's plants amount increased by 1
+    p1.stdAction("ConvertPlantsSA") {
+      // Player1 placed greenery tile on row 4 position 4
+      doTask("GreeneryTile<Tharsis_4_4>")
+      // Player1's plants amount increased by 1
+    }.expect("-7 Plant")
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents
+    p2.sellPatents(3)
     // Player2 played Penguins
     // Player2 added 1 animal(s) to Ecological Zone
+    p2.playProject("Penguins", 5).expect("Animal<EcologicalZone>")
     // Player1 played Advanced Ecosystems
+    p1.playProject("AdvancedEcosystems", 11)
     // Player1 used Sell Patents standard project
     // Player1 sold 4 patents
+    p1.sellPatents(4)
     // Player2 used Penguins action
+    p2.cardAction1("Penguins")
     // Player2 passed
+    p2.pass()
     // Player1 played Gene Repair
     // Player1's megacredits production increased by 2
+    p1.playProject("GeneRepair", 12).expect("PROD[2]")
     // Player1 passed
+    p1.pass()
+    engine.phase("Production")
     // Final greenery placement
-    // Player1 placed greenery tile on row 6 position 4
-    // Player1's plants amount increased by 1
-    // Player2 placed greenery tile on row 8 position 5
+    p1.godMode().manual("UseAction1<ConvertPlantsSA>") {
+      // Player1 placed greenery tile on row 6 position 4
+      doTask("GreeneryTile<Tharsis_6_5>")
+      // Player1's plants amount increased by 1
+    }.expect("-7 Plant")
+    p2.godMode().manual("UseAction1<ConvertPlantsSA>") {
+      // Player2 placed greenery tile on row 8 position 5
+      doTask("GreeneryTile<Tharsis_8_8>")
+    }.expect("-8 Plant")
     // This game id was gf386a4cd5de1
   }
 
