@@ -264,7 +264,7 @@ private class ReplSessionTest {
 
                2 -           L   VS    L    L    L   [O]
 
-               3 -        VC   L    L    L    L    L    L
+               3 -        VC   L    L    L    L    L    LS
 
                4 -     VPT  LP   LP   LP  [G2] [C1]  LP   WPP
 
@@ -276,7 +276,7 @@ private class ReplSessionTest {
 
                8 -          LSS   L   LC   LC    L   LT
 
-               9 -            LSS  LSS   L    L   [S2]
+               9 -             LS  LSS   L    L   [S2]
             """
                 .replaceIndent(" ")
                 .split("\n")
