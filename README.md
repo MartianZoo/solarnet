@@ -46,6 +46,8 @@ cd solarnet
 help
 ```
 
+Solarnet's preferred JDK is 21; the repo includes `.java-version` for tools that honor it.
+
 But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
 
 ## Learning more

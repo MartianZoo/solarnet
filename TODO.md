@@ -11,3 +11,5 @@
 
 - Implement `TfmWorkflow.Auto` final greenery handling instead of leaving final greenery placement to
   test/manual code after the final production phase.
+- Replace the `Gain.copy(...)` call in `Transformers.atomizeChanges()` before Kotlin 2.2 turns the
+  exposed-copy-visibility warning into an error.

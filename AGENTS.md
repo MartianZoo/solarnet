@@ -2,8 +2,7 @@
 
 ## Tooling
 
-- Run Gradle with JDK 21 in this checkout:
-  `env JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home ./gradlew ...`
+- Solarnet's preferred JDK is 21. Use JDK 21 for local Gradle work.
 - The machine's default Java 26 can fail before project code runs, with misleading early Gradle/Kotlin DSL errors.
 - The full `:engine:test` suite has been fast enough to run routinely after changes.
 
