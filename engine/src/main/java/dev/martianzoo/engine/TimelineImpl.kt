@@ -16,7 +16,7 @@ internal class TimelineImpl(
     private val reader: GameReader,
     private val updater: Updater,
     private val events: WritableEventLog,
-    private val tasks: WritableTaskQueue,
+    private val tasks: TaskQueues,
 ) : Timeline {
 
   override fun checkpoint() = Checkpoint(events.size)

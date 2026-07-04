@@ -29,21 +29,20 @@ import dev.martianzoo.util.toSetStrict
  * * A concrete task with [Task.next] set is guaranteed to execute successfully
  * * New tasks created have the same owner and cause as the original. Prepared tasks cannot be split
  */
-internal class WritableTaskQueue(private val events: TaskListener) : TaskQueue {
+internal class TaskQueues(private val events: TaskListener) {
   private val taskSet: MutableSet<Task> = mutableSetOf()
 
-  // OVERRIDES / READ-ONLY OPERATIONS
+  internal fun all(): TaskQueue = view { true }
 
-  override fun ids() = taskSet.toSetStrict { it.id }
+  internal operator fun get(player: Player): TaskQueue = view { it.owner == player }
 
-  override fun contains(id: TaskId) = taskSet.any { it.id == id }
+  private fun view(predicate: (Task) -> Boolean): TaskQueue = QueueView(predicate)
 
-  override fun matching(predicate: (Task) -> Boolean) =
-      taskSet.filter(predicate).toSetStrict { it.id }
+  // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 
-  override fun <T> extract(extractor: (Task) -> T) = taskSet.map(extractor)
+  internal operator fun contains(id: TaskId) = taskSet.any { it.id == id }
 
-  override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
+  internal fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
 
   internal fun getTaskData(id: TaskId) =
       taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
@@ -114,4 +113,21 @@ internal class WritableTaskQueue(private val events: TaskListener) : TaskQueue {
   }
 
   override fun toString() = taskSet.joinToString("\n")
+
+  private inner class QueueView(private val predicate: (Task) -> Boolean) : TaskQueue {
+    private fun filtered() = taskSet.filter(predicate)
+
+    override fun ids() = filtered().toSetStrict { it.id }
+
+    override fun contains(id: TaskId) = filtered().any { it.id == id }
+
+    override fun matching(predicate: (Task) -> Boolean) =
+        filtered().filter(predicate).toSetStrict { it.id }
+
+    override fun <T> extract(extractor: (Task) -> T) = filtered().map(extractor)
+
+    override fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
+
+    override fun toString() = filtered().joinToString("\n")
+  }
 }

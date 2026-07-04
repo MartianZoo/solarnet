@@ -10,8 +10,10 @@ internal class Initializer(
     private val classes: MClassTable,
     private val timeline: TimelineImpl,
     private val setup: GameSetup,
-    private val tasks: TaskQueue,
+    taskQueues: TaskQueues,
 ) {
+  private val tasks: TaskQueue = taskQueues.all()
+
   // Taking 14% of total solo game time
   internal fun initialize() {
     var fakeCause: Cause? = null

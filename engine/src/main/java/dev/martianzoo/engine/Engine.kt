@@ -53,7 +53,8 @@ public object Engine {
       bind<ComponentGraph>()
       bind<Updater>()
     }
-    singleOf(::WritableTaskQueue) { bind<TaskQueue>() }
+    singleOf(::TaskQueues)
+    single<TaskQueue> { get<TaskQueues>().all() }
     singleOf(::Transformers)
     singleOf(::GameReaderImpl) { bind<GameReader>() }
     singleOf(::TimelineImpl) { bind<Timeline>() }

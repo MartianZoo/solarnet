@@ -17,7 +17,7 @@ Clients perform all mutative operations via the `Gameplay` interface. Interally,
 | Object | Metaphor | What it contains |
 |--------|----------|-----------------|
 | `ComponentGraph` | The **present** | A multiset of all current component instances in play |
-| `TaskQueue` | The **future** | What the engine knows it's waiting on players to do |
+| `TaskQueues` / `TaskQueue` | The **future** | What the engine knows it's waiting on players to do |
 | `EventLog` | The **past** | The full history of changes to those things^^ |
 
 The fourth critical piece is a `Timeline`, which coordinates atomic changes across those three child objects, and supports rollback and replay (which not only enable an "undo" feature but are actually crucial to normal engine operations).
@@ -70,7 +70,12 @@ log backward from the current end to the checkpoint, reversing each event in tur
 
 ## The Task Queue
 
-The task queue is an ordered set of `Task` objects. Each task has:
+The internal task queue manager is `TaskQueues`, which owns the ordered set of `Task` objects and
+all task mutation. Public readers and gameplay operation bodies see read-only `TaskQueue` views.
+Those views may be scoped; for example, a player's `Gameplay` exposes only tasks owned by that
+player, while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
+
+Each task has:
 
 - `id` — a monotonically increasing `TaskId`
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
@@ -79,6 +84,10 @@ The task queue is an ordered set of `Task` objects. Each task has:
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
 - `whyPending` — diagnostic string set when autoexec can't resolve a task
+
+For now, task ownership and queue membership are identical: a player's scoped queue contains tasks
+whose `owner` is that player, and Engine's scoped queue contains Engine-owned tasks. This leaves room
+for a future split between task lineage and current queue placement without changing behavior yet.
 
 Tasks are fundamentally a **unit of player choice**, in two ways. First, the player gets to choose
 which order to execute their tasks in (a very interesting feature of this particular game's rules).
@@ -255,6 +264,8 @@ Gameplay         ← query-only + task revision/preparation + doTask
 - **`OperationLayer`** is for structured operations: `manual()` requires the queue is empty,
   adds the instruction as tasks, runs them to completion (including autoexec), and verifies
   the queue is empty and no `Temporary` components remain.
+- **`OperationBody.tasks`** is the caller's scoped read-only queue view. Player gameplay sees that
+  player's tasks; Engine gameplay sees Engine tasks.
 - **`TaskLayer`** lets you inject arbitrary tasks and remove them for any reason.
 - **`GodMode`** lets you make raw changes to the component graph, bypassing instruction
   preparation and effect firing (`sneak()`).
