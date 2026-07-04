@@ -1,8 +1,13 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
+import dev.martianzoo.pets.ast.Instruction.InstructionGroup
 
 /**
  * Contains tasks: what the game is waiting on someone to do. Each task is owned by some [Player]
@@ -29,4 +34,23 @@ public interface TaskQueue {
 
   /** Returns the id of the task marked with [Task.next] if there is one. */
   fun preparedTask(): TaskId?
+
+  /** Returns true if no queue has any tasks. */
+  fun areAllQueuesEmpty(): Boolean
+}
+
+internal interface WritableTaskQueue : TaskQueue {
+  fun addTasks(instruction: InstructionGroup, cause: Cause?): List<TaskAddedEvent>
+
+  fun addTasks(task: Task): List<TaskAddedEvent>
+
+  fun removeTask(id: TaskId): TaskRemovedEvent
+
+  fun editTask(newTask: Task): TaskEditedEvent?
+
+  fun getTaskData(id: TaskId): Task
+
+  fun queueFor(player: Player): WritableTaskQueue
+
+  fun allQueues(): WritableTaskQueue
 }

@@ -74,6 +74,8 @@ The internal task queue manager is `TaskQueues`, which owns the ordered set of `
 all task mutation. Public readers and gameplay operation bodies see read-only `TaskQueue` views.
 Those views may be scoped; for example, a player's `Gameplay` exposes only tasks owned by that
 player, while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
+Internal code that mutates tasks uses `WritableTaskQueue`, following the same read-only/writable
+split as the component graph and event log.
 
 Each task has:
 

@@ -62,6 +62,8 @@ public object Engine {
     singleOf(::Game)
 
     scope<PlayerScopeId> {
+      scoped<WritableTaskQueue> { get<TaskQueues>()[get<Player>()] }
+      scoped<TaskQueue> { get<WritableTaskQueue>() }
       scopedOf(::Changer)
       scoped { Instructor(get(), get(), get(), get(), get()) } // Changer? and Effector? are nullable
       scopedOf(::Implementations)

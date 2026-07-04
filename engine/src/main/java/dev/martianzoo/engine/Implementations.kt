@@ -21,16 +21,13 @@ import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal class Implementations(
-    private val taskQueues: TaskQueues,
+    private val tasks: WritableTaskQueue,
     private val reader: GameReader,
     private val timeline: Timeline,
     private val player: Player,
     private val instructor: Instructor,
     private val changer: Changer,
 ) {
-  private val tasks: TaskQueue = taskQueues[player]
-  private val allTasks: TaskQueue = taskQueues.all()
-
   // CHANGES LAYER
 
   internal fun sneak(changes: Instruction, cause: Cause? = null) {
@@ -50,21 +47,21 @@ internal class Implementations(
 
   internal fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskId> {
     val prepped = split(instruction)
-    return taskQueues.addTasks(prepped, player, firstCause).map { it.task.id }
+    return tasks.addTasks(prepped, firstCause).map { it.task.id }
   }
 
-  internal fun dropTask(taskId: TaskId): TaskRemovedEvent = taskQueues.removeTask(taskId)
+  internal fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
   // OPERATIONS LAYER
 
   internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    require(allTasks.isEmpty()) { allTasks }
+    require(tasks.areAllQueuesEmpty()) { tasks.allQueues() }
     addTasks(initialInstruction).forEach(::doTask)
     complete(autoExec, body)
   }
 
   internal fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    require(allTasks.isEmpty()) { allTasks }
+    require(tasks.areAllQueuesEmpty()) { tasks.allQueues() }
     addTasks(initialInstruction).forEach(::doTask)
     continueManual(autoExec, body)
   }
@@ -77,8 +74,8 @@ internal class Implementations(
 
   internal fun complete(autoExec: AutoExecMode, body: () -> Unit) {
     continueManual(autoExec, body)
-    require(allTasks.isEmpty()) {
-      "Should be no tasks left, but:\n" + allTasks.extract { it }.joinToString("\n")
+    require(tasks.areAllQueuesEmpty()) {
+      "Should be no tasks left, but:\n" + tasks.allQueues().extract { it }.joinToString("\n")
     }
     require(reader.has(parse("MAX 0 $TEMPORARY")))
   }
@@ -89,6 +86,7 @@ internal class Implementations(
   }
 
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
+    val allTasks = tasks.allQueues()
     if (mode == NONE || allTasks.isEmpty()) return false
 
     // see if we can prepare a task
@@ -132,7 +130,8 @@ internal class Implementations(
   }
 
   private fun explainTask(taskId: TaskId, reason: String) {
-    taskQueues.editTask(taskQueues.getTaskData(taskId).copy(whyPending = reason))
+    val queue = tasks.allQueues()
+    queue.editTask(queue.getTaskData(taskId).copy(whyPending = reason))
   }
 
   /**
@@ -140,15 +139,16 @@ internal class Implementations(
    * automatically enqueued.
    */
   private fun handleTask(taskId: TaskId) {
-    val task = taskQueues.getTaskData(taskId)
-    task.then?.let { taskQueues.addTasks(split(it), task.owner, task.cause) }
-    taskQueues.removeTask(taskId)
+    val task = tasks.allQueues().getTaskData(taskId)
+    task.then?.let { tasks.queueFor(task.owner).addTasks(split(it), task.cause) }
+    tasks.queueFor(task.owner).removeTask(taskId)
   }
 
   private fun dontCutTheLine(taskId: TaskId) {
-    val already = taskQueues.preparedTask()
+    val allTasks = tasks.allQueues()
+    val already = allTasks.preparedTask()
     if (already != null && already != taskId) {
-      val instr = taskQueues.getTaskData(already).instruction
+      val instr = allTasks.getTaskData(already).instruction
       throw TaskException("task $already ($instr) is already prepared and must be executed first")
     }
   }
@@ -160,7 +160,7 @@ internal class Implementations(
   // GAMES LAYER
 
   internal fun reviseTask(taskId: TaskId, revised: Instruction) {
-    val task = taskQueues.getTaskData(taskId)
+    val task = tasks.getTaskData(taskId)
     if (player != task.owner) {
       throw TaskException("$player can't revise a task owned by ${task.owner}")
     }
@@ -168,14 +168,14 @@ internal class Implementations(
     if (revised != task.instruction) {
       revised.ensureNarrows(task.instruction, reader)
       val replacement = if (task.next) instructor.prepare(revised) else revised
-      replace1WithN(taskQueues.getTaskData(taskId).copy(instructionIn = replacement))
+      replace1WithN(tasks.getTaskData(taskId).copy(instructionIn = replacement))
     }
   }
 
   internal fun canPrepareTask(taskId: TaskId): Boolean {
     // TODO better way
     dontCutTheLine(taskId)
-    val unprepared = taskQueues.getTaskData(taskId).instruction
+    val unprepared = tasks.allQueues().getTaskData(taskId).instruction
     return try {
       timeline.atomic { instructor.prepare(unprepared) }
       true
@@ -185,10 +185,10 @@ internal class Implementations(
   }
 
   internal fun prepareTask(taskId: TaskId): TaskId? =
-      doPrepare(taskQueues.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
+      doPrepare(tasks.allQueues().getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
 
   private fun lookAheadForTrouble(taskId: TaskId) {
-    if (taskId in taskQueues) {
+    if (taskId in tasks.allQueues()) {
       try {
         timeline.atomic {
           doTask(taskId)
@@ -203,16 +203,16 @@ internal class Implementations(
     dontCutTheLine(task.id)
     val replacement = instructor.prepare(task.instruction)
     replace1WithN(task.copy(instructionIn = replacement, next = true))
-    return taskQueues.preparedTask()
+    return tasks.allQueues().preparedTask()
   }
 
   private fun replace1WithN(replacement: Task) {
     val split = split(replacement.instruction)
     if (split.size == 1) {
       val one = split.instructions[0]
-      taskQueues.editTask(replacement.copy(instructionIn = one))
+      tasks.queueFor(replacement.owner).editTask(replacement.copy(instructionIn = one))
     } else {
-      taskQueues.addTasks(split, replacement.owner, replacement.cause)
+      tasks.queueFor(replacement.owner).addTasks(split, replacement.cause)
       handleTask(replacement.id)
     }
   }
@@ -220,23 +220,24 @@ internal class Implementations(
   internal fun doFirstTask(revised: Instruction? = null) {
     val id = tasks.ids().min()
     prepareTask(id)
-    if (id in taskQueues && revised != null) reviseTask(id, revised)
-    if (id in taskQueues) doTask(id)
+    if (id in tasks.allQueues() && revised != null) reviseTask(id, revised)
+    if (id in tasks.allQueues()) doTask(id)
   }
 
   internal fun doTask(taskId: TaskId) {
-    val prepared = doPrepare(taskQueues.getTaskData(taskId)) ?: return
-    val preparedTask = taskQueues.getTaskData(prepared)
+    val queue = tasks.allQueues()
+    val prepared = doPrepare(queue.getTaskData(taskId)) ?: return
+    val preparedTask = queue.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-    newTasks.forEach(taskQueues::addTasks)
+    newTasks.forEach { tasks.queueFor(it.owner).addTasks(it) }
     handleTask(taskId)
   }
 
   internal fun doTask(revised: Instruction) {
     val id = matchingTask(revised)
     prepareTask(id)
-    if (id in taskQueues) reviseTask(id, revised)
-    if (id in taskQueues) doTask(id)
+    if (id in tasks.allQueues()) reviseTask(id, revised)
+    if (id in tasks.allQueues()) doTask(id)
   }
 
   private fun matchingTask(revised: Instruction): TaskId {
@@ -261,7 +262,7 @@ internal class Implementations(
     try {
       timeline.atomic {
         prepareTask(id)
-        if (id in taskQueues) doTask(id)
+        if (id in tasks.allQueues()) doTask(id)
       }
     } catch (e: AbstractException) {
       explainTask(id, "abstract")
@@ -283,7 +284,7 @@ internal class Implementations(
 
   // Similar to tryTask, but a NotNowException is unrecoverable in this case
   internal fun tryPreparedTask(): Boolean /* did I do stuff? */ {
-    val taskId = allTasks.preparedTask()!!
+    val taskId = tasks.allQueues().preparedTask()!!
     return try {
       doTask(taskId)
       true

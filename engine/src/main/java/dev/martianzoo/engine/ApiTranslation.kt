@@ -33,13 +33,11 @@ internal class ApiTranslation(
     private val reader: GameReader,
     private val timeline: Timeline,
     private val impl: Implementations,
-    taskQueues: TaskQueues,
+    private val tasks: TaskQueue,
     table: MClassTable,
     xers: Transformers,
     private val onAtomicComplete: () -> Unit,
 ) : GodMode { // so it really implements all gameplay layers
-  private val tasks: TaskQueue = taskQueues[player]
-
   override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
       if (newMode != field) {
