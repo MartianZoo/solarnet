@@ -1,6 +1,8 @@
 package dev.martianzoo.repl.commands
 
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.ReplMode
 import dev.martianzoo.repl.ReplSession.UsageException
@@ -14,6 +16,9 @@ internal class ModeCommand(private val repl: ReplSession) : ReplCommand("mode") 
       """
 
   override fun noArgs() = listOf("Mode ${repl.mode}: ${repl.mode.message}")
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      ReplMode.values().map { ReplCompletion(it.name.lowercase(), "modes", it.message) }
 
   override fun withArgs(args: String): List<String> {
     try {

@@ -6,6 +6,7 @@ internal const val SERVER_PORT = 2315
 
 internal class ReplServer(port: Int = SERVER_PORT) {
   private val session = ReplSession()
+  private val completer = ReplCompleter(session)
   // Bind eagerly so callers can read actualPort before run() is called (useful in tests).
   private val serverSocket = ServerSocket(port)
   internal val actualPort: Int = serverSocket.localPort
@@ -24,13 +25,25 @@ internal class ReplServer(port: Int = SERVER_PORT) {
           writer.newLine()
         }
 
-        when (input.trim().lowercase()) {
-          "exit" -> {
+        val completionLine =
+            when {
+              input.endsWith('\t') -> input.dropLast(1)
+              input.endsWith("\\t") -> input.dropLast(2)
+              else -> null
+            }
+        val command = input.trim().lowercase()
+        when {
+          completionLine != null -> {
+            completer.completeLine(completionLine).map { it.value() }.forEach(::send)
+          }
+          command == "exit" -> {
             send("Shutting down rego server.")
             running = false
           }
-          "rebuild" -> send("'rebuild' is not supported in server mode.")
-          else -> session.executeAll(input).dropLastWhile { it.isBlank() }.forEach(::send)
+          command == "rebuild" -> send("'rebuild' is not supported in server mode.")
+          else -> {
+            session.executeAll(input).dropLastWhile { it.isBlank() }.forEach(::send)
+          }
         }
         send("---END---")
         writer.flush()

@@ -49,6 +49,22 @@ private class ReplServerTest {
   }
 
   @Test
+  fun trailingTabReturnsCompletions() = withServer { send ->
+    assertThat(send("mode b\t")).containsExactly("blue")
+  }
+
+  @Test
+  fun trailingBackslashTAlsoReturnsCompletions() = withServer { send ->
+    assertThat(send("mode b\\t")).containsExactly("blue")
+  }
+
+  @Test
+  fun trailingTabDoesNotExecuteServerControlCommands() = withServer { send ->
+    assertThat(send("exit\t")).containsExactly("exit")
+    assertThat(send("status")).hasSize(1)
+  }
+
+  @Test
   fun rebuildReturnsError() = withServer { send ->
     assertThat(send("rebuild").single()).contains("not supported")
   }

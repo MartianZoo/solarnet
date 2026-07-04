@@ -1,6 +1,8 @@
 package dev.martianzoo.repl.commands
 
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 import dev.martianzoo.tfm.data.GameSetup
@@ -18,6 +20,14 @@ internal class NewGameCommand(private val repl: ReplSession) : ReplCommand("newg
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
       """
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      when (context.argIndex) {
+        0 -> context.bundleSuggestions()
+        1 -> (1..5).map { ReplCompletion(it.toString(), "player counts") }
+        2 -> context.completions("purple", group = "workflow modes")
+        else -> emptyList()
+      }
 
   override fun withArgs(args: String): List<String> {
     try {

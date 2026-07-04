@@ -1,6 +1,8 @@
 package dev.martianzoo.repl.commands
 
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import java.io.File
 
@@ -13,6 +15,11 @@ internal class ScriptCommand(private val repl: ReplSession) : ReplCommand("scrip
         line "stop" or the end of file. You probably don't want to put "exit" in that file.
         TODO: detect and reject "exit" within script files (it shuts down the server in server mode)
       """
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.fileArguments()
+
+  override fun completionPrefix(parsedWord: String): String = parsedWord
 
   override fun withArgs(args: String) =
       File(args)

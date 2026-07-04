@@ -3,6 +3,8 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 
 internal class CountCommand(private val repl: ReplSession) : ReplCommand("count") {
@@ -13,6 +15,9 @@ internal class CountCommand(private val repl: ReplSession) : ReplCommand("count"
         `+`, etc.
       """
   override val isReadOnly = true
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.petsLanguageWords()
 
   override fun withArgs(args: String): List<String> {
     val metric: Metric = repl.gameplay.parse(args)

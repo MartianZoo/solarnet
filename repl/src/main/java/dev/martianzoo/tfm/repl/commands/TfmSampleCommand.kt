@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.repl.commands
 import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 import dev.martianzoo.tfm.repl.SampleGames
@@ -16,6 +18,13 @@ internal class TfmSampleCommand(private val repl: ReplSession) : ReplCommand("tf
     through; 0 means to stop right after the prelude phase.
   """
           .trimIndent()
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      when (context.argIndex) {
+        0 -> context.completions("A", group = "sample games")
+        1 -> (0..8).map { ReplCompletion(it.toString(), "generations") }
+        else -> emptyList()
+      }
 
   override fun withArgs(args: String): List<String> {
     val (id, gens) = args.trim().split(Regex("\\s+"))

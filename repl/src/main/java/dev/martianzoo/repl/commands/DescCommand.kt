@@ -5,6 +5,8 @@ import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.types.MType
 import dev.martianzoo.types.TypeDescription
@@ -20,6 +22,9 @@ internal class DescCommand(private val repl: ReplSession) : ReplCommand("desc") 
         exist yet.
       """
   override val isReadOnly = true
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.petsLanguageWords()
 
   override fun withArgs(args: String): List<String> {
     val (expression, type) =

@@ -2,6 +2,8 @@ package dev.martianzoo.repl.commands
 
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 import dev.martianzoo.util.toStrings
@@ -15,6 +17,9 @@ internal class LogCommand(private val repl: ReplSession) : ReplCommand("log") {
         components -- just like the default output after `exec` or `task` does).
       """
   override val isReadOnly = true
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.completions("full", group = "log options")
 
   override fun noArgs() =
       repl.game.events

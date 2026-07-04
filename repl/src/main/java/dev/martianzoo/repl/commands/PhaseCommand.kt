@@ -5,6 +5,8 @@ import dev.martianzoo.data.Player.Companion
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 
 internal class PhaseCommand(private val repl: ReplSession) : ReplCommand("phase") {
@@ -13,6 +15,9 @@ internal class PhaseCommand(private val repl: ReplSession) : ReplCommand("phase"
       """
         Asks the engine to begin a new phase, e.g. `phase Corporation`
       """
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.phaseNames()
+
   override fun withArgs(args: String): List<String> {
     // TODO Better way to do it??
     val saved = repl.gameplay

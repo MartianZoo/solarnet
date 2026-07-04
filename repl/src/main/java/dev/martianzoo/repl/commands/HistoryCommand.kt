@@ -17,13 +17,14 @@ internal class HistoryCommand(private val repl: ReplSession) : ReplCommand("hist
         library if curious.
       """
   override val isReadOnly = true
-  private val history: DefaultHistory? = repl.jline?.history
+  private val history: DefaultHistory?
+    get() = repl.jline?.history
 
   override fun noArgs() =
       history?.map { "${it.index() + 1}: ${it.line()}" } ?: listOf("See your own shell history!")
 
   override fun withArgs(args: String): List<String> {
-    history ?: return listOf("See your own shell history!")
+    val history = history ?: return listOf("See your own shell history!")
     val max = args.toIntOrNull() ?: throw UsageException()
     val drop = (history.size() - max).coerceIn(0, null)
     return history.drop(drop).map { "${it.index() + 1}: ${it.line()}" }

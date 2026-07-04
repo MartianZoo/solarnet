@@ -3,6 +3,7 @@ package dev.martianzoo.repl
 import kotlin.io.path.Path
 import kotlin.system.exitProcess
 import org.jline.reader.EndOfFileException
+import org.jline.reader.Completer
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.impl.history.DefaultHistory
@@ -10,7 +11,7 @@ import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp.Capability
 
-internal class JlineRepl {
+internal class JlineRepl(completer: Completer? = null) {
   private val historyFile = Path(System.getProperty("user.home") + "/.rego_history")
   private val terminal: Terminal =
       TerminalBuilder.builder().color(true).build().also {
@@ -22,7 +23,7 @@ internal class JlineRepl {
   internal val history = DefaultHistory()
 
   private val reader: LineReader =
-      LineReaderBuilder.builder().terminal(terminal).history(history).build().also {
+      LineReaderBuilder.builder().terminal(terminal).history(history).completer(completer).build().also {
         history.attach(it)
         history.read(historyFile, /* checkDuplicates= */ false)
       }

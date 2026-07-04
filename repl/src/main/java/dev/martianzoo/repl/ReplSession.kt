@@ -64,13 +64,13 @@ internal fun main(args: Array<String>) { // JVM entry point for the shadow JAR
     ReplServer().run()
     return
   }
-  val jline = JlineRepl()
-  val repl = ReplSession(jline)
+  val repl = ReplSession()
+  repl.jline = JlineRepl(ReplCompleter(repl))
   repl.loop()
   println("Bye")
 }
 
-internal class ReplSession(internal val jline: JlineRepl? = null) {
+internal class ReplSession(internal var jline: JlineRepl? = null) {
   internal lateinit var setup: GameSetup
   internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
