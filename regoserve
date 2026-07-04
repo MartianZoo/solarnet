@@ -3,7 +3,21 @@
 
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
+if [[ -x /usr/libexec/java_home ]]; then
+    export JAVA_HOME="$(/usr/libexec/java_home -v 21)" || {
+        echo "Error: JDK 21 is required. Install it or set JAVA_HOME to a JDK 21 install." >&2
+        exit 1
+    }
+fi
+
+if [[ ! -x "${JAVA_HOME:-}/bin/java" ]] || [[ "$("$JAVA_HOME/bin/java" -version 2>&1)" != *'version "21.'* ]]; then
+    echo "Error: JDK 21 is required. Install it or set JAVA_HOME to a JDK 21 install." >&2
+    exit 1
+fi
+
+export PATH="$JAVA_HOME/bin:$PATH"
+
 ./gradlew :repl:shadowJar || exit
-java -jar repl/build/libs/repl-all.jar --serve &
+"$JAVA_HOME/bin/java" -jar repl/build/libs/repl-all.jar --serve &
 disown
 echo "Rego server starting on port 2315 (use ./rc to send commands)..."
