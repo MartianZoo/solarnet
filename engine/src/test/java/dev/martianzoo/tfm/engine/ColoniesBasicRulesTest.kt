@@ -176,4 +176,34 @@ internal class ColoniesBasicRulesTest {
     engine.nextGeneration(0, 0, 0, 0)
     engine.assertCounts(0 to "Trade", 2 to "ColonyProduction<Ceres>")
   }
+
+  @Test
+  fun `card resource colony bonus goes to colony owner`() {
+    val colonies =
+        listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
+    val localGame = Engine.newGame(GameSetup(Canon, "BRMCX", 2, colonies))
+    val localEngine = localGame.tfm(ENGINE)
+    val localP1 = localGame.tfm(PLAYER1)
+    val localP2 = localGame.tfm(PLAYER2)
+
+    localP1.godMode().sneak("100, 5 ProjectCard")
+    localP2.godMode().sneak("100, 5 ProjectCard")
+    localEngine.phase("Action")
+
+    localP2.playProject("RegolithEaters", 13)
+    localP1.playProject("NitriteReducingBacteria", 11)
+    localP1.stdProject("BuildColonySP") {
+      doTask("Colony<Enceladus>")
+      doTask("3 Microbe<NitriteReducingBacteria>")
+    }
+
+    localP2.stdAction("TradeSA", 1) {
+      doTask("Trade<Enceladus, TradeFleetB>")
+      doTask("Microbe<RegolithEaters>")
+      localP1.doTask("Microbe<NitriteReducingBacteria>")
+    }
+
+    localP1.assertCounts(7 to "Microbe<NitriteReducingBacteria>")
+    localP2.assertCounts(1 to "Microbe<RegolithEaters>")
+  }
 }

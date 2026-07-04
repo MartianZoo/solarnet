@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Companion.getClassForClassType
 import dev.martianzoo.types.Dependency.Companion.isForClassType
+import dev.martianzoo.types.Dependency.ComplementDependency
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
@@ -50,6 +51,8 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   }
 
   fun typeDependencies(): Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
+  fun complementDependencies(): Set<ComplementDependency> =
+      deps.filterIsInstance<ComplementDependency>().toSet()
 
   val keys: Set<Key> = deps.toSetStrict { it.key }
   fun expressions(): List<Expression> = deps.map { it.expression }
@@ -134,7 +137,14 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     return if (isForClassType(deps)) {
       mtype.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
     } else {
-      val axes = typeDependencies().map { it.allConcreteSpecializations() }
+      val axes =
+          deps.map {
+            when (it) {
+              is TypeDependency -> it.allConcreteSpecializations()
+              is ComplementDependency -> it.allConcreteSpecializations()
+              else -> error("unexpected")
+            }
+          }
       axes.cartesianProduct().map { mtype.root.withAllDependencies(DependencySet.of(it)) }
     }
   }

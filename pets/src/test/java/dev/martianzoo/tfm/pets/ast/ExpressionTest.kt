@@ -33,6 +33,8 @@ private class ExpressionTest {
     testRoundTrip("Foo(HAS Bar)")
     testRoundTrip("Foo(HAS MAX 0 Bar)")
     testRoundTrip("Foo<Bar>(HAS Baz, 2 Qux)")
+    testRoundTrip("!Foo")
+    testRoundTrip("Foo<!Bar>")
   }
 
   @Test

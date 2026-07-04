@@ -15,7 +15,6 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | B00 | Beginner Corporation       | beginner              |
 | XC1 | Arcadian Communities       | community             |
 | 066 | Land Claim                 | community             |
-| XC6 | Philares                   | outofturn             |
 | XC5 | Mons Insurance             | complement, outofturn |
 | 173 | Protected Habitats         | complement            |
 | X14 | Asteroid Deflection System | complement            |

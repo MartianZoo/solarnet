@@ -11,5 +11,5 @@ internal class TasksCommand(private val repl: ReplSession) : ReplCommand("tasks"
         tasks of all players plus the engine are currently mixed together (but labeled).
       """
   override val isReadOnly = true
-  override fun noArgs() = repl.game.tasks.extract { it.toStringWithoutCause() }
+  override fun noArgs() = repl.game.tasks.extract { it.toStringWithoutCause(queueOwner = it.owner) }
 }

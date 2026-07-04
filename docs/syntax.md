@@ -7,7 +7,7 @@ in `cards.json5`.
 
 ```
 typeExpression  := genericTypeExpr | classLiteral
-genericTypeExpr := className [specializations] [refinement]
+genericTypeExpr := ['!'] className [specializations] [refinement]
 specializations := '<' typeExpression (',' typeExpression)* '>'
 refinement      := '(HAS' requirement ')'
 classLiteral    := className '.CLASS'
@@ -23,6 +23,10 @@ comes a class name, then an optional list of one or more specializations inside 
 requirement. Of course, each listed specialization is an entire type expression itself.
 
 These expressions are a way of identifying a type, and types are explained in the [type system] article.
+
+A leading `!` can be used inside a specialization to mean "anything in this dependency's domain
+except this type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not
+Player1. Complemented expressions are dependency constraints, not standalone component types.
 
 ### Class literal
 

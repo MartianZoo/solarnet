@@ -195,7 +195,10 @@ internal class Transformers(internal val classes: MClassTable) {
         if (node is Expression) {
           val replacement: Expression? = subs[node.className]
           if (replacement != null) {
-            val expr: Expression = replacement.appendArguments(node.arguments)
+            val expr: Expression =
+                replacement
+                    .appendArguments(node.arguments)
+                    .copy(refinement = node.refinement, complement = node.complement)
             @Suppress("UNCHECKED_CAST") return expr as P
           }
         }

@@ -61,7 +61,7 @@ There are several basic elements to the language.
 
 * Instructions (`-2 Plant` means "lose two plants")
 * Requirements (`MAX 4 TemperatureStep` means "is the temperature at most -22 C?")
-* Metrics (`SpaceTag<!Me>` means "number of opponents' space tags", as in `PROD[1 / SpaceTag<!Me>]`) (well, the `!Me` is not yet implemented)
+* Metrics (`OwnedTile<!Owner>` means "owned tiles belonging to opponents")
 * Effects (`EventCard: 3` means "when you play an event card, gain 3 MC")
 * Actions (`Steel -> 5` means "spend 1 steel to gain 5 MC")
 * Component expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on a land area next to >=2 city tiles", no matter which of the above element kinds it appears in)

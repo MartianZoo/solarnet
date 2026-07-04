@@ -99,20 +99,30 @@ public data class Task(
   override fun toString() = buildString {
     append(id)
     append(if (next) "* " else "  ")
-    append("[$owner] ")
+    appendOwnerLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
     cause?.let { append(" $cause") }
     whyPending?.let { append(" ($it)") }
   }
 
-  fun toStringWithoutCause() = buildString {
+  fun toStringWithoutCause(queueOwner: Player? = null) = buildString {
     append(id)
     append(if (next) "* " else "  ")
-    append("[$owner] ")
+    if (queueOwner == null) {
+      appendOwnerLabel()
+    } else {
+      append("[queue: $queueOwner, owner: $owner] ")
+    }
     append(instruction)
     then?.let { append(" (THEN $it)") }
     whyPending?.let { append(" ($it)") }
+  }
+
+  private fun StringBuilder.appendOwnerLabel() {
+    append("[")
+    append(owner)
+    append("] ")
   }
 
   companion object {

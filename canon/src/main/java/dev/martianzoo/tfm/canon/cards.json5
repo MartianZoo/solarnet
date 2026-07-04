@@ -211,6 +211,19 @@
       "effects": [ "Colony<Anyone>: PROD[1]" ]
     },
 
+    // Philares
+    {
+      "id": "XC6",
+      "bundle": "X",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "47, MandateXC6",
+      "effects": [
+        "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
+      ],
+      "components": [ "CLASS MandateXC6 : Mandate { -> GreeneryTile }" ]
+    },
+
     // Lakefront Resorts
     {
       "id": "TC1",

@@ -76,7 +76,7 @@ public abstract class PetTransformer protected constructor() {
           when (this) {
             is ClassName -> this
             is Refinement -> Refinement(x(requirement), forgiving)
-            is Expression -> Expression(x(className), x(arguments), x(refinement))
+            is Expression -> Expression(x(className), x(arguments), x(refinement), complement)
             is ScaledExpression -> ScaledExpression(x(scalar), x(expression))
             is Scalar -> this
             is Metric ->

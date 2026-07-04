@@ -170,7 +170,9 @@ internal class ReplSession(internal val jline: JlineRepl? = null) {
         if (newTasks.any()) {
           listOf("New tasks pending:") +
               game.tasks
-                  .extract { if (it.id in newTasks) it.toStringWithoutCause() else null }
+                  .extract {
+                    if (it.id in newTasks) it.toStringWithoutCause(queueOwner = it.owner) else null
+                  }
                   .filterNotNull()
         } else {
           listOf()

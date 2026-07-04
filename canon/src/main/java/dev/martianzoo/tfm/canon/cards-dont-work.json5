@@ -72,19 +72,6 @@
       ]
     },
 
-    // Philares
-    {
-      "id": "XC6",
-      "bundle": "X",
-      "deck": "CORPORATION",
-      "tags": [ "BuildingTag" ],
-      "immediate": "47",
-      "effects": [
-        "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
-        "DoMandate<This>: GreeneryTile"
-      ]
-    },
-
     // Research Network
     {
       "id": "P28",

@@ -76,6 +76,9 @@ internal class MClassLoader(
 
   /** Returns the [MType] represented by [expression]. */
   override fun resolve(expression: Expression): MType {
+    if (expression.complement) {
+      throw ExpressionException("complement expression has no standalone type: $expression")
+    }
     // Avoiding computeIfAbsent due to CME
     return cache[expression]
         ?: try {
@@ -174,7 +177,7 @@ internal class MClassLoader(
   internal fun checkAllTypes(node: PetNode) =
       node.visitDescendants {
         if (it is Expression) {
-          resolve(it).expression
+          resolve(it.uncomplemented()).expression
           false
         } else {
           true

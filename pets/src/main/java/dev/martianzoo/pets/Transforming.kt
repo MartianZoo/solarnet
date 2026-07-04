@@ -36,7 +36,22 @@ public object Transforming {
 
   /** Replaces each occurrence of `Owner` with the given player. */
   public fun replaceOwnerWith(owner: Player): PetTransformer =
-      if (owner == ENGINE) noOp() else replacer(OWNER.expression, owner.expression)
+      if (owner == ENGINE) {
+        noOp()
+      } else {
+        object : PetTransformer() {
+          override fun <P : dev.martianzoo.pets.ast.PetNode> transform(node: P): P {
+            if (node is Expression &&
+                node.className == OWNER &&
+                node.arguments.isEmpty() &&
+                node.refinement == null) {
+              @Suppress("UNCHECKED_CAST")
+              return node.copy(className = owner.className) as P
+            }
+            return transformChildren(node)
+          }
+        }
+      }
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }

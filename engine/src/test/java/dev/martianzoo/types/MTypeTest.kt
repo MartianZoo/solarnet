@@ -166,6 +166,24 @@ private class MTypeTest {
   }
 
   @Test
+  fun complementDependencies() {
+    val table =
+        loadTypes(
+            """
+              ABSTRACT CLASS Anyone {
+                ABSTRACT CLASS Owner { CLASS Player1, Player2 }
+              }
+              ABSTRACT CLASS Owned<Owner>
+            """
+                .trimIndent())
+
+    assertThat(table.resolve(te("Owned<Player2>")).narrows(table.resolve(te("Owned<!Player1>"))))
+        .isTrue()
+    assertThat(table.resolve(te("Owned<Player1>")).narrows(table.resolve(te("Owned<!Player1>"))))
+        .isFalse()
+  }
+
+  @Test
   fun roundTrip() {
     fun checkMinimal(typeIn: String, typeOut: String = typeIn) {
       assertThat(type(typeIn).expression).isEqualTo(te(typeOut))

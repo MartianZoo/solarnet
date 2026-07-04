@@ -60,13 +60,13 @@ internal class Implementations(
   // OPERATIONS LAYER
 
   internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    require(tasks.isEmpty()) { tasks.toString() }
+    tasks.requireAllQueuesEmpty()
     addTasks(initialInstruction).forEach(::doTask)
     complete(autoExec, body)
   }
 
   internal fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    require(tasks.isEmpty()) { tasks.toString() }
+    tasks.requireAllQueuesEmpty()
     addTasks(initialInstruction).forEach(::doTask)
     continueManual(autoExec, body)
   }
@@ -79,7 +79,7 @@ internal class Implementations(
 
   internal fun complete(autoExec: AutoExecMode, body: () -> Unit) {
     continueManual(autoExec, body)
-    require(tasks.isEmpty()) { tasks.toString() }
+    tasks.requireAllQueuesEmpty()
     require(reader.has(parse("MAX 0 $TEMPORARY")))
   }
 

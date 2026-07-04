@@ -30,23 +30,27 @@ public data class Expression(
     override val className: ClassName,
     val arguments: List<Expression> = listOf(),
     val refinement: Refinement? = null,
+    val complement: Boolean = false,
 ) : PetElement(), HasClassName {
 
   override fun visitChildren(visitor: Visitor) =
       visitor.visit(listOf(className) + arguments + refinement)
 
   override fun toString() = buildString {
+    if (complement) append("!")
     append(className)
     if (arguments.any()) append(arguments.joinToString(", ", "<", ">"))
     refinement?.let { append("($it)") }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
-  val simple: Boolean = arguments.isEmpty() && refinement == null
+  val simple: Boolean = !complement && arguments.isEmpty() && refinement == null
 
   fun appendArguments(moreArgs: List<Expression>) = replaceArguments(arguments + moreArgs)
 
   fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
+
+  fun uncomplemented(): Expression = copy(complement = false)
 
   /**
    * Returns this expression with the given refinement. This expression must not already have a
@@ -98,11 +102,12 @@ public data class Expression(
                   Refinement(b, a)
                 }
 
-        ClassName.parser() and
+        isPresent(char('!')) and
+            ClassName.parser() and
             optionalList(argumentList) and
             optional(refinement) map
-            { (clazz, args, ref) ->
-              Expression(clazz, args, ref)
+            { (not, clazz, args, ref) ->
+              Expression(clazz, args, ref, not)
             }
       }
     }
