@@ -9,104 +9,123 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import org.junit.jupiter.api.Test
 
 class FirstPartialGameTest {
   @Test
   fun fourWholeGenerations() {
     repeat(1) {
-      val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
+      val setup = GameSetup(Canon, "BREPT", 2)
+      val game = Engine.newGame(setup)
       val eng = game.tfm(ENGINE)
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
 
-      eng.phase("Corporation")
+      val manual = TfmWorkflow.Manual(game, setup)
 
+      manual.corporationPhase()
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
 
-      eng.phase("Prelude")
-
+      manual.preludePhase()
       p1.playPrelude("MartianIndustries")
       p1.playPrelude("GalileanMining")
 
       p2.playPrelude("MiningOperations")
       p2.playPrelude("UnmiContractor")
 
-      eng.phase("Action")
+      // Generation 1 (P1 first)
+      manual.actionPhase()
 
       p1.playProject("AsteroidMining", 30)
+
+      p2.playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<E37>") }
+      p2.playProject("SpaceElevator", 1, steel = 13)
+
       p1.pass()
 
-      with(p2) {
-        playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<E37>") }
-        playProject("SpaceElevator", 1, steel = 13)
-        cardAction1("SpaceElevator")
-        playProject("InventionContest", 2)
-        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
-      }
+      p2.cardAction1("SpaceElevator")
+      p2.playProject("InventionContest", 2)
 
-      eng.nextGeneration(4, 1)
+      p2.playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
 
-      with(p2) {
-        cardAction1("SpaceElevator")
-        playProject("EarthCatapult", 23)
-      }
+      p2.pass()
 
-      with(p1) {
-        playProject("TitaniumMine", 7)
-        playProject("RoboticWorkforce", 9) { doTask("CopyProductionBox<MartianIndustries>") }
-        playProject("Sponsors", 6)
+      // Generation 2 (P2 first)
+      manual.productionPhase()
+      manual.researchPhase {
+        p1.doFirstTask("4 BuyCard")
+        p2.doFirstTask("1 BuyCard")
       }
+      manual.actionPhase()
 
-      with(p2) {
-        playProject("IndustrialMicrobes", steel = 5)
-        playProject("TechnologyDemonstration", titanium = 1)
-        playProject("EnergyTapping", 1) { doTask("PROD[-E<P1>]") }
-        playProject("BuildingIndustries", steel = 2)
-      }
+      p2.cardAction1("SpaceElevator")
+      p2.playProject("EarthCatapult", 23)
 
-      eng.nextGeneration(3, 2)
+      p1.playProject("TitaniumMine", 7)
+      p1.playProject("RoboticWorkforce", 9) { doTask("CopyProductionBox<MartianIndustries>") }
 
-      with(p1) {
-        playProject("Mine", 2, steel = 1)
-        pass()
-      }
-      with(p2) {
-        cardAction1("SpaceElevator")
-        playProject("ElectroCatapult", 5, steel = 5)
-        cardAction1("ElectroCatapult")
-        playProject("SpaceHotels", 7, titanium = 1)
-        playProject("MarsUniversity", 6)
-        playProject("ArtificialPhotosynthesis", 10) { doTask("PROD[2 Energy]") }
-        playProject("BribedCommittee", 5)
-      }
+      p2.playProject("IndustrialMicrobes", steel = 5)
+      p2.playProject("TechnologyDemonstration", titanium = 1)
 
-      eng.nextGeneration(3, 2)
+      p1.playProject("Sponsors", 6)
 
-      with(p2) {
-        cardAction1("ElectroCatapult") // steel
-        cardAction1("SpaceElevator")
+      p2.playProject("EnergyTapping", 1) { doTask("PROD[-E<P1>]") }
+      p2.playProject("BuildingIndustries", steel = 2)
+
+      p1.pass()
+      p2.pass()
+
+      // Generation 3 (P1 first)
+      manual.productionPhase()
+      manual.researchPhase {
+        p1.doFirstTask("3 BuyCard")
+        p2.doFirstTask("2 BuyCard")
       }
-      with(p1) {
-        playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<E56>") }
-        playProject("IoMiningIndustries", 1, titanium = 13)
+      manual.actionPhase()
+
+      p1.playProject("Mine", 2, steel = 1)
+
+      p2.cardAction1("SpaceElevator")
+      p2.playProject("ElectroCatapult", 5, steel = 5)
+
+      p1.pass()
+
+      p2.cardAction1("ElectroCatapult")
+      p2.playProject("SpaceHotels", 7, titanium = 1)
+
+      p2.playProject("MarsUniversity", 6)
+      p2.playProject("ArtificialPhotosynthesis", 10) { doTask("PROD[2 Energy]") }
+
+      p2.playProject("BribedCommittee", 5)
+
+      p2.pass()
+
+      // Generation 4 (P2 first)
+      manual.productionPhase()
+      manual.researchPhase {
+        p1.doFirstTask("3 BuyCard")
+        p2.doFirstTask("2 BuyCard")
       }
-      with(p2) {
-        playProject("TransNeptuneProbe", 1, titanium = 1)
-        playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
-      }
+      manual.actionPhase()
+
+      p2.cardAction1("ElectroCatapult")
+      p2.cardAction1("SpaceElevator")
+
+      p1.playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<E56>") }
+      p1.playProject("IoMiningIndustries", 1, titanium = 13)
+
+      p2.playProject("TransNeptuneProbe", 1, titanium = 1)
+      p2.playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
 
       p1.sellPatents(1)
 
-      with(p2) {
-        playProject("SolarPower", 1, steel = 4)
-        stdProject("CitySP") { doTask("CityTile<E65>") }
-      }
+      p2.playProject("SolarPower", 1, steel = 4)
+      p2.stdProject("CitySP") { doTask("CityTile<E65>") }
 
-      eng.phase("Production")
+      manual.productionPhase()
 
-      // Stuff
       eng.assertCounts(4 to "Generation")
       eng.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
 

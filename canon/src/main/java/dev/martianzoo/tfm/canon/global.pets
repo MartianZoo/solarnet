@@ -63,6 +63,7 @@ ABSTRACT CLASS Phase : AutoLoad {
   }
   CLASS ActionPhase {
     NewTurn: UseAction<StandardAction> OR Pass
+    SecondAction: UseAction<StandardAction>?
   }
   CLASS ProductionPhase {
     This: Production2Phase FROM This

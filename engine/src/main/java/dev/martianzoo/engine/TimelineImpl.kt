@@ -21,9 +21,17 @@ internal class TimelineImpl(
 
   override fun checkpoint() = Checkpoint(events.size)
 
-  override fun rollBack(checkpoint: Checkpoint) {
+  private var commitFloor = Checkpoint(0)
 
+  override fun commit() {
+    commitFloor = checkpoint()
+  }
+
+  override fun rollBack(checkpoint: Checkpoint) {
     val ordinal = checkpoint.ordinal
+    require(ordinal >= commitFloor.ordinal) {
+      "Cannot roll back to $ordinal; committed through ${commitFloor.ordinal}"
+    }
     require(ordinal <= events.size)
     if (ordinal == events.size) return
 

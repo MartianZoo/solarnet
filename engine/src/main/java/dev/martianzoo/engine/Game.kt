@@ -45,4 +45,7 @@ public class Game internal constructor(
   internal lateinit var playerComponents: Map<Player, PlayerComponent>
 
   public fun gameplay(player: Player): Gameplay = playerComponents[player]!!.gameplay
+
+  /** Called after every outermost atomic() completes. A workflow sets this to react to game flow. */
+  public var onAtomicComplete: () -> Unit = {}
 }

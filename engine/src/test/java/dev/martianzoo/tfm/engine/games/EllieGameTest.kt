@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import org.junit.jupiter.api.Test
 
 class EllieGameTest : AbstractFullGameTest() {
@@ -17,21 +18,17 @@ class EllieGameTest : AbstractFullGameTest() {
 
   @Test
   fun game() {
-    engine.phase("Corporation")
+    val workflow = TfmWorkflow.Auto(game, setup()).launch()
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
-
-    engine.phase("Prelude")
 
     p1.playPrelude("UnmiContractor") // 3 TR<P1>
     p1.playPrelude("CorporateArchives")
     p2.playPrelude("BiosphereSupport")
     p2.playPrelude("SocietySupport")
 
-    // Action!
-
-    engine.phase("Action")
+    // Generation 1 (P1 first)
 
     p1.playProject("MediaGroup", 6)
     p1.playProject("Sabotage", 1) { doTask("-7 M<P2>") }
@@ -48,41 +45,41 @@ class EllieGameTest : AbstractFullGameTest() {
 
     p2.pass()
 
-    // Generation 2
-
-    engine.nextGeneration(1, 3)
+    // Generation 2 (P2 first)
+    p1.doFirstTask("1 BuyCard")
+    p2.doFirstTask("3 BuyCard")
 
     p2.sellPatents(1)
     p2.playProject("VestaShipyard", 15) // 1 VP<P2>
+
+    p1.playProject("EarthCatapult", 23) // 2 VP<P1>
+    p1.playProject("OlympusConference", steel = 4) // 1 VP<P1>
+
     p2.pass()
 
-    with(p1) {
-      playProject("EarthCatapult", 23) // 2 VP<P1>
-      playProject("OlympusConference", steel = 4) // 1 VP<P1>
-
-      playProject("DevelopmentCenter", 1, steel = 4) {
-        doTask("ProjectCard FROM Science<OlympusConference>")
-      }
-
-      playProject("GeothermalPower", 1, steel = 4)
-
-      playProject("MirandaResort", 10) // 1 VP<P1>
-      playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
-      playProject("MicroMills", 1)
-      pass()
+    p1.playProject("DevelopmentCenter", 1, steel = 4) {
+      doTask("ProjectCard FROM Science<OlympusConference>")
     }
+    p1.playProject("GeothermalPower", 1, steel = 4)
 
-    // Generation 2
+    p1.playProject("MirandaResort", 10) // 1 VP<P1>
+    p1.playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
 
-    engine.nextGeneration(3, 1)
+    p1.playProject("MicroMills", 1)
+    p1.declineSecondAction()
+
+    p1.pass()
+
+    // Generation 3 (P1 first)
+    p1.doFirstTask("3 BuyCard")
+    p2.doFirstTask("1 BuyCard")
 
     p1.cardAction1("DevelopmentCenter")
     p1.playProject("ImmigrantCity", 1, steel = 5) {
       doTask("CityTile<Hellas_9_7>")
       doTask("OceanTile<Hellas_5_6>") // 1 TR<P1>
     }
-
-    // Check counts, shared stuff first
+    workflow.shutdown()
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 1)
 
@@ -125,16 +122,16 @@ class EllieGameTest : AbstractFullGameTest() {
 
   @Test
   fun earlyGameWithNoPrelude() {
-    val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
+    val setup = GameSetup(Canon, "BRHX", 2)
+    val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    engine.phase("Corporation")
+    TfmWorkflow.Auto(game, setup).launch()
+
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
-
-    engine.phase("Action")
 
     p1.playProject("MediaGroup", 6)
     p1.playProject("Sabotage", 1) { doTask("-7 M<Player2>") }

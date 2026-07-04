@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import org.junit.jupiter.api.Test
 
 class Game20230521Test : AbstractFullGameTest() {
@@ -15,10 +16,11 @@ class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   fun game() {
+    TfmWorkflow.Auto(game, setup()).launch()
+
     // Good luck Player1!
     // Good luck Player2!
     // Generation 1
-    engine.phase("Corporation")
 
     // Player1's steel production increased by 1
     // Player1 played Manutech
@@ -30,7 +32,6 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 kept 4 project cards
     p2.playCorp("Factorum", 4).expect("PROD[S], 25, 4 ProjectCard")
 
-    engine.phase("Prelude")
 
     with(p1) {
       // Player1 played New Partner
@@ -62,16 +63,17 @@ class Game20230521Test : AbstractFullGameTest() {
       playPrelude("IoResearchOutpost")
     }
 
-    engine.phase("Action")
 
     // Player1 played Inventors' Guild
     // Player1 ended turn
     p1.playProject("InventorsGuild", 9)
+    p1.declineSecondAction()
 
     // Player2 played Arctic Algae
     // Player2's plants amount increased by 1
     // Player2 ended turn
     p2.playProject("ArcticAlgae", 12).expect("-12, Plant, PlantTag")
+    p2.declineSecondAction()
 
     // Player1 used Inventors' Guild action
     p1.cardAction1("InventorsGuild") {
@@ -80,11 +82,13 @@ class Game20230521Test : AbstractFullGameTest() {
       doTask("BuyCard")
     }
     // Player1 ended turn
+    p1.declineSecondAction()
 
     // Player2 used Factorum action
     // Player2's energy production increased by 1
     p2.cardAction1("Factorum").expect("PROD[E]")
     // Player2 ended turn
+    p2.declineSecondAction()
 
     // Player1 used Power Plant:SP standard project
     p1.stdProject("PowerPlantSP")
@@ -115,9 +119,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 2
     // Player1 bought 2 card(s)
     // You drew Investment Loan and Deuterium Export
+    p1.doFirstTask("2 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Mars University and Steelworks
-    engine.nextGeneration(2, 2)
+    p2.doFirstTask("2 BuyCard")
 
     with(p1) {
       assertProds(5 to "M", 3 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
@@ -161,6 +166,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 removed an asteroid resource to increase Venus scale 1 step
     p2.cardAction2("RotatorImpacts").expect("VenusStep, TR<P2>")
     // Player2 ended turn
+    p2.declineSecondAction()
 
     // Player1 played Development Center
     p1.playProject("DevelopmentCenter", 1, steel = 5)
@@ -188,9 +194,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 3
     // Player1 bought 2 card(s)
     // You drew Spin-Inducing Asteroid and Imported GHG
+    p1.doFirstTask("2 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Asteroid and Trans-Neptune Probe
-    engine.nextGeneration(2, 2)
+    p2.doFirstTask("2 BuyCard")
 
     with(p1) {
       assertProds(4 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 0 to "H")
@@ -270,9 +277,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 4
     // Player1 bought 1 card(s)
     // You drew Tectonic Stress Power
+    p1.doFirstTask("1 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Search For Life and Greenhouses
-    engine.nextGeneration(1, 2)
+    p2.doFirstTask("2 BuyCard")
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
@@ -367,9 +375,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 5
     // Player1 bought 3 card(s)
     // You drew Small Asteroid, Fueled Generators and Domed Crater
+    p1.doFirstTask("3 BuyCard")
     // Player2 bought 3 card(s)
     // You drew Power Supply Consortium, Directed Impactors and Power Plant
-    engine.nextGeneration(3, 3)
+    p2.doFirstTask("3 BuyCard")
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 4 to "E", 2 to "H")
@@ -457,6 +466,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's energy production increased by 1
     p1.playProject("FueledGenerators", 1).expect("PROD[-1, E], E")
     // Player1 ended turn
+    p1.declineSecondAction()
 
     // Player2 used Convert Heat standard action
     p2.stdAction("ConvertHeatSA")
@@ -480,9 +490,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 6
     // Player1 bought 4 card(s)
     // You drew Sister Planet Support, Miranda Resort, Solarnet and Dusk Laser Mining
+    p1.doFirstTask("4 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Bio Printing Facility and Earth Catapult
-    engine.nextGeneration(4, 2)
+    p2.doFirstTask("2 BuyCard")
 
     with(p1) {
       assertProds(9 to "M", 3 to "S", 0 to "T", 0 to "P", 5 to "E", 3 to "H")
@@ -582,13 +593,15 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Convert Heat standard action
     p2.stdAction("ConvertHeatSA")
-    // Player2 passed
-    p2.pass()
+    p2.declineSecondAction()
 
     // Player1 used Convert Heat standard action
     p1.stdAction("ConvertHeatSA")
     // Player1 used Deuterium Export action
     p1.cardAction1("DeuteriumExport")
+
+    // Player2 passed
+    p2.pass()
     // Player1 played Lagrange Observatory
     // Player1 drew 1 card(s)
     // You drew Venus Governor
@@ -614,9 +627,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 7
     // Player1 bought 3 card(s)
     // You drew Stratospheric Birds, Media Archives and Trees
+    p1.doFirstTask("3 BuyCard")
     // Player2 bought 1 card(s)
     // You drew Invention Contest
-    engine.nextGeneration(3, 1)
+    p2.doFirstTask("1 BuyCard")
 
     with(p1) {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 4 to "E", 3 to "H")
@@ -702,25 +716,30 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Titanium Mine
     // Player2's titanium production increased by 1
     p2.playProject("TitaniumMine", 5).expect("PROD[T], BuildingTag")
-    // Player2 passed
-    p2.pass().expect("Pass")
+    p2.declineSecondAction()
 
     // Player1 used Convert Heat standard action
     p1.stdAction("ConvertHeatSA").expect("-8H, TEMP, TR")
     // Player1 played Stratospheric Birds
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
     p1.playProject("StratosphericBirds", 12).expect("-Floater<DeuteriumExport>")
+
+    // Player2 passed
+    p2.pass().expect("Pass")
+
     // Player1 used Stratospheric Birds action
     p1.cardAction1("StratosphericBirds").expect("Animal<StratosphericBirds>")
+    p1.declineSecondAction()
     // Player1 passed
     p1.pass()
 
     // Generation 8
     // Player1 bought 2 card(s)
     // You drew Sulphur Exports and Mohole Lake
+    p1.doFirstTask("2 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Advanced Alloys and Natural Preserve
-    engine.nextGeneration(2, 2)
+    p2.doFirstTask("2 BuyCard")
 
     with(p1) {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
@@ -826,8 +845,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Bio Printing Facility action
     // Player2's plants amount increased by 2
     p2.cardAction1("BioPrintingFacility") { doTask("2 Plant") }.expect("2 Plant, -2 E")
-    // Player2 passed
-    p2.pass()
+    p2.declineSecondAction()
 
     // Player1 used Convert Heat standard action
     p1.stdAction("ConvertHeatSA")
@@ -836,6 +854,9 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 placed greenery tile on row 3 position 5
       doTask("GreeneryTile<Tharsis_3_5>")
     }
+
+    // Player2 passed
+    p2.pass()
 
     // Player1 used Stratospheric Birds action
     p1.cardAction1("StratosphericBirds").expect("Animal")
@@ -848,9 +869,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 9
     // Player1 bought 3 card(s)
     // You drew Rego Plastics, SF Memorial and Water to Venus
+    p1.doFirstTask("3 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Atalanta Planitia Lab and Mining Expedition
-    engine.nextGeneration(3, 2)
+    p2.doFirstTask("2 BuyCard")
 
     with(p1) {
       assertProds(27 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
@@ -1027,19 +1049,23 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.playProject("Trees", 13)
     // Player1 funded Banker award
     p1.godMode().sneak("-8, 5 VP") // faking it for now, fix when awards work
+    p1.declineSecondAction()
 
     // Player2 used Search For Life action
     p2.cardAction1("SearchForLife") {
       // Player2 revealed and discarded Fusion Power
       doTask("Ok")
     }
-    // Player2 passed
-    p2.pass()
+    p2.declineSecondAction()
 
     // Player1 played Venusian Insects
     p1.playProject("VenusianInsects", 5)
     // Player1 used Venusian Insects action
     p1.cardAction1("VenusianInsects")
+
+    // Player2 passed
+    p2.pass()
+
     // Player1 funded Venuphile award
     p1.godMode().sneak("-14, 5 VP")
     // Player1 passed
@@ -1048,9 +1074,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 10
     // Player1 bought 2 card(s)
     // You drew Nitrogen-Rich Asteroid and Lava Tube Settlement
+    p1.doFirstTask("2 BuyCard")
     // Player2 bought 3 card(s)
     // You drew Mercurian Alloys, Hired Raiders and Nuclear Power
-    engine.nextGeneration(2, 3)
+    p2.doFirstTask("3 BuyCard")
 
     with(p1) {
       assertProds(28 to "M", 5 to "S", 1 to "T", 4 to "P", 9 to "E", 3 to "H")
@@ -1082,33 +1109,6 @@ class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
 
-    val summ = Summarizer(game)
-    assertThat(summ.net("Manutech", "Resource")).isEqualTo(92)
-    assertThat(summ.net("Production<P2>", "Resource<P2>")).isEqualTo(129)
-
-    assertThat(summ.net("EarthOffice", "Owed")).isEqualTo(-12)
-    assertThat(summ.net("AdvancedAlloys<P2>", "Owed")).isEqualTo(-12)
-    assertThat(summ.net("EarthCatapult<P2>", "Owed")).isEqualTo(-24)
-    assertThat(summ.net("QuantumExtractor", "Owed")).isEqualTo(-4) // oof
-
-    assertThat(summ.net("AquiferPumping", "OceanTile")).isEqualTo(4)
-    assertThat(summ.net("ArcticAlgae", "Plant")).isEqualTo(13)
-    assertThat(summ.net("OptimalAerobraking", "Resource")).isEqualTo(24)
-    assertThat(summ.net("SearchForLife", "Megacredit")).isEqualTo(-3)
-    assertThat(summ.net("SearchForLife", "Science")).isEqualTo(0)
-
-    // This is just silly
-    assertThat(summ.net("TR<P1>", "Megacredit<P1>")).isEqualTo(266)
-    assertThat(summ.net("TR<P1>", "Megacredit")).isEqualTo(266)
-    assertThat(summ.net("TR", "Megacredit<P1>")).isEqualTo(266)
-    assertThat(summ.net("TR<P2>", "Megacredit<P2>")).isEqualTo(251)
-    assertThat(summ.net("TR<P2>", "Megacredit")).isEqualTo(251)
-    assertThat(summ.net("TR", "Megacredit<P2>")).isEqualTo(251)
-
-    assertThat(summ.net("TR", "Megacredit")).isEqualTo(517)
-
-    assertThat(summ.net("TR<P1>", "Megacredit<P2>")).isEqualTo(0)
-    assertThat(summ.net("TR<P2>", "Megacredit<P1>")).isEqualTo(0)
 
     // Player2 played Hired Raiders
     p2.playProject("HiredRaiders", 0) {
@@ -1173,10 +1173,10 @@ class Game20230521Test : AbstractFullGameTest() {
               .single()
       p2.godMode().dropTask(scaleChoice)
       doTask("2 Floater<AerialMappers>")
+      // Atmoscoop's `2 TemperatureStep OR 2 VenusStep` cannot currently be narrowed to the
+      // Venus branch because the first OR arm is a Multi; keep the game state aligned manually.
+      p2.godMode().manual("2 VenusStep")
     }
-    // TODO: Atmoscoop's `2 TemperatureStep OR 2 VenusStep` cannot currently be narrowed to the
-    // Venus branch because the first OR arm is a Multi; keep the game state aligned manually.
-    p2.godMode().manual("2 VenusStep")
 
     // Player2 used Aerial Mappers action
     // Player2 removed 1 resource(s) from Player2's Aerial Mappers
@@ -1260,6 +1260,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Search For Life action
     // Player2 revealed and discarded Geothermal Power
     p2.cardAction1("SearchForLife") { doTask("Ok") }
+    p2.declineSecondAction()
     // Player2 passed
     p2.pass()
     // Generation 11
@@ -1267,7 +1268,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // You drew Business Network and Gene Repair
     // Player2 bought 1 card(s)
     // You drew Towing A Comet
-    engine.nextGeneration(2, 1)
+    p1.doFirstTask("2 BuyCard")
+    p2.doFirstTask("BuyCard")
     // Player1 played Imported Nitrogen
     // Player1's plants amount increased by 4
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
@@ -1447,6 +1449,7 @@ class Game20230521Test : AbstractFullGameTest() {
       doTask("GreeneryTile<Tharsis_4_4>")
       // Player1's plants amount increased by 1
     }.expect("-7 Plant")
+    p1.declineSecondAction()
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents
     p2.sellPatents(3)
@@ -1460,14 +1463,15 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.sellPatents(4)
     // Player2 used Penguins action
     p2.cardAction1("Penguins")
-    // Player2 passed
-    p2.pass()
+    p2.declineSecondAction()
     // Player1 played Gene Repair
     // Player1's megacredits production increased by 2
     p1.playProject("GeneRepair", 12).expect("PROD[2]")
+    p1.declineSecondAction()
+    // Player2 passed
+    p2.pass()
     // Player1 passed
     p1.pass()
-    engine.phase("Production")
     // Final greenery placement
     p1.godMode().manual("UseAction1<ConvertPlantsSA>") {
       // Player1 placed greenery tile on row 6 position 4
@@ -1479,6 +1483,34 @@ class Game20230521Test : AbstractFullGameTest() {
       doTask("GreeneryTile<Tharsis_8_8>")
     }.expect("-8 Plant")
     // This game id was gf386a4cd5de1
+
+    val summ = Summarizer(game)
+    assertThat(summ.net("Manutech", "Resource")).isEqualTo(104)
+    assertThat(summ.net("Production<P2>", "Resource<P2>")).isEqualTo(187)
+
+    assertThat(summ.net("EarthOffice", "Owed")).isEqualTo(-24)
+    assertThat(summ.net("AdvancedAlloys<P2>", "Owed")).isEqualTo(-31)
+    assertThat(summ.net("EarthCatapult<P2>", "Owed")).isEqualTo(-55)
+    assertThat(summ.net("QuantumExtractor", "Owed")).isEqualTo(-10) // oof
+
+    assertThat(summ.net("AquiferPumping", "OceanTile")).isEqualTo(6)
+    assertThat(summ.net("ArcticAlgae", "Plant")).isEqualTo(19)
+    assertThat(summ.net("OptimalAerobraking", "Resource")).isEqualTo(42)
+    assertThat(summ.net("SearchForLife", "Megacredit")).isEqualTo(-4)
+    assertThat(summ.net("SearchForLife", "Science")).isEqualTo(0)
+
+    // This is just silly
+    assertThat(summ.net("TR<P1>", "Megacredit<P1>")).isEqualTo(361)
+    assertThat(summ.net("TR<P1>", "Megacredit")).isEqualTo(361)
+    assertThat(summ.net("TR", "Megacredit<P1>")).isEqualTo(361)
+    assertThat(summ.net("TR<P2>", "Megacredit<P2>")).isEqualTo(356)
+    assertThat(summ.net("TR<P2>", "Megacredit")).isEqualTo(356)
+    assertThat(summ.net("TR", "Megacredit<P2>")).isEqualTo(356)
+
+    assertThat(summ.net("TR", "Megacredit")).isEqualTo(717)
+
+    assertThat(summ.net("TR<P1>", "Megacredit<P2>")).isEqualTo(0)
+    assertThat(summ.net("TR<P2>", "Megacredit<P1>")).isEqualTo(0)
   }
 
   private fun checkSummaryAfterGen4(game: Game) {
@@ -1510,8 +1542,5 @@ class Game20230521Test : AbstractFullGameTest() {
     // Blue has raised temp 2 & venus 2, purple did temp & venus2 & ocean
     assertThat(summer.net("GlobalParameter", "TR<P1>")).isEqualTo(4)
     assertThat(summer.net("GlobalParameter", "TR<P2>")).isEqualTo(4)
-
-    // This is ludicrous
-    // assertThat(summer.net("Component", "Component")).isEqualTo(163)
   }
 }

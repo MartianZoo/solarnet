@@ -64,7 +64,10 @@ public object Engine {
       scopedOf(::Changer)
       scoped { Instructor(get(), get(), get(), get(), get()) } // Changer? and Effector? are nullable
       scopedOf(::Implementations)
-      scopedOf(::ApiTranslation) { bind<Gameplay>() }
+      scoped {
+        val game = get<Game>()
+        ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { game.onAtomicComplete() }
+      } bind Gameplay::class
       scopedOf(::Initializer)
       scopedOf(::PlayerComponent)
     }

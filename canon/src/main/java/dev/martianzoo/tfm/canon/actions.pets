@@ -25,6 +25,9 @@ CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 "This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
 CLASS NewTurn : Owned, Signal
 
+"The engine's signal for the second action slot in an action phase turn; no Pass option"
+CLASS SecondAction : Owned, Signal
+
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
 CLASS Pass : Owned, Generational { HAS MAX 1 This }
 

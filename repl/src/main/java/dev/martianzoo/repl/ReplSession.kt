@@ -44,6 +44,7 @@ import dev.martianzoo.repl.commands.TasksCommand
 import dev.martianzoo.repl.commands.TurnCommand
 import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.repl.TfmColor
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
 import dev.martianzoo.tfm.repl.TfmColor.HEAT
@@ -76,10 +77,14 @@ internal class ReplSession(internal val jline: JlineRepl? = null) {
 
   internal var mode: ReplMode = GREEN
 
-  internal fun newGame(setup: GameSetup) {
+  internal fun newGame(setup: GameSetup, purple: Boolean = false) {
     this.setup = setup
     game = Engine.newGame(setup)
     gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
+    if (purple) {
+      mode = PURPLE
+      TfmWorkflow.Auto(game, setup).launch()
+    }
   }
 
   init {

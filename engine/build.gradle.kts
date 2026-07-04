@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
   implementation("io.insert-koin:koin-core:3.5.6")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testImplementation("com.google.truth:truth:1.1.3")
