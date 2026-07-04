@@ -56,16 +56,13 @@ internal class Implementations(
   // OPERATIONS LAYER
 
   internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    // `manual` is a whole-game operation today: starting one while any queue is pending would
-    // interleave with an existing operation and change current behavior.
-    tasks.requireAllQueuesEmpty()
+    require(tasks.isEmpty()) { tasks.toString() }
     addTasks(initialInstruction).forEach(::doTask)
     complete(autoExec, body)
   }
 
   internal fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    // `beginManual` starts a whole-game manual operation, so pending tasks in any queue must block it.
-    tasks.requireAllQueuesEmpty()
+    require(tasks.isEmpty()) { tasks.toString() }
     addTasks(initialInstruction).forEach(::doTask)
     continueManual(autoExec, body)
   }
@@ -78,9 +75,7 @@ internal class Implementations(
 
   internal fun complete(autoExec: AutoExecMode, body: () -> Unit) {
     continueManual(autoExec, body)
-    // Completion still means the whole operation drained; leaving another player's task pending
-    // would be an observable behavior change from the old single-queue model.
-    tasks.requireAllQueuesEmpty()
+    require(tasks.isEmpty()) { tasks.toString() }
     require(reader.has(parse("MAX 0 $TEMPORARY")))
   }
 
@@ -90,25 +85,19 @@ internal class Implementations(
   }
 
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
-    // Auto-exec intentionally preserves old global behavior: Engine/setup effects can enqueue
-    // tasks for human players, and those must still be considered by the same auto-exec pass.
-    if (mode == NONE || tasks.areAllQueuesEmpty()) return false
+    if (mode == NONE || tasks.isEmpty()) return false
 
-    // Prepared tasks freeze all game state, not just one player's queue, so the prepared-task check
-    // and fallback candidate scan must remain global.
     val options: List<TaskId> =
-        tasks.preparedTaskInAnyQueue()?.let(::listOf)
-            ?: tasks.idsInAllQueues().filter(::canPrepareAnyTask)
+        tasks.preparedTask()?.let(::listOf)
+            ?: tasks.ids().filter(::canPrepareTask)
 
     when (options.size) {
-      // If auto-exec cannot prepare any global candidate, this preserves the old failure path by
-      // asking the oldest global task to explain why preparation failed.
-      0 -> prepareAnyTask(tasks.idsInAllQueues().first()).also { error("that should've failed") }
+      0 -> prepareTask(tasks.ids().first()).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
-        prepareAnyTask(taskId) ?: return true
+        prepareTask(taskId) ?: return true
         try {
-          if (tryPreparedAnyTask()) return true // if this fails we should fail too
+          if (tryPreparedTask()) return true // if this fails we should fail too
         } catch (e: DeadEndException) {
           throw e.cause ?: e
         }
@@ -122,15 +111,15 @@ internal class Implementations(
 
     for (taskId in options) {
       try {
-        timeline.atomic { doAnyTask(taskId) }
+        timeline.atomic { doTask(taskId) }
         return true
       } catch (e: AbstractException) {
         // we're in trouble if ALL of these are NotNowExceptions
         recoverable = true
-        explainAnyTask(taskId, "abstract")
+        explainTask(taskId, "abstract")
       } catch (e: NotNowException) {
         // we're in trouble if ALL of these are NotNowExceptions
-        explainAnyTask(taskId, "currently impossible")
+        explainTask(taskId, "currently impossible")
       }
     }
     if (!recoverable) throw DeadEndException("")
@@ -142,13 +131,6 @@ internal class Implementations(
     tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
   }
 
-  private fun explainAnyTask(taskId: TaskId, reason: String) {
-    // Auto-exec may be explaining a task from a different player queue than this Gameplay instance;
-    // read globally, then mutate through the owning scoped queue for validation.
-    val task = tasks.getTaskDataInAnyQueue(taskId)
-    tasks.queueFor(task.owner).editTask(task.copy(whyPending = reason))
-  }
-
   /**
    * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
    * automatically enqueued.
@@ -157,25 +139,15 @@ internal class Implementations(
     handleTask(tasks.getTaskData(taskId))
   }
 
-  private fun handleAnyTask(taskId: TaskId) {
-    // Auto-exec can execute tasks from any queue, so it must resolve the owner before removing the
-    // task and enqueuing its follow-up through that owner's scoped queue.
-    handleTask(tasks.getTaskDataInAnyQueue(taskId))
-  }
-
   private fun handleTask(task: Task) {
-    // Follow-up tasks inherit the completed task's owner even when this helper is called from a
-    // global auto-exec path, so mutation must go through that owner's scoped queue.
-    task.then?.let { tasks.queueFor(task.owner).addTasks(split(it), task.cause) }
-    tasks.queueFor(task.owner).removeTask(task.id)
+    task.then?.let { tasks.addTasks(split(it), task.cause) }
+    tasks.removeTask(task.id)
   }
 
   private fun dontCutTheLine(taskId: TaskId) {
-    // `Task.next` is a global game-state lock: once any task is prepared, no other queue may act
-    // until that prepared task is completed.
-    val already = tasks.preparedTaskInAnyQueue()
+    val already = tasks.preparedTask()
     if (already != null && already != taskId) {
-      val instr = tasks.getTaskDataInAnyQueue(already).instruction
+      val instr = tasks.getTaskData(already).instruction
       throw TaskException("task $already ($instr) is already prepared and must be executed first")
     }
   }
@@ -211,27 +183,8 @@ internal class Implementations(
     }
   }
 
-  private fun canPrepareAnyTask(taskId: TaskId): Boolean {
-    // TODO better way
-    dontCutTheLine(taskId)
-    // Auto-exec scans all queues to preserve old single-queue behavior, so candidate preparation
-    // has to read the candidate by global id.
-    val unprepared = tasks.getTaskDataInAnyQueue(taskId).instruction
-    return try {
-      timeline.atomic { instructor.prepare(unprepared) }
-      true
-    } catch (e: Exception) {
-      false
-    }
-  }
-
   internal fun prepareTask(taskId: TaskId): TaskId? =
       doPrepare(tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
-
-  private fun prepareAnyTask(taskId: TaskId): TaskId? =
-      // Auto-exec prepares global candidates, including tasks owned by players other than this
-      // scoped Gameplay instance.
-      doPrepare(tasks.getTaskDataInAnyQueue(taskId)).also { lookAheadForTroubleInAnyQueue(taskId) }
 
   private fun lookAheadForTrouble(taskId: TaskId) {
     if (taskId in tasks) {
@@ -245,42 +198,21 @@ internal class Implementations(
     }
   }
 
-  private fun lookAheadForTroubleInAnyQueue(taskId: TaskId) {
-    // The auto-exec lookahead rolls back immediately, but it must still simulate the global
-    // candidate that auto-exec is considering.
-    if (tasks.containsInAnyQueue(taskId)) {
-      try {
-        timeline.atomic {
-          doAnyTask(taskId)
-          throw AbstractException("just getting this to roll back")
-        }
-      } catch (ignore: AbstractException) { // the only failure that's expected/normal
-      }
-    }
-  }
-
   private fun doPrepare(task: Task): TaskId? {
     dontCutTheLine(task.id)
     val replacement = instructor.prepare(task.instruction)
     replace1WithN(task.copy(instructionIn = replacement, next = true))
-    // The replacement is always in the original owner's queue; use that scoped queue even when
-    // preparation was requested from a global auto-exec path.
-    return tasks.queueFor(task.owner).preparedTask()
+    return tasks.preparedTask()
   }
 
   private fun replace1WithN(replacement: Task) {
     val split = split(replacement.instruction)
     if (split.size == 1) {
       val one = split.instructions[0]
-      // Prepared/revised tasks can come from auto-exec's global path, so mutation is routed through
-      // the task owner's scoped queue instead of this Gameplay's queue.
-      tasks.queueFor(replacement.owner).editTask(replacement.copy(instructionIn = one))
+      tasks.editTask(replacement.copy(instructionIn = one))
     } else {
-      // Splitting a task preserves its owner; enqueue the split tasks in that owner's scoped queue.
-      tasks.queueFor(replacement.owner).addTasks(split, replacement.cause)
-      // Auto-exec can split a task owned by another player, so remove the original through that
-      // same owner queue rather than this Gameplay's queue.
-      handleTask(tasks.queueFor(replacement.owner).getTaskData(replacement.id))
+      tasks.addTasks(split, replacement.cause)
+      handleTask(tasks.getTaskData(replacement.id))
     }
   }
 
@@ -295,23 +227,8 @@ internal class Implementations(
     val prepared = doPrepare(tasks.getTaskData(taskId)) ?: return
     val preparedTask = tasks.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-    // Effects can create tasks for their own owners; each new task is added through its owning
-    // queue instead of assuming it belongs to this Gameplay's player.
     newTasks.forEach { tasks.queueFor(it.owner).addTasks(it) }
     handleTask(taskId)
-  }
-
-  private fun doAnyTask(taskId: TaskId) {
-    // Auto-exec executes global candidates, so it must read the selected task by global id.
-    val prepared = doPrepare(tasks.getTaskDataInAnyQueue(taskId)) ?: return
-    // Preparation can replace/split the original task, so the prepared id also has to be resolved
-    // globally in the auto-exec path.
-    val preparedTask = tasks.getTaskDataInAnyQueue(prepared)
-    val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-    // The new tasks produced by executing a global candidate still have explicit owners; route each
-    // mutation through its owner queue.
-    newTasks.forEach { tasks.queueFor(it.owner).addTasks(it) }
-    handleAnyTask(taskId)
   }
 
   internal fun doTask(revised: Instruction) {
@@ -373,20 +290,6 @@ internal class Implementations(
       throw DeadEndException(e)
     } catch (e: AbstractException) {
       explainTask(taskId, "abstract")
-      false
-    }
-  }
-
-  private fun tryPreparedAnyTask(): Boolean /* did I do stuff? */ {
-    // Auto-exec must honor a prepared task in any queue because `next` freezes the whole game state.
-    val taskId = tasks.preparedTaskInAnyQueue()!!
-    return try {
-      doAnyTask(taskId)
-      true
-    } catch (e: NotNowException) {
-      throw DeadEndException(e)
-    } catch (e: AbstractException) {
-      explainAnyTask(taskId, "abstract")
       false
     }
   }

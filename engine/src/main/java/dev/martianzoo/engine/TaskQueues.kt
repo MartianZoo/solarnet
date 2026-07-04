@@ -123,7 +123,7 @@ internal class TaskQueues(private val events: TaskListener) {
 
     private fun validateOwner(task: Task) {
       if (owner != null && task.owner != owner) {
-        error("$owner can't act on a task owned by ${task.owner}")
+        error("$owner can't act on a task owned by ${task.owner}: $task")
       }
     }
 

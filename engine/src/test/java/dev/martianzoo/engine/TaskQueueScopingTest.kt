@@ -60,6 +60,17 @@ class TaskQueueScopingTest {
     assertThat(game.tasks.extract { "${it.instruction}" }).containsExactly("Heat<Player1>?")
   }
 
+  @Test
+  fun `Engine operation can enqueue generated tasks into player queues`() {
+    engine.manual("ResearchPhase FROM Phase")
+
+    assertThat(game.tasks.extract { it.owner }).containsExactly(PLAYER1, PLAYER2).inOrder()
+    assertThat(game.tasks.extract { "${it.instruction}" })
+        .containsExactly("4 BuyCard<Player1>?", "4 BuyCard<Player2>?")
+        .inOrder()
+    assertThat(operationBodyOwners(ENGINE)).isEmpty()
+  }
+
   private fun addOneTaskForEachQueue() {
     p1.addTasks("Plant?")
     p2.addTasks("Heat?")
