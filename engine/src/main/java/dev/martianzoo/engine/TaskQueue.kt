@@ -37,6 +37,9 @@ public interface TaskQueue {
 
   /** Returns true if no queue has any tasks. */
   fun areAllQueuesEmpty(): Boolean
+
+  /** Throws if any queue has any tasks. */
+  fun requireAllQueuesEmpty()
 }
 
 internal interface WritableTaskQueue : TaskQueue {
@@ -50,7 +53,16 @@ internal interface WritableTaskQueue : TaskQueue {
 
   fun getTaskData(id: TaskId): Task
 
-  fun queueFor(player: Player): WritableTaskQueue
+  /** Returns the id of each task in any queue, in order from oldest to newest. */
+  fun idsInAllQueues(): Set<TaskId>
 
-  fun allQueues(): WritableTaskQueue
+  /** Returns true if any queue contains [id]. */
+  fun containsInAnyQueue(id: TaskId): Boolean
+
+  /** Returns the id of the task marked with [Task.next] in any queue if there is one. */
+  fun preparedTaskInAnyQueue(): TaskId?
+
+  fun getTaskDataInAnyQueue(id: TaskId): Task
+
+  fun queueFor(player: Player): WritableTaskQueue
 }

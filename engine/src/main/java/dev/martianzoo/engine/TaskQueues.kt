@@ -133,6 +133,16 @@ internal class TaskQueues(private val events: TaskListener) {
 
     override fun areAllQueuesEmpty(): Boolean = taskSet.none()
 
+    override fun requireAllQueuesEmpty() {
+      require(taskSet.none()) { taskSet.joinToString("\n") }
+    }
+
+    override fun idsInAllQueues(): Set<TaskId> = taskSet.toSetStrict { it.id }
+
+    override fun containsInAnyQueue(id: TaskId): Boolean = taskSet.any { it.id == id }
+
+    override fun preparedTaskInAnyQueue(): TaskId? = taskSet.firstOrNull { it.next }?.id
+
     override fun matching(predicate: (Task) -> Boolean) =
         filtered().filter(predicate).toSetStrict { it.id }
 
@@ -164,9 +174,9 @@ internal class TaskQueues(private val events: TaskListener) {
     override fun getTaskData(id: TaskId): Task =
         this@TaskQueues.getTaskData(id).also(::validateOwner)
 
-    override fun queueFor(player: Player): WritableTaskQueue = this@TaskQueues[player]
+    override fun getTaskDataInAnyQueue(id: TaskId): Task = this@TaskQueues.getTaskData(id)
 
-    override fun allQueues(): WritableTaskQueue = all()
+    override fun queueFor(player: Player): WritableTaskQueue = this@TaskQueues[player]
 
     override fun toString() = filtered().joinToString("\n")
   }
