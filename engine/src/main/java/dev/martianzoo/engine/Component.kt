@@ -38,23 +38,20 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
       mtype.typeDependencies.map { it.boundType.toComponent() }
 
   public val owner: Player? = run {
-    mtype.dependencies.getIfPresent(Key(OWNED, 0))?.let { Player(it.className) }
-  }
-
-  internal val ownerPlaceholder: Player? = run {
-    owner
-        ?: if (hasType(mtype.loader.resolve(OWNER.expression))) {
-          Player(mtype.className)
+    val name =
+        if (hasType(mtype.loader.resolve(OWNER.expression))) {
+          mtype
         } else {
-          null
+          mtype.dependencies.getIfPresent(Key(OWNED, 0))
         }
+    name?.let { Player(it.className) }
   }
 
   internal val effects: List<Effect> by lazy {
     val classEffectTransformer =
         chain(
             Transformers(mtype.loader).substituter(mtype.root.defaultType, mtype),
-            ownerPlaceholder?.let(::replaceOwnerWith),
+            owner?.let(::replaceOwnerWith),
             replaceThisExpressionsWith(expression),
         )
     mtype.root.classEffects.map(classEffectTransformer::transform)
@@ -65,7 +62,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
 
   private val customOutputTransformer =
       with(Transformers(mtype.loader)) {
-        chain(atomizer(), insertDefaults(), ownerPlaceholder?.let(::replaceOwnerWith))
+        chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
       }
 
   public fun prepareCustom(reader: GameReader): Instruction {

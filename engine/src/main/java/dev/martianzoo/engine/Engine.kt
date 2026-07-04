@@ -28,12 +28,14 @@ public object Engine {
     val koin = koinApplication { modules(gameModule(setup)) }.koin
 
     val game = koin.get<Game>()
+    var initializer: Initializer? = null
     val playerComponents = setup.players().associateWith { player ->
       val scope = koin.createScope<PlayerScopeId>("$player")
       scope.declare(player)
+      if (player == ENGINE) initializer = scope.get<Initializer>()
       scope.get<PlayerComponent>()
     }
-    playerComponents[ENGINE]!!.initter.initialize()
+    initializer!!.initialize()
     game.playerComponents = playerComponents
     return game
   }
@@ -76,7 +78,7 @@ public object Engine {
     }
   }
 
-  internal data class PlayerComponent(internal val gameplay: Gameplay, internal val initter: Initializer)
+  internal data class PlayerComponent(internal val gameplay: Gameplay)
 
   internal interface ChangeLogger {
     fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent

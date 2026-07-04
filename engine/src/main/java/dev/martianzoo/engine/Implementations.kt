@@ -22,12 +22,16 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal class Implementations(
     private val tasks: WritableTaskQueue,
+    taskQueues: TaskQueues,
     private val reader: GameReader,
     private val timeline: Timeline,
     private val player: Player,
     private val instructor: Instructor,
     private val changer: Changer,
 ) {
+  // Legacy auto-exec still scans the whole game, and Task.next is still a whole-game lock. Keep
+  // that global visibility as a queue view rather than exposing raw TaskQueues storage.
+  private val allTasks = taskQueues.all()
 
   // CHANGES LAYER
 
@@ -85,19 +89,21 @@ internal class Implementations(
   }
 
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
-    if (mode == NONE || tasks.isEmpty()) return false
+    // Auto-exec is intentionally whole-game for now; existing workflows rely on one player's
+    // operation draining automatic tasks that were enqueued elsewhere.
+    if (mode == NONE || allTasks.isEmpty()) return false
 
     val options: List<TaskId> =
-        tasks.preparedTask()?.let(::listOf)
-            ?: tasks.ids().filter(::canPrepareTask)
+        allTasks.preparedTask()?.let(::listOf)
+            ?: allTasks.ids().filter(::canPrepareAnyTask)
 
     when (options.size) {
-      0 -> prepareTask(tasks.ids().first()).also { error("that should've failed") }
+      0 -> prepareAnyTask(allTasks.ids().first()).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
-        prepareTask(taskId) ?: return true
+        prepareAnyTask(taskId) ?: return true
         try {
-          if (tryPreparedTask()) return true // if this fails we should fail too
+          if (tryPreparedAnyTask()) return true // if this fails we should fail too
         } catch (e: DeadEndException) {
           throw e.cause ?: e
         }
@@ -111,15 +117,15 @@ internal class Implementations(
 
     for (taskId in options) {
       try {
-        timeline.atomic { doTask(taskId) }
+        timeline.atomic { doAnyTask(taskId) }
         return true
       } catch (e: AbstractException) {
         // we're in trouble if ALL of these are NotNowExceptions
         recoverable = true
-        explainTask(taskId, "abstract")
+        explainAnyTask(taskId, "abstract")
       } catch (e: NotNowException) {
         // we're in trouble if ALL of these are NotNowExceptions
-        explainTask(taskId, "currently impossible")
+        explainAnyTask(taskId, "currently impossible")
       }
     }
     if (!recoverable) throw DeadEndException("")
@@ -128,7 +134,15 @@ internal class Implementations(
   }
 
   private fun explainTask(taskId: TaskId, reason: String) {
-    tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
+    explainTask(tasks, taskId, reason)
+  }
+
+  private fun explainAnyTask(taskId: TaskId, reason: String) {
+    explainTask(queueForAnyTask(taskId), taskId, reason)
+  }
+
+  private fun explainTask(queue: WritableTaskQueue, taskId: TaskId, reason: String) {
+    queue.editTask(queue.getTaskData(taskId).copy(whyPending = reason))
   }
 
   /**
@@ -136,18 +150,20 @@ internal class Implementations(
    * automatically enqueued.
    */
   private fun handleTask(taskId: TaskId) {
-    handleTask(tasks.getTaskData(taskId))
+    handleTask(tasks, tasks.getTaskData(taskId))
   }
 
-  private fun handleTask(task: Task) {
-    task.then?.let { tasks.addTasks(split(it), task.cause) }
-    tasks.removeTask(task.id)
+  private fun handleTask(queue: WritableTaskQueue, task: Task) {
+    task.then?.let { queue.queueFor(task.owner).addTasks(split(it), task.cause) }
+    queue.removeTask(task.id)
   }
 
   private fun dontCutTheLine(taskId: TaskId) {
-    val already = tasks.preparedTask()
+    // Task.next remains a global game-state lock; a scoped queue could miss a prepared task in
+    // another player's queue and allow a caller to cut in front of it.
+    val already = allTasks.preparedTask()
     if (already != null && already != taskId) {
-      val instr = tasks.getTaskData(already).instruction
+      val instr = allTasks.getTaskData(already).instruction
       throw TaskException("task $already ($instr) is already prepared and must be executed first")
     }
   }
@@ -167,7 +183,7 @@ internal class Implementations(
     if (revised != task.instruction) {
       revised.ensureNarrows(task.instruction, reader)
       val replacement = if (task.next) instructor.prepare(revised) else revised
-      replace1WithN(tasks.getTaskData(taskId).copy(instructionIn = replacement))
+      replace1WithN(tasks, tasks.getTaskData(taskId).copy(instructionIn = replacement))
     }
   }
 
@@ -184,7 +200,27 @@ internal class Implementations(
   }
 
   internal fun prepareTask(taskId: TaskId): TaskId? =
-      doPrepare(tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
+      doPrepare(tasks, tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
+
+  // Whole-game auto-exec chooses candidates across all queues to preserve existing workflows; each
+  // selected task is immediately routed back through its owning scoped queue.
+  private fun canPrepareAnyTask(taskId: TaskId): Boolean {
+    val queue = queueForAnyTask(taskId)
+    dontCutTheLine(taskId)
+    val unprepared = queue.getTaskData(taskId).instruction
+    return try {
+      timeline.atomic { instructor.prepare(unprepared) }
+      true
+    } catch (e: Exception) {
+      false
+    }
+  }
+
+  // Same whole-game auto-exec path as canPrepareAnyTask().
+  private fun prepareAnyTask(taskId: TaskId): TaskId? {
+    val queue = queueForAnyTask(taskId)
+    return doPrepare(queue, queue.getTaskData(taskId)).also { lookAheadForTroubleInAnyQueue(taskId) }
+  }
 
   private fun lookAheadForTrouble(taskId: TaskId) {
     if (taskId in tasks) {
@@ -198,21 +234,34 @@ internal class Implementations(
     }
   }
 
-  private fun doPrepare(task: Task): TaskId? {
-    dontCutTheLine(task.id)
-    val replacement = instructor.prepare(task.instruction)
-    replace1WithN(task.copy(instructionIn = replacement, next = true))
-    return tasks.preparedTask()
+  // The lookahead rollback must use the same whole-game task choice that auto-exec just made.
+  private fun lookAheadForTroubleInAnyQueue(taskId: TaskId) {
+    if (taskId in allTasks) {
+      try {
+        timeline.atomic {
+          doAnyTask(taskId)
+          throw AbstractException("just getting this to roll back")
+        }
+      } catch (ignore: AbstractException) { // the only failure that's expected/normal
+      }
+    }
   }
 
-  private fun replace1WithN(replacement: Task) {
+  private fun doPrepare(queue: WritableTaskQueue, task: Task): TaskId? {
+    dontCutTheLine(task.id)
+    val replacement = instructor.prepare(task.instruction)
+    replace1WithN(queue, task.copy(instructionIn = replacement, next = true))
+    return queue.preparedTask()
+  }
+
+  private fun replace1WithN(queue: WritableTaskQueue, replacement: Task) {
     val split = split(replacement.instruction)
     if (split.size == 1) {
       val one = split.instructions[0]
-      tasks.editTask(replacement.copy(instructionIn = one))
+      queue.editTask(replacement.copy(instructionIn = one))
     } else {
-      tasks.addTasks(split, replacement.cause)
-      handleTask(tasks.getTaskData(replacement.id))
+      queue.queueFor(replacement.owner).addTasks(split, replacement.cause)
+      handleTask(queue, queue.getTaskData(replacement.id))
     }
   }
 
@@ -224,11 +273,20 @@ internal class Implementations(
   }
 
   internal fun doTask(taskId: TaskId) {
-    val prepared = doPrepare(tasks.getTaskData(taskId)) ?: return
+    val prepared = doPrepare(tasks, tasks.getTaskData(taskId)) ?: return
     val preparedTask = tasks.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
     newTasks.forEach { tasks.queueFor(it.owner).addTasks(it) }
     handleTask(taskId)
+  }
+
+  private fun doAnyTask(taskId: TaskId) {
+    val queue = queueForAnyTask(taskId)
+    val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
+    val preparedTask = queue.getTaskData(prepared)
+    val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
+    newTasks.forEach { queue.queueFor(it.owner).addTasks(it) }
+    handleTask(queue, queue.getTaskData(taskId))
   }
 
   internal fun doTask(revised: Instruction) {
@@ -244,6 +302,7 @@ internal class Implementations(
     }
 
     fun weCanReviseIt(taskData: Task): Boolean {
+      if (taskData.owner != player) return false
       if (revised.narrows(taskData.instruction, reader)) return true
       return try {
         revised.narrows(instructor.prepare(taskData.instruction), reader)
@@ -292,6 +351,27 @@ internal class Implementations(
       explainTask(taskId, "abstract")
       false
     }
+  }
+
+  // Auto-exec's prepared task can belong to any queue, so this is the whole-game counterpart to
+  // tryPreparedTask().
+  private fun tryPreparedAnyTask(): Boolean /* did I do stuff? */ {
+    val taskId = allTasks.preparedTask()!!
+    return try {
+      doAnyTask(taskId)
+      true
+    } catch (e: NotNowException) {
+      throw DeadEndException(e)
+    } catch (e: AbstractException) {
+      explainAnyTask(taskId, "abstract")
+      false
+    }
+  }
+
+  private fun queueForAnyTask(taskId: TaskId): WritableTaskQueue {
+    // Whole-game auto-exec chooses ids from allTasks; switch back to the owning scoped queue before
+    // mutating so owner validation still applies.
+    return tasks.queueFor(allTasks.getTaskData(taskId).owner)
   }
 
   private fun execute(instruction: String, fakeCause: Cause? = null): Unit =

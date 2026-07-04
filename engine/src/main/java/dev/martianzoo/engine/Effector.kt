@@ -76,12 +76,10 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         onChange(triggerEvent, reader, isSelf = false)
 
     private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
-      val effectOwner = context.ownerPlaceholder ?: triggerEvent.owner
-      val hit = subscription.checkForHit(triggerEvent, effectOwner, isSelf, reader) ?: return null
-      val generated = hit(instruction)
-      val taskOwner = if (generated.isAbstract(reader)) effectOwner else triggerEvent.owner
+      val player = context.owner ?: triggerEvent.owner
+      val hit = subscription.checkForHit(triggerEvent, player, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task.noid(taskOwner, automatic, generated, cause = cause)
+      return Task.noid(player, automatic, hit(instruction), cause = cause)
     }
   }
 

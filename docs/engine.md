@@ -263,9 +263,9 @@ Gameplay         ← query-only + task revision/preparation + doTask
 
 - **Normal callers** use `Gameplay` directly — they can revise abstract tasks and execute
   prepared ones, but can't create tasks from scratch.
-- **`OperationLayer`** is for structured operations: `manual()` requires the queue is empty,
-  adds the instruction as tasks, runs them to completion (including autoexec), and verifies
-  the queue is empty and no `Temporary` components remain.
+- **`OperationLayer`** is for structured operations: `manual()` requires the caller's queue is
+  empty, adds the instruction as tasks, runs them to completion (including autoexec), and verifies
+  the caller's queue is empty and no `Temporary` components remain.
 - **`OperationBody.tasks`** is the caller's scoped read-only queue view. Player gameplay sees that
   player's tasks; Engine gameplay sees Engine tasks.
 - **`TaskLayer`** lets you inject arbitrary tasks and remove them for any reason.

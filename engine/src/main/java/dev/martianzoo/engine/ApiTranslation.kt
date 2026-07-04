@@ -38,6 +38,7 @@ internal class ApiTranslation(
     xers: Transformers,
     private val onAtomicComplete: () -> Unit,
 ) : GodMode { // so it really implements all gameplay layers
+
   override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
       if (newMode != field) {

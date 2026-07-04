@@ -32,12 +32,10 @@ import dev.martianzoo.util.toSetStrict
 internal class TaskQueues(private val events: TaskListener) {
   private val taskSet: MutableSet<Task> = mutableSetOf()
 
-  internal fun all(): WritableTaskQueue = view(owner = null) { true }
+  internal fun all(): WritableTaskQueue = WritableTaskQueue(this, owner = null) { true }
 
-  internal operator fun get(player: Player): WritableTaskQueue = view(owner = player) { it.owner == player }
-
-  private fun view(owner: Player?, predicate: (Task) -> Boolean): WritableTaskQueue =
-      QueueView(owner, predicate)
+  internal operator fun get(player: Player): WritableTaskQueue =
+      WritableTaskQueue(this, owner = player) { it.owner == player }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 
@@ -47,6 +45,8 @@ internal class TaskQueues(private val events: TaskListener) {
 
   internal fun getTaskData(id: TaskId) =
       taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
+
+  internal fun getAllTaskData(): List<Task> = taskSet.toList()
 
   private fun nextAvailableId() =
       if (taskSet.none()) TaskId("A") else taskSet.maxOf { it.id }.next()
@@ -114,70 +114,63 @@ internal class TaskQueues(private val events: TaskListener) {
   }
 
   override fun toString() = taskSet.joinToString("\n")
+}
 
-  private inner class QueueView(
-      private val owner: Player?,
-      private val predicate: (Task) -> Boolean,
-  ) : WritableTaskQueue {
-    private fun filtered() = taskSet.filter(predicate)
+internal class WritableTaskQueue(
+    private val taskQueues: TaskQueues,
+    private val owner: Player?,
+    private val predicate: (Task) -> Boolean,
+) : TaskQueue {
+  private fun filtered() = taskQueues.getAllTaskData().filter(predicate)
 
-    private fun validateOwner(task: Task) {
-      if (owner != null && task.owner != owner) {
-        error("$owner can't act on a task owned by ${task.owner}: $task")
-      }
+  private fun validateOwner(task: Task) {
+    if (owner != null && task.owner != owner) {
+      error("$owner can't act on a task owned by ${task.owner}: $task")
     }
-
-    override fun ids() = filtered().toSetStrict { it.id }
-
-    override fun contains(id: TaskId) = filtered().any { it.id == id }
-
-    override fun areAllQueuesEmpty(): Boolean = taskSet.none()
-
-    override fun requireAllQueuesEmpty() {
-      require(taskSet.none()) { taskSet.joinToString("\n") }
-    }
-
-    override fun idsInAllQueues(): Set<TaskId> = taskSet.toSetStrict { it.id }
-
-    override fun containsInAnyQueue(id: TaskId): Boolean = taskSet.any { it.id == id }
-
-    override fun preparedTaskInAnyQueue(): TaskId? = taskSet.firstOrNull { it.next }?.id
-
-    override fun matching(predicate: (Task) -> Boolean) =
-        filtered().filter(predicate).toSetStrict { it.id }
-
-    override fun <T> extract(extractor: (Task) -> T) = filtered().map(extractor)
-
-    override fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
-
-    override fun addTasks(instruction: InstructionGroup, cause: Cause?): List<TaskAddedEvent> {
-      val taskOwner = owner ?: error("global queue view can't infer an owner for new tasks")
-      return this@TaskQueues.addTasks(instruction, taskOwner, cause)
-    }
-
-    override fun addTasks(task: Task): List<TaskAddedEvent> {
-      validateOwner(task)
-      return this@TaskQueues.addTasks(task)
-    }
-
-    override fun removeTask(id: TaskId): TaskRemovedEvent {
-      validateOwner(getTaskData(id))
-      return this@TaskQueues.removeTask(id)
-    }
-
-    override fun editTask(newTask: Task): TaskEditedEvent? {
-      validateOwner(newTask)
-      validateOwner(getTaskData(newTask.id))
-      return this@TaskQueues.editTask(newTask)
-    }
-
-    override fun getTaskData(id: TaskId): Task =
-        this@TaskQueues.getTaskData(id).also(::validateOwner)
-
-    override fun getTaskDataInAnyQueue(id: TaskId): Task = this@TaskQueues.getTaskData(id)
-
-    override fun queueFor(player: Player): WritableTaskQueue = this@TaskQueues[player]
-
-    override fun toString() = filtered().joinToString("\n")
   }
+
+  override fun ids() = filtered().toSetStrict { it.id }
+
+  override fun contains(id: TaskId) = filtered().any { it.id == id }
+
+  override fun areAllQueuesEmpty(): Boolean = taskQueues.getAllTaskData().none()
+
+  override fun requireAllQueuesEmpty() {
+    val allTasks = taskQueues.getAllTaskData()
+    require(allTasks.none()) { allTasks.joinToString("\n") }
+  }
+
+  override fun matching(predicate: (Task) -> Boolean) =
+      filtered().filter(predicate).toSetStrict { it.id }
+
+  override fun <T> extract(extractor: (Task) -> T) = filtered().map(extractor)
+
+  override fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
+
+  fun addTasks(instruction: InstructionGroup, cause: Cause?): List<TaskAddedEvent> {
+    val taskOwner = owner ?: error("global queue view can't infer an owner for new tasks")
+    return taskQueues.addTasks(instruction, taskOwner, cause)
+  }
+
+  fun addTasks(task: Task): List<TaskAddedEvent> {
+    validateOwner(task)
+    return taskQueues.addTasks(task)
+  }
+
+  fun removeTask(id: TaskId): TaskRemovedEvent {
+    validateOwner(getTaskData(id))
+    return taskQueues.removeTask(id)
+  }
+
+  fun editTask(newTask: Task): TaskEditedEvent? {
+    validateOwner(newTask)
+    validateOwner(getTaskData(newTask.id))
+    return taskQueues.editTask(newTask)
+  }
+
+  fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateOwner)
+
+  fun queueFor(player: Player): WritableTaskQueue = taskQueues[player]
+
+  override fun toString() = filtered().joinToString("\n")
 }

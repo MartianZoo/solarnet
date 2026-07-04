@@ -1,13 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.pets.ast.Instruction.InstructionGroup
 
 /**
  * Contains tasks: what the game is waiting on someone to do. Each task is owned by some [Player]
@@ -40,29 +35,4 @@ public interface TaskQueue {
 
   /** Throws if any queue has any tasks. */
   fun requireAllQueuesEmpty()
-}
-
-internal interface WritableTaskQueue : TaskQueue {
-  fun addTasks(instruction: InstructionGroup, cause: Cause?): List<TaskAddedEvent>
-
-  fun addTasks(task: Task): List<TaskAddedEvent>
-
-  fun removeTask(id: TaskId): TaskRemovedEvent
-
-  fun editTask(newTask: Task): TaskEditedEvent?
-
-  fun getTaskData(id: TaskId): Task
-
-  /** Returns the id of each task in any queue, in order from oldest to newest. */
-  fun idsInAllQueues(): Set<TaskId>
-
-  /** Returns true if any queue contains [id]. */
-  fun containsInAnyQueue(id: TaskId): Boolean
-
-  /** Returns the id of the task marked with [Task.next] in any queue if there is one. */
-  fun preparedTaskInAnyQueue(): TaskId?
-
-  fun getTaskDataInAnyQueue(id: TaskId): Task
-
-  fun queueFor(player: Player): WritableTaskQueue
 }
