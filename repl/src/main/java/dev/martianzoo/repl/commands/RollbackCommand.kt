@@ -2,6 +2,8 @@ package dev.martianzoo.repl.commands
 
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 
 internal class RollbackCommand(private val repl: ReplSession) : ReplCommand("rollback") {
@@ -15,6 +17,9 @@ internal class RollbackCommand(private val repl: ReplSession) : ReplCommand("rol
         though, as you it will let you undo to a position when the engine was in the middle of
         doing stuff, which would put you in an invalid game state.
       """
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.checkpointIds()
 
   override fun withArgs(args: String): List<String> {
     repl.game.timeline.rollBack(Checkpoint(args.toInt()))

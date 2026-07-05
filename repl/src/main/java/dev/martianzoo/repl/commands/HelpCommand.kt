@@ -2,6 +2,8 @@ package dev.martianzoo.repl.commands
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 
 internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") {
@@ -12,6 +14,9 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
       """
   override val isReadOnly = true
   override fun noArgs() = listOf(helpText)
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.commandNames() + context.classNames()
+
   override fun withArgs(args: String): List<String> {
     val arg = args.trim()
     return when (arg.lowercase()) {

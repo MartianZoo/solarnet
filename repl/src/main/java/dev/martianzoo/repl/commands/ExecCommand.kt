@@ -1,6 +1,9 @@
 package dev.martianzoo.repl.commands
 
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
+import dev.martianzoo.repl.PetsCompletionRoot
 import dev.martianzoo.repl.ReplSession
 
 internal class ExecCommand(private val repl: ReplSession) : ReplCommand("exec") {
@@ -11,6 +14,9 @@ internal class ExecCommand(private val repl: ReplSession) : ReplCommand("exec") 
         `auto` mode is on, it will also try to execute any tasks that result from this. Otherwise
          use `tasks` to see which tasks are waiting for you.
       """
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.petsWords(PetsCompletionRoot.INSTRUCTION)
 
   override fun withArgs(args: String) = repl.describeExecutionResults(repl.access().exec(args))
 }

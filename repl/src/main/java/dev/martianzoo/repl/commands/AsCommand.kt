@@ -2,6 +2,8 @@ package dev.martianzoo.repl.commands
 
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 
@@ -14,6 +16,18 @@ internal class AsCommand(private val repl: ReplSession) : ReplCommand("as") {
       """
 
   override fun noArgs() = throw UsageException()
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> {
+    if (context.argIndex == 0) return context.playerNames()
+
+    val delegated = context.droppingLeadingWords(1)
+    if (delegated.args.isBlank()) return context.commandNames()
+
+    if (!delegated.hasRestAfterFirstWord) return context.commandNames()
+
+    return context.commandArguments(delegated.firstWord, delegated.restAfterFirstWord)
+  }
+
   override fun withArgs(args: String): List<String> {
     val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 

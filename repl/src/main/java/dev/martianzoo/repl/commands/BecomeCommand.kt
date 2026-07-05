@@ -3,6 +3,8 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 
 internal class BecomeCommand(private val repl: ReplSession) : ReplCommand("become") {
@@ -13,6 +15,9 @@ internal class BecomeCommand(private val repl: ReplSession) : ReplCommand("becom
         do now will be done as if it's player 2 doing it. You can also `become Engine` to do
         engine things.
       """
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.playerNames()
 
   override fun noArgs(): List<String> {
     repl.gameplay = repl.game.gameplay(Player.ENGINE) as TurnLayer

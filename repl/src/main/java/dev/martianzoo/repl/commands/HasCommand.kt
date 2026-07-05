@@ -3,6 +3,9 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
+import dev.martianzoo.repl.PetsCompletionRoot
 import dev.martianzoo.repl.ReplSession
 
 internal class HasCommand(private val repl: ReplSession) : ReplCommand("has") {
@@ -13,6 +16,9 @@ internal class HasCommand(private val repl: ReplSession) : ReplCommand("has") {
         for syntax.
       """
   override val isReadOnly = true
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.petsWords(PetsCompletionRoot.REQUIREMENT)
 
   override fun withArgs(args: String): List<String> {
     val result = repl.gameplay.has(args)

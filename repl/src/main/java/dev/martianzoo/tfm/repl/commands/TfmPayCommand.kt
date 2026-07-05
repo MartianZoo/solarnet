@@ -9,12 +9,17 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.commands.TaskCommand
 
 internal class TfmPayCommand(private val repl: ReplSession) : ReplCommand("tfm_pay") {
   override val usage: String = "tfm_pay <amount resource>"
   override val help: String = ""
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.paymentWords()
+
   override fun withArgs(args: String): List<String> {
     val gains: List<Instruction> = Instruction.split(Parsing.parse(args)).instructions
 

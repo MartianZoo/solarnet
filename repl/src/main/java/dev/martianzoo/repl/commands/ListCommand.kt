@@ -4,6 +4,9 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
+import dev.martianzoo.repl.PetsCompletionRoot
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
@@ -15,6 +18,9 @@ internal class ListCommand(private val repl: ReplSession) : ReplCommand("list") 
         This command is super broken right now.
       """
   override val isReadOnly = true
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.petsWords(PetsCompletionRoot.EXPRESSION)
+
   override fun noArgs() = withArgs("$COMPONENT")
 
   override fun withArgs(args: String): List<String> {

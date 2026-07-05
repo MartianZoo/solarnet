@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.repl.commands
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -21,10 +23,13 @@ internal class TfmBoardCommand(repl: ReplSession) : AbstractTfmCommand(repl, "tf
       """
   override val isReadOnly = true
 
-  override fun noArgs(): List<String> = PlayerBoardToText(tfm(), repl.jline != null).board()
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.playerNames(includeEngine = false)
+
+  override fun noArgs(): List<String> = PlayerBoardToText(tfm(), repl.isInteractive).board()
 
   override fun withArgs(args: String) =
-      PlayerBoardToText(tfm().asPlayer(repl.player(args)), repl.jline != null).board()
+      PlayerBoardToText(tfm().asPlayer(repl.player(args)), repl.isInteractive).board()
 
   internal class PlayerBoardToText(
       private val tfm: TfmGameplay,

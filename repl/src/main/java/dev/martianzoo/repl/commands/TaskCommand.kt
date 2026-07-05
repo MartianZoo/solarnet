@@ -3,6 +3,9 @@ package dev.martianzoo.repl.commands
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
+import dev.martianzoo.repl.PetsCompletionRoot
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 
@@ -18,6 +21,15 @@ internal class TaskCommand(private val repl: ReplSession) : ReplCommand("task") 
         `-2 Plant<Player1>`. If you leave out the id (like `A`) it will expect your revision to
         match only one existing task.
       """
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      when (context.argIndex) {
+        0 -> context.taskIds() + context.petsWords(PetsCompletionRoot.INSTRUCTION)
+        1 ->
+          context.completions("drop", "prepare", group = "task actions") +
+              context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
+        else -> context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
+      }
 
   override fun withArgs(args: String): List<String> {
     val split = Regex("\\s+").split(args, 2)

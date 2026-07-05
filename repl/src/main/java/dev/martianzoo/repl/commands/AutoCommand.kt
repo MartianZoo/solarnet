@@ -4,6 +4,8 @@ import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionContext
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 
@@ -21,6 +23,9 @@ internal class AutoCommand(private val repl: ReplSession) : ReplCommand("auto") 
       """
 
   override fun noArgs() = listOf("Autoexec mode is: ${repl.gameplay.autoExecMode}")
+
+  override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
+      context.completions("none", "safe", "first", group = "auto modes")
 
   override fun withArgs(args: String): List<String> {
     repl.gameplay.autoExecMode =

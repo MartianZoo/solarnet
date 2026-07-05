@@ -64,13 +64,12 @@ internal fun main(args: Array<String>) { // JVM entry point for the shadow JAR
     ReplServer().run()
     return
   }
-  val jline = JlineRepl()
-  val repl = ReplSession(jline)
+  val repl = ReplSession { JlineRepl(ReplCompleter(it)) }
   repl.loop()
   println("Bye")
 }
 
-internal class ReplSession(internal val jline: JlineRepl? = null) {
+internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTerminal)? = null) {
   internal lateinit var setup: GameSetup
   internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
@@ -90,8 +89,6 @@ internal class ReplSession(internal val jline: JlineRepl? = null) {
   init {
     newGame(SIMPLE_GAME)
   }
-
-  internal fun loop() = jline!!.loop(::prompt, ::executeAll, welcome)
 
   private fun prompt() = mode.color.foreground(promptPlain())
 
@@ -152,6 +149,14 @@ internal class ReplSession(internal val jline: JlineRepl? = null) {
               TfmSampleCommand(this),
           )
           .associateBy { it.name }
+
+  private val terminal: ReplTerminal? = terminalFactory?.invoke(this)
+  internal val isInteractive: Boolean
+    get() = terminal != null
+
+  internal fun loop() = terminal!!.loop(::prompt, ::executeAll, welcome)
+
+  internal fun historyLines(max: Int? = null): List<String>? = terminal?.historyLines(max)
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...
   when (mode) {
