@@ -6,6 +6,8 @@
   without requiring a manual state adjustment in `Game20230521Test`.
 - Now that gameplay queue views are scoped, search tests for simplifications where they previously
   hacked around all queues being merged.
+- Use `docs/engine-api-review.md` to guide a gradual replacement of `godMode()`/layer casts with
+  explicit player, workflow, monitor, debug, and fixture role objects.
 
 ## Not Yet Discussed
 
