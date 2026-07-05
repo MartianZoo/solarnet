@@ -1473,15 +1473,15 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 passed
     p1.pass()
     // Final greenery placement
-    p1.godMode().manual("UseAction1<ConvertPlantsSA>") {
-      // Player1 placed greenery tile on row 6 position 4
-      doTask("GreeneryTile<Tharsis_6_5>")
-      // Player1's plants amount increased by 1
-    }.expect("-7 Plant")
-    p2.godMode().manual("UseAction1<ConvertPlantsSA>") {
-      // Player2 placed greenery tile on row 8 position 5
-      doTask("GreeneryTile<Tharsis_8_8>")
-    }.expect("-8 Plant")
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    // Player1 placed greenery tile on row 6 position 4
+    p1.doTask("GreeneryTile<Tharsis_6_5>")
+    // Player1's plants amount increased by 1
+    p1.doFirstTask("Ok")
+    p2.doTask("UseAction1<ConvertPlantsSA>")
+    // Player2 placed greenery tile on row 8 position 5
+    p2.doTask("GreeneryTile<Tharsis_8_8>")
+    p2.doFirstTask("Ok")
     // This game id was gf386a4cd5de1
 
     val summ = Summarizer(game)

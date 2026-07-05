@@ -8,10 +8,18 @@ CLASS TerraformingMars : System, AutoLoad {
   HAS =1 This
 
   SetupPhase: Generation
+  CorporationPhase: Photosynthesis
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed
   Pay<Class<Titanium>>:: -3 Owed                       // should be innocuous for TradeSA...
+}
+
+CLASS Photosynthesis {
+  HAS MAX 1 This
+
+  FinalGreeneryPhase: -This!
+  GreeneryTile: OxygenStep
 }
 
 "A single step along a global parameter track; creating one gives the active player (if any) a TR"
@@ -61,6 +69,7 @@ ABSTRACT CLASS Phase : AutoLoad {
   CLASS PreludePhase {
     NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
   }
+  CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
@@ -70,7 +79,9 @@ ABSTRACT CLASS Phase : AutoLoad {
   }
   "An unfortunate implementation detail seemingly forced by Supercapacitors :-("
   CLASS Production2Phase
-  CLASS ResearchPhase { This:: Generation }
+  CLASS FinalGreeneryPhase {
+    NewTurn: UseAction1<ConvertPlantsSA>?
+  }
   CLASS EndPhase : AutoLoad { This:: End }
 }
 

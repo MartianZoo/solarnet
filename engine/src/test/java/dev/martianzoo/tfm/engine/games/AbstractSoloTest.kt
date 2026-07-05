@@ -27,7 +27,6 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     opp.manual("GreeneryTile<${greeneryAreas().first}>")
     opp.manual("CityTile<${cityAreas().second}>")
     opp.manual("GreeneryTile<${greeneryAreas().second}>")
-    opp.manual("-2 OxygenStep!")
 
     opp.manual("99, 99 S, 99 T, 99 P, 99 E, 99 H")
     opp.manual("PROD[99, 99 S, 99 T, 99 P, 99 E, 99 H]")

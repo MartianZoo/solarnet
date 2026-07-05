@@ -47,7 +47,7 @@ The first two are singleton types: each concrete subtype such as `Aquifer` autom
 
 ### Phases
 
-The plan is for exactly one Phase instance will exist at all times: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. A phase called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!). When the final phase `Shutdown` is created, the game is thereby concluded and no more state changes can happen.
+The plan is for exactly one Phase instance will exist at all times: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. After the final `ProductionPhase`, `FinalGreeneryPhase` lets players convert remaining plants into greeneries before scoring. A phase called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!). When the final phase `Shutdown` is created, the game is thereby concluded and no more state changes can happen.
 
 ## Player stuff
 

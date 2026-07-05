@@ -552,16 +552,12 @@ class SoloGame0721Test : AbstractSoloTest() {
       assertThat(has("63 TR")) // victory!
 
       // Final greenery placement
-
-      // TODO wow this is a stupid hack. Make sure final greeneries don't raise oxygen!
-      // In general this trick could fail if it triggers an ocean tile placement
-      opponent.godMode().manual("14 OxygenStep")
-
-      godMode().manual("UseAction1<ConvertPlantsSA>") {
-        // me placed greenery tile on row 8 position 5
-        // me's steel amount increased by 2
-        doTask("GreeneryTile<Elysium_8_8>")
-      }
+      phase("FinalGreenery")
+      startTurn()
+      doTask("UseAction1<ConvertPlantsSA>")
+      // me placed greenery tile on row 8 position 5
+      // me's steel amount increased by 2
+      doTask("GreeneryTile<Elysium_8_8>")
 
       engine.phase("End")
 
@@ -572,7 +568,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
       assertCounts(0 to "ProjectCard", 69 to "TR", 32 to "CardFront + PlayedEvent")
       assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
-      assertSidebar(gen = 12, temp = 4, oxygen = 14, oceans = 8, venus = 30) // oxygen = 12
+      assertSidebar(gen = 12, temp = 4, oxygen = 12, oceans = 8, venus = 30)
 
       assertTags(5, 7, 0, 5, 5, 1, 3, 2, 1, 0, 0)
 

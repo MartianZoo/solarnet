@@ -35,6 +35,7 @@ public object TfmWorkflow {
     public fun preludePhase() = engineOps.manual("PreludePhase FROM Phase")
     public fun actionPhase() = engineOps.manual("ActionPhase FROM Phase")
     public fun productionPhase() = engineOps.manual("ProductionPhase FROM Phase")
+    public fun finalGreeneryPhase() = engineOps.manual("FinalGreeneryPhase FROM Phase")
     public fun researchPhase(body: BodyLambda = {}) =
         engineOps.manual("ResearchPhase FROM Phase", body)
     public fun endPhase() = engineOps.manual("EndPhase FROM Phase")
@@ -118,7 +119,7 @@ public object TfmWorkflow {
         actionPhase()
       }
       productionPhase()
-      // TODO: finalGreeneryPhase()
+      finalGreeneryPhase()
       m.endPhase()
     }
 
@@ -139,6 +140,18 @@ public object TfmWorkflow {
     private suspend fun productionPhase() {
       engineOps.beginManual("ProductionPhase FROM Phase")
       letPlayerFinish()
+    }
+
+    private suspend fun finalGreeneryPhase() {
+      m.finalGreeneryPhase()
+      for (player in rotatedByFirstPlayer()) {
+        var placedGreenery: Boolean
+        do {
+          val greeneryCount = opsFor(player).count("GreeneryTile<$player>")
+          grantFirstActionTo(player)
+          placedGreenery = opsFor(player).count("GreeneryTile<$player>") > greeneryCount
+        } while (placedGreenery)
+      }
     }
 
     private suspend fun researchPhase() {

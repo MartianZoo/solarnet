@@ -40,7 +40,6 @@ ABSTRACT CLASS Tile<Area> {
     CLASS GreeneryTile[GT] : Tile<MarsArea> {
       DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>)>
 
-      This: OxygenStep
       End: VictoryPoint
     }
 

@@ -100,6 +100,7 @@ private class ReplSessionTest {
           0000: +CorporationPhase FROM SetupPhase FOR Engine (manual)
           0000: +CorporationCard<Player1> FOR Engine BY Player1 BECAUSE 0000
           0000: +CorporationCard<Player2> FOR Engine BY Player2 BECAUSE 0000
+          0000: +Photosynthesis FOR Engine BY TerraformingMars BECAUSE 0000
           Hi, Player1
           New tasks pending:
           Z  [queue: Player1, owner: Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
