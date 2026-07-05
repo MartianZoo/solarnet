@@ -13,5 +13,5 @@
   test/manual code after the final production phase.
 - Replace the `Gain.copy(...)` call in `Transformers.atomizeChanges()` before Kotlin 2.2 turns the
   exposed-copy-visibility warning into an error.
-- Make REPL Pets-language completion parser-aware so it can suggest only syntactically plausible
-  next tokens instead of the current broad live class/keyword list.
+- Expose expected-token data from the BetterParse PETS parsers so REPL completion can ask for valid
+  next terminals directly instead of probing candidate strings against the parser.

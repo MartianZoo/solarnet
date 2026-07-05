@@ -23,9 +23,11 @@ internal class TaskCommand(private val repl: ReplSession) : ReplCommand("task") 
 
   override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
       when (context.argIndex) {
-        0 -> context.taskIds() + context.petsLanguageWords()
-        1 -> context.completions("drop", "prepare", group = "task actions") + context.petsLanguageWords()
-        else -> context.petsLanguageWords()
+        0 -> context.taskIds() + context.petsWords(PetsCompletionRoot.INSTRUCTION)
+        1 ->
+          context.completions("drop", "prepare", group = "task actions") +
+              context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
+        else -> context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
       }
 
   override fun withArgs(args: String): List<String> {

@@ -17,7 +17,7 @@ internal class CountCommand(private val repl: ReplSession) : ReplCommand("count"
   override val isReadOnly = true
 
   override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
-      context.petsLanguageWords()
+      context.petsWords(PetsCompletionRoot.METRIC)
 
   override fun withArgs(args: String): List<String> {
     val metric: Metric = repl.gameplay.parse(args)

@@ -15,7 +15,7 @@ internal class ExecCommand(private val repl: ReplSession) : ReplCommand("exec") 
       """
 
   override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
-      context.petsLanguageWords()
+      context.petsWords(PetsCompletionRoot.INSTRUCTION)
 
   override fun withArgs(args: String) = repl.describeExecutionResults(repl.access().exec(args))
 }

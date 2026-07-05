@@ -24,7 +24,7 @@ internal class DescCommand(private val repl: ReplSession) : ReplCommand("desc") 
   override val isReadOnly = true
 
   override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
-      context.petsLanguageWords()
+      context.petsWords(PetsCompletionRoot.EXPRESSION)
 
   override fun withArgs(args: String): List<String> {
     val (expression, type) =

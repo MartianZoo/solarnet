@@ -17,7 +17,7 @@ internal class HasCommand(private val repl: ReplSession) : ReplCommand("has") {
   override val isReadOnly = true
 
   override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
-      context.petsLanguageWords()
+      context.petsWords(PetsCompletionRoot.REQUIREMENT)
 
   override fun withArgs(args: String): List<String> {
     val result = repl.gameplay.has(args)

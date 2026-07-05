@@ -18,7 +18,7 @@ internal class ListCommand(private val repl: ReplSession) : ReplCommand("list") 
       """
   override val isReadOnly = true
   override fun completions(context: ReplCompletionContext): List<ReplCompletion> =
-      context.petsLanguageWords()
+      context.petsWords(PetsCompletionRoot.EXPRESSION)
 
   override fun noArgs() = withArgs("$COMPONENT")
 

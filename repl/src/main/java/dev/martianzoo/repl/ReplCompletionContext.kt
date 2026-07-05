@@ -1,9 +1,16 @@
 package dev.martianzoo.repl
 
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
 import java.io.File
 import org.jline.reader.Candidate
+import kotlin.reflect.KClass
 
 internal class ReplCompletionContext(
     private val repl: ReplSession,
@@ -16,6 +23,15 @@ internal class ReplCompletionContext(
     val argIndex =
         if (args.endsWithWhitespace()) words.size else words.lastIndex.coerceAtLeast(0)
     return repl.commands[command.lowercase()]?.completions(copy(args, words, argIndex)) ?: emptyList()
+  }
+
+  fun droppingLeadingWords(count: Int): ReplCompletionContext {
+    var rest = args.trimStart()
+    repeat(count) { rest = rest.substringAfterWhitespace().trimStart() }
+    val words = rest.splitWordsForCompletion()
+    val argIndex =
+        if (rest.endsWithWhitespace()) words.size else words.lastIndex.coerceAtLeast(0)
+    return copy(rest, words, argIndex)
   }
 
   fun commandNames(): List<ReplCompletion> =
@@ -43,26 +59,6 @@ internal class ReplCompletionContext(
             ReplCompletion(it.shortName.toString(), "classes", it.className.toString()),
         )
       }
-
-  fun petsLanguageWords(): List<ReplCompletion> =
-      classNames() +
-          playerNames() +
-          completions(
-              "ANY",
-              "Anyone",
-              "BY",
-              "Class",
-              "FOR",
-              "FROM",
-              "HAS",
-              "MAX",
-              "MIN",
-              "OR",
-              "PROD",
-              "THEN",
-              "This",
-              group = "Pets syntax",
-          )
 
   fun paymentWords(): List<ReplCompletion> {
     val standards = setOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
@@ -144,6 +140,80 @@ internal class ReplCompletionContext(
   fun completions(vararg values: String, group: String): List<ReplCompletion> =
       values.map { ReplCompletion(it, group) }
 
+  internal fun petsWords(root: PetsCompletionRoot): List<ReplCompletion> {
+    val prefix = fragment(args.substringAfterLastWhitespace())
+    val sourceBeforePrefix = args.dropLast(prefix.length)
+    return broadPetsCandidates()
+        .filter { it.startsWith(prefix, ignoreCase = true) }
+        .filter { root.accepts(sourceBeforePrefix, it.value) }
+  }
+
+  private fun broadPetsCandidates(): List<ReplCompletion> =
+      classNames() +
+          playerNames() +
+          syntaxWords(
+              "ANY",
+              "Anyone",
+              "Class",
+              "FROM",
+              "HAS",
+              "MAX",
+              "OR",
+              "PROD",
+              "THEN",
+              "This",
+              "Ok",
+          ) +
+          scalarWords()
+
+  private fun PetsCompletionRoot.accepts(sourceBeforePrefix: String, candidate: String): Boolean =
+      parserTypes.any { it.acceptsPetsCompletion(sourceBeforePrefix, candidate) }
+
+  private fun KClass<out PetNode>.acceptsPetsCompletion(
+      sourceBeforePrefix: String,
+      candidate: String,
+  ): Boolean {
+    val base = sourceBeforePrefix + candidate
+    return completionFillers.any { filler ->
+      val filled = base + filler
+      val probe = filled + closingSuffix(filled)
+      parses(probe)
+    }
+  }
+
+  private fun KClass<out PetNode>.parses(source: String): Boolean =
+      try {
+        Parsing.parse(this, source)
+        true
+      } catch (e: Exception) {
+        false
+      }
+
+  private fun closingSuffix(source: String): String {
+    val closers = ArrayDeque<Char>()
+    for (c in source) {
+      when (c) {
+        '(' -> closers.addFirst(')')
+        '[' -> closers.addFirst(']')
+        '<' -> closers.addFirst('>')
+        ')' -> closers.removeFirstIf(')')
+        ']' -> closers.removeFirstIf(']')
+        '>' -> closers.removeFirstIf('>')
+      }
+    }
+    return closers.joinToString("")
+  }
+
+  private fun ArrayDeque<Char>.removeFirstIf(c: Char) {
+    if (firstOrNull() == c) removeFirst()
+  }
+
+  private fun scalarWords(): List<ReplCompletion> =
+      listOf("1", "2", "3", "X").map { ReplCompletion(it, "Pets scalars") }
+
+  private fun syntaxWords(vararg words: String): List<ReplCompletion> =
+      words.map { ReplCompletion(it, "Pets syntax") }
+
   private fun copy(args: String, words: List<String>, argIndex: Int) =
       ReplCompletionContext(repl, args, words, argIndex)
 
@@ -157,6 +227,11 @@ internal class ReplCompletionContext(
   private fun String.substringAfterLastWhitespace(): String {
     val lastWhitespace = indexOfLast { it.isWhitespace() }
     return if (lastWhitespace == -1) this else drop(lastWhitespace + 1)
+  }
+
+  private fun String.substringAfterWhitespace(): String {
+    val firstWhitespace = indexOfFirst { it.isWhitespace() }
+    return if (firstWhitespace == -1) "" else drop(firstWhitespace)
   }
 
   private fun String.splitWordsForCompletion(): List<String> =
@@ -176,6 +251,38 @@ internal class ReplCompletionContext(
     fun replaceFragment(word: String, value: String): String =
         word.dropLast(fragment(word).length) + value
   }
+
+  private enum class PetsCompletionRoot {
+    ANY,
+    EXPRESSION,
+    INSTRUCTION,
+    METRIC,
+    REQUIREMENT,
+    ;
+
+    val parserTypes: List<KClass<out PetNode>>
+      get() =
+          when (this) {
+            ANY -> listOf(Instruction::class, Expression::class, Metric::class, Requirement::class)
+            EXPRESSION -> listOf(Expression::class)
+            INSTRUCTION -> listOf(Instruction::class)
+            METRIC -> listOf(Metric::class)
+            REQUIREMENT -> listOf(Requirement::class)
+          }
+  }
+
+  private val completionFillers =
+      listOf(
+          "",
+          " Plant",
+          " 1",
+          " 1 Plant",
+          "[Plant]",
+          " FROM Plant",
+          " OR Plant",
+          " THEN Plant",
+          " MAX 1",
+      )
 }
 
 internal data class ReplCompletion(

@@ -45,6 +45,16 @@ private class ReplCompleterTest {
   }
 
   @Test
+  fun narrowsPetsCompletionsWithPetsParser() {
+    assertThat(values("exec Plant ")).containsAtLeast("FROM", "OR", "THEN")
+    assertThat(values("exec Plant ")).containsNoneOf("Player1", "P1")
+
+    assertThat(values("exec Plant FROM P")).containsAtLeast("Plant", "PlantTag")
+    assertThat(values("desc Plant(HAS MAX ")).containsAtLeast("1", "Plant")
+    assertThat(values("count Tag + ")).containsAtLeast("1", "PlantTag")
+  }
+
+  @Test
   fun completesTaskIdsAndTaskRevisions() {
     (repl.gameplay.godMode() as TaskLayer).addTasks("2 Plant?")
     (repl.gameplay.godMode() as TaskLayer).addTasks("3 Heat?")
