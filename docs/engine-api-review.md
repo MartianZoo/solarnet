@@ -348,7 +348,8 @@ First make transaction semantics explicit without changing package structure.
 
 1. Extract the standard command lifecycle out of `ApiTranslation.atomic`.
 2. Make `ApiTranslation` delegate public commands to `CommandRunner`.
-3. Move auto-exec invocation behind an `AutoExecutor` or `AutoExecAgent`.
+3. Keep the existing whole-game auto-exec policy intact at first; move auto-exec behind an
+   `AutoExecutor` or `AutoExecAgent` only after the runner has made the current behavior explicit.
 4. Add characterization tests for:
    1. rollback on failure,
    2. returned `TaskResult`,
@@ -429,6 +430,104 @@ Once clients use role/capability APIs:
 
 This is intentionally late. Hiding internals before the replacement API is proven would make
 refactoring harder, not easier.
+
+## Small Starting Refactorings
+
+After rereading the engine overview and current code, the safest small moves are narrower than a
+full capability split. The current implementation has a few constraints worth respecting:
+
+1. `ApiTranslation.atomic` is already the command lifecycle in miniature: it opens a timeline
+   atomic block, runs the explicit command, runs auto-exec, returns activity since the checkpoint,
+   and fires `onAtomicComplete` only for the outermost command.
+2. `Implementations.autoExecNow` intentionally scans the whole-game task view today, even though
+   player task queues are scoped. Existing workflows rely on this, so actor-local auto-exec should
+   not be the first behavioral change.
+3. `Task.next` is still a whole-game lock. A player-scoped action may prepare only that player's
+   task, but it must still reject cutting in front of a prepared task elsewhere.
+4. The REPL is currently the clearest client smell: `ReplSession.access()` obtains `godMode()` and
+   `Access` casts it back down to colored power levels, while `TaskCommand` reaches directly for
+   `game.timeline.atomic` to compose a revise-and-try operation.
+5. `TfmGameplay` and `TfmWorkflow` show two different kinds of Terraforming Mars convenience mixed
+   into engine-facing types: player helpers such as `playProject` and payment, and emcee/workflow
+   helpers such as phases and generations.
+
+That suggests this concrete order:
+
+1. Add command lifecycle characterization tests before moving code.
+
+   Cover rollback on failure, `AbortOperationException`, returned `TaskResult` contents, inclusion
+   of auto-executed follow-up work, and single outermost `onAtomicComplete` notification. These
+   tests should describe current behavior, including whole-game auto-exec.
+
+2. Extract `CommandRunner` as an internal service from `ApiTranslation.atomic`.
+
+   The first extraction should be mechanical. It can still call `Timeline.atomic`, still run
+   `impl.autoExecNow(autoExecMode)`, and still use the same nesting rule for `onAtomicComplete`.
+   The win is that transaction semantics get a name before clients or capabilities are rearranged.
+
+3. Route `ApiTranslation.reviseTask` and `sneak` through the named runner only if their current
+   semantics are meant to be public commands.
+
+   This is not an automatic cleanup. `reviseTask` currently returns a `TaskResult` from
+   `timeline.atomic` without the normal post-command auto-exec/notification path, and `sneak` is a
+   debug/raw-state operation. Decide whether each method should be a command, a debug command, or a
+   lower-level primitive before changing behavior.
+
+4. Add a named player command for the REPL's revise-and-try flow.
+
+   `TaskCommand` currently performs:
+
+   ```kotlin
+   game.timeline.atomic {
+     gameplay.reviseTask(id, rest)
+     if (id in game.tasks) gameplay.tryTask(id)
+   }
+   ```
+
+   A method such as `reviseAndTryTask(id, revised)` would remove public transaction composition
+   from the REPL without requiring a broad API migration. If this method lives on the future
+   `PlayerTaskActions` capability, it also helps prove that capability's shape.
+
+5. Introduce capability interfaces as names first, not new architecture.
+
+   Start with the interfaces that map cleanly to current methods:
+
+   1. `GameQueries` for player-contextual `has`, `count`, `list`, and `resolve`.
+   2. `PlayerTaskActions` for `reviseTask`, `prepareTask`, `doTask`, `tryTask`, and the new
+      `reviseAndTryTask`.
+   3. `OperationRunner` for `manual`, `beginManual`, `continueManual`, and `finish`.
+   4. `TurnActions` for `startTurn` and `turn`.
+   5. `DebugTaskEditor` for `addTasks` and `dropTask`.
+   6. `RawStateEditor` for `sneak`.
+
+   `ApiTranslation` can implement these directly at first. Koin can bind the same scoped object to
+   multiple interfaces. That gives clients better types without forcing separate implementation
+   classes prematurely.
+
+6. Add compatibility accessors on `Game` only after the interfaces exist.
+
+   Accessors such as `playerActions(player)`, `operationRunner(player)`, and `rawStateEditor(player)`
+   would be a bridge for current tests and the REPL. They should return capability interfaces, not
+   the old inheritance tower. Keep `gameplay(player)` until callers have migrated.
+
+7. Move `repl.Access` to capability-shaped constructor parameters.
+
+   The colored modes already express authority levels, so they are a good early proving ground.
+   `BlueMode` should not need to cast a `Gameplay` to `TurnLayer`, and `RedMode` should receive the
+   raw-state/debug capabilities it actually uses. This keeps visible REPL behavior unchanged while
+   removing `godMode()` as the way to discover authority.
+
+8. Split the obvious Terraforming Mars facades later, after generic capabilities exist.
+
+   The first useful splits are likely:
+
+   1. player helpers that need normal task/turn/operation capabilities,
+   2. workflow/emcee helpers that need engine-player operations and timeline control,
+   3. fixture helpers that need raw state or task editing,
+   4. read-model helpers that need only queries.
+
+   This should not be the first refactoring because today `TfmGameplay` also acts as a convenient
+   compatibility wrapper around `TurnLayer`.
 
 ## Open Design Questions
 

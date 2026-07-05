@@ -272,8 +272,10 @@ Gameplay         ← query-only + task revision/preparation + doTask
 - **`GodMode`** lets you make raw changes to the component graph, bypassing instruction
   preparation and effect firing (`sneak()`).
 
-The concrete implementation is `ApiTranslation`, which also wraps every method in `atomic` and
-invokes `autoExecNow` at the end of each outermost atomic block.
+The concrete implementation is `ApiTranslation`, which wraps most command-style methods in
+`atomic` and invokes `autoExecNow` at the end of each outermost adapter atomic block. Some methods,
+including task preparation/editing and raw debug changes, still have mixed transaction semantics;
+see `docs/engine-api-review.md` for the current API cleanup direction.
 
 ---
 
