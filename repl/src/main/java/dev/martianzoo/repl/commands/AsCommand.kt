@@ -20,14 +20,12 @@ internal class AsCommand(private val repl: ReplSession) : ReplCommand("as") {
   override fun completions(context: ReplCompletionContext): List<ReplCompletion> {
     if (context.argIndex == 0) return context.playerNames()
 
-    val delegated = context.args.substringAfterWhitespace()
-    if (delegated.isBlank()) return context.commandNames()
+    val delegated = context.droppingLeadingWords(1)
+    if (delegated.args.isBlank()) return context.commandNames()
 
-    val delegatedCommand = delegated.substringBeforeWhitespace()
-    val delegatedArgs = delegated.substringAfterWhitespace()
-    if (delegatedArgs.isEmpty() && !delegated.endsWithWhitespace()) return context.commandNames()
+    if (!delegated.hasRestAfterFirstWord) return context.commandNames()
 
-    return context.commandArguments(delegatedCommand, delegatedArgs)
+    return context.commandArguments(delegated.firstWord, delegated.restAfterFirstWord)
   }
 
   override fun withArgs(args: String): List<String> {
@@ -42,14 +40,4 @@ internal class AsCommand(private val repl: ReplSession) : ReplCommand("as") {
       repl.gameplay = saved
     }
   }
-
-  private fun String.substringBeforeWhitespace(): String =
-      substringBefore(' ').substringBefore('\t')
-
-  private fun String.substringAfterWhitespace(): String {
-    val firstWhitespace = indexOfFirst { it.isWhitespace() }
-    return if (firstWhitespace == -1) "" else drop(firstWhitespace).trimStart()
-  }
-
-  private fun String.endsWithWhitespace() = lastOrNull()?.isWhitespace() == true
 }

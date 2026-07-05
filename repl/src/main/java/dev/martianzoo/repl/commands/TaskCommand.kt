@@ -5,6 +5,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplCompletion
 import dev.martianzoo.repl.ReplCompletionContext
+import dev.martianzoo.repl.PetsCompletionRoot
 import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 

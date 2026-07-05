@@ -5,8 +5,10 @@ import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.repl.ReplCompleter
 import dev.martianzoo.repl.ReplSession
 import java.io.File
+import java.nio.file.Path
 import org.jline.reader.Candidate
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 
 private class ReplCompleterTest {
   private val repl = ReplSession()
@@ -66,20 +68,16 @@ private class ReplCompleterTest {
   }
 
   @Test
-  fun completesScriptPaths() {
-    val file = File("completion-test.rego")
-    val dir = File("completion-dir")
-    try {
-      file.writeText("status\n")
-      dir.mkdir()
-      assertThat(values("script completion-test")).contains("completion-test.rego")
-      val dirCandidate = candidates("script completion-d").single()
-      assertThat(dirCandidate.value()).isEqualTo("completion-dir${File.separator}")
-      assertThat(dirCandidate.complete()).isFalse()
-    } finally {
-      file.delete()
-      dir.delete()
-    }
+  fun completesScriptPaths(@TempDir tempDir: Path) {
+    val file = tempDir.resolve("completion-test.rego").toFile()
+    val dir = tempDir.resolve("completion-dir").toFile()
+    file.writeText("status\n")
+    dir.mkdir()
+
+    assertThat(values("script ${tempDir.resolve("completion-test")}")).contains(file.toString())
+    val dirCandidate = candidates("script ${tempDir.resolve("completion-d")}").single()
+    assertThat(dirCandidate.value()).isEqualTo("${dir}${File.separator}")
+    assertThat(dirCandidate.complete()).isFalse()
   }
 
   @Test

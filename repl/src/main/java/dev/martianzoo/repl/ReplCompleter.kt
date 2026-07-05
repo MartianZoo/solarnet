@@ -19,16 +19,13 @@ internal class ReplCompleter(private val repl: ReplSession) : Completer {
     val input = chunk.trimStart()
     if (input.isEmpty()) return commandCandidates("", parsedWord)
 
-    val command = input.substringBeforeWhitespace()
-    val afterCommand = input.drop(command.length)
-    if (afterCommand.isEmpty()) return commandCandidates(command, parsedWord)
+    val completionArgs = ReplCompletionArgs(input)
+    val command = completionArgs.firstWord
+    if (!completionArgs.hasRestAfterFirstWord) return commandCandidates(command, parsedWord)
 
-    val args = afterCommand.trimStart()
-    val words = if (args.isEmpty()) listOf() else args.split(Regex("\\s+"))
-    val argIndex = if (args.endsWithWhitespace()) words.size else (words.size - 1).coerceAtLeast(0)
     val replCommand = repl.commands[command.lowercase()] ?: return emptyList()
     val prefix = replCommand.completionPrefix(parsedWord)
-    val context = ReplCompletionContext(repl, args, words, argIndex)
+    val context = ReplCompletionContext(repl, completionArgs.restAfterFirstWord)
     return replCommand
         .completions(context)
         .filter { it.startsWith(prefix, ignoreCase = true) }
@@ -38,16 +35,11 @@ internal class ReplCompleter(private val repl: ReplSession) : Completer {
   }
 
   private fun commandCandidates(prefix: String, parsedWord: String): List<Candidate> =
-      ReplCompletionContext(repl, "", emptyList(), 0)
+      ReplCompletionContext(repl, "")
           .commandNames()
           .filter { it.startsWith(prefix, ignoreCase = true) }
           .sortedBy { it.value }
           .map { it.toCandidate(parsedWord) }
-
-  private fun String.endsWithWhitespace() = lastOrNull()?.isWhitespace() == true
-
-  private fun String.substringBeforeWhitespace(): String =
-      substringBefore(' ').substringBefore('\t')
 
   private companion object {
     fun wordAtCursor(line: String, cursor: Int): String {
