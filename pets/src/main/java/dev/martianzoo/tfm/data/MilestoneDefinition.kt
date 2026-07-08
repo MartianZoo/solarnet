@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.data
 
-import com.squareup.moshi.Json
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
@@ -10,12 +9,16 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.MILESTONE
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
+@Serializable
 data class MilestoneDefinition(
     val id: String,
     override val bundle: String,
     val replaces: String? = null,
-    @Json(name = "requirement") val requirementText: String,
+    @SerialName("requirement") val requirementText: String,
 ) : Definition {
 
   init {
@@ -24,11 +27,11 @@ data class MilestoneDefinition(
     require(replaces?.isEmpty() != true)
   }
 
-  override val shortName = cn(id)
+  @Transient override val shortName = cn(id)
 
-  val requirement: Requirement = parse(requirementText)
+  @Transient val requirement: Requirement = parse(requirementText)
 
-  override val className = englishHack(id)
+  @Transient override val className = englishHack(id)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(

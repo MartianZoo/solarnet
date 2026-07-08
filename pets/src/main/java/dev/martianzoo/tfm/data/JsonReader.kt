@@ -1,15 +1,14 @@
 package dev.martianzoo.tfm.data
 
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.ColonyTileDefinition.ColonyTileData
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.util.Grid
-import kotlin.text.RegexOption.DOT_MATCHES_ALL
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 public object JsonReader {
 
@@ -17,14 +16,16 @@ public object JsonReader {
 
   fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
 
-  private class CardList(val cards: List<CardData>)
+  @Serializable
+  private data class CardList(val cards: List<CardData>)
 
   // MILESTONES
 
   fun readMilestones(json5: String): List<MilestoneDefinition> =
       fromJson5<MilestoneList>(json5).milestones
 
-  private class MilestoneList(val milestones: List<MilestoneDefinition>)
+  @Serializable
+  private data class MilestoneList(val milestones: List<MilestoneDefinition>)
 
   // ACTIONS
 
@@ -34,16 +35,18 @@ public object JsonReader {
     return import.actions.map { it.complete(false) } + import.projects.map { it.complete(true) }
   }
 
-  private class ActionsImport(
+  @Serializable
+  private data class ActionsImport(
       val actions: List<IncompleteActionDef>,
       val projects: List<IncompleteActionDef>,
   ) {
 
-    class IncompleteActionDef(
-        val id: ClassName,
+    @Serializable
+    data class IncompleteActionDef(
+        val id: String,
         val bundle: String,
-        val action: String?,
-        val actions: List<String>?
+        val action: String? = null,
+        val actions: List<String>? = null
     ) {
       fun complete(project: Boolean): StandardActionDefinition {
         val realActions =
@@ -54,7 +57,7 @@ public object JsonReader {
               require(actions == null)
               listOf(action)
             }
-        return StandardActionDefinition(id, bundle, project, realActions)
+        return StandardActionDefinition(cn(id), bundle, project, realActions)
       }
     }
   }
@@ -63,22 +66,26 @@ public object JsonReader {
 
   fun readMaps(json5: String): List<MarsMapDefinition> = fromJson5<MapsImport>(json5).definitions
 
-  private class MapsImport(val maps: List<MapImport>, val legend: Map<Char, String>) {
+  @Serializable
+  private data class MapsImport(val maps: List<MapImport>, val legend: Map<String, String>) {
     val definitions: List<MarsMapDefinition> by lazy {
-      val leg = Legend(legend)
+      val leg = Legend(legend.mapKeys { (key) -> key.toLegendKey() })
       maps.map { it.toDefinition(leg) }
     }
 
-    class MapImport(
-        val name: ClassName,
-        val bundle: String,
-        val rows: List<List<String>>,
-    ) {
+    @Serializable
+    data class MapImport(val name: String, val bundle: String, val rows: List<List<String>>) {
       internal fun toDefinition(legend: Legend): MarsMapDefinition {
-        fun mapArea(row0Index: Int, col0Index: Int, code: String, legend: Legend): AreaDefinition? {
+        val mapName = cn(name)
+        fun mapArea(
+            row0Index: Int,
+            col0Index: Int,
+            code: String,
+            legend: Legend
+        ): AreaDefinition? {
           if (code.isEmpty()) return null
           return AreaDefinition(
-              name,
+              mapName,
               bundle,
               row0Index + 1,
               col0Index + 1,
@@ -94,7 +101,7 @@ public object JsonReader {
               }
             }
         val grid = Grid.grid(areas, { it.row }, { it.column })
-        return MarsMapDefinition(name, bundle, grid)
+        return MarsMapDefinition(mapName, bundle, grid)
       }
     }
 
@@ -127,22 +134,23 @@ public object JsonReader {
   fun readColonyTiles(json5: String): List<ColonyTileData> =
       fromJson5<ColonyTileList>(json5).colonyTiles
 
-  private class ColonyTileList(val colonyTiles: List<ColonyTileData>)
+  @Serializable private data class ColonyTileList(val colonyTiles: List<ColonyTileData>)
 
   // HELPERS
 
-  private inline fun <reified T : Any> fromJson5(input: String): T =
-      Moshi.Builder()
-          .add(ClassNameAdapter())
-          .addLast(KotlinJsonAdapterFactory())
-          .build()
-          .adapter(T::class.java)
-          .lenient()
-          .fromJson(TRAILING_COMMA_REGEX.replace(input, ""))!!
+  private inline fun <reified T : Any> fromJson5(input: String): T = JSON5.decodeFromString(input)
 
-  class ClassNameAdapter {
-    @FromJson fun fromJson(card: String) = cn(card)
+  private fun String.toLegendKey(): Char {
+    require(length == 1) { "bad legend key: $this" }
+    return single()
   }
 
-  private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[]}])""", DOT_MATCHES_ALL)
+  @OptIn(ExperimentalSerializationApi::class)
+  private val JSON5 =
+      Json {
+        allowComments = true
+        allowTrailingComma = true
+        ignoreUnknownKeys = true
+        isLenient = true
+      }
 }

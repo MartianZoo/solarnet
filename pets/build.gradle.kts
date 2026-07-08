@@ -2,12 +2,13 @@ import java.net.URL
 
 plugins {
   id("org.jetbrains.kotlin.jvm")
+  id("org.jetbrains.kotlin.plugin.serialization")
   id("org.jetbrains.dokka")
 }
 
 dependencies {
   implementation("com.github.kevinb9n:better-parse:cdf8a45")
-  implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")

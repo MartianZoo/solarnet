@@ -35,6 +35,7 @@ import dev.martianzoo.tfm.data.TfmClasses.RESOURCE_CARD
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
+import kotlinx.serialization.Serializable
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
@@ -174,6 +175,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** The *raw* imported form of a [CardDefinition]; not really meant to be widely consumed. */
+  @Serializable
   public data class CardData(
       val id: String,
       val bundle: String,
