@@ -1,5 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import java.net.URL
+import java.net.URI
 
 plugins {
   id("org.jetbrains.kotlin.jvm")
@@ -26,7 +26,7 @@ tasks.dokkaHtml.configure {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/repl/src"))
+        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/repl/src").toURL())
         remoteLineSuffix.set("#L")
       }
       samples.from("src/main/java/dev/martianzoo/repl/samples.kt")

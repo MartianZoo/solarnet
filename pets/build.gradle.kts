@@ -1,4 +1,4 @@
-import java.net.URL
+import java.net.URI
 
 plugins {
   id("org.jetbrains.kotlin.jvm")
@@ -22,7 +22,7 @@ tasks.dokkaHtml.configure {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/pets/src"))
+        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/pets/src").toURL())
         remoteLineSuffix.set("#L")
       }
       samples.from("src/main/java/dev/martianzoo/tfm/pets/samples.kt")

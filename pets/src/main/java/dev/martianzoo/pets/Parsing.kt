@@ -29,7 +29,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
-import kotlin.reflect.cast
 
 /** Various functions for parsing [PetElement]s or [ClassDeclaration]s from text. */
 public object Parsing {
@@ -67,7 +66,11 @@ public object Parsing {
 
     // TODO: merge this with myThrow somehow
     val pet = parserGroup.parse(expectedType, elementSource, matches)
-    return expectedType.cast(pet)
+    check(expectedType.isInstance(pet)) {
+      "Expected ${expectedType.simpleName}, got ${pet.kind.simpleName}"
+    }
+    @Suppress("UNCHECKED_CAST")
+    return pet as P
   }
 
   /** Version of [parse] for use from Java. */

@@ -2,6 +2,12 @@
 
 ## Discussed
 
+- Convert `pets`, `canon`, and `engine` to Kotlin Multiplatform modules after deciding the first
+  non-JVM target; keep the JVM-only Java overloads and bytecode-name annotations in JVM source sets.
+- Replace `Canon`'s JVM resource loading with a KMP resource or generated-data strategy when adding
+  non-JVM targets.
+- Revisit `engine`'s Koin dependency before targeting Kotlin/Wasm; the pinned Koin metadata has
+  JVM/JS/Native variants but no Wasm variant.
 - Teach task selection to choose the Venus branch of Atmoscoop's `2 TemperatureStep OR 2 VenusStep`
   without requiring a manual state adjustment in `Game20230521Test`.
 - Now that gameplay queue views are scoped, search tests for simplifications where they previously
@@ -11,6 +17,7 @@
 
 ## Not Yet Discussed
 
+- Upgrade or replace the deprecated Gradle Enterprise plugin before moving to Gradle 9.
 - Implement `TfmWorkflow.Auto` final greenery handling instead of leaving final greenery placement to
   test/manual code after the final production phase.
 - Replace the `Gain.copy(...)` call in `Transformers.atomizeChanges()` before Kotlin 2.2 turns the
