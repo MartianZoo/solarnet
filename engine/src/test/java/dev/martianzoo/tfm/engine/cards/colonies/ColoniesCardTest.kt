@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.util.toSetStrict
-import org.junit.jupiter.api.BeforeEach
+import kotlin.test.BeforeTest
 
 abstract class ColoniesCardTest {
   protected val colonyTiles: Set<ClassName> =
@@ -26,7 +26,7 @@ abstract class ColoniesCardTest {
   protected fun TaskResult.expect(string: String) =
       TestHelpers.assertNetChanges(this, game, eng, string)
 
-  @BeforeEach
+  @BeforeTest
   fun commonSetup() {
     for (p in listOf(p1, p2)) {
       p.godMode().manual("100, 5 ProjectCard")

@@ -7,13 +7,13 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 class ExcentricSponsorTest {
   val game = Engine.newGame(GameSetup(Canon, "BPVM", 2)) // base, prelude, venus, default map, 2p
 
-  @BeforeEach
+  @BeforeTest
   fun `common setup steps for all tests`() {
     with(game.tfm(PLAYER1)) {
       phase("Corporation")

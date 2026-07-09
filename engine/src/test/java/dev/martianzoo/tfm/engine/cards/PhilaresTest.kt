@@ -8,8 +8,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class PhilaresTest {
   @Test
@@ -35,7 +35,7 @@ class PhilaresTest {
 
     p2.assertCounts(47 to "Megacredit", 1 to "Steel", 0 to "Mandate", 1 to "GreeneryTile")
 
-    assertThrows<IllegalArgumentException> {
+    shouldThrow<IllegalArgumentException> {
       p1.stdProject("GreenerySP") { doTask("GreeneryTile<M43>") }
     }
 
@@ -58,6 +58,6 @@ class PhilaresTest {
     p1.stdAction("HandleMandates") { doTask("GreeneryTile<M42>") }
 
     p1.stdProject("GreenerySP") { doTask("GreeneryTile<M32>") }
-    assertThrows<TaskException> { p1.doTask("Megacredit") }
+    shouldThrow<TaskException> { p1.doTask("Megacredit") }
   }
 }

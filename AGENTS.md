@@ -4,7 +4,9 @@
 
 - Solarnet's preferred JDK is 21. Use JDK 21 for local Gradle work.
 - The machine's default Java 26 can fail before project code runs, with misleading early Gradle/Kotlin DSL errors.
-- The full `:engine:test` suite has been fast enough to run routinely after changes.
+- The routine engine test suite is `:engine:allTests`, which skips slow browser tests by default.
+- Use `:engine:allTestsIncludingSlow` or `:engine:allTests -PincludeSlowTests=true` when you
+  really want all engine tests, including slow browser tests.
 
 ## Game Log Tests
 

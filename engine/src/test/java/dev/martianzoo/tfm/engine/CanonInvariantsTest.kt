@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.engine.Effector
 import dev.martianzoo.engine.Limiter
@@ -13,7 +12,11 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.MClassLoader
 import kotlin.Int.Companion.MAX_VALUE
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
 
 internal class CanonInvariantsTest {
 
@@ -31,7 +34,7 @@ internal class CanonInvariantsTest {
               .applicableRangeRestrictions(c.toComponent())
               .filter { it.range != 0..MAX_VALUE }
               .map { it.mtype.expression.toString() to it.range }
-      assertThat(actual).containsExactly(*pairs)
+      actual.shouldContainExactlyInAnyOrder(*pairs)
     }
     fun checkComponentLimit(s: String, range: IntRange) = checkTypeLimits(s, s to range)
 
@@ -63,12 +66,11 @@ internal class CanonInvariantsTest {
     fun restrictions(a: String) = limiter.rangeRestrictionsByClass[table.getClass(cn(a))]
 
     fun checkSimple(a: String, b: String = a, range: IntRange) {
-      assertThat(restrictions(a))
-          .contains(SimpleRangeRestriction(table.resolve(parse<Expression>(b)), range))
+      restrictions(a)!!.shouldContain(SimpleRangeRestriction(table.resolve(parse<Expression>(b)), range))
     }
     fun checkUnbound(type: String, expr: Expression, range: IntRange) {
       val clazz = table.getClass(cn(type))
-      assertThat(restrictions(type)).contains(UnboundRangeRestriction(expr, clazz, range))
+      restrictions(type)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
     }
 
     checkSimple("Ants", range = 0..1)

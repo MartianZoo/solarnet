@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.engine.Component
 import dev.martianzoo.engine.Component.Companion.toComponent
@@ -11,16 +10,23 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.shouldBe
 
 /** Tests for the Canon data set. */
-private class CanonBootstrapTest {
+internal class CanonBootstrapTest {
   @Test
   fun classCounts() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3)).reader
 
     fun checkCount(count: Int, expr: String) {
-      assertThat(game.count(parse<Metric>(expr))).isEqualTo(count)
+      game.count(parse<Metric>(expr)) shouldBe count
     }
 
     checkCount(1, "Class<Class>")
@@ -36,9 +42,9 @@ private class CanonBootstrapTest {
     checkCount(12, "Class<WaterArea>")
     checkCount(63, "Class<Area>")
 
-    assertThat(game.count(parse<Metric>("Class<CardFront>"))).isGreaterThan(200)
-    assertThat(game.count(parse<Metric>("Class<Component>"))).isGreaterThan(300)
-    assertThat(game.count(parse<Metric>("Class"))).isGreaterThan(300)
+    game.count(parse<Metric>("Class<CardFront>")).shouldBeGreaterThan(200)
+    game.count(parse<Metric>("Class<Component>")).shouldBeGreaterThan(300)
+    game.count(parse<Metric>("Class")).shouldBeGreaterThan(300)
   }
 
   @Test
@@ -48,15 +54,15 @@ private class CanonBootstrapTest {
         game.getComponents(game.resolve(COMPONENT.expression)).map { it.toComponent(game) }
 
     // 19 duplicate TR and 4 duplicate PROD[M]
-    assertThat(starting).hasSize(starting.elements.size + 69)
+    starting.shouldHaveSize(starting.elements.size + 69)
 
     val isArea: (Component) -> Boolean = { it.toString().startsWith("Tharsis_") }
     // val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
     val isClass: (Component) -> Boolean = { it.toString().startsWith("Class<") }
 
-    assertThat(starting.count(isArea)).isEqualTo(61)
-    // assertThat(starting.count(isBorder)).isEqualTo(312)
-    assertThat(starting.count(isClass)).isGreaterThan(400)
+    starting.count(isArea) shouldBe 61
+    // starting.count(isBorder) shouldBe 312
+    starting.count(isClass).shouldBeGreaterThan(400)
 
     val theRest =
         starting.filterNot {
@@ -66,8 +72,7 @@ private class CanonBootstrapTest {
               it.hasType(game.resolve(parse("TerraformRating"))) ||
               it.hasType(game.resolve(parse("Production<Class<Megacredit>>")))
         }
-    assertThat(theRest.toStrings())
-        .containsExactly(
+    theRest.toStrings().shouldContainExactlyInAnyOrder(
             "Engine",
             "TerraformingMars",
             "SetupPhase",

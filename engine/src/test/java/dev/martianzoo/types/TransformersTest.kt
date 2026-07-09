@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -9,7 +8,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.engine.Prod
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.shouldBe
 
 class TransformersTest {
   @Test
@@ -51,7 +51,7 @@ class TransformersTest {
   ) {
     val node: Instruction = parse(original)
     val xfd = transformers.insertDefaults(context).transform(node)
-    assertThat(xfd.toString()).isEqualTo(expected)
+    xfd.toString() shouldBe expected
   }
 
   @Test
@@ -59,14 +59,14 @@ class TransformersTest {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
     val ep: Effect = Prod.deprodify(transformers.classes).transform(e)
-    assertThat(ep.toString()).isEqualTo(s)
+    ep.toString() shouldBe s
   }
 
   @Test
   fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
     val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)
-    assertThat(deprodden.toString()).isEqualTo("This: Production<Class<Plant>> / PlantTag")
+    deprodden.toString() shouldBe "This: Production<Class<Plant>> / PlantTag"
   }
 
   @Test
@@ -81,6 +81,6 @@ class TransformersTest {
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat")
     val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)
-    assertThat(deprodden).isEqualTo(expected)
+    deprodden shouldBe expected
   }
 }

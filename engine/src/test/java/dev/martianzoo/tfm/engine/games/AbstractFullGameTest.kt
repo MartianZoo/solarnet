@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -14,7 +13,8 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.BeforeEach
+import kotlin.test.BeforeTest
+import io.kotest.matchers.shouldBe
 
 abstract class AbstractFullGameTest {
   protected lateinit var game: Game
@@ -24,8 +24,8 @@ abstract class AbstractFullGameTest {
 
   protected abstract fun setup(): GameSetup
 
-  @BeforeEach
-  fun commonSetup() {
+  @BeforeTest
+  open fun commonSetup() {
     game = Engine.newGame(setup())
     engine = game.tfm(ENGINE)
     p1 = game.tfm(PLAYER1)
@@ -107,11 +107,11 @@ abstract class AbstractFullGameTest {
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {
     engine.assertCounts(gen to "Generation")
-    assertThat(engine.temperatureC()).isEqualTo(temp)
-    assertThat(engine.oxygenPercent()).isEqualTo(oxygen)
+    engine.temperatureC() shouldBe temp
+    engine.oxygenPercent() shouldBe oxygen
     engine.assertCounts(oceans to "OceanTile")
     if (venus != -1) {
-      assertThat(engine.venusPercent()).isEqualTo(venus)
+      engine.venusPercent() shouldBe venus
     }
   }
 
@@ -129,6 +129,6 @@ abstract class AbstractFullGameTest {
   }
 
   protected fun TfmGameplay.assertActions(expected: Int) {
-    assertThat(count("ActionCard") - count("ActionUsedMarker")).isEqualTo(expected)
+    count("ActionCard") - count("ActionUsedMarker") shouldBe expected
   }
 }

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 class Game20260619Test : AbstractFullGameTest() {
 

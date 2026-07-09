@@ -1,15 +1,18 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.util.toStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
 
-private class CanonEffectsTest {
+internal class CanonEffectsTest {
   fun classEffectsOf(name: String): List<String> {
     val loader = MClassLoader(Canon)
     loader.load(OK)
@@ -22,22 +25,19 @@ private class CanonEffectsTest {
 
   @Test
   fun sabotage() {
-    assertThat(classEffectsOf("Sabotage"))
-        .containsExactly(
+    classEffectsOf("Sabotage").shouldContainExactlyInAnyOrder(
             "This: PlayedEvent<Owner, Class<This>> FROM This!",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?")
   }
 
   @Test
   fun terraformer() {
-    assertThat(classEffectsOf("Terraformer"))
-        .containsExactly("This:: (35 TerraformRating<Owner>: Ok)", "End: 5 VictoryPoint<Owner>!")
+    classEffectsOf("Terraformer").shouldContainExactlyInAnyOrder("This:: (35 TerraformRating<Owner>: Ok)", "End: 5 VictoryPoint<Owner>!")
   }
 
   @Test
   fun gyropolis() {
-    assertThat(classEffectsOf("Gyropolis"))
-        .containsExactly(
+    classEffectsOf("Gyropolis").shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!," +
                 " PROD[-2 Energy<Owner>!," +
@@ -47,8 +47,7 @@ private class CanonEffectsTest {
 
   @Test
   fun e98() {
-    assertThat(classEffectsOf("Elysium_9_8"))
-        .containsExactly(
+    classEffectsOf("Elysium_9_8").shouldContainExactlyInAnyOrder(
             "Tile<This>:: CreateAdjacencies<This>!",
             "Tile<This> BY Owner: ProjectCard<Owner>!",
         )
@@ -56,8 +55,7 @@ private class CanonEffectsTest {
 
   @Test
   fun venusian() {
-    assertThat(classEffectsOf("VenusianAnimals"))
-        .containsExactly(
+    classEffectsOf("VenusianAnimals").shouldContainExactlyInAnyOrder(
             "This:: VenusTag<Owner, This>!, ScienceTag<Owner, This>!, AnimalTag<Owner, This>!",
             "ScienceTag<Owner>: Animal<Owner, This>.",
             "End: VictoryPoint<Owner>! / Animal<Owner, This>",
@@ -66,14 +64,12 @@ private class CanonEffectsTest {
 
   @Test
   fun convertHeat() {
-    assertThat(classEffectsOf("ConvertHeatSA"))
-        .containsExactly("UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep.")
+    classEffectsOf("ConvertHeatSA").shouldContainExactlyInAnyOrder("UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep.")
   }
 
   @Test
   fun teractor() {
-    assertThat(classEffectsOf("Teractor"))
-        .containsExactly(
+    classEffectsOf("Teractor").shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!",
             "This: 60 Megacredit<Owner>!",
             "PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner, Class<Megacredit>>.",
@@ -82,8 +78,7 @@ private class CanonEffectsTest {
 
   @Test
   fun immigrantCity() {
-    assertThat(classEffectsOf("ImmigrantCity"))
-        .containsExactly(
+    classEffectsOf("ImmigrantCity").shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
                 " CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
@@ -92,8 +87,7 @@ private class CanonEffectsTest {
 
   @Test
   fun titanAirScrapping() {
-    assertThat(classEffectsOf("TitanAirScrapping"))
-        .containsExactly(
+    classEffectsOf("TitanAirScrapping").shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
             "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
             "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!",
@@ -103,8 +97,7 @@ private class CanonEffectsTest {
 
   @Test
   fun amc() {
-    assertThat(classEffectsOf("AsteroidMiningConsortium"))
-        .containsExactly(
+    classEffectsOf("AsteroidMiningConsortium").shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
             "End: VictoryPoint<Owner>!",
@@ -113,8 +106,7 @@ private class CanonEffectsTest {
 
   @Test
   fun pets() {
-    assertThat(classEffectsOf("Pets"))
-        .containsExactly(
+    classEffectsOf("Pets").shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!, AnimalTag<Owner, This>!",
             "This: Animal<Owner, This>.",
             "-Animal<Owner, This>:: Die!",

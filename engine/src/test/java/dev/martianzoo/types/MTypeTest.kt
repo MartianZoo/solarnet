@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.Parsing.parse
@@ -8,9 +7,10 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.shouldBe
 
-private class MTypeTest {
+internal class MTypeTest {
   @Test
   fun testCardboundWeirdness() {
     val table: MClassTable =
@@ -36,16 +36,15 @@ private class MTypeTest {
           """
                 .trimIndent())
 
-    assertThat(table.getClass(cn("Animal")).baseType.expressionFull.toString())
-        .isEqualTo("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
+    table.getClass(cn("Animal")).baseType.expressionFull.toString() shouldBe
+        "Animal<Owner, ResourceCard<Owner, Class<Animal>>>"
 
-    assertThat(table.resolve(te("Animal<Fish>")).abstract).isTrue()
+    table.resolve(te("Animal<Fish>")).abstract shouldBe true
 
     val fish = table.resolve(te("Animal<Player1, Fish<Player1>>"))
-    assertThat(fish.abstract).isFalse()
+    fish.abstract shouldBe false
 
-    assertThat(table.resolve(te("Fish")).expressionFull.toString())
-        .isEqualTo("Fish<Owner, Class<Animal>>")
+    table.resolve(te("Fish")).expressionFull.toString() shouldBe "Fish<Owner, Class<Animal>>"
 
     assertFails { table.resolve(te("Animal<Ants>")) }
 
@@ -72,8 +71,8 @@ private class MTypeTest {
   @Test
   fun subtypes() {
     fun checkProperSubtypes(subb: String, supper: String) {
-      assertThat(type(subb).isSubtypeOf(type(supper))).isTrue()
-      assertThat(type(supper).isSubtypeOf(type(subb))).isFalse()
+      type(subb).isSubtypeOf(type(supper)) shouldBe true
+      type(supper).isSubtypeOf(type(subb)) shouldBe false
     }
 
     checkProperSubtypes("Complex1<Foo2, Bar1, Qux1>", "Complex1<Foo1, Bar1, Qux1>")
@@ -104,65 +103,65 @@ private class MTypeTest {
   @Test
   fun partial() {
     val base = type("Complex1")
-    assertThat(base.expressionFull.toString()).isEqualTo("Complex1<Foo1, Bar1, Qux1>")
-    assertThat(base.expression.toString()).isEqualTo("Complex1")
+    base.expressionFull.toString() shouldBe "Complex1<Foo1, Bar1, Qux1>"
+    base.expression.toString() shouldBe "Complex1"
 
-    assertThat(type("Complex1")).isEqualTo(base)
-    assertThat(type("Complex1<Foo1>")).isEqualTo(base)
-    assertThat(type("Complex1<Bar1>")).isEqualTo(base)
-    assertThat(type("Complex1<Qux1>")).isEqualTo(base)
-    assertThat(type("Complex1<Foo1, Bar1>")).isEqualTo(base)
-    assertThat(type("Complex1<Foo1, Qux1>")).isEqualTo(base)
-    assertThat(type("Complex1<Bar1, Qux1>")).isEqualTo(base)
-    assertThat(type("Complex1<Foo1, Bar1, Qux1>")).isEqualTo(base)
+    type("Complex1") shouldBe base
+    type("Complex1<Foo1>") shouldBe base
+    type("Complex1<Bar1>") shouldBe base
+    type("Complex1<Qux1>") shouldBe base
+    type("Complex1<Foo1, Bar1>") shouldBe base
+    type("Complex1<Foo1, Qux1>") shouldBe base
+    type("Complex1<Bar1, Qux1>") shouldBe base
+    type("Complex1<Foo1, Bar1, Qux1>") shouldBe base
 
     val ofFoo2 = type("Complex1<Foo2>")
-    assertThat(ofFoo2.expressionFull.toString()).isEqualTo("Complex1<Foo2, Bar1, Qux1>")
-    assertThat(ofFoo2.expression.toString()).isEqualTo("Complex1<Foo2>")
+    ofFoo2.expressionFull.toString() shouldBe "Complex1<Foo2, Bar1, Qux1>"
+    ofFoo2.expression.toString() shouldBe "Complex1<Foo2>"
 
-    assertThat(type("Complex1<Foo2>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Foo2, Bar1>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Foo2, Qux1>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Foo2, Bar1, Qux1>")).isEqualTo(ofFoo2)
+    type("Complex1<Foo2>") shouldBe ofFoo2
+    type("Complex1<Foo2, Bar1>") shouldBe ofFoo2
+    type("Complex1<Foo2, Qux1>") shouldBe ofFoo2
+    type("Complex1<Foo2, Bar1, Qux1>") shouldBe ofFoo2
   }
 
   @Test
   fun outOfOrder() {
     val base = type("Complex1")
-    assertThat(type("Complex1<Bar1, Foo1>")).isEqualTo(base)
-    assertThat(type("Complex1<Qux1, Foo1>")).isEqualTo(base)
-    assertThat(type("Complex1<Qux1, Bar1>")).isEqualTo(base)
-    assertThat(type("Complex1<Foo1, Qux1, Bar1>")).isEqualTo(base)
-    assertThat(type("Complex1<Bar1, Qux1, Foo1>")).isEqualTo(base)
-    assertThat(type("Complex1<Bar1, Foo1, Qux1>")).isEqualTo(base)
-    assertThat(type("Complex1<Qux1, Foo1, Bar1>")).isEqualTo(base)
-    assertThat(type("Complex1<Qux1, Bar1, Foo1>")).isEqualTo(base)
+    type("Complex1<Bar1, Foo1>") shouldBe base
+    type("Complex1<Qux1, Foo1>") shouldBe base
+    type("Complex1<Qux1, Bar1>") shouldBe base
+    type("Complex1<Foo1, Qux1, Bar1>") shouldBe base
+    type("Complex1<Bar1, Qux1, Foo1>") shouldBe base
+    type("Complex1<Bar1, Foo1, Qux1>") shouldBe base
+    type("Complex1<Qux1, Foo1, Bar1>") shouldBe base
+    type("Complex1<Qux1, Bar1, Foo1>") shouldBe base
 
     val ofFoo2 = type("Complex1<Foo2>")
-    assertThat(type("Complex1<Bar1, Foo2>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Qux1, Foo2>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Foo2, Qux1, Bar1>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Bar1, Qux1, Foo2>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Bar1, Foo2, Qux1>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Qux1, Foo2, Bar1>")).isEqualTo(ofFoo2)
-    assertThat(type("Complex1<Qux1, Bar1, Foo2>")).isEqualTo(ofFoo2)
+    type("Complex1<Bar1, Foo2>") shouldBe ofFoo2
+    type("Complex1<Qux1, Foo2>") shouldBe ofFoo2
+    type("Complex1<Foo2, Qux1, Bar1>") shouldBe ofFoo2
+    type("Complex1<Bar1, Qux1, Foo2>") shouldBe ofFoo2
+    type("Complex1<Bar1, Foo2, Qux1>") shouldBe ofFoo2
+    type("Complex1<Qux1, Foo2, Bar1>") shouldBe ofFoo2
+    type("Complex1<Qux1, Bar1, Foo2>") shouldBe ofFoo2
   }
 
   @Test
   fun twoSame() {
-    assertThat(type("TwoSame")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
-    assertThat(type("TwoSame<Foo1>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
-    assertThat(type("TwoSame<Foo2>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
-    assertThat(type("TwoSame<Foo3>")).isEqualTo(type("TwoSame<Foo3, Foo2>"))
-    assertThat(type("TwoSame<Foo1, Foo1>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
-    assertThat(type("TwoSame<Foo1, Foo2>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
-    assertThat(type("TwoSame<Foo1, Foo3>")).isEqualTo(type("TwoSame<Foo2, Foo3>"))
-    assertThat(type("TwoSame<Foo2, Foo1>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
-    assertThat(type("TwoSame<Foo2, Foo2>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
-    assertThat(type("TwoSame<Foo2, Foo3>")).isEqualTo(type("TwoSame<Foo2, Foo3>"))
-    assertThat(type("TwoSame<Foo3, Foo1>")).isEqualTo(type("TwoSame<Foo3, Foo2>"))
-    assertThat(type("TwoSame<Foo3, Foo2>")).isEqualTo(type("TwoSame<Foo3, Foo2>"))
-    assertThat(type("TwoSame<Foo3, Foo3>")).isEqualTo(type("TwoSame<Foo3, Foo3>"))
+    type("TwoSame") shouldBe type("TwoSame<Foo2, Foo2>")
+    type("TwoSame<Foo1>") shouldBe type("TwoSame<Foo2, Foo2>")
+    type("TwoSame<Foo2>") shouldBe type("TwoSame<Foo2, Foo2>")
+    type("TwoSame<Foo3>") shouldBe type("TwoSame<Foo3, Foo2>")
+    type("TwoSame<Foo1, Foo1>") shouldBe type("TwoSame<Foo2, Foo2>")
+    type("TwoSame<Foo1, Foo2>") shouldBe type("TwoSame<Foo2, Foo2>")
+    type("TwoSame<Foo1, Foo3>") shouldBe type("TwoSame<Foo2, Foo3>")
+    type("TwoSame<Foo2, Foo1>") shouldBe type("TwoSame<Foo2, Foo2>")
+    type("TwoSame<Foo2, Foo2>") shouldBe type("TwoSame<Foo2, Foo2>")
+    type("TwoSame<Foo2, Foo3>") shouldBe type("TwoSame<Foo2, Foo3>")
+    type("TwoSame<Foo3, Foo1>") shouldBe type("TwoSame<Foo3, Foo2>")
+    type("TwoSame<Foo3, Foo2>") shouldBe type("TwoSame<Foo3, Foo2>")
+    type("TwoSame<Foo3, Foo3>") shouldBe type("TwoSame<Foo3, Foo3>")
   }
 
   @Test
@@ -177,16 +176,14 @@ private class MTypeTest {
             """
                 .trimIndent())
 
-    assertThat(table.resolve(te("Owned<Player2>")).narrows(table.resolve(te("Owned<!Player1>"))))
-        .isTrue()
-    assertThat(table.resolve(te("Owned<Player1>")).narrows(table.resolve(te("Owned<!Player1>"))))
-        .isFalse()
+    table.resolve(te("Owned<Player2>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe true
+    table.resolve(te("Owned<Player1>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe false
   }
 
   @Test
   fun roundTrip() {
     fun checkMinimal(typeIn: String, typeOut: String = typeIn) {
-      assertThat(type(typeIn).expression).isEqualTo(te(typeOut))
+      type(typeIn).expression shouldBe te(typeOut)
     }
 
     checkMinimal("TwoSame")
@@ -213,15 +210,15 @@ private class MTypeTest {
   @Test
   fun subs() {
     val pprod = CanonClassesTest.table.resolve(te("Production<Player1, Class<Plant>>"))
-    assertThat(findSubstitutions(pprod))
-        .containsExactly(cn("StandardResource"), cn("Plant").expression, OWNER, PLAYER1.expression)
+    findSubstitutions(pprod) shouldBe
+        mapOf(cn("StandardResource") to cn("Plant").expression, OWNER to PLAYER1.expression)
   }
 
   @Test
   fun subs2() {
     val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))
-    assertThat(findSubstitutions(pprod))
-        .containsExactly(cn("CardFront"), cn("MediaGroup").expression, OWNER, PLAYER1.expression)
+    findSubstitutions(pprod) shouldBe
+        mapOf(cn("CardFront") to cn("MediaGroup").expression, OWNER to PLAYER1.expression)
   }
 
   private fun te(s: String): Expression = parse(s)

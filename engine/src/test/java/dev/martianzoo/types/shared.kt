@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
@@ -8,7 +7,9 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
 import kotlin.reflect.KClass
-import org.junit.jupiter.api.assertThrows
+import io.kotest.assertions.withClue
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 
 internal fun te(s: String): Expression = parse(s)
 
@@ -16,16 +17,16 @@ internal inline fun <reified T : PetNode> testRoundTrip(start: String, end: Stri
     testRoundTrip(T::class, start, end)
 
 internal fun <T : PetNode> testRoundTrip(type: KClass<T>, start: String, end: String = start) =
-    assertThat(parse(type, start).toString()).isEqualTo(end)
+    parse(type, start).toString() shouldBe end
 
 internal inline fun <reified T : PetNode> testRoundTrip(start: T, end: T = start) =
     testRoundTrip(T::class, start, end)
 
 internal fun <T : PetNode> testRoundTrip(type: KClass<T>, start: T, end: T = start) =
-    assertThat(parse(type, start.toString())).isEqualTo(end)
+    parse(type, start.toString()) shouldBe end
 
 internal fun assertFails(message: String = "(no message)", shouldFail: () -> Unit) =
-    assertThrows<Exceptions.ExpressionException>(message, shouldFail)
+    withClue(message) { shouldThrow<Exceptions.ExpressionException>(shouldFail) }
 
 internal fun loadTypes(vararg decl: String) =
     loader(

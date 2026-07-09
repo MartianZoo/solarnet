@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
@@ -15,9 +14,11 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.util.toSetStrict
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 
 /** Comment lines are quotes directly from the rulebook. */
 internal class ColoniesBasicRulesTest {
@@ -29,7 +30,7 @@ internal class ColoniesBasicRulesTest {
 
   fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, engine, string)
 
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
     p1.godMode().sneak("100, 5 ProjectCard")
     engine.phase("Action")
@@ -39,12 +40,12 @@ internal class ColoniesBasicRulesTest {
   // main game board. Exception: use 5 tiles if playing a 2 player game.
   @Test
   fun `number of colony tiles`() {
-    assertThat(engine.count("ColonyTile")).isEqualTo(6)
+    engine.count("ColonyTile") shouldBe 6
 
-    assertThat(GameSetup(Canon, "BRMC", 2).colonyTiles).hasSize(5)
-    assertThat(GameSetup(Canon, "BRMC", 3).colonyTiles).hasSize(5)
-    assertThat(GameSetup(Canon, "BRMC", 4).colonyTiles).hasSize(6)
-    assertThat(GameSetup(Canon, "BRMC", 5).colonyTiles).hasSize(7)
+    GameSetup(Canon, "BRMC", 2).colonyTiles.shouldHaveSize(5)
+    GameSetup(Canon, "BRMC", 3).colonyTiles.shouldHaveSize(5)
+    GameSetup(Canon, "BRMC", 4).colonyTiles.shouldHaveSize(6)
+    GameSetup(Canon, "BRMC", 5).colonyTiles.shouldHaveSize(7)
   }
 
   // Place a white cube on the highlighted second step of each Colony Tile track.
@@ -98,11 +99,11 @@ internal class ColoniesBasicRulesTest {
     engine.phase("Action")
     p1.godMode().sneak("100, 5 ProjectCard")
 
-    assertThrows<DependencyException> {
+    shouldThrow<DependencyException> {
       p1.stdProject("BuildColonySP") { doTask("Colony<Miranda>") }
     }
 
-    assertThrows<DependencyException> { p1.stdAction("TradeSA") { doTask("Trade<Miranda>") } }
+    shouldThrow<DependencyException> { p1.stdAction("TradeSA") { doTask("Trade<Miranda>") } }
 
     // And just to show that it would have worked otherwise
     p1.playProject("Pets", 10)
@@ -136,7 +137,7 @@ internal class ColoniesBasicRulesTest {
     engine.godMode().manual("Colony<P1, Luna>")
     engine.godMode().manual("Colony<P2, Luna>")
     engine.godMode().manual("Colony<P3, Luna>")
-    assertThrows<LimitsException> { engine.godMode().manual("Colony<P4, Luna>") }
+    shouldThrow<LimitsException> { engine.godMode().manual("Colony<P4, Luna>") }
   }
 
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
@@ -144,7 +145,7 @@ internal class ColoniesBasicRulesTest {
   fun `duplicate colony`() {
     p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
     p1.assertCounts(1 to "Colony<Luna>")
-    assertThrows<NarrowingException> { p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") } }
+    shouldThrow<NarrowingException> { p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") } }
     p1.assertCounts(1 to "Colony<Luna>")
   }
 
@@ -167,7 +168,7 @@ internal class ColoniesBasicRulesTest {
     p1.assertCounts(2 to "ColonyProduction<Luna>")
 
     // A Colony Tile may only hold 1 trade fleet at a time.
-    assertThrows<LimitsException> {
+    shouldThrow<LimitsException> {
       p1.asPlayer(PLAYER2).godMode().manual("Trade<Luna, TradeFleetB>")
     }
 

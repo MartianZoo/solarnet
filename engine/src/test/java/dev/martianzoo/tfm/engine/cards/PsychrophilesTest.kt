@@ -7,16 +7,16 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class PsychrophilesTest {
   val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
   val p1 = game.tfm(PLAYER1)
   val Psychrophiles = "Psychrophiles"
 
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
     with(p1) {
       phase("Corporation")
@@ -64,6 +64,6 @@ class PsychrophilesTest {
   @Test
   fun tooWarm() {
     p1.godMode().manual("6 TemperatureStep")
-    assertThrows<RequirementException> { p1.playProject(Psychrophiles, 2) }
+    shouldThrow<RequirementException> { p1.playProject(Psychrophiles, 2) }
   }
 }

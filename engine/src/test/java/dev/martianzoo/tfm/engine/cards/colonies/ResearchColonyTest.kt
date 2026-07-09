@@ -2,14 +2,14 @@ package dev.martianzoo.tfm.engine.cards.colonies
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class ResearchColonyTest : ColoniesCardTest() {
   @Test
   fun `can put a colony where you already have one`() {
     p1.godMode().manual("Colony<Luna>")
-    assertThrows<NarrowingException> { p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") } }
+    shouldThrow<NarrowingException> { p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") } }
     p1.playProject("ResearchColony", 20) { doTask("Colony<Luna>") }.expect("-20, Colony<Luna>")
   }
 
@@ -18,7 +18,7 @@ class ResearchColonyTest : ColoniesCardTest() {
     p1.godMode().manual("Colony<Luna>")
     p2.godMode().manual("Colony<Luna>")
     p2.godMode().manual("Colony<Luna>")
-    assertThrows<LimitsException> {
+    shouldThrow<LimitsException> {
       p1.playProject("ResearchColony", 20) { doTask("Colony<Luna>") }
     }
   }

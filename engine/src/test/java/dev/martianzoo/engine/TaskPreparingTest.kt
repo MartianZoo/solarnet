@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
@@ -11,8 +10,14 @@ import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.tfm.canon.Canon
 import kotlin.reflect.KClass
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 
 class TaskPreparingTest {
   private val A = TaskId("A")
@@ -24,85 +29,85 @@ class TaskPreparingTest {
 
   @Test
   fun `can prepare an abstract task`() {
-    initiate("2 Plant?").also { assertThat(it).containsExactly(A) }
-    gameplay.prepareTask(A).also { assertThat(it).isEqualTo(A) }
+    initiate("2 Plant?").also { it.shouldContainExactlyInAnyOrder(A) }
+    gameplay.prepareTask(A).also { it shouldBe A }
 
     val task = tasks.extract { it }.single()
-    assertThat(task.next)
-    assertThat("${task.instruction}").isEqualTo("2 Plant<Player1>?")
+    task.next shouldBe true
+    "${task.instruction}" shouldBe "2 Plant<Player1>?"
     assertHistoryTypes(TaskAddedEvent::class, TaskEditedEvent::class)
   }
 
   @Test
   fun `preparing to NoOp automatically handles the task 1`() {
-    initiate("-2 Plant?").also { assertThat(it).containsExactly(A) }
-    gameplay.prepareTask(A).also { assertThat(it).isNull() }
+    initiate("-2 Plant?").also { it.shouldContainExactlyInAnyOrder(A) }
+    gameplay.prepareTask(A).also { it shouldBe null }
 
-    assertThat(tasks.isEmpty()).isTrue()
+    tasks.isEmpty() shouldBe true
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
   }
 
   @Test
   fun `preparing to NoOp automatically handles the task 2`() {
-    initiate("Plant / Heat").also { assertThat(it).containsExactly(A) }
-    gameplay.prepareTask(A).also { assertThat(it).isNull() }
+    initiate("Plant / Heat").also { it.shouldContainExactlyInAnyOrder(A) }
+    gameplay.prepareTask(A).also { it shouldBe null }
 
-    assertThat(tasks.isEmpty()).isTrue()
+    tasks.isEmpty() shouldBe true
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
   }
 
   @Test
   fun `preparing adjusts for limits 1`() {
-    initiate("-30 TerraformRating?").also { assertThat(it).containsExactly(A) }
+    initiate("-30 TerraformRating?").also { it.shouldContainExactlyInAnyOrder(A) }
     gameplay.reviseTask(A, "-25 TerraformRating?")
-    gameplay.prepareTask(A).also { assertThat(it).isEqualTo(A) }
-    assertThat(tasksAsText()).containsExactly("-20 TerraformRating<Player1>?")
+    gameplay.prepareTask(A).also { it shouldBe A }
+    tasksAsText().shouldContainExactlyInAnyOrder("-20 TerraformRating<Player1>?")
     gameplay.reviseTask(A, "-15 TerraformRating!")
   }
 
   @Test
   fun `preparing adjusts for limits 2`() {
-    initiate("-30 TerraformRating.").also { assertThat(it).containsExactly(A) }
-    gameplay.prepareTask(A).also { assertThat(it).isEqualTo(A) }
+    initiate("-30 TerraformRating.").also { it.shouldContainExactlyInAnyOrder(A) }
+    gameplay.prepareTask(A).also { it shouldBe A }
 
-    assertThat(tasksAsText()).containsExactly("-20 TerraformRating<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("-20 TerraformRating<Player1>!")
   }
 
   @Test
   fun `preparing fails due to limit`() {
-    initiate("-Plant!").also { assertThat(it).containsExactly(A) }
-    assertThat(history()).hasSize(1)
-    assertThrows<LimitsException> { gameplay.prepareTask(A) }
+    initiate("-Plant!").also { it.shouldContainExactlyInAnyOrder(A) }
+    history().shouldHaveSize(1)
+    shouldThrow<LimitsException> { gameplay.prepareTask(A) }
 
-    assertThat(history()).hasSize(1)
+    history().shouldHaveSize(1)
   }
 
   @Test
   fun `preparing then narrowing results in automatic re-preparing`() {
-    initiate("PROD[-2 StandardResource]").also { assertThat(it).containsExactly(A) }
-    gameplay.prepareTask(A).also { assertThat(it).isEqualTo(A) }
+    initiate("PROD[-2 StandardResource]").also { it.shouldContainExactlyInAnyOrder(A) }
+    gameplay.prepareTask(A).also { it shouldBe A }
 
-    assertThat(tasksAsText()).containsExactly("-2 Production<Player1>!")
-    assertThrows<LimitsException> { gameplay.reviseTask(A, "PROD[-2 Plant]") }
+    tasksAsText().shouldContainExactlyInAnyOrder("-2 Production<Player1>!")
+    shouldThrow<LimitsException> { gameplay.reviseTask(A, "PROD[-2 Plant]") }
     gameplay.reviseTask(A, "PROD[-2]")
   }
 
   @Test
   fun `preparing an OR prunes the options`() {
-    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!").also { assertThat(it).containsExactly(A) }
-    gameplay.prepareTask(A).also { assertThat(it).isEqualTo(A) }
+    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!").also { it.shouldContainExactlyInAnyOrder(A) }
+    gameplay.prepareTask(A).also { it shouldBe A }
 
-    assertThat(tasksAsText()).containsExactly("-TerraformRating<Player1>! OR Heat<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
   }
 
   @Test
   fun `preparing to NoOp enqueues the THEN instructions`() {
     initiate("Plant / Heat THEN Steel / 2 OxygenStep THEN Heat").also {
-      assertThat(it).containsExactly(A)
+      it.shouldContainExactlyInAnyOrder(A)
     }
-    gameplay.prepareTask(A).also { assertThat(it).isNull() }
+    gameplay.prepareTask(A).also { it shouldBe null }
 
-    assertThat(tasksAsText()).containsExactly("Steel<Player1>! / 2 OxygenStep")
+    tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>! / 2 OxygenStep")
   }
 
   fun initiate(ins: String) = (gameplay as TaskLayer).addTasks(ins)
@@ -110,7 +115,7 @@ class TaskPreparingTest {
   private fun history() = events.entriesSince(start)
 
   private fun assertHistoryTypes(vararg c: KClass<out GameEvent>) =
-      assertThat(history().map { it::class }).containsExactly(*c).inOrder()
+      history().map { it::class }.shouldContainExactly(*c)
 
   private fun tasksAsText() = tasks.extract { "${it.instruction}" }
 }

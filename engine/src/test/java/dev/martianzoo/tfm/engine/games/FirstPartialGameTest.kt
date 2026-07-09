@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -10,7 +9,10 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactly
 
 class FirstPartialGameTest {
   @Test
@@ -133,7 +135,7 @@ class FirstPartialGameTest {
         assertCounts(20 to "TerraformRating")
 
         assertCounts(34 to "M", 2 to "S", 8 to "T", 3 to "P", 1 to "E", 3 to "H")
-        assertThat(production().values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
+        production().values.shouldContainExactly(2, 2, 7, 0, 1, 0)
 
         assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
         assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
@@ -148,7 +150,7 @@ class FirstPartialGameTest {
         assertCounts(25 to "TerraformRating")
 
         assertCounts(47 to "M", 6 to "S", 1 to "T", 1 to "P", 2 to "E", 3 to "H")
-        assertThat(production().values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
+        production().values.shouldContainExactly(8, 6, 1, 0, 2, 0)
 
         assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
         assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")

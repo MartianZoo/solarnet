@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.cards
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player.Companion.PLAYER1
@@ -9,8 +8,11 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactly
 
 class DoubleDownTest {
 
@@ -23,18 +25,18 @@ class DoubleDownTest {
       playCorp("PharmacyUnion", 5)
       phase("Prelude")
       playPrelude("BiosphereSupport")
-      assertThat(production().values).containsExactly(-1, 0, 0, 2, 0, 0).inOrder()
+      production().values.shouldContainExactly(-1, 0, 0, 2, 0, 0)
 
       asPlayer(PLAYER2).playPrelude("UnmiContractor")
 
       playPrelude("DoubleDown") {
-        assertThrows<DependencyException>("exist") { doFirstTask("CopyPrelude<MartianIndustries>") }
-        assertThrows<DependencyException>("mine") { doFirstTask("CopyPrelude<UnmiContractor>") }
-        assertThrows<NarrowingException>("prelude") { doFirstTask("CopyPrelude<PharmacyUnion>") }
-        assertThrows<NarrowingException>("other") { doFirstTask("CopyPrelude<DoubleDown>") }
+        shouldThrow<DependencyException> { doFirstTask("CopyPrelude<MartianIndustries>") }
+        shouldThrow<DependencyException> { doFirstTask("CopyPrelude<UnmiContractor>") }
+        shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<PharmacyUnion>") }
+        shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<DoubleDown>") }
 
         doFirstTask("CopyPrelude<BiosphereSupport>")
-        assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
+        production().values.shouldContainExactly(-2, 0, 0, 4, 0, 0)
       }
     }
   }

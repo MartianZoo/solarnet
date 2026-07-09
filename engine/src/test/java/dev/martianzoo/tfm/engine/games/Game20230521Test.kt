@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.engine.Game
 import dev.martianzoo.tfm.canon.Canon
@@ -8,14 +7,15 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.shouldBe
 
 class Game20230521Test : AbstractFullGameTest() {
 
   override fun setup() = GameSetup(Canon, "BRMVPXT", 2)
 
   @Test
-  fun game() {
+  fun game20230521() {
     TfmWorkflow.Auto(game, setup()).launch()
 
     // Good luck Player1!
@@ -1485,62 +1485,62 @@ class Game20230521Test : AbstractFullGameTest() {
     // This game id was gf386a4cd5de1
 
     val summ = Summarizer(game)
-    assertThat(summ.net("Manutech", "Resource")).isEqualTo(104)
-    assertThat(summ.net("Production<P2>", "Resource<P2>")).isEqualTo(187)
+    summ.net("Manutech", "Resource") shouldBe 104
+    summ.net("Production<P2>", "Resource<P2>") shouldBe 187
 
-    assertThat(summ.net("EarthOffice", "Owed")).isEqualTo(-24)
-    assertThat(summ.net("AdvancedAlloys<P2>", "Owed")).isEqualTo(-31)
-    assertThat(summ.net("EarthCatapult<P2>", "Owed")).isEqualTo(-55)
-    assertThat(summ.net("QuantumExtractor", "Owed")).isEqualTo(-10) // oof
+    summ.net("EarthOffice", "Owed") shouldBe -24
+    summ.net("AdvancedAlloys<P2>", "Owed") shouldBe -31
+    summ.net("EarthCatapult<P2>", "Owed") shouldBe -55
+    summ.net("QuantumExtractor", "Owed") shouldBe -10 // oof
 
-    assertThat(summ.net("AquiferPumping", "OceanTile")).isEqualTo(6)
-    assertThat(summ.net("ArcticAlgae", "Plant")).isEqualTo(19)
-    assertThat(summ.net("OptimalAerobraking", "Resource")).isEqualTo(42)
-    assertThat(summ.net("SearchForLife", "Megacredit")).isEqualTo(-4)
-    assertThat(summ.net("SearchForLife", "Science")).isEqualTo(0)
+    summ.net("AquiferPumping", "OceanTile") shouldBe 6
+    summ.net("ArcticAlgae", "Plant") shouldBe 19
+    summ.net("OptimalAerobraking", "Resource") shouldBe 42
+    summ.net("SearchForLife", "Megacredit") shouldBe -4
+    summ.net("SearchForLife", "Science") shouldBe 0
 
     // This is just silly
-    assertThat(summ.net("TR<P1>", "Megacredit<P1>")).isEqualTo(361)
-    assertThat(summ.net("TR<P1>", "Megacredit")).isEqualTo(361)
-    assertThat(summ.net("TR", "Megacredit<P1>")).isEqualTo(361)
-    assertThat(summ.net("TR<P2>", "Megacredit<P2>")).isEqualTo(356)
-    assertThat(summ.net("TR<P2>", "Megacredit")).isEqualTo(356)
-    assertThat(summ.net("TR", "Megacredit<P2>")).isEqualTo(356)
+    summ.net("TR<P1>", "Megacredit<P1>") shouldBe 361
+    summ.net("TR<P1>", "Megacredit") shouldBe 361
+    summ.net("TR", "Megacredit<P1>") shouldBe 361
+    summ.net("TR<P2>", "Megacredit<P2>") shouldBe 356
+    summ.net("TR<P2>", "Megacredit") shouldBe 356
+    summ.net("TR", "Megacredit<P2>") shouldBe 356
 
-    assertThat(summ.net("TR", "Megacredit")).isEqualTo(717)
+    summ.net("TR", "Megacredit") shouldBe 717
 
-    assertThat(summ.net("TR<P1>", "Megacredit<P2>")).isEqualTo(0)
-    assertThat(summ.net("TR<P2>", "Megacredit<P1>")).isEqualTo(0)
+    summ.net("TR<P1>", "Megacredit<P2>") shouldBe 0
+    summ.net("TR<P2>", "Megacredit<P1>") shouldBe 0
   }
 
   private fun checkSummaryAfterGen4(game: Game) {
     val summer = Summarizer(game)
 
     // AA's effect has triggered once, plus the immediate plant
-    assertThat(summer.net("ArcticAlgae", "Plant")).isEqualTo(3)
+    summer.net("ArcticAlgae", "Plant") shouldBe 3
 
     // Blue has done 16 card buys: 5 initial, 8 in research, and 3 from inventors guild
-    assertThat(summer.net("BuyCard<P1>", "Card<P1>")).isEqualTo(16)
+    summer.net("BuyCard<P1>", "Card<P1>") shouldBe 16
 
     // DeuteriumExport produced a net of 1 floaters (made, consumed, made)
-    assertThat(summer.net("DeuteriumExport", "Floater")).isEqualTo(1)
-    assertThat(summer.net("DeuteriumExport", "Production<Class<Energy>>")).isEqualTo(1)
+    summer.net("DeuteriumExport", "Floater") shouldBe 1
+    summer.net("DeuteriumExport", "Production<Class<Energy>>") shouldBe 1
 
     // EarthOffice has saved blue 6 money (InvestmentLoan, ImportedGhg)
-    assertThat(summer.net("EarthOffice", "Owed<P1>")).isEqualTo(-6)
+    summer.net("EarthOffice", "Owed<P1>") shouldBe -6
 
     // Manutech has delivered! 1 MC with NewPartner, 4 with AlliedBank, 3 with CorporateStronghold
     // ... plus of course 35 at game start
-    assertThat(summer.net("Manutech", "Megacredit<P1>")).isEqualTo(43)
+    summer.net("Manutech", "Megacredit<P1>") shouldBe 43
 
     // Purple got 63 MC from TR (at production phases they had 20, 21, 22, and 24 TR)
-    assertThat(summer.net("TerraformRating", "Megacredit<P2>")).isEqualTo(87)
-    assertThat(summer.net("TerraformRating<P2>", "Megacredit")).isEqualTo(87)
-    assertThat(summer.net("TerraformRating<P2>", "Megacredit<P2>")).isEqualTo(87)
-    assertThat(summer.net("TerraformRating", "Megacredit")).isEqualTo(183)
+    summer.net("TerraformRating", "Megacredit<P2>") shouldBe 87
+    summer.net("TerraformRating<P2>", "Megacredit") shouldBe 87
+    summer.net("TerraformRating<P2>", "Megacredit<P2>") shouldBe 87
+    summer.net("TerraformRating", "Megacredit") shouldBe 183
 
     // Blue has raised temp 2 & venus 2, purple did temp & venus2 & ocean
-    assertThat(summer.net("GlobalParameter", "TR<P1>")).isEqualTo(4)
-    assertThat(summer.net("GlobalParameter", "TR<P2>")).isEqualTo(4)
+    summer.net("GlobalParameter", "TR<P1>") shouldBe 4
+    summer.net("GlobalParameter", "TR<P2>") shouldBe 4
   }
 }

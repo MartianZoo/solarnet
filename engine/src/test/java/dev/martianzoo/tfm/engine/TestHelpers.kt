@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.TaskResult
@@ -16,18 +15,14 @@ import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import java.util.concurrent.atomic.AtomicInteger
+import io.kotest.matchers.shouldBe
 
 object TestHelpers {
   fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
-      assertThat(pairs.map { this.count(it.second) })
-          .containsExactlyElementsIn(pairs.map { it.first })
-          .inOrder()
+      pairs.map { this.count(it.second) } shouldBe pairs.map { it.first }
 
   fun TfmGameplay.assertProds(vararg pairs: Pair<Int, String>) =
-      assertThat(pairs.map { production(cn(it.second)) })
-          .containsExactlyElementsIn(pairs.map { it.first })
-          .inOrder()
+      pairs.map { production(cn(it.second)) } shouldBe pairs.map { it.first }
 
   fun assertNetChanges(
       result: TaskResult,
@@ -58,20 +53,18 @@ object TestHelpers {
           }
         }
 
-    val types: Sequence<Type> =
-        expectedCountsToTypes.asSequence().map { tfm.reader.resolve(it.second) }
+    val types: List<Type> = expectedCountsToTypes.map { tfm.reader.resolve(it.second) }
     val expectedCounts = expectedCountsToTypes.map { it.first }
 
-    val zip = types.zip(generateSequence { AtomicInteger(0) }).toList()
+    val actuals = MutableList(types.size) { 0 }
     for (change in result.net()) {
       val g = change.gaining?.let(tfm.reader::resolve)
       val r = change.removing?.let(tfm.reader::resolve)
-      for ((type, ai) in zip) {
-        if (g?.narrows(type) == true) ai.addAndGet(change.count)
-        if (r?.narrows(type) == true) ai.addAndGet(-change.count)
+      for ((index, type) in types.withIndex()) {
+        if (g?.narrows(type) == true) actuals[index] += change.count
+        if (r?.narrows(type) == true) actuals[index] -= change.count
       }
     }
-    val actuals: List<Int> = zip.map { it.second.toInt() }
-    assertThat(actuals).containsExactlyElementsIn(expectedCounts).inOrder()
+    actuals shouldBe expectedCounts
   }
 }

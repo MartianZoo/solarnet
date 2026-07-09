@@ -9,8 +9,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class SponsoredAcademiesTest {
   @Test
@@ -23,7 +23,7 @@ class SponsoredAcademiesTest {
     with(game.tfm(PLAYER2)) {
       playCorp("Ecoline", 1)
       phase("Action")
-      assertThrows<LimitsException>("nothing to discard") { playProject("SponsoredAcademies", 9) }
+      shouldThrow<LimitsException> { playProject("SponsoredAcademies", 9) }
 
       godMode().sneak("ProjectCard")
 

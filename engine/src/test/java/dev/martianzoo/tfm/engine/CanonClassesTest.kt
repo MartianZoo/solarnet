@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.HasClassName.Companion.classNames
@@ -11,7 +10,14 @@ import dev.martianzoo.tfm.canon.Canon.classDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.te
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
@@ -21,23 +27,21 @@ internal class CanonClassesTest {
 
   @Test
   fun docstrings() {
-    assertThat(classDeclaration(cn("VictoryPoint")).docstring)
-        .isEqualTo("Well it's a victory point")
-    assertThat(classDeclaration(cn("Floater")).docstring)
-        .isEqualTo("A particular kind of CardResource")
+    classDeclaration(cn("VictoryPoint")).docstring shouldBe "Well it's a victory point"
+    classDeclaration(cn("Floater")).docstring shouldBe "A particular kind of CardResource"
   }
 
   @Test
   fun childlessAbstractClass() {
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().none() }
-    assertThat(anomalies).isEmpty()
+    anomalies.shouldBeEmpty()
   }
 
   @Test
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
-    assertThat(anomalies.classNames()).containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"))
+    anomalies.classNames().shouldContainExactlyInAnyOrder(ANYONE, cn("NoctisArea"), cn("Barrier"))
   }
 
   @Test
@@ -49,7 +53,7 @@ internal class CanonClassesTest {
         .forEach { sup ->
           (sup.allSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }
         }
-    assertThat(map).containsExactly() // cn("CityTile") to cn("CapitalTile"))
+    map.shouldBeEmpty()
   }
 
   @Test
@@ -59,8 +63,8 @@ internal class CanonClassesTest {
     val ownedTile = table.getClass(cn("OwnedTile"))
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
-    assertThat(owned glb tile).isEqualTo(ownedTile)
-    assertThat(ownedTile.isIntersectionType()).isTrue()
+    owned glb tile shouldBe ownedTile
+    ownedTile.isIntersectionType() shouldBe true
   }
 
   @Test
@@ -70,8 +74,8 @@ internal class CanonClassesTest {
     val actionCard = table.getClass(cn("ActionCard"))
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    assertThat(cardFront glb hasActions).isEqualTo(actionCard)
-    assertThat(actionCard.isIntersectionType()).isTrue()
+    cardFront glb hasActions shouldBe actionCard
+    actionCard.isIntersectionType() shouldBe true
   }
 
   @Test
@@ -79,23 +83,22 @@ internal class CanonClassesTest {
     val loader = MClassLoader(Canon)
 
     with(loader.componentClass) {
-      assertThat(className).isEqualTo(COMPONENT)
-      assertThat(abstract).isTrue()
-      // assertThat(directDependencyKeys).isEmpty()
-      // assertThat(allDependencyKeys).isEmpty()
-      assertThat(directSuperclasses).isEmpty()
+      className shouldBe COMPONENT
+      abstract shouldBe true
+      // directDependencyKeys.shouldBeEmpty()
+      // allDependencyKeys.shouldBeEmpty()
+      directSuperclasses.shouldBeEmpty()
     }
 
     with(loader.load(cn("OceanTile"))) {
-      // assertThat(directDependencyKeys).isEmpty()
-      // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
-      assertThat(directSuperclasses.classNames()).containsExactly(cn("GlobalParameter"), cn("Tile"))
-      assertThat(allSuperclasses().classNames())
-          .containsExactly(
+      // directDependencyKeys.shouldBeEmpty()
+      // allDependencyKeys.shouldContainExactlyInAnyOrder(Key(cn("Tile"), 0))
+      directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("GlobalParameter"), cn("Tile"))
+      allSuperclasses().classNames().shouldContainExactlyInAnyOrder(
               cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
 
       loader.load(cn("MarsArea"))
-      assertThat(baseType).isEqualTo(loader.resolve(te("OceanTile<MarsArea>")))
+      baseType shouldBe loader.resolve(te("OceanTile<MarsArea>"))
     }
   }
 
@@ -105,7 +108,7 @@ internal class CanonClassesTest {
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val mtype = table.resolve(te(expr))
-      assertThat(mtype.allConcreteSubtypes().toList()).hasSize(size)
+      mtype.allConcreteSubtypes().toList().shouldHaveSize(size)
     }
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)
@@ -126,6 +129,6 @@ internal class CanonClassesTest {
 
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
-    assertThat(type.allConcreteSubtypes().count()).isEqualTo(1285) // ?
+    type.allConcreteSubtypes().count() shouldBe 1285 // ?
   }
 }

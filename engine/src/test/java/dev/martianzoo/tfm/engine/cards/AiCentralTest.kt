@@ -9,8 +9,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class AiCentralTest {
   @Test
@@ -24,13 +24,13 @@ class AiCentralTest {
       playProject("SearchForLife", 3)
       playProject("InventorsGuild", 9)
 
-      assertThrows<RequirementException>("1") { playProject("AiCentral", 21) }
+      shouldThrow<RequirementException> { playProject("AiCentral", 21) }
       playProject("DesignedMicroorganisms", 16)
 
       assertCounts(3 to "ScienceTag")
 
       // Now I do have the 3 science tags, but not the energy production
-      assertThrows<LimitsException>("2") { playProject("AiCentral", 19, steel = 1) }
+      shouldThrow<LimitsException> { playProject("AiCentral", 19, steel = 1) }
 
       // Give energy prod and try again - success
       godMode().sneak("PROD[Energy]")
@@ -43,7 +43,7 @@ class AiCentralTest {
       assertCounts(3 to "ProjectCard")
       assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
-      assertThrows<LimitsException>("3") { cardAction1("AiCentral") }
+      shouldThrow<LimitsException> { cardAction1("AiCentral") }
       assertCounts(3 to "ProjectCard")
       assertCounts(1 to "ActionUsedMarker<AiCentral>")
 

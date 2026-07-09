@@ -44,7 +44,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         ActiveEffect(
             Subscription.from(fx.trigger, component), fx.automatic, fx.instruction, component)
 
-    return effects.computeIfAbsent(component) { it.effects.map(::activeEffect) }
+    return effects.getOrPut(component) { component.effects.map(::activeEffect) }
   }
 
   internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =

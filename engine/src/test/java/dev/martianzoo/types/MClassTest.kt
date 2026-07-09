@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.HasClassName.Companion.classNames
@@ -9,48 +8,54 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 
-private class MClassTest {
+internal class MClassTest {
   @Test
   fun nothingness() {
     val loader = loadTypes()
     val cpt = loader.componentClass
-    assertThat(cpt.className).isEqualTo(COMPONENT)
-    assertThat(cpt.abstract).isTrue()
-    assertThat(cpt.directSuperclasses).isEmpty()
-    assertThat(cpt.allSuperclasses().classNames()).containsExactly(COMPONENT)
-    assertThat(cpt.dependencies.keys).isEmpty()
+    cpt.className shouldBe COMPONENT
+    cpt.abstract shouldBe true
+    cpt.directSuperclasses.shouldBeEmpty()
+    cpt.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT)
+    cpt.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
   fun onethingness() {
     val loader = loadTypes("CLASS Foo")
     val foo = loader.getClass(cn("Foo"))
-    assertThat(foo.className).isEqualTo(cn("Foo"))
-    assertThat(foo.abstract).isFalse()
-    assertThat(foo.directSuperclasses.classNames()).containsExactly(COMPONENT)
-    assertThat(foo.allSuperclasses().classNames()).containsExactly(COMPONENT, cn("Foo"))
-    assertThat(foo.dependencies.keys).isEmpty()
+    foo.className shouldBe cn("Foo")
+    foo.abstract shouldBe false
+    foo.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(COMPONENT)
+    foo.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"))
+    foo.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
   fun subclass() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader.getClass(cn("Bar"))
-    assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
-    assertThat(bar.allSuperclasses().classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
-    assertThat(bar.dependencies.keys).isEmpty()
+    bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
+    bar.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
+    bar.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
   fun forwardReference() {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader.getClass(cn("Bar"))
-    assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
-    assertThat(bar.allSuperclasses().classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
-    assertThat(bar.dependencies.keys).isEmpty()
+    bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
+    bar.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
+    bar.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
@@ -60,7 +65,7 @@ private class MClassTest {
       CLASS Foo : Bar
       CLASS Bar : Foo
     """
-    assertThrows<IllegalArgumentException> { loader(s) }
+    shouldThrow<IllegalArgumentException> { loader(s) }
   }
 
   @Test
@@ -69,15 +74,15 @@ private class MClassTest {
       ABSTRACT CLASS $COMPONENT
       CLASS Foo : Foo
     """
-    assertThrows<IllegalArgumentException> { loader(s) }
+    shouldThrow<IllegalArgumentException> { loader(s) }
   }
 
   @Test
   fun dependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
-    assertThat(bar.directSuperclasses.classNames()).containsExactly(COMPONENT)
-    assertThat(bar.dependencies.keys).containsExactly(Key(cn("Bar"), 0))
+    bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(COMPONENT)
+    bar.dependencies.keys.shouldContainExactlyInAnyOrder(Key(cn("Bar"), 0))
   }
 
   @Test
@@ -85,11 +90,11 @@ private class MClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
-    assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
+    qux.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
-    assertThat(bar.dependencies.keys).containsExactly(key)
-    assertThat(qux.dependencies.keys).containsExactly(key)
+    bar.dependencies.keys.shouldContainExactlyInAnyOrder(key)
+    qux.dependencies.keys.shouldContainExactlyInAnyOrder(key)
   }
 
   @Test
@@ -97,11 +102,11 @@ private class MClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
-    assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
+    qux.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
-    assertThat(bar.dependencies.keys).containsExactly(key)
-    assertThat(qux.dependencies.keys).containsExactly(key)
+    bar.dependencies.keys.shouldContainExactlyInAnyOrder(key)
+    qux.dependencies.keys.shouldContainExactlyInAnyOrder(key)
   }
 
   @Test
@@ -110,8 +115,8 @@ private class MClassTest {
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
 
-    assertThat(bar.dependencies.keys).containsExactly(Key(cn("Bar"), 0))
-    assertThat(qux.dependencies.keys).containsExactly(Key(cn("Bar"), 0), Key(cn("Qux"), 0))
+    bar.dependencies.keys.shouldContainExactlyInAnyOrder(Key(cn("Bar"), 0))
+    qux.dependencies.keys.shouldContainExactlyInAnyOrder(Key(cn("Bar"), 0), Key(cn("Qux"), 0))
   }
 
   @Test
@@ -119,11 +124,11 @@ private class MClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz : Foo", "CLASS Qux : Bar<Baz>")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
-    assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
+    qux.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
-    assertThat(bar.dependencies.keys).containsExactly(key)
-    assertThat(qux.dependencies.keys).containsExactly(key)
+    bar.dependencies.keys.shouldContainExactlyInAnyOrder(key)
+    qux.dependencies.keys.shouldContainExactlyInAnyOrder(key)
   }
 
   @Test
@@ -151,40 +156,40 @@ private class MClassTest {
     val barSub = table.resolve(te("Bar<SubFoo>"))
     val subSub = table.resolve(te("SubBar<SubFoo>"))
 
-    assertThat(supSup.abstract).isTrue()
-    assertThat(supSup.isSubtypeOf(supSup)).isTrue()
+    supSup.abstract shouldBe true
+    supSup.isSubtypeOf(supSup) shouldBe true
 
-    assertThat(supFoo.abstract).isTrue()
-    assertThat(supFoo.isSubtypeOf(supSup)).isTrue()
-    assertThat(supFoo.isSubtypeOf(supFoo)).isTrue()
+    supFoo.abstract shouldBe true
+    supFoo.isSubtypeOf(supSup) shouldBe true
+    supFoo.isSubtypeOf(supFoo) shouldBe true
 
-    assertThat(supSub.abstract).isTrue()
-    assertThat(supSub.isSubtypeOf(supSup)).isTrue()
-    assertThat(supSub.isSubtypeOf(supFoo)).isTrue()
-    assertThat(supSub.isSubtypeOf(supSub)).isTrue()
+    supSub.abstract shouldBe true
+    supSub.isSubtypeOf(supSup) shouldBe true
+    supSub.isSubtypeOf(supFoo) shouldBe true
+    supSub.isSubtypeOf(supSub) shouldBe true
 
-    assertThat(barFoo.abstract).isTrue()
-    assertThat(barFoo.isSubtypeOf(supSup)).isTrue()
-    assertThat(barFoo.isSubtypeOf(supFoo)).isTrue()
-    assertThat(barFoo.isSubtypeOf(barFoo)).isTrue()
+    barFoo.abstract shouldBe true
+    barFoo.isSubtypeOf(supSup) shouldBe true
+    barFoo.isSubtypeOf(supFoo) shouldBe true
+    barFoo.isSubtypeOf(barFoo) shouldBe true
 
-    assertThat(barSub.abstract).isFalse()
-    assertThat(barSub.isSubtypeOf(supSup)).isTrue()
-    assertThat(barSub.isSubtypeOf(supFoo)).isTrue()
-    assertThat(barSub.isSubtypeOf(supSub)).isTrue()
-    assertThat(barSub.isSubtypeOf(barFoo)).isTrue()
-    assertThat(barSub.isSubtypeOf(barSub)).isTrue()
+    barSub.abstract shouldBe false
+    barSub.isSubtypeOf(supSup) shouldBe true
+    barSub.isSubtypeOf(supFoo) shouldBe true
+    barSub.isSubtypeOf(supSub) shouldBe true
+    barSub.isSubtypeOf(barFoo) shouldBe true
+    barSub.isSubtypeOf(barSub) shouldBe true
 
-    assertThat(subSub.abstract).isFalse()
-    assertThat(subSub.isSubtypeOf(supSup)).isTrue()
-    assertThat(subSub.isSubtypeOf(supFoo)).isTrue()
-    assertThat(subSub.isSubtypeOf(supSub)).isTrue()
-    assertThat(subSub.isSubtypeOf(barFoo)).isTrue()
-    assertThat(subSub.isSubtypeOf(barSub)).isTrue()
-    assertThat(subSub.isSubtypeOf(subSub)).isTrue()
+    subSub.abstract shouldBe false
+    subSub.isSubtypeOf(supSup) shouldBe true
+    subSub.isSubtypeOf(supFoo) shouldBe true
+    subSub.isSubtypeOf(supSub) shouldBe true
+    subSub.isSubtypeOf(barFoo) shouldBe true
+    subSub.isSubtypeOf(barSub) shouldBe true
+    subSub.isSubtypeOf(subSub) shouldBe true
 
     fun checkAutoAdjust(`in`: String, out: String, table: MClassTable) =
-        assertThat(table.resolve(te(`in`)).expressionFull.toString()).isEqualTo(out)
+        table.resolve(te(`in`)).expressionFull.toString() shouldBe out
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
@@ -197,44 +202,44 @@ private class MClassTest {
   @Test
   fun testLubOne() {
     val (cpt, foo) = loadAndGetClasses("Foo")
-    assertThat(cpt.lub(cpt)).isEqualTo(cpt)
-    assertThat(cpt.lub(foo)).isEqualTo(cpt)
-    assertThat(foo.lub(cpt)).isEqualTo(cpt)
-    assertThat(foo.lub(foo)).isEqualTo(foo)
+    cpt.lub(cpt) shouldBe cpt
+    cpt.lub(foo) shouldBe cpt
+    foo.lub(cpt) shouldBe cpt
+    foo.lub(foo) shouldBe foo
   }
 
   @Test
   fun testLubSibling() {
     val (cpt, foo, bar) = loadAndGetClasses("Foo", "Bar")
-    assertThat(foo.lub(bar)).isEqualTo(cpt)
+    foo.lub(bar) shouldBe cpt
   }
 
   @Test
   fun testLubParent() {
     val (cpt, foo, bar) = loadAndGetClasses("Foo", "Bar : Foo")
-    assertThat(cpt.lub(cpt)).isEqualTo(cpt)
-    assertThat(cpt.lub(foo)).isEqualTo(cpt)
-    assertThat(cpt.lub(bar)).isEqualTo(cpt)
-    assertThat(foo.lub(cpt)).isEqualTo(cpt)
-    assertThat(foo.lub(foo)).isEqualTo(foo)
-    assertThat(foo.lub(bar)).isEqualTo(foo)
-    assertThat(bar.lub(cpt)).isEqualTo(cpt)
-    assertThat(bar.lub(foo)).isEqualTo(foo)
-    assertThat(bar.lub(bar)).isEqualTo(bar)
+    cpt.lub(cpt) shouldBe cpt
+    cpt.lub(foo) shouldBe cpt
+    cpt.lub(bar) shouldBe cpt
+    foo.lub(cpt) shouldBe cpt
+    foo.lub(foo) shouldBe foo
+    foo.lub(bar) shouldBe foo
+    bar.lub(cpt) shouldBe cpt
+    bar.lub(foo) shouldBe foo
+    bar.lub(bar) shouldBe bar
   }
 
   @Test
   fun testLubNibling() {
     val (cpt, foo, bar, qux) = loadAndGetClasses("Foo", "Bar", "Qux : Bar")
-    assertThat(qux.lub(qux)).isEqualTo(qux)
+    qux.lub(qux) shouldBe qux
 
-    assertThat(cpt.lub(qux)).isEqualTo(cpt)
-    assertThat(foo.lub(qux)).isEqualTo(cpt)
-    assertThat(bar.lub(qux)).isEqualTo(bar)
+    cpt.lub(qux) shouldBe cpt
+    foo.lub(qux) shouldBe cpt
+    bar.lub(qux) shouldBe bar
 
-    assertThat(qux.lub(cpt)).isEqualTo(cpt)
-    assertThat(qux.lub(foo)).isEqualTo(cpt)
-    assertThat(qux.lub(bar)).isEqualTo(bar)
+    qux.lub(cpt) shouldBe cpt
+    qux.lub(foo) shouldBe cpt
+    qux.lub(bar) shouldBe bar
   }
 
   @Test

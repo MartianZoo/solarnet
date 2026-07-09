@@ -9,9 +9,9 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertNetChanges
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class PetsTest {
   val game = Engine.newGame(Canon.SIMPLE_GAME)
@@ -21,7 +21,7 @@ class PetsTest {
 
   private fun TaskResult.expect(string: String) = assertNetChanges(this, game, p1, string)
 
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
     p1.godMode().manual("100, 5 ProjectCard")
     engine.phase("Action")
@@ -34,13 +34,13 @@ class PetsTest {
     p2.godMode().manual("Predators") // skip requirement
 
     // There's no stealable animal
-    assertThrows<DeadEndException> { p2.cardAction1("Predators") }
+    shouldThrow<DeadEndException> { p2.cardAction1("Predators") }
 
     p2.godMode().manual("Animal<Predators>")
 
     // Now there is but it can only eat itself
     p2.cardAction1("Predators") {
-      assertThrows<DeadEndException> { doTask("-Animal<P1, Pets<P1>>") }
+      shouldThrow<DeadEndException> { doTask("-Animal<P1, Pets<P1>>") }
       doTask("-Animal<Predators>")
     }
   }
@@ -50,6 +50,6 @@ class PetsTest {
     p1.playProject("Pets", 10).expect("Animal")
 
     // Removing the card would mean having to remove the animals on it first -- can't!
-    assertThrows<DeadEndException> { p1.godMode().manual("-Pets") }
+    shouldThrow<DeadEndException> { p1.godMode().manual("-Pets") }
   }
 }

@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
@@ -13,8 +12,9 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.Prod.deprodify
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 
 internal class PrepareTest {
   val game: Game = newGame(Canon.SIMPLE_GAME)
@@ -41,7 +41,7 @@ internal class PrepareTest {
 
   fun checkPrepare(unprepared: String, expected: String?) {
     val prepared = preprocessAndPrepare(unprepared)
-    assertThat("$prepared").isEqualTo("$expected")
+    "$prepared" shouldBe "$expected"
   }
 
   @Test
@@ -59,11 +59,11 @@ internal class PrepareTest {
     checkPrepare("9 Heat FROM Plant?", "Heat<Player1> FROM Plant<Player1>?")
     checkPrepare("Plant FROM Heat.", "Ok")
     checkPrepare("Plant FROM Heat?", "Ok")
-    // assertThrows<LimitsException>("1") { preprocessAndPrepare("15 OxygenStep!") }
-    assertThrows<LimitsException>("2") { preprocessAndPrepare("-2 Plant") }
-    assertThrows<LimitsException>("3") { preprocessAndPrepare("Plant FROM Heat") }
-    assertThrows<LimitsException>("4") { preprocessAndPrepare("2 Heat FROM Plant") }
-    assertThrows<LimitsException>("5") { preprocessAndPrepare("2 Plant<Player2 FROM Player1>") }
+    // shouldThrow<LimitsException> { preprocessAndPrepare("15 OxygenStep!") }
+    shouldThrow<LimitsException> { preprocessAndPrepare("-2 Plant") }
+    shouldThrow<LimitsException> { preprocessAndPrepare("Plant FROM Heat") }
+    shouldThrow<LimitsException> { preprocessAndPrepare("2 Heat FROM Plant") }
+    shouldThrow<LimitsException> { preprocessAndPrepare("2 Plant<Player2 FROM Player1>") }
   }
 
   @Test
@@ -87,7 +87,7 @@ internal class PrepareTest {
         "10 TR: (Titanium OR TerraformRating)",
         "Titanium<Player1>! OR TerraformRating<Player1>!",
     )
-    assertThrows<RequirementException>("1") { preprocessAndPrepare("30 TR: Plant") }
+    shouldThrow<RequirementException> { preprocessAndPrepare("30 TR: Plant") }
   }
 
   @Test
@@ -114,7 +114,7 @@ internal class PrepareTest {
         "Steel / 2 ProjectCard OR -Titanium? OR Plant: 5 Steel OR Ok OR 5 Steel",
         "5 Steel<Player1>! OR Ok",
     )
-    assertThrows<NotNowException>("1") {
+    shouldThrow<NotNowException> {
       preprocessAndPrepare(
           "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
               "OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
@@ -124,8 +124,8 @@ internal class PrepareTest {
 
   @Test
   fun testPrepareMulti() {
-    assertThrows<IllegalStateException>("1") { preprocessAndPrepare("Plant, Heat") }
-    assertThrows<IllegalStateException>("2") { preprocessAndPrepare("(TR: Plant), Heat") }
-    assertThrows<IllegalStateException>("3") { preprocessAndPrepare("TR: (Plant, Heat)") }
+    shouldThrow<IllegalStateException> { preprocessAndPrepare("Plant, Heat") }
+    shouldThrow<IllegalStateException> { preprocessAndPrepare("(TR: Plant), Heat") }
+    shouldThrow<IllegalStateException> { preprocessAndPrepare("TR: (Plant, Heat)") }
   }
 }

@@ -8,8 +8,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class InsulationTest {
 
@@ -25,10 +25,10 @@ class InsulationTest {
       assertProds(-1 to "M", 3 to "H")
 
       playProject("Insulation", 2) {
-        assertThrows<PetSyntaxException> { doTask("PROD[0 Megacredit FROM Heat]") }
-        assertThrows<PetSyntaxException> { doFirstTask("PROD[Ok]") }
-        assertThrows<NarrowingException> { doFirstTask("Ok") }
-        assertThrows<NarrowingException> { doFirstTask("PROD[2 Megacredit<P2> FROM Heat<P2>]") }
+        shouldThrow<PetSyntaxException> { doTask("PROD[0 Megacredit FROM Heat]") }
+        shouldThrow<PetSyntaxException> { doFirstTask("PROD[Ok]") }
+        shouldThrow<NarrowingException> { doFirstTask("Ok") }
+        shouldThrow<NarrowingException> { doFirstTask("PROD[2 Megacredit<P2> FROM Heat<P2>]") }
 
         doTask("PROD[2 Megacredit FROM Heat]")
         assertProds(1 to "M", 1 to "H")

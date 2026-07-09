@@ -6,9 +6,9 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class PredatorsTest {
   val game = Engine.newGame(Canon.SIMPLE_GAME)
@@ -16,7 +16,7 @@ class PredatorsTest {
   val p1 = game.tfm(PLAYER1)
   val p2 = game.tfm(PLAYER2)
 
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
     p1.godMode().manual("100, 5 ProjectCard")
     engine.phase("Action")
@@ -27,7 +27,7 @@ class PredatorsTest {
     p1.godMode().manual("Predators") // skip requirements
 
     // There's no stealable animal - TODO exception type is wrong
-    assertThrows<Exception> { p1.cardAction1("Predators") }
+    shouldThrow<Exception> { p1.cardAction1("Predators") }
 
     p1.godMode().manual("Animal<Predators>")
     p1.cardAction1("Predators") // Now there is but it can only eat itself

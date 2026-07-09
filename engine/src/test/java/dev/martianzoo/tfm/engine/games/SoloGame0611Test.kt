@@ -1,15 +1,16 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.shouldBe
 
 class SoloGame0611Test : AbstractSoloTest() {
   // @Test // for profiling
   fun fifty() {
     repeat(50) {
       commonSetup()
-      soloSetup()
       letsPlay()
     }
   }
@@ -258,7 +259,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       phase("Production") { me.doTask("Ok") }
 
       // Victory check should happen here
-      assertThat(count("TR")).isAtLeast(63)
+      count("TR").shouldBeGreaterThanOrEqual(63)
 
       // Final plant conversion would happen, but...
       assertCounts(4 to "Plant")

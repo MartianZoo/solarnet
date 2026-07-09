@@ -4,8 +4,8 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class ReifyTest {
   val game = Engine.newGame(Canon.SIMPLE_GAME)
@@ -42,7 +42,7 @@ class ReifyTest {
     test("5 OxygenStep? / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
 
     test("WaterArea(HAS MAX 0 Tile)!", "M55!")
-    assertThrows<NarrowingException> { test("WaterArea(HAS Tile)!", "M55!") }
+    shouldThrow<NarrowingException> { test("WaterArea(HAS Tile)!", "M55!") }
   }
 
   fun test(original: String, replacement: String) {

@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.GameEvent
@@ -11,8 +10,15 @@ import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.canon.Canon
 import kotlin.reflect.KClass
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 
 class TaskRevisionTest {
   private val A = TaskId("A")
@@ -28,19 +34,19 @@ class TaskRevisionTest {
   fun `initiating NoOp does nothing`() {
     val tasks = initiate("Ok")
 
-    assertThat(tasks).isEmpty()
-    assertThat(history()).isEmpty()
-    assertThat(game.timeline.checkpoint()).isEqualTo(start)
+    tasks.shouldBeEmpty()
+    history().shouldBeEmpty()
+    game.timeline.checkpoint() shouldBe start
   }
 
   @Test
   fun `initiating an abstract task works as expected`() {
     val task = initiate("2 Plant?").single()
 
-    assertThat(task).isEqualTo(A)
-    assertThat(tasks.extract { "${it.instruction}" }).containsExactly("2 Plant<Player1>?")
-    assertThat(tasks.ids()).containsExactly(A)
-    assertThat(history()).hasSize(1)
+    task shouldBe A
+    tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
+    tasks.ids().shouldContainExactlyInAnyOrder(A)
+    history().shouldHaveSize(1)
   }
 
   @Test
@@ -49,8 +55,8 @@ class TaskRevisionTest {
     val before = game.timeline.checkpoint()
 
     writer.reviseTask(A, "2 Plant?")
-    assertThat(tasks.ids()).containsExactly(A)
-    assertThat(events.entriesSince(before)).isEmpty()
+    tasks.ids().shouldContainExactlyInAnyOrder(A)
+    events.entriesSince(before).shouldBeEmpty()
   }
 
   @Test
@@ -58,16 +64,16 @@ class TaskRevisionTest {
     initiate("2 Plant?")
 
     writer.reviseTask(A, "Plant!")
-    assertThat(history()).hasSize(2)
-    assertThat(tasksAsText()).containsExactly("Plant<Player1>!")
+    history().shouldHaveSize(2)
+    tasksAsText().shouldContainExactlyInAnyOrder("Plant<Player1>!")
   }
 
   @Test
   fun `an invalid narrowing fails, atomically`() {
     initiate("2 Plant?")
-    assertThat(history()).hasSize(1)
-    assertThrows<NarrowingException> { writer.reviseTask(A, "3 Plant!") }
-    assertThat(history()).hasSize(1)
+    history().shouldHaveSize(1)
+    shouldThrow<NarrowingException> { writer.reviseTask(A, "3 Plant!") }
+    history().shouldHaveSize(1)
   }
 
   @Test
@@ -79,17 +85,17 @@ class TaskRevisionTest {
     writer.reviseTask(A, "Plant?")
     writer.reviseTask(A, "Plant!")
 
-    assertThat(tasksAsText()).containsExactly("Plant<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("Plant<Player1>!")
   }
 
   @Test
   fun `narrowing an OR works normally`() {
     initiate("5 Plant OR 4 Heat")
-    assertThat(tasksAsText()).containsExactly("5 Plant<Player1>! OR 4 Heat<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>! OR 4 Heat<Player1>!")
 
     writer.reviseTask(A, "5 Plant")
-    assertThat(history()).hasSize(2)
-    assertThat(tasksAsText()).containsExactly("5 Plant<Player1>!")
+    history().shouldHaveSize(2)
+    tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>!")
   }
 
   @Test
@@ -104,7 +110,7 @@ class TaskRevisionTest {
         TaskAddedEvent::class, // energy
         TaskRemovedEvent::class, // -full one
     )
-    assertThat(tasksAsText()).containsExactly("4 Heat<Player1>!", "2 Energy<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
   }
 
   @Test
@@ -113,7 +119,7 @@ class TaskRevisionTest {
 
     writer.reviseTask(A, "Ok")
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
-    assertThat(tasks.isEmpty()).isTrue()
+    tasks.isEmpty() shouldBe true
   }
 
   @Test
@@ -122,24 +128,24 @@ class TaskRevisionTest {
 
     writer.reviseTask(A, "-21 TerraformRating!")
 
-    assertThat(history()).hasSize(2)
-    assertThat(tasksAsText()).containsExactly("-21 TerraformRating<Player1>!")
+    history().shouldHaveSize(2)
+    tasksAsText().shouldContainExactlyInAnyOrder("-21 TerraformRating<Player1>!")
 
     // Not the point of this test class, but incidentally, we're at a dead end
-    assertThrows<LimitsException> { writer.prepareTask(A) }
-    assertThrows<LimitsException> { writer.doTask(A) }
-    assertThrows<LimitsException> { game.gameplay(PLAYER1).autoExecNow() }
+    shouldThrow<LimitsException> { writer.prepareTask(A) }
+    shouldThrow<LimitsException> { writer.doTask(A) }
+    shouldThrow<LimitsException> { game.gameplay(PLAYER1).autoExecNow() }
   }
 
   @Test
   fun `narrowing to NoOp enqueues the THEN instructions`() {
     val task = initiate("Plant? THEN (Steel, Heat)").single()
-    assertThat(tasks.extract { "${it.instruction}" }).containsExactly("Plant<Player1>?")
-    assertThat(tasks.extract { "${it.then}" }).containsExactly("Steel<Player1>!, Heat<Player1>!")
+    tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("Plant<Player1>?")
+    tasks.extract { "${it.then}" }.shouldContainExactlyInAnyOrder("Steel<Player1>!, Heat<Player1>!")
 
     writer.reviseTask(task, "Ok")
-    assertThat(tasksAsText()).containsExactly("Steel<Player1>!", "Heat<Player1>!").inOrder()
-    assertThat(tasks.matching { it.then != null }.none())
+    tasksAsText().shouldContainExactly("Steel<Player1>!", "Heat<Player1>!")
+    tasks.matching { it.then != null }.none() shouldBe true
   }
 
   @Test
@@ -149,18 +155,18 @@ class TaskRevisionTest {
     writer.reviseTask(id, "Ok")
 
     val task1 = tasks.extract { it }.single()
-    assertThat(task1.instruction.toString()).isEqualTo("Steel<Player1>?")
-    assertThat(task1.then.toString()).isEqualTo("Heat<Player1>? THEN Energy<Player1>!")
+    task1.instruction.toString() shouldBe "Steel<Player1>?"
+    task1.then.toString() shouldBe "Heat<Player1>? THEN Energy<Player1>!"
 
     writer.reviseTask(task1.id, "Ok")
     val task2 = tasks.extract { it }.single()
-    assertThat(task2.instruction.toString()).isEqualTo("Heat<Player1>?")
-    assertThat(task2.then.toString()).isEqualTo("Energy<Player1>!")
+    task2.instruction.toString() shouldBe "Heat<Player1>?"
+    task2.then.toString() shouldBe "Energy<Player1>!"
 
     writer.reviseTask(task2.id, "Ok")
     val task3 = tasks.extract { it }.single()
-    assertThat(task3.instruction.toString()).isEqualTo("Energy<Player1>!")
-    assertThat(task3.then).isNull()
+    task3.instruction.toString() shouldBe "Energy<Player1>!"
+    task3.then shouldBe null
   }
 
   fun initiate(ins: String) = writer.godMode().addTasks(ins)
@@ -170,9 +176,7 @@ class TaskRevisionTest {
   private fun history(): List<GameEvent> = events.entriesSince(start)
 
   private fun assertHistoryTypes(vararg c: KClass<out GameEvent>) {
-    assertThat(history().map { it::class.simpleName!! })
-        .containsExactlyElementsIn(c.map { it.simpleName!! })
-        .inOrder()
+    history().map { it::class.simpleName!! } shouldBe c.map { it.simpleName!! }
   }
 
   private fun tasksAsText() = tasks.extract { "${it.instruction}" }

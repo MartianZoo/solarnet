@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.cards
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
@@ -9,15 +8,19 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
 
 class RobinsonIndustriesTest {
   val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
   val p1 = game.tfm(PLAYER1)
 
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
     p1.phase("Corporation")
     p1.playCorp("RobinsonIndustries", 0)
@@ -64,8 +67,7 @@ class RobinsonIndustriesTest {
       assertProds(0 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
 
       cardAction1("RobinsonIndustries") {
-        assertThat(tasks.extract { "${it.instruction}" })
-            .containsExactly(
+        tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder(
                 "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
         doTask("PROD[1]")
         assertProds(1 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
@@ -78,7 +80,7 @@ class RobinsonIndustriesTest {
         abort()
       }
 
-      assertThrows<NarrowingException> {
+      shouldThrow<NarrowingException> {
         cardAction1("RobinsonIndustries") { doTask("PROD[Steel]") }
       }
     }

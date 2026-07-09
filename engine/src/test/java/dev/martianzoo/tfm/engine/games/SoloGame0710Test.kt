@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.shouldBe
 
 class SoloGame0710Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
@@ -19,7 +19,7 @@ class SoloGame0710Test : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_5_1" to "Tharsis_5_7"
 
   @Test
-  fun game() {
+  fun soloGame0710() {
     with(me) {
       playCorp("PharmacyUnion", 10).expect("16, 11 ProjectCard")
 
@@ -262,13 +262,13 @@ class SoloGame0710Test : AbstractSoloTest() {
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")
-      assertThat(sum.net("GreeneryTile", "VictoryPoint<P1>")).isEqualTo(9)
-      assertThat(sum.net("CityTile", "VictoryPoint<P1>")).isEqualTo(24)
-      assertThat(sum.net("Card", "VictoryPoint<P1>")).isEqualTo(18)
+      sum.net("GreeneryTile", "VictoryPoint<P1>") shouldBe 9
+      sum.net("CityTile", "VictoryPoint<P1>") shouldBe 24
+      sum.net("Card", "VictoryPoint<P1>") shouldBe 18
       assertCounts(121 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
-      assertThat(sum.net("ActionPhase", "UseAction<P1>")).isEqualTo(93) // note UI says 106
+      sum.net("ActionPhase", "UseAction<P1>") shouldBe 93 // note UI says 106
     }
   }
 }

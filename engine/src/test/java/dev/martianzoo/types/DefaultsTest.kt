@@ -1,11 +1,11 @@
 package dev.martianzoo.types
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.shouldBe
 
 class DefaultsTest {
   @Test
@@ -36,15 +36,15 @@ class DefaultsTest {
             as MClassLoader
 
     val d = loader.getClass(cn("Foo1")).defaults
-    assertThat(d.gainOnly.intensity).isEqualTo(AMAP)
-    assertThat(d.removeOnly.intensity).isEqualTo(MANDATORY)
+    d.gainOnly.intensity shouldBe AMAP
+    d.removeOnly.intensity shouldBe MANDATORY
 
     val d2 = loader.getClass(cn("FooBar1")).defaults
-    assertThat(d2.gainOnly.intensity).isEqualTo(AMAP)
-    assertThat(d2.removeOnly.intensity).isEqualTo(OPTIONAL)
+    d2.gainOnly.intensity shouldBe AMAP
+    d2.removeOnly.intensity shouldBe OPTIONAL
 
     val d3 = loader.getClass(cn("Fixed")).defaults
-    assertThat(d3.gainOnly.intensity).isEqualTo(AMAP)
-    assertThat(d3.removeOnly.intensity).isEqualTo(MANDATORY)
+    d3.gainOnly.intensity shouldBe AMAP
+    d3.removeOnly.intensity shouldBe MANDATORY
   }
 }

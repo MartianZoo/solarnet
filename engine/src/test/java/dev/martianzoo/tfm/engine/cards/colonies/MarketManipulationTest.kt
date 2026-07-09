@@ -4,8 +4,8 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class MarketManipulationTest : ColoniesCardTest() {
   @Test
@@ -29,7 +29,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   fun `you can't lower a track if it's already at the bottom`() {
     eng.godMode().manual("-ColonyProduction<Triton>")
     p1.playProject("MarketManipulation", 1) {
-      assertThrows<LimitsException> {
+      shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
       }
       abort()
@@ -40,7 +40,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   fun `you can't raise a track if it's already at the top`() {
     eng.godMode().manual("5 ColonyProduction<Luna>")
     p1.playProject("MarketManipulation", 1) {
-      assertThrows<LimitsException> {
+      shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
       }
       abort()
@@ -50,7 +50,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   @Test
   fun `you can't raise and lower the same track`() {
     p1.playProject("MarketManipulation", 1) {
-      assertThrows<ExpressionException> {
+      shouldThrow<ExpressionException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Luna>")
       }
       abort()
@@ -60,10 +60,10 @@ class MarketManipulationTest : ColoniesCardTest() {
   @Test
   fun `you can't interact with a colony tile that's not in play yet`() {
     p1.playProject("MarketManipulation", 1) {
-      assertThrows<NotNowException> {
+      shouldThrow<NotNowException> {
         doTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>")
       }
-      assertThrows<NotNowException> {
+      shouldThrow<NotNowException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>")
       }
       abort()

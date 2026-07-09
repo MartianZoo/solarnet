@@ -6,8 +6,8 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class EcolineTest {
   @Test
@@ -33,7 +33,7 @@ class EcolineTest {
       assertCounts(0 to "Plant")
 
       godMode().sneak("6 Plant")
-      assertThrows<LimitsException> { stdAction("ConvertPlantsSA") }
+      shouldThrow<LimitsException> { stdAction("ConvertPlantsSA") }
     }
   }
 }

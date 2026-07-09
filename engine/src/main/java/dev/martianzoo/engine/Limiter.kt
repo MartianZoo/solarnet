@@ -26,7 +26,7 @@ internal class Limiter(private val classes: MClassTable, private val components:
         }
         .forEach { restriction ->
           restriction.mclass.allSubclasses().forEach {
-            val list = multimap.computeIfAbsent(it) { mutableListOf() }
+            val list = multimap.getOrPut(it) { mutableListOf() }
             list += restriction
           }
         }

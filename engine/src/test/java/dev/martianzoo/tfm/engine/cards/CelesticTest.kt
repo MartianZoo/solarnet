@@ -8,8 +8,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class CelesticTest {
   @Test
@@ -22,15 +22,15 @@ class CelesticTest {
       godMode().sneak("100, 10 Heat")
 
       phase("Action")
-      assertThrows<RequirementException> { playProject("Mine", 4) }
-      assertThrows<RequirementException> { stdProject("AsteroidSP") }
-      assertThrows<RequirementException> { stdAction("ConvertHeatSA") }
+      shouldThrow<RequirementException> { playProject("Mine", 4) }
+      shouldThrow<RequirementException> { stdProject("AsteroidSP") }
+      shouldThrow<RequirementException> { stdAction("ConvertHeatSA") }
 
       pass()
 
       asPlayer(ENGINE).nextGeneration(2, 2)
 
-      assertThrows<RequirementException> { playProject("Mine", 4) }
+      shouldThrow<RequirementException> { playProject("Mine", 4) }
 
       assertCounts(1 to "Mandate")
       assertCounts(7 to "ProjectCard")

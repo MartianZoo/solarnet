@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 class CryoSleepTest : ColoniesCardTest() {
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
     p1.godMode().manual("CryoSleep")
   }

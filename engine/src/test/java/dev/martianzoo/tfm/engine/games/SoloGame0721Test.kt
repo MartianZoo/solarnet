@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.shouldBe
 
 class SoloGame0721Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
@@ -24,7 +24,7 @@ class SoloGame0721Test : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Elysium_1_5" to "Elysium_7_8"
 
   @Test
-  fun game() {
+  fun soloGame0721() {
     with(me) {
       // The id of this game is gf33a06d07a1c
       // Good luck me!
@@ -549,7 +549,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       pass()
       engine.phase("Production")
 
-      assertThat(has("63 TR")) // victory!
+      has("63 TR") shouldBe true // victory!
 
       // Final greenery placement
       phase("FinalGreenery")
@@ -574,14 +574,14 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       val sum = Summarizer(game)
       assertCounts(69 to "TerraformRating")
-      assertThat(sum.net("GreeneryTile", "VictoryPoint<P1>")).isEqualTo(8)
-      assertThat(sum.net("CityTile", "VictoryPoint<P1>")).isEqualTo(13)
-      assertThat(sum.net("Card", "VictoryPoint<P1>")).isEqualTo(5)
+      sum.net("GreeneryTile", "VictoryPoint<P1>") shouldBe 8
+      sum.net("CityTile", "VictoryPoint<P1>") shouldBe 13
+      sum.net("Card", "VictoryPoint<P1>") shouldBe 5
       assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
       // it's really 99 but we faked Flooding. note herokuapp says 111.
-      assertThat(sum.net("ActionPhase", "UseAction<P1>")).isEqualTo(98)
+      sum.net("ActionPhase", "UseAction<P1>") shouldBe 98
     }
   }
 }

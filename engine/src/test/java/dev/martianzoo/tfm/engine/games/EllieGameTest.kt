@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.games
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
@@ -11,13 +10,14 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import io.kotest.matchers.shouldBe
 
 class EllieGameTest : AbstractFullGameTest() {
   override fun setup() = GameSetup(Canon, "BRHXP", 2)
 
   @Test
-  fun game() {
+  fun ellieGame() {
     val workflow = TfmWorkflow.Auto(game, setup()).launch()
 
     p1.playCorp("InterplanetaryCinematics", 7)
@@ -106,18 +106,18 @@ class EllieGameTest : AbstractFullGameTest() {
     engine.phase("End")
 
     val sum = Summarizer(game)
-    assertThat(sum.net("GreeneryTile", "VictoryPoint")).isEqualTo(0)
-    assertThat(sum.net("CityTile", "VictoryPoint")).isEqualTo(0)
+    sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
+    sum.net("CityTile", "VictoryPoint") shouldBe 0
 
     p1.assertCounts(24 to "TR<P1>")
     p1.assertCounts(27 to "VP<P1>")
-    assertThat(sum.net("Card", "VP<P1>")).isEqualTo(3)
+    sum.net("Card", "VP<P1>") shouldBe 3
 
     p2.assertCounts(25 to "TR<P2>")
-    assertThat(sum.net("PharmacyUnion", "TR<P2>")).isEqualTo(5)
+    sum.net("PharmacyUnion", "TR<P2>") shouldBe 5
 
     p2.assertCounts(28 to "VictoryPoint")
-    assertThat(sum.net("Card", "VP<P2>")).isEqualTo(3)
+    sum.net("Card", "VP<P2>") shouldBe 3
   }
 
   @Test

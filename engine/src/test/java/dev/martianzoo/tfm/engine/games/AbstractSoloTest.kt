@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay
-import org.junit.jupiter.api.BeforeEach
+import kotlin.test.BeforeTest
 
 abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
@@ -14,8 +14,10 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected abstract fun cityAreas(): Pair<String, String>
   protected abstract fun greeneryAreas(): Pair<String, String>
 
-  @BeforeEach
-  fun soloSetup() {
+  @BeforeTest
+  override fun commonSetup() {
+    super.commonSetup()
+
     me = p1
     opponent = p2
 

@@ -8,14 +8,14 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 class IndenturedWorkersTest {
   lateinit var game: Game
   lateinit var p1: TfmGameplay
 
-  @BeforeEach
+  @BeforeTest
   fun setUp() {
     game = Engine.newGame(GameSetup(Canon, "BRM", 2))
     p1 = game.tfm(PLAYER1)

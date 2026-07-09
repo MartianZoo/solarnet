@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class UnmiTest {
 
@@ -22,7 +22,7 @@ class UnmiTest {
 
       phase("Action")
 
-      assertThrows<RequirementException> { cardAction1("UnitedNationsMarsInitiative") }
+      shouldThrow<RequirementException> { cardAction1("UnitedNationsMarsInitiative") }
 
       // Do anything that raises TR
       stdProject("AsteroidSP")

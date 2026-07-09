@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.cards
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.data.Player.Companion.PLAYER1
@@ -8,8 +7,12 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldContainExactly
 
 class LocalHeatTrappingTest {
   val game = Engine.newGame(Canon.SIMPLE_GAME)
@@ -60,10 +63,10 @@ class LocalHeatTrappingTest {
         assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
-        assertThrows<AbstractException>("1") { doFirstTask("2 Animal") }
+        shouldThrow<AbstractException> { doFirstTask("2 Animal") }
 
         // card I don't have
-        assertThrows<DependencyException>("2") { doFirstTask("2 Animal<Fish>") }
+        shouldThrow<DependencyException> { doFirstTask("2 Animal<Fish>") }
 
         // but this should work
         doFirstTask("2 Animal<Pets>")
@@ -79,12 +82,10 @@ class LocalHeatTrappingTest {
       godMode().manual("6 Heat, 2 ProjectCard")
 
       godMode().manual("LocalHeatTrapping") {
-        assertThat(tasks.extract { "${it.whyPending}" })
-            .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
+        tasks.extract { "${it.whyPending}" }.shouldContainExactlyInAnyOrder("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
         p1.prepareTask(tasks.ids().single())
-        assertThat(tasks.extract { "${it.whyPending}" })
-            .containsExactly("choice required in: `4 Plant<Player1>! OR Ok`")
+        tasks.extract { "${it.whyPending}" }.shouldContainExactlyInAnyOrder("choice required in: `4 Plant<Player1>! OR Ok`")
       }
     }
   }

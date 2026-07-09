@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import io.kotest.assertions.throwables.shouldThrow
 
 class CeosFavoriteTest {
   @Test
@@ -19,7 +19,7 @@ class CeosFavoriteTest {
       godMode().manual("10 ProjectCard, ForcedPrecipitation")
 
       // We can't CEO's onto an empty card
-      assertThrows<DependencyException> {
+      shouldThrow<DependencyException> {
         godMode().manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       }
 
