@@ -56,10 +56,7 @@ public object Canon : TfmAuthority() {
 
   override val customClasses: Set<CustomClass> by ::canonCustomClasses
 
-  private fun readResource(filename: String): String {
-    val dir = javaClass.packageName.replace('.', '/')
-    return javaClass.getResource("/$dir/$filename")!!.readText()
-  }
+  private fun readResource(filename: String): String = CanonResources.read(filename)
 
   public val SIMPLE_GAME = GameSetup(this, "BM", 2)
 }

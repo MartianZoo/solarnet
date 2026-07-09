@@ -74,6 +74,7 @@ public object Parsing {
   }
 
   /** Version of [parse] for use from Java. */
+  // JVM-only Java convenience API. Move to a JVM source set when this module becomes KMP.
   public fun <P : PetNode> parse(expectedType: Class<P>, source: String) =
       parse(expectedType.kotlin, source)
 

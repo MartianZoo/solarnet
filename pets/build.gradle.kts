@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-  implementation("com.github.kevinb9n:better-parse:cdf8a45")
+  implementation("com.github.kevinb9n.better-parse:better-parse:v0.4.4-2")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
