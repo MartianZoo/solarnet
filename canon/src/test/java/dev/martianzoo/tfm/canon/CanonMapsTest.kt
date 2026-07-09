@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
@@ -20,25 +21,25 @@ private class CanonMapsTest {
     fun hasAtLeast5(it: Iterable<*>) = it.count { it != null } >= 5
 
     val grid: Grid<AreaDefinition> = map.areas
-    assertThat(grid.size).isEqualTo(61)
+    grid.size shouldBe 61
 
     // We have an empty row first because we want coordinates to be 1-referenced
-    assertThat(grid.rowCount).isEqualTo(10)
-    assertThat(grid.rows().first().toSet()).containsExactly(null)
-    assertThat(grid.rows().drop(1).all(::hasAtLeast5)).isTrue()
+    grid.rowCount shouldBe 10
+    grid.rows().first().toSet() shouldBe setOf(null)
+    grid.rows().drop(1).all(::hasAtLeast5) shouldBe true
 
-    assertThat(grid.columnCount).isEqualTo(10)
-    assertThat(grid.columns().first().toSet()).containsExactly(null)
-    assertThat(grid.columns().drop(1).all(::hasAtLeast5)).isTrue()
+    grid.columnCount shouldBe 10
+    grid.columns().first().toSet() shouldBe setOf(null)
+    grid.columns().drop(1).all(::hasAtLeast5) shouldBe true
 
     // The way Grid handles diagonals is a little weird, to be sure
-    assertThat(grid.diagonals().size).isEqualTo(19)
-    assertThat(grid.diagonals().subList(0, 5).flatten().toSet()).containsExactly(null)
-    assertThat(grid.diagonals().subList(5, 14).all(::hasAtLeast5)).isTrue()
-    assertThat(grid.diagonals().subList(14, 19).flatten().toSet()).containsExactly(null)
+    grid.diagonals().size shouldBe 19
+    grid.diagonals().subList(0, 5).flatten().toSet() shouldBe setOf(null)
+    grid.diagonals().subList(5, 14).all(::hasAtLeast5) shouldBe true
+    grid.diagonals().subList(14, 19).flatten().toSet() shouldBe setOf(null)
 
-    assertThat(grid.count { "${it.kind}" == "WaterArea" }).isEqualTo(12)
-    assertThat(grid.count { "${it.kind}" == "VolcanicArea" }).isAnyOf(0, 4)
+    grid.count { "${it.kind}" == "WaterArea" } shouldBe 12
+    grid.count { "${it.kind}" == "VolcanicArea" } shouldBeIn listOf(0, 4)
   }
 
   @Test
@@ -47,8 +48,8 @@ private class CanonMapsTest {
         Canon.marsMapDefinitions.flatMap { it.areas }.mapNotNull { it.bonus }.distinct().toStrings()
 
     // This is brittle as we don't care which order the "a, b" bonuses are in
-    assertThat(bonuses)
-        .containsExactly(
+    bonuses.toSet() shouldBe
+        setOf(
             "ProjectCard",
             "Plant",
             "Steel",

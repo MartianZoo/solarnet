@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Transforming.actionListToEffects
@@ -23,7 +24,7 @@ private class TransformingTest {
     fun checkActionToEffect(action: String, index: Int, effect: String) {
       val parsedA: Action = parse(action)
       val parsedE: Effect = parse(effect)
-      assertThat(actionToEffect(parsedA, index)).isEqualTo(parsedE)
+      actionToEffect(parsedA, index) shouldBe parsedE
     }
 
     checkActionToEffect("-> Ok", 5, "UseAction5<This>: Ok")
@@ -43,12 +44,11 @@ private class TransformingTest {
   @Test
   fun testActionsToEffects() {
     val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parse)
-    assertThat(actionListToEffects(actions))
-        .containsExactly(
+    actionListToEffects(actions)
+        .shouldContainExactly(
             parse<Effect>("UseAction1<This>: Foo"),
             parse<Effect>("UseAction2<This>: -Foo! THEN 5 Bar"),
         )
-        .inOrder()
   }
 
   @Test
@@ -56,7 +56,7 @@ private class TransformingTest {
     fun checkImmediateToEffect(immediate: String, effect: String) {
       val immed: Instruction = parse(immediate)
       val fx: Effect = parse(effect)
-      assertThat(immediateToEffect(immed)).isEqualTo(fx)
+      immediateToEffect(immed) shouldBe fx
     }
 
     checkImmediateToEffect("Foo, Bar", "This: Foo, Bar")
@@ -99,9 +99,9 @@ private class TransformingTest {
     val parsedOriginal = parse(type, original)
     val parsedExpected = parse(type, expected)
     val tx = replacer(THIS.expression, thiss).transform(parsedOriginal)
-    assertThat(tx).isEqualTo(parsedExpected)
+    tx shouldBe parsedExpected
 
     // more round-trip checking doesn't hurt
-    assertThat(tx.toString()).isEqualTo(expected)
+    tx.toString() shouldBe expected
   }
 }

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.testlib
 
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
+import io.kotest.assertions.withClue
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -216,12 +216,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val reparsedNode = parse(type, originalStringOut)
 
-      assertWithMessage("intermediate string form was $originalStringOut")
-          .that(reparsedNode)
-          .isEqualTo(randomNode)
+      withClue("intermediate string form was $originalStringOut") {
+        reparsedNode shouldBe randomNode
+      }
 
       val regurgitated = reparsedNode.toString()
-      assertThat(regurgitated).isEqualTo(originalStringOut)
+      regurgitated shouldBe originalStringOut
     }
   }
 

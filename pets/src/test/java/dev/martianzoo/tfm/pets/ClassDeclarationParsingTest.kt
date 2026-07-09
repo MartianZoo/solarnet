@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -62,19 +63,18 @@ private class ClassDeclarationParsingTest {
 
   @Test
   fun body() {
-    assertThat(
-            parseClasses(
-                """
-                  CLASS Bar : Qux { DEFAULT +Bar?
-                    Foo -> Bar
+    parseClasses(
+            """
+              CLASS Bar : Qux { DEFAULT +Bar?
+                Foo -> Bar
 
 
-                    Foo: Bar
-                    CLASS Foo
+                Foo: Bar
+                CLASS Foo
 
-                  }
-                """))
-        .hasSize(2)
+              }
+            """)
+        .shouldHaveSize(2)
   }
 
   @Test
@@ -113,8 +113,8 @@ private class ClassDeclarationParsingTest {
               }
             """)
 
-    assertThat(cs.map { it.supertypes })
-        .containsExactly(
+    cs.map { it.supertypes }
+        .shouldContainExactlyInAnyOrder(
             setOf<Expression>(),
             setOf<Expression>(),
             setOf(cn("One").expression),

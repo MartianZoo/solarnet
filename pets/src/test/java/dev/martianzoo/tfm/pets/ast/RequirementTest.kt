@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Requirement
@@ -87,21 +87,21 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(parse<Requirement>("Foo")).isEqualTo(Min(scaledEx(1, fooEx)))
-    assertThat(parse<Requirement>("3 Foo")).isEqualTo(Min(scaledEx(3, fooEx)))
-    assertThat(parse<Requirement>("MAX 3 Foo")).isEqualTo(Max(scaledEx(3, fooEx)))
+    parse<Requirement>("Foo") shouldBe Min(scaledEx(1, fooEx))
+    parse<Requirement>("3 Foo") shouldBe Min(scaledEx(3, fooEx))
+    parse<Requirement>("MAX 3 Foo") shouldBe Max(scaledEx(3, fooEx))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(scaledEx(1, fooEx)).toString()).isEqualTo("Foo")
-    assertThat(Min(scaledEx(3, fooEx)).toString()).isEqualTo("3 Foo")
-    assertThat(Min(scaledEx(value = 3)).toString()).isEqualTo("3")
-    assertThat(Min(scaledEx(value = 3, cn("Megacredit").expression)).toString()).isEqualTo("3")
-    assertThat(Max(scaledEx(0, fooEx)).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(scaledEx(1, fooEx)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(scaledEx(3, fooEx)).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(scaledEx(value = 3)).toString()).isEqualTo("MAX 3 Megacredit")
+    Min(scaledEx(1, fooEx)).toString() shouldBe "Foo"
+    Min(scaledEx(3, fooEx)).toString() shouldBe "3 Foo"
+    Min(scaledEx(value = 3)).toString() shouldBe "3"
+    Min(scaledEx(value = 3, cn("Megacredit").expression)).toString() shouldBe "3"
+    Max(scaledEx(0, fooEx)).toString() shouldBe "MAX 0 Foo"
+    Max(scaledEx(1, fooEx)).toString() shouldBe "MAX 1 Foo"
+    Max(scaledEx(3, fooEx)).toString() shouldBe "MAX 3 Foo"
+    Max(scaledEx(value = 3)).toString() shouldBe "MAX 3 Megacredit"
   }
 
   private fun testRoundTrip(start: String, end: String = start) =

@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.data
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName.Companion.classNames
@@ -43,20 +45,20 @@ private class ClassDeclarationTest {
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
 
-    assertThat(decl.shortName).isEqualTo(foo)
-    assertThat(decl.className).isEqualTo(foo)
-    assertThat(decl.abstract).isTrue()
-    assertThat(decl.dependencies).containsExactly(dep)
-    assertThat(decl.supertypes).containsExactly(sup)
-    assertThat(decl.invariants).containsExactly(inv)
-    assertThat(decl.effects).containsExactly(eff, act)
-    assertThat(decl.defaultsDeclaration.gainOnly.specs).containsExactly(gain)
-    assertThat(decl.defaultsDeclaration.universal.specs).containsExactly(univ)
-    assertThat(decl.defaultsDeclaration.gainOnly.intensity).isEqualTo(Intensity.OPTIONAL)
-    assertThat(decl.extraNodes).isEmpty()
+    decl.shortName shouldBe foo
+    decl.className shouldBe foo
+    decl.abstract shouldBe true
+    decl.dependencies.shouldContainExactlyInAnyOrder(dep)
+    decl.supertypes.shouldContainExactlyInAnyOrder(sup)
+    decl.invariants.shouldContainExactlyInAnyOrder(inv)
+    decl.effects.shouldContainExactlyInAnyOrder(eff, act)
+    decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
+    decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
+    decl.defaultsDeclaration.gainOnly.intensity shouldBe Intensity.OPTIONAL
+    decl.extraNodes.shouldBeEmpty()
 
-    assertThat(decl.supertypes.classNames()).containsExactly(cn("Baz"))
+    decl.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("Baz"))
 
-    assertThat(decl.allNodes).containsExactly(foo, dep, sup, inv, eff, act, gain, univ)
+    decl.allNodes.shouldContainExactlyInAnyOrder(foo, dep, sup, inv, eff, act, gain, univ)
   }
 }

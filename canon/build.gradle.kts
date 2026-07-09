@@ -10,7 +10,7 @@ dependencies {
 
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-  testImplementation("com.google.truth:truth:1.1.3")
+  testImplementation("io.kotest:kotest-assertions-core:6.2.1")
 
   testImplementation(project(":engine"))
   testImplementation(project(":repl"))

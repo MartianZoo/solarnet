@@ -1,6 +1,6 @@
 package dev.martianzoo.util
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 private class PairingCheckerTest {
@@ -14,9 +14,9 @@ private class PairingCheckerTest {
 
   @Test
   fun testInvalid() {
-    assertThat(PairingChecker.isValid("(")).isFalse()
-    assertThat(PairingChecker.isValid("x()")).isFalse()
-    assertThat(PairingChecker.isValid("x((yx))")).isFalse()
-    assertThat(PairingChecker.isValid("a(b<c)d>e")).isFalse()
+    PairingChecker.isValid("(") shouldBe false
+    PairingChecker.isValid("x()") shouldBe false
+    PairingChecker.isValid("x((yx))") shouldBe false
+    PairingChecker.isValid("a(b<c)d>e") shouldBe false
   }
 }

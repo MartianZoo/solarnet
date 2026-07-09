@@ -1,6 +1,6 @@
 package dev.martianzoo.util
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 private class StringHelpersTest {
@@ -12,11 +12,11 @@ private class StringHelpersTest {
 
     val pref = Ennie("pref")
     val suff = Ennie("suff")
-    assertThat(null.wrap(pref, suff)).isEqualTo("")
-    assertThat(null.pre(pref)).isEqualTo("")
-    assertThat(null.suf(suff)).isEqualTo("")
-    assertThat(Ennie("thing").wrap(pref, suff)).isEqualTo("prefthingsuff")
-    assertThat(Ennie("thing").pre(pref)).isEqualTo("prefthing")
-    assertThat(Ennie("thing").suf(suff)).isEqualTo("thingsuff")
+    null.wrap(pref, suff) shouldBe ""
+    null.pre(pref) shouldBe ""
+    null.suf(suff) shouldBe ""
+    Ennie("thing").wrap(pref, suff) shouldBe "prefthingsuff"
+    Ennie("thing").pre(pref) shouldBe "prefthing"
+    Ennie("thing").suf(suff) shouldBe "thingsuff"
   }
 }

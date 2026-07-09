@@ -1,13 +1,13 @@
 package dev.martianzoo.util
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 class CartesianProductTest {
   @Test
   fun zeroLists() {
     val sequence = listOf<Sequence<Unit>>().cartesianProduct()
-    assertThat(sequence.toList()).containsExactly(listOf<Unit>())
+    sequence.toList() shouldBe listOf(listOf<Unit>())
   }
 
   @Test
@@ -25,8 +25,8 @@ class CartesianProductTest {
 
     val sequence = product.cartesianProduct()
 
-    assertThat(sequence.toList())
-        .containsExactly(
+    sequence.toList() shouldBe
+        listOf(
             listOf("a", 1, "red"),
             listOf("a", 1, "blue"),
             listOf("a", 2, "red"),
@@ -58,6 +58,5 @@ class CartesianProductTest {
             listOf("c", 5, "red"),
             listOf("c", 5, "blue"),
         )
-        .inOrder()
   }
 }

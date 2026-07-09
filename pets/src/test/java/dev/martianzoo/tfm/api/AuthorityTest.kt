@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.CardData
@@ -22,8 +23,8 @@ private class AuthorityTest {
                           bundle = "Z",
                           components = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"))))
         }
-    assertThat(authority.allClassNames).hasSize(2)
-    assertThat(authority.classDeclaration(cn("IndustrialCenter")).abstract).isFalse()
-    assertThat(authority.classDeclaration(cn("Foo")).dependencies).hasSize(1)
+    authority.allClassNames.shouldHaveSize(2)
+    authority.classDeclaration(cn("IndustrialCenter")).abstract shouldBe false
+    authority.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
   }
 }

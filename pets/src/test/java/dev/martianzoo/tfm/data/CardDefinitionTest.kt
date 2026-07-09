@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.data
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -17,16 +19,16 @@ private class CardDefinitionTest {
   fun minimal() {
     val dumbCard = CardData("123", deck = "PRELUDE", immediate = "Plant", bundle = "Z")
 
-    assertThat(dumbCard.id).isEqualTo("123")
-    assertThat(dumbCard.bundle).isEqualTo("Z")
-    assertThat(dumbCard.deck).isEqualTo("PRELUDE")
-    assertThat(dumbCard.replaces).isNull()
-    assertThat(dumbCard.tags).isEmpty()
-    assertThat(dumbCard.immediate).isEqualTo("Plant")
-    assertThat(dumbCard.resourceType).isNull()
-    assertThat(dumbCard.requirement).isNull()
-    assertThat(dumbCard.cost).isEqualTo(0)
-    assertThat(dumbCard.projectKind).isNull()
+    dumbCard.id shouldBe "123"
+    dumbCard.bundle shouldBe "Z"
+    dumbCard.deck shouldBe "PRELUDE"
+    dumbCard.replaces shouldBe null
+    dumbCard.tags.shouldBeEmpty()
+    dumbCard.immediate shouldBe "Plant"
+    dumbCard.resourceType shouldBe null
+    dumbCard.requirement shouldBe null
+    dumbCard.cost shouldBe 0
+    dumbCard.projectKind shouldBe null
   }
 
   val birds =
@@ -47,35 +49,35 @@ private class CardDefinitionTest {
   /** This test is also quite pointless, but shows an example usage for readers. */
   @Test
   fun realCardDataFromApi() {
-    assertThat(birds.id).isEqualTo("072")
-    assertThat(birds.bundle).isEqualTo("B")
-    assertThat(birds.deck).isEqualTo("PROJECT")
-    assertThat(birds.tags).containsExactly("AnimalTag")
-    assertThat(birds.immediate).isEqualTo("PROD[-2 Plant<Anyone>]")
-    assertThat(birds.actions).containsExactly("-> Animal<This>")
-    assertThat(birds.effects).containsExactly("End: VictoryPoint / Animal<This>")
-    assertThat(birds.replaces).isNull()
-    assertThat(birds.resourceType).isEqualTo("Animal")
-    assertThat(birds.requirement).isEqualTo("13 OxygenStep")
-    assertThat(birds.cost).isEqualTo(10)
-    assertThat(birds.projectKind).isEqualTo("ACTIVE")
+    birds.id shouldBe "072"
+    birds.bundle shouldBe "B"
+    birds.deck shouldBe "PROJECT"
+    birds.tags.shouldContainExactlyInAnyOrder("AnimalTag")
+    birds.immediate shouldBe "PROD[-2 Plant<Anyone>]"
+    birds.actions.shouldContainExactlyInAnyOrder("-> Animal<This>")
+    birds.effects.shouldContainExactlyInAnyOrder("End: VictoryPoint / Animal<This>")
+    birds.replaces shouldBe null
+    birds.resourceType shouldBe "Animal"
+    birds.requirement shouldBe "13 OxygenStep"
+    birds.cost shouldBe 10
+    birds.projectKind shouldBe "ACTIVE"
   }
 
   @Test
   fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
-    assertThat(birds.shortName).isEqualTo(cn("C072"))
-    assertThat(birds.bundle).isEqualTo("B")
-    assertThat(birds.deck).isEqualTo(PROJECT)
-    assertThat(birds.tags.toStrings()).containsExactly("AnimalTag")
-    assertThat(birds.immediate!!.toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
-    assertThat(birds.actions.toStrings()).containsExactly("-> Animal<This>")
-    assertThat(birds.effects.toStrings()).containsExactly("End: VictoryPoint / Animal<This>")
-    assertThat(birds.replaces).isNull()
-    assertThat(birds.resourceType).isEqualTo(cn("Animal"))
-    assertThat(birds.requirement?.toString()).isEqualTo("13 OxygenStep")
-    assertThat(birds.cost).isEqualTo(10)
-    assertThat(birds.projectInfo?.kind).isEqualTo(ACTIVE)
+    birds.shortName shouldBe cn("C072")
+    birds.bundle shouldBe "B"
+    birds.deck shouldBe PROJECT
+    birds.tags.toStrings().shouldContainExactlyInAnyOrder("AnimalTag")
+    birds.immediate!!.toString() shouldBe "PROD[-2 Plant<Anyone>]"
+    birds.actions.toStrings().shouldContainExactlyInAnyOrder("-> Animal<This>")
+    birds.effects.toStrings().shouldContainExactlyInAnyOrder("End: VictoryPoint / Animal<This>")
+    birds.replaces shouldBe null
+    birds.resourceType shouldBe cn("Animal")
+    birds.requirement?.toString() shouldBe "13 OxygenStep"
+    birds.cost shouldBe 10
+    birds.projectInfo?.kind shouldBe ACTIVE
   }
 
   @Test
@@ -101,7 +103,7 @@ private class CardDefinitionTest {
       }
     """
 
-    assertThat(JsonReader.readCards(json)).containsExactly(birds)
+    JsonReader.readCards(json).shouldContainExactlyInAnyOrder(birds)
   }
 
   // Just so we don't have to keep repeating the "x" part
@@ -158,6 +160,6 @@ private class CardDefinitionTest {
         Canon.cardDefinitions
             .flatMap { it.asClassDeclaration.allNodes }
             .filter { it != parse(it.kind, "$it") }
-    assertThat(oops).isEmpty()
+    oops.shouldBeEmpty()
   }
 }

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -16,12 +17,12 @@ private class ExpressionTest {
   @Test
   fun simpleSourceToApi() {
     val foo = te("Foo")
-    assertThat(foo).isEqualTo(cn("Foo").expression)
+    foo shouldBe cn("Foo").expression
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(cn("Foo").expression.toString()).isEqualTo("Foo")
+    cn("Foo").expression.toString() shouldBe "Foo"
   }
 
   @Test
@@ -45,8 +46,7 @@ private class ExpressionTest {
   @Test
   fun complexSourceToApi() {
     val parsed = te(" Red< Blue  < This,Teal> , Gold > ")
-    assertThat(parsed)
-        .isEqualTo(cn("Red").of(cn("Blue").of(cn("This"), cn("Teal")), cn("Gold").expression))
+    parsed shouldBe cn("Red").of(cn("Blue").of(cn("This"), cn("Teal")), cn("Gold").expression)
   }
 
   @Test
@@ -58,7 +58,7 @@ private class ExpressionTest {
                 cn("Cc").of(cn("Dd")),
                 cn("Ee").of(cn("Ff").of(cn("Gg"), cn("Hh")), cn("Me").expression),
                 cn("Jj").expression)
-    assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
+    expr.toString() shouldBe "Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>"
   }
 
   @Test
@@ -66,13 +66,15 @@ private class ExpressionTest {
     te("Foo")
     te("Foo<Bar>")
 
-    assertThat(te("Class<Foo>")).isEqualTo(cn("Foo").classExpression())
-    assertThat(te("Class<Component>")).isEqualTo(COMPONENT.classExpression())
-    assertThat(te("Class<Class>")).isEqualTo(CLASS.classExpression())
+    te("Class<Foo>") shouldBe cn("Foo").classExpression()
+    te("Class<Component>") shouldBe COMPONENT.classExpression()
+    te("Class<Class>") shouldBe CLASS.classExpression()
 
     val two = te("Two<Class<Bar>, Class<Qux>>")
-    assertThat(two.className).isEqualTo(cn("Two"))
-    assertThat(two.arguments)
-        .containsExactly(cn("Bar").classExpression(), cn("Qux").classExpression())
+    two.className shouldBe cn("Two")
+    two.arguments.shouldContainExactlyInAnyOrder(
+        cn("Bar").classExpression(),
+        cn("Qux").classExpression(),
+    )
   }
 }

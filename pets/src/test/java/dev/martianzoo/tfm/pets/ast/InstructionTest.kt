@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
@@ -88,10 +88,8 @@ private class InstructionTest {
     testRoundTrip("Foo FROM Bar.")
     testRoundTrip("1 Foo FROM Bar.", "Foo FROM Bar.")
 
-    assertThat(parse<Instruction>("1 Foo FROM Bar."))
-        .isEqualTo(
-            Transmute(
-                SimpleFrom(cn("Foo").expression, cn("Bar").expression), ActualScalar(1), AMAP))
+    parse<Instruction>("1 Foo FROM Bar.") shouldBe Transmute(
+                SimpleFrom(cn("Foo").expression, cn("Bar").expression), ActualScalar(1), AMAP)
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
@@ -106,8 +104,8 @@ private class InstructionTest {
             ),
             ActualScalar(1),
             null)
-    assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
-    assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
+    instr.toString() shouldBe "Foo<Bar<Qux FROM Abc<Eep>>>"
+    parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>") shouldBe instr
   }
 
   fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)

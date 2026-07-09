@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets
 
-import com.google.common.truth.Truth.assertThat
+import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.PetNode
 import kotlin.reflect.KClass
@@ -9,21 +9,21 @@ internal inline fun <reified T : PetNode> checkBothWays(asText: String, node: T)
     checkBothWays(T::class, asText, node)
 
 internal fun <T : PetNode> checkBothWays(type: KClass<T>, asText: String, node: T) {
-  assertThat(node.toString()).isEqualTo(asText)
-  assertThat(parse(type, asText)).isEqualTo(node)
+  node.toString() shouldBe asText
+  parse(type, asText) shouldBe node
 }
 
 internal inline fun <reified T : PetNode> testRoundTrip(start: String, end: String = start) =
     testRoundTrip(T::class, start, end)
 
 internal fun <T : PetNode> testRoundTrip(type: KClass<T>, start: String, end: String = start) =
-    assertThat(parse(type, start).toString()).isEqualTo(end)
+    parse(type, start).toString() shouldBe end
 
 internal inline fun <reified T : PetNode> testRoundTrip(start: T, end: T = start) =
     testRoundTrip(T::class, start, end)
 
 internal fun <T : PetNode> testRoundTrip(type: KClass<T>, start: T, end: T = start) =
-    assertThat(parse(type, start.toString())).isEqualTo(end)
+    parse(type, start.toString()) shouldBe end
 
 internal inline fun <reified T : PetNode> testSampleStrings(inputs: String) =
     testSampleStrings(T::class, inputs)

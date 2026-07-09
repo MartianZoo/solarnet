@@ -30,7 +30,7 @@ kotlin {
       dependencies {
         implementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
         runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
-        implementation("com.google.truth:truth:1.1.3")
+        implementation("io.kotest:kotest-assertions-core:6.2.1")
 
         implementation(project(":canon")) // easier to test the engine this way
       }

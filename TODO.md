@@ -25,3 +25,4 @@
   exposed-copy-visibility warning into an error.
 - Expose expected-token data from the BetterParse PETS parsers so REPL completion can ask for valid
   next terminals directly instead of probing candidate strings against the parser.
+- Migrate the remaining `engine` and `repl` tests from Truth to Kotest-backed assertions.
