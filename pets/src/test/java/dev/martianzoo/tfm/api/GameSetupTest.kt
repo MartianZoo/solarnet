@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class GameSetupTest {
+internal class GameSetupTest {
   val authority =
       object : TfmAuthority.Empty() {
         override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()

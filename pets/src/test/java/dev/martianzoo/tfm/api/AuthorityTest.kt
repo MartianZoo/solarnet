@@ -5,10 +5,10 @@ import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.CardData
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 // Doesn't test much, but the class doesn't do that much
-private class AuthorityTest {
+internal class AuthorityTest {
   @Test
   fun test() {
     val authority =

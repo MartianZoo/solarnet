@@ -2,11 +2,8 @@
 
 ## Discussed
 
-- Continue the Kotlin/JS browser-test migration by converting `canon` and then `engine` to Kotlin
-  Multiplatform modules. `pets` now has a browser smoke test, but the old JVM-only Java overloads
-  should move to JVM source sets if they are needed again.
-- Replace `Canon`'s JVM resource loading with a KMP resource or generated-data strategy when adding
-  non-JVM targets.
+- Continue the Kotlin/JS browser-test migration by converting `engine` to a Kotlin Multiplatform
+  module.
 - Revisit `engine`'s Koin dependency before targeting Kotlin/Wasm; the pinned Koin metadata has
   JVM/JS/Native variants but no Wasm variant.
 - Teach task selection to choose the Venus branch of Atmoscoop's `2 TemperatureStep OR 2 VenusStep`
@@ -26,3 +23,7 @@
 - Expose expected-token data from the BetterParse PETS parsers so REPL completion can ask for valid
   next terminals directly instead of probing candidate strings against the parser.
 - Migrate the remaining `engine` and `repl` tests from Truth to Kotest-backed assertions.
+- Revisit the `pets` common-test Kotest version after upgrading the project Kotlin plugin; Kotest
+  6.2.1 pulls Kotlin 2.2.21 metadata that Kotlin/JS 2.1.20 cannot compile against.
+- Extract the duplicated Karma canon-resource serving setup if more Kotlin/JS browser-test modules
+  need access to canon data files.

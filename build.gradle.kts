@@ -17,6 +17,15 @@ subprojects {
     maven { url = uri("https://jitpack.io") }
   }
 
+  configurations.configureEach {
+    resolutionStrategy.eachDependency {
+      if (requested.group == "org.jetbrains.kotlin") {
+        useVersion("2.1.20")
+        because("Kotlin/JS compilation requires libraries compiled for the project Kotlin version")
+      }
+    }
+  }
+
   apply(plugin = "org.jetbrains.dokka")
 
   tasks.withType<DokkaTaskPartial>().configureEach {

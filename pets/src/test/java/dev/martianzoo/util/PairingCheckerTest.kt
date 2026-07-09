@@ -1,9 +1,9 @@
 package dev.martianzoo.util
 
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class PairingCheckerTest {
+internal class PairingCheckerTest {
   @Test
   fun testStuff() {
     PairingChecker.check("")

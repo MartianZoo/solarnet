@@ -9,10 +9,10 @@ import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
-private class RequirementTest {
+internal class RequirementTest {
 
   val inputs =
       """

@@ -16,9 +16,9 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.testlib.te
 import kotlin.reflect.KClass
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class TransformingTest {
+internal class TransformingTest {
   @Test
   fun testActionToEffect() {
     fun checkActionToEffect(action: String, index: Int, effect: String) {

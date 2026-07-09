@@ -5,9 +5,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class ClassDeclarationParsingTest {
+internal class ClassDeclarationParsingTest {
   @Test
   fun simpleOneLiners() {
     parseClasses("CLASS Foo") // minimal

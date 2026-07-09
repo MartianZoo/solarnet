@@ -34,7 +34,7 @@ import kotlin.reflect.KClass
 public object Parsing {
   /**
    * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
-   * examples can be reviewed in `components.pets` and `player.pets`.
+   * examples can be reviewed in `global.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
     val stripped = lineCommentRegex.replace(declarationsSource, "\n")

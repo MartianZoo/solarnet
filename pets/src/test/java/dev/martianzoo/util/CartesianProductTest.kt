@@ -1,7 +1,7 @@
 package dev.martianzoo.util
 
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 class CartesianProductTest {
   @Test

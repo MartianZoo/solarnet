@@ -8,10 +8,10 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.testlib.te
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
-private class ExpressionTest {
+internal class ExpressionTest {
   private fun testRoundTrip(petsText: String) = testRoundTrip<Expression>(petsText)
 
   @Test

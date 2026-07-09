@@ -4,9 +4,9 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class StandardActionDefinitionTest {
+internal class StandardActionDefinitionTest {
   @Test
   fun testOneFromCanon() {
     val claim = Canon.action(cn("ClaimMilestoneSA"))

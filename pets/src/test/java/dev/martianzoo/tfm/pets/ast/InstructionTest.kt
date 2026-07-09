@@ -11,10 +11,10 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
-private class InstructionTest {
+internal class InstructionTest {
   val inputs =
       """
     5

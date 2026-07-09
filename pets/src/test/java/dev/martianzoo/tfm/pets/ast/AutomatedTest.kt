@@ -8,9 +8,9 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.testlib.PetGenerator
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class AutomatedTest {
+internal class AutomatedTest {
   val reps = 300 // it's been stable a while
 
   @Test

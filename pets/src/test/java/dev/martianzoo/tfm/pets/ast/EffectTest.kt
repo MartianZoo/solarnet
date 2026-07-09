@@ -4,10 +4,10 @@ import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.tfm.pets.testSampleStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
-private class EffectTest {
+internal class EffectTest {
 
   val inputs =
       """

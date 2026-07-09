@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
-private class ActionTest {
+internal class ActionTest {
   @Test
   fun stupid() {
     testRoundTrip<Action>("-> Ok")

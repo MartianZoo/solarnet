@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.testRoundTrip
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 class ScaledExpressionTest {
   @Test

@@ -6,6 +6,12 @@ plugins {
   id("org.jetbrains.dokka")
 }
 
+val copyCanonResourcesForKarma by tasks.registering(Copy::class) {
+  dependsOn(":canon:jsProcessResources")
+  from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
+  into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-pets-test"))
+}
+
 kotlin {
   jvm()
   js(IR) {
@@ -21,21 +27,20 @@ kotlin {
       }
     }
     commonTest {
+      kotlin.srcDir("src/test/java")
       dependencies {
         implementation(kotlin("test"))
+        implementation("io.kotest:kotest-assertions-core:5.9.1")
+        implementation(project(":canon")) // easier to test the pets data model this way
       }
     }
     jvmTest {
-      kotlin.srcDir("src/test/java")
-      dependencies {
-        implementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-        runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
-        implementation("io.kotest:kotest-assertions-core:6.2.1")
-
-        implementation(project(":canon")) // easier to test the engine this way
-      }
     }
   }
+}
+
+tasks.named("jsBrowserTest") {
+  dependsOn(copyCanonResourcesForKarma)
 }
 
 tasks.dokkaHtml.configure {

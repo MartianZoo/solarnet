@@ -1,9 +1,9 @@
 package dev.martianzoo.util
 
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class StringHelpersTest {
+internal class StringHelpersTest {
   @Test
   fun testWrap() {
     class Ennie(val stringForm: String) {

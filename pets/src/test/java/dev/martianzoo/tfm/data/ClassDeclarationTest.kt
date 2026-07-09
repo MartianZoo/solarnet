@@ -15,9 +15,9 @@ import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class ClassDeclarationTest {
+internal class ClassDeclarationTest {
   @Test
   fun testExample() {
     val declText =

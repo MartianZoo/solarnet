@@ -11,9 +11,9 @@ import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class CardDefinitionTest {
+internal class CardDefinitionTest {
   /** This is honestly an incredibly stupid test that data classes shouldn't need to have. */
   @Test
   fun minimal() {

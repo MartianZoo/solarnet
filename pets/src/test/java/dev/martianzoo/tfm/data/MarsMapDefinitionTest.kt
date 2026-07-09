@@ -8,9 +8,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.util.Grid
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
-private class MarsMapDefinitionTest {
+internal class MarsMapDefinitionTest {
 
   val demoMapJson =
       """

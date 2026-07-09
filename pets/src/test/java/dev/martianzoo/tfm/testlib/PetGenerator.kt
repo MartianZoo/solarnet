@@ -238,7 +238,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   inline fun <reified T : PetNode> getTestStringOfEachLength(maxLength: Int): List<String> {
     require(maxLength >= 20) // just cause
 
-    val set = sortedSetOf<String>(Comparator.comparing { it.length })
+    val stringsByLength = mutableMapOf<Int, String>()
 
     // Don't track the short strings because some lengths might be impossible
     // If we didn't get to length 9 yet we probably weren't going to.
@@ -248,10 +248,13 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       if (tried++ == 100_000) error("whoops")
       val s = makeRandomNode<T>().toString()
       if (s.length <= maxLength) {
-        if (set.add(s) && s.length > 10) need--
+        if (s.length !in stringsByLength) {
+          stringsByLength[s.length] = s
+          if (s.length > 10) need--
+        }
       }
     }
-    return set.toList()
+    return stringsByLength.keys.sorted().map { stringsByLength.getValue(it) }
   }
 
   inline fun <reified T : PetNode> uniqueNodes(

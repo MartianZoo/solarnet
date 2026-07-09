@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.canon
 
-import io.kotest.matchers.collections.shouldBeIn
-import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
-import org.junit.jupiter.api.Test
+import io.kotest.matchers.collections.shouldBeIn
+import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 /** Tests for the Canon data set. */
-private class CanonMapsTest {
+internal class CanonMapsTest {
   @Test fun testTharsis() = checkMap(Canon.marsMap(cn("Tharsis")))
 
   @Test fun testHellas() = checkMap(Canon.marsMap(cn("Hellas")))
