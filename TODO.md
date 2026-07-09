@@ -25,5 +25,3 @@
   6.2.1 pulls Kotlin 2.2.21 metadata that Kotlin/JS 2.1.20 cannot compile against.
 - Extract the duplicated Karma canon-resource serving setup if more Kotlin/JS browser-test modules
   need access to canon data files.
-- Switch the better-parse dependency from the JitPack commit hash to the `v0.4.4-4` tag once
-  JitPack recognizes the tag coordinate reliably.
