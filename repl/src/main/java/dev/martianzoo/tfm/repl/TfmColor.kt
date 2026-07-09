@@ -1,8 +1,5 @@
 package dev.martianzoo.tfm.repl
 
-import org.jline.utils.AttributedStringBuilder
-import org.jline.utils.AttributedStyle
-
 internal enum class TfmColor(val hexString: String) {
   MEGACREDIT("f4d400"),
   STEEL("c8621e"),
@@ -27,10 +24,6 @@ internal enum class TfmColor(val hexString: String) {
     val r = hexString.substring(0, 2).toInt(16)
     val g = hexString.substring(2, 4).toInt(16)
     val b = hexString.substring(4, 6).toInt(16)
-    return AttributedStringBuilder()
-        .style(AttributedStyle.DEFAULT.foreground(r, g, b))
-        .append(string)
-        .style(AttributedStyle.DEFAULT)
-        .toAnsi()
+    return "\u001B[38;2;${r};${g};${b}m$string\u001B[0m"
   }
 }

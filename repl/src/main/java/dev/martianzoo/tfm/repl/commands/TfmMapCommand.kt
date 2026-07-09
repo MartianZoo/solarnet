@@ -22,7 +22,7 @@ internal class TfmMapCommand(repl: ReplSession) : AbstractTfmCommand(repl, "tfm_
         I mean it shows a map.
       """
   override val isReadOnly = true
-  override fun noArgs() = MapToText(repl.game.reader, repl.isInteractive).map()
+  override fun noArgs() = MapToText(repl.game.reader, useColors = false).map()
 
   internal class MapToText(private val game: GameReader, private val useColors: Boolean = true) {
     // my terminal app tries to show characters with H:W of 11:5

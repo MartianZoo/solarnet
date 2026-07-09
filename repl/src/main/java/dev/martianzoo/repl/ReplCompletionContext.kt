@@ -1,8 +1,6 @@
 package dev.martianzoo.repl
 
-import org.jline.reader.Candidate
-
-internal class ReplCompletionContext(
+public class ReplCompletionContext private constructor(
     private val repl: ReplSession,
     private val parsedArgs: ReplCompletionArgs,
 ) {
@@ -103,18 +101,19 @@ private fun String.substringAfterLastWhitespace(): String {
   return if (lastWhitespace == -1) this else drop(lastWhitespace + 1)
 }
 
-internal data class ReplCompletion(
+public data class ReplCompletion(
     val value: String,
     val group: String? = null,
     val description: String? = null,
     val replaceFragment: Boolean = true,
     val complete: Boolean = true,
 ) {
-  fun startsWith(prefix: String, ignoreCase: Boolean): Boolean = value.startsWith(prefix, ignoreCase)
+  public fun startsWith(prefix: String, ignoreCase: Boolean): Boolean =
+      value.startsWith(prefix, ignoreCase)
 
-  fun toCandidate(parsedWord: String): Candidate {
+  public fun replacingFragment(parsedWord: String): ReplCompletion {
     val candidateValue =
         if (replaceFragment) ReplCompletionContext.replaceFragment(parsedWord, value) else value
-    return Candidate(candidateValue, candidateValue, group, description, null, null, complete)
+    return copy(value = candidateValue, replaceFragment = false)
   }
 }

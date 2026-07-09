@@ -1,10 +1,9 @@
-package dev.martianzoo.repl.commands
+package dev.martianzoo.interactive
 
 import dev.martianzoo.repl.ReplCommand
-import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.repl.ReplSession.UsageException
 
-internal class HistoryCommand(private val repl: ReplSession) : ReplCommand("history") {
+internal class HistoryCommand(private val terminal: ReplTerminal) : ReplCommand("history") {
   override val usage = "history <count>"
   override val help =
       """
@@ -18,10 +17,10 @@ internal class HistoryCommand(private val repl: ReplSession) : ReplCommand("hist
   override val isReadOnly = true
 
   override fun noArgs() =
-      repl.historyLines() ?: listOf("See your own shell history!")
+      terminal.historyLines()
 
   override fun withArgs(args: String): List<String> {
     val max = args.toIntOrNull() ?: throw UsageException()
-    return repl.historyLines(max) ?: listOf("See your own shell history!")
+    return terminal.historyLines(max)
   }
 }

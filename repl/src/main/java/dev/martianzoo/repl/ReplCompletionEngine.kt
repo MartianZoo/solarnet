@@ -1,20 +1,17 @@
 package dev.martianzoo.repl
 
-import org.jline.reader.Candidate
-import org.jline.reader.Completer
-import org.jline.reader.LineReader
-import org.jline.reader.ParsedLine
+public class ReplCompletionEngine(
+    private val repl: ReplSession,
+    extraCommands: List<ReplCommand> = emptyList(),
+) {
+  private val commands: Map<String, ReplCommand> =
+      repl.commands + extraCommands.associateBy { it.name }
 
-internal class ReplCompleter(private val repl: ReplSession) : Completer {
-  override fun complete(reader: LineReader, line: ParsedLine, candidates: MutableList<Candidate>) {
-    candidates += completeLine(line.line(), line.cursor(), line.word())
-  }
-
-  internal fun completeLine(
+  public fun completeLine(
       line: String,
       cursor: Int = line.length,
       parsedWord: String = wordAtCursor(line, cursor),
-  ): List<Candidate> {
+  ): List<ReplCompletion> {
     val chunk = line.take(cursor).substringAfterLast(';')
     val input = chunk.trimStart()
     if (input.isEmpty()) return commandCandidates("", parsedWord)
@@ -23,7 +20,7 @@ internal class ReplCompleter(private val repl: ReplSession) : Completer {
     val command = completionArgs.firstWord
     if (!completionArgs.hasRestAfterFirstWord) return commandCandidates(command, parsedWord)
 
-    val replCommand = repl.commands[command.lowercase()] ?: return emptyList()
+    val replCommand = commands[command.lowercase()] ?: return emptyList()
     val prefix = replCommand.completionPrefix(parsedWord)
     val context = ReplCompletionContext(repl, completionArgs.restAfterFirstWord)
     return replCommand
@@ -31,15 +28,16 @@ internal class ReplCompleter(private val repl: ReplSession) : Completer {
         .filter { it.startsWith(prefix, ignoreCase = true) }
         .distinct()
         .sortedWith(compareBy<ReplCompletion> { it.value.lowercase() }.thenBy { it.value })
-        .map { it.toCandidate(parsedWord) }
+        .map { it.replacingFragment(parsedWord) }
   }
 
-  private fun commandCandidates(prefix: String, parsedWord: String): List<Candidate> =
-      ReplCompletionContext(repl, "")
-          .commandNames()
+  private fun commandCandidates(prefix: String, parsedWord: String): List<ReplCompletion> =
+      commands
+          .values
+          .map { ReplCompletion(it.name, "commands", it.usage) }
           .filter { it.startsWith(prefix, ignoreCase = true) }
           .sortedBy { it.value }
-          .map { it.toCandidate(parsedWord) }
+          .map { it.replacingFragment(parsedWord) }
 
   private companion object {
     fun wordAtCursor(line: String, cursor: Int): String {

@@ -60,7 +60,7 @@ private class ReplServerTest {
 
   @Test
   fun trailingTabDoesNotExecuteServerControlCommands() = withServer { send ->
-    assertThat(send("exit\t")).containsExactly("exit")
+    assertThat(send("exit\t")).isEmpty()
     assertThat(send("status")).hasSize(1)
   }
 

@@ -5,11 +5,7 @@ import dev.martianzoo.tfm.data.CardDefinition
 
 internal class ReplCompletionSources(private val repl: ReplSession) {
   fun commandNames(): List<ReplCompletion> =
-      repl.commands.values.map { ReplCompletion(it.name, "commands", it.usage) } +
-          listOf(
-              ReplCompletion("exit", "commands", "exit"),
-              ReplCompletion("rebuild", "commands", "rebuild and restart"),
-          )
+      repl.commands.values.map { ReplCompletion(it.name, "commands", it.usage) }
 
   fun playerNames(includeEngine: Boolean = true): List<ReplCompletion> {
     val players = Player.players(repl.setup.players)

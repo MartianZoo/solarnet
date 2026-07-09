@@ -4,14 +4,14 @@ import java.net.ServerSocket
 
 internal const val SERVER_PORT = 2315
 
-internal class ReplServer(port: Int = SERVER_PORT) {
+public class ReplServer(port: Int = SERVER_PORT) {
   private val session = ReplSession()
-  private val completer = ReplCompleter(session)
+  private val completer = ReplCompletionEngine(session)
   // Bind eagerly so callers can read actualPort before run() is called (useful in tests).
   private val serverSocket = ServerSocket(port)
-  internal val actualPort: Int = serverSocket.localPort
+  public val actualPort: Int = serverSocket.localPort
 
-  internal fun run() {
+  public fun run() {
     println("Rego server listening on port $actualPort")
     var running = true
     while (running) {
@@ -34,7 +34,7 @@ internal class ReplServer(port: Int = SERVER_PORT) {
         val command = input.trim().lowercase()
         when {
           completionLine != null -> {
-            completer.completeLine(completionLine).map { it.value() }.forEach(::send)
+            completer.completeLine(completionLine).map { it.value }.forEach(::send)
           }
           command == "exit" -> {
             send("Shutting down rego server.")

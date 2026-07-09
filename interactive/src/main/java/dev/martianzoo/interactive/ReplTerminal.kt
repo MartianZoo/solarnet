@@ -1,4 +1,4 @@
-package dev.martianzoo.repl
+package dev.martianzoo.interactive
 
 internal interface ReplTerminal {
   fun loop(prompt: () -> String, handler: (String) -> List<String>, welcome: String)

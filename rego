@@ -21,9 +21,9 @@ export PATH="$JAVA_HOME/bin:$PATH"
 
 # Rebuild in a loop as long as the process exits with the "rebuild" exit code
 while true; do
-    ./gradlew :repl:shadowJar || exit
+    ./gradlew :interactive:shadowJar || exit
 
-    "$JAVA_HOME/bin/java" -jar repl/build/libs/repl-all.jar
+    "$JAVA_HOME/bin/java" -jar interactive/build/libs/interactive-all.jar
     exit_code=$?
     if (( exit_code != REBUILD_EXIT_CODE )); then
         exit "$exit_code"

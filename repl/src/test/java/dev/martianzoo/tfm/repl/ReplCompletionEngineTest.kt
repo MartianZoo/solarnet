@@ -2,23 +2,23 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.engine.Gameplay.TaskLayer
-import dev.martianzoo.repl.ReplCompleter
+import dev.martianzoo.repl.ReplCompletion
+import dev.martianzoo.repl.ReplCompletionEngine
 import dev.martianzoo.repl.ReplSession
 import java.io.File
 import java.nio.file.Path
-import org.jline.reader.Candidate
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-private class ReplCompleterTest {
+private class ReplCompletionEngineTest {
   private val repl = ReplSession()
-  private val completer = ReplCompleter(repl)
+  private val completer = ReplCompletionEngine(repl)
 
   @Test
   fun completesCommandNames() {
     assertThat(values("co")).contains("count")
     assertThat(values("tasks;co")).contains("count")
-    assertThat(candidates("co").single { it.value() == "count" }.descr()).isEqualTo("count <Metric>")
+    assertThat(candidates("co").single { it.value == "count" }.description).isEqualTo("count <Metric>")
   }
 
   @Test
@@ -65,7 +65,7 @@ private class ReplCompleterTest {
     (repl.gameplay.godMode() as TaskLayer).addTasks("3 Heat?")
 
     assertThat(values("task ")).containsAtLeast("A", "B")
-    assertThat(candidates("task ").single { it.value() == "A" }.descr()).isEqualTo("2 Plant<Owner>?")
+    assertThat(candidates("task ").single { it.value == "A" }.description).isEqualTo("2 Plant<Owner>?")
     assertThat(values("task A pr")).contains("prepare")
     assertThat(values("task A Play")).containsAtLeast("PlayCard", "Player1")
   }
@@ -79,8 +79,8 @@ private class ReplCompleterTest {
 
     assertThat(values("script ${tempDir.resolve("completion-test")}")).contains(file.toString())
     val dirCandidate = candidates("script ${tempDir.resolve("completion-d")}").single()
-    assertThat(dirCandidate.value()).isEqualTo("${dir}${File.separator}")
-    assertThat(dirCandidate.complete()).isFalse()
+    assertThat(dirCandidate.value).isEqualTo("${dir}${File.separator}")
+    assertThat(dirCandidate.complete).isFalse()
   }
 
   @Test
@@ -90,7 +90,7 @@ private class ReplCompleterTest {
     assertThat(values("as P1 mode b")).containsExactly("blue")
   }
 
-  private fun values(line: String): List<String> = candidates(line).map { it.value() }
+  private fun values(line: String): List<String> = candidates(line).map { it.value }
 
-  private fun candidates(line: String): List<Candidate> = completer.completeLine(line)
+  private fun candidates(line: String): List<ReplCompletion> = completer.completeLine(line)
 }

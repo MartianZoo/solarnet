@@ -31,7 +31,6 @@ import dev.martianzoo.repl.commands.DescCommand
 import dev.martianzoo.repl.commands.ExecCommand
 import dev.martianzoo.repl.commands.HasCommand
 import dev.martianzoo.repl.commands.HelpCommand
-import dev.martianzoo.repl.commands.HistoryCommand
 import dev.martianzoo.repl.commands.ListCommand
 import dev.martianzoo.repl.commands.LogCommand
 import dev.martianzoo.repl.commands.ModeCommand
@@ -59,17 +58,15 @@ import dev.martianzoo.tfm.repl.commands.TfmSampleCommand
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.toStrings
 
-internal fun main(args: Array<String>) { // JVM entry point for the shadow JAR
+public fun main(args: Array<String>) { // JVM entry point for the shadow JAR
   if ("--serve" in args) {
     ReplServer().run()
     return
   }
-  val repl = ReplSession { JlineRepl(ReplCompleter(it)) }
-  repl.loop()
-  println("Bye")
+  println("Run ./rego for interactive mode, or pass --serve for server mode.")
 }
 
-internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTerminal)? = null) {
+public class ReplSession {
   internal lateinit var setup: GameSetup
   internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
@@ -90,7 +87,7 @@ internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTe
     newGame(SIMPLE_GAME)
   }
 
-  private fun prompt() = mode.color.foreground(promptPlain())
+  public fun prompt() = mode.color.foreground(promptPlain())
 
   internal fun promptPlain(): String =
       with(gameplay) {
@@ -102,10 +99,10 @@ internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTe
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
-  internal class UsageException(message: String? = null) : Exception(message ?: "")
+  public class UsageException(message: String? = null) : Exception(message ?: "")
 
   // Splits on semicolons and executes each chunk; used by both interactive and server modes.
-  internal fun executeAll(input: String): List<String> {
+  public fun executeAll(input: String): List<String> {
     val allOutput = mutableListOf<String>()
     for (chunk in input.split(";").map { it.trim() }.filter { it.isNotEmpty() }) {
       val lines =
@@ -131,7 +128,6 @@ internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTe
               ExecCommand(this),
               HasCommand(this),
               HelpCommand(this),
-              HistoryCommand(this),
               ListCommand(this),
               LogCommand(this),
               TfmMapCommand(this),
@@ -149,14 +145,6 @@ internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTe
               TfmSampleCommand(this),
           )
           .associateBy { it.name }
-
-  private val terminal: ReplTerminal? = terminalFactory?.invoke(this)
-  internal val isInteractive: Boolean
-    get() = terminal != null
-
-  internal fun loop() = terminal!!.loop(::prompt, ::executeAll, welcome)
-
-  internal fun historyLines(max: Int? = null): List<String>? = terminal?.historyLines(max)
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...
   when (mode) {
@@ -205,7 +193,7 @@ internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTe
     return false
   }
 
-  internal fun command(wholeCommand: String): List<String> {
+  public fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")
     val groups = inputRegex.matchEntire(stripped)?.groupValues
     return if (groups == null) {
@@ -222,7 +210,7 @@ internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTe
     }
   }
 
-  internal fun command(command: ReplCommand, args: String? = null): List<String> {
+  public fun command(command: ReplCommand, args: String? = null): List<String> {
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
     } catch (e: RuntimeException) {
@@ -248,7 +236,7 @@ internal class ReplSession(private val terminalFactory: ((ReplSession) -> ReplTe
   }
 }
 
-private val welcome =
+public val welcome =
     """
       Welcome to REgo PLastics. Type `help` or `help <command>` for help.
       Warning: this is a bare-bones tool that is not trying to be easy to use... at all

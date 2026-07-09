@@ -20,8 +20,6 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
   override fun withArgs(args: String): List<String> {
     val arg = args.trim()
     return when (arg.lowercase()) {
-      "exit" -> listOf("I mean it exits.")
-      "rebuild" -> listOf("Exits, recompiles the code, and restarts. Your game is lost.")
       else -> {
         val helpCommand: ReplCommand? = repl.commands[arg.lowercase()]
         if (helpCommand != null) {
@@ -45,11 +43,9 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
   
         CONTROL
           newgame             -> erases current game and starts a new one with given setup
-          rebuild             -> erases current game and rebuilds the REPL (after code changes)
           become <player>     -> changes the default player for queries & executions
           as <player> <cmd>   -> temporarily changes default player to run a single command
           script <filename>   -> reads a file and performs REPL commands as if typed
-          exit                -> go waste time differently
         QUERYING
           has <requirement>   -> evaluates a requirement (true/false) in the current game state
           count <metric>      -> counts something in the game state, like `count Tag<Player2>`
@@ -65,7 +61,6 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
         HISTORY
           log [full]          -> shows events that have happened in the current game
           rollback <id>       -> returns the game to an earlier state, forgetting everything since
-          history             -> shows your *command* history (as you typed it)
         METADATA
           desc <expression>   -> describes a type like `Microbe<Ants>` in great detail
         TERRAFORMING MARS
