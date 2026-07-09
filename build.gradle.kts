@@ -4,6 +4,7 @@ import org.jetbrains.dokka.gradle.DokkaTaskPartial
 
 plugins {
   id("org.jetbrains.kotlin.jvm") version "2.1.20"
+  id("org.jetbrains.kotlin.multiplatform") version "2.1.20" apply false
   id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20" apply false
   id("org.jetbrains.dokka") version "1.9.20"
 }
@@ -49,4 +50,3 @@ tasks.dokkaHtmlMultiModule {
   outputDirectory.set(rootProject.file("docs/api"))
   includes.from("docs/packages.md")
 }
-

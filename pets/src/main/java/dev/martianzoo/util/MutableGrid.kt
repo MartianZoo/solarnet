@@ -74,7 +74,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
 
     init {
       if (columnMinusRow <= 0 - grid.rowCount || columnMinusRow >= grid.columnCount - 0) {
-        throw IndexOutOfBoundsException(columnMinusRow)
+        throw IndexOutOfBoundsException("$columnMinusRow")
       }
     }
 

@@ -26,7 +26,9 @@ fun <C : Iterable<Any?>> C.toStrings(): List<String> = map { it?.toString() ?: "
 fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toString() ?: "null" }
 
 fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
-    one.toMutableMap().apply { two.forEach { merge(it.key, it.value, merger) } }
+    one.toMutableMap().apply {
+      two.forEach { (key, value) -> this[key] = this[key]?.let { merger(it, value) } ?: value }
+    }
 
 fun <K : Any, V : Any> overlayMaps(front: Map<out K, V>, back: Map<out K, V>): Map<K, V> {
   // Not the easiest way but this way makes front's ordering more significant

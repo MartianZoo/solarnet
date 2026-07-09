@@ -1,20 +1,41 @@
 import java.net.URI
 
 plugins {
-  id("org.jetbrains.kotlin.jvm")
+  id("org.jetbrains.kotlin.multiplatform")
   id("org.jetbrains.kotlin.plugin.serialization")
   id("org.jetbrains.dokka")
 }
 
-dependencies {
-  implementation("com.github.kevinb9n.better-parse:better-parse:v0.4.4-2")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+kotlin {
+  jvm()
+  js(IR) {
+    browser()
+  }
 
-  testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
-  testImplementation("com.google.truth:truth:1.1.3")
+  sourceSets {
+    commonMain {
+      kotlin.srcDir("src/main/java")
+      dependencies {
+        implementation("com.github.kevinb9n.better-parse:better-parse:v0.4.4-2")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+      }
+    }
+    commonTest {
+      dependencies {
+        implementation(kotlin("test"))
+      }
+    }
+    jvmTest {
+      kotlin.srcDir("src/test/java")
+      dependencies {
+        implementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
+        runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
+        implementation("com.google.truth:truth:1.1.3")
 
-  testImplementation(project(":canon")) // easier to test the engine this way
+        implementation(project(":canon")) // easier to test the engine this way
+      }
+    }
+  }
 }
 
 tasks.dokkaHtml.configure {

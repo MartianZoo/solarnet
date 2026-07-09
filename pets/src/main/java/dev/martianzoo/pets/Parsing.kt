@@ -38,8 +38,9 @@ public object Parsing {
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
     val stripped = lineCommentRegex.replace(declarationsSource, "\n")
+    val topLevelGroup = Declarations.topLevelGroup
     val tokens = TokenCache.tokenize(stripped)
-    return parseRepeated(Declarations.topLevelGroup, tokens).flatten()
+    return parseRepeated(topLevelGroup, tokens).flatten()
   }
 
   private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
@@ -61,22 +62,18 @@ public object Parsing {
 
   /** Non-reified form of [parse]. */
   public fun <P : PetNode> parse(expectedType: KClass<P>, elementSource: String): P {
+    val group = parserGroup
     val matches: TokenMatchesSequence = TokenCache.tokenize(elementSource)
     require(expectedType != PetNode::class) { "missing type info" }
 
     // TODO: merge this with myThrow somehow
-    val pet = parserGroup.parse(expectedType, elementSource, matches)
+    val pet = group.parse(expectedType, elementSource, matches)
     check(expectedType.isInstance(pet)) {
       "Expected ${expectedType.simpleName}, got ${pet.kind.simpleName}"
     }
     @Suppress("UNCHECKED_CAST")
     return pet as P
   }
-
-  /** Version of [parse] for use from Java. */
-  // JVM-only Java convenience API. Move to a JVM source set when this module becomes KMP.
-  public fun <P : PetNode> parse(expectedType: Class<P>, source: String) =
-      parse(expectedType.kotlin, source)
 
   internal fun <T> parse(
       parser: Parser<T>,

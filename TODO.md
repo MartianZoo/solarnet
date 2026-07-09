@@ -2,8 +2,9 @@
 
 ## Discussed
 
-- Convert `pets`, `canon`, and `engine` to Kotlin Multiplatform modules after deciding the first
-  non-JVM target; keep the JVM-only Java overloads and bytecode-name annotations in JVM source sets.
+- Continue the Kotlin/JS browser-test migration by converting `canon` and then `engine` to Kotlin
+  Multiplatform modules. `pets` now has a browser smoke test, but the old JVM-only Java overloads
+  should move to JVM source sets if they are needed again.
 - Replace `Canon`'s JVM resource loading with a KMP resource or generated-data strategy when adding
   non-JVM targets.
 - Revisit `engine`'s Koin dependency before targeting Kotlin/Wasm; the pinned Koin metadata has

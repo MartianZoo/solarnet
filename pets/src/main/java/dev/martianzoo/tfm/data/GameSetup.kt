@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
+import kotlin.js.JsName
 
 /**
  * A specification of the starting conditions for game. This should determine exactly what to do to
@@ -45,6 +46,7 @@ data class GameSetup(
   /** All [Definition] objects to use in this game. */
   fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
 
+  @JsName("playerList")
   fun players(): List<Player> = Player.players(players)
 
   val colonyTiles: Set<ColonyTileDefinition> =

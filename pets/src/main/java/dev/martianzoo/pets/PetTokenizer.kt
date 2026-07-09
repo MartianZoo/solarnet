@@ -91,10 +91,10 @@ internal abstract class PetTokenizer {
     private val map = mutableMapOf<Pair<String, Boolean>, Token>()
 
     fun cacheLiteral(text: String, name: String) =
-        map.computeIfAbsent(name to false) { literalToken(name, text) }
+        map.getOrPut(name to false) { literalToken(name, text) }
 
     fun cacheRegex(regex: Regex, name: String) =
-        map.computeIfAbsent(name to true) { regexToken(name, regex) }
+        map.getOrPut(name to true) { regexToken(name, regex) }
 
     private val toke by lazy { DefaultTokenizer(ignoreList + map.values) }
 
@@ -104,5 +104,5 @@ internal abstract class PetTokenizer {
   private fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)
   private fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
   private fun caseInsensitiveWord(word: String, name: String = word) =
-      regex(Regex("(?i)$word\\b"), name)
+      regex(Regex("$word\\b", RegexOption.IGNORE_CASE), name)
 }

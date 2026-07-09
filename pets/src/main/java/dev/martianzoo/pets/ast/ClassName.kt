@@ -7,6 +7,7 @@ import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import kotlin.jvm.JvmName
 
 /**
  * A camel-case word used as a class name. Not validated except for its general pattern. Create one
