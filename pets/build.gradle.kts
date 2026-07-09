@@ -22,7 +22,7 @@ kotlin {
     commonMain {
       kotlin.srcDir("src/main/java")
       dependencies {
-        implementation("com.github.kevinb9n.better-parse:better-parse:v0.4.4-2")
+        implementation("com.github.kevinb9n.better-parse:better-parse:1e227e760395f6dca1cfd00de4d499c7229c51e3")
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
       }
     }

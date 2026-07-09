@@ -1,5 +1,6 @@
 package dev.martianzoo.pets
 
+import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.parser.AlternativesFailure
@@ -10,6 +11,7 @@ import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
+import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.data.ClassDeclaration
@@ -103,6 +105,19 @@ public object Parsing {
 
   internal fun <T> parse(parser: Parser<T>, source: String, expectedTypeDesc: String? = null): T =
       parse(parser, source, TokenCache.tokenize(source), expectedTypeDesc)
+
+  public fun acceptsNextToken(
+      expectedType: KClass<out PetNode>,
+      source: String,
+      candidate: String,
+  ): Boolean {
+    return expectedTokens(expectedType, source).any { it.match(candidate, 0) > 0 }
+  }
+
+  private fun expectedTokens(expectedType: KClass<out PetNode>, source: String): Set<Token> {
+    require(expectedType != PetNode::class) { "missing type info" }
+    return parserGroup.parser(expectedType).completionAtEnd(TokenCache.tokenize(source)).expectedTokens
+  }
 
   private fun <T> parseRepeated(listParser: Parser<T>, tokens: TokenMatchesSequence): List<T> {
     fun isEOF(result: ParseResult<*>?): Boolean =

@@ -25,54 +25,7 @@ internal object PetsCompletionProbe {
   private fun KClass<out PetNode>.acceptsPetsCompletion(
       sourceBeforePrefix: String,
       candidate: String,
-  ): Boolean {
-    val base = sourceBeforePrefix + candidate
-    return COMPLETION_FILLERS.any { filler ->
-      val filled = base + filler
-      val probe = filled + closingSuffix(filled)
-      parses(probe)
-    }
-  }
-
-  private fun KClass<out PetNode>.parses(source: String): Boolean =
-      try {
-        Parsing.parse(this, source)
-        true
-      } catch (e: Exception) {
-        false
-      }
-
-  private fun closingSuffix(source: String): String {
-    val closers = ArrayDeque<Char>()
-    for (c in source) {
-      when (c) {
-        '(' -> closers.addFirst(')')
-        '[' -> closers.addFirst(']')
-        '<' -> closers.addFirst('>')
-        ')' -> closers.removeFirstIf(')')
-        ']' -> closers.removeFirstIf(']')
-        '>' -> closers.removeFirstIf('>')
-      }
-    }
-    return closers.joinToString("")
-  }
-
-  private fun ArrayDeque<Char>.removeFirstIf(c: Char) {
-    if (firstOrNull() == c) removeFirst()
-  }
-
-  private val COMPLETION_FILLERS =
-      listOf(
-          "",
-          " Plant",
-          " 1",
-          " 1 Plant",
-          "[Plant]",
-          " FROM Plant",
-          " OR Plant",
-          " THEN Plant",
-          " MAX 1",
-      )
+  ): Boolean = Parsing.acceptsNextToken(this, sourceBeforePrefix, candidate)
 }
 
 internal enum class PetsCompletionRoot {

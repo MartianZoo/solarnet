@@ -20,10 +20,10 @@
   test/manual code after the final production phase.
 - Replace the `Gain.copy(...)` call in `Transformers.atomizeChanges()` before Kotlin 2.2 turns the
   exposed-copy-visibility warning into an error.
-- Expose expected-token data from the BetterParse PETS parsers so REPL completion can ask for valid
-  next terminals directly instead of probing candidate strings against the parser.
 - Migrate the remaining `engine` and `repl` tests from Truth to Kotest-backed assertions.
 - Revisit the `pets` common-test Kotest version after upgrading the project Kotlin plugin; Kotest
   6.2.1 pulls Kotlin 2.2.21 metadata that Kotlin/JS 2.1.20 cannot compile against.
 - Extract the duplicated Karma canon-resource serving setup if more Kotlin/JS browser-test modules
   need access to canon data files.
+- Switch the better-parse dependency from the JitPack commit hash to the `v0.4.4-4` tag once
+  JitPack recognizes the tag coordinate reliably.
