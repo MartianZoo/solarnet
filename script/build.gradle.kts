@@ -9,12 +9,14 @@ plugins {
 }
 
 dependencies {
-  implementation(project(":script"))
-  implementation("org.jline:jline:3.21.0")
-
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
   testImplementation("com.google.truth:truth:1.1.3")
+
+  implementation(project(":pets"))
+  implementation(project(":engine"))
+  implementation(project(":canon"))
+
 }
 
 tasks.dokkaHtml.configure {
@@ -22,9 +24,10 @@ tasks.dokkaHtml.configure {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/repl/src").toURL())
+        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/script/src").toURL())
         remoteLineSuffix.set("#L")
       }
+      samples.from("src/main/java/dev/martianzoo/script/samples.kt")
     }
   }
 }
@@ -32,6 +35,6 @@ tasks.dokkaHtml.configure {
 tasks {
   named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
-    manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.repl.JlineReplKt")) }
+    manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.script.ScriptSessionKt")) }
   }
 }

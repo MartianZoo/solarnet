@@ -2,9 +2,6 @@
 
 ## Discussed
 
-- Finish the follow-up rename after the initial `interactive` extraction: current `repl` should
-  become `script`, and `interactive` should become the new `repl`. Update Gradle modules, launch
-  scripts, docs, package names, public API names, and test names in that pass.
 - Revisit structured/colorized interactive output now that the script layer is plain text and
   JLine-free.
 

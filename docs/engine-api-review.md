@@ -444,7 +444,7 @@ full capability split. The current implementation has a few constraints worth re
    not be the first behavioral change.
 3. `Task.next` is still a whole-game lock. A player-scoped action may prepare only that player's
    task, but it must still reject cutting in front of a prepared task elsewhere.
-4. The REPL is currently the clearest client smell: `ReplSession.access()` obtains `godMode()` and
+4. The REPL is currently the clearest client smell: `ScriptSession.access()` obtains `godMode()` and
    `Access` casts it back down to colored power levels, while `TaskCommand` reaches directly for
    `game.timeline.atomic` to compose a revise-and-try operation.
 5. `TfmGameplay` and `TfmWorkflow` show two different kinds of Terraforming Mars convenience mixed

@@ -15,4 +15,4 @@ gradleEnterprise {
 
 rootProject.name = "solarnet"
 
-include("pets", "engine", "repl", "interactive", "canon")
+include("pets", "engine", "script", "repl", "canon")

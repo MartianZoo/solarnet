@@ -36,8 +36,14 @@ The Pets type system.
 
 The engine knows how to modify a game state by actually executing card instructions, etc.
 
+## module Script
+
+### <a href="script/dev.martianzoo.tfm.script/index.html">dev.martianzoo.tfm.script</a>
+
+The plain-text command/session layer for driving the engine from scripts or server clients.
+
 ## module REPL
 
-### <a href="repl/dev.martianzoo.tfm.repl/index.html">dev.martianzoo.tfm.repl</a>
+### <a href="repl/dev.martianzoo.repl/index.html">dev.martianzoo.repl</a>
 
 REgo PLastics, an extremely bad command-line UI to the engine.
