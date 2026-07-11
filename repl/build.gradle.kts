@@ -34,4 +34,10 @@ tasks {
     mergeServiceFiles()
     manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.repl.JlineReplKt")) }
   }
+
+  test {
+    dependsOn(shadowJar)
+    systemProperty("repl.shadowJar", named<ShadowJar>("shadowJar").get().archiveFile.get().asFile)
+    systemProperty("repl.smokeScript", file("src/test/expect/repl-smoke.exp"))
+  }
 }

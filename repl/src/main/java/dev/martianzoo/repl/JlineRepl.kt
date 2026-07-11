@@ -48,7 +48,13 @@ internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
   private fun executeAll(input: String): List<String> {
     val allOutput = mutableListOf<String>()
     for (chunk in input.split(";").map { it.trim() }.filter { it.isNotEmpty() }) {
-      allOutput += execute(chunk)
+      val lines =
+          try {
+            execute(chunk)
+          } catch (e: Exception) {
+            listOf("Error: ${e.message ?: e.toString()}")
+          }
+      allOutput += lines
       allOutput += ""
     }
     return allOutput

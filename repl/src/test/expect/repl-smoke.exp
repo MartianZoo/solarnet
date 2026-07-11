@@ -1,0 +1,70 @@
+set timeout 20
+expect_after timeout { exit 2 }
+
+set java [lindex $argv 0]
+set jar [lindex $argv 1]
+set home [lindex $argv 2]
+
+spawn $java -Duser.home=$home -jar $jar
+
+expect "Welcome to REgo PLastics"
+expect -re {> }
+
+send -- "help\n"
+expect "CONTROL"
+expect "TERRAFORMING MARS"
+expect -re {> }
+
+send -- "mode blue\n"
+expect "Mode BLUE: Turn integrity"
+expect -re {> }
+
+send -- "exec 1 Heat\n"
+expect "Error: not allowed in this mode"
+expect -re {> }
+
+send -- "become P2\n"
+expect "Hi, Player2"
+expect -re {> }
+
+send -- "mode red; exec 2 Heat; count Heat\n"
+expect "Mode RED: Change integrity"
+expect "+2 Heat<Player2>"
+expect "2 Heat<Player2>"
+expect -re {> }
+
+send -- "nonesuch\n"
+expect "Type `help` for help"
+expect -re {> }
+
+send -- "history 6\n"
+expect "mode blue"
+expect "exec 1 Heat"
+expect "become P2"
+expect "nonesuch"
+expect -re {> }
+
+send -- "history nope\n"
+expect "Usage: history <count>"
+expect -re {> }
+
+send -- "help flurble\n"
+expect "Type `help` for help"
+expect -re {> }
+
+send -- "newgame BRMPX 2\n"
+expect "New 2-player game created with bundles: BRMPX"
+expect -re {> }
+
+send -- "tfm_sample Z 1\n"
+expect "unknown id: Z"
+expect "Usage: tfm_sample <id> <generations>"
+expect -re {> }
+
+send -- "as P1 count Resource\n"
+expect "0 Resource<Player1>"
+expect -re {> }
+
+send -- "exit\n"
+expect "Bye"
+expect eof

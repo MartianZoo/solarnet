@@ -10,7 +10,7 @@ import dev.martianzoo.script.ScriptSession.UsageException
 import dev.martianzoo.tfm.script.SampleGames
 
 internal class TfmSampleCommand(private val repl: ScriptSession) : ScriptCommand("tfm_sample") {
-  override val usage: String = "sample <id> <generations>"
+  override val usage: String = "tfm_sample <id> <generations>"
   override val help =
       """
     Executes a sample game so you have useful stuff to look at. For now the only id we have is
@@ -27,7 +27,9 @@ internal class TfmSampleCommand(private val repl: ScriptSession) : ScriptCommand
       }
 
   override fun withArgs(args: String): List<String> {
-    val (id, gens) = args.trim().split(Regex("\\s+"))
+    val parts = args.trim().split(Regex("\\s+"))
+    if (parts.size != 2) throw UsageException()
+    val (id, gens) = parts
     if (id != "A") throw UsageException("unknown id: $id")
 
     repl.game = SampleGames.sampleGame(gens.toInt())
