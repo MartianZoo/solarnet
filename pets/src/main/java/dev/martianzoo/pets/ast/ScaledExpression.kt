@@ -59,7 +59,7 @@ data class ScaledExpression(
   sealed class Scalar : PetNode(), Reifiable<Scalar> {
     override val kind = Scalar::class
 
-    override fun visitChildren(visitor: Visitor) {}
+    override fun visitChildren(visitor: Visitor) = Unit
 
     abstract operator fun times(multiple: Int): Scalar
 

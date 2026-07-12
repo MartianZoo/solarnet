@@ -87,11 +87,11 @@ internal class Implementations(
     require(reader.has(parse("MAX 0 $TEMPORARY")))
   }
 
-  @Suppress("ControlFlowWithEmptyBody")
   internal fun autoExecNow(mode: AutoExecMode) {
-    while (autoExecNext(mode)) {}
+    while (autoExecNext(mode)) Unit
   }
 
+  @Suppress("CyclomaticComplexMethod") // TODO: improve this
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
     // Auto-exec is intentionally whole-game for now; existing workflows rely on one player's
     // operation draining automatic tasks that were enqueued elsewhere.
@@ -122,11 +122,11 @@ internal class Implementations(
       try {
         timeline.atomic { doAnyTask(taskId) }
         return true
-      } catch (e: AbstractException) {
+      } catch (_: AbstractException) {
         // we're in trouble if ALL of these are NotNowExceptions
         recoverable = true
         explainAnyTask(taskId, "abstract")
-      } catch (e: NotNowException) {
+      } catch (_: NotNowException) {
         // we're in trouble if ALL of these are NotNowExceptions
         explainAnyTask(taskId, "currently impossible")
       }
@@ -190,6 +190,7 @@ internal class Implementations(
     }
   }
 
+  @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   internal fun canPrepareTask(taskId: TaskId): Boolean {
     // TODO better way
     dontCutTheLine(taskId)
@@ -197,7 +198,7 @@ internal class Implementations(
     return try {
       timeline.atomic { instructor.prepare(unprepared) }
       true
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       false
     }
   }
@@ -207,6 +208,7 @@ internal class Implementations(
 
   // Whole-game auto-exec chooses candidates across all queues to preserve existing workflows; each
   // selected task is immediately routed back through its owning scoped queue.
+  @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   private fun canPrepareAnyTask(taskId: TaskId): Boolean {
     val queue = queueForAnyTask(taskId)
     dontCutTheLine(taskId)
@@ -214,7 +216,7 @@ internal class Implementations(
     return try {
       timeline.atomic { instructor.prepare(unprepared) }
       true
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       false
     }
   }
@@ -311,7 +313,7 @@ internal class Implementations(
       if (revised.narrows(taskData.instruction, reader)) return true
       return try {
         revised.narrows(instructor.prepare(taskData.instruction), reader)
-      } catch (e: NotNowException) {
+      } catch (_: NotNowException) {
         false
       }
     }
@@ -326,9 +328,9 @@ internal class Implementations(
         prepareTask(id)
         if (id in tasks) doTask(id)
       }
-    } catch (e: AbstractException) {
+    } catch (_: AbstractException) {
       explainTask(id, "abstract")
-    } catch (e: NotNowException) {
+    } catch (_: NotNowException) {
       explainTask(id, "currently impossible")
     }
   }
@@ -337,9 +339,9 @@ internal class Implementations(
     val id = matchingTask(revised)
     try {
       doTask(revised)
-    } catch (e: AbstractException) {
+    } catch (_: AbstractException) {
       explainTask(id, "abstract")
-    } catch (e: NotNowException) {
+    } catch (_: NotNowException) {
       explainTask(id, "currently impossible")
     }
   }
@@ -352,7 +354,7 @@ internal class Implementations(
       true
     } catch (e: NotNowException) {
       throw DeadEndException(e)
-    } catch (e: AbstractException) {
+    } catch (_: AbstractException) {
       explainTask(taskId, "abstract")
       false
     }
@@ -367,7 +369,7 @@ internal class Implementations(
       true
     } catch (e: NotNowException) {
       throw DeadEndException(e)
-    } catch (e: AbstractException) {
+    } catch (_: AbstractException) {
       explainAnyTask(taskId, "abstract")
       false
     }

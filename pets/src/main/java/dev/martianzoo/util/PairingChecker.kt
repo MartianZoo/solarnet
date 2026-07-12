@@ -10,22 +10,26 @@ import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.util.Tokenizer.literal
 import dev.martianzoo.util.Tokenizer.regex
 
-const val allowEmpty = false
-const val allowRedundant = false
+private const val ALLOW_EMPTY = false
+private const val ALLOW_REDUNDANT = false
 
 object PairingChecker {
   fun check(s: String) {
     require(parsers.parse<String>(s, Tokenizer.tokenize(s)) != "ERR")
   }
 
+  @Suppress("TooGenericExceptionCaught")
   fun isValid(s: String) =
       try {
         check(s)
         true
-      } catch (e: Exception) {
+      } catch (_: PetSyntaxException) {
+        false
+      } catch (_: IllegalArgumentException) {
         false
       }
 
@@ -58,8 +62,8 @@ object PairingChecker {
             { (opener, contains) ->
               when {
                 contains == "ERR" -> "ERR"
-                !allowEmpty && contains == "mt" -> "ERR"
-                !allowRedundant && contains == opener.text -> "ERR"
+                !ALLOW_EMPTY && contains == "mt" -> "ERR"
+                !ALLOW_REDUNDANT && contains == opener.text -> "ERR"
                 else -> opener.text
               }
             }

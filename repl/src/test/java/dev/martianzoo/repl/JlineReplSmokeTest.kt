@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.io.path.absolutePathString
 import org.junit.jupiter.api.Test
 
-private class JlineReplSmokeTest {
+internal class JlineReplSmokeTest {
 
   @Test
   fun smokeTestRealTerminalSessionWithExpect() {

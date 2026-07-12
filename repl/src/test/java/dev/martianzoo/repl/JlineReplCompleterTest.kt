@@ -5,7 +5,7 @@ import dev.martianzoo.script.ScriptSession
 import org.jline.reader.Candidate
 import org.junit.jupiter.api.Test
 
-private class JlineReplCompleterTest {
+internal class JlineReplCompleterTest {
   private val completer = JlineReplCompleter(ScriptSession())
 
   @Test

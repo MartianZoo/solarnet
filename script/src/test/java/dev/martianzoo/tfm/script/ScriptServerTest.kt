@@ -5,7 +5,7 @@ import dev.martianzoo.script.ScriptServer
 import java.net.Socket
 import org.junit.jupiter.api.Test
 
-private class ScriptServerTest {
+internal class ScriptServerTest {
 
   // Starts the server on a random port, runs the given block, then shuts down via "exit".
   private fun withServer(block: (send: (String) -> List<String>) -> Unit) {

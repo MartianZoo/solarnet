@@ -97,6 +97,10 @@ The repository enforces Kotlin formatting with [Spotless](https://github.com/dif
 
 After cloning, run `./gradlew installGitHooks` once. This configures Git to use the repository's versioned pre-commit hook, which runs `spotlessCheck` and blocks commits containing incorrectly formatted files. If it fails, run `./gradlew spotlessApply`, review and stage the formatting changes, and commit again. GitHub Actions also runs `spotlessCheck` before the build, so formatting is enforced even if a local hook is bypassed.
 
+## Static analysis
+
+The repository runs [Detekt](https://detekt.dev/) for Kotlin static analysis as part of its normal Gradle check lifecycle. Run `./gradlew detekt` to write per-module reports to `build/reports/detekt/`.
+
 ## Who are you
 
 http://kevinb9n.github.io

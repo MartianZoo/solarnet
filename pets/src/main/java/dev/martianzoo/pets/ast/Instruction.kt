@@ -82,7 +82,7 @@ public sealed class Instruction : PetElement() {
       if (proposed != NoOp) throw NarrowingException("not Ok")
     }
 
-    override fun visitChildren(visitor: Visitor) {}
+    override fun visitChildren(visitor: Visitor) = Unit
 
     override fun toString() = "Ok"
   }
@@ -461,11 +461,12 @@ public sealed class Instruction : PetElement() {
 
   public abstract fun isAbstract(info: TypeInfo): Boolean
 
+  @Suppress("TooGenericExceptionCaught") // TODO
   fun narrows(abstractInstr: Instruction, info: TypeInfo) =
       try {
         ensureNarrows(abstractInstr, info)
         true
-      } catch (e: Exception) {
+      } catch (_: Exception) {
         false
       }
 
@@ -481,6 +482,7 @@ public sealed class Instruction : PetElement() {
     }
   }
 
+  @Suppress("FunctionNaming")
   protected abstract fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo)
 
   enum class Intensity(val symbol: String, override val abstract: Boolean = false) :

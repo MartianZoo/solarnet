@@ -29,6 +29,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         else -> emptyList()
       }
 
+  @Suppress("TooGenericExceptionCaught") // TODO investigate
   override fun withArgs(args: String): List<String> {
     try {
       val parts = args.trim().split(Regex("\\s+"))

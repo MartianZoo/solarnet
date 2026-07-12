@@ -169,6 +169,7 @@ public object Parsing {
   }
 
   // TODO consolidate with other version of this
+  @Suppress("TooGenericExceptionThrown")
   private fun myThrow(result: ErrorResult) {
     val message = StringBuilder()
     var ctr = 0

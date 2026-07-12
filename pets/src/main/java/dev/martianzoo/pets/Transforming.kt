@@ -35,6 +35,7 @@ public object Transforming {
       )
 
   /** Replaces each occurrence of `Owner` with the given player. */
+  @Suppress("ComplexCondition") // TODO fix
   public fun replaceOwnerWith(owner: Player): PetTransformer =
       if (owner == ENGINE) {
         noOp()

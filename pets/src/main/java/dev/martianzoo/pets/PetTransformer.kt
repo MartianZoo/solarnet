@@ -64,6 +64,7 @@ public abstract class PetTransformer protected constructor() {
    * transformation. Call this from your own [transform] override when you don't need to transform
    * the node itself, but you want to continue to descend the subtrees.
    */
+  @Suppress("CyclomaticComplexMethod") // TODO: break up
   protected fun <P : PetNode> transformChildren(node: P): P {
     // You can see below why we need these method names to be as short as possible...
     @Suppress("UNCHECKED_CAST") fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P

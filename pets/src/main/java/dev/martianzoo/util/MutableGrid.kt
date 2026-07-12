@@ -6,10 +6,11 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   override val rowCount by rows::size
   override val columnCount by rows[0]::size
 
+  @Suppress("TooGenericExceptionCaught") // TODO fix
   override operator fun get(rowIndex: Int, columnIndex: Int): E? {
     return try {
       row(rowIndex)[columnIndex]
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       null
     }
   }

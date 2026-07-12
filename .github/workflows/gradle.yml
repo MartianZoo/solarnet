@@ -26,6 +26,8 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
     - name: Check formatting
       run: ./gradlew spotlessCheck
+    - name: Install Expect for REPL smoke test
+      run: sudo apt-get update && sudo apt-get install --yes expect
     - name: Build with Gradle
       run: ./gradlew build
     - name: Build REPL jar

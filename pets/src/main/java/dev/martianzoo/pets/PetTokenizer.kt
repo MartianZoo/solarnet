@@ -1,4 +1,4 @@
-@file:Suppress("PropertyName")
+@file:Suppress("PropertyName", "VariableNaming")
 
 package dev.martianzoo.pets
 

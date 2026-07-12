@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
@@ -41,11 +42,12 @@ internal class Transformers(internal val classes: MClassTable) {
         }
       }
 
+  @Suppress("ComplexCondition") // TODO: fix that
   internal fun atomizer(): PetTransformer {
     val atomized =
         try {
           classes.getClass(ATOMIZED)
-        } catch (e: Exception) {
+        } catch (_: ExpressionException) {
           return noOp()
         }
 

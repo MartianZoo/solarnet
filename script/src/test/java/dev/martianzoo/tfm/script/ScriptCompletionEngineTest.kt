@@ -10,7 +10,7 @@ import java.nio.file.Path
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 
-private class ScriptCompletionEngineTest {
+internal class ScriptCompletionEngineTest {
   private val repl = ScriptSession()
   private val completer = ScriptCompletionEngine(repl)
 

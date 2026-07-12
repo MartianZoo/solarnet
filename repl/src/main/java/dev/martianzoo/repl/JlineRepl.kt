@@ -50,6 +50,7 @@ internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
+  @Suppress("TooGenericExceptionCaught") // seems appropriate here, huh?
   private fun executeAll(input: String): List<String> {
     val allOutput = mutableListOf<String>()
     for (chunk in input.split(";").map { it.trim() }.filter { it.isNotEmpty() }) {
@@ -97,7 +98,7 @@ internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
       val entireLine =
           try {
             reader.readLine((if (first) "$welcome\n" else "") + prompt())
-          } catch (e: EndOfFileException) {
+          } catch (_: EndOfFileException) {
             return end()
           }
       first = false

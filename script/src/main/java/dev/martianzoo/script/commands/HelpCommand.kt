@@ -19,6 +19,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.commandNames() + context.classNames()
 
+  @Suppress("TooGenericExceptionCaught") // TODO think about
   override fun withArgs(args: String): List<String> {
     val arg = args.trim()
     return when (arg.lowercase()) {
@@ -30,7 +31,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
           return try {
             val docstring = repl.game.classes.getClass(cn(arg)).docstring
             listOf("Class `$arg`: \"$docstring\"", "Type `desc $arg` for super gory details.")
-          } catch (e: Exception) {
+          } catch (_: Exception) {
             listOf("¯\\_(ツ)_/¯ Type `help` for help")
           }
         }

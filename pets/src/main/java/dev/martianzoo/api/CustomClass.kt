@@ -66,7 +66,7 @@ public abstract class CustomClass(override val className: ClassName) : HasClassN
         4 -> translate(game, args[0], args[1], args[2], args[3])
         else -> error("what kind of type has 5 deps?")
       }
-    } catch (e: NotImplementedError) {
+    } catch (_: NotImplementedError) {
       error(
           "type ${type.expressionFull} has ${args.size} dependencies, " +
               "but the appropriate translate() overload was not overridden"

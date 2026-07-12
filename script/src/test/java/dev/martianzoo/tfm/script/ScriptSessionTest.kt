@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import org.junit.jupiter.api.Test
 
-private class ScriptSessionTest {
+internal class ScriptSessionTest {
 
   @Test
   fun testBasicRunthrough() {

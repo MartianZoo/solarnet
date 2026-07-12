@@ -1,10 +1,12 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.spotless.kotlin.KtfmtStep.TrailingCommaManagementStrategy.ONLY_ADD
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 plugins {
+  id("io.gitlab.arturbosch.detekt") version "1.23.8" apply false
   id("com.diffplug.spotless") version "8.8.0"
   id("org.jetbrains.kotlin.jvm") version "2.2.21"
   id("org.jetbrains.kotlin.multiplatform") version "2.2.21" apply false
@@ -37,19 +39,30 @@ configure<SpotlessExtension> {
 }
 
 subprojects {
+  apply(plugin = "io.gitlab.arturbosch.detekt")
+
+  extensions.configure<DetektExtension> {
+    buildUponDefaultConfig = true
+    config.setFrom(rootProject.file("detekt.yml"))
+  }
+
   repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
   }
 
-  configurations.configureEach {
-    resolutionStrategy.eachDependency {
-      if (requested.group == "org.jetbrains.kotlin") {
-        useVersion("2.2.21")
-        because("Kotlin/JS compilation requires libraries compiled for the project Kotlin version")
+  configurations
+      .matching { it.name != "detekt" }
+      .configureEach {
+        resolutionStrategy.eachDependency {
+          if (requested.group == "org.jetbrains.kotlin") {
+            useVersion("2.2.21")
+            because(
+                "Kotlin/JS compilation requires libraries compiled for the project Kotlin version"
+            )
+          }
+        }
       }
-    }
-  }
 
   apply(plugin = "org.jetbrains.dokka")
 

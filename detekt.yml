@@ -1,0 +1,72 @@
+# Intentional Detekt policy exceptions live here. Rules listed under “Locally suppressed” remain
+# active; their individual suppressions are kept next to the code that needs them.
+
+complexity:
+  CyclomaticComplexMethod:
+    excludes: ['**/tfm/engine/games/**']
+  LargeClass:
+    excludes: ['**/tfm/engine/games/**']
+  NestedBlockDepth:
+    # Deep parser/test construction is acceptable up to five nesting levels.
+    threshold: 5
+  LongMethod:
+    # Full-game logs and sample scenarios are intentionally long; method length is not useful here.
+    active: false
+  LongParameterList:
+    # Constructor dependency injection is explicit by design; keep function checks but skip constructors.
+    constructorThreshold: 2147483647
+    excludes: ['**/tfm/engine/games/**']
+  TooManyFunctions:
+    # The default threshold does not fit cohesive domain-model and facade classes.
+    active: false
+
+exceptions:
+  SwallowedException:
+    # If Detekt would accept reading the message as not swallowing, we could use this checker.
+    active: false
+  TooGenericExceptionCaught:
+    # Broad catches in test code are not production concerns.
+    allowedExceptionNameRegex: 'ignore.*'
+    excludes: ['**/test/**']
+  TooGenericExceptionThrown:
+    # Test helpers may throw generic exceptions without creating a production API contract.
+    excludes: ['**/test/**']
+
+naming:
+  FunctionParameterNaming:
+    # Test and DSL parameter names are intentionally more descriptive than this rule permits.
+    active: false
+  MemberNameEqualsClassName:
+    # Pets AST members deliberately mirror their component type names.
+    active: false
+  VariableNaming:
+    # Full-game test logs use player abbreviations and map labels as variable names.
+    excludes: ['**/engine/src/test/**']
+
+performance:
+  ForEachOnRange:
+    # Prefer readable range operations unless profiling identifies a real hot path.
+    active: false
+
+style:
+  DestructuringDeclarationWithTooManyEntries:
+    # Four- and five-part parser tuples are clearer than intermediate holder objects.
+    maxDestructuringEntries: 5
+  ForbiddenComment:
+    # TODO comments are an intentional part of the project’s work-tracking practice.
+    active: false
+  LoopWithTooManyJumpStatements:
+    # Parser loops often have several distinct terminal conditions.
+    active: false
+  MagicNumber:
+    # Game rules and scripted scenarios necessarily contain literal values.
+    active: false
+  ReturnCount:
+    # Guard clauses and early returns are preferred Kotlin control flow.
+    active: false
+  ThrowsCount:
+    # Validation methods may legitimately throw for several invalid inputs.
+    active: false
+  UnusedParameter:
+    # These names intentionally mark overload parameters that exist only to prevent unsafe calls.
+    allowedNames: '_|unused.*'

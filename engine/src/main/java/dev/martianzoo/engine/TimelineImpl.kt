@@ -54,13 +54,16 @@ internal class TimelineImpl(
 
   internal class AbortOperationException : Exception()
 
+  @Suppress("TooGenericExceptionCaught", "InstanceOfCheckForException")
   override fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
     try {
       block()
+    } catch (_: AbortOperationException) {
+      rollBack(checkpoint)
     } catch (e: Exception) {
       rollBack(checkpoint)
-      if (e !is AbortOperationException) throw e
+      throw e
     }
     return events.activitySince(checkpoint)
   }

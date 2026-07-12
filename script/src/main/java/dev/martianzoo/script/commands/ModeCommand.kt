@@ -20,10 +20,11 @@ internal class ModeCommand(private val repl: ScriptSession) : ScriptCommand("mod
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       ScriptMode.entries.map { ScriptCompletion(it.name.lowercase(), "modes", it.message) }
 
+  @Suppress("TooGenericExceptionCaught") // TODO fix
   override fun withArgs(args: String): List<String> {
     try {
       repl.mode = ScriptMode.valueOf(args.uppercase())
-    } catch (e: Exception) {
+    } catch (_: Exception) {
       throw UsageException(
           "Valid modes are: ${ScriptMode.entries.joinToString { it.toString().lowercase() }}"
       )

@@ -15,7 +15,7 @@ import dev.martianzoo.engine.Engine.ChangeLogger
 import dev.martianzoo.engine.Engine.TaskListener
 import dev.martianzoo.engine.Timeline.Checkpoint
 
-internal class WritableEventLog() : EventLog, TaskListener, ChangeLogger {
+internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
   private val events: MutableList<GameEvent> = mutableListOf()
   internal val size: Int by events::size
 

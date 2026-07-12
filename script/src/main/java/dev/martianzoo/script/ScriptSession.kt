@@ -102,6 +102,7 @@ public class ScriptSession {
   public class UsageException(message: String? = null) : Exception(message ?: "")
 
   // Splits on semicolons and executes each chunk; used by both interactive and server modes.
+  @Suppress("TooGenericExceptionCaught") // TODO investigate
   public fun executeAll(input: String): List<String> {
     val allOutput = mutableListOf<String>()
     for (chunk in input.split(";").map { it.trim() }.filter { it.isNotEmpty() }) {
@@ -210,14 +211,16 @@ public class ScriptSession {
     }
   }
 
+  @Suppress("TooGenericExceptionCaught") // TODO seems appropriate but should we log?
   public fun command(command: ScriptCommand, args: String? = null): List<String> {
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
     } catch (e: RuntimeException) {
       throw e
+    } catch (e: UsageException) {
+      listOf(e.message ?: "", "Usage: ${command.usage}").filter { it.any() }
     } catch (e: Exception) {
-      val usage = if (e is UsageException) "Usage: ${command.usage}" else ""
-      listOf(e.message ?: "", usage).filter { it.any() }
+      listOf(e.message ?: "")
     }
   }
 

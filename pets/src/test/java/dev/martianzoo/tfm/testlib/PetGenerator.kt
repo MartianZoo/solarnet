@@ -192,7 +192,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     override fun <T : PetNode> invoke(type: KClass<T>, gen: RandomGenerator<PetNode>): T? {
       return try {
         super.invoke(type, gen)
-      } catch (e: PetSyntaxException) {
+      } catch (_: PetSyntaxException) {
         null
       }
     }
@@ -209,7 +209,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   }
 
   fun <T : PetNode> goNuts(type: KClass<T>, count: Int = 10_000) {
-    for (i in 1..count) {
+    repeat(count) {
       val randomNode = makeRandomNode(type)
 
       val originalStringOut = randomNode.toString()
@@ -226,7 +226,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   }
 
   inline fun <reified T : PetNode> printTestStrings(count: Int) {
-    for (i in 1..count) {
+    repeat(count) {
       println(makeRandomNode<T>())
     }
   }

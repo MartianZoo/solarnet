@@ -71,7 +71,9 @@ public class TfmGameplay(
     }
   }
 
-  fun playProject(cardName: String, body: BodyLambda = {}): Nothing =
+  // In the method after this, all the cost parameters are optional,
+  // but you've gotta provide ONE of them.
+  fun playProject(unused1: String, unused2: BodyLambda = {}): Nothing =
       error("you must specify some cost")
 
   fun playProject(
