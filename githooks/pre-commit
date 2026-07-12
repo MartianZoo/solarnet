@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -eu
+
+repository_root=$(git rev-parse --show-toplevel)
+cd "$repository_root"
+
+echo "Checking formatting with Spotless..."
+if ! ./gradlew --quiet spotlessCheck; then
+  cat >&2 <<'EOF'
+
+Commit blocked: the Spotless check did not complete successfully.
+If files need formatting, run './gradlew spotlessApply', review and stage the changes, then commit
+again. Otherwise, resolve the Gradle error above (this project requires JDK 21) and retry.
+EOF
+  exit 1
+fi

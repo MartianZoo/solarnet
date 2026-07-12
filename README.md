@@ -95,6 +95,8 @@ I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thin
 
 The repository enforces Kotlin formatting with [Spotless](https://github.com/diffplug/spotless) and ktfmt. Run `./gradlew spotlessApply` to format all Kotlin source and Gradle Kotlin script files; `./gradlew spotlessCheck` verifies that no formatting changes are needed.
 
+After cloning, run `./gradlew installGitHooks` once. This configures Git to use the repository's versioned pre-commit hook, which runs `spotlessCheck` and blocks commits containing incorrectly formatted files. If it fails, run `./gradlew spotlessApply`, review and stage the formatting changes, and commit again. GitHub Actions also runs `spotlessCheck` before the build, so formatting is enforced even if a local hook is bypassed.
+
 ## Who are you
 
 http://kevinb9n.github.io

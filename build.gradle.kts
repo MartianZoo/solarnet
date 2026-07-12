@@ -105,3 +105,9 @@ dependencies {
   dokka(project(":repl"))
   dokka(project(":canon"))
 }
+
+tasks.register<Exec>("installGitHooks") {
+  group = "build setup"
+  description = "Configures Git to use the repository's versioned hooks."
+  commandLine("git", "config", "core.hooksPath", "githooks")
+}
