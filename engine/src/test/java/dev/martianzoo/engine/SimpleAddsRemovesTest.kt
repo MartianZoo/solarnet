@@ -7,11 +7,9 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.te
 import dev.martianzoo.util.toStrings
-import kotlin.test.Test
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 internal class SimpleAddsRemovesTest {
   @Test
@@ -47,7 +45,9 @@ internal class SimpleAddsRemovesTest {
     eng.has("=5 Heat<Player1>") shouldBe true
 
     val changes = game.events.changesSince(checkpoint)
-    changes.map { it.change }.shouldContainExactly(
+    changes
+        .map { it.change }
+        .shouldContainExactly(
             StateChange(5, gaining = te("Heat<Player2>")),
             StateChange(10, gaining = te("Heat<Player1>")),
             StateChange(4, removing = te("Heat<Player2>")),
@@ -55,7 +55,8 @@ internal class SimpleAddsRemovesTest {
             StateChange(2, gaining = te("Heat<Player2>"), removing = te("Heat<Player1>")),
         )
 
-    strip(changes.toStrings().map { it.replace(Regex("^\\d+"), "") }).shouldContainExactly(
+    strip(changes.toStrings().map { it.replace(Regex("^\\d+"), "") })
+        .shouldContainExactly(
             ": +5 Heat<Player2> FOR Player2 (manual)",
             ": +10 Heat<Player1> FOR Player2 (manual)",
             ": -4 Heat<Player2> FOR Player2 (manual)",

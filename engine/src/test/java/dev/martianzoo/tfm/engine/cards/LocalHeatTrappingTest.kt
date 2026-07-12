@@ -7,12 +7,9 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainExactly
+import kotlin.test.Test
 
 class LocalHeatTrappingTest {
   val game = Engine.newGame(Canon.SIMPLE_GAME)
@@ -82,10 +79,16 @@ class LocalHeatTrappingTest {
       godMode().manual("6 Heat, 2 ProjectCard")
 
       godMode().manual("LocalHeatTrapping") {
-        tasks.extract { "${it.whyPending}" }.shouldContainExactlyInAnyOrder("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
+        tasks
+            .extract { "${it.whyPending}" }
+            .shouldContainExactlyInAnyOrder(
+                "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`"
+            )
 
         p1.prepareTask(tasks.ids().single())
-        tasks.extract { "${it.whyPending}" }.shouldContainExactlyInAnyOrder("choice required in: `4 Plant<Player1>! OR Ok`")
+        tasks
+            .extract { "${it.whyPending}" }
+            .shouldContainExactlyInAnyOrder("choice required in: `4 Plant<Player1>! OR Ok`")
       }
     }
   }

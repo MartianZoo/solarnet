@@ -5,22 +5,22 @@ plugins {
   id("org.jetbrains.dokka")
 }
 
-val copyCanonResourcesForKarma by tasks.registering(Copy::class) {
-  dependsOn(":canon:jsProcessResources")
-  from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
-  into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-engine-test"))
-}
+val copyCanonResourcesForKarma by
+    tasks.registering(Copy::class) {
+      dependsOn(":canon:jsProcessResources")
+      from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
+      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-engine-test"))
+    }
 
 val includeSlowTests = providers.gradleProperty("includeSlowTests").orNull?.toBoolean() == true
 
 val requestedTaskNames = gradle.startParameter.taskNames
-val slowTestsExplicitlyRequested =
-  requestedTaskNames.any {
-    it == "jsBrowserTest" ||
+val slowTestsExplicitlyRequested = requestedTaskNames.any {
+  it == "jsBrowserTest" ||
       it.endsWith(":jsBrowserTest") ||
       it == "allTestsIncludingSlow" ||
       it.endsWith(":allTestsIncludingSlow")
-  }
+}
 
 kotlin {
   jvm()

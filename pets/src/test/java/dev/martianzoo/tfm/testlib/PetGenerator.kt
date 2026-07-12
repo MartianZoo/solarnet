@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.testlib
 
-import io.kotest.assertions.withClue
-import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -26,6 +24,8 @@ import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PROD
+import io.kotest.assertions.withClue
+import io.kotest.matchers.shouldBe
 import kotlin.math.pow
 import kotlin.random.Random
 import kotlin.reflect.KClass

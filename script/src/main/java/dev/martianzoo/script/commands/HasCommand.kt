@@ -2,10 +2,10 @@ package dev.martianzoo.script.commands
 
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptSession
 
 internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has") {

@@ -30,7 +30,7 @@ internal class MClassLoader(
      */
     override val authority: Authority,
 ) : MClassTable() {
- 
+
   constructor(setup: GameSetup) : this(setup.authority) {
     fun isAutoLoad(c: ClassDeclaration): Boolean =
         c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }
@@ -45,7 +45,8 @@ internal class MClassLoader(
       loadAll(
           authority.explicitClassDeclarations
               .filter { cn("TradeFleet").expression in it.supertypes }
-              .classNames())
+              .classNames()
+      )
       load(cn("DelayedColonyTile"))
     }
     freeze()
@@ -174,15 +175,14 @@ internal class MClassLoader(
     loadedClasses.keys
   }
 
-  internal fun checkAllTypes(node: PetNode) =
-      node.visitDescendants {
-        if (it is Expression) {
-          resolve(it.uncomplemented()).expression
-          false
-        } else {
-          true
-        }
-      }
+  internal fun checkAllTypes(node: PetNode) = node.visitDescendants {
+    if (it is Expression) {
+      resolve(it.uncomplemented()).expression
+      false
+    } else {
+      true
+    }
+  }
 
   override fun toString() = "loader$id"
 

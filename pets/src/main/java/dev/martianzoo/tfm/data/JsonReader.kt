@@ -16,16 +16,14 @@ public object JsonReader {
 
   fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
 
-  @Serializable
-  private data class CardList(val cards: List<CardData>)
+  @Serializable private data class CardList(val cards: List<CardData>)
 
   // MILESTONES
 
   fun readMilestones(json5: String): List<MilestoneDefinition> =
       fromJson5<MilestoneList>(json5).milestones
 
-  @Serializable
-  private data class MilestoneList(val milestones: List<MilestoneDefinition>)
+  @Serializable private data class MilestoneList(val milestones: List<MilestoneDefinition>)
 
   // ACTIONS
 
@@ -46,7 +44,7 @@ public object JsonReader {
         val id: String,
         val bundle: String,
         val action: String? = null,
-        val actions: List<String>? = null
+        val actions: List<String>? = null,
     ) {
       fun complete(project: Boolean): StandardActionDefinition {
         val realActions =
@@ -81,7 +79,7 @@ public object JsonReader {
             row0Index: Int,
             col0Index: Int,
             code: String,
-            legend: Legend
+            legend: Legend,
         ): AreaDefinition? {
           if (code.isEmpty()) return null
           return AreaDefinition(
@@ -91,15 +89,15 @@ public object JsonReader {
               col0Index + 1,
               legend.getType(code),
               legend.getBonus(code),
-              code)
+              code,
+          )
         }
 
-        val areas =
-            rows.flatMapIndexed { row0Index, cells ->
-              cells.mapIndexedNotNull { col0Index, code ->
-                mapArea(row0Index, col0Index, code, legend)
-              }
-            }
+        val areas = rows.flatMapIndexed { row0Index, cells ->
+          cells.mapIndexedNotNull { col0Index, code ->
+            mapArea(row0Index, col0Index, code, legend)
+          }
+        }
         val grid = Grid.grid(areas, { it.row }, { it.column })
         return MarsMapDefinition(mapName, bundle, grid)
       }
@@ -146,11 +144,10 @@ public object JsonReader {
   }
 
   @OptIn(ExperimentalSerializationApi::class)
-  private val JSON5 =
-      Json {
-        allowComments = true
-        allowTrailingComma = true
-        ignoreUnknownKeys = true
-        isLenient = true
-      }
+  private val JSON5 = Json {
+    allowComments = true
+    allowTrailingComma = true
+    ignoreUnknownKeys = true
+    isLenient = true
+  }
 }

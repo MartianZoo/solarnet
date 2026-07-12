@@ -72,11 +72,10 @@ internal class Limiter(private val classes: MClassTable, private val components:
   internal fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
     val mtype = component?.type?.let { classes.resolve(it) } ?: return setOf()
     val allRestrictions = rangeRestrictionsByClass[mtype.root] ?: listOf()
-    val ourRestrictions =
-        allRestrictions.mapNotNull {
-          val simple = it.bindThisTo(mtype)
-          if (mtype.narrows(simple.mtype)) simple else null
-        }
+    val ourRestrictions = allRestrictions.mapNotNull {
+      val simple = it.bindThisTo(mtype)
+      if (mtype.narrows(simple.mtype)) simple else null
+    }
     return ourRestrictions.toSet() + SimpleRangeRestriction(mtype, 0..MAX_VALUE)
   }
 
@@ -86,8 +85,10 @@ internal class Limiter(private val classes: MClassTable, private val components:
 
     internal abstract fun bindThisTo(mtype: MType): SimpleRangeRestriction
 
-    internal data class SimpleRangeRestriction(internal val mtype: MType, internal override val range: IntRange) :
-        RangeRestriction() {
+    internal data class SimpleRangeRestriction(
+        internal val mtype: MType,
+        internal override val range: IntRange,
+    ) : RangeRestriction() {
       internal override val mclass = mtype.root
 
       internal override fun bindThisTo(mtype: MType) = this
@@ -104,7 +105,7 @@ internal class Limiter(private val classes: MClassTable, private val components:
     internal data class UnboundRangeRestriction(
         private val expression: Expression,
         internal override val mclass: MClass,
-        internal override val range: IntRange
+        internal override val range: IntRange,
     ) : RangeRestriction() {
       internal override fun bindThisTo(mtype: MType): SimpleRangeRestriction {
         val expr = replaceThisExpressionsWith(mtype.expression).transform(expression)

@@ -83,12 +83,12 @@ public object Exceptions {
       PetException(message, cause)
 
   /** Something needed a requirement to be met and it was not. */
-  public class RequirementException internal constructor(message: String) :
-      NotNowException(message)
+  public class RequirementException internal constructor(message: String) : NotNowException(message)
 
   public class DependencyException(val dependencies: Collection<Type>) :
       NotNowException(
-          "Missing dependencies: ${dependencies.joinToString { "${it.expressionFull}" } }")
+          "Missing dependencies: ${dependencies.joinToString { "${it.expressionFull}" } }"
+      )
 
   public class LimitsException(message: String) : NotNowException(message)
 }

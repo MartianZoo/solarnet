@@ -1,6 +1,7 @@
 package dev.martianzoo.script
 
-public class ScriptCompletionContext private constructor(
+public class ScriptCompletionContext
+private constructor(
     private val repl: ScriptSession,
     private val parsedArgs: ScriptCompletionArgs,
 ) {
@@ -28,24 +29,40 @@ public class ScriptCompletionContext private constructor(
   }
 
   fun commandNames(): List<ScriptCompletion> = sources.commandNames()
+
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> =
       sources.playerNames(includeEngine)
+
   fun classNames(): List<ScriptCompletion> = sources.classNames()
+
   fun paymentWords(): List<ScriptCompletion> = sources.paymentWords()
+
   fun playableCardNames(): List<ScriptCompletion> = sources.playableCardNames()
+
   fun phaseNames(): List<ScriptCompletion> = sources.phaseNames()
+
   fun checkpointIds(): List<ScriptCompletion> = sources.checkpointIds()
+
   fun taskIds(): List<ScriptCompletion> = sources.taskIds()
-  fun fileArguments(): List<ScriptCompletion> = ScriptPathCompletions.arguments(parsedArgs.currentWord)
+
+  fun fileArguments(): List<ScriptCompletion> =
+      ScriptPathCompletions.arguments(parsedArgs.currentWord)
+
   fun bundleSuggestions(): List<ScriptCompletion> = sources.bundleSuggestions()
 
-  fun completions(vararg values: String, group: String): List<ScriptCompletion> =
-      values.map { ScriptCompletion(it, group) }
+  fun completions(vararg values: String, group: String): List<ScriptCompletion> = values.map {
+    ScriptCompletion(it, group)
+  }
 
   internal fun petsWords(root: PetsCompletionRoot): List<ScriptCompletion> {
     val prefix = fragment(parsedArgs.currentWord)
     val sourceBeforePrefix = args.dropLast(prefix.length)
-    return PetsCompletionProbe.words(root, sourceBeforePrefix, prefix, sources.broadPetsCandidates())
+    return PetsCompletionProbe.words(
+        root,
+        sourceBeforePrefix,
+        prefix,
+        sources.broadPetsCandidates(),
+    )
   }
 
   private fun copy(args: ScriptCompletionArgs) = ScriptCompletionContext(repl, args)
@@ -59,7 +76,6 @@ public class ScriptCompletionContext private constructor(
     fun replaceFragment(word: String, value: String): String =
         word.dropLast(fragment(word).length) + value
   }
-
 }
 
 internal data class ScriptCompletionArgs(val text: String) {
@@ -88,8 +104,7 @@ internal data class ScriptCompletionArgs(val text: String) {
 
 private fun String.endsWithWhitespace(): Boolean = lastOrNull()?.isWhitespace() == true
 
-private fun String.substringBeforeWhitespace(): String =
-    substringBefore(' ').substringBefore('\t')
+private fun String.substringBeforeWhitespace(): String = substringBefore(' ').substringBefore('\t')
 
 private fun String.substringAfterWhitespace(): String {
   val firstWhitespace = indexOfFirst { it.isWhitespace() }

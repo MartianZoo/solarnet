@@ -24,7 +24,8 @@ internal class JlineReplCompleter(
       cursor: Int = line.length,
       parsedWord: String = "",
   ): List<Candidate> {
-    return engine.completeLine(line, cursor, parsedWord.ifEmpty { wordAtCursor(line, cursor) })
+    return engine
+        .completeLine(line, cursor, parsedWord.ifEmpty { wordAtCursor(line, cursor) })
         .map { it.toCandidate() }
   }
 

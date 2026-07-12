@@ -172,7 +172,8 @@ internal constructor(
     DependencySet.of(
         declaration.dependencies.mapIndexed { i, dep ->
           TypeDependency(Key(className, i), loader.resolve(dep))
-        })
+        }
+    )
   }
 
   // `by lazy` enables dependency cycles, yay

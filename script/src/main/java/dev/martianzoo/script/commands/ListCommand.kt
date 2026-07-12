@@ -3,10 +3,10 @@ package dev.martianzoo.script.commands
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
+import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
@@ -14,10 +14,12 @@ import dev.martianzoo.util.Multiset
 
 internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("list") {
   override val usage = "list <Expression>"
-  override val help = """
+  override val help =
+      """
         This command is super broken right now.
       """
   override val isReadOnly = true
+
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.petsWords(PetsCompletionRoot.EXPRESSION)
 

@@ -63,8 +63,9 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
 
     val newTile: Expression = tileOn(area)!! // creating it is what got us here
 
-    val neighbors: List<Expression> =
-        neighborAreas.map { cn("Neighbor").of(newTile, it.className.expression) }
+    val neighbors: List<Expression> = neighborAreas.map {
+      cn("Neighbor").of(newTile, it.className.expression)
+    }
 
     val adjacencies: List<Expression> =
         neighborAreas.mapNotNull(::tileOn).flatMap {
@@ -83,7 +84,7 @@ private object CheckCardDeck : CustomClass("CheckCardDeck") {
   override fun translate(
       reader: GameReader,
       cardBackClassType: Type,
-      cardFrontClassType: Type
+      cardFrontClassType: Type,
   ): Instruction {
     val deck = cardFromClassType(cardFrontClassType, reader).deck
     return if (cardBackClassType.expression.arguments.single().className == deck?.className) {
@@ -126,6 +127,7 @@ private object GetEventVps : CustomClass("GetEventVps") {
     val fx = cardFromClassType(classType, reader).effects
     return Multi.create(fx.filter { it.trigger == end }.map { it.instruction })
   }
+
   private val end: Trigger = parse("End")
 }
 

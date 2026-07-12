@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
 import dev.martianzoo.api.Exceptions.LimitsException
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
 
 // This isn't really a test specific to this card, just testing task reordering
 class MinorityRefugeTest : ColoniesCardTest() {

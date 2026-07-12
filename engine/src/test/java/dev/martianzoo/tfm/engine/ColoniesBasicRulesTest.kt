@@ -14,11 +14,11 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.util.toSetStrict
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 /** Comment lines are quotes directly from the rulebook. */
 internal class ColoniesBasicRulesTest {
@@ -157,10 +157,11 @@ internal class ColoniesBasicRulesTest {
     engine.godMode().sneak("5 ColonyProduction<Luna>, Colony<P1, Luna>, Colony<P2, Luna>, 3 E<P1>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
     p1.stdAction("TradeSA", 2) {
-      doTask("Trade<Luna, TradeFleetA>")
-      // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
-      // trade income, and give the local colony owners their colony bonus.
-    }.expect("19 Megacredit<P1>, 2 Megacredit<P2>, -3 E<P1>")
+          doTask("Trade<Luna, TradeFleetA>")
+          // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
+          // trade income, and give the local colony owners their colony bonus.
+        }
+        .expect("19 Megacredit<P1>, 2 Megacredit<P2>, -3 E<P1>")
 
     // Directly after trading you move the white marker as far left as possible, stopping next to
     // the player colonies, or at the bottom of the track (in the example above the marker is moved
@@ -180,8 +181,7 @@ internal class ColoniesBasicRulesTest {
 
   @Test
   fun `card resource colony bonus goes to colony owner`() {
-    val colonies =
-        listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
+    val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
     val localGame = Engine.newGame(GameSetup(Canon, "BRMCX", 2, colonies))
     val localEngine = localGame.tfm(ENGINE)
     val localP1 = localGame.tfm(PLAYER1)

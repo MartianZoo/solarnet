@@ -69,7 +69,8 @@ public abstract class CustomClass(override val className: ClassName) : HasClassN
     } catch (e: NotImplementedError) {
       error(
           "type ${type.expressionFull} has ${args.size} dependencies, " +
-              "but the appropriate translate() overload was not overridden")
+              "but the appropriate translate() overload was not overridden"
+      )
     }
   }
 }

@@ -106,8 +106,9 @@ public abstract class TfmAuthority : Authority {
   // STANDARD ACTIONS
 
   /** Returns the standard action/project by the given [name]. */
-  public fun action(name: ClassName): StandardActionDefinition =
-      standardActionDefinitions.first { it.className == name }
+  public fun action(name: ClassName): StandardActionDefinition = standardActionDefinitions.first {
+    it.className == name
+  }
 
   /** Every standard action (including standard projects) this authority knows about. */
   public abstract val standardActionDefinitions: Set<StandardActionDefinition>

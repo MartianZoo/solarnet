@@ -40,11 +40,13 @@ public data class Effect(
 
     object WhenGain : BasicTrigger() {
       override fun visitChildren(visitor: Visitor) = Unit
+
       override fun toString() = "This"
     }
 
     object WhenRemove : BasicTrigger() {
       override fun visitChildren(visitor: Visitor) = Unit
+
       override fun toString() = "-This"
     }
 
@@ -65,6 +67,7 @@ public data class Effect(
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+
       override fun toString() = "$expression"
     }
 
@@ -85,11 +88,13 @@ public data class Effect(
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+
       override fun toString() = "-$expression"
     }
 
     sealed class WrappingTrigger : Trigger() {
       abstract val inner: Trigger
+
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
     }
 
@@ -99,6 +104,7 @@ public data class Effect(
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
+
       override fun toString() = "$inner BY $by"
     }
 

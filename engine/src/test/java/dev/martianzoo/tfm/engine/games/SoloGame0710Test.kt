@@ -5,8 +5,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import kotlin.test.Test
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 class SoloGame0710Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
@@ -16,6 +16,7 @@ class SoloGame0710Test : AbstractSoloTest() {
   }
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"
+
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_5_1" to "Tharsis_5_7"
 
   @Test
@@ -230,8 +231,8 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertProduction(m = 5, s = 4, t = 2, p = 2, e = 6, h = 5)
       assertResources(m = 68, s = 4, t = 3, p = 2, e = 6, h = 13)
       assertDashMiddle(played = 38, actions = 4, vp = 95, tr = 65, hand = 4)
-      assertTags(
-          but = 15, spt = 6, sct = 8, pot = 6, eat = 3, jot = 1, vet = 1, mit = 3, ant = 1, cit = 5)
+      // (but = 15, spt = 6, ...)
+      assertTags(15, 6, sct = 8, pot = 6, eat = 3, jot = 1, vet = 1, mit = 3, ant = 1, cit = 5)
       assertDashRight(events = 7, tagless = 2, cities = 6, colonies = 2)
       assertSidebar(gen = 12, temp = 6, oxygen = 12, oceans = 9, venus = 22)
 

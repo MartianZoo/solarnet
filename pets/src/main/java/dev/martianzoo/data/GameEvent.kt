@@ -20,11 +20,13 @@ sealed class GameEvent {
 
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
     override val owner by task::owner
+
     override fun toString() = taskToString()
   }
 
   data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
     override val owner by task::owner
+
     override fun toString() = "$ordinal: -Task${task.id}"
   }
 
@@ -38,6 +40,7 @@ sealed class GameEvent {
     }
 
     override val owner by task::owner
+
     override fun toString() = taskToString() + " FROM Task${task.id}"
   }
 

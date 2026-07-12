@@ -11,12 +11,10 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.MClassLoader
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.Int.Companion.MAX_VALUE
 import kotlin.test.Test
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainExactly
 
 internal class CanonInvariantsTest {
 
@@ -66,7 +64,9 @@ internal class CanonInvariantsTest {
     fun restrictions(a: String) = limiter.rangeRestrictionsByClass[table.getClass(cn(a))]
 
     fun checkSimple(a: String, b: String = a, range: IntRange) {
-      restrictions(a)!!.shouldContain(SimpleRangeRestriction(table.resolve(parse<Expression>(b)), range))
+      restrictions(a)!!.shouldContain(
+          SimpleRangeRestriction(table.resolve(parse<Expression>(b)), range)
+      )
     }
     fun checkUnbound(type: String, expr: Expression, range: IntRange) {
       val clazz = table.getClass(cn(type))

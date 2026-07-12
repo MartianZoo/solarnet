@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets
 
-import io.kotest.matchers.shouldBe
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.PetNode
+import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 
 internal inline fun <reified T : PetNode> checkBothWays(asText: String, node: T) =

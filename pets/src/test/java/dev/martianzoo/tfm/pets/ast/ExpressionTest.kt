@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.pets.ast
 
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.testlib.te
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
@@ -57,7 +57,8 @@ internal class ExpressionTest {
                 cn("Bb").expression,
                 cn("Cc").of(cn("Dd")),
                 cn("Ee").of(cn("Ff").of(cn("Gg"), cn("Hh")), cn("Me").expression),
-                cn("Jj").expression)
+                cn("Jj").expression,
+            )
     expr.toString() shouldBe "Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>"
   }
 

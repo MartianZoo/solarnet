@@ -4,8 +4,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
-import kotlin.test.Test
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 class DefaultsTest {
   @Test
@@ -32,7 +32,8 @@ class DefaultsTest {
               CLASS Fixed: Qux1 {
                 DEFAULT +Fixed.
               }
-            """)
+            """
+        )
             as MClassLoader
 
     val d = loader.getClass(cn("Foo1")).defaults

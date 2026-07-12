@@ -13,10 +13,10 @@ internal class TfmSampleCommand(private val repl: ScriptSession) : ScriptCommand
   override val usage: String = "tfm_sample <id> <generations>"
   override val help =
       """
-    Executes a sample game so you have useful stuff to look at. For now the only id we have is
-    "A" so enjoy it. After that say how many generations of the sample game you want it to play
-    through; 0 means to stop right after the prelude phase.
-  """
+      Executes a sample game so you have useful stuff to look at. For now the only id we have is
+      "A" so enjoy it. After that say how many generations of the sample game you want it to play
+      through; 0 means to stop right after the prelude phase.
+      """
           .trimIndent()
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =

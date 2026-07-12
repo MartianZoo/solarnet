@@ -87,7 +87,8 @@ public data class Expression(
         if (refs.size < 2) return refs.singleOrNull()
         return Refinement(
             Requirement.join(ref1!!.requirement, ref2!!.requirement)!!,
-            ref1.forgiving || ref2.forgiving)
+            ref1.forgiving || ref2.forgiving,
+        )
       }
     }
   }

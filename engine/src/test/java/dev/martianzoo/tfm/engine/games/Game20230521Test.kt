@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import kotlin.test.Test
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 class Game20230521Test : AbstractFullGameTest() {
 
@@ -31,7 +31,6 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Factorum
     // Player2 kept 4 project cards
     p2.playCorp("Factorum", 4).expect("PROD[S], 25, 4 ProjectCard")
-
 
     with(p1) {
       // Player1 played New Partner
@@ -62,7 +61,6 @@ class Game20230521Test : AbstractFullGameTest() {
       // You drew Physics Complex
       playPrelude("IoResearchOutpost")
     }
-
 
     // Player1 played Inventors' Guild
     // Player1 ended turn
@@ -745,8 +743,8 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
       assertCounts(44 to "M", 12 to "S", 2 to "T", 6 to "P", 8 to "E", 16 to "H")
       assertDashMiddle(played = 31, actions = 5, vp = 41, tr = 31, hand = 10)
-      assertTags(
-          but = 9, spt = 5, sct = 5, pot = 4, eat = 5, jot = 1, vet = 6, plt = 1, ant = 1, cit = 2)
+      // (but = 9, ...)
+      assertTags(9, spt = 5, sct = 5, pot = 4, eat = 5, jot = 1, vet = 6, plt = 1, ant = 1, cit = 2)
       assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -878,8 +876,8 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(27 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
       assertCounts(56 to "M", 5 to "S", 1 to "T", 4 to "P", 8 to "E", 18 to "H")
       assertDashMiddle(played = 34, actions = 7, vp = 58, tr = 38, hand = 12)
-      assertTags(
-          but = 10, spt = 6, sct = 5, pot = 4, eat = 5, jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
+      // (but = 10, spt = 6, ...)
+      assertTags(10, 6, sct = 5, pot = 4, eat = 5, jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
       assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -1083,18 +1081,8 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(28 to "M", 5 to "S", 1 to "T", 4 to "P", 9 to "E", 3 to "H")
       assertCounts(66 to "M", 5 to "S", 1 to "T", 10 to "P", 9 to "E", 16 to "H")
       assertDashMiddle(played = 40, actions = 8, vp = 78, tr = 42, hand = 8)
-      assertTags(
-          but = 13,
-          spt = 6,
-          sct = 5,
-          pot = 4,
-          eat = 5,
-          jot = 1,
-          vet = 9,
-          plt = 3,
-          mit = 1,
-          ant = 1,
-          cit = 2)
+      // (but = 13, spt = 6, sct = 5, ...)
+      assertTags(13, 6, 5, pot = 4, eat = 5, jot = 1, vet = 9, plt = 3, mit = 1, ant = 1, cit = 2)
       assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
@@ -1102,13 +1090,12 @@ class Game20230521Test : AbstractFullGameTest() {
       assertProds(3 to "M", 2 to "S", 3 to "T", 4 to "P", 3 to "E", 3 to "H")
       assertCounts(36 to "M", 3 to "S", 3 to "T", 10 to "P", 3 to "E", 9 to "H")
       assertDashMiddle(played = 28, actions = 7, vp = 58, tr = 41, hand = 13)
-      assertTags(
-          but = 10, spt = 3, sct = 7, pot = 3, eat = 1, jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
+      // (but = 10, spt = 3, ...)
+      assertTags(10, 3, sct = 7, pot = 3, eat = 1, jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
       assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
     assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
-
 
     // Player2 played Hired Raiders
     p2.playProject("HiredRaiders", 0) {
@@ -1128,10 +1115,11 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Convert Plants standard action
     p2.stdAction("ConvertPlantsSA") {
-      // Player2 placed greenery tile on row 9 position 2
-      doTask("GreeneryTile<Tharsis_9_6>")
-      // Player2's steel amount increased by 2
-    }.expect("2 Steel")
+          // Player2 placed greenery tile on row 9 position 2
+          doTask("GreeneryTile<Tharsis_9_6>")
+          // Player2's steel amount increased by 2
+        }
+        .expect("2 Steel")
 
     // Player2 used AI Central action
     // Player2 drew 2 card(s)
@@ -1204,9 +1192,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2's titanium amount increased by 2
     // Player2 gained 2 plants from Arctic Algae
     p2.cardAction1("AquiferPumping") {
-      p2.pay(2, steel = 2)
-      doTask("OceanTile<Tharsis_9_9>")
-    }.expect("2 Titanium, 2 Plant")
+          p2.pay(2, steel = 2)
+          doTask("OceanTile<Tharsis_9_9>")
+        }
+        .expect("2 Titanium, 2 Plant")
     // Player1 played Power Infrastructure
     p1.playProject("PowerInfrastructure", 4)
     // Player1 used Power Infrastructure action
@@ -1326,10 +1315,11 @@ class Game20230521Test : AbstractFullGameTest() {
     }
     // Player2 used Convert Plants standard action
     p2.stdAction("ConvertPlantsSA") {
-      // Player2 placed greenery tile on row 8 position 1
-      doTask("GreeneryTile<Tharsis_8_4>")
-      // Player2's steel amount increased by 2
-    }.expect("2 Steel")
+          // Player2 placed greenery tile on row 8 position 1
+          doTask("GreeneryTile<Tharsis_8_4>")
+          // Player2's steel amount increased by 2
+        }
+        .expect("2 Steel")
     // Player1 used Deuterium Export action
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
     // Player1's energy production increased by 1
@@ -1339,10 +1329,11 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.cardAction1("FloatingHabs") { doTask("Floater<FloatingHabs>") }
     // Player2 used Convert Plants standard action
     p2.stdAction("ConvertPlantsSA") {
-      // Player2 placed greenery tile on row 9 position 1
-      doTask("GreeneryTile<Tharsis_9_5>")
-      // Player2's steel amount increased by 1
-    }.expect("Steel")
+          // Player2 placed greenery tile on row 9 position 1
+          doTask("GreeneryTile<Tharsis_9_5>")
+          // Player2's steel amount increased by 1
+        }
+        .expect("Steel")
     // Player2 used Aerial Mappers action
     // Player2 removed 1 resource(s) from Player2's Aerial Mappers
     // Player2 drew 1 card(s)
@@ -1357,18 +1348,20 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2's plants production increased by 2
     // Player2's energy production decreased by 4
     p2.playProject("MagneticFieldGeneratorsPromo", 5, steel = 5) {
-      // Player2 placed Magnetic Field Generators tile on row 6 position 5
-      doTask("MfgTile<Tharsis_6_6>")
-      // Player2's plants amount increased by 1
-    }.expect("PROD[-4 Energy, 2 Plant], 3 TR, Plant")
+          // Player2 placed Magnetic Field Generators tile on row 6 position 5
+          doTask("MfgTile<Tharsis_6_6>")
+          // Player2's plants amount increased by 1
+        }
+        .expect("PROD[-4 Energy, 2 Plant], 3 TR, Plant")
     // Player2 played Towing A Comet
     // Player2's plants amount increased by 2
     p2.playProject("TowingAComet", 1, titanium = 4) {
-      // Player2 placed ocean tile on row 6 position 7
-      doTask("OceanTile<Tharsis_6_8>")
-      // Player2's plants amount increased by 1
-      // Player2 gained 2 plants from Arctic Algae
-    }.expect("5 Plant")
+          // Player2 placed ocean tile on row 6 position 7
+          doTask("OceanTile<Tharsis_6_8>")
+          // Player2's plants amount increased by 1
+          // Player2 gained 2 plants from Arctic Algae
+        }
+        .expect("5 Plant")
     // Player1 used Venusian Insects action
     p1.cardAction1("VenusianInsects")
     // Player1 played Standard Technology
@@ -1397,12 +1390,13 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 4 animal(s) to Stratospheric Birds
     p1.playProject("LargeConvoy", 28, titanium = 1) {
-      // The oceans are already capped, but this task currently does not self-refine to `Ok`.
-      val cappedOcean =
-          tasks.matching { "${it.instruction}" == "OceanTile<WaterArea>." }.single()
-      p1.godMode().dropTask(cappedOcean)
-      doTask("4 Animal<StratosphericBirds>")
-    }.expect("ProjectCard, 3 Heat, 4 Animal")
+          // The oceans are already capped, but this task currently does not self-refine to `Ok`.
+          val cappedOcean =
+              tasks.matching { "${it.instruction}" == "OceanTile<WaterArea>." }.single()
+          p1.godMode().dropTask(cappedOcean)
+          doTask("4 Animal<StratosphericBirds>")
+        }
+        .expect("ProjectCard, 3 Heat, 4 Animal")
     // Player1 played Water Splitting Plant
     p1.playProject("WaterSplittingPlant", steel = 4)
     // Player2 played Robot Pollinators
@@ -1435,10 +1429,11 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.godMode().sneak("-20, 5 VP")
     // Player1 used Convert Plants standard action
     p1.stdAction("ConvertPlantsSA") {
-      // Player1 placed greenery tile on row 4 position 4
-      doTask("GreeneryTile<Tharsis_4_4>")
-      // Player1's plants amount increased by 1
-    }.expect("-7 Plant")
+          // Player1 placed greenery tile on row 4 position 4
+          doTask("GreeneryTile<Tharsis_4_4>")
+          // Player1's plants amount increased by 1
+        }
+        .expect("-7 Plant")
     p1.declineSecondAction()
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents

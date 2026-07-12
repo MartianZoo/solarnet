@@ -116,7 +116,8 @@ internal class Instructor(
       is Or -> prepareOr(unprepared)
       is Then ->
           Then.create(
-              listOf(doPrepare(unprepared.instructions.first())) + unprepared.instructions.drop(1))
+              listOf(doPrepare(unprepared.instructions.first())) + unprepared.instructions.drop(1)
+          )
       is Multi -> error("")
       is Transform -> error("should have been transformed already: $unprepared")
     }

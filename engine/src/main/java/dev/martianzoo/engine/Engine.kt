@@ -29,12 +29,13 @@ public object Engine {
 
     val game = koin.get<Game>()
     var initializer: Initializer? = null
-    val playerComponents = setup.players().associateWith { player ->
-      val scope = koin.createScope<PlayerScopeId>("$player")
-      scope.declare(player)
-      if (player == ENGINE) initializer = scope.get<Initializer>()
-      scope.get<PlayerComponent>()
-    }
+    val playerComponents =
+        setup.players().associateWith { player ->
+          val scope = koin.createScope<PlayerScopeId>("$player")
+          scope.declare(player)
+          if (player == ENGINE) initializer = scope.get<Initializer>()
+          scope.get<PlayerComponent>()
+        }
     initializer!!.initialize()
     game.playerComponents = playerComponents
     return game
@@ -67,7 +68,9 @@ public object Engine {
       scoped<WritableTaskQueue> { get<TaskQueues>()[get<Player>()] }
       scoped<TaskQueue> { get<WritableTaskQueue>() }
       scopedOf(::Changer)
-      scoped { Instructor(get(), get(), get(), get(), get()) } // Changer? and Effector? are nullable
+      scoped {
+        Instructor(get(), get(), get(), get(), get())
+      } // Changer? and Effector? are nullable
       scopedOf(::Implementations)
       scoped {
         val game = get<Game>()
@@ -86,7 +89,9 @@ public object Engine {
 
   internal interface TaskListener {
     fun taskAdded(task: Task): TaskAddedEvent
+
     fun taskRemoved(task: Task): TaskRemovedEvent
+
     fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent
   }
 

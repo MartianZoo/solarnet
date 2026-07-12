@@ -87,7 +87,8 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
             elements.elements
           } else {
             elements.toSet()
-          })
+          }
+      )
 
   override fun retainAll(elements: Collection<E>) =
       map.keys.retainAll(
@@ -95,5 +96,6 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
             elements.elements
           } else {
             elements.toSet()
-          })
+          }
+      )
 }

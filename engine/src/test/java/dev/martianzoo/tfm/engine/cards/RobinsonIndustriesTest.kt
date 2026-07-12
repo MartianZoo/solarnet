@@ -8,13 +8,10 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainExactly
 
 class RobinsonIndustriesTest {
   val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
@@ -67,8 +64,11 @@ class RobinsonIndustriesTest {
       assertProds(0 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
 
       cardAction1("RobinsonIndustries") {
-        tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder(
-                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
+        tasks
+            .extract { "${it.instruction}" }
+            .shouldContainExactlyInAnyOrder(
+                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
+            )
         doTask("PROD[1]")
         assertProds(1 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
         abort()

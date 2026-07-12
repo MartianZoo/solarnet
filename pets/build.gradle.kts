@@ -6,11 +6,12 @@ plugins {
   id("org.jetbrains.dokka")
 }
 
-val copyCanonResourcesForKarma by tasks.registering(Copy::class) {
-  dependsOn(":canon:jsProcessResources")
-  from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
-  into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-pets-test"))
-}
+val copyCanonResourcesForKarma by
+    tasks.registering(Copy::class) {
+      dependsOn(":canon:jsProcessResources")
+      from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
+      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-pets-test"))
+    }
 
 kotlin {
   jvm()
@@ -23,7 +24,9 @@ kotlin {
       kotlin.srcDir("src/main/java")
       dependencies {
         // Pin the exact tested JitPack build from the better-parse fork; tag lookup was unreliable.
-        implementation("com.github.kevinb9n.better-parse:better-parse:1e227e760395f6dca1cfd00de4d499c7229c51e3")
+        implementation(
+            "com.github.kevinb9n.better-parse:better-parse:1e227e760395f6dca1cfd00de4d499c7229c51e3"
+        )
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
       }
     }
@@ -35,8 +38,7 @@ kotlin {
         implementation(project(":canon")) // easier to test the pets data model this way
       }
     }
-    jvmTest {
-    }
+    jvmTest {}
   }
 }
 

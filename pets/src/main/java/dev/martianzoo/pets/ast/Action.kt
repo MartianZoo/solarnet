@@ -30,6 +30,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
   override val kind = Action::class
 
   override fun toString() = "${cost.suf(' ')}-> $instruction"
+
   override fun visitChildren(visitor: Visitor) = visitor.visit(cost, instruction)
 
   sealed class Cost : PetNode() {
@@ -39,6 +40,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
 
     data class Spend(val scaledEx: ScaledExpression) : Cost() {
       override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+
       override fun toString() = scaledEx.toString()
 
       init {
@@ -63,6 +65,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost, metric)
 
       override fun toString() = "$cost / $metric"
+
       override fun precedence() = 5
 
       override fun toInstruction() = Per(cost.toInstruction(), metric)
@@ -78,6 +81,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun visitChildren(visitor: Visitor) = visitor.visit(costs)
 
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
+
       override fun precedence() = 3
 
       override fun toInstruction() = Or(costs.map { it.toInstruction() })
@@ -91,7 +95,9 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(costs)
+
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
+
       override fun precedence() = 1
 
       override fun toInstruction() = Multi(costs.map { it.toInstruction() })
@@ -100,9 +106,11 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     data class Transform(val cost: Cost, override val transformKind: String) :
         Cost(), TransformNode<Cost> {
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost)
+
       override fun toString() = "$transformKind[$cost]"
 
       override fun toInstruction() = Transform(cost.toInstruction(), transformKind)
+
       override fun extract() = cost
     }
 

@@ -37,7 +37,9 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
     get() = all().size
 
   override fun iterator() = all().iterator()
+
   override fun contains(element: E) = all().contains(element)
+
   override fun isEmpty() = false
 
   fun immutable(): Grid<E> {
@@ -59,6 +61,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
     }
 
     override fun add(index: Int, element: E?) = error("fixed-size")
+
     override fun removeAt(index: Int) = error("fixed-size")
   }
 
@@ -86,6 +89,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
         (grid.row(index) as MutableList<E?>).set(columnMinusRow + index, element)
 
     override fun add(index: Int, element: E?) = error("fixed-size")
+
     override fun removeAt(index: Int) = error("fixed-size")
   }
 }

@@ -25,7 +25,8 @@ internal class ModeCommand(private val repl: ScriptSession) : ScriptCommand("mod
       repl.mode = ScriptMode.valueOf(args.uppercase())
     } catch (e: Exception) {
       throw UsageException(
-          "Valid modes are: ${ScriptMode.entries.joinToString { it.toString().lowercase() }}")
+          "Valid modes are: ${ScriptMode.entries.joinToString { it.toString().lowercase() }}"
+      )
     }
     return noArgs()
   }

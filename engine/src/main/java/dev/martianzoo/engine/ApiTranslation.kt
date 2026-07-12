@@ -86,8 +86,9 @@ internal class ApiTranslation(
 
   // CHANGES
 
-  override fun sneak(changes: String, fakeCause: Cause?) =
-      timeline.atomic { impl.sneak(parse(changes), fakeCause) }
+  override fun sneak(changes: String, fakeCause: Cause?) = timeline.atomic {
+    impl.sneak(parse(changes), fakeCause)
+  }
 
   // TASKS
 
@@ -153,8 +154,9 @@ internal class ApiTranslation(
   // This layer is only usable if you have a running workflow, so that >0 players always have a
   // task in their queue at any given time
 
-  override fun reviseTask(taskId: TaskId, revised: String) =
-      timeline.atomic { impl.reviseTask(taskId, parse(revised)) }
+  override fun reviseTask(taskId: TaskId, revised: String) = timeline.atomic {
+    impl.reviseTask(taskId, parse(revised))
+  }
 
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
 
@@ -181,12 +183,14 @@ internal class ApiTranslation(
   fun atomic(block: () -> Unit): TaskResult {
     atomicDepth++
     return try {
-      timeline.atomic {
-        block()
-        impl.autoExecNow(autoExecMode)
-      }.also {
-        if (atomicDepth == 1) onAtomicComplete()
-      }
+      timeline
+          .atomic {
+            block()
+            impl.autoExecNow(autoExecMode)
+          }
+          .also {
+            if (atomicDepth == 1) onAtomicComplete()
+          }
     } finally {
       atomicDepth--
     }

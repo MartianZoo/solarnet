@@ -18,8 +18,8 @@ import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.util.Multiset
 import kotlin.reflect.KClass
 
@@ -96,14 +96,17 @@ public interface Gameplay {
    * @throws [NotNowException] if the task can't currently be prepared
    */
   fun doTask(taskId: TaskId): TaskResult
+
   fun doTask(revised: String): TaskResult
 
   fun tryTask(taskId: TaskId): TaskResult
+
   fun tryTask(revised: String): TaskResult
 
   fun tryPreparedTask(): TaskResult
 
   fun autoExecNow(): TaskResult
+
   var autoExecMode: AutoExecMode
 
   fun godMode(): GodMode
@@ -135,6 +138,7 @@ public interface Gameplay {
     fun doFirstTask(revised: String)
 
     fun doTask(revised: String)
+
     fun tryTask(revised: String)
 
     fun autoExecNow()

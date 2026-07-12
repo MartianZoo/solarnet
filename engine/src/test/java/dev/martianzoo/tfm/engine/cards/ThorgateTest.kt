@@ -6,8 +6,8 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
 
 class ThorgateTest {
   @Test

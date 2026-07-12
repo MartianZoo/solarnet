@@ -35,12 +35,14 @@ data class ScaledExpression(
         scaledEx(value, hasEx.expression)
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
+
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
   }
 
   override fun visitChildren(visitor: Visitor) = visitor.visit(scalar, expression)
 
   override fun toString() = toString(forceScalar = false, forceExpression = false)
+
   fun toFullString() = toString(forceScalar = true, forceExpression = true)
 
   operator fun times(multiple: Int) = copy(scalar = scalar * multiple)
@@ -58,6 +60,7 @@ data class ScaledExpression(
     override val kind = Scalar::class
 
     override fun visitChildren(visitor: Visitor) {}
+
     abstract operator fun times(multiple: Int): Scalar
 
     companion object {

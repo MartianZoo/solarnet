@@ -10,14 +10,11 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
-import kotlin.test.Test
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 /** Tests for the Canon data set. */
 internal class CanonBootstrapTest {
@@ -64,27 +61,48 @@ internal class CanonBootstrapTest {
     // starting.count(isBorder) shouldBe 312
     starting.count(isClass).shouldBeGreaterThan(400)
 
-    val theRest =
-        starting.filterNot {
-          isArea(it) ||
-              // isBorder(it) ||
-              isClass(it) ||
-              it.hasType(game.resolve(parse("TerraformRating"))) ||
-              it.hasType(game.resolve(parse("Production<Class<Megacredit>>")))
-        }
-    theRest.toStrings().shouldContainExactlyInAnyOrder(
+    val theRest = starting.filterNot {
+      isArea(it) ||
+          // isBorder(it) ||
+          isClass(it) ||
+          it.hasType(game.resolve(parse("TerraformRating"))) ||
+          it.hasType(game.resolve(parse("Production<Class<Megacredit>>")))
+    }
+    theRest
+        .toStrings()
+        .shouldContainExactlyInAnyOrder(
             "Engine",
             "TerraformingMars",
             "SetupPhase",
             "Tharsis",
-            "Area021", "Area081", "FloatingInSpace",
-            "Player1", "Player2", "Player3",
-            "PlayCardSA", "UseStandardProjectSA", "ClaimMilestoneSA", "UseCardActionSA",
-            "ConvertHeatSA", "ConvertPlantsSA", "HandleMandates", "SellPatents",
-            "PowerPlantSP", "AsteroidSP", "AquiferSP", "GreenerySP", "CitySP",
-            "GrossHack<Player1>", "GrossHack<Player2>", "GrossHack<Player3>",
-            "Entropy<Player1>", "Entropy<Player2>", "Entropy<Player3>",
-            "TrWatcher<Player1>", "TrWatcher<Player2>", "TrWatcher<Player3>",
+            "Area021",
+            "Area081",
+            "FloatingInSpace",
+            "Player1",
+            "Player2",
+            "Player3",
+            "PlayCardSA",
+            "UseStandardProjectSA",
+            "ClaimMilestoneSA",
+            "UseCardActionSA",
+            "ConvertHeatSA",
+            "ConvertPlantsSA",
+            "HandleMandates",
+            "SellPatents",
+            "PowerPlantSP",
+            "AsteroidSP",
+            "AquiferSP",
+            "GreenerySP",
+            "CitySP",
+            "GrossHack<Player1>",
+            "GrossHack<Player2>",
+            "GrossHack<Player3>",
+            "Entropy<Player1>",
+            "Entropy<Player2>",
+            "Entropy<Player3>",
+            "TrWatcher<Player1>",
+            "TrWatcher<Player2>",
+            "TrWatcher<Player3>",
             "Generation",
         )
   }

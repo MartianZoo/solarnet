@@ -10,14 +10,11 @@ import dev.martianzoo.tfm.canon.Canon.classDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.te
-import kotlin.test.Test
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
@@ -93,9 +90,18 @@ internal class CanonClassesTest {
     with(loader.load(cn("OceanTile"))) {
       // directDependencyKeys.shouldBeEmpty()
       // allDependencyKeys.shouldContainExactlyInAnyOrder(Key(cn("Tile"), 0))
-      directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("GlobalParameter"), cn("Tile"))
-      allSuperclasses().classNames().shouldContainExactlyInAnyOrder(
-              cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
+      directSuperclasses
+          .classNames()
+          .shouldContainExactlyInAnyOrder(cn("GlobalParameter"), cn("Tile"))
+      allSuperclasses()
+          .classNames()
+          .shouldContainExactlyInAnyOrder(
+              cn("Component"),
+              cn("Atomized"),
+              cn("GlobalParameter"),
+              cn("Tile"),
+              cn("OceanTile"),
+          )
 
       loader.load(cn("MarsArea"))
       baseType shouldBe loader.resolve(te("OceanTile<MarsArea>"))

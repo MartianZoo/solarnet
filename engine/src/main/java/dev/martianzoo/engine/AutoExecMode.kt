@@ -24,4 +24,5 @@ public enum class AutoExecMode {
    * then repeats. This might make suboptimal moves for the player... but it's convenient.
    */
   FIRST,
+
 }

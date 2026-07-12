@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.pets
 
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Transforming.actionListToEffects
@@ -15,6 +13,8 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.testlib.te
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.test.Test
 

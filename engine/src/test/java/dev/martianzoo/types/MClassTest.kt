@@ -8,14 +8,11 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 internal class MClassTest {
   @Test
@@ -45,7 +42,9 @@ internal class MClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader.getClass(cn("Bar"))
     bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
-    bar.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
+    bar.allSuperclasses()
+        .classNames()
+        .shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
     bar.dependencies.keys.shouldBeEmpty()
   }
 
@@ -54,13 +53,16 @@ internal class MClassTest {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader.getClass(cn("Bar"))
     bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
-    bar.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
+    bar.allSuperclasses()
+        .classNames()
+        .shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
     bar.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
   fun cycle() {
-    val s = """
+    val s =
+        """
       ABSTRACT CLASS $COMPONENT
       CLASS Foo : Bar
       CLASS Bar : Foo
@@ -70,7 +72,8 @@ internal class MClassTest {
 
   @Test
   fun trivialCycle() {
-    val s = """
+    val s =
+        """
       ABSTRACT CLASS $COMPONENT
       CLASS Foo : Foo
     """
@@ -146,7 +149,8 @@ internal class MClassTest {
             "ABSTRACT CLASS SuperBar<SuperFoo>",
             "CLASS Bar : SuperBar<Foo>",
             "CLASS SubBar : Bar<SubFoo>",
-            "CLASS Qux")
+            "CLASS Qux",
+        )
 
     // abstract: SuperFoo, SuperBar, Foo
     val supSup = table.resolve(te("SuperBar<SuperFoo>"))

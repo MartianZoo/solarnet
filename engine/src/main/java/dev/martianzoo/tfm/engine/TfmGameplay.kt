@@ -79,7 +79,7 @@ public class TfmGameplay(
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
-      body: BodyLambda = {}
+      body: BodyLambda = {},
   ): TaskResult {
     return turn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
@@ -92,6 +92,7 @@ public class TfmGameplay(
       autoExecNow()
     }
   }
+
   fun pay(
       megacredits: Int = 0,
       steel: Int = 0,
@@ -122,6 +123,7 @@ public class TfmGameplay(
   }
 
   fun cardAction1(cardName: String, body: BodyLambda = {}) = cardAction(1, cardName, body)
+
   fun cardAction2(cardName: String, body: BodyLambda = {}) = cardAction(2, cardName, body)
 
   private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
@@ -146,7 +148,9 @@ public class TfmGameplay(
       count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
 
   fun oxygenPercent(): Int = count("OxygenStep")
+
   fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
+
   fun venusPercent(): Int = count("VenusStep") * 2
 
   companion object {

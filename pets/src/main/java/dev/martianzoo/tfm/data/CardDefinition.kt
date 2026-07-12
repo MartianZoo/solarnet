@@ -164,14 +164,14 @@ public class CardDefinition(data: CardData) : Definition {
   enum class Deck(val className: ClassName) {
     PROJECT(PROJECT_CARD),
     PRELUDE(PRELUDE_CARD),
-    CORPORATION(CORPORATION_CARD)
+    CORPORATION(CORPORATION_CARD),
   }
 
   /** A kind (color) of project; see [CardDefinition.ProjectInfo.kind]. */
   enum class ProjectKind(val className: ClassName) {
     EVENT(EVENT_CARD),
     AUTOMATED(AUTOMATED_CARD),
-    ACTIVE(ACTIVE_CARD)
+    ACTIVE(ACTIVE_CARD),
   }
 
   /** The *raw* imported form of a [CardDefinition]; not really meant to be widely consumed. */

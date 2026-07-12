@@ -28,7 +28,8 @@ private class JlineReplSmokeTest {
                 script.absolutePathString(),
                 java.absolutePathString(),
                 jar.absolutePathString(),
-                homeDir.absolutePathString())
+                homeDir.absolutePathString(),
+            )
             .directory(Path.of("").toAbsolutePath().toFile())
             .redirectErrorStream(true)
             .start()

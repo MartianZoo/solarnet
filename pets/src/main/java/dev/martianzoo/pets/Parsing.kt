@@ -99,7 +99,8 @@ public object Parsing {
             ${source.replaceIndent("  ")}
           """
               .trimIndent(),
-          e)
+          e,
+      )
     }
   }
 
@@ -116,7 +117,10 @@ public object Parsing {
 
   private fun expectedTokens(expectedType: KClass<out PetNode>, source: String): Set<Token> {
     require(expectedType != PetNode::class) { "missing type info" }
-    return parserGroup.parser(expectedType).completionAtEnd(TokenCache.tokenize(source)).expectedTokens
+    return parserGroup
+        .parser(expectedType)
+        .completionAtEnd(TokenCache.tokenize(source))
+        .expectedTokens
   }
 
   private fun <T> parseRepeated(listParser: Parser<T>, tokens: TokenMatchesSequence): List<T> {
@@ -188,7 +192,8 @@ public object Parsing {
           val expected = result.expected.name?.replace("\n", "\\n")
           message.append(
               "$thisLoc: at ${match.row}:${match.column}," +
-                  " looking for $expected, but found $found\n")
+                  " looking for $expected, but found $found\n"
+          )
         }
         else -> message.append(result.toString())
       }

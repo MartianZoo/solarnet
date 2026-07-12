@@ -19,7 +19,8 @@ import dev.martianzoo.types.MClassTable
  * The component graph can be queried programmatically, but a [GameReader] is also provided which
  * can answer queries expressed as a Pets [Metric] or [Requirement].
  */
-public class Game internal constructor(
+public class Game
+internal constructor(
     /** The current state of the "board". */
     public val components: ComponentGraph,
 
@@ -46,6 +47,8 @@ public class Game internal constructor(
 
   public fun gameplay(player: Player): Gameplay = playerComponents[player]!!.gameplay
 
-  /** Called after every outermost atomic() completes. A workflow sets this to react to game flow. */
+  /**
+   * Called after every outermost atomic() completes. A workflow sets this to react to game flow.
+   */
   public var onAtomicComplete: () -> Unit = {}
 }

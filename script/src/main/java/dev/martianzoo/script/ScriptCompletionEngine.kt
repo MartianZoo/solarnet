@@ -32,8 +32,7 @@ public class ScriptCompletionEngine(
   }
 
   private fun commandCandidates(prefix: String, parsedWord: String): List<ScriptCompletion> =
-      commands
-          .values
+      commands.values
           .map { ScriptCompletion(it.name, "commands", it.usage) }
           .filter { it.startsWith(prefix, ignoreCase = true) }
           .sortedBy { it.value }

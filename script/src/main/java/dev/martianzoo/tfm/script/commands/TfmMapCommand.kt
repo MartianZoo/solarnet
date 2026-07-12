@@ -18,10 +18,12 @@ import dev.martianzoo.util.toStrings
 
 internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tfm_map") {
   override val usage = "map"
-  override val help = """
+  override val help =
+      """
         I mean it shows a map.
       """
   override val isReadOnly = true
+
   override fun noArgs() = MapToText(repl.game.reader, useColors = false).map()
 
   internal class MapToText(private val game: GameReader, private val useColors: Boolean = true) {
@@ -71,7 +73,9 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
 
     private class CenteringAppender(val sb: StringBuilder) {
       var weird: Boolean = false
+
       fun append(s: String) = sb.append(s)!!
+
       fun appendHalfSpaces(n: Int) {
         append(" ".repeat(n / 2))
         if (n % 2 != 0) appendHalfSpace()

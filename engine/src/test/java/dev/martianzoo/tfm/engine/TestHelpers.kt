@@ -28,7 +28,7 @@ object TestHelpers {
       result: TaskResult,
       game: Game,
       tfm: TfmGameplay,
-      expectedAsInstructions: String
+      expectedAsInstructions: String,
   ) {
     val preprocessor =
         with(Transformers(game.classes)) {

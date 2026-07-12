@@ -11,10 +11,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
     val players = Player.players(repl.setup.players)
     val eligiblePlayers = if (includeEngine) players else players.filter { it != Player.ENGINE }
     val full = eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
-    val short =
-        eligiblePlayers.mapNotNull { player ->
-          classShortName(player.toString())?.let { ScriptCompletion(it, "players", player.toString()) }
-        }
+    val short = eligiblePlayers.mapNotNull { player ->
+      classShortName(player.toString())?.let { ScriptCompletion(it, "players", player.toString()) }
+    }
     return full + short
   }
 
@@ -40,10 +39,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
-      repl.setup
-          .allDefinitions()
-          .filterIsInstance<CardDefinition>()
-          .map { ScriptCompletion(it.className.toString(), "cards", it.deck?.name?.lowercase()) }
+      repl.setup.allDefinitions().filterIsInstance<CardDefinition>().map {
+        ScriptCompletion(it.className.toString(), "cards", it.deck?.name?.lowercase())
+      }
 
   fun phaseNames(): List<ScriptCompletion> =
       classNames()
@@ -91,8 +89,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   private fun scalarWords(): List<ScriptCompletion> =
       listOf("1", "2", "3", "X").map { ScriptCompletion(it, "Pets scalars") }
 
-  private fun syntaxWords(vararg words: String): List<ScriptCompletion> =
-      words.map { ScriptCompletion(it, "Pets syntax") }
+  private fun syntaxWords(vararg words: String): List<ScriptCompletion> = words.map {
+    ScriptCompletion(it, "Pets syntax")
+  }
 
   private fun classShortName(name: String): String? =
       repl.game.classes

@@ -76,17 +76,20 @@ fun <T> Iterable<T>.joinOrEmpty(
       separator = separator,
       prefix = wrap.substring(0, 1),
       suffix = wrap.substring(1),
-      transform = transform)
+      transform = transform,
+  )
 }
 
 fun <T : Any> Iterable<List<T?>>.filterWithoutNulls(): List<List<T>> {
   val noNulls = filter { null !in it }
-  @Suppress("UNCHECKED_CAST") return noNulls as List<List<T>>
+  @Suppress("UNCHECKED_CAST")
+  return noNulls as List<List<T>>
 }
 
 fun <T> List<T?>.checkNoNulls(): List<T> {
   require(null !in this)
-  @Suppress("UNCHECKED_CAST") return this as List<T>
+  @Suppress("UNCHECKED_CAST")
+  return this as List<T>
 }
 
 infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more

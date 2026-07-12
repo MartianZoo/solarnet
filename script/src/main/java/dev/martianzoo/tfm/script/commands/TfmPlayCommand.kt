@@ -10,6 +10,7 @@ import dev.martianzoo.script.commands.TaskCommand
 internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("tfm_play") {
   override val usage: String = "tfm_play <CardName>"
   override val help: String = ""
+
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.playableCardNames()
 

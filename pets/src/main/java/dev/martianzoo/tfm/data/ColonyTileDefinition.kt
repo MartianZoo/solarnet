@@ -36,7 +36,8 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
               Trade<This> IF =6 ColonyProduction<This>: ${tradeIncome[6]}
               Trade<This>: ResetProduction<This>
             }
-          """)
+          """
+          )
           .single()
     }
   }

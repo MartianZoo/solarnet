@@ -36,10 +36,15 @@ internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
   private val history = DefaultHistory()
 
   private val reader: LineReader =
-      LineReaderBuilder.builder().terminal(terminal).history(history).completer(completer).build().also {
-        history.attach(it)
-        history.read(historyFile, /* checkDuplicates= */ false)
-      }
+      LineReaderBuilder.builder()
+          .terminal(terminal)
+          .history(history)
+          .completer(completer)
+          .build()
+          .also {
+            history.attach(it)
+            history.read(historyFile, /* checkDuplicates= */ false)
+          }
 
   fun loop() = loop(session::prompt, ::executeAll, welcome)
 

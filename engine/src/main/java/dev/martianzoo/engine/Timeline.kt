@@ -4,6 +4,7 @@ import dev.martianzoo.data.TaskResult
 
 public interface Timeline {
   fun checkpoint(): Checkpoint
+
   fun rollBack(checkpoint: Checkpoint)
 
   /**
@@ -24,6 +25,7 @@ public interface Timeline {
     init {
       require(ordinal >= 0)
     }
+
     override fun toString() = "$ordinal"
   }
 }

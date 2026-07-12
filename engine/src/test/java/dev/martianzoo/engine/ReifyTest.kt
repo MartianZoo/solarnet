@@ -4,8 +4,8 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
 
 class ReifyTest {
   val game = Engine.newGame(Canon.SIMPLE_GAME)

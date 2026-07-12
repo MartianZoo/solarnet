@@ -22,8 +22,9 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
  */
 sealed class Requirement : PetElement() {
   public companion object {
-    public fun split(requirement: Iterable<Requirement>): List<Requirement> =
-        requirement.flatMap { split(it) }
+    public fun split(requirement: Iterable<Requirement>): List<Requirement> = requirement.flatMap {
+      split(it)
+    }
 
     /** Recursively breaks apart any [And] requirements. */
     public fun split(requirement: Requirement): List<Requirement> =
@@ -43,6 +44,7 @@ sealed class Requirement : PetElement() {
     }
 
     internal fun parser(): Parser<Requirement> = Parsers.parser()
+
     internal fun atomParser(): Parser<Requirement> = Parsers.atomParser()
   }
 
@@ -105,7 +107,9 @@ sealed class Requirement : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(requirements)
+
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
+
     override fun precedence() = 3
 
     override fun safeToNestIn(container: PetNode): Boolean {
@@ -125,7 +129,9 @@ sealed class Requirement : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(requirements)
+
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
+
     override fun precedence() = 1
 
     override fun safeToNestIn(container: PetNode): Boolean {
@@ -136,7 +142,9 @@ sealed class Requirement : PetElement() {
   data class Transform(val requirement: Requirement, override val transformKind: String) :
       Requirement(), TransformNode<Requirement> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(requirement)
+
     override fun toString() = "$transformKind[$requirement]"
+
     override fun extract() = requirement
   }
 

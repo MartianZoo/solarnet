@@ -18,7 +18,8 @@ private class ScriptCompletionEngineTest {
   fun completesCommandNames() {
     assertThat(values("co")).contains("count")
     assertThat(values("tasks;co")).contains("count")
-    assertThat(candidates("co").single { it.value == "count" }.description).isEqualTo("count <Metric>")
+    assertThat(candidates("co").single { it.value == "count" }.description)
+        .isEqualTo("count <Metric>")
   }
 
   @Test
@@ -65,7 +66,8 @@ private class ScriptCompletionEngineTest {
     (repl.gameplay.godMode() as TaskLayer).addTasks("3 Heat?")
 
     assertThat(values("task ")).containsAtLeast("A", "B")
-    assertThat(candidates("task ").single { it.value == "A" }.description).isEqualTo("2 Plant<Owner>?")
+    assertThat(candidates("task ").single { it.value == "A" }.description)
+        .isEqualTo("2 Plant<Owner>?")
     assertThat(values("task A pr")).contains("prepare")
     assertThat(values("task A Play")).containsAtLeast("PlayCard", "Player1")
   }

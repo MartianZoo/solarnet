@@ -9,8 +9,7 @@ import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
-internal class WritableComponentGraph(private val effector: Effector) :
-    ComponentGraph, Updater {
+internal class WritableComponentGraph(private val effector: Effector) : ComponentGraph, Updater {
 
   private val multiset: HashMultiset<Component> = HashMultiset()
 

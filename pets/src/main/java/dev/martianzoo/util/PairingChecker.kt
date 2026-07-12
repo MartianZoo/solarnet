@@ -91,6 +91,7 @@ internal object Tokenizer {
   private val tokens = mutableListOf<Token>()
 
   private val toker by lazy { DefaultTokenizer(tokens) }
+
   fun tokenize(input: String) = toker.tokenize(input)
 
   fun literal(text: String, name: String = text) = remember(literalToken(name, text))

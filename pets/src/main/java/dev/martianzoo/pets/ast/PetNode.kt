@@ -82,6 +82,7 @@ public sealed class PetNode {
   /** See [PetNode.visitChildren]. */
   protected class Visitor(val shouldContinue: (PetNode) -> Boolean) {
     public fun visit(nodes: Iterable<PetNode?>) = nodes.forEach(::maybeVisit)
+
     public fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
 
     private fun maybeVisit(node: PetNode?) {

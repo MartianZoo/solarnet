@@ -91,6 +91,10 @@ If you can generate the docs (clone, `./gradlew dokkaHtmlMultiModule`, then look
 
 I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thing usable from Java, JavaScript, and some other environments as well. Getting those working might not be trivial (?) but at least won't require a port.
 
+## Formatting Kotlin
+
+The repository enforces Kotlin formatting with [Spotless](https://github.com/diffplug/spotless) and ktfmt. Run `./gradlew spotlessApply` to format all Kotlin source and Gradle Kotlin script files; `./gradlew spotlessCheck` verifies that no formatting changes are needed.
+
 ## Who are you
 
 http://kevinb9n.github.io

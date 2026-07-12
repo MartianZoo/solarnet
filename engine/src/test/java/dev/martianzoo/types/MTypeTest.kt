@@ -7,8 +7,8 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import kotlin.test.Test
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 internal class MTypeTest {
   @Test
@@ -33,8 +33,9 @@ internal class MTypeTest {
 
             CLASS Fish : ResourceCard<Class<Animal>>
             CLASS Ants : ResourceCard<Class<Microbe>>
-          """
-                .trimIndent())
+            """
+                .trimIndent()
+        )
 
     table.getClass(cn("Animal")).baseType.expressionFull.toString() shouldBe
         "Animal<Owner, ResourceCard<Owner, Class<Animal>>>"
@@ -66,7 +67,8 @@ internal class MTypeTest {
           "CLASS Complex1<Foo1, Bar1, Qux1>",
           "CLASS Complex2: Complex1<Foo2, Bar2, Qux2>",
           "CLASS Complex3: Complex2<Foo3, Bar3, Qux3>",
-          "CLASS TwoSame<Foo2, Foo2>")
+          "CLASS TwoSame<Foo2, Foo2>",
+      )
 
   @Test
   fun subtypes() {
@@ -169,12 +171,13 @@ internal class MTypeTest {
     val table =
         loadTypes(
             """
-              ABSTRACT CLASS Anyone {
-                ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-              }
-              ABSTRACT CLASS Owned<Owner>
+            ABSTRACT CLASS Anyone {
+              ABSTRACT CLASS Owner { CLASS Player1, Player2 }
+            }
+            ABSTRACT CLASS Owned<Owner>
             """
-                .trimIndent())
+                .trimIndent()
+        )
 
     table.resolve(te("Owned<Player2>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe true
     table.resolve(te("Owned<Player1>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe false
@@ -205,7 +208,9 @@ internal class MTypeTest {
 
   fun findSubstitutions(mType: MType): Map<ClassName, Expression> =
       mType.loader.transformers.findSubstitutions(
-          mType.root.defaultType.dependencies, mType.dependencies)
+          mType.root.defaultType.dependencies,
+          mType.dependencies,
+      )
 
   @Test
   fun subs() {

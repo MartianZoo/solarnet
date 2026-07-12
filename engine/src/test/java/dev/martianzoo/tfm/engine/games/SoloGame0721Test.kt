@@ -5,8 +5,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import kotlin.test.Test
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 class SoloGame0721Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
@@ -21,6 +21,7 @@ class SoloGame0721Test : AbstractSoloTest() {
   // Drew and discarded Greenhouses (cost 6) to place a city
   // Drew and discarded Luna Metropolis (cost 21) to place a greenery
   override fun cityAreas(): Pair<String, String> = "Elysium_2_6" to "Elysium_8_9"
+
   override fun greeneryAreas(): Pair<String, String> = "Elysium_1_5" to "Elysium_7_8"
 
   @Test
@@ -460,14 +461,15 @@ class SoloGame0721Test : AbstractSoloTest() {
       }
       // me used Convert Plants standard action
       stdAction("ConvertPlantsSA") {
-        // me placed greenery tile on row 4 position 5
-        // me's plants amount increased by 1
-        doTask("GreeneryTile<Elysium_4_5>")
-        // me placed ocean tile on row 1 position 3
-        // me drew 1 card(s)
-        // You drew Interstellar Colony Ship
-        doTask("OceanTile<Elysium_1_3>")
-      }.expect("-7 Plant, 8, Card, 3 TR")
+            // me placed greenery tile on row 4 position 5
+            // me's plants amount increased by 1
+            doTask("GreeneryTile<Elysium_4_5>")
+            // me placed ocean tile on row 1 position 3
+            // me drew 1 card(s)
+            // You drew Interstellar Colony Ship
+            doTask("OceanTile<Elysium_1_3>")
+          }
+          .expect("-7 Plant, 8, Card, 3 TR")
       // me used Rotator Impacts action1 2 ***
       // me added 1 asteroid(s) to Rotator Impacts
       cardAction1(RotatorImpacts) { pay(2, titanium = 1) }

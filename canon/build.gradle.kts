@@ -5,11 +5,12 @@ plugins {
   id("org.jetbrains.dokka")
 }
 
-val copyCanonResourcesForKarma by tasks.registering(Copy::class) {
-  dependsOn("jsProcessResources")
-  from(layout.buildDirectory.dir("processedResources/js/main"))
-  into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-canon-test"))
-}
+val copyCanonResourcesForKarma by
+    tasks.registering(Copy::class) {
+      dependsOn("jsProcessResources")
+      from(layout.buildDirectory.dir("processedResources/js/main"))
+      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-canon-test"))
+    }
 
 kotlin {
   jvm()

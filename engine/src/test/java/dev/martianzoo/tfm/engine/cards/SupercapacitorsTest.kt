@@ -29,7 +29,8 @@ class SupercapacitorsTest {
           0 to "Titanium",
           0 to "Plant",
           3 to "Energy",
-          9 to "Heat")
+          9 to "Heat",
+      )
 
       phase("Action")
       playProject("Supercapacitors", 4)
@@ -42,7 +43,8 @@ class SupercapacitorsTest {
           0 to "Titanium",
           0 to "Plant",
           4 to "Energy",
-          16 to "Heat")
+          16 to "Heat",
+      )
     }
   }
 }

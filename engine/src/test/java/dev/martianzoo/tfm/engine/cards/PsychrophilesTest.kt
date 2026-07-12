@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import io.kotest.assertions.throwables.shouldThrow
 
 class PsychrophilesTest {
   val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))

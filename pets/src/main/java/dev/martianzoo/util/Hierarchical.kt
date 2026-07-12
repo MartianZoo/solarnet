@@ -10,7 +10,8 @@ interface Hierarchical<H : Hierarchical<H>> : Reifiable<H> {
 
   /** Returns `true` if `this` is a general form of `that` (or they are the same). */
   fun isSupertypeOf(that: H): Boolean {
-    @Suppress("UNCHECKED_CAST") return that.isSubtypeOf(this as H)
+    @Suppress("UNCHECKED_CAST")
+    return that.isSubtypeOf(this as H)
   }
 
   /** Returns the nearest common subtype of `this` and [that], if possible */
@@ -24,8 +25,9 @@ interface Hierarchical<H : Hierarchical<H>> : Reifiable<H> {
      * Returns the nearest common subtype of all the elements in [list], if possible. Returns `null`
      * if either the list is empty or there is no common subtype.
      */
-    fun <H : Hierarchical<H>> glb(list: Collection<H>): H? =
-        list.reduceOrNull { a, b -> (a glb b)!! }
+    fun <H : Hierarchical<H>> glb(list: Collection<H>): H? = list.reduceOrNull { a, b ->
+      (a glb b)!!
+    }
 
     /**
      * Returns the nearest common supertype of all the elements in [list], or `null` if the list is

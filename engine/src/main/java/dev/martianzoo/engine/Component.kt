@@ -78,6 +78,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
 
   public companion object {
     public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)
+
     public fun HasExpression.toComponent(game: GameReader) =
         this as? Component ?: expression.toComponent(game)
   }

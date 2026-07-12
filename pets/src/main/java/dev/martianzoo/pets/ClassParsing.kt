@@ -186,7 +186,7 @@ internal object ClassParsing : PetTokenizer() {
     abstract fun convert(
         kind: ClassKind,
         firstSignature: Signature,
-        docstring: String?
+        docstring: String?,
     ): NestableDeclGroup
   }
 
@@ -216,9 +216,13 @@ internal object ClassParsing : PetTokenizer() {
 
     sealed class BodyElement {
       class InvariantElement(val invariant: Requirement) : BodyElement()
+
       class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
+
       class EffectElement(val effect: Effect) : BodyElement()
+
       class ActionElement(val action: Action) : BodyElement()
+
       class NestedDeclGroup(val declGroup: NestableDeclGroup) : BodyElement()
     }
   }
@@ -230,8 +234,9 @@ internal object ClassParsing : PetTokenizer() {
         body: Body,
     ) : this(create(kind, signature, body))
 
-    fun unnestAllFrom(container: ClassName): List<NestableDecl> =
-        declList.map { it.unnestOneFrom(container) }
+    fun unnestAllFrom(container: ClassName): List<NestableDecl> = declList.map {
+      it.unnestOneFrom(container)
+    }
 
     fun finishOnlyDecl() = declList.single().decl
 
@@ -256,6 +261,7 @@ internal object ClassParsing : PetTokenizer() {
 
   internal sealed class NestableDecl {
     abstract val decl: ClassDeclaration
+
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
     data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
@@ -266,7 +272,7 @@ internal object ClassParsing : PetTokenizer() {
       constructor(
           kind: ClassKind,
           signature: Signature,
-          docstring: String?
+          docstring: String?,
       ) : this(signature.asDeclaration.copy(kind = kind, docstring = docstring))
 
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass

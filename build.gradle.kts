@@ -1,8 +1,11 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
+import com.diffplug.spotless.kotlin.KtfmtStep.TrailingCommaManagementStrategy.ONLY_ADD
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 plugins {
+  id("com.diffplug.spotless") version "8.8.0"
   id("org.jetbrains.kotlin.jvm") version "2.2.21"
   id("org.jetbrains.kotlin.multiplatform") version "2.2.21" apply false
   id("org.jetbrains.kotlin.plugin.serialization") version "2.2.21" apply false
@@ -10,6 +13,28 @@ plugins {
 }
 
 repositories { mavenCentral() }
+
+configure<SpotlessExtension> {
+  kotlin {
+    target("**/*.kt")
+    targetExclude("**/build/**")
+    ktfmt("0.64").googleStyle().configure {
+      it.setMaxWidth(100)
+      it.setBlockIndent(2)
+      it.setContinuationIndent(4)
+      it.setTrailingCommaManagementStrategy(ONLY_ADD)
+    }
+  }
+  kotlinGradle {
+    target("**/*.gradle.kts")
+    ktfmt("0.64").googleStyle().configure {
+      it.setMaxWidth(100)
+      it.setBlockIndent(2)
+      it.setContinuationIndent(4)
+      it.setTrailingCommaManagementStrategy(ONLY_ADD)
+    }
+  }
+}
 
 subprojects {
   repositories {
@@ -55,13 +80,15 @@ subprojects {
   }
 }
 
-tasks.matching { it.name == "rootPackageJson" }.configureEach {
-  dependsOn(
-    ":canon:copyCanonResourcesForKarma",
-    ":engine:copyCanonResourcesForKarma",
-    ":pets:copyCanonResourcesForKarma",
-  )
-}
+tasks
+    .matching { it.name == "rootPackageJson" }
+    .configureEach {
+      dependsOn(
+          ":canon:copyCanonResourcesForKarma",
+          ":engine:copyCanonResourcesForKarma",
+          ":pets:copyCanonResourcesForKarma",
+      )
+    }
 
 dokka {
   moduleName.set("Solarnet/Pets")

@@ -51,6 +51,7 @@ internal class Transformers(internal val classes: MClassTable) {
 
     return object : PetTransformer() {
       var ourMulti: Multi? = null
+
       override fun <P : PetNode> transform(node: P): P {
         if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
           val flattened =
@@ -61,16 +62,19 @@ internal class Transformers(internal val classes: MClassTable) {
                   listOf(it)
                 }
               }
-          @Suppress("UNCHECKED_CAST") return Multi(flattened) as P
+          @Suppress("UNCHECKED_CAST")
+          return Multi(flattened) as P
         }
         if (node !is Gain) return transformChildren(node)
         val scex = node.scaledEx
         val sc = scex.scalar
 
-        if (sc !is ActualScalar ||
-            sc.value == 1 ||
-            THIS in scex.expression ||
-            !classes.resolve(scex.expression).root.isSubtypeOf(atomized)) {
+        if (
+            sc !is ActualScalar ||
+                sc.value == 1 ||
+                THIS in scex.expression ||
+                !classes.resolve(scex.expression).root.isSubtypeOf(atomized)
+        ) {
           return node
         }
 
@@ -101,7 +105,8 @@ internal class Transformers(internal val classes: MClassTable) {
             } else {
               transformChildren(node)
             }
-        @Suppress("UNCHECKED_CAST") return result as P
+        @Suppress("UNCHECKED_CAST")
+        return result as P
       }
 
       private fun <P : Change> handleIt(
@@ -152,7 +157,8 @@ internal class Transformers(internal val classes: MClassTable) {
 
         val defaultDeps = classes.getClass(node.className).defaults.allUsages.dependencies
         val result = insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, classes)
-        @Suppress("UNCHECKED_CAST") return result as P
+        @Suppress("UNCHECKED_CAST")
+        return result as P
       }
     }
   }
@@ -199,7 +205,8 @@ internal class Transformers(internal val classes: MClassTable) {
                 replacement
                     .appendArguments(node.arguments)
                     .copy(refinement = node.refinement, complement = node.complement)
-            @Suppress("UNCHECKED_CAST") return expr as P
+            @Suppress("UNCHECKED_CAST")
+            return expr as P
           }
         }
         return transformChildren(node)

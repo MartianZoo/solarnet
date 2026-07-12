@@ -46,8 +46,7 @@ data class GameSetup(
   /** All [Definition] objects to use in this game. */
   fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
 
-  @JsName("playerList")
-  fun players(): List<Player> = Player.players(players)
+  @JsName("playerList") fun players(): List<Player> = Player.players(players)
 
   val colonyTiles: Set<ColonyTileDefinition> =
       chooseColonyTileNames().toSetStrict { authority.colonyTile(it) }

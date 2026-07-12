@@ -13,7 +13,9 @@ public interface HasExpression {
 
   public companion object {
     fun Iterable<HasExpression>.expressions(): List<Expression> = map { it.expression }
+
     fun Sequence<HasExpression>.expressions(): Sequence<Expression> = map { it.expression }
+
     fun Set<HasExpression>.expressions(): Set<Expression> = toSetStrict { it.expression }
   }
 }

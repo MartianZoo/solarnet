@@ -6,10 +6,10 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
-import kotlin.reflect.KClass
-import io.kotest.assertions.withClue
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import kotlin.reflect.KClass
 
 internal fun te(s: String): Expression = parse(s)
 
@@ -36,4 +36,5 @@ internal fun loadTypes(vararg decl: String) =
           CLASS Ok
           ${decl.joinToString("") { "$it\n" }}
         """
-            .trimIndent())
+            .trimIndent()
+    )

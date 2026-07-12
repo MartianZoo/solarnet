@@ -9,5 +9,6 @@ internal class TurnCommand(private val repl: ScriptSession) : ScriptCommand("tur
       """
         Asks the engine to start a new turn for the current player.
       """
+
   override fun noArgs() = repl.describeExecutionResults(repl.access().newTurn())
 }

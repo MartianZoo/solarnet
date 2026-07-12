@@ -73,7 +73,7 @@ public data class ClassDeclaration(
 
   enum class ClassKind {
     CONCRETE,
-    ABSTRACT
+    ABSTRACT,
   }
 
   public val abstract = kind == ABSTRACT
@@ -89,7 +89,7 @@ public data class ClassDeclaration(
     enum class DefaultKind {
       ALL_USAGES,
       GAIN_ONLY,
-      REMOVE_ONLY
+      REMOVE_ONLY,
     }
 
     fun default(kind: DefaultKind) =
@@ -108,6 +108,7 @@ public data class ClassDeclaration(
             forClass = defs.mapNotNull { it.forClass }.singleOrNull(),
         )
       }
+
       private fun merge(ones: Collection<OneDefault>): OneDefault {
         val deps = ones.map { it.specs }.firstOrNull { it.any() } ?: listOf()
         val intensity = ones.firstNotNullOfOrNull { it.intensity }

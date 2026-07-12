@@ -8,8 +8,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.engine.Prod
-import kotlin.test.Test
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 class TransformersTest {
   @Test
@@ -19,7 +19,9 @@ class TransformersTest {
     checkApplyDefaults("OceanTile", "OceanTile<WaterArea>.")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
-        "CityTile", "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!")
+        "CityTile",
+        "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
+    )
     checkApplyDefaults("-CityTile", "-CityTile<Owner>!")
     checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
     checkApplyDefaults("CityTile<Owner, WaterArea>", "CityTile<WaterArea, Owner>!")
@@ -30,14 +32,19 @@ class TransformersTest {
     checkApplyDefaults(
         "CityTile<This>",
         "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), This>!",
-        cn("Owner").expression)
+        cn("Owner").expression,
+    )
 
     checkApplyDefaults("OwnedTile", "OwnedTile<Owner>!")
     checkApplyDefaults("Neighbor<OwnedTile>", "Neighbor<OwnedTile<Owner>>!")
     checkApplyDefaults(
-        "LandArea(HAS Neighbor<OwnedTile>)", "LandArea(HAS Neighbor<OwnedTile<Owner>>)!")
+        "LandArea(HAS Neighbor<OwnedTile>)",
+        "LandArea(HAS Neighbor<OwnedTile<Owner>>)!",
+    )
     checkApplyDefaults(
-        "GreeneryTile", "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>), Owner>!")
+        "GreeneryTile",
+        "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>), Owner>!",
+    )
   }
 
   private companion object {
@@ -74,12 +81,14 @@ class TransformersTest {
     val prodden: Effect =
         parse(
             "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
-                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
+                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
+        )
     val expected: Effect =
         parse(
             "Production<Class<Plant>>:" +
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
-                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat")
+                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
+        )
     val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)
     deprodden shouldBe expected
   }

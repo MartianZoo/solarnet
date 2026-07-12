@@ -9,15 +9,13 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.tfm.canon.Canon
-import kotlin.reflect.KClass
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import kotlin.reflect.KClass
+import kotlin.test.Test
 
 class TaskPreparingTest {
   private val A = TaskId("A")

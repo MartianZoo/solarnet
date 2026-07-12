@@ -5,6 +5,7 @@ import kotlin.collections.Map.Entry
 public interface Multiset<E> : Collection<E> {
   public val elements: Set<E>
   val entries: Set<Entry<E, Int>>
+
   public fun count(element: E): Int
 
   public fun filter(predicate: (E) -> Boolean): Multiset<E> {

@@ -24,15 +24,17 @@ private class ScriptSessionTest {
     command(
         "tfm_board P1",
         """
-            Player1   TR: 23   Tiles: 1
-          +---------+---------+---------+
-          |  M:  17 |  S:   0 |  T:   0 |
-          | prod  7 | prod  3 | prod  0 |
-          +---------+---------+---------+
-          |  P:   1 |  E:   1    H:   8 |
-          | prod  0 | prod  1 | prod  1 |
-          +---------+---------+---------+
-    """.trimIndent())
+          Player1   TR: 23   Tiles: 1
+        +---------+---------+---------+
+        |  M:  17 |  S:   0 |  T:   0 |
+        | prod  7 | prod  3 | prod  0 |
+        +---------+---------+---------+
+        |  P:   1 |  E:   1    H:   8 |
+        | prod  0 | prod  1 | prod  1 |
+        +---------+---------+---------+
+        """
+            .trimIndent(),
+    )
     command("count CityTile", "1 CityTile<Owner>")
     command("become P2", "Hi, Player2")
     command("count CityTile", "0 CityTile<Player2>")
@@ -41,26 +43,32 @@ private class ScriptSessionTest {
     command(
         "turn",
         """
-          New tasks pending:
-          Z* [queue: Player2, owner: Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
-        """.trimIndent())
+        New tasks pending:
+        Z* [queue: Player2, owner: Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
+        """
+            .trimIndent(),
+    )
     command("task UseAction1<ConvertHeatSA>", "Can't remove 8 Heat<Player2>: max possible is 6")
     command("mode red", "Mode RED: Change integrity: make changes without triggered effects")
     command("exec 2 Heat", "0000: +2 Heat<Player2> FOR Player2 (manual)")
     command(
         "task UseAction1<ConvertHeatSA>",
         """
-          0000: -8 Heat<Player2> FOR Player2 BY ConvertHeatSA BECAUSE 0000
-          0000: +TemperatureStep FOR Player2 BY ConvertHeatSA BECAUSE 0000
-          0000: +TerraformRating<Player2> FOR Player2 BY TemperatureStep BECAUSE 0000
-        """.trimIndent())
+        0000: -8 Heat<Player2> FOR Player2 BY ConvertHeatSA BECAUSE 0000
+        0000: +TemperatureStep FOR Player2 BY ConvertHeatSA BECAUSE 0000
+        0000: +TerraformRating<Player2> FOR Player2 BY TemperatureStep BECAUSE 0000
+        """
+            .trimIndent(),
+    )
     command(
         "list GlobalParameter",
         """
-          3 GlobalParameter:
-            2 TemperatureStep
-            1 VenusStep
-        """.trimIndent())
+        3 GlobalParameter:
+          2 TemperatureStep
+          1 VenusStep
+        """
+            .trimIndent(),
+    )
   }
 
   @Test
@@ -68,25 +76,25 @@ private class ScriptSessionTest {
     val repl = ScriptSession()
     val commands =
         """
-          newgame BRMVPX 2; mode blue; auto safe; phase Corporation
+        newgame BRMVPX 2; mode blue; auto safe; phase Corporation
 
-          become P1; turn; tfm_play Manutech; task 5 BuyCard
-          become P2; turn; tfm_play Factorum; task 4 BuyCard
+        become P1; turn; tfm_play Manutech; task 5 BuyCard
+        become P2; turn; tfm_play Factorum; task 4 BuyCard
 
-          phase Prelude
+        phase Prelude
 
-          become P1
-          turn; tfm_play NewPartner; tfm_play UnmiContractor
-          turn; tfm_play AlliedBank
+        become P1
+        turn; tfm_play NewPartner; tfm_play UnmiContractor
+        turn; tfm_play AlliedBank
 
-          become P2
-          turn; tfm_play AcquiredSpaceAgency
-          turn; tfm_play IoResearchOutpost
+        become P2
+        turn; tfm_play AcquiredSpaceAgency
+        turn; tfm_play IoResearchOutpost
 
-          phase Action
+        phase Action
 
-          become P1
-          turn; task UseAction1<PlayCardSA>; tfm_play InventorsGuild; tfm_pay 9
+        become P1
+        turn; task UseAction1<PlayCardSA>; tfm_play InventorsGuild; tfm_pay 9
         """
             .trimIndent()
             .split(Regex(" *[\n;] *"))
@@ -94,84 +102,84 @@ private class ScriptSessionTest {
 
     val expectedOutput =
         """
-          New 2-player game created with bundles: BRMVPX
-          Mode BLUE: Turn integrity: must perform a valid game turn for this phase
-          Autoexec mode is: SAFE
-          0000: +CorporationPhase FROM SetupPhase FOR Engine (manual)
-          0000: +CorporationCard<Player1> FOR Engine BY Player1 BECAUSE 0000
-          0000: +CorporationCard<Player2> FOR Engine BY Player2 BECAUSE 0000
-          0000: +Photosynthesis FOR Engine BY TerraformingMars BECAUSE 0000
-          Hi, Player1
-          New tasks pending:
-          Z  [queue: Player1, owner: Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
-          Z  [queue: Player1, owner: Player1] 10 BuyCard<Player1>? (abstract)
-          0000: +Manutech<Player1> FROM CorporationCard<Player1> FOR Player1 BY PlayCard<Player1, Class<CorporationCard>, Class<Manutech>> BECAUSE 0000
-          0000: +BuildingTag<Player1, Manutech<Player1>> FOR Player1 BY Manutech<Player1> BECAUSE 0000
-          0000: +Production<Player1, Class<Steel>> FOR Player1 BY Manutech<Player1> BECAUSE 0000
-          0000: +35 Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
-          0000: +Steel<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
-          0000: -15 Megacredit<Player1> FOR Player1 BY BuyCard<Player1> BECAUSE 0000
-          0000: +5 ProjectCard<Player1> FOR Player1 BY BuyCard<Player1> BECAUSE 0000
-          Hi, Player2
-          New tasks pending:
-          Z  [queue: Player2, owner: Player2] PlayCard<Player2, Class<CorporationCard>>! (abstract)
-          Z  [queue: Player2, owner: Player2] 10 BuyCard<Player2>? (abstract)
-          0000: +Factorum<Player2> FROM CorporationCard<Player2> FOR Player2 BY PlayCard<Player2, Class<CorporationCard>, Class<Factorum>> BECAUSE 0000
-          0000: +PowerTag<Player2, Factorum<Player2>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
-          0000: +BuildingTag<Player2, Factorum<Player2>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
-          0000: +37 Megacredit<Player2> FOR Player2 BY Factorum<Player2> BECAUSE 0000
-          0000: +Production<Player2, Class<Steel>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
-          0000: -12 Megacredit<Player2> FOR Player2 BY BuyCard<Player2> BECAUSE 0000
-          0000: +4 ProjectCard<Player2> FOR Player2 BY BuyCard<Player2> BECAUSE 0000
-          0000: +PreludePhase FROM CorporationPhase FOR Engine (manual)
-          0000: +2 PreludeCard<Player1> FOR Engine BY Player1 BECAUSE 0000
-          0000: +2 PreludeCard<Player2> FOR Engine BY Player2 BECAUSE 0000
-          Hi, Player1
-          New tasks pending:
-          Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
-          0000: +NewPartner<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<NewPartner>> BECAUSE 0000
-          0000: +Production<Player1, Class<Megacredit>> FOR Player1 BY NewPartner<Player1> BECAUSE 0000
-          0000: +PreludeCard<Player1> FOR Player1 BY NewPartner<Player1> BECAUSE 0000
-          0000: +Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
+        New 2-player game created with bundles: BRMVPX
+        Mode BLUE: Turn integrity: must perform a valid game turn for this phase
+        Autoexec mode is: SAFE
+        0000: +CorporationPhase FROM SetupPhase FOR Engine (manual)
+        0000: +CorporationCard<Player1> FOR Engine BY Player1 BECAUSE 0000
+        0000: +CorporationCard<Player2> FOR Engine BY Player2 BECAUSE 0000
+        0000: +Photosynthesis FOR Engine BY TerraformingMars BECAUSE 0000
+        Hi, Player1
+        New tasks pending:
+        Z  [queue: Player1, owner: Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
+        Z  [queue: Player1, owner: Player1] 10 BuyCard<Player1>? (abstract)
+        0000: +Manutech<Player1> FROM CorporationCard<Player1> FOR Player1 BY PlayCard<Player1, Class<CorporationCard>, Class<Manutech>> BECAUSE 0000
+        0000: +BuildingTag<Player1, Manutech<Player1>> FOR Player1 BY Manutech<Player1> BECAUSE 0000
+        0000: +Production<Player1, Class<Steel>> FOR Player1 BY Manutech<Player1> BECAUSE 0000
+        0000: +35 Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
+        0000: +Steel<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
+        0000: -15 Megacredit<Player1> FOR Player1 BY BuyCard<Player1> BECAUSE 0000
+        0000: +5 ProjectCard<Player1> FOR Player1 BY BuyCard<Player1> BECAUSE 0000
+        Hi, Player2
+        New tasks pending:
+        Z  [queue: Player2, owner: Player2] PlayCard<Player2, Class<CorporationCard>>! (abstract)
+        Z  [queue: Player2, owner: Player2] 10 BuyCard<Player2>? (abstract)
+        0000: +Factorum<Player2> FROM CorporationCard<Player2> FOR Player2 BY PlayCard<Player2, Class<CorporationCard>, Class<Factorum>> BECAUSE 0000
+        0000: +PowerTag<Player2, Factorum<Player2>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
+        0000: +BuildingTag<Player2, Factorum<Player2>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
+        0000: +37 Megacredit<Player2> FOR Player2 BY Factorum<Player2> BECAUSE 0000
+        0000: +Production<Player2, Class<Steel>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
+        0000: -12 Megacredit<Player2> FOR Player2 BY BuyCard<Player2> BECAUSE 0000
+        0000: +4 ProjectCard<Player2> FOR Player2 BY BuyCard<Player2> BECAUSE 0000
+        0000: +PreludePhase FROM CorporationPhase FOR Engine (manual)
+        0000: +2 PreludeCard<Player1> FOR Engine BY Player1 BECAUSE 0000
+        0000: +2 PreludeCard<Player2> FOR Engine BY Player2 BECAUSE 0000
+        Hi, Player1
+        New tasks pending:
+        Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
+        0000: +NewPartner<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<NewPartner>> BECAUSE 0000
+        0000: +Production<Player1, Class<Megacredit>> FOR Player1 BY NewPartner<Player1> BECAUSE 0000
+        0000: +PreludeCard<Player1> FOR Player1 BY NewPartner<Player1> BECAUSE 0000
+        0000: +Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
 
-          New tasks pending:
-          Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)
-          0000: +UnmiContractor<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<UnmiContractor>> BECAUSE 0000
-          0000: +EarthTag<Player1, UnmiContractor<Player1>> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
-          0000: +3 TerraformRating<Player1> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
-          0000: +ProjectCard<Player1> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
-          New tasks pending:
-          Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
-          0000: +AlliedBank<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<AlliedBank>> BECAUSE 0000
-          0000: +EarthTag<Player1, AlliedBank<Player1>> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
-          0000: +4 Production<Player1, Class<Megacredit>> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
-          0000: +3 Megacredit<Player1> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
-          0000: +4 Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
-          Hi, Player2
-          New tasks pending:
-          Z* [queue: Player2, owner: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
-          0000: +AcquiredSpaceAgency<Player2> FROM PreludeCard<Player2> FOR Player2 BY PlayCard<Player2, Class<PreludeCard>, Class<AcquiredSpaceAgency>> BECAUSE 0000
-          0000: +6 Titanium<Player2> FOR Player2 BY AcquiredSpaceAgency<Player2> BECAUSE 0000
-          0000: +2 ProjectCard<Player2> FOR Player2 BY AcquiredSpaceAgency<Player2> BECAUSE 0000
-          New tasks pending:
-          Z* [queue: Player2, owner: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
-          0000: +IoResearchOutpost<Player2> FROM PreludeCard<Player2> FOR Player2 BY PlayCard<Player2, Class<PreludeCard>, Class<IoResearchOutpost>> BECAUSE 0000
-          0000: +ScienceTag<Player2, IoResearchOutpost<Player2>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
-          0000: +JovianTag<Player2, IoResearchOutpost<Player2>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
-          0000: +Production<Player2, Class<Titanium>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
-          0000: +ProjectCard<Player2> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
-          0000: +ActionPhase FROM PreludePhase FOR Engine (manual)
-          Hi, Player1
-          New tasks pending:
-          Z* [queue: Player1, owner: Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! (abstract)
-          New tasks pending:
-          Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<ProjectCard>>! (abstract)
-          New tasks pending:
-          Z* [queue: Player1, owner: Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
-          Z  [queue: Player1, owner: Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>!
-          0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> FOR Player1 BY Accept<Player1, Class<Megacredit>> BECAUSE 0000
-          0000: +InventorsGuild<Player1> FROM ProjectCard<Player1> FOR Player1 BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
-          0000: +ScienceTag<Player1, InventorsGuild<Player1>> FOR Player1 BY InventorsGuild<Player1> BECAUSE 0000
+        New tasks pending:
+        Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)
+        0000: +UnmiContractor<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<UnmiContractor>> BECAUSE 0000
+        0000: +EarthTag<Player1, UnmiContractor<Player1>> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
+        0000: +3 TerraformRating<Player1> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
+        0000: +ProjectCard<Player1> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
+        New tasks pending:
+        Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
+        0000: +AlliedBank<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<AlliedBank>> BECAUSE 0000
+        0000: +EarthTag<Player1, AlliedBank<Player1>> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
+        0000: +4 Production<Player1, Class<Megacredit>> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
+        0000: +3 Megacredit<Player1> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
+        0000: +4 Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
+        Hi, Player2
+        New tasks pending:
+        Z* [queue: Player2, owner: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
+        0000: +AcquiredSpaceAgency<Player2> FROM PreludeCard<Player2> FOR Player2 BY PlayCard<Player2, Class<PreludeCard>, Class<AcquiredSpaceAgency>> BECAUSE 0000
+        0000: +6 Titanium<Player2> FOR Player2 BY AcquiredSpaceAgency<Player2> BECAUSE 0000
+        0000: +2 ProjectCard<Player2> FOR Player2 BY AcquiredSpaceAgency<Player2> BECAUSE 0000
+        New tasks pending:
+        Z* [queue: Player2, owner: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
+        0000: +IoResearchOutpost<Player2> FROM PreludeCard<Player2> FOR Player2 BY PlayCard<Player2, Class<PreludeCard>, Class<IoResearchOutpost>> BECAUSE 0000
+        0000: +ScienceTag<Player2, IoResearchOutpost<Player2>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
+        0000: +JovianTag<Player2, IoResearchOutpost<Player2>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
+        0000: +Production<Player2, Class<Titanium>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
+        0000: +ProjectCard<Player2> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
+        0000: +ActionPhase FROM PreludePhase FOR Engine (manual)
+        Hi, Player1
+        New tasks pending:
+        Z* [queue: Player1, owner: Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! (abstract)
+        New tasks pending:
+        Z* [queue: Player1, owner: Player1] PlayCard<Player1, Class<ProjectCard>>! (abstract)
+        New tasks pending:
+        Z* [queue: Player1, owner: Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
+        Z  [queue: Player1, owner: Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>!
+        0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> FOR Player1 BY Accept<Player1, Class<Megacredit>> BECAUSE 0000
+        0000: +InventorsGuild<Player1> FROM ProjectCard<Player1> FOR Player1 BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
+        0000: +ScienceTag<Player1, InventorsGuild<Player1>> FOR Player1 BY InventorsGuild<Player1> BECAUSE 0000
         """
             .trimIndent()
             .split("\n")
@@ -281,7 +289,8 @@ private class ScriptSessionTest {
             """
                 .replaceIndent(" ")
                 .split("\n")
-                .map { it.trimEnd() })
+                .map { it.trimEnd() }
+        )
         .inOrder()
   }
 }

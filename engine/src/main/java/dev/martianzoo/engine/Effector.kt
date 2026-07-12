@@ -42,7 +42,11 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
   private fun activeEffects(component: Component): List<ActiveEffect> {
     fun activeEffect(fx: Effect) =
         ActiveEffect(
-            Subscription.from(fx.trigger, component), fx.automatic, fx.instruction, component)
+            Subscription.from(fx.trigger, component),
+            fx.automatic,
+            fx.instruction,
+            component,
+        )
 
     return effects.getOrPut(component) { component.effects.map(::activeEffect) }
   }
@@ -127,7 +131,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           currentEvent: ChangeEvent,
           actor: Player,
           isSelf: Boolean,
-          reader: GameReader
+          reader: GameReader,
       ): Hit? {
         reader as GameReaderImpl
         if (isSelf) return null
@@ -217,7 +221,11 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
       ): Hit? {
         // just fake it like only one happened
         return inner.checkForHit(
-            currentEvent.copy(change = currentEvent.change.copy(count = 1)), actor, isSelf, reader)
+            currentEvent.copy(change = currentEvent.change.copy(count = 1)),
+            actor,
+            isSelf,
+            reader,
+        )
       }
 
       override val classToCheck = inner.classToCheck

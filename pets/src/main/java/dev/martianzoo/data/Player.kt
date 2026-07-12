@@ -31,6 +31,7 @@ data class Player(override val className: ClassName) : HasClassName, HasExpressi
         listOf(PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5).subList(0, upTo) + ENGINE
 
     fun isValid(name: String) = name.matches(regex)
+
     fun isValid(name: ClassName) = isValid(name.toString())
 
     private fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }

@@ -39,7 +39,8 @@ public sealed class Instruction : PetElement() {
               is Multi -> instruction.instructions.flatMap { split(it).instructions }
               is NoOp -> listOf()
               else -> listOf(instruction)
-            })
+            }
+        )
 
     internal fun parser(): Parser<Instruction> = Parsers.parser()
   }
@@ -49,7 +50,9 @@ public sealed class Instruction : PetElement() {
     val size by instructions::size
 
     fun <T> map(function: (Instruction) -> T): List<T> = instructions.map(function)
+
     fun forEach(consumer: (Instruction) -> Unit) = instructions.forEach(consumer)
+
     fun asInstruction() = Multi.create(instructions)
 
     init {
@@ -80,6 +83,7 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) {}
+
     override fun toString() = "Ok"
   }
 
@@ -89,7 +93,7 @@ public sealed class Instruction : PetElement() {
           count: Int = 1,
           gaining: Expression? = null,
           removing: Expression? = null,
-          intensity: Intensity? = MANDATORY
+          intensity: Intensity? = MANDATORY,
       ): Instruction {
         require(count >= 0)
         return when {
@@ -154,6 +158,7 @@ public sealed class Instruction : PetElement() {
     override val removing = null
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+
     override fun scale(factor: Int) = copy(scaledEx = scaledEx * factor)
 
     override fun toString() = "$scaledEx${intensity?.symbol ?: ""}"
@@ -172,6 +177,7 @@ public sealed class Instruction : PetElement() {
     override val removing = scaledEx.expression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+
     override fun scale(factor: Int) = copy(scaledEx = scaledEx * factor)
 
     override fun toString() = "-$scaledEx${intensity?.symbol ?: ""}"
@@ -191,6 +197,7 @@ public sealed class Instruction : PetElement() {
     override val removing = fromEx.fromExpression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(fromEx)
+
     override fun scale(factor: Int) = copy(scalar = scalar * factor)
 
     override fun toString(): String {
@@ -216,6 +223,7 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(metric, inner)
+
     override fun scale(factor: Int) = copy(inner = inner * factor)
 
     override fun precedence() = 8
@@ -239,11 +247,13 @@ public sealed class Instruction : PetElement() {
       fun create(gate: Requirement?, inner: Instruction, mandatory: Boolean = true) =
           if (gate == null) inner else Gated(gate, inner, mandatory)
     }
+
     init {
       if (inner is Gated) throw PetSyntaxException("You don't gate a gater")
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(gate, inner)
+
     override fun scale(factor: Int) = copy(inner = inner * factor)
 
     override fun isAbstract(info: TypeInfo) = inner.isAbstract(info)

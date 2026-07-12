@@ -65,7 +65,11 @@ internal class Implementations(
     complete(autoExec, body)
   }
 
-  internal fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun beginManual(
+      initialInstruction: Instruction,
+      autoExec: AutoExecMode,
+      body: () -> Unit,
+  ) {
     tasks.requireAllQueuesEmpty()
     addTasks(initialInstruction).forEach(::doTask)
     continueManual(autoExec, body)
@@ -94,8 +98,7 @@ internal class Implementations(
     if (mode == NONE || allTasks.isEmpty()) return false
 
     val options: List<TaskId> =
-        allTasks.preparedTask()?.let(::listOf)
-            ?: allTasks.ids().filter(::canPrepareAnyTask)
+        allTasks.preparedTask()?.let(::listOf) ?: allTasks.ids().filter(::canPrepareAnyTask)
 
     when (options.size) {
       0 -> prepareAnyTask(allTasks.ids().first()).also { error("that should've failed") }
@@ -219,7 +222,9 @@ internal class Implementations(
   // Same whole-game auto-exec path as canPrepareAnyTask().
   private fun prepareAnyTask(taskId: TaskId): TaskId? {
     val queue = queueForAnyTask(taskId)
-    return doPrepare(queue, queue.getTaskData(taskId)).also { lookAheadForTroubleInAnyQueue(taskId) }
+    return doPrepare(queue, queue.getTaskData(taskId)).also {
+      lookAheadForTroubleInAnyQueue(taskId)
+    }
   }
 
   private fun lookAheadForTrouble(taskId: TaskId) {

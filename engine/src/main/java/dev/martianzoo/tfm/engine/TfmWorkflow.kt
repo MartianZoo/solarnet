@@ -15,38 +15,43 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
- * Two modes for driving the Terraforming Mars game-phase sequence:
- * [Auto] uses a coroutine to advance phases automatically; [Manual] exposes each phase
- * transition as an explicit public method for tests that need to drive the game step-by-step.
+ * Two modes for driving the Terraforming Mars game-phase sequence: [Auto] uses a coroutine to
+ * advance phases automatically; [Manual] exposes each phase transition as an explicit public method
+ * for tests that need to drive the game step-by-step.
  */
 public object TfmWorkflow {
 
   /**
-   * Exposes each game-phase transition as a simple method call. No coroutine machinery:
-   * each method fires the engine op and returns immediately. The caller is then responsible
-   * for performing all resulting player actions before calling the next phase method.
+   * Exposes each game-phase transition as a simple method call. No coroutine machinery: each method
+   * fires the engine op and returns immediately. The caller is then responsible for performing all
+   * resulting player actions before calling the next phase method.
    *
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via
-   * [OperationLayer.turn] when
-   * no task is already pending, so no explicit turn-granting is needed.
+   * [OperationLayer.turn] when no task is already pending, so no explicit turn-granting is needed.
    */
   public class Manual(private val game: Game, private val setup: GameSetup) {
 
     internal val engineOps: OperationLayer = game.gameplay(ENGINE) as OperationLayer
 
     public fun corporationPhase() = engineOps.manual("CorporationPhase FROM Phase")
+
     public fun preludePhase() = engineOps.manual("PreludePhase FROM Phase")
+
     public fun actionPhase() = engineOps.manual("ActionPhase FROM Phase")
+
     public fun productionPhase() = engineOps.manual("ProductionPhase FROM Phase")
+
     public fun finalGreeneryPhase() = engineOps.manual("FinalGreeneryPhase FROM Phase")
+
     public fun researchPhase(body: BodyLambda = {}) =
         engineOps.manual("ResearchPhase FROM Phase", body)
+
     public fun endPhase() = engineOps.manual("EndPhase FROM Phase")
   }
 
   /**
-   * Orchestrates the full Terraforming Mars game flow using a single coroutine, so each phase
-   * can be written as straight-line sequential code.
+   * Orchestrates the full Terraforming Mars game flow using a single coroutine, so each phase can
+   * be written as straight-line sequential code.
    *
    * The coroutine suspends whenever the game has outstanding player tasks (choosing cards, placing
    * tiles, etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
@@ -57,7 +62,8 @@ public object TfmWorkflow {
   public class Auto(private val game: Game, private val setup: GameSetup) {
 
     private val m = Manual(game, setup)
-    private val engineOps: OperationLayer get() = m.engineOps
+    private val engineOps: OperationLayer
+      get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
     private val players: List<Player> = setup.players().filter { it != ENGINE }
@@ -67,8 +73,8 @@ public object TfmWorkflow {
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all player tasks
-     * drain. Only fires when [Channel.receive] is already waiting, so signals during automatic phases
-     * are silently dropped.
+     * drain. Only fires when [Channel.receive] is already waiting, so signals during automatic
+     * phases are silently dropped.
      */
     private val resumeSignal = Channel<Unit>(Channel.RENDEZVOUS)
 
@@ -81,9 +87,9 @@ public object TfmWorkflow {
       get() = workflowJob?.isActive == true
 
     /**
-     * Checkpoint saved just before the workflow's most recent [OperationLayer.beginManual] call. Non-null only
-     * while the coroutine is suspended waiting for those tasks to drain. [shutdown] rolls back to
-     * this point to undo the pending workflow task.
+     * Checkpoint saved just before the workflow's most recent [OperationLayer.beginManual] call.
+     * Non-null only while the coroutine is suspended waiting for those tasks to drain. [shutdown]
+     * rolls back to this point to undo the pending workflow task.
      */
     private var shutdownCheckpoint: Timeline.Checkpoint? = null
 
@@ -95,8 +101,8 @@ public object TfmWorkflow {
      * Launches the game-flow coroutine and returns `this` for chaining. An [Auto] instance can be
      * launched only once.
      *
-     * [Dispatchers.Unconfined] is used so the coroutine resumes synchronously in whichever
-     * thread delivers the next [resumeSignal], avoiding unnecessary thread hops.
+     * [Dispatchers.Unconfined] is used so the coroutine resumes synchronously in whichever thread
+     * delivers the next [resumeSignal], avoiding unnecessary thread hops.
      */
     public fun launch(): Auto {
       check(workflowJob == null) { "Workflow has already been launched" }
@@ -125,9 +131,7 @@ public object TfmWorkflow {
       shutdownCheckpoint = null
     }
 
-    /**
-     * Orchestrates the complete game from SetupPhase (which it must already be in) to finish.
-     */
+    /** Orchestrates the complete game from SetupPhase (which it must already be in) to finish. */
     public suspend fun runGame() {
       corporationPhase()
       if ("P" in setup.bundles) preludePhase()

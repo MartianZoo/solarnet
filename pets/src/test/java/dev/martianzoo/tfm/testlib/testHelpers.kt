@@ -4,8 +4,8 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
-import io.kotest.assertions.withClue
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 
 public fun te(s: String): Expression = parse(s)
 

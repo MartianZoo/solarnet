@@ -14,8 +14,9 @@ import dev.martianzoo.types.MClassTable
 
 object Prod {
   public fun deprodify(table: MClassTable): PetTransformer {
-    if (STANDARD_RESOURCE !in table.allClassNamesAndIds ||
-        PRODUCTION !in table.allClassNamesAndIds) {
+    if (
+        STANDARD_RESOURCE !in table.allClassNamesAndIds || PRODUCTION !in table.allClassNamesAndIds
+    ) {
       return PetTransformer.noOp()
     }
     val classNames =
@@ -59,7 +60,8 @@ object Prod {
                   PRODUCTION.of(node.arguments + node.className.classExpression())
               else -> transformChildren(node)
             }
-        @Suppress("UNCHECKED_CAST") return rewritten as P
+        @Suppress("UNCHECKED_CAST")
+        return rewritten as P
       }
     }
   }

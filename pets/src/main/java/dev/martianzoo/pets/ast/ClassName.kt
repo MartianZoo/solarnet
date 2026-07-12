@@ -63,14 +63,18 @@ public class ClassName private constructor(private val asString: String) :
   public fun classExpression(): Expression = CLASS.of(this)
 
   override val kind = ClassName::class
+
   override fun visitChildren(visitor: Visitor) = Unit
 
   override val expression: Expression = Expression(this)
   override val expressionFull: Expression by ::expression
 
   override fun equals(other: Any?) = other is ClassName && other.asString == asString
+
   override fun hashCode() = asString.hashCode() xor 1994079235
+
   override fun toString() = asString
+
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 
   internal object Parsing : PetTokenizer() {

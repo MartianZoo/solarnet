@@ -24,6 +24,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     }
 
     fun of() = of(setOf())
+
     fun of(deps: Iterable<Dependency>) = of(deps.toSetStrict())
   }
 
@@ -51,11 +52,14 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   }
 
   fun typeDependencies(): Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
+
   fun complementDependencies(): Set<ComplementDependency> =
       deps.filterIsInstance<ComplementDependency>().toSet()
 
   val keys: Set<Key> = deps.toSetStrict { it.key }
+
   fun expressions(): List<Expression> = deps.map { it.expression }
+
   fun expressionsFull(): List<Expression> = deps.map { it.expressionFull }
 
   fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
@@ -137,14 +141,13 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     return if (isForClassType(deps)) {
       mtype.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
     } else {
-      val axes =
-          deps.map {
-            when (it) {
-              is TypeDependency -> it.allConcreteSpecializations()
-              is ComplementDependency -> it.allConcreteSpecializations()
-              else -> error("unexpected")
-            }
-          }
+      val axes = deps.map {
+        when (it) {
+          is TypeDependency -> it.allConcreteSpecializations()
+          is ComplementDependency -> it.allConcreteSpecializations()
+          else -> error("unexpected")
+        }
+      }
       axes.cartesianProduct().map { mtype.root.withAllDependencies(DependencySet.of(it)) }
     }
   }
@@ -173,6 +176,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     }
 
     fun prepend(key: Key) = DependencyPath(listOf(key) + keyList)
+
     fun drop(i: Int) = DependencyPath(keyList.drop(i))
 
     fun isProperSuffixOf(other: DependencyPath): Boolean {

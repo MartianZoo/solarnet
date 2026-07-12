@@ -28,6 +28,7 @@ public sealed class FromExpression : PetNode() {
     override val fromExpression by this::expression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+
     override fun toString() = "$expression"
   }
 
@@ -36,6 +37,7 @@ public sealed class FromExpression : PetNode() {
       override val fromExpression: Expression,
   ) : FromExpression() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(toExpression, fromExpression)
+
     override fun toString() = "$toExpression FROM $fromExpression"
   }
 

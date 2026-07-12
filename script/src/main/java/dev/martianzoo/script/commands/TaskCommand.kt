@@ -2,10 +2,10 @@ package dev.martianzoo.script.commands
 
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
+import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
 
@@ -26,8 +26,8 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
       when (context.argIndex) {
         0 -> context.taskIds() + context.petsWords(PetsCompletionRoot.INSTRUCTION)
         1 ->
-          context.completions("drop", "prepare", group = "task actions") +
-              context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
+            context.completions("drop", "prepare", group = "task actions") +
+                context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
         else -> context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
       }
 

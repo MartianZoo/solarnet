@@ -15,11 +15,15 @@ interface Grid<E> : Set<E> {
   val columnCount: Int
 
   fun rows(): List<List<E?>>
+
   fun columns(): List<List<E?>>
+
   fun diagonals(): List<List<E?>>
 
   operator fun get(rowIndex: Int, columnIndex: Int): E?
+
   fun row(rowIndex: Int): List<E?> = rows()[rowIndex]
+
   fun column(columnIndex: Int): List<E?> = columns()[columnIndex]
 
   // zero for the main diagonal, increasing to the right

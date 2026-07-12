@@ -84,6 +84,7 @@ internal abstract class RandomGenerator<B : Any>(
   }
 
   fun <T : Any?> choose(vararg choices: T): T = choices[nextInt(choices.size)]
+
   fun <T : Any?> choose(choices: List<T>): T = choices[nextInt(choices.size)]
 
   fun <T : Any?> choose(choices: Multiset<T>) = getNth(choices, nextInt(choices.size))

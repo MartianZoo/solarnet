@@ -52,7 +52,8 @@ interface TransformNode<P : PetNode> {
               } else {
                 transformChildren(node)
               }
-          @Suppress("UNCHECKED_CAST") return result as P
+          @Suppress("UNCHECKED_CAST")
+          return result as P
         }
       }
     }

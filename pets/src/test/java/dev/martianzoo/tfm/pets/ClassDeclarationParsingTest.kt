@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.pets
 
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
 
 internal class ClassDeclarationParsingTest {
@@ -24,26 +24,34 @@ internal class ClassDeclarationParsingTest {
 
   @Test
   fun slightlyMoreComplex() {
-    parseClasses("""
+    parseClasses(
+        """
       CLASS Foo
       CLASS Bar
-    """) // two separate
+    """
+    ) // two separate
 
-    parseClasses("""
+    parseClasses(
+        """
       CLASS Foo {
       }
-    """) // empty body
+    """
+    ) // empty body
 
-    parseClasses("""
+    parseClasses(
+        """
       CLASS Foo {
         HAS Bar
       }
-    """) // invariant
-    parseClasses("""
+    """
+    ) // invariant
+    parseClasses(
+        """
       CLASS Foo {
         DEFAULT +Foo!
       }
-    """) // default
+    """
+    ) // default
     parseClasses(
         """
       CLASS Foo {
@@ -52,13 +60,16 @@ internal class ClassDeclarationParsingTest {
       CLASS Bar {
         DEFAULT +Bar!
       }
-    """) // two blocks
-    parseClasses("""
+    """
+    ) // two blocks
+    parseClasses(
+        """
       CLASS Foo {
         DEFAULT +Foo!
       }
       CLASS Bar, Qux
-    """)
+    """
+    )
   }
 
   @Test
@@ -73,7 +84,8 @@ internal class ClassDeclarationParsingTest {
                 CLASS Foo
 
               }
-            """)
+            """
+        )
         .shouldHaveSize(2)
   }
 
@@ -91,7 +103,8 @@ internal class ClassDeclarationParsingTest {
 
           CLASS Generation
 
-        """)
+        """
+    )
   }
 
   @Test
@@ -111,7 +124,8 @@ internal class ClassDeclarationParsingTest {
                       CLASS Eight: One
                   }
               }
-            """)
+            """
+        )
 
     cs.map { it.supertypes }
         .shouldContainExactlyInAnyOrder(
@@ -135,7 +149,8 @@ internal class ClassDeclarationParsingTest {
         CLASS Two { This: That }
         CLASS Three { This: That }
       }
-    """)
+    """
+    )
   }
 
   @Test
@@ -155,6 +170,7 @@ internal class ClassDeclarationParsingTest {
                CLASS End
            }
         }
-    """)
+    """
+    )
   }
 }

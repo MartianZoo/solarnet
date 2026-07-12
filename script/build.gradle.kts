@@ -18,7 +18,6 @@ dependencies {
   implementation(project(":pets"))
   implementation(project(":engine"))
   implementation(project(":canon"))
-
 }
 
 dokka {

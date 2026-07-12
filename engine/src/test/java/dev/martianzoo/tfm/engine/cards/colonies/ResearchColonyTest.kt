@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.engine.cards.colonies
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
 
 class ResearchColonyTest : ColoniesCardTest() {
   @Test

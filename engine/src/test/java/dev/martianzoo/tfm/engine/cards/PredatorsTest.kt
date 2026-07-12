@@ -6,9 +6,9 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import io.kotest.assertions.throwables.shouldThrow
 
 class PredatorsTest {
   val game = Engine.newGame(Canon.SIMPLE_GAME)

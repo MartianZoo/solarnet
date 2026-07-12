@@ -16,8 +16,7 @@ internal class HistoryCommand(private val terminal: ReplTerminal) : ScriptComman
       """
   override val isReadOnly = true
 
-  override fun noArgs() =
-      terminal.historyLines()
+  override fun noArgs() = terminal.historyLines()
 
   override fun withArgs(args: String): List<String> {
     val max = args.toIntOrNull() ?: throw UsageException()

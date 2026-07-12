@@ -1,7 +1,5 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.script.ScriptCommand
@@ -15,6 +13,7 @@ internal class PhaseCommand(private val repl: ScriptSession) : ScriptCommand("ph
       """
         Asks the engine to begin a new phase, e.g. `phase Corporation`
       """
+
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.phaseNames()
 

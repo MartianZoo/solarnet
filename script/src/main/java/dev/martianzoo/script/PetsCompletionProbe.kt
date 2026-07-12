@@ -20,7 +20,9 @@ internal object PetsCompletionProbe {
           .filter { root.accepts(sourceBeforePrefix, it.value) }
 
   private fun PetsCompletionRoot.accepts(sourceBeforePrefix: String, candidate: String): Boolean =
-      parserTypes.any { it.acceptsPetsCompletion(sourceBeforePrefix, candidate) }
+      parserTypes.any {
+        it.acceptsPetsCompletion(sourceBeforePrefix, candidate)
+      }
 
   private fun KClass<out PetNode>.acceptsPetsCompletion(
       sourceBeforePrefix: String,

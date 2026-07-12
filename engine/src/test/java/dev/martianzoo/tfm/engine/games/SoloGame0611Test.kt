@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import kotlin.test.Test
-import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
-import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 class SoloGame0611Test : AbstractSoloTest() {
   // @Test // for profiling
@@ -16,6 +14,7 @@ class SoloGame0611Test : AbstractSoloTest() {
   }
 
   override fun cityAreas() = "Hellas_5_1" to "Hellas_8_4"
+
   override fun greeneryAreas() = "Hellas_6_2" to "Hellas_9_5"
 
   @Test

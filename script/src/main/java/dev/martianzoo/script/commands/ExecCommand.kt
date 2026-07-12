@@ -1,9 +1,9 @@
 package dev.martianzoo.script.commands
 
+import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptSession
 
 internal class ExecCommand(private val repl: ScriptSession) : ScriptCommand("exec") {

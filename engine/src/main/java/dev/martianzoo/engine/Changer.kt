@@ -41,6 +41,7 @@ internal class Changer(
               gaining = null,
               removing = dependent.toComponent(reader),
               cause = cause,
-              orRemoveOneDependent = true)
+              orRemoveOneDependent = true,
+          )
           .first
 }

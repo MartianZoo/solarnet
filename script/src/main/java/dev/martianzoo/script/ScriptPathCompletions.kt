@@ -20,8 +20,7 @@ internal object ScriptPathCompletions {
         }
     val prefixWithSlash = if (base.isEmpty()) "" else "$base${File.separator}"
 
-    return dir
-        .listFiles()
+    return dir.listFiles()
         ?.filter { it.name.startsWith(prefix, ignoreCase = true) }
         ?.map {
           val value = prefixWithSlash + it.name + if (it.isDirectory) File.separator else ""
@@ -31,7 +30,6 @@ internal object ScriptPathCompletions {
               replaceFragment = false,
               complete = !it.isDirectory,
           )
-        }
-        ?: emptyList()
+        } ?: emptyList()
   }
 }

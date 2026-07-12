@@ -55,7 +55,8 @@ internal abstract class PetTokenizer {
 
   internal val intensity =
       optional(
-          (char('!') asJust MANDATORY) or (char('.') asJust AMAP) or (char('?') asJust OPTIONAL))
+          (char('!') asJust MANDATORY) or (char('.') asJust AMAP) or (char('?') asJust OPTIONAL)
+      )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
@@ -86,7 +87,8 @@ internal abstract class PetTokenizer {
     private val ignoreList =
         listOf<Token>(
             regexToken("backslash-newline", "\\\\\n", true), // ignore these
-            regexToken("spaces", " +", true))
+            regexToken("spaces", " +", true),
+        )
 
     private val map = mutableMapOf<Pair<String, Boolean>, Token>()
 
@@ -102,7 +104,9 @@ internal abstract class PetTokenizer {
   }
 
   private fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)
+
   private fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
+
   private fun caseInsensitiveWord(word: String, name: String = word) =
       regex(Regex("$word\\b", RegexOption.IGNORE_CASE), name)
 }

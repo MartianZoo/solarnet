@@ -20,7 +20,9 @@ sealed class Metric : PetElement() {
 
   data class Count(val expression: Expression) : Metric() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+
     override fun toString() = "$expression"
+
     override fun precedence() = 12
   }
 
@@ -30,7 +32,9 @@ sealed class Metric : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+
     override fun toString() = if (unit == 1) "$inner" else "$unit ${groupPartIfNeeded(inner)}"
+
     override fun precedence() = 11
   }
 
@@ -40,7 +44,9 @@ sealed class Metric : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+
     override fun toString() = "${groupPartIfNeeded(inner)} MAX $maximum"
+
     override fun precedence() = 10
   }
 
@@ -70,14 +76,18 @@ sealed class Metric : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(metrics)
+
     override fun toString() = metrics.joinToString(" + ")
+
     override fun precedence() = 9
   }
 
   data class Transform(val inner: Metric, override val transformKind: String) :
       Metric(), TransformNode<Metric> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+
     override fun toString() = "$transformKind[$inner]"
+
     override fun extract() = inner
   }
 

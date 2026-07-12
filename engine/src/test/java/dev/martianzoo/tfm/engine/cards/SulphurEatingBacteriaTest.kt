@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
 
 class SulphurEatingBacteriaTest {
 
@@ -32,8 +32,7 @@ class SulphurEatingBacteriaTest {
       assertCounts(4 to "Microbe", 3 to "Megacredit")
 
       cardAction2("C251") {
-        fun assertTaskFails(task: String, desc: String) =
-            shouldThrow<Exception> { doTask(task) }
+        fun assertTaskFails(task: String, desc: String) = shouldThrow<Exception> { doTask(task) }
 
         assertTaskFails("-Microbe<C251> THEN 4", "greed")
         assertTaskFails("-Microbe<C251> THEN 2", "shortchanged")

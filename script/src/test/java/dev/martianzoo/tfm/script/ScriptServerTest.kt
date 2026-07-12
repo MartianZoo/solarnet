@@ -10,12 +10,24 @@ private class ScriptServerTest {
   // Starts the server on a random port, runs the given block, then shuts down via "exit".
   private fun withServer(block: (send: (String) -> List<String>) -> Unit) {
     val server = ScriptServer(port = 0)
-    val thread = Thread { server.run() }.also { it.isDaemon = true; it.start() }
+    val thread = Thread {
+      server.run()
+    }
+        .also {
+          it.isDaemon = true
+          it.start()
+        }
 
     fun send(command: String): List<String> =
         Socket("localhost", server.actualPort).use { socket ->
-          socket.getOutputStream().bufferedWriter().run { write("$command\n"); flush() }
-          socket.getInputStream().bufferedReader().lineSequence()
+          socket.getOutputStream().bufferedWriter().run {
+            write("$command\n")
+            flush()
+          }
+          socket
+              .getInputStream()
+              .bufferedReader()
+              .lineSequence()
               .takeWhile { it != "---END---" }
               .toList()
         }
@@ -23,7 +35,9 @@ private class ScriptServerTest {
     try {
       block(::send)
     } finally {
-      try { send("exit") } catch (_: Exception) {} // no-op if test already sent exit
+      try {
+        send("exit")
+      } catch (_: Exception) {} // no-op if test already sent exit
       thread.join(3000)
       assertThat(thread.isAlive).isFalse()
     }

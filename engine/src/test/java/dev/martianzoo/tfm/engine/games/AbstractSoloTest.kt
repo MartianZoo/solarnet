@@ -12,6 +12,7 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
   override fun setup() = GameSetup(Canon, "BRHVPX", 2)
 
   protected abstract fun cityAreas(): Pair<String, String>
+
   protected abstract fun greeneryAreas(): Pair<String, String>
 
   @BeforeTest

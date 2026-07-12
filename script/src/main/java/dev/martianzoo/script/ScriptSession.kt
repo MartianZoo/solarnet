@@ -23,7 +23,6 @@ import dev.martianzoo.script.ScriptSession.ScriptMode.PURPLE
 import dev.martianzoo.script.ScriptSession.ScriptMode.RED
 import dev.martianzoo.script.ScriptSession.ScriptMode.YELLOW
 import dev.martianzoo.script.commands.AsCommand
-import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.AutoCommand
 import dev.martianzoo.script.commands.BecomeCommand
 import dev.martianzoo.script.commands.CountCommand
@@ -38,6 +37,7 @@ import dev.martianzoo.script.commands.NewGameCommand
 import dev.martianzoo.script.commands.PhaseCommand
 import dev.martianzoo.script.commands.RollbackCommand
 import dev.martianzoo.script.commands.RunScriptCommand
+import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
@@ -238,8 +238,8 @@ public class ScriptSession {
 
 public val welcome =
     """
-      Welcome to REgo PLastics. Type `help` or `help <command>` for help.
-      Warning: this is a bare-bones tool that is not trying to be easy to use... at all
+    Welcome to REgo PLastics. Type `help` or `help <command>` for help.
+    Warning: this is a bare-bones tool that is not trying to be easy to use... at all
 
     """
         .trimIndent()

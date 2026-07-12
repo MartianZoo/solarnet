@@ -1,8 +1,5 @@
 package dev.martianzoo.tfm.data
 
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.shouldBe
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName.Companion.classNames
@@ -15,6 +12,9 @@ import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ClassDeclarationTest {
@@ -22,14 +22,14 @@ internal class ClassDeclarationTest {
   fun testExample() {
     val declText =
         """
-          ABSTRACT CLASS Foo<Bar> : Baz<Qux> {
-            HAS =1 This
-            DEFAULT +Foo<Abc>?
-            DEFAULT Foo<Xyz>
+        ABSTRACT CLASS Foo<Bar> : Baz<Qux> {
+          HAS =1 This
+          DEFAULT +Foo<Abc>?
+          DEFAULT Foo<Xyz>
 
-            This: DoStuff
-            Steel -> 5
-          }
+          This: DoStuff
+          Steel -> 5
+        }
         """
             .trimIndent()
 

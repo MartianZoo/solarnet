@@ -130,7 +130,7 @@ public data class Task(
         firstId: TaskId,
         owner: Player,
         instruction: InstructionGroup,
-        cause: Cause?
+        cause: Cause?,
     ): List<Task> {
       var nextId = firstId
       return instruction.map { newTask(nextId, owner, it, cause).also { nextId = nextId.next() } }
@@ -141,7 +141,7 @@ public data class Task(
         owner: Player,
         instruction: Instruction,
         cause: Cause?,
-        automatic: Boolean = false
+        automatic: Boolean = false,
     ): Task {
       val task = Task(id, owner, automatic, instruction, cause = cause)
       val normal = task.instruction

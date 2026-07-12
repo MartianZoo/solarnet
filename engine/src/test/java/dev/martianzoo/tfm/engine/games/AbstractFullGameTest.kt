@@ -13,8 +13,8 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import kotlin.test.BeforeTest
 import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 
 abstract class AbstractFullGameTest {
   protected lateinit var game: Game
@@ -57,7 +57,7 @@ abstract class AbstractFullGameTest {
       actions: Int,
       vp: Int,
       tr: Int,
-      hand: Int
+      hand: Int,
   ) {
     assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront + PlayedEvent")
     assertActions(actions)
@@ -76,7 +76,7 @@ abstract class AbstractFullGameTest {
       plt: Int = 0,
       mit: Int = 0,
       ant: Int = 0,
-      cit: Int = 0
+      cit: Int = 0,
   ) {
     assertCounts(
         but to "BuildingTag",
@@ -88,7 +88,8 @@ abstract class AbstractFullGameTest {
         plt to "PlantTag",
         mit to "MicrobeTag",
         ant to "AnimalTag",
-        cit to "CityTag")
+        cit to "CityTag",
+    )
     if (cn("VenusTag") in game.classes.allClassNamesAndIds) {
       assertCounts(vet to "VenusTag")
     }
@@ -98,10 +99,13 @@ abstract class AbstractFullGameTest {
       events: Int,
       tagless: Int,
       cities: Int,
-      colonies: Int = 0
+      colonies: Int = 0,
   ) {
     assertCounts(
-        events to "PlayedEvent", tagless to "CardFront(HAS MAX 0 Tag)", cities to "CityTile")
+        events to "PlayedEvent",
+        tagless to "CardFront(HAS MAX 0 Tag)",
+        cities to "CityTile",
+    )
     if ("C" in setup().bundles) assertCounts(colonies to "Colony")
   }
 

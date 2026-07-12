@@ -41,10 +41,12 @@ public object Transforming {
       } else {
         object : PetTransformer() {
           override fun <P : dev.martianzoo.pets.ast.PetNode> transform(node: P): P {
-            if (node is Expression &&
-                node.className == OWNER &&
-                node.arguments.isEmpty() &&
-                node.refinement == null) {
+            if (
+                node is Expression &&
+                    node.className == OWNER &&
+                    node.arguments.isEmpty() &&
+                    node.refinement == null
+            ) {
               @Suppress("UNCHECKED_CAST")
               return node.copy(className = owner.className) as P
             }

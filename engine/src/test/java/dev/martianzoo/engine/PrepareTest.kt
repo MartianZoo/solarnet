@@ -12,9 +12,9 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.Prod.deprodify
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import kotlin.test.Test
 
 internal class PrepareTest {
   val game: Game = newGame(Canon.SIMPLE_GAME)

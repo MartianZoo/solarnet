@@ -30,6 +30,7 @@ internal data class Defaults(
           removeOnly = DefaultSpec(removeDeps, removeIntensity),
       )
     }
+
     private fun <T> inheritDefault(
         mclass: MClass,
         extractor: (DefaultsDeclaration) -> T?,
@@ -57,7 +58,8 @@ internal data class Defaults(
             inheritDefault(
                 mclass,
                 { toDependencyMap(it.default(kind).specs).getIfPresent(key) },
-                { deps: List<Dependency> -> glb(deps)!! })
+                { deps: List<Dependency> -> glb(deps)!! },
+            )
           }
       return DependencySet.of(deps)
     }

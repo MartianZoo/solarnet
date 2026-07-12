@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.engine.cards.colonies
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.RequirementException
-import kotlin.test.Test
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
 
 class SkyDocksTest : ColoniesCardTest() {
   @Test
