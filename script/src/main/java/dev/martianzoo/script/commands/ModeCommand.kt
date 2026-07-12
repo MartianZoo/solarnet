@@ -18,14 +18,14 @@ internal class ModeCommand(private val repl: ScriptSession) : ScriptCommand("mod
   override fun noArgs() = listOf("Mode ${repl.mode}: ${repl.mode.message}")
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
-      ScriptMode.values().map { ScriptCompletion(it.name.lowercase(), "modes", it.message) }
+      ScriptMode.entries.map { ScriptCompletion(it.name.lowercase(), "modes", it.message) }
 
   override fun withArgs(args: String): List<String> {
     try {
       repl.mode = ScriptMode.valueOf(args.uppercase())
     } catch (e: Exception) {
       throw UsageException(
-          "Valid modes are: ${ScriptMode.values().joinToString { it.toString().lowercase() }}")
+          "Valid modes are: ${ScriptMode.entries.joinToString { it.toString().lowercase() }}")
     }
     return noArgs()
   }

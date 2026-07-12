@@ -2,6 +2,12 @@
 
 ## Discussed
 
+- Investigate adapting the existing PET AST random generator to Kotest property testing, especially
+  whether domain-aware shrinking can produce smaller, understandable failures without replacing
+  the useful recursive generation logic wholesale.
+- Revisit Kotlin Gradle Plugin binary API validation after it matures beyond the experimental
+  Kotlin 2.2 implementation. Evaluate ABI snapshots for the public `pets`, `engine`, `canon`, and
+  `script` APIs and integration with the normal `check` lifecycle.
 - Revisit structured/colorized interactive output now that the script layer is plain text and
   JLine-free.
 

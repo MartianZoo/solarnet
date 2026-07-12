@@ -492,7 +492,7 @@ public sealed class Instruction : PetElement() {
     }
 
     companion object {
-      fun from(symbol: String) = values().first { it.symbol == symbol }
+      fun from(symbol: String) = entries.first { it.symbol == symbol }
     }
   }
 

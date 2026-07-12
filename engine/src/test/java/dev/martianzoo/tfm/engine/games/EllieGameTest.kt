@@ -19,6 +19,7 @@ class EllieGameTest : AbstractFullGameTest() {
   @Test
   fun ellieGame() {
     val workflow = TfmWorkflow.Auto(game, setup()).launch()
+    workflow.isRunning shouldBe true
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
@@ -80,6 +81,7 @@ class EllieGameTest : AbstractFullGameTest() {
       doTask("OceanTile<Hellas_5_6>") // 1 TR<P1>
     }
     workflow.shutdown()
+    workflow.isRunning shouldBe false
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 1)
 

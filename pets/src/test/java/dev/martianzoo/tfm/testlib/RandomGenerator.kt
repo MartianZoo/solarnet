@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.testlib
 
 import dev.martianzoo.util.Multiset
+import kotlin.enums.enumEntries
 import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.pow
@@ -64,7 +65,7 @@ internal abstract class RandomGenerator<B : Any>(
     return min(((1 - d.pow(power)) * limit).toInt(), limit - 1)
   }
 
-  inline fun <reified E : Enum<E>> randomEnum() = choose(*enumValues<E>())
+  inline fun <reified E : Enum<E>> randomEnum() = choose(enumEntries<E>())
 
   inline fun <reified P : B> listOfSize(size: Int): List<P> {
     return mutableListOf<P>().also {

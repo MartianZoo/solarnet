@@ -55,6 +55,14 @@ subprojects {
   }
 }
 
+tasks.matching { it.name == "rootPackageJson" }.configureEach {
+  dependsOn(
+    ":canon:copyCanonResourcesForKarma",
+    ":engine:copyCanonResourcesForKarma",
+    ":pets:copyCanonResourcesForKarma",
+  )
+}
+
 dokka {
   moduleName.set("Solarnet/Pets")
   dokkaPublications.html {

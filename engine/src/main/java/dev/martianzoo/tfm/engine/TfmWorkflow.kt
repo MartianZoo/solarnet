@@ -8,7 +8,9 @@ import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
 import dev.martianzoo.tfm.data.GameSetup
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
@@ -70,6 +72,14 @@ public object TfmWorkflow {
      */
     private val resumeSignal = Channel<Unit>(Channel.RENDEZVOUS)
 
+    /** Parent job for all work owned by this workflow. */
+    private val lifecycleJob = Job()
+    private val workflowScope = CoroutineScope(lifecycleJob + Dispatchers.Unconfined)
+    private var workflowJob: Job? = null
+
+    internal val isRunning: Boolean
+      get() = workflowJob?.isActive == true
+
     /**
      * Checkpoint saved just before the workflow's most recent [OperationLayer.beginManual] call. Non-null only
      * while the coroutine is suspended waiting for those tasks to drain. [shutdown] rolls back to
@@ -82,24 +92,37 @@ public object TfmWorkflow {
     }
 
     /**
-     * Launches the game-flow coroutine and returns `this` for chaining.
+     * Launches the game-flow coroutine and returns `this` for chaining. An [Auto] instance can be
+     * launched only once.
      *
      * [Dispatchers.Unconfined] is used so the coroutine resumes synchronously in whichever
      * thread delivers the next [resumeSignal], avoiding unnecessary thread hops.
      */
     public fun launch(): Auto {
-      CoroutineScope(Dispatchers.Unconfined).launch { runGame() }
+      check(workflowJob == null) { "Workflow has already been launched" }
+      workflowJob =
+          workflowScope.launch(start = CoroutineStart.LAZY) {
+            try {
+              runGame()
+            } finally {
+              game.onAtomicComplete = {}
+            }
+          }
+      workflowJob!!.start()
       return this
     }
 
     /**
-     * Stops the workflow cleanly. If the coroutine is suspended waiting for a player to handle a
-     * workflow-created task (NewTurn or SecondAction), that task is rolled back so the queue is
-     * empty and the game is ready for a manual phase transition.
+     * Stops the workflow cleanly and cancels its coroutine. If the coroutine is suspended waiting
+     * for a player to handle a workflow-created task (NewTurn or SecondAction), that task is rolled
+     * back so the queue is empty and the game is ready for a manual phase transition.
      */
     public fun shutdown() {
       game.onAtomicComplete = {}
+      lifecycleJob.cancel()
+      resumeSignal.cancel()
       shutdownCheckpoint?.let { game.timeline.rollBack(it) }
+      shutdownCheckpoint = null
     }
 
     /**

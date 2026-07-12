@@ -11,11 +11,16 @@ val copyCanonResourcesForKarma by tasks.registering(Copy::class) {
   into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-engine-test"))
 }
 
-val includeSlowTests =
-  providers.gradleProperty("includeSlowTests").map(String::toBoolean).orElse(false)
+val includeSlowTests = providers.gradleProperty("includeSlowTests").orNull?.toBoolean() == true
 
-fun explicitlyRequested(taskName: String): Boolean =
-  gradle.startParameter.taskNames.any { it == taskName || it.endsWith(":$taskName") }
+val requestedTaskNames = gradle.startParameter.taskNames
+val slowTestsExplicitlyRequested =
+  requestedTaskNames.any {
+    it == "jsBrowserTest" ||
+      it.endsWith(":jsBrowserTest") ||
+      it == "allTestsIncludingSlow" ||
+      it.endsWith(":allTestsIncludingSlow")
+  }
 
 kotlin {
   jvm()
@@ -45,11 +50,7 @@ kotlin {
 
 tasks.named("jsBrowserTest") {
   dependsOn(copyCanonResourcesForKarma)
-  onlyIf {
-    includeSlowTests.get() ||
-      explicitlyRequested("jsBrowserTest") ||
-      explicitlyRequested("allTestsIncludingSlow")
-  }
+  enabled = includeSlowTests || slowTestsExplicitlyRequested
 }
 
 tasks.register("allTestsIncludingSlow") {
