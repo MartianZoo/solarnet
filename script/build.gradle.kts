@@ -3,15 +3,17 @@ import java.net.URI
 
 plugins {
   id("org.jetbrains.kotlin.jvm")
-  id("com.github.johnrengelman.shadow") version "8.1.1"
+  id("com.gradleup.shadow") version "9.2.2"
   id("org.jetbrains.dokka")
   `java-library`
 }
 
 dependencies {
-  testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.3")
-  testImplementation("com.google.truth:truth:1.1.3")
+  testImplementation(platform("org.junit:junit-bom:5.14.4"))
+  testImplementation("org.junit.jupiter:junit-jupiter-api")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+  testImplementation("com.google.truth:truth:1.4.5")
 
   implementation(project(":pets"))
   implementation(project(":engine"))
@@ -19,14 +21,16 @@ dependencies {
 
 }
 
-tasks.dokkaHtml.configure {
+dokka {
   dokkaSourceSets {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/script/src").toURL())
+        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/script/src"))
         remoteLineSuffix.set("#L")
       }
+    }
+    named("main") {
       samples.from("src/main/java/dev/martianzoo/script/samples.kt")
     }
   }

@@ -1,15 +1,13 @@
 // Enable Build Scans
 // https://docs.gradle.org/current/userguide/github-actions.html#enable_build_scan_publishing
 plugins {
-    id("com.gradle.enterprise") version("3.9")
+    id("com.gradle.develocity") version("4.2.2")
 }
-gradleEnterprise {
-    if (System.getenv("CI") != null) {
-        buildScan {
-            publishAlways()
-            termsOfServiceUrl = "https://gradle.com/terms-of-service"
-            termsOfServiceAgree = "yes"
-        }
+develocity {
+    buildScan {
+        publishing.onlyIf { System.getenv("CI") != null }
+        termsOfUseUrl.set("https://gradle.com/help/legal-terms-of-use")
+        termsOfUseAgree.set("yes")
     }
 }
 

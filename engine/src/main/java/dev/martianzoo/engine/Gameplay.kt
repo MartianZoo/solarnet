@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
@@ -18,6 +19,7 @@ import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.util.Multiset
 import kotlin.reflect.KClass
 

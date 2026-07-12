@@ -28,7 +28,7 @@ kotlin {
       kotlin.srcDir("src/test/java")
       dependencies {
         implementation(kotlin("test"))
-        implementation("io.kotest:kotest-assertions-core:5.9.1")
+        implementation("io.kotest:kotest-assertions-core:6.1.11")
       }
     }
   }
@@ -38,14 +38,16 @@ tasks.named("jsBrowserTest") {
   dependsOn(copyCanonResourcesForKarma)
 }
 
-tasks.dokkaHtml.configure {
+dokka {
   dokkaSourceSets {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/canon/src").toURL())
+        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/canon/src"))
         remoteLineSuffix.set("#L")
       }
+    }
+    named("commonMain") {
       samples.from("src/main/java/dev/martianzoo/tfm/canon/samples.kt")
     }
   }

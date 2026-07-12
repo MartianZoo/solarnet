@@ -21,13 +21,11 @@
 
 ## Not Yet Discussed
 
-- Upgrade or replace the deprecated Gradle Enterprise plugin before moving to Gradle 9.
 - Implement `TfmWorkflow.Auto` final greenery handling instead of leaving final greenery placement to
   test/manual code after the final production phase.
-- Replace the `Gain.copy(...)` call in `Transformers.atomizeChanges()` before Kotlin 2.2 turns the
-  exposed-copy-visibility warning into an error.
 - Migrate the remaining `engine` and `repl` tests from Truth to Kotest-backed assertions.
-- Revisit the `pets` common-test Kotest version after upgrading the project Kotlin plugin; Kotest
-  6.2.1 pulls Kotlin 2.2.21 metadata that Kotlin/JS 2.1.20 cannot compile against.
 - Extract the duplicated Karma canon-resource serving setup if more Kotlin/JS browser-test modules
   need access to canon data files.
+- Recheck Kotlin/JS's Mocha dependency after the next Kotlin upgrade; Kotlin 2.2.21 currently pins
+  Mocha 11.7.1, whose transitive Glob 10.5.0 emits an upstream end-of-support warning during a fresh
+  Yarn install.

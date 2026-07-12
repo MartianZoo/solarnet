@@ -74,7 +74,7 @@ internal class Transformers(internal val classes: MClassTable) {
           return node
         }
 
-        val one = node.copy(scaledEx = scex.copy(scalar = ActualScalar(1)))
+        val one = gain(scex.copy(scalar = ActualScalar(1)), node.intensity) as Gain
         ourMulti = Multi((1..sc.value).map { one })
 
         @Suppress("UNCHECKED_CAST") // not technically safe...

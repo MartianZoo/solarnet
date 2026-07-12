@@ -24,7 +24,8 @@ public object TfmWorkflow {
    * each method fires the engine op and returns immediately. The caller is then responsible
    * for performing all resulting player actions before calling the next phase method.
    *
-   * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via [turn] when
+   * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via
+   * [OperationLayer.turn] when
    * no task is already pending, so no explicit turn-granting is needed.
    */
   public class Manual(private val game: Game, private val setup: GameSetup) {
@@ -64,13 +65,13 @@ public object TfmWorkflow {
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all player tasks
-     * drain. Only fires when [receive] is already waiting, so signals during automatic phases
+     * drain. Only fires when [Channel.receive] is already waiting, so signals during automatic phases
      * are silently dropped.
      */
     private val resumeSignal = Channel<Unit>(Channel.RENDEZVOUS)
 
     /**
-     * Checkpoint saved just before the workflow's most recent [beginManual] call. Non-null only
+     * Checkpoint saved just before the workflow's most recent [OperationLayer.beginManual] call. Non-null only
      * while the coroutine is suspended waiting for those tasks to drain. [shutdown] rolls back to
      * this point to undo the pending workflow task.
      */

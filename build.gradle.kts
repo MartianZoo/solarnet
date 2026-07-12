@@ -1,12 +1,12 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-import org.jetbrains.dokka.DokkaConfiguration.Visibility
-import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import org.jetbrains.dokka.gradle.DokkaExtension
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 plugins {
-  id("org.jetbrains.kotlin.jvm") version "2.1.20"
-  id("org.jetbrains.kotlin.multiplatform") version "2.1.20" apply false
-  id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20" apply false
-  id("org.jetbrains.dokka") version "1.9.20"
+  id("org.jetbrains.kotlin.jvm") version "2.2.21"
+  id("org.jetbrains.kotlin.multiplatform") version "2.2.21" apply false
+  id("org.jetbrains.kotlin.plugin.serialization") version "2.2.21" apply false
+  id("org.jetbrains.dokka") version "2.2.0"
 }
 
 repositories { mavenCentral() }
@@ -20,7 +20,7 @@ subprojects {
   configurations.configureEach {
     resolutionStrategy.eachDependency {
       if (requested.group == "org.jetbrains.kotlin") {
-        useVersion("2.1.20")
+        useVersion("2.2.21")
         because("Kotlin/JS compilation requires libraries compiled for the project Kotlin version")
       }
     }
@@ -28,13 +28,14 @@ subprojects {
 
   apply(plugin = "org.jetbrains.dokka")
 
-  tasks.withType<DokkaTaskPartial>().configureEach {
+  extensions.configure<DokkaExtension> {
+    dokkaPublications.configureEach {
+      suppressInheritedMembers.set(true)
+    }
     dokkaSourceSets.configureEach {
-      displayName.set("Solarnet/Pets")
-      documentedVisibilities.set(setOf(Visibility.PUBLIC, Visibility.PROTECTED))
+      documentedVisibilities.set(setOf(VisibilityModifier.Public, VisibilityModifier.Protected))
       jdkVersion.set(21)
       skipEmptyPackages.set(true)
-      suppressInheritedMembers.set(true)
     }
   }
 
@@ -54,8 +55,18 @@ subprojects {
   }
 }
 
-tasks.dokkaHtmlMultiModule {
+dokka {
   moduleName.set("Solarnet/Pets")
-  outputDirectory.set(rootProject.file("docs/api"))
-  includes.from("docs/packages.md")
+  dokkaPublications.html {
+    outputDirectory.set(rootProject.file("docs/api"))
+    includes.from("docs/packages.md")
+  }
+}
+
+dependencies {
+  dokka(project(":pets"))
+  dokka(project(":engine"))
+  dokka(project(":script"))
+  dokka(project(":repl"))
+  dokka(project(":canon"))
 }

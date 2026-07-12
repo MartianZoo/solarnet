@@ -27,8 +27,8 @@ kotlin {
     commonMain {
       kotlin.srcDir("src/main/java")
       dependencies {
-        implementation("io.insert-koin:koin-core:3.5.6")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+        implementation("io.insert-koin:koin-core:4.1.1")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
         implementation(project(":pets"))
       }
     }
@@ -36,7 +36,7 @@ kotlin {
       kotlin.srcDir("src/test/java")
       dependencies {
         implementation(kotlin("test"))
-        implementation("io.kotest:kotest-assertions-core:5.9.1")
+        implementation("io.kotest:kotest-assertions-core:6.1.11")
         implementation(project(":canon")) // easiest to test the engine this way
       }
     }
@@ -59,14 +59,16 @@ tasks.register("allTestsIncludingSlow") {
   dependsOn("jsBrowserTest")
 }
 
-tasks.dokkaHtml.configure {
+dokka {
   dokkaSourceSets {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/engine/src").toURL())
+        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/engine/src"))
         remoteLineSuffix.set("#L")
       }
+    }
+    named("commonMain") {
       samples.from("src/main/java/dev/martianzoo/tfm/engine/samples.kt")
     }
   }
