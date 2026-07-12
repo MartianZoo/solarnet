@@ -2,7 +2,8 @@
 
 ## Tooling
 
-- Solarnet's preferred JDK is 21. Use JDK 21 for local Gradle work.
+- Solarnet's preferred JDK is 21. Use JDK 21 for local Gradle work; its current Homebrew path is
+  `/opt/homebrew/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home`.
 - The machine's default Java 26 can fail before project code runs, with misleading early Gradle/Kotlin DSL errors.
 - The routine engine test suite is `:engine:allTests`, which skips slow browser tests by default.
 - Use `:engine:allTestsIncludingSlow` or `:engine:allTests -PincludeSlowTests=true` when you

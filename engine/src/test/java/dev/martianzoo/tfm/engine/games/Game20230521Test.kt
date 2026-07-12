@@ -1164,18 +1164,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Atmoscoop
     // Player2 added 2 floater(s) to Aerial Mappers
     p2.playProject("Atmoscoop", 5, titanium = 3) {
-      val scaleChoice =
-          tasks
-              .matching {
-                "${it.instruction}".contains("TemperatureStep") &&
-                    "${it.instruction}".contains("VenusStep")
-              }
-              .single()
-      p2.godMode().dropTask(scaleChoice)
+      doTask("VenusStep! THEN VenusStep")
       doTask("2 Floater<AerialMappers>")
-      // Atmoscoop's `2 TemperatureStep OR 2 VenusStep` cannot currently be narrowed to the
-      // Venus branch because the first OR arm is a Multi; keep the game state aligned manually.
-      p2.godMode().manual("2 VenusStep")
     }
 
     // Player2 used Aerial Mappers action

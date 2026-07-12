@@ -3211,7 +3211,8 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
-      "immediate": "2 TemperatureStep OR 2 VenusStep, 2 Floater",
+      // Temporarily sequential pending #63: a Multi OR arm cannot be narrowed.
+      "immediate": "(TemperatureStep THEN TemperatureStep) OR (VenusStep THEN VenusStep), 2 Floater",
       "effects": [ "End: VictoryPoint" ],
       "requirement": "3 ScienceTag",
       "cost": 22,

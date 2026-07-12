@@ -5,14 +5,17 @@
 - Revisit structured/colorized interactive output now that the script layer is plain text and
   JLine-free.
 
-- Continue the Kotlin/JS browser-test migration by converting `engine` to a Kotlin Multiplatform
-  module.
+- Convert `script` to Kotlin Multiplatform so its session, commands, parsing, and plain-text output
+  work from JavaScript; keep the JVM terminal/server launchers in `jvmMain`, and add a JS session
+  smoke test. `engine` is already Kotlin Multiplatform with a JS target, so address its remaining
+  JS-compatibility issues as they arise rather than repeating that conversion.
 - Revisit `engine`'s Koin dependency before targeting Kotlin/Wasm; the pinned Koin metadata has
   JVM/JS/Native variants but no Wasm variant.
-- Teach task selection to choose the Venus branch of Atmoscoop's `2 TemperatureStep OR 2 VenusStep`
-  without requiring a manual state adjustment in `Game20230521Test`.
-- Now that gameplay queue views are scoped, search tests for simplifications where they previously
-  hacked around all queues being merged.
+- Once #63 permits narrowing an OR branch whose other arm is a Multi, restore Atmoscoop's canonical
+  simultaneous choice and remove its temporary sequential-task encoding.
+- Now that gameplay queue views are scoped, search tests and convenience APIs for simplifications
+  where they previously expected an empty whole-game queue after each action; start with the
+  `SoloGame0710Test` workaround.
 - Use `docs/engine-api-review.md` to guide a gradual replacement of `godMode()`/layer casts with
   explicit player, workflow, monitor, debug, and fixture role objects.
 
