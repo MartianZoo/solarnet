@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.net.URI
+import org.gradle.api.tasks.testing.Test
 
 plugins {
   id("org.jetbrains.kotlin.jvm")
@@ -38,7 +39,17 @@ tasks {
   }
 
   test {
+    filter { excludeTestsMatching("dev.martianzoo.repl.JlineReplSmokeTest") }
+  }
+
+  register<Test>("realTerminalSmokeTest") {
+    description = "Runs the REPL smoke test in a real terminal session using Expect."
+    group = "verification"
     dependsOn(shadowJar)
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform()
+    filter { includeTestsMatching("dev.martianzoo.repl.JlineReplSmokeTest") }
     systemProperty("repl.shadowJar", named<ShadowJar>("shadowJar").get().archiveFile.get().asFile)
     systemProperty("repl.smokeScript", file("src/test/expect/repl-smoke.exp"))
   }

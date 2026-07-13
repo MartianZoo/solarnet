@@ -103,6 +103,13 @@ After cloning, run `./gradlew installGitHooks` once. This configures Git to use 
 
 The repository runs [Detekt](https://detekt.dev/) for Kotlin static analysis as part of its normal Gradle check lifecycle. Run `./gradlew detekt` to write per-module reports to `build/reports/detekt/`.
 
+## REPL terminal smoke test
+
+The REPL's Expect-based real-terminal smoke test is excluded from the normal test and build
+lifecycle because pseudo-terminal behavior varies across operating systems and CI environments. On
+a machine with Expect installed at `/usr/bin/expect`, run it explicitly with
+`./gradlew :repl:realTerminalSmokeTest`.
+
 ## Who are you
 
 http://kevinb9n.github.io
