@@ -47,6 +47,14 @@ subprojects {
     config.setFrom(rootProject.file("detekt.yml"))
   }
 
+  tasks.matching { it.name == "check" }.configureEach {
+    dependsOn(
+        tasks.matching {
+          it.name in setOf("detektMain", "detektTest", "detektJvmMain", "detektJvmTest")
+        }
+    )
+  }
+
   repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
@@ -114,7 +122,7 @@ tasks
     }
 
 dokka {
-  moduleName.set("Solarnet/Pets")
+  moduleName.set("Solarnet")
   dokkaPublications.html {
     outputDirectory.set(rootProject.file("docs/api"))
     includes.from("docs/packages.md")

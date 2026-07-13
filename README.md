@@ -87,7 +87,9 @@ Just breeze past all the things that don't make sense. Some of it will!
 
 ### Poke around in the implementation?
 
-If you can generate the docs (clone, `./gradlew dokkaHtmlMultiModule`, then look at `docs/api/index.html`) that would be the ideal way to start.
+If you can generate the docs (clone, `./gradlew dokkaGenerateHtml`, then look at
+`docs/api/index.html`) that would be the ideal way to start. The generated site includes the API
+documentation for every Solarnet module.
 
 I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thing usable from Java, JavaScript, and some other environments as well. Getting those working might not be trivial (?) but at least won't require a port.
 

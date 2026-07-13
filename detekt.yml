@@ -2,6 +2,8 @@
 # active; their individual suppressions are kept next to the code that needs them.
 
 complexity:
+  NestedScopeFunctions:
+    active: true
   CyclomaticComplexMethod:
     excludes: ['**/tfm/engine/games/**']
   LargeClass:
@@ -21,6 +23,8 @@ complexity:
     active: false
 
 exceptions:
+  ObjectExtendsThrowable:
+    active: true
   SwallowedException:
     # If Detekt would accept reading the message as not swallowing, we could use this checker.
     active: false
@@ -47,6 +51,26 @@ performance:
   ForEachOnRange:
     # Prefer readable range operations unless profiling identifies a real hot path.
     active: false
+
+potential-bugs:
+  CastNullableToNonNullableType:
+    active: true
+  CastToNullableType:
+    active: true
+  DontDowncastCollectionTypes:
+    active: true
+  ElseCaseInsteadOfExhaustiveWhen:
+    active: true
+  NullCheckOnMutableProperty:
+    active: true
+  PropertyUsedBeforeDeclaration:
+    active: true
+  UnconditionalJumpStatementInLoop:
+    active: true
+
+coroutines:
+  SuspendFunSwallowedCancellation:
+    active: true
 
 style:
   DestructuringDeclarationWithTooManyEntries:
