@@ -132,8 +132,8 @@ public data class Task(
         instruction: InstructionGroup,
         cause: Cause?,
     ): List<Task> {
-      var nextId = firstId
-      return instruction.map { newTask(nextId, owner, it, cause).also { nextId = nextId.next() } }
+      val ids = generateSequence(firstId, TaskId::next).iterator()
+      return instruction.map { newTask(ids.next(), owner, it, cause) }
     }
 
     public fun newTask(

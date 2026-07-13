@@ -4,6 +4,7 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
   id("io.gitlab.arturbosch.detekt") version "1.23.8" apply false
@@ -49,6 +50,15 @@ subprojects {
   repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
+  }
+
+  tasks.withType<KotlinCompilationTask<*>>().configureEach {
+    compilerOptions.allWarningsAsErrors.set(true)
+    compilerOptions.freeCompilerArgs.addAll(
+        "-Wextra",
+        "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
+        "-Xwarning-level=RETURN_VALUE_NOT_USED:disabled",
+    )
   }
 
   configurations

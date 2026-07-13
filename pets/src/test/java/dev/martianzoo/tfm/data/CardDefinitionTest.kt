@@ -112,7 +112,7 @@ internal class CardDefinitionTest {
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
   fun justToBeSure() {
-    @Suppress("UNUSED_VARIABLE") val card = card.copy(id = "123")
+    card.copy(id = "123") shouldBe card
   }
 
   @Test

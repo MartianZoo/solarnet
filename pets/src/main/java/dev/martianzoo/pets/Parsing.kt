@@ -172,23 +172,16 @@ public object Parsing {
   @Suppress("TooGenericExceptionThrown")
   private fun myThrow(result: ErrorResult) {
     val message = StringBuilder()
-    var ctr = 0
     val locations = mutableMapOf<Pair<Int, Int>, Int>()
-    var input: String? = null
+    val inputs = mutableListOf<String>()
     fun visit(result: ErrorResult) {
       when (result) {
         is AlternativesFailure -> result.errors.forEach(::visit)
         is MismatchedToken -> {
           val match: TokenMatch = result.found
           val loc = match.row to match.column
-          val thisLoc =
-              if (loc in locations) {
-                locations[loc]
-              } else {
-                locations[loc] = ctr
-                ctr++
-              }
-          input = match.input.toString()
+          val thisLoc = locations.getOrPut(loc) { locations.size }
+          inputs.add(match.input.toString())
           val found = match.text.replace("\n", "\\n")
           val expected = result.expected.name?.replace("\n", "\\n")
           message.append(
@@ -203,7 +196,7 @@ public object Parsing {
     visit(result)
 
     message.append("\nNow, here is the input:\n")
-    input!!.split("\n").forEachIndexed { lineNum, line ->
+    inputs.last().split("\n").forEachIndexed { lineNum, line ->
       message.append("$line\n")
       (1..100).forEach { columnNum ->
         val loc = (lineNum + 1) to columnNum

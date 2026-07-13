@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
@@ -126,7 +125,6 @@ class EllieGameTest : AbstractFullGameTest() {
   fun earlyGameWithNoPrelude() {
     val setup = GameSetup(Canon, "BRHX", 2)
     val game = Engine.newGame(setup)
-    val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 

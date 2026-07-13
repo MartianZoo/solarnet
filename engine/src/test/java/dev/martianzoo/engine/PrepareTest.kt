@@ -41,7 +41,7 @@ internal class PrepareTest {
 
   fun checkPrepare(unprepared: String, expected: String?) {
     val prepared = preprocessAndPrepare(unprepared)
-    "$prepared" shouldBe "$expected"
+    prepared.toString() shouldBe expected
   }
 
   @Test

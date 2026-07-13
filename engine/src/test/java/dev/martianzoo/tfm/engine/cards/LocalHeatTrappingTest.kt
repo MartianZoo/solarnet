@@ -80,14 +80,14 @@ class LocalHeatTrappingTest {
 
       godMode().manual("LocalHeatTrapping") {
         tasks
-            .extract { "${it.whyPending}" }
+            .extract { it.whyPending }
             .shouldContainExactlyInAnyOrder(
                 "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`"
             )
 
         p1.prepareTask(tasks.ids().single())
         tasks
-            .extract { "${it.whyPending}" }
+            .extract { it.whyPending }
             .shouldContainExactlyInAnyOrder("choice required in: `4 Plant<Player1>! OR Ok`")
       }
     }

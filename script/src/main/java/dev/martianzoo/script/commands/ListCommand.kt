@@ -41,7 +41,7 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
             .map { (it.baseType glb parentType)!! }
             .ifEmpty { listOf(parentType) }
 
-    var listing = HashMultiset<MType>()
+    val listing = HashMultiset<MType>()
     directSubclassTypes.forEach { listing.add(it, repl.game.components.count(it, StubTypeInfo)) }
 
     // if (listing.elements.size == 1) {

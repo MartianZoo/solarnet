@@ -24,9 +24,9 @@ object Prod {
           setOf(it.className, it.shortName)
         }
 
-    var inProd = false
-
     return object : PetTransformer() {
+      private var inProd = false
+
       override fun <P : PetNode> transform(node: P): P {
         val rewritten: PetNode =
             when {
@@ -49,8 +49,12 @@ object Prod {
               node is TransformNode<*> && node.transformKind == PROD -> {
                 require(!inProd)
                 inProd = true
-                val inner = transform(node.extract())
-                inProd = false
+                val inner =
+                    try {
+                      transform(node.extract())
+                    } finally {
+                      inProd = false
+                    }
                 if (inner == node.extract()) {
                   throw PetSyntaxException("No standard resources found in PROD box: $inner")
                 }

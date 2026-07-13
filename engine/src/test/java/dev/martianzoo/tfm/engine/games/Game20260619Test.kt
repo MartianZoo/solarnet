@@ -17,8 +17,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // Generation 1
     engine.phase("Corporation")
 
-    var ER = p1
-    var KB = p2
+    val ER = p1
+    val KB = p2
 
     // ER played Point Luna
     // ER gained 1 titanium production
