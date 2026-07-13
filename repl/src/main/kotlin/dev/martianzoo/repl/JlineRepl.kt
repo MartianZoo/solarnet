@@ -95,18 +95,13 @@ internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
     while (true) {
       fun end() = history.append(historyFile, true)
 
-      if (first) {
-        terminal.writer().println(welcome)
-        terminal.flush()
-        first = false
-      }
-
       val entireLine =
           try {
-            reader.readLine(prompt())
+            reader.readLine((if (first) "$welcome\n" else "") + prompt())
           } catch (_: EndOfFileException) {
             return end()
           }
+      first = false
 
       when (entireLine.trim().lowercase()) {
         "exit" -> return end()
