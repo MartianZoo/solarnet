@@ -21,7 +21,6 @@ kotlin {
 
   sourceSets {
     commonMain {
-      kotlin.srcDir("src/main/java")
       dependencies {
         // Pin the exact tested JitPack build from the better-parse fork; tag lookup was unreliable.
         implementation(
@@ -31,7 +30,6 @@ kotlin {
       }
     }
     commonTest {
-      kotlin.srcDir("src/test/java")
       dependencies {
         implementation(kotlin("test"))
         implementation("io.kotest:kotest-assertions-core:6.1.11")
@@ -56,7 +54,7 @@ dokka {
       }
     }
     named("commonMain") {
-      samples.from("src/main/java/dev/martianzoo/tfm/pets/samples.kt")
+      samples.from("src/commonMain/kotlin/dev/martianzoo/tfm/pets/samples.kt")
     }
   }
 }

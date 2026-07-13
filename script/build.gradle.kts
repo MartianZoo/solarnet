@@ -30,7 +30,7 @@ dokka {
       }
     }
     named("main") {
-      samples.from("src/main/java/dev/martianzoo/script/samples.kt")
+      samples.from("src/main/kotlin/dev/martianzoo/script/samples.kt")
     }
   }
 }

@@ -30,7 +30,6 @@ kotlin {
 
   sourceSets {
     commonMain {
-      kotlin.srcDir("src/main/java")
       dependencies {
         implementation("io.insert-koin:koin-core:4.1.1")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
@@ -38,7 +37,6 @@ kotlin {
       }
     }
     commonTest {
-      kotlin.srcDir("src/test/java")
       dependencies {
         implementation(kotlin("test"))
         implementation("io.kotest:kotest-assertions-core:6.1.11")
@@ -70,7 +68,7 @@ dokka {
       }
     }
     named("commonMain") {
-      samples.from("src/main/java/dev/martianzoo/tfm/engine/samples.kt")
+      samples.from("src/commonMain/kotlin/dev/martianzoo/tfm/engine/samples.kt")
     }
   }
 }

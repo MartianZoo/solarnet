@@ -6,7 +6,7 @@
 
 * It's not really for *playing* the game; for that see the excellent and unrelated [open-source app](http://github.com/terraforming-mars/terraforming-mars).
 
-* It's a standalone library. Its only job is to *know the rules of the game* -- which means "who can do what when, and what happens if they do?" It covers the "pure logic part" of the game. You can set up game situations and see what happens ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/test/java/dev/martianzoo/tfm/engine/cards/ExcentricSponsorTest.kt)).
+* It's a standalone library. Its only job is to *know the rules of the game* -- which means "who can do what when, and what happens if they do?" It covers the "pure logic part" of the game. You can set up game situations and see what happens ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/commonTest/kotlin/dev/martianzoo/tfm/engine/cards/ExcentricSponsorTest.kt)).
 
 * The unique behavior of a card, milestone, map area, colony tile, etc. is written in a language called Pets. These strings are ALL the game engine needs to know about a card (etc.) in order to play it correctly. Some examples:
 
@@ -23,7 +23,7 @@
 
 * This means you can add your own fan cards to it pretty easily and without actual "programming" -- so long as the cards don't introduce entirely new game mechanics.
 
-* It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([very long example that plays through an entire game](https://github.com/MartianZoo/solarnet/blob/main/engine/src/test/java/dev/martianzoo/tfm/engine/games/Game20230521Test.kt)).
+* It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([very long example that plays through an entire game](https://github.com/MartianZoo/solarnet/blob/main/engine/src/commonTest/kotlin/dev/martianzoo/tfm/engine/games/Game20230521Test.kt)).
 
 * If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Advanced Alloys actually save me that game?" fairly easily. (But so far this requires writing actual code.)
 

@@ -20,13 +20,11 @@ kotlin {
 
   sourceSets {
     commonMain {
-      kotlin.srcDir("src/main/java")
       dependencies {
         implementation(project(":pets"))
       }
     }
     commonTest {
-      kotlin.srcDir("src/test/java")
       dependencies {
         implementation(kotlin("test"))
         implementation("io.kotest:kotest-assertions-core:6.1.11")
@@ -49,7 +47,7 @@ dokka {
       }
     }
     named("commonMain") {
-      samples.from("src/main/java/dev/martianzoo/tfm/canon/samples.kt")
+      samples.from("src/commonMain/kotlin/dev/martianzoo/tfm/canon/samples.kt")
     }
   }
 }
