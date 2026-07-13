@@ -14,8 +14,6 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
       """
   override val isReadOnly = true
 
-  override fun noArgs() = listOf(helpText)
-
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.commandNames() + context.classNames()
 
@@ -74,4 +72,6 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         tfm_sample          -> executes one of the hardcoded sample games
       """
           .trimIndent()
+
+  override fun noArgs() = listOf(helpText)
 }

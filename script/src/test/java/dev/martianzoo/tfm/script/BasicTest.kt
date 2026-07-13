@@ -66,7 +66,7 @@ internal class BasicTest {
     assertThat(session.count("OxygenStep")).isEqualTo(4)
     session.manual("ProjectCard")
     session.manual("Ants")
-    assertThat(game.tasks.isEmpty())
+    assertThat(game.tasks.isEmpty()).isTrue()
     assertThat(session.count("Ants")).isEqualTo(1)
     session.manual("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)

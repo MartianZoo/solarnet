@@ -187,8 +187,8 @@ internal class Instructor(
 
   // Still spending 25% of solo game time in this method
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
-    var g = gaining?.let(reader::resolve) as MType?
-    var r = removing?.let(reader::resolve) as MType?
+    var g = gaining?.let { reader.resolve(it) as MType }
+    var r = removing?.let { reader.resolve(it) as MType }
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }

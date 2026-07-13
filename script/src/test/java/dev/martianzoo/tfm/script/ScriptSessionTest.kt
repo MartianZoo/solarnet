@@ -8,6 +8,8 @@ import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import org.junit.jupiter.api.Test
 
 internal class ScriptSessionTest {
+  private val digitsRegex = Regex("\\b\\d{4}\\b")
+  private val letterRegex = Regex("^[A-Z]\\b")
 
   @Test
   fun testBasicRunthrough() {
@@ -193,9 +195,6 @@ internal class ScriptSessionTest {
         }
     assertThat(output).containsExactlyElementsIn(expectedOutput).inOrder()
   }
-
-  val digitsRegex = Regex("\\b\\d{4}\\b")
-  val letterRegex = Regex("^[A-Z]\\b")
 
   @Test
   fun test() {

@@ -99,7 +99,7 @@ public class ScriptSession {
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
-  public class UsageException(message: String? = null) : Exception(message ?: "")
+  public class UsageException(message: String? = null) : Exception(message.orEmpty())
 
   // Splits on semicolons and executes each chunk; used by both interactive and server modes.
   @Suppress("TooGenericExceptionCaught") // TODO investigate
@@ -218,9 +218,9 @@ public class ScriptSession {
     } catch (e: RuntimeException) {
       throw e
     } catch (e: UsageException) {
-      listOf(e.message ?: "", "Usage: ${command.usage}").filter { it.any() }
+      listOf(e.message.orEmpty(), "Usage: ${command.usage}").filter { it.any() }
     } catch (e: Exception) {
-      listOf(e.message ?: "")
+      listOf(e.message.orEmpty())
     }
   }
 

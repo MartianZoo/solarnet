@@ -87,7 +87,7 @@ internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
         "exit" -> listOf("I mean it exits.")
         "rebuild" -> listOf("Exits, recompiles the code, and restarts. Your game is lost.")
         "history" -> replCommands.getValue("history").help.trimIndent().split("\n")
-        else -> session.command("help${args?.let { " $it" } ?: ""}")
+        else -> session.command("help${args?.let { " $it" }.orEmpty()}")
       }
 
   override fun loop(prompt: () -> String, handler: (String) -> List<String>, welcome: String) {

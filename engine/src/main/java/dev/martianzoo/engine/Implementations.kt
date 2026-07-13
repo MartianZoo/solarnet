@@ -88,7 +88,7 @@ internal class Implementations(
   }
 
   internal fun autoExecNow(mode: AutoExecMode) {
-    while (autoExecNext(mode)) continue
+    while (autoExecNext(mode)) {}
   }
 
   @Suppress("CyclomaticComplexMethod") // TODO: improve this

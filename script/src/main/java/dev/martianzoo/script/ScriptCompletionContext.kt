@@ -20,8 +20,9 @@ private constructor(
   val hasRestAfterFirstWord: Boolean = parsedArgs.hasRestAfterFirstWord
 
   fun commandArguments(command: String, args: String): List<ScriptCompletion> {
-    return repl.commands[command.lowercase()]?.completions(copy(ScriptCompletionArgs(args)))
-        ?: emptyList()
+    return repl.commands[command.lowercase()]
+        ?.completions(copy(ScriptCompletionArgs(args)))
+        .orEmpty()
   }
 
   fun droppingLeadingWords(count: Int): ScriptCompletionContext {

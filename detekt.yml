@@ -67,10 +67,18 @@ potential-bugs:
     active: true
   UnconditionalJumpStatementInLoop:
     active: true
+  UnsafeCallOnNullableType:
+    # checkNotNull is still a runtime assertion; replacing !! with it is not inherently safer.
+    active: false
 
 coroutines:
   SuspendFunSwallowedCancellation:
     active: true
+
+empty-blocks:
+  EmptyWhileBlock:
+    # Kotlin itself prefers an empty block here, so this rule would edit-war with the compiler.
+    active: false
 
 style:
   DestructuringDeclarationWithTooManyEntries:

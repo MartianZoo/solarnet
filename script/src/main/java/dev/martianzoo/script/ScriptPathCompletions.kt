@@ -30,6 +30,7 @@ internal object ScriptPathCompletions {
               replaceFragment = false,
               complete = !it.isDirectory,
           )
-        } ?: emptyList()
+        }
+        .orEmpty()
   }
 }

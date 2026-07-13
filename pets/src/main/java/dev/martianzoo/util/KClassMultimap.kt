@@ -24,5 +24,6 @@ class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
 
   inline fun <reified T : B> get(): List<T> = get(T::class)
 
-  @Suppress("UNCHECKED_CAST") fun <T : B> get(type: KClass<T>) = (map[type] as List<T>?) ?: listOf()
+  @Suppress("UNCHECKED_CAST")
+  fun <T : B> get(type: KClass<T>) = map[type]?.let { it as List<T> }.orEmpty()
 }
