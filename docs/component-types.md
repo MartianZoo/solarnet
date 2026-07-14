@@ -55,10 +55,20 @@ Concrete classes called Player1, Player2, etc. will exist. The player owning the
 `StartToken` is the start player; it begins with Player1 and passes one seat left when each later
 `Generation` is created. Mapping player classes to players' names is considered a UI-level task.
 
-The relevant abstract hierarchy is `Anyone > Owner > Player > Player1`, etc. `Anyone` is the
-icon-grammar spelling for an unrestricted target, `Owner` is anything that can own components, and
-`Player` is a corporation that participates in turns and phases. This distinction leaves room for a
-passive solo opponent that owns resources, production, and tiles without being a player.
+The relevant abstract hierarchy separates two roles: an `Owner` can own noun-like game-state
+components, while an `Actor` can initiate or continue game operations. `Player` extends both
+`Owner` and `Actor`, and its concrete subclasses are `Player1` through `Player5`. `Engine` is an
+`Actor` but not an `Owner`. This distinction leaves room for a passive `SoloOpponent` that is only
+an `Owner`, and for future `Npc` actors that are not players.
+
+`Anyone` remains the icon-grammar spelling for an unrestricted ownership target and is a supertype
+of `Owner`, not of `Actor`. Keeping the roles independent is currently important: `Owned<Anyone>`
+is still the broad compatibility declaration for owned components, and making every Actor an
+`Anyone` would incorrectly admit types such as `Plant<Engine>`.
+
+The Kotlin runtime still uses its broad `Player` value type for both actual players and `Engine`.
+That compatibility representation is temporary; the Pets hierarchy now records the intended model
+while the execution APIs and task/event vocabulary are migrated in smaller steps.
 
 Cards still write expressions such as `Plant<Anyone>` and `CityTile<Anyone>`. `Anyone` at a use site
 does not override the component class's declared bound: it is intersected with that bound. Thus

@@ -30,6 +30,7 @@ public object SystemClasses {
 
   // Classes not defined in system.pets but which need to be defined by the game somewhere
 
+  public val ACTOR = cn("Actor")
   public val ANYONE = cn("Anyone")
   public val OWNED = cn("Owned")
   public val OWNER = cn("Owner")

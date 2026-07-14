@@ -28,8 +28,8 @@ ABSTRACT CLASS System {
     ABSTRACT CLASS Barrier
   }
 
-  "The very first component created, which kicks the rest off; acts like a player for non-player tasks"
-  CLASS Engine { HAS MAX 1 This }
+  "The very first component created, which kicks the rest off and performs system operations"
+  CLASS Engine : Actor { HAS MAX 1 This }
 }
 
 "A class extends this to make sure it is always loaded even if never referenced by anything"

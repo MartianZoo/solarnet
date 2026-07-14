@@ -247,6 +247,11 @@ This pipeline runs on every instruction string before it reaches `Implementation
 `Instructor`. Instructions already in Pets AST form (from inside the engine) skip the string
 parsing but can still go through some of these transforms as needed.
 
+Here, “player” describes the current Kotlin compatibility type, which also represents `Engine`.
+In the Pets model, an `Actor` performs operations, an `Owner` owns components, and a `Player` has
+both roles. The runtime API will adopt that vocabulary separately so an actor such as `Engine`
+never gains ownership semantics merely to pass through this preprocessing pipeline.
+
 ---
 
 ## The Gameplay API Layers

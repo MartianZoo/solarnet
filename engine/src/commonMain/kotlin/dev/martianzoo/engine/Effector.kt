@@ -81,13 +81,17 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         onChange(triggerEvent, reader, isSelf = false)
 
     private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
-      val player = context.owner ?: triggerOwner(triggerEvent, reader) ?: triggerEvent.owner
-      val hit = subscription.checkForHit(triggerEvent, player, isSelf, reader) ?: return null
+      // TODO: Give this selection rule an Actor-level name once Task.owner and ChangeEvent.owner
+      // have migrated. In particular, BY currently checks this selected task owner, which can be
+      // the effect context's owner rather than the Actor recorded on the triggering event.
+      val taskOwner =
+          context.owner ?: changedComponentOwner(triggerEvent, reader) ?: triggerEvent.owner
+      val hit = subscription.checkForHit(triggerEvent, taskOwner, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task.noid(player, automatic, hit(instruction), cause = cause)
+      return Task.noid(taskOwner, automatic, hit(instruction), cause = cause)
     }
 
-    private fun triggerOwner(triggerEvent: ChangeEvent, reader: GameReader): Player? {
+    private fun changedComponentOwner(triggerEvent: ChangeEvent, reader: GameReader): Player? {
       val expression = triggerEvent.change.gaining ?: triggerEvent.change.removing ?: return null
       return (reader.resolve(expression) as MType).toComponent().owner
     }

@@ -13,7 +13,7 @@ import kotlin.test.Test
 
 class PhilaresTest {
   @Test
-  fun test() {
+  fun ownerOfDeferredEffectControlsItsRefinement() {
     val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

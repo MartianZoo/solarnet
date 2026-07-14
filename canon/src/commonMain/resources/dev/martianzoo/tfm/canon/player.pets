@@ -1,11 +1,14 @@
-"Any entity that can appear in an ownership- or actor-like position"
+"An entity that can initiate or continue game operations"
+ABSTRACT CLASS Actor
+
+"The icon-grammar spelling for an unrestricted ownership target"
 ABSTRACT CLASS Anyone[ANY] {
   "An entity that can own things; solo mode will eventually add a non-Player owner"
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    "An actual player"
-    ABSTRACT CLASS Player {
+    "One of the actual people or bots playing Terraforming Mars"
+    ABSTRACT CLASS Player : Actor {
       This: GrossHack<This>, Entropy<This>
 
       SetupPhase:: 20 TerraformRating<This>

@@ -1,7 +1,10 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.SystemClasses.ACTOR
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -40,7 +43,22 @@ internal class CanonClassesTest {
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
     anomalies
         .classNames()
-        .shouldContainExactlyInAnyOrder(ANYONE, cn("Owner"), cn("NoctisArea"), cn("Barrier"))
+        .shouldContainExactlyInAnyOrder(ANYONE, OWNER, cn("NoctisArea"), cn("Barrier"))
+  }
+
+  @Test
+  fun actorOwnerAndPlayerHierarchy() {
+    val actor = table.getClass(ACTOR)
+    val owner = table.getClass(OWNER)
+    val player = table.getClass(PLAYER)
+    val engine = table.getClass(cn("Engine"))
+
+    player.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(ACTOR, OWNER)
+    engine
+        .allSuperclasses()
+        .classNames()
+        .shouldContainExactlyInAnyOrder(COMPONENT, ACTOR, cn("System"), cn("Engine"))
+    (actor glb owner) shouldBe player
   }
 
   @Test
