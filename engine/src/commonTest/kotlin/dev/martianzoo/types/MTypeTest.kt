@@ -53,6 +53,31 @@ internal class MTypeTest {
     // table.resolve(te("Microbe<Player1, Ants<Player2>>"))
   }
 
+  @Test
+  fun anyoneMeansUnrestrictedWithinTheDeclaredDependencyBound() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Anyone {
+              ABSTRACT CLASS Owner {
+                CLASS SoloOpponent
+                ABSTRACT CLASS Player { CLASS Player1 }
+              }
+            }
+            ABSTRACT CLASS Owned<Anyone>
+            ABSTRACT CLASS Card : Owned<Player> { CLASS Badge }
+            ABSTRACT CLASS Resource : Owned<Owner> { CLASS Coin }
+            """
+                .trimIndent()
+        )
+
+    table.resolve(te("Badge<Anyone>")).expressionFull.toString() shouldBe "Badge<Player>"
+    table.resolve(te("Coin<Anyone>")).expressionFull.toString() shouldBe "Coin<Owner>"
+    table.resolve(te("Badge<Player1>")).abstract shouldBe false
+    table.resolve(te("Coin<SoloOpponent>")).abstract shouldBe false
+    assertFails { table.resolve(te("Badge<SoloOpponent>")) }
+  }
+
   val table =
       loadTypes(
           "CLASS Foo1",

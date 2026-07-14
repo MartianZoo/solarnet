@@ -204,7 +204,7 @@ private object PassLeft : CustomClass("PassLeft") {
   override fun translate(reader: GameReader, component: Type): Instruction {
     val currentOwner: Player = getOwner(reader, component)
     val current: Int = currentOwner.toString().removePrefix("Player").toInt()
-    val playerCount: Int = reader.count(parse<Metric>("Owner"))
+    val playerCount: Int = reader.count(parse<Metric>("Player"))
     if (playerCount == 1) return NoOp
 
     val next: Int = current % playerCount + 1

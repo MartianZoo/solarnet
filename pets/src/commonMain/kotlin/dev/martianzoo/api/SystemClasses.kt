@@ -33,5 +33,6 @@ public object SystemClasses {
   public val ANYONE = cn("Anyone")
   public val OWNED = cn("Owned")
   public val OWNER = cn("Owner")
+  public val PLAYER = cn("Player")
   public val USE_ACTION = cn("UseAction")
 }

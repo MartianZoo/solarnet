@@ -47,7 +47,11 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 - Issue #2: Solo mode — The current follow-along solo fixtures configure Player2 as a stocked dummy
   opponent, so the number of `Owner` components cannot identify which seats should receive the
   `StartToken`. Model real participants separately from test-support actors before using the
-  automatic workflow for those games.
+  automatic workflow for those games. When introducing `SoloOpponent`, replace its artificial stock
+  of 99/999 resources and production with demand-driven provisioning: acquiring a pending removal
+  task against the opponent should materialize exactly the removable components that task needs.
+  Work out the corresponding neutral host model for card resources (for example, the imaginary
+  animal that Predators may remove) without giving the opponent a playable `CardFront`.
 - Issue #4: Turmoil
 - Issue #5: Game configurations
 - Issue #9: Community

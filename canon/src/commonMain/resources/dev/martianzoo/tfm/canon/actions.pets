@@ -1,5 +1,5 @@
 "Marks the player who takes the first turn; passes one seat left with each new generation"
-CLASS StartToken : Owned {
+CLASS StartToken : Owned<Player> {
   HAS MAX 1 StartToken
   Generation:: PassLeft<This>
 }

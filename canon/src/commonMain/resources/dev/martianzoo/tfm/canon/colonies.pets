@@ -30,7 +30,7 @@ ABSTRACT CLASS ColonyTile {
 }
 
 "One of the up-to-three colonies players can own on a ColonyTile"
-CLASS Colony<ColonyTile> : Owned {
+CLASS Colony<ColonyTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
   Trade<Anyone, ColonyTile>: GiveColonyBonus<ColonyTile>
 }
@@ -49,7 +49,7 @@ CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
 CLASS ResetProduction<ColonyTile> : Signal
 
 "One of the 8 trade fleets players can own; sadly each is distinct even though you don't care about the difference"
-ABSTRACT CLASS TradeFleet : Owned {
+ABSTRACT CLASS TradeFleet : Owned<Player> {
   HAS MAX 1 Trade<This>
 
   CLASS TradeFleetA { HAS MAX 1 TradeFleetA }

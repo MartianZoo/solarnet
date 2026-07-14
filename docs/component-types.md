@@ -55,11 +55,28 @@ Concrete classes called Player1, Player2, etc. will exist. The player owning the
 `StartToken` is the start player; it begins with Player1 and passes one seat left when each later
 `Generation` is created. Mapping player classes to players' names is considered a UI-level task.
 
-The abstract class these all subclass isn't called `Player`, but `Anyone`. That's just because it reads better, for example `CityTile<Anyone>: PROD[1]`. And, actually, we have an abstract subclass of `Player` called `Owner` even though nothing else extends `Player` but that. The reasons for this are weird and subtle and not necessarily permanent.
+The relevant abstract hierarchy is `Anyone > Owner > Player > Player1`, etc. `Anyone` is the
+icon-grammar spelling for an unrestricted target, `Owner` is anything that can own components, and
+`Player` is a corporation that participates in turns and phases. This distinction leaves room for a
+passive solo opponent that owns resources, production, and tiles without being a player.
+
+Cards still write expressions such as `Plant<Anyone>` and `CityTile<Anyone>`. `Anyone` at a use site
+does not override the component class's declared bound: it is intersected with that bound. Thus
+`VictoryPoint<Anyone>` means `VictoryPoint<Player>`, while `Plant<Anyone>` remains unrestricted.
+Omitting Plant's owner still defaults to `Owner`. This preserves the published icon grammar without
+allowing a non-player owner to acquire a player-only component.
 
 ### Owned
 
-The `Owned` abstract type is extremely important. It has a dependency onto `Owner` (which `Player1` etc. all extend), meaning that every concrete instance of any `Owned` subclass must always know which player it belongs to. Many, many component types have `Owned` as a direct or indirect supertype.
+The `Owned` abstract type is extremely important. Its broad dependency is declared as `Anyone`, and
+its default is `Owner`, so every concrete instance of an `Owned` subclass must identify its owner.
+Concrete branches narrow that dependency where the distinction represents a real rule. Genuine
+player assets such as cards, victory points, terraform rating, milestones, colonies, and trade
+fleets narrow it to `Player`. Resources, production, owned tiles, and routing objects such as
+signals, custom instructions, and temporary payment state retain the broad declaration and its
+`Owner` default. No rule creates the routing objects for a passive owner, and repeating `Player` on
+every implementation type would add noise without protecting game state. Many component types
+have `Owned` as a direct or indirect supertype.
 
 A simple example of an owned component type is `VictoryPoint`.
 
@@ -74,7 +91,9 @@ CLASS TerraformRating {
 
 When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 megacredit for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
 
-As much as possible we would like for the `Owned->Owner` dependency to be a regular component dependency just like any other in the game. However, so far we have had to treat it as special in a few ways. I'll have to get into that some other time.
+As much as possible we would like for the ownership dependency to be a regular component dependency
+just like any other in the game. However, `Owner` also serves as the contextual placeholder that is
+specialized to the acting player, so the engine still treats it specially in a few places.
 
 ### OwnedTile
 

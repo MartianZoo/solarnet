@@ -1,6 +1,6 @@
 // TODO docstring the hell out of this stuff
 
-CLASS BuyCard : Owned,  Signal {  // Hack for TerraLabs, but being able to delay
+CLASS BuyCard : Owned, Signal {  // Hack for TerraLabs, but being able to delay
   This: -3, ProjectCard           // the -3 could potentially be exploited. TODO
 }
 
@@ -15,7 +15,7 @@ CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
 CLASS CheckCardRequirement<Class<CardFront>> : Owned, Custom
 CLASS HandleCardCost<Class<CardFront>> : Owned, Custom
 
-CLASS PlayTag<Class<Tag>> : Owned, Signal       // Triggers discounts and Accepts (needs Owned?)
+CLASS PlayTag<Class<Tag>> : Owned, Signal // Triggers discounts and Accepts (needs Owned?)
 
 ABSTRACT CLASS PaymentMechanic<Class<Resource>> : Owned, Temporary {
   CLASS Owed : Barrier {

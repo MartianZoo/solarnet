@@ -10,7 +10,6 @@ import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.PetTransformer
@@ -194,7 +193,9 @@ internal constructor(
   val baseType: MType by lazy { withAllDependencies(dependencies) }
 
   internal val defaultType: MType by lazy {
-    loader.resolve(Transformers(loader).insertDefaults().transform(className.expression))
+    val templateDependencies =
+        dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
+    withAllDependencies(templateDependencies)
   }
 
   internal fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)

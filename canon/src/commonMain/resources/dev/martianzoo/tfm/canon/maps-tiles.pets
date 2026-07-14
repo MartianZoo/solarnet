@@ -35,7 +35,8 @@ ABSTRACT CLASS Tile<Area> {
     ForwardAdjacency<This, Tile>: 2                    // but then the tile would trigger itself
   }
 
-  "Any tile that gets a player cube: city tile, greenery tile, or special tile"
+  "Any tile that someone/something owns: city tile, greenery tile, or special tile"
+  // Not narrowed to <Player> because the SoloOpponent gets four tiles
   ABSTRACT CLASS OwnedTile : Owned {
     CLASS GreeneryTile[GT] : Tile<MarsArea> {
       DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>)>

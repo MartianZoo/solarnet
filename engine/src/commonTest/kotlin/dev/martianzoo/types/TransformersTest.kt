@@ -16,6 +16,7 @@ class TransformersTest {
   fun test() {
     checkApplyDefaults("Heat", "Heat<Owner>!")
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
+    checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
     checkApplyDefaults("OceanTile", "OceanTile<WaterArea>.")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(

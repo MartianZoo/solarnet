@@ -37,6 +37,8 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
   public val dependencyComponents: List<Component> =
       mtype.typeDependencies.map { it.boundType.toComponent() }
 
+  // This remains Player until the runtime identity model can represent an Owner that has neither a
+  // gameplay scope nor a task queue. The Pets hierarchy is intentionally broader now.
   public val owner: Player? = run {
     val name =
         if (hasType(mtype.loader.resolve(OWNER.expression))) {

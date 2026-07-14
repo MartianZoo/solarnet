@@ -1,9 +1,11 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical.Companion.glb
 
 internal data class Defaults(
@@ -50,8 +52,22 @@ internal data class Defaults(
     }
 
     private fun gatherDefaultDeps(mclass: MClass, kind: DefaultKind): DependencySet {
-      fun toDependencyMap(specs: List<Expression>): DependencySet =
-          mclass.loader.resolve(mclass.className.of(specs)).narrowedDependencies
+      // TODO: this is complex and this human doesn't understand it
+      fun toDependencyMap(specs: List<Expression>): DependencySet {
+        val resolved = mclass.loader.resolve(mclass.className.of(specs)).narrowedDependencies
+        if (OWNER.expression !in specs) return resolved
+
+        // Owner also acts as a contextual variable. Don't normalize that variable to its bound
+        // before it can be replaced with Player1, etc.
+        val ownerKey =
+            mclass.dependencies
+                .matchPartial(listOf(OWNER.expression))
+                .typeDependencies()
+                .single()
+                .key
+        val owner = TypeDependency(ownerKey, mclass.loader.resolve(OWNER.expression))
+        return resolved.merge(DependencySet.of(setOf(owner))) { _, contextual -> contextual }
+      }
 
       val deps: List<Dependency> =
           mclass.dependencies.keys.mapNotNull { key ->

@@ -38,7 +38,9 @@ internal class CanonClassesTest {
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
-    anomalies.classNames().shouldContainExactlyInAnyOrder(ANYONE, cn("NoctisArea"), cn("Barrier"))
+    anomalies
+        .classNames()
+        .shouldContainExactlyInAnyOrder(ANYONE, cn("Owner"), cn("NoctisArea"), cn("Barrier"))
   }
 
   @Test

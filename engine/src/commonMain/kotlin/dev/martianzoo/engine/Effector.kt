@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
@@ -142,7 +143,16 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         val matchType = reader.resolve(match)
         return if (changeType.narrows(matchType, reader)) {
           val subber = reader.transformers.substituter(matchType, changeType)
-          val h: Hit = { subber.transform(it) * change.count }
+          // TODO: Reconsider this substitution when Actor becomes a distinct runtime concept.
+          // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
+          // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
+          // role as a contextual variable: instructions emitted by the hit still belong to the
+          // concrete actor that matched the trigger.
+          val contextualOwner = if (OWNER in match) replaceOwnerWith(actor) else null
+          val h: Hit = {
+            val substituted = subber.transform(it)
+            (contextualOwner?.transform(substituted) ?: substituted) * change.count
+          }
           h
         } else {
           null
@@ -176,7 +186,8 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     }
 
     private data class Personal(val inner: Subscription, val by: ClassName) : Subscription() {
-      val player: Player? = if (by == OWNER || by == ANYONE) null else Player(by)
+      val specificPlayer: Player? =
+          if (by == OWNER || by == ANYONE || by == PLAYER) null else Player(by)
 
       override fun checkForHit(
           currentEvent: ChangeEvent,
@@ -184,7 +195,10 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        if (player != null && actor != player) return null
+        if (specificPlayer != null && actor != specificPlayer) return null
+        // Kotlin's Player still includes Engine and has no Owner supertype yet. Until those runtime
+        // identities are split, this is the concrete meaning of the Pets-level Player class.
+        if (by == PLAYER && actor == Player.ENGINE) return null
         val originalHit = inner.checkForHit(currentEvent, actor, isSelf, reader) ?: return null
 
         return if (by == OWNER) {

@@ -15,7 +15,12 @@ import dev.martianzoo.util.toSetStrict
 
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
 object ApiUtils {
-  /** Returns the direct owner dependency of a concrete component type. */
+  /**
+   * Returns the direct owner dependency of a concrete component type.
+   *
+   * The result remains [Player] until the Kotlin API gains a distinct owner identity capable of
+   * representing a passive solo opponent.
+   */
   fun getOwner(game: GameReader, component: Type): Player {
     val ownerType: Type = game.resolve(OWNER.expression)
     val owner: Expression =

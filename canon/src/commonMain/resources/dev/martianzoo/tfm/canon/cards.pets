@@ -1,5 +1,5 @@
 "Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard"
-ABSTRACT CLASS Card : Owned {                   // a quantity that stays fixed as cards are played
+ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed as cards are played
 
   "A generic card in your hand"
   ABSTRACT CLASS CardBack[CB] {
@@ -35,7 +35,10 @@ ABSTRACT CLASS Card : Owned {                   // a quantity that stays fixed a
 CLASS GetEventVps<Class<CardFront>> : Owned, Custom // need Owned?
 
 "Anything that 'lives on' a card / couldn't exist without the card"
-ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned<Anyone> {
+// This retains Owned's Owner default rather than becoming Player-bound because the solo opponent must eventually
+// supply removable card resources without itself becoming a Player. The ResourceCard dependency
+// still prevents that today; it needs a neutral resource-host model.
+ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned {
 
   ABSTRACT CLASS Tag : Atomized {
     HAS MAX 2 This
