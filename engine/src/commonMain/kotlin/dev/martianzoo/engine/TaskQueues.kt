@@ -54,14 +54,16 @@ internal class TaskQueues(private val events: TaskListener) {
 
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
-  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.actor, task.cause)
+  internal fun addTasks(task: Task) =
+      addTasks(split(task.instruction), task.actor, task.cause, task.triggeredBy)
 
   internal fun addTasks(
       instruction: InstructionGroup,
       actor: Actor,
       cause: Cause?,
+      triggeredBy: Actor? = null,
   ): List<TaskAddedEvent> {
-    val newTasks = Task.newTasks(nextAvailableId(), actor, instruction, cause)
+    val newTasks = Task.newTasks(nextAvailableId(), actor, instruction, cause, triggeredBy)
     return newTasks.map {
       val task = addToTaskSet(it)
       events.taskAdded(task)
@@ -148,9 +150,13 @@ internal class WritableTaskQueue(
 
   override fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
 
-  fun addTasks(instruction: InstructionGroup, cause: Cause?): List<TaskAddedEvent> {
+  fun addTasks(
+      instruction: InstructionGroup,
+      cause: Cause?,
+      triggeredBy: Actor? = null,
+  ): List<TaskAddedEvent> {
     val taskActor = actor ?: error("global queue view can't infer an actor for new tasks")
-    return taskQueues.addTasks(instruction, taskActor, cause)
+    return taskQueues.addTasks(instruction, taskActor, cause, triggeredBy)
   }
 
   fun addTasks(task: Task): List<TaskAddedEvent> {

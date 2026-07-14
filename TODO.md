@@ -121,10 +121,11 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 Current progress: the vocabulary and minimal Pets hierarchy from steps 2–3 are in place. The Kotlin
 runtime identity split and the execution-facing renames from steps 4–5 are also in place, as is the
-players-versus-actors configuration split from step 8. Step 1 now covers scoped task execution,
-whole-game auto-execution, unidentified-task queue insertion, and the Philares cross-Actor handoff;
-the rest of its characterization matrix and provenance, authorization, event-format, and Npc work
-in later steps remain pending.
+players-versus-actors configuration split from step 8. The characterization matrix in step 1 is in
+place. Task provenance from step 6 now records `triggeredBy` when effect routing changes Actors and
+preserves it through the task lifecycle. Step 11's context-owner / changed-component-owner /
+event-actor compatibility rule is also isolated and named. Authorization, event-format, and Npc
+work in the other later steps remain pending.
 
 ## Gameplay Rules Implemented Incorrectly or Incompletely
 

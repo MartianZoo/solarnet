@@ -60,6 +60,7 @@ class ActorTaskCharacterizationTest {
             automatic = false,
             hit = parse<Instruction>("Plant<Player2>!"),
             cause = cause,
+            triggeredBy = PLAYER1,
         )
 
     unidentified.id shouldBe TaskId("ZZ")
@@ -68,6 +69,7 @@ class ActorTaskCharacterizationTest {
 
     added.id shouldBe TaskId("A")
     added.actor shouldBe PLAYER2
+    added.triggeredBy shouldBe PLAYER1
     added.instruction shouldBe unidentified.instruction
     added.cause shouldBe cause
     queues[PLAYER2].ids().shouldContainExactly(TaskId("A"))

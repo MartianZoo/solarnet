@@ -157,7 +157,9 @@ internal class Implementations(
   }
 
   private fun handleTask(queue: WritableTaskQueue, task: Task) {
-    task.then?.let { queue.queueFor(task.actor).addTasks(split(it), task.cause) }
+    task.then?.let {
+      queue.queueFor(task.actor).addTasks(split(it), task.cause, task.triggeredBy)
+    }
     queue.removeTask(task.id)
   }
 
@@ -267,7 +269,7 @@ internal class Implementations(
       val one = split.instructions[0]
       queue.editTask(replacement.copy(instructionIn = one))
     } else {
-      queue.queueFor(replacement.actor).addTasks(split, replacement.cause)
+      queue.queueFor(replacement.actor).addTasks(split, replacement.cause, replacement.triggeredBy)
       handleTask(queue, queue.getTaskData(replacement.id))
     }
   }

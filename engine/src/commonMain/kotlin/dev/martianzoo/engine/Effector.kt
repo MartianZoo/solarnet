@@ -82,15 +82,29 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         onChange(triggerEvent, reader, isSelf = false)
 
     private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
-      // TODO: Isolate and name this selection rule. In particular, BY currently checks this
-      // selected task actor, which can be the effect context's owner rather than the Actor recorded
-      // on the triggering event.
-      val taskActor =
-          context.owner ?: changedComponentOwner(triggerEvent, reader) ?: triggerEvent.actor
+      val taskActor = actorForTriggeredWork(triggerEvent, reader)
       val hit = subscription.checkForHit(triggerEvent, taskActor, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task.noid(taskActor, automatic, hit(instruction), cause = cause)
+      val triggeredBy = triggerEvent.actor.takeUnless { it == taskActor }
+      return Task.noid(
+          taskActor,
+          automatic,
+          hit(instruction),
+          cause = cause,
+          triggeredBy = triggeredBy,
+      )
     }
+
+    /**
+     * The compatibility rule for choosing the Actor associated with work produced by an effect.
+     * `BY` currently tests this Actor as well, although routing and trigger matching may eventually
+     * need distinct inputs.
+     *
+     * Automatic effects are represented temporarily as Tasks but execute inline through the
+     * triggering Actor's Instructor and Changer, so their resulting ChangeEvents retain that Actor.
+     */
+    private fun actorForTriggeredWork(triggerEvent: ChangeEvent, reader: GameReader): Actor =
+        context.owner ?: changedComponentOwner(triggerEvent, reader) ?: triggerEvent.actor
 
     private fun changedComponentOwner(triggerEvent: ChangeEvent, reader: GameReader): Player? {
       val expression = triggerEvent.change.gaining ?: triggerEvent.change.removing ?: return null

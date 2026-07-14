@@ -82,6 +82,7 @@ Each task has:
 - `id` — a monotonically increasing `TaskId`
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
 - `actor` — the `Actor` the task is waiting on, who may revise and execute it
+- `triggeredBy` — when routing changed Actors, the Actor recorded on the triggering event
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
@@ -207,6 +208,14 @@ the effector checks all registered active effects against each new change event.
 When an effect fires, if it's **automatic** (double-colon in Pets syntax), the `Instructor` executes
 it inline in the same change loop. If it's **non-automatic** (single colon), it becomes a new `Task`
 appended to the queue.
+
+The current compatibility rule associates triggered work with the first available Actor among the
+effect-bearing component's owner, the changed component's owner, and the Actor on the triggering
+event. `BY` currently tests that selected Actor too. For deferred effects it becomes `Task.actor`.
+For automatic effects the temporary Task still carries it, but execution remains inline through the
+triggering Actor's `Instructor` and `Changer`, so resulting change events retain the triggering
+Actor. The migration keeps these routing, matching, and performance roles explicit because later
+Actor delegation may separate them.
 
 ---
 

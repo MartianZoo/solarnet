@@ -26,6 +26,13 @@ public data class Task(
     /** The actor this task is waiting on, who has the right to revise and execute it. */
     val actor: Actor,
 
+    /**
+     * The Actor on the triggering event when effect routing selected a different [actor]. This is
+     * initiating provenance, not authorization and not necessarily the Actor that later performs
+     * the task.
+     */
+    val triggeredBy: Actor? = null,
+
     /** If true, no game state may be modified until this task is completed. */
     val next: Boolean = false,
 
@@ -61,6 +68,7 @@ public data class Task(
   }
 
   init {
+    require(triggeredBy == null || triggeredBy != actor)
     require(instruction.descendantsOfType<Gain>().none { it.gaining == DIE.expression })
     when (instruction) {
       is Transform -> error("can't enqueue: $instruction")
@@ -129,9 +137,10 @@ public data class Task(
         actor: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
+        triggeredBy: Actor? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map { newTask(ids.next(), actor, it, cause) }
+      return instruction.map { newTask(ids.next(), actor, it, cause, triggeredBy = triggeredBy) }
     }
 
     public fun newTask(
@@ -140,8 +149,17 @@ public data class Task(
         instruction: Instruction,
         cause: Cause?,
         automatic: Boolean = false,
+        triggeredBy: Actor? = null,
     ): Task {
-      val task = Task(id, actor, automatic, instruction, cause = cause)
+      val task =
+          Task(
+              id = id,
+              actor = actor,
+              triggeredBy = triggeredBy,
+              next = automatic,
+              instructionIn = instruction,
+              cause = cause,
+          )
       val normal = task.instruction
 
       return if (normal is Then && !normal.keepLinked()) {
@@ -159,7 +177,16 @@ public data class Task(
         automatic: Boolean,
         hit: Instruction,
         cause: Cause,
-    ) = Task(TaskId("ZZ"), actor, automatic, hit, cause = cause)
+        triggeredBy: Actor? = null,
+    ) =
+        Task(
+            id = TaskId("ZZ"),
+            actor = actor,
+            triggeredBy = triggeredBy,
+            next = automatic,
+            instructionIn = hit,
+            cause = cause,
+        )
   }
 
   data class TaskId(val s: String) : Comparable<TaskId> {
