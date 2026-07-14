@@ -85,14 +85,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
       val taskActor = actorForTriggeredWork(triggerEvent, reader)
       val hit = subscription.checkForHit(triggerEvent, taskActor, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      val triggeredBy = triggerEvent.actor.takeUnless { it == taskActor }
-      return Task.noid(
-          taskActor,
-          automatic,
-          hit(instruction),
-          cause = cause,
-          triggeredBy = triggeredBy,
-      )
+      return Task.noid(taskActor, automatic, hit(instruction), cause = cause)
     }
 
     /**

@@ -2,130 +2,60 @@
 
 Priorities appear in parentheses; no parenthetical means the default priority, **Soon**.
 
-## Actor / Owner / Player Model — Intended Sequence
+## Actor / Owner / Player Model
 
-### Constraints and Useful Findings So Far
+The clarified vocabulary is now in place without redesigning the engine's established execution
+behavior:
+
+1. An `Owner` can own noun-like game-state components.
+2. An `Actor` can initiate or continue game operations.
+3. A `Player` is both an Owner and an Actor; `Engine` is only an Actor.
+4. A task's `actor` is the identity selected by the existing effect-routing rule and the identity
+   whose scoped queue exposes that task.
+5. Existing whole-game auto-execution behavior remains unchanged. Revisit it only in response to a
+   concrete correctness problem, with characterization tests in place first.
+
+Durable constraints and findings from the migration:
 
 1. Effects belonging to an `Owned` component—and effects belonging to a `Player` component
-   itself—have an intentional form of “actorship usurpation”: the effect owner can become the Actor
-   responsible for resulting deferred work even when another Actor caused the triggering change.
-   The existing context-owner / changed-component-owner / event-actor selection is therefore
-   approximately necessary, not merely legacy naming to simplify away.
-2. Abstract deferred effects can split control across Actors. The active Actor may control when the
-   work is prepared within the current operation, while the other Owner whose effect fired controls
-   how the abstract instruction is refined. Philares is the canonical regression case for this
-   interaction and must remain working throughout the migration.
-3. Double-colon effects execute immediately inside the same operation as their triggering change
-   and are performed by the same Actor. They do not usurp actorship merely because their effect
-   context has another Owner.
-4. A task's primary Actor is the Actor the task is waiting on and authorizes to act, but provenance
-   may need additional fields such as `onBehalfOf`. Prefer adding such fields during the migration
-   and removing proven redundancies later over prematurely forcing queue ownership, authorization,
-   triggering provenance, preparation timing, and refinement authority into one value.
-5. `Task` remains the common representation for triggered work. An unidentified task is work that
-   has not yet received its queue id; no parallel “triggered instruction” representation is
-   currently justified.
-6. Event logs should name the performing Actor with `BY` and the effect-bearing causal component
-   with `VIA`.
-7. For neutral global-parameter raises, an explicit Player restriction is preferred. Allowing an
-   attempted `TerraformRating.` gain to collapse harmlessly through corrected AMAP behavior is a
-   fallback, not the primary design.
-8. `Owned<Owner>` remains the ideal declaration, but the existing default, substitution, and
-   specialization machinery is delicate. The eventual enforcement layer is still an open question.
-   Do not introduce `Verb<Actor>` or reclassify the existing signals without a demonstrated need.
+   itself—can intentionally route resulting deferred work to that component's Owner even when a
+   different Actor caused the triggering change. Preserve the existing context-owner /
+   changed-component-owner / event-actor selection order unless a concrete rule demonstrates that
+   it is wrong.
+2. Abstract deferred effects can split control across Actors: the active Actor's operation may
+   cause the task, while the Owner whose effect fired controls refinement of the abstract choice.
+   Philares is the canonical regression case.
+3. Double-colon effects execute immediately inside the triggering operation and are performed by
+   the triggering Actor. They do not change Actors merely because the effect context has an Owner.
+4. `Task` remains the common representation for triggered work. An unidentified task has no queue
+   id yet; do not add a parallel triggered-instruction representation without a demonstrated need.
+5. Event logs name the performing Actor with `BY` and the effect-bearing causal component with
+   `VIA`.
+6. `BY` trigger matching and task routing are currently coupled through the selected effect Actor.
+   Characterize real card behavior before attempting to separate or redefine them.
+7. `Owned<Owner>` remains the ideal Pets declaration, but default insertion, contextual `Owner`
+   substitution, `Anyone` use sites, and repeated-type specialization interact delicately. Attempt
+   changes only behind focused tests, and retain `Owned<Anyone>` if the broader declaration is the
+   safer enforcement point.
+8. For neutral global-parameter raises, prefer an explicit Player restriction over relying on an
+   attempted `TerraformRating.` gain to collapse harmlessly through AMAP behavior.
+9. Do not introduce a `Verb<Actor>` hierarchy or reclassify existing signals without a concrete
+   type-safety or substitution problem that needs it.
+10. Before any further Actor-model behavior change, characterize the affected selection order,
+    immediate versus deferred execution, `BY Owner`/`BY Anyone`/`BY Player`, repeated
+    specialization, task queue insertion, whole-game auto-execution, event-log output, and
+    Philares refinement behavior.
 
-### Implementation Order
+Future work:
 
-1. Write characterization tests before changing the model. Cover the existing effect-actor
-   selection order, immediate versus deferred effects, the `BY Owner`/`BY Anyone`/`BY Player` cases,
-   repeated-type specialization within one effect, unidentified tasks before queue insertion,
-   ordinary actor-scoped execution, whole-game auto-execution, and current event-log output. Add
-   focused Philares tests for the active Actor's preparation timing and the effect owner's
-   refinement authority. Use these tests to distinguish intentional rules from compatibility
-   behavior instead of simplifying the code from inspection alone.
-2. Fix and document the vocabulary and invariants. A `Player` is always exactly one of the 1–5
-   people or bots playing Terraforming Mars. An `Owner` can own noun-like game-state components. An
-   `Actor` can initiate or continue game operations. `Player` extends both; `SoloOpponent` is only
-   an Owner; `Npc` and `Engine` are only Actors.
-3. Add the minimal Pets `Actor` hierarchy and corresponding system class constant, making `Player`
-   a subtype of both `Owner` and `Actor`, and making `Engine` an Actor. Do not introduce a `Verb`
-   hierarchy or reclassify action signals unless a concrete type-safety or substitution problem
-   later demonstrates that it is necessary.
-4. Rename the current broad Kotlin execution identity from `Player` to `Actor`, then introduce or
-   retain a genuinely player-only API type for seat order, turn order, player-count rules, and
-   Terraforming Mars helpers. Replace the current regex-based “Player or Engine” meaning without
-   broadening `Player` beyond the five actual participants.
-5. Rename generic execution-facing properties and parameters consistently: `Gameplay.player`,
-   `Changer.player`, scope maps, and `ChangeEvent.owner` become actor terminology. Rename
-   `Task.owner` to `Task.actor`: a task is waiting on that Actor and authorizes that Actor to revise
-   and execute it, subject to the characterized multi-Actor preparation/refinement rules. Do not
-   call this role an assignee.
-6. Add nullable Actor provenance to `Task` where the migration needs it, beginning with a candidate
-   such as `onBehalfOf`. Keep this distinct from `cause`, which identifies the effect context and
-   triggering event rather than delegated authority. Carry provenance through splitting, `THEN`,
-   queue insertion, editing, rollback, and event logging; defer deciding which fields are redundant
-   until Philares, Engine delegation, and Npc behavior are all expressible.
-7. Keep `Task` as the common representation for triggered work. Characterize and document the
-   lifecycle in which an unidentified task receives a real id when it is inserted into an Actor's
-   queue. For double-colon effects, ensure the temporary task value executes inline under the
-   triggering Actor and operation; do not introduce a parallel internal representation unless the
-   existing one causes a demonstrated problem.
-8. Split configured identities into actual `players` and all execution-capable `actors`. Actor
-   scopes and task queues are created for Players, Engine, and configured Npcs; passive Owners such
-   as SoloOpponent receive neither gameplay scopes nor task queues. Remove the current convention
-   that `Player.players(...)` includes Engine.
-9. Make cross-Actor execution an explicit capability. Ordinary Actors operate only on tasks that
-   are waiting on and authorized for them. Determine whether whole-game auto-execution is needed
-   only during initialization or elsewhere; where genuinely required, model it as an Engine
-   privilege to execute *as* another Actor. Preserve both the performing Actor and any Engine
-   delegation in the task/event provenance instead of deciding prematurely that only one identity
-   matters.
-10. Change event attribution to `ChangeEvent.actor` and render it with `BY`; render the effect-bearing
-   causal component with `VIA`, retaining `BECAUSE <ordinal>` for the causal link. For example:
-   `+OxygenStep BY Player2 VIA GreeneryTile<Player2, Tharsis_5_5> BECAUSE 448`.
-11. Isolate and name the Effector rule that chooses which Actor a deferred task waits on. Preserve
-    approximately the current context-owner / changed-component-owner / event-actor fallback until
-    focused examples show the exact rule. Do not apply this usurpation to double-colon effects,
-    which retain the triggering Actor.
-12. Characterize `BY` independently from task routing. Determine from existing cards—especially
-    Philares—whether each form tests the triggering Actor, the Actor selected for deferred work, a
-    contextually substituted Owner, or some combination. Permit the event Actor, task Actor, and
-    `onBehalfOf` Actor to remain distinct if the rules genuinely use all three.
-13. Keep `ByTrigger.by` as a `ClassName` initially. Enumerate the actual useful forms (`Anyone`,
-    `Actor`, `Player`, `Owner` as a contextual reference, concrete Players, `Npc`, and `Engine`) and
-    implement their semantics directly. Introduce an Actor-bounded expression only if a real need
-    arises for parameterized, refined, complemented, or otherwise non-class Actor selectors.
-14. Separate contextual substitutions by role. Actor-scoped parsing always substitutes the current
-    Actor where Actor context is requested. Owner substitution occurs only when an Owner is actually
-    available—normally because the Actor is a Player or because an effect-bearing component has an
-    Owner. Ensure Engine and Npc never acquire Owner powers merely to reuse the old preprocessing
-    pipeline.
-15. Attempt the ideal `Owned<Owner>` bound only behind focused dependency/default/substitution tests.
-    Preserve `Anyone` use-site behavior and the rule that repeated occurrences of the same type in
-    an effect specialize together. If changing the declared bound destabilizes this machinery,
-    retain `Owned<Anyone>` and enforce “only Owners can own nouns” through class validation or
-    concrete-component validation instead. Leave the choice of enforcement layer open until these
-    experiments provide evidence.
-16. Make the global-parameter/TR rule an explicit Actor-model test case before choosing its final
-    Pets spelling. Preserve the important coupling expressed by using `Player` in both the `BY`
-    position and `TerraformRating<Player>`, and first verify whether `BY Player` is already inserted
-    automatically. Prefer suppressing the effect for Npc/Engine; retain `TerraformRating.` plus the
-    eventual corrected AMAP semantics from issue #28 as a fallback if the explicit restriction
-    cannot be expressed cleanly.
-17. Implement `Npc` and World Government Terraforming using the resulting Actor APIs, including an
-    Npc task queue and truthful Npc event attribution. Then introduce `SoloOpponent` through the
-    Owner APIs without giving it gameplay, a queue, or Player-only components.
-18. Update engine, language, and component-model documentation and run the full JDK 21 build after
-    each behavior-affecting stage. Keep migrations small enough that failures identify which Actor,
-    Owner, queue, trigger, or specialization invariant was disturbed.
-
-Current progress: the vocabulary and minimal Pets hierarchy from steps 2–3 are in place. The Kotlin
-runtime identity split and the execution-facing renames from steps 4–5 are also in place, as is the
-players-versus-actors configuration split from step 8. The characterization matrix in step 1 is in
-place. Task provenance from step 6 now records `triggeredBy` when effect routing changes Actors and
-preserves it through the task lifecycle. Step 11's context-owner / changed-component-owner /
-event-actor compatibility rule is also isolated and named. Authorization, event-format, and Npc
-work in the other later steps remain pending.
+1. Add `Npc` and World Government Terraforming through the Actor APIs when implementing that
+   variant.
+2. Add `SoloOpponent` through the Owner model without giving it gameplay or a task queue.
+3. Revisit the runtime `Component.owner: Player?` representation when one of those features needs a
+   non-Player Owner.
+4. When implementing Npc or SoloOpponent, keep Actor-scoped parsing separate from Owner
+   substitution so Engine and Npc do not acquire ownership powers merely to reuse the Player
+   preprocessing pipeline.
 
 ## Gameplay Rules Implemented Incorrectly or Incompletely
 

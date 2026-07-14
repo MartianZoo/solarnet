@@ -56,7 +56,10 @@ sealed class GameEvent {
       require((cause?.triggerEvent ?: -1) < ordinal)
     }
 
-    override fun toString() = "$ordinal: $change FOR $actor ${cause ?: "(manual)"}"
+    override fun toString() = buildString {
+      append("$ordinal: $change BY $actor")
+      append(" ${cause ?: "(manual)"}")
+    }
 
     /** The part of a `ChangeEvent` that describes only what actually changed. */
     data class StateChange(
@@ -101,7 +104,7 @@ sealed class GameEvent {
         require(triggerEvent >= 0)
       }
 
-      override fun toString() = "BY $context BECAUSE $triggerEvent"
+      override fun toString() = "VIA $context BECAUSE $triggerEvent"
     }
   }
 }

@@ -440,10 +440,10 @@ full capability split. The current implementation has a few constraints worth re
    atomic block, runs the explicit command, runs auto-exec, returns activity since the checkpoint,
    and fires `onAtomicComplete` only for the outermost command.
 2. `Implementations.autoExecNow` intentionally scans the whole-game task view today, even though
-   player task queues are scoped. Existing workflows rely on this, so actor-local auto-exec should
+   Actor task queues are scoped. Existing workflows rely on this, so Actor-local auto-exec should
    not be the first behavioral change.
-3. `Task.next` is still a whole-game lock. A player-scoped action may prepare only that player's
-   task, but it must still reject cutting in front of a prepared task elsewhere.
+3. `Task.next` is still a whole-game lock. An Actor-scoped action may prepare only that Actor's task,
+   but it must still reject cutting in front of a prepared task elsewhere.
 4. The REPL is currently the clearest client smell: `ScriptSession.access()` obtains `godMode()` and
    `Access` casts it back down to colored power levels, while `TaskCommand` reaches directly for
    `game.timeline.atomic` to compose a revise-and-try operation.

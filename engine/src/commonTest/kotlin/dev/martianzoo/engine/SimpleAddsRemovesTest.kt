@@ -57,11 +57,11 @@ internal class SimpleAddsRemovesTest {
 
     strip(changes.toStrings().map { it.replace(Regex("^\\d+"), "") })
         .shouldContainExactly(
-            ": +5 Heat<Player2> FOR Player2 (manual)",
-            ": +10 Heat<Player1> FOR Player2 (manual)",
-            ": -4 Heat<Player2> FOR Player2 (manual)",
-            ": +3 Steel<Player1> FROM Heat<Player1> FOR Player2 (manual)",
-            ": +2 Heat<Player2> FROM Heat<Player1> FOR Player2 (manual)",
+            ": +5 Heat<Player2> BY Player2 (manual)",
+            ": +10 Heat<Player1> BY Player2 (manual)",
+            ": -4 Heat<Player2> BY Player2 (manual)",
+            ": +3 Steel<Player1> FROM Heat<Player1> BY Player2 (manual)",
+            ": +2 Heat<Player2> FROM Heat<Player1> BY Player2 (manual)",
         )
   }
 

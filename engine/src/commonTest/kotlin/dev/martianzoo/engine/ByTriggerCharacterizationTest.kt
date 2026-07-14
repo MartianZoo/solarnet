@@ -4,6 +4,7 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmAuthority
@@ -32,8 +33,8 @@ class ByTriggerCharacterizationTest {
 
     gameplay.beginManual("ActorTriggerSignal!") {
       game.tasks
-          .extract { Triple(it.actor, it.triggeredBy, it.instruction.toString()) }
-          .shouldContainExactly(Triple(actor, null, "Plant<Player1>!"))
+          .extract { it.actor to it.instruction.toString() }
+          .shouldContainExactly(actor to "Plant<Player1>!")
     }
   }
 
@@ -45,8 +46,8 @@ class ByTriggerCharacterizationTest {
 
     p1.beginManual("-ActorTriggerSignal!") {
       game.tasks
-          .extract { Triple(it.actor, it.triggeredBy, it.instruction.toString()) }
-          .shouldContainExactly(Triple(PLAYER1, null, "Steel<Player1>!"))
+          .extract { it.actor to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "Steel<Player1>!")
     }
   }
 
@@ -66,38 +67,23 @@ class ByTriggerCharacterizationTest {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     p1.sneak("RepeatedOwnerProbe<Player2>!")
+    val checkpoint = game.timeline.checkpoint()
 
     p1.beginManual("ActorTriggerSignal!") {
       game.tasks
-          .extract { Triple(it.actor, it.triggeredBy, it.instruction.toString()) }
+          .extract { it.actor to it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(
-              Triple(PLAYER2, PLAYER1, "Plant<Player2>!"),
-              Triple(PLAYER2, PLAYER1, "Steel<Player2>!"),
+              PLAYER2 to "Plant<Player2>!",
+              PLAYER2 to "Steel<Player2>!",
           )
     }
-  }
 
-  @Test
-  fun triggeredBySurvivesRevisionAndThenQueueInsertion() {
-    val game = newGame()
-    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
-    p1.sneak("ThenOwnerProbe<Player2>!")
+    p1.autoExecMode = FIRST
 
-    p1.beginManual("ThenTriggerSignal!")
-    val firstTask = game.tasks.extract { it }.single()
-    firstTask.actor shouldBe PLAYER2
-    firstTask.triggeredBy shouldBe PLAYER1
-    val beforeRevision = game.timeline.checkpoint()
-
-    p2.reviseTask(firstTask.id, "Ok")
-
-    game.tasks
-        .extract { Triple(it.actor, it.triggeredBy, it.instruction.toString()) }
-        .shouldContainExactly(Triple(PLAYER2, PLAYER1, "Steel<Player2>!"))
-
-    game.timeline.rollBack(beforeRevision)
-    game.tasks.extract { it }.shouldContainExactly(firstTask)
+    game.tasks.isEmpty() shouldBe true
+    p1.count("Plant<Player2>") shouldBe 1
+    p1.count("Steel<Player2>") shouldBe 1
+    game.events.changesSince(checkpoint).takeLast(2).all { it.actor == PLAYER1 } shouldBe true
   }
 
   private fun newGame() = Engine.newGame(GameSetup(ProbeAuthority, "BM", 2))
@@ -117,12 +103,6 @@ private object ProbeAuthority : TfmAuthority() {
 
               CLASS RepeatedOwnerProbe : Owned, AutoLoad {
                 ActorTriggerSignal: Plant<Owner>, Steel<Owner>
-              }
-
-              CLASS ThenTriggerSignal : AutoLoad
-
-              CLASS ThenOwnerProbe : Owned, AutoLoad {
-                ThenTriggerSignal: Plant<Owner>? THEN Steel<Owner>
               }
               """
                   .trimIndent()

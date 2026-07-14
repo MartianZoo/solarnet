@@ -23,15 +23,8 @@ public data class Task(
      */
     val id: TaskId,
 
-    /** The actor this task is waiting on, who has the right to revise and execute it. */
+    /** The actor whose scoped gameplay can directly revise and execute this task. */
     val actor: Actor,
-
-    /**
-     * The Actor on the triggering event when effect routing selected a different [actor]. This is
-     * initiating provenance, not authorization and not necessarily the Actor that later performs
-     * the task.
-     */
-    val triggeredBy: Actor? = null,
 
     /** If true, no game state may be modified until this task is completed. */
     val next: Boolean = false,
@@ -68,7 +61,6 @@ public data class Task(
   }
 
   init {
-    require(triggeredBy == null || triggeredBy != actor)
     require(instruction.descendantsOfType<Gain>().none { it.gaining == DIE.expression })
     when (instruction) {
       is Transform -> error("can't enqueue: $instruction")
@@ -137,10 +129,9 @@ public data class Task(
         actor: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
-        triggeredBy: Actor? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map { newTask(ids.next(), actor, it, cause, triggeredBy = triggeredBy) }
+      return instruction.map { newTask(ids.next(), actor, it, cause) }
     }
 
     public fun newTask(
@@ -149,13 +140,11 @@ public data class Task(
         instruction: Instruction,
         cause: Cause?,
         automatic: Boolean = false,
-        triggeredBy: Actor? = null,
     ): Task {
       val task =
           Task(
               id = id,
               actor = actor,
-              triggeredBy = triggeredBy,
               next = automatic,
               instructionIn = instruction,
               cause = cause,
@@ -177,12 +166,10 @@ public data class Task(
         automatic: Boolean,
         hit: Instruction,
         cause: Cause,
-        triggeredBy: Actor? = null,
     ) =
         Task(
             id = TaskId("ZZ"),
             actor = actor,
-            triggeredBy = triggeredBy,
             next = automatic,
             instructionIn = hit,
             cause = cause,

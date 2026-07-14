@@ -29,8 +29,9 @@ internal class Implementations(
     private val instructor: Instructor,
     private val changer: Changer,
 ) {
-  // Legacy auto-exec still scans the whole game, and Task.next is still a whole-game lock. Keep
-  // that global visibility as a queue view rather than exposing raw TaskQueues storage.
+  // Auto-exec scans the whole game for compatibility with existing workflows, and Task.next is a
+  // whole-game lock. Keep that global visibility as a queue view rather than exposing TaskQueues
+  // storage.
   private val allTasks = taskQueues.all()
 
   // CHANGES LAYER
@@ -93,8 +94,6 @@ internal class Implementations(
 
   @Suppress("CyclomaticComplexMethod") // TODO: improve this
   private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
-    // Auto-exec is intentionally whole-game for now; existing workflows rely on one player's
-    // operation draining automatic tasks that were enqueued elsewhere.
     if (mode == NONE || allTasks.isEmpty()) return false
 
     val options: List<TaskId> =
@@ -140,9 +139,8 @@ internal class Implementations(
     explainTask(tasks, taskId, reason)
   }
 
-  private fun explainAnyTask(taskId: TaskId, reason: String) {
-    explainTask(queueForAnyTask(taskId), taskId, reason)
-  }
+  private fun explainAnyTask(taskId: TaskId, reason: String) =
+      explainTask(queueForAnyTask(taskId), taskId, reason)
 
   private fun explainTask(queue: WritableTaskQueue, taskId: TaskId, reason: String) {
     queue.editTask(queue.getTaskData(taskId).copy(whyPending = reason))
@@ -152,13 +150,9 @@ internal class Implementations(
    * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
    * automatically enqueued.
    */
-  private fun handleTask(taskId: TaskId) {
-    handleTask(tasks, tasks.getTaskData(taskId))
-  }
-
   private fun handleTask(queue: WritableTaskQueue, task: Task) {
     task.then?.let {
-      queue.queueFor(task.actor).addTasks(split(it), task.cause, task.triggeredBy)
+      queue.queueFor(task.actor).addTasks(split(it), task.cause)
     }
     queue.removeTask(task.id)
   }
@@ -208,8 +202,6 @@ internal class Implementations(
   internal fun prepareTask(taskId: TaskId): TaskId? =
       doPrepare(tasks, tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
 
-  // Whole-game auto-exec chooses candidates across all queues to preserve existing workflows; each
-  // selected task is immediately routed back through its owning scoped queue.
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   private fun canPrepareAnyTask(taskId: TaskId): Boolean {
     val queue = queueForAnyTask(taskId)
@@ -223,7 +215,6 @@ internal class Implementations(
     }
   }
 
-  // Same whole-game auto-exec path as canPrepareAnyTask().
   private fun prepareAnyTask(taskId: TaskId): TaskId? {
     val queue = queueForAnyTask(taskId)
     return doPrepare(queue, queue.getTaskData(taskId)).also {
@@ -243,7 +234,6 @@ internal class Implementations(
     }
   }
 
-  // The lookahead rollback must use the same whole-game task choice that auto-exec just made.
   private fun lookAheadForTroubleInAnyQueue(taskId: TaskId) {
     if (taskId in allTasks) {
       try {
@@ -269,7 +259,7 @@ internal class Implementations(
       val one = split.instructions[0]
       queue.editTask(replacement.copy(instructionIn = one))
     } else {
-      queue.queueFor(replacement.actor).addTasks(split, replacement.cause, replacement.triggeredBy)
+      queue.queueFor(replacement.actor).addTasks(split, replacement.cause)
       handleTask(queue, queue.getTaskData(replacement.id))
     }
   }
@@ -282,20 +272,19 @@ internal class Implementations(
   }
 
   internal fun doTask(taskId: TaskId) {
-    val prepared = doPrepare(tasks, tasks.getTaskData(taskId)) ?: return
-    val preparedTask = tasks.getTaskData(prepared)
-    val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-    newTasks.forEach { tasks.queueFor(it.actor).addTasks(it) }
-    handleTask(taskId)
+    doTask(tasks, taskId)
   }
 
-  private fun doAnyTask(taskId: TaskId) {
-    val queue = queueForAnyTask(taskId)
+  private fun doTask(queue: WritableTaskQueue, taskId: TaskId) {
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
     newTasks.forEach { queue.queueFor(it.actor).addTasks(it) }
     handleTask(queue, queue.getTaskData(taskId))
+  }
+
+  private fun doAnyTask(taskId: TaskId) {
+    doTask(queueForAnyTask(taskId), taskId)
   }
 
   internal fun doTask(revised: Instruction) {
@@ -362,8 +351,6 @@ internal class Implementations(
     }
   }
 
-  // Auto-exec's prepared task can belong to any queue, so this is the whole-game counterpart to
-  // tryPreparedTask().
   private fun tryPreparedAnyTask(): Boolean /* did I do stuff? */ {
     val taskId = allTasks.preparedTask()!!
     return try {
@@ -377,11 +364,8 @@ internal class Implementations(
     }
   }
 
-  private fun queueForAnyTask(taskId: TaskId): WritableTaskQueue {
-    // Whole-game auto-exec chooses ids from allTasks; switch back to the assigned Actor's scoped
-    // queue before mutating so Actor validation still applies.
-    return tasks.queueFor(allTasks.getTaskData(taskId).actor)
-  }
+  private fun queueForAnyTask(taskId: TaskId): WritableTaskQueue =
+      tasks.queueFor(allTasks.getTaskData(taskId).actor)
 
   private fun execute(instruction: String, fakeCause: Cause? = null): Unit =
       addTasks(parse(instruction), fakeCause).forEach(::doTask)

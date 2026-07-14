@@ -18,8 +18,8 @@ class EffectActorCharacterizationTest {
 
     engine.beginManual("GreeneryTile<Player1, Elysium_9_8>") {
       game.tasks
-          .extract { Triple(it.actor, it.triggeredBy, it.instruction.toString()) }
-          .shouldContainExactly(Triple(PLAYER1, ENGINE, "ProjectCard<Player1>!"))
+          .extract { it.actor to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "ProjectCard<Player1>!")
 
       engine.has("Neighbor") shouldBe true
       engine.count("ProjectCard<Player1>") shouldBe 0
@@ -36,8 +36,8 @@ class EffectActorCharacterizationTest {
 
     p1.beginManual("OxygenStep!") {
       game.tasks
-          .extract { Triple(it.actor, it.triggeredBy, it.instruction.toString()) }
-          .shouldContainExactly(Triple(PLAYER1, null, "TerraformRating<Player1>!"))
+          .extract { it.actor to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "TerraformRating<Player1>!")
       p1.count("TerraformRating") shouldBe terraformRatingBefore
     }
 

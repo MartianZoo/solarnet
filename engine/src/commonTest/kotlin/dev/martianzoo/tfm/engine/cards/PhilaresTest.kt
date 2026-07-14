@@ -42,7 +42,7 @@ class PhilaresTest {
 
     p1.stdProject("GreenerySP") {
       doTask("GreeneryTile<M43>")
-      game.tasks.extract { it.actor to it.triggeredBy }.shouldContainExactly(PLAYER2 to PLAYER1)
+      game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
       p2.doTask("Titanium")
     }
     p2.assertCounts(1 to "Steel", 1 to "Titanium")

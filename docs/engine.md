@@ -60,11 +60,15 @@ further component changes to happen as well, giving us all those fun triggered e
 Every state change and task event is appended via `WritableEventLog` as a `GameEvent`. There are
 four event types:
 
-- `ChangeEvent` — a `StateChange` (count/gaining/removing) plus who caused it and why
+- `ChangeEvent` — a `StateChange` plus the performing `actor` and cause
 - `TaskAddedEvent`, `TaskRemovedEvent`, `TaskEditedEvent` — task lifecycle
 
 The event log is the basis for **rollback**: `TimelineImpl.rollBack(checkpoint)` iterates the
 log backward from the current end to the checkpoint, reversing each event in turn.
+
+Change events render the performing Actor with `BY` and the effect-bearing causal component with
+`VIA`, followed by the causal event ordinal: `+OxygenStep BY Player2 VIA GreeneryTile<...> BECAUSE
+448`.
 
 ---
 
@@ -81,16 +85,15 @@ Each task has:
 
 - `id` — a monotonically increasing `TaskId`
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
-- `actor` — the `Actor` the task is waiting on, who may revise and execute it
-- `triggeredBy` — when routing changed Actors, the Actor recorded on the triggering event
+- `actor` — the `Actor` whose scoped gameplay exposes the task for direct revision and execution
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
 - `whyPending` — diagnostic string set when autoexec can't resolve a task
 
-For now, task actorship and queue membership are identical: an Actor's scoped queue contains tasks
-whose `actor` is that Actor. This leaves room for a future split between task lineage, authorization,
-and current queue placement without changing behavior yet.
+Task actorship and queue membership are identical: an Actor's scoped queue contains tasks whose
+`actor` is that Actor. Whole-game auto-execution is a separate compatibility behavior described
+below; it does not add another identity or authority field to the task.
 
 Tasks are fundamentally a **unit of Actor choice**, in two ways. First, the Actor gets to choose
 which order to execute their tasks in (a very interesting feature of this particular game's rules).
@@ -209,13 +212,13 @@ When an effect fires, if it's **automatic** (double-colon in Pets syntax), the `
 it inline in the same change loop. If it's **non-automatic** (single colon), it becomes a new `Task`
 appended to the queue.
 
-The current compatibility rule associates triggered work with the first available Actor among the
+The compatibility rule associates triggered work with the first available Actor among the
 effect-bearing component's owner, the changed component's owner, and the Actor on the triggering
 event. `BY` currently tests that selected Actor too. For deferred effects it becomes `Task.actor`.
 For automatic effects the temporary Task still carries it, but execution remains inline through the
 triggering Actor's `Instructor` and `Changer`, so resulting change events retain the triggering
-Actor. The migration keeps these routing, matching, and performance roles explicit because later
-Actor delegation may separate them.
+Actor. This preserves the established routing and execution behavior while giving its identities
+consistent names.
 
 ---
 
@@ -305,12 +308,12 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
   the queue is empty or stuck (default mode)
 
 `autoExecNow` runs in a loop calling `autoExecNext` until it returns false. For compatibility with
-existing workflows, it currently considers pending tasks across the whole game, not only the
-caller's scoped queue, but executes each selected task through the queue of that task's Actor.
-The calling Actor's scoped `Instructor` and `Changer` still perform the instruction, so current
-change events name the caller even when the task was waiting on another Actor. Tasks that fail are
-annotated with `whyPending`. When only one option exists, it's executed. When multiple options
-exist, `SAFE` stops while `FIRST` tries each in order.
+existing workflows, it considers pending tasks across the whole game, not only the caller's scoped
+queue, but executes each selected task through the queue of that task's Actor. The calling Actor's
+scoped `Instructor` and `Changer` still perform the instruction, so change events name the caller
+even when the task was waiting on another Actor. Tasks that fail are annotated with `whyPending`.
+When only one option exists, it is executed. When multiple options exist, `SAFE` stops while `FIRST`
+tries each in order.
 
 ---
 
