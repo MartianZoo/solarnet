@@ -320,6 +320,10 @@ The hook `game.onAtomicComplete` is wired to send a signal on this channel whene
 queue drains after an atomic operation completes. Since the channel is `RENDEZVOUS`, signals
 fired when no one is waiting (e.g., during automatic engine phases) are silently dropped.
 
+Action and final-greenery turn order begins with the player who owns `StartToken`. Creating each
+generation after the first passes that token one seat left, so the workflow reads turn order from
+game state rather than maintaining a separate generation counter.
+
 This design means:
 - The game flow reads naturally (corporationPhase, then preludePhase, then action loop, etc.)
 - Player turns are just `beginManual(instruction)` followed by `awaitTasksDrained()`

@@ -1,7 +1,23 @@
+"Marks the player who takes the first turn; passes one seat left with each new generation"
+CLASS StartToken : Owned {
+  HAS MAX 1 StartToken
+  Generation:: PassLeft<This>
+}
+
+"Moves an owned component to the next player in seat order"
+CLASS PassLeft<Owned> : Custom
+
+"This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
+CLASS NewTurn : Owned, Signal
+
+"The engine's signal for the second action slot in an action phase turn; no Pass option"
+CLASS SecondAction : Owned, Signal
+
+"Instead of taking an action you can gain this, and be out for the rest of the generation"
+CLASS Pass : Owned, Generational { HAS MAX 1 This }
 
 "Any component that responds to `UseAction` signals, such as an action card or a standard project"
 ABSTRACT CLASS HasActions {
-
   "Any of the basic choices a player can make on their turn"
   ABSTRACT CLASS StandardAction { HAS =1 This }
 
@@ -21,15 +37,6 @@ ABSTRACT CLASS UseAction<HasActions> [UA] : Owned, Signal {
 
 "Indicates that an action card has already been used this generation"
 CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
-
-"This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
-CLASS NewTurn : Owned, Signal
-
-"The engine's signal for the second action slot in an action phase turn; no Pass option"
-CLASS SecondAction : Owned, Signal
-
-"Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass : Owned, Generational { HAS MAX 1 This }
 
 ABSTRACT CLASS Mandate: Owned, HasActions {
   MandateSignal:: UseAction1<This>

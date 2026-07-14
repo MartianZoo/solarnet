@@ -104,6 +104,7 @@ internal class CanonBootstrapTest {
             "TrWatcher<Player2>",
             "TrWatcher<Player3>",
             "Generation",
+            "StartToken<Player1>",
         )
   }
 }

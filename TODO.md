@@ -44,7 +44,10 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
   creation, and other Colonies setup with extension-owned declarations or setup hooks so additional
   expansions do not require more hard-coded engine branches. (Needs discussion)
 - Issue #1: Shuffle-and-deal mode
-- Issue #2: Solo mode
+- Issue #2: Solo mode — The current follow-along solo fixtures configure Player2 as a stocked dummy
+  opponent, so the number of `Owner` components cannot identify which seats should receive the
+  `StartToken`. Model real participants separately from test-support actors before using the
+  automatic workflow for those games.
 - Issue #4: Turmoil
 - Issue #5: Game configurations
 - Issue #9: Community

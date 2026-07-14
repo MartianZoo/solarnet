@@ -51,7 +51,9 @@ The plan is for exactly one Phase instance will exist at all times: `SetupPhase`
 
 ## Player stuff
 
-Concrete classes called Player1, Player2, etc. will exist. Player1 is the start player. Mapping those to players' names is considered a UI-level task.
+Concrete classes called Player1, Player2, etc. will exist. The player owning the unique
+`StartToken` is the start player; it begins with Player1 and passes one seat left when each later
+`Generation` is created. Mapping player classes to players' names is considered a UI-level task.
 
 The abstract class these all subclass isn't called `Player`, but `Anyone`. That's just because it reads better, for example `CityTile<Anyone>: PROD[1]`. And, actually, we have an abstract subclass of `Player` called `Owner` even though nothing else extends `Player` but that. The reasons for this are weird and subtle and not necessarily permanent.
 

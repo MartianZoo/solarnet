@@ -8,12 +8,17 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
+import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
+import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -22,8 +27,12 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.TransformNode
+import dev.martianzoo.tfm.api.ApiUtils.getOwner
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
@@ -47,6 +56,7 @@ internal val canonCustomClasses =
         CopyProductionBox,
         CopyPrelude,
         AddColonyTile,
+        PassLeft,
     )
 
 private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
@@ -187,6 +197,26 @@ private object AddColonyTile : CustomClass("AddColonyTile") {
     } else {
       parse("DelayedColonyTile<Class<$name>, Class<${ct.resourceType}>>")
     }
+  }
+}
+
+private object PassLeft : CustomClass("PassLeft") {
+  override fun translate(reader: GameReader, component: Type): Instruction {
+    val currentOwner: Player = getOwner(reader, component)
+    val current: Int = currentOwner.toString().removePrefix("Player").toInt()
+    val playerCount: Int = reader.count(parse<Metric>("Owner"))
+    if (playerCount == 1) return NoOp
+
+    val next: Int = current % playerCount + 1
+    val arguments: List<FromExpression> =
+        component.expressionFull.arguments.map {
+          if (it == currentOwner.expression) {
+            SimpleFrom(cn("Player$next").expression, currentOwner.expression)
+          } else {
+            ExpressionAsFrom(it)
+          }
+        }
+    return Transmute(ComplexFrom(component.className, arguments), ActualScalar(1))
   }
 }
 

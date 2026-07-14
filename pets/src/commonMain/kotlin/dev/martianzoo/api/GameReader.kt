@@ -1,6 +1,7 @@
 package dev.martianzoo.api
 
 import dev.martianzoo.data.Authority
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -30,4 +31,7 @@ interface GameReader : TypeInfo {
 
   /** Returns the types of all concrete components in the current game state. */
   fun getComponents(type: Type): Multiset<out Type>
+
+  /** Returns the types of all concrete components matching the Pets type expression [type]. */
+  fun getComponents(type: String): Multiset<out Type> = getComponents(resolve(parse(type)))
 }

@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -13,6 +15,14 @@ import dev.martianzoo.util.toSetStrict
 
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
 object ApiUtils {
+  /** Returns the direct owner dependency of a concrete component type. */
+  fun getOwner(game: GameReader, component: Type): Player {
+    val ownerType: Type = game.resolve(OWNER.expression)
+    val owner: Expression =
+        component.expressionFull.arguments.single { game.resolve(it).narrows(ownerType, game) }
+    return Player(owner.className)
+  }
+
   /**
    * Returns a map with six entries, giving [player]'s current production levels, adjusting
    * megacredit production to account for our GrossHack.

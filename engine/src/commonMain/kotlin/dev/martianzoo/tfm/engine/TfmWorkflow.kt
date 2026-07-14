@@ -6,6 +6,7 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
+import dev.martianzoo.tfm.api.ApiUtils.getOwner
 import dev.martianzoo.tfm.data.GameSetup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -67,9 +68,6 @@ public object TfmWorkflow {
 
     /** Human players in seat order, excluding ENGINE. */
     private val players: List<Player> = setup.players().filter { it != ENGINE }
-
-    /** Seat index of the first player for the current generation; advances each generation. */
-    private var firstPlayerIndex = 0
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all player tasks
@@ -140,9 +138,6 @@ public object TfmWorkflow {
         productionPhase()
         // TODO: worldGovernmentPhase()
 
-        // New generation (research phase will increment it officially).
-        firstPlayerIndex = (firstPlayerIndex + 1) % players.size
-
         researchPhase()
         actionPhase()
       }
@@ -202,8 +197,12 @@ public object TfmWorkflow {
       }
     }
 
-    private fun rotatedByFirstPlayer(): List<Player> =
-        players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
+    private fun rotatedByFirstPlayer(): List<Player> {
+      val token = game.reader.getComponents("StartToken").single()
+      val firstPlayer = getOwner(game.reader, token)
+      val firstPlayerIndex = players.indexOf(firstPlayer)
+      return players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
+    }
 
     private fun gameIsOver() =
         engineOps.has("=19 TemperatureStep") &&
