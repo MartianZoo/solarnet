@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.Test
 
 class Game20260619Test : AbstractFullGameTest() {
@@ -10,13 +11,13 @@ class Game20260619Test : AbstractFullGameTest() {
 
   @Test
   fun gameThroughGeneration5() {
+    val workflow = TfmWorkflow.Auto(game, setup()).launch()
+
     // Game id: peae6273d6b33
     // First player this generation is ER
     // Good luck ER!
     // Good luck KB!
     // Generation 1
-    engine.phase("Corporation")
-
     val ER = p1
     val KB = p2
 
@@ -32,8 +33,6 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB kept 3 project cards
     // KB gained 1 M€ production because of Saturn Systems
     KB.playCorp("SaturnSystems", 3).expect("PROD[1]")
-
-    engine.phase("Prelude")
 
     with(ER) {
       // ER played New Partner
@@ -70,25 +69,26 @@ class Game20260619Test : AbstractFullGameTest() {
           .expect("PROD[1], -7")
     }
 
-    engine.phase("Action")
-
     // ER played Earth Office
     // ER drew 1 card(s)
     // You drew Restricted Area
     // ER ended turn
     ER.playProject("EarthOffice", 1) // net 0 ProjectCard
+    ER.declineSecondAction()
 
     // KB played Vesta Shipyard
     // KB gained 1 titanium production
     // KB gained 1 M€ production because of Saturn Systems
     // KB ended turn
     KB.playProject("VestaShipyard", 15).expect("PROD[1]")
+    KB.declineSecondAction()
 
     // ER played Carbonate Processing
     // ER lost 1 energy production
     // ER gained 3 heat production
     // ER ended turn
     ER.playProject("CarbonateProcessing", 6)
+    ER.declineSecondAction()
 
     // KB passed
     KB.pass()
@@ -98,23 +98,19 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER gained 2 plants
     ER.playProject("SubterraneanReservoir", 11) { doTask("OceanTile<Tharsis_4_8>") }
         .expect("TR, 2 Plant")
+    ER.declineSecondAction()
 
     // ER passed
     ER.pass()
 
     // Generation 2
     // First player this generation is KB
-    engine.phase("Production")
-
     // ER bought 3 card(s)
     // You bought Business Contacts,Lagrange Observatory,Solar Wind Power
     // KB bought 2 card(s)
     // You bought Magnetic Field Generators,Power Supply Consortium
-    engine.phase("Research") {
-      ER.doTask("3 BuyCard")
-      KB.doTask("2 BuyCard")
-    }
-    engine.phase("Action")
+    ER.doFirstTask("3 BuyCard")
+    KB.doFirstTask("2 BuyCard")
 
     with(ER) {
       assertProduction(m = 3, s = 0, t = 1, p = 2, e = 0, h = 3)
@@ -139,6 +135,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // You drew Robotic Workforce,Ore Processor
     // KB ended turn
     KB.playProject("MartianSurvey", 9)
+    KB.declineSecondAction()
 
     // ER played Restricted Area
     // ER placed Restricted Area tile at 20
@@ -154,17 +151,20 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB gained 2 energy production
     // KB ended turn
     KB.playProject("ArtificialPhotosynthesis", 12) { doTask("PROD[2 Energy]") }
+    KB.declineSecondAction()
 
     // ER played Solar Wind Power
     // ER gained 1 energy production
     // ER gained 2 titanium
     // ER ended turn
     ER.playProject("SolarWindPower", 8, titanium = 1)
+    ER.declineSecondAction()
 
     // KB played Power Supply Consortium
     // KB stole 1 energy production from ER
     // KB ended turn
     KB.playProject("PowerSupplyConsortium", 5) { doTask("PROD[-E<P1>]") }
+    KB.declineSecondAction()
 
     // ER passed
     ER.pass()
@@ -178,7 +178,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Soil Factory,Kelp Farming
     // ER bought 2 card(s)
     // You bought Natural Preserve,Nuclear Zone
-    engine.nextGeneration(2, 2)
+    ER.doFirstTask("2 BuyCard")
+    KB.doFirstTask("2 BuyCard")
 
     with(ER) {
       assertProduction(m = 3, s = 0, t = 1, p = 2, e = 0, h = 3)
@@ -211,6 +212,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB used Convert Heat standard action
     // KB ended turn
     KB.stdAction("ConvertHeatSA")
+    KB.declineSecondAction()
 
     // ER played Nuclear Zone
     // ER gained 1 heat production
@@ -229,6 +231,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB used Power Plant:SP standard project
     // KB ended turn
     KB.stdProject("PowerPlantSP")
+    KB.declineSecondAction()
 
     // ER played Business Contacts
     // ER drew 1 card(s)
@@ -252,6 +255,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Permafrost Extraction
     ER.playProject("ImportedGhg", 4)
+    ER.declineSecondAction()
 
     // ER passed
     ER.pass()
@@ -262,7 +266,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Regolith Eaters,Power Plant
     // ER bought 2 card(s)
     // You bought Industrial Center,Miranda Resort
-    engine.nextGeneration(2, 2)
+    ER.doFirstTask("2 BuyCard")
+    KB.doFirstTask("2 BuyCard")
 
     with(ER) {
       assertProduction(m = 5, s = 0, t = 1, p = 2, e = 0, h = 5)
@@ -286,6 +291,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB gained 1 energy production
     // KB ended turn
     KB.playProject("PowerPlantCard", 4)
+    KB.declineSecondAction()
 
     // ER played Pets
     // ER drew 1 card(s)
@@ -293,10 +299,13 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER added 1 Animal to Pets
     // ER ended turn
     ER.playProject("Pets", 7)
+    ER.declineSecondAction()
 
     // KB claimed Specialist milestone
     // KB ended turn
     // TODO: Specialist is an Elysium milestone, but this setup only loads Tharsis milestones.
+    // Stop automatic turn enforcement at this intentionally raw substitute for the logged action.
+    workflow.shutdown()
     KB.godMode().manual("-8, 5 VictoryPoint")
 
     // ER played Mohole Area

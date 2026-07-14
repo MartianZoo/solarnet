@@ -22,13 +22,11 @@ class FirstPartialGameTest {
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
 
-      val manual = TfmWorkflow.Manual(game, setup)
+      val workflow = TfmWorkflow.Auto(game, setup).launch()
 
-      manual.corporationPhase()
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
 
-      manual.preludePhase()
       p1.playPrelude("MartianIndustries")
       p1.playPrelude("GalileanMining")
 
@@ -36,9 +34,8 @@ class FirstPartialGameTest {
       p2.playPrelude("UnmiContractor")
 
       // Generation 1 (P1 first)
-      manual.actionPhase()
-
       p1.playProject("AsteroidMining", 30)
+      p1.declineSecondAction()
 
       p2.playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<E37>") }
       p2.playProject("SpaceElevator", 1, steel = 13)
@@ -49,16 +46,13 @@ class FirstPartialGameTest {
       p2.playProject("InventionContest", 2)
 
       p2.playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
+      p2.declineSecondAction()
 
       p2.pass()
 
       // Generation 2 (P2 first)
-      manual.productionPhase()
-      manual.researchPhase {
-        p1.doFirstTask("4 BuyCard")
-        p2.doFirstTask("1 BuyCard")
-      }
-      manual.actionPhase()
+      p1.doFirstTask("4 BuyCard")
+      p2.doFirstTask("1 BuyCard")
 
       p2.cardAction1("SpaceElevator")
       p2.playProject("EarthCatapult", 23)
@@ -70,6 +64,7 @@ class FirstPartialGameTest {
       p2.playProject("TechnologyDemonstration", titanium = 1)
 
       p1.playProject("Sponsors", 6)
+      p1.declineSecondAction()
 
       p2.playProject("EnergyTapping", 1) { doTask("PROD[-E<P1>]") }
       p2.playProject("BuildingIndustries", steel = 2)
@@ -78,14 +73,11 @@ class FirstPartialGameTest {
       p2.pass()
 
       // Generation 3 (P1 first)
-      manual.productionPhase()
-      manual.researchPhase {
-        p1.doFirstTask("3 BuyCard")
-        p2.doFirstTask("2 BuyCard")
-      }
-      manual.actionPhase()
+      p1.doFirstTask("3 BuyCard")
+      p2.doFirstTask("2 BuyCard")
 
       p1.playProject("Mine", 2, steel = 1)
+      p1.declineSecondAction()
 
       p2.cardAction1("SpaceElevator")
       p2.playProject("ElectroCatapult", 5, steel = 5)
@@ -99,16 +91,13 @@ class FirstPartialGameTest {
       p2.playProject("ArtificialPhotosynthesis", 10) { doTask("PROD[2 Energy]") }
 
       p2.playProject("BribedCommittee", 5)
+      p2.declineSecondAction()
 
       p2.pass()
 
       // Generation 4 (P2 first)
-      manual.productionPhase()
-      manual.researchPhase {
-        p1.doFirstTask("3 BuyCard")
-        p2.doFirstTask("2 BuyCard")
-      }
-      manual.actionPhase()
+      p1.doFirstTask("3 BuyCard")
+      p2.doFirstTask("2 BuyCard")
 
       p2.cardAction1("ElectroCatapult")
       p2.cardAction1("SpaceElevator")
@@ -120,11 +109,13 @@ class FirstPartialGameTest {
       p2.playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
 
       p1.sellPatents(1)
+      p1.declineSecondAction()
 
       p2.playProject("SolarPower", 1, steel = 4)
       p2.stdProject("CitySP") { doTask("CityTile<E65>") }
 
-      manual.productionPhase()
+      workflow.shutdown()
+      TfmWorkflow.Manual(game, setup).productionPhase()
 
       eng.assertCounts(4 to "Generation")
       eng.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")

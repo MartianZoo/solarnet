@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -14,18 +15,19 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Manual(game, Canon.SIMPLE_GAME)
+    val workflow = TfmWorkflow.Auto(game, Canon.SIMPLE_GAME).launch()
 
-    workflow.corporationPhase()
-    p1.godMode().manual("8 Plant")
+    p1.playCorp("Ecoline", 0)
+    game.tfm(PLAYER2).playCorp("TharsisRepublic", 0)
+    p1.godMode().sneak("8 Plant")
     engine.count("Photosynthesis") shouldBe 1
 
-    workflow.actionPhase()
     p1.stdAction("ConvertPlantsSA") {
       doTask("GreeneryTile<Tharsis_3_6>")
     }
 
     engine.oxygenPercent() shouldBe 1
+    workflow.shutdown()
   }
 
   @Test

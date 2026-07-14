@@ -61,8 +61,7 @@ abstract class AbstractFullGameTest {
   ) {
     assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront + PlayedEvent")
     assertActions(actions)
-    // assertVps requires an empty task queue (needs to transition to EndPhase); skip when busy
-    if (game.tasks.isEmpty()) assertVps(vp)
+    assertVps(vp)
   }
 
   protected fun TfmGameplay.assertTags(
@@ -120,15 +119,29 @@ abstract class AbstractFullGameTest {
   }
 
   protected fun TfmGameplay.assertVps(expected: Int) {
-    // TODO: rework so assertVps always runs (currently skipped when tasks are pending):
-    //  1. Save/replace game.onAtomicComplete with {} to suspend the workflow coroutine.
-    //  2. Take a timeline checkpoint, then drain pending tasks via doTask("Ok") (or
-    //     reviseTask(id, "Ok") if tasks are mandatory and can't be revised to Ok — verify).
-    //  3. Call engine.phase("End") to score VPs, then rollBack(checkpoint) to undo everything.
-    //  4. Restore game.onAtomicComplete in finally. Also: should really do production phase too.
-    engine.phase("End") {
-      assertCounts(expected to "VP")
-      abort()
+    val onAtomicComplete = game.onAtomicComplete
+    val checkpoint = game.timeline.checkpoint()
+    game.onAtomicComplete = {}
+    try {
+      dropPendingTasksForScoring()
+      engine.phase("Production") { dropPendingTasksForScoring() }
+      engine.phase("End") {
+        dropPendingTasksForScoring()
+        assertCounts(expected to "VP")
+      }
+    } finally {
+      game.timeline.rollBack(checkpoint)
+      game.onAtomicComplete = onAtomicComplete
+    }
+  }
+
+  // Pending choices describe future play, so the scoring snapshot must neither execute nor count
+  // them. Privileged removal is safe here because the enclosing checkpoint restores every task.
+  private fun dropPendingTasksForScoring() {
+    while (!game.tasks.isEmpty()) {
+      val taskId = game.tasks.ids().first()
+      val owner = game.tasks.extract { it.id to it.owner }.single { it.first == taskId }.second
+      game.gameplay(owner).godMode().dropTask(taskId)
     }
   }
 

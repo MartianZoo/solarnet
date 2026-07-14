@@ -102,10 +102,6 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 - Load the correct map-specific milestones in logged-game fixtures. `Game20260619Test` substitutes a
   manual VP adjustment because it claims Elysium's Specialist while only Tharsis milestones are
   present; select the logged map's awards and milestones and exercise the real claim flow.
-- Make `AbstractFullGameTest.assertVps` reliable with pending tasks. Provide a reversible scoring
-  sandbox that suspends workflow callbacks, checkpoints the timeline, legally drains or revises
-  pending tasks, runs final production and end-game scoring, and restores state and callbacks in
-  `finally`, so VP assertions are never silently skipped. (Somewhat soon)
 
 ## User-Facing Behavior and Diagnostics
 

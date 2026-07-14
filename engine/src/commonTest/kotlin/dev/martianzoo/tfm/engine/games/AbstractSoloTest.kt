@@ -3,8 +3,14 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
 
+/**
+ * Follow-along solo fixtures intentionally drive phases manually. They use a stocked dummy opponent
+ * and inject the app's world-government action between generations, which [TfmWorkflow.Auto] does
+ * not support yet.
+ */
 abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
   protected lateinit var opponent: TfmGameplay
