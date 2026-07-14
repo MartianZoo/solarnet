@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.OperationLayer
@@ -67,7 +67,7 @@ public object TfmWorkflow {
       get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
-    private val players: List<Player> = setup.players().filter { it != ENGINE }
+    private val players: List<Player> = setup.players()
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all player tasks

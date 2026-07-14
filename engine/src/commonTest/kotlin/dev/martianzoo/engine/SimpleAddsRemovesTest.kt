@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm

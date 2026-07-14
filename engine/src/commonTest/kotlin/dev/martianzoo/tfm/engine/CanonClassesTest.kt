@@ -5,6 +5,9 @@ import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.PLAYER
+import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -14,6 +17,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.te
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -59,6 +63,12 @@ internal class CanonClassesTest {
         .classNames()
         .shouldContainExactlyInAnyOrder(COMPONENT, ACTOR, cn("System"), cn("Engine"))
     (actor glb owner) shouldBe player
+  }
+
+  @Test
+  fun setupSeparatesPlayersFromActors() {
+    Canon.SIMPLE_GAME.players().shouldContainExactly(PLAYER1, PLAYER2)
+    Canon.SIMPLE_GAME.actors().shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
   }
 
   @Test

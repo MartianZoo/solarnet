@@ -1,6 +1,6 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.data.Player
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
@@ -20,12 +20,12 @@ internal class BecomeCommand(private val repl: ScriptSession) : ScriptCommand("b
       context.playerNames()
 
   override fun noArgs(): List<String> {
-    repl.gameplay = repl.game.gameplay(Player.ENGINE) as TurnLayer
+    repl.gameplay = repl.game.gameplay(ENGINE) as TurnLayer
     return listOf("Okay, you are the game engine now")
   }
 
   override fun withArgs(args: String): List<String> {
     repl.gameplay = repl.game.gameplay(repl.player(args)) as TurnLayer
-    return listOf("Hi, ${repl.gameplay.player}")
+    return listOf("Hi, ${repl.gameplay.actor}")
   }
 }

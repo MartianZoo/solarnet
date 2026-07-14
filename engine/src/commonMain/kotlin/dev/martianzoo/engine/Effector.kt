@@ -4,6 +4,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.PLAYER
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
@@ -81,14 +82,14 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         onChange(triggerEvent, reader, isSelf = false)
 
     private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
-      // TODO: Give this selection rule an Actor-level name once Task.owner and ChangeEvent.owner
-      // have migrated. In particular, BY currently checks this selected task owner, which can be
-      // the effect context's owner rather than the Actor recorded on the triggering event.
-      val taskOwner =
-          context.owner ?: changedComponentOwner(triggerEvent, reader) ?: triggerEvent.owner
-      val hit = subscription.checkForHit(triggerEvent, taskOwner, isSelf, reader) ?: return null
+      // TODO: Isolate and name this selection rule. In particular, BY currently checks this
+      // selected task actor, which can be the effect context's owner rather than the Actor recorded
+      // on the triggering event.
+      val taskActor =
+          context.owner ?: changedComponentOwner(triggerEvent, reader) ?: triggerEvent.actor
+      val hit = subscription.checkForHit(triggerEvent, taskActor, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task.noid(taskOwner, automatic, hit(instruction), cause = cause)
+      return Task.noid(taskActor, automatic, hit(instruction), cause = cause)
     }
 
     private fun changedComponentOwner(triggerEvent: ChangeEvent, reader: GameReader): Player? {
@@ -124,7 +125,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
     abstract fun checkForHit(
         currentEvent: ChangeEvent,
-        actor: Player,
+        actor: Actor,
         isSelf: Boolean,
         reader: GameReader,
     ): Hit?
@@ -134,7 +135,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Regular(val match: Expression, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Player,
+          actor: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -152,7 +153,8 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
           // role as a contextual variable: instructions emitted by the hit still belong to the
           // concrete actor that matched the trigger.
-          val contextualOwner = if (OWNER in match) replaceOwnerWith(actor) else null
+          val contextualOwner =
+              if (OWNER in match) (actor as? Player)?.let(::replaceOwnerWith) else null
           val h: Hit = {
             val substituted = subber.transform(it)
             (contextualOwner?.transform(substituted) ?: substituted) * change.count
@@ -169,7 +171,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Self(val context: Component, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Player,
+          actor: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -190,23 +192,22 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     }
 
     private data class Personal(val inner: Subscription, val by: ClassName) : Subscription() {
-      val specificPlayer: Player? =
-          if (by == OWNER || by == ANYONE || by == PLAYER) null else Player(by)
+      val specificActor: Actor? =
+          if (by == OWNER || by == ANYONE || by == PLAYER) null else Actor.from(by)
 
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Player,
+          actor: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        if (specificPlayer != null && actor != specificPlayer) return null
-        // Kotlin's Player still includes Engine and has no Owner supertype yet. Until those runtime
-        // identities are split, this is the concrete meaning of the Pets-level Player class.
-        if (by == PLAYER && actor == Player.ENGINE) return null
+        if (specificActor != null && actor != specificActor) return null
+        if (by == PLAYER && actor !is Player) return null
         val originalHit = inner.checkForHit(currentEvent, actor, isSelf, reader) ?: return null
 
         return if (by == OWNER) {
-          { replaceOwnerWith(actor).transform(originalHit(it)) }
+          val owner = actor as? Player ?: return null
+          { replaceOwnerWith(owner).transform(originalHit(it)) }
         } else {
           originalHit
         }
@@ -219,7 +220,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Player,
+          actor: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -233,7 +234,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Unscaled(val inner: Subscription) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Player,
+          actor: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {

@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Engine.TaskListener
@@ -28,15 +28,15 @@ import dev.martianzoo.util.toSetStrict
  * * `a, Ok` becomes `a`
  * * `a, Die` becomes `Die`
  * * A concrete task with [Task.next] set is guaranteed to execute successfully
- * * New tasks created have the same owner and cause as the original. Prepared tasks cannot be split
+ * * New tasks created have the same actor and cause as the original. Prepared tasks cannot be split
  */
 internal class TaskQueues(private val events: TaskListener) {
   private val taskSet: MutableSet<Task> = mutableSetOf()
 
-  internal fun all(): WritableTaskQueue = WritableTaskQueue(this, owner = null) { true }
+  internal fun all(): WritableTaskQueue = WritableTaskQueue(this, actor = null) { true }
 
-  internal operator fun get(player: Player): WritableTaskQueue =
-      WritableTaskQueue(this, owner = player) { it.owner == player }
+  internal operator fun get(actor: Actor): WritableTaskQueue =
+      WritableTaskQueue(this, actor = actor) { it.actor == actor }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 
@@ -54,14 +54,14 @@ internal class TaskQueues(private val events: TaskListener) {
 
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
-  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.owner, task.cause)
+  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.actor, task.cause)
 
   internal fun addTasks(
       instruction: InstructionGroup,
-      owner: Player,
+      actor: Actor,
       cause: Cause?,
   ): List<TaskAddedEvent> {
-    val newTasks = Task.newTasks(nextAvailableId(), owner, instruction, cause)
+    val newTasks = Task.newTasks(nextAvailableId(), actor, instruction, cause)
     return newTasks.map {
       val task = addToTaskSet(it)
       events.taskAdded(task)
@@ -119,14 +119,14 @@ internal class TaskQueues(private val events: TaskListener) {
 
 internal class WritableTaskQueue(
     private val taskQueues: TaskQueues,
-    private val owner: Player?,
+    private val actor: Actor?,
     private val predicate: (Task) -> Boolean,
 ) : TaskQueue {
   private fun filtered() = taskQueues.getAllTaskData().filter(predicate)
 
-  private fun validateOwner(task: Task) {
-    if (owner != null && task.owner != owner) {
-      error("$owner can't act on a task owned by ${task.owner}: $task")
+  private fun validateActor(task: Task) {
+    if (actor != null && task.actor != actor) {
+      error("$actor can't act on a task assigned to ${task.actor}: $task")
     }
   }
 
@@ -149,29 +149,29 @@ internal class WritableTaskQueue(
   override fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
 
   fun addTasks(instruction: InstructionGroup, cause: Cause?): List<TaskAddedEvent> {
-    val taskOwner = owner ?: error("global queue view can't infer an owner for new tasks")
-    return taskQueues.addTasks(instruction, taskOwner, cause)
+    val taskActor = actor ?: error("global queue view can't infer an actor for new tasks")
+    return taskQueues.addTasks(instruction, taskActor, cause)
   }
 
   fun addTasks(task: Task): List<TaskAddedEvent> {
-    validateOwner(task)
+    validateActor(task)
     return taskQueues.addTasks(task)
   }
 
   fun removeTask(id: TaskId): TaskRemovedEvent {
-    validateOwner(getTaskData(id))
+    validateActor(getTaskData(id))
     return taskQueues.removeTask(id)
   }
 
   fun editTask(newTask: Task): TaskEditedEvent? {
-    validateOwner(newTask)
-    validateOwner(getTaskData(newTask.id))
+    validateActor(newTask)
+    validateActor(getTaskData(newTask.id))
     return taskQueues.editTask(newTask)
   }
 
-  fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateOwner)
+  fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateActor)
 
-  fun queueFor(player: Player): WritableTaskQueue = taskQueues[player]
+  fun queueFor(actor: Actor): WritableTaskQueue = taskQueues[actor]
 
   override fun toString() = filtered().joinToString("\n")
 }

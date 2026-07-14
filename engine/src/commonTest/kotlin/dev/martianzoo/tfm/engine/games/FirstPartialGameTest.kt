@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine

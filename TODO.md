@@ -120,8 +120,9 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
     Owner, queue, trigger, or specialization invariant was disturbed.
 
 Current progress: the vocabulary and minimal Pets hierarchy from steps 2–3 are in place. The Kotlin
-runtime still intentionally uses `Player` as its broad Player-or-Engine compatibility identity;
-steps 4 and later remain pending.
+runtime identity split and the execution-facing renames from steps 4–5 are also in place, as is the
+players-versus-actors configuration split from step 8. The broader characterization matrix in step
+1 and provenance, authorization, event-format, and Npc work in later steps remain pending.
 
 ## Gameplay Rules Implemented Incorrectly or Incompletely
 

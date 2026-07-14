@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.TaskResult
@@ -140,8 +140,8 @@ abstract class AbstractFullGameTest {
   private fun dropPendingTasksForScoring() {
     while (!game.tasks.isEmpty()) {
       val taskId = game.tasks.ids().first()
-      val owner = game.tasks.extract { it.id to it.owner }.single { it.first == taskId }.second
-      game.gameplay(owner).godMode().dropTask(taskId)
+      val actor = game.tasks.extract { it.id to it.actor }.single { it.first == taskId }.second
+      game.gameplay(actor).godMode().dropTask(taskId)
     }
   }
 

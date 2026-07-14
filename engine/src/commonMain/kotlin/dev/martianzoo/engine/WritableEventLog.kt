@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
@@ -7,7 +8,6 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
@@ -51,8 +51,8 @@ internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
     return entry
   }
 
-  override fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
-      addEntry(ChangeEvent(size, player, change, cause))
+  override fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?): ChangeEvent =
+      addEntry(ChangeEvent(size, actor, change, cause))
 
   override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 

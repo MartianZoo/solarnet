@@ -1,6 +1,6 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.data.Player
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.CardDefinition
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {
@@ -8,8 +8,8 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       repl.commands.values.map { ScriptCompletion(it.name, "commands", it.usage) }
 
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
-    val players = Player.players(repl.setup.players)
-    val eligiblePlayers = if (includeEngine) players else players.filter { it != Player.ENGINE }
+    val players = repl.setup.players()
+    val eligiblePlayers = if (includeEngine) players + ENGINE else players
     val full = eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
     val short = eligiblePlayers.mapNotNull { player ->
       classShortName(player.toString())?.let { ScriptCompletion(it, "players", player.toString()) }

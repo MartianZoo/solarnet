@@ -66,9 +66,10 @@ of `Owner`, not of `Actor`. Keeping the roles independent is currently important
 is still the broad compatibility declaration for owned components, and making every Actor an
 `Anyone` would incorrectly admit types such as `Plant<Engine>`.
 
-The Kotlin runtime still uses its broad `Player` value type for both actual players and `Engine`.
-That compatibility representation is temporary; the Pets hierarchy now records the intended model
-while the execution APIs and task/event vocabulary are migrated in smaller steps.
+The Kotlin runtime mirrors this distinction: `Actor` is the execution identity accepted by gameplay
+and task APIs, while `Player` is an `Actor` subtype restricted to the five player seats. `Engine` is
+the built-in non-player Actor. Component ownership remains player-only until a distinct runtime
+Owner representation is introduced for `SoloOpponent`.
 
 Cards still write expressions such as `Plant<Anyone>` and `CityTile<Anyone>`. `Anyone` at a use site
 does not override the component class's declared bound: it is intersected with that bound. Thus

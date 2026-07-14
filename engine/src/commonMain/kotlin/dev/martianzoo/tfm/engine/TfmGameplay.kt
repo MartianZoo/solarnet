@@ -2,8 +2,9 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.USE_ACTION
+import dev.martianzoo.data.Actor
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
@@ -20,13 +21,15 @@ import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
  */
 public class TfmGameplay(
     private val game: Game,
-    override val player: Player,
-    internal val gameplay: TurnLayer = game.gameplay(player) as TurnLayer,
+    override val actor: Actor,
+    internal val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
 ) : TurnLayer by gameplay {
 
   val reader: GameReader by game::reader
 
-  fun asPlayer(player: Player) = TfmGameplay(game, player)
+  fun asActor(actor: Actor) = TfmGameplay(game, actor)
+
+  fun asPlayer(player: Player) = asActor(player)
 
   fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
@@ -140,7 +143,7 @@ public class TfmGameplay(
       stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
 
   fun phase(phase: String, body: BodyLambda = {}) {
-    asPlayer(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
+    asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
   }
 
   fun production(): Map<ClassName, Int> =
@@ -156,6 +159,6 @@ public class TfmGameplay(
   fun venusPercent(): Int = count("VenusStep") * 2
 
   companion object {
-    fun Game.tfm(player: Player) = TfmGameplay(this, player)
+    fun Game.tfm(actor: Actor) = TfmGameplay(this, actor)
   }
 }

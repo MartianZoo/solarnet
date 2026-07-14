@@ -6,9 +6,9 @@ import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
@@ -35,7 +35,7 @@ public interface Gameplay {
 
   // READ OPERATIONS
 
-  val player: Player
+  val actor: Actor
 
   fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
 
@@ -50,13 +50,13 @@ public interface Gameplay {
   // Purple mode (and below)
 
   /**
-   * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
+   * Voluntarily replaces a task's instruction with a strictly more specific revision, as the actor
    * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
    * instruction if necessary. Executes nothing.
    *
    * @param [revised] the new instruction; may be abstract; if identical to the current instruction
    *   this method does nothing
-   * @throws [TaskException] if there is no task by this id owned by the player
+   * @throws [TaskException] if there is no task by this id assigned to the actor
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
   fun reviseTask(taskId: TaskId, revised: String): TaskResult

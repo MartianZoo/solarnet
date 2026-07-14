@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
@@ -48,7 +48,7 @@ class AiCentralTest {
       assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
       // Next gen we can again
-      asPlayer(ENGINE).godMode().manual("Generation")
+      asActor(ENGINE).godMode().manual("Generation")
 
       cardAction1("AiCentral")
       assertCounts(5 to "ProjectCard")

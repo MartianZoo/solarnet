@@ -6,9 +6,9 @@ import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.TEMPORARY
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.AutoExecMode.NONE
@@ -25,7 +25,7 @@ internal class Implementations(
     taskQueues: TaskQueues,
     private val reader: GameReader,
     private val timeline: Timeline,
-    private val player: Player,
+    private val actor: Actor,
     private val instructor: Instructor,
     private val changer: Changer,
 ) {
@@ -157,7 +157,7 @@ internal class Implementations(
   }
 
   private fun handleTask(queue: WritableTaskQueue, task: Task) {
-    task.then?.let { queue.queueFor(task.owner).addTasks(split(it), task.cause) }
+    task.then?.let { queue.queueFor(task.actor).addTasks(split(it), task.cause) }
     queue.removeTask(task.id)
   }
 
@@ -173,14 +173,14 @@ internal class Implementations(
 
   // TURNS LAYER
 
-  internal fun startTurn() = execute("NewTurn<$player>!")
+  internal fun startTurn() = execute("NewTurn<$actor>!")
 
   // GAMES LAYER
 
   internal fun reviseTask(taskId: TaskId, revised: Instruction) {
     val task = tasks.getTaskData(taskId)
-    if (player != task.owner) {
-      throw TaskException("$player can't revise a task owned by ${task.owner}")
+    if (actor != task.actor) {
+      throw TaskException("$actor can't revise a task assigned to ${task.actor}")
     }
 
     if (revised != task.instruction) {
@@ -267,7 +267,7 @@ internal class Implementations(
       val one = split.instructions[0]
       queue.editTask(replacement.copy(instructionIn = one))
     } else {
-      queue.queueFor(replacement.owner).addTasks(split, replacement.cause)
+      queue.queueFor(replacement.actor).addTasks(split, replacement.cause)
       handleTask(queue, queue.getTaskData(replacement.id))
     }
   }
@@ -283,7 +283,7 @@ internal class Implementations(
     val prepared = doPrepare(tasks, tasks.getTaskData(taskId)) ?: return
     val preparedTask = tasks.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-    newTasks.forEach { tasks.queueFor(it.owner).addTasks(it) }
+    newTasks.forEach { tasks.queueFor(it.actor).addTasks(it) }
     handleTask(taskId)
   }
 
@@ -292,7 +292,7 @@ internal class Implementations(
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-    newTasks.forEach { queue.queueFor(it.owner).addTasks(it) }
+    newTasks.forEach { queue.queueFor(it.actor).addTasks(it) }
     handleTask(queue, queue.getTaskData(taskId))
   }
 
@@ -309,7 +309,7 @@ internal class Implementations(
     }
 
     fun weCanReviseIt(taskData: Task): Boolean {
-      if (taskData.owner != player) return false
+      if (taskData.actor != actor) return false
       if (revised.narrows(taskData.instruction, reader)) return true
       return try {
         revised.narrows(instructor.prepare(taskData.instruction), reader)
@@ -376,9 +376,9 @@ internal class Implementations(
   }
 
   private fun queueForAnyTask(taskId: TaskId): WritableTaskQueue {
-    // Whole-game auto-exec chooses ids from allTasks; switch back to the owning scoped queue before
-    // mutating so owner validation still applies.
-    return tasks.queueFor(allTasks.getTaskData(taskId).owner)
+    // Whole-game auto-exec chooses ids from allTasks; switch back to the assigned Actor's scoped
+    // queue before mutating so Actor validation still applies.
+    return tasks.queueFor(allTasks.getTaskData(taskId).actor)
   }
 
   private fun execute(instruction: String, fakeCause: Cause? = null): Unit =

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.script.ScriptCompletion
@@ -37,10 +38,11 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
   ) {
 
     internal fun board(): List<String> {
-      val prodMap = ApiUtils.lookUpProductionLevels(tfm.reader, tfm.player)
+      val player = tfm.actor as? Player ?: error("a player board requires a Player actor")
+      val prodMap = ApiUtils.lookUpProductionLevels(tfm.reader, player)
       val resourceMap =
           ApiUtils.standardResourceNames(tfm.reader).associateBy({ it }) {
-            tfm.reader.count(Count(it.of(tfm.player.className)))
+            tfm.reader.count(Count(it.of(player.className)))
           }
 
       fun prodAndResource(s: String) =
@@ -71,8 +73,6 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
 
       val r = tfm.count("TerraformRating")
       val tiles = tfm.count("OwnedTile")
-      val player = "${tfm.player}"
-
       return """
           $player   TR: $r   Tiles: $tiles
         +---------+---------+---------+

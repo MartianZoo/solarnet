@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.data.Actor
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName.Companion.classNames
@@ -47,6 +49,9 @@ data class GameSetup(
   fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
 
   @JsName("playerList") fun players(): List<Player> = Player.players(players)
+
+  /** All identities that receive gameplay scopes and task queues. */
+  fun actors(): List<Actor> = players() + ENGINE
 
   val colonyTiles: Set<ColonyTileDefinition> =
       chooseColonyTileNames().toSetStrict { authority.colonyTile(it) }

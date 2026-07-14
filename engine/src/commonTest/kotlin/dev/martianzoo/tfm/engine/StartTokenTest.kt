@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
@@ -68,7 +68,7 @@ class StartTokenTest {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    game.tasks.extract { it.owner }.shouldContainExactly(PLAYER2)
+    game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
     workflow.shutdown()
   }
 }

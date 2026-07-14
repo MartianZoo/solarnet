@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
@@ -28,7 +28,7 @@ class CelesticTest {
 
       pass()
 
-      asPlayer(ENGINE).nextGeneration(2, 2)
+      asActor(ENGINE).nextGeneration(2, 2)
 
       shouldThrow<RequirementException> { playProject("Mine", 4) }
 

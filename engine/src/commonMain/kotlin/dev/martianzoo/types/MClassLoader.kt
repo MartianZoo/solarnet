@@ -35,7 +35,7 @@ internal class MClassLoader(
     fun isAutoLoad(c: ClassDeclaration): Boolean =
         c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }
 
-    loadAll(setup.players().classNames())
+    loadAll(setup.actors().classNames())
     loadAll(authority.allClassDeclarations.filterValues(::isAutoLoad).keys)
     loadAll(setup.allDefinitions().classNames())
 

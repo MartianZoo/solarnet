@@ -4,9 +4,7 @@ import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -37,22 +35,18 @@ public object Transforming {
   /** Replaces each occurrence of `Owner` with the given player. */
   @Suppress("ComplexCondition") // TODO fix
   public fun replaceOwnerWith(owner: Player): PetTransformer =
-      if (owner == ENGINE) {
-        noOp()
-      } else {
-        object : PetTransformer() {
-          override fun <P : dev.martianzoo.pets.ast.PetNode> transform(node: P): P {
-            if (
-                node is Expression &&
-                    node.className == OWNER &&
-                    node.arguments.isEmpty() &&
-                    node.refinement == null
-            ) {
-              @Suppress("UNCHECKED_CAST")
-              return node.copy(className = owner.className) as P
-            }
-            return transformChildren(node)
+      object : PetTransformer() {
+        override fun <P : dev.martianzoo.pets.ast.PetNode> transform(node: P): P {
+          if (
+              node is Expression &&
+                  node.className == OWNER &&
+                  node.arguments.isEmpty() &&
+                  node.refinement == null
+          ) {
+            @Suppress("UNCHECKED_CAST")
+            return node.copy(className = owner.className) as P
           }
+          return transformChildren(node)
         }
       }
 

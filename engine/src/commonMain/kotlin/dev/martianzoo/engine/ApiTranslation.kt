@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task.TaskId
@@ -29,7 +30,7 @@ import kotlin.reflect.KClass
  * adding atomicity, and producing TaskResults.
  */
 internal class ApiTranslation(
-    override val player: Player,
+    override val actor: Actor,
     private val reader: GameReader,
     private val timeline: Timeline,
     private val impl: Implementations,
@@ -77,7 +78,7 @@ internal class ApiTranslation(
           xers.useFullNames(),
           xers.atomizer(),
           xers.insertDefaults(),
-          replaceOwnerWith(player),
+          (actor as? Player)?.let(::replaceOwnerWith),
           Prod.deprodify(table),
       )
 

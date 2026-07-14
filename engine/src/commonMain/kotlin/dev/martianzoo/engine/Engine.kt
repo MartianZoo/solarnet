@@ -1,14 +1,14 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.data.Actor
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Task
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
@@ -29,19 +29,19 @@ public object Engine {
 
     val game = koin.get<Game>()
     var initializer: Initializer? = null
-    val playerComponents =
-        setup.players().associateWith { player ->
-          val scope = koin.createScope<PlayerScopeId>("$player")
-          scope.declare(player)
-          if (player == ENGINE) initializer = scope.get<Initializer>()
-          scope.get<PlayerComponent>()
+    val actorComponents =
+        setup.actors().associateWith { actor ->
+          val scope = koin.createScope<ActorScopeId>("$actor")
+          scope.declare(actor)
+          if (actor == ENGINE) initializer = scope.get<Initializer>()
+          scope.get<ActorComponent>()
         }
     initializer!!.initialize()
-    game.playerComponents = playerComponents
+    game.actorComponents = actorComponents
     return game
   }
 
-  private class PlayerScopeId
+  private class ActorScopeId
 
   private fun gameModule(setup: GameSetup) = module {
     single { setup }
@@ -64,8 +64,8 @@ public object Engine {
     singleOf(::Limiter)
     singleOf(::Game)
 
-    scope<PlayerScopeId> {
-      scoped<WritableTaskQueue> { get<TaskQueues>()[get<Player>()] }
+    scope<ActorScopeId> {
+      scoped<WritableTaskQueue> { get<TaskQueues>()[get<Actor>()] }
       scoped<TaskQueue> { get<WritableTaskQueue>() }
       scopedOf(::Changer)
       scoped {
@@ -77,14 +77,14 @@ public object Engine {
         ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { game.onAtomicComplete() }
       } bind Gameplay::class
       scopedOf(::Initializer)
-      scopedOf(::PlayerComponent)
+      scopedOf(::ActorComponent)
     }
   }
 
-  internal data class PlayerComponent(internal val gameplay: Gameplay)
+  internal data class ActorComponent(internal val gameplay: Gameplay)
 
   internal interface ChangeLogger {
-    fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent
+    fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?): ChangeEvent
   }
 
   internal interface TaskListener {

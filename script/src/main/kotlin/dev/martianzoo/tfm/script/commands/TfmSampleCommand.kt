@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.data.Player
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
@@ -34,7 +34,7 @@ internal class TfmSampleCommand(private val repl: ScriptSession) : ScriptCommand
 
     repl.game = SampleGames.sampleGame(gens.toInt())
     repl.setup = repl.game.setup
-    repl.gameplay = repl.game.gameplay(Player.ENGINE) as TurnLayer // default autoexec mode
+    repl.gameplay = repl.game.gameplay(ENGINE) as TurnLayer // default autoexec mode
     return listOf("Okay, did that.")
   }
 }

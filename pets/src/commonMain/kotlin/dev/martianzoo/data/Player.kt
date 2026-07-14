@@ -1,26 +1,17 @@
 package dev.martianzoo.data
 
-import dev.martianzoo.data.Player.Companion.ENGINE
-import dev.martianzoo.pets.HasClassName
-import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
-/** A player, or [ENGINE]. */
-data class Player(override val className: ClassName) : HasClassName, HasExpression {
+/** One of the actual people or bots playing the game. */
+data class Player(override val className: ClassName) : Actor() {
   init {
     require(isValid(className.toString())) { className }
   }
 
-  override val expression by className::expression
-  override val expressionFull by ::expression
-
-  override fun toString() = className.toString()
-
   companion object {
-    val regex = Regex("^(Engine|Player[1-5])$")
+    val regex = Regex("^Player[1-5]$")
 
-    val ENGINE = Player(cn("Engine"))
     val PLAYER1 = Player(player(1))
     val PLAYER2 = Player(player(2))
     val PLAYER3 = Player(player(3))
@@ -28,7 +19,7 @@ data class Player(override val className: ClassName) : HasClassName, HasExpressi
     val PLAYER5 = Player(player(5))
 
     fun players(upTo: Int): List<Player> =
-        listOf(PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5).subList(0, upTo) + ENGINE
+        listOf(PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5).subList(0, upTo)
 
     fun isValid(name: String) = name.matches(regex)
 

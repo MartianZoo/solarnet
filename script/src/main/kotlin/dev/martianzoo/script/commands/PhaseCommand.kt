@@ -1,6 +1,6 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion

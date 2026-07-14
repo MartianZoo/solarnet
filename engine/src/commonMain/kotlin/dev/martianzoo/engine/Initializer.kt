@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
 
@@ -39,7 +39,7 @@ internal class Initializer(
       setup.colonyTiles.forEach { exec("AddColonyTile<Class<${it.className}>>") }
 
       var letter = "A"
-      (setup.players() - ENGINE).forEach {
+      setup.players().forEach {
         exec("TradeFleet$letter<$it>")
         letter = "${letter[0] + 1}"
       }

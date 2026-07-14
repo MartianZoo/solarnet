@@ -3,9 +3,9 @@ package dev.martianzoo.script
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.SIGNAL
 import dev.martianzoo.api.SystemClasses.SYSTEM
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
@@ -94,7 +94,7 @@ public class ScriptSession {
         val bundles = setup.bundles.joinToString("")
         val phase = list("Phase").single()
         val checkpoint = game.timeline.checkpoint()
-        "$bundles $phase $player/${setup.players} @$checkpoint> "
+        "$bundles $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -165,7 +165,7 @@ public class ScriptSession {
           listOf("New tasks pending:") +
               game.tasks
                   .extract {
-                    if (it.id in newTasks) it.toStringWithoutCause(queueOwner = it.owner) else null
+                    if (it.id in newTasks) it.toStringWithoutCause(queueActor = it.actor) else null
                   }
                   .filterNotNull()
         } else {

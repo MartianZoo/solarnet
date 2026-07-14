@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Player
-import dev.martianzoo.engine.Engine.PlayerComponent
+import dev.martianzoo.data.Actor
+import dev.martianzoo.engine.Engine.ActorComponent
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.GameSetup
@@ -43,9 +43,9 @@ internal constructor(
     public val classes: MClassTable,
 ) {
 
-  internal lateinit var playerComponents: Map<Player, PlayerComponent>
+  internal lateinit var actorComponents: Map<Actor, ActorComponent>
 
-  public fun gameplay(player: Player): Gameplay = playerComponents[player]!!.gameplay
+  public fun gameplay(actor: Actor): Gameplay = actorComponents[actor]!!.gameplay
 
   /**
    * Called after every outermost atomic() completes. A workflow sets this to react to game flow.

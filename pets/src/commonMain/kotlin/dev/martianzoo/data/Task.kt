@@ -23,10 +23,8 @@ public data class Task(
      */
     val id: TaskId,
 
-    /**
-     * The player (or engine) this task is waiting on, who has the right to revise and execute it.
-     */
-    val owner: Player,
+    /** The actor this task is waiting on, who has the right to revise and execute it. */
+    val actor: Actor,
 
     /** If true, no game state may be modified until this task is completed. */
     val next: Boolean = false,
@@ -99,51 +97,51 @@ public data class Task(
   override fun toString() = buildString {
     append(id)
     append(if (next) "* " else "  ")
-    appendOwnerLabel()
+    appendActorLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
     cause?.let { append(" $cause") }
     whyPending?.let { append(" ($it)") }
   }
 
-  fun toStringWithoutCause(queueOwner: Player? = null) = buildString {
+  fun toStringWithoutCause(queueActor: Actor? = null) = buildString {
     append(id)
     append(if (next) "* " else "  ")
-    if (queueOwner == null) {
-      appendOwnerLabel()
+    if (queueActor == null) {
+      appendActorLabel()
     } else {
-      append("[queue: $queueOwner, owner: $owner] ")
+      append("[queue: $queueActor, actor: $actor] ")
     }
     append(instruction)
     then?.let { append(" (THEN $it)") }
     whyPending?.let { append(" ($it)") }
   }
 
-  private fun StringBuilder.appendOwnerLabel() {
+  private fun StringBuilder.appendActorLabel() {
     append("[")
-    append(owner)
+    append(actor)
     append("] ")
   }
 
   companion object {
     public fun newTasks(
         firstId: TaskId,
-        owner: Player,
+        actor: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map { newTask(ids.next(), owner, it, cause) }
+      return instruction.map { newTask(ids.next(), actor, it, cause) }
     }
 
     public fun newTask(
         id: TaskId,
-        owner: Player,
+        actor: Actor,
         instruction: Instruction,
         cause: Cause?,
         automatic: Boolean = false,
     ): Task {
-      val task = Task(id, owner, automatic, instruction, cause = cause)
+      val task = Task(id, actor, automatic, instruction, cause = cause)
       val normal = task.instruction
 
       return if (normal is Then && !normal.keepLinked()) {
@@ -157,11 +155,11 @@ public data class Task(
     }
 
     fun noid(
-        player: Player,
+        actor: Actor,
         automatic: Boolean,
         hit: Instruction,
         cause: Cause,
-    ) = Task(TaskId("ZZ"), player, automatic, hit, cause = cause)
+    ) = Task(TaskId("ZZ"), actor, automatic, hit, cause = cause)
   }
 
   data class TaskId(val s: String) : Comparable<TaskId> {

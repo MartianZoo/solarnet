@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Transformers
@@ -36,7 +37,7 @@ object TestHelpers {
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
               Prod.deprodify(classes),
-              replaceOwnerWith(tfm.player),
+              (tfm.actor as? Player)?.let(::replaceOwnerWith),
           )
         }
 
