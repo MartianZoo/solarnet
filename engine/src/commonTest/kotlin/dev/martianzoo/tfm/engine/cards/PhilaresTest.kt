@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
 class PhilaresTest {
@@ -41,6 +42,7 @@ class PhilaresTest {
 
     p1.stdProject("GreenerySP") {
       doTask("GreeneryTile<M43>")
+      game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
       p2.doTask("Titanium")
     }
     p2.assertCounts(1 to "Steel", 1 to "Titanium")

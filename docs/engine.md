@@ -12,12 +12,12 @@ The centerpiece is the `Game` object. Of course, everything you want to know abo
 
 For starters, it holds a `GameSetup` (the configuration chosen before the game began) and the `MClassTable` of loaded classes for that configuration. These are immutable. Clients read game state through a `GameReader`. 
 
-Clients perform all mutative operations via the `Gameplay` interface. Interally, this mutable state is held in a trinity of child objects:
+Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
 
 | Object | Metaphor | What it contains |
 |--------|----------|-----------------|
 | `ComponentGraph` | The **present** | A multiset of all current component instances in play |
-| `TaskQueues` / `TaskQueue` | The **future** | What the engine knows it's waiting on players to do |
+| `TaskQueues` / `TaskQueue` | The **future** | What the engine knows it's waiting on Actors to do |
 | `EventLog` | The **past** | The full history of changes to those things^^ |
 
 The fourth critical piece is a `Timeline`, which coordinates atomic changes across those three child objects, and supports rollback and replay (which not only enable an "undo" feature but are actually crucial to normal engine operations).
@@ -72,8 +72,8 @@ log backward from the current end to the checkpoint, reversing each event in tur
 
 The internal task queue manager is `TaskQueues`, which owns the ordered set of `Task` objects and
 all task mutation. Public readers and gameplay operation bodies see read-only `TaskQueue` views.
-Those views may be scoped; for example, a player's `Gameplay` exposes only tasks owned by that
-player, while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
+Those views may be scoped; for example, an Actor's `Gameplay` exposes only tasks assigned to that
+Actor, while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
 Internal code that mutates tasks uses `WritableTaskQueue`, following the same read-only/writable
 split as the component graph and event log.
 
@@ -81,17 +81,17 @@ Each task has:
 
 - `id` — a monotonically increasing `TaskId`
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
-- `owner` — the `Player` who can and must handle it
+- `actor` — the `Actor` the task is waiting on, who may revise and execute it
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
 - `whyPending` — diagnostic string set when autoexec can't resolve a task
 
-For now, task ownership and queue membership are identical: a player's scoped queue contains tasks
-whose `owner` is that player, and Engine's scoped queue contains Engine-owned tasks. This leaves room
-for a future split between task lineage and current queue placement without changing behavior yet.
+For now, task actorship and queue membership are identical: an Actor's scoped queue contains tasks
+whose `actor` is that Actor. This leaves room for a future split between task lineage, authorization,
+and current queue placement without changing behavior yet.
 
-Tasks are fundamentally a **unit of player choice**, in two ways. First, the player gets to choose
+Tasks are fundamentally a **unit of Actor choice**, in two ways. First, the Actor gets to choose
 which order to execute their tasks in (a very interesting feature of this particular game's rules).
 But also, whenever a player needs to pick something (which card to play, which tile location, which
 option of an Or, how many of something to steal, etc.), that manifests as a task whose instruction
@@ -295,10 +295,13 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
 - **`FIRST`**: Execute whichever preparable task appears first in the queue; keep going until
   the queue is empty or stuck (default mode)
 
-`autoExecNow` runs in a loop calling `autoExecNext` until it returns false. `autoExecNext`
-tries to prepare each pending task; tasks that fail are annotated with `whyPending`. When only
-one option exists, it's executed. When multiple options exist, `SAFE` stops while `FIRST` tries
-each in order.
+`autoExecNow` runs in a loop calling `autoExecNext` until it returns false. For compatibility with
+existing workflows, it currently considers pending tasks across the whole game, not only the
+caller's scoped queue, but executes each selected task through the queue of that task's Actor.
+The calling Actor's scoped `Instructor` and `Changer` still perform the instruction, so current
+change events name the caller even when the task was waiting on another Actor. Tasks that fail are
+annotated with `whyPending`. When only one option exists, it's executed. When multiple options
+exist, `SAFE` stops while `FIRST` tries each in order.
 
 ---
 
@@ -343,7 +346,7 @@ decided to adopt Koin.
 
 `Engine.newGame()` builds a Koin DI container. The game-level singletons (`MClassLoader`,
 `Effector`, `WritableEventLog`, `WritableComponentGraph`, etc.) are shared across all players.
-Each player also gets its own Koin scope containing `Changer`, `Instructor`, `Implementations`,
+Each configured Actor also gets a Koin scope containing `Changer`, `Instructor`, `Implementations`,
 `ApiTranslation` (the `Gameplay` impl), and `Initializer`.
 
 The `Effector` takes a `Lazy<GameReader>` to break a bootstrapping cycle: the game's reader isn't
