@@ -1,0 +1,16 @@
+package dev.martianzoo.tfm.engine.cards.colonies
+
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import kotlin.test.Test
+
+class TitanFloatingLaunchPadTest : ColoniesCardTest() {
+  @Test
+  fun `can trade for free`() {
+    p1.godMode().manual("TitanFloatingLaunchPad") {
+      doTask("2 Floater<TitanFloatingLaunchPad>")
+    }
+    p1.cardAction2("TitanFloatingLaunchPad") {
+      doTask("Trade<Io, TradeFleetA>")
+    }.expect("-Floater, 3 Heat")
+  }
+}

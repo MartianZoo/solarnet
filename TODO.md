@@ -71,6 +71,10 @@ Future work:
 
 ### Suspected Over-Permissiveness
 
+- Encode Viron's "another card" restriction directly. Its normal task order selects the reused
+  action before adding Viron's own action-used marker, which correctly keeps Viron ineligible, but
+  the underlying dynamic refinement would allow Viron to select itself if that marker task were
+  deliberately executed first.
 - Diagnose whether preparing a gated instruction incorrectly loses meaningful ownership information.
   `PrepareTest` currently turns `Plant<Anyone>` into unowned `Plant!`; establish whether this is only
   harmless canonicalization or permits an invalid target, then document or fix it with regression
@@ -189,6 +193,8 @@ Future work:
 
 ## Internal Design, Cleanup, and Test Convenience
 
+- Allow a linked `X THEN X` task to be refined as a whole and then execute its concrete head and
+  tail separately. Titan Shuttles and Recyclon currently repeat the combined instruction instead.
 - Clarify why `Initializer` appends mandatory intensity (`!`) to every synthetic setup instruction.
   Determine whether setup really requires it or whether initialization should execute concrete
   instructions without textual rewriting.

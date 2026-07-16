@@ -63,8 +63,8 @@ ABSTRACT CLASS Owned<Anyone> {
   // number of any kind of thing. But in TfM megacredit production can be negative. Uh oh. There are
   // a few ways we could hack around this. This hack is actually not that bad; it confines the
   // damage to mostly just Specialist, Generalist, and Robinson. It is bug-prone, but all the
-  // alternatives appear to be worse. This makes `PROD[1]` extremely dodgy -- almost worth taking
-  // steps to ban, except that it does actually work just fine for Banker anyway.
+  // alternatives appear to be worse. This makes `PROD[1]` as a *metric* extremely dodgy -- almost
+  // worth taking steps to ban, except that it does actually work just fine for Banker anyway.
   "You didn't see this"
   CLASS GrossHack : System {
     This: PROD[5]
