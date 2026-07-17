@@ -250,7 +250,7 @@ internal constructor(
   }
 
   private fun fixEffectForUnownedContext(): PetTransformer? {
-    if (allSuperclasses.any { it.className == OWNED }) return null
+    if (allSuperclasses.any { it.className == OWNED || it.className == OWNER }) return null
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {

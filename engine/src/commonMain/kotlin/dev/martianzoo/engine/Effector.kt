@@ -120,7 +120,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           is WrappingTrigger -> {
             val inner = from(trigger.inner, context)
             when (trigger) {
-              is ByTrigger -> Personal(inner, trigger.by)
+              is ByTrigger -> Personal(inner, trigger.by, context.owner)
               is IfTrigger -> Conditional(inner, trigger.condition)
               is XTrigger -> Unscaled(inner)
               is Transform -> error("should have been transformed by now: $trigger")
@@ -198,7 +198,12 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
       override val classToCheck = null
     }
 
-    private data class Personal(val inner: Subscription, val by: ClassName) : Subscription() {
+    private data class Personal(
+        val inner: Subscription,
+        val by: ClassName,
+        // `actor` below routes the consequence; this is the identity BY Owner must actually test.
+        val effectOwner: Player?,
+    ) : Subscription() {
       val specificActor: Actor? =
           if (by == OWNER || by == ANYONE || by == PLAYER) null else Actor.from(by)
 
@@ -210,6 +215,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
       ): Hit? {
         if (specificActor != null && actor != specificActor) return null
         if (by == PLAYER && actor !is Player) return null
+        if (by == OWNER && effectOwner != null && currentEvent.actor != effectOwner) return null
         val originalHit = inner.checkForHit(currentEvent, actor, isSelf, reader) ?: return null
 
         return if (by == OWNER) {
