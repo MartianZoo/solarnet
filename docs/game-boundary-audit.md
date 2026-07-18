@@ -1,5 +1,8 @@
 # Game Boundary Audit
 
+This audit records boundary ideas, not identity requirements. For identity terminology and the
+current migration plan, the [identity-transition handoff](identity-transition.md) is authoritative.
+
 This audit reviews whether an unrelated board game with suitable mechanics could reuse all
 Solarnet code outside `dev.martianzoo.tfm` while using none of the code inside
 `dev.martianzoo.tfm`.
@@ -67,18 +70,18 @@ foundational declarations into the generic kernel, or move `TurnLayer`, action-t
 translation, and these conventions under `tfm`. The current half-and-half placement is the
 problem.
 
-### P1: The nominally generic player model is the Terraforming Mars 1–5 player model
+### P1: The nominally generic identity model is tied to Terraforming Mars
 
 `pets/src/commonMain/kotlin/dev/martianzoo/data/Player.kt` accepts only `Engine` and `Player1`
 through `Player5`, publishes exactly those five constants, and constructs lists from that fixed
 set.
 
-This limitation propagates into effect ownership and engine scope creation. A compatible
-six-player game, a game with named factions, or a game with multiple non-player authorities cannot
-use the generic player abstraction as-is.
-
-`Player` itself should accept configured actor identities. The Terraforming Mars setup layer can
-retain the five-seat restriction.
+This limitation propagates into effect ownership and engine scope creation. Moving the fixed TfM
+identities out of generic code is still a useful boundary goal, but generalized configured-identity
+lookup is explicitly not part of the current identity stopping point. Follow the
+[identity-transition handoff](identity-transition.md): preserve the Owner/Actor distinction, make
+only the narrow `SoloOpponent` seam next, and use `Admin` as the eventual name of the current
+administrative `Engine` identity.
 
 ### P1: Terraforming Mars's `PROD[...]` extension is automatically installed by generic machinery
 

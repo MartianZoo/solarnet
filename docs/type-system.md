@@ -54,16 +54,11 @@ We can see that:
 
 These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing), or more commonly just `GreeneryTile<Player1>`. We can always omit a dependency when it would be the same as that dependency's upper bound.
 
-This example deliberately simplifies the canon hierarchy. Canon actually has
-`Anyone > Owner > Player`, declares `Owned<Anyone>` with an `Owner` default, and narrows genuine
-player-only assets to `Player`. The simpler declaration above is enough to explain dependencies.
-
-An expression's specialization is intersected with the class's declared dependency bound. This is
-important for the icon grammar: cards uniformly write `<Anyone>` for an unrestricted target. For a
-Player-bounded class such as `VictoryPoint`, `VictoryPoint<Anyone>` therefore resolves to
-`VictoryPoint<Player>`; it does not permit a hypothetical non-player `Owner`. For a class using
-plain `Owned`, the same spelling remains `Anyone`; omitting the ownership dependency instead uses
-the `Owner` default.
+This example deliberately simplifies the identity vocabulary. See the project
+[domain glossary](identity-transition.md#domain-glossary) for the stable terms and the
+[identity-transition handoff](identity-transition.md) before changing how `Anyone`, `Owner`, or
+`Player` interact. In particular, do not treat current default-insertion behavior as a settled
+requirement merely because the code supports it.
 
 ### Variance
 

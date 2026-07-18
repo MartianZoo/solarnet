@@ -1,7 +1,8 @@
 # Engine API Review
 
-**NOTE: This is not necessarily documentation for humans - I just had Codex spit this out and I'm
-mining it for ideas.**
+**NOTE:** This is a collection of API ideas, not a requirements document. For identity terminology
+and migration decisions, the [identity-transition handoff](identity-transition.md) is
+authoritative.
 
 This document reviews the engine API surface used by tests, the REPL, and future clients. It is not
 trying to design the final engine internals. The near-term goal is to make the public capabilities
@@ -39,7 +40,7 @@ should not navigate from `Game` to `Gameplay` to `godMode()` to casts.
 3. Model auto-exec as an injected helper/agent, not as a hardwired property of every gameplay
    object.
 
-   Auto-exec is a convenience that helps a party drain its own queue after it asks the API to do
+   Auto-exec is a convenience that helps a task owner drain its own pending work after it asks the API to do
    something. It should be plugged into the command lifecycle so the `TaskResult` includes both the
    explicit command and any automatically executed follow-up work. It should not be a global license
    for one player action to drain other players' choices.
@@ -52,8 +53,9 @@ should not navigate from `Game` to `Gameplay` to `godMode()` to casts.
 
 5. Move Terraforming Mars-specific APIs toward a separate module/facade layer.
 
-   The generic engine should know about players, tasks, components, transactions, and perhaps an
-   emcee/NPC actor that initiates bookkeeping. It should not own Terraforming Mars phase workflow,
+   The generic engine should know about identities, tasks, components, and transactions. A TfM
+   workflow facade may use the administrative Actor, eventually named `Admin`, for bookkeeping. It
+   should not own Terraforming Mars phase workflow,
    board projections, payment conveniences, or card-play helper DSLs.
 
 ## Current Shape
@@ -184,10 +186,10 @@ Auto-exec should become an agent plugged into the command runner.
 
 Important policy choices:
 
-1. It drains only the actor's own queue.
-2. It runs after the actor's explicit command, before the returned `TaskResult` is finalized.
+1. It drains only the task owner's own pending work.
+2. It runs after the initiating Actor's explicit command, before the returned `TaskResult` is finalized.
 3. It may have modes such as `NONE`, `SAFE`, and `FIRST`.
-4. Its state/policy can be injected per actor/session.
+4. Its state/policy can be injected per task owner or session.
 5. It should not silently resolve another human player's meaningful choice.
 
 This implies a conceptual split:
@@ -196,12 +198,10 @@ This implies a conceptual split:
 | --- | --- |
 | `Gameplay.autoExecMode` | Session-scoped `AutoExecPolicy` or `AutoExecutor` configuration |
 | `impl.autoExecNow(mode)` | Internal service used by `AutoExecutor` |
-| whole-game autoexec scan | Workflow/emcee concern or special privileged policy, not default player behavior |
+| whole-game autoexec scan | Workflow/Admin concern or special privileged policy, not default player behavior |
 
-There may still be an emcee/NPC actor whose own queue can be drained automatically. That actor is
-currently called `ENGINE`, but the name is misleading because it blurs implementation machinery with
-a game participant that initiates bookkeeping tasks. A name like `EMCEE`, `GAME`, or `SYSTEM_PLAYER`
-could make this role clearer.
+Administrative operations may still be attributed to a non-player Actor. Its domain name is
+`Admin`; current code may call it `ENGINE`. It is not a Player, an Owner, or a separate `Npc` role.
 
 ## Capability Objects
 
@@ -221,7 +221,7 @@ interfaces can still coordinate through shared internals.
 | `TimelineControl` | Checkpoint, rollback, commit; privileged. |
 | `DebugTaskEditor` | Add/drop/edit tasks for tests and debug tools. |
 | `RawStateEditor` | Apply raw component changes; privileged. |
-| `AutoExecutor` | Drain this actor's queue according to an injected policy. |
+| `AutoExecutor` | Drain one task owner's pending work according to an injected policy. |
 
 These do not need to form one inheritance tower. A role receives whichever capabilities make sense.
 
@@ -232,7 +232,7 @@ These do not need to form one inheritance tower. A role receives whichever capab
 | Player UI/session | `GameQueries`, `TaskInbox`, `PlayerTaskActions`, maybe `TurnActions` |
 | REPL green mode | `GameQueries`, `TaskInbox`, `OperationRunner`, `TurnActions` |
 | REPL red mode | green mode plus `RawStateEditor` and `DebugTaskEditor` |
-| Workflow/emcee | `TaskMonitor`, `OperationRunner`, `TimelineControl`, task-drain notifications |
+| Workflow/Admin | `TaskMonitor`, `OperationRunner`, `TimelineControl`, task-drain notifications |
 | Test fixture | `DebugTaskEditor`, `RawStateEditor`, `TimelineControl`, high-level fixture helpers |
 | Board renderer | `GameQueries`, maybe a TfM read model |
 
@@ -248,7 +248,7 @@ class TfmBoardPresenter(
 )
 
 class TfmWorkflowAgent(
-  private val emceeOps: OperationRunner,
+  private val adminOps: OperationRunner,
   private val tasks: TaskMonitor,
   private val timeline: TimelineControl,
 )
@@ -283,7 +283,7 @@ already exist internally, while `Game.tasks` is a global read-only view.
 
 The API should make that distinction explicit:
 
-1. `TaskInbox`: this actor's visible/owned tasks.
+1. `TaskInbox`: this task owner's pending tasks.
 2. `TaskMonitor`: whole-game task state, for workflow, REPL diagnostics, and tests.
 3. `DebugTaskEditor`: privileged task mutation.
 
@@ -316,7 +316,7 @@ Examples:
 1. `playProject` should extend a normal player action capability only if it can be implemented as a
    normal player operation.
 2. `giveResourcesForTest` should extend a fixture/debug capability, not a player capability.
-3. `phase` and `nextGeneration` should belong to a TfM workflow/emcee facade, not ordinary player
+3. `phase` and `nextGeneration` should belong to a TfM workflow/Admin facade, not ordinary player
    actions.
 4. Board display helpers should depend on a TfM read model or query capability, not on full `Game`.
 
@@ -405,7 +405,7 @@ Do not attempt a mechanical replacement all at once.
 After generic capabilities exist, split `TfmGameplay` conceptually:
 
 1. `TfmPlayerActions`: card play, standard projects, pass, payment.
-2. `TfmGameFlow`: phases, generations, emcee actions.
+2. `TfmGameFlow`: phases, generations, and administrative actions.
 3. `TfmFixture`: test setup and rule-bypass helpers.
 4. `TfmReadModel`: board/player/global-parameter projections.
 
@@ -440,15 +440,15 @@ full capability split. The current implementation has a few constraints worth re
    atomic block, runs the explicit command, runs auto-exec, returns activity since the checkpoint,
    and fires `onAtomicComplete` only for the outermost command.
 2. `Implementations.autoExecNow` intentionally scans the whole-game task view today, even though
-   Actor task queues are scoped. Existing workflows rely on this, so Actor-local auto-exec should
-   not be the first behavioral change.
-3. `Task.next` is still a whole-game lock. An Actor-scoped action may prepare only that Actor's task,
+   task-owner views are scoped. The identity stopping point must characterize this before changing
+   it and must not let auto-exec steal another task owner's meaningful choice.
+3. `Task.next` is still a whole-game lock. A task owner may prepare only their own task,
    but it must still reject cutting in front of a prepared task elsewhere.
 4. The REPL is currently the clearest client smell: `ScriptSession.access()` obtains `godMode()` and
    `Access` casts it back down to colored power levels, while `TaskCommand` reaches directly for
    `game.timeline.atomic` to compose a revise-and-try operation.
 5. `TfmGameplay` and `TfmWorkflow` show two different kinds of Terraforming Mars convenience mixed
-   into engine-facing types: player helpers such as `playProject` and payment, and emcee/workflow
+   into engine-facing types: player helpers such as `playProject` and payment, and Admin/workflow
    helpers such as phases and generations.
 
 That suggests this concrete order:
@@ -522,7 +522,7 @@ That suggests this concrete order:
    The first useful splits are likely:
 
    1. player helpers that need normal task/turn/operation capabilities,
-   2. workflow/emcee helpers that need engine-player operations and timeline control,
+   2. workflow/Admin helpers that need administrative operations and timeline control,
    3. fixture helpers that need raw state or task editing,
    4. read-model helpers that need only queries.
 
@@ -531,23 +531,18 @@ That suggests this concrete order:
 
 ## Open Design Questions
 
-1. What should the emcee actor be called?
+1. Should `AutoExecMode.FIRST` remain the default for all developer clients?
 
-   The current `ENGINE` player acts partly like a game participant that initiates bookkeeping tasks.
-   A clearer name would help separate engine implementation from game-flow authority.
+   It is convenient, but task-owner-local autoexec may require explicit Admin workflow or task-drain
+   behavior.
 
-2. Should `AutoExecMode.FIRST` remain the default for all developer clients?
-
-   It is convenient, but if autoexec becomes actor-local, some existing workflows may need explicit
-   emcee autoexec or task-drain behavior.
-
-3. What should count as a public command?
+2. What should count as a public command?
 
    `prepareTask`, `addTasks`, `dropTask`, and `sneak` currently have mixed transaction semantics.
    We need to decide which are normal commands, which are debug commands, and which should become
    lower-level internals.
 
-4. How structured should UI task choices be?
+3. How structured should UI task choices be?
 
    This can wait, but a web UI should eventually receive structured choices instead of rendering raw
    Pets text as its main interaction model.

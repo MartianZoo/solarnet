@@ -4,60 +4,14 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Actor / Owner / Player Model
 
-The clarified vocabulary is now in place without redesigning the engine's established execution
-behavior:
+The [identity-transition handoff](docs/identity-transition.md) is authoritative for this work. Reach
+its stopping point before expanding the model: protect Lakefront and every current `BY` usage,
+complete the Philares matrix, rename the task's queue identity to `taskOwner`, and back out speculative
+identity machinery that those tests and the narrow `SoloOpponent` seam do not require.
 
-1. An `Owner` can own noun-like game-state components.
-2. An `Actor` can initiate or continue game operations.
-3. A `Player` is both an Owner and an Actor; `Engine` is only an Actor.
-4. A task's `actor` is the identity selected by the existing effect-routing rule and the identity
-   whose scoped queue exposes that task.
-5. Existing whole-game auto-execution behavior remains unchanged. Revisit it only in response to a
-   concrete correctness problem, with characterization tests in place first.
-
-Durable constraints and findings from the migration:
-
-1. Effects belonging to an `Owned` component—and effects belonging to a `Player` component
-   itself—can intentionally route resulting deferred work to that component's Owner even when a
-   different Actor caused the triggering change. Preserve the existing context-owner /
-   changed-component-owner / event-actor selection order unless a concrete rule demonstrates that
-   it is wrong.
-2. Abstract deferred effects can split control across Actors: the active Actor's operation may
-   cause the task, while the Owner whose effect fired controls refinement of the abstract choice.
-   Philares is the canonical regression case.
-3. Double-colon effects execute immediately inside the triggering operation and are performed by
-   the triggering Actor. They do not change Actors merely because the effect context has an Owner.
-4. `Task` remains the common representation for triggered work. An unidentified task has no queue
-   id yet; do not add a parallel triggered-instruction representation without a demonstrated need.
-5. Event logs name the performing Actor with `BY` and the effect-bearing causal component with
-   `VIA`.
-6. `BY` trigger matching tests the Actor on the triggering change and is independent of Task
-   routing. Keep the case table and language rules in `docs/identity-rules-audit.md` current as the
-   runtime identity model expands.
-7. `Owned<Owner>` remains the ideal Pets declaration, but default insertion, contextual `Owner`
-   substitution, `Anyone` use sites, and repeated-type specialization interact delicately. Attempt
-   changes only behind focused tests, and retain `Owned<Anyone>` if the broader declaration is the
-   safer enforcement point.
-8. Neutral global-parameter raises have no eligible recipient for TR or placement bonuses because
-   Admin is not an Owner. Do not manufacture a Player recipient or depend on a later failure to
-   discard an invalid reward.
-9. Do not introduce a `Verb<Actor>` hierarchy or reclassify existing signals without a concrete
-   type-safety or substitution problem that needs it.
-10. Before any further Actor-model behavior change, characterize the affected selection order,
-    immediate versus deferred execution, `BY Owner`/`BY Anyone`/`BY Player`, repeated
-    specialization, task queue insertion, whole-game auto-execution, event-log output, and
-    Philares refinement behavior.
-
-Future work:
-
-1. Replace name guessing with lookup among configured identities and let runtime ownership carry a
-   configured non-Player Owner without giving it gameplay or a task queue.
-2. Represent World Government choice control separately from Admin execution, then rename the
-   administrative domain Actor from `Engine` to `Admin` once configured identity lookup is stable.
-3. Add `SoloOpponent` as an Owner-only configured identity. Keep its existing fixed stock of
-   removable resources and production; demand-driven provisioning is outside this work.
-4. Keep Actor-scoped parsing separate from Owner substitution so Admin does not acquire ownership
-   powers merely to reuse the Player preprocessing pipeline.
+Afterward, implement `SoloOpponent` as an Owner without Player or Actor privileges. The eventual
+administrative name is `Admin`; World Government is not a current goal, and `Npc` is not another
+identity.
 
 ## Gameplay Rules Implemented Incorrectly or Incompletely
 
@@ -96,10 +50,6 @@ Future work:
 
 ## Expansion or Content Support Gaps
 
-- Issue #58: Npc / world government terraforming — Implement the Venus Next world-government phase
-  in `TfmWorkflow.Auto`, at the correct point after production and before the next generation, and
-  represent its neutral actor correctly in multiplayer games. This is a missing Venus Next rule, not
-  merely workflow cleanup. (Somewhat soon)
 - Remove Terraforming Mars and Colonies knowledge from generic engine initialization and class
   loading. Replace the bundle-name check, `TfmAuthority` cast, colony-tile loading, trade-fleet
   creation, and other Colonies setup with extension-owned declarations or setup hooks so additional

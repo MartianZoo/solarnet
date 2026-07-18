@@ -55,39 +55,21 @@ Concrete classes called Player1, Player2, etc. will exist. The player owning the
 `StartToken` is the start player; it begins with Player1 and passes one seat left when each later
 `Generation` is created. Mapping player classes to players' names is considered a UI-level task.
 
-The relevant abstract hierarchy separates two roles: an `Owner` can own noun-like game-state
-components, while an `Actor` can initiate or continue game operations. `Player` extends both
-`Owner` and `Actor`, and its concrete subclasses are `Player1` through `Player5`. `Engine` is an
-`Actor` but not an `Owner`. This distinction leaves room for a passive `SoloOpponent` that is only
-an `Owner`, and for future `Npc` actors that are not players.
+The identity terms used here are defined in the
+[domain glossary](identity-transition.md#domain-glossary). In particular, ownership and state-change
+attribution are different roles: a Player has both, while the planned `SoloOpponent` has ownership
+only. The administrative Actor is conceptually `Admin`, although current code may still call it
+`Engine`.
 
-`Anyone` remains the icon-grammar spelling for an unrestricted ownership target and is a supertype
-of `Owner`, not of `Actor`. Keeping the roles independent is currently important: `Owned<Anyone>`
-is still the broad compatibility declaration for owned components, and making every Actor an
-`Anyone` would incorrectly admit types such as `Plant<Engine>`.
-
-The Kotlin runtime mirrors this distinction: `Actor` is the execution identity accepted by gameplay
-and task APIs, while `Player` is an `Actor` subtype restricted to the five player seats. `Engine` is
-the built-in non-player Actor. Component ownership remains player-only until a distinct runtime
-Owner representation is introduced for `SoloOpponent`.
-
-Cards still write expressions such as `Plant<Anyone>` and `CityTile<Anyone>`. `Anyone` at a use site
-does not override the component class's declared bound: it is intersected with that bound. Thus
-`VictoryPoint<Anyone>` means `VictoryPoint<Player>`, while `Plant<Anyone>` remains unrestricted.
-Omitting Plant's owner still defaults to `Owner`. This preserves the published icon grammar without
-allowing a non-player owner to acquire a player-only component.
+`Anyone` is icon grammar for an unrestricted target. It is not another runtime identity and should
+not be used to erase the distinction between Owner and Actor. The migration's stopping-point
+decisions are recorded separately in the [identity-transition handoff](identity-transition.md).
 
 ### Owned
 
-The `Owned` abstract type is extremely important. Its broad dependency is declared as `Anyone`, and
-its default is `Owner`, so every concrete instance of an `Owned` subclass must identify its owner.
-Concrete branches narrow that dependency where the distinction represents a real rule. Genuine
-player assets such as cards, victory points, terraform rating, milestones, colonies, and trade
-fleets narrow it to `Player`. Resources, production, owned tiles, and routing objects such as
-signals, custom instructions, and temporary payment state retain the broad declaration and its
-`Owner` default. No rule creates the routing objects for a passive owner, and repeating `Player` on
-every implementation type would add noise without protecting game state. Many component types
-have `Owned` as a direct or indirect supertype.
+The `Owned` abstract type is extremely important. Every concrete instance of an `Owned` subtype
+must identify its owner. Subtypes may narrow the kind of Owner where a game rule requires it. Many
+component types have `Owned` as a direct or indirect supertype.
 
 A simple example of an owned component type is `VictoryPoint`.
 
@@ -102,9 +84,9 @@ CLASS TerraformRating {
 
 When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 megacredit for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
 
-As much as possible we would like for the ownership dependency to be a regular component dependency
-just like any other in the game. However, `Owner` also serves as the contextual placeholder that is
-specialized to the acting player, so the engine still treats it specially in a few places.
+As much as possible the ownership dependency should behave like any other component dependency.
+`Owner` also serves as a contextual placeholder in effects, so binding it still needs explicit
+care; it must not silently become a rule about which Actor caused the trigger.
 
 ### OwnedTile
 

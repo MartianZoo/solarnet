@@ -17,7 +17,7 @@ Clients perform all mutative operations via the `Gameplay` interface. Internally
 | Object | Metaphor | What it contains |
 |--------|----------|-----------------|
 | `ComponentGraph` | The **present** | A multiset of all current component instances in play |
-| `TaskQueues` / `TaskQueue` | The **future** | What the engine knows it's waiting on Actors to do |
+| `TaskQueues` / `TaskQueue` | The **future** | What the engine knows each task owner must decide or do |
 | `EventLog` | The **past** | The full history of changes to those things^^ |
 
 The fourth critical piece is a `Timeline`, which coordinates atomic changes across those three child objects, and supports rollback and replay (which not only enable an "undo" feature but are actually crucial to normal engine operations).
@@ -76,8 +76,8 @@ Change events render the performing Actor with `BY` and the effect-bearing causa
 
 The internal task queue manager is `TaskQueues`, which owns the ordered set of `Task` objects and
 all task mutation. Public readers and gameplay operation bodies see read-only `TaskQueue` views.
-Those views may be scoped; for example, an Actor's `Gameplay` exposes only tasks assigned to that
-Actor, while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
+Those views may be scoped; for example, gameplay for a task owner exposes only that owner's tasks,
+while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
 Internal code that mutates tasks uses `WritableTaskQueue`, following the same read-only/writable
 split as the component graph and event log.
 
@@ -85,18 +85,18 @@ Each task has:
 
 - `id` — a monotonically increasing `TaskId`
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
-- `actor` — the `Actor` whose scoped gameplay exposes the task for direct revision and execution
+- `actor` — the transitional field holding the task owner; it should be renamed `taskOwner`
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
 - `whyPending` — diagnostic string set when autoexec can't resolve a task
 
-Task actorship and queue membership are identical: an Actor's scoped queue contains tasks whose
-`actor` is that Actor. Whole-game auto-execution is a separate compatibility behavior described
-below; it does not add another identity or authority field to the task.
+Task ownership and queue membership are the same fact: a task owner's scoped view contains that
+owner's tasks. This remains true if the physical implementation is one collection with filtered
+views. Do not introduce another queue-control identity.
 
-Tasks are fundamentally a **unit of Actor choice**, in two ways. First, the Actor gets to choose
-which order to execute their tasks in (a very interesting feature of this particular game's rules).
+Tasks are fundamentally a **unit of task-owner choice**, in two ways. First, the task owner gets to
+choose which of their tasks to prepare (a very interesting feature of this particular game's rules).
 But also, whenever a player needs to pick something (which card to play, which tile location, which
 option of an Or, how many of something to steal, etc.), that manifests as a task whose instruction
 is *abstract*. The instruction needs to be refined to a concrete instruction (as the player makes
@@ -212,15 +212,17 @@ When an effect fires, if it's **automatic** (double-colon in Pets syntax), the `
 it inline in the same change loop. If it's **non-automatic** (single colon), it becomes a new `Task`
 appended to the queue.
 
-The compatibility rule associates triggered work with the first available Actor among the
-effect-bearing component's owner, the changed component's owner, and the Actor on the triggering
-event. For deferred effects it becomes `Task.actor`. `BY` is independent of that routing: it tests
-the Actor on the triggering `ChangeEvent`, which is the identity that performed the change. This is
-why another Player can trigger a Philares task for Philares' Owner without also satisfying
-Lakefront Resorts' `BY Owner` placement bonus. See the normative
-[identity rules audit](identity-rules-audit.md).
+Triggered deferred work must be assigned to the identity entitled to narrow and execute it. The
+current `Task.actor` field is serving as that task owner. For an owned effect this will normally be
+the effect Owner. Philares is the important case: either Player may make the placement that triggers
+the effect, but the Philares Owner owns the resulting task and performs its eventual state change.
 
-For automatic effects the temporary Task still carries the routed Actor, but execution remains
+Authored `BY` is independent of task ownership: it tests the Actor on the triggering `ChangeEvent`.
+Internally manufactured `BY Owner` is a compatibility mechanism for specializing contextual
+`Owner` in the effect and must not be interpreted as an authored Actor filter. See the
+[identity-transition handoff](identity-transition.md).
+
+For automatic effects the temporary Task still carries a task owner, but execution remains
 inline through the triggering Actor's `Instructor` and `Changer`, so resulting change events retain
 the triggering Actor.
 
@@ -263,8 +265,9 @@ This pipeline runs on every instruction string before it reaches `Implementation
 `Instructor`. Instructions already in Pets AST form (from inside the engine) skip the string
 parsing but can still go through some of these transforms as needed.
 
-This owner-substitution pass is present only in a Player's preprocessing pipeline. The Engine is an
-Actor but not an Owner, so its instructions pass through without acquiring contextual ownership.
+This owner-substitution pass is present only where an operation has Player ownership context. The
+administrative Actor, eventually named `Admin` and currently called `Engine`, is not an Owner, so
+its instructions pass through without acquiring contextual ownership.
 This mirrors the Pets model: an `Actor` performs operations, an `Owner` owns components, and a
 `Player` has both roles.
 
@@ -287,8 +290,7 @@ Gameplay         ← query-only + task revision/preparation + doTask
 - **`OperationLayer`** is for structured operations: `manual()` requires the caller's queue is
   empty, adds the instruction as tasks, runs them to completion (including autoexec), and verifies
   the caller's queue is empty and no `Temporary` components remain.
-- **`OperationBody.tasks`** is the caller's scoped read-only queue view. Player gameplay sees that
-  player's tasks; Engine gameplay sees Engine tasks.
+- **`OperationBody.tasks`** is the task owner's scoped read-only queue view.
 - **`TaskLayer`** lets you inject arbitrary tasks and remove them for any reason.
 - **`GodMode`** lets you make raw changes to the component graph, bypassing instruction
   preparation and effect firing (`sneak()`).
@@ -311,13 +313,12 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
 - **`FIRST`**: Execute whichever preparable task appears first in the queue; keep going until
   the queue is empty or stuck (default mode)
 
-`autoExecNow` runs in a loop calling `autoExecNext` until it returns false. For compatibility with
-existing workflows, it considers pending tasks across the whole game, not only the caller's scoped
-queue, but executes each selected task through the queue of that task's Actor. The calling Actor's
-scoped `Instructor` and `Changer` still perform the instruction, so change events name the caller
-even when the task was waiting on another Actor. Tasks that fail are annotated with `whyPending`.
-When only one option exists, it is executed. When multiple options exist, `SAFE` stops while `FIRST`
-tries each in order.
+`autoExecNow` runs in a loop calling `autoExecNext` until it returns false. Its whole-game scan and
+cross-owner execution are compatibility behavior, not a second task identity. The identity
+stopping point requires auto-execution to preserve each task owner's meaningful choice and to
+attribute execution to the Actor who actually performs the selected task. Tasks that fail are
+annotated with `whyPending`. When only one option exists, it is executed. When multiple options
+exist, `SAFE` stops while `FIRST` tries each in order.
 
 ---
 
@@ -328,7 +329,8 @@ tries each in order.
 A convenience wrapper around `TurnLayer` that adds Terraforming helpers:
 
 - `playCorp(cardName, buyCards)`, `playProject(cardName, mc, steel, titanium)`, `cardAction1/2()`
-- `phase(phaseName)` — executes a phase transition instruction as the ENGINE player
+- `phase(phaseName)` — executes a phase transition as the administrative Actor (currently `ENGINE`,
+  eventually `Admin`)
 - `pay(mc, steel, titanium)` — handles the payment sub-protocol (Owed/Accept tasks)
 - `production(resource)`, `oxygenPercent()`, `temperatureC()`, etc. for reading game state
   translated to human terms (TODO: do these belong?)
@@ -368,8 +370,9 @@ Each configured Actor also gets a Koin scope containing `Changer`, `Instructor`,
 The `Effector` takes a `Lazy<GameReader>` to break a bootstrapping cycle: the game's reader isn't
 available until after the effector exists, but the effector needs the reader to fire effects.
 
-After scopes are created, `Initializer.initialize()` runs for the ENGINE player, which:
-1. Creates the ENGINE component
+After scopes are created, `Initializer.initialize()` runs for the administrative Actor currently
+called `ENGINE`, which:
+1. Creates the administrative `ENGINE` component
 2. Instantiates all singleton-type components (things with exactly one concrete subtype)
 3. Runs any Colonies-specific setup (colony tiles, trade fleets)
 4. Marks `initializationFinished()` in the timeline (so setup events are excluded from game logs)

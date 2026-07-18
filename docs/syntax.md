@@ -154,9 +154,11 @@ An effect consists of a trigger, either one or two colons, then an instruction. 
 optionally preceded by a minus sign. For each instance of that type that is gained (or, with minus sign, removed), the
 instruction will be carried out.
 
-`BY` restricts the Actor that performed the triggering change; it does not select who receives or
-controls the resulting instruction. `BY Anyone` accepts every Actor, `BY Player` accepts Player
-Actors, and `BY Owner` means the effect Owner when the effect belongs to an owned component. An
-omitted `BY` adds no separate performer restriction. See the
-[identity rules audit](identity-rules-audit.md) for contextual Owner output and the cases that
-motivate these distinctions.
+In authored Pets, `BY` restricts the Actor recorded on the triggering state change; it does not
+select the task owner or bind `Owner` in the resulting instruction. Authored `BY` is reserved for
+creation triggers whose created component is unowned. When the created component is owned, express
+the relevant Owner in that component's type instead. An omitted `BY` adds no Actor restriction.
+
+Some effects currently acquire a manufactured `BY Owner` internally so contextual `Owner` can be
+specialized in their instructions. That is temporary binding machinery, not additional syntax
+semantics. See the [identity-transition handoff](identity-transition.md).
