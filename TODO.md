@@ -31,14 +31,16 @@ Durable constraints and findings from the migration:
    id yet; do not add a parallel triggered-instruction representation without a demonstrated need.
 5. Event logs name the performing Actor with `BY` and the effect-bearing causal component with
    `VIA`.
-6. `BY` trigger matching and task routing are currently coupled through the selected effect Actor.
-   Characterize real card behavior before attempting to separate or redefine them.
+6. `BY` trigger matching tests the Actor on the triggering change and is independent of Task
+   routing. Keep the case table and language rules in `docs/identity-rules-audit.md` current as the
+   runtime identity model expands.
 7. `Owned<Owner>` remains the ideal Pets declaration, but default insertion, contextual `Owner`
    substitution, `Anyone` use sites, and repeated-type specialization interact delicately. Attempt
    changes only behind focused tests, and retain `Owned<Anyone>` if the broader declaration is the
    safer enforcement point.
-8. For neutral global-parameter raises, prefer an explicit Player restriction over relying on an
-   attempted `TerraformRating.` gain to collapse harmlessly through AMAP behavior.
+8. Neutral global-parameter raises have no eligible recipient for TR or placement bonuses because
+   Admin is not an Owner. Do not manufacture a Player recipient or depend on a later failure to
+   discard an invalid reward.
 9. Do not introduce a `Verb<Actor>` hierarchy or reclassify existing signals without a concrete
    type-safety or substitution problem that needs it.
 10. Before any further Actor-model behavior change, characterize the affected selection order,
@@ -48,14 +50,14 @@ Durable constraints and findings from the migration:
 
 Future work:
 
-1. Add `Npc` and World Government Terraforming through the Actor APIs when implementing that
-   variant.
-2. Add `SoloOpponent` through the Owner model without giving it gameplay or a task queue.
-3. Revisit the runtime `Component.owner: Player?` representation when one of those features needs a
-   non-Player Owner.
-4. When implementing Npc or SoloOpponent, keep Actor-scoped parsing separate from Owner
-   substitution so Engine and Npc do not acquire ownership powers merely to reuse the Player
-   preprocessing pipeline.
+1. Replace name guessing with lookup among configured identities and let runtime ownership carry a
+   configured non-Player Owner without giving it gameplay or a task queue.
+2. Represent World Government choice control separately from Admin execution, then rename the
+   administrative domain Actor from `Engine` to `Admin` once configured identity lookup is stable.
+3. Add `SoloOpponent` as an Owner-only configured identity. Keep its existing fixed stock of
+   removable resources and production; demand-driven provisioning is outside this work.
+4. Keep Actor-scoped parsing separate from Owner substitution so Admin does not acquire ownership
+   powers merely to reuse the Player preprocessing pipeline.
 
 ## Gameplay Rules Implemented Incorrectly or Incompletely
 
@@ -103,14 +105,11 @@ Future work:
   creation, and other Colonies setup with extension-owned declarations or setup hooks so additional
   expansions do not require more hard-coded engine branches. (Needs discussion)
 - Issue #1: Shuffle-and-deal mode
-- Issue #2: Solo mode — The current follow-along solo fixtures configure Player2 as a stocked dummy
-  opponent, so the number of `Owner` components cannot identify which seats should receive the
-  `StartToken`. Model real participants separately from test-support actors before using the
-  automatic workflow for those games. When introducing `SoloOpponent`, replace its artificial stock
-  of 99/999 resources and production with demand-driven provisioning: acquiring a pending removal
-  task against the opponent should materialize exactly the removable components that task needs.
-  Work out the corresponding neutral host model for card resources (for example, the imaginary
-  animal that Predators may remove) without giving the opponent a playable `CardFront`.
+- Issue #2: Solo mode — Replace the stocked dummy Player2 with an Owner-only `SoloOpponent`, without
+  giving it a seat, turn, task queue, execution scope, corporation, hand, or Player-board assets.
+  Preserve the current fixed removable stock and work out the neutral host model for card resources
+  (for example, the imaginary animal that Predators may remove) without giving the opponent a
+  playable `CardFront`.
 - Issue #4: Turmoil
 - Issue #5: Game configurations
 - Issue #9: Community

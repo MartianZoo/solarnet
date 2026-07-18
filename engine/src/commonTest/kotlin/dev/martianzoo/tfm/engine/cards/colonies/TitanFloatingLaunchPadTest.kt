@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import kotlin.test.Test
 
 class TitanFloatingLaunchPadTest : ColoniesCardTest() {
@@ -10,7 +9,8 @@ class TitanFloatingLaunchPadTest : ColoniesCardTest() {
       doTask("2 Floater<TitanFloatingLaunchPad>")
     }
     p1.cardAction2("TitanFloatingLaunchPad") {
-      doTask("Trade<Io, TradeFleetA>")
-    }.expect("-Floater, 3 Heat")
+          doTask("Trade<Io, TradeFleetA>")
+        }
+        .expect("-Floater, 3 Heat")
   }
 }

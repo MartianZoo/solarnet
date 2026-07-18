@@ -63,6 +63,23 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
+  fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
+    val game = newGame()
+    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    p1.sneak("OwnedByProbe<Player2>!")
+
+    p1.manual("ActorTriggerSignal!")
+    game.tasks.isEmpty() shouldBe true
+
+    p2.beginManual("-ActorTriggerSignal!") {
+      game.tasks
+          .extract { it.actor to it.instruction.toString() }
+          .shouldContainExactly(PLAYER2 to "Heat<Player2>!")
+    }
+  }
+
+  @Test
   fun repeatedOwnerOccurrencesSpecializeTogether() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
@@ -103,6 +120,11 @@ private object ProbeAuthority : TfmAuthority() {
 
               CLASS RepeatedOwnerProbe : Owned, AutoLoad {
                 ActorTriggerSignal: Plant<Owner>, Steel<Owner>
+              }
+
+              CLASS OwnedByProbe : Owned, AutoLoad {
+                ActorTriggerSignal BY Owner: Heat<Owner>
+                -ActorTriggerSignal BY Owner: Heat<Owner>
               }
               """
                   .trimIndent()

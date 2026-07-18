@@ -201,25 +201,41 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Personal(
         val inner: Subscription,
         val by: ClassName,
-        // `actor` below routes the consequence; this is the identity BY Owner must actually test.
+        // Owner substitution specializes expressions in the effect, but ByTrigger stores its BY
+        // value as a raw ClassName. Keep the context Owner explicitly so BY Owner can still compare
+        // the performer with the identity that owns the effect.
         val effectOwner: Player?,
     ) : Subscription() {
-      val specificActor: Actor? =
-          if (by == OWNER || by == ANYONE || by == PLAYER) null else Actor.from(by)
-
       override fun checkForHit(
           currentEvent: ChangeEvent,
           actor: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        if (specificActor != null && actor != specificActor) return null
-        if (by == PLAYER && actor !is Player) return null
-        if (by == OWNER && effectOwner != null && currentEvent.actor != effectOwner) return null
+        // `actor` is the separately selected Actor for the consequence. BY instead describes who
+        // performed the change that triggered this effect, which is recorded on the event.
+        val performer = currentEvent.actor
+
+        // Owner, Anyone, and Player are role words handled below. Every other BY value names one
+        // concrete configured Actor. Compare its name directly so matching does not depend on the
+        // closed, name-guessing Actor.from factory that the identity-model work will remove.
+        if (by != OWNER && by != ANYONE && by != PLAYER && performer.className != by) return null
+
+        // Unlike Anyone, Player excludes administrative Actors.
+        if (by == PLAYER && performer !is Player) return null
+
+        // For an owned effect, BY Owner means equality with that effect's Owner. This comparison
+        // must use the performer, not `actor`, because the latter may have been selected merely to
+        // receive the consequence (as with Lakefront and Philares).
+        if (by == OWNER && effectOwner != null && performer != effectOwner) return null
+
         val originalHit = inner.checkForHit(currentEvent, actor, isSelf, reader) ?: return null
 
         return if (by == OWNER) {
-          val owner = actor as? Player ?: return null
+          // An owned effect binds generic output to its effect Owner. For an unowned effect, BY
+          // Owner instead requires and binds the performing Owner. Players are the only runtime
+          // identities that can supply that second context today.
+          val owner = effectOwner ?: (performer as? Player) ?: return null
           { replaceOwnerWith(owner).transform(originalHit(it)) }
         } else {
           originalHit

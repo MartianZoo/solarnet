@@ -143,7 +143,7 @@ that gets translated to `UseAction2<ElectroCatapult>: -Plant THEN 7`).
 
 ```
 effect      := trigger (':' | '::') instruction
-trigger     := prodTrigger | atomTrigger
+trigger     := (prodTrigger | atomTrigger) ['IF' requirement] ['BY' className]
 prodTrigger := 'PROD[' atomTrigger ']'
 atomTrigger := onGain | onRemove
 onGain      := genericTypeExpr
@@ -153,3 +153,10 @@ onRemove    := '-' genericTypeExpr
 An effect consists of a trigger, either one or two colons, then an instruction. The trigger is essentially just a type
 optionally preceded by a minus sign. For each instance of that type that is gained (or, with minus sign, removed), the
 instruction will be carried out.
+
+`BY` restricts the Actor that performed the triggering change; it does not select who receives or
+controls the resulting instruction. `BY Anyone` accepts every Actor, `BY Player` accepts Player
+Actors, and `BY Owner` means the effect Owner when the effect belongs to an owned component. An
+omitted `BY` adds no separate performer restriction. See the
+[identity rules audit](identity-rules-audit.md) for contextual Owner output and the cases that
+motivate these distinctions.

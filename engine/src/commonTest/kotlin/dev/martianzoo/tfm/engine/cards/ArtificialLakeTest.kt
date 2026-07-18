@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.RequirementException
@@ -72,7 +70,7 @@ class ArtificialLakeTest : CardTest() {
         p1.list("LandArea").filterNot { it.toString() == "VolcanicArea" } + p1.list("VolcanicArea")
     p1.godMode().manual(landAreas.joinToString { "GreeneryTile<$it>" })
 
-    shouldThrow< IllegalArgumentException> { // TODO DeadEndException?
+    shouldThrow<IllegalArgumentException> { // TODO DeadEndException?
       p1.playProject("ArtificialLake", 15)
     }
   }

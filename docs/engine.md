@@ -214,11 +214,15 @@ appended to the queue.
 
 The compatibility rule associates triggered work with the first available Actor among the
 effect-bearing component's owner, the changed component's owner, and the Actor on the triggering
-event. `BY` currently tests that selected Actor too. For deferred effects it becomes `Task.actor`.
-For automatic effects the temporary Task still carries it, but execution remains inline through the
-triggering Actor's `Instructor` and `Changer`, so resulting change events retain the triggering
-Actor. This preserves the established routing and execution behavior while giving its identities
-consistent names.
+event. For deferred effects it becomes `Task.actor`. `BY` is independent of that routing: it tests
+the Actor on the triggering `ChangeEvent`, which is the identity that performed the change. This is
+why another Player can trigger a Philares task for Philares' Owner without also satisfying
+Lakefront Resorts' `BY Owner` placement bonus. See the normative
+[identity rules audit](identity-rules-audit.md).
+
+For automatic effects the temporary Task still carries the routed Actor, but execution remains
+inline through the triggering Actor's `Instructor` and `Changer`, so resulting change events retain
+the triggering Actor.
 
 ---
 

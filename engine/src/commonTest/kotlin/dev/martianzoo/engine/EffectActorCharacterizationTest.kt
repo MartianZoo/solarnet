@@ -11,15 +11,13 @@ import kotlin.test.Test
 
 class EffectActorCharacterizationTest {
   @Test
-  fun changedComponentOwnerReceivesDeferredTaskWhileImmediateEffectUsesTriggeringActor() {
+  fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerAReward() {
     val game = Engine.newGame(GameSetup(Canon, "BE", 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
     engine.beginManual("GreeneryTile<Player1, Elysium_9_8>") {
-      game.tasks
-          .extract { it.actor to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "ProjectCard<Player1>!")
+      game.tasks.extract { it.actor to it.instruction.toString() }.shouldContainExactly()
 
       engine.has("Neighbor") shouldBe true
       engine.count("ProjectCard<Player1>") shouldBe 0
