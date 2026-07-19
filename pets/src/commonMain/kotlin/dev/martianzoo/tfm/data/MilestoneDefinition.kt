@@ -16,27 +16,28 @@ import kotlinx.serialization.Transient
 @Serializable
 data class MilestoneDefinition(
     val id: String,
-    override val bundle: String,
     val replaces: String? = null,
     @SerialName("requirement") val requirementText: String,
-    @SerialName("loadRequirement") val loadRequirementText: String? = null,
+    val requiredBundles: String? = null,
 ) : Definition {
 
   init {
-    require(bundle.isNotEmpty())
     require(requirementText.isNotEmpty())
     require(replaces?.isEmpty() != true)
+    require(requiredBundles?.isBlank() != false)
   }
 
   @Transient override val shortName = cn(id)
 
-  @Transient override val definitionId: String = id
-
-  @Transient override val replacesId: String? = replaces
-
   @Transient
-  override val loadRequirement: Requirement? =
-      loadRequirementText?.removePrefix("HAS ")?.let(::parse)
+  val requiredBundleNames =
+      requiredBundles
+          ?.split(',')
+          ?.map(String::trim)
+          ?.onEach { require(it.isNotEmpty()) }
+          ?.map(::cn)
+          ?.toSet()
+          .orEmpty()
 
   @Transient val requirement: Requirement = parse(requirementText)
 

@@ -35,7 +35,7 @@ internal class CanonClassesTest {
   @Test
   fun docstrings() {
     classDeclaration(cn("VictoryPoint")).docstring shouldBe "Well it's a victory point"
-    classDeclaration(cn("Floater")).docstring shouldBe "A particular kind of CardResource"
+    classDeclaration(cn("Floater")).shortName shouldBe cn("FLO")
   }
 
   @Test

@@ -2,8 +2,6 @@
   "legend": {
     "L": "LandArea",
     "W": "WaterArea",
-    "V": "VolcanicArea",
-    "N": "NoctisArea",
 
     "P": "Plant",
     "S": "Steel",

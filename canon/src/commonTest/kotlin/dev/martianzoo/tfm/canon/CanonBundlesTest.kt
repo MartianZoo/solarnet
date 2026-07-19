@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -11,10 +12,10 @@ import kotlin.test.Test
 internal class CanonBundlesTest {
   @Test
   fun canonComposesEveryCanonicalBundle() {
-    Canon.bundleRulesets.map { it.bundleName.toString() } shouldContainExactly
+    Canon.bundles.map { it.bundleName.toString() } shouldContainExactly
         listOf(
-            "System",
             "TerraformingMars",
+            "SoloMode",
             "CorporateEraExpansion",
             "TharsisMap",
             "HellasMap",
@@ -22,9 +23,8 @@ internal class CanonBundlesTest {
             "VenusNextExpansion",
             "PreludeExpansion",
             "ColoniesExpansion",
-            "SoloMode",
-            "PromosExpansion",
             "TurmoilExpansion",
+            "PromosExpansion",
         )
   }
 
@@ -38,9 +38,9 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun systemRulesetOwnsTheSystemDeclarations() {
-    Canon.rulesets.shouldContain(System)
-    Canon.classDeclaration(COMPONENT) shouldBe System.classDeclaration(COMPONENT)
+  fun systemDeclarationsBelongToPetsRatherThanACanonBundle() {
+    Canon.classDeclaration(COMPONENT).className shouldBe COMPONENT
+    Canon.classDeclarationBundles.getValue(COMPONENT).shouldBeEmpty()
   }
 
   @Test

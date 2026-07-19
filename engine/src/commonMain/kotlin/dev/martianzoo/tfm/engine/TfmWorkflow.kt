@@ -6,6 +6,7 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.data.GameSetup
 import kotlinx.coroutines.CoroutineScope
@@ -132,7 +133,7 @@ public object TfmWorkflow {
     /** Orchestrates the complete game from SetupPhase (which it must already be in) to finish. */
     public suspend fun runGame() {
       corporationPhase()
-      if ("P" in setup.bundles) preludePhase()
+      if (cn("PreludeExpansion") in setup.bundles) preludePhase()
       actionPhase()
       while (!gameIsOver()) {
         productionPhase()

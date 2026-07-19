@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -63,21 +62,19 @@ internal class MClassTest {
   fun cycle() {
     val s =
         """
-      ABSTRACT CLASS $COMPONENT
       CLASS Foo : Bar
       CLASS Bar : Foo
     """
-    shouldThrow<IllegalArgumentException> { loader(s) }
+    shouldThrow<IllegalStateException> { loader(s) }
   }
 
   @Test
   fun trivialCycle() {
     val s =
         """
-      ABSTRACT CLASS $COMPONENT
       CLASS Foo : Foo
     """
-    shouldThrow<IllegalArgumentException> { loader(s) }
+    shouldThrow<IllegalStateException> { loader(s) }
   }
 
   @Test
@@ -274,9 +271,6 @@ val regex = Regex("^(\\w+).*")
 internal fun loadAndGetClasses(vararg decl: String): List<MClass> {
   val all =
       """
-        ABSTRACT CLASS $COMPONENT
-        CLASS $CLASS<$COMPONENT>
-        CLASS Ok
         ${decl.joinToString("") { "CLASS $it\n" }}
       """
   val loader = loader(all)

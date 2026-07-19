@@ -4,9 +4,6 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
 
 interface Ruleset {
-  /** Returns every bundle code (e.g. `"B"`) this ruleset has any information on. */
-  val allBundles: Set<String>
-
   val allClassDeclarations: Map<ClassName, ClassDeclaration>
 
   /** Full bundle identities contributing each combined class declaration. */

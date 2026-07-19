@@ -1,8 +1,6 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
@@ -28,13 +26,4 @@ internal fun <T : PetNode> testRoundTrip(type: KClass<T>, start: T, end: T = sta
 internal fun assertFails(message: String = "(no message)", shouldFail: () -> Unit) =
     withClue(message) { shouldThrow<Exceptions.ExpressionException>(shouldFail) }
 
-internal fun loadTypes(vararg decl: String) =
-    loader(
-        """
-          ABSTRACT CLASS $COMPONENT
-          CLASS $CLASS<$COMPONENT> { HAS =1 This }
-          CLASS Ok
-          ${decl.joinToString("") { "$it\n" }}
-        """
-            .trimIndent()
-    )
+internal fun loadTypes(vararg decl: String) = loader(decl.joinToString("\n"))

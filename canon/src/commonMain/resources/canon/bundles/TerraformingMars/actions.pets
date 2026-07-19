@@ -1,12 +1,3 @@
-"Marks the player who takes the first turn; passes one seat left with each new generation"
-CLASS StartToken : Owned<Player> {
-  HAS MAX 1 StartToken
-  Generation:: PassLeft<This>
-}
-
-"Moves an owned component to the next player in seat order"
-CLASS PassLeft<Owned> : Custom
-
 "This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
 CLASS NewTurn : Owned, Signal
 

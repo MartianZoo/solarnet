@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.data.GameSetup
 /** The composition of all rulesets containing officially published materials. */
 public object Canon :
     TfmRuleset.Composite(
-        System,
         TerraformingMars,
+        SoloMode,
         CorporateEraExpansion,
         TharsisMap,
         HellasMap,
@@ -15,9 +15,8 @@ public object Canon :
         VenusNextExpansion,
         PreludeExpansion,
         ColoniesExpansion,
-        SoloMode,
-        PromosExpansion,
         TurmoilExpansion,
+        PromosExpansion,
     ) {
   public val SIMPLE_GAME: GameSetup = GameSetup(this, "BM", 2)
 }

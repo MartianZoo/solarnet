@@ -1,6 +1,3 @@
-"An entity that can initiate or continue game operations"
-ABSTRACT CLASS Actor
-
 "The icon-grammar spelling for an unrestricted ownership target"
 ABSTRACT CLASS Anyone[ANY] {
   "An entity that can own things, including the non-Player Opponent in solo mode"
@@ -19,14 +16,6 @@ ABSTRACT CLASS Anyone[ANY] {
       CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
     }
 
-    "The passive owner of the removable neutral stock in solo mode"
-    CLASS Opponent[OPP] {
-      HAS MAX 1 This
-      This: 99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
-      This: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]
-      This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile>)>
-      This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile>)>
-    }
   }
 }
 
@@ -62,6 +51,12 @@ ABSTRACT CLASS Owned<Anyone> {
     End: 5 VictoryPoint
   }
 
+  "Marks the player who takes the first turn; passes one seat left with each new generation"
+  CLASS StartToken : Owned<Player> {
+    HAS MAX 1 StartToken
+    Generation:: PassLeft<This>
+  }
+
   "Performs energy-to-heat conversion for a player; exists only so that Supercapacitors can remove it"
   CLASS Entropy {
     HAS MAX 1 This
@@ -80,3 +75,6 @@ ABSTRACT CLASS Owned<Anyone> {
     ProductionPhase: -5
   }
 }
+
+"Moves an owned component to the next player in seat order"
+CLASS PassLeft<Owned> : Custom

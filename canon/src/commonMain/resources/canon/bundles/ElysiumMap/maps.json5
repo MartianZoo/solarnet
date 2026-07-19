@@ -3,15 +3,11 @@
     "L": "LandArea",
     "W": "WaterArea",
     "V": "VolcanicArea",
-    "N": "NoctisArea",
 
     "P": "Plant",
     "S": "Steel",
     "T": "Titanium",
     "C": "ProjectCard",
-    "H": "Heat",
-    "O": "OceanTile",
-    "-": "-6",
   },
 
   "maps": [

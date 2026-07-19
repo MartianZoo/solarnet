@@ -14,8 +14,6 @@
 
   "projects": [
 
-    // Buffer Gas
-
     // Build Colony
     { "id": "SP17", "action": "17 -> Colony" },
   ],

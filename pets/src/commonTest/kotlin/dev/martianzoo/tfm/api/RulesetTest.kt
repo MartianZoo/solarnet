@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.Exceptions.PetException
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -15,7 +16,12 @@ import kotlin.test.Test
 
 internal class RulesetTest {
   @Test
-  fun test() {
+  fun everyRulesetIncludesThePetsRuntimeDeclarations() {
+    TfmRuleset.Empty().classDeclaration(COMPONENT).className shouldBe COMPONENT
+  }
+
+  @Test
+  fun definitionsAndTheirExtraClassesBecomeDeclarations() {
     val ruleset =
         object : TfmRuleset.Empty() {
           override val cardDefinitions =
@@ -24,15 +30,13 @@ internal class RulesetTest {
                       CardData(
                           id = "123",
                           deck = "PRELUDE",
-                          loadRequirement = "HAS PreludeExpansion",
                           immediate = "Plant",
-                          bundle = "Z",
                           components = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"),
                       )
                   )
               )
         }
-    ruleset.allClassNames.shouldHaveSize(2)
+
     ruleset.classDeclaration(cn("IndustrialCenter")).abstract shouldBe false
     ruleset.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
   }
@@ -44,7 +48,7 @@ internal class RulesetTest {
     val composed = TfmRuleset.compose(ruleset(declaration), ruleset(declaration))
 
     composed.explicitClassDeclarations.shouldContainExactly(declaration)
-    composed.allClassDeclarations.values.shouldContainExactly(declaration)
+    composed.classDeclaration(cn("Shared")) shouldBe declaration
   }
 
   @Test
@@ -72,48 +76,30 @@ internal class RulesetTest {
   fun compositionRejectsDifferentDeclarationsWithTheSameName() {
     val concrete = parseOneLinerClass("CLASS Shared")
     val abstract = parseOneLinerClass("ABSTRACT CLASS Shared")
-    val composed = TfmRuleset.compose(ruleset(concrete), ruleset(abstract))
 
-    shouldThrow<PetException> { composed.allClassDeclarations }
+    shouldThrow<PetException> {
+      TfmRuleset.compose(ruleset(concrete), ruleset(abstract)).allClassDeclarations
+    }
   }
 
   @Test
-  fun compositionIncludesExplicitlySupportedBundles() {
-    val source =
-        object : TfmRuleset.Empty() {
-          override val allBundles = setOf("BundleWithoutDefinitions")
-        }
-
-    TfmRuleset.compose(source).allBundles.shouldContainExactly("BundleWithoutDefinitions")
-  }
-
-  @Test
-  fun resolvingCompositionKeepsRequiredAndSelectedBundleContributions() {
-    val system =
-        bundle(
-            "System",
-            null,
-            alwaysIncluded = true,
-            declaration = "CLASS SystemContent : AutoLoad",
-        )
+  fun resolvingCompositionKeepsSelectedBundlesAndNonBundleContributions() {
     val base = bundle("TerraformingMars", "B", declaration = "CLASS BaseContent : AutoLoad")
     val venus = bundle("VenusNextExpansion", "V", declaration = "CLASS VenusContent : AutoLoad")
     val extension = ruleset(parseOneLinerClass("CLASS ExtensionContent : AutoLoad"))
-    val source = TfmRuleset.compose(system, base, venus, extension)
+    val source = TfmRuleset.compose(base, venus, extension)
 
     val resolved = source.resolve(setOf(cn("TerraformingMars")))
 
-    resolved.allClassNames.shouldContainExactlyInAnyOrder(
-        cn("SystemContent"),
-        cn("BaseContent"),
-        cn("ExtensionContent"),
-    )
+    resolved.allClassNames.containsAll(setOf(cn("BaseContent"), cn("ExtensionContent"))) shouldBe
+        true
+    (cn("VenusContent") in resolved.allClassNames) shouldBe false
   }
 
   @Test
   fun resolutionAppliesSameKindReplacementBeforeClassIndexing() {
-    val original = CardDefinition(CardData(id = "039"), "TerraformingMars")
-    val replacement = CardDefinition(CardData(id = "X31", replaces = "039"), "PromosExpansion")
+    val original = CardDefinition(CardData(id = "039"))
+    val replacement = CardDefinition(CardData(id = "X31", replaces = "039"))
     val source =
         TfmRuleset.compose(
             cardBundle("TerraformingMars", "B", original),
@@ -124,45 +110,36 @@ internal class RulesetTest {
 
     resolved.cardDefinitions.map { it.id }.shouldContainExactly("X31")
     resolved.classDeclaration(cn("DeimosDownPromo")) shouldBe replacement.asClassDeclaration
+    resolved.classDeclarationBundles.keys shouldBe resolved.allClassNames
+    (cn("DeimosDown") in resolved.classDeclarationBundles) shouldBe false
   }
 
   @Test
-  fun loadRequirementTestsSelectedBundlePresence() {
-    val doubleDown =
+  fun everyRequiredBundleMustBeSelected() {
+    val card =
         CardDefinition(
-            CardData(id = "X40", loadRequirement = "HAS PreludeExpansion"),
-            "PromosExpansion",
+            CardData(id = "X40", requiredBundles = "PreludeExpansion, VenusNextExpansion")
         )
     val source =
         TfmRuleset.compose(
-            cardBundle("PromosExpansion", "X", doubleDown),
-            cardBundle("PreludeExpansion", "P"),
+            cardBundle("PromosExpansion", "X", card),
+            bundle("PreludeExpansion", "P", "CLASS PreludeExpansion"),
+            bundle("VenusNextExpansion", "V", "CLASS VenusNextExpansion"),
         )
 
-    source.resolve(setOf(cn("PromosExpansion"))).cardDefinitions.shouldHaveSize(0)
-    source
-        .resolve(setOf(cn("PromosExpansion"), cn("PreludeExpansion")))
-        .cardDefinitions
-        .shouldContainExactly(doubleDown)
-  }
+    val withoutVenus = source.resolve(setOf(cn("PromosExpansion"), cn("PreludeExpansion")))
+    withoutVenus.cardDefinitions.shouldHaveSize(0)
+    withoutVenus.classDeclarationBundles.keys shouldBe withoutVenus.allClassNames
+    (card.className in withoutVenus.classDeclarationBundles) shouldBe false
 
-  @Test
-  fun loadRequirementCannotNameDefinitionsOwnBundle() {
-    val selfRequiringCard =
-        CardDefinition(
-            CardData(id = "X40", loadRequirement = "HAS PromosExpansion"),
-            "PromosExpansion",
+    val withVenus =
+        source.resolve(
+            setOf(cn("PromosExpansion"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
         )
-    val source = TfmRuleset.compose(cardBundle("PromosExpansion", "X", selfRequiringCard))
-
-    val exception =
-        shouldThrow<IllegalArgumentException> {
-          source.resolve(setOf(cn("PromosExpansion"))).cardDefinitions
-        }
-
-    exception.message shouldBe
-        "CardDefinition X40 has load requirement PromosExpansion naming its own bundle " +
-            "PromosExpansion"
+    withVenus.cardDefinitions.shouldContainExactly(card)
+    withVenus.classDeclarationBundles
+        .getValue(card.className)
+        .shouldContainExactly(cn("PromosExpansion"))
   }
 
   private fun ruleset(vararg declarations: ClassDeclaration): TfmRuleset =
@@ -173,10 +150,9 @@ internal class RulesetTest {
   private fun bundle(
       name: String,
       code: String?,
-      alwaysIncluded: Boolean = false,
       declaration: String,
   ): TfmRuleset.Bundle =
-      object : TfmRuleset.Bundle(cn(name), code, alwaysIncluded) {
+      object : TfmRuleset.Bundle(cn(name), code) {
         override val explicitClassDeclarations = setOf(parseOneLinerClass(declaration))
       }
 

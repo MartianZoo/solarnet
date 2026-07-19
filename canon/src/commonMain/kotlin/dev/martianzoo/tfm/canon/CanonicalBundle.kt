@@ -15,12 +15,11 @@ import dev.martianzoo.util.toSetStrict
 internal abstract class CanonicalBundle(
     name: String,
     legacyCode: String?,
-    alwaysIncluded: Boolean = false,
     cards: Boolean = false,
     actions: Boolean = false,
     maps: Boolean = false,
     milestones: Boolean = false,
-) : TfmRuleset.Bundle(cn(name), legacyCode, alwaysIncluded) {
+) : TfmRuleset.Bundle(cn(name), legacyCode) {
   private val directory = name
 
   override val explicitClassDeclarations: Set<ClassDeclaration> =
@@ -28,30 +27,25 @@ internal abstract class CanonicalBundle(
 
   override val cardDefinitions: Set<CardDefinition> by lazy {
     if (cards) {
-      JsonReader.readCards(read("cards.json5"), bundleName.toString()).toSetStrict(::CardDefinition)
+      JsonReader.readCards(read("cards.json5")).toSetStrict(::CardDefinition)
     } else emptySet()
   }
 
   override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
     if (actions) {
-      JsonReader.readActions(read("actions.json5"), bundleName.toString()).toSetStrict()
+      JsonReader.readActions(read("actions.json5")).toSetStrict()
     } else emptySet()
   }
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
     if (maps) {
-      JsonReader.readMaps(
-              read("maps.json5"),
-              bundleName.toString(),
-              requireNotNull(legacyCode),
-          )
-          .toSetStrict()
+      JsonReader.readMaps(read("maps.json5"), requireNotNull(legacyCode)).toSetStrict()
     } else emptySet()
   }
 
   override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
     if (milestones) {
-      JsonReader.readMilestones(read("milestones.json5"), bundleName.toString()).toSetStrict()
+      JsonReader.readMilestones(read("milestones.json5")).toSetStrict()
     } else emptySet()
   }
 

@@ -4,7 +4,7 @@
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
 "A catch-all for arbitrary global effects that don't seem to belong anywhere else"
-CLASS TerraformingMars : System, AutoLoad {
+CLASS TerraformingMars : System {
   HAS =1 This, =1 MarsMap
 
   SetupPhase:: Generation THEN StartToken<Player1>
@@ -82,7 +82,7 @@ ABSTRACT CLASS Phase : AutoLoad {
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction1<ConvertPlantsSA>?
   }
-  CLASS EndPhase : AutoLoad { This:: End }
+  CLASS EndPhase { This:: End }
 }
 
 "This Signal causes components to pay out victory points, after which the game terminates"

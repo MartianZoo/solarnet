@@ -135,9 +135,9 @@ wiring and product branding belong in an application package.
 
 ## Inside `tfm` but generally reusable
 
-### P0: The fundamental Pets/engine runtime classes live in Terraforming Mars canon resources
+### Resolved: the fundamental Pets/engine runtime classes now live in Pets
 
-`canon/src/commonMain/resources/canon/bundles/System/system.pets` defines:
+`pets/src/commonMain/resources/pets/system.pets` defines:
 
 1. `Component`, the root of every game's component hierarchy.
 2. `Class`.
@@ -146,12 +146,9 @@ wiring and product branding belong in an application package.
 5. `Engine`.
 6. `AutoLoad`, `Custom`, and `Atomized`, all consumed by generic engine/type logic.
 
-These are not Terraforming Mars canon. They are the Pets runtime prelude. Another game would need
-them even if it used no `tfm` package, and the generic engine cannot meaningfully operate without
-equivalent declarations.
-
-This file should become a generic Pets prelude resource, loaded independently of any ruleset.
-Terraforming Mars canon should extend that prelude with `global.pets`, `player.pets`, and the rest.
+These are the Pets runtime prelude, not Terraforming Mars canon. The resource is loaded
+independently of canonical bundles, and Terraforming Mars canon extends it with `global.pets`,
+`player.pets`, and the rest.
 
 ### P1: `TfmRuleset` contains the missing reusable base implementation of `Ruleset`
 

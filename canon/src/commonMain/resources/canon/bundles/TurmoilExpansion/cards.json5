@@ -23,8 +23,6 @@
         "End: VictoryPoint / Preservation<This>"
       ],
       "components": [
-        "CLASS Preservation : CardResource",
-
         // Must be exact copies of UNMI's
         "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
         "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"

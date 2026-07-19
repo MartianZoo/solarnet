@@ -3,61 +3,46 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.testlib.assertFails
-import dev.martianzoo.util.Grid
-import dev.martianzoo.util.toStrings
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 internal class GameSetupTest {
-  val ruleset =
-      object : TfmRuleset.Empty() {
-        override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()
-        override val marsMapDefinitions =
-            setOf(
-                MarsMapDefinition(cn("Tharsis"), "M", Grid.empty()),
-                MarsMapDefinition(cn("Elysium"), "E", Grid.empty()),
-            )
-      }
-
   @Test
   fun good() {
-    GameSetup(ruleset, "BM", 2)
-    GameSetup(ruleset, "BE", 3)
-    GameSetup(ruleset, "BRMVPX", 4)
-    GameSetup(ruleset, "BM", 5)
+    GameSetup(Canon, "BM", 2)
+    GameSetup(Canon, "BE", 3)
+    GameSetup(Canon, "BRMVPX", 4)
+    GameSetup(Canon, "BM", 5)
   }
 
   @Test
   fun badPlayerCount() {
-    assertFails("many") { GameSetup(ruleset, "BM", 6) }
+    assertFails("many") { GameSetup(Canon, "BM", 6) }
   }
 
   @Test
   fun badBundles() {
-    assertFails("no base") { GameSetup(ruleset, "M", 4) }
-    assertFails("repeated") { GameSetup(ruleset, "MBM", 4) }
-    assertFails("no map") { GameSetup(ruleset, "B", 4) }
-    assertFails("two maps") { GameSetup(ruleset, "BME", 4) }
-    assertFails("wrong bundle") { GameSetup(ruleset, "BMZ", 4) }
+    assertFails("no base") { GameSetup(Canon, "M", 4) }
+    assertFails("repeated") { GameSetup(Canon, "MBM", 4) }
+    assertFails("no map") { GameSetup(Canon, "B", 4) }
+    assertFails("two maps") { GameSetup(Canon, "BME", 4) }
+    assertFails("wrong bundle") { GameSetup(Canon, "BMZ", 4) }
   }
 
   @Test
-  fun fullBundleIdentitiesResolveOneRulesetForTheGame() {
-    val setup =
-        GameSetup(
-            Canon,
-            setOf(cn("TerraformingMars"), cn("TharsisMap")),
-            players = 2,
-        )
+  fun compatibilityConstructorOnlyTranslatesLettersToBundleNames() {
+    val setup = GameSetup(Canon, "BM", 2)
 
+    setup.ruleset shouldBe Canon
+    setup.bundles shouldBe setOf(cn("TerraformingMars"), cn("TharsisMap"))
     setup.bundleString shouldBe "BM"
-    setup.ruleset.marsMapDefinitions.single().className shouldBe cn("Tharsis")
-    assertTrue(cn("TharsisMap") in setup.ruleset.allClassNames)
-    assertFalse(cn("VenusNextExpansion") in setup.ruleset.allClassNames)
-    assertTrue(setup.ruleset.cardDefinitions.all { it.bundle == "TerraformingMars" })
+    setup.map.className shouldBe cn("Tharsis")
+  }
+
+  @Test
+  fun onePlayerCompatibilitySetupSelectsSoloMode() {
+    GameSetup(Canon, "BM", 1).bundles shouldBe
+        setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("SoloMode"))
   }
 }

@@ -12,6 +12,13 @@ val copyCanonResourcesForKarma by
       into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-canon-test"))
     }
 
+val copyPetsResourcesForKarma by
+    tasks.registering(Copy::class) {
+      dependsOn(":pets:jsProcessResources")
+      from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets"))
+      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-canon-test/pets"))
+    }
+
 kotlin {
   jvm()
   js(IR) {
@@ -35,6 +42,7 @@ kotlin {
 
 tasks.named("jsBrowserTest") {
   dependsOn(copyCanonResourcesForKarma)
+  dependsOn(copyPetsResourcesForKarma)
 }
 
 dokka {

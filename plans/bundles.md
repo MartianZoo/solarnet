@@ -14,9 +14,10 @@ and custom Kotlin implementations, and can be composed from other rulesets. Cano
 composition of all canonical bundle rulesets.
 
 Each game has one resolved ruleset derived from its setup. It contains only the contributions
-applicable to that game after bundle selection, load requirements, and replacements. The class
+applicable to that game after bundle selection, required-bundle filtering, and replacements. The class
 loader and all runtime definition and custom-class lookups use that same resolved ruleset; there is
-no separate unfiltered view inside the game.
+no separate unfiltered view inside the game. `GameSetup.ruleset` is the complete source named by
+the configuration; `GameReader.ruleset` is the resolved runtime source.
 
 ### Bundles have one identity throughout the system
 
@@ -24,9 +25,9 @@ Every ordinary selected bundle has exactly one live game component instance. Its
 Kotlin package, bundle object, and Pets component use the same UpperCamelCase name. Bundle
 membership never adds a Pets dependency or type argument to content classes.
 
-`System` is always included and is not user-selectable. Every canonical game includes
-`TerraformingMars`. Other bundles are selected by their full identities; short letter codes are
-only client conveniences.
+The Pets runtime declarations in `pets/system.pets` are available to every ruleset and are not a
+bundle. Every canonical game includes `TerraformingMars`. Other bundles are selected by their full
+identities; short letter codes are only client conveniences.
 
 ### Class loading reflects the configured game
 
@@ -43,16 +44,15 @@ to identify all contributing bundles.
 
 ### Definitions are filtered and replaced before becoming classes
 
-JSON definitions derive their bundle membership from their containing directory; JSON no longer
-contains a `bundle` attribute. Runtime definitions retain their bundle provenance.
+JSON definitions derive their bundle membership from the bundle object that reads their containing
+directory; JSON and runtime definition objects do not contain a `bundle` attribute.
 
-A definition may have a Pets `loadRequirement`. The requirement is tested against the configured
-game, including the presence of selected bundle components. It filters content and does not select
-additional bundles. Definitions whose requirements fail are absent before replacement and class
-loading.
+A card or milestone may name comma-separated `requiredBundles`. Every named bundle must be selected
+for that definition to apply. This filters content and does not select additional bundles.
+Definitions whose requirements fail are absent before replacement and class loading.
 
-Every replaceable definition has a stable identity scoped by definition kind. A `replacesId`
-removes the same-kind target from the applicable content before either definition is indexed by
+Every replaceable definition has a stable identity scoped by definition kind. Its `replaces`
+value removes the same-kind target from the applicable content before either definition is indexed by
 class name or converted into class declarations. Removing a definition also removes declarations
 generated from it.
 
@@ -84,7 +84,6 @@ make a file active runtime content.
 
 Canon has these bundle directories:
 
-- `System`
 - `TerraformingMars`
 - `CorporateEraExpansion`
 - `TharsisMap`
@@ -97,18 +96,15 @@ Canon has these bundle directories:
 - `PromosExpansion`
 - `TurmoilExpansion`
 
-`System` owns the declarations currently in `system.pets`. It is bundle-shaped for organization
-and composition, but need not have a live bundle component because `System` already has a different
-meaning in Pets.
-
 `TerraformingMars` replaces the proposed name `Base` and uses the existing `TerraformingMars`
 singleton as its bundle component. `TurmoilExpansion` is a real bundle even while its only
 supported content is a few cards.
 
 ### Shared declarations
 
-Shared vocabulary need not have one exclusive bundle owner. `Floater`, for example, may be declared
-identically by Venus Next and Colonies, or also by `TerraformingMars`.
+Shared vocabulary need not have one exclusive bundle owner. Card-resource classes such as `Floater`
+are generated on demand from the cards that use them, and identical declarations from several
+bundles coalesce.
 
 ### Specific bundle behavior
 
@@ -122,9 +118,8 @@ Players. Exactly where that validation is performed is not yet decided.
 Venus Next adds Hoverlord as a sixth available milestone; it does not replace one of the map's five
 milestones.
 
-Double Down's `loadRequirement` is `HAS PreludeExpansion`. Because load requirements test bundle
-presence rather than traversing dependencies, mutually conditional content in two selected bundles
-works without special cycle handling.
+Double Down's `requiredBundles` is `PreludeExpansion`. Required bundles test selection directly
+rather than traversing dependencies.
 
 ### Bundle-specific setup options
 

@@ -54,9 +54,6 @@ ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned {
   "A resource cube living on some particular card, such as `Animal<Pets>`"
   ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>> {
     DEFAULT +CardResource.
-
-    "A particular kind of CardResource"
-    CLASS Animal[ANI], Microbe[MIC], Science[SCI], Floater[FLO], Asteroid[AST]
   }
 }
 

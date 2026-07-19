@@ -7,8 +7,16 @@ config.set({
       watched: false,
       nocache: true,
     },
+    {
+      pattern: "pets/**/*",
+      included: false,
+      served: true,
+      watched: false,
+      nocache: true,
+    },
   ]),
   proxies: Object.assign(config.proxies, {
     "/canon/": "/base/canon/",
+    "/pets/": "/base/pets/",
   }),
 });

@@ -17,9 +17,8 @@ import dev.martianzoo.util.Grid
 
 data class MarsMapDefinition(
     override val className: ClassName,
-    override val bundle: String,
     val areas: Grid<AreaDefinition>,
-    val shortNamePrefix: String = bundle,
+    val shortNamePrefix: String = className.toString(),
 ) : Definition {
   override val shortName by ::className
   override val asClassDeclaration =
@@ -33,7 +32,6 @@ data class MarsMapDefinition(
   data class AreaDefinition(
       /** Mame of the MarsMapDefinition this area belongs to (e.g "Tharsis"). */
       val mapName: ClassName,
-      override val bundle: String,
       val shortNamePrefix: String,
 
       /** The row number of this area; the top row is row `1`. */

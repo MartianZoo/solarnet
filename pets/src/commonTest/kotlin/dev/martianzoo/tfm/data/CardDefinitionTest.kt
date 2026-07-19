@@ -21,13 +21,12 @@ internal class CardDefinitionTest {
         CardData(
             "123",
             deck = "PRELUDE",
-            loadRequirement = "HAS PreludeExpansion",
+            requiredBundles = "PreludeExpansion",
             immediate = "Plant",
-            bundle = "Z",
         )
 
     dumbCard.id shouldBe "123"
-    dumbCard.bundle shouldBe "Z"
+    dumbCard.requiredBundles shouldBe "PreludeExpansion"
     dumbCard.deck shouldBe "PRELUDE"
     dumbCard.replaces shouldBe null
     dumbCard.tags.shouldBeEmpty()
@@ -41,7 +40,6 @@ internal class CardDefinitionTest {
   val birds =
       CardData(
           id = "072",
-          bundle = "B",
           deck = "PROJECT",
           tags = listOf("AnimalTag"),
           immediate = "PROD[-2 Plant<Anyone>]",
@@ -57,7 +55,6 @@ internal class CardDefinitionTest {
   @Test
   fun realCardDataFromApi() {
     birds.id shouldBe "072"
-    birds.bundle shouldBe "B"
     birds.deck shouldBe "PROJECT"
     birds.tags.shouldContainExactlyInAnyOrder("AnimalTag")
     birds.immediate shouldBe "PROD[-2 Plant<Anyone>]"
@@ -74,7 +71,6 @@ internal class CardDefinitionTest {
   fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
     birds.shortName shouldBe cn("C072")
-    birds.bundle shouldBe "B"
     birds.deck shouldBe PROJECT
     birds.tags.toStrings().shouldContainExactlyInAnyOrder("AnimalTag")
     birds.immediate!!.toString() shouldBe "PROD[-2 Plant<Anyone>]"
@@ -95,7 +91,6 @@ internal class CardDefinitionTest {
         "cards": [
           {
             "id": "072",
-            "bundle": "B",
             "deck": "PROJECT",
             "tags": [ "AnimalTag" ],
             "immediate": "PROD[-2 Plant<Anyone>]",
@@ -114,22 +109,22 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun bundleProvenanceCanComeFromTheContainingDirectory() {
+  fun requiredBundlesAreCommaSeparatedAndAllRetained() {
     val json =
         """
           {
             "cards": [{
               "id": "X40",
-              "loadRequirement": "HAS PreludeExpansion",
+              "requiredBundles": "PreludeExpansion, VenusNextExpansion",
               "deck": "PRELUDE",
               "immediate": "Plant"
             }]
           }
         """
 
-    val card = CardDefinition(JsonReader.readCards(json, "PromosExpansion").single())
+    val card = CardDefinition(JsonReader.readCards(json).single())
 
-    card.bundle shouldBe "PromosExpansion"
+    card.requiredBundles shouldBe setOf(cn("PreludeExpansion"), cn("VenusNextExpansion"))
   }
 
   @Test
@@ -139,17 +134,16 @@ internal class CardDefinitionTest {
             CardData(
                 id = "X40",
                 deck = "PRELUDE",
-                loadRequirement = "HAS PreludeExpansion",
+                requiredBundles = "PreludeExpansion",
                 immediate = "Plant",
-            ),
-            "PromosExpansion",
+            )
         )
 
-    card.loadRequirement.toString() shouldBe "PreludeExpansion"
+    card.requiredBundles shouldBe setOf(cn("PreludeExpansion"))
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val card: CardData = CardData("123", bundle = "Z")
+  private val card: CardData = CardData("123")
 
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
@@ -159,8 +153,8 @@ internal class CardDefinitionTest {
 
   @Test
   fun emptyStrings() {
-    assertFails { CardData("", bundle = "Z") }
-    assertFails { card.copy(bundle = "") }
+    assertFails { CardData("") }
+    assertFails { card.copy(requiredBundles = "") }
     assertFails { card.copy(replaces = "") }
     assertFails { card.copy(resourceType = "") }
     assertFails { card.copy(requirement = "") }

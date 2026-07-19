@@ -13,12 +13,6 @@ class DefaultsTest {
     val loader =
         loader(
             """
-              CLASS Class<Component>
-              ABSTRACT CLASS Component {
-                DEFAULT +Component!
-                DEFAULT -Component!
-              }
-              CLASS Ok
               CLASS Foo1 {
                 DEFAULT +Foo1.
               }

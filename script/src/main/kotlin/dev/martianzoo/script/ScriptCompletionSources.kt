@@ -60,9 +60,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun bundleSuggestions(): List<ScriptCompletion> {
-    val bundles = repl.setup.availableRuleset.allBundles
+    val bundles = repl.setup.ruleset.bundles.mapNotNull { it.legacyCode }.toSet()
     val maps =
-        repl.setup.availableRuleset.bundleRulesets
+        repl.setup.ruleset.bundles
             .filter { it.marsMapDefinitions.any() }
             .mapNotNull { it.legacyCode }
             .toSet()

@@ -10,18 +10,12 @@ import dev.martianzoo.data.Definition
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.And
-import dev.martianzoo.pets.ast.Requirement.Counting
-import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.ast.Requirement.Transform
+import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
-import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 /**
@@ -31,29 +25,21 @@ import dev.martianzoo.util.associateByStrict
 public abstract class TfmRuleset : Ruleset {
 
   /** Bundle contributions contained anywhere in this ruleset composition. */
-  public open val bundleRulesets: List<Bundle> = emptyList()
+  public open val bundles: List<Bundle> = emptyList()
 
-  /** Bundle provenance for declarations contributed directly in Pets source. */
-  internal open val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by lazy {
-    explicitClassDeclarations.associateWith { emptySet() }
-  }
-
-  /**
-   * Resolves this source to its always-included and explicitly selected bundle contributions.
-   * Non-bundle contributions are retained.
-   */
+  /** Returns a ruleset containing only the selected bundles and non-bundle contributions. */
   public fun resolve(selectedBundles: Set<ClassName>): TfmRuleset {
-    val available = bundleRulesets.map { it.bundleName }.toSet()
+    val available = bundles.map { it.bundleName }.toSet()
     require(available.containsAll(selectedBundles)) {
       "unknown bundles: ${selectedBundles - available}; available bundles: $available"
     }
-    val selectedSource = selectedContribution(selectedBundles) ?: Empty()
-    return Resolved(this, selectedSource)
+    val selected = selectedContribution(selectedBundles) ?: Empty()
+    return Resolved(selected, this)
   }
 
   private fun selectedContribution(selectedBundles: Set<ClassName>): TfmRuleset? =
       when (this) {
-        is Bundle -> if (alwaysIncluded || bundleName in selectedBundles) this else null
+        is Bundle -> takeIf { bundleName in selectedBundles }
         is Composite ->
             Composite(
                 *rulesets.mapNotNull { it.selectedContribution(selectedBundles) }.toTypedArray()
@@ -62,132 +48,118 @@ public abstract class TfmRuleset : Ruleset {
       }
 
   private class Resolved(
-      private val underlying: TfmRuleset,
-      private val selectedSource: TfmRuleset,
-  ) : TfmRuleset() {
-    private val presentBundles = selectedSource.bundleRulesets.map { it.bundleName }.toSet()
-
-    override val bundleRulesets: List<Bundle> by selectedSource::bundleRulesets
-    override val allBundles: Set<String> by selectedSource::allBundles
-    override val explicitClassDeclarations: Set<ClassDeclaration> by
-        selectedSource::explicitClassDeclarations
-    override val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by
-        selectedSource::explicitDeclarationBundles
-    override val customClasses: Set<CustomClass> by selectedSource::customClasses
+      private val selected: TfmRuleset,
+      private val allKnown: TfmRuleset,
+  ) : Composite(selected) {
+    private val presentBundles = bundles.map { it.bundleName }.toSet()
 
     override val cardDefinitions: Set<CardDefinition> by lazy {
-      applicable(selectedSource.cardDefinitions, underlying.cardDefinitions)
-    }
-
-    override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-      applicable(selectedSource.marsMapDefinitions, underlying.marsMapDefinitions)
+      applicable(
+          selected = super.cardDefinitions,
+          allKnown = allKnown.cardDefinitions,
+          id = CardDefinition::id,
+          replaces = CardDefinition::replaces,
+          requiredBundles = CardDefinition::requiredBundles,
+      )
     }
 
     override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
-      applicable(selectedSource.milestoneDefinitions, underlying.milestoneDefinitions)
+      applicable(
+          selected = super.milestoneDefinitions,
+          allKnown = allKnown.milestoneDefinitions,
+          id = MilestoneDefinition::id,
+          replaces = MilestoneDefinition::replaces,
+          requiredBundles = MilestoneDefinition::requiredBundleNames,
+      )
     }
 
-    override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-      applicable(selectedSource.colonyTileDefinitions, underlying.colonyTileDefinitions)
-    }
+    override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
+      val survivingDefinitions = allDefinitions
+      val survivingCards = cardDefinitions
+      val contributions = mutableMapOf<ClassName, MutableSet<ClassName>>()
 
-    override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
-      applicable(selectedSource.standardActionDefinitions, underlying.standardActionDefinitions)
-    }
-
-    private fun <D : Definition> applicable(selected: Set<D>, allKnown: Set<D>): Set<D> {
-      val knownById = allKnown.associateByStrict { it.definitionId }
-      allKnown.forEach { definition ->
-        definition.loadRequirement?.let { requirement ->
-          require(!requirement.references(cn(definition.bundle))) {
-            "${definition::class.simpleName} ${definition.definitionId} has load requirement " +
-                "$requirement naming its own bundle ${definition.bundle}"
-          }
-        }
-        definition.replacesId?.let { target ->
-          require(target in knownById) {
-            "${definition.definitionId} replaces unknown ${definition::class.simpleName} $target"
-          }
+      selected.bundles.forEach { bundle ->
+        val declarations =
+            bundle.explicitClassDeclarations +
+                bundle.allDefinitions
+                    .filter { it in survivingDefinitions }
+                    .map { it.asClassDeclaration } +
+                bundle.cardDefinitions.filter { it in survivingCards }.flatMap { it.extraClasses }
+        declarations.forEach { declaration ->
+          contributions.getOrPut(declaration.className, ::mutableSetOf).add(bundle.bundleName)
         }
       }
-      checkReplacementCycles(knownById)
 
-      val applicable = selected.filter { it.loadRequirement?.matches(presentBundles) != false }
+      allClassNames.associateWith { contributions[it].orEmpty() }
+    }
+
+    private fun <D> applicable(
+        selected: Set<D>,
+        allKnown: Set<D>,
+        id: (D) -> String,
+        replaces: (D) -> String?,
+        requiredBundles: (D) -> Set<ClassName>,
+    ): Set<D> {
+      val knownById = allKnown.associateByStrict(id)
+      allKnown.forEach { definition ->
+        replaces(definition)?.let { target ->
+          require(target in knownById) { "${id(definition)} replaces unknown definition $target" }
+        }
+      }
+      checkReplacementCycles(knownById, id, replaces)
+
+      val applicable = selected.filter { presentBundles.containsAll(requiredBundles(it)) }
       applicable
-          .mapNotNull { definition -> definition.replacesId?.let { it to definition } }
+          .mapNotNull { replacement -> replaces(replacement)?.let { it to replacement } }
           .groupBy({ it.first }, { it.second })
           .forEach { (target, replacements) ->
             require(replacements.size == 1) {
-              "multiple applicable replacements for $target: ${replacements.map { it.definitionId }}"
+              "multiple applicable replacements for $target: ${replacements.map(id)}"
             }
           }
 
       val removedIds = mutableSetOf<String>()
       applicable.forEach { replacement ->
-        var target = replacement.replacesId
+        var target = replaces(replacement)
         while (target != null && removedIds.add(target)) {
-          target = knownById.getValue(target).replacesId
+          target = replaces(knownById.getValue(target))
         }
       }
-      return applicable.filterTo(mutableSetOf()) { it.definitionId !in removedIds }
+      return applicable.filterTo(linkedSetOf()) { id(it) !in removedIds }
     }
 
-    private fun <D : Definition> checkReplacementCycles(knownById: Map<String, D>) {
+    private fun <D> checkReplacementCycles(
+        knownById: Map<String, D>,
+        id: (D) -> String,
+        replaces: (D) -> String?,
+    ) {
       knownById.values.forEach { start ->
         val path = mutableSetOf<String>()
         var current: D? = start
-        while (current?.replacesId != null) {
-          require(path.add(current.definitionId)) {
-            "replacement cycle involving ${current.definitionId}"
-          }
-          current = knownById.getValue(current.replacesId!!)
+        while (current != null && replaces(current) != null) {
+          require(path.add(id(current))) { "replacement cycle involving ${id(current)}" }
+          current = knownById.getValue(replaces(current)!!)
         }
       }
     }
-
-    private fun Requirement.matches(presentBundles: Set<ClassName>): Boolean =
-        when (this) {
-          is Counting -> {
-            val expression = scaledEx.expression
-            require(expression.simple) { "unsupported load requirement: $this" }
-            val count = if (expression.className in presentBundles) 1 else 0
-            count in range
-          }
-          is Or -> requirements.any { it.matches(presentBundles) }
-          is And -> requirements.all { it.matches(presentBundles) }
-          is Transform -> error("unsupported load requirement: $this")
-        }
-
-    private fun Requirement.references(bundle: ClassName): Boolean =
-        when (this) {
-          is Counting -> scaledEx.expression.className == bundle
-          is Or -> requirements.any { it.references(bundle) }
-          is And -> requirements.any { it.references(bundle) }
-          is Transform -> requirement.references(bundle)
-        }
   }
-
-  /** Returns every bundle code (e.g. `"B"`) this ruleset has any information on. */
-  override val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
 
   // CLASS DECLARATIONS
 
   /** Returns the class declaration having the full name [name]. */
-  override fun classDeclaration(name: ClassName): ClassDeclaration {
-    val decl: ClassDeclaration? = allClassDeclarations[name]
-    require(decl != null) { "no class declaration by name $name" }
-    return decl
+  override fun classDeclaration(name: ClassName): ClassDeclaration =
+      allClassDeclarations[name]
+          ?: throw IllegalArgumentException("no class declaration by name $name")
+
+  protected val contributedClassDeclarations: Set<ClassDeclaration> by lazy {
+    explicitClassDeclarations +
+        allDefinitions.map { it.asClassDeclaration } +
+        cardDefinitions.flatMap { it.extraClasses }
   }
 
-  override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
-    // Dedups as long as class declarations are exactly identical
-    val allDeclarations: Set<ClassDeclaration> =
-        explicitClassDeclarations +
-            allDefinitions.map { it.asClassDeclaration } +
-            cardDefinitions.flatMap { it.extraClasses }
-
+  final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     try {
-      allDeclarations.associateByStrict {
+      (systemClassDeclarations + contributedClassDeclarations).associateByStrict {
         validate(it)
         it.className
       }
@@ -197,42 +169,23 @@ public abstract class TfmRuleset : Ruleset {
   }
 
   override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
-    val contributions = mutableMapOf<ClassName, MutableSet<ClassName>>()
-
-    fun contribute(declaration: ClassDeclaration, bundles: Set<ClassName>) {
-      contributions.getOrPut(declaration.className, ::mutableSetOf).addAll(bundles)
-    }
-
-    explicitDeclarationBundles.forEach { (declaration, bundles) ->
-      contribute(declaration, bundles)
-    }
-    allDefinitions.forEach { definition ->
-      contribute(definition.asClassDeclaration, setOf(cn(definition.bundle)))
-      if (definition is CardDefinition) {
-        definition.extraClasses.forEach { contribute(it, setOf(cn(definition.bundle))) }
-      }
-    }
-    allClassDeclarations.keys.associateWith { contributions[it]?.toSet().orEmpty() }
+    allClassNames.associateWith { emptySet() }
   }
 
-  private fun validate(decl: ClassDeclaration) {
-    when (decl.className) {
+  private fun validate(declaration: ClassDeclaration) {
+    when (declaration.className) {
       COMPONENT -> {
-        require(decl.abstract)
-        require(decl.supertypes.none())
-        require(decl.dependencies.none())
+        require(declaration.abstract)
+        require(declaration.supertypes.none())
+        require(declaration.dependencies.none())
       }
       CLASS -> {
-        require(!decl.abstract)
-        require(decl.dependencies.single() == COMPONENT.expression)
+        require(!declaration.abstract)
+        require(declaration.dependencies.single() == COMPONENT.expression)
       }
     }
   }
 
-  /**
-   * Every class declaration this ruleset knows about, including explicit ones and those converted
-   * from [Definition]s.
-   */
   override val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
 
   /** Everything implementing [Definition] this ruleset knows about. */
@@ -246,110 +199,68 @@ public abstract class TfmRuleset : Ruleset {
         marsMapDefinitions.flatMap { it.areas }
   }
 
-  // CARDS
+  // DEFINITIONS
 
-  /** Returns the applicable card definition having the full name [name]. */
   public fun card(name: ClassName): CardDefinition =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
-  /** Every card this ruleset knows about. */
   public abstract val cardDefinitions: Set<CardDefinition>
 
-  /** A map from [ClassName] to [CardDefinition], containing all cards known to this ruleset. */
-  internal val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
-    cardDefinitions.associateByStrict { it.className }
-  }
+  private val cardsByClassName by lazy { cardDefinitions.associateByStrict { it.className } }
 
-  // STANDARD ACTIONS
-
-  /** Returns the standard action/project by the given [name]. */
   public fun action(name: ClassName): StandardActionDefinition = standardActionDefinitions.first {
     it.className == name
   }
 
-  /** Every standard action (including standard projects) this ruleset knows about. */
   public abstract val standardActionDefinitions: Set<StandardActionDefinition>
 
-  // MARS MAPS
-
-  /** Returns the map by the given name, e.g. `Tharsis`. */
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.firstOrNull { it.className == name }
           ?: throw IllegalArgumentException("No `$name` in: ${marsMapDefinitions.classNames()}")
 
-  /** Every map this ruleset knows about. */
   public abstract val marsMapDefinitions: Set<MarsMapDefinition>
 
-  // MILESTONES
+  public fun milestone(name: ClassName): MilestoneDefinition = milestoneDefinitions.first {
+    it.className == name
+  }
 
-  /** Returns the milestone by the given [name]. */
-  public fun milestone(name: ClassName): MilestoneDefinition = milestonesByClassName[name]!!
-
-  /** Every milestone this ruleset knows about. */
   public abstract val milestoneDefinitions: Set<MilestoneDefinition>
 
-  private val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
-    milestoneDefinitions.associateByStrict { it.className }
+  public fun colonyTile(name: ClassName): ColonyTileDefinition = colonyTileDefinitions.first {
+    it.className == name
   }
 
-  // AWARDS
-
-  // COLONY TILES
-
-  /** Returns the milestone by the given [name]. */
-  public fun colonyTile(name: ClassName): ColonyTileDefinition = colonyTileByClassName[name]!!
-
-  /** Every colony tile this ruleset knows about. */
   public abstract val colonyTileDefinitions: Set<ColonyTileDefinition>
-
-  private val colonyTileByClassName: Map<ClassName, ColonyTileDefinition> by lazy {
-    colonyTileDefinitions.associateByStrict { it.className }
-  }
 
   // CUSTOM CLASSES
 
-  /** Returns the custom instruction implementation having the name [className]. */
-  override fun customClass(className: ClassName): CustomClass {
-    return customClasses.firstOrNull { it.className == className }
-        ?: throw Exceptions.customClassNotFound(className)
-  }
+  override fun customClass(className: ClassName): CustomClass =
+      customClasses.firstOrNull { it.className == className }
+          ?: throw Exceptions.customClassNotFound(className)
 
-  // HELPERS
-
-  /**
-   * A ruleset providing nothing; intended for tests. Subclass it to supply any needed declarations
-   * and definitions.
-   */
+  /** A ruleset providing no game-specific content; intended for tests. */
   public open class Empty : TfmRuleset() {
-    override val explicitClassDeclarations = setOf<ClassDeclaration>()
-    override val cardDefinitions = setOf<CardDefinition>()
-    override val marsMapDefinitions = setOf<MarsMapDefinition>()
-    override val milestoneDefinitions = setOf<MilestoneDefinition>()
-    override val colonyTileDefinitions = setOf<ColonyTileDefinition>()
-    override val standardActionDefinitions = setOf<StandardActionDefinition>()
-    override val customClasses = setOf<CustomClass>()
-  }
-
-  /**
-   * A ruleset providing almost nothing, just a single (empty) Mars map, which is in some code paths
-   * required.
-   */
-  public open class Minimal : Empty() {
-    override val allBundles = setOf("B", "M")
-    override val marsMapDefinitions = setOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
+    override val explicitClassDeclarations = emptySet<ClassDeclaration>()
+    override val cardDefinitions = emptySet<CardDefinition>()
+    override val marsMapDefinitions = emptySet<MarsMapDefinition>()
+    override val milestoneDefinitions = emptySet<MilestoneDefinition>()
+    override val colonyTileDefinitions = emptySet<ColonyTileDefinition>()
+    override val standardActionDefinitions = emptySet<StandardActionDefinition>()
+    override val customClasses = emptySet<CustomClass>()
   }
 
   /** A composable contribution owned by one game bundle. */
   public abstract class Bundle(
       public val bundleName: ClassName,
       public val legacyCode: String?,
-      public val alwaysIncluded: Boolean = false,
-      public val hasComponent: Boolean = true,
   ) : Empty() {
-    final override val bundleRulesets: List<Bundle> = listOf(this)
-    final override val allBundles: Set<String> = setOfNotNull(legacyCode)
-    final override val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by lazy {
-      explicitClassDeclarations.associateWith { setOf(bundleName) }
+    final override val bundles: List<Bundle> = listOf(this)
+
+    final override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
+      val contributedNames = contributedClassDeclarations.map { it.className }.toSet()
+      allClassNames.associateWith { name ->
+        if (name in contributedNames) setOf(bundleName) else emptySet()
+      }
     }
   }
 
@@ -362,16 +273,14 @@ public abstract class TfmRuleset : Ruleset {
   public open class Composite(vararg rulesets: TfmRuleset) : TfmRuleset() {
     public val rulesets: List<TfmRuleset> = rulesets.toList()
 
-    final override val bundleRulesets: List<Bundle> = rulesets.flatMap { it.bundleRulesets }
+    final override val bundles: List<Bundle> = rulesets.flatMap { it.bundles }
 
-    final override val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by lazy {
+    override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
       rulesets
-          .flatMap { it.explicitDeclarationBundles.entries }
+          .flatMap { it.classDeclarationBundles.entries }
           .groupBy({ it.key }, { it.value })
-          .mapValues { (_, bundles) -> bundles.flatten().toSet() }
+          .mapValues { (_, bundleSets) -> bundleSets.flatten().toSet() }
     }
-
-    override val allBundles: Set<String> by lazy { rulesets.flatMap { it.allBundles }.toSet() }
 
     override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
       rulesets.flatMap { it.explicitClassDeclarations }.toSet()

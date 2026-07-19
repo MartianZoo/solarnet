@@ -4,9 +4,12 @@ ABSTRACT CLASS Component {
   DEFAULT -Component!
 }
 
+"An entity that can initiate or continue game operations"
+ABSTRACT CLASS Actor
+
 "Has no real gameplay meaning; a class extends it just to be less user-visible in logs etc."
 ABSTRACT CLASS System {
-  "Magic rules: only a single class name can go inside <>; `Class<Foo` is concrete iff `Foo` is"
+  "Magic rules: only a class name can go inside `<>`; `Class<Foo>` is concrete iff `Foo` is"
   CLASS Class<Component> { HAS =1 This }
 
   "Anything that cannot exist after the task queue clears (i.e., the action ends)"

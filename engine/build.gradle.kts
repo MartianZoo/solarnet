@@ -12,6 +12,13 @@ val copyCanonResourcesForKarma by
       into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-engine-test"))
     }
 
+val copyPetsResourcesForKarma by
+    tasks.registering(Copy::class) {
+      dependsOn(":pets:jsProcessResources")
+      from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets"))
+      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-engine-test/pets"))
+    }
+
 val includeSlowTests = providers.gradleProperty("includeSlowTests").orNull?.toBoolean() == true
 
 val requestedTaskNames = gradle.startParameter.taskNames
@@ -48,6 +55,7 @@ kotlin {
 
 tasks.named("jsBrowserTest") {
   dependsOn(copyCanonResourcesForKarma)
+  dependsOn(copyPetsResourcesForKarma)
   enabled = includeSlowTests || slowTestsExplicitlyRequested
 }
 

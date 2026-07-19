@@ -13,17 +13,13 @@ import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 import kotlin.js.JsName
 
-/**
- * A specification of the starting conditions for a game. This is configuration rather than the
- * expanded runtime meaning of that configuration; [ruleset] is the separately resolved source the
- * game will use.
- */
+/** A specification of the starting conditions for a game. */
 data class GameSetup(
-    /** The complete source in which [selectedBundles] are resolved. */
-    val availableRuleset: TfmRuleset,
+    /** The complete source from which this game's content will be selected. */
+    val ruleset: TfmRuleset,
 
-    /** Full identities of the user-selected bundles. */
-    val selectedBundles: Set<ClassName>,
+    /** Full identities of the selected bundles. */
+    val bundles: Set<ClassName>,
 
     /** Number of seated Players. */
     val players: Int,
@@ -31,62 +27,36 @@ data class GameSetup(
 ) {
   /** Compatibility constructor for clients that use canonical one-letter bundle codes. */
   constructor(
-      availableRuleset: TfmRuleset,
+      ruleset: TfmRuleset,
       bundleString: String,
       players: Int,
       colonyTilesDesired: Set<ClassName> = setOf(),
   ) : this(
-      availableRuleset,
-      selectLegacyBundles(availableRuleset, bundleString, players),
+      ruleset,
+      selectLegacyBundles(ruleset, bundleString, players),
       players,
       colonyTilesDesired,
   )
 
-  private val structuredBundles = availableRuleset.bundleRulesets.any()
-
-  /** The single resolved source used for all declarations, definitions, and custom classes. */
-  val ruleset: TfmRuleset =
-      if (structuredBundles) availableRuleset.resolve(selectedBundles) else availableRuleset
-
-  /** Selected one-letter codes, retained as a client convenience during migration. */
-  val bundles: Set<String> =
-      if (structuredBundles) {
-        selectedBundleRulesets().mapNotNull { it.legacyCode }.toSetStrict()
-      } else {
-        selectedBundles.map { it.toString() }.toSetStrict()
-      }
-
   /** Selected one-letter codes concatenated in stable order. */
-  val bundleString: String = bundles.sorted().joinToString("")
+  val bundleString: String =
+      selectedBundleRulesets().mapNotNull { it.legacyCode }.sorted().joinToString("")
 
   init {
     require(players in 1..5) { "player count not supported: $players" }
-    if (structuredBundles) {
-      val availableNames = availableRuleset.bundleRulesets.map { it.bundleName }.toSet()
-      require(availableNames.containsAll(selectedBundles)) {
-        "supported bundles are: $availableNames"
-      }
-      require(TERRAFORMING_MARS in selectedBundles) { "missing TerraformingMars" }
-      require(players > 1 || SOLO_MODE in selectedBundles) {
-        "SoloMode is required for a one-player game"
-      }
-    } else {
-      require("B" in bundles) { "missing base: $bundles" }
-      require(availableRuleset.allBundles.containsAll(bundles)) {
-        "supported bundles are: ${availableRuleset.allBundles}"
-      }
+    val availableNames = ruleset.bundles.map { it.bundleName }.toSet()
+    require(availableNames.containsAll(bundles)) { "supported bundles are: $availableNames" }
+    require(TERRAFORMING_MARS in bundles) { "missing TerraformingMars" }
+    require(players > 1 || SOLO_MODE in bundles) {
+      "SoloMode is required for a one-player game"
     }
   }
 
   /** The map to use for this game. */
-  val map: MarsMapDefinition =
-      if (structuredBundles) ruleset.marsMapDefinitions.single()
-      else ruleset.marsMapDefinitions.single { it.bundle in bundles }
+  val map: MarsMapDefinition = resolvedRuleset().marsMapDefinitions.single()
 
   /** All [Definition] objects applicable to this game. */
-  fun allDefinitions(): List<Definition> =
-      if (structuredBundles) ruleset.allDefinitions.toList()
-      else ruleset.allDefinitions.filter { it.bundle in bundles }
+  fun allDefinitions(): List<Definition> = resolvedRuleset().allDefinitions.toList()
 
   @JsName("playerList") fun players(): List<Player> = Player.players(players)
 
@@ -94,21 +64,22 @@ data class GameSetup(
   fun actors(): List<Actor> = players() + ENGINE
 
   val colonyTiles: Set<ColonyTileDefinition> =
-      chooseColonyTileNames().toSetStrict { ruleset.colonyTile(it) }
+      chooseColonyTileNames().toSetStrict { resolvedRuleset().colonyTile(it) }
 
-  private fun selectedBundleRulesets(): List<TfmRuleset.Bundle> {
-    return availableRuleset.bundleRulesets.filter { it.bundleName in selectedBundles }
-  }
+  private fun resolvedRuleset(): TfmRuleset = ruleset.resolve(bundles)
+
+  private fun selectedBundleRulesets(): List<TfmRuleset.Bundle> =
+      ruleset.bundles.filter { it.bundleName in bundles }
 
   private fun chooseColonyTileNames(): Set<ClassName> {
-    if (COLONIES_EXPANSION !in selectedBundles && "C" !in bundles) {
+    if (COLONIES_EXPANSION !in bundles) {
       return colonyTilesDesired.also { require(it.none()) }
     }
     val numTilesToUse = if (players <= 2) players + 3 else players + 2
     val need = numTilesToUse - colonyTilesDesired.size
     return when {
       need > 0 -> {
-        val all = ruleset.colonyTileDefinitions.classNames()
+        val all = resolvedRuleset().colonyTileDefinitions.classNames()
         colonyTilesDesired + random(all - colonyTilesDesired, need)
       }
       need < 0 -> random(colonyTilesDesired, numTilesToUse)
@@ -126,22 +97,17 @@ data class GameSetup(
         bundleString: String,
         players: Int,
     ): Set<ClassName> {
-      val codes = splitLetters(bundleString)
-      if (ruleset.bundleRulesets.none()) return codes.map(::cn).toSetStrict()
-
+      val codes = bundleString.asIterable().toStrings().sorted().toSetStrict()
       val byCode =
-          ruleset.bundleRulesets
-              .mapNotNull { bundle ->
-                bundle.legacyCode?.let { it to bundle.bundleName }
-              }
+          ruleset.bundles
+              .mapNotNull { bundle -> bundle.legacyCode?.let { it to bundle.bundleName } }
               .toMap()
       require(byCode.keys.containsAll(codes)) { "supported bundle codes are: ${byCode.keys}" }
-      val selected = codes.map { byCode.getValue(it) }.toMutableSet()
-      if (players == 1) selected += SOLO_MODE
-      return selected.toSet()
+      return codes
+          .mapTo(mutableSetOf()) { byCode.getValue(it) }
+          .apply {
+            if (players == 1) add(SOLO_MODE)
+          }
     }
-
-    fun splitLetters(bundles: String): Set<String> =
-        bundles.asIterable().toStrings().sorted().toSetStrict()
   }
 }

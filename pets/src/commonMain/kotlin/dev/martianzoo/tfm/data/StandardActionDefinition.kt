@@ -12,14 +12,9 @@ import dev.martianzoo.tfm.data.TfmClasses.STANDARD_PROJECT
 
 data class StandardActionDefinition(
     override val shortName: ClassName,
-    override val bundle: String,
     val project: Boolean,
     val actions: List<String>,
 ) : Definition {
-  init {
-    require(bundle.isNotEmpty())
-  }
-
   override val className = englishHack(shortName.toString())
 
   override val asClassDeclaration by lazy {

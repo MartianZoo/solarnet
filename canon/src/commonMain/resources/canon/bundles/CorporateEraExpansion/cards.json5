@@ -94,7 +94,6 @@
       "tags": [ "SpaceTag" ],
       "actions": [ "Titanium -> Fighter<This>" ],
       "effects": [ "End: VictoryPoint / Fighter<This>" ],
-      "components": [ "CLASS Fighter : CardResource" ],
       "resourceType": "Fighter",
       "cost": 12,
       "projectKind": "ACTIVE"

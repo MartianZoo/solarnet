@@ -10,7 +10,7 @@ CLASS ColoniesExpansion : System {
 }
 
 "Creates the colony tiles and one trade fleet for each player"
-CLASS ColoniesSetup : Custom, AutoLoad
+CLASS ColoniesSetup : Custom
 
 // Colony tile data read from colonies.json5 is converted to classes in this form:
 //

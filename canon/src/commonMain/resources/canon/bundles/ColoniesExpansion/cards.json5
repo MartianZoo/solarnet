@@ -396,7 +396,6 @@
       "tags": [ "EarthTag" ],
       "actions": [ "PROD[1] -> Camp<This>" ],
       "effects": [ "End: VictoryPoint / Camp<This>" ],
-      "components": [ "CLASS Camp : CardResource" ],
       "resourceType": "Camp",
       "cost": 10,
       "projectKind": "ACTIVE"

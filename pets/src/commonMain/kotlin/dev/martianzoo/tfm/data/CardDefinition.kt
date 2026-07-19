@@ -41,21 +41,16 @@ import kotlinx.serialization.Serializable
  * name). It's theoretically possible to reconstruct acceptable instruction text from this data,
  * just not the original wording.
  */
-public class CardDefinition(data: CardData, bundle: String = requireNotNull(data.bundle)) :
-    Definition {
+public class CardDefinition(data: CardData) : Definition {
   /**
    * This card's unique id string. A number of id ranges, such as `"000"`-`"999"`, should be
    * reserved for canon (officially published) cards.
    */
   public val id: String by data::id
 
-  override val definitionId: String by ::id
-
   override val shortName: ClassName = cn("C$id")
 
   override val className: ClassName = englishHack(id)
-
-  override val bundle: String = bundle
 
   /**
    * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
@@ -70,10 +65,8 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
    */
   public val replaces: String? by data::replaces
 
-  override val replacesId: String? by ::replaces
-
-  override val loadRequirement: Requirement? =
-      data.loadRequirement?.removePrefix("HAS ")?.let(::parse)
+  /** Bundles that must all be selected for this card to be included. */
+  public val requiredBundles: Set<ClassName> = parseRequiredBundles(data.requiredBundles)
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
 
@@ -134,7 +127,8 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
   }
 
   /** Additional class declarations that come along with this card. */
-  public val extraClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
+  public val extraClasses: List<ClassDeclaration> =
+      data.components.map(::parseOneLinerClass) + listOfNotNull(resourceClassDeclaration())
 
   override val asClassDeclaration by lazy {
     val createTags =
@@ -185,10 +179,9 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
   @Serializable
   public data class CardData(
       val id: String,
-      val bundle: String? = null,
       val deck: String? = null,
       val replaces: String? = null,
-      val loadRequirement: String? = null,
+      val requiredBundles: String? = null,
       val tags: List<String> = listOf(),
       val immediate: String? = null,
       val actions: List<String> = listOf(),
@@ -201,9 +194,8 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
   ) {
     init {
       require(id.isNotEmpty())
-      require(bundle?.isNotEmpty() != false)
       require(replaces?.isNotEmpty() ?: true)
-      require(loadRequirement?.isNotEmpty() ?: true)
+      require(requiredBundles?.isNotBlank() != false)
       require(resourceType?.isNotEmpty() ?: true)
       require(requirement?.isNotEmpty() ?: true)
       require(cost >= 0)
@@ -217,5 +209,31 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
         require(cost == 0) { "can't have nonzero cost: $id" }
       }
     }
+  }
+
+  private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
+    val shortName = RESOURCE_SHORT_NAMES[type]
+    val shortNameClause = shortName?.let { "[$it]" }.orEmpty()
+    parseOneLinerClass("CLASS $type$shortNameClause : CardResource")
+  }
+
+  private companion object {
+    val RESOURCE_SHORT_NAMES =
+        mapOf(
+            cn("Animal") to cn("ANI"),
+            cn("Microbe") to cn("MIC"),
+            cn("Science") to cn("SCI"),
+            cn("Floater") to cn("FLO"),
+            cn("Asteroid") to cn("AST"),
+        )
+
+    fun parseRequiredBundles(text: String?): Set<ClassName> =
+        text
+            ?.split(',')
+            ?.map(String::trim)
+            ?.onEach { require(it.isNotEmpty()) }
+            ?.map(::cn)
+            ?.toSet()
+            .orEmpty()
   }
 }
