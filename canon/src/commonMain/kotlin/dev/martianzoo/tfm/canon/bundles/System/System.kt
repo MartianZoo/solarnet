@@ -1,0 +1,14 @@
+package dev.martianzoo.tfm.canon.bundles.System
+
+import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.canon.CanonResources
+import dev.martianzoo.util.toSetStrict
+
+/** The Pets runtime declarations that every canonical game uses. */
+internal object System : TfmRuleset.Empty() {
+  override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
+    parseClasses(CanonResources.read("bundles/System/system.pets")).toSetStrict()
+  }
+}

@@ -137,7 +137,7 @@ wiring and product branding belong in an application package.
 
 ### P0: The fundamental Pets/engine runtime classes live in Terraforming Mars canon resources
 
-`canon/src/commonMain/resources/dev/martianzoo/tfm/canon/system.pets` defines:
+`canon/src/commonMain/resources/dev/martianzoo/tfm/canon/bundles/System/system.pets` defines:
 
 1. `Component`, the root of every game's component hierarchy.
 2. `Class`.
@@ -209,8 +209,8 @@ in the otherwise properly Terraforming-Mars-specific script commands.
    identities are generic, while the reusable ruleset implementation remains under `tfm`.
 2. **`engine`** is mostly genuinely generic. Its misplaced logic is concentrated in initialization,
    turn/action protocols, and automatic installation of `Prod`.
-3. **`canon`** is correctly Terraforming-Mars-specific except for `system.pets`, which is really the
-   generic runtime prelude.
+3. **`canon`** is correctly Terraforming-Mars-specific except for the `System` ruleset, which is
+   really the generic runtime prelude.
 4. **`script`** has a good generic command framework, but its central session, setup command,
    completion sources, phase handling, and server construction are the Terraforming Mars/REgo
    application.
@@ -219,7 +219,7 @@ in the otherwise properly Terraforming-Mars-specific script commands.
 
 ## Suggested extraction order
 
-1. Move `system.pets` into a generic runtime prelude and make its loading explicit.
+1. Move the `System` ruleset into a generic runtime prelude and make its loading explicit.
 2. Introduce generic setup and ruleset implementations, retaining Terraforming Mars subclasses.
 3. Replace generic initializer special cases with game-supplied initialization roots and hooks.
 4. Decide whether turn/action signaling is a generic protocol or a Terraforming Mars layer, then

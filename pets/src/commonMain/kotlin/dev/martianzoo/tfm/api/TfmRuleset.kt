@@ -183,10 +183,13 @@ public abstract class TfmRuleset : Ruleset {
 
   public companion object {
     /** Returns a ruleset containing all contributions from each of [rulesets]. */
-    public fun compose(vararg rulesets: TfmRuleset): TfmRuleset = Composite(rulesets.toList())
+    public fun compose(vararg rulesets: TfmRuleset): TfmRuleset = Composite(*rulesets)
   }
 
-  private class Composite(private val rulesets: List<TfmRuleset>) : TfmRuleset() {
+  /** A ruleset containing all contributions from [rulesets]. */
+  public open class Composite(vararg rulesets: TfmRuleset) : TfmRuleset() {
+    public val rulesets: List<TfmRuleset> = rulesets.toList()
+
     override val allBundles: Set<String> by lazy { rulesets.flatMap { it.allBundles }.toSet() }
 
     override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
