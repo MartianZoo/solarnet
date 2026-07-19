@@ -1,0 +1,37 @@
+{
+  "cards": [
+
+    // CrediCor
+    {
+      "id": "B01",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "immediate": "57",
+      "effects": [
+        "CardFront(HAS 20 cost): 4",
+        "UseAction<StandardProject(HAS 20 cost)>: 4"
+      ]
+    },
+
+    // Mining Guild
+    {
+      "id": "B06",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag", "BuildingTag" ],
+      "effects": [ "Tile<MarsArea(HAS Bonus<Class<Steel>> OR Bonus<Class<Titanium>>)>: PROD[Steel]" ]
+    },
+
+    // Mining Rights
+    {
+      "id": "067",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "MrTile<LandArea(HAS Neighbor<OwnedTile>), PROD[LandArea(HAS MrTile, Bonus<Class<Steel>>): Steel OR LandArea(HAS MrTile, Bonus<Class<Titanium>>): Titanium]",
+      "components": [ "CLASS MrTile : SpecialTile" ],
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+  ],
+}

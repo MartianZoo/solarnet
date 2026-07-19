@@ -1,0 +1,7 @@
+"Configures the starting state used by the solo variant"
+CLASS SoloMode : System {
+  HAS MAX 1 This
+
+  SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
+  SetupPhase IF ColonyTile:: PROD[-2 Megacredit<Player1>]
+}

@@ -2,12 +2,19 @@ package dev.martianzoo.tfm.canon.bundles.TerraformingMars
 
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.CanonResources
+import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
 import dev.martianzoo.util.toSetStrict
 
 /** The core Terraforming Mars rules and shared game vocabulary. */
-internal object TerraformingMars : TfmRuleset.Empty() {
+internal object TerraformingMars :
+    CanonicalBundle(
+        name = "TerraformingMars",
+        legacyCode = "B",
+        alwaysIncluded = true,
+        cards = true,
+        actions = true,
+    ) {
   private val petsFilenames =
       setOf(
           "global.pets",

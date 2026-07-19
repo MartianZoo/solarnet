@@ -1,0 +1,76 @@
+{
+  "cards": [
+
+    // Splice Tactical Genomics
+    {
+      "id": "XC3",
+      "bundle": "X",
+      "deck": "CORPORATION",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "44",
+      "effects": [
+        "MicrobeTag<Anyone>: 2",
+        "DoMandate<This>: ProjectCard"
+      ],
+      "components": [
+        "CLASS SpliceWatcher : Owned { HAS =1 This; SpliceTacticalGenomics<Anyone>: FriendOfSplice }",
+        "CLASS FriendOfSplice : Owned { MicrobeTag<CardFront>: 2 OR Microbe<CardFront> }"
+      ]
+    },
+
+    // Self-Replicating Robots
+    {
+      "id": "210",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "requirement": "2 ScienceTag",
+      "cost": 7,
+      "projectKind": "ACTIVE"
+    },
+
+    // Interplanetary Trade
+    {
+      "id": "X05",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[1 / Class<Tag>(OF Owner)]",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 27,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Advertising
+    {
+      "id": "X13",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "effects": [ "CardFront(HAS 20 cost): PROD[1]" ],
+      "cost": 4,
+      "projectKind": "ACTIVE"
+    },
+
+    // Cutting Edge Technology
+    {
+      "id": "X18",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "effects": [ "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed" ],
+      "cost": 12,
+      "projectKind": "ACTIVE"
+    },
+
+    // Diversity Support
+    {
+      "id": "X20",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "immediate": "TerraformRating",
+      "requirement": "9 Class<Resource>(OF Owner)",
+      "cost": 1,
+      "projectKind": "EVENT"
+    },
+  ],
+}

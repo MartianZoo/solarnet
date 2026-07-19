@@ -181,6 +181,16 @@ public abstract class TfmRuleset : Ruleset {
     override val marsMapDefinitions = setOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
   }
 
+  /** A composable contribution owned by one game bundle. */
+  public abstract class Bundle(
+      public val bundleName: ClassName,
+      public val legacyCode: String?,
+      public val alwaysIncluded: Boolean = false,
+      public val hasComponent: Boolean = true,
+  ) : Empty() {
+    final override val allBundles: Set<String> = setOfNotNull(legacyCode)
+  }
+
   public companion object {
     /** Returns a ruleset containing all contributions from each of [rulesets]. */
     public fun compose(vararg rulesets: TfmRuleset): TfmRuleset = Composite(*rulesets)
@@ -189,6 +199,9 @@ public abstract class TfmRuleset : Ruleset {
   /** A ruleset containing all contributions from [rulesets]. */
   public open class Composite(vararg rulesets: TfmRuleset) : TfmRuleset() {
     public val rulesets: List<TfmRuleset> = rulesets.toList()
+
+    /** The directly composed bundle contributions, in composition order. */
+    public val bundles: List<Bundle> = rulesets.filterIsInstance<Bundle>()
 
     override val allBundles: Set<String> by lazy { rulesets.flatMap { it.allBundles }.toSet() }
 

@@ -1,0 +1,44 @@
+{
+  "legend": {
+    "L": "LandArea",
+    "W": "WaterArea",
+    "V": "VolcanicArea",
+    "N": "NoctisArea",
+
+    "P": "Plant",
+    "S": "Steel",
+    "T": "Titanium",
+    "C": "ProjectCard",
+    "H": "Heat",
+    "O": "OceanTile",
+    "-": "-6",
+  },
+
+  "maps": [
+    {
+      "name": "Tharsis",
+      "bundle": "M",
+      "rows": [  //                       1     2     3     4     5     6     7     8     9
+        [        //                     /     /     /     /     /     /     /     /     /
+                                     "LSS","WSS", "L", "WC",  "W"
+        ], [
+                                   "L", "VS",  "L",  "L",  "L", "WCC"
+        ], [
+                               "VC",  "L",  "L",  "L",  "L",  "L",  "LS"
+        ], [
+                            "VPT","LP", "LP", "LP", "LPP","LP", "LP", "WPP"
+        ], [
+                         "VPP","LPP","NPP","WPP","WPP","WPP","LPP","LPP","LPP"   // row 5
+        ], [
+                       "",  "LP", "LPP","LP", "LP", "LP", "WP", "WP", "WP"
+        ], [
+                    "",   "",   "L",  "L",  "L",  "L",  "L", "LP",  "L"
+        ], [
+                 "",   "",   "",  "LSS", "L", "LC", "LC",  "L", "LT"
+        ], [
+              "",   "",   "",   "",  "LS", "LSS", "L",  "L", "WTT"               // row 9
+        ]
+      ]
+    },
+  ],
+}

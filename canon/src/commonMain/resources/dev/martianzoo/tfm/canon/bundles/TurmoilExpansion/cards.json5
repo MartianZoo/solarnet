@@ -1,0 +1,47 @@
+{
+  "cards": [
+
+    // Lakefront Resorts
+    {
+      "id": "TC1",
+      "bundle": "T",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "54",
+      "effects": [
+        "OceanTile BY Anyone: PROD[1]",
+        "ForwardAdjacency<OceanTile, Tile> BY Owner: 1"
+      ]
+    },
+
+    // Pristar
+    {
+      "id": "TC2",
+      "bundle": "T",
+      "deck": "CORPORATION",
+      "immediate": "53, -2 TerraformRating",
+      "effects": [
+        "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6",
+        "End: VictoryPoint / Preservation<This>"
+      ],
+      "components": [
+        "CLASS Preservation : CardResource",
+
+        // Must be exact copies of UNMI's
+        "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
+        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
+      ],
+      "resourceType": "Preservation"
+    },
+
+    // TerraLabs Research
+    {
+      "id": "TC4",
+      "bundle": "T",
+      "deck": "CORPORATION",
+      "tags": [ "ScienceTag", "EarthTag" ],
+      "immediate": "14, -TerraformRating",
+      "effects": [ "BuyCard:: 2" ]
+    },
+  ],
+}

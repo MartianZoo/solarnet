@@ -3,14 +3,20 @@ package dev.martianzoo.tfm.canon.bundles.ColoniesExpansion
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.CanonResources
+import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.util.toSetStrict
 
 /** The Colonies expansion rules currently supported by Canon. */
-internal object ColoniesExpansion : TfmRuleset.Empty() {
+internal object ColoniesExpansion :
+    CanonicalBundle(
+        name = "ColoniesExpansion",
+        legacyCode = "C",
+        cards = true,
+        actions = true,
+    ) {
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
     parseClasses(readResource("colonies.pets")).toSetStrict()
   }

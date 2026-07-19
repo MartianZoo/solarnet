@@ -6,10 +6,39 @@ import dev.martianzoo.tfm.canon.bundles.ColoniesExpansion.ColoniesExpansion
 import dev.martianzoo.tfm.canon.bundles.System.System
 import dev.martianzoo.tfm.canon.bundles.TerraformingMars.TerraformingMars
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CanonBundlesTest {
+  @Test
+  fun canonComposesEveryCanonicalBundle() {
+    Canon.bundles.map { it.bundleName.toString() } shouldContainExactly
+        listOf(
+            "System",
+            "TerraformingMars",
+            "CorporateEraExpansion",
+            "TharsisMap",
+            "HellasMap",
+            "ElysiumMap",
+            "VenusNextExpansion",
+            "PreludeExpansion",
+            "ColoniesExpansion",
+            "SoloMode",
+            "PromosExpansion",
+            "TurmoilExpansion",
+        )
+  }
+
+  @Test
+  fun splittingTheDefinitionCatalogsPreservesAllSupportedContent() {
+    Canon.cardDefinitions.size shouldBe 401
+    Canon.standardActionDefinitions.size shouldBe 16
+    Canon.marsMapDefinitions.size shouldBe 3
+    Canon.milestoneDefinitions.size shouldBe 13
+    Canon.colonyTileDefinitions.size shouldBe 11
+  }
+
   @Test
   fun systemRulesetOwnsTheSystemDeclarations() {
     Canon.rulesets.shouldContain(System)

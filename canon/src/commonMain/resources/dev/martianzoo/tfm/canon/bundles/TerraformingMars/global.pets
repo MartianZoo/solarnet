@@ -16,14 +16,6 @@ CLASS TerraformingMars : System, AutoLoad {
   Pay<Class<Titanium>>:: -3 Owed                       // should be innocuous for TradeSA...
 }
 
-"Configures the starting state used by the solo variant"
-CLASS SoloMode : System {
-  HAS MAX 1 This
-
-  SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
-  SetupPhase IF ColonyTile:: PROD[-2 Megacredit<Player1>]
-}
-
 CLASS Photosynthesis {
   HAS MAX 1 This
 

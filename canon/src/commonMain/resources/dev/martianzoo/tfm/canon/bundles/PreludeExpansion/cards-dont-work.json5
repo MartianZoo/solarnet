@@ -1,0 +1,35 @@
+{
+  "cards": [
+
+    // Vitor
+    {
+      "id": "PC5",
+      "bundle": "P",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": "45",
+      "effects": [
+         "CardFront(HAS positiveVpIcon): 3",
+         "DoMandate<This>: Award"
+      ]
+    },
+
+    // Research Network
+    {
+      "id": "P28",
+      "bundle": "P",
+      "deck": "PRELUDE",
+      "immediate": "PROD[1], 3 ProjectCard, WildTag<This>"
+    },
+
+    // Research Coordination
+    {
+      "id": "P40",
+      "bundle": "P",
+      "deck": "PROJECT",
+      "immediate": "WildTag<This>",
+      "cost": 4,
+      "projectKind": "AUTOMATED"
+    },
+  ],
+}

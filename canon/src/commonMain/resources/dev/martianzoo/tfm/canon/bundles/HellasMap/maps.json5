@@ -1,0 +1,45 @@
+{
+  "legend": {
+    "L": "LandArea",
+    "W": "WaterArea",
+    "V": "VolcanicArea",
+    "N": "NoctisArea",
+
+    "P": "Plant",
+    "S": "Steel",
+    "T": "Titanium",
+    "C": "ProjectCard",
+    "H": "Heat",
+    "O": "OceanTile",
+    "-": "-6",
+  },
+
+  "maps": [  // Why all those extra "",s? This approach lets us support *any* map shape, by having you
+        // overlay it on a parallelogram-shaped grid. Of course "" cells are treated as not there.
+    {
+      "name": "Hellas",
+      "bundle": "H",
+      "rows": [
+        [
+                                     "WPP","LPP","LPP","LPS","LP"
+        ], [
+                                  "WPP","LPP","LP", "LPS","LP", "LP"
+        ], [
+                               "WP", "LP", "LS", "LS",  "L", "LPP","LPC"
+        ], [
+                            "WP", "LP", "LS", "LSS","LS", "WP", "WP", "LP"
+        ], [
+                         "LC",  "L",  "L", "LSS", "L", "WC", "W3H", "W", "LP"
+        ], [
+                       "",  "LT",  "L", "LS",  "L",  "L",  "W", "WS",  "L"
+        ], [
+                    "",   "",  "WTT", "L",  "L", "LC",  "L",  "L", "LT"
+        ], [
+                 "",   "",   "",  "LS", "LC", "LHH","LHH","LT", "LT"
+        ], [
+              "",   "",   "",   "",   "L", "LHH","LO-","LHH", "L"
+        ]
+      ]
+    },
+  ],
+}
