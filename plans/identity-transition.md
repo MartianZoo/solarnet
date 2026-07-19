@@ -84,22 +84,18 @@ Approval status: Approved by user on 2026-07-18
 
 ## Ordered implementation steps
 
-1. Complete the protected behavior safety net by establishing a change-detecting inventory for
-   every engine-manufactured `BY Owner` path, with generated or parameterized binding coverage plus
-   a focused explanatory test for each distinct mechanism. Keep the Lakefront Resorts regression
-   unchanged in purpose and passing.
-2. Rename the task's transitional `actor` identity to `assignee` throughout the data model and
+1. Rename the task's transitional `actor` identity to `assignee` throughout the data model and
    queue APIs. Make scoped queue views derive from that field, preserve assignee choice and the
    prepared-task invariant, and remove wording that calls queue membership actorship. Do not add a
    separate task Actor.
-3. Compare the post-safety-net implementation with the historical baseline and remove identity
+2. Compare the post-safety-net implementation with the historical baseline and remove identity
    lookup by guessed names plus other generalization needed only by hypothetical Actors or World
    Government. Prefer the earlier ownership/default behavior wherever the newer type-system work
    is not required by the protected tests, Philares, or the narrow `SoloOpponent` seam.
-4. Put the remaining contextual Owner-binding compatibility behavior behind one clearly named
+3. Put the remaining contextual Owner-binding compatibility behavior behind one clearly named
    engine operation. Keep the manufactured `BY Owner` form internal, isolated, and plainly
    documented as a compatibility representation rather than a new Pets rule.
-5. Run the focused identity tests and the full build. Reconcile the glossary and maintained project
+4. Run the focused identity tests and the full build. Reconcile the glossary and maintained project
    documentation with the implementation, delete stale migration commentary instead of duplicating
    it, record any deliberately deferred improvements in `TODO.md`, and perform the standard diff
    and cleanup review. Stop once the model is intentionally boring and contains no unused identity
@@ -148,6 +144,9 @@ Approval status: Approved by user on 2026-07-18
   behavior coverage appropriate to its selector. The Philares matrix now proves that exactly one
   tile must belong to its Owner, either Player may create the adjacency, the Philares Owner is the
   assignee who narrows and executes the reward, and the placement retains its actual Actor.
-- Initial characterization coverage also exists for `BY Anyone`, `BY Player`, `BY Owner`, repeated
-  Owner binding, and assignee choice; the remaining safety-net step strengthens the manufactured
-  Owner-binding coverage before model changes.
+- All 139 compiled `BY Owner` effects are counted, the single authored Lakefront effect is
+  distinguished from the 138 manufactured forms, and every manufactured instruction is exercised
+  through Owner binding. Focused characterization tests explain the manufacturing mechanism and
+  its runtime performer-binding behavior.
+- Characterization coverage also protects `BY Anyone`, `BY Player`, `BY Owner`, repeated Owner
+  binding, and assignee choice before model changes.
