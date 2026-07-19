@@ -4,7 +4,6 @@
     // Ecoline
     {
       "id": "B02",
-      "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2 Plant], 36, 3 Plant",
@@ -14,7 +13,6 @@
     // Interplanetary Cinematics
     {
       "id": "B04",
-      "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "30, 20 Steel",
@@ -24,7 +22,6 @@
     // Phobolog
     {
       "id": "B07",
-      "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "23, 10 Titanium",
@@ -34,7 +31,6 @@
     // Tharsis Republic
     {
       "id": "B08",
-      "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "40, MandateB08",
@@ -48,7 +44,6 @@
     // ThorGate
     {
       "id": "B09",
-      "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy], 48",
@@ -61,7 +56,6 @@
     // United Nations Mars Initiative
     {
       "id": "B10",
-      "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "40",
@@ -75,7 +69,6 @@
     // Colonizer Training Camp
     {
       "id": "001",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "BuildingTag" ],
       "effects": [ "End: 2 VictoryPoint" ],
@@ -87,7 +80,6 @@
     // Deep Well Heating
     {
       "id": "003",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[Energy], TemperatureStep",
@@ -98,7 +90,6 @@
     // Cloud Seeding
     {
       "id": "004",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "PROD[-1, -Heat<Anyone>, 2 Plant]",
       "requirement": "3 OceanTile",
@@ -109,7 +100,6 @@
     // Search For Life[F]
     {
       "id": "005F",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "actions": [ "1 -> Science<This>?" ], // honor system
@@ -123,7 +113,6 @@
     // Martian Rails
     {
       "id": "007",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "Energy -> 1 / CityTile<MarsArea, Anyone>" ],
@@ -134,7 +123,6 @@
     // Asteroid
     {
       "id": "009",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "TemperatureStep, 2 Titanium, -3 Plant<Anyone>?",
@@ -145,7 +133,6 @@
     // Comet
     {
       "id": "010",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "TemperatureStep, OceanTile, -3 Plant<Anyone>?",
@@ -156,7 +143,6 @@
     // Big Asteroid
     {
       "id": "011",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "2 TemperatureStep, 4 Titanium, -4 Plant<Anyone>?",
@@ -167,7 +153,6 @@
     // Water Import From Europa
     {
       "id": "012",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [
@@ -184,7 +169,6 @@
     // Equatorial Magnetizer
     {
       "id": "015",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "PROD[Energy] -> TerraformRating" ],
@@ -195,7 +179,6 @@
     // Domed Crater
     {
       "id": "016",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 3], CityTile, 3 Plant",
@@ -208,7 +191,6 @@
     // Noctis City
     {
       "id": "017",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile)",
@@ -219,7 +201,6 @@
     // Methane From Titan
     {
       "id": "018",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "PROD[2 Heat, 2 Plant]",
@@ -232,7 +213,6 @@
     // Imported Hydrogen
     {
       "id": "019",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "3 Plant OR 3 Microbe OR 2 Animal, OceanTile",
@@ -243,7 +223,6 @@
     // Research Outpost
     {
       "id": "020",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
       "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
@@ -255,7 +234,6 @@
     // Phobos Space Haven
     {
       "id": "021",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "CityTag" ],
       "immediate": "PROD[Titanium], CityTile<Area021>",
@@ -268,7 +246,6 @@
     // Black Polar Dust
     {
       "id": "022",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "PROD[-2, 3 Heat], OceanTile",
       "cost": 15,
@@ -278,7 +255,6 @@
     // Arctic Algae
     {
       "id": "023",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "Plant",
@@ -291,7 +267,6 @@
     // Predators
     {
       "id": "024",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "actions": [ "Animal<Anyone> -> Animal<This>" ],
@@ -305,7 +280,6 @@
     // Eos Chasma National Park
     {
       "id": "026",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "Animal, 3 Plant, PROD[2]",
@@ -318,7 +292,6 @@
     // Cupola City
     {
       "id": "029",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 3], CityTile",
@@ -330,7 +303,6 @@
     // Lunar Beam
     {
       "id": "030",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "PowerTag" ],
       "immediate": "PROD[-2, 2 Heat, 2 Energy]",
@@ -341,7 +313,6 @@
     // Optimal Aerobraking
     {
       "id": "031",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
@@ -352,7 +323,6 @@
     // Underground City
     {
       "id": "032",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-2 Energy, 2 Steel], CityTile",
@@ -363,7 +333,6 @@
     // Regolith Eaters
     {
       "id": "033",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "MicrobeTag" ],
       "actions": [
@@ -378,7 +347,6 @@
     // GHG Producing Bacteria
     {
       "id": "034",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "MicrobeTag" ],
       "actions": [
@@ -394,7 +362,6 @@
     // Ants
     {
       "id": "035",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "actions": [ "Microbe<Anyone> -> Microbe<This>" ],
@@ -408,7 +375,6 @@
     // Release Of Inert Gases
     {
       "id": "036",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "2 TerraformRating",
       "cost": 14,
@@ -418,7 +384,6 @@
     // Nitrogen-Rich Asteroid
     {
       "id": "037",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Plant OR (3 PlantTag: 4 Plant)], 2 TerraformRating, TemperatureStep",
@@ -429,7 +394,6 @@
     // Rover Construction
     {
       "id": "038",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "effects": [
@@ -443,7 +407,6 @@
     // Deimos Down (original)
     {
       "id": "039",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?",
@@ -454,7 +417,6 @@
     // Asteroid Mining
     {
       "id": "040",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "PROD[2 Titanium]",
@@ -466,7 +428,6 @@
     // Food Factory
     {
       "id": "041",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Plant, 4]",
@@ -478,7 +439,6 @@
     // Archaebacteria
     {
       "id": "042",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "immediate": "PROD[Plant]",
@@ -490,7 +450,6 @@
     // Carbonate Processing
     {
       "id": "043",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 3 Heat]",
@@ -501,7 +460,6 @@
     // Natural Preserve
     {
       "id": "044",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "immediate": "PROD[1], NpTile<LandArea(HAS MAX 0 Neighbor)>",
@@ -515,7 +473,6 @@
     // Nuclear Power
     {
       "id": "045",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-2, 3 Energy]",
@@ -526,7 +483,6 @@
     // Algae
     {
       "id": "047",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2 Plant], Plant",
@@ -538,7 +494,6 @@
     // Adapted Lichen
     {
       "id": "048",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant]",
@@ -549,7 +504,6 @@
     // Fish
     {
       "id": "052",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "immediate": "PROD[-Plant<Anyone>]",
@@ -564,7 +518,6 @@
     // Lake Marineris
     {
       "id": "053",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "2 OceanTile",
       "effects": [ "End: 2 VictoryPoint" ],
@@ -576,7 +529,6 @@
     // Small Animals
     {
       "id": "054",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "immediate": "PROD[-Plant<Anyone>]",
@@ -591,7 +543,6 @@
     // Kelp Farming
     {
       "id": "055",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2, 3 Plant], 2 Plant",
@@ -604,7 +555,6 @@
     // Beam From A Thorium Asteroid
     {
       "id": "058",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag", "PowerTag" ],
       "immediate": "PROD[3 Heat, 3 Energy]",
@@ -617,7 +567,6 @@
     // Mangrove
     {
       "id": "059",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "GreeneryTile<WaterArea>",
@@ -630,7 +579,6 @@
     // Trees
     {
       "id": "060",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[3 Plant], Plant",
@@ -643,7 +591,6 @@
     // Mining Expedition
     {
       "id": "063",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "OxygenStep, -2 Plant<Anyone>?, 2 Steel",
       "cost": 12,
@@ -653,7 +600,6 @@
     // Birds
     {
       "id": "072",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "immediate": "PROD[-2 Plant<Anyone>]",
@@ -668,7 +614,6 @@
     // Towing A Comet
     {
       "id": "075",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "OxygenStep, OceanTile, 2 Plant",
@@ -679,7 +624,6 @@
     // Space Mirrors
     {
       "id": "076",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "SpaceTag" ],
       "actions": [ "7 -> PROD[Energy]" ],
@@ -690,7 +634,6 @@
     // Solar Wind Power
     {
       "id": "077",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "SpaceTag", "PowerTag" ],
       "immediate": "PROD[Energy], 2 Titanium",
@@ -701,7 +644,6 @@
     // Ice Asteroid
     {
       "id": "078",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "2 OceanTile",
@@ -712,7 +654,6 @@
     // Giant Ice Asteroid
     {
       "id": "080",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "2 TemperatureStep, 2 OceanTile, -6 Plant<Anyone>?",
@@ -723,7 +664,6 @@
     // Ganymede Colony
     {
       "id": "081",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag", "CityTag" ],
       "immediate": "CityTile<Area081>",
@@ -736,7 +676,6 @@
     // Giant Space Mirror
     {
       "id": "083",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "SpaceTag" ],
       "immediate": "PROD[3 Energy]",
@@ -747,7 +686,6 @@
     // Grass
     {
       "id": "087",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant], 3 Plant",
@@ -759,7 +697,6 @@
     // Heather
     {
       "id": "088",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant], Plant",
@@ -771,7 +708,6 @@
     // Peroxide Power
     {
       "id": "089",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-1, 2 Energy]",
@@ -782,7 +718,6 @@
     // Bushes
     {
       "id": "093",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2 Plant], 2 Plant",
@@ -794,7 +729,6 @@
     // Greenhouses
     {
       "id": "096",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "Plant / CityTile<Anyone>",
@@ -805,7 +739,6 @@
     // Nuclear Zone
     {
       "id": "097",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "2 TemperatureStep, NzTile",
@@ -818,7 +751,6 @@
     // Fueled Generators
     {
       "id": "100",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-1, Energy]",
@@ -829,7 +761,6 @@
     // Ironworks
     {
       "id": "101",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "4 Energy -> Steel, OxygenStep" ],
@@ -840,7 +771,6 @@
     // Power Grid
     {
       "id": "102",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy / PowerTag]",
@@ -851,7 +781,6 @@
     // Steelworks
     {
       "id": "103",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "4 Energy -> 2 Steel, OxygenStep" ],
@@ -862,7 +791,6 @@
     // Ore Processor
     {
       "id": "104",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "4 Energy -> Titanium, OxygenStep" ],
@@ -873,7 +801,6 @@
     // Open City
     {
       "id": "108",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 4], CityTile, 2 Plant",
@@ -886,7 +813,6 @@
     // Solar Power
     {
       "id": "113",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[Energy]",
@@ -898,7 +824,6 @@
     // Breathing Filters
     {
       "id": "114",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [ "End: 2 VictoryPoint" ],
@@ -910,7 +835,6 @@
     // Artificial Photosynthesis
     {
       "id": "115",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "PROD[Plant OR 2 Energy]",
@@ -921,7 +845,6 @@
     // Artificial Lake
     {
       "id": "116",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "OceanTile<LandArea>! OR (9 OceanTile: Ok)",
@@ -934,7 +857,6 @@
     // Geothermal Power
     {
       "id": "117",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[2 Energy]",
@@ -945,7 +867,6 @@
     // Farming
     {
       "id": "118",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2, 2 Plant], 2 Plant",
@@ -958,7 +879,6 @@
     // Dust Seals
     {
       "id": "119",
-      "bundle": "B",
       "deck": "PROJECT",
       "effects": [ "End: VictoryPoint" ],
       "requirement": "MAX 3 OceanTile",
@@ -969,7 +889,6 @@
     // Urbanized Area
     {
       "id": "120",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 2], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>",
@@ -980,7 +899,6 @@
     // Moss
     {
       "id": "122",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant], -Plant",
@@ -992,7 +910,6 @@
     // GHG Factories
     {
       "id": "126",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 4 Heat]",
@@ -1003,7 +920,6 @@
     // Subterranean Reservoir
     {
       "id": "127",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "OceanTile",
       "cost": 11,
@@ -1013,7 +929,6 @@
     // Ecological Zone
     {
       "id": "128",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag", "PlantTag" ],
       "immediate": "EzTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
@@ -1032,7 +947,6 @@
     // Zeppelins
     {
       "id": "129",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "PROD[1 / CityTile<MarsArea, Anyone>]",
       "requirement": "5 OxygenStep",
@@ -1043,7 +957,6 @@
     // Worms
     {
       "id": "130",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "immediate": "PROD[Plant / 2 MicrobeTag]",
@@ -1055,7 +968,6 @@
     // Decomposers
     {
       "id": "131",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "effects": [
@@ -1071,7 +983,6 @@
     // Fusion Power
     {
       "id": "132",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag", "BuildingTag" ],
       "immediate": "PROD[3 Energy]",
@@ -1083,7 +994,6 @@
     // Symbiotic Fungus
     {
       "id": "133",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "actions": [ "-> Microbe" ],
@@ -1095,7 +1005,6 @@
     // Extreme-Cold Fungus
     {
       "id": "134",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "actions": [
@@ -1110,7 +1019,6 @@
     // Advanced Ecosystems
     {
       "id": "135",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag", "MicrobeTag", "AnimalTag" ],
       "effects": [ "End: 3 VictoryPoint" ],
@@ -1122,7 +1030,6 @@
     // Great Dam (original)
     {
       "id": "136",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[2 Energy]",
@@ -1135,7 +1042,6 @@
     // Strip Mine
     {
       "id": "138",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-2 Energy, 2 Steel, Titanium], 2 OxygenStep",
@@ -1146,7 +1052,6 @@
     // Wave Power
     {
       "id": "139",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy]",
@@ -1159,7 +1064,6 @@
     // Lava Flows
     {
       "id": "140",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "2 TemperatureStep, LfTile<VolcanicArea> OR (MAX 0 VolcanicArea: LfTile)",
       "components": [ "CLASS LfTile : SpecialTile" ],
@@ -1170,7 +1074,6 @@
     // Power Plant
     {
       "id": "141",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[Energy]",
@@ -1181,7 +1084,6 @@
     // Mohole Area
     {
       "id": "142",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[4 Heat], MaTile<WaterArea>",
@@ -1193,7 +1095,6 @@
     // Large Convoy
     {
       "id": "143",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal",
@@ -1205,7 +1106,6 @@
     // Tectonic Stress Power
     {
       "id": "145",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[3 Energy]",
@@ -1218,7 +1118,6 @@
     // Nitrophilic Moss
     {
       "id": "146",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2 Plant], -2 Plant",
@@ -1230,7 +1129,6 @@
     // Herbivores
     {
       "id": "147",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "immediate": "PROD[-Plant<Anyone>], Animal<This>",
@@ -1247,7 +1145,6 @@
     // Insects
     {
       "id": "148",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "immediate": "PROD[Plant / PlantTag]",
@@ -1259,7 +1156,6 @@
     // Insulation
     {
       "id": "152",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "PROD[X Megacredit FROM Heat]",
       "cost": 2,
@@ -1269,7 +1165,6 @@
     // Designed Microorganisms
     {
       "id": "155",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "MicrobeTag" ],
       "immediate": "PROD[2 Plant]",
@@ -1281,7 +1176,6 @@
     // Nitrite Reducing Bacteria
     {
       "id": "157",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "immediate": "3 Microbe<This>",
@@ -1297,7 +1191,6 @@
     // Industrial Microbes
     {
       "id": "158",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "immediate": "PROD[Energy, Steel]",
@@ -1308,7 +1201,6 @@
     // Lichen
     {
       "id": "159",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant]",
@@ -1320,7 +1212,6 @@
     // Convoy From Europa
     {
       "id": "161",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "OceanTile, ProjectCard",
@@ -1331,7 +1222,6 @@
     // Imported GHG
     {
       "id": "162",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[Heat], 3 Heat",
@@ -1342,7 +1232,6 @@
     // Imported Nitrogen
     {
       "id": "163",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "TerraformRating, 4 Plant, 3 Microbe, 2 Animal",
@@ -1353,7 +1242,6 @@
     // Micro-Mills
     {
       "id": "164",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "PROD[Heat]",
       "cost": 3,
@@ -1363,7 +1251,6 @@
     // Magnetic Field Generators (original)
     {
       "id": "165",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating",
@@ -1374,7 +1261,6 @@
     // Shuttles
     {
       "id": "166",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-Energy, 2]",
@@ -1390,7 +1276,6 @@
     // Import Of Advanced GHG
     {
       "id": "167",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[2 Heat]",
@@ -1401,7 +1286,6 @@
     // Windmills
     {
       "id": "168",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[Energy]",
@@ -1414,7 +1298,6 @@
     // Tundra Farming
     {
       "id": "169",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant, 2], Plant",
@@ -1427,7 +1310,6 @@
     // Aerobraked Ammonia Asteroid
     {
       "id": "170",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[3 Heat, Plant], 2 Microbe",
@@ -1438,7 +1320,6 @@
     // Magnetic Field Dome
     {
       "id": "171",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-2 Energy, Plant], TerraformRating",
@@ -1449,7 +1330,6 @@
     // Pets
     {
       "id": "172",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "AnimalTag" ],
       "immediate": "Animal<This>",
@@ -1466,7 +1346,6 @@
     // Protected Valley
     {
       "id": "174",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "PROD[2], GreeneryTile<WaterArea>",
@@ -1477,7 +1356,6 @@
     // Noctis Farming
     {
       "id": "176",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "PROD[1], 2 Plant",
@@ -1490,7 +1368,6 @@
     // Water Splitting Plant
     {
       "id": "177",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "3 Energy -> OxygenStep" ],
@@ -1502,7 +1379,6 @@
     // Heat Trappers
     {
       "id": "178",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-2 Heat<Anyone>, Energy]",
@@ -1514,7 +1390,6 @@
     // Soil Factory
     {
       "id": "179",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, Plant]",
@@ -1526,7 +1401,6 @@
     // Ice Cap Melting
     {
       "id": "181",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "OceanTile",
       "requirement": "16 TemperatureStep",
@@ -1537,7 +1411,6 @@
     // Biomass Combustors
     {
       "id": "183",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-Plant<Anyone>, 2 Energy]",
@@ -1550,7 +1423,6 @@
     // Livestock
     {
       "id": "184",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "immediate": "PROD[-Plant, 2]",
@@ -1565,7 +1437,6 @@
     // Aquifer Pumping
     {
       "id": "187",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [
@@ -1579,7 +1450,6 @@
     // Energy Saving
     {
       "id": "189",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy / CityTile<Anyone>]",
@@ -1590,7 +1460,6 @@
     // Local Heat Trapping
     {
       "id": "190",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "-5 Heat, 4 Plant OR 2 Animal",
       "cost": 1,
@@ -1600,7 +1469,6 @@
     // Permafrost Extraction
     {
       "id": "191",
-      "bundle": "B",
       "deck": "PROJECT",
       "immediate": "OceanTile",
       "requirement": "11 TemperatureStep",
@@ -1611,7 +1479,6 @@
     // Plantation
     {
       "id": "193",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "GreeneryTile",
@@ -1623,7 +1490,6 @@
     // Immigration Shuttles
     {
       "id": "198",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[5]",
@@ -1635,7 +1501,6 @@
     // Immigrant City
     {
       "id": "200",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, -2], CityTile",
@@ -1647,7 +1512,6 @@
     // Underground Detonations
     {
       "id": "202",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "10 -> PROD[2 Heat]" ],
@@ -1658,7 +1522,6 @@
     // Soletta
     {
       "id": "203",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[7 Heat]",
@@ -1669,7 +1532,6 @@
     // Rad-Chem Factory
     {
       "id": "205",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy], 2 TerraformRating",

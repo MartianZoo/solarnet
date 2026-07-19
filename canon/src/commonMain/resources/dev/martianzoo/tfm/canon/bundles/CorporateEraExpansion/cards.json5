@@ -4,7 +4,6 @@
     // Saturn Systems
     {
       "id": "B11",
-      "bundle": "R",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
       "immediate": "PROD[Titanium], 42",
@@ -14,7 +13,6 @@
     // Teractor
     {
       "id": "B12",
-      "bundle": "R",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "60",
@@ -24,7 +22,6 @@
     // Asteroid Mining Consortium
     {
       "id": "002",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "JovianTag" ],
       "immediate": "PROD[-Titanium<Anyone>, Titanium]",
@@ -37,7 +34,6 @@
     // Inventors' Guild[F]
     {
       "id": "006F",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "actions": [ "-> BuyCard?" ],
@@ -48,7 +44,6 @@
     // Space Elevator
     {
       "id": "013",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "BuildingTag" ],
       "immediate": "PROD[Titanium]",
@@ -61,7 +56,6 @@
     // Development Center
     {
       "id": "014",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "actions": [ "Energy -> ProjectCard" ],
@@ -72,7 +66,6 @@
     // Space Station
     {
       "id": "025",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "effects": [
@@ -86,7 +79,6 @@
     // Interstellar Colony Ship
     {
       "id": "027",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "effects": [ "End: 4 VictoryPoint" ],
@@ -98,7 +90,6 @@
     // Security Fleet
     {
       "id": "028",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [ "Titanium -> Fighter<This>" ],
@@ -112,7 +103,6 @@
     // Lightning Harvest
     {
       "id": "046",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy, 1]",
@@ -125,7 +115,6 @@
     // Tardigrades
     {
       "id": "049",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "actions": [ "-> Microbe<This>" ],
@@ -138,7 +127,6 @@
     // Virus
     {
       "id": "050",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "immediate": "-2 Animal<Anyone>? OR -5 Plant<Anyone>?",
@@ -149,7 +137,6 @@
     // Miranda Resort
     {
       "id": "051",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "PROD[1 / EarthTag]",
@@ -161,7 +148,6 @@
     // Mine
     {
       "id": "056",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel]",
@@ -172,7 +158,6 @@
     // Vesta Shipyard
     {
       "id": "057",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "PROD[Titanium]",
@@ -184,7 +169,6 @@
     // Great Escarpment Consortium
     {
       "id": "061",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "PROD[-Steel<Anyone>, Steel]",
       "requirement": "PROD[Steel]",
@@ -195,7 +179,6 @@
     // Mineral Deposit
     {
       "id": "062",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "5 Steel",
       "cost": 5,
@@ -205,7 +188,6 @@
     // Building Industries
     {
       "id": "065",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 2 Steel]",
@@ -216,7 +198,6 @@
     // Sponsors
     {
       "id": "068",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[2]",
@@ -227,7 +208,6 @@
     // Electro Catapult
     {
       "id": "069",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy]",
@@ -241,7 +221,6 @@
     // Earth Catapult
     {
       "id": "070",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "effects": [
@@ -255,7 +234,6 @@
     // Advanced Alloys
     {
       "id": "071",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
@@ -269,7 +247,6 @@
     // Mars University[F]
     {
       "id": "073F",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
@@ -283,7 +260,6 @@
     // Viral Enhancers
     {
       "id": "074",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "MicrobeTag" ],
       "effects": [ "CardFront(HAS BioTag): Plant OR CardResource<CardFront(HAS BioTag)>" ],
@@ -294,7 +270,6 @@
     // Quantum Extractor
     {
       "id": "079",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[4 Energy]",
@@ -307,7 +282,6 @@
     // Callisto Penal Mines
     {
       "id": "082",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "PROD[3]",
@@ -319,7 +293,6 @@
     // Trans-Neptune Probe
     {
       "id": "084",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "SpaceTag" ],
       "effects": [ "End: VictoryPoint" ],
@@ -330,7 +303,6 @@
     // Commercial District
     {
       "id": "085",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 4], CdTile",
@@ -343,7 +315,6 @@
     // Robotic Workforce
     {
       "id": "086",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
@@ -355,7 +326,6 @@
     // Research
     {
       "id": "090",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "ScienceTag" ],
       "immediate": "2 ProjectCard",
@@ -367,7 +337,6 @@
     // Gene Repair
     {
       "id": "091",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "PROD[2]",
@@ -380,7 +349,6 @@
     // Io Mining Industries
     {
       "id": "092",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "PROD[2 Titanium, 2]",
@@ -392,7 +360,6 @@
     // Mass Converter
     {
       "id": "094",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[6 Energy]",
@@ -405,7 +372,6 @@
     // Physics Complex
     {
       "id": "095",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "actions": [ "6 Energy -> Science<This>" ],
@@ -418,7 +384,6 @@
     // Tropical Resort
     {
       "id": "098",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-2 Heat, 3]",
@@ -430,7 +395,6 @@
     // Toll Station
     {
       "id": "099",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[1 / SpaceTag<Anyone>, -1 / SpaceTag]",
@@ -441,7 +405,6 @@
     // Earth Office
     {
       "id": "105",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
@@ -452,7 +415,6 @@
     // Acquired Company
     {
       "id": "106",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[3]",
@@ -463,7 +425,6 @@
     // Media Archives
     {
       "id": "107",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "1 / PlayedEvent<Anyone>",
@@ -474,7 +435,6 @@
     // Media Group
     {
       "id": "109",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "effects": [ "EventCard: 3" ],
@@ -485,7 +445,6 @@
     // Business Network[F]
     {
       "id": "110F",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1]",
@@ -497,7 +456,6 @@
     // Business Contacts[F]
     {
       "id": "111F",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "2 ProjectCard",
@@ -508,7 +466,6 @@
     // Bribed Committee
     {
       "id": "112",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "2 TerraformRating",
@@ -520,7 +477,6 @@
     // Sabotage
     {
       "id": "121",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "-3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
       "cost": 1,
@@ -530,7 +486,6 @@
     // Industrial Center
     {
       "id": "123",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "IcTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
@@ -543,7 +498,6 @@
     // Hired Raiders
     {
       "id": "124",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "2 Steel<Owner FROM Anyone>? OR 3 Megacredit<Owner FROM Anyone>?",
       "cost": 1,
@@ -553,7 +507,6 @@
     // Hackers
     {
       "id": "125",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "PROD[-Energy, -2 Megacredit<Anyone>, 2]",
       "effects": [
@@ -566,7 +519,6 @@
     // Cartel
     {
       "id": "137",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[1 / EarthTag]",
@@ -577,7 +529,6 @@
     // Titanium Mine
     {
       "id": "144",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Titanium]",
@@ -588,7 +539,6 @@
     // CEO's Favorite Project
     {
       "id": "149",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "CardResource<CardFront(HAS CardResource)>",
       "cost": 1,
@@ -598,7 +548,6 @@
     // Anti-Gravity Technology
     {
       "id": "150",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
@@ -613,7 +562,6 @@
     // Investment Loan
     {
       "id": "151",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1], 10",
@@ -624,7 +572,6 @@
     // Caretaker Contract
     {
       "id": "154",
-      "bundle": "R",
       "deck": "PROJECT",
       "actions": [ "8 Heat -> TerraformRating" ],
       "requirement": "15 TemperatureStep",
@@ -635,7 +582,6 @@
     // Standard Technology
     {
       "id": "156",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [ "UseAction<StandardProject>: 3" ],
@@ -646,7 +592,6 @@
     // Power Supply Consortium
     {
       "id": "160",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[-Energy<Anyone>, Energy]",
@@ -658,7 +603,6 @@
     // Satellites
     {
       "id": "175",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[1 / SpaceTag]",
@@ -669,7 +613,6 @@
     // Fuel Factory
     {
       "id": "180",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, Titanium, 1]",
@@ -680,7 +623,6 @@
     // Corporate Stronghold
     {
       "id": "182",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 3], CityTile",
@@ -692,7 +634,6 @@
     // Olympus Conference
     {
       "id": "185",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "effects": [
@@ -707,7 +648,6 @@
     // Rad-Suits
     {
       "id": "186",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "PROD[1]",
       "effects": [ "End: VictoryPoint" ],
@@ -719,7 +659,6 @@
     // Invention Contest[F]
     {
       "id": "192F",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "ProjectCard",
@@ -730,7 +669,6 @@
     // Power Infrastructure
     {
       "id": "194",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
       "actions": [ "X Energy -> X" ],
@@ -741,7 +679,6 @@
     // Indentured Workers
     {
       "id": "195",
-      "bundle": "R",
       "deck": "PROJECT",
       "immediate": "Card195Effect",
       "effects": [ "End: -VictoryPoint" ],
@@ -753,7 +690,6 @@
     // Lagrange Observatory
     {
       "id": "196",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "SpaceTag" ],
       "immediate": "ProjectCard",
@@ -765,7 +701,6 @@
     // Terraforming Ganymede
     {
       "id": "197",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "TerraformRating / JovianTag",
@@ -777,7 +712,6 @@
     // Restricted Area
     {
       "id": "199",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "RaTile",
@@ -790,7 +724,6 @@
     // Energy Tapping
     {
       "id": "201",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[-Energy<Anyone>, Energy]",
@@ -802,7 +735,6 @@
     // Technology Demonstration
     {
       "id": "204",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "SpaceTag" ],
       "immediate": "2 ProjectCard",
@@ -813,7 +745,6 @@
     // Medical Lab
     {
       "id": "207",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "immediate": "PROD[1 / 2 BuildingTag]",
@@ -825,7 +756,6 @@
     // AI Central
     {
       "id": "208",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "immediate": "PROD[-Energy]",

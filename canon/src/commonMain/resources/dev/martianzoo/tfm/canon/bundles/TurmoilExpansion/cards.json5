@@ -4,7 +4,6 @@
     // Lakefront Resorts
     {
       "id": "TC1",
-      "bundle": "T",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "54",
@@ -17,7 +16,6 @@
     // Pristar
     {
       "id": "TC2",
-      "bundle": "T",
       "deck": "CORPORATION",
       "immediate": "53, -2 TerraformRating",
       "effects": [
@@ -37,7 +35,6 @@
     // TerraLabs Research
     {
       "id": "TC4",
-      "bundle": "T",
       "deck": "CORPORATION",
       "tags": [ "ScienceTag", "EarthTag" ],
       "immediate": "14, -TerraformRating",

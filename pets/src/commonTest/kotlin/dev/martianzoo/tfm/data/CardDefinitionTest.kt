@@ -106,6 +106,24 @@ internal class CardDefinitionTest {
     JsonReader.readCards(json).shouldContainExactlyInAnyOrder(birds)
   }
 
+  @Test
+  fun bundleProvenanceCanComeFromTheContainingDirectory() {
+    val json =
+        """
+          {
+            "cards": [{
+              "id": "X40",
+              "deck": "PRELUDE",
+              "immediate": "Plant"
+            }]
+          }
+        """
+
+    val card = CardDefinition(JsonReader.readCards(json, "PromosExpansion").single())
+
+    card.bundle shouldBe "PromosExpansion"
+  }
+
   // Just so we don't have to keep repeating the "x" part
   private val card: CardData = CardData("123", bundle = "Z")
 

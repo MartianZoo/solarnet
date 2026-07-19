@@ -4,7 +4,6 @@
     // Trade
     {
       "id": "SAH",
-      "bundle": "C",
       "actions": [
         "9 -> Trade",
         "3 Energy -> Trade",
@@ -18,6 +17,6 @@
     // Buffer Gas
 
     // Build Colony
-    { "id": "SP17", "bundle": "C", "action": "17 -> Colony" },
+    { "id": "SP17", "action": "17 -> Colony" },
   ],
 }

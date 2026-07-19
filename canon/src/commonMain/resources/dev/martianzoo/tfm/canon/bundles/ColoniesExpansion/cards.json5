@@ -4,7 +4,6 @@
     // Arklight
     {
       "id": "CC2",
-      "bundle": "C",
       "deck": "CORPORATION",
       "tags": [ "AnimalTag" ],
       "immediate": "45, PROD[2]",
@@ -19,7 +18,6 @@
     // Polyphemos
     {
       "id": "CC3",
-      "bundle": "C",
       "deck": "CORPORATION",
       "immediate": "50, PROD[5], 5 Titanium",
       "effects" : [ "BuyCard:: -2" ],
@@ -28,7 +26,6 @@
     // Poseidon
     {
       "id": "CC4",
-      "bundle": "C",
       "deck": "CORPORATION",
       "immediate": "45, Colony",
       "effects": [ "Colony<Anyone>: PROD[1]" ]
@@ -37,7 +34,6 @@
     // Airliners
     {
       "id": "C01",
-      "bundle": "C",
       "deck": "PROJECT",
       "immediate": "PROD[2], 2 Floater",
       "effects": [ "End: VictoryPoint" ],
@@ -49,7 +45,6 @@
     // Air Raid
     {
       "id": "C02",
-      "bundle": "C",
       "deck": "PROJECT",
       "immediate": "-Floater, 5 Megacredit<Owner FROM Anyone>?",
       "cost": 0,
@@ -59,7 +54,6 @@
     // Atmo Collectors
     {
       "id": "C03",
-      "bundle": "C",
       "deck": "PROJECT",
       "immediate": "2 Floater",
       "actions": [
@@ -74,7 +68,6 @@
     // Community Services
     {
       "id": "C04",
-      "bundle": "C",
       "deck": "PROJECT",
       "immediate": "PROD[1 / CardFront(HAS MAX 0 Tag)]",
       "effects": [ "End: VictoryPoint" ],
@@ -85,7 +78,6 @@
     // Conscription
     {
       "id": "C05",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "CardC05Effect",
@@ -99,7 +91,6 @@
     // Corona Extractor
     {
       "id": "C06",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "SpaceTag" ],
       "immediate": "PROD[4 Energy]",
@@ -111,7 +102,6 @@
     // Cryo-Sleep
     {
       "id": "C07",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
@@ -129,7 +119,6 @@
     // Earth Elevator
     {
       "id": "C08",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[3 Titanium]",
@@ -141,7 +130,6 @@
     // Ecology Research
     {
       "id": "C09",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "AnimalTag", "MicrobeTag", "PlantTag" ],
       "immediate": "PROD[Plant / Colony], Animal, 2 Microbe",
@@ -153,7 +141,6 @@
     // Floater Leasing
     {
       "id": "C10",
-      "bundle": "C",
       "deck": "PROJECT",
       "immediate": "PROD[1 / 3 Floater]",
       "cost": 3,
@@ -163,7 +150,6 @@
     // Floater Prototypes
     {
       "id": "C11",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "2 Floater",
@@ -174,7 +160,6 @@
     // Floater Technology
     {
       "id": "C12",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "actions": [ "-> Floater" ],
@@ -185,7 +170,6 @@
     // Galilean Waystation
     {
       "id": "C13",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[1 / JovianTag<Anyone>]",
@@ -197,7 +181,6 @@
     // Heavy Taxation
     {
       "id": "C14",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[2], 4",
@@ -210,7 +193,6 @@
     // Ice Moon Colony
     {
       "id": "C15",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "Colony, OceanTile",
@@ -221,7 +203,6 @@
     // Impactor Swarm
     {
       "id": "C16",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "12 Heat, -2 Plant<Anyone>?",
@@ -233,7 +214,6 @@
     // Interplanetary Colony Ship
     {
       "id": "C17",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "Colony",
@@ -244,7 +224,6 @@
     // Jovian Lanterns
     {
       "id": "C18",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "JovianTag" ],
       "immediate": "TerraformRating, 2 Floater",
@@ -259,7 +238,6 @@
     // Jupiter Floating Station
     {
       "id": "C19",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "JovianTag" ],
       "actions": [
@@ -275,7 +253,6 @@
     // Luna Governor
     {
       "id": "C20",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "EarthTag" ],
       "immediate": "PROD[2]",
@@ -287,7 +264,6 @@
     // Lunar Exports
     {
       "id": "C21",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "EarthTag" ],
       "immediate": "PROD[2 Plant OR 5]",
@@ -298,7 +274,6 @@
     // Lunar Mining
     {
       "id": "C22",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[Titanium / 2 EarthTag]",
@@ -309,7 +284,6 @@
     // Market Manipulation
     {
       "id": "C23",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "ColonyProduction FROM ColonyProduction",
@@ -320,7 +294,6 @@
     // Martian Zoo
     {
       "id": "C24",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "AnimalTag", "BuildingTag" ],
       "actions": [ "-> 1 / Animal<This>" ],
@@ -337,7 +310,6 @@
     // Mining Colony
     {
       "id": "C25",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Titanium], Colony",
@@ -348,7 +320,6 @@
     // Minority Refuge
     {
       "id": "C26",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-2], Colony",
@@ -359,7 +330,6 @@
     // Molecular Printing
     {
       "id": "C27",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "1 / CityTile<Anyone>, 1 / Colony<Anyone>",
@@ -371,7 +341,6 @@
     // Nitrogen From Titan
     {
       "id": "C28",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
@@ -383,7 +352,6 @@
     // Pioneer Settlement
     {
       "id": "C29",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-2], Colony",
@@ -396,7 +364,6 @@
     // Quantum Communications
     {
       "id": "C31",
-      "bundle": "C",
       "deck": "PROJECT",
       "immediate": "PROD[1 / Colony<Anyone>]",
       "effects": [ "End: VictoryPoint" ],
@@ -408,7 +375,6 @@
     // Red Spot Observatory
     {
       "id": "C32",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "JovianTag" ],
       "immediate": "2 ProjectCard",
@@ -426,7 +392,6 @@
     // Refugee Camps
     {
       "id": "C33",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "actions": [ "PROD[1] -> Camp<This>" ],
@@ -440,7 +405,6 @@
     // Research Colony
     {
       "id": "C34",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "SpaceTag" ],
       "immediate": "Colony<ColonyTile>, 2 ProjectCard",
@@ -451,7 +415,6 @@
     // Rim Freighters
     {
       "id": "C35",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "effects": [
@@ -467,7 +430,6 @@
     // Sky Docks
     {
       "id": "C36",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "TradeFleet",
@@ -483,7 +445,6 @@
     // Solar Probe
     {
       "id": "C37",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "SpaceTag" ],
       "immediate": "ProjectCard / 3 ScienceTag", // should be in play at the time
@@ -495,7 +456,6 @@
     // Solar Reflectors
     {
       "id": "C38",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[5 Heat]",
@@ -506,7 +466,6 @@
     // Space Port
     {
       "id": "C39",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 4], CityTile, TradeFleet",
@@ -518,7 +477,6 @@
     // Space Port Colony
     {
       "id": "C40",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "Colony<ColonyTile>, TradeFleet",
@@ -531,7 +489,6 @@
     // Sub-Zero Salt Fish
     {
       "id": "C42",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "immediate": "PROD[-Plant<Anyone>]",
@@ -546,7 +503,6 @@
     // Titan Air-Scrapping
     {
       "id": "C43",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "JovianTag" ],
       "actions": [
@@ -562,7 +518,6 @@
     // Titan Floating Launch-Pad
     {
       "id": "C44",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "JovianTag" ],
       "immediate": "2 Floater<CardFront(HAS JovianTag)>",
@@ -579,7 +534,6 @@
     // Titan Shuttles
     {
       "id": "C45",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [
@@ -595,7 +549,6 @@
     // Urban Decomposers
     {
       "id": "C48",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "immediate": "PROD[Plant], 2 Microbe",
@@ -607,7 +560,6 @@
     // Warp Drive
     {
       "id": "C49",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [

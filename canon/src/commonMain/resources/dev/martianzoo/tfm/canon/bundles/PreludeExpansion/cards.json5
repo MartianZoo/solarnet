@@ -4,7 +4,6 @@
     // Cheung Shing Mars
     {
       "id": "PC1",
-      "bundle": "P",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[3], 44",
@@ -14,7 +13,6 @@
     // Point Luna
     {
       "id": "PC2",
-      "bundle": "P",
       "deck": "CORPORATION",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[Titanium], 38",
@@ -24,7 +22,6 @@
     // Robinson Industries
     {
       "id": "PC3",
-      "bundle": "P",
       "deck": "CORPORATION",
       "immediate": "47",
       "actions": [ "4 -> GainLowestProduction" ],
@@ -34,7 +31,6 @@
     // Valley Trust
     {
       "id": "PC4",
-      "bundle": "P",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "37, MandatePC4",
@@ -47,7 +43,6 @@
     // Allied Bank
     {
       "id": "P01",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[4], 3"
@@ -56,7 +51,6 @@
     // Aquifer Turbines
     {
       "id": "P02",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
       "immediate": "OceanTile, PROD[2 Energy], -3"
@@ -65,7 +59,6 @@
     // Biofuels
     {
       "id": "P03",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag" ],
       "immediate": "PROD[Energy, Plant], 2 Plant"
@@ -74,7 +67,6 @@
     // Biolab
     {
       "id": "P04",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
       "immediate": "PROD[Plant], 3 ProjectCard"
@@ -83,7 +75,6 @@
     // Biosphere Support
     {
       "id": "P05",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[-1, 2 Plant]"
@@ -92,7 +83,6 @@
     // Business Empire
     {
       "id": "P06",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[6], -6"
@@ -101,7 +91,6 @@
     // Dome Farming
     {
       "id": "P07",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "PROD[2, Plant]"
@@ -110,7 +99,6 @@
     // Donation
     {
       "id": "P08",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "21"
     },
@@ -118,7 +106,6 @@
     // Early Settlement
     {
       "id": "P09",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[Plant], CityTile"
@@ -127,7 +114,6 @@
     // Excentric Sponsor
     {
       "id": "P11",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "PlayCard THEN -25 Owed."
     },
@@ -135,7 +121,6 @@
     // Experimental Forest[F]
     {
       "id": "P12F",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
       "immediate": "GreeneryTile, 2 ProjectCard"
@@ -144,7 +129,6 @@
     // Galilean Mining
     {
       "id": "P13",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "JovianTag" ],
       "immediate": "PROD[2 Titanium], -5"
@@ -153,7 +137,6 @@
     // Great Aquifer
     {
       "id": "P14",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "2 OceanTile"
     },
@@ -161,7 +144,6 @@
     // Huge Asteroid
     {
       "id": "P15",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "3 TemperatureStep, -5"
     },
@@ -169,7 +151,6 @@
     // Io Research Outpost
     {
       "id": "P16",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag", "JovianTag" ],
       "immediate": "PROD[Titanium], ProjectCard"
@@ -178,7 +159,6 @@
     // Loan
     {
       "id": "P17",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "PROD[-2], 30"
     },
@@ -186,7 +166,6 @@
     // Martian Industries
     {
       "id": "P18",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Energy, Steel], 6"
@@ -195,7 +174,6 @@
     // Metal-Rich Asteroid
     {
       "id": "P19",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "TemperatureStep, 4 Titanium, 4 Steel"
     },
@@ -203,7 +181,6 @@
     // Metals Company
     {
       "id": "P20",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "PROD[1, Steel, Titanium]"
     },
@@ -211,7 +188,6 @@
     // Mining Operations
     {
       "id": "P21",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2 Steel], 4 Steel"
@@ -220,7 +196,6 @@
     // Mohole
     {
       "id": "P22",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[3 Heat], 3 Heat"
@@ -229,7 +204,6 @@
     // Mohole Excavation
     {
       "id": "P23",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel, 2 Heat], 2 Heat"
@@ -238,7 +212,6 @@
     // Nitrogen Shipment
     {
       "id": "P24",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "PROD[Plant], TerraformRating, 5"
     },
@@ -246,7 +219,6 @@
     // Orbital Construction Yard
     {
       "id": "P25",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Titanium], 4 Titanium"
@@ -255,7 +227,6 @@
     // Polar Industries
     {
       "id": "P26",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2 Heat], OceanTile"
@@ -264,7 +235,6 @@
     // Power Generation
     {
       "id": "P27",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[3 Energy]"
@@ -273,7 +243,6 @@
     // Self-Sufficient Settlement
     {
       "id": "P29",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[2], CityTile"
@@ -282,7 +251,6 @@
     // Smelting Plant
     {
       "id": "P30",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "2 OxygenStep, 5 Steel"
@@ -291,7 +259,6 @@
     // Society Support
     {
       "id": "P31",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "PROD[-1, Plant, Energy, Heat]"
     },
@@ -299,7 +266,6 @@
     // Supplier
     {
       "id": "P32",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
       "immediate": "PROD[2 Energy], 4 Steel"
@@ -308,7 +274,6 @@
     // Supply Drop
     {
       "id": "P33",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "3 Titanium, 8 Steel, 3 Plant"
     },
@@ -316,7 +281,6 @@
     // UNMI Contractor
     {
       "id": "P34",
-      "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
       "immediate": "3 TerraformRating, ProjectCard"
@@ -325,7 +289,6 @@
     // Acquired Space Agency[F]
     {
       "id": "P35F",
-      "bundle": "P",
       "deck": "PRELUDE",
       "immediate": "6 Titanium, 2 ProjectCard"
     },
@@ -333,7 +296,6 @@
     // House Printing
     {
       "id": "P36",
-      "bundle": "P",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel]",
@@ -345,7 +307,6 @@
     // Lava Tube Settlement
     {
       "id": "P37",
-      "bundle": "P",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 2], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile)",
@@ -356,7 +317,6 @@
     // Martian Survey
     {
       "id": "P38",
-      "bundle": "P",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": "2 ProjectCard",
@@ -369,7 +329,6 @@
     // Psychrophiles
     {
       "id": "P39",
-      "bundle": "P",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag" ],
       "requirement": "MAX 5 TemperatureStep",
@@ -386,7 +345,6 @@
     // SF Memorial
     {
       "id": "P41",
-      "bundle": "P",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "ProjectCard",
@@ -398,7 +356,6 @@
     // Space Hotels
     {
       "id": "P42",
-      "bundle": "P",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[4]",

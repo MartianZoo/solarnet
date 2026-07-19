@@ -4,7 +4,6 @@
     // Aridor
     {
       "id": "CC1",
-      "bundle": "C",
       "deck": "CORPORATION",
       "immediate": "40",
       "effects": [
@@ -16,7 +15,6 @@
     // Stormcraft Incorporated
     {
       "id": "CC5",
-      "bundle": "C",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ]
     },
@@ -24,7 +22,6 @@
     // Spin-Off Department
     {
       "id": "C41",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2]",
@@ -36,7 +33,6 @@
     // Productive Outpost
     {
       "id": "C30",
-      "bundle": "C",
       "immediate": "PayOnlyMyColonyBonuses",
       "deck": "PROJECT",
       "cost": 0,
@@ -46,7 +42,6 @@
     // Trade Envoys
     {
       "id": "C46",
-      "bundle": "C",
       "deck": "PROJECT",
       "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // too late!
       "cost": 6,
@@ -56,7 +51,6 @@
     // Trading Colony
     {
       "id": "C47",
-      "bundle": "C",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "Colony",

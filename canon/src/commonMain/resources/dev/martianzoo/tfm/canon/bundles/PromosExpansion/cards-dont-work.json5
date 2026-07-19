@@ -4,7 +4,6 @@
     // Splice Tactical Genomics
     {
       "id": "XC3",
-      "bundle": "X",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": "44",
@@ -21,7 +20,6 @@
     // Self-Replicating Robots
     {
       "id": "210",
-      "bundle": "X",
       "deck": "PROJECT",
       "requirement": "2 ScienceTag",
       "cost": 7,
@@ -31,7 +29,6 @@
     // Interplanetary Trade
     {
       "id": "X05",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[1 / Class<Tag>(OF Owner)]",
@@ -43,7 +40,6 @@
     // Advertising
     {
       "id": "X13",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "effects": [ "CardFront(HAS 20 cost): PROD[1]" ],
@@ -54,7 +50,6 @@
     // Cutting Edge Technology
     {
       "id": "X18",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [ "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed" ],
@@ -65,7 +60,6 @@
     // Diversity Support
     {
       "id": "X20",
-      "bundle": "X",
       "deck": "PROJECT",
       "immediate": "TerraformRating",
       "requirement": "9 Class<Resource>(OF Owner)",

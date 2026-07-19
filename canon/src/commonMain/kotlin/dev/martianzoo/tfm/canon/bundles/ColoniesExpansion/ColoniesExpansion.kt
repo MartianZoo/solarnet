@@ -22,7 +22,8 @@ internal object ColoniesExpansion :
   }
 
   override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-    JsonReader.readColonyTiles(readResource("colonies.json5")).toSetStrict(::ColonyTileDefinition)
+    JsonReader.readColonyTiles(readResource("colonies.json5"), requireNotNull(legacyCode))
+        .toSetStrict(::ColonyTileDefinition)
   }
 
   override val customClasses: Set<CustomClass> = setOf(AddColonyTile)

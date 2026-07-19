@@ -4,7 +4,6 @@
     // CrediCor
     {
       "id": "B01",
-      "bundle": "B",
       "deck": "CORPORATION",
       "immediate": "57",
       "effects": [
@@ -16,7 +15,6 @@
     // Mining Guild
     {
       "id": "B06",
-      "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag", "BuildingTag" ],
       "effects": [ "Tile<MarsArea(HAS Bonus<Class<Steel>> OR Bonus<Class<Titanium>>)>: PROD[Steel]" ]
@@ -25,7 +23,6 @@
     // Mining Rights
     {
       "id": "067",
-      "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "MrTile<LandArea(HAS Neighbor<OwnedTile>), PROD[LandArea(HAS MrTile, Bonus<Class<Steel>>): Steel OR LandArea(HAS MrTile, Bonus<Class<Titanium>>): Titanium]",

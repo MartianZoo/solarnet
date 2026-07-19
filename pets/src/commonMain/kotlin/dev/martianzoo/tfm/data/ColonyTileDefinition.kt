@@ -9,10 +9,13 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import kotlinx.serialization.Serializable
 
-public class ColonyTileDefinition(data: ColonyTileData) : Definition {
+public class ColonyTileDefinition(
+    data: ColonyTileData,
+    bundle: String = requireNotNull(data.bundle),
+) : Definition {
   override val className = cn(data.name)
   override val shortName = cn(data.name)
-  override val bundle = data.bundle
+  override val bundle = bundle
 
   val placementBonus: Instruction = parse(data.placementBonus)
   val colonyBonus: Instruction = parse(data.colonyBonus)
@@ -45,14 +48,14 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
   @Serializable
   data class ColonyTileData(
       val name: String,
-      val bundle: String,
+      val bundle: String? = null,
       val placementBonus: String,
       val colonyBonus: String,
       val tradeIncome: List<String>,
       val resourceType: String? = null,
   ) {
     init {
-      require(bundle.isNotEmpty())
+      require(bundle?.isNotEmpty() != false)
       require(tradeIncome.size == 7)
     }
   }

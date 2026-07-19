@@ -2,6 +2,6 @@
   "milestones": [
 
     // Hoverlord
-    { "id": "VM1", "bundle": "V", "requirement": "7 Floater" },
+    { "id": "VM1", "requirement": "7 Floater" },
   ],
 }

@@ -4,7 +4,6 @@
     // Aphrodite
     {
       "id": "V01",
-      "bundle": "V",
       "deck": "CORPORATION",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "PROD[Plant], 47",
@@ -14,7 +13,6 @@
     // Celestic[F]
     {
       "id": "V02F",
-      "bundle": "V",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
       "immediate": "42, MandateV02F",
@@ -27,7 +25,6 @@
     // Manutech
     {
       "id": "V03",
-      "bundle": "V",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel], 35",
@@ -37,7 +34,6 @@
     // Viron
     {
       "id": "V05",
-      "bundle": "V",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": "48",
@@ -47,7 +43,6 @@
     // Aerial Mappers
     {
       "id": "213",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "actions": [
@@ -63,7 +58,6 @@
     // Aerosport Tournament
     {
       "id": "214",
-      "bundle": "V",
       "deck": "PROJECT",
       "immediate": "1 / CityTile<Anyone>",
       "effects": [ "End: VictoryPoint" ],
@@ -75,7 +69,6 @@
     // Air-Scrapping Expedition
     {
       "id": "215",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "immediate": "VenusStep, 3 Floater<CardFront(HAS VenusTag)>",
@@ -86,7 +79,6 @@
     // Atalanta Planitia Lab
     {
       "id": "216",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "ScienceTag" ],
       "immediate": "2 ProjectCard",
@@ -99,7 +91,6 @@
     // Atmoscoop
     {
       "id": "217",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       // Temporarily sequential pending #63: a Multi OR arm cannot be narrowed.
@@ -113,7 +104,6 @@
     // Comet For Venus
     {
       "id": "218",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?",
@@ -124,7 +114,6 @@
     // Corroder Suits
     {
       "id": "219",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "immediate": "PROD[2], CardResource<CardFront(HAS VenusTag)>",
@@ -135,7 +124,6 @@
     // Dawn City
     {
       "id": "220",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "CityTag" ],
       "immediate": "PROD[-Energy, Titanium], CityTile<Area220>",
@@ -149,7 +137,6 @@
     // Deuterium Export
     {
       "id": "221",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "PowerTag", "SpaceTag" ],
       "actions": [
@@ -164,7 +151,6 @@
     // Dirigibles
     {
       "id": "222",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "actions": [ "-> Floater" ],
@@ -180,7 +166,6 @@
     // Extractor Balloons
     {
       "id": "223",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "immediate": "3 Floater<This>",
@@ -196,7 +181,6 @@
     // Extremophiles
     {
       "id": "224",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [ "-> Microbe" ],
@@ -210,7 +194,6 @@
     // Floating Habs
     {
       "id": "225",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "actions": [ "2 -> Floater" ],
@@ -224,7 +207,6 @@
     // Forced Precipitation
     {
       "id": "226",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "actions": [
@@ -239,7 +221,6 @@
     // Freyja Biodomes
     {
       "id": "227",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "PROD[-Energy, 2], 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
@@ -252,7 +233,6 @@
     // GHG Import From Venus
     {
       "id": "228",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "VenusStep, PROD[3 Heat]",
@@ -263,7 +243,6 @@
     // Giant Solar Shade
     {
       "id": "229",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "3 VenusStep",
@@ -274,7 +253,6 @@
     // Gyropolis
     {
       "id": "230",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "CityTile, PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag]",
@@ -285,7 +263,6 @@
     // Hydrogen To Venus
     {
       "id": "231",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag",
@@ -296,7 +273,6 @@
     // Io Sulphur Research
     {
       "id": "232",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "JovianTag" ],
       "immediate": "ProjectCard OR (3 VenusTag: 3 ProjectCard)",
@@ -308,7 +284,6 @@
     // Ishtar Mining
     {
       "id": "233",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "immediate": "PROD[Titanium]",
@@ -320,7 +295,6 @@
     // Jet Stream Microscrappers
     {
       "id": "234",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "actions": [
@@ -335,7 +309,6 @@
     // Local Shading
     {
       "id": "235",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "actions": [
@@ -350,7 +323,6 @@
     // Luna Metropolis
     {
       "id": "236",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "EarthTag", "CityTag" ],
       "immediate": "PROD[1 / EarthTag], CityTile<Area236>",
@@ -363,7 +335,6 @@
     // Luxury Foods
     {
       "id": "237",
-      "bundle": "V",
       "deck": "PROJECT",
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "VenusTag, EarthTag, JovianTag",
@@ -374,7 +345,6 @@
     // Maxwell Base
     {
       "id": "238",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": "PROD[-Energy], CityTile<Area238>",
@@ -389,7 +359,6 @@
     // Mining Quota
     {
       "id": "239",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2 Steel]",
@@ -401,7 +370,6 @@
     // Neutralizer Factory
     {
       "id": "240",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "immediate": "VenusStep",
@@ -413,7 +381,6 @@
     // Omnicourt
     {
       "id": "241",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "2 TerraformRating",
@@ -425,7 +392,6 @@
     // Orbital Reflectors
     {
       "id": "242",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "2 VenusStep, PROD[2 Heat]",
@@ -436,7 +402,6 @@
     // Rotator Impacts
     {
       "id": "243",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
@@ -453,7 +418,6 @@
     // Sister Planet Support
     {
       "id": "244",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "EarthTag" ],
       "immediate": "PROD[3]",
@@ -465,7 +429,6 @@
     // Solarnet
     {
       "id": "245",
-      "bundle": "V",
       "deck": "PROJECT",
       "immediate": "2 ProjectCard",
       "effects": [ "End: VictoryPoint" ],
@@ -477,7 +440,6 @@
     // Spin-Inducing Asteroid
     {
       "id": "246",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "2 VenusStep",
@@ -489,7 +451,6 @@
     // Sponsored Academies
     {
       "id": "247",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag" ],
       "immediate": "-ProjectCard THEN (2 ProjectCard, AllDraw)",
@@ -505,7 +466,6 @@
     // Stratopolis
     {
       "id": "248",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": "PROD[2], CityTile<Area248>",
@@ -521,7 +481,6 @@
     // Stratospheric Birds
     {
       "id": "249",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "AnimalTag" ],
       "immediate": "-Floater",
@@ -536,7 +495,6 @@
     // Sulphur Exports
     {
       "id": "250",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "VenusStep, PROD[1 / VenusTag]",
@@ -547,7 +505,6 @@
     // Sulphur-Eating Bacteria
     {
       "id": "251",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [
@@ -563,7 +520,6 @@
     // Terraforming Contract
     {
       "id": "252",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[4]",
@@ -575,7 +531,6 @@
     // Thermophiles
     {
       "id": "253",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [
@@ -591,7 +546,6 @@
     // Water To Venus
     {
       "id": "254",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep",
@@ -602,7 +556,6 @@
     // Venus Governor
     {
       "id": "255",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "VenusTag" ],
       "immediate": "PROD[2]",
@@ -614,7 +567,6 @@
     // Venus Magnetizer
     {
       "id": "256",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
       "actions": [ "PROD[Energy] -> VenusStep" ],
@@ -626,7 +578,6 @@
     // Venus Soils
     {
       "id": "257",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "VenusStep, PROD[Plant], 2 Microbe",
@@ -637,7 +588,6 @@
     // Venus Waystation
     {
       "id": "258",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
@@ -651,7 +601,6 @@
     // Venusian Animals
     {
       "id": "259",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "ScienceTag", "AnimalTag" ],
       "effects": [
@@ -667,7 +616,6 @@
     // Venusian Insects
     {
       "id": "260",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [ "-> Microbe<This>" ],
@@ -681,7 +629,6 @@
     // Venusian Plants
     {
       "id": "261",
-      "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "VenusStep, Microbe<CardFront(HAS VenusTag)> OR Animal<CardFront(HAS VenusTag)>",

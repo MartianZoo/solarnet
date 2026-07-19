@@ -4,7 +4,6 @@
     // Philares
     {
       "id": "XC6",
-      "bundle": "X",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "47, MandateXC6",
@@ -17,7 +16,6 @@
     // Recyclon
     {
       "id": "XC2",
-      "bundle": "X",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "immediate": "38, PROD[Steel]",
@@ -28,7 +26,6 @@
     // Factorum[F]
     {
       "id": "XC4F",
-      "bundle": "X",
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "37, PROD[Steel]",
@@ -41,7 +38,6 @@
     // AstroDrill
     {
       "id": "XC7",
-      "bundle": "X",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "35, 3 Asteroid<This>",
@@ -55,7 +51,6 @@
     // Pharmacy Union[F]
     {
       "id": "XC8F",
-      "bundle": "X",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "MicrobeTag" ],
       "immediate": "ProjectCard",
@@ -77,7 +72,6 @@
     // Corporate Archives[F]
     {
       "id": "X39F",
-      "bundle": "X",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
       "immediate": "13, 2 ProjectCard"
@@ -86,7 +80,6 @@
     // Double Down
     {
       "id": "X40",
-      "bundle": "X",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
       "components": [ "CLASS CopyPrelude : Cardbound, Custom" ]
@@ -95,7 +88,6 @@
     // Merger[F]
     {
       "id": "X41F",
-      "bundle": "X",
       "deck": "PRELUDE",
       "immediate": "CorporationCard THEN PlayCard<Class<CorporationCard>>, -42"
     },
@@ -103,7 +95,6 @@
     // New Partner[F]
     {
       "id": "X42F",
-      "bundle": "X",
       "deck": "PRELUDE",
       "immediate": "PROD[1], PreludeCard, PlayCard<Class<PreludeCard>>"
     },
@@ -111,7 +102,6 @@
     // Head Start
     {
       "id": "X43",
-      "bundle": "X",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
       "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>?, UseAction<StandardAction>?"
@@ -120,7 +110,6 @@
     // Small Asteroid
     {
       "id": "209",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "TemperatureStep, -2 Plant<Anyone>?",
@@ -131,7 +120,6 @@
     // Snow Algae
     {
       "id": "211",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant, Heat]",
@@ -143,7 +131,6 @@
     // Penguins
     {
       "id": "212",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "AnimalTag" ],
       "actions": [ "-> Animal<This>" ],
@@ -157,7 +144,6 @@
     // Dusk Laser Mining
     {
       "id": "X01",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-Energy, Titanium], 4 Titanium",
@@ -169,7 +155,6 @@
     // Project Inspection
     {
       "id": "X02",
-      "bundle": "X",
       "deck": "PROJECT",
       "immediate": "UseAction<ActionCard(HAS ActionUsedMarker)>",
       "cost": 0,
@@ -179,7 +164,6 @@
     // Energy Market
     {
       "id": "X03",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "PowerTag" ],
       "actions": [
@@ -193,7 +177,6 @@
     // Hi-Tech Lab[F]
     {
       "id": "X04F",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "actions": [ "X Energy -> ProjectCard" ],
@@ -205,7 +188,6 @@
     // Mercurian Alloys
     {
       "id": "X07",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "requirement": "2 ScienceTag",
@@ -217,7 +199,6 @@
     // Orbital Cleanup
     {
       "id": "X08",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[-2]",
@@ -230,7 +211,6 @@
     // Rego Plastics
     {
       "id": "X10",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "effects": [
@@ -244,7 +224,6 @@
     // Saturn Surfing
     {
       "id": "X11",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "EarthTag" ],
       "immediate": "Floater<This> / EarthTag",
@@ -258,7 +237,6 @@
     // Stanford Torus
     {
       "id": "X12",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "CityTag", "SpaceTag" ],
       "immediate": "CityTile<FloatingInSpace>",
@@ -271,7 +249,6 @@
     // Asteroid Hollowing
     {
       "id": "X15",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [ "Titanium -> Asteroid<This>, PROD[1]" ],
@@ -284,7 +261,6 @@
     // Comet Aiming
     {
       "id": "X16",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
@@ -299,7 +275,6 @@
     // Directed Impactors
     {
       "id": "X19",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
@@ -314,7 +289,6 @@
     // Field-Capped City
     {
       "id": "X21",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "CityTag", "BuildingTag" ],
       "immediate": "PROD[2, Energy], CityTile, 3 Plant",
@@ -325,7 +299,6 @@
     // Imported Nutrients
     {
       "id": "X22",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "4 Plant, 4 Microbe",
@@ -336,7 +309,6 @@
     // Jovian Embassy
     {
       "id": "X23",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "BuildingTag" ],
       "immediate": "TerraformRating",
@@ -348,7 +320,6 @@
     // Magnetic Shield
     {
       "id": "X24",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "4 TerraformRating",
@@ -360,7 +331,6 @@
     // Meat Industry
     {
       "id": "X25",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "effects": [ "Animal: 2" ],
@@ -371,7 +341,6 @@
     // Meltworks
     {
       "id": "X26",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "5 Heat -> 3 Steel" ],
@@ -382,7 +351,6 @@
     // Mohole Lake
     {
       "id": "X27",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "3 Plant, TemperatureStep, OceanTile",
@@ -394,7 +362,6 @@
     // Potatoes
     {
       "id": "X28",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "-2 Plant, PROD[2]",
@@ -405,7 +372,6 @@
     // Sub-Crust Measurements
     {
       "id": "X29",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "ScienceTag", "BuildingTag" ],
       "actions": [ "-> ProjectCard" ],
@@ -418,7 +384,6 @@
     // Topsoil Contract
     {
       "id": "X30",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "MicrobeTag" ],
       "immediate": "3 Plant",
@@ -430,7 +395,6 @@
     // Deimos Down (promo)
     {
       "id": "X31",
-      "bundle": "X",
       "replaces": "039",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
@@ -443,7 +407,6 @@
     // Great Dam (promo)
     {
       "id": "X32",
-      "bundle": "X",
       "replaces": "136",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
@@ -458,7 +421,6 @@
     // Magnetic Field Generators (promo)
     {
       "id": "X33",
-      "bundle": "X",
       "replaces": "165",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
@@ -471,7 +433,6 @@
     // Asteroid Rights
     {
       "id": "X34",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "2 Asteroid<This>",
@@ -487,7 +448,6 @@
     // Bactoviral Research
     {
       "id": "X35",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "MicrobeTag", "ScienceTag" ],
       "immediate": "ProjectCard, Microbe / ScienceTag",
@@ -498,7 +458,6 @@
     // Bio Printing Facility
     {
       "id": "X36",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "2 Energy -> 2 Plant OR Animal" ],
@@ -509,7 +468,6 @@
     // Harvest
     {
       "id": "X37",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "12",
@@ -521,7 +479,6 @@
     // Outdoor Sports
     {
       "id": "X38",
-      "bundle": "X",
       "deck": "PROJECT",
       "immediate": "PROD[2]",
       "requirement": "Adjacency<CityTile<Anyone>, OceanTile>",
@@ -532,7 +489,6 @@
     // Sixteen Psyche
     {
       "id": "X44",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[2 Titanium], 3 Titanium",
@@ -544,7 +500,6 @@
     // Robot Pollinators
     {
       "id": "X45",
-      "bundle": "X",
       "deck": "PROJECT",
       "immediate": "PROD[Plant], Plant / PlantTag",
       "requirement": "4 OxygenStep",
@@ -555,7 +510,6 @@
     // Supercapacitors
     {
       "id": "X46",
-      "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag"],
       "immediate": "PROD[1], -Entropy",

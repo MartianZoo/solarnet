@@ -18,7 +18,6 @@
         // overlay it on a parallelogram-shaped grid. Of course "" cells are treated as not there.
     {
       "name": "Hellas",
-      "bundle": "H",
       "rows": [
         [
                                      "WPP","LPP","LPP","LPS","LP"

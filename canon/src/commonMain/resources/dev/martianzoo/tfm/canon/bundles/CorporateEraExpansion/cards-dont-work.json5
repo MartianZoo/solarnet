@@ -4,7 +4,6 @@
     // Mining Area
     {
       "id": "064",
-      "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": "MaTile, PROD[LandArea(HAS MaTile, Bonus<Class<Steel>>): Steel OR LandArea(HAS MaTile, Bonus<Class<Titanium>>): Titanium]",

@@ -16,21 +16,62 @@ public object JsonReader {
 
   fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
 
+  fun readCards(json5: String, bundle: String): List<CardData> =
+      readCards(json5).map {
+        require(it.bundle == null) { "bundle must come from the containing directory" }
+        it.copy(bundle = bundle)
+      }
+
   @Serializable private data class CardList(val cards: List<CardData>)
 
   // MILESTONES
 
   fun readMilestones(json5: String): List<MilestoneDefinition> =
-      fromJson5<MilestoneList>(json5).milestones
+      fromJson5<MilestoneList>(json5).milestones.map { it.complete() }
 
-  @Serializable private data class MilestoneList(val milestones: List<MilestoneDefinition>)
+  fun readMilestones(json5: String, bundle: String): List<MilestoneDefinition> =
+      fromJson5<MilestoneList>(json5).milestones.map { it.complete(bundle) }
+
+  @Serializable private data class MilestoneList(val milestones: List<MilestoneImport>)
+
+  @Serializable
+  private data class MilestoneImport(
+      val id: String,
+      val bundle: String? = null,
+      val replaces: String? = null,
+      val requirement: String,
+  ) {
+    fun complete(directoryBundle: String? = null): MilestoneDefinition {
+      if (directoryBundle != null) {
+        require(bundle == null) { "bundle must come from the containing directory" }
+      }
+      return MilestoneDefinition(
+          id,
+          directoryBundle ?: requireNotNull(bundle),
+          replaces,
+          requirement,
+      )
+    }
+  }
 
   // ACTIONS
 
   fun readActions(json5: String): List<StandardActionDefinition> {
+    return readActionsWithBundle(json5, null)
+  }
+
+  fun readActions(json5: String, bundle: String): List<StandardActionDefinition> {
+    return readActionsWithBundle(json5, bundle)
+  }
+
+  private fun readActionsWithBundle(
+      json5: String,
+      directoryBundle: String?,
+  ): List<StandardActionDefinition> {
     val import = fromJson5<ActionsImport>(json5)
 
-    return import.actions.map { it.complete(false) } + import.projects.map { it.complete(true) }
+    return import.actions.map { it.complete(false, directoryBundle) } +
+        import.projects.map { it.complete(true, directoryBundle) }
   }
 
   @Serializable
@@ -42,11 +83,14 @@ public object JsonReader {
     @Serializable
     data class IncompleteActionDef(
         val id: String,
-        val bundle: String,
+        val bundle: String? = null,
         val action: String? = null,
         val actions: List<String>? = null,
     ) {
-      fun complete(project: Boolean): StandardActionDefinition {
+      fun complete(project: Boolean, directoryBundle: String?): StandardActionDefinition {
+        if (directoryBundle != null) {
+          require(bundle == null) { "bundle must come from the containing directory" }
+        }
         val realActions =
             if (action == null) {
               require(actions!!.any())
@@ -55,7 +99,12 @@ public object JsonReader {
               require(actions == null)
               listOf(action)
             }
-        return StandardActionDefinition(cn(id), bundle, project, realActions)
+        return StandardActionDefinition(
+            cn(id),
+            directoryBundle ?: requireNotNull(bundle),
+            project,
+            realActions,
+        )
       }
     }
   }
@@ -64,16 +113,29 @@ public object JsonReader {
 
   fun readMaps(json5: String): List<MarsMapDefinition> = fromJson5<MapsImport>(json5).definitions
 
+  fun readMaps(json5: String, bundle: String): List<MarsMapDefinition> =
+      fromJson5<MapsImport>(json5).definitions(bundle)
+
   @Serializable
   private data class MapsImport(val maps: List<MapImport>, val legend: Map<String, String>) {
-    val definitions: List<MarsMapDefinition> by lazy {
+    val definitions: List<MarsMapDefinition> by lazy { definitions(null) }
+
+    fun definitions(directoryBundle: String?): List<MarsMapDefinition> {
       val leg = Legend(legend.mapKeys { (key) -> key.toLegendKey() })
-      maps.map { it.toDefinition(leg) }
+      return maps.map { it.toDefinition(leg, directoryBundle) }
     }
 
     @Serializable
-    data class MapImport(val name: String, val bundle: String, val rows: List<List<String>>) {
-      internal fun toDefinition(legend: Legend): MarsMapDefinition {
+    data class MapImport(
+        val name: String,
+        val bundle: String? = null,
+        val rows: List<List<String>>,
+    ) {
+      internal fun toDefinition(legend: Legend, directoryBundle: String?): MarsMapDefinition {
+        if (directoryBundle != null) {
+          require(bundle == null) { "bundle must come from the containing directory" }
+        }
+        val owningBundle = directoryBundle ?: requireNotNull(bundle)
         val mapName = cn(name)
         fun mapArea(
             row0Index: Int,
@@ -84,7 +146,7 @@ public object JsonReader {
           if (code.isEmpty()) return null
           return AreaDefinition(
               mapName,
-              bundle,
+              owningBundle,
               row0Index + 1,
               col0Index + 1,
               legend.getType(code),
@@ -99,7 +161,7 @@ public object JsonReader {
           }
         }
         val grid = Grid.grid(areas, { it.row }, { it.column })
-        return MarsMapDefinition(mapName, bundle, grid)
+        return MarsMapDefinition(mapName, owningBundle, grid)
       }
     }
 
@@ -131,6 +193,12 @@ public object JsonReader {
 
   fun readColonyTiles(json5: String): List<ColonyTileData> =
       fromJson5<ColonyTileList>(json5).colonyTiles
+
+  fun readColonyTiles(json5: String, bundle: String): List<ColonyTileData> =
+      readColonyTiles(json5).map {
+        require(it.bundle == null) { "bundle must come from the containing directory" }
+        it.copy(bundle = bundle)
+      }
 
   @Serializable private data class ColonyTileList(val colonyTiles: List<ColonyTileData>)
 

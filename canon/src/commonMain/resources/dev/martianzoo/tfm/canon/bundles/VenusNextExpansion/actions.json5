@@ -5,6 +5,6 @@
   "projects": [
 
     // Air-Scrapping
-    { "id": "SP15", "bundle": "V", "action": "15 -> VenusStep" },
+    { "id": "SP15", "action": "15 -> VenusStep" },
   ],
 }

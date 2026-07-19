@@ -41,7 +41,8 @@ import kotlinx.serialization.Serializable
  * name). It's theoretically possible to reconstruct acceptable instruction text from this data,
  * just not the original wording.
  */
-public class CardDefinition(data: CardData) : Definition {
+public class CardDefinition(data: CardData, bundle: String = requireNotNull(data.bundle)) :
+    Definition {
   /**
    * This card's unique id string. A number of id ranges, such as `"000"`-`"999"`, should be
    * reserved for canon (officially published) cards.
@@ -52,7 +53,7 @@ public class CardDefinition(data: CardData) : Definition {
 
   override val className: ClassName = englishHack(id)
 
-  override val bundle: String = data.bundle
+  override val bundle: String = bundle
 
   /**
    * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
@@ -177,7 +178,7 @@ public class CardDefinition(data: CardData) : Definition {
   @Serializable
   public data class CardData(
       val id: String,
-      val bundle: String,
+      val bundle: String? = null,
       val deck: String? = null,
       val replaces: String? = null,
       val tags: List<String> = listOf(),
@@ -192,7 +193,7 @@ public class CardDefinition(data: CardData) : Definition {
   ) {
     init {
       require(id.isNotEmpty())
-      require(bundle.isNotEmpty())
+      require(bundle?.isNotEmpty() != false)
       require(replaces?.isNotEmpty() ?: true)
       require(resourceType?.isNotEmpty() ?: true)
       require(requirement?.isNotEmpty() ?: true)

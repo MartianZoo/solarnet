@@ -2,54 +2,53 @@
   "actions": [
 
     // Play card from hand
-    { "id": "SAA", "bundle": "B", "action": "-> PlayCard<Class<ProjectCard>>" },
+    { "id": "SAA", "action": "-> PlayCard<Class<ProjectCard>>" },
 
     // Use standard project
-    { "id": "SAB", "bundle": "B", "action": "-> UseAction<StandardProject>" },
+    { "id": "SAB", "action": "-> UseAction<StandardProject>" },
 
     // Claim milestone
-    { "id": "SAC", "bundle": "B", "action": "8 -> Milestone" },
+    { "id": "SAC", "action": "8 -> Milestone" },
 
     // Fund award
-    // { "id": "SAD", "bundle": "B", "action": "6, 8 / Award -> Award" },
+    // { "id": "SAD", "action": "6, 8 / Award -> Award" },
 
     // Use card action
     {
       "id": "SAE",
-      "bundle": "B",
       "action": "-> UseAction<ActionCard>, ActionUsedMarker<ActionCard>"
     },
 
     // Convert plants
-    { "id": "SAF", "bundle": "B", "action": "8 Plant -> GreeneryTile" },
+    { "id": "SAF", "action": "8 Plant -> GreeneryTile" },
 
     // Convert heat
-    { "id": "SAG", "bundle": "B", "action": "8 Heat -> TemperatureStep" },
+    { "id": "SAG", "action": "8 Heat -> TemperatureStep" },
 
     // SAI = send delegate
 
     // Sell patents[F] - yes, it's technically a project, but that makes things annoying
-    { "id": "SELL", "bundle": "B", "action": "X ProjectCard -> X" },
+    { "id": "SELL", "action": "X ProjectCard -> X" },
 
     // Mandatory first action; it's always here but you can't take it if you have 0 Mandate
-    { "id": "MAND", "bundle": "B", "action": "-> Mandate: MandateSignal" }
+    { "id": "MAND", "action": "-> Mandate: MandateSignal" }
   ],
 
   "projects": [
 
     // Power Plant
-    { "id": "SP11", "bundle": "B", "action": "11 -> PROD[Energy]" },
+    { "id": "SP11", "action": "11 -> PROD[Energy]" },
 
     // Asteroid
-    { "id": "SP14", "bundle": "B", "action": "14 -> TemperatureStep" },
+    { "id": "SP14", "action": "14 -> TemperatureStep" },
 
     // Aquifer
-    { "id": "SP18", "bundle": "B", "action": "18 -> OceanTile" },
+    { "id": "SP18", "action": "18 -> OceanTile" },
 
     // Greenery
-    { "id": "SP23", "bundle": "B", "action": "23 -> GreeneryTile" },
+    { "id": "SP23", "action": "23 -> GreeneryTile" },
 
     // City
-    { "id": "SP25", "bundle": "B", "action": "25 -> PROD[1], CityTile" },
+    { "id": "SP25", "action": "25 -> PROD[1], CityTile" },
   ],
 }

@@ -28,21 +28,27 @@ internal abstract class CanonicalBundle(
       setOf(parseOneLinerClass("CLASS $name : System { HAS =1 This }"))
 
   override val cardDefinitions: Set<CardDefinition> by lazy {
-    if (cards) JsonReader.readCards(read("cards.json5")).toSetStrict(::CardDefinition)
-    else emptySet()
+    if (cards) {
+      JsonReader.readCards(read("cards.json5"), requireNotNull(legacyCode))
+          .toSetStrict(::CardDefinition)
+    } else emptySet()
   }
 
   override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
-    if (actions) JsonReader.readActions(read("actions.json5")).toSetStrict() else emptySet()
+    if (actions) {
+      JsonReader.readActions(read("actions.json5"), requireNotNull(legacyCode)).toSetStrict()
+    } else emptySet()
   }
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-    if (maps) JsonReader.readMaps(read("maps.json5")).toSetStrict() else emptySet()
+    if (maps) JsonReader.readMaps(read("maps.json5"), requireNotNull(legacyCode)).toSetStrict()
+    else emptySet()
   }
 
   override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
-    if (milestones) JsonReader.readMilestones(read("milestones.json5")).toSetStrict()
-    else emptySet()
+    if (milestones) {
+      JsonReader.readMilestones(read("milestones.json5"), requireNotNull(legacyCode)).toSetStrict()
+    } else emptySet()
   }
 
   protected fun read(filename: String): String = CanonResources.read("bundles/$directory/$filename")
