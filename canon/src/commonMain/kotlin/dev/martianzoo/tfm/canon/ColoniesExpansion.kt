@@ -5,35 +5,17 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.api.tfmRuleset
-import dev.martianzoo.tfm.data.ColonyTileDefinition
-import dev.martianzoo.tfm.data.JsonReader
-import dev.martianzoo.util.toSetStrict
 
-/** The Colonies expansion rules currently supported by Canon. */
-internal object ColoniesExpansion :
-    CanonicalBundle(
-        name = "ColoniesExpansion",
-        legacyCode = "C",
-        cards = true,
-        actions = true,
-    ) {
-  override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    parseClasses(read("colonies.pets")).toSetStrict()
-  }
+internal val coloniesCustomClasses: Set<CustomClass> =
+    setOf(ColoniesExpansion.AddColonyTile, ColoniesExpansion.ColoniesSetup)
 
-  override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-    JsonReader.readColonyTiles(read("colonies.json5")).toSetStrict(::ColonyTileDefinition)
-  }
-
-  override val customClasses: Set<CustomClass> = setOf(AddColonyTile, ColoniesSetup)
-
-  private object AddColonyTile : CustomClass("AddColonyTile") {
+/** Namespace for Colonies' custom Pets implementations. */
+internal object ColoniesExpansion {
+  internal object AddColonyTile : CustomClass() {
     override fun translate(reader: GameReader, tileClassType: Type): Instruction {
       val name = tileClassType.expression.arguments.single().className
       val tile = reader.tfmRuleset.colonyTile(name)
@@ -45,7 +27,7 @@ internal object ColoniesExpansion :
     }
   }
 
-  private object ColoniesSetup : CustomClass("ColoniesSetup") {
+  internal object ColoniesSetup : CustomClass() {
     override fun translate(reader: GameReader): Instruction {
       val tileInstructions =
           reader.setup.colonyTiles.map {

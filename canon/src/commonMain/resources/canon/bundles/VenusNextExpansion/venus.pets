@@ -1,0 +1,2 @@
+"The Venus Next expansion"
+CLASS VenusNextExpansion : System { HAS =1 This }

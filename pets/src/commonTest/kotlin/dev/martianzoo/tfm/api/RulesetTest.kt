@@ -103,10 +103,10 @@ internal class RulesetTest {
     val source =
         TfmRuleset.compose(
             cardBundle("TerraformingMars", "B", original),
-            cardBundle("PromosExpansion", "X", replacement),
+            cardBundle("PromoCardsBundle", "X", replacement),
         )
 
-    val resolved = source.resolve(setOf(cn("TerraformingMars"), cn("PromosExpansion")))
+    val resolved = source.resolve(setOf(cn("TerraformingMars"), cn("PromoCardsBundle")))
 
     resolved.cardDefinitions.map { it.id }.shouldContainExactly("X31")
     resolved.classDeclaration(cn("DeimosDownPromo")) shouldBe replacement.asClassDeclaration
@@ -122,24 +122,24 @@ internal class RulesetTest {
         )
     val source =
         TfmRuleset.compose(
-            cardBundle("PromosExpansion", "X", card),
+            cardBundle("PromoCardsBundle", "X", card),
             bundle("PreludeExpansion", "P", "CLASS PreludeExpansion"),
             bundle("VenusNextExpansion", "V", "CLASS VenusNextExpansion"),
         )
 
-    val withoutVenus = source.resolve(setOf(cn("PromosExpansion"), cn("PreludeExpansion")))
+    val withoutVenus = source.resolve(setOf(cn("PromoCardsBundle"), cn("PreludeExpansion")))
     withoutVenus.cardDefinitions.shouldHaveSize(0)
     withoutVenus.classDeclarationBundles.keys shouldBe withoutVenus.allClassNames
     (card.className in withoutVenus.classDeclarationBundles) shouldBe false
 
     val withVenus =
         source.resolve(
-            setOf(cn("PromosExpansion"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
+            setOf(cn("PromoCardsBundle"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
         )
     withVenus.cardDefinitions.shouldContainExactly(card)
     withVenus.classDeclarationBundles
         .getValue(card.className)
-        .shouldContainExactly(cn("PromosExpansion"))
+        .shouldContainExactly(cn("PromoCardsBundle"))
   }
 
   private fun ruleset(vararg declarations: ClassDeclaration): TfmRuleset =

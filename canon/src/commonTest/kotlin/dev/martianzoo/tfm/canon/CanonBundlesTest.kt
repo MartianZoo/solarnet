@@ -14,13 +14,6 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun terraformingMarsRulesetOwnsTheCoreGameDeclarations() {
-    Canon.rulesets.shouldContain(TerraformingMars)
-    Canon.classDeclaration(cn("TerraformingMars")) shouldBe
-        TerraformingMars.classDeclaration(cn("TerraformingMars"))
-  }
-
-  @Test
   fun resolvedRulesetIncludesSelectedBundlesCustomImplementations() {
     val coreCustomClasses =
         Canon.resolve(setOf(cn("TerraformingMars"))).customClasses.map { it.className.toString() }
@@ -44,7 +37,7 @@ internal class CanonBundlesTest {
 
   @Test
   fun doubleDownRequiresBothPromosAndPrelude() {
-    val promos = setOf(cn("TerraformingMars"), cn("PromosExpansion"))
+    val promos = setOf(cn("TerraformingMars"), cn("PromoCardsBundle"))
 
     Canon.resolve(promos).cardDefinitions.map { it.className }.contains(cn("DoubleDown")) shouldBe
         false
@@ -55,8 +48,22 @@ internal class CanonBundlesTest {
 
   @Test
   fun coloniesRulesetOwnsItsVocabularyAndDefinitions() {
-    Canon.rulesets.shouldContain(ColoniesExpansion)
-    Canon.classDeclaration(cn("ColonyTile")) shouldBe
-        ColoniesExpansion.classDeclaration(cn("ColonyTile"))
+    val colonies = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
+
+    Canon.classDeclaration(cn("ColonyTile")) shouldBe colonies.classDeclaration(cn("ColonyTile"))
+  }
+
+  @Test
+  fun jsonBundleWithoutPetsSynthesizesItsBundleDeclaration() {
+    val bundle =
+        JsonBundle(
+            name = "TharsisMap",
+            legacyCode = "M",
+            resourceDirectory = "bundles/TharsisMap",
+            resourceFilenames = setOf(JsonBundle.MAPS_FILENAME),
+        )
+
+    bundle.classDeclaration(cn("TharsisMap")).className shouldBe cn("TharsisMap")
+    bundle.marsMapDefinitions.single().className shouldBe cn("Tharsis")
   }
 }

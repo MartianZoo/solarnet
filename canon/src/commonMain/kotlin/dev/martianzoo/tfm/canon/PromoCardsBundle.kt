@@ -12,12 +12,11 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 
-/** The promotional cards currently supported by Canon. */
-internal object PromosExpansion :
-    CanonicalBundle(name = "PromosExpansion", legacyCode = "X", cards = true) {
-  override val customClasses: Set<CustomClass> = setOf(CopyPrelude)
+internal val promoCardsCustomClasses: Set<CustomClass> = setOf(PromoCardsBundle.CopyPrelude)
 
-  private object CopyPrelude : CustomClass("CopyPrelude") {
+/** Namespace for the promotional cards' custom Pets implementations. */
+internal object PromoCardsBundle {
+  internal object CopyPrelude : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
       val card = reader.tfmRuleset.card(cardType.className)
       if (card.deck != PRELUDE) {

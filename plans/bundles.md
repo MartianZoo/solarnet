@@ -21,9 +21,9 @@ the configuration; `GameReader.ruleset` is the resolved runtime source.
 
 ### Bundles have one identity throughout the system
 
-Every ordinary selected bundle has exactly one live game component instance. Its directory,
-Kotlin package, bundle object, and Pets component use the same UpperCamelCase name. Bundle
-membership never adds a Pets dependency or type argument to content classes.
+Every ordinary selected bundle has exactly one live game component instance. Its directory and
+Pets component use the same UpperCamelCase name. Bundle membership never adds a Pets dependency or
+type argument to content classes.
 
 The Pets runtime declarations in `pets/system.pets` are available to every ruleset and are not a
 bundle. Every canonical game includes `TerraformingMars`. Other bundles are selected by their full
@@ -78,6 +78,13 @@ Every canon `.pets` file, JSON file, and custom implementation belongs to a dire
 `canon/bundles`, including unsupported or currently unread data. File ownership does not by itself
 make a file active runtime content.
 
+Canonical directories use the `JsonBundle` naming contract. Every `.pets` file is loaded, and
+conventionally named JSON files such as `cards.json5`, `actions.json5`, and `maps.json5` are loaded
+when present. The build-generated resource index lets this work on both JVM and JavaScript and lets
+the loader warn about unexpected files. When a directory contains Pets files, they explicitly
+declare the bundle component and the loader validates it. When it contains none, the loader
+synthesizes that declaration.
+
 ## Other decisions
 
 ### Canon bundles
@@ -93,7 +100,7 @@ Canon has these bundle directories:
 - `PreludeExpansion`
 - `ColoniesExpansion`
 - `SoloMode`
-- `PromosExpansion`
+- `PromoCardsBundle`
 - `TurmoilExpansion`
 
 `TerraformingMars` replaces the proposed name `Base` and uses the existing `TerraformingMars`

@@ -6,10 +6,8 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.Type
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
@@ -34,41 +32,20 @@ import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.toSetStrict
 
-/** The core Terraforming Mars rules and shared game vocabulary. */
-internal object TerraformingMars :
-    CanonicalBundle(
-        name = "TerraformingMars",
-        legacyCode = "B",
-        cards = true,
-        actions = true,
-    ) {
-  private val petsFilenames =
-      setOf(
-          "global.pets",
-          "maps-tiles.pets",
-          "player.pets",
-          "cards.pets",
-          "actions.pets",
-          "payment.pets",
-      )
+internal val baseCustomClasses: Set<CustomClass> =
+    setOf(
+        TerraformingMars.CreateAdjacencies,
+        TerraformingMars.CheckCardDeck,
+        TerraformingMars.CheckCardRequirement,
+        TerraformingMars.HandleCardCost,
+        TerraformingMars.GetEventVps,
+        TerraformingMars.PassLeft,
+    )
 
-  override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    petsFilenames.flatMap { parseClasses(read(it)) }.toSetStrict()
-  }
-
-  override val customClasses: Set<CustomClass> =
-      setOf(
-          CreateAdjacencies,
-          CheckCardDeck,
-          CheckCardRequirement,
-          HandleCardCost,
-          GetEventVps,
-          PassLeft,
-      )
-
-  private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
+/** Namespace for the core game's custom Pets implementations. */
+internal object TerraformingMars {
+  internal object CreateAdjacencies : CustomClass() {
     override fun translate(reader: GameReader, areaType: Type): Instruction {
       val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
       val area = grid.firstOrNull { it.className == areaType.className } ?: error(areaType)
@@ -92,7 +69,7 @@ internal object TerraformingMars :
     }
   }
 
-  private object CheckCardDeck : CustomClass("CheckCardDeck") {
+  internal object CheckCardDeck : CustomClass() {
     override fun translate(
         reader: GameReader,
         cardBackClassType: Type,
@@ -107,12 +84,12 @@ internal object TerraformingMars :
     }
   }
 
-  private object CheckCardRequirement : CustomClass("CheckCardRequirement") {
+  internal object CheckCardRequirement : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardClassType: Type) =
         Gated.create(cardFromClassType(cardClassType, reader).requirement, NoOp)
   }
 
-  private object HandleCardCost : CustomClass("HandleCardCost") {
+  internal object HandleCardCost : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardFrontClassType: Type): Instruction {
       val card = cardFromClassType(cardFrontClassType, reader)
       if (card.cost == 0) return NoOp
@@ -126,7 +103,7 @@ internal object TerraformingMars :
     }
   }
 
-  private object GetEventVps : CustomClass("GetEventVps") {
+  internal object GetEventVps : CustomClass() {
     override fun translate(reader: GameReader, ignoredOwner: Type, classType: Type): Instruction {
       val effects = cardFromClassType(classType, reader).effects
       return Multi.create(effects.filter { it.trigger == end }.map { it.instruction })
@@ -135,7 +112,7 @@ internal object TerraformingMars :
     private val end: Trigger = parse("End")
   }
 
-  private object PassLeft : CustomClass("PassLeft") {
+  internal object PassLeft : CustomClass() {
     override fun translate(reader: GameReader, component: Type): Instruction {
       val currentOwner: Player = getPlayerOwner(reader, component)
       val current = currentOwner.toString().removePrefix("Player").toInt()

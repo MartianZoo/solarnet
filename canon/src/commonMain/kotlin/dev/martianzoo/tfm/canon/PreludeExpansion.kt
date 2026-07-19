@@ -14,12 +14,11 @@ import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 
-/** The Prelude expansion rules currently supported by Canon. */
-internal object PreludeExpansion :
-    CanonicalBundle(name = "PreludeExpansion", legacyCode = "P", cards = true) {
-  override val customClasses: Set<CustomClass> = setOf(GainLowestProduction)
+internal val preludeCustomClasses: Set<CustomClass> = setOf(PreludeExpansion.GainLowestProduction)
 
-  private object GainLowestProduction : CustomClass("GainLowestProduction") {
+/** Namespace for Prelude's custom Pets implementations. */
+internal object PreludeExpansion {
+  internal object GainLowestProduction : CustomClass() {
     override fun translate(reader: GameReader, owner: Type): Instruction {
       val lowest = lookUpProductionLevels(reader, owner.expression).values.min()
       val options =

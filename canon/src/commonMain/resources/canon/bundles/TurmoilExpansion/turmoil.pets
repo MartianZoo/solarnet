@@ -1,0 +1,2 @@
+"The Turmoil expansion - currently just a few cards, nothing more"
+CLASS TurmoilExpansion : System { HAS =1 This }

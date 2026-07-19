@@ -7,9 +7,16 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 
-/** Implementation for a "custom class" (of the form `CLASS Foo : Custom`). */
-public abstract class CustomClass(override val className: ClassName) : HasClassName {
-  constructor(name: String) : this(cn(name))
+/**
+ * Implementation for a "custom class" (of the form `CLASS Foo : Custom`). By default its Pets class
+ * name is the implementation's Kotlin simple name.
+ */
+public abstract class CustomClass(name: String? = null) : HasClassName {
+  public constructor(className: ClassName) : this(className.toString())
+
+  final override val className: ClassName by lazy {
+    cn(name ?: requireNotNull(this::class.simpleName))
+  }
 
   /**
    * For a type with 0 dependencies: translates an instruction to gain this type into another

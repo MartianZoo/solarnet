@@ -1,22 +1,19 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.TfmRuleset
-import dev.martianzoo.tfm.data.GameSetup
 
 /** The composition of all rulesets containing officially published materials. */
 public object Canon :
     TfmRuleset.Composite(
-        TerraformingMars,
-        SoloMode,
-        CorporateEraExpansion,
-        TharsisMap,
-        HellasMap,
-        ElysiumMap,
-        VenusNextExpansion,
-        PreludeExpansion,
-        ColoniesExpansion,
-        TurmoilExpansion,
-        PromosExpansion,
-    ) {
-  public val SIMPLE_GAME: GameSetup = GameSetup(this, "BM", 2)
-}
+        JsonBundle("TerraformingMars", "B", baseCustomClasses),
+        JsonBundle("SoloMode", "S"),
+        JsonBundle("CorporateEraExpansion", "R", corporateEraCustomClasses),
+        JsonBundle("TharsisMap", "M"),
+        JsonBundle("HellasMap", "H"),
+        JsonBundle("ElysiumMap", "E"),
+        JsonBundle("VenusNextExpansion", "V"),
+        JsonBundle("PreludeExpansion", "P", preludeCustomClasses),
+        JsonBundle("ColoniesExpansion", "C", coloniesCustomClasses),
+        JsonBundle("TurmoilExpansion", "T"),
+        JsonBundle("PromoCardsBundle", "X", promoCardsCustomClasses),
+    )

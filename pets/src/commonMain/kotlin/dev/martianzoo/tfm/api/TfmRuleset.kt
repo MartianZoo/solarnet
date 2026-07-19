@@ -13,6 +13,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
@@ -23,6 +24,19 @@ import dev.martianzoo.util.associateByStrict
  * containing only officially published materials. Others might provide fan-made or test content.
  */
 public abstract class TfmRuleset : Ruleset {
+
+  /** A minimal two-player game using the base game and Tharsis map. */
+  public val SIMPLE_GAME: GameSetup by lazy { simpleGame("BM", 2) }
+
+  /** A minimal solo game using the base game, solo mode, and Tharsis map. */
+  public val SIMPLE_SOLO_GAME: GameSetup by lazy { simpleGame("BSM", 1) }
+
+  private fun simpleGame(bundleCodes: String, players: Int): GameSetup {
+    val selectedCodes = bundleCodes.toSet()
+    val selectedRuleset =
+        Composite(*bundles.filter { it.legacyCode?.singleOrNull() in selectedCodes }.toTypedArray())
+    return GameSetup(selectedRuleset, bundleCodes, players)
+  }
 
   /** Bundle contributions contained anywhere in this ruleset composition. */
   public open val bundles: List<Bundle> = emptyList()

@@ -12,12 +12,12 @@ import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 
-/** The Corporate Era card expansion. */
-internal object CorporateEraExpansion :
-    CanonicalBundle(name = "CorporateEraExpansion", legacyCode = "R", cards = true) {
-  override val customClasses: Set<CustomClass> = setOf(CopyProductionBox)
+internal val corporateEraCustomClasses: Set<CustomClass> =
+    setOf(CorporateEraExpansion.CopyProductionBox)
 
-  private object CopyProductionBox : CustomClass("CopyProductionBox") {
+/** Namespace for Corporate Era's custom Pets implementations. */
+internal object CorporateEraExpansion {
+  internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
       val card: CardDefinition = reader.tfmRuleset.card(cardType.className)
       val immediate =

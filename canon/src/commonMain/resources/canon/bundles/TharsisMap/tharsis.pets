@@ -1,0 +1,2 @@
+"The Tharsis map bundle"
+CLASS TharsisMap : System { HAS =1 This }

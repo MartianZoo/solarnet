@@ -41,7 +41,8 @@ import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
-import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
+import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmColor
@@ -66,7 +67,7 @@ public fun main(args: Array<String>) { // JVM entry point for the shadow JAR
   println("Run ./rego for interactive mode, or pass --serve for server mode.")
 }
 
-public class ScriptSession {
+public class ScriptSession(internal val availableRuleset: TfmRuleset = Canon) {
   internal lateinit var setup: GameSetup
   internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
@@ -84,7 +85,7 @@ public class ScriptSession {
   }
 
   init {
-    newGame(SIMPLE_GAME)
+    newGame(availableRuleset.SIMPLE_GAME)
   }
 
   public fun prompt() = mode.color.foreground(promptPlain())

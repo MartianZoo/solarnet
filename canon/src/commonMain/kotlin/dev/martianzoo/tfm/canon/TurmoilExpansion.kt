@@ -1,5 +1,4 @@
 package dev.martianzoo.tfm.canon
 
-/** The small subset of Turmoil content currently supported by Canon. */
-internal object TurmoilExpansion :
-    CanonicalBundle(name = "TurmoilExpansion", legacyCode = "T", cards = true)
+/** Namespace for Turmoil-specific implementations. */
+internal object TurmoilExpansion
