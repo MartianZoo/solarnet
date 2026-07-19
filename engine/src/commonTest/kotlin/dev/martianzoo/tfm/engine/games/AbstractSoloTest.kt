@@ -7,15 +7,13 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
 
 /**
- * Follow-along solo fixtures intentionally drive phases manually. They use a stocked dummy opponent
- * and inject the app's world-government action between generations, which [TfmWorkflow.Auto] does
- * not support yet.
+ * Follow-along solo fixtures intentionally drive phases manually and inject the app's
+ * world-government action between generations, which [TfmWorkflow.Auto] does not support yet.
  */
 abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
-  protected lateinit var opponent: TfmGameplay
 
-  override fun setup() = GameSetup(Canon, "BRHVPX", 2)
+  override fun setup() = GameSetup(Canon, "BRHVPX", 1)
 
   protected abstract fun cityAreas(): Pair<String, String>
 
@@ -26,26 +24,21 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     super.commonSetup()
 
     me = p1
-    opponent = p2
 
-    me.godMode().manual("-6 TR")
     if ("C" in setup().bundles) me.godMode().manual("PROD[-2]")
 
-    val opp = opponent.godMode()
-    opp.manual("CityTile<${cityAreas().first}>")
-    opp.manual("GreeneryTile<${greeneryAreas().first}>")
-    opp.manual("CityTile<${cityAreas().second}>")
-    opp.manual("GreeneryTile<${greeneryAreas().second}>")
-
-    opp.manual("99, 99 S, 99 T, 99 P, 99 E, 99 H")
-    opp.manual("PROD[99, 99 S, 99 T, 99 P, 99 E, 99 H]")
+    val setup = engine.godMode()
+    setup.manual("CityTile<${cityAreas().first}, Opponent>")
+    setup.manual("GreeneryTile<${greeneryAreas().first}, Opponent>")
+    setup.manual("CityTile<${cityAreas().second}, Opponent>")
+    setup.manual("GreeneryTile<${greeneryAreas().second}, Opponent>")
 
     engine.phase("Corporation")
   }
 
   protected fun nextRound(wgt: String, cardsBought: Int) {
     p1.pass()
-    opponent.godMode().manual(wgt)
-    engine.nextGeneration(cardsBought, 0)
+    engine.godMode().manual(wgt)
+    engine.nextGeneration(cardsBought)
   }
 }

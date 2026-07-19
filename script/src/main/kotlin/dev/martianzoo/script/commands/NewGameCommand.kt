@@ -14,8 +14,8 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         Erases your current game and starts a new one. You can't undo that (but you can get your
         command history out of ~/.rego_session and replay it.) For <bundles>, jam some letters
         together: B=Base, R=coRpoRate eRa, M=Tharsis, H=Hellas, X=Promos, and the rest are what
-        you'd think. The player count can be from 1 to 5, but if you choose 1, you are NOT getting
-        any of the actual solo rules!
+        you'd think. The player count can be from 1 to 5. A count of 1 applies the solo starting
+        state, but game length, world-government terraforming, and victory checking remain manual.
 
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
@@ -42,7 +42,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
 
       return listOf("New $playerCount-player game created with bundles: $bundleString") +
           (if (purple) listOf("Purple mode: workflow active") else listOf()) +
-          (if (playerCount == 1) listOf("NOTE: No solo mode rules are implemented.") else listOf())
+          (if (playerCount == 1) listOf("NOTE: Solo game flow is not yet automated.") else listOf())
     } catch (e: RuntimeException) {
       throw UsageException(e.message)
     }

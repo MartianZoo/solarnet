@@ -21,7 +21,7 @@ internal class ApiUtilsTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val plant = game.gameplay(PLAYER1).resolve("Plant")
 
-    getOwner(game.reader, plant) shouldBe PLAYER1
+    getOwner(game.reader, plant).className shouldBe PLAYER1.className
     getPlayerOwner(game.reader, plant) shouldBe PLAYER1
   }
 

@@ -41,7 +41,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("IndustrialMicrobes", 4).expect("PROD[S, E], MicrobeTag")
       pass()
 
-      engine.nextGeneration(2, 0)
+      engine.nextGeneration(2)
 
       assertProduction(m = 7, s = 1, t = 2, p = 1, e = 1, h = 0)
       assertResources(m = 22, s = 1, t = 2, p = 1, e = 1, h = 0)
@@ -53,17 +53,18 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("AcquiredCompany", 10).expect("EarthTag, PROD[3]")
       pass()
 
-      engine.nextGeneration(2, 0)
+      engine.nextGeneration(2)
 
       val ForcedPrecipitation = "ForcedPrecipitation"
-      playProject("AsteroidCard", 2, titanium = 4) { doTask("-2 Plant<P2>") }.expect("TEMP, TR")
+      playProject("AsteroidCard", 2, titanium = 4) { doTask("-2 Plant<Opponent>") }
+          .expect("TEMP, TR")
       playProject("PeroxidePower", 3, steel = 2)
       playProject(ForcedPrecipitation, 8)
       cardAction1(ForcedPrecipitation).expect("-2, Floater")
       playProject("Solarnet", 7).expect("2 Card")
       pass()
 
-      engine.nextGeneration(1, 0)
+      engine.nextGeneration(1)
 
       assertProduction(m = 9, s = 1, t = 2, p = 1, e = 3, h = 0)
       assertResources(m = 29, s = 1, t = 4, p = 3, e = 3, h = 2)
@@ -81,16 +82,16 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements).expect("Card")
       pass()
 
-      engine.nextGeneration(2, 0)
+      engine.nextGeneration(2)
 
       cardAction1(SubCrustMeasurements).expect("Card")
       cardAction2(ForcedPrecipitation).expect("TR")
       cardAction1(RegolithEaters)
-      playProject("SmallAsteroid", 1, titanium = 3) { doTask("-2 Plant<P2>") }.expect("TR")
+      playProject("SmallAsteroid", 1, titanium = 3) { doTask("-2 Plant<Opponent>") }.expect("TR")
       stdProject("AsteroidSP").expect("PROD[H]")
       playProject("MagneticFieldDome", 3, steel = 1).expect("TR, PROD[P, -2 E], AutomatedCard")
 
-      engine.nextGeneration(2, 0)
+      engine.nextGeneration(2)
 
       assertProduction(m = 9, s = 1, t = 2, p = 2, e = 1, h = 1)
       assertResources(m = 22, s = 1, t = 5, p = 6, e = 1, h = 9)
@@ -103,12 +104,13 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements).expect("ProjectCard")
       cardAction2(RegolithEaters).expect("O2, TR")
       playProject("FueledGenerators", 1)
-      playProject("EnergyTapping", 3) { doTask("PROD[-E<P2>]") }.expect("PROD[E<P1>, -E<P2>]")
+      playProject("EnergyTapping", 3) { doTask("PROD[-E<Opponent>]") }
+          .expect("PROD[E<P1>, -E<Opponent>]")
       playProject("MagneticShield", 9, titanium = 5).expect("4 TR")
       cardAction1(ForcedPrecipitation)
 
       pass()
-      nextGeneration(3, 0)
+      nextGeneration(3)
 
       stdAction("ConvertPlantsSA") {
         doTask("GreeneryTile<H97>")
@@ -127,7 +129,6 @@ class SoloGame0611Test : AbstractSoloTest() {
       phase("Production") { me.doTask("1 Heat<P1> FROM Energy<P1>") }
       phase("Research") {
         me.doTask("3 BuyCard")
-        opponent.doTask("Ok")
       }
       phase("Action")
 
@@ -153,7 +154,6 @@ class SoloGame0611Test : AbstractSoloTest() {
       phase("Production") { me.doTask("Ok") }
       phase("Research") {
         me.doTask("2 BuyCard")
-        opponent.doTask("Ok")
       }
       phase("Action")
 
@@ -172,7 +172,6 @@ class SoloGame0611Test : AbstractSoloTest() {
       phase("Production") { me.doTask("2 Heat FROM Energy") }
       phase("Research") {
         me.doTask("Ok")
-        opponent.doTask("Ok")
       }
       phase("Action")
 
@@ -199,7 +198,6 @@ class SoloGame0611Test : AbstractSoloTest() {
       phase("Production") { me.doTask("3 Heat FROM Energy") }
       phase("Research") {
         me.doTask("3 BuyCard")
-        opponent.doTask("Ok")
       }
       phase("Action")
 
@@ -226,7 +224,6 @@ class SoloGame0611Test : AbstractSoloTest() {
       phase("Production") { me.doTask("Ok") }
       phase("Research") {
         me.doTask("Ok")
-        opponent.doTask("Ok")
       }
       phase("Action")
 

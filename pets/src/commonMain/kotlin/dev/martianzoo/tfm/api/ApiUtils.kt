@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.Type
-import dev.martianzoo.data.Owner
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -17,17 +16,19 @@ import dev.martianzoo.util.toSetStrict
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
 object ApiUtils {
   /** Returns the direct owner dependency of a concrete component type. */
-  fun getOwner(game: GameReader, component: Type): Owner {
+  fun getOwner(game: GameReader, component: Type): Type {
     val ownerType: Type = game.resolve(OWNER.expression)
     val owner: Expression =
         component.expressionFull.arguments.single { game.resolve(it).narrows(ownerType, game) }
-    return Owner.fromClassName(owner.className)
+    return game.resolve(owner)
   }
 
   /** Returns [getOwner], requiring that the component is owned by a seated [Player]. */
   fun getPlayerOwner(game: GameReader, component: Type): Player =
-      getOwner(game, component) as? Player
-          ?: error("component is not owned by a Player: $component")
+      getOwner(game, component).className.let {
+        if (Player.isValid(it)) Player(it)
+        else error("component is not owned by a Player: $component")
+      }
 
   /**
    * Returns a map with six entries, giving [player]'s current production levels, adjusting

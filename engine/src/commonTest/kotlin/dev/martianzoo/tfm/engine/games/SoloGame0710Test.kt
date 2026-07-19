@@ -12,7 +12,7 @@ class SoloGame0710Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
     // There was Miranda too but I discarded it
     val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
-    return GameSetup(Canon, "BRMVPCTX", 2, colonyTiles)
+    return GameSetup(Canon, "BRMVPCTX", 1, colonyTiles)
   }
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"
@@ -132,7 +132,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }
 
       playProject("GiantIceAsteroid", 18, titanium = 4) {
-        doTask("-6 Plant<Player2>")
+        doTask("-6 Plant<Opponent>")
         doFirstTask("OceanTile<Tharsis_5_4>")
         doFirstTask("OceanTile<Tharsis_5_6>")
       }
@@ -166,7 +166,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       nextRound("OxygenStep", 2)
 
-      playProject("MiningExpedition", 11) { doTask("-2 Plant<Player2>") }
+      playProject("MiningExpedition", 11) { doTask("-2 Plant<Opponent>") }
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
       playProject("StripMine", 12, steel = 4)
@@ -174,7 +174,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       val SubZeroSaltFish = "SubZeroSaltFish"
       playProject(SubZeroSaltFish, 4) {
-        doTask("PROD[-Plant<Player2>]")
+        doTask("PROD[-Plant<Opponent>]")
         doTask("Animal<$SubZeroSaltFish>") // Viral Enhancers
       }
       cardAction1(SubZeroSaltFish).expect("Animal")
@@ -248,10 +248,10 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdProject("CitySP") { doTask("CityTile<Tharsis_9_5>") }
       playProject("SpacePort", 3, steel = 6) {
         doTask("CityTile<Tharsis_6_2>")
-        doTask("TradeFleetC")
+        doTask("TradeFleetB")
       }
       sellPatents(1)
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede, TradeFleetA>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Ganymede, TradeFleetB>") }
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_7_6>") }
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_3>") }
       stdProject("AirScrappingSP")

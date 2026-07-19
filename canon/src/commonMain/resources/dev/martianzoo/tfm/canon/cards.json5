@@ -68,7 +68,7 @@
       "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
       "components": [
         "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
-        "CLASS TrWatcher : Owned, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
+        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
       ]
     },
 
@@ -252,7 +252,7 @@
 
         // Must be exact copies of UNMI's
         "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
-        "CLASS TrWatcher : Owned, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
+        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
       ],
       "resourceType": "Preservation"
     },
@@ -3605,7 +3605,7 @@
       "effects": [ "End: VictoryPoint" ],
       "components": [
         "CLASS AllDraw : Signal",
-        "CLASS Card247Watcher : Owned { HAS =1 This; AllDraw: ProjectCard }"
+        "CLASS Card247Watcher : Owned<Player> { HAS =1 This; AllDraw: ProjectCard }"
       ],
       "cost": 9,
       "projectKind": "AUTOMATED",

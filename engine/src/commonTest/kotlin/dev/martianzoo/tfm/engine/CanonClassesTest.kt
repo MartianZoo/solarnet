@@ -8,6 +8,8 @@ import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -20,6 +22,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -45,9 +48,7 @@ internal class CanonClassesTest {
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
-    anomalies
-        .classNames()
-        .shouldContainExactlyInAnyOrder(ANYONE, OWNER, cn("NoctisArea"), cn("Barrier"))
+    anomalies.classNames().shouldContainExactlyInAnyOrder(ANYONE, cn("NoctisArea"), cn("Barrier"))
   }
 
   @Test
@@ -69,6 +70,38 @@ internal class CanonClassesTest {
   fun setupSeparatesPlayersFromActors() {
     Canon.SIMPLE_GAME.players().shouldContainExactly(PLAYER1, PLAYER2)
     Canon.SIMPLE_GAME.actors().shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    (cn("SoloMode") in game.classes.allClassNamesAndIds) shouldBe true
+    game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 0
+    game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 0
+  }
+
+  @Test
+  fun soloSetupUsesPetsOnlyOpponent() {
+    val game = Engine.newGame(GameSetup(Canon, "BM", 1))
+    game.setup.players().shouldContainExactly(PLAYER1)
+    game.setup.actors().shouldContainExactly(PLAYER1, ENGINE)
+    game.classes.allClassNamesAndIds.shouldNotContain(cn("Player2"))
+    game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
+    game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 1
+    game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
+    listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
+      game.gameplay(PLAYER1).count("$it<Opponent>") shouldBe 99
+      game.gameplay(PLAYER1).count("PROD[$it<Opponent>]") shouldBe 99
+    }
+
+    val engine = game.gameplay(ENGINE) as GodMode
+    engine.manual("CityTile<Tharsis_4_1, Opponent>")
+    engine.manual("OceanTile<Tharsis_1_2>")
+    engine.manual("CityTile<Tharsis_2_2, Opponent>")
+    listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
+      game.gameplay(PLAYER1).count("$it<Opponent>") shouldBe 99
+      game.gameplay(PLAYER1).count("$it<Player1>") shouldBe 0
+    }
+
+    engine.manual("End")
+    game.gameplay(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test
@@ -148,9 +181,9 @@ internal class CanonClassesTest {
     }
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)
-    checkConcreteSubtypeCount("Plant", 2)
+    checkConcreteSubtypeCount("Plant", 3)
     checkConcreteSubtypeCount("StandardResource<Player1>", 6)
-    checkConcreteSubtypeCount("StandardResource", 12)
+    checkConcreteSubtypeCount("StandardResource", 18)
     checkConcreteSubtypeCount("Class<StandardResource>", 6)
 
     checkConcreteSubtypeCount("Class<MarsArea>", 61)
@@ -158,13 +191,13 @@ internal class CanonClassesTest {
     checkConcreteSubtypeCount("Class<Tile>", 11)
     checkConcreteSubtypeCount("Class<SpecialTile>", 8)
 
-    checkConcreteSubtypeCount("CityTile", 63 * 2)
+    checkConcreteSubtypeCount("CityTile", 63 * 3)
     checkConcreteSubtypeCount("OceanTile", 61)
-    checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
-    checkConcreteSubtypeCount("SpecialTile", (8 * 61) * 2)
+    checkConcreteSubtypeCount("GreeneryTile", 61 * 3)
+    checkConcreteSubtypeCount("SpecialTile", (8 * 61) * 3)
 
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
-    type.allConcreteSubtypes().count() shouldBe 1285 // ?
+    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 3) + (61 * 3) + (8 * 61 * 3)
   }
 }

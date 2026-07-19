@@ -28,7 +28,7 @@ data class GameSetup(
      */
     val bundleString: String,
 
-    /** Number of players. Only 2-5 are supported for now. Solo mode will take quite some work. */
+    /** Number of seated Players. A count of 1 activates the partially implemented solo setup. */
     val players: Int,
     val colonyTilesDesired: Set<ClassName> = setOf(),
 ) {

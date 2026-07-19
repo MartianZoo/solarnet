@@ -29,7 +29,7 @@ abstract class AbstractFullGameTest {
     game = Engine.newGame(setup())
     engine = game.tfm(ENGINE)
     p1 = game.tfm(PLAYER1)
-    p2 = game.tfm(PLAYER2)
+    if (PLAYER2 in game.setup.players()) p2 = game.tfm(PLAYER2)
   }
 
   fun copyThis() {

@@ -86,13 +86,13 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
       // over every other identity here: when Player1 places beside Player2's Philares tile, Player2
       // owns the effect and therefore chooses the standard resource. Using the changed tile's Owner
       // instead would incorrectly give that choice to Player1. This is intentionally Player-only:
-      // no accepted SoloOpponent rule gives a passive Owner triggered choices or pending work.
-      val effectOwner = context.owner as? Player
+      // no accepted Opponent rule gives a passive Owner triggered choices or pending work.
+      val effectOwner = context.playerOwner
 
       // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
       // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
       // gameplay scope that happens to execute the effect. A passive Owner is ignored here because
-      // ownership alone must not give SoloOpponent task or gameplay authority.
+      // ownership alone must not give Opponent task or gameplay authority.
       val changedComponentPlayer = changedComponentPlayer(triggerEvent, reader)
 
       // If neither the effect nor the changed component supplies ownership, a Player Actor is the
@@ -125,7 +125,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
     private fun changedComponentPlayer(triggerEvent: ChangeEvent, reader: GameReader): Player? {
       val expression = triggerEvent.change.gaining ?: triggerEvent.change.removing ?: return null
-      return (reader.resolve(expression) as MType).toComponent().owner as? Player
+      return (reader.resolve(expression) as MType).toComponent().playerOwner
     }
   }
 
@@ -144,7 +144,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           is WrappingTrigger -> {
             val inner = from(trigger.inner, context)
             when (trigger) {
-              is ByTrigger -> Personal(inner, trigger.by, context.owner as? Player)
+              is ByTrigger -> Personal(inner, trigger.by, context.playerOwner)
               is IfTrigger -> Conditional(inner, trigger.condition)
               is XTrigger -> Unscaled(inner)
               is Transform -> error("should have been transformed by now: $trigger")
@@ -156,8 +156,8 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
     /**
      * [contextualOwner] is the Player used to bind contextual `Owner` placeholders in a triggered
-     * instruction. It is not generalized to every [dev.martianzoo.data.Owner]: this path produces
-     * executable or choice-bearing work, and no passive-Owner rule for that work has been defined.
+     * instruction. It is not generalized to every Pets Owner: this path produces executable or
+     * choice-bearing work, and no passive-Owner rule for that work has been defined.
      */
     abstract fun checkForHit(
         currentEvent: ChangeEvent,

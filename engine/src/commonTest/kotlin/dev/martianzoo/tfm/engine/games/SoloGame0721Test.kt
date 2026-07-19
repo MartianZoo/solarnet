@@ -11,7 +11,7 @@ import kotlin.test.Test
 class SoloGame0721Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
     val colonyTiles = setOf(cn("Ceres"), cn("Luna"), cn("Triton")) // and Enceladus
-    return GameSetup(Canon, "BREVPCTX", 2, colonyTiles)
+    return GameSetup(Canon, "BREVPCTX", 1, colonyTiles)
   }
 
   // Could at some point calculate these automatically from cards drawn
@@ -120,7 +120,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("UseAction1<$UnitedNationsMarsInitiative>")
       }
       // me played Energy Tapping
-      playProject("EnergyTapping", 3) { doTask("PROD[-Energy<P2>]") }
+      playProject("EnergyTapping", 3) { doTask("PROD[-Energy<Opponent>]") }
 
       // me passed
       // me acted as World Government and increased temperature
@@ -216,7 +216,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction2(ExtractorBalloons).expect("TR")
       // me played Mining Expedition
       // me's steel amount increased by 2
-      playProject("MiningExpedition", 12) { doTask("-2 Plant<P2>") }.expect("2 Steel, TR")
+      playProject("MiningExpedition", 12) { doTask("-2 Plant<Opponent>") }.expect("2 Steel, TR")
 
       // NOTE: this is a hack, because I should have banned Flooding
       // me played Flooding

@@ -7,12 +7,20 @@
 CLASS TerraformingMars : System, AutoLoad {
   HAS =1 This
 
+  This IF =1 Player:: SoloMode
   SetupPhase: Generation THEN StartToken<Player1>
   CorporationPhase: Photosynthesis
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed
   Pay<Class<Titanium>>:: -3 Owed                       // should be innocuous for TradeSA...
+}
+
+"Configures the starting state used by the solo variant"
+CLASS SoloMode : System {
+  HAS MAX 1 This
+
+  SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
 }
 
 CLASS Photosynthesis {

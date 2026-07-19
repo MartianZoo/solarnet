@@ -12,7 +12,7 @@ sealed interface Actor : HasClassName, HasExpression {
   }
 }
 
-/** An identity that can own game-state components. */
+/** A runtime identity that can own game-state components. */
 sealed interface Owner : HasClassName, HasExpression {
   companion object {
     /** Returns the supported runtime Owner represented by [className]. */

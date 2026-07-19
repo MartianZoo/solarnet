@@ -44,11 +44,8 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
   creation, and other Colonies setup with extension-owned declarations or setup hooks so additional
   expansions do not require more hard-coded engine branches. (Needs discussion)
 - Issue #1: Shuffle-and-deal mode
-- Issue #2: Solo mode — Replace the stocked dummy Player2 with an Owner-only `SoloOpponent`, without
-  giving it a seat, turn, task queue, execution scope, corporation, hand, or Player-board assets.
-  Preserve the current fixed removable stock and work out the neutral host model for card resources
-  (for example, the imaginary animal that Predators may remove) without giving the opponent a
-  playable `CardFront`.
+- Issue #2: Solo mode — Work out the neutral host model for card resources (for example, the
+  imaginary animal that Predators may remove) without giving Opponent a playable `CardFront`.
 - Issue #4: Turmoil
 - Issue #5: Game configurations
 - Issue #9: Community

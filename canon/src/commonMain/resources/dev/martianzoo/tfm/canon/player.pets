@@ -3,12 +3,12 @@ ABSTRACT CLASS Actor
 
 "The icon-grammar spelling for an unrestricted ownership target"
 ABSTRACT CLASS Anyone[ANY] {
-  "An entity that can own things; solo mode will eventually add a non-Player owner"
+  "An entity that can own things, including the non-Player Opponent in solo mode"
   ABSTRACT CLASS Owner {
-    HAS =1 This
-
     "One of the actual people or bots playing Terraforming Mars"
     ABSTRACT CLASS Player : Actor {
+      HAS =1 This
+
       This: GrossHack<This>, Entropy<This>
 
       SetupPhase:: 20 TerraformRating<This>
@@ -17,6 +17,13 @@ ABSTRACT CLASS Anyone[ANY] {
       ResearchPhase: 4 BuyCard<This>?
 
       CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
+    }
+
+    "The passive owner of the removable neutral stock in solo mode"
+    CLASS Opponent[OPP] {
+      HAS MAX 1 This
+      This::      99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
+      This:: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]
     }
   }
 }

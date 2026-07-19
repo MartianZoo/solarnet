@@ -1,7 +1,7 @@
 # Desired end state
 
 We have the smallest coherent identity model that preserves the Lakefront Resorts fix, correctly
-supports Philares, and leaves a narrow, clean path to `SoloOpponent`:
+supports Philares, and leaves a narrow, clean path to `Opponent`:
 
 - Every pending task has one **assignee**, meaning the entity whose pending work contains the task
   and who chooses which task in that work to prepare. Assignment alone does not settle who makes
@@ -21,7 +21,7 @@ supports Philares, and leaves a narrow, clean path to `SoloOpponent`:
 - The stable identity vocabulary and invariants are easy to locate in code, tests, and maintained
   documentation, and we have done the standard cleanup checks.
 
-`SoloOpponent`, an explicit language representation for contextual Owner binding, and the exact
+`Opponent`, an explicit language representation for contextual Owner binding, and the exact
 cross-owner preparation handoff are meaningful follow-on changes, not part of this stopping point.
 World Government Terraforming, a separate `Npc` hierarchy,
 generalized configured-identity lookup, neutral-Actor behavior, and neutral hosting of card
@@ -48,7 +48,7 @@ preparation constraints clarified by user on 2026-07-18, with their representati
   component effect is also evidence for who is entitled to make choices within it.
 - **Player:** A seated participant in the game. A Player is both an Owner and an Actor.
 - **Engine:** The non-player Actor that performs administrative game operations.
-- **SoloOpponent:** The passive Owner used by solo play. It is not a Player or an Actor and does not
+- **Opponent:** The passive Owner used by solo play. It is not a Player or an Actor and does not
   receive turns, tasks, or gameplay authority.
 
 ### Task assignment
@@ -102,7 +102,7 @@ preparation constraints clarified by user on 2026-07-18, with their representati
 1. Compare the post-safety-net implementation with the historical baseline and remove identity
    lookup by guessed names plus other generalization needed only by hypothetical Actors or World
    Government. Prefer the earlier ownership/default behavior wherever the newer type-system work
-   is not required by protected rule facts around Philares or the narrow `SoloOpponent` seam. Do
+   is not required by protected rule facts around Philares or the narrow `Opponent` seam. Do
    not treat the current Philares queue topology as one of those rule facts.
 2. Keep the remaining contextual Owner-binding behavior narrow and explicit at the sites that need
    it. Keep the manufactured `BY Owner` form internal and plainly documented as a temporary
@@ -115,12 +115,6 @@ preparation constraints clarified by user on 2026-07-18, with their representati
 
 ## Deferred decisions
 
-- **Decision:** Introduce `SoloOpponent` as an Owner-only identity with the fixed removable stock
-  needed by solo play.
-  - **Why deferred:** It is the next concrete feature after this stopping point and should validate
-    the seam rather than shape the cleanup speculatively.
-  - **Evidence that will resolve it:** Focused solo setup and stock-removal tests showing that it
-    needs no seat, turn, task queue, gameplay scope, corporation, hand, or ordinary Player assets.
 - **Decision:** Give contextual Owner binding an explicit representation instead of manufacturing
   `BY Owner`.
   - **Why deferred:** The temporary class-effect encoding must first be fully inventoried and tested
@@ -138,7 +132,7 @@ preparation constraints clarified by user on 2026-07-18, with their representati
     Player's remaining work stays suspended, and resolution resumes with explicit Actor
     attribution.
 - **Decision:** Model neutral hosting of card resources.
-  - **Why deferred:** It is a distinct design problem and must not turn `SoloOpponent` into a
+  - **Why deferred:** It is a distinct design problem and must not turn `Opponent` into a
     Player.
   - **Evidence that will resolve it:** A concrete neutral-hosting rule and tests that expose the
     exact ownership and lifecycle requirements.
@@ -147,9 +141,16 @@ preparation constraints clarified by user on 2026-07-18, with their representati
 
 - The approved identity plan was moved from `docs/` to `plans/` in
   `9b64b5b6fb323383c4cd1619176046c031035aab`; repository links now follow its maintained location.
-- The Owner, Actor, Player, Engine, task-assignment, and SoloOpponent concepts and the intended
+- The Owner, Actor, Player, Engine, task-assignment, and Opponent concepts and the intended
   stopping point were consolidated in the identity handoff at starting commit
   `aaaa6313385665941475e613bca39e099eb3d6c6`.
+- `TerraformingMars` always loads the Pets-only `SoloMode` class and creates its at-most-one
+  component only when exactly one Player exists. Its Pets effects create the Owner-only `Opponent`
+  and remove 6 TR from Player1; Opponent's own self-effect provides its fixed
+  removable standard resource and production stock. The full solo fixtures have no Player2 class, component, gameplay
+  scope, task queue, corporation, hand, or Player-board assets. Player-bound outputs inherited by
+  Opponent-owned components are inapplicable, so its starting tiles do not retain victory points;
+  placement bonuses and ocean-adjacency bonuses also ignore their Engine-performed placement.
 - The Lakefront Resorts Actor/Owner regression was fixed and protected in
   `1b8fc651fa8c2ce51dc8d523d476e98572c4d614`.
 - Every authored canonical `BY` source effect is protected by a change-detecting inventory and direct card

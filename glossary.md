@@ -55,7 +55,7 @@
 - **Narrowing:** Replacing an abstract type or task/instruction with a valid, more specific one. When finally narrowed to a *concrete* task it can be executed.
 - **No-op:** The `Ok` instruction, which always succeeds without changing game state.
 - **Owned:** The root class for components whose type carries an ownership dependency.
-- **Owner:** An entity that may own components; represented independently from Actor in both Pets and the runtime identity model. `Owner` in Pets is also a contextual placeholder specialized before use.
+- **Owner:** An entity that may own components. Components expose their concrete Owner as a resolved Pets type; Kotlin runtime identities implement `Owner` only when code needs that entity to participate directly, which currently means Players. `Owner` in Pets is also a contextual placeholder specialized before use.
 - **Pets:** Solarnet's specification language for component types, rules, and game-state changes.
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **Prepared task:** A task simplified against current game state and therefore required to finish next; it may still need further narrowing.
@@ -70,7 +70,7 @@
 - **Short name:** A compact class alias such as `TR`, sharing a namespace with full class names.
 - **Signal:** A temporary component that immediately removes itself after triggering its effects.
 - **Singleton type:** A concrete type for which one component is created automatically during initialization.
-- **SoloOpponent:** The planned passive Owner for solo play; it is not a Player or Actor and receives no tasks or turns.
+- **Opponent:** The passive Owner created by SoloMode; it is not a Player or Actor and receives no tasks or turns.
 - **Source effect:** An effect as authored in `.pets` or JSON data, before engine transformations.
 - **Specialization:** A type expression inside `<...>` that narrows one of a class's dependencies; specializations need not follow dependency declaration order.
 - **State change:** An exact component gain, removal, or transmutation that happened in a game.
