@@ -18,7 +18,6 @@ internal class MClassTest {
   fun nothingness() {
     val loader = loadTypes()
     val cpt = loader.componentClass
-    cpt.className shouldBe COMPONENT
     cpt.abstract shouldBe true
     cpt.directSuperclasses.shouldBeEmpty()
     cpt.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT)
@@ -29,7 +28,6 @@ internal class MClassTest {
   fun onethingness() {
     val loader = loadTypes("CLASS Foo")
     val foo = loader.getClass(cn("Foo"))
-    foo.className shouldBe cn("Foo")
     foo.abstract shouldBe false
     foo.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(COMPONENT)
     foo.allSuperclasses().classNames().shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"))

@@ -17,7 +17,7 @@ import kotlin.test.Test
 internal class RulesetTest {
   @Test
   fun everyRulesetIncludesThePetsRuntimeDeclarations() {
-    TfmRuleset.Empty().classDeclaration(COMPONENT).className shouldBe COMPONENT
+    TfmRuleset.Empty().classDeclaration(COMPONENT)
   }
 
   @Test

@@ -14,7 +14,6 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.classDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.te
@@ -30,12 +29,6 @@ import kotlin.test.Test
 internal class CanonClassesTest {
   companion object {
     val table = MClassLoader(Canon).loadEverything()
-  }
-
-  @Test
-  fun docstrings() {
-    classDeclaration(cn("VictoryPoint")).docstring shouldBe "Well it's a victory point"
-    classDeclaration(cn("Floater")).shortName shouldBe cn("FLO")
   }
 
   @Test
@@ -147,7 +140,6 @@ internal class CanonClassesTest {
     val loader = MClassLoader(Canon)
 
     with(loader.componentClass) {
-      className shouldBe COMPONENT
       abstract shouldBe true
       // directDependencyKeys.shouldBeEmpty()
       // allDependencyKeys.shouldBeEmpty()

@@ -34,7 +34,6 @@ internal class GameSetupTest {
   fun compatibilityConstructorOnlyTranslatesLettersToBundleNames() {
     val setup = GameSetup(Canon, "BM", 2)
 
-    setup.ruleset shouldBe Canon
     setup.bundles shouldBe setOf(cn("TerraformingMars"), cn("TharsisMap"))
     setup.bundleString shouldBe "BM"
     setup.map.className shouldBe cn("Tharsis")

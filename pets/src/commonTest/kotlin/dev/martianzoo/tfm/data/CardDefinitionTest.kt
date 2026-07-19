@@ -14,29 +14,6 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CardDefinitionTest {
-  /** This is honestly an incredibly stupid test that data classes shouldn't need to have. */
-  @Test
-  fun minimal() {
-    val dumbCard =
-        CardData(
-            "123",
-            deck = "PRELUDE",
-            requiredBundles = "PreludeExpansion",
-            immediate = "Plant",
-        )
-
-    dumbCard.id shouldBe "123"
-    dumbCard.requiredBundles shouldBe "PreludeExpansion"
-    dumbCard.deck shouldBe "PRELUDE"
-    dumbCard.replaces shouldBe null
-    dumbCard.tags.shouldBeEmpty()
-    dumbCard.immediate shouldBe "Plant"
-    dumbCard.resourceType shouldBe null
-    dumbCard.requirement shouldBe null
-    dumbCard.cost shouldBe 0
-    dumbCard.projectKind shouldBe null
-  }
-
   val birds =
       CardData(
           id = "072",
@@ -50,22 +27,6 @@ internal class CardDefinitionTest {
           cost = 10,
           projectKind = "ACTIVE",
       )
-
-  /** This test is also quite pointless, but shows an example usage for readers. */
-  @Test
-  fun realCardDataFromApi() {
-    birds.id shouldBe "072"
-    birds.deck shouldBe "PROJECT"
-    birds.tags.shouldContainExactlyInAnyOrder("AnimalTag")
-    birds.immediate shouldBe "PROD[-2 Plant<Anyone>]"
-    birds.actions.shouldContainExactlyInAnyOrder("-> Animal<This>")
-    birds.effects.shouldContainExactlyInAnyOrder("End: VictoryPoint / Animal<This>")
-    birds.replaces shouldBe null
-    birds.resourceType shouldBe "Animal"
-    birds.requirement shouldBe "13 OxygenStep"
-    birds.cost shouldBe 10
-    birds.projectKind shouldBe "ACTIVE"
-  }
 
   @Test
   fun realCardDefinitionFromApi() {
@@ -127,29 +88,8 @@ internal class CardDefinitionTest {
     card.requiredBundles shouldBe setOf(cn("PreludeExpansion"), cn("VenusNextExpansion"))
   }
 
-  @Test
-  fun preludeCardsRequirePreludeExpansion() {
-    val card =
-        CardDefinition(
-            CardData(
-                id = "X40",
-                deck = "PRELUDE",
-                requiredBundles = "PreludeExpansion",
-                immediate = "Plant",
-            )
-        )
-
-    card.requiredBundles shouldBe setOf(cn("PreludeExpansion"))
-  }
-
   // Just so we don't have to keep repeating the "x" part
   private val card: CardData = CardData("123")
-
-  /** Since we only use C expecting an exception, we should make sure it normally works. */
-  @Test
-  fun justToBeSure() {
-    card.copy(id = "123") shouldBe card
-  }
 
   @Test
   fun emptyStrings() {

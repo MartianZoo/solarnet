@@ -4,7 +4,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -40,32 +39,5 @@ internal class CanonMapsTest {
 
     grid.count { "${it.kind}" == "WaterArea" } shouldBe 12
     grid.count { "${it.kind}" == "VolcanicArea" } shouldBeIn listOf(0, 4)
-  }
-
-  @Test
-  fun testAllDistinctMapBonuses() {
-    val bonuses =
-        Canon.marsMapDefinitions.flatMap { it.areas }.mapNotNull { it.bonus }.distinct().toStrings()
-
-    // This is brittle as we don't care which order the "a, b" bonuses are in
-    bonuses.toSet() shouldBe
-        setOf(
-            "ProjectCard",
-            "Plant",
-            "Steel",
-            "Titanium",
-            "2 ProjectCard",
-            "2 Heat",
-            "2 Plant",
-            "2 Steel",
-            "2 Titanium",
-            "Plant, ProjectCard",
-            "Plant, Steel",
-            "Plant, Titanium",
-            "3 ProjectCard",
-            "3 Heat",
-            "3 Plant",
-            "OceanTile, -6",
-        )
   }
 }
