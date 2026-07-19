@@ -33,6 +33,11 @@ public abstract class TfmRuleset : Ruleset {
   /** Bundle contributions contained anywhere in this ruleset composition. */
   public open val bundleRulesets: List<Bundle> = emptyList()
 
+  /** Bundle provenance for declarations contributed directly in Pets source. */
+  internal open val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by lazy {
+    explicitClassDeclarations.associateWith { emptySet() }
+  }
+
   /**
    * Resolves this source to its always-included and explicitly selected bundle contributions.
    * Non-bundle contributions are retained.
@@ -66,6 +71,8 @@ public abstract class TfmRuleset : Ruleset {
     override val allBundles: Set<String> by selectedSource::allBundles
     override val explicitClassDeclarations: Set<ClassDeclaration> by
         selectedSource::explicitClassDeclarations
+    override val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by
+        selectedSource::explicitDeclarationBundles
     override val customClasses: Set<CustomClass> by selectedSource::customClasses
 
     override val cardDefinitions: Set<CardDefinition> by lazy {
@@ -173,6 +180,25 @@ public abstract class TfmRuleset : Ruleset {
     } catch (e: IllegalArgumentException) {
       throw PetException("Multiple class declarations must be identical: ${e.message}")
     }
+  }
+
+  override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
+    val contributions = mutableMapOf<ClassName, MutableSet<ClassName>>()
+
+    fun contribute(declaration: ClassDeclaration, bundles: Set<ClassName>) {
+      contributions.getOrPut(declaration.className, ::mutableSetOf).addAll(bundles)
+    }
+
+    explicitDeclarationBundles.forEach { (declaration, bundles) ->
+      contribute(declaration, bundles)
+    }
+    allDefinitions.forEach { definition ->
+      contribute(definition.asClassDeclaration, setOf(cn(definition.bundle)))
+      if (definition is CardDefinition) {
+        definition.extraClasses.forEach { contribute(it, setOf(cn(definition.bundle))) }
+      }
+    }
+    allClassDeclarations.keys.associateWith { contributions[it]?.toSet().orEmpty() }
   }
 
   private fun validate(decl: ClassDeclaration) {
@@ -308,6 +334,9 @@ public abstract class TfmRuleset : Ruleset {
   ) : Empty() {
     final override val bundleRulesets: List<Bundle> = listOf(this)
     final override val allBundles: Set<String> = setOfNotNull(legacyCode)
+    final override val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by lazy {
+      explicitClassDeclarations.associateWith { setOf(bundleName) }
+    }
   }
 
   public companion object {
@@ -320,6 +349,13 @@ public abstract class TfmRuleset : Ruleset {
     public val rulesets: List<TfmRuleset> = rulesets.toList()
 
     final override val bundleRulesets: List<Bundle> = rulesets.flatMap { it.bundleRulesets }
+
+    final override val explicitDeclarationBundles: Map<ClassDeclaration, Set<ClassName>> by lazy {
+      rulesets
+          .flatMap { it.explicitDeclarationBundles.entries }
+          .groupBy({ it.key }, { it.value })
+          .mapValues { (_, bundles) -> bundles.flatten().toSet() }
+    }
 
     override val allBundles: Set<String> by lazy { rulesets.flatMap { it.allBundles }.toSet() }
 

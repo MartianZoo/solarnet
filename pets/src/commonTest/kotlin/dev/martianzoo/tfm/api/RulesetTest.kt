@@ -47,6 +47,27 @@ internal class RulesetTest {
   }
 
   @Test
+  fun coalescedDeclarationRetainsAllSelectedBundleProvenance() {
+    val source =
+        TfmRuleset.compose(
+            bundle("BundleOne", "1", declaration = "CLASS Shared"),
+            bundle("BundleTwo", "2", declaration = "CLASS Shared"),
+        )
+
+    source
+        .resolve(setOf(cn("BundleOne"), cn("BundleTwo")))
+        .classDeclarationBundles
+        .getValue(cn("Shared"))
+        .shouldContainExactlyInAnyOrder(cn("BundleOne"), cn("BundleTwo"))
+
+    source
+        .resolve(setOf(cn("BundleOne")))
+        .classDeclarationBundles
+        .getValue(cn("Shared"))
+        .shouldContainExactly(cn("BundleOne"))
+  }
+
+  @Test
   fun compositionRejectsDifferentDeclarationsWithTheSameName() {
     val concrete = parseOneLinerClass("CLASS Shared")
     val abstract = parseOneLinerClass("ABSTRACT CLASS Shared")

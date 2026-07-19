@@ -9,6 +9,9 @@ interface Ruleset {
 
   val allClassDeclarations: Map<ClassName, ClassDeclaration>
 
+  /** Full bundle identities contributing each combined class declaration. */
+  val classDeclarationBundles: Map<ClassName, Set<ClassName>>
+
   /**
    * Every class declaration this ruleset knows about, including explicit ones and those converted
    * from [Definition]s.
