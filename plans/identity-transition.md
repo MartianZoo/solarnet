@@ -84,9 +84,7 @@ Approval status: Approved by user on 2026-07-18
 
 ## Ordered implementation steps
 
-1. Land this plan relocation and repair every repository link that still points to
-   `docs/identity-transition.md`, without changing the substantive project documentation.
-2. Lock down the protected behavior before changing the identity model. Keep the Lakefront Resorts
+1. Lock down the protected behavior before changing the identity model. Keep the Lakefront Resorts
    regression unchanged in purpose and passing. Establish a change-detecting inventory of every
    authored canonical `BY` effect and direct positive/rejection tests appropriate to each selector.
    Establish a corresponding inventory for every engine-manufactured `BY Owner` path, with
@@ -95,18 +93,18 @@ Approval status: Approved by user on 2026-07-18
    Owner may place the second tile; and the Philares Owner is assigned, narrows, and executes the
    resulting task while the placement keeps its actual Actor. This is the first meaningful
    implementation slice after the plan-relocation commit.
-3. Rename the task's transitional `actor` identity to `assignee` throughout the data model and
+2. Rename the task's transitional `actor` identity to `assignee` throughout the data model and
    queue APIs. Make scoped queue views derive from that field, preserve assignee choice and the
    prepared-task invariant, and remove wording that calls queue membership actorship. Do not add a
    separate task Actor.
-4. Compare the post-safety-net implementation with the historical baseline and remove identity
+3. Compare the post-safety-net implementation with the historical baseline and remove identity
    lookup by guessed names plus other generalization needed only by hypothetical Actors or World
    Government. Prefer the earlier ownership/default behavior wherever the newer type-system work
    is not required by the protected tests, Philares, or the narrow `SoloOpponent` seam.
-5. Put the remaining contextual Owner-binding compatibility behavior behind one clearly named
+4. Put the remaining contextual Owner-binding compatibility behavior behind one clearly named
    engine operation. Keep the manufactured `BY Owner` form internal, isolated, and plainly
    documented as a compatibility representation rather than a new Pets rule.
-6. Run the focused identity tests and the full build. Reconcile the glossary and maintained project
+5. Run the focused identity tests and the full build. Reconcile the glossary and maintained project
    documentation with the implementation, delete stale migration commentary instead of duplicating
    it, record any deliberately deferred improvements in `TODO.md`, and perform the standard diff
    and cleanup review. Stop once the model is intentionally boring and contains no unused identity
@@ -144,6 +142,8 @@ Approval status: Approved by user on 2026-07-18
 
 ## Already done
 
+- The approved identity plan was moved from `docs/` to `plans/` in
+  `9b64b5b6fb323383c4cd1619176046c031035aab`; repository links now follow its maintained location.
 - The Owner, Actor, Player, Admin, task-assignment, and SoloOpponent concepts and the intended
   stopping point were consolidated in the identity handoff at starting commit
   `aaaa6313385665941475e613bca39e099eb3d6c6`.

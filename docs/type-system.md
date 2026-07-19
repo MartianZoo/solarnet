@@ -55,8 +55,8 @@ We can see that:
 These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing), or more commonly just `GreeneryTile<Player1>`. We can always omit a dependency when it would be the same as that dependency's upper bound.
 
 This example deliberately simplifies the identity vocabulary. See the project
-[domain glossary](identity-transition.md#domain-glossary) for the stable terms and the
-[identity-transition handoff](identity-transition.md) before changing how `Anyone`, `Owner`, or
+[domain glossary](../plans/identity-transition.md#domain-glossary) for the stable terms and the
+[identity-transition plan](../plans/identity-transition.md) before changing how `Anyone`, `Owner`, or
 `Player` interact. In particular, do not treat current default-insertion behavior as a settled
 requirement merely because the code supports it.
 

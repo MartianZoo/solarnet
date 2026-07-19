@@ -56,14 +56,14 @@ Concrete classes called Player1, Player2, etc. will exist. The player owning the
 `Generation` is created. Mapping player classes to players' names is considered a UI-level task.
 
 The identity terms used here are defined in the
-[domain glossary](identity-transition.md#domain-glossary). In particular, ownership and state-change
+[domain glossary](../plans/identity-transition.md#domain-glossary). In particular, ownership and state-change
 attribution are different roles: a Player has both, while the planned `SoloOpponent` has ownership
 only. The administrative Actor is conceptually `Admin`, although current code may still call it
 `Engine`.
 
 `Anyone` is icon grammar for an unrestricted target. It is not another runtime identity and should
 not be used to erase the distinction between Owner and Actor. The migration's stopping-point
-decisions are recorded separately in the [identity-transition handoff](identity-transition.md).
+decisions are recorded separately in the [identity-transition plan](../plans/identity-transition.md).
 
 ### Owned
 

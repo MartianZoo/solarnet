@@ -4,7 +4,7 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Actor / Owner / Player Model
 
-The [identity-transition handoff](docs/identity-transition.md) is authoritative for this work. Reach
+The [identity-transition plan](plans/identity-transition.md) is authoritative for this work. Reach
 its stopping point before expanding the model: protect Lakefront and every current `BY` usage,
 complete the Philares matrix, rename the task's queue identity to `taskOwner`, and back out speculative
 identity machinery that those tests and the narrow `SoloOpponent` seam do not require.

@@ -161,4 +161,4 @@ the relevant Owner in that component's type instead. An omitted `BY` adds no Act
 
 Some effects currently acquire a manufactured `BY Owner` internally so contextual `Owner` can be
 specialized in their instructions. That is temporary binding machinery, not additional syntax
-semantics. See the [identity-transition handoff](identity-transition.md).
+semantics. See the [identity-transition plan](../plans/identity-transition.md).

@@ -11,7 +11,7 @@
    and workflow details.
 5. Read `docs/game-insights.md` for obscure design decisions and `docs/faq.md` for project goals,
    non-goals, and priorities.
-6. For identity-related work, use `docs/identity-transition.md` for the domain glossary and current
+6. For identity-related work, use `plans/identity-transition.md` for the domain glossary and current
    stopping-point plan. Treat older audits and code as evidence, not as proof of a user requirement.
 
 ## When Running Gradle Or Tests

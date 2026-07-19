@@ -75,7 +75,7 @@ I haven't written too much yet. There are too many things I could write down nex
 * Overview of [component types](docs/component-types.md) -- not a bad place to start
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md) (incomplete)
-* The current [identity glossary and transition handoff](docs/identity-transition.md)
+* The current [identity glossary and transition plan](plans/identity-transition.md)
 * API docs -- see below
 
 ### Browse?

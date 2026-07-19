@@ -1,7 +1,7 @@
 # Engine API Review
 
 **NOTE:** This is a collection of API ideas, not a requirements document. For identity terminology
-and migration decisions, the [identity-transition handoff](identity-transition.md) is
+and migration decisions, the [identity-transition plan](../plans/identity-transition.md) is
 authoritative.
 
 This document reviews the engine API surface used by tests, the REPL, and future clients. It is not

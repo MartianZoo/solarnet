@@ -220,7 +220,7 @@ the effect, but the Philares Owner owns the resulting task and performs its even
 Authored `BY` is independent of task ownership: it tests the Actor on the triggering `ChangeEvent`.
 Internally manufactured `BY Owner` is a compatibility mechanism for specializing contextual
 `Owner` in the effect and must not be interpreted as an authored Actor filter. See the
-[identity-transition handoff](identity-transition.md).
+[identity-transition plan](../plans/identity-transition.md).
 
 For automatic effects the temporary Task still carries a task owner, but execution remains
 inline through the triggering Actor's `Instructor` and `Changer`, so resulting change events retain
