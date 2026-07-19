@@ -85,7 +85,7 @@ Each task has:
 
 - `id` — a monotonically increasing `TaskId`
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
-- `assignee` — whose pending work contains the task and who may narrow and execute it
+- `assignee` — whose pending work contains the task and whose scoped gameplay may narrow it
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
@@ -212,12 +212,14 @@ When an effect fires, if it's **automatic** (double-colon in Pets syntax), the `
 it inline in the same change loop. If it's **non-automatic** (single colon), it becomes a new `Task`
 appended to the queue.
 
-The `Task.assignee` field records who may narrow and execute deferred work. `BY` independently
-matches the Actor on the triggering `ChangeEvent`.
+The `Task.assignee` field records whose queue contains deferred work and whose scoped gameplay may
+narrow it. When a gameplay context executes the task, that context's Actor performs the resulting
+state changes and receives their `ChangeEvent.actor` attribution. `BY` independently matches the
+Actor on the triggering `ChangeEvent`.
 
-For automatic effects the temporary Task still carries an assignee, but execution remains
-inline through the triggering Actor's `Instructor` and `Changer`, so resulting change events retain
-the triggering Actor.
+For automatic effects the temporary Task still carries routing metadata in its `assignee` field,
+but that field does not select the executor. Execution remains inline through the triggering
+Actor's `Instructor` and `Changer`, so resulting change events retain the triggering Actor.
 
 ---
 
@@ -304,9 +306,11 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
   the queue is empty or stuck (default mode)
 
 `autoExecNow` runs in a loop calling `autoExecNext` until it returns false. It scans pending tasks
-across the whole game and executes the selected task through its assignee's queue. Tasks that fail
-are annotated with `whyPending`. When only one option exists, it is executed. When multiple options
-exist, `SAFE` stops while `FIRST` tries each in order.
+across the whole game and uses the assignee only to select the queue containing the task. The Actor
+of the gameplay context calling `autoExecNow` performs and receives credit for the resulting state
+changes, even when the task has another assignee. Tasks that fail are annotated with `whyPending`.
+When only one option exists, it is executed. When multiple options exist, `SAFE` stops while `FIRST`
+tries each in order.
 
 ---
 

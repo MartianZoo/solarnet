@@ -4,13 +4,15 @@ We have the smallest coherent identity model that preserves the Lakefront Resort
 supports Philares, and leaves a narrow, clean path to `SoloOpponent`:
 
 - Every pending task has one **assignee**, meaning the entity whose pending work contains the task
-  and who is entitled to choose, prepare, and normally execute it. A prepared task must be the next
-  task executed.
+  and whose scoped gameplay is entitled to choose, narrow, and prepare it. A prepared task must be
+  the next task executed.
 - Every state change records one **Actor**, meaning the entity that actually performed the change.
+  The Actor comes from the gameplay context executing an instruction, not from task assignment.
   Task assignment and state-change attribution remain separate concepts even while the same Player
   commonly fills both roles.
-- Philares follows the ordinary rule: its Owner is assigned, narrows, and carries out the triggered
-  task, while the tile placement remains attributed to the Actor that actually made it.
+- Philares follows the ordinary rule: its Owner is assigned and narrows the triggered task. The
+  Actor whose gameplay executes that task carries out and receives credit for its state changes,
+  while the tile placement remains attributed to the Actor that actually made it.
 - Authored `BY` consistently filters the Actor of the triggering change. Contextual `Owner` binding
   is explicit and isolated instead of leaking into Actor selection.
 - The implementation contains no identity machinery justified only by hypothetical Actors, World
@@ -31,11 +33,12 @@ Approval status: Approved by user on 2026-07-18
 
 ### Domain glossary
 
-- **Actor:** The entity recorded as having performed a state change. For pending work, the future
-  Actor is the entity that will be recorded when the work is performed.
+- **Actor:** The entity whose gameplay context executes an instruction and which is recorded as
+  having performed each resulting state change.
 - **Assignee:** The entity whose pending work includes a task. The assignee chooses which of their
-  tasks to prepare and normally makes the choices needed to make it concrete. Once one of their
-  tasks is prepared, that task must execute next.
+  tasks to prepare and normally makes the choices needed to make it concrete. Assignment does not
+  determine which Actor will execute it. Once one of their tasks is prepared, that task must execute
+  next.
 - **Owner:** An entity that may own game-state components. `Owner` in a card or effect is a
   contextual role that must be specialized to a particular Owner before an Owner-specific result
   can be performed.
@@ -53,9 +56,9 @@ Approval status: Approved by user on 2026-07-18
 - An assignee may choose which of their tasks to prepare and normally makes all choices needed to
   make it concrete. A prepared task must execute next because its preparation may have read mutable
   game state.
-- Do not add `controller`, `performer`, or another overlapping task role. A task may refer to its
-  future Actor when a real case needs that information, but assignee and future Actor remain the
-  same until a counterexample requires separate fields.
+- Do not add `controller`, `performer`, future Actor, or another overlapping field to `Task`. The
+  Actor is supplied by the gameplay context that actually executes the task; whole-game auto-exec
+  demonstrates that this Actor may differ from the task's assignee.
 - Philares's Owner is the assignee of the triggered task. The Player whose placement created the
   adjacency remains the Actor of that placement and does not thereby become the Philares task's
   assignee.
@@ -116,11 +119,6 @@ Approval status: Approved by user on 2026-07-18
     isolated so the replacement has a precise contract.
   - **Evidence that will resolve it:** The protected Owner-binding test matrix and one isolated
     operation defining all behavior the new representation must preserve.
-- **Decision:** Separate a task's future Actor from its assignee.
-  - **Why deferred:** No current rule requires them to differ, and adding the field now would create
-    overlapping identity concepts.
-  - **Evidence that will resolve it:** A concrete game rule whose correct assignee cannot also be
-    the Actor recorded when the prepared work executes.
 - **Decision:** Model neutral hosting of card resources.
   - **Why deferred:** It is a distinct design problem and must not turn `SoloOpponent` into a
     Player.
@@ -139,7 +137,8 @@ Approval status: Approved by user on 2026-07-18
 - Every authored canonical `BY` effect is protected by a change-detecting inventory and direct card
   behavior coverage appropriate to its selector. The Philares matrix now proves that exactly one
   tile must belong to its Owner, either Player may create the adjacency, the Philares Owner is the
-  assignee who narrows and executes the reward, and the placement retains its actual Actor.
+  assignee who narrows the reward, the Actor executing it receives change attribution, and the
+  placement retains its actual Actor.
 - All 139 compiled `BY Owner` effects are counted, the single authored Lakefront effect is
   distinguished from the 138 manufactured forms, and every manufactured instruction is exercised
   through Owner binding. Focused characterization tests explain the manufacturing mechanism and
@@ -147,6 +146,6 @@ Approval status: Approved by user on 2026-07-18
 - Characterization coverage also protects `BY Anyone`, `BY Player`, `BY Owner`, repeated Owner
   binding, and assignee choice before model changes.
 - `Task.assignee` now records whose pending work contains each task, scoped queue views derive from
-  it, and task APIs, diagnostics, tests, and documentation use assignment terminology. Gameplay and
-  `ChangeEvent` retain `actor` solely for the identity performing a state change; task lifecycle
-  events expose their assignee instead.
+  it, and task APIs, diagnostics, tests, and documentation use assignment terminology for queue and
+  choice concerns. Gameplay and `ChangeEvent` retain `actor` for execution and attribution; task
+  lifecycle events expose their assignee instead.

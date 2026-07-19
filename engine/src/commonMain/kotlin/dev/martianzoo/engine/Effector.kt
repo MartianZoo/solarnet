@@ -83,7 +83,12 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
     private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
       val assignee = assigneeForTriggeredWork(triggerEvent, reader)
-      val hit = subscription.checkForHit(triggerEvent, assignee, isSelf, reader) ?: return null
+      // This compatibility rule currently uses the routed Player to specialize contextual Owner.
+      // Pass that binding input separately through trigger matching so neither role is mistaken for
+      // the Actor that will eventually execute the instruction.
+      val contextualOwner = assignee as? Player
+      val hit =
+          subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
       return Task.noid(assignee, automatic, hit(instruction), cause = cause)
     }
@@ -131,7 +136,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
     abstract fun checkForHit(
         currentEvent: ChangeEvent,
-        assignee: Actor,
+        contextualOwner: Player?,
         isSelf: Boolean,
         reader: GameReader,
     ): Hit?
@@ -141,7 +146,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Regular(val match: Expression, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          assignee: Actor,
+          contextualOwner: Player?,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -154,16 +159,15 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         val matchType = reader.resolve(match)
         return if (changeType.narrows(matchType, reader)) {
           val subber = reader.transformers.substituter(matchType, changeType)
-          // TODO: Reconsider this substitution when Actor becomes a distinct runtime concept.
+          // TODO: Replace this compatibility binding with an explicit contextual Owner operation.
           // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
           // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
-          // role as a contextual variable: instructions emitted by the hit still belong to the
-          // concrete assignee selected for the triggered work.
-          val contextualOwner =
-              if (OWNER in match) (assignee as? Player)?.let(::replaceOwnerWith) else null
+          // role as a contextual variable without treating that Owner as the executing Actor.
+          val ownerSubstitution =
+              if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null
           val h: Hit = {
             val substituted = subber.transform(it)
-            (contextualOwner?.transform(substituted) ?: substituted) * change.count
+            (ownerSubstitution?.transform(substituted) ?: substituted) * change.count
           }
           h
         } else {
@@ -177,7 +181,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Self(val context: Component, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          assignee: Actor,
+          contextualOwner: Player?,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -202,39 +206,41 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         val by: ClassName,
         // Owner substitution specializes expressions in the effect, but ByTrigger stores its BY
         // value as a raw ClassName. Keep the context Owner explicitly so BY Owner can still compare
-        // the performer with the identity that owns the effect.
+        // the Actor with the identity that owns the effect.
         val effectOwner: Player?,
     ) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          assignee: Actor,
+          contextualOwner: Player?,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        // `assignee` is selected separately for the consequence. BY instead describes who performed
-        // the change that triggered this effect, which is recorded on the event.
-        val performer = currentEvent.actor
+        // BY describes the Actor that performed the triggering change, recorded on the event.
+        val actor = currentEvent.actor
 
         // Owner, Anyone, and Player are role words handled below. Every other BY value names one
         // concrete configured Actor. Compare its name directly so matching does not depend on the
         // closed, name-guessing Actor.from factory that the identity-model work will remove.
-        if (by != OWNER && by != ANYONE && by != PLAYER && performer.className != by) return null
+        if (by != OWNER && by != ANYONE && by != PLAYER && actor.className != by) return null
 
         // Unlike Anyone, Player excludes administrative Actors.
-        if (by == PLAYER && performer !is Player) return null
+        if (by == PLAYER && actor !is Player) return null
 
         // For an owned effect, BY Owner means equality with that effect's Owner. This comparison
-        // must use the performer, not `assignee`, because the latter may have been selected merely
-        // to receive the consequence (as with Lakefront and Philares).
-        if (by == OWNER && effectOwner != null && performer != effectOwner) return null
+        // must use the Actor, not the task assignee or contextual Owner, because those may have
+        // been
+        // selected merely to receive or specialize the consequence (as with Lakefront and
+        // Philares).
+        if (by == OWNER && effectOwner != null && actor != effectOwner) return null
 
-        val originalHit = inner.checkForHit(currentEvent, assignee, isSelf, reader) ?: return null
+        val originalHit =
+            inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
 
         return if (by == OWNER) {
           // An owned effect binds generic output to its effect Owner. For an unowned effect, BY
           // Owner instead requires and binds the performing Owner. Players are the only runtime
           // identities that can supply that second context today.
-          val owner = effectOwner ?: (performer as? Player) ?: return null
+          val owner = effectOwner ?: (actor as? Player) ?: return null
           { replaceOwnerWith(owner).transform(originalHit(it)) }
         } else {
           originalHit
@@ -248,11 +254,12 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          assignee: Actor,
+          contextualOwner: Player?,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        val wouldHit = inner.checkForHit(currentEvent, assignee, isSelf, reader) ?: return null
+        val wouldHit =
+            inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
         return if (reader.has(condition)) wouldHit else null
       }
 
@@ -262,14 +269,14 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Unscaled(val inner: Subscription) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          assignee: Actor,
+          contextualOwner: Player?,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
         // just fake it like only one happened
         return inner.checkForHit(
             currentEvent.copy(change = currentEvent.change.copy(count = 1)),
-            assignee,
+            contextualOwner,
             isSelf,
             reader,
         )

@@ -19,7 +19,7 @@ import kotlin.test.Test
 
 class TaskAssignmentCharacterizationTest {
   @Test
-  fun ordinaryAssigneeCanOnlySeeAndExecuteItsOwnTasks() {
+  fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }

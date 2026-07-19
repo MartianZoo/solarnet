@@ -23,7 +23,7 @@ public data class Task(
      */
     val id: TaskId,
 
-    /** The assignee whose scoped gameplay can directly revise and execute this task. */
+    /** Whose pending-work queue contains this task and whose scoped gameplay may revise it. */
     val assignee: Actor,
 
     /** If true, no game state may be modified until this task is completed. */
