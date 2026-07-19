@@ -2,14 +2,12 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
 
 internal class Initializer(
     private val gameplay: Gameplay,
     private val classes: MClassTable,
     private val timeline: TimelineImpl,
-    private val setup: GameSetup,
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
@@ -30,16 +28,6 @@ internal class Initializer(
         .flatMap { it.baseType.concreteSubtypesSameClass() }
         .forEach { exec("${it.expression}") }
 
-    // Colonies-specific setup... TODO where does this really belong?
-    if ("C" in setup.bundles) {
-      setup.colonyTiles.forEach { exec("AddColonyTile<Class<${it.className}>>") }
-
-      var letter = "A"
-      setup.players().forEach {
-        exec("TradeFleet$letter<$it>")
-        letter = "${letter[0] + 1}"
-      }
-    }
     timeline.initializationFinished()
     exec("SetupPhase")
   }

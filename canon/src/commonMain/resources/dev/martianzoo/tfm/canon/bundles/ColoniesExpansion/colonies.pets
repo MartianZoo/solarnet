@@ -5,8 +5,12 @@
 "The selected Colonies expansion bundle"
 CLASS ColoniesExpansion : System {
   HAS =1 This
+  SetupPhase: ColoniesSetup
   SetupPhase IF =1 Player:: PROD[-2 Megacredit<Player1>]
 }
+
+"Creates the colony tiles and one trade fleet for each player"
+CLASS ColoniesSetup : Custom, AutoLoad
 
 // Colony tile data read from colonies.json5 is converted to classes in this form:
 //
@@ -56,7 +60,7 @@ CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
 CLASS ResetProduction<ColonyTile> : Signal
 
 "One of the 8 trade fleets players can own; sadly each is distinct even though you don't care about the difference"
-ABSTRACT CLASS TradeFleet : Owned<Player> {
+ABSTRACT CLASS TradeFleet : Owned<Player>, AutoLoad {
   HAS MAX 1 Trade<This>
 
   CLASS TradeFleetA { HAS MAX 1 TradeFleetA }
@@ -73,7 +77,7 @@ ABSTRACT CLASS TradeFleet : Owned<Player> {
 CLASS AddColonyTile<Class<ColonyTile>> : Custom, AutoLoad
 
 "If a ColonyTile gives card resources, one of these is created first instead"
-CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
+CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> : AutoLoad {
   This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This // thanks Aridor
   ResourceCard<Class<CardResource>>: ColonyTile FROM This
 }

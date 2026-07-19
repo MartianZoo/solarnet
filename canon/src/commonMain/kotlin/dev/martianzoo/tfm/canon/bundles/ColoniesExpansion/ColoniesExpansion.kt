@@ -26,7 +26,7 @@ internal object ColoniesExpansion :
         .toSetStrict(::ColonyTileDefinition)
   }
 
-  override val customClasses: Set<CustomClass> = setOf(AddColonyTile)
+  override val customClasses: Set<CustomClass> = setOf(AddColonyTile, ColoniesSetup)
 
   private fun readResource(filename: String): String =
       CanonResources.read("bundles/ColoniesExpansion/$filename")

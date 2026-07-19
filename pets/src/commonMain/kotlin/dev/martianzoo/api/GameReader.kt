@@ -5,11 +5,15 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.util.Multiset
 
 /** A readable view of the state of a game in progress. */
 interface GameReader : TypeInfo {
   /** The initial configuration for the game. */
+  val setup: GameSetup
+
+  /** The resolved ruleset used by the game. */
   val ruleset: Ruleset
 
   /** Returns the type represented by the (fully-prepared) [expression]. */

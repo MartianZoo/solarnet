@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
 import kotlin.math.min
 
@@ -25,6 +26,7 @@ internal class GameReaderImpl(
     private val classes: MClassTable,
     private val components: ComponentGraph,
     internal val transformers: Transformers,
+    override val setup: GameSetup,
 ) : GameReader, TypeInfo {
 
   override val ruleset: TfmRuleset = classes.ruleset as TfmRuleset

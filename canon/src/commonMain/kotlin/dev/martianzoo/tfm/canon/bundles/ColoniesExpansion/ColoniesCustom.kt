@@ -7,6 +7,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.api.TfmRuleset
 
 internal object AddColonyTile : CustomClass("AddColonyTile") {
@@ -18,5 +19,18 @@ internal object AddColonyTile : CustomClass("AddColonyTile") {
     } else {
       parse("DelayedColonyTile<Class<$name>, Class<${tile.resourceType}>>")
     }
+  }
+}
+
+internal object ColoniesSetup : CustomClass("ColoniesSetup") {
+  override fun translate(reader: GameReader): Instruction {
+    val tileInstructions =
+        reader.setup.colonyTiles.map { parse<Instruction>("AddColonyTile<Class<${it.className}>>") }
+    val fleetInstructions =
+        reader.setup.players().mapIndexed { index, player ->
+          val letter = 'A' + index
+          parse<Instruction>("TradeFleet$letter<$player>")
+        }
+    return Then.create(tileInstructions + fleetInstructions)
   }
 }

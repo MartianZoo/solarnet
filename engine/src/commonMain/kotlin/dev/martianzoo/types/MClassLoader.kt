@@ -12,10 +12,8 @@ import dev.martianzoo.data.Ruleset
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.GameSetup
 
 /**
@@ -39,17 +37,6 @@ internal class MClassLoader(
     loadAll(setup.selectedBundles)
     loadAll(ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys)
     loadAll(setup.allDefinitions().classNames())
-
-    // TODO wow gross bad hack eww
-    if ("C" in setup.bundles) {
-      loadAll((ruleset as TfmRuleset).colonyTileDefinitions.classNames())
-      loadAll(
-          ruleset.explicitClassDeclarations
-              .filter { cn("TradeFleet").expression in it.supertypes }
-              .classNames()
-      )
-      load(cn("DelayedColonyTile"))
-    }
     freeze()
   }
 
