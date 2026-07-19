@@ -5,7 +5,7 @@
 
 "A catch-all for arbitrary global effects that don't seem to belong anywhere else"
 CLASS TerraformingMars : System, AutoLoad {
-  HAS =1 This
+  HAS =1 This, =1 MarsMap
 
   SetupPhase:: Generation THEN StartToken<Player1>
   CorporationPhase: Photosynthesis

@@ -126,6 +126,9 @@ Double Down's `loadRequirement` is `HAS PreludeExpansion`. Because load requirem
 presence rather than traversing dependencies, mutually conditional content in two selected bundles
 works without special cycle handling.
 
-### Composition details still open
+### Bundle-specific setup options
 
-We have not decided how a simple `GameSetup` stores bundle-specific options.
+`GameSetup` stores the currently supported Colonies tile choices directly as `colonyTilesDesired`.
+This keeps the choice as configuration while the selected Colonies bundle owns the setup behavior
+that interprets it. Additional bundle-specific options can use similarly typed setup fields until a
+general representation proves useful.

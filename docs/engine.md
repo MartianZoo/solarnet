@@ -14,7 +14,7 @@ For starters, it holds a `GameSetup` (the configuration chosen before the game b
 `MClassTable` of loaded classes for that configuration. These are immutable. A setup records the
 available ruleset and the selected full bundle identities separately; its `ruleset` property is the
 resolved source containing only content applicable to that game. Clients read game state through a
-`GameReader`.
+`GameReader`, which exposes both that setup and its resolved ruleset.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
 

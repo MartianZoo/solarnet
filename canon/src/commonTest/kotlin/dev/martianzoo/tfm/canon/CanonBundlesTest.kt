@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.canon.bundles.System.System
 import dev.martianzoo.tfm.canon.bundles.TerraformingMars.TerraformingMars
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -69,6 +70,28 @@ internal class CanonBundlesTest {
     Canon.resolve(setOf(cn("TerraformingMars"), cn("PreludeExpansion"))).customClasses.map {
       it.className.toString()
     } shouldContain "GainLowestProduction"
+  }
+
+  @Test
+  fun venusAddsHoverlordToTheMapsFiveMilestones() {
+    val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
+
+    Canon.resolve(base).milestoneDefinitions.shouldHaveSize(5)
+    Canon.resolve(base + cn("VenusNextExpansion")).milestoneDefinitions.map {
+      it.className
+    } shouldContain cn("Hoverlord")
+    Canon.resolve(base + cn("VenusNextExpansion")).milestoneDefinitions.shouldHaveSize(6)
+  }
+
+  @Test
+  fun doubleDownRequiresBothPromosAndPrelude() {
+    val promos = setOf(cn("TerraformingMars"), cn("PromosExpansion"))
+
+    Canon.resolve(promos).cardDefinitions.map { it.className }.contains(cn("DoubleDown")) shouldBe
+        false
+    Canon.resolve(promos + cn("PreludeExpansion")).cardDefinitions.map {
+      it.className
+    } shouldContain cn("DoubleDown")
   }
 
   @Test

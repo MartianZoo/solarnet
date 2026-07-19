@@ -12,7 +12,6 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
   player to select an occupied area and thereby evade an otherwise possible ocean placement. Revisit
   `Instructor.autoNarrowTypes` and the `ArtificialLake` `!` workaround as part of this. (Needs discussion)
 - Issue #33: GreeneryTile default gain "fallback rule"
-- Issue #49: Handle `replacesId` in card/etc. data
 
 ### Suspected Over-Permissiveness
 
@@ -39,10 +38,6 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Expansion or Content Support Gaps
 
-- Remove Terraforming Mars and Colonies knowledge from generic engine initialization and class
-  loading. Replace the bundle-name check, `TfmRuleset` cast, colony-tile loading, trade-fleet
-  creation, and other Colonies setup with extension-owned declarations or setup hooks so additional
-  expansions do not require more hard-coded engine branches. (Needs discussion)
 - Issue #1: Shuffle-and-deal mode
 - Issue #2: Solo mode — Work out the neutral host model for card resources (for example, the
   imaginary animal that Predators may remove) without giving Opponent a playable `CardFront`.
