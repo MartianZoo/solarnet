@@ -68,7 +68,7 @@ class StartTokenTest {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     workflow.shutdown()
   }
 }

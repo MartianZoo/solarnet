@@ -165,7 +165,11 @@ public class ScriptSession {
           listOf("New tasks pending:") +
               game.tasks
                   .extract {
-                    if (it.id in newTasks) it.toStringWithoutCause(queueActor = it.actor) else null
+                    if (it.id in newTasks) {
+                      it.toStringWithoutCause(queueAssignee = it.assignee)
+                    } else {
+                      null
+                    }
                   }
                   .filterNotNull()
         } else {

@@ -40,10 +40,10 @@ should not navigate from `Game` to `Gameplay` to `godMode()` to casts.
 3. Model auto-exec as an injected helper/agent, not as a hardwired property of every gameplay
    object.
 
-   Auto-exec is a convenience that helps a task owner drain its own pending work after it asks the API to do
-   something. It should be plugged into the command lifecycle so the `TaskResult` includes both the
-   explicit command and any automatically executed follow-up work. It should not be a global license
-   for one player action to drain other players' choices.
+   Auto-exec is a convenience that helps an assignee drain its own pending work after it asks the
+   API to do something. It should be plugged into the command lifecycle so the `TaskResult` includes
+   both the explicit command and any automatically executed follow-up work. It should not be a
+   global license for one player action to drain other players' choices.
 
 4. Keep string APIs for now.
 
@@ -186,10 +186,10 @@ Auto-exec should become an agent plugged into the command runner.
 
 Important policy choices:
 
-1. It drains only the task owner's own pending work.
+1. It drains only the assignee's own pending work.
 2. It runs after the initiating Actor's explicit command, before the returned `TaskResult` is finalized.
 3. It may have modes such as `NONE`, `SAFE`, and `FIRST`.
-4. Its state/policy can be injected per task owner or session.
+4. Its state/policy can be injected per assignee or session.
 5. It should not silently resolve another human player's meaningful choice.
 
 This implies a conceptual split:
@@ -213,7 +213,7 @@ interfaces can still coordinate through shared internals.
 | Capability | Purpose |
 | --- | --- |
 | `GameQueries` | Player-contextual `has`, `count`, `resolve`, maybe `list`. |
-| `PlayerTaskActions` | Act on tasks owned by this player: revise, prepare, do, try. |
+| `PlayerTaskActions` | Act on tasks assigned to this player: revise, prepare, do, try. |
 | `TaskInbox` | Read this player's visible tasks. |
 | `TaskMonitor` | Read whole-game task state for workflow/diagnostics. |
 | `OperationRunner` | Run a manual operation with command transaction semantics. |
@@ -221,7 +221,7 @@ interfaces can still coordinate through shared internals.
 | `TimelineControl` | Checkpoint, rollback, commit; privileged. |
 | `DebugTaskEditor` | Add/drop/edit tasks for tests and debug tools. |
 | `RawStateEditor` | Apply raw component changes; privileged. |
-| `AutoExecutor` | Drain one task owner's pending work according to an injected policy. |
+| `AutoExecutor` | Drain one assignee's pending work according to an injected policy. |
 
 These do not need to form one inheritance tower. A role receives whichever capabilities make sense.
 
@@ -283,7 +283,7 @@ already exist internally, while `Game.tasks` is a global read-only view.
 
 The API should make that distinction explicit:
 
-1. `TaskInbox`: this task owner's pending tasks.
+1. `TaskInbox`: this assignee's pending tasks.
 2. `TaskMonitor`: whole-game task state, for workflow, REPL diagnostics, and tests.
 3. `DebugTaskEditor`: privileged task mutation.
 
@@ -440,9 +440,9 @@ full capability split. The current implementation has a few constraints worth re
    atomic block, runs the explicit command, runs auto-exec, returns activity since the checkpoint,
    and fires `onAtomicComplete` only for the outermost command.
 2. `Implementations.autoExecNow` intentionally scans the whole-game task view today, even though
-   task-owner views are scoped. The identity stopping point must characterize this before changing
-   it and must not let auto-exec steal another task owner's meaningful choice.
-3. `Task.next` is still a whole-game lock. A task owner may prepare only their own task,
+   assignee views are scoped. The identity stopping point must characterize this before changing
+   it and must not let auto-exec steal another assignee's meaningful choice.
+3. `Task.next` is still a whole-game lock. An assignee may prepare only their own task,
    but it must still reject cutting in front of a prepared task elsewhere.
 4. The REPL is currently the clearest client smell: `ScriptSession.access()` obtains `godMode()` and
    `Access` casts it back down to colored power levels, while `TaskCommand` reaches directly for
@@ -533,7 +533,7 @@ That suggests this concrete order:
 
 1. Should `AutoExecMode.FIRST` remain the default for all developer clients?
 
-   It is convenient, but task-owner-local autoexec may require explicit Admin workflow or task-drain
+   It is convenient, but assignee-local autoexec may require explicit Admin workflow or task-drain
    behavior.
 
 2. What should count as a public command?

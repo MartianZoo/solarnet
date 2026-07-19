@@ -5,10 +5,13 @@ import dev.martianzoo.util.pre
 
 sealed class GameEvent {
   abstract val ordinal: Int
-  abstract val actor: Actor
 
   sealed class TaskEvent : GameEvent() {
     abstract val task: Task
+
+    /** The assignment recorded by this task lifecycle event. */
+    val assignee: Actor
+      get() = task.assignee
 
     internal fun taskToString() = buildString {
       append("$ordinal: +Task${task.id} { ${task.instruction}")
@@ -19,14 +22,10 @@ sealed class GameEvent {
   }
 
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
-    override val actor by task::actor
-
     override fun toString() = taskToString()
   }
 
   data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
-    override val actor by task::actor
-
     override fun toString() = "$ordinal: -Task${task.id}"
   }
 
@@ -39,15 +38,13 @@ sealed class GameEvent {
       require(task.id == oldTask.id)
     }
 
-    override val actor by task::actor
-
     override fun toString() = taskToString() + " FROM Task${task.id}"
   }
 
   /** All interesting information about a state change that happened in a game. */
   data class ChangeEvent(
       override val ordinal: Int,
-      override val actor: Actor,
+      val actor: Actor,
       val change: StateChange,
       val cause: Cause?,
   ) : GameEvent() {

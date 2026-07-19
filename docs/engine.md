@@ -17,7 +17,7 @@ Clients perform all mutative operations via the `Gameplay` interface. Internally
 | Object | Metaphor | What it contains |
 |--------|----------|-----------------|
 | `ComponentGraph` | The **present** | A multiset of all current component instances in play |
-| `TaskQueues` / `TaskQueue` | The **future** | What the engine knows each task owner must decide or do |
+| `TaskQueues` / `TaskQueue` | The **future** | What the engine knows each assignee must decide or do |
 | `EventLog` | The **past** | The full history of changes to those things^^ |
 
 The fourth critical piece is a `Timeline`, which coordinates atomic changes across those three child objects, and supports rollback and replay (which not only enable an "undo" feature but are actually crucial to normal engine operations).
@@ -76,7 +76,7 @@ Change events render the performing Actor with `BY` and the effect-bearing causa
 
 The internal task queue manager is `TaskQueues`, which owns the ordered set of `Task` objects and
 all task mutation. Public readers and gameplay operation bodies see read-only `TaskQueue` views.
-Those views may be scoped; for example, gameplay for a task owner exposes only that owner's tasks,
+Those views may be scoped; for example, gameplay for an assignee exposes only that assignee's tasks,
 while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
 Internal code that mutates tasks uses `WritableTaskQueue`, following the same read-only/writable
 split as the component graph and event log.
@@ -85,17 +85,17 @@ Each task has:
 
 - `id` — a monotonically increasing `TaskId`
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
-- `actor` — the transitional field holding the task owner; it should be renamed `taskOwner`
+- `assignee` — whose pending work contains the task and who may narrow and execute it
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
 - `whyPending` — diagnostic string set when autoexec can't resolve a task
 
-Task ownership and queue membership are the same fact: a task owner's scoped view contains that
-owner's tasks. This remains true if the physical implementation is one collection with filtered
+Task assignment and queue membership are the same fact: an assignee's scoped view contains that
+assignee's tasks. This remains true if the physical implementation is one collection with filtered
 views. Do not introduce another queue-control identity.
 
-Tasks are fundamentally a **unit of task-owner choice**, in two ways. First, the task owner gets to
+Tasks are fundamentally a **unit of assignee choice**, in two ways. First, the assignee gets to
 choose which of their tasks to prepare (a very interesting feature of this particular game's rules).
 But also, whenever a player needs to pick something (which card to play, which tile location, which
 option of an Or, how many of something to steal, etc.), that manifests as a task whose instruction
@@ -213,16 +213,17 @@ it inline in the same change loop. If it's **non-automatic** (single colon), it 
 appended to the queue.
 
 Triggered deferred work must be assigned to the identity entitled to narrow and execute it. The
-current `Task.actor` field is serving as that task owner. For an owned effect this will normally be
-the effect Owner. Philares is the important case: either Player may make the placement that triggers
-the effect, but the Philares Owner owns the resulting task and performs its eventual state change.
+`Task.assignee` field records that identity. For an owned effect this will normally be the effect
+Owner. Philares is the important case: either Player may make the placement that triggers the
+effect, but the Philares Owner is assigned the resulting task and performs its eventual state
+change.
 
-Authored `BY` is independent of task ownership: it tests the Actor on the triggering `ChangeEvent`.
+Authored `BY` is independent of task assignment: it tests the Actor on the triggering `ChangeEvent`.
 Internally manufactured `BY Owner` is a compatibility mechanism for specializing contextual
 `Owner` in the effect and must not be interpreted as an authored Actor filter. See the
 [identity-transition plan](../plans/identity-transition.md).
 
-For automatic effects the temporary Task still carries a task owner, but execution remains
+For automatic effects the temporary Task still carries an assignee, but execution remains
 inline through the triggering Actor's `Instructor` and `Changer`, so resulting change events retain
 the triggering Actor.
 
@@ -290,7 +291,7 @@ Gameplay         ← query-only + task revision/preparation + doTask
 - **`OperationLayer`** is for structured operations: `manual()` requires the caller's queue is
   empty, adds the instruction as tasks, runs them to completion (including autoexec), and verifies
   the caller's queue is empty and no `Temporary` components remain.
-- **`OperationBody.tasks`** is the task owner's scoped read-only queue view.
+- **`OperationBody.tasks`** is the assignee's scoped read-only queue view.
 - **`TaskLayer`** lets you inject arbitrary tasks and remove them for any reason.
 - **`GodMode`** lets you make raw changes to the component graph, bypassing instruction
   preparation and effect firing (`sneak()`).
@@ -314,8 +315,8 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
   the queue is empty or stuck (default mode)
 
 `autoExecNow` runs in a loop calling `autoExecNext` until it returns false. Its whole-game scan and
-cross-owner execution are compatibility behavior, not a second task identity. The identity
-stopping point requires auto-execution to preserve each task owner's meaningful choice and to
+cross-assignee execution are compatibility behavior, not a second task identity. The identity
+stopping point requires auto-execution to preserve each assignee's meaningful choice and to
 attribute execution to the Actor who actually performs the selected task. Tasks that fail are
 annotated with `whyPending`. When only one option exists, it is executed. When multiple options
 exist, `SAFE` stops while `FIRST` tries each in order.

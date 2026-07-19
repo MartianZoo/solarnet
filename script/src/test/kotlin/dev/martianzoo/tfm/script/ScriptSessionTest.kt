@@ -46,7 +46,7 @@ internal class ScriptSessionTest {
         "turn",
         """
         New tasks pending:
-        Z* [queue: Player2, actor: Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
+        Z* [queue: Player2, assignee: Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
         """
             .trimIndent(),
     )
@@ -113,8 +113,8 @@ internal class ScriptSessionTest {
         0000: +Photosynthesis BY Engine VIA TerraformingMars BECAUSE 0000
         Hi, Player1
         New tasks pending:
-        Z  [queue: Player1, actor: Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
-        Z  [queue: Player1, actor: Player1] 10 BuyCard<Player1>? (abstract)
+        Z  [queue: Player1, assignee: Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
+        Z  [queue: Player1, assignee: Player1] 10 BuyCard<Player1>? (abstract)
         0000: +Manutech<Player1> FROM CorporationCard<Player1> BY Player1 VIA PlayCard<Player1, Class<CorporationCard>, Class<Manutech>> BECAUSE 0000
         0000: +BuildingTag<Player1, Manutech<Player1>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +Production<Player1, Class<Steel>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
@@ -124,8 +124,8 @@ internal class ScriptSessionTest {
         0000: +5 ProjectCard<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
         Hi, Player2
         New tasks pending:
-        Z  [queue: Player2, actor: Player2] PlayCard<Player2, Class<CorporationCard>>! (abstract)
-        Z  [queue: Player2, actor: Player2] 10 BuyCard<Player2>? (abstract)
+        Z  [queue: Player2, assignee: Player2] PlayCard<Player2, Class<CorporationCard>>! (abstract)
+        Z  [queue: Player2, assignee: Player2] 10 BuyCard<Player2>? (abstract)
         0000: +Factorum<Player2> FROM CorporationCard<Player2> BY Player2 VIA PlayCard<Player2, Class<CorporationCard>, Class<Factorum>> BECAUSE 0000
         0000: +PowerTag<Player2, Factorum<Player2>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
         0000: +BuildingTag<Player2, Factorum<Player2>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
@@ -138,20 +138,20 @@ internal class ScriptSessionTest {
         0000: +2 PreludeCard<Player2> BY Engine VIA Player2 BECAUSE 0000
         Hi, Player1
         New tasks pending:
-        Z* [queue: Player1, actor: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
+        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
         0000: +NewPartner<Player1> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<NewPartner>> BECAUSE 0000
         0000: +Production<Player1, Class<Megacredit>> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
         0000: +PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
         0000: +Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
 
         New tasks pending:
-        Z* [queue: Player1, actor: Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)
+        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)
         0000: +UnmiContractor<Player1> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<UnmiContractor>> BECAUSE 0000
         0000: +EarthTag<Player1, UnmiContractor<Player1>> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
         0000: +3 TerraformRating<Player1> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
         0000: +ProjectCard<Player1> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
         New tasks pending:
-        Z* [queue: Player1, actor: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
+        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
         0000: +AlliedBank<Player1> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<AlliedBank>> BECAUSE 0000
         0000: +EarthTag<Player1, AlliedBank<Player1>> BY Player1 VIA AlliedBank<Player1> BECAUSE 0000
         0000: +4 Production<Player1, Class<Megacredit>> BY Player1 VIA AlliedBank<Player1> BECAUSE 0000
@@ -159,12 +159,12 @@ internal class ScriptSessionTest {
         0000: +4 Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         Hi, Player2
         New tasks pending:
-        Z* [queue: Player2, actor: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
+        Z* [queue: Player2, assignee: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
         0000: +AcquiredSpaceAgency<Player2> FROM PreludeCard<Player2> BY Player2 VIA PlayCard<Player2, Class<PreludeCard>, Class<AcquiredSpaceAgency>> BECAUSE 0000
         0000: +6 Titanium<Player2> BY Player2 VIA AcquiredSpaceAgency<Player2> BECAUSE 0000
         0000: +2 ProjectCard<Player2> BY Player2 VIA AcquiredSpaceAgency<Player2> BECAUSE 0000
         New tasks pending:
-        Z* [queue: Player2, actor: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
+        Z* [queue: Player2, assignee: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
         0000: +IoResearchOutpost<Player2> FROM PreludeCard<Player2> BY Player2 VIA PlayCard<Player2, Class<PreludeCard>, Class<IoResearchOutpost>> BECAUSE 0000
         0000: +ScienceTag<Player2, IoResearchOutpost<Player2>> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
         0000: +JovianTag<Player2, IoResearchOutpost<Player2>> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
@@ -173,12 +173,12 @@ internal class ScriptSessionTest {
         0000: +ActionPhase FROM PreludePhase BY Engine (manual)
         Hi, Player1
         New tasks pending:
-        Z* [queue: Player1, actor: Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! (abstract)
+        Z* [queue: Player1, assignee: Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! (abstract)
         New tasks pending:
-        Z* [queue: Player1, actor: Player1] PlayCard<Player1, Class<ProjectCard>>! (abstract)
+        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<ProjectCard>>! (abstract)
         New tasks pending:
-        Z* [queue: Player1, actor: Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
-        Z  [queue: Player1, actor: Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>!
+        Z* [queue: Player1, assignee: Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
+        Z  [queue: Player1, assignee: Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>!
         0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> BY Player1 VIA Accept<Player1, Class<Megacredit>> BECAUSE 0000
         0000: +InventorsGuild<Player1> FROM ProjectCard<Player1> BY Player1 VIA PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
         0000: +ScienceTag<Player1, InventorsGuild<Player1>> BY Player1 VIA InventorsGuild<Player1> BECAUSE 0000

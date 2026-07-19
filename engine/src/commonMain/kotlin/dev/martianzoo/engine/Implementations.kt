@@ -152,7 +152,7 @@ internal class Implementations(
    */
   private fun handleTask(queue: WritableTaskQueue, task: Task) {
     task.then?.let {
-      queue.queueFor(task.actor).addTasks(split(it), task.cause)
+      queue.queueFor(task.assignee).addTasks(split(it), task.cause)
     }
     queue.removeTask(task.id)
   }
@@ -175,8 +175,8 @@ internal class Implementations(
 
   internal fun reviseTask(taskId: TaskId, revised: Instruction) {
     val task = tasks.getTaskData(taskId)
-    if (actor != task.actor) {
-      throw TaskException("$actor can't revise a task assigned to ${task.actor}")
+    if (actor != task.assignee) {
+      throw TaskException("$actor can't revise a task assigned to ${task.assignee}")
     }
 
     if (revised != task.instruction) {
@@ -259,7 +259,7 @@ internal class Implementations(
       val one = split.instructions[0]
       queue.editTask(replacement.copy(instructionIn = one))
     } else {
-      queue.queueFor(replacement.actor).addTasks(split, replacement.cause)
+      queue.queueFor(replacement.assignee).addTasks(split, replacement.cause)
       handleTask(queue, queue.getTaskData(replacement.id))
     }
   }
@@ -279,7 +279,7 @@ internal class Implementations(
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-    newTasks.forEach { queue.queueFor(it.actor).addTasks(it) }
+    newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
     handleTask(queue, queue.getTaskData(taskId))
   }
 
@@ -300,7 +300,7 @@ internal class Implementations(
     }
 
     fun weCanReviseIt(taskData: Task): Boolean {
-      if (taskData.actor != actor) return false
+      if (taskData.assignee != actor) return false
       if (revised.narrows(taskData.instruction, reader)) return true
       return try {
         revised.narrows(instructor.prepare(taskData.instruction), reader)
@@ -365,7 +365,7 @@ internal class Implementations(
   }
 
   private fun queueForAnyTask(taskId: TaskId): WritableTaskQueue =
-      tasks.queueFor(allTasks.getTaskData(taskId).actor)
+      tasks.queueFor(allTasks.getTaskData(taskId).assignee)
 
   private fun execute(instruction: String, fakeCause: Cause? = null): Unit =
       addTasks(parse(instruction), fakeCause).forEach(::doTask)

@@ -23,8 +23,8 @@ public data class Task(
      */
     val id: TaskId,
 
-    /** The actor whose scoped gameplay can directly revise and execute this task. */
-    val actor: Actor,
+    /** The assignee whose scoped gameplay can directly revise and execute this task. */
+    val assignee: Actor,
 
     /** If true, no game state may be modified until this task is completed. */
     val next: Boolean = false,
@@ -97,46 +97,46 @@ public data class Task(
   override fun toString() = buildString {
     append(id)
     append(if (next) "* " else "  ")
-    appendActorLabel()
+    appendAssigneeLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
     cause?.let { append(" $cause") }
     whyPending?.let { append(" ($it)") }
   }
 
-  fun toStringWithoutCause(queueActor: Actor? = null) = buildString {
+  fun toStringWithoutCause(queueAssignee: Actor? = null) = buildString {
     append(id)
     append(if (next) "* " else "  ")
-    if (queueActor == null) {
-      appendActorLabel()
+    if (queueAssignee == null) {
+      appendAssigneeLabel()
     } else {
-      append("[queue: $queueActor, actor: $actor] ")
+      append("[queue: $queueAssignee, assignee: $assignee] ")
     }
     append(instruction)
     then?.let { append(" (THEN $it)") }
     whyPending?.let { append(" ($it)") }
   }
 
-  private fun StringBuilder.appendActorLabel() {
+  private fun StringBuilder.appendAssigneeLabel() {
     append("[")
-    append(actor)
+    append(assignee)
     append("] ")
   }
 
   companion object {
     public fun newTasks(
         firstId: TaskId,
-        actor: Actor,
+        assignee: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map { newTask(ids.next(), actor, it, cause) }
+      return instruction.map { newTask(ids.next(), assignee, it, cause) }
     }
 
     public fun newTask(
         id: TaskId,
-        actor: Actor,
+        assignee: Actor,
         instruction: Instruction,
         cause: Cause?,
         automatic: Boolean = false,
@@ -144,7 +144,7 @@ public data class Task(
       val task =
           Task(
               id = id,
-              actor = actor,
+              assignee = assignee,
               next = automatic,
               instructionIn = instruction,
               cause = cause,
@@ -162,14 +162,14 @@ public data class Task(
     }
 
     fun noid(
-        actor: Actor,
+        assignee: Actor,
         automatic: Boolean,
         hit: Instruction,
         cause: Cause,
     ) =
         Task(
             id = TaskId("ZZ"),
-            actor = actor,
+            assignee = assignee,
             next = automatic,
             instructionIn = hit,
             cause = cause,

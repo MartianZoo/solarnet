@@ -44,7 +44,7 @@ class PhilaresTest {
 
     p1.stdProject("GreenerySP") {
       doTask("GreeneryTile<M43>")
-      game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
+      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
       p2.doTask("Titanium")
     }
     p2.assertCounts(1 to "Steel", 1 to "Titanium")
@@ -61,7 +61,7 @@ class PhilaresTest {
     val steelBefore = owner.count("Steel")
 
     other.godMode().beginManual("GreeneryTile<M33>") {
-      game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
+      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     }
 
     game.events.changesSince(checkpoint).first().actor shouldBe PLAYER1
@@ -79,7 +79,7 @@ class PhilaresTest {
     other.godMode().manual("GreeneryTile<M23>")
 
     owner.godMode().beginManual("GreeneryTile<M33>") {
-      game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
+      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     }
 
     owner.doTask("Titanium")

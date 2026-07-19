@@ -50,13 +50,13 @@ public interface Gameplay {
   // Purple mode (and below)
 
   /**
-   * Voluntarily replaces a task's instruction with a strictly more specific revision, as the actor
-   * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
+   * Voluntarily replaces a task's instruction with a strictly more specific revision, as its
+   * assignee is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
    * instruction if necessary. Executes nothing.
    *
    * @param [revised] the new instruction; may be abstract; if identical to the current instruction
    *   this method does nothing
-   * @throws [TaskException] if there is no task by this id assigned to the actor
+   * @throws [TaskException] if there is no task by this id assigned to this gameplay's Actor
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
   fun reviseTask(taskId: TaskId, revised: String): TaskResult

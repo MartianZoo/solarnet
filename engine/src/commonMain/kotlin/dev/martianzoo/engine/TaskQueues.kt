@@ -28,15 +28,16 @@ import dev.martianzoo.util.toSetStrict
  * * `a, Ok` becomes `a`
  * * `a, Die` becomes `Die`
  * * A concrete task with [Task.next] set is guaranteed to execute successfully
- * * New tasks created have the same actor and cause as the original. Prepared tasks cannot be split
+ * * New tasks created have the same assignee and cause as the original. Prepared tasks cannot be
+ *   split
  */
 internal class TaskQueues(private val events: TaskListener) {
   private val taskSet: MutableSet<Task> = mutableSetOf()
 
-  internal fun all(): WritableTaskQueue = WritableTaskQueue(this, actor = null) { true }
+  internal fun all(): WritableTaskQueue = WritableTaskQueue(this, assignee = null) { true }
 
-  internal operator fun get(actor: Actor): WritableTaskQueue =
-      WritableTaskQueue(this, actor = actor) { it.actor == actor }
+  internal operator fun get(assignee: Actor): WritableTaskQueue =
+      WritableTaskQueue(this, assignee = assignee) { it.assignee == assignee }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 
@@ -54,14 +55,14 @@ internal class TaskQueues(private val events: TaskListener) {
 
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
-  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.actor, task.cause)
+  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.assignee, task.cause)
 
   internal fun addTasks(
       instruction: InstructionGroup,
-      actor: Actor,
+      assignee: Actor,
       cause: Cause?,
   ): List<TaskAddedEvent> {
-    val newTasks = Task.newTasks(nextAvailableId(), actor, instruction, cause)
+    val newTasks = Task.newTasks(nextAvailableId(), assignee, instruction, cause)
     return newTasks.map {
       val task = addToTaskSet(it)
       events.taskAdded(task)
@@ -119,14 +120,14 @@ internal class TaskQueues(private val events: TaskListener) {
 
 internal class WritableTaskQueue(
     private val taskQueues: TaskQueues,
-    private val actor: Actor?,
+    private val assignee: Actor?,
     private val predicate: (Task) -> Boolean,
 ) : TaskQueue {
   private fun filtered() = taskQueues.getAllTaskData().filter(predicate)
 
-  private fun validateActor(task: Task) {
-    if (actor != null && task.actor != actor) {
-      error("$actor can't act on a task assigned to ${task.actor}: $task")
+  private fun validateAssignee(task: Task) {
+    if (assignee != null && task.assignee != assignee) {
+      error("$assignee's queue can't contain a task assigned to ${task.assignee}: $task")
     }
   }
 
@@ -152,29 +153,29 @@ internal class WritableTaskQueue(
       instruction: InstructionGroup,
       cause: Cause?,
   ): List<TaskAddedEvent> {
-    val taskActor = actor ?: error("global queue view can't infer an actor for new tasks")
-    return taskQueues.addTasks(instruction, taskActor, cause)
+    val inferredAssignee = assignee ?: error("global queue view can't infer a task assignee")
+    return taskQueues.addTasks(instruction, inferredAssignee, cause)
   }
 
   fun addTasks(task: Task): List<TaskAddedEvent> {
-    validateActor(task)
+    validateAssignee(task)
     return taskQueues.addTasks(task)
   }
 
   fun removeTask(id: TaskId): TaskRemovedEvent {
-    validateActor(getTaskData(id))
+    validateAssignee(getTaskData(id))
     return taskQueues.removeTask(id)
   }
 
   fun editTask(newTask: Task): TaskEditedEvent? {
-    validateActor(newTask)
-    validateActor(getTaskData(newTask.id))
+    validateAssignee(newTask)
+    validateAssignee(getTaskData(newTask.id))
     return taskQueues.editTask(newTask)
   }
 
-  fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateActor)
+  fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
 
-  fun queueFor(actor: Actor): WritableTaskQueue = taskQueues[actor]
+  fun queueFor(assignee: Actor): WritableTaskQueue = taskQueues[assignee]
 
   override fun toString() = filtered().joinToString("\n")
 }

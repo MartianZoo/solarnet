@@ -155,7 +155,7 @@ optionally preceded by a minus sign. For each instance of that type that is gain
 instruction will be carried out.
 
 In authored Pets, `BY` restricts the Actor recorded on the triggering state change; it does not
-select the task owner or bind `Owner` in the resulting instruction. Authored `BY` is reserved for
+select the assignee or bind `Owner` in the resulting instruction. Authored `BY` is reserved for
 creation triggers whose created component is unowned. When the created component is owned, express
 the relevant Owner in that component's type instead. An omitted `BY` adds no Actor restriction.
 

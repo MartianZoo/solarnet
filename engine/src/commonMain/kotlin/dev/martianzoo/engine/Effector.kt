@@ -82,21 +82,20 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         onChange(triggerEvent, reader, isSelf = false)
 
     private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
-      val taskActor = actorForTriggeredWork(triggerEvent, reader)
-      val hit = subscription.checkForHit(triggerEvent, taskActor, isSelf, reader) ?: return null
+      val assignee = assigneeForTriggeredWork(triggerEvent, reader)
+      val hit = subscription.checkForHit(triggerEvent, assignee, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task.noid(taskActor, automatic, hit(instruction), cause = cause)
+      return Task.noid(assignee, automatic, hit(instruction), cause = cause)
     }
 
     /**
-     * The compatibility rule for choosing the Actor associated with work produced by an effect.
-     * `BY` currently tests this Actor as well, although routing and trigger matching may eventually
-     * need distinct inputs.
+     * The compatibility rule for choosing the assignee of work produced by an effect. Authored `BY`
+     * independently tests the Actor recorded on the triggering event.
      *
      * Automatic effects are represented temporarily as Tasks but execute inline through the
      * triggering Actor's Instructor and Changer, so their resulting ChangeEvents retain that Actor.
      */
-    private fun actorForTriggeredWork(triggerEvent: ChangeEvent, reader: GameReader): Actor =
+    private fun assigneeForTriggeredWork(triggerEvent: ChangeEvent, reader: GameReader): Actor =
         context.owner ?: changedComponentOwner(triggerEvent, reader) ?: triggerEvent.actor
 
     private fun changedComponentOwner(triggerEvent: ChangeEvent, reader: GameReader): Player? {
@@ -132,7 +131,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
     abstract fun checkForHit(
         currentEvent: ChangeEvent,
-        actor: Actor,
+        assignee: Actor,
         isSelf: Boolean,
         reader: GameReader,
     ): Hit?
@@ -142,7 +141,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Regular(val match: Expression, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Actor,
+          assignee: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -159,9 +158,9 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
           // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
           // role as a contextual variable: instructions emitted by the hit still belong to the
-          // concrete actor that matched the trigger.
+          // concrete assignee selected for the triggered work.
           val contextualOwner =
-              if (OWNER in match) (actor as? Player)?.let(::replaceOwnerWith) else null
+              if (OWNER in match) (assignee as? Player)?.let(::replaceOwnerWith) else null
           val h: Hit = {
             val substituted = subber.transform(it)
             (contextualOwner?.transform(substituted) ?: substituted) * change.count
@@ -178,7 +177,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Self(val context: Component, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Actor,
+          assignee: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
@@ -208,12 +207,12 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     ) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Actor,
+          assignee: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        // `actor` is the separately selected Actor for the consequence. BY instead describes who
-        // performed the change that triggered this effect, which is recorded on the event.
+        // `assignee` is selected separately for the consequence. BY instead describes who performed
+        // the change that triggered this effect, which is recorded on the event.
         val performer = currentEvent.actor
 
         // Owner, Anyone, and Player are role words handled below. Every other BY value names one
@@ -225,11 +224,11 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         if (by == PLAYER && performer !is Player) return null
 
         // For an owned effect, BY Owner means equality with that effect's Owner. This comparison
-        // must use the performer, not `actor`, because the latter may have been selected merely to
-        // receive the consequence (as with Lakefront and Philares).
+        // must use the performer, not `assignee`, because the latter may have been selected merely
+        // to receive the consequence (as with Lakefront and Philares).
         if (by == OWNER && effectOwner != null && performer != effectOwner) return null
 
-        val originalHit = inner.checkForHit(currentEvent, actor, isSelf, reader) ?: return null
+        val originalHit = inner.checkForHit(currentEvent, assignee, isSelf, reader) ?: return null
 
         return if (by == OWNER) {
           // An owned effect binds generic output to its effect Owner. For an unowned effect, BY
@@ -249,11 +248,11 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Actor,
+          assignee: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        val wouldHit = inner.checkForHit(currentEvent, actor, isSelf, reader) ?: return null
+        val wouldHit = inner.checkForHit(currentEvent, assignee, isSelf, reader) ?: return null
         return if (reader.has(condition)) wouldHit else null
       }
 
@@ -263,14 +262,14 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
     private data class Unscaled(val inner: Subscription) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
-          actor: Actor,
+          assignee: Actor,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
         // just fake it like only one happened
         return inner.checkForHit(
             currentEvent.copy(change = currentEvent.change.copy(count = 1)),
-            actor,
+            assignee,
             isSelf,
             reader,
         )

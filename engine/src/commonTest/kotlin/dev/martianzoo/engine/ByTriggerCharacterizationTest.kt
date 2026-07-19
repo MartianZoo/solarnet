@@ -33,7 +33,7 @@ class ByTriggerCharacterizationTest {
 
     gameplay.beginManual("ActorTriggerSignal!") {
       game.tasks
-          .extract { it.actor to it.instruction.toString() }
+          .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(actor to "Plant<Player1>!")
     }
   }
@@ -46,7 +46,7 @@ class ByTriggerCharacterizationTest {
 
     p1.beginManual("-ActorTriggerSignal!") {
       game.tasks
-          .extract { it.actor to it.instruction.toString() }
+          .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER1 to "Steel<Player1>!")
     }
   }
@@ -74,7 +74,7 @@ class ByTriggerCharacterizationTest {
 
     p2.beginManual("-ActorTriggerSignal!") {
       game.tasks
-          .extract { it.actor to it.instruction.toString() }
+          .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER2 to "Heat<Player2>!")
     }
   }
@@ -88,7 +88,7 @@ class ByTriggerCharacterizationTest {
 
     p1.beginManual("ActorTriggerSignal!") {
       game.tasks
-          .extract { it.actor to it.instruction.toString() }
+          .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(
               PLAYER2 to "Plant<Player2>!",
               PLAYER2 to "Steel<Player2>!",

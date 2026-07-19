@@ -5,9 +5,9 @@ import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 
 /**
- * Contains tasks: what the game is waiting on someone to do. Each task is assigned to an [Actor].
- * Normally, a state should never be observed in which engine tasks remain, as the engine should
- * always be able to take care of them itself before returning.
+ * Contains tasks: what the game is waiting on someone to do. Each task has an assignee, currently
+ * represented by an [Actor]. Normally, a state should never be observed in which administrative
+ * tasks remain, as the engine should always be able to take care of them itself before returning.
  *
  * It is possible to retrieve the [Task] corresponding to a [TaskId] but this is generally
  * discouraged and the API doesn't make it easy.

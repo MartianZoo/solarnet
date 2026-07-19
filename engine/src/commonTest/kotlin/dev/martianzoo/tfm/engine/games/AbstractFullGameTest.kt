@@ -140,8 +140,9 @@ abstract class AbstractFullGameTest {
   private fun dropPendingTasksForScoring() {
     while (!game.tasks.isEmpty()) {
       val taskId = game.tasks.ids().first()
-      val actor = game.tasks.extract { it.id to it.actor }.single { it.first == taskId }.second
-      game.gameplay(actor).godMode().dropTask(taskId)
+      val assignee =
+          game.tasks.extract { it.id to it.assignee }.single { it.first == taskId }.second
+      game.gameplay(assignee).godMode().dropTask(taskId)
     }
   }
 

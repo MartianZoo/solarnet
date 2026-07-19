@@ -17,16 +17,16 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class ActorTaskCharacterizationTest {
+class TaskAssignmentCharacterizationTest {
   @Test
-  fun ordinaryActorCanOnlySeeAndExecuteItsOwnTasks() {
+  fun ordinaryAssigneeCanOnlySeeAndExecuteItsOwnTasks() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
 
     val taskId = p2.godMode().addTasks("Plant").single()
 
-    game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     shouldThrow<TaskException> { p1.doTask("Plant<Player2>") }
 
     p2.doTask(taskId)
@@ -35,7 +35,7 @@ class ActorTaskCharacterizationTest {
   }
 
   @Test
-  fun wholeGameAutoExecutionUsesTheCallingActorToPerformAnotherActorsTask() {
+  fun wholeGameAutoExecutionUsesTheCallingActorToPerformAnotherAssigneesTask() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
@@ -50,13 +50,13 @@ class ActorTaskCharacterizationTest {
   }
 
   @Test
-  fun unidentifiedTaskReceivesAnIdWhenInsertedIntoItsActorQueue() {
+  fun unidentifiedTaskReceivesAnIdWhenInsertedIntoItsAssigneesQueue() {
     val events = WritableEventLog()
     val queues = TaskQueues(events)
     val cause = Cause(te("TerraformingMars"), triggerEvent = 0)
     val unidentified =
         Task.noid(
-            actor = PLAYER2,
+            assignee = PLAYER2,
             automatic = false,
             hit = parse<Instruction>("Plant<Player2>!"),
             cause = cause,
@@ -67,7 +67,7 @@ class ActorTaskCharacterizationTest {
     val added = queues[PLAYER2].addTasks(unidentified).single().task
 
     added.id shouldBe TaskId("A")
-    added.actor shouldBe PLAYER2
+    added.assignee shouldBe PLAYER2
     added.instruction shouldBe unidentified.instruction
     added.cause shouldBe cause
     queues[PLAYER2].ids().shouldContainExactly(TaskId("A"))
