@@ -1,0 +1,14 @@
+{
+  "awards": [
+    // Landlord
+    { "id": "MA1", "metric": "OwnedTile" },
+    // Banker
+    { "id": "MA2", "metric": "PROD[1]" },
+    // Scientist
+    { "id": "MA3", "metric": "ScienceTag" },
+    // Thermalist
+    { "id": "MA4", "metric": "Heat" },
+    // Miner
+    { "id": "MA5", "metric": "Steel + Titanium" },
+  ]
+}

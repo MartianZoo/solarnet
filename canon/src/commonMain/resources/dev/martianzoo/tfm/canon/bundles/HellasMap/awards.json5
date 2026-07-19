@@ -1,0 +1,14 @@
+{
+  "awards": [
+    // Cultivator
+    { "id": "HA1", "metric": "GreeneryTile" },
+    // Magnate
+    { "id": "HA2", "metric": "AutomatedCard" },
+    // Space Baron
+    { "id": "HA3", "metric": "SpaceTag" },
+    // Excentric
+    { "id": "HA4", "metric": "CardResource" },
+    // Contractor
+    { "id": "HA5", "metric": "BuildingTag" },
+  ]
+}
