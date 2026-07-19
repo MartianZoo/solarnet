@@ -98,6 +98,12 @@ public abstract class TfmRuleset : Ruleset {
     private fun <D : Definition> applicable(selected: Set<D>, allKnown: Set<D>): Set<D> {
       val knownById = allKnown.associateByStrict { it.definitionId }
       allKnown.forEach { definition ->
+        definition.loadRequirement?.let { requirement ->
+          require(!requirement.references(cn(definition.bundle))) {
+            "${definition::class.simpleName} ${definition.definitionId} has load requirement " +
+                "$requirement naming its own bundle ${definition.bundle}"
+          }
+        }
         definition.replacesId?.let { target ->
           require(target in knownById) {
             "${definition.definitionId} replaces unknown ${definition::class.simpleName} $target"
@@ -150,6 +156,14 @@ public abstract class TfmRuleset : Ruleset {
           is Or -> requirements.any { it.matches(presentBundles) }
           is And -> requirements.all { it.matches(presentBundles) }
           is Transform -> error("unsupported load requirement: $this")
+        }
+
+    private fun Requirement.references(bundle: ClassName): Boolean =
+        when (this) {
+          is Counting -> scaledEx.expression.className == bundle
+          is Or -> requirements.any { it.references(bundle) }
+          is And -> requirements.any { it.references(bundle) }
+          is Transform -> requirement.references(bundle)
         }
   }
 

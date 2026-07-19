@@ -17,7 +17,14 @@ internal class CardDefinitionTest {
   /** This is honestly an incredibly stupid test that data classes shouldn't need to have. */
   @Test
   fun minimal() {
-    val dumbCard = CardData("123", deck = "PRELUDE", immediate = "Plant", bundle = "Z")
+    val dumbCard =
+        CardData(
+            "123",
+            deck = "PRELUDE",
+            loadRequirement = "HAS PreludeExpansion",
+            immediate = "Plant",
+            bundle = "Z",
+        )
 
     dumbCard.id shouldBe "123"
     dumbCard.bundle shouldBe "Z"
@@ -113,6 +120,7 @@ internal class CardDefinitionTest {
           {
             "cards": [{
               "id": "X40",
+              "loadRequirement": "HAS PreludeExpansion",
               "deck": "PRELUDE",
               "immediate": "Plant"
             }]
@@ -122,6 +130,22 @@ internal class CardDefinitionTest {
     val card = CardDefinition(JsonReader.readCards(json, "PromosExpansion").single())
 
     card.bundle shouldBe "PromosExpansion"
+  }
+
+  @Test
+  fun preludeCardsRequirePreludeExpansion() {
+    val card =
+        CardDefinition(
+            CardData(
+                id = "X40",
+                deck = "PRELUDE",
+                loadRequirement = "HAS PreludeExpansion",
+                immediate = "Plant",
+            ),
+            "PromosExpansion",
+        )
+
+    card.loadRequirement.toString() shouldBe "PreludeExpansion"
   }
 
   // Just so we don't have to keep repeating the "x" part

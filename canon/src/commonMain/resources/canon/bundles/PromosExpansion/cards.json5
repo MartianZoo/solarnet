@@ -72,6 +72,7 @@
     // Corporate Archives[F]
     {
       "id": "X39F",
+      "loadRequirement": "HAS PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
       "immediate": "13, 2 ProjectCard"
@@ -89,6 +90,7 @@
     // Merger[F]
     {
       "id": "X41F",
+      "loadRequirement": "HAS PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CorporationCard THEN PlayCard<Class<CorporationCard>>, -42"
     },
@@ -96,6 +98,7 @@
     // New Partner[F]
     {
       "id": "X42F",
+      "loadRequirement": "HAS PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "PROD[1], PreludeCard, PlayCard<Class<PreludeCard>>"
     },
@@ -103,6 +106,7 @@
     // Head Start
     {
       "id": "X43",
+      "loadRequirement": "HAS PreludeExpansion",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
       "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>?, UseAction<StandardAction>?"

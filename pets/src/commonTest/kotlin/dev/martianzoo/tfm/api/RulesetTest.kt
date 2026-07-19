@@ -24,6 +24,7 @@ internal class RulesetTest {
                       CardData(
                           id = "123",
                           deck = "PRELUDE",
+                          loadRequirement = "HAS PreludeExpansion",
                           immediate = "Plant",
                           bundle = "Z",
                           components = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"),
@@ -143,6 +144,25 @@ internal class RulesetTest {
         .resolve(setOf(cn("PromosExpansion"), cn("PreludeExpansion")))
         .cardDefinitions
         .shouldContainExactly(doubleDown)
+  }
+
+  @Test
+  fun loadRequirementCannotNameDefinitionsOwnBundle() {
+    val selfRequiringCard =
+        CardDefinition(
+            CardData(id = "X40", loadRequirement = "HAS PromosExpansion"),
+            "PromosExpansion",
+        )
+    val source = TfmRuleset.compose(cardBundle("PromosExpansion", "X", selfRequiringCard))
+
+    val exception =
+        shouldThrow<IllegalArgumentException> {
+          source.resolve(setOf(cn("PromosExpansion"))).cardDefinitions
+        }
+
+    exception.message shouldBe
+        "CardDefinition X40 has load requirement PromosExpansion naming its own bundle " +
+            "PromosExpansion"
   }
 
   private fun ruleset(vararg declarations: ClassDeclaration): TfmRuleset =
