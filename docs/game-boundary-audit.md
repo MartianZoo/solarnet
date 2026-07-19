@@ -60,7 +60,7 @@ The protocol is split across ostensibly generic code and Terraforming Mars canon
 4. `engine/src/commonMain/kotlin/dev/martianzoo/engine/ApiTranslation.kt` implements `turn` by
    initiating `NewTurn`.
 5. The actual `UseAction1..3`, `NewTurn`, `SecondAction`, and `Pass` definitions live in
-   `canon/src/commonMain/resources/dev/martianzoo/tfm/canon/bundles/TerraformingMars/actions.pets`.
+   `canon/src/commonMain/resources/canon/bundles/TerraformingMars/actions.pets`.
 
 There are two principled choices: make this a documented generic engine protocol and move its
 foundational declarations into the generic kernel, or move `TurnLayer`, action-to-effect
@@ -137,7 +137,7 @@ wiring and product branding belong in an application package.
 
 ### P0: The fundamental Pets/engine runtime classes live in Terraforming Mars canon resources
 
-`canon/src/commonMain/resources/dev/martianzoo/tfm/canon/bundles/System/system.pets` defines:
+`canon/src/commonMain/resources/canon/bundles/System/system.pets` defines:
 
 1. `Component`, the root of every game's component hierarchy.
 2. `Class`.

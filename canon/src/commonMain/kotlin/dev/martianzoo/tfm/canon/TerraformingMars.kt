@@ -1,10 +1,9 @@
-package dev.martianzoo.tfm.canon.bundles.TerraformingMars
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.canon.CanonResources
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
 import dev.martianzoo.util.toSetStrict
 
 /** The core Terraforming Mars rules and shared game vocabulary. */

@@ -1,6 +1,6 @@
 @file:Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 
-package dev.martianzoo.tfm.canon.bundles.CorporateEraExpansion
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.NarrowingException

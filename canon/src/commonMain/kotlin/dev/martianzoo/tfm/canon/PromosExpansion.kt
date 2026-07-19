@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.canon.bundles.PromosExpansion
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
 
 /** The promotional cards currently supported by Canon. */
 internal object PromosExpansion :

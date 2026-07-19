@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.canon.bundles.PreludeExpansion
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
 
 /** The Prelude expansion rules currently supported by Canon. */
 internal object PreludeExpansion :

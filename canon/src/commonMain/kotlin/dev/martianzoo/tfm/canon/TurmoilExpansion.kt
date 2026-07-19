@@ -1,6 +1,4 @@
-package dev.martianzoo.tfm.canon.bundles.TurmoilExpansion
-
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
+package dev.martianzoo.tfm.canon
 
 /** The small subset of Turmoil content currently supported by Canon. */
 internal object TurmoilExpansion :

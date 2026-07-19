@@ -1,6 +1,4 @@
-package dev.martianzoo.tfm.canon.bundles.HellasMap
-
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
+package dev.martianzoo.tfm.canon
 
 /** The Hellas map and its milestones. */
 internal object HellasMap :

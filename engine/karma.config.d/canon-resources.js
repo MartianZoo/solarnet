@@ -1,7 +1,7 @@
 config.set({
   files: config.files.concat([
     {
-      pattern: "dev/**/*",
+      pattern: "canon/**/*",
       included: false,
       served: true,
       watched: false,
@@ -9,6 +9,6 @@ config.set({
     },
   ]),
   proxies: Object.assign(config.proxies, {
-    "/dev/": "/base/dev/",
+    "/canon/": "/base/canon/",
   }),
 });

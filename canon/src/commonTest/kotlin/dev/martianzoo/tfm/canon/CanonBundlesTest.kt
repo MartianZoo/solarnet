@@ -2,9 +2,6 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.bundles.ColoniesExpansion.ColoniesExpansion
-import dev.martianzoo.tfm.canon.bundles.System.System
-import dev.martianzoo.tfm.canon.bundles.TerraformingMars.TerraformingMars
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize

@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.canon
 import org.w3c.xhr.XMLHttpRequest
 
 internal actual fun readCanonResource(filename: String): String {
-  val resourceName = "dev/martianzoo/tfm/canon/$filename"
+  val resourceName = "canon/$filename"
   val request = XMLHttpRequest()
   request.open("GET", resourceName, false)
   request.send()

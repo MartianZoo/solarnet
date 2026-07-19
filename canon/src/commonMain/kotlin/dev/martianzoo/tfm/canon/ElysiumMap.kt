@@ -1,6 +1,4 @@
-package dev.martianzoo.tfm.canon.bundles.ElysiumMap
-
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
+package dev.martianzoo.tfm.canon
 
 /** The Elysium map and its milestones. */
 internal object ElysiumMap :

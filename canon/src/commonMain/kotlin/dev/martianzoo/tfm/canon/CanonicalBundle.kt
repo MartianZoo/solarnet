@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.canon.bundles
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseOneLinerClass

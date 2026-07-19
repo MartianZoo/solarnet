@@ -1,6 +1,4 @@
-package dev.martianzoo.tfm.canon.bundles.TharsisMap
-
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
+package dev.martianzoo.tfm.canon
 
 /** The Tharsis map and its milestones. */
 internal object TharsisMap :

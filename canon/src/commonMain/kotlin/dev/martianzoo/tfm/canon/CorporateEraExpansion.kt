@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.canon.bundles.CorporateEraExpansion
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
 
 /** The Corporate Era card expansion. */
 internal object CorporateEraExpansion :

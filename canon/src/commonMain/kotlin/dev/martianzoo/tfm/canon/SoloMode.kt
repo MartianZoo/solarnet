@@ -1,8 +1,7 @@
-package dev.martianzoo.tfm.canon.bundles.SoloMode
+package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
 import dev.martianzoo.util.toSetStrict
 
 /** The one-player variant. */

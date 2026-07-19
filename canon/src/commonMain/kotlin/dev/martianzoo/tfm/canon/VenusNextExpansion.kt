@@ -1,6 +1,4 @@
-package dev.martianzoo.tfm.canon.bundles.VenusNextExpansion
-
-import dev.martianzoo.tfm.canon.bundles.CanonicalBundle
+package dev.martianzoo.tfm.canon
 
 /** The Venus Next expansion rules currently supported by Canon. */
 internal object VenusNextExpansion :
