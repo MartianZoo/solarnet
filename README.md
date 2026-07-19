@@ -31,7 +31,17 @@
 
 * It's **not polished enough** for anyone to "just use" -- not even close! But if you're intrepid I could really use your help to *get* it into that state. If you're not in a "roll up your sleeves, dig in, ask questions" mode, you *will* find it frustrating. Sorry!
 
-* NO IT IS NOT VIBE CODED. :-) Sorry, I get defensive. This whole thing was made by hand. Now I am experimenting with Claude's help in small ways. The only code I commit is code that I personally understand and vouch for.
+## Overly defensive statement about AI
+
+I worked alone (and hard) on this project for 3 years starting in mid-2020. It was incredibly difficult, partly because I am not built for working alone. My entire dream was always to get it to a point that just one other human being on the planet would be interested in working on it together. I am pretty sure I sunk *multiple* thousands of hours into it, keeping myself going with that dream, and basically... it failed.
+
+By mid-2023 I had gone as far as I could go. I had a working engine and I was *personally* very proud of it, but the public reaction was [disappointing](https://boardgamegeek.com/thread/3143416/article/42861629#42861629), and no collaborators materialized. I couldn't justify putting more time into it. I get that people needed it to be more than it was before they'd get interested, but I was tapped out.
+
+I spent the next 3 years feeling pretty sad about it, honestly. Then starting in mid-2026 Codex and Claude have completely reinvigorated my interest in this project, and my ability to move it forward. The design of everything is still mine, but it is very good at implementation and finding issues and well, a lot of things.
+
+It is not the "collaboration" I wanted -- seriously, people, stop personifying these tools -- but I feel more optimistic that this project will become something of interest to other real humans now. If it doesn't, I am still back to having fun with it again.
+
+If this makes you view my whole project as "vibe-coded", fine, that's your right. I think it would be inaccurate, but that's just me.
 
 ## Play around with it?
 
@@ -54,7 +64,7 @@ But in these early days, you're unlikely to get far on your own. I want to impro
 
 ### Join the discord
 
-Please do. [This invite](https://discord.gg/8tX5g4Yx3T) should work...
+There is a discord that I'd be happy to start regenerating invites for but there's nothing happening there currently.
 
 ### Videos
 
@@ -93,23 +103,6 @@ If you can generate the docs (clone, `./gradlew dokkaGenerateHtml`, then look at
 documentation for every Solarnet module.
 
 I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thing usable from Java, JavaScript, and some other environments as well. Getting those working might not be trivial (?) but at least won't require a port.
-
-## Formatting Kotlin
-
-The repository enforces Kotlin formatting with [Spotless](https://github.com/diffplug/spotless) and ktfmt. Run `./gradlew spotlessApply` to format all Kotlin source and Gradle Kotlin script files; `./gradlew spotlessCheck` verifies that no formatting changes are needed.
-
-After cloning, run `./gradlew installGitHooks` once. This configures Git to use the repository's versioned pre-commit hook, which runs `spotlessCheck` and blocks commits containing incorrectly formatted files. If it fails, run `./gradlew spotlessApply`, review and stage the formatting changes, and commit again. GitHub Actions also runs `spotlessCheck` before the build, so formatting is enforced even if a local hook is bypassed.
-
-## Static analysis
-
-The repository runs [Detekt](https://detekt.dev/) for Kotlin static analysis as part of its normal Gradle check lifecycle. Run `./gradlew detekt` to write per-module reports to `build/reports/detekt/`.
-
-## REPL terminal smoke test
-
-The REPL's Expect-based real-terminal smoke test is excluded from the normal test and build
-lifecycle because pseudo-terminal behavior varies across operating systems and CI environments. On
-a machine with Expect installed at `/usr/bin/expect`, run it explicitly with
-`./gradlew :repl:realTerminalSmokeTest`.
 
 ## Who are you
 
