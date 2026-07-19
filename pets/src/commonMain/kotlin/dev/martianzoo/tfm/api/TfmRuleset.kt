@@ -11,6 +11,11 @@ import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.And
+import dev.martianzoo.pets.ast.Requirement.Counting
+import dev.martianzoo.pets.ast.Requirement.Or
+import dev.martianzoo.pets.ast.Requirement.Transform
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition
@@ -37,7 +42,8 @@ public abstract class TfmRuleset : Ruleset {
     require(available.containsAll(selectedBundles)) {
       "unknown bundles: ${selectedBundles - available}; available bundles: $available"
     }
-    return selectedContribution(selectedBundles) ?: Empty()
+    val selectedSource = selectedContribution(selectedBundles) ?: Empty()
+    return Resolved(this, selectedSource)
   }
 
   private fun selectedContribution(selectedBundles: Set<ClassName>): TfmRuleset? =
@@ -49,6 +55,96 @@ public abstract class TfmRuleset : Ruleset {
             )
         else -> this
       }
+
+  private class Resolved(
+      private val underlying: TfmRuleset,
+      private val selectedSource: TfmRuleset,
+  ) : TfmRuleset() {
+    private val presentBundles = selectedSource.bundleRulesets.map { it.bundleName }.toSet()
+
+    override val bundleRulesets: List<Bundle> by selectedSource::bundleRulesets
+    override val allBundles: Set<String> by selectedSource::allBundles
+    override val explicitClassDeclarations: Set<ClassDeclaration> by
+        selectedSource::explicitClassDeclarations
+    override val customClasses: Set<CustomClass> by selectedSource::customClasses
+
+    override val cardDefinitions: Set<CardDefinition> by lazy {
+      applicable(selectedSource.cardDefinitions, underlying.cardDefinitions)
+    }
+
+    override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
+      applicable(selectedSource.marsMapDefinitions, underlying.marsMapDefinitions)
+    }
+
+    override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
+      applicable(selectedSource.milestoneDefinitions, underlying.milestoneDefinitions)
+    }
+
+    override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
+      applicable(selectedSource.colonyTileDefinitions, underlying.colonyTileDefinitions)
+    }
+
+    override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
+      applicable(selectedSource.standardActionDefinitions, underlying.standardActionDefinitions)
+    }
+
+    private fun <D : Definition> applicable(selected: Set<D>, allKnown: Set<D>): Set<D> {
+      val knownById = allKnown.associateByStrict { it.definitionId }
+      allKnown.forEach { definition ->
+        definition.replacesId?.let { target ->
+          require(target in knownById) {
+            "${definition.definitionId} replaces unknown ${definition::class.simpleName} $target"
+          }
+        }
+      }
+      checkReplacementCycles(knownById)
+
+      val applicable = selected.filter { it.loadRequirement?.matches(presentBundles) != false }
+      applicable
+          .mapNotNull { definition -> definition.replacesId?.let { it to definition } }
+          .groupBy({ it.first }, { it.second })
+          .forEach { (target, replacements) ->
+            require(replacements.size == 1) {
+              "multiple applicable replacements for $target: ${replacements.map { it.definitionId }}"
+            }
+          }
+
+      val removedIds = mutableSetOf<String>()
+      applicable.forEach { replacement ->
+        var target = replacement.replacesId
+        while (target != null && removedIds.add(target)) {
+          target = knownById.getValue(target).replacesId
+        }
+      }
+      return applicable.filterTo(mutableSetOf()) { it.definitionId !in removedIds }
+    }
+
+    private fun <D : Definition> checkReplacementCycles(knownById: Map<String, D>) {
+      knownById.values.forEach { start ->
+        val path = mutableSetOf<String>()
+        var current: D? = start
+        while (current?.replacesId != null) {
+          require(path.add(current.definitionId)) {
+            "replacement cycle involving ${current.definitionId}"
+          }
+          current = knownById.getValue(current.replacesId!!)
+        }
+      }
+    }
+
+    private fun Requirement.matches(presentBundles: Set<ClassName>): Boolean =
+        when (this) {
+          is Counting -> {
+            val expression = scaledEx.expression
+            require(expression.simple) { "unsupported load requirement: $this" }
+            val count = if (expression.className in presentBundles) 1 else 0
+            count in range
+          }
+          is Or -> requirements.any { it.matches(presentBundles) }
+          is And -> requirements.all { it.matches(presentBundles) }
+          is Transform -> error("unsupported load requirement: $this")
+        }
+  }
 
   /** Returns every bundle code (e.g. `"B"`) this ruleset has any information on. */
   override val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
@@ -112,10 +208,7 @@ public abstract class TfmRuleset : Ruleset {
 
   // CARDS
 
-  /**
-   * Returns the card definition having the full name [name]. If there are multiple, one must be
-   * marked as `replaces` the other. (Not done, see #49)
-   */
+  /** Returns the applicable card definition having the full name [name]. */
   public fun card(name: ClassName): CardDefinition =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 

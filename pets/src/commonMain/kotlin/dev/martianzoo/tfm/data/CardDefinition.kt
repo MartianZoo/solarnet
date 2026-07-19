@@ -49,6 +49,8 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
    */
   public val id: String by data::id
 
+  override val definitionId: String by ::id
+
   override val shortName: ClassName = cn("C$id")
 
   override val className: ClassName = englishHack(id)
@@ -67,6 +69,11 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
    * the `"039"` Deimos Down.
    */
   public val replaces: String? by data::replaces
+
+  override val replacesId: String? by ::replaces
+
+  override val loadRequirement: Requirement? =
+      data.loadRequirement?.removePrefix("HAS ")?.let(::parse)
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
 
@@ -181,6 +188,7 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
       val bundle: String? = null,
       val deck: String? = null,
       val replaces: String? = null,
+      val loadRequirement: String? = null,
       val tags: List<String> = listOf(),
       val immediate: String? = null,
       val actions: List<String> = listOf(),
@@ -195,6 +203,7 @@ public class CardDefinition(data: CardData, bundle: String = requireNotNull(data
       require(id.isNotEmpty())
       require(bundle?.isNotEmpty() != false)
       require(replaces?.isNotEmpty() ?: true)
+      require(loadRequirement?.isNotEmpty() ?: true)
       require(resourceType?.isNotEmpty() ?: true)
       require(requirement?.isNotEmpty() ?: true)
       require(cost >= 0)

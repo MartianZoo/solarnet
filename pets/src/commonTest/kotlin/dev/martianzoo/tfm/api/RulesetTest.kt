@@ -88,6 +88,42 @@ internal class RulesetTest {
     )
   }
 
+  @Test
+  fun resolutionAppliesSameKindReplacementBeforeClassIndexing() {
+    val original = CardDefinition(CardData(id = "039"), "TerraformingMars")
+    val replacement = CardDefinition(CardData(id = "X31", replaces = "039"), "PromosExpansion")
+    val source =
+        TfmRuleset.compose(
+            cardBundle("TerraformingMars", "B", original),
+            cardBundle("PromosExpansion", "X", replacement),
+        )
+
+    val resolved = source.resolve(setOf(cn("TerraformingMars"), cn("PromosExpansion")))
+
+    resolved.cardDefinitions.map { it.id }.shouldContainExactly("X31")
+    resolved.classDeclaration(cn("DeimosDownPromo")) shouldBe replacement.asClassDeclaration
+  }
+
+  @Test
+  fun loadRequirementTestsSelectedBundlePresence() {
+    val doubleDown =
+        CardDefinition(
+            CardData(id = "X40", loadRequirement = "HAS PreludeExpansion"),
+            "PromosExpansion",
+        )
+    val source =
+        TfmRuleset.compose(
+            cardBundle("PromosExpansion", "X", doubleDown),
+            cardBundle("PreludeExpansion", "P"),
+        )
+
+    source.resolve(setOf(cn("PromosExpansion"))).cardDefinitions.shouldHaveSize(0)
+    source
+        .resolve(setOf(cn("PromosExpansion"), cn("PreludeExpansion")))
+        .cardDefinitions
+        .shouldContainExactly(doubleDown)
+  }
+
   private fun ruleset(vararg declarations: ClassDeclaration): TfmRuleset =
       object : TfmRuleset.Empty() {
         override val explicitClassDeclarations = declarations.toSet()
@@ -101,5 +137,14 @@ internal class RulesetTest {
   ): TfmRuleset.Bundle =
       object : TfmRuleset.Bundle(cn(name), code, alwaysIncluded) {
         override val explicitClassDeclarations = setOf(parseOneLinerClass(declaration))
+      }
+
+  private fun cardBundle(
+      name: String,
+      code: String,
+      vararg cards: CardDefinition,
+  ): TfmRuleset.Bundle =
+      object : TfmRuleset.Bundle(cn(name), code) {
+        override val cardDefinitions = cards.toSet()
       }
 }

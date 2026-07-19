@@ -19,6 +19,7 @@ data class MilestoneDefinition(
     override val bundle: String,
     val replaces: String? = null,
     @SerialName("requirement") val requirementText: String,
+    @SerialName("loadRequirement") val loadRequirementText: String? = null,
 ) : Definition {
 
   init {
@@ -28,6 +29,14 @@ data class MilestoneDefinition(
   }
 
   @Transient override val shortName = cn(id)
+
+  @Transient override val definitionId: String = id
+
+  @Transient override val replacesId: String? = replaces
+
+  @Transient
+  override val loadRequirement: Requirement? =
+      loadRequirementText?.removePrefix("HAS ")?.let(::parse)
 
   @Transient val requirement: Requirement = parse(requirementText)
 

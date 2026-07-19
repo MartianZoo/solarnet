@@ -40,6 +40,7 @@ public object JsonReader {
       val bundle: String? = null,
       val replaces: String? = null,
       val requirement: String,
+      val loadRequirement: String? = null,
   ) {
     fun complete(directoryBundle: String? = null): MilestoneDefinition {
       if (directoryBundle != null) {
@@ -50,6 +51,7 @@ public object JsonReader {
           directoryBundle ?: requireNotNull(bundle),
           replaces,
           requirement,
+          loadRequirement,
       )
     }
   }

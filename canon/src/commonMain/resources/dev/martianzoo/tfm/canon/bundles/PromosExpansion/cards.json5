@@ -80,6 +80,7 @@
     // Double Down
     {
       "id": "X40",
+      "loadRequirement": "HAS PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
       "components": [ "CLASS CopyPrelude : Cardbound, Custom" ]

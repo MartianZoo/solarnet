@@ -38,7 +38,9 @@
 - **Concrete type:** A fully specified type whose components can exist in game state. (Antonym: abstract type.)
 - **Custom instruction:** A Pets instruction with a Kotlin implementation that calculates what instruction to replace itself with.
 - **Default:** A class-supplied specialization or intensity inserted when an expression omits it.
-- **Definition:** Structured data for a card, map area, or similar item that is converted into a class declaration.
+- **Definition:** Structured data for a card, map area, or similar item that is converted into a
+  class declaration. Definitions have stable same-kind identities, bundle provenance, and optional
+  load requirements and replacement targets.
 - **Dependency:** A type relationship requiring each component to refer to a specific component of another type, which always must exist while this component does.
 - **Die:** An instruction to gain `Die`; it cannot enter a task queue, so the enclosing operation fails and rolls back.
 - **Effect:** A trigger plus instruction, and whether it is automatic or not, attached to a class or component.
