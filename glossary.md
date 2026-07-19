@@ -5,7 +5,7 @@
 - **Action:** (1) A Pets element with an optional cost and an instruction, written with `->`; usually belongs to a card or a StandardAction. (2) What a player gets 1 or 2 of on their turn: lasts until their task queue is empty.
 - **Active effect:** The effect of an existing component which has been registered with the `Effector` and is ready to be triggered.
 - **Actor:** The entity whose gameplay context executes an instruction and is credited with its resulting state changes.
-- **Admin:** The non-player Actor that performs administrative operations; current code represents it as `Engine`.
+- **Engine:** The non-player Actor that performs administrative operations.
 - **AMAP:** The `.` intensity meaning “as much as possible”; preparation fixes the possible amount and makes it mandatory.
 - **Anyone:** The generic Pets type used in ownership expressions to say “I don't care who.”
 - **Assignee:** The Actor whose task queue this task is in; they get to choose when to prepare the task.
@@ -55,7 +55,7 @@
 - **Narrowing:** Replacing an abstract type or task/instruction with a valid, more specific one. When finally narrowed to a *concrete* task it can be executed.
 - **No-op:** The `Ok` instruction, which always succeeds without changing game state.
 - **Owned:** The root class for components whose type carries an ownership dependency.
-- **Owner:** An entity that may own components; `Owner` in Pets is also a contextual placeholder specialized before use.
+- **Owner:** An entity that may own components; represented independently from Actor in both Pets and the runtime identity model. `Owner` in Pets is also a contextual placeholder specialized before use.
 - **Pets:** Solarnet's specification language for component types, rules, and game-state changes.
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **Prepared task:** A task simplified against current game state and therefore required to finish next; it may still need further narrowing.

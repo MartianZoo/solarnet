@@ -367,6 +367,10 @@ decided to adopt Koin.
 Each configured Actor also gets a Koin scope containing `Changer`, `Instructor`, `Implementations`,
 `ApiTranslation` (the `Gameplay` impl), and `Initializer`.
 
+Runtime identity has the same two independent role axes as Pets: an `Actor` can execute operations,
+and an `Owner` can own components. `Player` is their intersection. Only Actors receive these
+gameplay scopes and task queues; merely being an Owner conveys neither capability.
+
 The `Effector` takes a `Lazy<GameReader>` to break a bootstrapping cycle: the game's reader isn't
 available until after the effector exists, but the effector needs the reader to fire effects.
 

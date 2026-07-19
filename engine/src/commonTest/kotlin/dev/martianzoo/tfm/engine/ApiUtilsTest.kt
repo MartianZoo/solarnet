@@ -5,14 +5,26 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.api.ApiUtils.getOwner
+import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ApiUtilsTest {
+  @Test
+  fun componentOwnershipUsesTheOwnerRole() {
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val plant = game.gameplay(PLAYER1).resolve("Plant")
+
+    getOwner(game.reader, plant) shouldBe PLAYER1
+    getPlayerOwner(game.reader, plant) shouldBe PLAYER1
+  }
+
   @Test
   fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)

@@ -6,7 +6,7 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
-import dev.martianzoo.tfm.api.ApiUtils.getOwner
+import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.data.GameSetup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -199,7 +199,7 @@ public object TfmWorkflow {
 
     private fun rotatedByFirstPlayer(): List<Player> {
       val token = game.reader.getComponents("StartToken").single()
-      val firstPlayer = getOwner(game.reader, token)
+      val firstPlayer = getPlayerOwner(game.reader, token)
       val firstPlayerIndex = players.indexOf(firstPlayer)
       return players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
     }

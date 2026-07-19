@@ -196,10 +196,10 @@ This implies a conceptual split:
 | --- | --- |
 | `Gameplay.autoExecMode` | Session-scoped `AutoExecPolicy` or `AutoExecutor` configuration |
 | `impl.autoExecNow(mode)` | Internal service used by `AutoExecutor` |
-| whole-game autoexec scan | Workflow/Admin concern or special privileged policy, not default player behavior |
+| whole-game autoexec scan | Workflow/Engine concern or special privileged policy, not default player behavior |
 
 Administrative operations may still be attributed to a non-player Actor. Its domain name is
-`Admin`; current code may call it `ENGINE`. It is not a Player, an Owner, or a separate `Npc` role.
+`Engine`, represented as `ENGINE` in Kotlin. It is not a Player, an Owner, or a separate `Npc` role.
 
 ## Capability Objects
 
@@ -230,7 +230,7 @@ These do not need to form one inheritance tower. A role receives whichever capab
 | Player UI/session | `GameQueries`, `TaskInbox`, `PlayerTaskActions`, maybe `TurnActions` |
 | REPL green mode | `GameQueries`, `TaskInbox`, `OperationRunner`, `TurnActions` |
 | REPL red mode | green mode plus `RawStateEditor` and `DebugTaskEditor` |
-| Workflow/Admin | `TaskMonitor`, `OperationRunner`, `TimelineControl`, task-drain notifications |
+| Workflow/Engine | `TaskMonitor`, `OperationRunner`, `TimelineControl`, task-drain notifications |
 | Test fixture | `DebugTaskEditor`, `RawStateEditor`, `TimelineControl`, high-level fixture helpers |
 | Board renderer | `GameQueries`, maybe a TfM read model |
 
@@ -314,7 +314,7 @@ Examples:
 1. `playProject` should extend a normal player action capability only if it can be implemented as a
    normal player operation.
 2. `giveResourcesForTest` should extend a fixture/debug capability, not a player capability.
-3. `phase` and `nextGeneration` should belong to a TfM workflow/Admin facade, not ordinary player
+3. `phase` and `nextGeneration` should belong to a TfM workflow/Engine facade, not ordinary player
    actions.
 4. Board display helpers should depend on a TfM read model or query capability, not on full `Game`.
 
@@ -445,7 +445,7 @@ full capability split. The current implementation has a few constraints worth re
    `Access` casts it back down to colored power levels, while `TaskCommand` reaches directly for
    `game.timeline.atomic` to compose a revise-and-try operation.
 5. `TfmGameplay` and `TfmWorkflow` show two different kinds of Terraforming Mars convenience mixed
-   into engine-facing types: player helpers such as `playProject` and payment, and Admin/workflow
+   into engine-facing types: player helpers such as `playProject` and payment, and Engine/workflow
    helpers such as phases and generations.
 
 That suggests this concrete order:
@@ -519,7 +519,7 @@ That suggests this concrete order:
    The first useful splits are likely:
 
    1. player helpers that need normal task/turn/operation capabilities,
-   2. workflow/Admin helpers that need administrative operations and timeline control,
+   2. workflow/Engine helpers that need administrative operations and timeline control,
    3. fixture helpers that need raw state or task editing,
    4. read-model helpers that need only queries.
 
@@ -532,7 +532,7 @@ That suggests this concrete order:
 
    `FIRST` explicitly permits an arbitrary choice from an otherwise unordered task set; it does not
    identify a domain-priority task. It is convenient, but assignee-local autoexec may require
-   explicit Admin workflow or task-drain behavior.
+   explicit Engine workflow or task-drain behavior.
 
 2. What should count as a public command?
 

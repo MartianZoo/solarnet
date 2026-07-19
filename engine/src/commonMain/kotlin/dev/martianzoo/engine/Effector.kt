@@ -82,11 +82,28 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         onChange(triggerEvent, reader, isSelf = false)
 
     private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
-      val assignee = assigneeForTriggeredWork(triggerEvent, reader)
-      // This compatibility rule currently uses the routed Player to specialize contextual Owner.
-      // Pass that binding input separately through trigger matching so neither role is mistaken for
-      // the Actor that will eventually execute the instruction.
-      val contextualOwner = assignee as? Player
+      // An owned effect belongs to the Player owning the component that carries it. This must win
+      // over every other identity here: when Player1 places beside Player2's Philares tile, Player2
+      // owns the effect and therefore chooses the standard resource. Using the changed tile's Owner
+      // instead would incorrectly give that choice to Player1. This is intentionally Player-only:
+      // no accepted SoloOpponent rule gives a passive Owner triggered choices or pending work.
+      val effectOwner = context.owner as? Player
+
+      // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
+      // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
+      // gameplay scope that happens to execute the effect. A passive Owner is ignored here because
+      // ownership alone must not give SoloOpponent task or gameplay authority.
+      val changedComponentPlayer = changedComponentPlayer(triggerEvent, reader)
+
+      // If neither the effect nor the changed component supplies ownership, a Player Actor is the
+      // last legitimate source for contextual `Owner`. Engine is deliberately excluded: it is an
+      // Actor but not an Owner, so treating it as one would manufacture invalid owned components.
+      val contextualOwner = effectOwner ?: changedComponentPlayer ?: (triggerEvent.actor as? Player)
+
+      // Assignment is a separate compatibility rule. Keeping this call separate from
+      // contextualOwner prevents the assignee from silently becoming the Actor used by authored
+      // `BY`, while preserving today's Philares behavior in which its Owner receives the task.
+      val assignee = assigneeForTriggeredWork(triggerEvent, effectOwner, changedComponentPlayer)
       val hit =
           subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
@@ -100,12 +117,15 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
      * Automatic effects are represented temporarily as Tasks but execute inline through the
      * triggering Actor's Instructor and Changer, so their resulting ChangeEvents retain that Actor.
      */
-    private fun assigneeForTriggeredWork(triggerEvent: ChangeEvent, reader: GameReader): Actor =
-        context.owner ?: changedComponentOwner(triggerEvent, reader) ?: triggerEvent.actor
+    private fun assigneeForTriggeredWork(
+        triggerEvent: ChangeEvent,
+        effectOwner: Player?,
+        changedComponentPlayer: Player?,
+    ): Actor = effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
 
-    private fun changedComponentOwner(triggerEvent: ChangeEvent, reader: GameReader): Player? {
+    private fun changedComponentPlayer(triggerEvent: ChangeEvent, reader: GameReader): Player? {
       val expression = triggerEvent.change.gaining ?: triggerEvent.change.removing ?: return null
-      return (reader.resolve(expression) as MType).toComponent().owner
+      return (reader.resolve(expression) as MType).toComponent().owner as? Player
     }
   }
 
@@ -124,7 +144,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           is WrappingTrigger -> {
             val inner = from(trigger.inner, context)
             when (trigger) {
-              is ByTrigger -> Personal(inner, trigger.by, context.owner)
+              is ByTrigger -> Personal(inner, trigger.by, context.owner as? Player)
               is IfTrigger -> Conditional(inner, trigger.condition)
               is XTrigger -> Unscaled(inner)
               is Transform -> error("should have been transformed by now: $trigger")
@@ -134,6 +154,11 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
       }
     }
 
+    /**
+     * [contextualOwner] is the Player used to bind contextual `Owner` placeholders in a triggered
+     * instruction. It is not generalized to every [dev.martianzoo.data.Owner]: this path produces
+     * executable or choice-bearing work, and no passive-Owner rule for that work has been defined.
+     */
     abstract fun checkForHit(
         currentEvent: ChangeEvent,
         contextualOwner: Player?,
@@ -206,8 +231,9 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         val inner: Subscription,
         val by: ClassName,
         // Owner substitution specializes expressions in the effect, but ByTrigger stores its BY
-        // value as a raw ClassName. Keep the context Owner explicitly so BY Owner can still compare
-        // the Actor with the identity that owns the effect.
+        // value as a raw ClassName. Keep the context's Player Owner explicitly so BY Owner can
+        // compare it with the Actor. A passive Owner is intentionally excluded: because it cannot
+        // perform a change, it can never satisfy an Actor filter.
         val effectOwner: Player?,
     ) : Subscription() {
       override fun checkForHit(
@@ -239,8 +265,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
         return if (by == OWNER) {
           // An owned effect binds generic output to its effect Owner. For an unowned effect, BY
-          // Owner instead requires and binds the performing Owner. Players are the only runtime
-          // identities that can supply that second context today.
+          // Owner instead requires and binds the performing Owner.
           val owner = effectOwner ?: (actor as? Player) ?: return null
           { replaceOwnerWith(owner).transform(originalHit(it)) }
         } else {

@@ -21,9 +21,9 @@ supports Philares, and leaves a narrow, clean path to `SoloOpponent`:
 - The stable identity vocabulary and invariants are easy to locate in code, tests, and maintained
   documentation, and we have done the standard cleanup checks.
 
-`SoloOpponent`, the `Engine`-to-`Admin` rename, an explicit language representation for contextual
-Owner binding, and the exact cross-owner preparation handoff are meaningful follow-on changes, not
-part of this stopping point. World Government Terraforming, a separate `Npc` hierarchy,
+`SoloOpponent`, an explicit language representation for contextual Owner binding, and the exact
+cross-owner preparation handoff are meaningful follow-on changes, not part of this stopping point.
+World Government Terraforming, a separate `Npc` hierarchy,
 generalized configured-identity lookup, neutral-Actor behavior, and neutral hosting of card
 resources are also out of scope.
 
@@ -47,9 +47,7 @@ preparation constraints clarified by user on 2026-07-18, with their representati
   can be performed. For an active effect, ownership of the component carrying the corresponding
   component effect is also evidence for who is entitled to make choices within it.
 - **Player:** A seated participant in the game. A Player is both an Owner and an Actor.
-- **Admin:** The non-player Actor that performs administrative game operations. Older discussion
-  and current code may call this identity `Engine`, `Npc`, or an emcee; these are not separate
-  domain concepts.
+- **Engine:** The non-player Actor that performs administrative game operations.
 - **SoloOpponent:** The passive Owner used by solo play. It is not a Player or an Actor and does not
   receive turns, tasks, or gameplay authority.
 
@@ -123,11 +121,6 @@ preparation constraints clarified by user on 2026-07-18, with their representati
     the seam rather than shape the cleanup speculatively.
   - **Evidence that will resolve it:** Focused solo setup and stock-removal tests showing that it
     needs no seat, turn, task queue, gameplay scope, corporation, hand, or ordinary Player assets.
-- **Decision:** Rename the administrative runtime identity from `Engine` to `Admin`.
-  - **Why deferred:** The vocabulary is settled, but a broad rename would obscure the behavioral
-    and ownership changes in this transition.
-  - **Evidence that will resolve it:** Completion of the stopping-point cleanup with all remaining
-    administrative-identity call sites identified and no competing `Engine` domain meaning.
 - **Decision:** Give contextual Owner binding an explicit representation instead of manufacturing
   `BY Owner`.
   - **Why deferred:** The temporary class-effect encoding must first be fully inventoried and tested
@@ -154,7 +147,7 @@ preparation constraints clarified by user on 2026-07-18, with their representati
 
 - The approved identity plan was moved from `docs/` to `plans/` in
   `9b64b5b6fb323383c4cd1619176046c031035aab`; repository links now follow its maintained location.
-- The Owner, Actor, Player, Admin, task-assignment, and SoloOpponent concepts and the intended
+- The Owner, Actor, Player, Engine, task-assignment, and SoloOpponent concepts and the intended
   stopping point were consolidated in the identity handoff at starting commit
   `aaaa6313385665941475e613bca39e099eb3d6c6`.
 - The Lakefront Resorts Actor/Owner regression was fixed and protected in

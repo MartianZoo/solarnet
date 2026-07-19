@@ -3,7 +3,7 @@ package dev.martianzoo.pets
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.SystemClasses.USE_ACTION
-import dev.martianzoo.data.Player
+import dev.martianzoo.data.Owner
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -32,9 +32,9 @@ public object Transforming {
           replacer(THIS.expression, contextType),
       )
 
-  /** Replaces each occurrence of `Owner` with the given player. */
+  /** Replaces each occurrence of the contextual `Owner` placeholder with [owner]. */
   @Suppress("ComplexCondition") // TODO fix
-  public fun replaceOwnerWith(owner: Player): PetTransformer =
+  public fun replaceOwnerWith(owner: Owner): PetTransformer =
       object : PetTransformer() {
         override fun <P : dev.martianzoo.pets.ast.PetNode> transform(node: P): P {
           if (

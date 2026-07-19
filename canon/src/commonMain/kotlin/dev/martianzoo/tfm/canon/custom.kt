@@ -32,7 +32,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.TransformNode
-import dev.martianzoo.tfm.api.ApiUtils.getOwner
+import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
@@ -202,7 +202,7 @@ private object AddColonyTile : CustomClass("AddColonyTile") {
 
 private object PassLeft : CustomClass("PassLeft") {
   override fun translate(reader: GameReader, component: Type): Instruction {
-    val currentOwner: Player = getOwner(reader, component)
+    val currentOwner: Player = getPlayerOwner(reader, component)
     val current: Int = currentOwner.toString().removePrefix("Player").toInt()
     val playerCount: Int = reader.count(parse<Metric>("Player"))
     if (playerCount == 1) return NoOp

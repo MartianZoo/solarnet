@@ -6,7 +6,7 @@ import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.data.Player
+import dev.martianzoo.data.Owner
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -37,16 +37,15 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
   public val dependencyComponents: List<Component> =
       mtype.typeDependencies.map { it.boundType.toComponent() }
 
-  // This remains Player until the runtime identity model can represent an Owner that has neither a
-  // gameplay scope nor a task queue. The Pets hierarchy is intentionally broader now.
-  public val owner: Player? = run {
+  /** The identity in this component's direct ownership dependency, if it has one. */
+  public val owner: Owner? = run {
     val name =
         if (hasType(mtype.loader.resolve(OWNER.expression))) {
           mtype
         } else {
           mtype.dependencies.getIfPresent(Key(OWNED, 0))
         }
-    name?.let { Player(it.className) }
+    name?.let { Owner.fromClassName(it.className) }
   }
 
   internal val effects: List<Effect> by lazy {
