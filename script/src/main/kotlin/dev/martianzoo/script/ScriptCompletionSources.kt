@@ -60,8 +60,8 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun bundleSuggestions(): List<ScriptCompletion> {
-    val bundles = repl.setup.authority.allBundles
-    val maps = repl.setup.authority.marsMapDefinitions.map { it.bundle }.toSet()
+    val bundles = repl.setup.ruleset.allBundles
+    val maps = repl.setup.ruleset.marsMapDefinitions.map { it.bundle }.toSet()
     val nonMaps = bundles - maps
     val common = listOf("BM", "BRM", "BRMVX", "BRMVPX", "BRMVPXT", repl.setup.bundleString)
     val generated = maps.flatMap { map -> nonMaps.map { "$it$map" } }

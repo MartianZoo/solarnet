@@ -5,9 +5,9 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Definition
+import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -24,9 +24,9 @@ import dev.martianzoo.util.associateByStrict
  * the `canon` module, containing only officially published materials. Others might provide fan-made
  * content or test content.
  */
-public abstract class TfmAuthority : Authority {
+public abstract class TfmRuleset : Ruleset {
 
-  /** Returns every bundle code (e.g. `"B"`) this authority has any information on. */
+  /** Returns every bundle code (e.g. `"B"`) this ruleset has any information on. */
   override val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
 
   // CLASS DECLARATIONS
@@ -70,12 +70,12 @@ public abstract class TfmAuthority : Authority {
   }
 
   /**
-   * Every class declaration this authority knows about, including explicit ones and those converted
+   * Every class declaration this ruleset knows about, including explicit ones and those converted
    * from [Definition]s.
    */
   override val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
 
-  /** Everything implementing [Definition] this authority knows about. */
+  /** Everything implementing [Definition] this ruleset knows about. */
   override val allDefinitions: Set<Definition> by lazy {
     setOf<Definition>() +
         cardDefinitions +
@@ -95,10 +95,10 @@ public abstract class TfmAuthority : Authority {
   public fun card(name: ClassName): CardDefinition =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
-  /** Every card this authority knows about. */
+  /** Every card this ruleset knows about. */
   public abstract val cardDefinitions: Set<CardDefinition>
 
-  /** A map from [ClassName] to [CardDefinition], containing all cards known to this authority. */
+  /** A map from [ClassName] to [CardDefinition], containing all cards known to this ruleset. */
   internal val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
     cardDefinitions.associateByStrict { it.className }
   }
@@ -110,7 +110,7 @@ public abstract class TfmAuthority : Authority {
     it.className == name
   }
 
-  /** Every standard action (including standard projects) this authority knows about. */
+  /** Every standard action (including standard projects) this ruleset knows about. */
   public abstract val standardActionDefinitions: Set<StandardActionDefinition>
 
   // MARS MAPS
@@ -120,7 +120,7 @@ public abstract class TfmAuthority : Authority {
       marsMapDefinitions.firstOrNull { it.className == name }
           ?: throw IllegalArgumentException("No `$name` in: ${marsMapDefinitions.classNames()}")
 
-  /** Every map this authority knows about. */
+  /** Every map this ruleset knows about. */
   public abstract val marsMapDefinitions: Set<MarsMapDefinition>
 
   // MILESTONES
@@ -128,7 +128,7 @@ public abstract class TfmAuthority : Authority {
   /** Returns the milestone by the given [name]. */
   public fun milestone(name: ClassName): MilestoneDefinition = milestonesByClassName[name]!!
 
-  /** Every milestone this authority knows about. */
+  /** Every milestone this ruleset knows about. */
   public abstract val milestoneDefinitions: Set<MilestoneDefinition>
 
   private val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
@@ -142,7 +142,7 @@ public abstract class TfmAuthority : Authority {
   /** Returns the milestone by the given [name]. */
   public fun colonyTile(name: ClassName): ColonyTileDefinition = colonyTileByClassName[name]!!
 
-  /** Every milestone this authority knows about. */
+  /** Every colony tile this ruleset knows about. */
   public abstract val colonyTileDefinitions: Set<ColonyTileDefinition>
 
   private val colonyTileByClassName: Map<ClassName, ColonyTileDefinition> by lazy {
@@ -160,10 +160,10 @@ public abstract class TfmAuthority : Authority {
   // HELPERS
 
   /**
-   * An authority providing nothing; intended for tests. Subclass it to supply any needed
-   * declarations and definitions.
+   * A ruleset providing nothing; intended for tests. Subclass it to supply any needed declarations
+   * and definitions.
    */
-  public open class Empty : TfmAuthority() {
+  public open class Empty : TfmRuleset() {
     override val explicitClassDeclarations = setOf<ClassDeclaration>()
     override val cardDefinitions = setOf<CardDefinition>()
     override val marsMapDefinitions = setOf<MarsMapDefinition>()
@@ -174,8 +174,8 @@ public abstract class TfmAuthority : Authority {
   }
 
   /**
-   * An authority providing almost nothing, just a single (empty) Mars map, which is in some code
-   * paths required.
+   * A ruleset providing almost nothing, just a single (empty) Mars map, which is in some code paths
+   * required.
    */
   public open class Minimal : Empty() {
     override val allBundles = setOf("B", "M")

@@ -5,7 +5,7 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -262,11 +262,11 @@ internal class MClassTest {
 
 internal fun loader(petsText: String): MClassTable {
   val classes = parseClasses(petsText).toSetStrict()
-  val authority =
-      object : TfmAuthority.Empty() {
+  val ruleset =
+      object : TfmRuleset.Empty() {
         override val explicitClassDeclarations = classes
       }
-  return MClassLoader(authority).loadEverything()
+  return MClassLoader(ruleset).loadEverything()
 }
 
 val regex = Regex("^(\\w+).*")

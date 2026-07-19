@@ -16,7 +16,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
 
   override fun withArgs(args: String): List<String> {
     val cardName = ClassName.cn(args)
-    val kind = repl.setup.authority.card(cardName).deck!!.className
+    val kind = repl.setup.ruleset.card(cardName).deck!!.className
     return TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$args>>")
   }
 }

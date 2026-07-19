@@ -9,8 +9,8 @@ import dev.martianzoo.util.toStrings
 import kotlin.test.Test
 
 internal class GameSetupTest {
-  val authority =
-      object : TfmAuthority.Empty() {
+  val ruleset =
+      object : TfmRuleset.Empty() {
         override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()
         override val marsMapDefinitions =
             setOf(
@@ -21,23 +21,23 @@ internal class GameSetupTest {
 
   @Test
   fun good() {
-    GameSetup(authority, "BM", 2)
-    GameSetup(authority, "BE", 3)
-    GameSetup(authority, "BRMVPX", 4)
-    GameSetup(authority, "BM", 5)
+    GameSetup(ruleset, "BM", 2)
+    GameSetup(ruleset, "BE", 3)
+    GameSetup(ruleset, "BRMVPX", 4)
+    GameSetup(ruleset, "BM", 5)
   }
 
   @Test
   fun badPlayerCount() {
-    assertFails("many") { GameSetup(authority, "BM", 6) }
+    assertFails("many") { GameSetup(ruleset, "BM", 6) }
   }
 
   @Test
   fun badBundles() {
-    assertFails("no base") { GameSetup(authority, "M", 4) }
-    assertFails("repeated") { GameSetup(authority, "MBM", 4) }
-    assertFails("no map") { GameSetup(authority, "B", 4) }
-    assertFails("two maps") { GameSetup(authority, "BME", 4) }
-    assertFails("wrong bundle") { GameSetup(authority, "BMZ", 4) }
+    assertFails("no base") { GameSetup(ruleset, "M", 4) }
+    assertFails("repeated") { GameSetup(ruleset, "MBM", 4) }
+    assertFails("no map") { GameSetup(ruleset, "B", 4) }
+    assertFails("two maps") { GameSetup(ruleset, "BME", 4) }
+    assertFails("wrong bundle") { GameSetup(ruleset, "BMZ", 4) }
   }
 }

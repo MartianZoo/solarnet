@@ -1,6 +1,6 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.data.Authority
+import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -10,7 +10,7 @@ import dev.martianzoo.util.Multiset
 /** A readable view of the state of a game in progress. */
 interface GameReader : TypeInfo {
   /** The initial configuration for the game. */
-  val authority: Authority
+  val ruleset: Ruleset
 
   /** Returns the type represented by the (fully-prepared) [expression]. */
   fun resolve(expression: Expression): Type

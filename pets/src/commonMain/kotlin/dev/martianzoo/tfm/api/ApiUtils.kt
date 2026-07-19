@@ -55,13 +55,13 @@ object ApiUtils {
             .map { it.expression.arguments.single().className }
             .toSet()
     // Put them in declaration order
-    return game.authority.allClassNames.filter { it in names }.toSetStrict()
+    return game.ruleset.allClassNames.filter { it in names }.toSetStrict()
   }
 
   /** Returns the mars map definition being used in this game (there must be exactly one). */
   fun mapDefinition(game: GameReader): MarsMapDefinition {
     val map = game.resolve(MARS_MAP.expression)
     val mapName = game.getComponents(map).single().className
-    return (game.authority as TfmAuthority).marsMap(mapName)
+    return (game.ruleset as TfmRuleset).marsMap(mapName)
   }
 }

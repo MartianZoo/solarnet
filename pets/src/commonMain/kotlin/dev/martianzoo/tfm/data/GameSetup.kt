@@ -6,7 +6,7 @@ import dev.martianzoo.data.Definition
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
@@ -18,7 +18,7 @@ import kotlin.js.JsName
  */
 data class GameSetup(
     /** Where to pull class declarations, card definitions, etc. from. */
-    val authority: TfmAuthority,
+    val ruleset: TfmRuleset,
 
     /**
      * Which bundles of cards/milestones/maps/etc. to include. For example the officially published
@@ -37,16 +37,16 @@ data class GameSetup(
   init {
     require(players in 1..5) { "player count not supported: $players" }
     require("B" in bundles) { "missing base: $bundles" }
-    require(authority.allBundles.containsAll(bundles)) {
-      "supported bundles are: ${authority.allBundles}"
+    require(ruleset.allBundles.containsAll(bundles)) {
+      "supported bundles are: ${ruleset.allBundles}"
     }
   }
 
   /** The map to use for this game. */
-  val map = authority.marsMapDefinitions.single { it.bundle in bundles }
+  val map = ruleset.marsMapDefinitions.single { it.bundle in bundles }
 
   /** All [Definition] objects to use in this game. */
-  fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
+  fun allDefinitions(): List<Definition> = ruleset.allDefinitions.filter { it.bundle in bundles }
 
   @JsName("playerList") fun players(): List<Player> = Player.players(players)
 
@@ -54,7 +54,7 @@ data class GameSetup(
   fun actors(): List<Actor> = players() + ENGINE
 
   val colonyTiles: Set<ColonyTileDefinition> =
-      chooseColonyTileNames().toSetStrict { authority.colonyTile(it) }
+      chooseColonyTileNames().toSetStrict { ruleset.colonyTile(it) }
 
   private fun chooseColonyTileNames(): Set<ClassName> {
     if ("C" !in bundles) return colonyTilesDesired.also { require(it.none()) }
@@ -63,7 +63,7 @@ data class GameSetup(
     return when {
       // Didn't give enough? We choose the rest
       need > 0 -> {
-        val all = authority.colonyTileDefinitions.classNames()
+        val all = ruleset.colonyTileDefinitions.classNames()
         colonyTilesDesired + random(all - colonyTilesDesired, need)
       }
       // Chose too many? We choose from those

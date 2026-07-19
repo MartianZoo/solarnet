@@ -10,13 +10,13 @@
 - **Anyone:** The generic Pets type used in ownership expressions to say “I don't care who.”
 - **Assignee:** The Actor whose task queue this task is in; they get to choose when to prepare the task.
 - **Atomize:** Some instructions like `3 TemperatureStep` have to be split into individual one-by-one instructions so each is handled separately; others like `3 Plant` do not.
-- **Authority:** A provider of class declarations, definitions, and custom instruction implementations.
+- **Ruleset:** A provider of class declarations, definitions, and custom instruction implementations.
 - **Autoexec:** A convenience feature that prepares and executes pending work when its policy permits.
 - **AutoLoad:** A marker that makes a class load even when no selected content refers to it.
 - **Automatic effect:** An effect written with `::`; its triggered instruction executes inline instead of becoming a queued task. (Antonym: queued effect.)
 - **Barrier:** A temporary component that must be removed before blocked work can continue.
 - **Bundle:** A named group of content that a game setup can include or exclude.
-- **Canon:** The module and authority containing officially published Terraforming Mars content and its custom behavior.
+- **Canon:** The module and ruleset containing officially published Terraforming Mars content and its custom behavior.
 - **Cause:** The effect-bearing component and triggering event recorded to explain a non-manual task or state change.
 - **Change:** An instruction that gains, removes, or transmutes components.
 - **Change event:** A state change in the game history, with its ordinal, Actor, and optional cause.

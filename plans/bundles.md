@@ -9,14 +9,14 @@ relationships, choose derived defaults, apply replacements, or otherwise represe
 meaning of that configuration. Bundle-specific options such as desired colony tiles must fit this
 role as user choices rather than resolved game data.
 
-Rename `Authority` to `GameDataSource`. A game data source supplies Pets declarations,
-JSON-backed definitions, and custom Kotlin implementations, and can be composed from other game
-data sources. Canon is the composition of all canonical bundle sources.
+The abstraction is named `Ruleset`. A ruleset supplies Pets declarations, JSON-backed definitions,
+and custom Kotlin implementations, and can be composed from other rulesets. Canon is the
+composition of all canonical bundle rulesets.
 
-Each game has one resolved game data source derived from its setup. It contains only the
-contributions applicable to that game after bundle selection, load requirements, and replacements.
-The class loader and all runtime definition and custom-class lookups use that same resolved source;
-there is no separate unfiltered view inside the game.
+Each game has one resolved ruleset derived from its setup. It contains only the contributions
+applicable to that game after bundle selection, load requirements, and replacements. The class
+loader and all runtime definition and custom-class lookups use that same resolved ruleset; there is
+no separate unfiltered view inside the game.
 
 ### Bundles have one identity throughout the system
 
@@ -56,9 +56,9 @@ removes the same-kind target from the applicable content before either definitio
 class name or converted into class declarations. Removing a definition also removes declarations
 generated from it.
 
-Replacement chains resolve transitively. The target must be known to the underlying game data
-source, although it may be absent from this setup. Cycles and two applicable replacements for the
-same target are errors. Replacement does not override arbitrary Pets declarations or custom Kotlin
+Replacement chains resolve transitively. The target must be known to the underlying ruleset,
+although it may be absent from this setup. Cycles and two applicable replacements for the same
+target are errors. Replacement does not override arbitrary Pets declarations or custom Kotlin
 implementations.
 
 ### Bundle rules are ordinary game rules where practical

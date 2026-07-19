@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.GameSetup
@@ -17,7 +17,7 @@ import dev.martianzoo.util.toSetStrict
  * Authoritative data source for officially published materials; should eventually be complete but
  * that will take a while.
  */
-public object Canon : TfmAuthority() {
+public object Canon : TfmRuleset() {
   private val PETS_FILENAMES =
       setOf(
           "system.pets",

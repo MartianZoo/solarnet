@@ -3,14 +3,14 @@ package dev.martianzoo.data
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
 
-interface Authority {
-  /** Returns every bundle code (e.g. `"B"`) this authority has any information on. */
+interface Ruleset {
+  /** Returns every bundle code (e.g. `"B"`) this ruleset has any information on. */
   val allBundles: Set<String>
 
   val allClassDeclarations: Map<ClassName, ClassDeclaration>
 
   /**
-   * Every class declaration this authority knows about, including explicit ones and those converted
+   * Every class declaration this ruleset knows about, including explicit ones and those converted
    * from [Definition]s.
    */
   val allClassNames: Set<ClassName>
@@ -21,10 +21,10 @@ interface Authority {
    */
   val explicitClassDeclarations: Set<ClassDeclaration>
 
-  /** Everything implementing [Definition] this authority knows about. */
+  /** Everything implementing [Definition] this ruleset knows about. */
   val allDefinitions: Set<Definition>
 
-  /** Every custom instruction this authority knows about. */
+  /** Every custom instruction this ruleset knows about. */
   val customClasses: Set<CustomClass>
 
   /** Returns the class declaration having the full name [name]. */

@@ -8,11 +8,11 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Doesn't test much, but the class doesn't do that much
-internal class AuthorityTest {
+internal class RulesetTest {
   @Test
   fun test() {
-    val authority =
-        object : TfmAuthority.Empty() {
+    val ruleset =
+        object : TfmRuleset.Empty() {
           override val cardDefinitions =
               setOf(
                   CardDefinition(
@@ -26,8 +26,8 @@ internal class AuthorityTest {
                   )
               )
         }
-    authority.allClassNames.shouldHaveSize(2)
-    authority.classDeclaration(cn("IndustrialCenter")).abstract shouldBe false
-    authority.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
+    ruleset.allClassNames.shouldHaveSize(2)
+    ruleset.classDeclaration(cn("IndustrialCenter")).abstract shouldBe false
+    ruleset.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
   }
 }

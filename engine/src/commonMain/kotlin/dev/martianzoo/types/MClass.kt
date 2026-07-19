@@ -218,9 +218,9 @@ internal constructor(
 
   val custom: CustomClass? =
       if (declaration.custom) {
-        loader.authority.customClass(className)
+        loader.ruleset.customClass(className)
       } else {
-        require(loader.authority.customClasses.none { it.className == className })
+        require(loader.ruleset.customClasses.none { it.className == className })
         null
       }
 

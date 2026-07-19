@@ -36,7 +36,7 @@ import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
@@ -191,7 +191,7 @@ private object CopyPrelude : CustomClass("CopyPrelude") {
 private object AddColonyTile : CustomClass("AddColonyTile") {
   override fun translate(reader: GameReader, tileClassType: Type): Instruction {
     val name = tileClassType.expression.arguments.single().className
-    val ct = (reader.authority as TfmAuthority).colonyTile(name)
+    val ct = (reader.ruleset as TfmRuleset).colonyTile(name)
     return if (ct.resourceType == null) {
       parse("$name")
     } else {
@@ -221,7 +221,7 @@ private object PassLeft : CustomClass("PassLeft") {
 }
 
 private fun card(cardType: HasClassName, reader: GameReader) =
-    (reader.authority as TfmAuthority).card(cardType.className)
+    (reader.ruleset as TfmRuleset).card(cardType.className)
 
 private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
   require(cardClassType.className == CLASS)

@@ -17,7 +17,7 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.types.MClassTable
 import kotlin.math.min
 
@@ -27,7 +27,7 @@ internal class GameReaderImpl(
     internal val transformers: Transformers,
 ) : GameReader, TypeInfo {
 
-  override val authority: TfmAuthority = classes.authority as TfmAuthority
+  override val ruleset: TfmRuleset = classes.ruleset as TfmRuleset
 
   override fun resolve(expression: Expression) = classes.resolve(expression)
 

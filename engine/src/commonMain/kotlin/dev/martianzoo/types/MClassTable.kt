@@ -1,13 +1,13 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Type
-import dev.martianzoo.data.Authority
+import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 
 public abstract class MClassTable {
 
-  internal abstract val authority: Authority
+  internal abstract val ruleset: Ruleset
 
   /** The `Component` class, which is the root of the class hierarchy. */
   internal abstract val componentClass: MClass

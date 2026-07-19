@@ -7,19 +7,19 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
-import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.Ruleset
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.GameSetup
 
 /**
- * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
+ * All [MClass] instances come from here. Uses a [Ruleset] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.allSubclasses] to work.
  */
@@ -28,22 +28,22 @@ internal class MClassLoader(
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
-    override val authority: Authority,
+    override val ruleset: Ruleset,
 ) : MClassTable() {
 
-  constructor(setup: GameSetup) : this(setup.authority) {
+  constructor(setup: GameSetup) : this(setup.ruleset) {
     fun isAutoLoad(c: ClassDeclaration): Boolean =
         c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }
 
     loadAll(setup.actors().classNames())
-    loadAll(authority.allClassDeclarations.filterValues(::isAutoLoad).keys)
+    loadAll(ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys)
     loadAll(setup.allDefinitions().classNames())
 
     // TODO wow gross bad hack eww
     if ("C" in setup.bundles) {
-      loadAll((authority as TfmAuthority).colonyTileDefinitions.classNames())
+      loadAll((ruleset as TfmRuleset).colonyTileDefinitions.classNames())
       loadAll(
-          authority.explicitClassDeclarations
+          ruleset.explicitClassDeclarations
               .filter { cn("TradeFleet").expression in it.supertypes }
               .classNames()
       )
@@ -111,9 +111,9 @@ internal class MClassLoader(
     return getClass(name)
   }
 
-  /** Loads every class known to this class loader's backing [Authority], and freezes. */
+  /** Loads every class known to this class loader's backing [Ruleset], and freezes. */
   public fun loadEverything(): MClassTable {
-    authority.allClassNames.forEach(::loadSingle)
+    ruleset.allClassNames.forEach(::loadSingle)
     return freeze()
   }
 
@@ -186,7 +186,7 @@ internal class MClassLoader(
 
   override fun toString() = "loader$id"
 
-  private fun decl(cn: ClassName) = authority.classDeclaration(cn)
+  private fun decl(cn: ClassName) = ruleset.classDeclaration(cn)
 
   private val id = nextId++
 

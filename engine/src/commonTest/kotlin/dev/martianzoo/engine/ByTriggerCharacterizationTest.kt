@@ -7,7 +7,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import io.kotest.matchers.collections.shouldContainExactly
@@ -103,10 +103,10 @@ class ByTriggerCharacterizationTest {
     game.events.changesSince(checkpoint).takeLast(2).all { it.actor == PLAYER1 } shouldBe true
   }
 
-  private fun newGame() = Engine.newGame(GameSetup(ProbeAuthority, "BM", 2))
+  private fun newGame() = Engine.newGame(GameSetup(ProbeRuleset, "BM", 2))
 }
 
-private object ProbeAuthority : TfmAuthority() {
+private object ProbeRuleset : TfmRuleset() {
   override val explicitClassDeclarations =
       Canon.explicitClassDeclarations +
           parseClasses(

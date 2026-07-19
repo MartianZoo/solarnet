@@ -150,33 +150,32 @@ These are not Terraforming Mars canon. They are the Pets runtime prelude. Anothe
 them even if it used no `tfm` package, and the generic engine cannot meaningfully operate without
 equivalent declarations.
 
-This file should become a generic Pets prelude resource, loaded independently of any game
-authority. Terraforming Mars canon should extend that prelude with `global.pets`, `player.pets`,
-and the rest.
+This file should become a generic Pets prelude resource, loaded independently of any ruleset.
+Terraforming Mars canon should extend that prelude with `global.pets`, `player.pets`, and the rest.
 
-### P1: `TfmAuthority` contains the missing reusable base implementation of `Authority`
+### P1: `TfmRuleset` contains the missing reusable base implementation of `Ruleset`
 
-`pets/src/commonMain/kotlin/dev/martianzoo/tfm/api/TfmAuthority.kt` mixes two categories:
+`pets/src/commonMain/kotlin/dev/martianzoo/tfm/api/TfmRuleset.kt` mixes two categories:
 
 1. Generic behavior: declaration aggregation, duplicate detection, validation of `Component` and
    `Class`, definition-to-declaration conversion, name indexes, custom-class lookup, and an empty
-   test authority.
+   test ruleset.
 2. Terraforming Mars registries: cards, milestones, colony tiles, standard actions, and Mars maps.
 
-The generic half should be something like `AbstractAuthority` or `DefinitionAuthority`.
-`TfmAuthority` can extend it and contribute its game-specific definition collections and indexes.
+The generic half should be something like `AbstractRuleset` or `DefinitionRuleset`. `TfmRuleset`
+can extend it and contribute its game-specific definition collections and indexes.
 
 ### P1: `GameSetup` contains a useful generic setup model embedded in a game-specific class
 
 `pets/src/commonMain/kotlin/dev/martianzoo/tfm/data/GameSetup.kt` combines:
 
-1. Generally useful setup information: authority, selected content bundles, actors, and selected
+1. Generally useful setup information: ruleset, selected content bundles, actors, and selected
    definitions.
 2. Terraforming Mars policy: mandatory base/map bundles, exactly one Mars map, 1–5 players, and
    Colonies tile selection.
 
-A generic setup interface/value should expose authority, participating actors, initial class
-roots/definitions, and initialization behavior. The current `GameSetup` can remain as the
+A generic setup interface/value should expose a ruleset, participating actors, initial
+class roots/definitions, and initialization behavior. The current `GameSetup` can remain as the
 Terraforming Mars implementation.
 
 ### P1: The reusable asynchronous workflow driver is buried inside `TfmWorkflow.Auto`
@@ -207,7 +206,7 @@ in the otherwise properly Terraforming-Mars-specific script commands.
 ## Module-by-module result
 
 1. **`pets`** has the most fundamental boundary problem: megacredit semantics and fixed player
-   identities are generic, while the reusable authority implementation remains under `tfm`.
+   identities are generic, while the reusable ruleset implementation remains under `tfm`.
 2. **`engine`** is mostly genuinely generic. Its misplaced logic is concentrated in initialization,
    turn/action protocols, and automatic installation of `Prod`.
 3. **`canon`** is correctly Terraforming-Mars-specific except for `system.pets`, which is really the
@@ -221,7 +220,7 @@ in the otherwise properly Terraforming-Mars-specific script commands.
 ## Suggested extraction order
 
 1. Move `system.pets` into a generic runtime prelude and make its loading explicit.
-2. Introduce generic setup and authority implementations, retaining Terraforming Mars subclasses.
+2. Introduce generic setup and ruleset implementations, retaining Terraforming Mars subclasses.
 3. Replace generic initializer special cases with game-supplied initialization roots and hooks.
 4. Decide whether turn/action signaling is a generic protocol or a Terraforming Mars layer, then
    colocate both its code and declarations.

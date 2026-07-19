@@ -40,7 +40,7 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 ## Expansion or Content Support Gaps
 
 - Remove Terraforming Mars and Colonies knowledge from generic engine initialization and class
-  loading. Replace the bundle-name check, `TfmAuthority` cast, colony-tile loading, trade-fleet
+  loading. Replace the bundle-name check, `TfmRuleset` cast, colony-tile loading, trade-fleet
   creation, and other Colonies setup with extension-owned declarations or setup hooks so additional
   expansions do not require more hard-coded engine branches. (Needs discussion)
 - Issue #1: Shuffle-and-deal mode
