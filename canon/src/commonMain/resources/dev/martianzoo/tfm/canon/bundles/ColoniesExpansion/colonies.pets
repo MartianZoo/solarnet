@@ -1,6 +1,10 @@
 //
 // Colonies expansion!
 //
+
+"The selected Colonies expansion bundle"
+CLASS ColoniesExpansion : System { HAS =1 This }
+
 // Colony tile data read from colonies.json5 is converted to classes in this form:
 //
 //   CLASS $name : ColonyTile {

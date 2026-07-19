@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
@@ -14,9 +13,7 @@ import dev.martianzoo.util.toSetStrict
 
 /** Canon content that has not yet moved into its owning bundle rulesets. */
 internal object UnbundledCanon : TfmRuleset() {
-  override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    parseClasses(readResource("colonies.pets")).toSetStrict()
-  }
+  override val explicitClassDeclarations = emptySet<ClassDeclaration>()
 
   override val cardDefinitions: Set<CardDefinition> by lazy {
     JsonReader.readCards(readResource("cards.json5")).toSetStrict(::CardDefinition)
@@ -34,9 +31,7 @@ internal object UnbundledCanon : TfmRuleset() {
     JsonReader.readMilestones(readResource("milestones.json5")).toSetStrict()
   }
 
-  override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-    JsonReader.readColonyTiles(readResource("colonies.json5")).toSetStrict(::ColonyTileDefinition)
-  }
+  override val colonyTileDefinitions = emptySet<ColonyTileDefinition>()
 
   override val customClasses: Set<CustomClass> by ::canonCustomClasses
 

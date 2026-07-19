@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.bundles.ColoniesExpansion.ColoniesExpansion
 import dev.martianzoo.tfm.canon.bundles.System.System
 import dev.martianzoo.tfm.canon.bundles.TerraformingMars.TerraformingMars
 import io.kotest.matchers.collections.shouldContain
@@ -20,5 +21,13 @@ internal class CanonBundlesTest {
     Canon.rulesets.shouldContain(TerraformingMars)
     Canon.classDeclaration(cn("TerraformingMars")) shouldBe
         TerraformingMars.classDeclaration(cn("TerraformingMars"))
+  }
+
+  @Test
+  fun coloniesRulesetOwnsItsVocabularyAndDefinitions() {
+    Canon.rulesets.shouldContain(ColoniesExpansion)
+    Canon.classDeclaration(cn("ColonyTile")) shouldBe
+        ColoniesExpansion.classDeclaration(cn("ColonyTile"))
+    Canon.colonyTileDefinitions shouldBe ColoniesExpansion.colonyTileDefinitions
   }
 }
