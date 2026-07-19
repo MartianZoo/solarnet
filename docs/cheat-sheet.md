@@ -32,5 +32,5 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 
 * `Steel -> 5` is an action, meaning to spend one steel to gain 5 megacredits
 * `X Microbe<This> -> 3X` means to spend one or more microbes from this card to get 3 megacredits each
-* `CityTile<Anyone>: PROD[1]` is a triggered effect, meaning when anyone gains a city tile, you get a money production
+* `CityTile<Anyone>: PROD[1]` is a triggered effect (in source form), meaning when anyone gains a city tile, you get a money production
 * A requirement of `MAX 5 OxygenStep` means the oxygen level must be 5% or lower to do the thing

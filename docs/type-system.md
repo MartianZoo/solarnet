@@ -78,11 +78,11 @@ CLASS PlantProduction<Player> {
 }
 ```
 
-Inside a class declaration, lines of the form `<trigger>: <instruction>` are effects. They express that component's behaviors.
+Inside a class declaration, lines of the form `<trigger>: <instruction>` are effects. They express that component's behaviors. The authored line is a **source effect**; see the [glossary](../glossary.md) for the names of the representations it passes through.
 
 The type `PlantProduction<Player>` is abstract, meaning that no component of that exact type can exist. That's because, even though `PlantProduction` is concrete, `Player` is not, and *all* types seen must be concrete for the whole type to be.
 
-But `PlantProduction<Player4>` is concrete, and one of those can exist. And (here's the important part) narrowing `Player` to `Player4` in the type expression *also* narrows it in the same way for any effects belonging to the class. So the effect that actually becomes active is not `ProductionPhase: Plant<Player>`, but `ProductionPhase: Plant<Player4>`. (And a good thing, because `Plant<Player>` is abstract and during the production phase there is no active player who would be able to choose how to narrow it!)
+But `PlantProduction<Player4>` is concrete, and one of those can exist. And (here's the important part) narrowing `Player` to `Player4` in the type expression *also* narrows it in the same way for any effects belonging to the class. Thus the class effect `ProductionPhase: Plant<Player>` becomes the component effect `ProductionPhase: Plant<Player4>`. If that component exists, the engine registers an active effect from it. (And a good thing, because `Plant<Player>` is abstract and during the production phase there is no active player who would be able to choose how to narrow it!)
 
 One possible way to think of this is that `PlantProduction<Player>` both specifies `Player` as the upper bound for that dependency, *and* names a "type variable" `Player` as well, and the effect is actually naming that *type variable* rather than the `Player` type itself. This may be a convoluted way to look at it, though.
 
@@ -118,4 +118,4 @@ CLASS Production<Class<StandardResource>> : Owned {
 }
 ```
 
-`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because then anytime you had no `Energy` resources you would be unable to have any `Production<Energy>` either! (Remember, these aren't generic types; they express real live dependencies.) But with this trick a game state can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first type has an effect that is appropriately specialized from the class effect shown above; instead of just `ProductionPhase: StandardResource` is becomes `ProductionPhase: Steel<Player2>`.
+`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because then anytime you had no `Energy` resources you would be unable to have any `Production<Energy>` either! (Remember, these aren't *just* generic types; they express real live dependencies.) But with this trick a game state can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first type specializes the class effect shown above into the component effect `ProductionPhase: Steel<Player2>`.

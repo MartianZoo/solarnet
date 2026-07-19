@@ -159,7 +159,8 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         val matchType = reader.resolve(match)
         return if (changeType.narrows(matchType, reader)) {
           val subber = reader.transformers.substituter(matchType, changeType)
-          // TODO: Replace this compatibility binding with an explicit contextual Owner operation.
+          // TODO: Replace this compatibility binding with an explicit Pets representation for
+          // contextual Owner.
           // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
           // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
           // role as a contextual variable without treating that Owner as the executing Actor.

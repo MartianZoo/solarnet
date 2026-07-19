@@ -44,6 +44,7 @@ sealed class GameEvent {
   /** All interesting information about a state change that happened in a game. */
   data class ChangeEvent(
       override val ordinal: Int,
+      /** The Actor recorded as having performed [change]. */
       val actor: Actor,
       val change: StateChange,
       val cause: Cause?,

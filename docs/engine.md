@@ -50,8 +50,8 @@ This removes `count` copies of `removing` (if not null) and adds `count` copies 
 depend on this one. If so, something slightly strange happens: it throws a particular exception
 which is caught by `Changer` causing it to auto-remove the dependents first (!).
 
-Crucially, `ComponentGraph` informs the `Effector` about every change it makes, which often triggers
-further component changes to happen as well, giving us all those fun triggered effects.
+Crucially, `ComponentGraph` informs the `Effector` about every change it makes, which often causes
+active effects to produce further component changes.
 
 ---
 
@@ -183,7 +183,13 @@ is false if it had to stop to remove a dependent — the `Instructor` loops unti
 
 ---
 
-## The Effector: Triggered Effects
+## The Effector: From Active Effects to Triggered Instructions
+
+The same authored behavior has several representations during its lifecycle. A **source effect** is
+transformed into a loaded **class effect**, specialized for a concrete component as a **component
+effect**, and registered at runtime as an **active effect**. Matching an active effect against a
+particular change produces a **triggered instruction**. See the [glossary](../glossary.md) for the
+precise definitions.
 
 The `Effector` maintains a registry of all **active effects** (one per component-effect pair,
 counted by how many of that component exist). When a `ChangeEvent` fires, the effector is asked
@@ -199,7 +205,7 @@ Each effect has a `Trigger` which is one of:
 | `OnRemoveOf<X>` | any component of type X is removed |
 
 These can be wrapped:
-- `ByTrigger` — only fires if the change was caused by a specific player
+- `ByTrigger` — only fires if the Actor recorded on the `ChangeEvent` matches its `BY` selector
 - `IfTrigger` — only fires if some condition is currently met
 - `XTrigger` — triggers that can match multiple times at once (e.g. Manutech, if raising production
   5 steps, get 5 resources, without processing those as individual state changes)
@@ -208,9 +214,10 @@ For "self" triggers (`WhenGain`/`WhenRemove`), the effect fires immediately when
 that carries it is the thing being gained/removed. For "other" triggers (`OnGainOf`/`OnRemoveOf`),
 the effector checks all registered active effects against each new change event.
 
-When an effect fires, if it's **automatic** (double-colon in Pets syntax), the `Instructor` executes
-it inline in the same change loop. If it's **non-automatic** (single colon), it becomes a new `Task`
-appended to the queue.
+When an active effect fires, if the effect is **automatic** (double-colon in Pets syntax), the
+`Instructor` executes its triggered instruction inline in the same change loop. If the effect is
+**non-automatic** (single colon), its triggered instruction becomes a new `Task` appended to the
+queue.
 
 The `Task.assignee` field records whose queue contains deferred work and whose scoped gameplay may
 narrow it. When a gameplay context executes the task, that context's Actor performs the resulting

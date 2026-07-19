@@ -87,9 +87,9 @@ public interface Gameplay {
 
   /**
    * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes
-   * any *automatic* triggered effect, enqueues the remaining triggered effects and any contents of
-   * [Task.then], and removes the original task from the game's task queue. Throws an exception if
-   * any of this fails.
+   * triggered instructions from *automatic* effects, enqueues tasks for non-automatic effects and
+   * any contents of [Task.then], and removes the original task from the game's task queue. Throws
+   * an exception if any of this fails.
    *
    * @throws [TaskException] if no prepared task by the id [taskId] is present
    * @throws [AbstractException] if the task is abstract

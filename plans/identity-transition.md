@@ -41,10 +41,11 @@ preparation constraints clarified by user on 2026-07-18, with their representati
 - **Assignee:** The entity whose pending work includes a task. The assignee chooses which of their
   tasks to prepare. Assignment does not by itself determine who makes choices exposed by
   preparation or which Actor will execute the result.
-- **Owner:** An entity that may own game-state components. `Owner` in a card or effect is a
+- **Owner:** An entity that may own game-state components. `Owner` in an [effect
+  representation](../glossary.md#effect-representations) is a
   contextual role that must be specialized to a particular Owner before an Owner-specific result
-  can be performed. For a triggered effect, ownership of the component supplying that effect is
-  also evidence for who is entitled to make choices within it.
+  can be performed. For an active effect, ownership of the component carrying the corresponding
+  component effect is also evidence for who is entitled to make choices within it.
 - **Player:** A seated participant in the game. A Player is both an Owner and an Actor.
 - **Admin:** The non-player Actor that performs administrative game operations. Older discussion
   and current code may call this identity `Engine`, `Npc`, or an emcee; these are not separate
@@ -79,9 +80,9 @@ preparation constraints clarified by user on 2026-07-18, with their representati
 - Only creation of an unowned component should need an authored `BY` restriction. An owned
   component's trigger should express and match the relevant Owner in the component type. Omitting
   `BY` adds no Actor restriction.
-- The engine-manufactured `BY Owner` form is a temporary compatibility mechanism for binding
-  contextual `Owner` occurrences in an effect. It is not an authored language rule and must not be
-  evidence for broader Actor-routing machinery.
+- The engine-manufactured `BY Owner` form is a temporary class-effect encoding that preserves
+  contextual `Owner` occurrences until they can be bound. It is not an authored language rule and
+  must not be evidence for broader Actor-routing machinery.
 - Preserve the useful Owner/Actor/Player vocabulary split even if speculative implementation work
   is removed.
 
@@ -91,7 +92,7 @@ preparation constraints clarified by user on 2026-07-18, with their representati
   intent, especially for the named cards, but its proposed representation details (including a
   `Me` type) are not requirements.
 - The intended Splice representation gives each Player a hidden owned component containing that
-  Player's copy of the triggered effect. This is evidence that ownership of the effect-bearing
+  Player's copy of the component effect. This is evidence that ownership of the effect-bearing
   component identifies an important decision responsibility independently of initial task
   assignment.
 - Use `420396b911c530d9b7dda8c1435fbdd853a1bcd2`, the parent of the first Owner/Player
@@ -105,9 +106,9 @@ preparation constraints clarified by user on 2026-07-18, with their representati
    Government. Prefer the earlier ownership/default behavior wherever the newer type-system work
    is not required by protected rule facts around Philares or the narrow `SoloOpponent` seam. Do
    not treat the current Philares queue topology as one of those rule facts.
-2. Put the remaining contextual Owner-binding compatibility behavior behind one clearly named
-   engine operation. Keep the manufactured `BY Owner` form internal, isolated, and plainly
-   documented as a compatibility representation rather than a new Pets rule.
+2. Keep the remaining contextual Owner-binding behavior narrow and explicit at the sites that need
+   it. Keep the manufactured `BY Owner` form internal and plainly documented as a temporary
+   class-effect representation rather than a new Pets rule.
 3. Run the focused identity tests and the full build. Reconcile the glossary and maintained project
    documentation with the implementation, delete stale migration commentary instead of duplicating
    it, record any deliberately deferred improvements in `TODO.md`, and perform the standard diff
@@ -129,12 +130,12 @@ preparation constraints clarified by user on 2026-07-18, with their representati
     administrative-identity call sites identified and no competing `Engine` domain meaning.
 - **Decision:** Give contextual Owner binding an explicit representation instead of manufacturing
   `BY Owner`.
-  - **Why deferred:** The compatibility mechanism must first be fully inventoried, tested, and
-    isolated so the replacement has a precise contract.
-  - **Evidence that will resolve it:** The protected Owner-binding test matrix and one isolated
-    operation defining all behavior the new representation must preserve.
-- **Decision:** Represent preparation of an active Player's task when a triggered effect belonging
-  to another Owner requires that Owner to make a choice.
+  - **Why deferred:** The temporary class-effect encoding must first be fully inventoried and tested
+    so the replacement has a precise contract.
+  - **Evidence that will resolve it:** The protected Owner-binding test matrix and explicit binding
+    call sites defining the behavior the new representation must preserve.
+- **Decision:** Represent preparation of an active Player's task when an active effect carried by
+  another Owner's component requires that Owner to make a choice.
   - **Why deferred:** Philares, Enceladus, and the intended Splice representation establish the
     distinct responsibilities, but not whether preparation should move work, create a linked
     response task, or use another minimal mechanism. Settling that now would complicate this
@@ -158,16 +159,17 @@ preparation constraints clarified by user on 2026-07-18, with their representati
   `aaaa6313385665941475e613bca39e099eb3d6c6`.
 - The Lakefront Resorts Actor/Owner regression was fixed and protected in
   `1b8fc651fa8c2ce51dc8d523d476e98572c4d614`.
-- Every authored canonical `BY` effect is protected by a change-detecting inventory and direct card
+- Every authored canonical `BY` source effect is protected by a change-detecting inventory and direct card
   behavior coverage appropriate to its selector. The Philares matrix now proves that exactly one
   tile must belong to its Owner, either Player may create the adjacency, the Philares Owner chooses
   the reward, and the placement retains its actual Actor. The matrix currently also characterizes
   the Owner as assignee and executor; those details are implementation evidence rather than settled
   requirements pending the cross-owner preparation decision.
-- All 139 compiled `BY Owner` effects are counted, the single authored Lakefront effect is
-  distinguished from the 138 manufactured forms, and every manufactured instruction is exercised
-  through Owner binding. Focused characterization tests explain the manufacturing mechanism and
-  its runtime performer-binding behavior.
+- All 139 `BY Owner` class effects are counted, the single authored Lakefront source effect is
+  distinguished from the 138 forms manufactured during class-effect transformation, and every
+  manufactured class effect's instruction is exercised through Owner binding. Focused
+  characterization tests explain the manufacturing mechanism and its runtime performer-binding
+  behavior.
 - Characterization coverage also protects `BY Anyone`, `BY Player`, `BY Owner`, repeated Owner
   binding, and current assignee-routing behavior before model changes.
 - `Task.assignee` now records whose pending work contains each task, scoped queue views derive from
