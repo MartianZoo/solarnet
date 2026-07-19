@@ -16,8 +16,5 @@ sealed class Actor : HasClassName, HasExpression {
 
   companion object {
     val ENGINE: Actor = NonPlayerActor(cn("Engine"))
-
-    fun from(className: ClassName): Actor =
-        if (className == ENGINE.className) ENGINE else Player(className)
   }
 }

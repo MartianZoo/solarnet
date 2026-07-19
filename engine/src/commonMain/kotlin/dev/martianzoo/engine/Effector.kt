@@ -219,8 +219,8 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         val actor = currentEvent.actor
 
         // Owner, Anyone, and Player are role words handled below. Every other BY value names one
-        // concrete configured Actor. Compare its name directly so matching does not depend on the
-        // closed, name-guessing Actor.from factory that the identity-model work will remove.
+        // concrete configured Actor. Compare directly with the event Actor's class name; the
+        // runtime model deliberately has no generalized ClassName-to-Actor lookup.
         if (by != OWNER && by != ANYONE && by != PLAYER && actor.className != by) return null
 
         // Unlike Anyone, Player excludes administrative Actors.
