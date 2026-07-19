@@ -11,11 +11,14 @@
 - **Assignee:** The Actor whose task queue this task is in; they get to choose when to prepare the task.
 - **Atomize:** Some instructions like `3 TemperatureStep` have to be split into individual one-by-one instructions so each is handled separately; others like `3 Plant` do not.
 - **Ruleset:** A provider of class declarations, definitions, and custom instruction implementations.
+  A game uses one resolved ruleset containing only its applicable bundle contributions.
 - **Autoexec:** A convenience feature that prepares and executes pending work when its policy permits.
 - **AutoLoad:** A marker that makes a class load even when no selected content refers to it.
 - **Automatic effect:** An effect written with `::`; its triggered instruction executes inline instead of becoming a queued task. (Antonym: queued effect.)
 - **Barrier:** A temporary component that must be removed before blocked work can continue.
-- **Bundle:** A named group of content that a game setup can include or exclude.
+- **Bundle:** A composable ruleset contribution with a full Pets class identity. An ordinary selected
+  bundle also has one live component of that class in the game; letter codes are client shorthand
+  only.
 - **Canon:** The module and ruleset containing officially published Terraforming Mars content and its custom behavior.
 - **Cause:** The effect-bearing component and triggering event recorded to explain a non-manual task or state change.
 - **Change:** An instruction that gains, removes, or transmutes components.
@@ -43,7 +46,9 @@
 - **Event log:** The ordered history of state changes and task lifecycle events.
 - **Expression:** A Pets AST representation of a type; distinct expressions can resolve to the same type.
 - **Game:** The aggregate object exposing a game's components, tasks, events, timeline, reader, setup, and loaded classes.
-- **Game setup:** The immutable configuration selecting players, content bundles, map, and other starting choices.
+- **Game setup:** The immutable configuration selecting players, full bundle identities, and other
+  starting choices. It retains the available ruleset separately from the resolved ruleset used by
+  the game.
 - **Game state:** The current component multiset and pending tasks.
 - **Gameplay:** The Actor-scoped API through which game state is queried and changed.
 - **Immediate instruction:** A card's instruction carried out when the card is played, stored as `CardDefinition.immediate`.

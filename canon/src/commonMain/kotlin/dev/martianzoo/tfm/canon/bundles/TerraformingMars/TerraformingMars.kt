@@ -11,7 +11,6 @@ internal object TerraformingMars :
     CanonicalBundle(
         name = "TerraformingMars",
         legacyCode = "B",
-        alwaysIncluded = true,
         cards = true,
         actions = true,
     ) {

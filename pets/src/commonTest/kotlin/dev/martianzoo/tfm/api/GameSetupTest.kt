@@ -1,12 +1,16 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 internal class GameSetupTest {
   val ruleset =
@@ -39,5 +43,21 @@ internal class GameSetupTest {
     assertFails("no map") { GameSetup(ruleset, "B", 4) }
     assertFails("two maps") { GameSetup(ruleset, "BME", 4) }
     assertFails("wrong bundle") { GameSetup(ruleset, "BMZ", 4) }
+  }
+
+  @Test
+  fun fullBundleIdentitiesResolveOneRulesetForTheGame() {
+    val setup =
+        GameSetup(
+            Canon,
+            setOf(cn("TerraformingMars"), cn("TharsisMap")),
+            players = 2,
+        )
+
+    setup.bundleString shouldBe "BM"
+    setup.ruleset.marsMapDefinitions.single().className shouldBe cn("Tharsis")
+    assertTrue(cn("TharsisMap") in setup.ruleset.allClassNames)
+    assertFalse(cn("VenusNextExpansion") in setup.ruleset.allClassNames)
+    assertTrue(setup.ruleset.cardDefinitions.all { it.bundle == "TerraformingMars" })
   }
 }

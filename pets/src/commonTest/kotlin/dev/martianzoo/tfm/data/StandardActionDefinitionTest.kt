@@ -11,7 +11,7 @@ internal class StandardActionDefinitionTest {
   fun testOneFromCanon() {
     val claim = Canon.action(cn("ClaimMilestoneSA"))
     claim.shortName shouldBe cn("SAC")
-    claim.bundle shouldBe "B"
+    claim.bundle shouldBe "TerraformingMars"
     claim.project shouldBe false
     claim.actions.shouldContainExactlyInAnyOrder("8 -> Milestone")
   }

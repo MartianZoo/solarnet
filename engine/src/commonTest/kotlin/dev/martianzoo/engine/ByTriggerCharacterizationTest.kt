@@ -106,10 +106,11 @@ class ByTriggerCharacterizationTest {
   private fun newGame() = Engine.newGame(GameSetup(ProbeRuleset, "BM", 2))
 }
 
-private object ProbeRuleset : TfmRuleset() {
+private object ProbeRuleset : TfmRuleset.Composite(Canon, ProbeDeclarations)
+
+private object ProbeDeclarations : TfmRuleset.Empty() {
   override val explicitClassDeclarations =
-      Canon.explicitClassDeclarations +
-          parseClasses(
+      parseClasses(
               """
               CLASS ActorTriggerSignal : AutoLoad
 
@@ -129,11 +130,5 @@ private object ProbeRuleset : TfmRuleset() {
               """
                   .trimIndent()
           )
-
-  override val cardDefinitions = Canon.cardDefinitions
-  override val marsMapDefinitions = Canon.marsMapDefinitions
-  override val milestoneDefinitions = Canon.milestoneDefinitions
-  override val colonyTileDefinitions = Canon.colonyTileDefinitions
-  override val standardActionDefinitions = Canon.standardActionDefinitions
-  override val customClasses = Canon.customClasses
+          .toSet()
 }

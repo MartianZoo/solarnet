@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -64,8 +65,41 @@ internal class RulesetTest {
     TfmRuleset.compose(source).allBundles.shouldContainExactly("BundleWithoutDefinitions")
   }
 
+  @Test
+  fun resolvingCompositionKeepsRequiredAndSelectedBundleContributions() {
+    val system =
+        bundle(
+            "System",
+            null,
+            alwaysIncluded = true,
+            declaration = "CLASS SystemContent : AutoLoad",
+        )
+    val base = bundle("TerraformingMars", "B", declaration = "CLASS BaseContent : AutoLoad")
+    val venus = bundle("VenusNextExpansion", "V", declaration = "CLASS VenusContent : AutoLoad")
+    val extension = ruleset(parseOneLinerClass("CLASS ExtensionContent : AutoLoad"))
+    val source = TfmRuleset.compose(system, base, venus, extension)
+
+    val resolved = source.resolve(setOf(cn("TerraformingMars")))
+
+    resolved.allClassNames.shouldContainExactlyInAnyOrder(
+        cn("SystemContent"),
+        cn("BaseContent"),
+        cn("ExtensionContent"),
+    )
+  }
+
   private fun ruleset(vararg declarations: ClassDeclaration): TfmRuleset =
       object : TfmRuleset.Empty() {
         override val explicitClassDeclarations = declarations.toSet()
+      }
+
+  private fun bundle(
+      name: String,
+      code: String?,
+      alwaysIncluded: Boolean = false,
+      declaration: String,
+  ): TfmRuleset.Bundle =
+      object : TfmRuleset.Bundle(cn(name), code, alwaysIncluded) {
+        override val explicitClassDeclarations = setOf(parseOneLinerClass(declaration))
       }
 }

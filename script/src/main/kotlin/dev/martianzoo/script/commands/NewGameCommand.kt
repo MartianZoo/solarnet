@@ -37,7 +37,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val bundleString = parts.getOrNull(0) ?: throw UsageException()
       val playerCount = parts.getOrNull(1)?.toInt() ?: throw UsageException()
 
-      repl.setup = GameSetup(repl.setup.ruleset, bundleString, playerCount)
+      repl.setup = GameSetup(repl.setup.availableRuleset, bundleString, playerCount)
       repl.newGame(repl.setup, purple)
 
       return listOf("New $playerCount-player game created with bundles: $bundleString") +

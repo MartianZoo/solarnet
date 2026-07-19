@@ -71,9 +71,8 @@ internal class CanonClassesTest {
     Canon.SIMPLE_GAME.players().shouldContainExactly(PLAYER1, PLAYER2)
     Canon.SIMPLE_GAME.actors().shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    (cn("SoloMode") in game.classes.allClassNamesAndIds) shouldBe true
-    game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 0
-    game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 0
+    game.classes.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
+    game.classes.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
   }
 
   @Test
@@ -186,9 +185,9 @@ internal class CanonClassesTest {
     }
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)
-    checkConcreteSubtypeCount("Plant", 3)
+    checkConcreteSubtypeCount("Plant", 2)
     checkConcreteSubtypeCount("StandardResource<Player1>", 6)
-    checkConcreteSubtypeCount("StandardResource", 18)
+    checkConcreteSubtypeCount("StandardResource", 12)
     checkConcreteSubtypeCount("Class<StandardResource>", 6)
 
     checkConcreteSubtypeCount("Class<MarsArea>", 61)
@@ -196,13 +195,13 @@ internal class CanonClassesTest {
     checkConcreteSubtypeCount("Class<Tile>", 11)
     checkConcreteSubtypeCount("Class<SpecialTile>", 8)
 
-    checkConcreteSubtypeCount("CityTile", 63 * 3)
+    checkConcreteSubtypeCount("CityTile", 63 * 2)
     checkConcreteSubtypeCount("OceanTile", 61)
-    checkConcreteSubtypeCount("GreeneryTile", 61 * 3)
-    checkConcreteSubtypeCount("SpecialTile", (8 * 61) * 3)
+    checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
+    checkConcreteSubtypeCount("SpecialTile", (8 * 61) * 2)
 
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
-    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 3) + (61 * 3) + (8 * 61 * 3)
+    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 2) + (61 * 2) + (8 * 61 * 2)
   }
 }

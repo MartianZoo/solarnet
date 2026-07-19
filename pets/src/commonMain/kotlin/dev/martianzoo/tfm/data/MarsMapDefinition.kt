@@ -19,6 +19,7 @@ data class MarsMapDefinition(
     override val className: ClassName,
     override val bundle: String,
     val areas: Grid<AreaDefinition>,
+    val shortNamePrefix: String = bundle,
 ) : Definition {
   override val shortName by ::className
   override val asClassDeclaration =
@@ -33,6 +34,7 @@ data class MarsMapDefinition(
       /** Mame of the MarsMapDefinition this area belongs to (e.g "Tharsis"). */
       val mapName: ClassName,
       override val bundle: String,
+      val shortNamePrefix: String,
 
       /** The row number of this area; the top row is row `1`. */
       val row: Int,
@@ -75,9 +77,9 @@ data class MarsMapDefinition(
 
     override val shortName =
         if (row > 9 || column > 9) {
-          cn("${bundle}_${row}_$column")
+          cn("${shortNamePrefix}_${row}_$column")
         } else {
-          cn("$bundle$row$column")
+          cn("$shortNamePrefix$row$column")
         }
 
     override val className = cn("${mapName}_${row}_$column")

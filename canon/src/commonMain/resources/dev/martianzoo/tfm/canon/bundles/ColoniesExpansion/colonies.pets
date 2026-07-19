@@ -3,7 +3,10 @@
 //
 
 "The selected Colonies expansion bundle"
-CLASS ColoniesExpansion : System { HAS =1 This }
+CLASS ColoniesExpansion : System {
+  HAS =1 This
+  SetupPhase IF =1 Player:: PROD[-2 Megacredit<Player1>]
+}
 
 // Colony tile data read from colonies.json5 is converted to classes in this form:
 //

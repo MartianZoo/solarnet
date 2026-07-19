@@ -7,7 +7,6 @@
 CLASS TerraformingMars : System, AutoLoad {
   HAS =1 This
 
-  This IF =1 Player:: SoloMode
   SetupPhase:: Generation THEN StartToken<Player1>
   CorporationPhase: Photosynthesis
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>

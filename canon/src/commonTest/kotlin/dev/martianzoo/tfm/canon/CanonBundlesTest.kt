@@ -13,7 +13,7 @@ import kotlin.test.Test
 internal class CanonBundlesTest {
   @Test
   fun canonComposesEveryCanonicalBundle() {
-    Canon.bundles.map { it.bundleName.toString() } shouldContainExactly
+    Canon.bundleRulesets.map { it.bundleName.toString() } shouldContainExactly
         listOf(
             "System",
             "TerraformingMars",

@@ -10,7 +10,11 @@ This module's job is to represent game state (components and tasks), execute ins
 
 The centerpiece is the `Game` object. Of course, everything you want to know about a game in progress is here.
 
-For starters, it holds a `GameSetup` (the configuration chosen before the game began) and the `MClassTable` of loaded classes for that configuration. These are immutable. Clients read game state through a `GameReader`. 
+For starters, it holds a `GameSetup` (the configuration chosen before the game began) and the
+`MClassTable` of loaded classes for that configuration. These are immutable. A setup records the
+available ruleset and the selected full bundle identities separately; its `ruleset` property is the
+resolved source containing only content applicable to that game. Clients read game state through a
+`GameReader`.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
 

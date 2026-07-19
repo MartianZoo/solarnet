@@ -114,15 +114,18 @@ public object JsonReader {
   fun readMaps(json5: String): List<MarsMapDefinition> = fromJson5<MapsImport>(json5).definitions
 
   fun readMaps(json5: String, bundle: String): List<MarsMapDefinition> =
-      fromJson5<MapsImport>(json5).definitions(bundle)
+      fromJson5<MapsImport>(json5).definitions(bundle, bundle)
+
+  fun readMaps(json5: String, bundle: String, shortNamePrefix: String): List<MarsMapDefinition> =
+      fromJson5<MapsImport>(json5).definitions(bundle, shortNamePrefix)
 
   @Serializable
   private data class MapsImport(val maps: List<MapImport>, val legend: Map<String, String>) {
-    val definitions: List<MarsMapDefinition> by lazy { definitions(null) }
+    val definitions: List<MarsMapDefinition> by lazy { definitions(null, null) }
 
-    fun definitions(directoryBundle: String?): List<MarsMapDefinition> {
+    fun definitions(directoryBundle: String?, shortNamePrefix: String?): List<MarsMapDefinition> {
       val leg = Legend(legend.mapKeys { (key) -> key.toLegendKey() })
-      return maps.map { it.toDefinition(leg, directoryBundle) }
+      return maps.map { it.toDefinition(leg, directoryBundle, shortNamePrefix) }
     }
 
     @Serializable
@@ -131,11 +134,16 @@ public object JsonReader {
         val bundle: String? = null,
         val rows: List<List<String>>,
     ) {
-      internal fun toDefinition(legend: Legend, directoryBundle: String?): MarsMapDefinition {
+      internal fun toDefinition(
+          legend: Legend,
+          directoryBundle: String?,
+          directoryShortNamePrefix: String?,
+      ): MarsMapDefinition {
         if (directoryBundle != null) {
           require(bundle == null) { "bundle must come from the containing directory" }
         }
         val owningBundle = directoryBundle ?: requireNotNull(bundle)
+        val areaShortNamePrefix = directoryShortNamePrefix ?: owningBundle
         val mapName = cn(name)
         fun mapArea(
             row0Index: Int,
@@ -147,6 +155,7 @@ public object JsonReader {
           return AreaDefinition(
               mapName,
               owningBundle,
+              areaShortNamePrefix,
               row0Index + 1,
               col0Index + 1,
               legend.getType(code),
@@ -161,7 +170,7 @@ public object JsonReader {
           }
         }
         val grid = Grid.grid(areas, { it.row }, { it.column })
-        return MarsMapDefinition(mapName, owningBundle, grid)
+        return MarsMapDefinition(mapName, owningBundle, grid, areaShortNamePrefix)
       }
     }
 

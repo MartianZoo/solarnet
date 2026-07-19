@@ -25,6 +25,31 @@ import dev.martianzoo.util.associateByStrict
  */
 public abstract class TfmRuleset : Ruleset {
 
+  /** Bundle contributions contained anywhere in this ruleset composition. */
+  public open val bundleRulesets: List<Bundle> = emptyList()
+
+  /**
+   * Resolves this source to its always-included and explicitly selected bundle contributions.
+   * Non-bundle contributions are retained.
+   */
+  public fun resolve(selectedBundles: Set<ClassName>): TfmRuleset {
+    val available = bundleRulesets.map { it.bundleName }.toSet()
+    require(available.containsAll(selectedBundles)) {
+      "unknown bundles: ${selectedBundles - available}; available bundles: $available"
+    }
+    return selectedContribution(selectedBundles) ?: Empty()
+  }
+
+  private fun selectedContribution(selectedBundles: Set<ClassName>): TfmRuleset? =
+      when (this) {
+        is Bundle -> if (alwaysIncluded || bundleName in selectedBundles) this else null
+        is Composite ->
+            Composite(
+                *rulesets.mapNotNull { it.selectedContribution(selectedBundles) }.toTypedArray()
+            )
+        else -> this
+      }
+
   /** Returns every bundle code (e.g. `"B"`) this ruleset has any information on. */
   override val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
 
@@ -188,6 +213,7 @@ public abstract class TfmRuleset : Ruleset {
       public val alwaysIncluded: Boolean = false,
       public val hasComponent: Boolean = true,
   ) : Empty() {
+    final override val bundleRulesets: List<Bundle> = listOf(this)
     final override val allBundles: Set<String> = setOfNotNull(legacyCode)
   }
 
@@ -200,8 +226,7 @@ public abstract class TfmRuleset : Ruleset {
   public open class Composite(vararg rulesets: TfmRuleset) : TfmRuleset() {
     public val rulesets: List<TfmRuleset> = rulesets.toList()
 
-    /** The directly composed bundle contributions, in composition order. */
-    public val bundles: List<Bundle> = rulesets.filterIsInstance<Bundle>()
+    final override val bundleRulesets: List<Bundle> = rulesets.flatMap { it.bundleRulesets }
 
     override val allBundles: Set<String> by lazy { rulesets.flatMap { it.allBundles }.toSet() }
 

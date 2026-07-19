@@ -29,25 +29,30 @@ internal abstract class CanonicalBundle(
 
   override val cardDefinitions: Set<CardDefinition> by lazy {
     if (cards) {
-      JsonReader.readCards(read("cards.json5"), requireNotNull(legacyCode))
-          .toSetStrict(::CardDefinition)
+      JsonReader.readCards(read("cards.json5"), bundleName.toString()).toSetStrict(::CardDefinition)
     } else emptySet()
   }
 
   override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
     if (actions) {
-      JsonReader.readActions(read("actions.json5"), requireNotNull(legacyCode)).toSetStrict()
+      JsonReader.readActions(read("actions.json5"), bundleName.toString()).toSetStrict()
     } else emptySet()
   }
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-    if (maps) JsonReader.readMaps(read("maps.json5"), requireNotNull(legacyCode)).toSetStrict()
-    else emptySet()
+    if (maps) {
+      JsonReader.readMaps(
+              read("maps.json5"),
+              bundleName.toString(),
+              requireNotNull(legacyCode),
+          )
+          .toSetStrict()
+    } else emptySet()
   }
 
   override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
     if (milestones) {
-      JsonReader.readMilestones(read("milestones.json5"), requireNotNull(legacyCode)).toSetStrict()
+      JsonReader.readMilestones(read("milestones.json5"), bundleName.toString()).toSetStrict()
     } else emptySet()
   }
 

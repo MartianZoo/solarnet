@@ -73,6 +73,10 @@ internal class CanonBootstrapTest {
         .shouldContainExactlyInAnyOrder(
             "Engine",
             "TerraformingMars",
+            "CorporateEraExpansion",
+            "TharsisMap",
+            "PreludeExpansion",
+            "PromosExpansion",
             "SetupPhase",
             "Tharsis",
             "Area021",

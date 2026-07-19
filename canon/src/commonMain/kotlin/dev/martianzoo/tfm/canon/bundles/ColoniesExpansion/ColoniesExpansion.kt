@@ -22,7 +22,7 @@ internal object ColoniesExpansion :
   }
 
   override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-    JsonReader.readColonyTiles(readResource("colonies.json5"), requireNotNull(legacyCode))
+    JsonReader.readColonyTiles(readResource("colonies.json5"), bundleName.toString())
         .toSetStrict(::ColonyTileDefinition)
   }
 

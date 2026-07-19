@@ -36,6 +36,7 @@ internal class MClassLoader(
         c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }
 
     loadAll(setup.actors().classNames())
+    loadAll(setup.selectedBundles)
     loadAll(ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys)
     loadAll(setup.allDefinitions().classNames())
 
