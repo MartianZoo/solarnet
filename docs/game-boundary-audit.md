@@ -60,7 +60,7 @@ The protocol is split across ostensibly generic code and Terraforming Mars canon
 4. `engine/src/commonMain/kotlin/dev/martianzoo/engine/ApiTranslation.kt` implements `turn` by
    initiating `NewTurn`.
 5. The actual `UseAction1..3`, `NewTurn`, `SecondAction`, and `Pass` definitions live in
-   `canon/src/commonMain/resources/dev/martianzoo/tfm/canon/actions.pets`.
+   `canon/src/commonMain/resources/dev/martianzoo/tfm/canon/bundles/TerraformingMars/actions.pets`.
 
 There are two principled choices: make this a documented generic engine protocol and move its
 foundational declarations into the generic kernel, or move `TurnLayer`, action-to-effect

@@ -14,19 +14,8 @@ import dev.martianzoo.util.toSetStrict
 
 /** Canon content that has not yet moved into its owning bundle rulesets. */
 internal object UnbundledCanon : TfmRuleset() {
-  private val PETS_FILENAMES =
-      setOf(
-          "global.pets",
-          "maps-tiles.pets",
-          "player.pets",
-          "cards.pets",
-          "actions.pets",
-          "payment.pets",
-          "colonies.pets",
-      )
-
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    PETS_FILENAMES.flatMap { parseClasses(readResource(it)) }.toSetStrict()
+    parseClasses(readResource("colonies.pets")).toSetStrict()
   }
 
   override val cardDefinitions: Set<CardDefinition> by lazy {

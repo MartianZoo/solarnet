@@ -2,8 +2,8 @@
 
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to the source code as you read:
 
-* [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/dev/martianzoo/tfm/canon/global.pets)
-* [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/dev/martianzoo/tfm/canon/player.pets)
+* [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/dev/martianzoo/tfm/canon/bundles/TerraformingMars/global.pets)
+* [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/dev/martianzoo/tfm/canon/bundles/TerraformingMars/player.pets)
 
 ## Communal / non-player-owned
 
