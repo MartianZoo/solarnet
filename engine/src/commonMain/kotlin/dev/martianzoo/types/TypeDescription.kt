@@ -19,8 +19,8 @@ public class TypeDescription public constructor(mtype: MType) {
   val superclassNames: Set<ClassName> = mclass.allSuperclasses().classNames()
   val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.allSubclasses())
 
-  val rawClassEffects: Set<Effect> by mclass::declaredEffects
-  val classEffects: Set<Effect> by mclass::classEffects
+  val rawClassEffects: List<Effect> by mclass::declaredEffects
+  val classEffects: List<Effect> by mclass::classEffects
 
   val classInvariants: Set<Requirement> = mclass.invariants()
 

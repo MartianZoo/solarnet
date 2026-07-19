@@ -25,13 +25,10 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
 
     me = p1
 
-    if ("C" in setup().bundles) me.godMode().manual("PROD[-2]")
-
-    val setup = engine.godMode()
-    setup.manual("CityTile<${cityAreas().first}, Opponent>")
-    setup.manual("GreeneryTile<${greeneryAreas().first}, Opponent>")
-    setup.manual("CityTile<${cityAreas().second}, Opponent>")
-    setup.manual("GreeneryTile<${greeneryAreas().second}, Opponent>")
+    engine.doFirstTask("CityTile<${cityAreas().first}, Opponent>")
+    engine.doTask("GreeneryTile<${greeneryAreas().first}, Opponent>")
+    engine.doFirstTask("CityTile<${cityAreas().second}, Opponent>")
+    engine.doTask("GreeneryTile<${greeneryAreas().second}, Opponent>")
 
     engine.phase("Corporation")
   }

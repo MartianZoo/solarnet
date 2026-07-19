@@ -80,6 +80,8 @@ CLASS PlantProduction<Player> {
 
 Inside a class declaration, lines of the form `<trigger>: <instruction>` are effects. They express that component's behaviors. The authored line is a **source effect**; see the [glossary](../glossary.md) for the names of the representations it passes through.
 
+Effects retain their declaration order, and identical effects may be declared more than once; each occurrence registers and fires independently.
+
 The type `PlantProduction<Player>` is abstract, meaning that no component of that exact type can exist. That's because, even though `PlantProduction` is concrete, `Player` is not, and *all* types seen must be concrete for the whole type to be.
 
 But `PlantProduction<Player4>` is concrete, and one of those can exist. And (here's the important part) narrowing `Player` to `Player4` in the type expression *also* narrows it in the same way for any effects belonging to the class. Thus the class effect `ProductionPhase: Plant<Player>` becomes the component effect `ProductionPhase: Plant<Player4>`. If that component exists, the engine registers an active effect from it. (And a good thing, because `Plant<Player>` is abstract and during the production phase there is no active player who would be able to choose how to narrow it!)

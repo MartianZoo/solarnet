@@ -13,11 +13,30 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ClassDeclarationTest {
+  @Test
+  fun duplicateEffectsArePreserved() {
+    val effects =
+        Parsing.parseClasses(
+                """
+                CLASS Foo {
+                  This: Bar
+                  This: Bar
+                }
+                """
+                    .trimIndent(),
+            )
+            .single()
+            .effects
+
+    effects.shouldContainExactly(parse<Effect>("This: Bar"), parse<Effect>("This: Bar"))
+  }
+
   @Test
   fun testExample() {
     val declText =

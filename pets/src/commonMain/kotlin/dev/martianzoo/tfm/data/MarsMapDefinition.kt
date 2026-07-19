@@ -84,7 +84,7 @@ data class MarsMapDefinition(
   }
 
   private companion object {
-    fun toEffects(bonus: Instruction?) = setOfNotNull(bonus?.let { Effect(TRIGGER, it, false) })
+    fun toEffects(bonus: Instruction?) = listOfNotNull(bonus?.let { Effect(TRIGGER, it, false) })
 
     val TRIGGER: Trigger = OnGainOf.create(TILE.of(THIS))
   }

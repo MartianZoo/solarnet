@@ -9,7 +9,7 @@ ABSTRACT CLASS Anyone[ANY] {
     ABSTRACT CLASS Player : Actor {
       HAS =1 This
 
-      This: GrossHack<This>, Entropy<This>
+      This:: GrossHack<This>, Entropy<This>
 
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard
@@ -22,8 +22,10 @@ ABSTRACT CLASS Anyone[ANY] {
     "The passive owner of the removable neutral stock in solo mode"
     CLASS Opponent[OPP] {
       HAS MAX 1 This
-      This::      99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
-      This:: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]
+      This: 99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
+      This: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]
+      This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile>)>
+      This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile>)>
     }
   }
 }
@@ -74,7 +76,7 @@ ABSTRACT CLASS Owned<Anyone> {
   // worth taking steps to ban, except that it does actually work just fine for Banker anyway.
   "You didn't see this"
   CLASS GrossHack : System {
-    This: PROD[5]
+    This:: PROD[5]
     ProductionPhase: -5
   }
 }

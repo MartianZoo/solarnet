@@ -14,7 +14,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
-import dev.martianzoo.util.toSetStrict
 
 /**
  * Various functions for transforming Pets syntax trees. Many more interesting transformers require
@@ -71,8 +70,8 @@ public object Transforming {
     return Then(allInstructions)
   }
 
-  internal fun actionListToEffects(actions: Collection<Action>): Set<Effect> =
-      actions.withIndex().toSetStrict { (index0Ref, action) ->
+  internal fun actionListToEffects(actions: Collection<Action>): List<Effect> =
+      actions.withIndex().map { (index0Ref, action) ->
         actionToEffect(action, index1Ref = index0Ref + 1)
       }
 

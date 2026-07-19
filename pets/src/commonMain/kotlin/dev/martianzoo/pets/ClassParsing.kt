@@ -250,7 +250,7 @@ internal object ClassParsing : PetTokenizer() {
             signature.asDeclaration.copy(
                 kind = kind,
                 invariants = body.invariants.toSetStrict(),
-                effects = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
+                effects = body.effects + actionListToEffects(body.actions),
                 defaultsDeclaration = mergedDefaults,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }

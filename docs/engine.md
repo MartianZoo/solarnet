@@ -380,7 +380,8 @@ After scopes are created, `Initializer.initialize()` runs for `ENGINE`, which:
 2. Instantiates all singleton-type components (things with exactly one concrete subtype)
 3. Runs any Colonies-specific setup (colony tiles, trade fleets)
 4. Marks `initializationFinished()` in the timeline (so setup events are excluded from game logs)
-5. Executes `SetupPhase`
+5. Executes `SetupPhase`; in solo mode its Opponent effect leaves the neutral tile-placement task
+   pending in Engine's queue to await its map areas.
 
 TODO: of course, this shouldn't have TfM-specific steps embedded.
 

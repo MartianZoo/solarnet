@@ -131,6 +131,9 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Internal Design, Cleanup, and Test Convenience
 
+- Investigate why narrowing solo setup's queued Opponent tile-placement tasks requires repeating the
+  `Opponent` dependency in each concrete tile instruction; ideally the task's existing owner should
+  be retained when a test supplies only the chosen map area.
 - Allow a linked `X THEN X` task to be refined as a whole and then execute its concrete head and
   tail separately. Titan Shuttles and Recyclon currently repeat the combined instruction instead.
 - Clarify why `Initializer` appends mandatory intensity (`!`) to every synthetic setup instruction.

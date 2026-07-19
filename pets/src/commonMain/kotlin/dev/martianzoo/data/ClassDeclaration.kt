@@ -46,8 +46,8 @@ public data class ClassDeclaration(
     /** Any class invariants declared with `HAS` in the class body. */
     public val invariants: Set<Requirement> = setOf(),
 
-    /** The class's effects. */
-    public val effects: Set<Effect> = setOf(),
+    /** The class's effects, in declaration order. Duplicate effects are preserved. */
+    public val effects: List<Effect> = listOf(),
 
     /** The merged contents of any `DEFAULT` clauses in the class body. */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),

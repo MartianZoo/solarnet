@@ -39,7 +39,7 @@ internal class CardDefinitionTest {
           tags = listOf("AnimalTag"),
           immediate = "PROD[-2 Plant<Anyone>]",
           actions = listOf("-> Animal<This>"),
-          effects = setOf("End: VictoryPoint / Animal<This>"),
+          effects = listOf("End: VictoryPoint / Animal<This>"),
           resourceType = "Animal",
           requirement = "13 OxygenStep",
           cost = 10,
@@ -146,8 +146,8 @@ internal class CardDefinitionTest {
 
   @Test
   fun badActiveCard() {
-    assertFails { card.copy(projectKind = "EVENT", effects = setOf("Foo: Bar")) }
-    assertFails { card.copy(projectKind = "AUTOMATED", effects = setOf("Bar: Qux")) }
+    assertFails { card.copy(projectKind = "EVENT", effects = listOf("Foo: Bar")) }
+    assertFails { card.copy(projectKind = "AUTOMATED", effects = listOf("Bar: Qux")) }
     assertFails { card.copy(projectKind = "EVENT", actions = listOf("Foo -> Bar")) }
     assertFails { card.copy(projectKind = "AUTOMATED", actions = listOf("Bar -> Qux")) }
     assertFails { card.copy(projectKind = "AUTOMATED", resourceType = "Whatever") }

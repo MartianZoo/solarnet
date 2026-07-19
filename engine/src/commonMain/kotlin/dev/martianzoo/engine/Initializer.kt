@@ -10,7 +10,6 @@ internal class Initializer(
     private val classes: MClassTable,
     private val timeline: TimelineImpl,
     private val setup: GameSetup,
-    private val tasks: TaskQueue,
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
@@ -18,10 +17,7 @@ internal class Initializer(
 
     fun exec(instruction: String) {
       with(gameplay.godMode()) {
-        addTasks("$instruction!", fakeCause) // TODO why ! ?
-        do {
-          doTask(tasks.ids().first())
-        } while (tasks.ids().any())
+        addTasks("$instruction!", fakeCause).forEach(::doTask) // TODO why ! ?
       }
     }
 

@@ -8,7 +8,7 @@ CLASS TerraformingMars : System, AutoLoad {
   HAS =1 This
 
   This IF =1 Player:: SoloMode
-  SetupPhase: Generation THEN StartToken<Player1>
+  SetupPhase:: Generation THEN StartToken<Player1>
   CorporationPhase: Photosynthesis
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -21,6 +21,7 @@ CLASS SoloMode : System {
   HAS MAX 1 This
 
   SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
+  SetupPhase IF ColonyTile:: PROD[-2 Megacredit<Player1>]
 }
 
 CLASS Photosynthesis {

@@ -224,18 +224,18 @@ internal constructor(
         null
       }
 
-  internal val declaredEffects: Set<Effect> by declaration::effects
+  internal val declaredEffects: List<Effect> by declaration::effects
 
   /**
    * The effects belonging to this class; similar to those found on the declaration, but processed
    * as far as we are able to. These effects will belong to every [MType] built from this class,
    * where they will be processed further.
    */
-  internal val classEffects: Set<Effect> by lazy {
+  internal val classEffects: List<Effect> by lazy {
     fun directClassEffects(mclass: MClass) =
         mclass.declaredEffects.map(mclass.attachToClassTransformer::transform)
 
-    allSuperclasses().flatMap(::directClassEffects).toSetStrict()
+    allSuperclasses().flatMap(::directClassEffects)
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {

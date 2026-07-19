@@ -9,7 +9,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_ACTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_PROJECT
-import dev.martianzoo.util.toSetStrict
 
 data class StandardActionDefinition(
     override val shortName: ClassName,
@@ -31,7 +30,7 @@ data class StandardActionDefinition(
         shortName = shortName,
         kind = CONCRETE,
         supertypes = setOf(kind.expression),
-        effects = actionListToEffects(actions.map(::parse)).toSetStrict(),
+        effects = actionListToEffects(actions.map(::parse)),
     )
   }
 }

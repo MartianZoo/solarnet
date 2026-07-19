@@ -32,8 +32,13 @@ class StartTokenTest {
 
   @Test
   fun staysWithPlayer1InAnActualOnePlayerSetup() {
-    val engine = Engine.newGame(GameSetup(Canon, "BRM", 1)).tfm(ENGINE)
+    val game = Engine.newGame(GameSetup(Canon, "BRM", 1))
+    val engine = game.tfm(ENGINE)
 
+    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
     engine.godMode().manual("Generation")
 
     engine.assertCounts(1 to "StartToken<Player1>")

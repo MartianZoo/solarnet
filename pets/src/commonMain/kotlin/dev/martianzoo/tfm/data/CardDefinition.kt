@@ -34,7 +34,6 @@ import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
 import dev.martianzoo.tfm.data.TfmClasses.RESOURCE_CARD
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
-import dev.martianzoo.util.toSetStrict
 import kotlinx.serialization.Serializable
 
 /**
@@ -90,7 +89,7 @@ public class CardDefinition(data: CardData) : Definition {
    * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val effects: Set<Effect> = data.effects.toSetStrict(::parse)
+  public val effects: List<Effect> = data.effects.map(::parse)
 
   /** The card's requirement, if any. */
   public val requirement: Requirement? = projectInfo?.requirement
@@ -153,7 +152,7 @@ public class CardDefinition(data: CardData) : Definition {
         shortName = shortName,
         kind = CONCRETE,
         supertypes = supertypes,
-        effects = allEffects.toSetStrict(),
+        effects = allEffects,
         invariants = setOf(Max(scaledEx(1, className.expression))),
         extraNodes =
             setOfNotNull(requirement, deck?.className) + extraClasses.flatMap { it.allNodes },
@@ -184,7 +183,7 @@ public class CardDefinition(data: CardData) : Definition {
       val tags: List<String> = listOf(),
       val immediate: String? = null,
       val actions: List<String> = listOf(),
-      val effects: Set<String> = setOf(),
+      val effects: List<String> = listOf(),
       val resourceType: String? = null,
       val components: Set<String> = setOf(),
       val requirement: String? = null,
