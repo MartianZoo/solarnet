@@ -2,9 +2,9 @@
 
 ## Fast facts
 
-* Solarnet is a **work-in-progress** game engine for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*.
+* Solarnet is a work-in-progress game engine for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*. It is unimpressive in some ways but actually really cool in other ways.
 
-* It's not really for *playing* the game; for that see the excellent and unrelated [open-source app](http://github.com/terraforming-mars/terraforming-mars).
+* It's not really made for *playing* the game; for that see the excellent and unrelated [open-source app](http://github.com/terraforming-mars/terraforming-mars). You can however log games to it and get statistics (but, your games can only use the ~400 cards we support so far).
 
 * It's a standalone library. Its only job is to *know the rules of the game* -- which means "who can do what when, and what happens if they do?" It covers the "pure logic part" of the game. You can set up game situations and see what happens ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/commonTest/kotlin/dev/martianzoo/tfm/engine/cards/ExcentricSponsorTest.kt)).
 
@@ -29,19 +29,19 @@
 
 * It works! See the Issues tab for exceptions. I have just about 400 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
 
-* It's **not polished enough** for anyone to "just use" -- not even close! But if you're intrepid I could really use your help to *get* it into that state. If you're not in a "roll up your sleeves, dig in, ask questions" mode, you *will* find it frustrating. Sorry!
+* It's **not polished enough** for anyone to "just use". If you're not in a "roll up your sleeves, dig in, ask questions" mode, you *will* find it frustrating. Sorry!
 
 ## Overly defensive statement about AI
+
+If this makes you write off my whole project as "vibe-coded", fine, that's your right. I think it would be inaccurate, but that's just me.
 
 I worked alone (and hard) on this project for 3 years starting in mid-2020. It was incredibly difficult, partly because I am not built for working alone. My entire dream was always to get it to a point that just one other human being on the planet would be interested in working on it together. I am pretty sure I sunk *multiple* thousands of hours into it, keeping myself going with that dream, and basically... it failed.
 
 By mid-2023 I had gone as far as I could go. I had a working engine and I was *personally* very proud of it, but the public reaction was [disappointing](https://boardgamegeek.com/thread/3143416/article/42861629#42861629), and no collaborators materialized. I couldn't justify putting more time into it. I get that people needed it to be more than it was before they'd get interested, but I was tapped out.
 
-I spent the next 3 years feeling pretty sad about it, honestly. Then starting in mid-2026 Codex and Claude have completely reinvigorated my interest in this project, and my ability to move it forward. The design of everything is still mine, but it is very good at implementation and finding issues and well, a lot of things.
+I spent the next 3 years feeling pretty sad about it, honestly. Then starting in mid-2026 OpenAI Codex and Claude Code have completely reinvigorated my interest in this project, and my ability to move it forward. The design of everything is still mine, but it is very good at implementation and finding issues and well, a lot of things. 
 
-It is not the "collaboration" I wanted -- seriously, people, stop personifying these tools -- but I feel more optimistic that this project will become something of interest to other real humans now. If it doesn't, I am still back to having fun with it again.
-
-If this makes you view my whole project as "vibe-coded", fine, that's your right. I think it would be inaccurate, but that's just me.
+It is not the "collaboration" I wanted -- seriously, people, stop personifying these tools -- but now I feel more optimistic that this project will become something of interest to other real humans. If it doesn't, at least I am back to having fun with it again.
 
 ## Play around with it?
 
