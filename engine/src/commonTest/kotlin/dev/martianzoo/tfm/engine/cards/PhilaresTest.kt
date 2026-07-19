@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
@@ -10,6 +11,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class PhilaresTest {
@@ -46,6 +48,55 @@ class PhilaresTest {
       p2.doTask("Titanium")
     }
     p2.assertCounts(1 to "Steel", 1 to "Titanium")
+  }
+
+  @Test
+  fun otherPlayerCanCreateAdjacencyWhilePhilaresOwnerIsAssignedAndPerformsReward() {
+    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
+    val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
+    owner.godMode().sneak("Philares")
+    owner.godMode().manual("GreeneryTile<M23>")
+    val checkpoint = game.timeline.checkpoint()
+    val steelBefore = owner.count("Steel")
+
+    other.godMode().beginManual("GreeneryTile<M33>") {
+      game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
+    }
+
+    game.events.changesSince(checkpoint).first().actor shouldBe PLAYER1
+    owner.doTask("Steel")
+    owner.count("Steel") shouldBe steelBefore + 1
+    game.events.changesSince(checkpoint).last().actor shouldBe PLAYER2
+  }
+
+  @Test
+  fun philaresOwnerCanCreateAdjacencyAndReceivesTask() {
+    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
+    val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
+    owner.godMode().sneak("Philares")
+    other.godMode().manual("GreeneryTile<M23>")
+
+    owner.godMode().beginManual("GreeneryTile<M33>") {
+      game.tasks.extract { it.actor }.shouldContainExactly(PLAYER2)
+    }
+
+    owner.doTask("Titanium")
+    owner.count("Titanium") shouldBe 1
+  }
+
+  @Test
+  fun doesNotTriggerBetweenTwoTilesOwnedByOtherPlayer() {
+    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
+    val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
+    owner.godMode().sneak("Philares")
+    other.godMode().manual("GreeneryTile<M23>")
+
+    other.godMode().manual("GreeneryTile<M33>")
+
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test

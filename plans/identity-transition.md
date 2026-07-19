@@ -84,15 +84,10 @@ Approval status: Approved by user on 2026-07-18
 
 ## Ordered implementation steps
 
-1. Lock down the protected behavior before changing the identity model. Keep the Lakefront Resorts
-   regression unchanged in purpose and passing. Establish a change-detecting inventory of every
-   authored canonical `BY` effect and direct positive/rejection tests appropriate to each selector.
-   Establish a corresponding inventory for every engine-manufactured `BY Owner` path, with
-   generated or parameterized binding coverage plus a focused explanatory test for each distinct
-   mechanism. Complete the Philares matrix: exactly one Philares-owned tile is required; either
-   Owner may place the second tile; and the Philares Owner is assigned, narrows, and executes the
-   resulting task while the placement keeps its actual Actor. This is the first meaningful
-   implementation slice after the plan-relocation commit.
+1. Complete the protected behavior safety net by establishing a change-detecting inventory for
+   every engine-manufactured `BY Owner` path, with generated or parameterized binding coverage plus
+   a focused explanatory test for each distinct mechanism. Keep the Lakefront Resorts regression
+   unchanged in purpose and passing.
 2. Rename the task's transitional `actor` identity to `assignee` throughout the data model and
    queue APIs. Make scoped queue views derive from that field, preserve assignee choice and the
    prepared-task invariant, and remove wording that calls queue membership actorship. Do not add a
@@ -149,6 +144,10 @@ Approval status: Approved by user on 2026-07-18
   `aaaa6313385665941475e613bca39e099eb3d6c6`.
 - The Lakefront Resorts Actor/Owner regression was fixed and protected in
   `1b8fc651fa8c2ce51dc8d523d476e98572c4d614`.
-- Initial characterization coverage exists for `BY Anyone`, `BY Player`, `BY Owner`, repeated Owner
-  binding, assignee choice, and the central Philares assignment case; the ordered safety-net step
-  deliberately strengthens this into complete, change-detecting coverage before model changes.
+- Every authored canonical `BY` effect is protected by a change-detecting inventory and direct card
+  behavior coverage appropriate to its selector. The Philares matrix now proves that exactly one
+  tile must belong to its Owner, either Player may create the adjacency, the Philares Owner is the
+  assignee who narrows and executes the reward, and the placement retains its actual Actor.
+- Initial characterization coverage also exists for `BY Anyone`, `BY Player`, `BY Owner`, repeated
+  Owner binding, and assignee choice; the remaining safety-net step strengthens the manufactured
+  Owner-binding coverage before model changes.

@@ -1,7 +1,10 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.OK
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.MClassTable
@@ -19,6 +22,25 @@ internal class CanonEffectsTest {
 
   fun classEffectsOf(name: String, table: MClassTable) =
       table.getClass(cn(name)).classEffects.toStrings()
+
+  @Test
+  fun authoredByEffectsAreInventoried() {
+    Canon.cardDefinitions
+        .flatMap { card ->
+          card.effects.filter { it.trigger is ByTrigger }.map { card.className to it }
+        }
+        .shouldContainExactlyInAnyOrder(
+            cn("Aphrodite") to parse<Effect>("VenusStep BY Anyone: 2"),
+            cn("Philares") to
+                parse<Effect>(
+                    "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource"
+                ),
+            cn("LakefrontResorts") to parse<Effect>("OceanTile BY Anyone: PROD[1]"),
+            cn("LakefrontResorts") to
+                parse<Effect>("ForwardAdjacency<OceanTile, Tile> BY Owner: 1"),
+            cn("ArcticAlgae") to parse<Effect>("OceanTile BY Anyone: 2 Plant"),
+        )
+  }
 
   @Test
   fun sabotage() {
