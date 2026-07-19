@@ -20,9 +20,8 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 /**
- * A source of data about Terraforming Mars components. One implementation (`Canon`) is provided by
- * the `canon` module, containing only officially published materials. Others might provide fan-made
- * content or test content.
+ * A Terraforming Mars ruleset. One implementation (`Canon`) is provided by the `canon` module,
+ * containing only officially published materials. Others might provide fan-made or test content.
  */
 public abstract class TfmRuleset : Ruleset {
 
@@ -180,5 +179,42 @@ public abstract class TfmRuleset : Ruleset {
   public open class Minimal : Empty() {
     override val allBundles = setOf("B", "M")
     override val marsMapDefinitions = setOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
+  }
+
+  public companion object {
+    /** Returns a ruleset containing all contributions from each of [rulesets]. */
+    public fun compose(vararg rulesets: TfmRuleset): TfmRuleset = Composite(rulesets.toList())
+  }
+
+  private class Composite(private val rulesets: List<TfmRuleset>) : TfmRuleset() {
+    override val allBundles: Set<String> by lazy { rulesets.flatMap { it.allBundles }.toSet() }
+
+    override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
+      rulesets.flatMap { it.explicitClassDeclarations }.toSet()
+    }
+
+    override val cardDefinitions: Set<CardDefinition> by lazy {
+      rulesets.flatMap { it.cardDefinitions }.toSet()
+    }
+
+    override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
+      rulesets.flatMap { it.marsMapDefinitions }.toSet()
+    }
+
+    override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
+      rulesets.flatMap { it.milestoneDefinitions }.toSet()
+    }
+
+    override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
+      rulesets.flatMap { it.colonyTileDefinitions }.toSet()
+    }
+
+    override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
+      rulesets.flatMap { it.standardActionDefinitions }.toSet()
+    }
+
+    override val customClasses: Set<CustomClass> by lazy {
+      rulesets.flatMap { it.customClasses }.toSet()
+    }
   }
 }
