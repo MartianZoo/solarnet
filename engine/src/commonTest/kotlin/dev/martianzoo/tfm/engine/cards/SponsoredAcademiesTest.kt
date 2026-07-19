@@ -6,7 +6,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,7 +14,7 @@ import kotlin.test.Test
 class SponsoredAcademiesTest {
   @Test
   fun sponsoredAcademies() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BRMV", 2))
 
     game.tfm(ENGINE).phase("Corporation")
     game.tfm(PLAYER1).playCorp("Phobolog", 5)

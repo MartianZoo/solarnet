@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.api.TfmRuleset
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -54,16 +55,42 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  fun jsonBundleWithoutPetsSynthesizesItsBundleDeclaration() {
+  fun standardFormBundleWithoutPetsDoesNotSynthesizeAComponent() {
     val bundle =
-        JsonBundle(
+        StandardFormBundle(
             name = "TharsisMap",
-            legacyCode = "M",
+            areaShortNamePrefix = "M",
             resourceDirectory = "bundles/TharsisMap",
-            resourceFilenames = setOf(JsonBundle.MAPS_FILENAME),
+            resourceFilenames = setOf(StandardFormBundle.MAPS_FILENAME),
         )
 
-    bundle.classDeclaration(cn("TharsisMap")).className shouldBe cn("TharsisMap")
+    (cn("TharsisMap") in bundle.allClassNames) shouldBe false
     bundle.marsMapDefinitions.single().className shouldBe cn("Tharsis")
+  }
+
+  @Test
+  fun resolvingRulesetDoesNotReadUnselectedBundleResources() {
+    var unselectedReads = 0
+    val selected =
+        StandardFormBundle(
+            name = "SelectedBundle",
+            resourceDirectory = "selected",
+            resourceFilenames = setOf("selected.pets"),
+            resourceReader = { "CLASS SelectedOption" },
+        )
+    val unselected =
+        StandardFormBundle(
+            name = "UnselectedBundle",
+            resourceDirectory = "unselected",
+            resourceFilenames = setOf("unselected.pets"),
+            resourceReader = {
+              unselectedReads++
+              "CLASS UnselectedOption"
+            },
+        )
+
+    TfmRuleset.compose(selected, unselected).resolve(setOf(cn("SelectedBundle"))).allClassNames
+
+    unselectedReads shouldBe 0
   }
 }

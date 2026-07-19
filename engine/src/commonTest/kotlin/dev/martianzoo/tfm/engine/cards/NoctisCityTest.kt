@@ -4,7 +4,6 @@ import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -12,7 +11,7 @@ import kotlin.test.Test
 class NoctisCityTest : CardTest() {
   @Test
   fun `uses an ordinary land area on a map without Noctis`() {
-    val game = newGame(GameSetup(Canon, "BRH", 2))
+    val game = newGame(Canon.fromOptionCodes("BRH", 2))
     with(game.tfm(PLAYER1)) {
       godMode().manual("PROD[Energy]")
 
@@ -26,7 +25,7 @@ class NoctisCityTest : CardTest() {
 
   @Test
   fun `the same coordinate is not eligible on Tharsis`() {
-    val game = newGame(GameSetup(Canon, "BMT", 2))
+    val game = newGame(Canon.SIMPLE_GAME)
     val p1 = game.tfm(PLAYER1)
     p1.godMode().manual("PROD[Energy]")
 

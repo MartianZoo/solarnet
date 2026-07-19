@@ -5,7 +5,6 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -18,7 +17,7 @@ class ArtificialLakeTest : CardTest() {
 
   @BeforeTest
   fun setUp() {
-    val game = newGame(GameSetup(Canon, "BMT", 2))
+    val game = newGame(Canon.SIMPLE_GAME)
     p1 = game.tfm(PLAYER1)
     p1.phase("Action")
     p1.godMode().manual("100, 5 ProjectCard")

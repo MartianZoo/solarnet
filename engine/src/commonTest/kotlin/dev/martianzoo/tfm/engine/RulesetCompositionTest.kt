@@ -21,9 +21,10 @@ internal class RulesetCompositionTest {
         }
     val ruleset = TfmRuleset.compose(Canon, extension)
 
-    val game = Engine.newGame(GameSetup(ruleset, "BM", 2))
+    val options = Canon.options("BM", 2)
+    val game = Engine.newGame(GameSetup(ruleset.resolve(Canon.bundleNames(options)), options))
 
-    game.reader.ruleset.allClassNames shouldBe ruleset.resolve(game.setup.bundles).allClassNames
+    game.reader.ruleset.allClassNames shouldBe game.setup.ruleset.allClassNames
     game.classes.allClassNamesAndIds.shouldContain(cn("CompositionProbe"))
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
   }

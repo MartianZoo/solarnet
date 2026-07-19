@@ -6,7 +6,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -17,7 +16,7 @@ import kotlin.test.Test
 class PhilaresTest {
   @Test
   fun ownerOfDeferredEffectControlsItsRefinement() {
-    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BMX", 2))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
@@ -52,7 +51,7 @@ class PhilaresTest {
 
   @Test
   fun otherPlayerCanCreateAdjacencyWhilePhilaresOwnerIsAssignedAndPerformsReward() {
-    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BMX", 2))
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
     owner.godMode().sneak("Philares")
@@ -72,7 +71,7 @@ class PhilaresTest {
 
   @Test
   fun philaresOwnerCanCreateAdjacencyAndReceivesTask() {
-    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BMX", 2))
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
     owner.godMode().sneak("Philares")
@@ -88,7 +87,7 @@ class PhilaresTest {
 
   @Test
   fun doesNotTriggerBetweenTwoTilesOwnedByOtherPlayer() {
-    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BMX", 2))
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
     owner.godMode().sneak("Philares")
@@ -101,7 +100,7 @@ class PhilaresTest {
 
   @Test
   fun doesNotTriggerBetweenOwnTiles() {
-    val game = Engine.newGame(GameSetup(Canon, "BMX", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BMX", 2))
     val p1 = game.tfm(PLAYER1)
 
     p1.phase("Corporation")

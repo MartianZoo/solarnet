@@ -133,7 +133,7 @@ public object TfmWorkflow {
     /** Orchestrates the complete game from SetupPhase (which it must already be in) to finish. */
     public suspend fun runGame() {
       corporationPhase()
-      if (cn("PreludeExpansion") in setup.bundles) preludePhase()
+      if (cn("PreludeExpansion") in setup.options) preludePhase()
       actionPhase()
       while (!gameIsOver()) {
         productionPhase()

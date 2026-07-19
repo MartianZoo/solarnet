@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -13,7 +12,7 @@ import kotlin.test.Test
 class LakefrontResortsTest : CardTest() {
   @Test
   fun `opponents' oceans raise production and owner's adjacent tiles pay one`() {
-    val game = newGame(GameSetup(Canon, "BMT", 2))
+    val game = newGame(Canon.fromOptionCodes("BMT", 2))
     val owner = game.tfm(PLAYER1)
     val opponent = game.tfm(PLAYER2)
 
@@ -31,7 +30,7 @@ class LakefrontResortsTest : CardTest() {
 
   @Test
   fun `opponent receives only the ordinary ocean adjacency bonus`() {
-    val game = newGame(GameSetup(Canon, "BMT", 2))
+    val game = newGame(Canon.fromOptionCodes("BMT", 2))
     val owner = game.tfm(PLAYER1)
     val opponent = game.tfm(PLAYER2)
 

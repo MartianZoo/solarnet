@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -11,7 +10,7 @@ import kotlin.test.Test
 class ArcticAlgaeTest : CardTest() {
   @Test
   fun `ocean placed by another player gives plants to Arctic Algae's owner`() {
-    val game = newGame(GameSetup(Canon, "BMT", 2))
+    val game = newGame(Canon.SIMPLE_GAME)
     val owner = game.tfm(PLAYER1)
     val other = game.tfm(PLAYER2)
     owner.godMode().sneak("ArcticAlgae")

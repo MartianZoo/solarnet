@@ -55,8 +55,8 @@ internal class RulesetTest {
   fun coalescedDeclarationRetainsAllSelectedBundleProvenance() {
     val source =
         TfmRuleset.compose(
-            bundle("BundleOne", "1", declaration = "CLASS Shared"),
-            bundle("BundleTwo", "2", declaration = "CLASS Shared"),
+            bundle("BundleOne", declaration = "CLASS Shared"),
+            bundle("BundleTwo", declaration = "CLASS Shared"),
         )
 
     source
@@ -84,8 +84,8 @@ internal class RulesetTest {
 
   @Test
   fun resolvingCompositionKeepsSelectedBundlesAndNonBundleContributions() {
-    val base = bundle("TerraformingMars", "B", declaration = "CLASS BaseContent : AutoLoad")
-    val venus = bundle("VenusNextExpansion", "V", declaration = "CLASS VenusContent : AutoLoad")
+    val base = bundle("TerraformingMars", declaration = "CLASS BaseContent : AutoLoad")
+    val venus = bundle("VenusNextExpansion", declaration = "CLASS VenusContent : AutoLoad")
     val extension = ruleset(parseOneLinerClass("CLASS ExtensionContent : AutoLoad"))
     val source = TfmRuleset.compose(base, venus, extension)
 
@@ -102,8 +102,8 @@ internal class RulesetTest {
     val replacement = CardDefinition(CardData(id = "X31", replaces = "039"))
     val source =
         TfmRuleset.compose(
-            cardBundle("TerraformingMars", "B", original),
-            cardBundle("PromoCardsBundle", "X", replacement),
+            cardBundle("TerraformingMars", original),
+            cardBundle("PromoCardsBundle", replacement),
         )
 
     val resolved = source.resolve(setOf(cn("TerraformingMars"), cn("PromoCardsBundle")))
@@ -122,9 +122,9 @@ internal class RulesetTest {
         )
     val source =
         TfmRuleset.compose(
-            cardBundle("PromoCardsBundle", "X", card),
-            bundle("PreludeExpansion", "P", "CLASS PreludeExpansion"),
-            bundle("VenusNextExpansion", "V", "CLASS VenusNextExpansion"),
+            cardBundle("PromoCardsBundle", card),
+            bundle("PreludeExpansion", "CLASS PreludeExpansion"),
+            bundle("VenusNextExpansion", "CLASS VenusNextExpansion"),
         )
 
     val withoutVenus = source.resolve(setOf(cn("PromoCardsBundle"), cn("PreludeExpansion")))
@@ -149,19 +149,17 @@ internal class RulesetTest {
 
   private fun bundle(
       name: String,
-      code: String?,
       declaration: String,
-  ): TfmRuleset.Bundle =
-      object : TfmRuleset.Bundle(cn(name), code) {
+  ): Bundle =
+      object : Bundle(cn(name)) {
         override val explicitClassDeclarations = setOf(parseOneLinerClass(declaration))
       }
 
   private fun cardBundle(
       name: String,
-      code: String,
       vararg cards: CardDefinition,
-  ): TfmRuleset.Bundle =
-      object : TfmRuleset.Bundle(cn(name), code) {
+  ): Bundle =
+      object : Bundle(cn(name)) {
         override val cardDefinitions = cards.toSet()
       }
 }

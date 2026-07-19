@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
@@ -11,7 +11,7 @@ import kotlin.test.Test
 class SolarProbeTest : CardTest() {
   @Test
   fun `its own science tag counts while the event is being played`() {
-    val game = newGame(GameSetup(Canon, "BMRC", 2))
+    val game = newGame(Canon.fromOptionCodes("BMRC", 2, testColonyTiles(2)))
     val p1 = game.tfm(PLAYER1)
     with(p1) {
       phase("Action")

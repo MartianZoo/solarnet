@@ -4,7 +4,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -17,7 +16,7 @@ class IndenturedWorkersTest {
 
   @BeforeTest
   fun setUp() {
-    game = Engine.newGame(GameSetup(Canon, "BRM", 2))
+    game = Engine.newGame(Canon.fromOptionCodes("BRM", 2))
     p1 = game.tfm(PLAYER1)
 
     with(p1) {

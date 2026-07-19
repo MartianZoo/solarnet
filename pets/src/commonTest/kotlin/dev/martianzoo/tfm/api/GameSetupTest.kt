@@ -2,46 +2,58 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.testlib.assertFails
+import dev.martianzoo.util.toSetStrict
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class GameSetupTest {
   @Test
   fun good() {
-    GameSetup(Canon, "BM", 2)
-    GameSetup(Canon, "BE", 3)
-    GameSetup(Canon, "BRMVPX", 4)
-    GameSetup(Canon, "BM", 5)
+    Canon.fromOptionCodes("BM", 2)
+    Canon.fromOptionCodes("BE", 3)
+    Canon.fromOptionCodes("BRMVPX", 4)
+    Canon.fromOptionCodes("BM", 5)
   }
 
   @Test
   fun badPlayerCount() {
-    assertFails("many") { GameSetup(Canon, "BM", 6) }
+    assertFails("many") { Canon.fromOptionCodes("BM", 6) }
   }
 
   @Test
-  fun badBundles() {
-    assertFails("no base") { GameSetup(Canon, "M", 4) }
-    assertFails("repeated") { GameSetup(Canon, "MBM", 4) }
-    assertFails("no map") { GameSetup(Canon, "B", 4) }
-    assertFails("two maps") { GameSetup(Canon, "BME", 4) }
-    assertFails("wrong bundle") { GameSetup(Canon, "BMZ", 4) }
+  fun badOptions() {
+    assertFails("no base") { Canon.fromOptionCodes("M", 4) }
+    assertFails("repeated") { Canon.fromOptionCodes("MBM", 4) }
+    assertFails("no map") { Canon.fromOptionCodes("B", 4) }
+    assertFails("two maps") { Canon.fromOptionCodes("BME", 4) }
+    assertFails("wrong bundle") { Canon.fromOptionCodes("BMZ", 4) }
   }
 
   @Test
-  fun compatibilityConstructorOnlyTranslatesLettersToBundleNames() {
-    val setup = GameSetup(Canon, "BM", 2)
+  fun optionCodeAdapterSelectsTheNeededRuleset() {
+    val setup = Canon.fromOptionCodes("BM", 2)
 
-    setup.bundles shouldBe setOf(cn("TerraformingMars"), cn("TharsisMap"))
-    setup.bundleString shouldBe "BM"
+    setup.ruleset.bundles.map { it.bundleName }.toSet() shouldBe
+        setOf(cn("TerraformingMars"), cn("TharsisMap"))
+    Canon.optionCodes(setup.options) shouldBe "BM"
     setup.map.className shouldBe cn("Tharsis")
   }
 
   @Test
   fun onePlayerCompatibilitySetupSelectsSoloMode() {
-    GameSetup(Canon, "BM", 1).bundles shouldBe
+    Canon.fromOptionCodes("BSM", 1).options.enabled shouldBe
         setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("SoloMode"))
+  }
+
+  @Test
+  fun coloniesMustBeSpecifiedExactly() {
+    assertFails("missing colonies") { Canon.fromOptionCodes("BMC", 2) }
+    assertFails("partial colonies") {
+      Canon.fromOptionCodes("BMC", 2, setOf(cn("Luna")))
+    }
+
+    val exact = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").toSetStrict(::cn)
+    Canon.fromOptionCodes("BMC", 2, exact).options.colonyTiles shouldBe exact
   }
 }

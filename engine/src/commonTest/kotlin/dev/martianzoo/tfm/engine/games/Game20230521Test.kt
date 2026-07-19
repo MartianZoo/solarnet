@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.engine.Game
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -12,7 +11,7 @@ import kotlin.test.Test
 
 class Game20230521Test : AbstractFullGameTest() {
 
-  override fun setup() = GameSetup(Canon, "BRMVPXT", 2)
+  override fun setup() = Canon.fromOptionCodes("BRMVPXT", 2)
 
   @Test
   fun game20230521() {

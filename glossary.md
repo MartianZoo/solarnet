@@ -10,16 +10,16 @@
 - **Anyone:** The generic Pets type used in ownership expressions to say “I don't care who.”
 - **Assignee:** The Actor whose task queue this task is in; they get to choose when to prepare the task.
 - **Atomize:** Some instructions like `3 TemperatureStep` have to be split into individual one-by-one instructions so each is handled separately; others like `3 Plant` do not.
-- **Ruleset:** A provider of class declarations, definitions, and custom instruction implementations.
-  A game uses one resolved ruleset containing only its applicable bundle contributions.
+- **Ruleset:** The lazy composition of the raw class declarations, definitions, and custom
+  instruction implementations from exactly the bundles needed for one game setup.
 - **Autoexec:** A convenience feature that prepares and executes pending work when its policy permits.
 - **AutoLoad:** A marker that makes a class load even when no selected content refers to it.
 - **Automatic effect:** An effect written with `::`; its triggered instruction executes inline instead of becoming a queued task. (Antonym: queued effect.)
 - **Barrier:** A temporary component that must be removed before blocked work can continue.
-- **Bundle:** A composable ruleset contribution with a full Pets class identity. An ordinary selected
-  bundle also has one live component of that class in the game; letter codes are client shorthand
-  only.
-- **Canon:** The module and ruleset containing officially published Terraforming Mars content and its custom behavior.
+- **Bundle:** One raw grouping of ruleset data. Loading a bundle makes its content available but has
+  no gameplay meaning by itself; game options determine which rules and content are active.
+- **Canon:** The catalog that knows how to locate official bundles and which bundles provide each
+  canonical game option.
 - **Cause:** The effect-bearing component and triggering event recorded to explain a non-manual task or state change.
 - **Change:** An instruction that gains, removes, or transmutes components.
 - **Change event:** A state change in the game history, with its ordinal, Actor, and optional cause.
@@ -47,10 +47,14 @@
 - **Engine module:** The module that executes Pets instructions, maintains game state, and fires effects.
 - **Event log:** The ordered history of state changes and task lifecycle events.
 - **Expression:** A Pets AST representation of a type; distinct expressions can resolve to the same type.
+- **Follow mode:** Using Solarnet to reproduce or accompany a game whose concrete setup choices and
+  actions are supplied by a client or another authoritative source. The engine follows those facts;
+  it does not choose random content such as maps, milestones, or colony tiles.
 - **Game:** The aggregate object exposing a game's components, tasks, events, timeline, reader, setup, and loaded classes.
-- **Game setup:** The immutable configuration selecting players, full bundle identities, and other
-  starting choices. It retains the available ruleset separately from the resolved ruleset used by
-  the game.
+- **Game option:** An exact semantic choice for a game, such as using SoloMode, the Prelude rules, or
+  a particular map. Canon translates options into the raw bundles needed to provide them.
+- **Game setup:** The complete, immutable, non-random configuration for one game: its exact options
+  and the ruleset already assembled to provide them.
 - **Game state:** The current component multiset and pending tasks.
 - **Gameplay:** The Actor-scoped API through which game state is queried and changed.
 - **Immediate instruction:** A card's instruction carried out when the card is played, stored as `CardDefinition.immediate`.

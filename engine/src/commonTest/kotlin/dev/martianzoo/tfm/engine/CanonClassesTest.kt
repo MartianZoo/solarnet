@@ -14,7 +14,6 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.te
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -70,7 +69,7 @@ internal class CanonClassesTest {
 
   @Test
   fun soloSetupUsesPetsOnlyOpponent() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 1))
+    val game = Engine.newGame(Canon.SIMPLE_SOLO_GAME)
     game.setup.players().shouldContainExactly(PLAYER1)
     game.setup.actors().shouldContainExactly(PLAYER1, ENGINE)
     game.classes.allClassNamesAndIds.shouldNotContain(cn("Player2"))
@@ -169,7 +168,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = MClassLoader(GameSetup(Canon, "BRM", 2))
+    val table = MClassLoader(Canon.fromOptionCodes("BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val mtype = table.resolve(te(expr))

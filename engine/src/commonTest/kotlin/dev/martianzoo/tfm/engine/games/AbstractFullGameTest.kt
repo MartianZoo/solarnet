@@ -105,7 +105,7 @@ abstract class AbstractFullGameTest {
         tagless to "CardFront(HAS MAX 0 Tag)",
         cities to "CityTile",
     )
-    if (cn("ColoniesExpansion") in setup().bundles) assertCounts(colonies to "Colony")
+    if (cn("ColoniesExpansion") in setup().options) assertCounts(colonies to "Colony")
   }
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {

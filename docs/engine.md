@@ -10,11 +10,10 @@ This module's job is to represent game state (components and tasks), execute ins
 
 The centerpiece is the `Game` object. Of course, everything you want to know about a game in progress is here.
 
-For starters, it holds a `GameSetup` (the configuration chosen before the game began) and the
-`MClassTable` of loaded classes for that configuration. These are immutable. A setup records the
-complete ruleset source and the selected full bundle identities as `ruleset` and `bundles`.
-Clients read game state through a `GameReader`, whose separate `ruleset` property is the resolved
-source containing only content applicable to that game. Terraforming Mars-specific clients can use
+For starters, it holds a `GameSetup` (the complete configuration chosen before the game began) and
+the `MClassTable` of loaded classes for that configuration. These are immutable. A setup records
+exact semantic game options and the ruleset already assembled from the bundles Canon determined
+were needed. `GameReader.ruleset` is that same selected ruleset. Terraforming Mars-specific clients can use
 `GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:

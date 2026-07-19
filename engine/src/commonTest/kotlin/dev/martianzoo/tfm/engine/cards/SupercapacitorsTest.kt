@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -12,7 +11,7 @@ import kotlin.test.Test
 class SupercapacitorsTest {
   @Test
   fun supercapacitors() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMX", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BRMX", 2))
 
     val p1 = game.tfm(PLAYER1)
     with(p1) {

@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.Test
 
 class Game20260619Test : AbstractFullGameTest() {
 
-  override fun setup() = GameSetup(Canon, "BRMVPXT", 2)
+  override fun setup() = Canon.fromOptionCodes("BRMVPXT", 2)
 
   @Test
   fun gameThroughGeneration5() {

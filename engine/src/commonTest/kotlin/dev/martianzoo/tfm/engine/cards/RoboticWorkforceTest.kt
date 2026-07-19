@@ -5,7 +5,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -17,7 +16,7 @@ class RoboticWorkforceTest {
 
   @Test
   fun roboticWorkforce() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BRMP", 2))
 
     with(game.tfm(PLAYER1)) {
       godMode().manual("4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")

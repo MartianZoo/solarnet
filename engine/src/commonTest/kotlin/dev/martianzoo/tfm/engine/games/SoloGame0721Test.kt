@@ -10,8 +10,8 @@ import kotlin.test.Test
 
 class SoloGame0721Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
-    val colonyTiles = setOf(cn("Ceres"), cn("Luna"), cn("Triton")) // and Enceladus
-    return GameSetup(Canon, "BREVPCTX", 1, colonyTiles)
+    val colonyTiles = setOf(cn("Ceres"), cn("Luna"), cn("Triton"), cn("Enceladus"))
+    return Canon.fromOptionCodes("BREVPSCTX", 1, colonyTiles)
   }
 
   // Could at some point calculate these automatically from cards drawn

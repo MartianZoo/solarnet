@@ -4,7 +4,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -12,7 +12,7 @@ import kotlin.test.Test
 class CommunityServicesTest {
   @Test
   fun communityServices() {
-    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("CVERB", 2, testColonyTiles(2)))
     val p1 = game.tfm(PLAYER1)
 
     with(game.gameplay(PLAYER1).godMode()) {

@@ -29,12 +29,12 @@ internal class MClassLoader(
     override val ruleset: Ruleset,
 ) : MClassTable() {
 
-  constructor(setup: GameSetup) : this(setup.ruleset.resolve(setup.bundles)) {
+  constructor(setup: GameSetup) : this(setup.ruleset) {
     fun isAutoLoad(c: ClassDeclaration): Boolean =
         c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }
 
     loadAll(setup.actors().classNames())
-    loadAll(setup.bundles)
+    loadAll(setup.options.enabled)
     loadAll(ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys)
     loadAll(ruleset.allDefinitions.classNames())
     freeze()

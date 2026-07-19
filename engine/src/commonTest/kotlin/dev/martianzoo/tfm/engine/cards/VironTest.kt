@@ -5,8 +5,8 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -61,7 +61,7 @@ class VironTest : CardTest() {
 
   @Test
   fun `cannot choose another player's used card`() {
-    val game = newGame(GameSetup(Canon, "BMVC", 2))
+    val game = newGame(Canon.fromOptionCodes("BMVC", 2, testColonyTiles(2)))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     p1.phase("Action")
@@ -78,7 +78,7 @@ class VironTest : CardTest() {
   }
 
   private fun newPlayer(): TfmGameplay {
-    val game = newGame(GameSetup(Canon, "BMVC", 2))
+    val game = newGame(Canon.fromOptionCodes("BMVC", 2, testColonyTiles(2)))
     return game.tfm(PLAYER1).also {
       it.phase("Action")
       it.godMode().manual("Viron")

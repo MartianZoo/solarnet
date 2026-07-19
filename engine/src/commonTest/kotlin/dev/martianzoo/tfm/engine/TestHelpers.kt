@@ -9,6 +9,7 @@ import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -19,6 +20,13 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import io.kotest.matchers.shouldBe
 
 object TestHelpers {
+  fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
+    val count = if (players <= 2) players + 3 else players + 2
+    val selected = included.mapTo(linkedSetOf(), ::cn)
+    TEST_COLONY_TILES.map(::cn).filterNotTo(selected) { it in selected }
+    return selected.take(count).toSet()
+  }
+
   fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
       pairs.map { this.count(it.second) } shouldBe pairs.map { it.first }
 
@@ -68,4 +76,7 @@ object TestHelpers {
     }
     actuals shouldBe expectedCounts
   }
+
+  private val TEST_COLONY_TILES =
+      listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")
 }

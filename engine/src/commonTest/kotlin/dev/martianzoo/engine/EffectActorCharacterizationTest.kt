@@ -4,7 +4,6 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -12,7 +11,7 @@ import kotlin.test.Test
 class EffectActorCharacterizationTest {
   @Test
   fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerAReward() {
-    val game = Engine.newGame(GameSetup(Canon, "BE", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BE", 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 

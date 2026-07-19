@@ -103,7 +103,10 @@ class ByTriggerCharacterizationTest {
     game.events.changesSince(checkpoint).takeLast(2).all { it.actor == PLAYER1 } shouldBe true
   }
 
-  private fun newGame() = Engine.newGame(GameSetup(ProbeRuleset, "BM", 2))
+  private fun newGame(): Game {
+    val options = Canon.options("BM", 2)
+    return Engine.newGame(GameSetup(ProbeRuleset.resolve(Canon.bundleNames(options)), options))
+  }
 }
 
 private object ProbeRuleset : TfmRuleset.Composite(Canon, ProbeDeclarations)

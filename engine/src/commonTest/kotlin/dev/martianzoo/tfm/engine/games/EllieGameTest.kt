@@ -5,7 +5,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -13,7 +12,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class EllieGameTest : AbstractFullGameTest() {
-  override fun setup() = GameSetup(Canon, "BRHXP", 2)
+  override fun setup() = Canon.fromOptionCodes("BRHXP", 2)
 
   @Test
   fun ellieGame() {
@@ -123,7 +122,7 @@ class EllieGameTest : AbstractFullGameTest() {
 
   @Test
   fun earlyGameWithNoPrelude() {
-    val setup = GameSetup(Canon, "BRHX", 2)
+    val setup = Canon.fromOptionCodes("BRHX", 2)
     val game = Engine.newGame(setup)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

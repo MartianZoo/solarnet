@@ -5,7 +5,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
@@ -14,7 +13,7 @@ class PristarTest {
 
   @Test
   fun pristar() {
-    val game = Engine.newGame(GameSetup(Canon, "BMPT", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BMPT", 2))
     val eng = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

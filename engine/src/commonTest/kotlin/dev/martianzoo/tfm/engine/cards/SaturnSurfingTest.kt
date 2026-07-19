@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
@@ -10,7 +9,7 @@ import kotlin.test.Test
 class SaturnSurfingTest : CardTest() {
   @Test
   fun `the action pays at most four for its remaining floaters plus one until empty`() {
-    val game = newGame(GameSetup(Canon, "BMRX", 2))
+    val game = newGame(Canon.fromOptionCodes("BMRX", 2))
     with(game.tfm(PLAYER1)) {
       phase("Action")
       godMode()

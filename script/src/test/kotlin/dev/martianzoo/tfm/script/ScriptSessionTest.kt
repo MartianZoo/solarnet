@@ -21,7 +21,7 @@ internal class ScriptSessionTest {
       assertThat(results).containsExactlyElementsIn(expected.split("\n")).inOrder()
     }
 
-    command("newgame BRMPX 3", "New 3-player game created with bundles: BRMPX")
+    command("newgame BRMPX 3", "New 3-player game created with options: BRMPX")
     command("tfm_sample A 3", "Okay, did that.")
     command(
         "tfm_board P1",
@@ -104,7 +104,7 @@ internal class ScriptSessionTest {
 
     val expectedOutput =
         """
-        New 2-player game created with bundles: BRMVPX
+        New 2-player game created with options: BRMVPX
         Mode BLUE: Turn integrity: must perform a valid game turn for this phase
         Autoexec mode is: SAFE
         0000: +CorporationPhase FROM SetupPhase BY Engine (manual)

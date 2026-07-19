@@ -4,7 +4,6 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
@@ -12,7 +11,7 @@ import kotlin.test.Test
 class CommercialDistrictTest : CardTest() {
   @Test
   fun `scores one point for each adjacent city`() {
-    val game = newGame(GameSetup(Canon, "BMR", 2))
+    val game = newGame(Canon.fromOptionCodes("BMR", 2))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 

@@ -49,7 +49,7 @@ private constructor(
   fun fileArguments(): List<ScriptCompletion> =
       ScriptPathCompletions.arguments(parsedArgs.currentWord)
 
-  fun bundleSuggestions(): List<ScriptCompletion> = sources.bundleSuggestions()
+  fun optionSuggestions(): List<ScriptCompletion> = sources.optionSuggestions()
 
   fun completions(vararg values: String, group: String): List<ScriptCompletion> = values.map {
     ScriptCompletion(it, group)

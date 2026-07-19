@@ -5,7 +5,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -16,7 +15,7 @@ class FirstPartialGameTest {
   @Test
   fun fourWholeGenerations() {
     repeat(1) {
-      val setup = GameSetup(Canon, "BREPT", 2)
+      val setup = Canon.fromOptionCodes("BREPT", 2)
       val game = Engine.newGame(setup)
       val eng = game.tfm(ENGINE)
       val p1 = game.tfm(PLAYER1)

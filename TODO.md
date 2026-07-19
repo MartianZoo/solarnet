@@ -126,6 +126,12 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Internal Design, Cleanup, and Test Convenience
 
+- Finish separating the Canon catalog from selected rulesets: Canon should own bundle locators and
+  assemble only the requested `Bundle` objects instead of inheriting from `TfmRuleset.Composite`.
+  Preserve the tested guarantee that resolving one selection never reads another bundle's payload.
+- Add an active-content selection step between `GameOptions` and class loading so a bundle can be
+  included to provide selected content without enabling the expansion option or every definition in
+  that bundle.
 - Investigate why narrowing solo setup's queued Opponent tile-placement tasks requires repeating the
   `Opponent` dependency in each concrete tile instruction; ideally the task's existing owner should
   be retained when a test supplies only the chosen map area.

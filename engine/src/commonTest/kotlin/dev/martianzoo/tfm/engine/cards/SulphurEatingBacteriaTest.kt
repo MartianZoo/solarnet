@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,7 +13,7 @@ class SulphurEatingBacteriaTest {
 
   @Test
   fun sulphurEatingBacteria() {
-    val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
+    val game = Engine.newGame(Canon.fromOptionCodes("BMV", 2))
     with(game.tfm(PLAYER1)) {
       phase("Action")
 

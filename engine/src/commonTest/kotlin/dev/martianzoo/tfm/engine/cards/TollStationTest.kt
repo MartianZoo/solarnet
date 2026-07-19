@@ -3,14 +3,13 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
 class TollStationTest : CardTest() {
   @Test
   fun `counts opponents' space tags but not the owner's`() {
-    val game = newGame(GameSetup(Canon, "BMR", 2))
+    val game = newGame(Canon.fromOptionCodes("BMR", 2))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 

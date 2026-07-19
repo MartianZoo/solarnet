@@ -2,41 +2,46 @@
 
 ## Intended principles and invariants
 
-### Configuration, data, and loading are distinct
+### Options, raw data, and loading are distinct
 
-`GameSetup` is a simple value describing what the user configured. It does not expand bundle
-relationships, choose derived defaults, apply replacements, or otherwise represent the full
-meaning of that configuration. Bundle-specific options such as desired colony tiles must fit this
-role as user choices rather than resolved game data.
+`GameOptions` contains exact semantic choices supplied by a client: player count, enabled rule
+options, the map option, and exact colony tiles when applicable. Core setup never randomizes or
+fills in missing choices. A limited client such as the REPL may do that before creating
+`GameOptions`.
 
-The abstraction is named `Ruleset`. A ruleset supplies Pets declarations, JSON-backed definitions,
-and custom Kotlin implementations, and can be composed from other rulesets. Canon is the
-composition of all canonical bundle rulesets.
+Canon is a catalog. It knows which raw bundles provide each canonical game option and computes the
+bundle set needed for a `GameOptions` value. This mapping may be hardcoded while the option model is
+small. In time an option may request only part of a product's content; including that product's
+bundle must not thereby enable its expansion option.
 
-Each game has one resolved ruleset derived from its setup. It contains only the contributions
-applicable to that game after bundle selection, required-bundle filtering, and replacements. The class
-loader and all runtime definition and custom-class lookups use that same resolved ruleset; there is
-no separate unfiltered view inside the game. `GameSetup.ruleset` is the complete source named by
-the configuration; `GameReader.ruleset` is the resolved runtime source.
+A `Bundle` is one raw grouping of Pets declarations, JSON-backed definitions, and custom Kotlin
+implementations. A `Ruleset` is the lazy composition of exactly the bundles Canon selected. Loading
+a bundle makes its data available and carries no gameplay meaning by itself.
 
-### Bundles have one identity throughout the system
+`GameSetup` is the complete, immutable, non-random result: the exact options and the already
+selected ruleset that provides them. `GameReader.ruleset` is that same ruleset. The current first
+step still activates every definition in a selected expansion bundle; a later active-content view
+will allow individual content selection without changing these boundaries.
 
-Every ordinary selected bundle has exactly one live game component instance. Its directory and
-Pets component use the same UpperCamelCase name. Bundle membership never adds a Pets dependency or
-type argument to content classes.
+### Bundles and game options have separate identities
+
+A bundle identity describes raw source provenance and resource location. It is never itself a live
+game component. An enabled rule option may have a live component so its Pets effects implement that
+option. For now several option names and bundle names remain identical as a migration convenience;
+code must not rely on that coincidence.
 
 The Pets runtime declarations in `pets/system.pets` are available to every ruleset and are not a
-bundle. Every canonical game includes `TerraformingMars`. Other bundles are selected by their full
-identities; short letter codes are only client conveniences.
+bundle. Every canonical game enables the `TerraformingMars` option. Short letter codes are only a
+client convenience for naming options.
 
 ### Class loading reflects the configured game
 
-The resolved source exposes declarations only from applicable content. Within that source, every
-`AutoLoad` class is loaded, along with the roots supplied by the setup and definitions and every
-class reached transitively from those roots.
+The ruleset exposes declarations from the needed raw bundles. The class loader roots enabled option
+components, active definitions, and every class reached transitively from those roots.
 
 We aim not to load classes that cannot be needed in the game. Class presence has rule meaning, so
-bundle filtering must happen before `AutoLoad` discovery and class reachability.
+optional-bundle `AutoLoad` declarations must eventually become option/content activation roots;
+including a bundle for one item must not activate its other rules.
 
 Exactly identical class declarations contributed by several sources coalesce. Nonidentical
 declarations sharing a class name are an error. The combined declaration retains enough provenance
@@ -47,8 +52,9 @@ to identify all contributing bundles.
 JSON definitions derive their bundle membership from the bundle object that reads their containing
 directory; JSON and runtime definition objects do not contain a `bundle` attribute.
 
-A card or milestone may name comma-separated `requiredBundles`. Every named bundle must be selected
-for that definition to apply. This filters content and does not select additional bundles.
+A card or milestone currently names comma-separated `requiredBundles`. This must become a semantic
+`requiredOptions` condition: raw bundle inclusion is not a game rule. Provider-bundle dependencies
+are computed by Canon rather than authored in game data.
 Definitions whose requirements fail are absent before replacement and class loading.
 
 Every replaceable definition has a stable identity scoped by definition kind. Its `replaces`
@@ -61,10 +67,10 @@ although it may be absent from this setup. Cycles and two applicable replacement
 target are errors. Replacement does not override arbitrary Pets declarations or custom Kotlin
 implementations.
 
-### Bundle rules are ordinary game rules where practical
+### Option rules are ordinary game rules where practical
 
-Selected bundle components exist before `SetupPhase`. Bundle-specific setup behavior should be
-owned by the bundle and expressed through Pets effects and custom instructions where practical.
+Enabled option components exist before `SetupPhase`. Option-specific setup behavior should be
+provided by the option's bundle and expressed through Pets effects and custom instructions where practical.
 Configuration constraints should likewise be expressed as game rules when natural; for example,
 exactly one map should follow from an invariant such as `HAS =1 Map`.
 
@@ -78,12 +84,11 @@ Every canon `.pets` file, JSON file, and custom implementation belongs to a dire
 `canon/bundles`, including unsupported or currently unread data. File ownership does not by itself
 make a file active runtime content.
 
-Canonical directories use the `JsonBundle` naming contract. Every `.pets` file is loaded, and
+Canonical directories use the `StandardFormBundle` naming contract. Every `.pets` file is loaded, and
 conventionally named JSON files such as `cards.json5`, `actions.json5`, and `maps.json5` are loaded
 when present. The build-generated resource index lets this work on both JVM and JavaScript and lets
-the loader warn about unexpected files. When a directory contains Pets files, they explicitly
-declare the bundle component and the loader validates it. When it contains none, the loader
-synthesizes that declaration.
+the loader warn about unexpected files. Bundle identities are source provenance, not Pets classes;
+directories neither declare nor synthesize bundle components.
 
 ## Other decisions
 
@@ -99,13 +104,13 @@ Canon has these bundle directories:
 - `VenusNextExpansion`
 - `PreludeExpansion`
 - `ColoniesExpansion`
-- `SoloMode`
 - `PromoCardsBundle`
 - `TurmoilExpansion`
 
-`TerraformingMars` replaces the proposed name `Base` and uses the existing `TerraformingMars`
-singleton as its bundle component. `TurmoilExpansion` is a real bundle even while its only
-supported content is a few cards.
+The physical names will later be reconsidered independently of option names (for example a
+`VenusNext` bundle can provide the `VenusNextExpansion` option). `SoloMode` is provided by the
+`TerraformingMars` bundle and is not a bundle. `TurmoilExpansion` remains a raw bundle even while
+its only supported content is a few cards.
 
 ### Shared declarations
 
@@ -119,18 +124,18 @@ A likely Colonies design gives `ColoniesExpansion` the effect
 `SetupPhase: ColoniesSetup`, with `ColoniesSetup` supplied as a custom class by that bundle. Using
 `SetupPhase` avoids relying on singleton creation order.
 
-`SoloMode` may be selected explicitly or inferred by a client. Its absence requires at least two
-Players. Exactly where that validation is performed is not yet decided.
+`SoloMode` is selected explicitly in exact `GameOptions`; the REPL currently infers it for a
+one-player legacy command. Its absence requires at least two Players.
 
 Venus Next adds Hoverlord as a sixth available milestone; it does not replace one of the map's five
 milestones.
 
-Double Down's `requiredBundles` is `PreludeExpansion`. Required bundles test selection directly
-rather than traversing dependencies.
+Double Down currently uses `requiredBundles = PreludeExpansion`; this should become
+`requiredOptions = PreludeExpansion` so loading Prelude data without enabling its rules is not enough.
 
-### Bundle-specific setup options
+### Option-specific setup values
 
-`GameSetup` stores the currently supported Colonies tile choices directly as `colonyTilesDesired`.
-This keeps the choice as configuration while the selected Colonies bundle owns the setup behavior
-that interprets it. Additional bundle-specific options can use similarly typed setup fields until a
-general representation proves useful.
+`GameOptions` stores the exact Colonies tile identities. When `ColoniesExpansion` is enabled their
+count must be exactly correct; otherwise the set must be empty. The Colonies option owns the setup
+behavior that interprets those identities. The REPL may select tiles randomly before constructing
+the options, while follow-mode clients and logged-game tests name what actually occurred.

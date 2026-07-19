@@ -10,9 +10,8 @@ import kotlin.test.Test
 
 class SoloGame0710Test : AbstractSoloTest() {
   override fun setup(): GameSetup {
-    // There was Miranda too but I discarded it
-    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
-    return GameSetup(Canon, "BRMVPCTX", 1, colonyTiles)
+    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"), cn("Miranda"))
+    return Canon.fromOptionCodes("BRMVPSCTX", 1, colonyTiles)
   }
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"

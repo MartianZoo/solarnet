@@ -11,6 +11,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
@@ -41,7 +42,6 @@ import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
-import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -57,6 +57,7 @@ import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 import dev.martianzoo.types.MType
+import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 
 public fun main(args: Array<String>) { // JVM entry point for the shadow JAR
@@ -67,7 +68,7 @@ public fun main(args: Array<String>) { // JVM entry point for the shadow JAR
   println("Run ./rego for interactive mode, or pass --serve for server mode.")
 }
 
-public class ScriptSession(internal val availableRuleset: TfmRuleset = Canon) {
+public class ScriptSession {
   internal lateinit var setup: GameSetup
   internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
@@ -84,18 +85,33 @@ public class ScriptSession(internal val availableRuleset: TfmRuleset = Canon) {
     }
   }
 
+  /** Adapts the REPL's option-code syntax, including its temporary random-colony convenience. */
+  internal fun newGame(optionCodes: String, players: Int, purple: Boolean = false) {
+    val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
+    var options = Canon.options(effectiveCodes, players)
+    if (cn("ColoniesExpansion") in options) {
+      val ruleset = Canon.resolve(Canon.bundleNames(options))
+      val colonyCount = if (players <= 2) players + 3 else players + 2
+      options =
+          options.copy(
+              colonyTiles = random(ruleset.colonyTileDefinitions.classNames(), colonyCount)
+          )
+    }
+    newGame(Canon.gameSetup(options), purple)
+  }
+
   init {
-    newGame(availableRuleset.SIMPLE_GAME)
+    newGame(Canon.SIMPLE_GAME)
   }
 
   public fun prompt() = mode.color.foreground(promptPlain())
 
   internal fun promptPlain(): String =
       with(gameplay) {
-        val bundles = setup.bundles.joinToString("")
+        val optionCodes = Canon.optionCodes(setup.options)
         val phase = list("Phase").single()
         val checkpoint = game.timeline.checkpoint()
-        "$bundles $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
+        "$optionCodes $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")

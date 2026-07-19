@@ -4,9 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.collections.shouldContainExactly
@@ -15,7 +13,7 @@ import kotlin.test.Test
 class StartTokenTest {
   @Test
   fun startsWithPlayer1AndPassesLeftEachGeneration() {
-    val engine = Engine.newGame(GameSetup(Canon, "BRM", 3)).tfm(ENGINE)
+    val engine = Engine.newGame(Canon.fromOptionCodes("BRM", 3)).tfm(ENGINE)
 
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
@@ -32,7 +30,7 @@ class StartTokenTest {
 
   @Test
   fun staysWithPlayer1InAnActualOnePlayerSetup() {
-    val game = Engine.newGame(GameSetup(Canon, "BRM", 1))
+    val game = Engine.newGame(Canon.fromOptionCodes("BRMS", 1))
     val engine = game.tfm(ENGINE)
 
     engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
@@ -46,7 +44,9 @@ class StartTokenTest {
 
   @Test
   fun passLeftPreservesAnotherDependency() {
-    val engine = Engine.newGame(GameSetup(Canon, "BRMC", 3, setOf(cn("Luna")))).tfm(ENGINE)
+    val engine =
+        Engine.newGame(Canon.fromOptionCodes("BRMC", 3, TestHelpers.testColonyTiles(3, "Luna")))
+            .tfm(ENGINE)
 
     engine.godMode().sneak("Colony<Luna, Player1>")
     engine.godMode().manual("PassLeft<Colony<Luna, Player1>>")
@@ -61,7 +61,7 @@ class StartTokenTest {
 
   @Test
   fun autoWorkflowReadsTheTokenOwner() {
-    val setup = GameSetup(Canon, "BRHX", 2)
+    val setup = Canon.fromOptionCodes("BRHX", 2)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
