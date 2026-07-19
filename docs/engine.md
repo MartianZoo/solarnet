@@ -74,8 +74,10 @@ Change events render the performing Actor with `BY` and the effect-bearing causa
 
 ## The Task Queue
 
-The internal task queue manager is `TaskQueues`, which owns the ordered set of `Task` objects and
-all task mutation. Public readers and gameplay operation bodies see read-only `TaskQueue` views.
+The internal task queue manager is `TaskQueues`, which owns the set of `Task` objects and all task
+mutation. Task order has no game meaning: stable `TaskId` iteration only makes arbitrary API and
+auto-exec choices reproducible. Public readers and gameplay operation bodies see read-only
+`TaskQueue` views.
 Those views may be scoped; for example, gameplay for an assignee exposes only that assignee's tasks,
 while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
 Internal code that mutates tasks uses `WritableTaskQueue`, following the same read-only/writable
@@ -145,13 +147,13 @@ as much as possible without actually changing anything:
 `instructor.execute(instruction, cause)` is called only on a prepared, concrete instruction:
 
 - `Change` actually calls `changer.change(...)`, which calls `updater.update(...)`, then logs
-  the event via `ChangeLogger`. As noted this informs `Effector`; automatic effects get executed
-  immediately (recursively); non-automatic effects are returned as new tasks.
+  the event via `ChangeLogger`. As noted this informs `Effector`; automatic effects execute inline
+  (recursively), while queued effects are returned as new tasks.
 - `Then` recursively executes each sub-instruction
 - `NoOp` does nothing
 - `Per`, `Gated`, `Or` -- these would cause an error as the instruction was never prepared.
 
-The return value of `execute` is a list of deferred (non-automatic) `Task` objects to enqueue.
+The return value of `execute` is a list of `Task` objects produced by queued effects.
 
 ---
 
@@ -216,7 +218,7 @@ the effector checks all registered active effects against each new change event.
 
 When an active effect fires, if the effect is **automatic** (double-colon in Pets syntax), the
 `Instructor` executes its triggered instruction inline in the same change loop. If the effect is
-**non-automatic** (single colon), its triggered instruction becomes a new `Task` appended to the
+**queued** (single colon), its triggered instruction becomes a new `Task` appended to the
 queue.
 
 The `Task.assignee` field records whose queue contains deferred work and whose scoped gameplay may
@@ -309,15 +311,15 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
 - **`NONE`**: Do nothing; the caller must handle all tasks manually
 - **`SAFE`**: Only execute a task if it's the only preparable option right now (never removes
   a choice from the player that the rules allow)
-- **`FIRST`**: Execute whichever preparable task appears first in the queue; keep going until
-  the queue is empty or stuck (default mode)
+- **`FIRST`**: Arbitrarily execute the first preparable task in the implementation's stable
+  iteration order; keep going until the queue is empty or stuck (default mode)
 
 `autoExecNow` runs in a loop calling `autoExecNext` until it returns false. It scans pending tasks
 across the whole game and uses the assignee only to select the queue containing the task. The Actor
 of the gameplay context calling `autoExecNow` performs and receives credit for the resulting state
 changes, even when the task has another assignee. Tasks that fail are annotated with `whyPending`.
 When only one option exists, it is executed. When multiple options exist, `SAFE` stops while `FIRST`
-tries each in order.
+uses their stable iteration order to make an arbitrary choice.
 
 ---
 

@@ -77,7 +77,7 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val tags: Multiset<ClassName> = HashMultiset.of(data.tags.map(::cn))
 
-  /** Immediate effects on the card, if any. */
+  /** The card's immediate instruction, if any. */
   public val immediate: Instruction? = data.immediate?.let(::parse)
 
   /**

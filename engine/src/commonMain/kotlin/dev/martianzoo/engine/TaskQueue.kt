@@ -13,7 +13,10 @@ import dev.martianzoo.data.Task.TaskId
  * discouraged and the API doesn't make it easy.
  */
 public interface TaskQueue {
-  /** Returns the id of each task currently in the queue, in order from oldest to newest. */
+  /**
+   * Returns the id of each task currently in the queue. Current iteration order is stable by id so
+   * arbitrary choices are reproducible, but has no gameplay meaning.
+   */
   fun ids(): Set<TaskId>
 
   operator fun contains(id: TaskId): Boolean

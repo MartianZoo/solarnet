@@ -26,7 +26,7 @@ These expressions are a way of identifying a type, and types are explained in th
 
 A leading `!` can be used inside a specialization to mean "anything in this dependency's domain
 except this type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not
-Player1. Complemented expressions are dependency constraints, not standalone component types.
+Player1. Complement type expressions are dependency constraints and have no standalone type.
 
 ### Class literal
 
@@ -109,7 +109,7 @@ instruction would be unexecutable by a player with only 2 plant tags.
 As with other PETS elements, any part can be surrounded by a `PROD[...]` block. Inside that block, only types
 extending `StandardResource` are affected; for example, `Heat<Player2>` is transformed
 into `Production<Player2, Class<Heat>>`. This transformation is done because it makes cards easier to write, easier to
-render in the official one-prod-box-only style, and because one single card (Robotic Workforce) needs production blocks
+render in the official one-prod-box-only style, and because one single card (Robotic Workforce) needs production boxes
 to be discretely identifiable.
 
 Custom instructions are supported because some cards would be extremely difficult to represent without them. For

@@ -42,7 +42,7 @@ preparation constraints clarified by user on 2026-07-18, with their representati
   tasks to prepare. Assignment does not by itself determine who makes choices exposed by
   preparation or which Actor will execute the result.
 - **Owner:** An entity that may own game-state components. `Owner` in an [effect
-  representation](../glossary.md#effect-representations) is a
+  representation](../glossary.md) is a
   contextual role that must be specialized to a particular Owner before an Owner-specific result
   can be performed. For an active effect, ownership of the component carrying the corresponding
   component effect is also evidence for who is entitled to make choices within it.

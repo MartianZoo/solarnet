@@ -113,7 +113,7 @@ internal class Implementations(
       else -> if (mode == SAFE) return false
     }
 
-    // we're in unsafe mode. last resort: do the first task that executes
+    // We're in unsafe mode. Arbitrarily try tasks in stable iteration order.
 
     var recoverable = false
 

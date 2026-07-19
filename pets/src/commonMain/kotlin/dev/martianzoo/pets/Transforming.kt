@@ -77,11 +77,14 @@ public object Transforming {
         actionToEffect(action, index1Ref = index0Ref + 1)
       }
 
-  internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect? {
+  internal fun immediateToEffect(
+      instruction: Instruction,
+      effectIsAutomatic: Boolean = false,
+  ): Effect? {
     return if (instruction == NoOp) {
       null
     } else {
-      Effect(WhenGain, instruction, automatic)
+      Effect(WhenGain, instruction, effectIsAutomatic)
     }
   }
 }

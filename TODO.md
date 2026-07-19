@@ -16,10 +16,10 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ### Suspected Over-Permissiveness
 
-- Encode Viron's "another card" restriction directly. Its normal task order selects the reused
-  action before adding Viron's own action-used marker, which correctly keeps Viron ineligible, but
-  the underlying dynamic refinement would allow Viron to select itself if that marker task were
-  deliberately executed first.
+- Encode Viron's "another card" restriction directly. The usual convenience path happens to select
+  the reused action before adding Viron's own action-used marker, which correctly keeps Viron
+  ineligible, but task order has no rule meaning; the underlying dynamic refinement would allow
+  Viron to select itself if that marker task were executed first.
 - Diagnose whether preparing a gated instruction incorrectly loses meaningful ownership information.
   `PrepareTest` currently turns `Plant<Anyone>` into unowned `Plant!`; establish whether this is only
   harmless canonicalization or permits an invalid target, then document or fix it with regression
@@ -69,6 +69,9 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Core Instruction and Engine Semantics
 
+- Replace or redesign the brittle `doFirstTask()` convenience. Task queue order has no domain
+  meaning; callers should select by task id or an explicit match unless they have established that
+  exactly one task can apply.
 - Research and simplify coupled-scalar (`X`) validation for `THEN` instructions. The current
   implementation zips instructions and descendant scalars and relies on traversal order and count
   equality; explicitly test and enforce the rule that all occurrences of a shared `X` resolve to one

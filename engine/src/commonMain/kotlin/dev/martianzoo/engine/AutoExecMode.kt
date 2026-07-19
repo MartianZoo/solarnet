@@ -20,8 +20,9 @@ public enum class AutoExecMode {
   // SMART, // not yet
 
   /**
-   * Performs `SMART` autoexec, then selects the earliest-queued task that can execute successfully,
-   * then repeats. This might make suboptimal moves for the player... but it's convenient.
+   * Performs `SMART` autoexec, then arbitrarily selects the first task in the implementation's
+   * stable iteration order that can execute successfully, then repeats. This might make suboptimal
+   * moves for the player... but it's convenient.
    */
   FIRST,
 

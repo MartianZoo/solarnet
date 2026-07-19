@@ -530,8 +530,9 @@ That suggests this concrete order:
 
 1. Should `AutoExecMode.FIRST` remain the default for all developer clients?
 
-   It is convenient, but assignee-local autoexec may require explicit Admin workflow or task-drain
-   behavior.
+   `FIRST` explicitly permits an arbitrary choice from an otherwise unordered task set; it does not
+   identify a domain-priority task. It is convenient, but assignee-local autoexec may require
+   explicit Admin workflow or task-drain behavior.
 
 2. What should count as a public command?
 
