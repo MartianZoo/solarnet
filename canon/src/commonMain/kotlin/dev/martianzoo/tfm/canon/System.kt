@@ -4,7 +4,6 @@ import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
-import dev.martianzoo.tfm.canon.CanonResources
 import dev.martianzoo.util.toSetStrict
 
 /** The Pets runtime declarations that every canonical game uses. */

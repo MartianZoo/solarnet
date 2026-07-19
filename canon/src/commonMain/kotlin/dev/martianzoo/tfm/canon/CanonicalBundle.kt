@@ -4,7 +4,6 @@ import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
-import dev.martianzoo.tfm.canon.CanonResources
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
