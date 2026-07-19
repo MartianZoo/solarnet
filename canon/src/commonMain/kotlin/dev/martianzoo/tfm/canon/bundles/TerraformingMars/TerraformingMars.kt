@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.canon.bundles.TerraformingMars
 
+import dev.martianzoo.api.CustomClass
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.canon.CanonResources
@@ -29,4 +30,14 @@ internal object TerraformingMars :
         .flatMap { parseClasses(CanonResources.read("bundles/TerraformingMars/$it")) }
         .toSetStrict()
   }
+
+  override val customClasses: Set<CustomClass> =
+      setOf(
+          CreateAdjacencies,
+          CheckCardDeck,
+          CheckCardRequirement,
+          HandleCardCost,
+          GetEventVps,
+          PassLeft,
+      )
 }

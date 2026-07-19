@@ -30,7 +30,6 @@ public object Canon :
         SoloMode,
         PromosExpansion,
         TurmoilExpansion,
-        UnbundledCanon,
     ) {
   public val SIMPLE_GAME: GameSetup = GameSetup(this, "BM", 2)
 }

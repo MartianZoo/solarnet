@@ -53,6 +53,25 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun resolvedRulesetContainsOnlySelectedBundlesCustomImplementations() {
+    val coreCustomClasses =
+        Canon.resolve(setOf(cn("TerraformingMars"))).customClasses.map { it.className.toString() }
+
+    coreCustomClasses shouldContainExactly
+        listOf(
+            "CreateAdjacencies",
+            "CheckCardDeck",
+            "CheckCardRequirement",
+            "HandleCardCost",
+            "GetEventVps",
+            "PassLeft",
+        )
+    Canon.resolve(setOf(cn("TerraformingMars"), cn("PreludeExpansion"))).customClasses.map {
+      it.className.toString()
+    } shouldContain "GainLowestProduction"
+  }
+
+  @Test
   fun coloniesRulesetOwnsItsVocabularyAndDefinitions() {
     Canon.rulesets.shouldContain(ColoniesExpansion)
     Canon.classDeclaration(cn("ColonyTile")) shouldBe
