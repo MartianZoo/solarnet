@@ -55,16 +55,6 @@ Concrete classes called Player1, Player2, etc. will exist. The player owning the
 `StartToken` is the start player; it begins with Player1 and passes one seat left when each later
 `Generation` is created. Mapping player classes to players' names is considered a UI-level task.
 
-The identity terms used here are defined in the
-[domain glossary](../plans/identity-transition.md#domain-glossary). In particular, ownership and state-change
-attribution are different roles: a Player has both, while the planned `SoloOpponent` has ownership
-only. The administrative Actor is conceptually `Admin`, although current code may still call it
-`Engine`.
-
-`Anyone` is icon grammar for an unrestricted target. It is not another runtime identity and should
-not be used to erase the distinction between Owner and Actor. The migration's stopping-point
-decisions are recorded separately in the [identity-transition plan](../plans/identity-transition.md).
-
 ### Owned
 
 The `Owned` abstract type is extremely important. Every concrete instance of an `Owned` subtype
@@ -85,8 +75,6 @@ CLASS TerraformRating {
 When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 megacredit for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
 
 As much as possible the ownership dependency should behave like any other component dependency.
-`Owner` also serves as a contextual placeholder in effects, so binding it still needs explicit
-care; it must not silently become a rule about which Actor caused the trigger.
 
 ### OwnedTile
 

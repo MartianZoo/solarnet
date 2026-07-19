@@ -2,17 +2,6 @@
 
 Priorities appear in parentheses; no parenthetical means the default priority, **Soon**.
 
-## Actor / Owner / Player Model
-
-The [identity-transition plan](plans/identity-transition.md) is authoritative for this work. Reach
-its stopping point before expanding the model: protect Lakefront and every current `BY` usage,
-complete the Philares matrix, rename the task's queue identity to `taskOwner`, and back out speculative
-identity machinery that those tests and the narrow `SoloOpponent` seam do not require.
-
-Afterward, implement `SoloOpponent` as an Owner without Player or Actor privileges. The eventual
-administrative name is `Admin`; World Government is not a current goal, and `Npc` is not another
-identity.
-
 ## Gameplay Rules Implemented Incorrectly or Incompletely
 
 - Model the two Prelude plays as explicit first and second Prelude turns, analogous to action-phase

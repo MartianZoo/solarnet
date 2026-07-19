@@ -1,8 +1,6 @@
 # Engine API Review
 
-**NOTE:** This is a collection of API ideas, not a requirements document. For identity terminology
-and migration decisions, the [identity-transition plan](../plans/identity-transition.md) is
-authoritative.
+**NOTE:** This is a collection of API ideas, not a requirements document.
 
 This document reviews the engine API surface used by tests, the REPL, and future clients. It is not
 trying to design the final engine internals. The near-term goal is to make the public capabilities
@@ -54,7 +52,7 @@ should not navigate from `Game` to `Gameplay` to `godMode()` to casts.
 5. Move Terraforming Mars-specific APIs toward a separate module/facade layer.
 
    The generic engine should know about identities, tasks, components, and transactions. A TfM
-   workflow facade may use the administrative Actor, eventually named `Admin`, for bookkeeping. It
+   workflow facade may use the administrative Actor for bookkeeping. It
    should not own Terraforming Mars phase workflow,
    board projections, payment conveniences, or card-play helper DSLs.
 
@@ -440,8 +438,7 @@ full capability split. The current implementation has a few constraints worth re
    atomic block, runs the explicit command, runs auto-exec, returns activity since the checkpoint,
    and fires `onAtomicComplete` only for the outermost command.
 2. `Implementations.autoExecNow` intentionally scans the whole-game task view today, even though
-   assignee views are scoped. The identity stopping point must characterize this before changing
-   it and must not let auto-exec steal another assignee's meaningful choice.
+   assignee views are scoped. Existing workflows rely on this behavior.
 3. `Task.next` is still a whole-game lock. An assignee may prepare only their own task,
    but it must still reject cutting in front of a prepared task elsewhere.
 4. The REPL is currently the clearest client smell: `ScriptSession.access()` obtains `godMode()` and

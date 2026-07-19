@@ -1,8 +1,5 @@
 # Game Boundary Audit
 
-This audit records boundary ideas, not identity requirements. For identity terminology and the
-current migration plan, the [identity-transition plan](../plans/identity-transition.md) is authoritative.
-
 This audit reviews whether an unrelated board game with suitable mechanics could reuse all
 Solarnet code outside `dev.martianzoo.tfm` while using none of the code inside
 `dev.martianzoo.tfm`.
@@ -76,12 +73,8 @@ problem.
 through `Player5`, publishes exactly those five constants, and constructs lists from that fixed
 set.
 
-This limitation propagates into effect ownership and engine scope creation. Moving the fixed TfM
-identities out of generic code is still a useful boundary goal, but generalized configured-identity
-lookup is explicitly not part of the current identity stopping point. Follow the
-[identity-transition plan](../plans/identity-transition.md): preserve the Owner/Actor distinction, make
-only the narrow `SoloOpponent` seam next, and use `Admin` as the eventual name of the current
-administrative `Engine` identity.
+This limitation propagates into effect ownership and engine scope creation, so a game with
+different player identities cannot use the generic abstraction as-is.
 
 ### P1: Terraforming Mars's `PROD[...]` extension is automatically installed by generic machinery
 
