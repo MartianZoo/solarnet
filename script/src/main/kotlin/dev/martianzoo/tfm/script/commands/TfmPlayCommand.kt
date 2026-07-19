@@ -6,7 +6,7 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.commands.TaskCommand
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.tfmRuleset
 
 internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("tfm_play") {
   override val usage: String = "tfm_play <CardName>"
@@ -17,7 +17,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
 
   override fun withArgs(args: String): List<String> {
     val cardName = ClassName.cn(args)
-    val kind = (repl.game.reader.ruleset as TfmRuleset).card(cardName).deck!!.className
+    val kind = repl.game.reader.tfmRuleset.card(cardName).deck!!.className
     return TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$args>>")
   }
 }

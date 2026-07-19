@@ -29,7 +29,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.TfmClasses.TILE
@@ -55,9 +55,7 @@ internal object TerraformingMars :
       )
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    petsFilenames
-        .flatMap { parseClasses(CanonResources.read("bundles/TerraformingMars/$it")) }
-        .toSetStrict()
+    petsFilenames.flatMap { parseClasses(read(it)) }.toSetStrict()
   }
 
   override val customClasses: Set<CustomClass> =
@@ -123,9 +121,7 @@ internal object TerraformingMars :
           card.tags.entries.map { (tagName, count) ->
             gain(scaledEx(count, cn("PlayTag").of(tagName.classExpression())))
           }
-      val instructions =
-          if (card.cost > 0) listOf(gain(scaledEx(card.cost, cn("Owed")))) + playTagSignals
-          else playTagSignals
+      val instructions = listOf(gain(scaledEx(card.cost, cn("Owed")))) + playTagSignals
       return Then.create(instructions)
     }
   }
@@ -162,6 +158,6 @@ internal object TerraformingMars :
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
     require(cardClassType.className == CLASS)
     val cardName = cardClassType.expression.arguments.single().className
-    return (reader.ruleset as TfmRuleset).card(cardName)
+    return reader.tfmRuleset.card(cardName)
   }
 }

@@ -10,7 +10,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.util.toSetStrict
@@ -24,11 +24,11 @@ internal object ColoniesExpansion :
         actions = true,
     ) {
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    parseClasses(readResource("colonies.pets")).toSetStrict()
+    parseClasses(read("colonies.pets")).toSetStrict()
   }
 
   override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
-    JsonReader.readColonyTiles(readResource("colonies.json5")).toSetStrict(::ColonyTileDefinition)
+    JsonReader.readColonyTiles(read("colonies.json5")).toSetStrict(::ColonyTileDefinition)
   }
 
   override val customClasses: Set<CustomClass> = setOf(AddColonyTile, ColoniesSetup)
@@ -36,7 +36,7 @@ internal object ColoniesExpansion :
   private object AddColonyTile : CustomClass("AddColonyTile") {
     override fun translate(reader: GameReader, tileClassType: Type): Instruction {
       val name = tileClassType.expression.arguments.single().className
-      val tile = (reader.ruleset as TfmRuleset).colonyTile(name)
+      val tile = reader.tfmRuleset.colonyTile(name)
       return if (tile.resourceType == null) {
         parse("$name")
       } else {
@@ -59,7 +59,4 @@ internal object ColoniesExpansion :
       return Then.create(tileInstructions + fleetInstructions)
     }
   }
-
-  private fun readResource(filename: String): String =
-      CanonResources.read("bundles/ColoniesExpansion/$filename")
 }

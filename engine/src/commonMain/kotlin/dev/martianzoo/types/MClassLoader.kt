@@ -36,7 +36,7 @@ internal class MClassLoader(
     loadAll(setup.actors().classNames())
     loadAll(setup.bundles)
     loadAll(ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys)
-    loadAll(setup.allDefinitions().classNames())
+    loadAll(ruleset.allDefinitions.classNames())
     freeze()
   }
 

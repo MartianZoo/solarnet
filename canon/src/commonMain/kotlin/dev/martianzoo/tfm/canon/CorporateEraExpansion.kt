@@ -8,7 +8,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Transform
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 
@@ -19,7 +19,7 @@ internal object CorporateEraExpansion :
 
   private object CopyProductionBox : CustomClass("CopyProductionBox") {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-      val card: CardDefinition = (reader.ruleset as TfmRuleset).card(cardType.className)
+      val card: CardDefinition = reader.tfmRuleset.card(cardType.className)
       val immediate =
           card.immediate
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")

@@ -29,15 +29,7 @@ data class MilestoneDefinition(
 
   @Transient override val shortName = cn(id)
 
-  @Transient
-  val requiredBundleNames =
-      requiredBundles
-          ?.split(',')
-          ?.map(String::trim)
-          ?.onEach { require(it.isNotEmpty()) }
-          ?.map(::cn)
-          ?.toSet()
-          .orEmpty()
+  @Transient val requiredBundleNames = parseBundleNames(requiredBundles)
 
   @Transient val requirement: Requirement = parse(requirementText)
 

@@ -14,7 +14,8 @@ For starters, it holds a `GameSetup` (the configuration chosen before the game b
 `MClassTable` of loaded classes for that configuration. These are immutable. A setup records the
 complete ruleset source and the selected full bundle identities as `ruleset` and `bundles`.
 Clients read game state through a `GameReader`, whose separate `ruleset` property is the resolved
-source containing only content applicable to that game.
+source containing only content applicable to that game. Terraforming Mars-specific clients can use
+`GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
 

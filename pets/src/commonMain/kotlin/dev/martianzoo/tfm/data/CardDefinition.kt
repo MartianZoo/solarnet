@@ -66,7 +66,7 @@ public class CardDefinition(data: CardData) : Definition {
   public val replaces: String? by data::replaces
 
   /** Bundles that must all be selected for this card to be included. */
-  public val requiredBundles: Set<ClassName> = parseRequiredBundles(data.requiredBundles)
+  public val requiredBundles: Set<ClassName> = parseBundleNames(data.requiredBundles)
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
 
@@ -226,14 +226,5 @@ public class CardDefinition(data: CardData) : Definition {
             cn("Floater") to cn("FLO"),
             cn("Asteroid") to cn("AST"),
         )
-
-    fun parseRequiredBundles(text: String?): Set<ClassName> =
-        text
-            ?.split(',')
-            ?.map(String::trim)
-            ?.onEach { require(it.isNotEmpty()) }
-            ?.map(::cn)
-            ?.toSet()
-            .orEmpty()
   }
 }
