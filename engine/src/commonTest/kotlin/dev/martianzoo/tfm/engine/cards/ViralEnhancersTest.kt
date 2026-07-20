@@ -3,8 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.TaskResult
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
@@ -13,7 +11,7 @@ class ViralEnhancersTest {
 
   @Test
   fun test() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRM", 2))
+    val game = setUpGame("BRM", 2)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
 

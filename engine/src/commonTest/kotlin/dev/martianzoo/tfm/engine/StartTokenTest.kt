@@ -13,7 +13,7 @@ import kotlin.test.Test
 class StartTokenTest {
   @Test
   fun startsWithPlayer1AndPassesLeftEachGeneration() {
-    val engine = Engine.newGame(Canon.fromOptionCodes("BRM", 3)).tfm(ENGINE)
+    val engine = setUpGame("BRM", 3).tfm(ENGINE)
 
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
@@ -30,7 +30,7 @@ class StartTokenTest {
 
   @Test
   fun staysWithPlayer1InAnActualOnePlayerSetup() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRMS", 1))
+    val game = setUpGame("BRMS", 1)
     val engine = game.tfm(ENGINE)
 
     engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
@@ -44,9 +44,7 @@ class StartTokenTest {
 
   @Test
   fun passLeftPreservesAnotherDependency() {
-    val engine =
-        Engine.newGame(Canon.fromOptionCodes("BRMC", 3, TestHelpers.testColonyTiles(3, "Luna")))
-            .tfm(ENGINE)
+    val engine = setUpGame("BRMC", 3, TestHelpers.testColonyTiles(3, "Luna")).tfm(ENGINE)
 
     engine.godMode().sneak("Colony<Luna, Player1>")
     engine.godMode().manual("PassLeft<Colony<Luna, Player1>>")
@@ -67,10 +65,10 @@ class StartTokenTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    engine.godMode().sneak("StartToken<Player2> FROM StartToken<Player1>")
     val workflow = TfmWorkflow.Auto(game, setup).launch()
 
     p1.playCorp("InterplanetaryCinematics", 7)
+    engine.godMode().sneak("StartToken<Player2> FROM StartToken<Player1>")
     p2.playCorp("PharmacyUnion", 5)
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)

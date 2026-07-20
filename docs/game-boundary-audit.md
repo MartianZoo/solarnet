@@ -26,17 +26,11 @@ currency, without replacing this class's behavior.
 The default should be supplied by a game-specific language profile, or omitted expressions should
 remain distinct in the AST until game-specific preprocessing.
 
-### P0: The generic engine initializer performs Terraforming Mars setup
+### Resolved: The generic engine initializer no longer performs Terraforming Mars setup
 
-`engine/src/commonMain/kotlin/dev/martianzoo/engine/Initializer.kt` contains:
-
-1. Colonies bundle detection.
-2. Colony-tile selection and `AddColonyTile` execution.
-3. `TradeFleetA`, `TradeFleetB`, etc. creation.
-4. An unconditional `SetupPhase` transition.
-
-The generic portion—creating `Engine` and singleton components—is correctly placed. Everything
-after that should be a setup hook implemented by the game layer.
+`engine/src/commonMain/kotlin/dev/martianzoo/engine/Initializer.kt` now creates only `Engine` and
+singleton components, then commits the pre-setup baseline. The Terraforming Mars workflow owns
+creating `SetupPhase` and waiting for its ordinary effectful setup tasks.
 
 ### P0: The generic class loader contains Colonies-specific reachability rules
 

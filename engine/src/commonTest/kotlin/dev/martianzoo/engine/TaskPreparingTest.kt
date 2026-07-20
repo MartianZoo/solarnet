@@ -9,6 +9,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.setUpGame
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -19,7 +20,7 @@ import kotlin.test.Test
 
 class TaskPreparingTest {
   private val A = TaskId("A")
-  private val game = Engine.newGame(Canon.SIMPLE_GAME)
+  private val game = setUpGame(Canon.SIMPLE_GAME)
   private val tasks = game.tasks
   private val events = game.events
   private val start = game.timeline.checkpoint()

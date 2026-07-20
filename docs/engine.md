@@ -342,7 +342,7 @@ A convenience wrapper around `TurnLayer` that adds Terraforming helpers:
 ### `TfmWorkflow`
 
 Orchestrates the full game loop using Kotlin coroutines. The workflow coroutine runs the complete
-game sequence (Corp → [Prelude] → Action → Production → Research → repeat) as straight-line
+game sequence (Setup → Corp → [Prelude] → Action → Production → Research → repeat) as straight-line
 sequential code. It suspends whenever it calls `awaitTasksDrained()`, which commits the current
 state (preventing rollback past this point) and then waits on a rendezvous channel.
 
@@ -355,7 +355,8 @@ generation after the first passes that token one seat left, so the workflow read
 game state rather than maintaining a separate generation counter.
 
 This design means:
-- The game flow reads naturally (corporationPhase, then preludePhase, then action loop, etc.)
+- The game flow reads naturally (setupPhase, corporationPhase, then preludePhase, then action loop,
+  etc.)
 - Player turns are just `beginManual(instruction)` followed by `awaitTasksDrained()`
 - The workflow never needs to poll — it wakes up exactly when the queue empties
 
@@ -369,7 +370,8 @@ decided to adopt Koin.
 `Engine.newGame()` builds a Koin DI container. The game-level singletons (`MClassLoader`,
 `Effector`, `WritableEventLog`, `WritableComponentGraph`, etc.) are shared across all players.
 Each configured Actor also gets a Koin scope containing `Changer`, `Instructor`, `Implementations`,
-`ApiTranslation` (the `Gameplay` impl), and `Initializer`.
+and `ApiTranslation` (the `Gameplay` impl). The Engine Actor's scope also supplies the
+`Initializer` used during bootstrap.
 
 Components expose their concrete Owner as a resolved Pets type. Kotlin runtime identities retain
 separate `Actor` and `Owner` roles where code needs an entity to participate directly; `Player` is
@@ -379,15 +381,17 @@ Owner such as `Opponent` has no corresponding Kotlin identity and receives neith
 The `Effector` takes a `Lazy<GameReader>` to break a bootstrapping cycle: the game's reader isn't
 available until after the effector exists, but the effector needs the reader to fire effects.
 
-After scopes are created, `Initializer.initialize()` runs for `ENGINE`, which:
-1. Creates the administrative `ENGINE` component
-2. Instantiates all singleton-type components (things with exactly one concrete subtype)
-3. Runs any Colonies-specific setup (colony tiles, trade fleets)
-4. Marks `initializationFinished()` in the timeline (so setup events are excluded from game logs)
-5. Executes `SetupPhase`; in solo mode its Opponent effect leaves the neutral tile-placement task
-   pending in Engine's queue to await its map areas.
+After scopes are created and attached to the `Game`, `Initializer.initialize()` runs for `ENGINE`.
+It creates the administrative `ENGINE` component and all singleton-type components directly
+through `Instructor`, without manufacturing a task for each top-level instruction. Automatic
+effects still execute inline and queued effects still add ordinary tasks. Singleton types whose
+dependencies do not exist yet are retried in progress-based rounds; a round with no progress
+reports the unresolved types and dependencies.
 
-TODO: of course, this shouldn't have TfM-specific steps embedded.
+Initialization then marks `initializationFinished()` and commits that pre-setup baseline. The
+returned `Game` therefore has no current Phase. `TfmWorkflow.Manual.setupPhase()` or
+`TfmWorkflow.Auto` creates `SetupPhase` as an ordinary, fully effectful game operation. Automatic
+workflow waits for any resulting setup tasks before entering `CorporationPhase`.
 
 ---
 

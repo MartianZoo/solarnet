@@ -5,7 +5,6 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.TaskResult
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertNetChanges
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -14,7 +13,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class PetsTest {
-  val game = Engine.newGame(Canon.SIMPLE_GAME)
+  val game = setUpGame(Canon.SIMPLE_GAME)
   val engine = game.tfm(ENGINE)
   val p1 = game.tfm(PLAYER1)
   val p2 = game.tfm(PLAYER2)

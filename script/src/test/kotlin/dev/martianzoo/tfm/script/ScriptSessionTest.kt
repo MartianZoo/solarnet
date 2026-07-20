@@ -8,16 +8,19 @@ import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import org.junit.jupiter.api.Test
 
 internal class ScriptSessionTest {
-  private val digitsRegex = Regex("\\b\\d{4}\\b")
+  private val eventOrdinalRegex = Regex("^\\d+(?=:)")
+  private val causeOrdinalRegex = Regex("(?<=BECAUSE )\\d+")
   private val letterRegex = Regex("^[A-Z]\\b")
+
+  private fun normalizeEventOrdinals(line: String) =
+      line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
 
   @Test
   fun testBasicRunthrough() {
     val repl = ScriptSession()
 
     fun command(c: String, expected: String) {
-      val results =
-          repl.command(c).map { it.replace(digitsRegex, "0000").replace(letterRegex, "Z") }
+      val results = repl.command(c).map { normalizeEventOrdinals(it).replace(letterRegex, "Z") }
       assertThat(results).containsExactlyElementsIn(expected.split("\n")).inOrder()
     }
 
@@ -191,7 +194,7 @@ internal class ScriptSessionTest {
 
     val output =
         commands.flatMap(repl::command).map {
-          it.replace(digitsRegex, "0000").replace(letterRegex, "Z")
+          normalizeEventOrdinals(it).replace(letterRegex, "Z")
         }
     assertThat(output).containsExactlyElementsIn(expectedOutput).inOrder()
   }

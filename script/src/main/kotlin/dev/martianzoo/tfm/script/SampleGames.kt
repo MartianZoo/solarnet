@@ -7,6 +7,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmWorkflow
 
 internal object SampleGames {
   internal fun sampleGame(generations: Int): Game {
@@ -17,6 +18,7 @@ internal object SampleGames {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
+    TfmWorkflow.Manual(game, game.setup).setupPhase()
     engine.phase("Corporation")
     p1.playCorp("Manutech", 5)
     p2.playCorp("Factorum", 4)

@@ -10,7 +10,7 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  * complete game state could be reconstructed by replaying these events.
  */
 public interface EventLog {
-  /** Returns all change events since game setup was concluded. */
+  /** Returns all change events since engine initialization concluded, including game setup. */
   fun changesSinceSetup(): List<GameEvent.ChangeEvent>
 
   fun entriesSinceSetup(): List<GameEvent>

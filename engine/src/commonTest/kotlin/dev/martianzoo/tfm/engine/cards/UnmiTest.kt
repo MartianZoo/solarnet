@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -13,7 +12,7 @@ class UnmiTest {
 
   @Test
   fun unmi() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = setUpGame(Canon.SIMPLE_GAME)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("UnitedNationsMarsInitiative", 0)
@@ -34,7 +33,7 @@ class UnmiTest {
 
   @Test
   fun unmiOutOfOrder() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = setUpGame(Canon.SIMPLE_GAME)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       godMode().sneak("14")

@@ -69,7 +69,7 @@ internal class CanonClassesTest {
 
   @Test
   fun soloSetupUsesPetsOnlyOpponent() {
-    val game = Engine.newGame(Canon.SIMPLE_SOLO_GAME)
+    val game = setUpGame(Canon.SIMPLE_SOLO_GAME)
     game.setup.players().shouldContainExactly(PLAYER1)
     game.setup.actors().shouldContainExactly(PLAYER1, ENGINE)
     game.classes.allClassNamesAndIds.shouldNotContain(cn("Player2"))

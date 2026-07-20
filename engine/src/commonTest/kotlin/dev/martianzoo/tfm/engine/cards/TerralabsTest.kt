@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
@@ -11,7 +9,7 @@ class TerralabsTest {
 
   @Test
   fun terralabs() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BMT", 2))
+    val game = setUpGame("BMT", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("TerralabsResearch", 10)

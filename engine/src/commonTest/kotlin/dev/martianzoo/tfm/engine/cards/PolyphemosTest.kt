@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -12,7 +10,7 @@ class PolyphemosTest {
 
   @Test
   fun polyphemos() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRMC", 2, testColonyTiles(2)))
+    val game = setUpGame("BRMC", 2, testColonyTiles(2))
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("Polyphemos", 7)

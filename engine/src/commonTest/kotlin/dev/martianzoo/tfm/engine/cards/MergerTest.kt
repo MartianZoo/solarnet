@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -12,7 +10,7 @@ class MergerTest {
 
   @Test
   fun valleyTrustAndCelestic() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRMPVX", 2))
+    val game = setUpGame("BRMPVX", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("ValleyTrust", 5)

@@ -82,6 +82,8 @@ public class ScriptSession {
     if (purple) {
       mode = PURPLE
       TfmWorkflow.Auto(game, setup).launch()
+    } else {
+      TfmWorkflow.Manual(game, setup).setupPhase()
     }
   }
 
@@ -109,7 +111,7 @@ public class ScriptSession {
   internal fun promptPlain(): String =
       with(gameplay) {
         val optionCodes = Canon.optionCodes(setup.options)
-        val phase = list("Phase").single()
+        val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
         "$optionCodes $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
       }

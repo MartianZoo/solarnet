@@ -37,6 +37,7 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Manual(game, Canon.SIMPLE_GAME)
 
+    workflow.setupPhase()
     workflow.corporationPhase()
     p1.godMode().manual("8 Plant")
     workflow.finalGreeneryPhase()

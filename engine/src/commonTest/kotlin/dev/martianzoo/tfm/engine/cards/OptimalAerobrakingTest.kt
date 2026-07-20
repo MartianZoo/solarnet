@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
@@ -11,7 +9,7 @@ class OptimalAerobrakingTest {
 
   @Test
   fun optimalAerobraking() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRHXP", 2))
+    val game = setUpGame("BRHXP", 2)
 
     with(game.tfm(PLAYER1)) {
       phase("Action")

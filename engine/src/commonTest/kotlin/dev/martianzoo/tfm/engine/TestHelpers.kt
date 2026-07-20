@@ -4,6 +4,7 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
+import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing
@@ -17,7 +18,18 @@ import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.GameSetup
 import io.kotest.matchers.shouldBe
+
+internal fun setUpGame(setup: GameSetup): Game =
+    Engine.newGame(setup).apply { TfmWorkflow.Manual(this, setup).setupPhase() }
+
+internal fun setUpGame(
+    optionCodes: String,
+    players: Int,
+    colonyTiles: Set<ClassName> = emptySet(),
+): Game = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
 
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {

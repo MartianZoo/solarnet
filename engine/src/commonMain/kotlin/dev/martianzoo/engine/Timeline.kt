@@ -9,7 +9,7 @@ public interface Timeline {
 
   /**
    * Marks the current position as the rollback floor: [rollBack] will refuse to go earlier than
-   * this. Called by the workflow after each phase transition, before suspending for player input,
+   * this. Called after engine initialization and by the automatic workflow after phase transitions,
    * so that players cannot undo the engine's structural decisions.
    */
   fun commit()

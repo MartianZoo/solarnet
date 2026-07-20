@@ -7,7 +7,6 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.TaskResult
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
@@ -24,7 +23,7 @@ import kotlin.test.Test
 internal class ColoniesBasicRulesTest {
   val normal = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
   val setup = Canon.fromOptionCodes("BRMC", 4, normal)
-  val game = Engine.newGame(setup)
+  val game = setUpGame(setup)
   val engine = game.tfm(ENGINE)
   val p1 = game.tfm(PLAYER1)
 
@@ -63,7 +62,7 @@ internal class ColoniesBasicRulesTest {
   fun `card resource colonies start not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val setup = Canon.fromOptionCodes("BRMC", 4, colonies)
-    val engine = Engine.newGame(setup).tfm(ENGINE)
+    val engine = setUpGame(setup).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
 
     engine.assertCounts(
@@ -93,7 +92,7 @@ internal class ColoniesBasicRulesTest {
   fun `cant do anything with colony not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val setup = Canon.fromOptionCodes("BRMC", 4, colonies)
-    val engine = Engine.newGame(setup).tfm(ENGINE)
+    val engine = setUpGame(setup).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
 
     engine.phase("Action")
@@ -182,7 +181,7 @@ internal class ColoniesBasicRulesTest {
   @Test
   fun `card resource colony bonus goes to colony owner`() {
     val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
-    val localGame = Engine.newGame(Canon.fromOptionCodes("BRMCX", 2, colonies))
+    val localGame = setUpGame("BRMCX", 2, colonies)
     val localEngine = localGame.tfm(ENGINE)
     val localP1 = localGame.tfm(PLAYER1)
     val localP2 = localGame.tfm(PLAYER2)

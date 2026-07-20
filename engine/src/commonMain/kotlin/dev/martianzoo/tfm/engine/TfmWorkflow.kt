@@ -35,6 +35,11 @@ public object TfmWorkflow {
 
     internal val engineOps: OperationLayer = game.gameplay(ENGINE) as OperationLayer
 
+    /**
+     * Starts fully effectful game setup; unlike later phases, setup has no prior Phase to remove.
+     */
+    public fun setupPhase() = engineOps.beginManual("SetupPhase")
+
     public fun corporationPhase() = engineOps.manual("CorporationPhase FROM Phase")
 
     public fun preludePhase() = engineOps.manual("PreludePhase FROM Phase")
@@ -55,8 +60,8 @@ public object TfmWorkflow {
    * Orchestrates the full Terraforming Mars game flow using a single coroutine, so each phase can
    * be written as straight-line sequential code.
    *
-   * The coroutine suspends whenever the game has outstanding player tasks (choosing cards, placing
-   * tiles, etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
+   * The coroutine suspends whenever the game has outstanding tasks (choosing cards, placing tiles,
+   * etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
    * [Channel.RENDEZVOUS] channel: [Channel.trySend] only succeeds when a [Channel.receive] is
    * already waiting, so signals fired during automatic engine-owned phases are dropped rather than
    * queued, preventing spurious wakeups.
@@ -71,9 +76,9 @@ public object TfmWorkflow {
     private val players: List<Player> = setup.players()
 
     /**
-     * RENDEZVOUS channel that signals the workflow coroutine to resume after all player tasks
-     * drain. Only fires when [Channel.receive] is already waiting, so signals during automatic
-     * phases are silently dropped.
+     * RENDEZVOUS channel that signals the workflow coroutine to resume after all tasks drain. Only
+     * fires when [Channel.receive] is already waiting, so signals during automatic phases are
+     * silently dropped.
      */
     private val resumeSignal = Channel<Unit>(Channel.RENDEZVOUS)
 
@@ -130,8 +135,10 @@ public object TfmWorkflow {
       shutdownCheckpoint = null
     }
 
-    /** Orchestrates the complete game from SetupPhase (which it must already be in) to finish. */
+    /** Orchestrates the complete game from its committed pre-setup baseline to finish. */
     public suspend fun runGame() {
+      m.setupPhase()
+      awaitTasksDrained()
       corporationPhase()
       if (cn("PreludeExpansion") in setup.options) preludePhase()
       actionPhase()
@@ -228,9 +235,11 @@ public object TfmWorkflow {
       shutdownCheckpoint = null
     }
 
-    private suspend fun letPlayerFinish() {
+    private suspend fun awaitTasksDrained() {
       game.timeline.commit()
       if (!game.tasks.isEmpty()) resumeSignal.receive()
     }
+
+    private suspend fun letPlayerFinish() = awaitTasksDrained()
   }
 }

@@ -3,8 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -13,7 +11,7 @@ import kotlin.test.Test
 class CelesticTest {
   @Test
   fun celestic() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRMV", 2))
+    val game = setUpGame("BRMV", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("Celestic", 5)

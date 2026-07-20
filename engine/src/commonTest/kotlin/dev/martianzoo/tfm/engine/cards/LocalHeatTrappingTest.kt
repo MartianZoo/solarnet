@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -12,7 +11,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
 class LocalHeatTrappingTest {
-  val game = Engine.newGame(Canon.SIMPLE_GAME)
+  val game = setUpGame(Canon.SIMPLE_GAME)
   val p1 = game.tfm(PLAYER1)
 
   @Test

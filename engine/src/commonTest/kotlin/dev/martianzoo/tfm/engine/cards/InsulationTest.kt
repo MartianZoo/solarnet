@@ -3,8 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,7 +12,7 @@ class InsulationTest {
 
   @Test
   fun insulation_normal() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRM", 2))
+    val game = setUpGame("BRM", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("Ecoline", 5)

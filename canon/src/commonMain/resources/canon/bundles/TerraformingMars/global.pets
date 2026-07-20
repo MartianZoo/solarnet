@@ -58,7 +58,7 @@ CLASS Generation
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational { Generation:: -This. }
 
-"The current game phase; there is always exactly one of these in existence"
+"The current game phase; exactly one exists from the start of SetupPhase onward"
 ABSTRACT CLASS Phase : AutoLoad {
   HAS =1 Phase                                         // weird that this works, but it does
 

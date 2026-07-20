@@ -143,6 +143,9 @@ public class TfmGameplay(
       stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
 
   fun phase(phase: String, body: BodyLambda = {}) {
+    require(count("Phase") == 1) {
+      "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
+    }
     asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
   }
 

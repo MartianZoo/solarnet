@@ -2,8 +2,6 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -11,7 +9,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class PsychrophilesTest {
-  val game = Engine.newGame(Canon.fromOptionCodes("BRMP", 2))
+  val game = setUpGame("BRMP", 2)
   val p1 = game.tfm(PLAYER1)
   val Psychrophiles = "Psychrophiles"
 

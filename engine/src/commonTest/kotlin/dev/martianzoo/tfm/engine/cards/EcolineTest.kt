@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -12,7 +11,7 @@ import kotlin.test.Test
 class EcolineTest {
   @Test
   fun test() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = setUpGame(Canon.SIMPLE_GAME)
 
     with(game.tfm(PLAYER1)) {
       phase("Corporation")

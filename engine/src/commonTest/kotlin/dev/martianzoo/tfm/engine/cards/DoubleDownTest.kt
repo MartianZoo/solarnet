@@ -4,8 +4,6 @@ import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -15,7 +13,7 @@ class DoubleDownTest {
 
   @Test
   fun doubleDown() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRHXP", 2))
+    val game = setUpGame("BRHXP", 2)
 
     with(game.tfm(PLAYER1)) {
       phase("Corporation")

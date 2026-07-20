@@ -23,6 +23,7 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     super.commonSetup()
 
     me = p1
+    TfmWorkflow.Manual(game, setup()).setupPhase()
 
     engine.doFirstTask("CityTile<${cityAreas().first}, Opponent>")
     engine.doTask("GreeneryTile<${greeneryAreas().first}, Opponent>")

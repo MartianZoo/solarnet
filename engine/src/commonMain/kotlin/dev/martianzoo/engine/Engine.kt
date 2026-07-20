@@ -23,7 +23,7 @@ import org.koin.dsl.module
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
-  /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
+  /** Creates a game at its committed pre-setup baseline, ready to be given to a workflow. */
   public fun newGame(setup: GameSetup): Game {
     val koin = koinApplication { modules(gameModule(setup)) }.koin
 
@@ -36,8 +36,8 @@ public object Engine {
           if (actor == ENGINE) initializer = scope.get<Initializer>()
           scope.get<ActorComponent>()
         }
-    initializer!!.initialize()
     game.actorComponents = actorComponents
+    initializer!!.initialize()
     return game
   }
 

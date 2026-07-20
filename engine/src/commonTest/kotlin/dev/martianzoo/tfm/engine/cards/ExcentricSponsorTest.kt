@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -10,8 +8,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class ExcentricSponsorTest {
-  val game =
-      Engine.newGame(Canon.fromOptionCodes("BPVM", 2)) // base, prelude, venus, default map, 2p
+  val game = setUpGame("BPVM", 2) // base, prelude, venus, default map, 2p
 
   @BeforeTest
   fun `common setup steps for all tests`() {

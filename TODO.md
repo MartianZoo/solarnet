@@ -6,6 +6,10 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 - Model the two Prelude plays as explicit first and second Prelude turns, analogous to action-phase
   turns, so turn ownership, hooks, and future workflow changes are consistent. (Somewhat soon)
+- Give Tharsis Republic an explicit immediate solo-setup production gain rather than treating the
+  neutral cities as though Tharsis had observed their placement. Decide whether to express this as
+  `SoloMode: PROD[2]` or `PROD[1 / CityTile<Opponent>]`; make the needed `SoloMode` or `Opponent`
+  type available without exposing an irrelevant instruction to multiplayer players. (Later)
 - Issue #28: Flaw with "amap" quantifier and ocean tiles (perhaps other cases too?) — Define when an
   abstract AMAP instruction may narrow to `Ok`: missing dependencies must allow declining impossible
   card-resource gains, as exposed by the disabled Local Heat Trapping test, without permitting a
@@ -126,6 +130,10 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Internal Design, Cleanup, and Test Convenience
 
+- Audit queued (`:`) effects involved in setup and convert only consequences that are not
+  rules-recognized player choices to immediate (`::`) effects. In particular, consider creating
+  Photosynthesis as an immediate consequence of removing `SetupPhase`; keep genuine setup choices
+  in the task queue. (Later)
 - Finish separating the Canon catalog from selected rulesets: Canon should own bundle locators and
   assemble only the requested `Bundle` objects instead of inheriting from `TfmRuleset.Composite`.
   Preserve the tested guarantee that resolving one selection never reads another bundle's payload.
