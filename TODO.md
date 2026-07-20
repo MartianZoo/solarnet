@@ -208,6 +208,12 @@ Priorities appear in parentheses. An item without a priority has the default pri
   produce smaller failures without replacing its useful recursive generation logic. (Later)
 - Add Kotlin binary API validation for the public `pets`, `engine`, `canon`, and `script` APIs and
   integrate ABI snapshot checks with the normal `check` lifecycle.
+- Replace the browser UI's synchronous XHR resource loading with an asynchronous startup boundary,
+  so loading larger rulesets cannot block the browser's main thread. Preserve one shared resource
+  abstraction across Pets and Canon rather than adding UI-specific fetching.
+- Decide whether browser completion should expose `ScriptCompletion` groups and descriptions in a
+  selectable menu. The first terminal adapter preserves completion values but intentionally uses
+  the terminal library's simpler value-only Tab completion interface.
 
 ### Performance
 

@@ -58,6 +58,15 @@ help
 
 Solarnet's preferred JDK is 21; the repo includes `.java-version` for tools that honor it.
 
+To use the browser version of REgo PLastics instead, run:
+
+```
+./gradlew :web:jsBrowserDevelopmentRun --continuous
+```
+
+Then open the local URL Gradle prints. The game runs entirely in the browser. Command history is
+stored in that browser, while refreshing the page starts a new game.
+
 But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
 
 ## Learning more

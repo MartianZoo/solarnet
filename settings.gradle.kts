@@ -14,4 +14,4 @@ develocity {
 
 rootProject.name = "solarnet"
 
-include("pets", "engine", "script", "repl", "canon")
+include("pets", "engine", "script", "repl", "canon", "web")

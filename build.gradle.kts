@@ -129,6 +129,7 @@ dependencies {
   dokka(project(":script"))
   dokka(project(":repl"))
   dokka(project(":canon"))
+  dokka(project(":web"))
 }
 
 tasks.register<Exec>("installGitHooks") {
