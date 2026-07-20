@@ -10,8 +10,17 @@ Priorities appear in parentheses. An item without a priority has the default pri
 ### Too permissive, doesn't block Follow Mode
 
 - [Issue #12: Linked specialization across `THEN`](https://github.com/MartianZoo/solarnet/issues/12)
-  — Represent the rare cases where repeated type expressions on opposite sides of `THEN` must be
-  narrowed together, including Flooding and Utopia Invest.
+  — Require entirely identical repeated type expressions whose resolved base type is abstract to
+  narrow together within a single effect, including across its colon, or within a `THEN`
+  instruction. Link each repeated expression as a whole without separately coupling matching
+  nested fragments. Do not link separate comma-delimited instructions. Preserve the existing
+  intended behavior of coupled `X` values, payments, colony bonuses, Manutech, Flooding, and Utopia
+  Invest. Make each solo setup greenery neighbor the city just placed; make Splice and Viral
+  Enhancers put their resource on the card that triggered the effect; make Trade Envoys and Trading
+  Colony affect the colony tile just traded with; and make an `ActionUsedMarker` identify the card
+  whose action was used. Enable and test the currently disabled Splice, Trade Envoys, and Trading
+  Colony definitions once their complete behavior is supported. Ensure Viron can repeat an eligible
+  used card action without corrupting either card's action-used marker state.
 - [Issue #22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Add an instruction that
   requires its first branch whenever that branch is possible and uses the fallback only otherwise.
 - [Issue #37: Class-signature linkages](https://github.com/MartianZoo/solarnet/issues/37) — Link
@@ -20,6 +29,10 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Gameplay Rules and Missing Content
 
+- Make Head Start completely drain the tasks produced by its first independently selected action
+  before the player may select its second independently selected action.
+- Check whether Mining Area and Mining Rights have their placement rules switched. Add focused
+  tests for both cards, including rejection of an area with no steel or titanium bonus.
 - [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Define when
   an abstract AMAP instruction may narrow to `Ok`. Missing dependencies must allow declining an
   impossible card-resource gain, as in the disabled Local Heat Trapping test, without letting a

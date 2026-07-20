@@ -8,7 +8,7 @@ import kotlin.test.Test
 class ViralEnhancersTest : CardTest() {
 
   @Test
-  fun test() {
+  fun `characterizes current resource target choices`() {
     val game = newGame("BRM", 2)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -29,6 +29,9 @@ class ViralEnhancersTest : CardTest() {
       abort()
     }
 
+    // TODO(#12): The printed card says the resource goes on "that card", so this should be
+    // rejected. Keep the successful different-card choice as a known-wrong characterization: when
+    // trigger-to-instruction specialization is linked, this test should fail until it is updated.
     p1.playProject("RegolithEaters", 13) { doTask("Microbe<NitriteReducingBacteria>") }
   }
 }
