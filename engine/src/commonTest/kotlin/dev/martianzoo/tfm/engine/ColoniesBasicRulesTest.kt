@@ -179,6 +179,15 @@ internal class ColoniesBasicRulesTest {
   }
 
   @Test
+  fun `trade fleet cannot be reused`() {
+    p1.stdAction("TradeSA", 1) { doTask("Trade<Luna, TradeFleetA>") }
+
+    shouldThrow<LimitsException> {
+      p1.godMode().manual("Trade<Triton, TradeFleetA>")
+    }
+  }
+
+  @Test
   fun `card resource colony bonus goes to colony owner`() {
     val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
     val localGame = setUpGame("BRMCX", 2, colonies)

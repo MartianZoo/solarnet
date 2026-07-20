@@ -9,9 +9,6 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Too permissive, doesn't block Follow Mode
 
-- [Issue #62: A trade fleet can be reused](https://github.com/MartianZoo/solarnet/issues/62) — Find
-  why `TradeFleet`'s `HAS MAX 1 Trade<This>` invariant does not prevent the same fleet from trading
-  twice in one generation, then add a regression test.
 - [Issue #12: Linked specialization across `THEN`](https://github.com/MartianZoo/solarnet/issues/12)
   — Represent the rare cases where repeated type expressions on opposite sides of `THEN` must be
   narrowed together, including Flooding and Utopia Invest.

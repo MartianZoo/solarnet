@@ -68,9 +68,14 @@ internal class CanonInvariantsTest {
           SimpleRangeRestriction(table.resolve(parse<Expression>(b)), range)
       )
     }
-    fun checkUnbound(type: String, expr: Expression, range: IntRange) {
-      val clazz = table.getClass(cn(type))
-      restrictions(type)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
+    fun checkUnbound(
+        constrainedType: String,
+        expr: Expression,
+        range: IntRange,
+        declaringType: String = constrainedType,
+    ) {
+      val clazz = table.getClass(cn(declaringType))
+      restrictions(constrainedType)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
     }
 
     checkSimple("Ants", range = 0..1)
@@ -86,5 +91,11 @@ internal class CanonInvariantsTest {
     checkUnbound("Pass", THIS.expression, 0..1)
     checkUnbound("VenusTag", THIS.expression, 0..2)
     checkUnbound("ColonyProduction", THIS.expression, range = 0..6)
+    checkUnbound(
+        constrainedType = "Trade",
+        declaringType = "TradeFleetA",
+        expr = parse<Expression>("Trade<This>"),
+        range = 0..1,
+    )
   }
 }

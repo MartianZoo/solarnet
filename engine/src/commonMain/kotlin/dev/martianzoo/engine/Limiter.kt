@@ -73,7 +73,7 @@ internal class Limiter(private val classes: MClassTable, private val components:
     val mtype = component?.type?.let { classes.resolve(it) } ?: return setOf()
     val allRestrictions = rangeRestrictionsByClass[mtype.root] ?: listOf()
     val ourRestrictions = allRestrictions.mapNotNull {
-      val simple = it.bindThisTo(mtype)
+      val simple = it.bindThisTo(mtype) ?: return@mapNotNull null
       if (mtype.narrows(simple.mtype)) simple else null
     }
     return ourRestrictions.toSet() + SimpleRangeRestriction(mtype, 0..MAX_VALUE)
@@ -83,7 +83,7 @@ internal class Limiter(private val classes: MClassTable, private val components:
     internal abstract val range: IntRange
     internal abstract val mclass: MClass
 
-    internal abstract fun bindThisTo(mtype: MType): SimpleRangeRestriction
+    internal abstract fun bindThisTo(mtype: MType): SimpleRangeRestriction?
 
     internal data class SimpleRangeRestriction(
         internal val mtype: MType,
@@ -104,15 +104,23 @@ internal class Limiter(private val classes: MClassTable, private val components:
 
     internal data class UnboundRangeRestriction(
         private val expression: Expression,
-        internal override val mclass: MClass,
+        private val declaringClass: MClass,
         internal override val range: IntRange,
     ) : RangeRestriction() {
-      internal override fun bindThisTo(mtype: MType): SimpleRangeRestriction {
-        val expr = replaceThisExpressionsWith(mtype.expression).transform(expression)
-        return SimpleRangeRestriction(mclass.loader.resolve(expr), range)
+      internal override val mclass =
+          if (expression.className == THIS) declaringClass
+          else declaringClass.loader.getClass(expression.className)
+
+      internal override fun bindThisTo(mtype: MType): SimpleRangeRestriction? {
+        val thisType =
+            (listOf(mtype) + mtype.typeDependencies.map { it.boundType }).singleOrNull {
+              it.root.isSubtypeOf(declaringClass)
+            } ?: return null
+        val expr = replaceThisExpressionsWith(thisType.expression).transform(expression)
+        return SimpleRangeRestriction(declaringClass.loader.resolve(expr), range)
       }
 
-      override fun toString() = "$expression $mclass $range"
+      override fun toString() = "$expression $declaringClass $range"
     }
   }
 }

@@ -25,8 +25,6 @@ class SkyDocksTest : ColoniesCardTest() {
       doTask("Trade<Luna, TradeFleetA>")
     }
     p1.stdAction("TradeSA", 1) {
-      // Why isn't this failing?? #62
-      // shouldThrow<LimitsException> { doTask("Trade<Triton, TradeFleetA>") }
       doTask("Trade<Triton, TradeFleetD>")
     }
   }
