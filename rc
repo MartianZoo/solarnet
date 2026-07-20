@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Thin client for a running rego server (start one with: ./rego --serve)
+# Thin client for a running rego server (start one with: ./regoserve)
 
 readonly PORT=2315
 readonly MAX_RETRIES=3
@@ -32,5 +32,5 @@ for attempt in $(seq 1 $MAX_RETRIES); do
     (( attempt < MAX_RETRIES )) && sleep 1
 done
 
-printf 'Error: no rego server on port %d (start one with: ./rego --serve)\n' "$PORT" >&2
+printf 'Error: no rego server on port %d (start one with: ./regoserve)\n' "$PORT" >&2
 exit 1

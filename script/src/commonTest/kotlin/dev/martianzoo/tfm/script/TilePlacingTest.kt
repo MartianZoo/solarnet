@@ -6,8 +6,8 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class TilePlacingTest {
   @Test
@@ -16,7 +16,7 @@ class TilePlacingTest {
     with(game.tfm(PLAYER2)) {
       phase("Action")
       godMode().manual("CityTile<M46>, CityTile<M44>, 25")
-      assertThrows<NarrowingException> { stdProject("CitySP") { doTask("CityTile<M34>") } }
+      assertFailsWith<NarrowingException> { stdProject("CitySP") { doTask("CityTile<M34>") } }
     }
   }
 
@@ -26,7 +26,7 @@ class TilePlacingTest {
     val p2 = game.tfm(PLAYER2)
 
     p2.godMode().manual("CityTile<M33>")
-    assertThrows<LimitsException> { p2.godMode().manual("OceanTile<M33>!") }
+    assertFailsWith<LimitsException> { p2.godMode().manual("OceanTile<M33>!") }
   }
 
   @Test
@@ -37,14 +37,14 @@ class TilePlacingTest {
       godMode().sneak("100")
       phase("Action")
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_3>") }
-      assertThrows<NarrowingException> {
+      assertFailsWith<NarrowingException> {
         stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
       }
       // Yer surrounded!
       game.tfm(PLAYER2).godMode().manual("GT<M32>, GT<M33>, GT<M42>, GT<M44>")
 
       // So now you should be able to do this, but oops, you can't. (#33)
-      assertThrows<NarrowingException> {
+      assertFailsWith<NarrowingException> {
         stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
       }
     }
@@ -65,7 +65,7 @@ class TilePlacingTest {
       // Use the standard project so that the placement rule is in effect
       stdProject("GreenerySP") {
         fun checkCantPlaceGreenery(area: String) =
-            assertThrows<NarrowingException>(area) { doTask("GreeneryTile<$area>") }
+            assertFailsWith<NarrowingException>(area) { doTask("GreeneryTile<$area>") }
 
         //     64  65  66  XX
         //   74  75  76  77

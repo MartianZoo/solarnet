@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.script
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class ScriptSessionTest {
   private val eventOrdinalRegex = Regex("^\\d+(?=:)")
@@ -21,7 +22,7 @@ internal class ScriptSessionTest {
 
     fun command(c: String, expected: String) {
       val results = repl.command(c).map { normalizeEventOrdinals(it).replace(letterRegex, "Z") }
-      assertThat(results).containsExactlyElementsIn(expected.split("\n")).inOrder()
+      assertEquals(expected.split("\n"), results)
     }
 
     command("newgame BRMPX 3", "New 3-player game created with options: BRMPX")
@@ -196,7 +197,7 @@ internal class ScriptSessionTest {
         commands.flatMap(repl::command).map {
           normalizeEventOrdinals(it).replace(letterRegex, "Z")
         }
-    assertThat(output).containsExactlyElementsIn(expectedOutput).inOrder()
+    assertEquals(expectedOutput, output)
   }
 
   @Test
@@ -205,31 +206,37 @@ internal class ScriptSessionTest {
     repl.command("become Player2")
     repl.command("exec ProjectCard")
 
-    assertThat(strip(repl.command("exec PROD[5, 4 Energy]")))
-        .containsExactly(
-            "+5 Production<Player2, Class<Megacredit>> BY Player2 (manual)",
-            "+4 Production<Player2, Class<Energy>> BY Player2 (manual)",
-        )
+    assertEquals(
+        listOf(
+                "+5 Production<Player2, Class<Megacredit>> BY Player2 (manual)",
+                "+4 Production<Player2, Class<Energy>> BY Player2 (manual)",
+            )
+            .sorted(),
+        strip(repl.command("exec PROD[5, 4 Energy]")).sorted(),
+    )
     val byCard = "BY Player2 VIA StripMine<Player2>"
-    assertThat(strip(repl.command("exec StripMine")))
-        .containsExactly(
-            "+StripMine<Player2> BY Player2 (manual)",
-            "+BuildingTag<Player2, StripMine<Player2>> $byCard",
-            "-2 Production<Player2, Class<Energy>> $byCard",
-            "+2 Production<Player2, Class<Steel>> $byCard",
-            "+Production<Player2, Class<Titanium>> $byCard",
-            "+OxygenStep $byCard",
-            "+TerraformRating<Player2> BY Player2 VIA OxygenStep",
-            "+OxygenStep $byCard",
-            "+TerraformRating<Player2> BY Player2 VIA OxygenStep",
-        )
+    assertEquals(
+        listOf(
+                "+StripMine<Player2> BY Player2 (manual)",
+                "+BuildingTag<Player2, StripMine<Player2>> $byCard",
+                "-2 Production<Player2, Class<Energy>> $byCard",
+                "+2 Production<Player2, Class<Steel>> $byCard",
+                "+Production<Player2, Class<Titanium>> $byCard",
+                "+OxygenStep $byCard",
+                "+TerraformRating<Player2> BY Player2 VIA OxygenStep",
+                "+OxygenStep $byCard",
+                "+TerraformRating<Player2> BY Player2 VIA OxygenStep",
+            )
+            .sorted(),
+        strip(repl.command("exec StripMine")).sorted(),
+    )
 
     val check1 = "has PROD[=2 Energy, =2 Steel]"
-    assertThat(repl.command(check1).first()).startsWith("true")
+    assertTrue(repl.command(check1).first().startsWith("true"))
 
     repl.command("become Player1")
     val check2 = "has PROD[=0 Energy, =0 Steel]"
-    assertThat(repl.command(check2).first()).startsWith("true")
+    assertTrue(repl.command(check2).first().startsWith("true"))
   }
 
   @Test
@@ -241,8 +248,8 @@ internal class ScriptSessionTest {
 
     val board =
         PlayerBoardToText(TfmGameplay(repl.game, repl.gameplay.actor, repl.gameplay), false).board()
-    assertThat(board)
-        .containsExactly(
+    assertEquals(
+        listOf(
             "  Player1   TR: 20   Tiles: 0",
             "+---------+---------+---------+",
             "|  M:   8 |  S:   6 |  T:   7 |",
@@ -251,8 +258,9 @@ internal class ScriptSessionTest {
             "|  P:   5 |  E:   3    H:   9 |",
             "| prod  6 | prod  5 | prod  4 |",
             "+---------+---------+---------+",
-        )
-        .inOrder()
+        ),
+        board,
+    )
   }
 
   @Test
@@ -261,12 +269,11 @@ internal class ScriptSessionTest {
     repl.command("become Player1")
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>")
     repl.command("as Player2 exec GT<M45>, CT<M66>, MaTile<M99>")
-    assertThat(repl.command("tasks")).isEmpty()
-    assertThat(repl.gameplay.count("Tile")).isEqualTo(8)
+    assertTrue(repl.command("tasks").isEmpty())
+    assertEquals(8, repl.gameplay.count("Tile"))
 
-    assertThat(repl.command(TfmMapCommand(repl)))
-        .containsExactlyElementsIn(
-            """
+    assertEquals(
+        """
                                    1    2    3    4    5    6    7    8    9
                                   /    /    /    /    /    /    /    /    /
 
@@ -288,11 +295,11 @@ internal class ScriptSessionTest {
 
                9 -             LS  LSS   L    L   [S2]
             """
-                .replaceIndent(" ")
-                .split("\n")
-                .map { it.trimEnd() }
-        )
-        .inOrder()
+            .replaceIndent(" ")
+            .split("\n")
+            .map { it.trimEnd() },
+        repl.command(TfmMapCommand(repl)),
+    )
   }
 }
 

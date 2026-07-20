@@ -48,10 +48,13 @@ The engine knows how to modify a game state by actually executing card instructi
 
 ### <a href="script/dev.martianzoo.script/index.html">dev.martianzoo.script</a>
 
-The plain-text command/session layer for driving the engine from scripts or server clients.
+The Kotlin Multiplatform plain-text command/session layer for driving the engine. Its command,
+completion, and Terraforming Mars behavior runs on JVM and JavaScript. Host applications can add
+commands explicitly without changing the shared session's behavior by compilation target.
 
 ## module REPL
 
 ### <a href="repl/dev.martianzoo.repl/index.html">dev.martianzoo.repl</a>
 
-REgo PLastics, an extremely bad command-line UI to the engine.
+The JVM REgo PLastics application: its interactive JLine UI, filesystem script support, TCP server,
+and executable entry point.

@@ -1,5 +1,6 @@
-package dev.martianzoo.script
+package dev.martianzoo.repl
 
+import dev.martianzoo.script.ScriptCompletion
 import java.io.File
 
 internal object ScriptPathCompletions {

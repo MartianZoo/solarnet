@@ -191,12 +191,6 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
   explicit player, workflow, monitor, debug, and fixture role objects. This is a large API project;
   defer the script gameplay/access-context cleanup until this direction is clearer. (Later)
 
-## Platform Reach
-
-- Convert `script` to Kotlin Multiplatform so its session, commands, parsing, and plain-text output
-  work from JavaScript; keep JVM terminal/server launchers in `jvmMain`, and add a JS session smoke
-  test. Address remaining engine JS compatibility issues as they arise. (Needs discussion)
-
 ## Performance Only
 
 - Profile and reduce the largest type-system allocation hot spots. `MType.glb` was observed allocating

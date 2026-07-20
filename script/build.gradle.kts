@@ -1,23 +1,47 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.net.URI
 
 plugins {
-  id("org.jetbrains.kotlin.jvm")
-  id("com.gradleup.shadow") version "9.2.2"
+  id("org.jetbrains.kotlin.multiplatform")
   id("org.jetbrains.dokka")
-  `java-library`
 }
 
-dependencies {
-  testImplementation(platform("org.junit:junit-bom:5.14.4"))
-  testImplementation("org.junit.jupiter:junit-jupiter-api")
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-  testImplementation("com.google.truth:truth:1.4.5")
+val copyCanonResourcesForKarma by
+    tasks.registering(Copy::class) {
+      dependsOn(":canon:jsProcessResources")
+      from(project(":canon").layout.buildDirectory.dir("processedResources/js/main"))
+      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-script-test"))
+    }
 
-  implementation(project(":pets"))
-  implementation(project(":engine"))
-  implementation(project(":canon"))
+val copyPetsResourcesForKarma by
+    tasks.registering(Copy::class) {
+      dependsOn(":pets:jsProcessResources")
+      from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets"))
+      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-script-test/pets"))
+    }
+
+kotlin {
+  jvm()
+  js(IR) {
+    browser()
+  }
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        implementation(project(":pets"))
+        implementation(project(":engine"))
+        implementation(project(":canon"))
+      }
+    }
+    commonTest {
+      dependencies { implementation(kotlin("test")) }
+    }
+  }
+}
+
+tasks.named("jsBrowserTest") {
+  dependsOn(copyCanonResourcesForKarma)
+  dependsOn(copyPetsResourcesForKarma)
 }
 
 dokka {
@@ -29,15 +53,5 @@ dokka {
         remoteLineSuffix.set("#L")
       }
     }
-    named("main") {
-      samples.from("src/main/kotlin/dev/martianzoo/script/samples.kt")
-    }
-  }
-}
-
-tasks {
-  named<ShadowJar>("shadowJar") {
-    mergeServiceFiles()
-    manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.script.ScriptSessionKt")) }
   }
 }

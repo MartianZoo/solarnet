@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.script
 
-import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
@@ -10,7 +9,9 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal fun setUpGame(setup: GameSetup): Game =
     Engine.newGame(setup).apply { TfmWorkflow.Manual(this, setup).setupPhase() }
@@ -32,11 +33,11 @@ internal class BasicTest {
     session.manual("C138")
     session.manual("PROD[-2 E, 2 S, T]")
 
-    assertThat(session.count("PROD[E]")).isEqualTo(0)
-    assertThat(session.count("PROD[S]")).isEqualTo(4)
-    assertThat(session.count("PROD[T]")).isEqualTo(2)
+    assertEquals(0, session.count("PROD[E]"))
+    assertEquals(4, session.count("PROD[S]"))
+    assertEquals(2, session.count("PROD[T]"))
 
-    assertThat(game.tfm(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
+    assertTrue(game.tfm(PLAYER1).has("PROD[=0 E, =0 S]"))
   }
 
   @Test
@@ -47,7 +48,7 @@ internal class BasicTest {
     session.manual("3 Heat!")
     session.manual("4 Heat.")
     session.manual("-9 Heat.")
-    assertThat(session.count("Heat")).isEqualTo(0)
+    assertEquals(0, session.count("Heat"))
   }
 
   @Test
@@ -57,14 +58,14 @@ internal class BasicTest {
 
     session.manual("3 Heat")
     session.manual("4 Heat")
-    assertThat(session.count("Heat")).isEqualTo(7)
+    assertEquals(7, session.count("Heat"))
 
     val checkpoint = game.timeline.checkpoint()
     session.manual("-6 Heat")
-    assertThat(session.count("Heat")).isEqualTo(1)
+    assertEquals(1, session.count("Heat"))
 
     game.timeline.rollBack(checkpoint)
-    assertThat(session.count("Heat")).isEqualTo(7)
+    assertEquals(7, session.count("Heat"))
   }
 
   @Test
@@ -72,19 +73,19 @@ internal class BasicTest {
     val game = setUpGame(Canon.SIMPLE_GAME)
     val session = game.tfm(PLAYER1).godMode()
 
-    assertThat(game.tasks.isEmpty()).isTrue()
-    assertThat(session.count("Microbe")).isEqualTo(0)
+    assertTrue(game.tasks.isEmpty())
+    assertEquals(0, session.count("Microbe"))
 
     session.manual("4 OxygenStep")
-    assertThat(session.count("OxygenStep")).isEqualTo(4)
+    assertEquals(4, session.count("OxygenStep"))
     session.manual("ProjectCard")
     session.manual("Ants")
-    assertThat(game.tasks.isEmpty()).isTrue()
-    assertThat(session.count("Ants")).isEqualTo(1)
+    assertTrue(game.tasks.isEmpty())
+    assertEquals(1, session.count("Ants"))
     session.manual("3 Microbe<Ants>")
-    assertThat(session.count("Microbe")).isEqualTo(3)
+    assertEquals(3, session.count("Microbe"))
     session.manual("-Ants")
-    assertThat(session.count("Microbe")).isEqualTo(0)
+    assertEquals(0, session.count("Microbe"))
   }
 
   @Test
@@ -92,36 +93,36 @@ internal class BasicTest {
     val game = setUpGame(Canon.SIMPLE_GAME)
     val session = game.tfm(PLAYER1).godMode()
     session.manual("42 Heat")
-    assertThat(session.count("Heat")).isEqualTo(42)
-    assertThat(session.count("4 Heat")).isEqualTo(10)
-    assertThat(session.count("42 Heat")).isEqualTo(1)
-    assertThat(session.count("43 Heat")).isEqualTo(0)
-    assertThat(session.count("Heat MAX 50")).isEqualTo(42)
-    assertThat(session.count("Heat MAX 42")).isEqualTo(42)
-    assertThat(session.count("Heat MAX 41")).isEqualTo(41)
-    assertThat(session.count("Heat MAX 1")).isEqualTo(1)
-    assertThat(session.count("Heat MAX 0")).isEqualTo(0)
-    assertThat(session.count("4 Heat MAX 10")).isEqualTo(10)
-    assertThat(session.count("4 Heat MAX 9")).isEqualTo(9)
+    assertEquals(42, session.count("Heat"))
+    assertEquals(10, session.count("4 Heat"))
+    assertEquals(1, session.count("42 Heat"))
+    assertEquals(0, session.count("43 Heat"))
+    assertEquals(42, session.count("Heat MAX 50"))
+    assertEquals(42, session.count("Heat MAX 42"))
+    assertEquals(41, session.count("Heat MAX 41"))
+    assertEquals(1, session.count("Heat MAX 1"))
+    assertEquals(0, session.count("Heat MAX 0"))
+    assertEquals(10, session.count("4 Heat MAX 10"))
+    assertEquals(9, session.count("4 Heat MAX 9"))
   }
 
   @Test
   fun tempTrigger() {
     val game = setUpGame(Canon.SIMPLE_GAME)
     val session = game.tfm(PLAYER1).godMode()
-    assertThat(session.count("TerraformRating")).isEqualTo(20)
+    assertEquals(20, session.count("TerraformRating"))
 
     session.manual("2 TemperatureStep")
-    assertThat(session.count("TemperatureStep")).isEqualTo(2)
-    assertThat(session.count("TerraformRating")).isEqualTo(22)
-    assertThat(session.count("Production<Class<Heat>>")).isEqualTo(0)
+    assertEquals(2, session.count("TemperatureStep"))
+    assertEquals(22, session.count("TerraformRating"))
+    assertEquals(0, session.count("Production<Class<Heat>>"))
 
     session.manual("2 TemperatureStep")
-    assertThat(session.count("TerraformRating")).isEqualTo(24)
-    assertThat(session.count("Production<Class<Heat>>")).isEqualTo(1)
+    assertEquals(24, session.count("TerraformRating"))
+    assertEquals(1, session.count("Production<Class<Heat>>"))
 
     session.manual("8 OxygenStep")
-    assertThat(session.count("TerraformRating")).isEqualTo(33)
-    assertThat(session.count("Production<Class<Heat>>")).isEqualTo(2)
+    assertEquals(33, session.count("TerraformRating"))
+    assertEquals(2, session.count("Production<Class<Heat>>"))
   }
 }

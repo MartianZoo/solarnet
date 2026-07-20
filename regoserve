@@ -17,7 +17,7 @@ fi
 
 export PATH="$JAVA_HOME/bin:$PATH"
 
-./gradlew :script:shadowJar || exit
-"$JAVA_HOME/bin/java" -jar script/build/libs/script-all.jar --serve &
+./gradlew :repl:shadowJar || exit
+"$JAVA_HOME/bin/java" -jar repl/build/libs/repl-all.jar --serve &
 disown
 echo "Rego server starting on port 2315 (use ./rc to send commands)..."

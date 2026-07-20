@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.script
+package dev.martianzoo.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.script.ScriptServer
 import java.net.Socket
 import org.junit.jupiter.api.Test
 
@@ -45,7 +44,7 @@ internal class ScriptServerTest {
 
   @Test
   fun basicCommand() = withServer { send ->
-    assertThat(send("count Steel")).containsExactly("0 Steel<Owner>")
+    assertThat(send("count Steel")).containsExactly("0 Steel<Owner>").inOrder()
   }
 
   @Test

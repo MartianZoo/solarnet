@@ -15,6 +15,7 @@ private constructor(
   val args: String = parsedArgs.text
   val words: List<String> = parsedArgs.words
   val argIndex: Int = parsedArgs.argIndex
+  val currentWord: String = parsedArgs.currentWord
   val firstWord: String = parsedArgs.firstWord
   val restAfterFirstWord: String = parsedArgs.restAfterFirstWord
   val hasRestAfterFirstWord: Boolean = parsedArgs.hasRestAfterFirstWord
@@ -45,9 +46,6 @@ private constructor(
   fun checkpointIds(): List<ScriptCompletion> = sources.checkpointIds()
 
   fun taskIds(): List<ScriptCompletion> = sources.taskIds()
-
-  fun fileArguments(): List<ScriptCompletion> =
-      ScriptPathCompletions.arguments(parsedArgs.currentWord)
 
   fun optionSuggestions(): List<ScriptCompletion> = sources.optionSuggestions()
 

@@ -14,12 +14,19 @@ import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp.Capability
 
-public fun main() {
-  val session = ScriptSession()
+public fun main(args: Array<String>) {
+  if ("--serve" in args) {
+    ScriptServer().run()
+    return
+  }
+
+  val session = newScriptSession()
   val repl = JlineRepl(session)
   repl.loop()
   println("Bye")
 }
+
+internal fun newScriptSession(): ScriptSession = ScriptSession { listOf(RunScriptCommand(it)) }
 
 internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
   private val replCommands: Map<String, ScriptCommand> =

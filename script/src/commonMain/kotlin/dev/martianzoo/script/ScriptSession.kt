@@ -37,7 +37,6 @@ import dev.martianzoo.script.commands.ModeCommand
 import dev.martianzoo.script.commands.NewGameCommand
 import dev.martianzoo.script.commands.PhaseCommand
 import dev.martianzoo.script.commands.RollbackCommand
-import dev.martianzoo.script.commands.RunScriptCommand
 import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
@@ -60,15 +59,9 @@ import dev.martianzoo.types.MType
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 
-public fun main(args: Array<String>) { // JVM entry point for the shadow JAR
-  if ("--serve" in args) {
-    ScriptServer().run()
-    return
-  }
-  println("Run ./rego for interactive mode, or pass --serve for server mode.")
-}
-
-public class ScriptSession {
+public class ScriptSession(
+    hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
+) {
   internal lateinit var setup: GameSetup
   internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
@@ -138,7 +131,7 @@ public class ScriptSession {
   }
 
   internal val commands =
-      listOf(
+      (listOf(
               AsCommand(this),
               AutoCommand(this),
               BecomeCommand(this),
@@ -155,7 +148,6 @@ public class ScriptSession {
               NewGameCommand(this),
               PhaseCommand(this),
               RollbackCommand(this),
-              RunScriptCommand(this),
               StatusCommand(this),
               TaskCommand(this),
               TasksCommand(this),
@@ -163,7 +155,7 @@ public class ScriptSession {
               TfmPayCommand(this),
               TfmPlayCommand(this),
               TfmSampleCommand(this),
-          )
+          ) + hostCommands(this))
           .associateBy { it.name }
 
   internal fun access(): Access = // TODO maybe don't do this "just-in-time"...

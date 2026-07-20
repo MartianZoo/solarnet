@@ -1,4 +1,4 @@
-package dev.martianzoo.script.commands
+package dev.martianzoo.repl
 
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
@@ -6,7 +6,7 @@ import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import java.io.File
 
-internal class RunScriptCommand(private val repl: ScriptSession) : ScriptCommand("script") {
+internal class RunScriptCommand(private val session: ScriptSession) : ScriptCommand("script") {
   override val usage = "script <filename>"
   override val help =
       """
@@ -17,7 +17,7 @@ internal class RunScriptCommand(private val repl: ScriptSession) : ScriptCommand
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
-      context.fileArguments()
+      ScriptPathCompletions.arguments(context.currentWord)
 
   override fun completionPrefix(parsedWord: String): String = parsedWord
 
@@ -26,5 +26,5 @@ internal class RunScriptCommand(private val repl: ScriptSession) : ScriptCommand
           .readLines()
           .takeWhile { it.trim() != "stop" }
           .filter { it.isNotEmpty() }
-          .flatMap { listOf(">>> $it") + repl.command(it) + "" }
+          .flatMap { listOf(">>> $it") + session.command(it) + "" }
 }

@@ -110,6 +110,8 @@ tasks
           ":canon:copyCanonResourcesForKarma",
           ":engine:copyCanonResourcesForKarma",
           ":pets:copyCanonResourcesForKarma",
+          ":script:copyCanonResourcesForKarma",
+          ":script:copyPetsResourcesForKarma",
       )
     }
 

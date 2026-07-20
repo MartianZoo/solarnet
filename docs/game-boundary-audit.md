@@ -89,7 +89,7 @@ install its own syntax transforms.
 
 ### P1: Most of the generic script application is actually the Terraforming Mars application
 
-`script/src/main/kotlin/dev/martianzoo/script/ScriptSession.kt` hard-wires:
+`script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt` hard-wires:
 
 1. `Canon.SIMPLE_GAME`.
 2. `GameSetup`.
@@ -100,14 +100,14 @@ install its own syntax transforms.
 
 More Terraforming Mars behavior is spread through generic command/support packages:
 
-1. `script/src/main/kotlin/dev/martianzoo/script/Access.kt` defines any phase change as
+1. `script/src/commonMain/kotlin/dev/martianzoo/script/Access.kt` defines any phase change as
    `${name}Phase FROM Phase`.
-2. `script/src/main/kotlin/dev/martianzoo/script/commands/NewGameCommand.kt` understands
+2. `script/src/commonMain/kotlin/dev/martianzoo/script/commands/NewGameCommand.kt` understands
    Terraforming Mars expansion letters and `GameSetup`.
-3. `script/src/main/kotlin/dev/martianzoo/script/ScriptCompletionSources.kt` knows the six
+3. `script/src/commonMain/kotlin/dev/martianzoo/script/ScriptCompletionSources.kt` knows the six
    Terraforming Mars resources, playable `CardDefinition`s, maps, expansion combinations, phases,
    and `PROD`.
-4. `script/src/main/kotlin/dev/martianzoo/script/commands/HelpCommand.kt` mixes the generic command
+4. `script/src/commonMain/kotlin/dev/martianzoo/script/commands/HelpCommand.kt` mixes the generic command
    catalog and Terraforming Mars commands.
 
 The reusable script shell, command dispatch, generic query/task commands, and completion engine
@@ -120,8 +120,8 @@ creation, commands, completion sources, workflow, prompt metadata, and colors.
 uses `.rego_history`, recognizes `rebuild` as a launcher protocol, and delegates
 Terraforming-Mars/application help.
 
-`script/src/main/kotlin/dev/martianzoo/script/ScriptServer.kt` similarly constructs the concrete
-session and emits REgo-specific messages.
+`repl/src/main/kotlin/dev/martianzoo/repl/ScriptServer.kt` similarly constructs the concrete session
+and emits REgo-specific messages.
 
 This is not specifically Terraforming Mars logic, but another game would not reuse it unchanged.
 The JLine loop, history adapter, socket server, and completion adapter are reusable; main-method
@@ -186,9 +186,9 @@ rebuilding the subtle queue/coroutine/rollback integration.
 
 ### P3: Small generic presentation helpers are trapped in Terraforming Mars UI classes
 
-1. `script/src/main/kotlin/dev/martianzoo/tfm/script/TfmColor.kt` contains a generic hex-to-ANSI
+1. `script/src/commonMain/kotlin/dev/martianzoo/tfm/script/TfmColor.kt` contains a generic hex-to-ANSI
    foreground renderer inside a Terraforming Mars color enum.
-2. `script/src/main/kotlin/dev/martianzoo/tfm/script/commands/TfmMapCommand.kt` contains a reusable
+2. `script/src/commonMain/kotlin/dev/martianzoo/tfm/script/commands/TfmMapCommand.kt` contains a reusable
    half-space centering writer.
 
 These are minor and should not drive the architecture, but they are the only clearly generic logic
@@ -203,10 +203,9 @@ in the otherwise properly Terraforming-Mars-specific script commands.
 3. **`canon`** is correctly Terraforming-Mars-specific except for the `System` ruleset, which is
    really the generic runtime prelude.
 4. **`script`** has a good generic command framework, but its central session, setup command,
-   completion sources, phase handling, and server construction are the Terraforming Mars/REgo
-   application.
-5. **`repl`** contains reusable terminal integration, but its executable wiring and branding are
-   application-specific.
+   completion sources, and phase handling are the Terraforming Mars/REgo application.
+5. **`repl`** contains reusable terminal and server integration, but its executable wiring and
+   branding are application-specific.
 
 ## Suggested extraction order
 

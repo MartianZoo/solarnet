@@ -1,11 +1,12 @@
-package dev.martianzoo.script
+package dev.martianzoo.repl
 
+import dev.martianzoo.script.ScriptCompletionEngine
 import java.net.ServerSocket
 
 internal const val SERVER_PORT = 2315
 
 public class ScriptServer(port: Int = SERVER_PORT) {
-  private val session = ScriptSession()
+  private val session = newScriptSession()
   private val completer = ScriptCompletionEngine(session)
   // Bind eagerly so callers can read actualPort before run() is called (useful in tests).
   private val serverSocket = ServerSocket(port)

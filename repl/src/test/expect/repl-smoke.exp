@@ -53,7 +53,7 @@ expect "Type `help` for help"
 expect -re {> }
 
 send -- "newgame BRMPX 2\n"
-expect "New 2-player game created with bundles: BRMPX"
+expect "New 2-player game created with options: BRMPX"
 expect -re {> }
 
 send -- "tfm_sample Z 1\n"
