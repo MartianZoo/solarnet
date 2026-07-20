@@ -1,0 +1,1680 @@
+{
+  "cards": [
+
+    // Ecoline
+    {
+      "id": "B02",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[2 Plant], 36, 3 Plant",
+      "effects": [ "UseAction<ConvertPlantsSA>:: Plant" ]
+    },
+
+    // Interplanetary Cinematics
+    {
+      "id": "B04",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "30, 20 Steel",
+      "effects": [ "EventCard: 2" ]
+    },
+
+    // Phobolog
+    {
+      "id": "B07",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "SpaceTag" ],
+      "immediate": "23, 10 Titanium",
+      "effects": [ "Pay<Class<Titanium>>:: -Owed" ]
+    },
+
+    // Tharsis Republic
+    {
+      "id": "B08",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "40, MandateB08",
+      "effects": [
+        "CityTile<Anyone, MarsArea>: PROD[1]",
+        "CityTile: 3",
+      ],
+      "components": [ "CLASS MandateB08 : Mandate { -> CityTile }" ]
+    },
+
+    // ThorGate
+    {
+      "id": "B09",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[Energy], 48",
+      "effects": [
+        "PlayTag<Class<PowerTag>>:: -3 Owed",
+        "UseAction<PowerPlantSP>:: 3"
+      ]
+    },
+
+    // United Nations Mars Initiative
+    {
+      "id": "B10",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": "40",
+      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
+      "components": [
+        "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
+        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
+      ]
+    },
+
+    // Colonizer Training Camp
+    {
+      "id": "001",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "BuildingTag" ],
+      "effects": [ "End: 2 VictoryPoint" ],
+      "requirement": "MAX 5 OxygenStep",
+      "cost": 8,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Deep Well Heating
+    {
+      "id": "003",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[Energy], TemperatureStep",
+      "cost": 13,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Cloud Seeding
+    {
+      "id": "004",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "PROD[-1, -Heat<Anyone>, 2 Plant]",
+      "requirement": "3 OceanTile",
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Search For Life[F]
+    {
+      "id": "005F",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "actions": [ "1 -> Science<This>?" ], // honor system
+      "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
+      "resourceType": "Science",
+      "requirement": "MAX 6 OxygenStep",
+      "cost": 3,
+      "projectKind": "ACTIVE"
+    },
+
+    // Martian Rails
+    {
+      "id": "007",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [ "Energy -> 1 / CityTile<MarsArea, Anyone>" ],
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
+    // Asteroid
+    {
+      "id": "009",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "TemperatureStep, 2 Titanium, -3 Plant<Anyone>?",
+      "cost": 14,
+      "projectKind": "EVENT"
+    },
+
+    // Comet
+    {
+      "id": "010",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "TemperatureStep, OceanTile, -3 Plant<Anyone>?",
+      "cost": 21,
+      "projectKind": "EVENT"
+    },
+
+    // Big Asteroid
+    {
+      "id": "011",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "2 TemperatureStep, 4 Titanium, -4 Plant<Anyone>?",
+      "cost": 27,
+      "projectKind": "EVENT"
+    },
+
+    // Water Import From Europa
+    {
+      "id": "012",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "actions": [
+        // 12[Titanium] -> OceanTile
+        "-> 12 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: OceanTile"
+      ],
+      "effects": [
+          "End: VictoryPoint / JovianTag"
+      ],
+      "cost": 25,
+      "projectKind": "ACTIVE"
+    },
+
+    // Equatorial Magnetizer
+    {
+      "id": "015",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [ "PROD[Energy] -> TerraformRating" ],
+      "cost": 11,
+      "projectKind": "ACTIVE"
+    },
+
+    // Domed Crater
+    {
+      "id": "016",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, 3], CityTile, 3 Plant",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "MAX 7 OxygenStep",
+      "cost": 24,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Noctis City
+    {
+      "id": "017",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile)",
+      "cost": 18,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Methane From Titan
+    {
+      "id": "018",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "PROD[2 Heat, 2 Plant]",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "requirement": "2 OxygenStep",
+      "cost": 28,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Imported Hydrogen
+    {
+      "id": "019",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "3 Plant OR 3 Microbe OR 2 Animal, OceanTile",
+      "cost": 16,
+      "projectKind": "EVENT"
+    },
+
+    // Research Outpost
+    {
+      "id": "020",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
+      "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
+      "effects": [ "PlayCard: -Owed" ],
+      "cost": 18,
+      "projectKind": "ACTIVE"
+    },
+
+    // Phobos Space Haven
+    {
+      "id": "021",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag", "CityTag" ],
+      "immediate": "PROD[Titanium], CityTile<Area021>",
+      "effects": [ "End: 3 VictoryPoint" ],
+      "components": [ "CLASS Area021 : RemoteArea" ],
+      "cost": 25,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Black Polar Dust
+    {
+      "id": "022",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "PROD[-2, 3 Heat], OceanTile",
+      "cost": 15,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Arctic Algae
+    {
+      "id": "023",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "Plant",
+      "effects": [ "OceanTile BY Anyone: 2 Plant" ],
+      "requirement": "MAX 9 TemperatureStep",
+      "cost": 12,
+      "projectKind": "ACTIVE",
+    },
+
+    // Predators
+    {
+      "id": "024",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+      "actions": [ "Animal<Anyone> -> Animal<This>" ],
+      "effects": [ "End: VictoryPoint / Animal<This>" ],
+      "resourceType": "Animal",
+      "requirement": "11 OxygenStep",
+      "cost": 14,
+      "projectKind": "ACTIVE"
+    },
+
+    // Eos Chasma National Park
+    {
+      "id": "026",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag", "BuildingTag" ],
+      "immediate": "Animal, 3 Plant, PROD[2]",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "8 TemperatureStep",
+      "cost": 16,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Cupola City
+    {
+      "id": "029",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, 3], CityTile",
+      "requirement": "MAX 9 OxygenStep",
+      "cost": 16,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Lunar Beam
+    {
+      "id": "030",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "PowerTag" ],
+      "immediate": "PROD[-2, 2 Heat, 2 Energy]",
+      "cost": 13,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Optimal Aerobraking
+    {
+      "id": "031",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
+      "cost": 7,
+      "projectKind": "ACTIVE"
+    },
+
+    // Underground City
+    {
+      "id": "032",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-2 Energy, 2 Steel], CityTile",
+      "cost": 18,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Regolith Eaters
+    {
+      "id": "033",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "MicrobeTag" ],
+      "actions": [
+        "-> Microbe<This>",
+        "2 Microbe<This> -> OxygenStep"
+      ],
+      "resourceType": "Microbe",
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
+    // GHG Producing Bacteria
+    {
+      "id": "034",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "MicrobeTag" ],
+      "actions": [
+        "-> Microbe<This>",
+        "2 Microbe<This> -> TemperatureStep"
+      ],
+      "resourceType": "Microbe",
+      "requirement": "4 OxygenStep",
+      "cost": 8,
+      "projectKind": "ACTIVE"
+    },
+
+    // Ants
+    {
+      "id": "035",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "actions": [ "Microbe<Anyone> -> Microbe<This>" ],
+      "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
+      "resourceType": "Microbe",
+      "requirement": "4 OxygenStep",
+      "cost": 9,
+      "projectKind": "ACTIVE"
+    },
+
+    // Release Of Inert Gases
+    {
+      "id": "036",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "2 TerraformRating",
+      "cost": 14,
+      "projectKind": "EVENT"
+    },
+
+    // Nitrogen-Rich Asteroid
+    {
+      "id": "037",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[Plant OR (3 PlantTag: 4 Plant)], 2 TerraformRating, TemperatureStep",
+      "cost": 31,
+      "projectKind": "EVENT"
+    },
+
+    // Rover Construction
+    {
+      "id": "038",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "effects": [
+        "CityTile<Anyone>: 2",
+        "End: VictoryPoint"
+      ],
+      "cost": 8,
+      "projectKind": "ACTIVE"
+    },
+
+    // Deimos Down (original)
+    {
+      "id": "039",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?",
+      "cost": 31,
+      "projectKind": "EVENT"
+    },
+
+    // Asteroid Mining
+    {
+      "id": "040",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "PROD[2 Titanium]",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "cost": 30,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Food Factory
+    {
+      "id": "041",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Plant, 4]",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 12,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Archaebacteria
+    {
+      "id": "042",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "PROD[Plant]",
+      "requirement": "MAX 6 TemperatureStep",
+      "cost": 6,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Carbonate Processing
+    {
+      "id": "043",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy, 3 Heat]",
+      "cost": 6,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Natural Preserve
+    {
+      "id": "044",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "immediate": "PROD[1], NpTile<LandArea(HAS MAX 0 Neighbor)>",
+      "effects": [ "End: VictoryPoint" ],
+      "components": [ "CLASS NpTile : SpecialTile" ],
+      "requirement": "MAX 4 OxygenStep",
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Nuclear Power
+    {
+      "id": "045",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[-2, 3 Energy]",
+      "cost": 10,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Algae
+    {
+      "id": "047",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[2 Plant], Plant",
+      "requirement": "5 OceanTile",
+      "cost": 10,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Adapted Lichen
+    {
+      "id": "048",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant]",
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Fish
+    {
+      "id": "052",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+      "immediate": "PROD[-Plant<Anyone>]",
+      "actions": [ "-> Animal<This>" ],
+      "effects": [ "End: VictoryPoint / Animal<This>" ],
+      "resourceType": "Animal",
+      "requirement": "16 TemperatureStep",
+      "cost": 9,
+      "projectKind": "ACTIVE"
+    },
+
+    // Lake Marineris
+    {
+      "id": "053",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "2 OceanTile",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "requirement": "15 TemperatureStep",
+      "cost": 18,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Small Animals
+    {
+      "id": "054",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+      "immediate": "PROD[-Plant<Anyone>]",
+      "actions": [ "-> Animal<This>" ],
+      "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
+      "resourceType": "Animal",
+      "requirement": "6 OxygenStep",
+      "cost": 6,
+      "projectKind": "ACTIVE"
+    },
+
+    // Kelp Farming
+    {
+      "id": "055",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[2, 3 Plant], 2 Plant",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "6 OceanTile",
+      "cost": 17,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Beam From A Thorium Asteroid
+    {
+      "id": "058",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "SpaceTag", "PowerTag" ],
+      "immediate": "PROD[3 Heat, 3 Energy]",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "JovianTag",
+      "cost": 32,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Mangrove
+    {
+      "id": "059",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "GreeneryTile<WaterArea>",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "17 TemperatureStep",
+      "cost": 12,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Trees
+    {
+      "id": "060",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[3 Plant], Plant",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "13 TemperatureStep",
+      "cost": 13,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Mining Expedition
+    {
+      "id": "063",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "OxygenStep, -2 Plant<Anyone>?, 2 Steel",
+      "cost": 12,
+      "projectKind": "EVENT"
+    },
+
+    // Birds
+    {
+      "id": "072",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+      "immediate": "PROD[-2 Plant<Anyone>]",
+      "actions": [ "-> Animal<This>" ],
+      "effects": [ "End: VictoryPoint / Animal<This>" ],
+      "resourceType": "Animal",
+      "requirement": "13 OxygenStep",
+      "cost": 10,
+      "projectKind": "ACTIVE"
+    },
+
+    // Towing A Comet
+    {
+      "id": "075",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "OxygenStep, OceanTile, 2 Plant",
+      "cost": 23,
+      "projectKind": "EVENT"
+    },
+
+    // Space Mirrors
+    {
+      "id": "076",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "SpaceTag" ],
+      "actions": [ "7 -> PROD[Energy]" ],
+      "cost": 3,
+      "projectKind": "ACTIVE"
+    },
+
+    // Solar Wind Power
+    {
+      "id": "077",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "SpaceTag", "PowerTag" ],
+      "immediate": "PROD[Energy], 2 Titanium",
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Ice Asteroid
+    {
+      "id": "078",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "2 OceanTile",
+      "cost": 23,
+      "projectKind": "EVENT"
+    },
+
+    // Giant Ice Asteroid
+    {
+      "id": "080",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "2 TemperatureStep, 2 OceanTile, -6 Plant<Anyone>?",
+      "cost": 36,
+      "projectKind": "EVENT"
+    },
+
+    // Ganymede Colony
+    {
+      "id": "081",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "SpaceTag", "CityTag" ],
+      "immediate": "CityTile<Area081>",
+      "effects": [ "End: VictoryPoint / JovianTag" ],
+      "components": [ "CLASS Area081 : RemoteArea" ],
+      "cost": 20,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Giant Space Mirror
+    {
+      "id": "083",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "SpaceTag" ],
+      "immediate": "PROD[3 Energy]",
+      "cost": 17,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Grass
+    {
+      "id": "087",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant], 3 Plant",
+      "requirement": "7 TemperatureStep",
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Heather
+    {
+      "id": "088",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant], Plant",
+      "requirement": "8 TemperatureStep",
+      "cost": 6,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Peroxide Power
+    {
+      "id": "089",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[-1, 2 Energy]",
+      "cost": 7,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Bushes
+    {
+      "id": "093",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[2 Plant], 2 Plant",
+      "requirement": "10 TemperatureStep",
+      "cost": 10,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Greenhouses
+    {
+      "id": "096",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag", "BuildingTag" ],
+      "immediate": "Plant / CityTile<Anyone>",
+      "cost": 6,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Nuclear Zone
+    {
+      "id": "097",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "immediate": "2 TemperatureStep, NzTile",
+      "effects": [ "End: -2 VictoryPoint" ],
+      "components": [ "CLASS NzTile : SpecialTile" ],
+      "cost": 10,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Fueled Generators
+    {
+      "id": "100",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[-1, Energy]",
+      "cost": 1,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Ironworks
+    {
+      "id": "101",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [ "4 Energy -> Steel, OxygenStep" ],
+      "cost": 11,
+      "projectKind": "ACTIVE"
+    },
+
+    // Power Grid
+    {
+      "id": "102",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[Energy / PowerTag]",
+      "cost": 18,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Steelworks
+    {
+      "id": "103",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [ "4 Energy -> 2 Steel, OxygenStep" ],
+      "cost": 15,
+      "projectKind": "ACTIVE"
+    },
+
+    // Ore Processor
+    {
+      "id": "104",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [ "4 Energy -> Titanium, OxygenStep" ],
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
+    // Open City
+    {
+      "id": "108",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, 4], CityTile, 2 Plant",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "12 OxygenStep",
+      "cost": 23,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Solar Power
+    {
+      "id": "113",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[Energy]",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Breathing Filters
+    {
+      "id": "114",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "effects": [ "End: 2 VictoryPoint" ],
+      "requirement": "7 OxygenStep",
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Artificial Photosynthesis
+    {
+      "id": "115",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "immediate": "PROD[Plant OR 2 Energy]",
+      "cost": 12,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Artificial Lake
+    {
+      "id": "116",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "OceanTile<LandArea>! OR (9 OceanTile: Ok)",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "12 TemperatureStep",
+      "cost": 15,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Geothermal Power
+    {
+      "id": "117",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[2 Energy]",
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Farming
+    {
+      "id": "118",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[2, 2 Plant], 2 Plant",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "requirement": "17 TemperatureStep",
+      "cost": 16,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Dust Seals
+    {
+      "id": "119",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "MAX 3 OceanTile",
+      "cost": 2,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Urbanized Area
+    {
+      "id": "120",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, 2], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>",
+      "cost": 10,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Moss
+    {
+      "id": "122",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant], -Plant",
+      "requirement": "3 OceanTile",
+      "cost": 4,
+      "projectKind": "AUTOMATED"
+    },
+
+    // GHG Factories
+    {
+      "id": "126",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy, 4 Heat]",
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Subterranean Reservoir
+    {
+      "id": "127",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "OceanTile",
+      "cost": 11,
+      "projectKind": "EVENT"
+    },
+
+    // Ecological Zone
+    {
+      "id": "128",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag", "PlantTag" ],
+      "immediate": "EzTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
+      "effects": [
+        "AnimalTag: Animal<This>",
+        "PlantTag: Animal<This>",
+        "End: VictoryPoint / 2 Animal<This>"
+      ],
+      "components": [ "CLASS EzTile : SpecialTile" ],
+      "resourceType": "Animal",
+      "requirement": "GreeneryTile",
+      "cost": 12,
+      "projectKind": "ACTIVE"
+    },
+
+    // Zeppelins
+    {
+      "id": "129",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "PROD[1 / CityTile<MarsArea, Anyone>]",
+      "requirement": "5 OxygenStep",
+      "cost": 13,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Worms
+    {
+      "id": "130",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "PROD[Plant / 2 MicrobeTag]",
+      "requirement": "4 OxygenStep",
+      "cost": 8,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Decomposers
+    {
+      "id": "131",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "effects": [
+        "BioTag: Microbe<This>",
+        "End: VictoryPoint / 3 Microbe<This>"
+      ],
+      "resourceType": "Microbe",
+      "requirement": "3 OxygenStep",
+      "cost": 5,
+      "projectKind": "ACTIVE"
+    },
+
+    // Fusion Power
+    {
+      "id": "132",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[3 Energy]",
+      "requirement": "2 PowerTag",
+      "cost": 14,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Symbiotic Fungus
+    {
+      "id": "133",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "actions": [ "-> Microbe" ],
+      "requirement": "8 TemperatureStep",
+      "cost": 4,
+      "projectKind": "ACTIVE"
+    },
+
+    // Extreme-Cold Fungus
+    {
+      "id": "134",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "actions": [
+        "-> Plant",
+        "-> 2 Microbe"
+      ],
+      "requirement": "MAX 10 TemperatureStep",
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
+    // Advanced Ecosystems
+    {
+      "id": "135",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag", "MicrobeTag", "AnimalTag" ],
+      "effects": [ "End: 3 VictoryPoint" ],
+      "requirement": "PlantTag, MicrobeTag, AnimalTag",
+      "cost": 11,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Great Dam (original)
+    {
+      "id": "136",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[2 Energy]",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "4 OceanTile",
+      "cost": 12,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Strip Mine
+    {
+      "id": "138",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-2 Energy, 2 Steel, Titanium], 2 OxygenStep",
+      "cost": 25,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Wave Power
+    {
+      "id": "139",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[Energy]",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "3 OceanTile",
+      "cost": 8,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Lava Flows
+    {
+      "id": "140",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "2 TemperatureStep, LfTile<VolcanicArea> OR (MAX 0 VolcanicArea: LfTile)",
+      "components": [ "CLASS LfTile : SpecialTile" ],
+      "cost": 18,
+      "projectKind": "EVENT"
+    },
+
+    // Power Plant
+    {
+      "id": "141",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[Energy]",
+      "cost": 4,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Mohole Area
+    {
+      "id": "142",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[4 Heat], MaTile<WaterArea>",
+      "components": [ "CLASS MaTile : SpecialTile" ],
+      "cost": 20,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Large Convoy
+    {
+      "id": "143",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "cost": 36,
+      "projectKind": "EVENT"
+    },
+
+    // Tectonic Stress Power
+    {
+      "id": "145",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[3 Energy]",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "2 ScienceTag",
+      "cost": 18,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Nitrophilic Moss
+    {
+      "id": "146",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[2 Plant], -2 Plant",
+      "requirement": "3 OceanTile",
+      "cost": 8,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Herbivores
+    {
+      "id": "147",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+      "immediate": "PROD[-Plant<Anyone>], Animal<This>",
+      "effects": [
+        "GreeneryTile: Animal<This>",
+        "End: VictoryPoint / 2 Animal<This>"
+      ],
+      "resourceType": "Animal",
+      "requirement": "8 OxygenStep",
+      "cost": 12,
+      "projectKind": "ACTIVE"
+    },
+
+    // Insects
+    {
+      "id": "148",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "PROD[Plant / PlantTag]",
+      "requirement": "6 OxygenStep",
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Insulation
+    {
+      "id": "152",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "PROD[X Megacredit FROM Heat]",
+      "cost": 2,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Designed Microorganisms
+    {
+      "id": "155",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "MicrobeTag" ],
+      "immediate": "PROD[2 Plant]",
+      "requirement": "MAX 8 TemperatureStep",
+      "cost": 16,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Nitrite Reducing Bacteria
+    {
+      "id": "157",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "3 Microbe<This>",
+      "actions": [
+        "-> Microbe<This>",
+        "3 Microbe<This> -> TerraformRating"
+      ],
+      "resourceType": "Microbe",
+      "cost": 11,
+      "projectKind": "ACTIVE"
+    },
+
+    // Industrial Microbes
+    {
+      "id": "158",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag", "BuildingTag" ],
+      "immediate": "PROD[Energy, Steel]",
+      "cost": 12,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Lichen
+    {
+      "id": "159",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant]",
+      "requirement": "3 TemperatureStep",
+      "cost": 7,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Convoy From Europa
+    {
+      "id": "161",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "OceanTile, ProjectCard",
+      "cost": 15,
+      "projectKind": "EVENT"
+    },
+
+    // Imported GHG
+    {
+      "id": "162",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "PROD[Heat], 3 Heat",
+      "cost": 7,
+      "projectKind": "EVENT"
+    },
+
+    // Imported Nitrogen
+    {
+      "id": "163",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "TerraformRating, 4 Plant, 3 Microbe, 2 Animal",
+      "cost": 23,
+      "projectKind": "EVENT"
+    },
+
+    // Micro-Mills
+    {
+      "id": "164",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "PROD[Heat]",
+      "cost": 3,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Magnetic Field Generators (original)
+    {
+      "id": "165",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating",
+      "cost": 20,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Shuttles
+    {
+      "id": "166",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[-Energy, 2]",
+      "effects": [
+        "PlayTag<Class<SpaceTag>>:: -2 Owed",
+        "End: VictoryPoint"
+      ],
+      "requirement": "5 OxygenStep",
+      "cost": 10,
+      "projectKind": "ACTIVE"
+    },
+
+    // Import Of Advanced GHG
+    {
+      "id": "167",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "PROD[2 Heat]",
+      "cost": 9,
+      "projectKind": "EVENT"
+    },
+
+    // Windmills
+    {
+      "id": "168",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[Energy]",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "7 OxygenStep",
+      "cost": 6,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Tundra Farming
+    {
+      "id": "169",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant, 2], Plant",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "requirement": "12 TemperatureStep",
+      "cost": 16,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Aerobraked Ammonia Asteroid
+    {
+      "id": "170",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[3 Heat, Plant], 2 Microbe",
+      "cost": 26,
+      "projectKind": "EVENT"
+    },
+
+    // Magnetic Field Dome
+    {
+      "id": "171",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-2 Energy, Plant], TerraformRating",
+      "cost": 5,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Pets
+    {
+      "id": "172",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "AnimalTag" ],
+      "immediate": "Animal<This>",
+      "effects": [
+        "CityTile<Anyone>: Animal<This>",
+        "-Animal<This>:: Die",
+        "End: VictoryPoint / 2 Animal<This>"
+      ],
+      "resourceType": "Animal",
+      "cost": 10,
+      "projectKind": "ACTIVE"
+    },
+
+    // Protected Valley
+    {
+      "id": "174",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag", "BuildingTag" ],
+      "immediate": "PROD[2], GreeneryTile<WaterArea>",
+      "cost": 23,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Noctis Farming
+    {
+      "id": "176",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag", "BuildingTag" ],
+      "immediate": "PROD[1], 2 Plant",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "5 TemperatureStep",
+      "cost": 10,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Water Splitting Plant
+    {
+      "id": "177",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [ "3 Energy -> OxygenStep" ],
+      "requirement": "2 OceanTile",
+      "cost": 12,
+      "projectKind": "ACTIVE"
+    },
+
+    // Heat Trappers
+    {
+      "id": "178",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[-2 Heat<Anyone>, Energy]",
+      "effects": [ "End: -VictoryPoint" ],
+      "cost": 6,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Soil Factory
+    {
+      "id": "179",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy, Plant]",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Ice Cap Melting
+    {
+      "id": "181",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "OceanTile",
+      "requirement": "16 TemperatureStep",
+      "cost": 5,
+      "projectKind": "EVENT"
+    },
+
+    // Biomass Combustors
+    {
+      "id": "183",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[-Plant<Anyone>, 2 Energy]",
+      "effects": [ "End: -VictoryPoint" ],
+      "requirement": "6 OxygenStep",
+      "cost": 4,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Livestock
+    {
+      "id": "184",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+      "immediate": "PROD[-Plant, 2]",
+      "actions": [ "-> Animal<This>" ],
+      "effects": [ "End: VictoryPoint / Animal<This>" ],
+      "resourceType": "Animal",
+      "requirement": "9 OxygenStep",
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
+    // Aquifer Pumping
+    {
+      "id": "187",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [
+        // 8[Steel] -> OceanTile
+        "-> 8 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: OceanTile"
+      ],
+      "cost": 18,
+      "projectKind": "ACTIVE"
+    },
+
+    // Energy Saving
+    {
+      "id": "189",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[Energy / CityTile<Anyone>]",
+      "cost": 15,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Local Heat Trapping
+    {
+      "id": "190",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "-5 Heat, 4 Plant OR 2 Animal",
+      "cost": 1,
+      "projectKind": "EVENT"
+    },
+
+    // Permafrost Extraction
+    {
+      "id": "191",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "OceanTile",
+      "requirement": "11 TemperatureStep",
+      "cost": 8,
+      "projectKind": "EVENT"
+    },
+
+    // Plantation
+    {
+      "id": "193",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "GreeneryTile",
+      "requirement": "2 ScienceTag",
+      "cost": 15,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Immigration Shuttles
+    {
+      "id": "198",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "PROD[5]",
+      "effects": [ "End: VictoryPoint / 3 CityTile<Anyone>" ],
+      "cost": 31,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Immigrant City
+    {
+      "id": "200",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, -2], CityTile",
+      "effects": [ "CityTile<Anyone>: PROD[1]" ],
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
+    // Underground Detonations
+    {
+      "id": "202",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "actions": [ "10 -> PROD[2 Heat]" ],
+      "cost": 6,
+      "projectKind": "ACTIVE"
+    },
+
+    // Soletta
+    {
+      "id": "203",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[7 Heat]",
+      "cost": 35,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Rad-Chem Factory
+    {
+      "id": "205",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy], 2 TerraformRating",
+      "cost": 8,
+      "projectKind": "AUTOMATED"
+    },
+  ],
+}

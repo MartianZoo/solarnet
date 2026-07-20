@@ -26,17 +26,6 @@
     // Convert heat
     { "id": "SAG", "bundle": "B", "action": "8 Heat -> TemperatureStep" },
 
-    // Trade
-    {
-      "id": "SAH",
-      "bundle": "C",
-      "actions": [
-        "9 -> Trade",
-        "3 Energy -> Trade",
-        "3 Titanium -> Trade"
-      ]
-    },
-
     // SAI = send delegate
 
     // Sell patents[F] - yes, it's technically a project, but that makes things annoying
@@ -53,14 +42,6 @@
 
     // Asteroid
     { "id": "SP14", "bundle": "B", "action": "14 -> TemperatureStep" },
-
-    // Air-Scrapping
-    { "id": "SP15", "bundle": "V", "action": "15 -> VenusStep" },
-
-    // Buffer Gas
-
-    // Build Colony
-    { "id": "SP17", "bundle": "C", "action": "17 -> Colony" },
 
     // Aquifer
     { "id": "SP18", "bundle": "B", "action": "18 -> OceanTile" },

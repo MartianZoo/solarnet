@@ -1,0 +1,10 @@
+{
+  "actions": [
+  ],
+
+  "projects": [
+
+    // Air-Scrapping
+    { "id": "SP15", "bundle": "V", "action": "15 -> VenusStep" },
+  ],
+}
