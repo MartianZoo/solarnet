@@ -7,6 +7,20 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ## User Ideas and Agreed Directions
 
+### Too permissive, doesn't block Follow Mode
+
+- [Issue #62: A trade fleet can be reused](https://github.com/MartianZoo/solarnet/issues/62) — Find
+  why `TradeFleet`'s `HAS MAX 1 Trade<This>` invariant does not prevent the same fleet from trading
+  twice in one generation, then add a regression test.
+- [Issue #12: Linked specialization across `THEN`](https://github.com/MartianZoo/solarnet/issues/12)
+  — Represent the rare cases where repeated type expressions on opposite sides of `THEN` must be
+  narrowed together, including Flooding and Utopia Invest.
+- [Issue #22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Add an instruction that
+  requires its first branch whenever that branch is possible and uses the fallback only otherwise.
+- [Issue #37: Class-signature linkages](https://github.com/MartianZoo/solarnet/issues/37) — Link
+  repeated dependency expressions so a `Cardbound` component and its `CardFront` necessarily share
+  one owner, eliminating verbose forms such as `Animal<Predators<Player1>, Player1>`.
+
 ### Gameplay Rules and Missing Content
 
 - [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Define when
@@ -14,66 +28,22 @@ Priorities appear in parentheses. An item without a priority has the default pri
   impossible card-resource gain, as in the disabled Local Heat Trapping test, without letting a
   player select an occupied area to evade an otherwise possible ocean placement. Revisit
   `Instructor.autoNarrowTypes` and Artificial Lake's explicit `!` workaround. (Needs discussion)
-- [Issue #33: Greenery placement fallback](https://github.com/MartianZoo/solarnet/issues/33) —
-  Express the rule that a greenery normally goes next to one of the player's tiles, but may go on
-  any legal area when no adjacent placement exists.
-- [Issue #19: Prevent overpayment](https://github.com/MartianZoo/solarnet/issues/19) — Specify and
-  enforce the legal overpayment bound: the surplus must be less than the value of every resource
-  type used, so using any megacredits permits no surplus. First document the existing `BuyCard`,
-  `PlayCard`, `Owed`, `Accept`, and `Pay` protocol, including Terralabs Research's discount and why
-  buying cards uses a delayed signal/task. (Needs discussion)
-- [Issue #62: A trade fleet can be reused](https://github.com/MartianZoo/solarnet/issues/62) — Find
-  why `TradeFleet`'s `HAS MAX 1 Trade<This>` invariant does not prevent the same fleet from trading
-  twice in one generation, then add a regression test.
 - [Issue #63: Atmoscoop](https://github.com/MartianZoo/solarnet/issues/63) — Permit an `OR` branch
   to contain an atomized `Multi`, restore Atmoscoop's simultaneous choice, and remove its temporary
   sequential encoding, which exposes ordering choices the card should not provide. (Later)
-- [Issue #1: Shuffle-and-deal mode](https://github.com/MartianZoo/solarnet/issues/1) — Add real card
-  identities and deck/hand/draw/discard state only when actual play mode becomes a priority; this
-  would also replace follow-mode shortcuts on cards such as Search for Life. (Later)
 - [Issue #2: Remaining solo-mode modeling](https://github.com/MartianZoo/solarnet/issues/2) — Model
   a neutral host for card resources, such as the imaginary animal that Predators may remove,
   without giving `Opponent` a playable `CardFront`.
-- [Issue #4: Turmoil](https://github.com/MartianZoo/solarnet/issues/4) — Implement the expansion's
-  rules and content. The bundle exists, but it does not yet provide the expansion. (Later)
 - [Issue #5: Separate available content from enabled rules](https://github.com/MartianZoo/solarnet/issues/5)
   — Add an active-content selection between `GameOptions` and class loading. Bundle selection now
   supports expansion configurations, but including a bundle still enables all its definitions and
   the corresponding option; callers cannot yet select individual content independently.
-- [Issue #9: Community](https://github.com/MartianZoo/solarnet/issues/9) — Introduce the shared
-  `Occupant<Area>` model needed by Arcadian Communities and Land Claim, including same-owner
-  replacement, wrong-owner rejection, and Arcadian's removal bonus.
-- [Issue #12: Linked specialization across `THEN`](https://github.com/MartianZoo/solarnet/issues/12)
-  — Represent the rare cases where repeated type expressions on opposite sides of `THEN` must be
-  narrowed together, including Flooding and Utopia Invest.
 - [Issue #13: `OR` triggers](https://github.com/MartianZoo/solarnet/issues/13) — Allow one effect to
   subscribe to alternative triggers so canonical definitions no longer duplicate the same effect.
-- [Issue #15: Wild tags](https://github.com/MartianZoo/solarnet/issues/15) — Model temporary wild
-  tags so they affect tag counts without firing tag-gain effects; this blocks Research Coordination,
-  Research Network, and Septem Tribus.
-- [Issue #17: Adjustable card requirements](https://github.com/MartianZoo/solarnet/issues/17) — Add
-  a principled way for effects such as Inventrix and Adaptation Technology to modify a card's
-  global-parameter requirement during payment/validation.
-- [Issue #20: Awards](https://github.com/MartianZoo/solarnet/issues/20) — Implement funding,
-  measurement, winner/runner-up assignment, and scoring. Map-specific award definitions are now
-  selected correctly, but the gameplay mechanics remain absent.
-- [Issue #22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Add an instruction that
-  requires its first branch whenever that branch is possible and uses the fallback only otherwise.
-- [Issue #34: Component-class properties](https://github.com/MartianZoo/solarnet/issues/34) — Revisit
-  properties only if remaining mechanics need values such as card cost or requirement to participate
-  in ordinary class processing; custom metrics now cover several former use cases. (Later; needs discussion)
-- [Issue #36: More expressive defaults](https://github.com/MartianZoo/solarnet/issues/36) — Explore
-  defaults that match and rewrite an instruction, such as making removal from `Owner` mandatory but
-  removal from `Anyone` optional. (Needs discussion)
-- [Issue #37: Class-signature linkages](https://github.com/MartianZoo/solarnet/issues/37) — Link
-  repeated dependency expressions so a `Cardbound` component and its `CardFront` necessarily share
-  one owner, eliminating verbose forms such as `Animal<Predators<Player1>, Player1>`.
 - [Issue #48: Refinements in trigger types](https://github.com/MartianZoo/solarnet/issues/48) — Make
   trigger matching honor refinements, as needed by effects based on a played card's cost or
   requirement.
-- [Issue #64: Multiple tiles in one instruction](https://github.com/MartianZoo/solarnet/issues/64)
-  — Ensure `2 CityTile` becomes two independent placement choices rather than one count-two change
-  on a single area; decide whether all `Tile` types should be atomized.
+- Maybe make Tile extend Atomized
 
 ### Language and Engine Semantics
 
@@ -113,10 +83,6 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Platform Reach
 
-- [Issue #23: Run applicable tests on JavaScript](https://github.com/MartianZoo/solarnet/issues/23)
-  — The shared `pets`, `canon`, and `script` suites now run on JS. Decide how the intentionally slow
-  engine browser suite should participate in routine verification, and keep terminal-only REPL
-  tests on the JVM.
 - Implement [World Government Terraforming](plans/world-government.md), replacing the logged-game
   neutral-opponent workaround with an Engine-performed operation chosen by the `StartToken` owner.
   Preserve the plan's Actor/Owner separation and Solar Phase rules. (Somewhat soon)
@@ -130,9 +96,6 @@ Priorities appear in parentheses. An item without a priority has the default pri
 - Give Tharsis Republic an explicit immediate solo-setup production gain rather than treating the
   neutral cities as though Tharsis observed their placement. Decide between `SoloMode: PROD[2]`
   and `PROD[1 / CityTile<Opponent>]` without exposing irrelevant multiplayer work. (Later)
-- Encode Viron's "another card" restriction directly. It currently rejects itself only because
-  convenience code selects the reused action before adding Viron's own action-used marker; queue
-  order has no rules meaning.
 - Determine whether preparing a gated instruction incorrectly discards meaningful ownership.
   `PrepareTest` turns `Plant<Anyone>` into unowned `Plant!`; establish whether that is harmless
   canonicalization or an invalid-target hole, then document or fix it with a regression test.
