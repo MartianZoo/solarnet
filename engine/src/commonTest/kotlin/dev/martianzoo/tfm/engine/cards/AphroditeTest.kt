@@ -13,10 +13,10 @@ class AphroditeTest : CardTest() {
     val game = newGame(Canon.fromOptionCodes("BMV", 2))
     val owner = game.tfm(PLAYER1)
     val other = game.tfm(PLAYER2)
-    owner.godMode().sneak("Aphrodite")
+    owner.sneak("Aphrodite")
     val moneyBefore = owner.count("Megacredit")
 
-    other.godMode().manual("VenusStep")
+    other.manual("VenusStep")
 
     owner.count("Megacredit") shouldBe moneyBefore + 2
   }

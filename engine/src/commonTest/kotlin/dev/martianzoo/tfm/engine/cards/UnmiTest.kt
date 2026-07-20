@@ -8,11 +8,11 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class UnmiTest {
+class UnmiTest : CardTest() {
 
   @Test
   fun unmi() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = newGame(Canon.SIMPLE_GAME)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("UnitedNationsMarsInitiative", 0)
@@ -23,24 +23,22 @@ class UnmiTest {
       shouldThrow<RequirementException> { cardAction1("UnitedNationsMarsInitiative") }
 
       // Do anything that raises TR
-      stdProject("AsteroidSP")
-      assertCounts(26 to "Megacredit", 21 to "TR")
+      stdProject("AsteroidSP").expect("-14, TR")
 
-      cardAction1("UnitedNationsMarsInitiative")
-      assertCounts(23 to "Megacredit", 22 to "TR")
+      cardAction1("UnitedNationsMarsInitiative").expect("-3, TR")
     }
   }
 
   @Test
   fun unmiOutOfOrder() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = newGame(Canon.SIMPLE_GAME)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
-      godMode().sneak("14")
+      sneak("14")
       assertCounts(14 to "Megacredit", 20 to "TR")
 
       // Do anything that raises TR, while we aren't even UNMI yet
-      godMode().manual("UseAction1<AsteroidSP>")
+      manual("UseAction1<AsteroidSP>")
       assertCounts(0 to "Megacredit", 21 to "TR")
 
       playCorp("UnitedNationsMarsInitiative", 0)
@@ -48,8 +46,7 @@ class UnmiTest {
       phase("Action")
 
       // The TR from earlier still counts
-      cardAction1("UnitedNationsMarsInitiative")
-      assertCounts(37 to "Megacredit", 22 to "TR")
+      cardAction1("UnitedNationsMarsInitiative").expect("-3, TR")
     }
   }
 }

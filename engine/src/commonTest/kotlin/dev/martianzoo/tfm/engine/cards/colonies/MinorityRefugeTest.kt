@@ -8,11 +8,12 @@ import kotlin.test.Test
 class MinorityRefugeTest : ColoniesCardTest() {
   @Test
   fun `if too low on mc prod forced to pick Luna`() {
-    p1.godMode().manual("PROD[-5]")
+    p1.manual("PROD[-5]")
     p1.playProject("MinorityRefuge", 5) {
-      shouldThrow<LimitsException> { doTask("Colony<Io>") }
-      shouldThrow<LimitsException> { doTask("Colony<Triton>") }
-      doTask("Colony<Luna>")
-    }
+          shouldThrow<LimitsException> { doTask("Colony<Io>") }
+          shouldThrow<LimitsException> { doTask("Colony<Triton>") }
+          doTask("Colony<Luna>")
+        }
+        .expect("Colony<Luna>")
   }
 }

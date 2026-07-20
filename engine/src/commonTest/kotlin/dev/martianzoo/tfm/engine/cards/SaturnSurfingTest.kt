@@ -27,6 +27,6 @@ class SaturnSurfingTest : CardTest() {
 
   private fun TfmGameplay.useActionExpecting(payout: Int, finalUse: Boolean = false) {
     cardAction1("SaturnSurfing").expect("-Floater, $payout Megacredit")
-    if (!finalUse) godMode().manual("-ActionUsedMarker<SaturnSurfing>")
+    if (!finalUse) manual("-ActionUsedMarker<SaturnSurfing>")
   }
 }

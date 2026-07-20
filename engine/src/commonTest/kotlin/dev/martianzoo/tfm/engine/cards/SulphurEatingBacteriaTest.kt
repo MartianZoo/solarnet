@@ -7,26 +7,26 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import kotlin.test.Test
 
-class SulphurEatingBacteriaTest {
+class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   fun sulphurEatingBacteria() {
-    val game = setUpGame("BMV", 2)
+    val game = newGame("BMV", 2)
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      godMode().manual("5 ProjectCard, SulphurEatingBacteria")
+      sneak("5 ProjectCard, SulphurEatingBacteria")
       assertCounts(0 to "Microbe", 0 to "Megacredit")
 
-      godMode().manual("UseAction1<SulphurEatingBacteria>")
+      manual("UseAction1<SulphurEatingBacteria>")
       assertCounts(1 to "Microbe", 0 to "Megacredit")
 
-      godMode().manual("UseAction2<SulphurEatingBacteria>") {
+      manual("UseAction2<SulphurEatingBacteria>") {
         doTask("-Microbe<SulphurEatingBacteria> THEN 3")
       }
       assertCounts(0 to "Microbe", 3 to "Megacredit")
 
-      godMode().manual("4 Microbe<SulphurEatingBacteria>")
+      sneak("4 Microbe<SulphurEatingBacteria>")
       assertCounts(4 to "Microbe", 3 to "Megacredit")
 
       cardAction2("C251") {

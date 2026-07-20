@@ -11,13 +11,15 @@ class SkyDocksTest : ColoniesCardTest() {
   fun `get an extra trade fleet`() {
     shouldThrow<RequirementException> { p1.playProject("SkyDocks", 18) }
 
+    // These have to be played: Sky Docks requires their Earth tags.
     p1.playProject("Sponsors", 6)
     p1.playProject("MediaGroup", 6)
 
     p1.playProject("SkyDocks", 18) {
-      shouldThrow<LimitsException> { doTask("TradeFleetC") }
-      doTask("TradeFleetD")
-    }
+          shouldThrow<LimitsException> { doTask("TradeFleetC") }
+          doTask("TradeFleetD")
+        }
+        .expect("TradeFleetD")
 
     p1.stdAction("TradeSA", 1) {
       // Can't use a trade fleet we don't have

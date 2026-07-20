@@ -15,9 +15,9 @@ class CommercialDistrictTest : CardTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    p1.godMode().manual("PROD[Energy], CityTile<Tharsis_3_2>")
-    p1.godMode().manual("CommercialDistrict") { doTask("CdTile<Tharsis_3_3>") }
-    p2.godMode().manual("CityTile<Tharsis_3_4>")
+    p1.manual("PROD[Energy], CityTile<Tharsis_3_2>")
+    p1.manual("CommercialDistrict") { doTask("CdTile<Tharsis_3_3>") }
+    p2.manual("CityTile<Tharsis_3_4>")
 
     game.tfm(ENGINE).phase("End")
     p1.assertCounts(22 to "VictoryPoint")

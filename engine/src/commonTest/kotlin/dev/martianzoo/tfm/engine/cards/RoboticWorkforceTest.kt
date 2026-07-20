@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -12,19 +11,19 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class RoboticWorkforceTest {
+class RoboticWorkforceTest : CardTest() {
 
   @Test
   fun roboticWorkforce() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BRMP", 2))
+    val game = newBareGame(Canon.fromOptionCodes("BRMP", 2))
 
     with(game.tfm(PLAYER1)) {
-      godMode().manual("4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
+      manual("4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
       checkProduction(0, 3, 1, 0, 5, 0)
 
-      game.tfm(PLAYER2).godMode().manual("ProjectCard, Mine")
+      game.tfm(PLAYER2).manual("ProjectCard, Mine")
 
-      godMode().manual("RoboticWorkforce") {
+      manual("RoboticWorkforce") {
         checkProduction(0, 3, 1, 0, 5, 0)
 
         tasks.extract { it.whyPending }.shouldContainExactlyInAnyOrder("abstract")

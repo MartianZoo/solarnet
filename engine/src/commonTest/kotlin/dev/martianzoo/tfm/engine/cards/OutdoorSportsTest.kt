@@ -16,12 +16,11 @@ class OutdoorSportsTest : CardTest() {
     val p2 = game.tfm(PLAYER2)
 
     p1.phase("Action")
-    p1.godMode().sneak("100, 5 ProjectCard")
-    p2.godMode().manual("CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_5>")
+    p1.manual("100, 5 ProjectCard, CityTile<Player2, Tharsis_1_3>, OceanTile<Tharsis_1_5>")
 
     shouldThrow<RequirementException> { p1.playProject("OutdoorSports", 8) }
 
-    p2.godMode().manual("OceanTile<Tharsis_1_2>")
+    p2.manual("OceanTile<Tharsis_1_2>")
     p1.playProject("OutdoorSports", 8).expect("PROD[2 Megacredit]")
   }
 }

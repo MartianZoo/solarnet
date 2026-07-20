@@ -6,11 +6,11 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class MergerTest {
+class MergerTest : CardTest() {
 
   @Test
   fun valleyTrustAndCelestic() {
-    val game = setUpGame("BRMPVX", 2)
+    val game = newGame("BRMPVX", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("ValleyTrust", 5)

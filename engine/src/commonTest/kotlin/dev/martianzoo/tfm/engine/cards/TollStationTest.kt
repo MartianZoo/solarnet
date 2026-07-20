@@ -14,9 +14,9 @@ class TollStationTest : CardTest() {
     val p2 = game.tfm(PLAYER2)
 
     // Can't just sneak tags directly - they have a dependency!
-    p1.godMode().manual("AsteroidMining, TransNeptuneProbe").expect("2 SpaceTag")
-    p2.godMode().manual("VestaShipyard, SpaceElevator, SolarWindPower").expect("3 SpaceTag")
+    p1.manual("AsteroidMining, TransNeptuneProbe").expect("2 SpaceTag")
+    p2.manual("VestaShipyard, SpaceElevator, SolarWindPower").expect("3 SpaceTag")
 
-    p1.godMode().manual("TollStation").expect("PROD[3 Megacredit]")
+    p1.manual("TollStation").expect("PROD[3 Megacredit]")
   }
 }

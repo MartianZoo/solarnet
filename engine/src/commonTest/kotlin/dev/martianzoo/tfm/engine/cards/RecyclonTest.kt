@@ -11,13 +11,13 @@ class RecyclonTest : CardTest() {
     val game = newGame(Canon.fromOptionCodes("BMRX", 2))
     val p1 = game.tfm(PLAYER1)
     with(p1) {
-      godMode().manual("Recyclon").expect("Microbe<Recyclon>")
+      manual("Recyclon").expect("Microbe<Recyclon>")
 
-      godMode().manual("Mine").expect("Microbe<Recyclon>")
+      manual("Mine").expect("Microbe<Recyclon>")
 
-      godMode().manual("PowerPlantCard") { doTask("Microbe<Recyclon>!") }
+      manual("PowerPlantCard") { doTask("Microbe<Recyclon>!") }
 
-      godMode().manual("TitaniumMine") {
+      manual("TitaniumMine") {
         doTask("-2 Microbe<Recyclon> THEN PROD[Plant]")
       }
     }

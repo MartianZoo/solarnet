@@ -10,14 +10,17 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
-class LocalHeatTrappingTest {
-  val game = setUpGame(Canon.SIMPLE_GAME)
+class LocalHeatTrappingTest : CardTest() {
+  init {
+    newGame(Canon.SIMPLE_GAME)
+  }
+
   val p1 = game.tfm(PLAYER1)
 
   @Test
   fun notEnoughHeat() {
     with(p1) {
-      godMode().manual("4 Heat, 2 ProjectCard, Pets, 100")
+      sneak("4 Heat, 2 ProjectCard, Pets, Animal<Pets>, 100")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
@@ -35,9 +38,9 @@ class LocalHeatTrappingTest {
   @Test
   fun getPlants() {
     with(p1) {
-      godMode().manual("6 Heat, 2 ProjectCard, Pets")
+      sneak("6 Heat, 2 ProjectCard, Pets, Animal<Pets>")
 
-      godMode().manual("LocalHeatTrapping") {
+      manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -52,9 +55,9 @@ class LocalHeatTrappingTest {
   @Test
   fun getPets() {
     with(p1) {
-      godMode().manual("6 Heat, 2 ProjectCard, Pets")
+      sneak("6 Heat, 2 ProjectCard, Pets, Animal<Pets>")
 
-      godMode().manual("LocalHeatTrapping") {
+      manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -75,9 +78,9 @@ class LocalHeatTrappingTest {
   // @Test // TODO - make this work
   fun getNothing() {
     with(p1) {
-      godMode().manual("6 Heat, 2 ProjectCard")
+      sneak("6 Heat, 2 ProjectCard")
 
-      godMode().manual("LocalHeatTrapping") {
+      manual("LocalHeatTrapping") {
         tasks
             .extract { it.whyPending }
             .shouldContainExactlyInAnyOrder(

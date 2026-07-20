@@ -8,17 +8,14 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class InsulationTest {
+class InsulationTest : CardTest() {
 
   @Test
   fun insulation_normal() {
-    val game = setUpGame("BRM", 2)
+    val game = newGame("BRM", 2)
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
-      playCorp("Ecoline", 5)
-
       phase("Action")
-      godMode().sneak("PROD[-1, 3 Heat]")
+      sneak("100, 5 ProjectCard, PROD[-1, 3 Heat]")
       assertProds(-1 to "M", 3 to "H")
 
       playProject("Insulation", 2) {

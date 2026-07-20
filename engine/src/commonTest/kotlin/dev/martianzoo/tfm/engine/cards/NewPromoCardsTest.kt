@@ -14,12 +14,10 @@ class NewPromoCardsTest : CardTest() {
     val game = newGame("BMX", 2)
     val p1 = game.tfm(PLAYER1)
 
-    p1.phase("Corporation")
-    p1.playCorp("Ecoline", 5)
     p1.phase("Action")
+    p1.sneak("100, 5 ProjectCard")
 
     p1.playProject("CarbonNanosystems", 14).expect("Graphene<CarbonNanosystems>")
-    p1.godMode().sneak("20")
 
     p1.playProject("IcyImpactors", 11) {
           doTask("-Graphene<CarbonNanosystems>! THEN -4 Owed.")
@@ -32,10 +30,8 @@ class NewPromoCardsTest : CardTest() {
     val game = newGame("BMRX", 2)
     val p1 = game.tfm(PLAYER1)
 
-    p1.phase("Corporation")
-    p1.playCorp("Ecoline", 5)
     p1.phase("Action")
-    p1.godMode().sneak("MartianLumberCorp, 2 Plant, 20")
+    p1.sneak("5 ProjectCard, MartianLumberCorp, 2 Plant, 20")
     p1.playProject("Mine", 1) {
           doTask("-Plant! THEN -3 Owed.")
         }
@@ -47,11 +43,11 @@ class NewPromoCardsTest : CardTest() {
     val game = newGame("BMX", 2)
     val owner = game.tfm(PLAYER1)
     val other = game.tfm(PLAYER2)
-    owner.godMode().sneak("HomeostasisBureau")
+    owner.sneak("HomeostasisBureau")
     val moneyBefore = owner.count("Megacredit")
-    other.godMode().manual("TemperatureStep")
+    other.manual("TemperatureStep")
     owner.count("Megacredit") shouldBe moneyBefore
-    owner.godMode().manual("TemperatureStep").expect("3 Megacredit")
+    owner.manual("TemperatureStep").expect("3 Megacredit")
   }
 
   @Test
@@ -59,10 +55,8 @@ class NewPromoCardsTest : CardTest() {
     val game = newGame("BMX", 2)
     val p1 = game.tfm(PLAYER1)
 
-    p1.phase("Corporation")
-    p1.playCorp("Ecoline", 5)
     p1.phase("Action")
-    p1.godMode().manual("GreeneryTile<M42>")
+    p1.sneak("100, 5 ProjectCard, GreeneryTile<M42>")
 
     p1.playProject("KaguyaTech", 10) { doTask("CityTile<M42> FROM GreeneryTile<M42>") }
         .expect("-GreeneryTile<M42>, CityTile<M42>")
@@ -73,10 +67,8 @@ class NewPromoCardsTest : CardTest() {
     val game = newGame("BMX", 2)
     val p1 = game.tfm(PLAYER1)
 
-    p1.phase("Corporation")
-    p1.playCorp("Ecoline", 5)
     p1.phase("Action")
-    p1.godMode().manual("GreeneryTile<M42>")
+    p1.sneak("100, 5 ProjectCard, GreeneryTile<M42>")
 
     p1.playProject("KaguyaTech", 10) {
           doTask("CityTile<M43> FROM GreeneryTile<M42>")
@@ -91,8 +83,8 @@ class NewPromoCardsTest : CardTest() {
     val builder = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val cityOwner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
 
-    builder.godMode().sneak("StJosephOfCupertinoMission")
-    cityOwner.godMode().manual("CityTile<Player2, M42>") { doTask("Plant") }
+    builder.sneak("StJosephOfCupertinoMission")
+    cityOwner.manual("CityTile<Player2, M42>") { doTask("Plant") }
 
     builder.godMode().beginManual("Cathedral<Player2, CityTile<Player2, M42>>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)

@@ -11,8 +11,8 @@ class MaxwellBaseTest : CardTest() {
     val game = newGame(Canon.fromOptionCodes("BMV", 2))
     with(game.tfm(PLAYER1)) {
       phase("Action")
-      godMode().manual("PROD[Energy], ForcedPrecipitation")
-      godMode().manual("MaxwellBase").expect("CityTile<Area238>, PROD[-Energy]")
+      manual("PROD[Energy], ForcedPrecipitation")
+      manual("MaxwellBase").expect("CityTile<Area238>, PROD[-Energy]")
 
       cardAction1("MaxwellBase") { doTask("Floater<ForcedPrecipitation>") }
     }

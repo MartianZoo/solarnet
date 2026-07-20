@@ -5,9 +5,7 @@ import kotlin.test.Test
 class TitanFloatingLaunchPadTest : ColoniesCardTest() {
   @Test
   fun `can trade for free`() {
-    p1.godMode().manual("TitanFloatingLaunchPad") {
-      doTask("2 Floater<TitanFloatingLaunchPad>")
-    }
+    p1.sneak("TitanFloatingLaunchPad, 2 Floater<TitanFloatingLaunchPad>")
     p1.cardAction2("TitanFloatingLaunchPad") {
           doTask("Trade<Io, TradeFleetA>")
         }

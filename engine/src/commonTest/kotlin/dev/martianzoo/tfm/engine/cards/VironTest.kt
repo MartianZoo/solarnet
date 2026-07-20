@@ -52,7 +52,7 @@ class VironTest : CardTest() {
   @Test
   fun `cannot choose a card whose action has not been used`() {
     val p1 = newPlayer()
-    p1.godMode().manual("ExtractorBalloons")
+    p1.sneak("ExtractorBalloons")
     p1.cardAction1("AtmoCollectors")
 
     p1.cardAction1("Viron") {
@@ -67,9 +67,8 @@ class VironTest : CardTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     p1.phase("Action")
-    p1.godMode().manual("Viron")
-    p1.godMode().manual("ExtractorBalloons")
-    p2.godMode().manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
+    p1.sneak("Viron, ExtractorBalloons")
+    p2.sneak("AtmoCollectors, 2 Floater<AtmoCollectors>")
     p1.cardAction1("ExtractorBalloons")
     p2.cardAction1("AtmoCollectors")
 
@@ -85,8 +84,7 @@ class VironTest : CardTest() {
     val game = newGame(Canon.fromOptionCodes("BMVC", 2, testColonyTiles(2)))
     return game.tfm(PLAYER1).also {
       it.phase("Action")
-      it.godMode().manual("Viron")
-      it.godMode().manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
+      it.sneak("Viron, AtmoCollectors, 2 Floater<AtmoCollectors>")
     }
   }
 

@@ -1,29 +1,20 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class CommunityServicesTest {
+class CommunityServicesTest : CardTest() {
   @Test
   fun communityServices() {
-    val game = Engine.newGame(Canon.fromOptionCodes("CVERB", 2, testColonyTiles(2)))
+    val game = newBareGame(Canon.fromOptionCodes("CVERB", 2, testColonyTiles(2)))
     val p1 = game.tfm(PLAYER1)
 
-    with(game.gameplay(PLAYER1).godMode()) {
-      manual("10 ProjectCard, ForcedPrecipitation")
-      manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
-      manual("Airliners") { doTask("2 Floater<AtmoCollectors>") }
+    p1.sneak("10 ProjectCard, AtmoCollectors, Airliners, 4 Floater<AtmoCollectors>, PROD[2]")
 
-      p1.production(cn("M")) shouldBe 2
-
-      manual("CommunityServices") // 3 tagless cards: Atmo, Airl, Comm
-      p1.production(cn("M")) shouldBe 5
-    }
+    // Three tagless cards: Atmo Collectors, Airliners, and Community Services itself.
+    p1.manual("CommunityServices").expect("PROD[3]")
   }
 }

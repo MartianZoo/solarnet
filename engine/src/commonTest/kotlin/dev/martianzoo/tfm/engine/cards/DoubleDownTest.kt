@@ -9,11 +9,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
-class DoubleDownTest {
+class DoubleDownTest : CardTest() {
 
   @Test
   fun doubleDown() {
-    val game = setUpGame("BRHXP", 2)
+    val game = newGame("BRHXP", 2)
 
     with(game.tfm(PLAYER1)) {
       phase("Corporation")

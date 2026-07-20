@@ -8,21 +8,21 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class EcolineTest {
+class EcolineTest : CardTest() {
   @Test
   fun test() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = newGame(Canon.SIMPLE_GAME)
 
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("Ecoline", 5)
       assertCounts(3 to "Plant")
 
-      godMode().sneak("8 Plant")
+      sneak("8 Plant")
       assertCounts(11 to "Plant")
 
       phase("Action")
-      godMode().manual("CityTile<M52>")
+      manual("CityTile<M52>")
       assertCounts(13 to "Plant")
 
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<M42>") }
@@ -31,7 +31,7 @@ class EcolineTest {
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<M32>") }
       assertCounts(0 to "Plant")
 
-      godMode().sneak("6 Plant")
+      sneak("6 Plant")
       shouldThrow<LimitsException> { stdAction("ConvertPlantsSA") }
     }
   }

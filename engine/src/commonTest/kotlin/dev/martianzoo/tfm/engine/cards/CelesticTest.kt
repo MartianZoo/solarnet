@@ -8,15 +8,15 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class CelesticTest {
+class CelesticTest : CardTest() {
   @Test
   fun celestic() {
-    val game = setUpGame("BRMV", 2)
+    val game = newGame("BRMV", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("Celestic", 5)
       assertCounts(5 to "ProjectCard", 27 to "M")
-      godMode().sneak("100, 10 Heat")
+      sneak("100, 10 Heat")
 
       phase("Action")
       shouldThrow<RequirementException> { playProject("Mine", 4) }

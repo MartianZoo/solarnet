@@ -5,19 +5,19 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class MassiveDiscountsTest {
+class MassiveDiscountsTest : CardTest() {
 
   @Test
   fun elCheapo() {
-    val game = setUpGame("BRMVPX", 2)
+    val game = newGame("BRMVPX", 2)
 
     with(game.tfm(PLAYER1)) {
       phase("Action")
-      godMode().sneak("3, 2 ProjectCard, Phobolog, Steel, Titanium") // -1
-
-      godMode().sneak("AntiGravityTechnology, EarthCatapult, ResearchOutpost")
-      godMode().sneak("MassConverter, QuantumExtractor, Shuttles, SpaceStation")
-      godMode().sneak("AdvancedAlloys, Phobolog, MercurianAlloys, RegoPlastics")
+      sneak(
+          "3, 2 ProjectCard, Steel, Titanium, AntiGravityTechnology, EarthCatapult, " +
+              "ResearchOutpost, MassConverter, QuantumExtractor, Shuttles, SpaceStation, " +
+              "AdvancedAlloys, 2 Phobolog, MercurianAlloys, RegoPlastics"
+      ) // -1
 
       assertCounts(0 to "SpaceElevator", 3 to "M", 1 to "S", 1 to "T")
 

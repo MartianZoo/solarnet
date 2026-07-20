@@ -13,10 +13,10 @@ class ArcticAlgaeTest : CardTest() {
     val game = newGame(Canon.SIMPLE_GAME)
     val owner = game.tfm(PLAYER1)
     val other = game.tfm(PLAYER2)
-    owner.godMode().sneak("ArcticAlgae")
+    owner.sneak("ArcticAlgae")
     val plantsBefore = owner.count("Plant")
 
-    other.godMode().manual("OceanTile<Tharsis_1_2>")
+    other.manual("OceanTile<Tharsis_1_2>")
 
     owner.count("Plant") shouldBe plantsBefore + 2
   }

@@ -1,33 +1,25 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TestHelpers
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.setUpGame
+import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.cards.CardTest
 import dev.martianzoo.util.toSetStrict
 import kotlin.test.BeforeTest
 
-abstract class ColoniesCardTest {
+abstract class ColoniesCardTest : CardTest() {
   protected val colonyTiles: Set<ClassName> =
       setOf("Luna", "Io", "Triton", "Europa", /*delayed*/ "Titan").toSetStrict(::cn)
-  protected val game = setUpGame("BRMC", 3, colonyTiles)
-  protected val eng = game.tfm(ENGINE)
-  protected val p1 = game.tfm(PLAYER1)
-  protected val p2 = game.tfm(PLAYER2)
+  protected val p1: TfmGameplay
+    get() = player1
 
-  protected fun TaskResult.expect(string: String) =
-      TestHelpers.assertNetChanges(this, game, eng, string)
+  protected val p2: TfmGameplay
+    get() = player2
 
   @BeforeTest
   fun commonSetup() {
-    for (p in listOf(p1, p2)) {
-      p.godMode().manual("100, 5 ProjectCard")
-    }
-    eng.phase("Action")
+    newGame("BRMC", 3, colonyTiles)
+    engine.sneak("100 Megacredit<P1>, 5 ProjectCard<P1>, 100 Megacredit<P2>, 5 ProjectCard<P2>")
+    engine.phase("Action")
   }
 }

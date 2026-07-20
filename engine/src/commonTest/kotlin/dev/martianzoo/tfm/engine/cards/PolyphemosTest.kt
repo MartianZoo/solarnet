@@ -6,11 +6,11 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class PolyphemosTest {
+class PolyphemosTest : CardTest() {
 
   @Test
   fun polyphemos() {
-    val game = setUpGame("BRMC", 2, testColonyTiles(2))
+    val game = newGame("BRMC", 2, testColonyTiles(2))
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("Polyphemos", 7)

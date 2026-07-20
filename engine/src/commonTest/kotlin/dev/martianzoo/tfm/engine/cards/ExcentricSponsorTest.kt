@@ -7,16 +7,16 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class ExcentricSponsorTest {
-  val game = setUpGame("BPVM", 2) // base, prelude, venus, default map, 2p
+class ExcentricSponsorTest : CardTest() {
+  init {
+    newGame("BPVM", 2) // base, prelude, venus, default map, 2p
+  }
 
   @BeforeTest
   fun `common setup steps for all tests`() {
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
-      playCorp("RobinsonIndustries", 1) // could be any corp really. must buy at least 1 card tho
-
       phase("Prelude")
+      sneak("44, ProjectCard, PreludeCard")
     }
   }
 

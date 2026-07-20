@@ -13,7 +13,7 @@ class NoctisCityTest : CardTest() {
   fun `uses an ordinary land area on a map without Noctis`() {
     val game = newGame(Canon.fromOptionCodes("BRH", 2))
     with(game.tfm(PLAYER1)) {
-      godMode().manual("PROD[Energy]")
+      sneak("PROD[Energy]")
 
       godMode()
           .manual("NoctisCity") {
@@ -27,7 +27,7 @@ class NoctisCityTest : CardTest() {
   fun `the same coordinate is not eligible on Tharsis`() {
     val game = newGame(Canon.SIMPLE_GAME)
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().manual("PROD[Energy]")
+    p1.sneak("PROD[Energy]")
 
     // Without this, the sole NoctisArea is selected before the operation body can try a bad space.
     val manual = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }

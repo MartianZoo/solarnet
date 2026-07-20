@@ -7,11 +7,11 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class PristarTest {
+class PristarTest : CardTest() {
 
   @Test
   fun pristar() {
-    val game = setUpGame("BMPT", 2)
+    val game = newGame("BMPT", 2)
     val eng = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

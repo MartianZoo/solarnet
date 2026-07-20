@@ -14,7 +14,7 @@ class SearchForLifeTest : CardTest() {
     val p1 = game.tfm(PLAYER1)
 
     p1.phase("Action")
-    p1.godMode().manual("SearchForLife, 1")
+    p1.sneak("SearchForLife, 1")
     p1.cardAction1("SearchForLife") { doTask("Science<SearchForLife>") }
 
     game.tfm(ENGINE).phase("End")

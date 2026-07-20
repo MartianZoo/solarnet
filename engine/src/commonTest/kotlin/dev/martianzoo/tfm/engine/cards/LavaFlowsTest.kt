@@ -15,7 +15,7 @@ class LavaFlowsTest : CardTest() {
     val game = newGame(Canon.SIMPLE_GAME)
     val p1 = game.tfm(PLAYER1)
 
-    p1.godMode().manual("LavaFlows") { doTask("LfTile<Tharsis_2_2>") }.expect("2 TemperatureStep")
+    p1.manual("LavaFlows") { doTask("LfTile<Tharsis_2_2>") }.expect("2 TemperatureStep")
   }
 
   @Test
@@ -23,7 +23,7 @@ class LavaFlowsTest : CardTest() {
     val game = newGame(Canon.fromOptionCodes("BRH", 2))
     val p1 = game.tfm(PLAYER1)
 
-    p1.godMode().manual("LavaFlows") { doTask("LfTile<Hellas_1_5>") }.expect("2 TemperatureStep")
+    p1.manual("LavaFlows") { doTask("LfTile<Hellas_1_5>") }.expect("2 TemperatureStep")
   }
 
   @Test
@@ -36,7 +36,7 @@ class LavaFlowsTest : CardTest() {
                 "GreeneryTile<Tharsis_4_1>, GreeneryTile<Tharsis_5_1>"
         )
 
-    p1.godMode().manual("LavaFlows") {
+    p1.manual("LavaFlows") {
       shouldThrow<NarrowingException> { doTask("LfTile<Tharsis_2_3>") }
       abort()
     }

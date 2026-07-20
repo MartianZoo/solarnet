@@ -2,27 +2,24 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class SponsoredAcademiesTest {
+class SponsoredAcademiesTest : CardTest() {
   @Test
   fun sponsoredAcademies() {
-    val game = setUpGame("BRMV", 2)
+    val game = newGame("BRMV", 2)
 
-    game.tfm(ENGINE).phase("Corporation")
-    game.tfm(PLAYER1).playCorp("Phobolog", 5)
+    game.tfm(ENGINE).phase("Action")
+    engine.sneak("100 Megacredit<P1>, 5 ProjectCard<P1>, 100 Megacredit<P2>, ProjectCard<P2>")
 
     with(game.tfm(PLAYER2)) {
-      playCorp("Ecoline", 1)
-      phase("Action")
       shouldThrow<LimitsException> { playProject("SponsoredAcademies", 9) }
 
-      godMode().sneak("ProjectCard")
+      sneak("ProjectCard")
 
       assertCounts(2 to "ProjectCard")
       assertCounts(5 to "ProjectCard<P1>")

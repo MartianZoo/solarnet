@@ -3,31 +3,21 @@ package dev.martianzoo.tfm.engine.cards.colonies
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class MarketManipulationTest : ColoniesCardTest() {
   @Test
   fun `a normal case`() {
-    p1.assertCounts(
-        1 to "ColonyProduction<Luna>",
-        1 to "ColonyProduction<Triton>",
-        4 to "ColonyProduction",
-    )
     p1.playProject("MarketManipulation", 1) {
-      doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
-    }
-    p1.assertCounts(
-        2 to "ColonyProduction<Luna>",
-        0 to "ColonyProduction<Triton>",
-        4 to "ColonyProduction",
-    )
+          doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
+        }
+        .expect("ColonyProduction<Luna>, -ColonyProduction<Triton>")
   }
 
   @Test
   fun `you can't lower a track if it's already at the bottom`() {
-    eng.godMode().manual("-ColonyProduction<Triton>")
+    engine.sneak("-ColonyProduction<Triton>")
     p1.playProject("MarketManipulation", 1) {
       shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
@@ -38,7 +28,7 @@ class MarketManipulationTest : ColoniesCardTest() {
 
   @Test
   fun `you can't raise a track if it's already at the top`() {
-    eng.godMode().manual("5 ColonyProduction<Luna>")
+    engine.sneak("5 ColonyProduction<Luna>")
     p1.playProject("MarketManipulation", 1) {
       shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")

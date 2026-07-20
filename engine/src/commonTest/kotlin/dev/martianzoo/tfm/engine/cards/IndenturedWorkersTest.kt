@@ -1,27 +1,23 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.engine.Game
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class IndenturedWorkersTest {
-  lateinit var game: Game
+class IndenturedWorkersTest : CardTest() {
   lateinit var p1: TfmGameplay
 
   @BeforeTest
   fun setUp() {
-    game = setUpGame("BRM", 2)
+    newGame("BRM", 2)
     p1 = game.tfm(PLAYER1)
 
     with(p1) {
-      phase("Corporation")
-      playCorp("Ecoline", 5)
-      godMode().sneak("100, 8 Heat")
       phase("Action")
+      sneak("100, 5 ProjectCard, 8 Heat")
     }
   }
 
@@ -49,7 +45,7 @@ class IndenturedWorkersTest {
     with(p1) {
       playProject("IndenturedWorkers", 0)
 
-      godMode().manual("Generation") // use it or lose it!
+      manual("Generation") // use it or lose it!
       playProject("Soletta", 35)
     }
   }

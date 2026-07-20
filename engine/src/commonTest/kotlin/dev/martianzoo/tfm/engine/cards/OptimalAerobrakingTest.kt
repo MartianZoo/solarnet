@@ -5,16 +5,16 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class OptimalAerobrakingTest {
+class OptimalAerobrakingTest : CardTest() {
 
   @Test
   fun optimalAerobraking() {
-    val game = setUpGame("BRHXP", 2)
+    val game = newGame("BRHXP", 2)
 
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      godMode().sneak("5 ProjectCard, OptimalAerobraking, 14")
+      sneak("5 ProjectCard, OptimalAerobraking, 14")
       assertCounts(14 to "Megacredit", 0 to "Heat")
       playProject("AsteroidCard", 14) { doTask("Ok") }
       assertCounts(3 to "Megacredit", 3 to "Heat")

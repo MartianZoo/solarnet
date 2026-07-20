@@ -10,8 +10,11 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RobinsonIndustriesTest {
-  val game = setUpGame("BRMP", 2)
+class RobinsonIndustriesTest : CardTest() {
+  init {
+    newGame("BRMP", 2)
+  }
+
   val p1 = game.tfm(PLAYER1)
 
   @BeforeTest
@@ -24,7 +27,7 @@ class RobinsonIndustriesTest {
   @Test
   fun megacredit1() {
     with(p1) {
-      godMode().sneak("PROD[S, T, P, E, H]")
+      sneak("PROD[S, T, P, E, H]")
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 1 to "H")
 
       cardAction1("RobinsonIndustries")
@@ -36,7 +39,7 @@ class RobinsonIndustriesTest {
   @Test
   fun megacredit2() {
     with(p1) {
-      godMode().sneak("PROD[-1]")
+      sneak("PROD[-1]")
       assertProds(-1 to "M", 0 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
 
       cardAction1("RobinsonIndustries")
@@ -47,7 +50,7 @@ class RobinsonIndustriesTest {
   @Test
   fun nonMegacredit() {
     with(p1) {
-      godMode().sneak("PROD[1, S, P, E, H]")
+      sneak("PROD[1, S, P, E, H]")
       assertProds(1 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
       cardAction1("RobinsonIndustries")
       assertProds(1 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 1 to "H")
@@ -57,7 +60,7 @@ class RobinsonIndustriesTest {
   @Test
   fun choice() {
     with(game.tfm(PLAYER1)) {
-      godMode().sneak("PROD[S, P, E, H]")
+      sneak("PROD[S, P, E, H]")
       assertProds(0 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
 
       cardAction1("RobinsonIndustries") {

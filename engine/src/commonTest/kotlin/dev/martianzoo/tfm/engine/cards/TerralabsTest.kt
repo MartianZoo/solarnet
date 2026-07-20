@@ -5,16 +5,16 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class TerralabsTest {
+class TerralabsTest : CardTest() {
 
   @Test
   fun terralabs() {
-    val game = setUpGame("BMT", 2)
+    val game = newGame("BMT", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
       playCorp("TerralabsResearch", 10)
       assertCounts(10 to "ProjectCard", 4 to "M")
-      godMode().manual("4 BuyCard")
+      manual("4 BuyCard")
       assertCounts(14 to "ProjectCard", 0 to "M")
     }
   }

@@ -9,13 +9,13 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-class AiCentralTest {
+class AiCentralTest : CardTest() {
   @Test
   fun aiCentral() {
-    val game = setUpGame("BRM", 2)
+    val game = newGame("BRM", 2)
 
     with(game.tfm(PLAYER1)) {
-      godMode().sneak("5 ProjectCard, 100, Steel")
+      sneak("5 ProjectCard, 100, Steel")
 
       phase("Action")
       playProject("SearchForLife", 3)
@@ -30,25 +30,18 @@ class AiCentralTest {
       shouldThrow<LimitsException> { playProject("AiCentral", 19, steel = 1) }
 
       // Give energy prod and try again - success
-      godMode().sneak("PROD[Energy]")
-      playProject("AiCentral", 19, steel = 1)
-      assertCounts(0 to "PROD[Energy]")
+      sneak("PROD[Energy]")
+      playProject("AiCentral", 19, steel = 1).expect("PROD[-Energy]")
 
       // Use the action
-      assertCounts(1 to "ProjectCard")
-      cardAction1("AiCentral")
-      assertCounts(3 to "ProjectCard")
-      assertCounts(1 to "ActionUsedMarker<AiCentral>")
+      cardAction1("AiCentral").expect("2 ProjectCard, ActionUsedMarker<AiCentral>")
 
       shouldThrow<LimitsException> { cardAction1("AiCentral") }
-      assertCounts(3 to "ProjectCard")
-      assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
       // Next gen we can again
-      asActor(ENGINE).godMode().manual("Generation")
+      asActor(ENGINE).manual("Generation")
 
-      cardAction1("AiCentral")
-      assertCounts(5 to "ProjectCard")
+      cardAction1("AiCentral").expect("2 ProjectCard, ActionUsedMarker<AiCentral>")
     }
   }
 }

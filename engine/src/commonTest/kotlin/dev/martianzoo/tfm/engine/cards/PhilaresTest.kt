@@ -11,10 +11,10 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class PhilaresTest {
+class PhilaresTest : CardTest() {
   @Test
   fun ownerOfDeferredEffectControlsItsRefinement() {
-    val game = setUpGame("BMX", 2)
+    val game = newGame("BMX", 2)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
@@ -49,11 +49,11 @@ class PhilaresTest {
 
   @Test
   fun otherPlayerCanCreateAdjacencyWhilePhilaresOwnerIsAssignedAndPerformsReward() {
-    val game = setUpGame("BMX", 2)
+    val game = newGame("BMX", 2)
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
-    owner.godMode().sneak("Philares")
-    owner.godMode().manual("GreeneryTile<M23>")
+    owner.sneak("Philares")
+    owner.manual("GreeneryTile<M23>")
     val checkpoint = game.timeline.checkpoint()
     val steelBefore = owner.count("Steel")
 
@@ -69,11 +69,11 @@ class PhilaresTest {
 
   @Test
   fun philaresOwnerCanCreateAdjacencyAndReceivesTask() {
-    val game = setUpGame("BMX", 2)
+    val game = newGame("BMX", 2)
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
-    owner.godMode().sneak("Philares")
-    other.godMode().manual("GreeneryTile<M23>")
+    owner.sneak("Philares")
+    other.manual("GreeneryTile<M23>")
 
     owner.godMode().beginManual("GreeneryTile<M33>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
@@ -85,20 +85,20 @@ class PhilaresTest {
 
   @Test
   fun doesNotTriggerBetweenTwoTilesOwnedByOtherPlayer() {
-    val game = setUpGame("BMX", 2)
+    val game = newGame("BMX", 2)
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
-    owner.godMode().sneak("Philares")
-    other.godMode().manual("GreeneryTile<M23>")
+    owner.sneak("Philares")
+    other.manual("GreeneryTile<M23>")
 
-    other.godMode().manual("GreeneryTile<M33>")
+    other.manual("GreeneryTile<M33>")
 
     game.tasks.isEmpty() shouldBe true
   }
 
   @Test
   fun doesNotTriggerBetweenOwnTiles() {
-    val game = setUpGame("BMX", 2)
+    val game = newGame("BMX", 2)
     val p1 = game.tfm(PLAYER1)
 
     p1.phase("Corporation")

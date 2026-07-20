@@ -6,15 +6,15 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class SupercapacitorsTest {
+class SupercapacitorsTest : CardTest() {
   @Test
   fun supercapacitors() {
-    val game = setUpGame("BRMX", 2)
+    val game = newGame("BRMX", 2)
 
     val p1 = game.tfm(PLAYER1)
     with(p1) {
       phase("Action")
-      godMode().sneak("PROD[3 Energy, 5 Heat], 4 Energy, 5 ProjectCard")
+      sneak("PROD[3 Energy, 5 Heat], 4 Energy, 5 ProjectCard")
 
       assertProds(0 to "Megacredit")
 

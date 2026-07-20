@@ -5,26 +5,25 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class ValleyTrustTest {
+class ValleyTrustTest : CardTest() {
   @Test
   fun valleyTrust() {
-    val game = setUpGame("BRMP", 2)
+    val game = newGame("BRMP", 2)
     with(game.tfm(PLAYER1)) {
       phase("Corporation")
-      playCorp("ValleyTrust", 5)
-      assertCounts(5 to "ProjectCard", 22 to "M")
+      playCorp("ValleyTrust", 5).expect("5 ProjectCard, 22")
 
       phase("Action")
       assertCounts(1 to "Mandate")
       assertCounts(0 to "PreludeCard")
 
       stdAction("HandleMandates") {
-        assertCounts(1 to "PreludeCard")
+            assertCounts(1 to "PreludeCard")
 
-        playPrelude("MartianIndustries")
-        assertCounts(1 to "PROD[S]", 1 to "PROD[E]")
-        assertCounts(0 to "PreludeCard")
-      }
+            playPrelude("MartianIndustries")
+            assertCounts(0 to "PreludeCard")
+          }
+          .expect("PROD[Steel, Energy]")
     }
   }
 }

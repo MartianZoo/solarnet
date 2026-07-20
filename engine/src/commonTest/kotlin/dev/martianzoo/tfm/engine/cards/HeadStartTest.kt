@@ -5,16 +5,16 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
-class HeadStartTest {
-  val game = setUpGame("BMPTX", 2)
+class HeadStartTest : CardTest() {
+  init {
+    newGame("BMPTX", 2)
+  }
 
   @Test
   fun `decline both actions`() {
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
-      playCorp("TerralabsResearch", 10)
-
       phase("Prelude")
+      sneak("4, 10 ProjectCard, PreludeCard")
       playPrelude("HeadStart") {
         assertCounts(2 to "Steel", 24 to "M")
 
@@ -27,12 +27,8 @@ class HeadStartTest {
   @Test
   fun `do both actions`() {
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
-      playCorp("TerralabsResearch", 10)
-
-      godMode().sneak("10 Heat")
-
       phase("Prelude")
+      sneak("4, 10 ProjectCard, PreludeCard, 10 Heat")
       playPrelude("HeadStart") {
         assertCounts(2 to "Steel", 24 to "M")
         doFirstTask("UseAction1<UseStandardProjectSA>")
