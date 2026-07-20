@@ -10,7 +10,6 @@ ABSTRACT CLASS Anyone[ANY] {
 
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard
-      PreludePhase:: 2 PreludeCard
       ResearchPhase: 4 BuyCard<This>?
 
       CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]

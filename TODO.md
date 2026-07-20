@@ -130,6 +130,10 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Internal Design, Cleanup, and Test Convenience
 
+- Decide whether `NewTurn`, `SecondAction`, `Pass`, and `UseAction1..3` form a generic engine
+  protocol or Terraforming Mars behavior, then colocate their Pets declarations with the Kotlin
+  code that understands them: either move the foundational declarations into `system.pets` or move
+  the hard-coded protocol under `tfm`.
 - Audit queued (`:`) effects involved in setup and convert only consequences that are not
   rules-recognized player choices to immediate (`::`) effects. In particular, consider creating
   Photosynthesis as an immediate consequence of removing `SetupPhase`; keep genuine setup choices

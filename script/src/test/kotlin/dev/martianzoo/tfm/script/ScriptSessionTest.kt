@@ -137,8 +137,8 @@ internal class ScriptSessionTest {
         0000: -12 Megacredit<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
         0000: +4 ProjectCard<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
         0000: +PreludePhase FROM CorporationPhase BY Engine (manual)
-        0000: +2 PreludeCard<Player1> BY Engine VIA Player1 BECAUSE 0000
-        0000: +2 PreludeCard<Player2> BY Engine VIA Player2 BECAUSE 0000
+        0000: +2 PreludeCard<Player1> BY Engine VIA PreludeSetup<Player1> BECAUSE 0000
+        0000: +2 PreludeCard<Player2> BY Engine VIA PreludeSetup<Player2> BECAUSE 0000
         Hi, Player1
         New tasks pending:
         Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)

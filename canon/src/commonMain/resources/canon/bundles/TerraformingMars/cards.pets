@@ -4,8 +4,8 @@ ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed a
   "A generic card in your hand"
   ABSTRACT CLASS CardBack[CB] {
     CLASS CorporationCard                       // once a card is played and becomes a CardFront,
-    CLASS PreludeCard                           // nothing in the game ever cares what kind of a
-    CLASS ProjectCard                           // CardBack it used to be... well, that USED to be
+    CLASS ProjectCard                           // nothing in the game ever cares what kind of a
+                                                // CardBack it used to be... well, that USED to be
   }                                             // true until "Double Down" in Dec 2022
 
   "A card in play: face-up on the table"
@@ -47,7 +47,7 @@ ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned {
 
     ABSTRACT CLASS BioTag { CLASS PlantTag[PLT], MicrobeTag[MIT], AnimalTag[ANT] }
 
-    ABSTRACT CLASS PlanetTag { CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET] }
+    ABSTRACT CLASS PlanetTag { CLASS EarthTag[EAT], JovianTag[JOT] }
   }
 
   // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.

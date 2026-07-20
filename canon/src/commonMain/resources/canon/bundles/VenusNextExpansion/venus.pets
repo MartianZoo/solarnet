@@ -1,2 +1,11 @@
 "The Venus Next expansion"
 CLASS VenusNextExpansion : System { HAS =1 This }
+
+"Represents a 2% increase in Venus... terraformedness"
+CLASS VenusStep[VEN] : GlobalParameter {
+  HAS MAX 15 This
+  This IF =4 This: ProjectCard
+  This IF =8 This: TerraformRating
+}
+
+CLASS VenusTag[VET] : PlanetTag

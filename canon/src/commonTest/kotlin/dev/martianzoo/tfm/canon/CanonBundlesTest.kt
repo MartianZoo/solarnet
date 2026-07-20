@@ -37,6 +37,29 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun expansionVocabularyComesOnlyFromItsExpansionBundle() {
+    val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
+    val expansionVocabulary =
+        mapOf(
+            cn("VenusNextExpansion") to setOf(cn("VenusStep"), cn("VenusTag")),
+            cn("PreludeExpansion") to
+                setOf(cn("PreludeCard"), cn("PreludePhase"), cn("PreludeSetup")),
+        )
+
+    val baseRuleset = Canon.resolve(base)
+    expansionVocabulary.values.flatten().forEach { vocabulary ->
+      baseRuleset.allClassNames.contains(vocabulary) shouldBe false
+    }
+
+    expansionVocabulary.forEach { (bundle, vocabulary) ->
+      val ruleset = Canon.resolve(base + bundle)
+      vocabulary.forEach { className ->
+        ruleset.classDeclarationBundles.getValue(className) shouldBe setOf(bundle)
+      }
+    }
+  }
+
+  @Test
   fun doubleDownRequiresBothPromosAndPrelude() {
     val promos = setOf(cn("TerraformingMars"), cn("PromoCardsBundle"))
 

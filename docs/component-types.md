@@ -4,6 +4,8 @@ Here's an overview of the component classes that (currently) make up the core of
 
 * [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
 * [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
+* [venus.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/venus.pets)
+* [prelude.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/PreludeExpansion/prelude.pets)
 
 ## Communal / non-player-owned
 
@@ -11,7 +13,7 @@ First, `Component` is the root of the class hierarchy; *every* instance of anyth
 
 ### Global parameters
 
-The abstract class `GlobalParameter` has four concrete subclasses: `TemperatureStep`, `OxygenStep`, `VenusStep`, and `OceanTile` (which is *also* a subclass of `Tile`). These count "steps", so for example when there are six occurrences of `TemperatureStep` in the game that means the temperature is -18 C.
+The abstract class `GlobalParameter` has three concrete subclasses in the base game: `TemperatureStep`, `OxygenStep`, and `OceanTile` (which is *also* a subclass of `Tile`). Venus Next adds `VenusStep`. These count "steps", so for example when there are six occurrences of `TemperatureStep` in the game that means the temperature is -18 C.
 
 You can pretty easily guess why the `TemperatureStep` class declaration includes the line `HAS MAX 19 This`. Nineteen temperature steps up from the starting point gets you to 8 degrees Celsius and there can never be any more than that.
 
@@ -107,9 +109,9 @@ We discussed the `Phase` types above. As much as possible, these types do nothin
 
 ### Cards
 
-It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; it just has the three subtypes `ProjectCard`, `CorporationCard`, and `PreludeCard`, and that's about it. (Remember these things have no attributes either.)
+It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; its subtypes simply distinguish the generic card backs consumed when different kinds of cards are played. (Remember these things have no attributes either.)
 
-The most important thing to understand about cards is that the engine supports only "follow-along mode" or "magic cards mode". This means it neither knows nor cares what cards you have in your hand. It doesn't shuffle a deck or deal random cards to anyone. During this phase of this project's evolution, it's assumed that you're actually *playing* a game IRL or on another app and just logging the moves here for testing purposes. So if you tell it that next you played `EarthCatapult`, it will believe you, and subtract one generic `ProjectCard` from your hand. I don't expect the engine to support shuffle-and-deal mode for quite a long time.
+The base game's `CardBack` subtypes are `ProjectCard` and `CorporationCard`; the Prelude expansion adds `PreludeCard`. The most important thing to understand about cards is that the engine supports only "follow-along mode" or "magic cards mode". This means it neither knows nor cares what cards you have in your hand. It doesn't shuffle a deck or deal random cards to anyone. During this phase of this project's evolution, it's assumed that you're actually *playing* a game IRL or on another app and just logging the moves here for testing purposes. So if you tell it that next you played `EarthCatapult`, it will believe you, and subtract one generic `ProjectCard` from your hand. I don't expect the engine to support shuffle-and-deal mode for quite a long time.
 
 Even with this simplification, the whole play-a-card process is a bit complex to go into here and now.
 

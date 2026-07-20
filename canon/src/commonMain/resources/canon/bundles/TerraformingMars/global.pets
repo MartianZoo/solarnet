@@ -43,12 +43,6 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     This IF =8 This: TemperatureStep
   }
 
-  "Represents a 2% increase in Venus... terraformedness"
-  CLASS VenusStep[VEN] {
-    HAS MAX 15 This
-    This IF =4 This: ProjectCard
-    This IF =8 This: TerraformRating
-  }
   // OceanTile is in maps-tiles.pets
 }
 
@@ -65,9 +59,6 @@ ABSTRACT CLASS Phase : AutoLoad {
   CLASS SetupPhase
   CLASS CorporationPhase {
     NewTurn: PlayCard<Class<CorporationCard>>, 10 BuyCard?
-  }
-  CLASS PreludePhase {
-    NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

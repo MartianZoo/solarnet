@@ -14,6 +14,7 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.te
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -65,6 +66,18 @@ internal class CanonClassesTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     game.classes.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
     game.classes.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
+    game.classes.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
+    game.classes.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
+  }
+
+  @Test
+  fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
+    val game = setUpGame(Canon.fromOptionCodes("BMP", 2))
+
+    game.tfm(PLAYER1).phase("Prelude")
+
+    game.tfm(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
+    game.tfm(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
   }
 
   @Test

@@ -1,2 +1,14 @@
 "The Prelude expansion"
 CLASS PreludeExpansion : System { HAS =1 This }
+
+CLASS PreludeCard : CardBack
+
+CLASS PreludePhase : Phase {
+  NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
+}
+
+"Deals each player the two generic card backs consumed during PreludePhase"
+CLASS PreludeSetup : Owned<Player>, System, AutoLoad {
+  HAS =1 This
+  PreludePhase:: 2 PreludeCard
+}
