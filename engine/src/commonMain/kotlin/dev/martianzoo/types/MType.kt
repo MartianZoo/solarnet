@@ -1,6 +1,8 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
+import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component
@@ -118,7 +120,12 @@ public data class MType(
     dependencies.ensureNarrows(that.dependencies, info)
 
     if (that.refinement != null) {
-      val requirement = formRequirement(expressionFull, that.expressionFull)
+      val requirement =
+          try {
+            formRequirement(expressionFull, that.expressionFull)
+          } catch (e: ExpressionException) {
+            throw NarrowingException("$this does not satisfy ${that.refinement}", e)
+          }
       if (!info.has(requirement)) {
         throw Exceptions.refinementNotMet(requirement)
       }
@@ -131,7 +138,12 @@ public data class MType(
     if (!dependencies.narrows(that.dependencies, info)) return false
 
     that.refinement ?: return true
-    val requirement = formRequirement(expressionFull, that.expressionFull)
+    val requirement =
+        try {
+          formRequirement(expressionFull, that.expressionFull)
+        } catch (_: ExpressionException) {
+          return false
+        }
     return info.has(requirement)
   }
 

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
@@ -19,7 +18,7 @@ class VironTest : CardTest() {
 
     p1.cardAction1("AtmoCollectors")
 
-    p1.useViron { doTask("UseAction1<AtmoCollectors>") }.expect("Floater")
+    p1.cardAction1("Viron") { doTask("UseAction1<AtmoCollectors>") }.expect("Floater")
 
     p1.assertOneActionMarkerOnEachCard()
   }
@@ -30,7 +29,7 @@ class VironTest : CardTest() {
 
     p1.cardAction1("AtmoCollectors")
 
-    p1.useViron {
+    p1.cardAction1("Viron") {
           doTask("UseAction2<AtmoCollectors>")
           doTask("2 Titanium")
         }
@@ -42,8 +41,9 @@ class VironTest : CardTest() {
   @Test
   fun `cannot choose Viron itself`() {
     val p1 = newPlayer()
+    p1.cardAction1("AtmoCollectors")
 
-    p1.useViron {
+    p1.cardAction1("Viron") {
       shouldThrow<NarrowingException> { doTask("UseAction1<Viron>") }
       abort()
     }
@@ -52,9 +52,11 @@ class VironTest : CardTest() {
   @Test
   fun `cannot choose a card whose action has not been used`() {
     val p1 = newPlayer()
+    p1.godMode().manual("ExtractorBalloons")
+    p1.cardAction1("AtmoCollectors")
 
-    p1.useViron {
-      shouldThrow<NarrowingException> { doTask("UseAction1<AtmoCollectors>") }
+    p1.cardAction1("Viron") {
+      shouldThrow<NarrowingException> { doTask("UseAction1<ExtractorBalloons>") }
       abort()
     }
   }
@@ -66,10 +68,12 @@ class VironTest : CardTest() {
     val p2 = game.tfm(PLAYER2)
     p1.phase("Action")
     p1.godMode().manual("Viron")
+    p1.godMode().manual("ExtractorBalloons")
     p2.godMode().manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
+    p1.cardAction1("ExtractorBalloons")
     p2.cardAction1("AtmoCollectors")
 
-    p1.useViron {
+    p1.cardAction1("Viron") {
       shouldThrow<NarrowingException> { doTask("UseAction1<AtmoCollectors<Player2>>") }
       abort()
     }
@@ -93,11 +97,4 @@ class VironTest : CardTest() {
         2 to "ActionUsedMarker",
     )
   }
-
-  private fun TfmGameplay.useViron(body: OperationBody.() -> Unit) =
-      stdAction("UseCardActionSA") {
-        doTask("UseAction1<Viron>")
-        body()
-        doTask("ActionUsedMarker<Viron>")
-      }
 }

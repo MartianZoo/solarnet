@@ -1,210 +1,195 @@
 # TODO
 
-Priorities appear in parentheses; no parenthetical means the default priority, **Soon**.
+This file tracks work that still appears applicable to the current codebase. Public issue links
+identify the broader discussion; the text here describes only the part that remains.
 
-## Gameplay Rules Implemented Incorrectly or Incompletely
+Priorities appear in parentheses. An item without a priority has the default priority, **Soon**.
+
+## User Ideas and Agreed Directions
+
+### Too permissive, doesn't block Follow Mode
+
+- [Issue #12: Linked specialization across `THEN`](https://github.com/MartianZoo/solarnet/issues/12)
+  — Represent the rare cases where repeated type expressions on opposite sides of `THEN` must be
+  narrowed together, including Flooding and Utopia Invest.
+- [Issue #22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Add an instruction that
+  requires its first branch whenever that branch is possible and uses the fallback only otherwise.
+- [Issue #37: Class-signature linkages](https://github.com/MartianZoo/solarnet/issues/37) — Link
+  repeated dependency expressions so a `Cardbound` component and its `CardFront` necessarily share
+  one owner, eliminating verbose forms such as `Animal<Predators<Player1>, Player1>`.
+
+### Gameplay Rules and Missing Content
+
+- [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Define when
+  an abstract AMAP instruction may narrow to `Ok`. Missing dependencies must allow declining an
+  impossible card-resource gain, as in the disabled Local Heat Trapping test, without letting a
+  player select an occupied area to evade an otherwise possible ocean placement. Revisit
+  `Instructor.autoNarrowTypes` and Artificial Lake's explicit `!` workaround. (Needs discussion)
+- [Issue #63: Atmoscoop](https://github.com/MartianZoo/solarnet/issues/63) — Permit an `OR` branch
+  to contain an atomized `Multi`, restore Atmoscoop's simultaneous choice, and remove its temporary
+  sequential encoding, which exposes ordering choices the card should not provide. (Later)
+- [Issue #2: Remaining solo-mode modeling](https://github.com/MartianZoo/solarnet/issues/2) — Model
+  a neutral host for card resources, such as the imaginary animal that Predators may remove,
+  without giving `Opponent` a playable `CardFront`.
+- [Issue #5: Separate available content from enabled rules](https://github.com/MartianZoo/solarnet/issues/5)
+  — Add an active-content selection between `GameOptions` and class loading. Bundle selection now
+  supports expansion configurations, but including a bundle still enables all its definitions and
+  the corresponding option; callers cannot yet select individual content independently.
+- [Issue #13: `OR` triggers](https://github.com/MartianZoo/solarnet/issues/13) — Allow one effect to
+  subscribe to alternative triggers so canonical definitions no longer duplicate the same effect.
+- [Issue #48: Refinements in trigger types](https://github.com/MartianZoo/solarnet/issues/48) — Make
+  trigger matching honor refinements, as needed by effects based on a played card's cost or
+  requirement.
+- Maybe make Tile extend Atomized
+
+### Language and Engine Semantics
+
+- [Issue #24: Counting distinct concrete classes](https://github.com/MartianZoo/solarnet/issues/24)
+  — Decide whether `Class<Tag>(OF Owner)`-style metrics should generically count distinct concrete
+  classes associated with an owner. If the semantics are clean, replace Canon's current
+  `DistinctTagType` and `DistinctResourceType` custom metrics.
+- [Issue #29: Execute `THEN` incrementally](https://github.com/MartianZoo/solarnet/issues/29) — Keep
+  a linked or coupled-scalar `THEN` instruction together long enough to narrow it consistently,
+  then execute its concrete head and enqueue its still-abstract tail. Titan Shuttles and Recyclon
+  currently repeat the entire combined instruction instead.
+- [Issue #60: Auto-narrowing instructions](https://github.com/MartianZoo/solarnet/issues/60) — Define
+  a small, predictable set of rules for resolving a unique available dependency or target without
+  taking away a real player choice.
+- [Issue #61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce at the
+  appropriate engine boundary that `Temporary` components cannot remain after an operation, rather
+  than relying only on the convenience layer's final assertion.
+- [Issue #59: Default intensity for `-This`](https://github.com/MartianZoo/solarnet/issues/59) —
+  Decide whether self-removal effects should be mandatory by default so canonical declarations no
+  longer need repeated `-This!`. (Needs discussion)
+
+### User-Facing Behavior
+
+- [Issue #42: Preserve useful failures and stack traces](https://github.com/MartianZoo/solarnet/issues/42)
+  — Narrow broad exception handling in the script layer. Distinguish parsing and usage errors from
+  programming/system failures in `new`, `mode`, `help`, `executeAll`, and command dispatch, and
+  decide where server-side logging belongs.
+- [Issue #30: Concise task refinement](https://github.com/MartianZoo/solarnet/issues/30) — Let REPL
+  users narrow a task without repeating the entire instruction.
+- [Issue #41: Improve `list`](https://github.com/MartianZoo/solarnet/issues/41) — Add useful
+  hierarchy/dependency descent, grouping and depth controls, sensible concrete-subtype handling,
+  and explicit `<Anyone>` ownership where omission is ambiguous.
+- [Issue #46: `list` loses concrete card identity](https://github.com/MartianZoo/solarnet/issues/46)
+  — Fix listings such as `CardFront` collapsing concrete cards into one abstract `ResourceCard` row.
+- [Issue #54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54) — Correct
+  counts whose refinements contain contextual ownership and display the resolved player in output.
+
+### Platform Reach
+
+- Implement [World Government Terraforming](plans/world-government.md), replacing the logged-game
+  neutral-opponent workaround with an Engine-performed operation chosen by the `StartToken` owner.
+  Preserve the plan's Actor/Owner separation and Solar Phase rules. (Somewhat soon)
+
+## Autonomous Follow-ups
+
+### Gameplay Correctness and Test Fidelity
 
 - Model the two Prelude plays as explicit first and second Prelude turns, analogous to action-phase
-  turns, so turn ownership, hooks, and future workflow changes are consistent. (Somewhat soon)
+  turns, so ownership, hooks, and future workflow changes are consistent. (Somewhat soon)
 - Give Tharsis Republic an explicit immediate solo-setup production gain rather than treating the
-  neutral cities as though Tharsis had observed their placement. Decide whether to express this as
-  `SoloMode: PROD[2]` or `PROD[1 / CityTile<Opponent>]`; make the needed `SoloMode` or `Opponent`
-  type available without exposing an irrelevant instruction to multiplayer players. (Later)
-- Issue #28: Flaw with "amap" quantifier and ocean tiles (perhaps other cases too?) — Define when an
-  abstract AMAP instruction may narrow to `Ok`: missing dependencies must allow declining impossible
-  card-resource gains, as exposed by the disabled Local Heat Trapping test, without permitting a
-  player to select an occupied area and thereby evade an otherwise possible ocean placement. Revisit
-  `Instructor.autoNarrowTypes` and the `ArtificialLake` `!` workaround as part of this. (Needs discussion)
-- Issue #33: GreeneryTile default gain "fallback rule"
+  neutral cities as though Tharsis observed their placement. Decide between `SoloMode: PROD[2]`
+  and `PROD[1 / CityTile<Opponent>]` without exposing irrelevant multiplayer work. (Later)
+- Decide whether standard-project costs should use the same `Owed` protocol as card payments so
+  Kuiper Cooperative can spend asteroids against only the Aquifer and Asteroid projects without
+  converting them into unrestricted cash. (Needs discussion)
+- Determine whether preparing a gated instruction incorrectly discards meaningful ownership.
+  `PrepareTest` turns `Plant<Anyone>` into unowned `Plant!`; establish whether that is harmless
+  canonicalization or an invalid-target hole, then document or fix it with a regression test.
+- Give failed gameplay operations precise domain exceptions. Predators with no stealable animal
+  currently accepts any `Exception`; identify the expected unavailable-target failure and narrow
+  the assertion and implementation contract.
+- Load the logged map's milestones in `Game20260619Test` and exercise the real Specialist claim
+  instead of shutting down workflow and substituting a raw five-VP adjustment.
 
-### Suspected Over-Permissiveness
+### Engine Safety and Maintainability
 
-- Encode Viron's "another card" restriction directly. The usual convenience path happens to select
-  the reused action before adding Viron's own action-used marker, which correctly keeps Viron
-  ineligible, but task order has no rule meaning; the underlying dynamic refinement would allow
-  Viron to select itself if that marker task were executed first.
-- Diagnose whether preparing a gated instruction incorrectly loses meaningful ownership information.
-  `PrepareTest` currently turns `Plant<Anyone>` into unowned `Plant!`; establish whether this is only
-  harmless canonicalization or permits an invalid target, then document or fix it with regression
-  tests.
-- Issue #19: Prevent overpayment? — Document the card-purchase/payment protocol, including the roles
-  and invariants of `BuyCard`,
-  `PlayCard`, `Owed`, `Accept`, and `Pay`. Investigate the original warning that the `-3` in
-  `BuyCard` (`This: -3, ProjectCard`) "could potentially be exploited" rather than assuming a
-  specific exploit; define the legal overpayment bound; account for effects such as Terralabs
-  Research's `BuyCard:: 2` discount and the reason card buying must be represented as a delayed
-  signal/task. Decide whether standard-project costs should use the same `Owed` protocol so Kuiper
-  Cooperative can spend asteroids against only the Aquifer and Asteroid projects without converting
-  them into unrestricted cash. (Needs discussion)
-- Issue #63: Atmoscoop doesn't actually work yet — Permit an OR branch containing an atomized
-  `Multi`, then restore Atmoscoop's canonical simultaneous choice and remove its temporary
-  sequential-task encoding, which may expose ordering choices the card is not supposed to provide.
-  (Later)
-- Issue #62: I can reuse the same trade fleet?
-
-## Expansion or Content Support Gaps
-
-- Issue #1: Shuffle-and-deal mode
-- Issue #2: Solo mode — Work out the neutral host model for card resources (for example, the
-  imaginary animal that Predators may remove) without giving Opponent a playable `CardFront`.
-- Issue #4: Turmoil
-- Issue #5: Game configurations
-- Issue #9: Community
-- Issue #12: Specialization across THEN (needed by UseCardAction, Flooding, UtopiaInvest)
-- Issue #13: OR triggers
-- Issue #15: Wild tag
-- Issue #17: Requirement high jinks
-- Issue #18: Auto-specializing triggers
-- Issue #20: awards
-- Issue #22: `ELSE`
-- Issue #34: Consider letting component types have properties after all <sigh>
-- Issue #36: More expressive defaults?
-- Issue #37: The "Cardbound problem" (class signature "linkages")
-- Issue #48: Trigger types should support refinements
-- Issue #64: I suspect a card with `2 CityTile` would not work
-
-## Core Instruction and Engine Semantics
-
-- Add a union metric that counts components matching either of two types only once. Red Ships needs
-  this to combine CityTile and SpecialTile without double-counting CapitalTile.
-- Consider making `Class<Tag>(OF Owner)`-style metrics generically count distinct concrete classes
-  associated with an owner. If the semantics are clean, this could replace the canonical
-  `DistinctTagType` and `DistinctResourceType` custom classes.
-- Replace or redesign the brittle `doFirstTask()` convenience. Task queue order has no domain
-  meaning; callers should select by task id or an explicit match unless they have established that
-  exactly one task can apply.
-- Research and simplify coupled-scalar (`X`) validation for `THEN` instructions. The current
-  implementation zips instructions and descendant scalars and relies on traversal order and count
-  equality; explicitly test and enforce the rule that all occurrences of a shared `X` resolve to one
-  consistent multiplier.
+- Replace or constrain `doFirstTask()`. Queue order has no domain meaning; callers should select by
+  task id or explicit match unless they have established that exactly one task can apply.
+- Simplify coupled-scalar (`X`) validation for `THEN`. The current implementation zips instructions
+  and descendant scalars by traversal order and count; directly test and enforce that every use of
+  a shared `X` resolves to one multiplier.
 - Add a test/task helper such as `setXTo(n)` so tests can select a coupled scalar without repeating
   the entire reified instruction, especially for variable card-resource payments.
 - Enforce coupled type specialization within one instruction: repeated occurrences of the same
   abstract component type must resolve identically, just as repeated `X` scalars do. Kaguya Tech's
   `CityTile<LandArea> FROM GreeneryTile<LandArea>` must not permit two different land areas.
-- Issue #29: Handle `THEN` better
-- Issue #60: auto-narrowing instructions
-- Issue #61: make sure no `Temporary` instances get littered
-
-## Failure Safety and Error Classification
-
-- Give failed gameplay operations precise domain exceptions. For example, Predators with no
-  stealable animal currently makes its test accept any `Exception`; identify the expected
-  unavailable-target error and narrow both implementation behavior and the assertion.
-- Separate expected domain failures from programming and system failures throughout speculative task
-  preparation and auto-execution. `canPrepareTask` and whole-game auto-exec currently treat every
-  `Exception` as "cannot prepare," which can hide engine defects. Introduce an explicit result or a
-  narrow exception contract, preserve useful pending reasons, and let unexpected failures surface.
-  Split `autoExecNext` into understandable safe-choice, speculative-preparation, dead-end-reporting,
-  and unsafe-fallback operations while doing this.
-- Issue #42: See what I can get to stacktrace, and handle the problem better — Audit broad exception
-  handling throughout the script layer. Narrow parsing failures in `new`,
-  `mode`, and `help`; distinguish user mistakes from programming/system failures in `executeAll` and
-  command dispatch; preserve useful stack traces; and decide where server-side logging belongs.
-- Reject `exit` inside files executed by the `script` command so a script cannot accidentally shut
-  down server mode. Parse commands with comments and whitespace handled correctly and report the
-  offending line.
+- Add a union metric that counts components matching either of two types only once. Red Ships needs
+  this to combine `CityTile` and `SpecialTile` without double-counting `CapitalTile`.
+- Separate expected domain failures from programming/system failures during speculative task
+  preparation and auto-execution. `canPrepareTask` still catches every `Exception`. Introduce a
+  narrow result/exception contract, preserve pending reasons, let defects surface, and split
+  `autoExecNext` into comprehensible safe-choice, preparation, dead-end, and unsafe-fallback steps.
 - Narrow the exception contract of boolean instruction/type compatibility probes.
-  `Instruction.narrows` currently turns every exception from `ensureNarrows` into `false`. Determine
-  which exception types mean a legitimate narrowing mismatch and which represent broken invariants
-  or bugs that should propagate; this is the instruction-level counterpart of the task-preparation
-  exception audit above. (Needs discussion)
-
-## Test Fidelity
-
-- Load the correct map-specific milestones in logged-game fixtures. `Game20260619Test` substitutes a
-  manual VP adjustment because it claims Elysium's Specialist while only Tharsis milestones are
-  present; select the logged map's awards and milestones and exercise the real claim flow.
-
-## User-Facing Behavior and Diagnostics
-
-- Investigate parser improvements now that the project maintains better-parse itself. Include the
-  duplicate validation/reporting paths in typed `parse(KClass, ...)`, the multiple `myThrow`-style
-  error flatteners, structured alternative-input and source-location reporting, and opportunities to
-  improve the underlying parser rather than merely consolidating local wrappers.
-- Rewrite `auto` command help and validation to match the actual `none`, `safe`, and `first` modes;
-  it still describes an obsolete on/off interface.
-- Revisit why `MAX 0 Barrier` lacks the "currently impossible" explanation and whether the extra
-  blank line in script output is intentional command separation or a formatting bug.
-- Verify color behavior with a real-terminal smoke test. The current REPL still emits a mode-colored
-  prompt and colored `board`/`map` output through ANSI true-color sequences, while ordinary textual
-  command output remains plain as before. Confirm those escape sequences render correctly in the
-  supported terminal rather than expanding this into a general structured-output project. (Needs discussion)
-- Issue #30: In repl, allow reifying more concisely than repeating the entire instruction
-- Issue #41: REPL: a much better `list` command — Include explicit `<Anyone>` ownership when omission
-  is ambiguous, along with the hierarchy, grouping, depth, and concrete-subtype improvements in the
-  issue.
-- Issue #46: Bug in list command
-- Issue #54: repl count issue — Correct owner-sensitive counts and display the resolved player in
-  output so the result is understandable.
-
-## Internal Design, Cleanup, and Test Convenience
-
-- Decide whether `NewTurn`, `SecondAction`, `Pass`, and `UseAction1..3` form a generic engine
+  `Instruction.narrows` currently converts every exception from `ensureNarrows` into `false`;
+  legitimate mismatches should be distinguished from broken invariants. (Needs discussion)
+- Decide whether `NewTurn`, `SecondAction`, `Pass`, and `UseAction1..3` are a generic engine
   protocol or Terraforming Mars behavior, then colocate their Pets declarations with the Kotlin
-  code that understands them: either move the foundational declarations into `system.pets` or move
-  the hard-coded protocol under `tfm`.
-- Audit queued (`:`) effects involved in setup and convert only consequences that are not
-  rules-recognized player choices to immediate (`::`) effects. In particular, consider creating
-  Photosynthesis as an immediate consequence of removing `SetupPhase`; keep genuine setup choices
-  in the task queue. (Later)
+  code that interprets them.
+- Audit setup effects and make only non-choice consequences automatic (`::`). In particular,
+  consider creating `Photosynthesis` as an immediate consequence of removing `SetupPhase`, while
+  leaving genuine setup choices queued. (Later)
 - Finish separating the Canon catalog from selected rulesets: Canon should own bundle locators and
-  assemble only the requested `Bundle` objects instead of inheriting from `TfmRuleset.Composite`.
-  Preserve the tested guarantee that resolving one selection never reads another bundle's payload.
-- Add an active-content selection step between `GameOptions` and class loading so a bundle can be
-  included to provide selected content without enabling the expansion option or every definition in
-  that bundle.
+  resolve only requested bundles instead of inheriting from `TfmRuleset.Composite`. Preserve the
+  invariant that resolving one selection never reads another bundle's payload.
 - Clarify `CardDefinition.requiredBundles`: it currently conflates bundle-presence dependencies with
   expansion-enabling `GameOption`s. Define which concept it represents or split the two concepts.
 - Decide whether an abstract custom root should remain invalid or gain explicit aggregation
-  semantics. (Custom metrics already receive abstract dependency arguments.) Do not infer root
-  aggregation by blindly taking a Cartesian product of concrete dependency types; define how
-  dependency presence, multiplicity, and refinements contribute first.
-- Investigate why narrowing solo setup's queued Opponent tile-placement tasks requires repeating the
-  `Opponent` dependency in each concrete tile instruction; ideally the task's existing owner should
-  be retained when a test supplies only the chosen map area.
-- Allow a linked `X THEN X` task to be refined as a whole and then execute its concrete head and
-  tail separately. Titan Shuttles and Recyclon currently repeat the combined instruction instead.
-- Clarify why `Initializer` appends mandatory intensity (`!`) to every synthetic setup instruction.
-  Determine whether setup really requires it or whether initialization should execute concrete
-  instructions without textual rewriting.
-- Issue #59: `-This` effects should get default intensity?
-- Now that gameplay queue views are scoped, search tests and convenience APIs for simplifications
-  where they previously expected an empty whole-game queue after each action; start with the
-  `SoloGame0710Test` Head Start workaround.
-- Issue #23: Actually run tests in javascript — Migrate the remaining `engine` and `repl` tests from
-  Truth to cross-platform Kotest-backed assertions and ensure the relevant suite runs on JavaScript.
-- Determine whether `playCorp` can be generalized to handle a corporation-selection task created by
-  Merger. It does not currently appear fixed: `playCorp` always opens a new `turn`, whereas Merger's
-  corporation choice is already a pending task inside `playPrelude`. If appropriate, separate the
-  task-selection helper from the turn-opening convenience wrapper and update `SoloGame0710Test`,
-  `SoloGame0721Test`, and `MergerTest`.
-- Investigate adapting the existing PET AST random generator to Kotest property testing, especially
-  whether domain-aware shrinking can produce smaller, understandable failures without replacing the
-  useful recursive generation logic wholesale. (Later)
-- Add Kotlin Gradle Plugin binary API validation once its Kotlin 2.2 support is mature enough. Use
-  ABI snapshots for the public `pets`, `engine`, `canon`, and `script` APIs and integrate validation
-  with the normal `check` lifecycle, specifically to catch accidental public API changes.
+  semantics. Do not infer aggregation through a Cartesian product of concrete dependencies; define
+  dependency presence, multiplicity, and refinement behavior first.
+- Preserve a queued solo-setup tile task's existing `Opponent` dependency when a test narrows only
+  its area; concrete tile instructions should not have to repeat `Opponent`.
+- Clarify why `Initializer` appends mandatory intensity (`!`) to every synthetic bootstrap
+  instruction and whether concrete initialization can execute without textual rewriting.
+- Simplify tests and helpers that still assume the whole game's queue must be empty after each
+  action now that gameplay queue views are assignee-scoped; start with Head Start in
+  `SoloGame0710Test`.
+- Separate corporation-task selection from the turn-opening `playCorp` wrapper so Merger's pending
+  corporation choice can use the same helper. Update `SoloGame0710Test`, `SoloGame0721Test`, and
+  `MergerTest` if the abstraction holds.
 - Extract repeated `Definition`-to-`ClassDeclaration` assembly used by standard actions and related
-  definition types if a shared abstraction makes the definitions materially simpler while keeping
-  category-specific supertypes and effects explicit.
-- Decide whether humanized Terraforming Mars readers such as temperature and oxygen accessors belong
-  on `TfmGameplay` or in a presentation/reporting adapter, then update `docs/engine.md` to describe
-  the chosen API boundary. (Somewhat soon)
-- Improve AST transformation architecture, evaluating these concrete directions before choosing one:
-  generate or centralize child traversal/copying so every new AST subtype does not enlarge
-  `PetTransformer.transformChildren`; replace generic `Change` handling plus a subtype switch with
-  typed `Gain`, `Remove`, and `Transmute` operations; make atomization a stateless recursive
-  normalization instead of relying on mutable `ourMulti` identity during traversal; and extract
-  named predicates/operations from complex owner replacement. Preserve exact tree shape and
-  traversal semantics with focused tests. (Needs discussion)
-- Use `docs/engine-api-review.md` to guide a gradual replacement of `godMode()` and layer casts with
-  explicit player, workflow, monitor, debug, and fixture role objects. This is a large API project;
-  defer the script gameplay/access-context cleanup until this direction is clearer. (Later)
+  definitions when a shared abstraction can keep category-specific supertypes and effects explicit.
+- Decide whether humanized Terraforming Mars readers such as temperature and oxygen belong on
+  `TfmGameplay` or in a presentation/reporting adapter, then document the chosen boundary in
+  `docs/engine.md`. (Somewhat soon)
+- Improve AST transformations while preserving exact tree shape and traversal semantics: centralize
+  child traversal/copying, replace generic `Change` subtype switches with typed operations, make
+  atomization stateless, and extract named owner-replacement operations. (Needs discussion)
+- Use `docs/engine-api-review.md` to replace `godMode()` and layer casts gradually with explicit
+  player, workflow, monitor, debug, and fixture roles. Defer script access-context cleanup until
+  that direction is clearer. (Later)
 
-## Performance Only
+### Diagnostics and Tooling
 
-- Profile and reduce the largest type-system allocation hot spots. `MType.glb` was observed allocating
-  roughly 28 MB per solo game, while `MType.narrows` consumed about 19% of runtime and over 10 MB;
-  investigate canonicalization/caching and avoid repeatedly rebuilding dependency, refinement, and
-  requirement objects. (Later)
+- Improve parser errors in the maintained better-parse fork where appropriate: consolidate typed
+  `parse(KClass, ...)` validation and local `myThrow` flatteners, and add structured alternatives
+  and source locations rather than merely rearranging wrappers.
+- Rewrite `auto` help for the actual `none`, `safe`, and `first` modes; its usage and validation are
+  current, but its prose still describes obsolete on/off behavior.
+- Explain why `MAX 0 Barrier` is not labeled "currently impossible" and decide whether the extra
+  blank line in script output is intentional command separation or a formatting bug.
+- Extend the existing real-terminal smoke test to assert that the mode-colored prompt and colored
+  `board`/`map` ANSI true-color sequences render as intended. Ordinary textual output should remain
+  plain. (Needs discussion)
+- Reject `exit` inside files executed by `script` so a file cannot shut down server mode. Handle
+  comments and whitespace correctly and report the offending line.
+- Adapt the PET AST random generator to Kotest property testing if domain-aware shrinking can
+  produce smaller failures without replacing its useful recursive generation logic. (Later)
+- Add Kotlin binary API validation for the public `pets`, `engine`, `canon`, and `script` APIs and
+  integrate ABI snapshot checks with the normal `check` lifecycle.
+- Replace the browser UI's synchronous XHR resource loading with an asynchronous startup boundary,
+  so loading larger rulesets cannot block the browser's main thread. Preserve one shared resource
+  abstraction across Pets and Canon rather than adding UI-specific fetching.
+- Decide whether browser completion should expose `ScriptCompletion` groups and descriptions in a
+  selectable menu. The first terminal adapter preserves completion values but intentionally uses
+  the terminal library's simpler value-only Tab completion interface.
+
+### Performance
+
+- Profile and reduce type-system allocation hot spots without risking correctness. `MType.glb` was
+  observed allocating roughly 28 MB per solo game; `MType.narrows` used about 19% of runtime and
+  more than 10 MB. Investigate canonicalization/caching and repeated dependency, refinement, and
+  requirement construction. (Later)

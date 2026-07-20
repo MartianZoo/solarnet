@@ -58,3 +58,10 @@ commands explicitly without changing the shared session's behavior by compilatio
 
 The JVM REgo PLastics application: its interactive JLine UI, filesystem script support, TCP server,
 and executable entry point.
+
+## module WEB
+
+### <a href="web/dev.martianzoo.web/index.html">dev.martianzoo.web</a>
+
+The browser-hosted REgo PLastics application. It adapts the shared Script session and completion
+engine to a browser terminal, with browser-local command history and no server-side game process.
