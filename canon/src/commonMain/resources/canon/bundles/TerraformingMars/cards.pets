@@ -31,7 +31,28 @@ ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed a
   }
 }
 
-"(Like anything extending Custom) an implementation detail that you can look up in custom.kt if desired"
+"A virtual metric whose count is the printed megacredit cost of a card in play"
+CLASS CardCost<CardFront> : Custom
+
+"A virtual metric whose count is 1 when a card has a printed play requirement"
+CLASS CardRequirement<CardFront> : Custom
+
+"The CardRequirement metric applied to a card class token rather than a card in play"
+CLASS ClassCardRequirement<Class<CardFront>> : Custom
+
+"A virtual metric whose count is the printed megacredit cost of a standard project"
+CLASS StandardProjectCost<StandardProject> : Custom
+
+"A virtual metric whose count is the number of a particular resource printed as an area's bonus"
+CLASS MapBonus<Class<Resource>, MarsArea> : Custom
+
+"A virtual metric whose count is the number of distinct tag classes a player has in play"
+CLASS DistinctTagType<Player> : Custom
+
+"A virtual metric counting instances of one concrete tag class, regardless of their hosting cards"
+CLASS TagCount<Tag> : Custom
+
+"(Like anything extending Custom) an implementation detail backed by Kotlin code"
 CLASS GetEventVps<Class<CardFront>> : Owned, Custom // need Owned?
 
 "Anything that 'lives on' a card / couldn't exist without the card"

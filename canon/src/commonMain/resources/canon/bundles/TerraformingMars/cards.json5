@@ -1,6 +1,17 @@
 {
   "cards": [
 
+    // CrediCor
+    {
+      "id": "B01",
+      "deck": "CORPORATION",
+      "immediate": "57",
+      "effects": [
+        "CardFront(HAS 20 CardCost): 4",
+        "UseAction<StandardProject(HAS 20 StandardProjectCost)>: 4"
+      ]
+    },
+
     // Ecoline
     {
       "id": "B02",
@@ -17,6 +28,16 @@
       "tags": [ "BuildingTag" ],
       "immediate": "30, 20 Steel",
       "effects": [ "EventCard: 2" ]
+    },
+
+    // Mining Guild
+    {
+      "id": "B06",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag", "BuildingTag" ],
+      "effects": [
+        "Tile<MarsArea(HAS MapBonus<Class<Steel>> OR MapBonus<Class<Titanium>>)>: PROD[Steel]"
+      ]
     },
 
     // Phobolog
@@ -1536,6 +1557,17 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy], 2 TerraformRating",
       "cost": 8,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Mining Rights
+    {
+      "id": "067",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "MiningRightsTile<LandArea(HAS Neighbor<OwnedTile>)> THEN (LandArea(HAS MiningRightsTile, MapBonus<Class<Steel>>): PROD[Steel] OR LandArea(HAS MiningRightsTile, MapBonus<Class<Titanium>>): PROD[Titanium])",
+      "components": [ "CLASS MiningRightsTile : SpecialTile" ],
+      "cost": 9,
       "projectKind": "AUTOMATED"
     },
   ],

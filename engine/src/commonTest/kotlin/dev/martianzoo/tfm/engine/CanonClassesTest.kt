@@ -196,16 +196,16 @@ internal class CanonClassesTest {
 
     checkConcreteSubtypeCount("Class<MarsArea>", 61)
     checkConcreteSubtypeCount("Class<RemoteArea>", 2)
-    checkConcreteSubtypeCount("Class<Tile>", 11)
-    checkConcreteSubtypeCount("Class<SpecialTile>", 8)
+    checkConcreteSubtypeCount("Class<Tile>", 13)
+    checkConcreteSubtypeCount("Class<SpecialTile>", 10)
 
     checkConcreteSubtypeCount("CityTile", 63 * 2)
     checkConcreteSubtypeCount("OceanTile", 61)
     checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
-    checkConcreteSubtypeCount("SpecialTile", (8 * 61) * 2)
+    checkConcreteSubtypeCount("SpecialTile", (10 * 61) * 2)
 
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
-    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 2) + (61 * 2) + (8 * 61 * 2)
+    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 2) + (61 * 2) + (10 * 61 * 2)
   }
 }

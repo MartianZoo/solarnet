@@ -22,7 +22,10 @@ interface GameReader : TypeInfo {
   /** Determines whether the (fully-prepared) [requirement] is met in the current game state. */
   override fun has(requirement: Requirement): Boolean
 
-  /** Evaluates the (fully-prepared) [metric] in the current game state. */
+  /**
+   * Evaluates the (fully-prepared) [metric] in the current game state. A count whose root is a
+   * custom class is computed by that Kotlin implementation rather than from components.
+   */
   fun count(metric: Metric): Int
 
   /** Returns the number of component instances having type [type] in the current game state. */

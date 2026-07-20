@@ -48,7 +48,6 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 - Issue #4: Turmoil
 - Issue #5: Game configurations
 - Issue #9: Community
-- Issue #11: Custom requirements (a la custom instructions)
 - Issue #12: Specialization across THEN (needed by UseCardAction, Flooding, UtopiaInvest)
 - Issue #13: OR triggers
 - Issue #15: Wild tag
@@ -56,7 +55,6 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 - Issue #18: Auto-specializing triggers
 - Issue #20: awards
 - Issue #22: `ELSE`
-- Issue #24: Counting tag types
 - Issue #34: Consider letting component types have properties after all <sigh>
 - Issue #36: More expressive defaults?
 - Issue #37: The "Cardbound problem" (class signature "linkages")
@@ -65,6 +63,9 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Core Instruction and Engine Semantics
 
+- Consider making `Class<Tag>(OF Owner)`-style metrics generically count distinct concrete classes
+  associated with an owner. If the semantics are clean, this could replace the canonical
+  `DistinctTagType` and `DistinctResourceType` custom classes.
 - Replace or redesign the brittle `doFirstTask()` convenience. Task queue order has no domain
   meaning; callers should select by task id or an explicit match unless they have established that
   exactly one task can apply.
@@ -144,6 +145,10 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 - Add an active-content selection step between `GameOptions` and class loading so a bundle can be
   included to provide selected content without enabling the expansion option or every definition in
   that bundle.
+- Decide whether an abstract custom root should remain invalid or gain explicit aggregation
+  semantics. (Custom metrics already receive abstract dependency arguments.) Do not infer root
+  aggregation by blindly taking a Cartesian product of concrete dependency types; define how
+  dependency presence, multiplicity, and refinements contribute first.
 - Investigate why narrowing solo setup's queued Opponent tile-placement tasks requires repeating the
   `Opponent` dependency in each concrete tile instruction; ideally the task's existing owner should
   be retained when a test supplies only the chosen map area.

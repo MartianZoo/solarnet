@@ -58,7 +58,7 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
     error("")
   }
 
-  fun prepare(game: GameReader, type: Type): Instruction {
+  public fun prepare(game: GameReader, type: Type): Instruction {
     if (type.abstract) throw AbstractException("")
     val args = type.expressionFull.arguments.map { game.resolve(it) }
     val missing = args.filter { game.countComponent(it) == 0 }

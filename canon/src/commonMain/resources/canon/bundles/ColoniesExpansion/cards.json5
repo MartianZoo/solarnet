@@ -569,5 +569,16 @@
       "cost": 14,
       "projectKind": "ACTIVE"
     },
+
+    // Spin-Off Department
+    {
+      "id": "C41",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[2]",
+      "effects": [ "CardFront(HAS 20 CardCost): ProjectCard" ],
+      "cost": 10,
+      "projectKind": "ACTIVE"
+    },
   ],
 }

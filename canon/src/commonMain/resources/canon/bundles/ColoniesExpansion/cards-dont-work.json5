@@ -1,13 +1,13 @@
 {
   "cards": [
 
-    // Aridor
+    // Aridor (distinct tags work now; adding a colony tile during setup still does not)
     {
       "id": "CC1",
       "deck": "CORPORATION",
       "immediate": "40",
       "effects": [
-         "Class<Tag>(OF Owner): PROD[1]",
+         "Tag<Owner>(HAS =1 TagCount): PROD[1]",
          "DoMandate<This>: NewColonyTile"
       ]
     },
@@ -17,17 +17,6 @@
       "id": "CC5",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ]
-    },
-
-    // Spin-Off Department
-    {
-      "id": "C41",
-      "deck": "PROJECT",
-      "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2]",
-      "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
-      "cost": 10,
-      "projectKind": "ACTIVE"
     },
 
     // Productive Outpost

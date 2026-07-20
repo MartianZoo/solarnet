@@ -1,6 +1,17 @@
 {
   "cards": [
 
+    // Mining Area
+    {
+      "id": "064",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "MiningAreaTile THEN (LandArea(HAS MiningAreaTile, MapBonus<Class<Steel>>): PROD[Steel] OR LandArea(HAS MiningAreaTile, MapBonus<Class<Titanium>>): PROD[Titanium])",
+      "components": [ "CLASS MiningAreaTile : SpecialTile" ],
+      "cost": 4,
+      "projectKind": "AUTOMATED"
+    },
+
     // Saturn Systems
     {
       "id": "B11",

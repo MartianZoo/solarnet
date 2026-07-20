@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.CustomClass
-import dev.martianzoo.api.Exceptions
+import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
@@ -235,8 +235,14 @@ public abstract class TfmRuleset : Ruleset {
   // CUSTOM CLASSES
 
   override fun customClass(className: ClassName): CustomClass =
-      customClasses.firstOrNull { it.className == className }
-          ?: throw Exceptions.customClassNotFound(className)
+      customClasses.firstOrNull { it.className == className && it !is CustomMetric }
+          ?: customClasses.firstOrNull { it.className == className }
+          ?: throw IllegalArgumentException(
+              "Custom class implementation for `$className` not found"
+          )
+
+  override fun customMetric(className: ClassName): CustomMetric? =
+      customClasses.filterIsInstance<CustomMetric>().firstOrNull { it.className == className }
 
   /** A ruleset providing no game-specific content; intended for tests. */
   public open class Empty : TfmRuleset() {

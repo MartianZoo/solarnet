@@ -85,7 +85,8 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
       }
 
   public fun prepareCustom(reader: GameReader): Instruction {
-    val translated = mtype.root.custom!!.prepare(reader, mtype)
+    val implementation = requireNotNull(mtype.root.custom)
+    val translated = implementation.prepare(reader, mtype)
     return customOutputTransformer.transform(translated)
   }
 

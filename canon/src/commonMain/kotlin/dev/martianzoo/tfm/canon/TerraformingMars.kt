@@ -3,11 +3,16 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
+import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Action.Cost.Spend
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
@@ -16,6 +21,7 @@ import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
 import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Multi
@@ -25,6 +31,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.api.ApiUtils.getOwner
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.tfmRuleset
@@ -41,10 +48,74 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.HandleCardCost,
         TerraformingMars.GetEventVps,
         TerraformingMars.PassLeft,
+        TerraformingMars.MarsRow,
+        TerraformingMars.CardCost,
+        TerraformingMars.CardRequirement,
+        TerraformingMars.ClassCardRequirement,
+        TerraformingMars.StandardProjectCost,
+        TerraformingMars.MapBonus,
+        TerraformingMars.DistinctTagType,
+        TerraformingMars.TagCount,
     )
 
 /** Namespace for the core game's custom Pets implementations. */
 internal object TerraformingMars {
+  internal object MarsRow : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int {
+      val areaName = type.expressionFull.arguments.single().className
+      return mapDefinition(game).areas.single { it.className == areaName }.row
+    }
+  }
+
+  internal object CardCost : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int =
+        card(type.expressionFull.arguments.single(), game).cost
+  }
+
+  internal object CardRequirement : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int =
+        if (card(type.expressionFull.arguments.single(), game).requirement == null) 0 else 1
+  }
+
+  internal object ClassCardRequirement : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int {
+      val cardClass = type.expressionFull.arguments.single().arguments.single()
+      return if (card(cardClass, game).requirement == null) 0 else 1
+    }
+  }
+
+  internal object StandardProjectCost : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int {
+      val projectName = type.expressionFull.arguments.single().className
+      val action = parse<Action>(game.tfmRuleset.action(projectName).actions.single())
+      return ((action.cost as Spend).scaledEx.scalar as ActualScalar).value
+    }
+  }
+
+  internal object MapBonus : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int {
+      val arguments = type.expressionFull.arguments
+      val resourceName = arguments.single { it.className == CLASS }.arguments.single().className
+      val areaName = arguments.single { it.className != CLASS }.className
+      val bonus = mapDefinition(game).areas.single { it.className == areaName }.bonus ?: return 0
+      return bonus.descendantsOfType<Gain>().sumOf {
+        if (it.gaining.className == resourceName) (it.count as ActualScalar).value else 0
+      }
+    }
+  }
+
+  internal object DistinctTagType : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int = distinctClasses(game, type, cn("Tag"))
+  }
+
+  internal object TagCount : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int {
+      val tag = game.resolve(type.expressionFull.arguments.single())
+      val owner = getOwner(game, tag)
+      return game.getComponents(game.resolve(tag.className.of(owner.expression))).size
+    }
+  }
+
   internal object CreateAdjacencies : CustomClass() {
     override fun translate(reader: GameReader, areaType: Type): Instruction {
       val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
@@ -137,4 +208,20 @@ internal object TerraformingMars {
     val cardName = cardClassType.expression.arguments.single().className
     return reader.tfmRuleset.card(cardName)
   }
+
+  private fun card(type: HasClassName, reader: GameReader): CardDefinition =
+      reader.tfmRuleset.card(type.className)
+}
+
+internal fun distinctClasses(
+    game: GameReader,
+    metricType: Type,
+    componentClass: ClassName,
+): Int {
+  val owner = metricType.expressionFull.arguments.single()
+  return game
+      .getComponents(game.resolve(componentClass.of(owner)))
+      .map { it.className }
+      .toSet()
+      .size
 }

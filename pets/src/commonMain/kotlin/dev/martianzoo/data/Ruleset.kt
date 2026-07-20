@@ -1,6 +1,7 @@
 package dev.martianzoo.data
 
 import dev.martianzoo.api.CustomClass
+import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.pets.ast.ClassName
 
 interface Ruleset {
@@ -24,12 +25,15 @@ interface Ruleset {
   /** Everything implementing [Definition] this ruleset knows about. */
   val allDefinitions: Set<Definition>
 
-  /** Every custom instruction this ruleset knows about. */
+  /** Every Kotlin-provided implementation for this ruleset's `Custom` classes. */
   val customClasses: Set<CustomClass>
 
   /** Returns the class declaration having the full name [name]. */
   fun classDeclaration(name: ClassName): ClassDeclaration
 
-  /** Returns the custom instruction implementation having the name [className]. */
+  /** Returns the custom implementation having the name [className]. */
   fun customClass(className: ClassName): CustomClass
+
+  /** Returns the custom metric implementation having the name [className], if any. */
+  fun customMetric(className: ClassName): CustomMetric?
 }

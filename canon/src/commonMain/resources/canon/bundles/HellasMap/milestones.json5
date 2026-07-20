@@ -2,11 +2,11 @@
   "milestones": [
 
     // Diversifier
-//    { "id": "HM1", "requirement": "8 TagType" },
-//    // Tactician
-//    { "id": "HM2", "requirement": "5 CardFront(HAS Requirement)" },
-//    // Polar Explorer
-//    { "id": "HM3", "requirement": "3 OwnedTile<MarsArea(HAS 8 Row)>" },
+    { "id": "HM1", "requirement": "8 DistinctTagType<Owner>" },
+    // Tactician
+    { "id": "HM2", "requirement": "5 CardFront(HAS CardRequirement)" },
+    // Polar Explorer
+    { "id": "HM3", "requirement": "3 OwnedTile<MarsArea(HAS 8 MarsRow)>" },
     // Energizer
     { "id": "HM4", "requirement": "PROD[6 Energy]" },
     // Rim Settler

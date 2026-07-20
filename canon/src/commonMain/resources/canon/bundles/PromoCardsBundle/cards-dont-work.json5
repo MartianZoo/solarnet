@@ -26,45 +26,5 @@
       "projectKind": "ACTIVE"
     },
 
-    // Interplanetary Trade
-    {
-      "id": "X05",
-      "deck": "PROJECT",
-      "tags": [ "SpaceTag" ],
-      "immediate": "PROD[1 / Class<Tag>(OF Owner)]",
-      "effects": [ "End: VictoryPoint" ],
-      "cost": 27,
-      "projectKind": "AUTOMATED"
-    },
-
-    // Advertising
-    {
-      "id": "X13",
-      "deck": "PROJECT",
-      "tags": [ "EarthTag" ],
-      "effects": [ "CardFront(HAS 20 cost): PROD[1]" ],
-      "cost": 4,
-      "projectKind": "ACTIVE"
-    },
-
-    // Cutting Edge Technology
-    {
-      "id": "X18",
-      "deck": "PROJECT",
-      "tags": [ "ScienceTag" ],
-      "effects": [ "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed" ],
-      "cost": 12,
-      "projectKind": "ACTIVE"
-    },
-
-    // Diversity Support
-    {
-      "id": "X20",
-      "deck": "PROJECT",
-      "immediate": "TerraformRating",
-      "requirement": "9 Class<Resource>(OF Owner)",
-      "cost": 1,
-      "projectKind": "EVENT"
-    },
   ],
 }

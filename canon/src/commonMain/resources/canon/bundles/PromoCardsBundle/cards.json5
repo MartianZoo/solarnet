@@ -1,6 +1,40 @@
 {
   "cards": [
 
+    // Interplanetary Trade
+    {
+      "id": "X05",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[1 / DistinctTagType<Owner>]",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 27,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Cutting Edge Technology
+    {
+      "id": "X18",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "effects": [ "PlayCard<Class<CardFront>(HAS ClassCardRequirement)>:: -2 Owed" ],
+      "cost": 12,
+      "projectKind": "ACTIVE"
+    },
+
+    // Diversity Support
+    {
+      "id": "X20",
+      "deck": "PROJECT",
+      "immediate": "TerraformRating",
+      "requirement": "9 DistinctResourceType<Owner>",
+      "components": [
+        "CLASS DistinctResourceType<Player> : Custom"
+      ],
+      "cost": 1,
+      "projectKind": "EVENT"
+    },
+
     // Philares
     {
       "id": "XC6",
@@ -248,6 +282,16 @@
       "components": [ "CLASS FloatingInSpace : RemoteArea" ],
       "cost": 12,
       "projectKind": "AUTOMATED"
+    },
+
+    // Advertising
+    {
+      "id": "X13",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "effects": [ "CardFront(HAS 20 CardCost): PROD[1]" ],
+      "cost": 4,
+      "projectKind": "ACTIVE"
     },
 
     // Asteroid Hollowing

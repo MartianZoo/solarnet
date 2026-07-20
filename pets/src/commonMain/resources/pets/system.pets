@@ -38,7 +38,7 @@ ABSTRACT CLASS System {
 "A class extends this to make sure it is always loaded even if never referenced by anything"
 ABSTRACT CLASS AutoLoad
 
-"Instances of this type never exist; instead, gains get rewritten according to custom.kt"
+"Instances of this type never exist; Kotlin can instead define its instruction or metric behavior"
 ABSTRACT CLASS Custom
 
 "Extend this to have plural instructions auto-split (note `2 OceanTile` is impossible otherwise!)"

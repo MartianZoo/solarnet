@@ -37,6 +37,7 @@
 - **Concrete task:** A task whose instruction is fully specified, though it still must be prepared against current game state before execution.
 - **Concrete type:** A fully specified type whose components can exist in game state. (Antonym: abstract type.)
 - **Custom instruction:** A Pets instruction with a Kotlin implementation that calculates what instruction to replace itself with.
+- **Custom metric:** A metric whose `Custom` root class has a Kotlin implementation that supplies a virtual component count without adding anything to the component graph.
 - **Default:** A class-supplied specialization or intensity inserted when an expression omits it.
 - **Definition:** Structured data for a card, map area, or similar item that is converted into a
   class declaration. Definitions have stable same-kind identities, bundle provenance, and optional

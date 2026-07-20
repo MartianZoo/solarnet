@@ -26,6 +26,9 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea[RA]
 }
 
+"A virtual metric whose count is the area's row number; no MarsRow component ever exists"
+CLASS MarsRow<MarsArea> : Custom
+
 "A tile; if it's not on an Area / not in play, it doesn't exist yet"
 ABSTRACT CLASS Tile<Area> {
   CLASS OceanTile[OT] : Tile<MarsArea>, GlobalParameter {

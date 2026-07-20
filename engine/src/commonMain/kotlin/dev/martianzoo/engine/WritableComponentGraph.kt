@@ -47,6 +47,11 @@ internal class WritableComponentGraph(private val effector: Effector) : Componen
   }
 
   override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
+    listOfNotNull(gaining, removing).forEach {
+      require(!it.isCustom) {
+        "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+      }
+    }
     removing?.let { r ->
       checkDependents(count, r)
       multiset.mustRemove(r, count)

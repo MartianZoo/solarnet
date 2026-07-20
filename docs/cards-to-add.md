@@ -19,16 +19,7 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | 173 | Protected Habitats         | complement            |
 | X14 | Asteroid Deflection System | complement            |
 | X17 | Crash Site Cleanup         | complement            |
-| B01 | CrediCor                   | customreqt, reftrig   |
-| C41 | Spin-Off Department        | customreqt, reftrig   |
-| X13 | Advertising                | customreqt, reftrig   |
-| B06 | Mining Guild               | customreqt, reftrig   |
-| X18 | Cutting Edge Technology    | customreqt, reftrig   |
-| 067 | Mining Rights              | customreqt?           |
-| 064 | Mining Area                | customreqt?           |
-| X05 | Interplanetary Trade       | distinct              |
-| X20 | Diversity Support          | distinct              |
-| CC1 | Aridor                     | distinct              |
+| CC1 | Aridor                     | setupmandate          |
 | B03 | Helion                     | helion                |
 | CC5 | Stormcraft Incorporated    | payresource           |
 | X06 | Law Suit                   | playerplayer          |

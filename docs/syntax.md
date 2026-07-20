@@ -47,6 +47,22 @@ optionalScalarAndType := [scalar] typeExpression
 A quantified expression is just a number and a type expression. If the number is missing, it's inferred to be `1`. If
 the type is missing, it defaults to `Megacredit`. At least one must be used.
 
+### Metrics
+
+A metric computes a non-negative integer. A type expression used as a metric normally counts matching components in
+the component graph; the REPL command `count Foo` evaluates exactly this kind of metric. A class extending `Custom`
+can instead have Kotlin metric behavior, in which case the implementation supplies the count even though no component
+of that class ever exists. For example, `MarsRow<Hellas_8_4>` evaluates to `8`.
+
+Custom metric types are specialized inside refinements in the usual way. Thus
+`OwnedTile<MarsArea(HAS 8 MarsRow)>` counts owned tiles in rows 8 and 9. Custom metrics can also appear after `/`, in
+milestone requirements, and anywhere else an ordinary metric can appear.
+
+Other canonical examples include `CardCost<EarthCatapult>`, `DistinctTagType<Player1>`, and refinements
+such as `CardFront(HAS 20 CardCost)` or
+`MarsArea(HAS MapBonus<Class<Steel>> OR MapBonus<Class<Titanium>>)`. These are metric evaluations; none
+of the named virtual-property classes has components in the graph.
+
 ## Requirements
 
 ```

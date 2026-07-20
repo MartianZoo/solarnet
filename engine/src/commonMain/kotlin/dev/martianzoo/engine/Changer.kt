@@ -24,8 +24,6 @@ internal class Changer(
       cause: Cause?,
       orRemoveOneDependent: Boolean,
   ): Pair<ChangeEvent, Boolean> {
-    listOfNotNull(gaining, removing).forEach { require(!it.isCustom) }
-
     return try {
       val change = updater.update(count, gaining, removing)
       changeLog.addChangeEvent(change, actor, cause) to true

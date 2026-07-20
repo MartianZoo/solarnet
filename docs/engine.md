@@ -33,6 +33,11 @@ The fourth critical piece is a `Timeline`, which coordinates atomic changes acro
 The component graph is just a multiset, nothing more, nothing less. Literally all it supports is
 add, remove, and count -- this is what makes rollback-and-replay so trivial!
 
+`Custom` classes are never admitted to this multiset. `WritableComponentGraph.update` enforces that
+invariant at the graph boundary. A custom metric may report a virtual count for a type, but that
+value does not add components, affect the total `Component` count, fire effects, satisfy
+dependencies, or appear in component enumeration.
+
 Generally an multiset isn't a "graph", but in our case, component instances themselves carry
 references to their dependency components, which the component graph ensures are always present and
 valid.  For example, a `GreeneryTile<Player1, Tharsis_5_6>` depends on both `Player1` and
@@ -158,6 +163,30 @@ as much as possible without actually changing anything:
 - `Per`, `Gated`, `Or` -- these would cause an error as the instruction was never prepared.
 
 The return value of `execute` is a list of `Task` objects produced by queued effects.
+
+---
+
+## Metrics and Custom Metrics
+
+`GameReader.count(Metric)` evaluates metric ASTs used by requirements, `/` instructions, awards,
+and the REPL `count` command. An ordinary `Metric.Count` delegates to the component graph. If the
+resolved expression's root is a `Custom` class with a `CustomMetric` implementation, the reader
+instead asks that implementation for its non-negative virtual count.
+
+The custom class itself must be concrete, but its dependency arguments need not be. The Kotlin
+implementation receives the resolved type and decides how abstract arguments, absent components,
+and refinements affect its answer. This permits metrics that aggregate over a dependency class
+without imposing one generic aggregation rule on every custom class.
+
+A ruleset registers custom classes by capability. One Kotlin object may supply both instruction
+and metric implementations, or two objects with the same Pets class name may supply the
+capabilities separately. By default, each implementation's Pets class name is its Kotlin class's
+simple name.
+
+Canon uses virtual-property metrics for printed card cost, printed standard-project cost, presence
+of a card requirement, map row and placement bonus, and a player's distinct tag and resource type
+counts. `ClassCardRequirement` is the class-token counterpart of `CardRequirement`; it is used when
+the value being refined is a `Class<CardFront>` dependency such as the one on `PlayCard`.
 
 ---
 
