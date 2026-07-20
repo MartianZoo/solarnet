@@ -7,7 +7,7 @@
 CLASS TerraformingMars : System {
   HAS =1 This, =1 MarsMap
 
-  SetupPhase:: Generation THEN StartToken<Player1>
+  SetupPhase:: GenerationSetup THEN Generation THEN StartToken<Player1>
   CorporationPhase: Photosynthesis
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -47,7 +47,13 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 }
 
 "Tells what generation we're in; mostly matters in solo games"
-CLASS Generation
+CLASS Generation { This:: -GenerationsLeft. }
+
+"Lets selected variants initialize state immediately before generation 1 begins"
+CLASS GenerationSetup : Signal
+
+"The number of generations remaining in a solo game"
+CLASS GenerationsLeft
 
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational { Generation:: -This. }

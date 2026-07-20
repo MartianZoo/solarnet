@@ -213,9 +213,13 @@ public object TfmWorkflow {
     }
 
     private fun gameIsOver() =
-        engineOps.has("=19 TemperatureStep") &&
-            engineOps.has("=14 OxygenStep") &&
-            engineOps.has("=9 OceanTile")
+        if (cn("SoloMode") in setup.options) {
+          engineOps.has("MAX 0 GenerationsLeft")
+        } else {
+          engineOps.has("=19 TemperatureStep") &&
+              engineOps.has("=14 OxygenStep") &&
+              engineOps.has("=9 OceanTile")
+        }
 
     private fun opsFor(player: Player) = game.gameplay(player) as OperationLayer
 

@@ -2,6 +2,7 @@
 CLASS SoloMode : System {
   HAS =1 This
 
+  GenerationSetup:: 14 GenerationsLeft
   SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
 }
 

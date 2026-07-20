@@ -1,5 +1,9 @@
 "The Prelude expansion"
-CLASS PreludeExpansion : System { HAS =1 This }
+CLASS PreludeExpansion : System {
+  HAS =1 This
+
+  Generation IF =1 Generation:: -2 GenerationsLeft.
+}
 
 CLASS PreludeCard : CardBack
 

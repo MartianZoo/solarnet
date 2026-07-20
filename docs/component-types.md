@@ -55,7 +55,10 @@ Once the workflow starts setup, exactly one Phase instance exists: `SetupPhase`,
 
 Concrete classes called Player1, Player2, etc. will exist. The player owning the unique
 `StartToken` is the start player; it begins with Player1 and passes one seat left when each later
-`Generation` is created. Mapping player classes to players' names is considered a UI-level task.
+`Generation` is created. In solo mode, setup creates 14 `GenerationsLeft` components and every
+`Generation` removes one; Prelude removes two additional counters during generation 1, giving a
+Prelude solo game 12 generations. Mapping player classes to players' names is considered a UI-level
+task.
 
 ### Owned
 
