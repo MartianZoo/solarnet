@@ -155,8 +155,7 @@
       "tags": [ "VenusTag" ],
       "actions": [ "-> Floater" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>: X PayCardResource<This>?",
-        "PayCardResource<This>:: -Floater<This>! THEN -3 Owed."
+        "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed.) OR Ok"
       ],
       "resourceType": "Floater",
       "cost": 11,
@@ -457,7 +456,7 @@
       "effects": [ "End: VictoryPoint" ],
       "components": [
         "CLASS AllDraw : Signal",
-        "CLASS Card247Watcher : Owned<Player> { HAS =1 This; AllDraw: ProjectCard }"
+        "CLASS Card247Watcher : Owned<Player> { HAS =1 This; AllDraw BY Anyone: ProjectCard }"
       ],
       "cost": 9,
       "projectKind": "AUTOMATED",

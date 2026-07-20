@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.ANYONE
+import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.data.Actor
@@ -131,18 +132,29 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
   private sealed class Subscription {
     companion object {
-      fun from(trigger: Trigger, context: Component): Subscription {
+      fun from(
+          trigger: Trigger,
+          context: Component,
+          implicitOwner: Player? = context.playerOwner,
+      ): Subscription {
         return when (trigger) {
           is BasicTrigger -> {
             when (trigger) {
               is WhenGain -> Self(context, matchOnGain = true)
               is WhenRemove -> Self(context, matchOnGain = false)
-              is OnGainOf -> Regular(trigger.expression, matchOnGain = true)
-              is OnRemoveOf -> Regular(trigger.expression, matchOnGain = false)
+              is OnGainOf ->
+                  Regular(trigger.expression, matchOnGain = true, implicitOwner = implicitOwner)
+              is OnRemoveOf ->
+                  Regular(trigger.expression, matchOnGain = false, implicitOwner = implicitOwner)
             }
           }
           is WrappingTrigger -> {
-            val inner = from(trigger.inner, context)
+            val inner =
+                from(
+                    trigger.inner,
+                    context,
+                    implicitOwner = if (trigger is ByTrigger) null else implicitOwner,
+                )
             when (trigger) {
               is ByTrigger -> Personal(inner, trigger.by, context.playerOwner)
               is IfTrigger -> Conditional(inner, trigger.condition)
@@ -168,7 +180,11 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
 
     internal abstract val classToCheck: ClassName?
 
-    private data class Regular(val match: Expression, val matchOnGain: Boolean) : Subscription() {
+    private data class Regular(
+        val match: Expression,
+        val matchOnGain: Boolean,
+        val implicitOwner: Player?,
+    ) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
@@ -182,6 +198,12 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         // Will be refinement-aware (#48)
         val changeType = reader.resolve(expr)
         val matchType = reader.resolve(match)
+        val triggerIsOwned =
+            (matchType as MType).root.allSuperclasses().any { it.className == OWNED }
+        if (!triggerIsOwned && implicitOwner != null) {
+          val actor = currentEvent.actor
+          if (actor is Player && actor != implicitOwner) return null
+        }
         return if (changeType.narrows(matchType, reader)) {
           val subber = reader.transformers.substituter(matchType, changeType)
           // TODO: Replace this compatibility binding with an explicit Pets representation for

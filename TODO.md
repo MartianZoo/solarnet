@@ -33,7 +33,9 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
   `BuyCard` (`This: -3, ProjectCard`) "could potentially be exploited" rather than assuming a
   specific exploit; define the legal overpayment bound; account for effects such as Terralabs
   Research's `BuyCard:: 2` discount and the reason card buying must be represented as a delayed
-  signal/task. (Needs discussion)
+  signal/task. Decide whether standard-project costs should use the same `Owed` protocol so Kuiper
+  Cooperative can spend asteroids against only the Aquifer and Asteroid projects without converting
+  them into unrestricted cash. (Needs discussion)
 - Issue #63: Atmoscoop doesn't actually work yet — Permit an OR branch containing an atomized
   `Multi`, then restore Atmoscoop's canonical simultaneous choice and remove its temporary
   sequential-task encoding, which may expose ordering choices the card is not supposed to provide.
@@ -63,6 +65,8 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 
 ## Core Instruction and Engine Semantics
 
+- Add a union metric that counts components matching either of two types only once. Red Ships needs
+  this to combine CityTile and SpecialTile without double-counting CapitalTile.
 - Consider making `Class<Tag>(OF Owner)`-style metrics generically count distinct concrete classes
   associated with an owner. If the semantics are clean, this could replace the canonical
   `DistinctTagType` and `DistinctResourceType` custom classes.
@@ -73,6 +77,11 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
   implementation zips instructions and descendant scalars and relies on traversal order and count
   equality; explicitly test and enforce the rule that all occurrences of a shared `X` resolve to one
   consistent multiplier.
+- Add a test/task helper such as `setXTo(n)` so tests can select a coupled scalar without repeating
+  the entire reified instruction, especially for variable card-resource payments.
+- Enforce coupled type specialization within one instruction: repeated occurrences of the same
+  abstract component type must resolve identically, just as repeated `X` scalars do. Kaguya Tech's
+  `CityTile<LandArea> FROM GreeneryTile<LandArea>` must not permit two different land areas.
 - Issue #29: Handle `THEN` better
 - Issue #60: auto-narrowing instructions
 - Issue #61: make sure no `Temporary` instances get littered
@@ -145,6 +154,8 @@ Priorities appear in parentheses; no parenthetical means the default priority, *
 - Add an active-content selection step between `GameOptions` and class loading so a bundle can be
   included to provide selected content without enabling the expansion option or every definition in
   that bundle.
+- Clarify `CardDefinition.requiredBundles`: it currently conflates bundle-presence dependencies with
+  expansion-enabling `GameOption`s. Define which concept it represents or split the two concepts.
 - Decide whether an abstract custom root should remain invalid or gain explicit aggregation
   semantics. (Custom metrics already receive abstract dependency arguments.) Do not infer root
   aggregation by blindly taking a Cartesian product of concrete dependency types; define how

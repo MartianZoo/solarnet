@@ -1,0 +1,103 @@
+package dev.martianzoo.tfm.engine.cards
+
+import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import kotlin.test.Test
+
+class NewPromoCardsTest : CardTest() {
+  @Test
+  fun carbonNanosystemsIncludesItsOwnScienceTagAndPaysForASpaceCard() {
+    val game = newGame("BMX", 2)
+    val p1 = game.tfm(PLAYER1)
+
+    p1.phase("Corporation")
+    p1.playCorp("Ecoline", 5)
+    p1.phase("Action")
+
+    p1.playProject("CarbonNanosystems", 14).expect("Graphene<CarbonNanosystems>")
+    p1.godMode().sneak("20")
+
+    p1.playProject("IcyImpactors", 11) {
+          doTask("-Graphene<CarbonNanosystems>! THEN -4 Owed.")
+        }
+        .expect("-Graphene<CarbonNanosystems>")
+  }
+
+  @Test
+  fun martianLumberCorpPaysThreeWithAPlantForABuildingCard() {
+    val game = newGame("BMRX", 2)
+    val p1 = game.tfm(PLAYER1)
+
+    p1.phase("Corporation")
+    p1.playCorp("Ecoline", 5)
+    p1.phase("Action")
+    p1.godMode().sneak("MartianLumberCorp, 2 Plant, 20")
+    p1.playProject("Mine", 1) {
+          doTask("-Plant! THEN -3 Owed.")
+        }
+        .expect("-Plant")
+  }
+
+  @Test
+  fun homeostasisBureauRewardsOnlyItsOwnerForRaisingTemperature() {
+    val game = newGame("BMX", 2)
+    val owner = game.tfm(PLAYER1)
+    val other = game.tfm(PLAYER2)
+    owner.godMode().sneak("HomeostasisBureau")
+    val moneyBefore = owner.count("Megacredit")
+    other.godMode().manual("TemperatureStep")
+    owner.count("Megacredit") shouldBe moneyBefore
+    owner.godMode().manual("TemperatureStep").expect("3 Megacredit")
+  }
+
+  @Test
+  fun kaguyaTechReplacesTheSelectedGreeneryInPlace() {
+    val game = newGame("BMX", 2)
+    val p1 = game.tfm(PLAYER1)
+
+    p1.phase("Corporation")
+    p1.playCorp("Ecoline", 5)
+    p1.phase("Action")
+    p1.godMode().manual("GreeneryTile<M42>")
+
+    p1.playProject("KaguyaTech", 10) { doTask("CityTile<M42> FROM GreeneryTile<M42>") }
+        .expect("-GreeneryTile<M42>, CityTile<M42>")
+  }
+
+  @Test
+  fun kaguyaTechCannotMoveTheSelectedGreeneryToAnotherArea() {
+    val game = newGame("BMX", 2)
+    val p1 = game.tfm(PLAYER1)
+
+    p1.phase("Corporation")
+    p1.playCorp("Ecoline", 5)
+    p1.phase("Action")
+    p1.godMode().manual("GreeneryTile<M42>")
+
+    p1.playProject("KaguyaTech", 10) {
+          doTask("CityTile<M43> FROM GreeneryTile<M42>")
+        }
+        // TODO: Repeated LandArea occurrences should specialize together and reject this move.
+        .expect("-GreeneryTile<M42>, CityTile<M43>")
+  }
+
+  @Test
+  fun cathedralOfferBelongsToTheCityOwner() {
+    val game = newGame("BMX", 2)
+    val builder = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
+    val cityOwner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
+
+    builder.godMode().sneak("StJosephOfCupertinoMission")
+    cityOwner.godMode().manual("CityTile<Player2, M42>") { doTask("Plant") }
+
+    builder.godMode().beginManual("Cathedral<Player2, CityTile<Player2, M42>>") {
+      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
+    }
+
+    cityOwner.doTask("Ok")
+  }
+}

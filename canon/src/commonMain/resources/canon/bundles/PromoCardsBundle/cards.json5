@@ -566,6 +566,329 @@
       ],
       "cost": 4,
       "projectKind": "ACTIVE",
+    },
+
+    // Icy Impactors
+    {
+      "id": "X47",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "actions": [
+        "-> 10 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: 2 Asteroid<This>",
+        "Asteroid<This> -> OceanTile"
+      ],
+      "resourceType": "Asteroid",
+      "cost": 15,
+      "projectKind": "ACTIVE"
+    },
+
+    // Directed Heat Usage
+    {
+      "id": "X48",
+      "deck": "PROJECT",
+      "actions": [ "3 Heat -> 4 OR 2 Plant" ],
+      "cost": 1,
+      "projectKind": "ACTIVE"
+    },
+
+    // Anti-desertification Techniques
+    {
+      "id": "X49",
+      "requiredBundles": "PreludeExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "3, PROD[Plant, Steel]"
+    },
+
+    // Aqueduct Systems
+    {
+      "id": "X50",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "3 ProjectCard",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "Adjacency<CityTile, OceanTile>",
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Astra Mechanica
+    {
+      "id": "X51",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "immediate": "2 ProjectCard FROM PlayedEvent?",
+      "cost": 7,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Carbon Nanosystems
+    {
+      "id": "X52",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "effects": [
+        "ScienceTag: Graphene<This>",
+        "PlayTag<Class<SpaceTag>>: (-X Graphene<This>! THEN -4X Owed.) OR Ok",
+        "PlayTag<Class<CityTag>>: (-X Graphene<This>! THEN -4X Owed.) OR Ok",
+        "End: VictoryPoint"
+      ],
+      "resourceType": "Graphene",
+      "cost": 14,
+      "projectKind": "ACTIVE"
+    },
+
+    // Giant Solar Collector
+    {
+      "id": "X55",
+      "requiredBundles": "PreludeExpansion, VenusNextExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "PowerTag", "SpaceTag" ],
+      "immediate": "PROD[2 Energy], VenusStep"
+    },
+
+    // Homeostasis Bureau
+    {
+      "id": "X57",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[2 Heat]",
+      "effects": [ "TemperatureStep: 3" ],
+      "cost": 16,
+      "projectKind": "ACTIVE"
+    },
+
+    // Kaguya Tech
+    {
+      "id": "X58",
+      "deck": "PROJECT",
+      "tags": [ "CityTag", "PlantTag" ],
+      // Repeated LandArea occurrences must specialize to the same concrete area.
+      "immediate": "PROD[2], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>",
+      "cost": 10,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Martian Lumber Corp
+    {
+      "id": "X60",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag", "PlantTag" ],
+      "immediate": "PROD[Plant]",
+      "effects": [ "PlayTag<Class<BuildingTag>>: (-X Plant! THEN -3X Owed.) OR Ok" ],
+      "requirement": "2 GreeneryTile",
+      "cost": 6,
+      "projectKind": "ACTIVE"
+    },
+
+    // Neptunian Power Consultants
+    {
+      "id": "X61",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag" ],
+      "effects": [
+        "OceanTile: (5 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: (PROD[Energy], Hydroelectric<This>)) OR Ok",
+        "End: VictoryPoint / Hydroelectric<This>"
+      ],
+      "resourceType": "Hydroelectric",
+      "cost": 14,
+      "projectKind": "ACTIVE"
+    },
+
+    // Solar Logistics
+    {
+      "id": "X63",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "2 Titanium",
+      "effects": [
+        "PlayTag<Class<EarthTag>>:: -2 Owed",
+        "EventCard<Anyone>(HAS SpaceTag): ProjectCard",
+        "End: VictoryPoint"
+      ],
+      "cost": 20,
+      "projectKind": "ACTIVE"
+    },
+
+    // St. Joseph of Cupertino Mission
+    {
+      "id": "X64",
+      "deck": "PROJECT",
+      "actions": [ "-> 5 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: Cathedral<Anyone, CityTile<Anyone>>" ],
+      "effects": [ "End: VictoryPoint / Cathedral<Anyone>" ],
+      "components": [ "CLASS Cathedral<CityTile> : Owned { HAS MAX 1 This; This: (-2 THEN ProjectCard) OR Ok }" ],
+      "cost": 7,
+      "projectKind": "ACTIVE"
+    },
+
+    // Strategic Base Planning
+    {
+      "id": "X65",
+      "requiredBundles": "PreludeExpansion, ColoniesExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
+      "immediate": "-3, CityTile, Colony"
+    },
+
+    // Teslaract
+    {
+      "id": "X66",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "TerraformRating",
+      "actions": [ "PROD[Energy] -> PROD[Plant]" ],
+      "cost": 14,
+      "projectKind": "ACTIVE"
+    },
+
+    // Soil Enrichment
+    {
+      "id": "X67",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "-Microbe, 5 Plant",
+      "cost": 6,
+      "projectKind": "EVENT"
+    },
+
+    // Supermarkets
+    {
+      "id": "X68",
+      "deck": "PROJECT",
+      "immediate": "PROD[2]",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "2 CityTile<Anyone>",
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Hospitals
+    {
+      "id": "X69",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy]",
+      "actions": [ "Disease -> 1 / CityTile<Anyone>" ],
+      "effects": [
+        "CityTile<Anyone>: Disease<This>",
+        "End: VictoryPoint"
+      ],
+      "resourceType": "Disease",
+      "cost": 8,
+      "projectKind": "ACTIVE"
+    },
+
+    // Public Baths
+    {
+      "id": "X70",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "6",
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "6 OceanTile",
+      "cost": 6,
+      "projectKind": "AUTOMATED"
+    },
+
+    // City Parks
+    {
+      "id": "X71",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "2 Plant",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "requirement": "3 CityTile",
+      "cost": 7,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Casinos
+    {
+      "id": "X72",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[-Energy, 4]",
+      "requirement": "CityTile",
+      "cost": 5,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Protected Growth
+    {
+      "id": "X73",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "Plant / PowerTag",
+      "requirement": "MAX 7 OxygenStep",
+      "cost": 2,
+      "projectKind": "EVENT"
+    },
+
+    // Static Harvesting
+    {
+      "id": "X74",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag" ],
+      "immediate": "PROD[Energy], 1 / BuildingTag",
+      "requirement": "MAX 3 OceanTile",
+      "cost": 5,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Weather Balloons
+    {
+      "id": "X76", // The app's current metadata says 033, which conflicts with Regolith Eaters.
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "immediate": "ProjectCard",
+      "actions": [
+        "-> Floater<This>",
+        "Floater<This> -> 1 / CityTile<MarsArea, Anyone>"
+      ],
+      "resourceType": "Floater",
+      "cost": 11,
+      "projectKind": "ACTIVE"
+    },
+
+    // Public Plans
+    {
+      "id": "X77",
+      "deck": "PROJECT",
+      // The player chooses how many cards to reveal and gains that much, up to seven.
+      "immediate": "7?",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 7,
+      "projectKind": "EVENT"
+    },
+
+    // Albedo Plants
+    {
+      "id": "X78",
+      "requiredBundles": "PreludeExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant], Plant",
+      "effects": [ "PlantTag: 3 Heat" ]
+    },
+
+    // Sterling Vents
+    {
+      "id": "X79",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[-2 Heat, 2 Energy]",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 5,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Tycho Magnetics
+    {
+      "id": "XC9", // The app marks XC02 as a placeholder to rename.
+      "deck": "CORPORATION",
+      "tags": [ "PowerTag", "ScienceTag" ],
+      "immediate": "42, PROD[Energy]",
+      "actions": [ "X Energy -> ProjectCard" ]
     }
   ],
 }

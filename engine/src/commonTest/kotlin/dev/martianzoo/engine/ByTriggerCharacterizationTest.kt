@@ -80,13 +80,17 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun repeatedOwnerOccurrencesSpecializeTogether() {
+  fun anUnownedTriggerDefaultsToTheEffectOwner() {
     val game = newGame()
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
     p1.sneak("RepeatedOwnerProbe<Player2>!")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.beginManual("ActorTriggerSignal!") {
+    p1.manual("ActorTriggerSignal!")
+    game.tasks.isEmpty() shouldBe true
+
+    p2.beginManual("ActorTriggerSignal!") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(
@@ -95,12 +99,26 @@ class ByTriggerCharacterizationTest {
           )
     }
 
-    p1.autoExecMode = FIRST
+    p2.autoExecMode = FIRST
 
     game.tasks.isEmpty() shouldBe true
     p1.count("Plant<Player2>") shouldBe 1
     p1.count("Steel<Player2>") shouldBe 1
-    game.events.changesSince(checkpoint).takeLast(2).all { it.actor == PLAYER1 } shouldBe true
+    game.events.changesSince(checkpoint).takeLast(2).all { it.actor == PLAYER2 } shouldBe true
+  }
+
+  @Test
+  fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
+    val game = newGame()
+    val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    p1.sneak("OwnedTriggerProbe<Player1>!")
+
+    p2.beginManual("OwnedActorTrigger<Player2>!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "Plant<Player1>!")
+    }
   }
 
   private fun newGame(): Game {
@@ -116,6 +134,7 @@ private object ProbeDeclarations : TfmRuleset.Empty() {
       parseClasses(
               """
               CLASS ActorTriggerSignal : AutoLoad
+              CLASS OwnedActorTrigger : Owned, AutoLoad
 
               CLASS ActorTriggerProbe : AutoLoad {
                 ActorTriggerSignal BY Anyone: Plant<Player1>
@@ -129,6 +148,10 @@ private object ProbeDeclarations : TfmRuleset.Empty() {
               CLASS OwnedByProbe : Owned, AutoLoad {
                 ActorTriggerSignal BY Owner: Heat<Owner>
                 -ActorTriggerSignal BY Owner: Heat<Owner>
+              }
+
+              CLASS OwnedTriggerProbe : Owned, AutoLoad {
+                OwnedActorTrigger<Anyone>: Plant<Owner>
               }
               """
                   .trimIndent()

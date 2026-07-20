@@ -1,6 +1,8 @@
 # Cards to add
 
-As of 2023-06, the number of rows in this table plus entries in cards.json should equal 455.
+This table summarizes cards that still need complete working definitions. The old 455-card total
+predates the newer promo cards; the corresponding `cards-dont-work.json5` files are the source of
+truth for partial definitions.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
@@ -14,6 +16,7 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | PC5 | Vitor                      | awards                |
 | B00 | Beginner Corporation       | beginner              |
 | XC1 | Arcadian Communities       | community             |
+| XC11 | PolderTECH Dutch          | community             |
 | 066 | Land Claim                 | community             |
 | XC5 | Mons Insurance             | complement, outofturn |
 | 173 | Protected Habitats         | complement            |
@@ -22,7 +25,16 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | CC1 | Aridor                     | setupmandate          |
 | B03 | Helion                     | helion                |
 | CC5 | Stormcraft Incorporated    | payresource           |
+| XC10 | Kuiper Cooperative        | payresource           |
 | X06 | Law Suit                   | playerplayer          |
+| X53 | Cyberia Systems            | copyproduction        |
+| X54 | Established Methods        | else                  |
+| X-1 | Floyd Continuum            | custommetric          |
+| X56 | Hermetic Order of Mars     | custommetric          |
+| X59 | Mars Nomads                | movablemarker         |
+| X-2 | New Holland                | hybridtile            |
+| X62 | Red Ships                  | distinctmetric        |
+| X75 | Vermin                     | globalvp              |
 | 210 | Self-Replicating Robots    | selfrep               |
 | TC5 | Utopia Invest              | thenspec              |
 | 188 | Flooding                   | thenspec              |

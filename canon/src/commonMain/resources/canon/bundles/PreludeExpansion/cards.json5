@@ -334,8 +334,7 @@
       "requirement": "MAX 5 TemperatureStep",
       "actions": [ "-> Microbe<This>" ],
       "effects": [
-        "PlayTag<Class<PlantTag>>: X PayCardResource<This>?",
-        "PayCardResource<This>:: -Microbe<This>! THEN -2 Owed."
+        "PlayTag<Class<PlantTag>>: (-X Microbe<This>! THEN -2X Owed.) OR Ok"
       ],
       "resourceType": "Microbe",
       "cost": 2,

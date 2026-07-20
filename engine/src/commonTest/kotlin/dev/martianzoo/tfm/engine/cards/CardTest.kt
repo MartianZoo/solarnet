@@ -22,6 +22,9 @@ abstract class CardTest {
 
   protected fun newGame(setup: GameSetup): Game = setUpGame(setup).also { game = it }
 
+  protected fun newGame(optionCodes: String, players: Int): Game =
+      setUpGame(optionCodes, players).also { game = it }
+
   protected fun TaskResult.expect(string: String) =
       TestHelpers.assertNetChanges(this, game, game.tfm(ENGINE), string)
 }

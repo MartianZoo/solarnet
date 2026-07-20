@@ -2,15 +2,14 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class PsychrophilesTest {
-  val game = setUpGame("BRMP", 2)
-  val p1 = game.tfm(PLAYER1)
+class PsychrophilesTest : CardTest() {
+  val tfmGame = newGame("BRMP", 2)
+  val p1 = tfmGame.tfm(PLAYER1)
   val Psychrophiles = "Psychrophiles"
 
   @BeforeTest
@@ -25,9 +24,8 @@ class PsychrophilesTest {
   fun setupWithCard() {
     with(p1) {
       playProject(Psychrophiles, 2)
-      cardAction1(Psychrophiles)
-      godMode().sneak("4 Microbe<Psychrophiles>")
-      assertCounts(5 to "Microbe", 0 to "AdaptedLichen")
+      cardAction1(Psychrophiles).expect("Microbe<Psychrophiles>")
+      godMode().sneak("4 Microbe<Psychrophiles>").expect("4 Microbe<Psychrophiles>")
     }
   }
 
@@ -35,8 +33,7 @@ class PsychrophilesTest {
   fun spendNone() {
     setupWithCard()
     with(p1) {
-      playProject("AdaptedLichen", 9) { doTask("Ok") }
-      assertCounts(5 to "Microbe", 1 to "AdaptedLichen")
+      playProject("AdaptedLichen", 9) { doTask("Ok") }.expect("AdaptedLichen")
     }
   }
 
@@ -44,8 +41,8 @@ class PsychrophilesTest {
   fun spendOne() {
     setupWithCard()
     with(p1) {
-      playProject("AdaptedLichen", 7) { doTask("PayCardResource<Psychrophiles>") }
-      assertCounts(4 to "Microbe", 1 to "AdaptedLichen")
+      playProject("AdaptedLichen", 7) { doTask("-Microbe<Psychrophiles>! THEN -2 Owed.") }
+          .expect("-Microbe<Psychrophiles>, AdaptedLichen")
     }
   }
 
@@ -53,8 +50,10 @@ class PsychrophilesTest {
   fun overspend() {
     setupWithCard()
     with(p1) {
-      playProject("AdaptedLichen", 0) { doTask("5 PayCardResource<Psychrophiles>") }
-      assertCounts(0 to "Microbe", 1 to "AdaptedLichen")
+      playProject("AdaptedLichen", 0) {
+            doTask("-5 Microbe<Psychrophiles>! THEN -10 Owed.")
+          }
+          .expect("-5 Microbe<Psychrophiles>, AdaptedLichen")
     }
   }
 
