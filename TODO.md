@@ -107,6 +107,8 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Gameplay Correctness and Test Fidelity
 
+- Restore Aridor's production gain for acquiring a new type of tag without adding another one-off
+  custom metric, before enabling its definition.
 - Model the two Prelude plays as explicit first and second Prelude turns, analogous to action-phase
   turns, so ownership, hooks, and future workflow changes are consistent. (Somewhat soon)
 - Give Tharsis Republic an explicit immediate solo-setup production gain rather than treating the

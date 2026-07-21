@@ -66,24 +66,6 @@ internal class CustomMetricTest {
 
     p1.count("AbstractAwareMetric<Component>") shouldBe 13
   }
-
-  @Test
-  fun tagCountIgnoresTheSpecificCardHostingTheTag() {
-    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
-    p1.godMode().sneak("AridorEffectProbe")
-    val initialProduction = p1.count("PROD[Megacredit]")
-    p1.count("AridorEffectProbe") shouldBe 1
-
-    p1.godMode().manual("Mine")
-    p1.count("TagCount<BuildingTag<Mine>>") shouldBe 1
-    p1.count("PROD[Megacredit]") shouldBe initialProduction + 1
-
-    p1.godMode().manual("Steelworks")
-    p1.count("PROD[Megacredit]") shouldBe initialProduction + 1
-
-    p1.godMode().manual("TitaniumMine")
-    p1.count("PROD[Megacredit]") shouldBe initialProduction + 1
-  }
 }
 
 private object BothBehavior : CustomMetric() {
@@ -116,10 +98,6 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
               CLASS BothBehavior : Custom, AutoLoad
               CLASS SplitBehavior : Custom, AutoLoad
               CLASS AbstractAwareMetric<Component> : Custom, AutoLoad
-
-              CLASS AridorEffectProbe : Owned, AutoLoad {
-                Tag<Owner>(HAS =1 TagCount): PROD[1]
-              }
               """
                   .trimIndent()
           )

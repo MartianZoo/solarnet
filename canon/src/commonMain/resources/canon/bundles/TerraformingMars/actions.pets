@@ -30,6 +30,8 @@ ABSTRACT CLASS UseAction<HasActions> [UA] : Owned, Signal {
 CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 
 ABSTRACT CLASS Mandate: Owned, HasActions {
+  HAS MAX 1 This
+
   MandateSignal:: UseAction1<This>
   MandateSignal: -This!
 }
