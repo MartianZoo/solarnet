@@ -33,11 +33,11 @@ Priorities appear in parentheses. An item without a priority has the default pri
   before the player may select its second independently selected action.
 - Check whether Mining Area and Mining Rights have their placement rules switched. Add focused
   tests for both cards, including rejection of an area with no steel or titanium bonus.
-- [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Define when
-  an abstract AMAP instruction may narrow to `Ok`. Missing dependencies must allow declining an
-  impossible card-resource gain, as in the disabled Local Heat Trapping test, without letting a
-  player select an occupied area to evade an otherwise possible ocean placement. Revisit
-  `Instructor.autoNarrowTypes` and Artificial Lake's explicit `!` workaround. (Needs discussion)
+- [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Finish
+  defining when an abstract AMAP instruction may narrow to `Ok`. Missing dependencies now allow an
+  impossible card-resource gain to become `Ok`; still prevent a player from selecting an occupied
+  area to evade an otherwise possible ocean placement. Revisit Artificial Lake's explicit `!`
+  workaround. (Needs discussion)
 - [Issue #63: Atmoscoop](https://github.com/MartianZoo/solarnet/issues/63) — Permit an `OR` branch
   to contain an atomized `Multi`, restore Atmoscoop's simultaneous choice, and remove its temporary
   sequential encoding, which exposes ordering choices the card should not provide. (Later)
@@ -107,6 +107,10 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Gameplay Correctness and Test Fidelity
 
+- Test Giant Ice Asteroid removing plants just granted by an opponent's Arctic Algae.
+- Test Nitrophilic Moss using Manutech's production rewards to pay its plant loss.
+- Test Atmoscoop choosing an already-maxed Venus track over an available temperature raise.
+- Test the Hellas south-pole ocean adjacency payout funding its mandatory 6 M€ payment.
 - Restore Aridor's production gain for acquiring a new type of tag without adding another one-off
   custom metric, before enabling its definition.
 - Model the two Prelude plays as explicit first and second Prelude turns, analogous to action-phase

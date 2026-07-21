@@ -16,7 +16,6 @@ class DoubleDownTest : CardTest() {
     val game = newGame("BRHXP", 2)
 
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("PharmacyUnion", 5)
       phase("Prelude")
       playPrelude("BiosphereSupport")

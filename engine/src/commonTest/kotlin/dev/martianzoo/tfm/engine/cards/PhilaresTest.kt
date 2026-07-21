@@ -18,7 +18,6 @@ class PhilaresTest : CardTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    p1.phase("Corporation")
     p1.playCorp("TharsisRepublic", 0)
     p2.playCorp("Philares", 0)
 
@@ -53,11 +52,11 @@ class PhilaresTest : CardTest() {
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
     owner.sneak("Philares")
-    owner.manual("GreeneryTile<M23>")
+    owner.manual("CityTile<M23>")
     val checkpoint = game.timeline.checkpoint()
     val steelBefore = owner.count("Steel")
 
-    other.godMode().beginManual("GreeneryTile<M33>") {
+    other.godMode().beginManual("CityTile<M33>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     }
 
@@ -73,9 +72,9 @@ class PhilaresTest : CardTest() {
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
     owner.sneak("Philares")
-    other.manual("GreeneryTile<M23>")
+    other.manual("CityTile<M23>")
 
-    owner.godMode().beginManual("GreeneryTile<M33>") {
+    owner.godMode().beginManual("CityTile<M33>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     }
 
@@ -89,9 +88,9 @@ class PhilaresTest : CardTest() {
     val other = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val owner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
     owner.sneak("Philares")
-    other.manual("GreeneryTile<M23>")
+    other.manual("CityTile<M23>")
 
-    other.manual("GreeneryTile<M33>")
+    other.manual("CityTile<M33>")
 
     game.tasks.isEmpty() shouldBe true
   }
@@ -101,7 +100,6 @@ class PhilaresTest : CardTest() {
     val game = newGame("BMX", 2)
     val p1 = game.tfm(PLAYER1)
 
-    p1.phase("Corporation")
     p1.playCorp("Philares", 0)
 
     p1.phase("Action")

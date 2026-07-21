@@ -22,13 +22,13 @@ class LocalHeatTrappingTest : CardTest() {
     with(p1) {
       sneak("4 Heat, 2 ProjectCard, Pets, Animal<Pets>, 100")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
-      assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
+      assertCounts(4 to "Card", 3 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
       phase("Action")
 
       playProject("LocalHeatTrapping", 1) {
         // The card is played but nothing else
-        assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+        assertCounts(4 to "Card", 2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
         abort()
       }
@@ -47,7 +47,7 @@ class LocalHeatTrappingTest : CardTest() {
         doFirstTask("4 Plant")
       }
 
-      assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+      assertCounts(3 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(4 to "Plant", 1 to "Heat", 1 to "Animal")
     }
   }
@@ -59,7 +59,7 @@ class LocalHeatTrappingTest : CardTest() {
 
       manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
-        assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+        assertCounts(3 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
         shouldThrow<AbstractException> { doFirstTask("2 Animal") }
@@ -70,7 +70,7 @@ class LocalHeatTrappingTest : CardTest() {
         // but this should work
         doFirstTask("2 Animal<Pets>")
       }
-      assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+      assertCounts(3 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 3 to "Animal")
     }
   }

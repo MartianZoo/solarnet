@@ -12,7 +12,6 @@ class ManutechTest : CardTest() {
   fun manutech() {
     val game = newGame("BMV", 2)
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("Manutech", 5)
       assertCounts(1 to "PROD[Steel]", 1 to "Steel")
 

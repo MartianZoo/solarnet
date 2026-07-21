@@ -13,7 +13,6 @@ class CelesticTest : CardTest() {
   fun celestic() {
     val game = newGame("BRMV", 2)
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("Celestic", 5)
       assertCounts(5 to "ProjectCard", 27 to "M")
       sneak("100, 10 Heat")
