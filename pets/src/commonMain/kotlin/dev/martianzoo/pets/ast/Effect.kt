@@ -8,6 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
@@ -54,6 +55,9 @@ public data class Effect(
     data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {
+          if (expression.className == CLASS) {
+            throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
+          }
           return if (expression == THIS.expression) {
             WhenGain
           } else {
@@ -75,6 +79,9 @@ public data class Effect(
     data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {
+          if (expression.className == CLASS) {
+            throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
+          }
           return if (expression == THIS.expression) {
             WhenRemove
           } else {

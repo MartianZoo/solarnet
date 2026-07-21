@@ -253,6 +253,29 @@ internal class MClassTest {
     assertFails { loader.resolve(te("Qux<Class<Foo, Bar>>")) }
     assertFails { loader.resolve(te("Class<Class<Component>>")) }
   }
+
+  @Test
+  fun unknownClassTypes() {
+    val declarations =
+        arrayOf(
+            "CLASS Foo<Class<Component>>",
+            "CLASS Querying { HAS MAX 0 Class<AnyWordHere> }",
+        )
+    val loader = loadTypes(*declarations)
+    val loaderWithOptionalClass =
+        loadTypes(
+            *declarations,
+            "CLASS AnyWordHere",
+        )
+    val known = loaderWithOptionalClass.resolve(te("Class<AnyWordHere>"))
+
+    known.abstract shouldBe false
+    known.allConcreteSubtypes().toList().single() shouldBe known
+    assertFails { loader.resolve(te("Class<AnyWordHere>")) }
+    assertFails { loader.resolve(te("Foo<Class<AnyWordHere>>")) }
+    loaderWithOptionalClass.resolve(te("Foo<Class<AnyWordHere>>")).abstract shouldBe false
+    assertFails { loader.resolve(te("AnyWordHere")) }
+  }
 }
 
 internal fun loader(petsText: String): MClassTable {

@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.tfm.pets.testSampleStrings
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 // Most testing is done by AutomatedTest
 internal class EffectTest {
@@ -71,5 +73,14 @@ internal class EffectTest {
     val eff: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     // ef, og, te, cn, te, cn, pr, or, tr, sc, fr, te, cn, te, cn, ga, ste, te, cn
     eff.descendantCount() shouldBe 19
+  }
+
+  @Test
+  fun classTypesCannotBeTriggers() {
+    assertFailsWith<PetSyntaxException> { parse<Effect>("Class<Foo>: Bar") }
+    assertFailsWith<PetSyntaxException> { parse<Effect>("-Class<Foo>: Bar") }
+    assertFailsWith<PetSyntaxException> { parse<Effect>("PROD[Class<Foo>]: Bar") }
+
+    parse<Effect>("PlayCard<Class<Foo>>: Bar").toString() shouldBe "PlayCard<Class<Foo>>: Bar"
   }
 }
