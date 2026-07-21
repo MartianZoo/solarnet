@@ -57,6 +57,12 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Language and Engine Semantics
 
+- Replace rollback-based speculation with explicit `GameState` overlays spanning the component
+  graph, task queues, event log, and derived active-effect index. Allow an overlay to be discarded
+  or atomically promoted by replaying its events onto an unchanged base state.
+- Allow the metric `Class<Foo>` to be counted when no `Foo` class is loaded, producing zero rather
+  than failing or causing `Foo` to be loaded. This is needed for rules that inspect optional class
+  presence without activating absent content.
 - [Issue #24: Counting distinct concrete classes](https://github.com/MartianZoo/solarnet/issues/24)
   — Decide whether `Class<Tag>(OF Owner)`-style metrics should generically count distinct concrete
   classes associated with an owner. If the semantics are clean, replace Canon's current
