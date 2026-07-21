@@ -32,6 +32,9 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Gameplay Rules and Missing Content
 
+- Implement Terra Cimmeria's MSL Curiosity placement bonus once optional bundle vocabulary can be
+  phantom: with Colonies enabled, placing a tile there costs 5 M€ and places a colony; otherwise
+  the bonus is ignored.
 - Make Head Start completely drain the tasks produced by its first independently selected action
   before the player may select its second independently selected action.
 - Check whether Mining Area and Mining Rights have their placement rules switched. Add focused
@@ -48,11 +51,11 @@ Priorities appear in parentheses. An item without a priority has the default pri
   a neutral host for card resources, such as the imaginary animal that Predators may remove,
   without giving `Opponent` a playable `CardFront`.
 - [Issue #5: Separate available content from enabled rules](https://github.com/MartianZoo/solarnet/issues/5)
-  — Represent configuration as signed class-name selections. Expand positive defaults while
-  treating counteractions as masks before traversal: `TerraformingMars` with `-CorporateEra` must
-  not activate or load Corporate Era's default content. Resolve surviving option singletons and
-  definitions before class loading; loading a provider bundle for one item must not activate its
-  other definitions or a same-named option.
+  — Represent configuration as signed class-name selections, expanding positive defaults only after
+  counteractions have masked them. Resolve active definitions and option singletons independently
+  of their provider bundles. Validate ordinary class names against the Authority's full catalog,
+  but let behavioral references use only active classes; known-but-inactive atomic changes should
+  specialize to `Die` rather than activating their provider content.
 - [Issue #13: `OR` triggers](https://github.com/MartianZoo/solarnet/issues/13) — Allow one effect to
   subscribe to alternative triggers so canonical definitions no longer duplicate the same effect.
 - [Issue #48: Refinements in trigger types](https://github.com/MartianZoo/solarnet/issues/48) — Make
@@ -65,9 +68,6 @@ Priorities appear in parentheses. An item without a priority has the default pri
 - Replace rollback-based speculation with explicit `GameState` overlays spanning the component
   graph, task queues, event log, and derived active-effect index. Allow an overlay to be discarded
   or atomically promoted by replaying its events onto an unchanged base state.
-- Allow the metric `Class<Foo>` to be counted when no `Foo` class is loaded, producing zero rather
-  than failing or causing `Foo` to be loaded. This is needed for rules that inspect optional class
-  presence without activating absent content.
 - [Issue #24: Counting distinct concrete classes](https://github.com/MartianZoo/solarnet/issues/24)
   — Decide whether `Class<Tag>(OF Owner)`-style metrics should generically count distinct concrete
   classes associated with an owner. If the semantics are clean, replace Canon's current
