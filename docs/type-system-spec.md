@@ -48,7 +48,27 @@ count_S(T) = sum { S(U) | U is concrete and U <: T }
 
 Thus gaining `Abs` is ill-formed, while counting `Abs` includes all `Sub` components.
 
-## 3. Dependencies
+## 3. Class literals
+
+For every loaded class `Foo`, the type `Class<Foo>` exists. The contents of the angle
+brackets must be a single class name, not a generic type: `Class<Foo>` is admissible, but
+`Class<Foo<Bar>>` is not.
+
+Class literals preserve nominal subtyping and are therefore covariant:
+
+```text
+Foo <: Bar  implies  Class<Foo> <: Class<Bar>
+```
+
+If `Foo` is concrete, `Class<Foo>` is concrete and exactly one instance of it exists. If
+`Foo` is abstract, `Class<Foo>` is abstract and has no corresponding instance. Counting it
+nevertheless counts the class-literal instances of all concrete subclasses of `Foo`, by the
+usual subtype-counting rule.
+
+If `Bar` is not loaded, `Class<Bar>` is not a valid type. As a Pets metric, however, it may
+still be counted; its count is zero.
+
+## 4. Dependencies
 
 ```pets
 CLASS Use<Abs>
@@ -84,7 +104,7 @@ S(Use<Sub>) > 0  implies  S(Sub) > 0
 This referential-integrity condition is motivated by the type system but belongs to the
 specification of valid game states.
 
-## 4. Inherited dependencies
+## 5. Inherited dependencies
 
 ```pets
 ABSTRACT CLASS Base<Abs>
@@ -98,7 +118,7 @@ For every admissible specialization `T`:
 Child<T> <: Base<T>
 ```
 
-## 5. Refining a dependency
+## 6. Refining a dependency
 
 ```pets
 ABSTRACT CLASS Special : Base<Sub>
@@ -109,7 +129,7 @@ ABSTRACT CLASS Special : Base<Sub>
 If `Sub` is abstract, a subclass may refine the bound again. If `Sub` is concrete, it
 cannot be refined further because concrete types have no proper subtypes.
 
-## 6. Introducing another dependency
+## 7. Introducing another dependency
 
 ```pets
 ABSTRACT CLASS Second
