@@ -31,7 +31,6 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.api.ApiUtils.getOwner
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.tfmRuleset
@@ -55,7 +54,6 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.StandardProjectCost,
         TerraformingMars.MapBonus,
         TerraformingMars.DistinctTagType,
-        TerraformingMars.TagCount,
     )
 
 /** Namespace for the core game's custom Pets implementations. */
@@ -106,14 +104,6 @@ internal object TerraformingMars {
 
   internal object DistinctTagType : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int = distinctClasses(game, type, cn("Tag"))
-  }
-
-  internal object TagCount : CustomMetric() {
-    override fun count(game: GameReader, type: Type): Int {
-      val tag = game.resolve(type.expressionFull.arguments.single())
-      val owner = getOwner(game, tag)
-      return game.getComponents(game.resolve(tag.className.of(owner.expression))).size
-    }
   }
 
   internal object CreateAdjacencies : CustomClass() {
@@ -199,7 +189,10 @@ internal object TerraformingMars {
               ExpressionAsFrom(it)
             }
           }
-      return Transmute(ComplexFrom(component.className, arguments), ActualScalar(1))
+      return Transmute(
+          ComplexFrom(component.className, arguments),
+          ActualScalar(reader.countComponent(component)),
+      )
     }
   }
 

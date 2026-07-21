@@ -49,6 +49,7 @@ internal class CanonInvariantsTest {
     checkComponentLimit("VenusStep", 0..15)
 
     checkComponentLimit("ActionUsedMarker<Player1, Ants<Player1>>", 0..1)
+    checkComponentLimit("MandateB08<Player1>", 0..1)
     checkComponentLimit("PowerTag<Player1, Ants<Player1>>", 0..2)
     checkComponentLimit("Accept<Player1, Class<Steel>>", 0..1)
     checkComponentLimit("Pass<Player1>", 0..1)

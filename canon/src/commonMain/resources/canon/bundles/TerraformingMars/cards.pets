@@ -49,9 +49,6 @@ CLASS MapBonus<Class<Resource>, MarsArea> : Custom
 "A virtual metric whose count is the number of distinct tag classes a player has in play"
 CLASS DistinctTagType<Player> : Custom
 
-"A virtual metric counting instances of one concrete tag class, regardless of their hosting cards"
-CLASS TagCount<Tag> : Custom
-
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
 CLASS GetEventVps<Class<CardFront>> : Owned, Custom // need Owned?
 

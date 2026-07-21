@@ -1,15 +1,12 @@
 {
   "cards": [
 
-    // Aridor (distinct tags work now; adding a colony tile during setup still does not)
+    // Aridor (both its distinct-new-tag effect and setup colony tile still need support)
     {
       "id": "CC1",
       "deck": "CORPORATION",
       "immediate": "40",
-      "effects": [
-         "Tag<Owner>(HAS =1 TagCount): PROD[1]",
-         "DoMandate<This>: NewColonyTile"
-      ]
+      "effects": [ "DoMandate<This>: NewColonyTile" ]
     },
 
     // Stormcraft Incorporated
