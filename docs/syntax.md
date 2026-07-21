@@ -36,6 +36,8 @@ for `Class<StandardResource>` is not created; however if you `count StandardReso
 because it is counting all the subtypes. That is, class literals have the same subtype relationships as their
 corresponding classes do.
 
+`Class<AnyWordHere>` is not a valid type unless `AnyWordHere` names a loaded class. As a metric only, however, it is valid and counts as zero when that class is absent. This allows one bundle to query whether another bundle supplied a class without requiring that bundle. The expression remains invalid in instructions and dependency specializations, and all `Class` types are prohibited as triggers.
+
 ### Quantified expressions
 
 ```

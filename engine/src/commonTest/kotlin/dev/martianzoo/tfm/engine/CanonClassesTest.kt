@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.ACTOR
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.COMPONENT
@@ -24,6 +25,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
@@ -207,5 +209,20 @@ internal class CanonClassesTest {
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
     type.allConcreteSubtypes().count() shouldBe 61 + (63 * 2) + (61 * 2) + (10 * 61 * 2)
+  }
+
+  @Test
+  fun unknownClassLiteralCountsZeroAndCannotBeChanged() {
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val gameplay = game.gameplay(PLAYER1) as GodMode
+    val withVenus = Engine.newGame(Canon.fromOptionCodes("BMV", 2)).gameplay(PLAYER1) as GodMode
+
+    gameplay.count("Class<AnyWordHere>") shouldBe 0
+    gameplay.count("Class<VenusStep>") shouldBe 0
+    withVenus.count("Class<VenusStep>") shouldBe 1
+    assertFailsWith<ExpressionException> { gameplay.count("AnyWordHere") }
+    assertFailsWith<ExpressionException> { gameplay.resolve("Class<AnyWordHere>") }
+    assertFailsWith<ExpressionException> { gameplay.manual("Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { gameplay.manual("-Class<AnyWordHere>!") }
   }
 }

@@ -1,5 +1,7 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.ast.ClassName
@@ -31,4 +33,15 @@ public abstract class MClassTable {
 
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
   abstract fun resolve(type: Type): MType
+
+  internal fun isUnresolvedClassLiteral(expression: Expression): Boolean {
+    if (expression.className != CLASS) return false
+    val argument = expression.arguments.singleOrNull()?.takeIf(Expression::simple) ?: return false
+    return try {
+      getClass(argument.className)
+      false
+    } catch (_: ExpressionException) {
+      true
+    }
+  }
 }

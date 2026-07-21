@@ -13,6 +13,7 @@ import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.tfm.data.GameSetup
 
@@ -119,10 +120,34 @@ internal class MClassLoader(
     if (next in loadedClasses) return loadedClasses[next] ?: error("reentrant")
     val declaration = decl(next)
     return loadSingle(next, declaration).also {
-      val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
+      val needed = buildSet {
+        fun collectRelated(node: PetNode) {
+          node.visitDescendants {
+            when {
+              it is Count && it.expression.className == CLASS -> {
+                add(CLASS)
+                val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
+                argument?.let { expression -> knownClassName(expression.className)?.let(::add) }
+                it.expression.refinement?.let(::collectRelated)
+                false
+              }
+              it is ClassName -> {
+                add(it)
+                false
+              }
+              else -> true
+            }
+          }
+        }
+        declaration.allNodes.forEach(::collectRelated)
+      }
       queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
     }
   }
+
+  private fun knownClassName(name: ClassName): ClassName? =
+      ruleset.allClassDeclarations[name]?.className
+          ?: ruleset.allClassDeclarations.values.singleOrNull { it.shortName == name }?.className
 
   private fun loadSingle(idOrName: ClassName): MClass =
       if (frozen) {

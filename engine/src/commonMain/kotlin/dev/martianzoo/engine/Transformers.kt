@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -34,7 +35,9 @@ internal class Transformers(internal val classes: MClassTable) {
   internal fun useFullNames() =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
-          return if (node is ClassName) {
+          return if (node is Count && classes.isUnresolvedClassLiteral(node.expression)) {
+            node
+          } else if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
             classes.resolve(node.expression).className as P
           } else {

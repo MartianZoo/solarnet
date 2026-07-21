@@ -108,6 +108,8 @@ The `Class` class is predefined. It accepts one "type argument" or "specializati
 
 `Class` is a singleton class. If you ask a game state to count the instances of the type `Class<StandardResource>` you will get the answer `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get 7, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract, and so cannot exist as a component.)
 
+`Class<AnyWordHere>` is not a valid type when `AnyWordHere` is not a loaded class. There is one metric-only exception: counting that expression produces zero instead of a class-not-found error. This lets one bundle query whether another bundle supplied a class without depending on that bundle. It remains invalid in instructions and dependency specializations. Also, no `Class` type, valid or otherwise, is legal as a trigger.
+
 An open question is whether the differences outlined here are enough to justify using a different syntax -- for example instead of `Class<Steel>` we could use `Steel.CLASS` or `{Steel}` or something else. Currently I think there are probably enough similarities to make it worth keeping as-is, but I'm not sure.
 
 #### What's that good for?
