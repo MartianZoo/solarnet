@@ -30,6 +30,7 @@ class MergerTest : CardTest() {
         doTask("PlayCard<Class<PreludeCard>, Class<SocietySupport>>")
         assertProds(-1 to "M", 0 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
       }
+      assertCounts(0 to "Mandate")
     }
   }
 }

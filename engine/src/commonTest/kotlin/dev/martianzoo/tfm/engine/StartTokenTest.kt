@@ -43,17 +43,17 @@ class StartTokenTest {
   }
 
   @Test
-  fun passLeftPreservesAnotherDependency() {
+  fun passLeftMovesAllOccurrencesAndPreservesAnotherDependency() {
     val engine = setUpGame("BRMC", 3, TestHelpers.testColonyTiles(3, "Luna")).tfm(ENGINE)
 
-    engine.godMode().sneak("Colony<Luna, Player1>")
+    engine.godMode().sneak("2 Colony<Luna, Player1>")
     engine.godMode().manual("PassLeft<Colony<Luna, Player1>>")
 
     engine.assertCounts(
         0 to "Colony<Luna, Player1>",
-        1 to "Colony<Luna, Player2>",
+        2 to "Colony<Luna, Player2>",
         0 to "Colony<Player1>",
-        1 to "Colony<Player2>",
+        2 to "Colony<Player2>",
     )
   }
 
