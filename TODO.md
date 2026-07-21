@@ -21,8 +21,11 @@ Priorities appear in parentheses. An item without a priority has the default pri
   whose action was used. Enable and test the currently disabled Splice, Trade Envoys, and Trading
   Colony definitions once their complete behavior is supported. Ensure Viron can repeat an eligible
   used card action without corrupting either card's action-used marker state.
-- [Issue #22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Add an instruction that
-  requires its first branch whenever that branch is possible and uses the fallback only otherwise.
+- [Issue #22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Implement ordered choice by
+  enumerating valid LHS narrowings and using the fallback only if none can finish the explicit LHS.
+  Use it for WGT (`GlobalParameter! ELSE Ok`) and Pharmacy Union. Try it for Prelude and Established
+  Methods only if their normal instructions expose failure soon enough; otherwise keep their explicit
+  fallback handling. This does not solve Greenery.
 - [Issue #37: Class-signature linkages](https://github.com/MartianZoo/solarnet/issues/37) — Link
   repeated dependency expressions so a `Cardbound` component and its `CardFront` necessarily share
   one owner, eliminating verbose forms such as `Animal<Predators<Player1>, Player1>`.
@@ -33,11 +36,11 @@ Priorities appear in parentheses. An item without a priority has the default pri
   before the player may select its second independently selected action.
 - Check whether Mining Area and Mining Rights have their placement rules switched. Add focused
   tests for both cards, including rejection of an area with no steel or titanium bonus.
-- [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Define when
-  an abstract AMAP instruction may narrow to `Ok`. Missing dependencies must allow declining an
-  impossible card-resource gain, as in the disabled Local Heat Trapping test, without letting a
-  player select an occupied area to evade an otherwise possible ocean placement. Revisit
-  `Instructor.autoNarrowTypes` and Artificial Lake's explicit `!` workaround. (Needs discussion)
+- [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Make existing
+  `.` try amounts from the requested maximum down to zero, choosing the greatest amount that lets
+  the containing action finish; if zero does not help, the action still fails. Use this for optional
+  card-resource gains such as Local Heat Trapping. Artificial Lake stays
+  `OceanTile<LandArea>! OR (9 OceanTile: Ok)`; its focused tests already cover the core ruling.
 - [Issue #63: Atmoscoop](https://github.com/MartianZoo/solarnet/issues/63) — Permit an `OR` branch
   to contain an atomized `Multi`, restore Atmoscoop's simultaneous choice, and remove its temporary
   sequential encoding, which exposes ordering choices the card should not provide. (Later)
@@ -45,9 +48,11 @@ Priorities appear in parentheses. An item without a priority has the default pri
   a neutral host for card resources, such as the imaginary animal that Predators may remove,
   without giving `Opponent` a playable `CardFront`.
 - [Issue #5: Separate available content from enabled rules](https://github.com/MartianZoo/solarnet/issues/5)
-  — Add an active-content selection between `GameOptions` and class loading. Bundle selection now
-  supports expansion configurations, but including a bundle still enables all its definitions and
-  the corresponding option; callers cannot yet select individual content independently.
+  — Represent configuration as signed class-name selections. Expand positive defaults while
+  treating counteractions as masks before traversal: `TerraformingMars` with `-CorporateEra` must
+  not activate or load Corporate Era's default content. Resolve surviving option singletons and
+  definitions before class loading; loading a provider bundle for one item must not activate its
+  other definitions or a same-named option.
 - [Issue #13: `OR` triggers](https://github.com/MartianZoo/solarnet/issues/13) — Allow one effect to
   subscribe to alternative triggers so canonical definitions no longer duplicate the same effect.
 - [Issue #48: Refinements in trigger types](https://github.com/MartianZoo/solarnet/issues/48) — Make
@@ -153,11 +158,15 @@ Priorities appear in parentheses. An item without a priority has the default pri
 - Audit setup effects and make only non-choice consequences automatic (`::`). In particular,
   consider creating `Photosynthesis` as an immediate consequence of removing `SetupPhase`, while
   leaving genuine setup choices queued. (Later)
-- Finish separating the Canon catalog from selected rulesets: Canon should own bundle locators and
-  resolve only requested bundles instead of inheriting from `TfmRuleset.Composite`. Preserve the
-  invariant that resolving one selection never reads another bundle's payload.
-- Clarify `CardDefinition.requiredBundles`: it currently conflates bundle-presence dependencies with
-  expansion-enabling `GameOption`s. Define which concept it represents or split the two concepts.
+- Finish separating the Canon catalog from selected rulesets: Canon should relate signed selectors
+  to their defaults and raw providers, then resolve only the bundles required by the surviving
+  selection instead of inheriting from `TfmRuleset.Composite`. Preserve the invariant that resolving
+  one selection never reads another bundle's payload.
+- Replace semantic uses of `CardDefinition.requiredBundles` with requirements on selected option
+  singletons. Keep a separate raw provider dependency only if one is genuinely needed; raw bundle
+  presence must not enable game rules.
+- Reconsider physical bundle names independently of semantic selector and option names; remove
+  remaining code dependencies on their current coincidences.
 - Decide whether an abstract custom root should remain invalid or gain explicit aggregation
   semantics. Do not infer aggregation through a Cartesian product of concrete dependencies; define
   dependency presence, multiplicity, and refinement behavior first.
