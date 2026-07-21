@@ -17,6 +17,54 @@ internal class ScriptSessionTest {
       line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
 
   @Test
+  fun playerSnapshotTracksResourcesProductionAndTags() {
+    val repl = ScriptSession()
+
+    repl.command("become P1")
+    repl.command("mode red")
+    repl.command("exec 7 Steel, PROD[2 Steel]")
+
+    val snapshot = repl.playerSnapshot()
+    assertEquals(20, snapshot.terraformRating)
+    assertEquals(7, snapshot.resources.single { it.name == "Steel" }.stock)
+    assertEquals(2, snapshot.resources.single { it.name == "Steel" }.production)
+    assertEquals(0, snapshot.tags.single { it.name == "venus" }.count)
+
+    repl.command("tfm_sample A 0")
+    val sampleSnapshot = repl.playerSnapshot()
+    assertEquals(1, sampleSnapshot.tags.single { it.name == "building" }.count)
+    assertEquals(2, sampleSnapshot.tags.single { it.name == "earth" }.count)
+  }
+
+  @Test
+  fun mapSnapshotTracksAreaTypesBonusesAndTiles() {
+    val repl = ScriptSession()
+    val emptyMap = repl.mapSnapshot()
+
+    assertEquals("Tharsis", emptyMap.name)
+    assertEquals(61, emptyMap.areas.size)
+    assertEquals(12, emptyMap.areas.count { it.kind == "water" })
+    assertEquals(listOf("P", "P"), emptyMap.areas.single { it.row == 5 && it.column == 3 }.bonuses)
+
+    repl.command("become P1")
+    repl.command("mode red")
+    repl.command("exec CityTile<Tharsis_5_3>")
+
+    val noctis = repl.mapSnapshot().areas.single { it.row == 5 && it.column == 3 }
+    assertEquals("noctis", noctis.kind)
+    assertEquals("city", noctis.tile)
+    assertEquals("Player1", noctis.owner)
+
+    repl.command("newgame BRH 2")
+    val hellas = repl.mapSnapshot()
+    assertEquals(
+        listOf("H", "H", "H"),
+        hellas.areas.single { it.row == 5 && it.column == 7 }.bonuses,
+    )
+    assertEquals(listOf("O", "-"), hellas.areas.single { it.row == 9 && it.column == 7 }.bonuses)
+  }
+
+  @Test
   fun testBasicRunthrough() {
     val repl = ScriptSession()
 

@@ -65,7 +65,9 @@ To use the browser version of REgo PLastics instead, run:
 ```
 
 Then open the local URL Gradle prints. The game runs entirely in the browser. Command history is
-stored in that browser, while refreshing the page starts a new game.
+stored in that browser, while refreshing the page starts a new game. The right third of the page
+shows a player dashboard tracking player 1's resources, production, Terraform Rating, cards,
+victory points, and tags, with a live Mars map below it.
 
 But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
 

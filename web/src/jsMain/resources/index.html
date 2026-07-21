@@ -9,6 +9,81 @@
   </head>
   <body>
     <main id="terminal" aria-label="REgo PLastics browser terminal"></main>
+    <aside class="visual-rail" aria-label="Game displays">
+      <header class="dashboard-scroll" aria-label="Player 1 dashboard">
+      <section class="dashboard">
+        <div class="player-summary">
+          <strong class="player-name" data-stat="player-name">Player 1</strong>
+          <span class="phase" data-stat="phase">Setup</span>
+        </div>
+
+        <div class="resources" aria-label="Resources and production">
+          <div class="resource" data-resource="megacredit">
+            <span class="resource-icon" role="img" aria-label="Megacredits"></span>
+            <span class="stock" data-stat="megacredit-stock">0</span>
+            <span class="production" data-stat="megacredit-production">0</span>
+          </div>
+          <div class="resource" data-resource="steel">
+            <span class="resource-icon" role="img" aria-label="Steel"></span>
+            <span class="stock" data-stat="steel-stock">0</span>
+            <span class="production" data-stat="steel-production">0</span>
+          </div>
+          <div class="resource" data-resource="titanium">
+            <span class="resource-icon" role="img" aria-label="Titanium"></span>
+            <span class="stock" data-stat="titanium-stock">0</span>
+            <span class="production" data-stat="titanium-production">0</span>
+          </div>
+          <div class="resource" data-resource="plant">
+            <span class="resource-icon" role="img" aria-label="Plants"></span>
+            <span class="stock" data-stat="plant-stock">0</span>
+            <span class="production" data-stat="plant-production">0</span>
+          </div>
+          <div class="resource" data-resource="energy">
+            <span class="resource-icon" role="img" aria-label="Energy"></span>
+            <span class="stock" data-stat="energy-stock">0</span>
+            <span class="production" data-stat="energy-production">0</span>
+          </div>
+          <div class="resource" data-resource="heat">
+            <span class="resource-icon" role="img" aria-label="Heat"></span>
+            <span class="stock" data-stat="heat-stock">0</span>
+            <span class="production" data-stat="heat-production">0</span>
+          </div>
+        </div>
+
+        <div class="totals-and-tags">
+          <div class="primary-total victory-points">
+            <span class="text-icon" aria-hidden="true">VP</span>
+            <span data-stat="victory-points">0</span>
+          </div>
+          <div class="primary-total">
+            <span class="stat-icon tr-icon" role="img" aria-label="Terraform rating"></span>
+            <span data-stat="terraform-rating">20</span>
+          </div>
+          <div class="primary-total">
+            <span class="stat-icon cards-icon" role="img" aria-label="Project cards"></span>
+            <span data-stat="cards">0</span>
+          </div>
+          <div class="tags" aria-label="Tags">
+            <div class="tag" data-tag="building"><span class="tag-icon" role="img" aria-label="Building"></span><span data-stat="building-tag">0</span></div>
+            <div class="tag" data-tag="space"><span class="tag-icon" role="img" aria-label="Space"></span><span data-stat="space-tag">0</span></div>
+            <div class="tag" data-tag="science"><span class="tag-icon" role="img" aria-label="Science"></span><span data-stat="science-tag">0</span></div>
+            <div class="tag" data-tag="power"><span class="tag-icon" role="img" aria-label="Power"></span><span data-stat="power-tag">0</span></div>
+            <div class="tag" data-tag="earth"><span class="tag-icon" role="img" aria-label="Earth"></span><span data-stat="earth-tag">0</span></div>
+            <div class="tag" data-tag="jovian"><span class="tag-icon" role="img" aria-label="Jovian"></span><span data-stat="jovian-tag">0</span></div>
+            <div class="tag" data-tag="venus"><span class="tag-icon" role="img" aria-label="Venus"></span><span data-stat="venus-tag">0</span></div>
+            <div class="tag" data-tag="plant"><span class="tag-icon" role="img" aria-label="Plant"></span><span data-stat="plant-tag">0</span></div>
+            <div class="tag" data-tag="microbe"><span class="tag-icon" role="img" aria-label="Microbe"></span><span data-stat="microbe-tag">0</span></div>
+            <div class="tag" data-tag="animal"><span class="tag-icon" role="img" aria-label="Animal"></span><span data-stat="animal-tag">0</span></div>
+            <div class="tag" data-tag="city"><span class="tag-icon" role="img" aria-label="City"></span><span data-stat="city-tag">0</span></div>
+            <div class="tag event-tag" data-tag="event"><span class="tag-icon" role="img" aria-label="Events"></span><span data-stat="event-tag">0</span></div>
+          </div>
+        </div>
+      </section>
+      </header>
+      <section class="map-panel" aria-label="Mars map">
+        <div id="mars-map"></div>
+      </section>
+    </aside>
     <script src="web.js"></script>
   </body>
 </html>
