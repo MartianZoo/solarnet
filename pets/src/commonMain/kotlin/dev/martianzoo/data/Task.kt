@@ -61,7 +61,9 @@ public data class Task(
   }
 
   init {
-    require(instruction.descendantsOfType<Gain>().none { it.gaining == DIE.expression })
+    require(instruction.descendantsOfType<Gain>().none { it.gaining == DIE.expression }) {
+      "Die remained after task normalization: $instruction"
+    }
     when (instruction) {
       is Transform -> error("can't enqueue: $instruction")
       else -> {}
@@ -82,7 +84,18 @@ public data class Task(
           }
       is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
-      is Or -> Or.create(instruction.instructions.map(::normalizeForTask).toSet())
+      is Or -> {
+        val liveOptions =
+            instruction.instructions.mapNotNull {
+              try {
+                normalizeForTask(it)
+              } catch (_: DeadEndException) {
+                null
+              }
+            }
+        if (liveOptions.isEmpty()) throw DeadEndException("every choice reaches Die")
+        Or.create(liveOptions.toSet())
+      }
       is Then -> {
         val parts = instruction.instructions
         parts.firstOrNull { (it as? Gain)?.gaining?.className == DIE }

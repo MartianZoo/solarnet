@@ -93,4 +93,16 @@ class TransformersTest {
     val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)
     deprodden shouldBe expected
   }
+
+  @Test
+  fun `invalid atomic change after trigger specialization becomes Die`() {
+    val general =
+        CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)")) as MType
+    val specific =
+        CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>")) as MType
+    val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
+
+    transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
+        "Plant OR Die!"
+  }
 }

@@ -27,6 +27,7 @@ import dev.martianzoo.util.toSetStrict
  * * `a THEN b >> c` where `a THEN b` is separable is rewritten to `a >> b THEN c`
  * * `a, Ok` becomes `a`
  * * `a, Die` becomes `Die`
+ * * `a OR Die` becomes `a`; if every option is `Die`, the task produces [DeadEndException]
  * * A concrete task with [Task.next] set is guaranteed to execute successfully
  * * New tasks created have the same assignee and cause as the original. Prepared tasks cannot be
  *   split

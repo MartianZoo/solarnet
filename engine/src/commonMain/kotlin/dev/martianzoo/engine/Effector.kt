@@ -205,7 +205,6 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           if (actor is Player && actor != implicitOwner) return null
         }
         return if (changeType.narrows(matchType, reader)) {
-          val subber = reader.transformers.substituter(matchType, changeType)
           // TODO: Replace this compatibility binding with an explicit Pets representation for
           // contextual Owner.
           // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
@@ -213,9 +212,14 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerSubstitution =
               if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null
+          val subber =
+              reader.transformers.checkedSubstituter(
+                  matchType,
+                  changeType,
+                  ownerSubstitution,
+              )
           val h: Hit = {
-            val substituted = subber.transform(it)
-            (ownerSubstitution?.transform(substituted) ?: substituted) * change.count
+            subber.transform(it) * change.count
           }
           h
         } else {

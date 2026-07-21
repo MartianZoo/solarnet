@@ -1,14 +1,16 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class ViralEnhancersTest : CardTest() {
 
   @Test
-  fun `characterizes current resource target choices`() {
+  fun `resource must go on the bio tag card that triggered the effect`() {
     val game = newGame("BRM", 2)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -29,9 +31,9 @@ class ViralEnhancersTest : CardTest() {
       abort()
     }
 
-    // TODO(#12): The printed card says the resource goes on "that card", so this should be
-    // rejected. Keep the successful different-card choice as a known-wrong characterization: when
-    // trigger-to-instruction specialization is linked, this test should fail until it is updated.
-    p1.playProject("RegolithEaters", 13) { doTask("Microbe<NitriteReducingBacteria>") }
+    p1.playProject("RegolithEaters", 13) {
+      shouldThrow<NarrowingException> { doTask("Microbe<NitriteReducingBacteria>") }
+      doTask("Microbe<RegolithEaters>")
+    }
   }
 }

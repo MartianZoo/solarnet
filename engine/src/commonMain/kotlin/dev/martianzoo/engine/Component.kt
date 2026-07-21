@@ -51,15 +51,35 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
       owner?.className?.let { if (Player.isValid(it)) Player(it) else null }
 
   internal val effects: List<Effect> by lazy {
-    val substituter = Transformers(mtype.loader).substituter(mtype.root.defaultType, mtype)
-    val withOwnerBinding =
-        chain(substituter, owner?.let(::replaceOwnerWith), replaceThisExpressionsWith(expression))
+    val transformers = Transformers(mtype.loader)
+    val ownerBinding = owner?.let(::replaceOwnerWith)
+    val thisBinding = replaceThisExpressionsWith(expression)
 
     if (owner == null || playerOwner != null) {
-      mtype.root.classEffects.map(withOwnerBinding::transform)
+      val checkedBinding =
+          transformers.checkedSubstituter(
+              mtype.root.defaultType,
+              mtype,
+              ownerBinding,
+              thisBinding,
+          )
+      mtype.root.classEffects.map { effect ->
+        val bound = checkedBinding.transform(effect)
+        try {
+          mtype.loader.checkAllTypes(bound)
+          bound
+        } catch (e: ExpressionException) {
+          throw ExpressionException(
+              "invalid component effect for ${mtype.expressionFull}: $bound",
+              e,
+          )
+        }
+      }
     } else {
+      val uncheckedBinding =
+          chain(transformers.substituter(mtype.root.defaultType, mtype), ownerBinding, thisBinding)
       mtype.root.classEffects.mapNotNull { effect ->
-        val bound = withOwnerBinding.transform(effect)
+        val bound = uncheckedBinding.transform(effect)
         try {
           mtype.loader.checkAllTypes(bound)
           bound

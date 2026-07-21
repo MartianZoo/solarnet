@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
@@ -198,6 +199,10 @@ internal class Transformers(internal val classes: MClassTable) {
     val specdeps = specific.dependencies
     val subs = findSubstitutions(gendeps, specdeps)
 
+    return substituter(subs)
+  }
+
+  private fun substituter(subs: Map<ClassName, Expression>): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         if (node is Expression) {
@@ -212,6 +217,40 @@ internal class Transformers(internal val classes: MClassTable) {
           }
         }
         return transformChildren(node)
+      }
+    }
+  }
+
+  /**
+   * Specializes linked type names and turns any atomic change made invalid by that specialization
+   * into `Die`. This lets enclosing choices discard an impossible specialized branch.
+   */
+  internal fun checkedSubstituter(
+      general: MType,
+      specific: MType,
+      vararg afterSubstitution: PetTransformer?,
+  ): PetTransformer {
+    val subs = findSubstitutions(general.dependencies, specific.dependencies).toMutableMap()
+    if (general.root.abstract && specific.root != general.root) {
+      subs[general.className] = specific.className.expression
+    }
+    return chain(listOf(substituter(subs)) + afterSubstitution + invalidChangesToDie())
+  }
+
+  private fun invalidChangesToDie(): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        val specialized = transformChildren(node)
+        if (specialized !is Change) return specialized
+
+        try {
+          specialized.gaining?.let(classes::resolve)
+          specialized.removing?.let(classes::resolve)
+        } catch (_: ExpressionException) {
+          @Suppress("UNCHECKED_CAST")
+          return gain(scaledEx(expression = DIE.expression)) as P
+        }
+        return specialized
       }
     }
   }
