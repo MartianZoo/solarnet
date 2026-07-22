@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
 class LocalHeatTrappingTest : CardTest() {
@@ -72,26 +71,6 @@ class LocalHeatTrappingTest : CardTest() {
       }
       assertCounts(3 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 3 to "Animal")
-    }
-  }
-
-  // @Test // TODO - make this work
-  fun getNothing() {
-    with(p1) {
-      sneak("6 Heat, 2 ProjectCard")
-
-      manual("LocalHeatTrapping") {
-        tasks
-            .extract { it.whyPending }
-            .shouldContainExactlyInAnyOrder(
-                "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`"
-            )
-
-        p1.prepareTask(tasks.ids().single())
-        tasks
-            .extract { it.whyPending }
-            .shouldContainExactlyInAnyOrder("choice required in: `4 Plant<Player1>! OR Ok`")
-      }
     }
   }
 }

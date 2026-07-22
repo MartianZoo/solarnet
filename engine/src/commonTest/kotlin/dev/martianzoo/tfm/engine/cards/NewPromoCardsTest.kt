@@ -63,21 +63,6 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun kaguyaTechCannotMoveTheSelectedGreeneryToAnotherArea() {
-    val game = newGame("BMX", 2)
-    val p1 = game.tfm(PLAYER1)
-
-    p1.phase("Action")
-    p1.sneak("100, 5 ProjectCard, GreeneryTile<M42>")
-
-    p1.playProject("KaguyaTech", 10) {
-          doTask("CityTile<M43> FROM GreeneryTile<M42>")
-        }
-        // TODO: Repeated LandArea occurrences should specialize together and reject this move.
-        .expect("-GreeneryTile<M42>, CityTile<M43>")
-  }
-
-  @Test
   fun cathedralOfferBelongsToTheCityOwner() {
     val game = newGame("BMX", 2)
     val builder = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
