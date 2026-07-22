@@ -5,6 +5,7 @@ import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.PLAYER
+import dev.martianzoo.api.SystemClasses.SYSTEM
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
@@ -198,11 +199,14 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
         // Will be refinement-aware (#48)
         val changeType = reader.resolve(expr)
         val matchType = reader.resolve(match)
-        val triggerIsOwned =
-            (matchType as MType).root.allSuperclasses().any { it.className == OWNED }
-        if (!triggerIsOwned && implicitOwner != null) {
-          val actor = currentEvent.actor
-          if (actor is Player && actor != implicitOwner) return null
+        val triggerIsOwnedOrSystem =
+            (matchType as MType).root.allSuperclasses().any {
+              it.className == OWNED || it.className == SYSTEM
+            }
+        if (
+            !triggerIsOwnedOrSystem && implicitOwner != null && currentEvent.actor != implicitOwner
+        ) {
+          return null
         }
         return if (changeType.narrows(matchType, reader)) {
           // TODO: Replace this compatibility binding with an explicit Pets representation for

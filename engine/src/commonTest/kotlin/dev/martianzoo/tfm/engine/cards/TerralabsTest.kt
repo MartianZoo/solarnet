@@ -11,7 +11,6 @@ class TerralabsTest : CardTest() {
   fun terralabs() {
     val game = newGame("BMT", 2)
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("TerralabsResearch", 10)
       assertCounts(10 to "ProjectCard", 4 to "M")
       manual("4 BuyCard")

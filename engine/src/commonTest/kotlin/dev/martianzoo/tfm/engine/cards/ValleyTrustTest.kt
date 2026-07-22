@@ -10,7 +10,6 @@ class ValleyTrustTest : CardTest() {
   fun valleyTrust() {
     val game = newGame("BRMP", 2)
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("ValleyTrust", 5).expect("5 ProjectCard, 22")
 
       phase("Action")

@@ -31,7 +31,7 @@ abstract class CardTest {
   protected val player3: TfmGameplay
     get() = game.tfm(PLAYER3)
 
-  protected fun newGame(setup: GameSetup): Game = setUpTfmGame(setup).also { game = it }
+  protected fun newGame(setup: GameSetup): Game = setUpTfmGame(setup).prepareCardTestGame()
 
   protected fun newBareGame(setup: GameSetup): Game = Engine.newGame(setup).also { game = it }
 
@@ -39,7 +39,12 @@ abstract class CardTest {
       optionCodes: String,
       players: Int,
       colonyTiles: Set<ClassName> = emptySet(),
-  ): Game = setUpTfmGame(optionCodes, players, colonyTiles).also { game = it }
+  ): Game = setUpTfmGame(optionCodes, players, colonyTiles).prepareCardTestGame()
+
+  private fun Game.prepareCardTestGame(): Game = apply {
+    game = this
+    tfm(ENGINE).phase("Corporation")
+  }
 
   /** Makes deliberate test-fixture changes read as such, without exposing the GodMode plumbing. */
   protected fun TfmGameplay.sneak(changes: String): TaskResult = godMode().sneak(changes)

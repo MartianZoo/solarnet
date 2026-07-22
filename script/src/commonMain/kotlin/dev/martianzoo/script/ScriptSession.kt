@@ -2,8 +2,7 @@ package dev.martianzoo.script
 
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.SIGNAL
-import dev.martianzoo.api.SystemClasses.SYSTEM
+import dev.martianzoo.api.SystemClasses.HIDDEN
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
@@ -271,7 +270,7 @@ public class ScriptSession(
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes = result.changes.filterNot { isSystem(it, game.reader) }.toStrings()
+    val changes = result.changes.filterNot { isHidden(it, game.reader) }.toStrings()
 
     val newTasks: Set<TaskId> = result.tasksSpawned
     val taskLines =
@@ -298,18 +297,14 @@ public class ScriptSession(
     }
   }
 
-  internal fun isSystem(event: ChangeEvent, game: GameReader): Boolean {
+  internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {
     val g = event.change.gaining
     val r = event.change.removing
 
-    val system = game.resolve(SYSTEM.expression)
-    if (listOfNotNull(g, r).all { game.resolve(it).narrows(system) }) return true
-
-    if (r != null) {
-      val signal = game.resolve(SIGNAL.expression)
-      if (game.resolve(r).narrows(signal)) return true
-    }
-    return false
+    val changedTypes = listOfNotNull(g, r).map(game::resolve)
+    val hidden = game.resolve(HIDDEN.expression)
+    val phase = game.resolve(cn("Phase").expression)
+    return changedTypes.all { it.narrows(hidden) } && changedTypes.none { it.narrows(phase) }
   }
 
   public fun command(wholeCommand: String): List<String> {

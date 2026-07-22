@@ -19,7 +19,6 @@ class RobinsonIndustriesTest : CardTest() {
 
   @BeforeTest
   fun setUp() {
-    p1.phase("Corporation")
     p1.playCorp("RobinsonIndustries", 0)
     p1.phase("Action")
   }

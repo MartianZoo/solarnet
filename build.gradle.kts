@@ -19,8 +19,7 @@ repositories { mavenCentral() }
 
 configure<SpotlessExtension> {
   kotlin {
-    target("**/*.kt")
-    targetExclude("**/build/**")
+    target(subprojects.map { it.fileTree("src") { include("**/*.kt") } })
     ktfmt("0.64").googleStyle().configure {
       it.setMaxWidth(100)
       it.setBlockIndent(2)
@@ -29,7 +28,13 @@ configure<SpotlessExtension> {
     }
   }
   kotlinGradle {
-    target("**/*.gradle.kts")
+    target(
+        files(
+            "build.gradle.kts",
+            "settings.gradle.kts",
+            subprojects.map { it.file("build.gradle.kts") },
+        )
+    )
     ktfmt("0.64").googleStyle().configure {
       it.setMaxWidth(100)
       it.setBlockIndent(2)

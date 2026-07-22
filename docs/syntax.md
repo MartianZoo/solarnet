@@ -172,5 +172,14 @@ An effect consists of a trigger, either one or two colons, then an instruction. 
 optionally preceded by a minus sign. For each instance of that type that is gained (or, with minus sign, removed), the
 instruction will be carried out.
 
-`BY` restricts the Actor recorded on the triggering state change. An omitted `BY` adds no Actor
-restriction.
+`BY` restricts the Actor recorded on the triggering state change. Following the published card
+grammar, an effect carried by an `Owned` component responds only to its Owner when its trigger
+component is unowned. Write `BY Anyone` explicitly for the red-outline, “anyone” form. Triggers on
+owned components already identify their Owner and need no Actor restriction.
+
+An unowned component extending `System` represents engine-only machinery. A Player cannot create
+one, and its occurrence is not attributed to a particular Player for trigger matching, so every
+matching effect responds unless it has an explicit `BY` restriction. `Hidden` is the independent
+presentation concept: hidden components are normally omitted from user-facing output. `System`
+extends `Hidden`, but other implementation details such as player-created `Signal`s may be hidden
+without being system operations.

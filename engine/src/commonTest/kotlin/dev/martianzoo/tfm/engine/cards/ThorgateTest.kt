@@ -13,7 +13,6 @@ class ThorgateTest : CardTest() {
     val game = newGame(Canon.SIMPLE_GAME)
 
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("Thorgate", 10)
       sneak("-10")
 

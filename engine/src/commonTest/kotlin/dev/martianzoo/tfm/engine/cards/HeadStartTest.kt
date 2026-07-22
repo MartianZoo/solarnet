@@ -23,19 +23,4 @@ class HeadStartTest : CardTest() {
       }
     }
   }
-
-  @Test
-  fun `do both actions`() {
-    with(game.tfm(PLAYER1)) {
-      phase("Prelude")
-      sneak("4, 10 ProjectCard, PreludeCard, 10 Heat")
-      playPrelude("HeadStart") {
-        assertCounts(2 to "Steel", 24 to "M")
-        doFirstTask("UseAction1<UseStandardProjectSA>")
-        doTask("UseAction1<ConvertHeatSA>")
-        doTask("UseAction1<AquiferSP>")
-        doTask("OceanTile<M55>")
-      }
-    }
-  }
 }

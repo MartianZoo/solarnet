@@ -9,7 +9,7 @@
       "immediate": "54",
       "effects": [
         "OceanTile BY Anyone: PROD[1]",
-        "ForwardAdjacency<OceanTile, Tile> BY Owner: 1"
+        "ForwardAdjacency<OceanTile, Tile>: 1"
       ]
     },
 
@@ -24,7 +24,7 @@
       ],
       "components": [
         // Must be exact copies of UNMI's
-        "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
+        "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
         "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
       ],
       "resourceType": "Preservation"

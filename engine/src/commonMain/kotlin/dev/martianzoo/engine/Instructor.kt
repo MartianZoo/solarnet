@@ -126,11 +126,16 @@ internal class Instructor(
   private fun prepareChange(change: Change): Instruction {
     // can't prepare at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
-
-    val (g: MType?, r: MType?) = autoNarrowTypes(change.gaining, change.removing)
-    if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
-
     val intens = change.intensity ?: error("missing intensity: $change")
+
+    val (g: MType?, r: MType?) =
+        try {
+          autoNarrowTypes(change.gaining, change.removing)
+        } catch (e: DependencyException) {
+          if (intens == AMAP && change.gaining != null && change.removing == null) return NoOp
+          throw e
+        }
+    if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
     if (listOfNotNull(g, r).any { it.abstract }) {
       // Still abstract, don't check limits yet

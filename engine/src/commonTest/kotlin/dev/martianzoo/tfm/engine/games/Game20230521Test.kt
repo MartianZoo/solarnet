@@ -679,7 +679,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.playProject("BioPrintingFacility", 1, steel = 2)
     // Player2 used Bio Printing Facility action
     // Player2's plants amount increased by 2
-    p2.cardAction1("BioPrintingFacility").expect("-2E, 2P")
+    p2.cardAction1("BioPrintingFacility") { doTask("2 Plant") }.expect("-2E, 2P")
 
     // Player1 used Deuterium Export action
     // Player1 removed 1 resource(s) from Player1's Deuterium Export

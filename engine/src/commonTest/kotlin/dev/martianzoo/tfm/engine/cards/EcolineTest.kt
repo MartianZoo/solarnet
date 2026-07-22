@@ -14,7 +14,6 @@ class EcolineTest : CardTest() {
     val game = newGame(Canon.SIMPLE_GAME)
 
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("Ecoline", 5)
       assertCounts(3 to "Plant")
 

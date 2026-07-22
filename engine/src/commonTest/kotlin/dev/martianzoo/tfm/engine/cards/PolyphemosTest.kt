@@ -12,7 +12,6 @@ class PolyphemosTest : CardTest() {
   fun polyphemos() {
     val game = newGame("BRMC", 2, testColonyTiles(2))
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("Polyphemos", 7)
 
       phase("Action")

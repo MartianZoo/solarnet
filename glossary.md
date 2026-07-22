@@ -80,12 +80,16 @@
 - **Rollback:** Reversing events after a checkpoint to restore an earlier state.
 - **Root type:** The class named at the head of a generic type expression, before its specializations.
 - **Short name:** A compact class alias such as `TR`, sharing a namespace with full class names.
-- **Signal:** A temporary component that immediately removes itself after triggering its effects.
+- **Hidden:** An implementation component normally omitted from user-facing output. This is a
+  presentation classification, not an Actor or ownership rule.
+- **Signal:** A hidden temporary component that immediately removes itself after triggering its effects.
 - **Singleton type:** A concrete type for which one component is created automatically during initialization.
 - **Opponent:** The passive Owner created by SoloMode; it is not a Player or Actor and receives no tasks or turns.
 - **Source effect:** An effect as authored in `.pets` or JSON data, before engine transformations.
 - **Specialization:** A type expression inside `<...>` that narrows one of a class's dependencies; specializations need not follow dependency declaration order.
 - **State change:** An exact component gain, removal, or transmutation that happened in a game.
+- **System:** Engine-only machinery. It extends Hidden, cannot be created by a Player, and an
+  unowned System occurrence does not implicitly restrict effect matching by its Actor.
 - **Task:** A unit of pending work containing an instruction, assignment, cause, and lifecycle metadata. It represents not only what *must* be done but what *may* be done.
 - **Task queue:** An assignee's unordered set of pending tasks; stable ID iteration only makes arbitrary choices reproducible.
 - **Task result:** The change events and newly spawned task IDs returned by a successful operation.

@@ -82,7 +82,7 @@
       "immediate": "40",
       "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
       "components": [
-        "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
+        "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
         "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
       ]
     },

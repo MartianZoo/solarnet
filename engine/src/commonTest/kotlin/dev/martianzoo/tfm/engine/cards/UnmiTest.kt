@@ -14,7 +14,6 @@ class UnmiTest : CardTest() {
   fun unmi() {
     val game = newGame(Canon.SIMPLE_GAME)
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       playCorp("UnitedNationsMarsInitiative", 0)
       assertCounts(40 to "Megacredit", 20 to "TR")
 
@@ -33,7 +32,6 @@ class UnmiTest : CardTest() {
   fun unmiOutOfOrder() {
     val game = newGame(Canon.SIMPLE_GAME)
     with(game.tfm(PLAYER1)) {
-      phase("Corporation")
       sneak("14")
       assertCounts(14 to "Megacredit", 20 to "TR")
 
