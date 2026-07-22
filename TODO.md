@@ -21,6 +21,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Language and Engine Semantics
 
+- Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
 - [#37: Class-signature linkages](https://github.com/MartianZoo/solarnet/issues/37) — Link repeated dependency expressions so `Cardbound` and its card share one owner.
 - Replace rollback speculation with disposable `GameState` overlays spanning components, tasks, events, and active effects.
