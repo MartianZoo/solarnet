@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 internal class ScriptSessionTest {
@@ -15,6 +16,14 @@ internal class ScriptSessionTest {
 
   private fun normalizeEventOrdinals(line: String) =
       line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
+
+  @Test
+  fun `as Engine is documented but cannot resolve the Engine actor`() {
+    val repl = ScriptSession()
+    repl.command("newgame BM 2")
+
+    assertFailsWith<IllegalArgumentException> { repl.command("as Engine count Phase") }
+  }
 
   @Test
   fun newGameDefersColonySelection() {

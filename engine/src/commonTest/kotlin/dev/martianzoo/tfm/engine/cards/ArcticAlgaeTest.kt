@@ -20,4 +20,22 @@ class ArcticAlgaeTest : CardTest() {
 
     owner.count("Plant") shouldBe plantsBefore + 2
   }
+
+  @Test
+  fun `Giant Ice Asteroid can remove plants just granted by Arctic Algae`() {
+    val game = newGame(Canon.SIMPLE_GAME)
+    val attacker = game.tfm(PLAYER1)
+    val algaeOwner = game.tfm(PLAYER2)
+    algaeOwner.sneak("ArcticAlgae, 2 Plant")
+    attacker.sneak("ProjectCard, 36 Megacredit")
+    attacker.phase("Action")
+
+    attacker.playProject("GiantIceAsteroid", 36) {
+      doFirstTask("OceanTile<Tharsis_1_2>")
+      doFirstTask("OceanTile<Tharsis_1_4>")
+      doTask("-6 Plant<Player2>")
+    }
+
+    algaeOwner.count("Plant") shouldBe 0
+  }
 }

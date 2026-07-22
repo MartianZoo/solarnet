@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
@@ -14,6 +15,7 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 class BugsTest : CardTest() {
+  // FAQ: "Place a city tile there, regardless of placement rules."
   @Test
   fun `Kaguya Tech can incorrectly move the selected greenery to another area`() {
     val p1 = newGame("BMX", 2).tfm(PLAYER1)
@@ -25,6 +27,8 @@ class BugsTest : CardTest() {
         .expect("-GreeneryTile<M42>, CityTile<M43>")
   }
 
+  // FAQ: "Those actions are considered distinct actions, but within the action of playing Head
+  // Start."
   @Test
   fun `Head Start incorrectly allows its two actions to interleave`() {
     val p1 = newGame("BMPTX", 2).tfm(PLAYER1)
@@ -40,6 +44,8 @@ class BugsTest : CardTest() {
     }
   }
 
+  // FAQ: "If you do not have cards that hold those resources, you may still play the card and
+  // ignore that effect."
   @Test
   fun `Local Heat Trapping cannot discard its optional animal gain`() {
     val p1 = newGame(Canon.SIMPLE_GAME).tfm(PLAYER1)
@@ -54,6 +60,7 @@ class BugsTest : CardTest() {
     }
   }
 
+  // FAQ: "Draw 1 card for every 3 science tags you have, including this."
   @Test
   fun `Solar Probe can lose its card draw if event cleanup is handled first`() {
     val game = newGame(Canon.fromOptionCodes("BMRC", 2, testColonyTiles(2)))
@@ -77,5 +84,12 @@ class BugsTest : CardTest() {
       // Now they can't get their card
       shouldThrow<TaskException> { doTask("ProjectCard") }
     }
+  }
+
+  @Test
+  fun `a quantified tile instruction cannot be decomposed into placement choices`() {
+    val p1 = newGame("BM", 2).tfm(PLAYER1)
+
+    shouldThrow<AbstractException> { p1.manual("2 CityTile") }
   }
 }
