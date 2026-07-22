@@ -102,17 +102,13 @@ perInst     := perableInst ['/' scalarAndType]
 perableInst := gainInst | removeInst | fromInst | ('(' fromInst ')')
 gainInst    := scalarAndType [intensity]
 removeInst  := '-' scalarAndType [intensity]
-fromInst    := [scalar] from [intensity]
-from        := simpleFrom | complexFrom
-simpleFrom  := genericTypeExpr 'FROM' genericTypeExpr
-complexFrom := className '<' fromArgs '>' [refinement]
-fromArgs    := (typeExpression ',')* from (',' typeExpression)*
+fromInst    := [scalar] genericTypeExpr 'FROM' genericTypeExpr [intensity]
 groupedInst := '(' instruction ')'
 ```
 
 Instructions are the meat of the language, as you can see. The elementary instructions are to gain some amount of a
 component (`4 Plant<Player2>`), remove some amount of a component (`-8 Heat<Player1>`), or even transmute some amount of
-one component directly into another (`3 Megacredit<Player4 FROM Player2>`).
+one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Player2>`).
 
 Commas separate multiple independent instructions. The comma has the lowest precedence of all instruction operators.
 Within each comma-separated section, you might find instructions separated by `THEN`; this is similar to the comma, but

@@ -11,7 +11,7 @@ import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
@@ -142,7 +142,7 @@ internal class Transformers(internal val classes: MClassTable) {
                       if (node.gaining == fixed) {
                         node.fromEx // no change, so don't mess up the structure
                       } else {
-                        SimpleFrom(fixed, node.removing)
+                        FromExpression(fixed, node.removing)
                       }
                   Transmute(fixedFrom, node.count, intensity)
                 }

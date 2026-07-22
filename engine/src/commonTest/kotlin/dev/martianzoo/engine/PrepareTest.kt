@@ -63,7 +63,9 @@ internal class PrepareTest {
     shouldThrow<LimitsException> { preprocessAndPrepare("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndPrepare("Plant FROM Heat") }
     shouldThrow<LimitsException> { preprocessAndPrepare("2 Heat FROM Plant") }
-    shouldThrow<LimitsException> { preprocessAndPrepare("2 Plant<Player2 FROM Player1>") }
+    shouldThrow<LimitsException> {
+      preprocessAndPrepare("2 Plant<Player2> FROM Plant<Player1>")
+    }
   }
 
   @Test
@@ -94,18 +96,18 @@ internal class PrepareTest {
   fun testPrepareOr() {
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +
-            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
+            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
         "Ok",
     )
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR (TR: 8 Steel) OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
         "8 Steel<Player1>!",
     )
 
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR -Plant. / TR OR 8 Steel OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
         "-Plant<Player1>! OR 8 Steel<Player1>!",
     )
 
@@ -117,7 +119,7 @@ internal class PrepareTest {
     shouldThrow<NotNowException> {
       preprocessAndPrepare(
           "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
-              "OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
+              "OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
       )
     }
   }

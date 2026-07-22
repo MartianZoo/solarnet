@@ -12,9 +12,6 @@ import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
-import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
-import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Metric
@@ -27,7 +24,6 @@ import dev.martianzoo.tfm.data.TfmClasses.PROD
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
-import kotlin.random.Random
 import kotlin.reflect.KClass
 
 internal class PetGenerator(scaling: (Int) -> Double) :
@@ -104,43 +100,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Transform(recurse(), PROD) }
 
       register(FromExpression::class) {
-        val one: Expression = recurse()
-        val two: Expression = recurse()
-
-        fun getTypes(expression: Expression): List<Expression> =
-            expression.arguments.flatMap(::getTypes) + expression
-
-        val oneTypes = getTypes(one)
-        val twoTypes = getTypes(two)
-
-        val inject: Expression
-        val into: Expression
-        val target: Expression
-
-        if (oneTypes.size <= twoTypes.size) {
-          inject = one
-          into = two
-          target = twoTypes.random()
-        } else {
-          inject = two
-          into = one
-          target = oneTypes.random()
-        }
-
-        val b = Random.Default.nextBoolean()
-
-        fun convert(expression: Expression): FromExpression {
-          if (expression == target) {
-            return SimpleFrom(if (b) inject else target, if (b) target else inject)
-          }
-          val args = expression.arguments.map(::convert)
-          return if (args.all { it is ExpressionAsFrom }) {
-            ExpressionAsFrom(expression)
-          } else {
-            ComplexFrom(expression.className, args, expression.refinement?.requirement)
-          }
-        }
-        convert(into)
+        FromExpression(recurse(), recurse())
       }
 
       val basicTriggerTypes =

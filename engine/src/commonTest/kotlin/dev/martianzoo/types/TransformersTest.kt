@@ -81,13 +81,13 @@ class TransformersTest {
   fun testDeprodify_lessSimple() {
     val prodden: Effect =
         parse(
-            "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
-                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
+            "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz> FROM " +
+                "Foo<Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
         )
     val expected: Effect =
         parse(
             "Production<Class<Plant>>:" +
-                " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
+                " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz> FROM Foo<Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
         )
     val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)

@@ -110,15 +110,7 @@ public abstract class PetTransformer protected constructor() {
                   is Instruction.Multi -> Instruction.Multi(x(instructions))
                   is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
                 }
-            is FromExpression ->
-                when (this) {
-                  is FromExpression.SimpleFrom ->
-                      FromExpression.SimpleFrom(x(toExpression), x(fromExpression))
-                  is FromExpression.ComplexFrom ->
-                      FromExpression.ComplexFrom(x(className), x(arguments), x(refinement))
-                  is FromExpression.ExpressionAsFrom ->
-                      FromExpression.ExpressionAsFrom(x(expression))
-                }
+            is FromExpression -> FromExpression(x(toExpression), x(fromExpression))
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
                 when (this) {

@@ -46,7 +46,7 @@
     {
       "id": "C02",
       "deck": "PROJECT",
-      "immediate": "-Floater, 5 Megacredit<Owner FROM Anyone>?",
+      "immediate": "-Floater, 5 Megacredit<Owner> FROM Megacredit<Anyone>?",
       "cost": 0,
       "projectKind": "EVENT"
     },

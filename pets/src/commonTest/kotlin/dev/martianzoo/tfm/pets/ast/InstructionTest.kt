@@ -1,15 +1,16 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -40,14 +41,14 @@ internal class InstructionTest {
       11 Foo<Foo, Bar<Xyz>>.
       Foo<Ahh<Xyz>, Bar, Qux>
       Ahh<Abc<Xyz>, Bar<Xyz>>.
-      PROD[Abc<Foo FROM Xyz>]
+      PROD[Abc<Foo> FROM Abc<Xyz>]
       PROD[Qux FROM Bar / Abc]
       PROD[Abc<Ooh> / Megacredit]
       PROD[11 Xyz, Bar FROM Foo]
       PROD[-5 Foo, Qux FROM Ahh.]
       PROD[-Bar OR -1! OR -Foo<Bar>]
       -1 / 11 Qux<Abc, Qux<Ahh>, Qux>
-      PROD[1], 1, Abc<Qux FROM Foo>!
+      PROD[1], 1, Abc<Qux> FROM Abc<Foo>!
       PROD[Xyz / 5 Foo], 1 THEN 5 / Abc
       (5 Bar<Abc> FROM Bar) OR -Foo, Bar
       PROD[Abc FROM Qux, 5 Foo FROM Abc]
@@ -57,9 +58,9 @@ internal class InstructionTest {
       1 / Abc THEN ((Foo FROM Xyz) OR 5 Bar)
       (11 Bar<Foo> FROM Bar) OR (Foo FROM Abc)
       5: (1 / Megacredit OR -1, -Ooh<Bar> / Qux)
-      Xyz<Bar FROM Abc>? / Abc, 5 Eep FROM Xyz?
+      Xyz<Bar> FROM Xyz<Abc>? / Abc, 5 Eep FROM Xyz?
       PROD[1, -1., PROD[1: -1], (1, (Bar, 5 Foo))]
-      11 Ahh<Wau<Foo<Qux>, Eep<Xyz> FROM Foo, Qux>>
+      11 Ahh<Wau<Foo<Qux>, Eep<Xyz>, Qux>> FROM Ahh<Wau<Foo<Qux>, Foo, Qux>>
       Qux<Abc> OR ((Ahh FROM Foo) OR (-1 OR -Bar))
       5 / Xyz<Foo<Foo>, Ahh<Qux<Bar<Qux>>, Qux>, Xyz>
       5 Ooh<Foo> FROM Foo<Ooh>!, PROD[-Foo THEN 1: -1]
@@ -69,7 +70,7 @@ internal class InstructionTest {
       PROD[(Ooh / Megacredit, Foo, 1), Bar / Bar THEN 1, 1]
       11 Bar, (Xyz, (Foo OR 1): 1) OR (Foo: (-1 OR 1 OR Qux))
       1, Bar, -Foo OR PROD[Foo FROM Abc] OR (Foo FROM Xyz)
-      11 Qux<Qux<Ooh<Foo>(HAS 5) FROM Foo>, Ooh(HAS MAX 1 Bar)>
+      11 Qux<Qux<Ooh<Foo>(HAS 5)>, Ooh(HAS MAX 1 Bar)> FROM Qux<Qux<Foo>, Ooh(HAS MAX 1 Bar)>
       PROD[((1 OR MAX 1 Megacredit): 1) OR (1 OR -Bar) OR 1, Bar]
       (1: 1, -5 Bar), 11 Qux<Qux<Foo>, Bar>, PROD[1 / 5 Foo], Bar!
       """
@@ -90,29 +91,25 @@ internal class InstructionTest {
 
     parse<Instruction>("1 Foo FROM Bar.") shouldBe
         Transmute(
-            SimpleFrom(cn("Foo").expression, cn("Bar").expression),
+            FromExpression(cn("Foo").expression, cn("Bar").expression),
             ActualScalar(1),
             AMAP,
         )
-    testRoundTrip("Foo<Bar FROM Qux>")
-    testRoundTrip("Foo<Bar FROM Qux>.")
+    testRoundTrip("Foo<Bar> FROM Foo<Qux>")
+    testRoundTrip("Foo<Bar> FROM Foo<Qux>.")
 
     val instr =
         Transmute(
-            ComplexFrom(
-                cn("Foo"),
-                listOf(
-                    ComplexFrom(
-                        cn("Bar"),
-                        listOf(SimpleFrom(cn("Qux").expression, cn("Abc").of(cn("Eep")))),
-                    )
-                ),
+            FromExpression(
+                cn("Foo").of(cn("Bar").of(cn("Qux"))),
+                cn("Foo").of(cn("Bar").of(cn("Abc").of(cn("Eep")))),
             ),
             ActualScalar(1),
             null,
         )
-    instr.toString() shouldBe "Foo<Bar<Qux FROM Abc<Eep>>>"
-    parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>") shouldBe instr
+    instr.toString() shouldBe "Foo<Bar<Qux>> FROM Foo<Bar<Abc<Eep>>>"
+    parse<Instruction>("Foo<Bar<Qux>> FROM Foo<Bar<Abc<Eep>>>") shouldBe instr
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Bar FROM Qux>") }
   }
 
   fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)

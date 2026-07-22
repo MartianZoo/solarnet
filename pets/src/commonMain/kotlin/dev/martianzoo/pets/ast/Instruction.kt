@@ -13,7 +13,6 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
@@ -100,7 +99,7 @@ public sealed class Instruction : PetElement() {
           count == 0 -> NoOp
           removing == null -> gain(scaledEx(count, gaining!!), intensity)
           gaining == null -> Remove(scaledEx(count, removing), intensity)
-          else -> Transmute(SimpleFrom(gaining, removing), ActualScalar(count), intensity)
+          else -> Transmute(FromExpression(gaining, removing), ActualScalar(count), intensity)
         }
       }
     }
@@ -210,9 +209,9 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun safeToNestIn(container: PetNode) =
-        super.safeToNestIn(container) && (fromEx !is SimpleFrom || container !is Or)
+        super.safeToNestIn(container) && container !is Or
 
-    override fun precedence() = if (fromEx is SimpleFrom) 7 else 10
+    override fun precedence() = 7
   }
 
   data class Per(val inner: Instruction, val metric: Metric) : Instruction() {

@@ -1099,7 +1099,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Hired Raiders
     p2.playProject("HiredRaiders", 0) {
       // Player1's steel amount decreased by 2 stolen by Player2
-      doTask("2 Steel<P2 FROM P1>")
+      doTask("2 Steel<P2> FROM Steel<P1>")
     }
     // Player2 used Convert Heat standard action
     p2.stdAction("ConvertHeatSA")

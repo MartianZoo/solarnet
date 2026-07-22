@@ -40,7 +40,7 @@ internal class SimpleAddsRemovesTest {
     eng.count("StandardResource<Player1>") shouldBe 10
     eng.count("Steel") shouldBe 3
 
-    p2.manual("2 Heat<Player2 FROM Player1>!")
+    p2.manual("2 Heat<Player2> FROM Heat<Player1>!")
     eng.has("=3 Heat<Player2>") shouldBe true
     eng.has("=5 Heat<Player1>") shouldBe true
 

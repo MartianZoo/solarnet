@@ -17,9 +17,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression
-import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
-import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
@@ -181,16 +178,15 @@ internal object TerraformingMars {
       if (playerCount == 1) return NoOp
 
       val next = current % playerCount + 1
-      val arguments: List<FromExpression> =
-          component.expressionFull.arguments.map {
-            if (it == currentOwner.expression) {
-              SimpleFrom(cn("Player$next").expression, currentOwner.expression)
-            } else {
-              ExpressionAsFrom(it)
-            }
-          }
+      val fromExpression = component.className.of(component.expressionFull.arguments)
+      val toExpression =
+          component.className.of(
+              component.expressionFull.arguments.map {
+                if (it == currentOwner.expression) cn("Player$next").expression else it
+              }
+          )
       return Transmute(
-          ComplexFrom(component.className, arguments),
+          FromExpression(toExpression, fromExpression),
           ActualScalar(reader.countComponent(component)),
       )
     }
