@@ -135,7 +135,7 @@ wiring and product branding belong in an application package.
 
 1. `Component`, the root of every game's component hierarchy.
 2. `Class`.
-3. `System`, `Temporary`, and `Signal`.
+3. `Hidden`, `System`, `Temporary`, and `Signal`.
 4. `Ok` and `Die`, which generic AST/task/engine code understands specially.
 5. `Engine`.
 6. `AutoLoad`, `Custom`, and `Atomized`, all consumed by generic engine/type logic.

@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.ACTOR
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.SystemClasses.HIDDEN
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.data.Actor.Companion.ENGINE
@@ -57,7 +58,7 @@ internal class CanonClassesTest {
     engine
         .allSuperclasses()
         .classNames()
-        .shouldContainExactlyInAnyOrder(COMPONENT, ACTOR, cn("System"), cn("Engine"))
+        .shouldContainExactlyInAnyOrder(COMPONENT, HIDDEN, ACTOR, cn("System"), cn("Engine"))
     (actor glb owner) shouldBe player
   }
 

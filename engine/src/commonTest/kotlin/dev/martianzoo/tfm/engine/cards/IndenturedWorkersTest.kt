@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -45,7 +46,7 @@ class IndenturedWorkersTest : CardTest() {
     with(p1) {
       playProject("IndenturedWorkers", 0)
 
-      manual("Generation") // use it or lose it!
+      game.tfm(ENGINE).manual("Generation") // use it or lose it!
       playProject("Soletta", 35)
     }
   }

@@ -17,5 +17,7 @@
   Pets syntax such as `AS Engine { GlobalParameter! }`.
 - The World Government operation should originate from Pets behavior, probably through a Solar
   Phase signal that `StartToken` or another suitable component responds to.
-- Investigate replacing the engine-manufactured `BY Owner` encoding with an explicit representation
-  for contextual Owner binding. Authored `BY` must remain only an Actor filter.
+- Owned effects on ordinary unowned components use the icon-grammar default of responding only to
+  their Owner. World Government changes are performed by `Engine`, so they do not trigger those
+  effects; authored `BY Anyone` effects still do. Engine-only `System` components such as phases
+  and generations are actor-independent instead.

@@ -13,8 +13,9 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
   override val help =
       """
         Shows everything that has happened in the current game (`log full`) or just the more
-        interesting bits (i.e., filtering out Task changes, and filtering out changes to System
-        components -- just like the default output after `exec` or `task` does).
+        interesting bits (i.e., filtering out Task changes, and filtering out changes to Hidden
+        components other than phases -- just like the default output after `exec` or `task`
+        does).
       """
   override val isReadOnly = true
 
@@ -24,7 +25,7 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
   override fun noArgs() =
       repl.game.events
           .changesSinceSetup()
-          .filterNot { repl.isSystem(it, repl.game.reader) }
+          .filterNot { repl.isHidden(it, repl.game.reader) }
           .toStrings()
 
   override fun withArgs(args: String): List<String> {

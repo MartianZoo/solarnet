@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.NONE
@@ -43,10 +44,14 @@ class NewPromoCardsTest : CardTest() {
     val game = newGame("BMX", 2)
     val owner = game.tfm(PLAYER1)
     val other = game.tfm(PLAYER2)
+    val engine = game.gameplay(ENGINE).godMode()
     owner.sneak("HomeostasisBureau")
     val moneyBefore = owner.count("Megacredit")
+
     other.manual("TemperatureStep")
+    engine.manual("TemperatureStep")
     owner.count("Megacredit") shouldBe moneyBefore
+
     owner.manual("TemperatureStep").expect("3 Megacredit")
   }
 

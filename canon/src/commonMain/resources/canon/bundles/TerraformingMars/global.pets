@@ -47,10 +47,10 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 }
 
 "Tells what generation we're in; mostly matters in solo games"
-CLASS Generation { This:: -GenerationsLeft. }
+CLASS Generation : System { This:: -GenerationsLeft. }
 
 "Lets selected variants initialize state immediately before generation 1 begins"
-CLASS GenerationSetup : Signal
+CLASS GenerationSetup : Signal, System
 
 "The number of generations remaining in a solo game"
 CLASS GenerationsLeft
@@ -59,7 +59,7 @@ CLASS GenerationsLeft
 ABSTRACT CLASS Generational { Generation:: -This. }
 
 "The current game phase; exactly one exists from the start of SetupPhase onward"
-ABSTRACT CLASS Phase : AutoLoad {
+ABSTRACT CLASS Phase : AutoLoad, System {
   HAS =1 Phase                                         // weird that this works, but it does
 
   CLASS SetupPhase
@@ -83,4 +83,4 @@ ABSTRACT CLASS Phase : AutoLoad {
 }
 
 "This Signal causes components to pay out victory points, after which the game terminates"
-CLASS End : Signal
+CLASS End : Signal, System

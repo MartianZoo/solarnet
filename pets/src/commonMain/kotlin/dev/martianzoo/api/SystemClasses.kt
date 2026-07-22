@@ -24,6 +24,7 @@ public object SystemClasses {
   public val CUSTOM = cn("Custom")
   public val COMPONENT = cn("Component")
   public val DIE = cn("Die")
+  public val HIDDEN = cn("Hidden")
   public val OK = cn("Ok")
   public val SIGNAL = cn("Signal")
   public val SYSTEM = cn("System")

@@ -7,32 +7,37 @@ ABSTRACT CLASS Component {
 "An entity that can initiate or continue game operations"
 ABSTRACT CLASS Actor
 
-"Has no real gameplay meaning; a class extends it just to be less user-visible in logs etc."
-ABSTRACT CLASS System {
+"Implementation detail normally omitted from user-facing output"
+ABSTRACT CLASS Hidden
+
+"Engine-only machinery; unowned occurrences are independent of any Player Actor"
+ABSTRACT CLASS System : Hidden {
+  This BY Player:: Die
+
   "Magic rules: only a class name can go inside `<>`; `Class<Foo>` is concrete iff `Foo` is"
   CLASS Class<Component> { HAS =1 This }
 
-  "Anything that cannot exist after the task queue clears (i.e., the action ends)"
-  ABSTRACT CLASS Temporary {
-    // This: (MAX 0 Temporary: Ok)                     // technically right but too visible
-
-    "A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
-    ABSTRACT CLASS Signal {
-      This:: -This!
-
-      "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
-      CLASS Ok : AutoLoad
-
-      "A component you can't create; the task queue will refuse to enqueue an attempt to"
-      CLASS Die { HAS MAX 0 This }
-    }
-
-    "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
-    ABSTRACT CLASS Barrier
-  }
-
   "The very first component created, which kicks the rest off and performs system operations"
   CLASS Engine : Actor { HAS MAX 1 This }
+}
+
+"Anything that cannot exist after the task queue clears (i.e., the action ends)"
+ABSTRACT CLASS Temporary : Hidden {
+  // This: (MAX 0 Temporary: Ok)                     // technically right but too visible
+
+  "A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
+  ABSTRACT CLASS Signal {
+    This:: -This!
+
+    "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
+    CLASS Ok : AutoLoad
+
+    "A component you can't create; the task queue will refuse to enqueue an attempt to"
+    CLASS Die { HAS MAX 0 This }
+  }
+
+  "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
+  ABSTRACT CLASS Barrier
 }
 
 "A class extends this to make sure it is always loaded even if never referenced by anything"

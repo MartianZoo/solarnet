@@ -245,6 +245,15 @@ These can be wrapped:
 - `XTrigger` — triggers that can match multiple times at once (e.g. Manutech, if raising production
   5 steps, get 5 resources, without processing those as individual state changes)
 
+An effect belonging to an `Owned` component responds only to its Owner when it subscribes to an
+unowned component and has no authored `BY`. This is the Pets form of the published game's ordinary
+(non-red-outline) trigger icon. An authored `BY Anyone` is unrestricted. Unowned `System`
+components represent engine-only machinery, so the Actor that caused their occurrence does not
+implicitly restrict their subscribers; Players are also prohibited from creating them. `Hidden`
+is separate: it controls whether an implementation component normally appears in user-facing
+output. `System` extends `Hidden`, while `Signal` is hidden without necessarily being engine-only.
+These rules affect subscription matching and do not rewrite the authored effect.
+
 For "self" triggers (`WhenGain`/`WhenRemove`), the effect fires immediately when the component
 that carries it is the thing being gained/removed. For "other" triggers (`OnGainOf`/`OnRemoveOf`),
 the effector checks all registered active effects against each new change event.

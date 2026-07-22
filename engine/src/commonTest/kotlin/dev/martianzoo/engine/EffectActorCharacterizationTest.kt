@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
@@ -7,8 +8,20 @@ import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 class EffectActorCharacterizationTest {
+  @Test
+  fun playersCannotCreateSystemComponents() {
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val player = game.gameplay(PLAYER1).godMode()
+
+    assertFailsWith<DeadEndException> { player.manual("Generation") }
+    game.gameplay(ENGINE).godMode().manual("Generation")
+
+    player.count("Generation") shouldBe 1
+  }
+
   @Test
   fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerAReward() {
     val game = Engine.newGame(Canon.fromOptionCodes("BE", 2))
