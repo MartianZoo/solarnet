@@ -2,6 +2,7 @@ package dev.martianzoo.script
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.HIDDEN
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
@@ -237,6 +238,11 @@ public class ScriptSession(
     GREEN("Operation integrity: clear task queue before starting new operation", PLANT),
     BLUE("Turn integrity: must perform a valid game turn for this phase", OCEAN_TILE),
     PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),
+  }
+
+  internal fun actor(name: String): Actor {
+    if (name == ENGINE.toString()) return ENGINE
+    return player(name)
   }
 
   internal fun player(name: String): Player {

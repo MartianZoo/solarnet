@@ -13,13 +13,12 @@ internal class AutoCommand(private val repl: ScriptSession) : ScriptCommand("aut
   override val usage = "auto [none|safe|first]"
   override val help =
       """
-        TODO fix this
-        Turns auto-execute mode on or off, or just `auto` tells you what mode you're in. When you
-        initiate an instruction with `exec` or `task`, per the game rules you get to choose which
-        resulting task to do next. But that's a pain, so when `auto` is `on` (as it is by default)
-        the REPL makes arbitrary, reproducible choices among the tasks it can execute, and leaves a
-        task on the queue only if it can't run correctly. This setting is sticky
-        until you `exit` or `rebuild`, even across games.
+        Controls how eagerly the engine executes pending tasks. `none` leaves every task for you.
+        `safe` executes a task only when no other task could currently succeed, preserving every
+        choice allowed by the game. `first` also makes arbitrary, reproducible choices when several
+        tasks could succeed; this is convenient, but it can make suboptimal moves. With no argument,
+        `auto` reports the current mode. The setting is sticky until you `exit` or `rebuild`, even
+        across games.
       """
 
   override fun noArgs() = listOf("Autoexec mode is: ${repl.gameplay.autoExecMode}")

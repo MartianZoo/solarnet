@@ -25,7 +25,7 @@ internal class BecomeCommand(private val repl: ScriptSession) : ScriptCommand("b
   }
 
   override fun withArgs(args: String): List<String> {
-    repl.gameplay = repl.game.gameplay(repl.player(args)) as TurnLayer
+    repl.gameplay = repl.game.gameplay(repl.actor(args)) as TurnLayer
     return listOf("Hi, ${repl.gameplay.actor}")
   }
 }

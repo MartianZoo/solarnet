@@ -31,10 +31,9 @@ internal class AsCommand(private val repl: ScriptSession) : ScriptCommand("as") 
   override fun withArgs(args: String): List<String> {
     val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
-    // TODO Better way to do it??
     val saved = repl.gameplay
     return try {
-      repl.gameplay = repl.game.gameplay(repl.player(player)) as TurnLayer
+      repl.gameplay = repl.game.gameplay(repl.actor(player)) as TurnLayer
       repl.command(rest)
     } finally {
       repl.gameplay = saved
