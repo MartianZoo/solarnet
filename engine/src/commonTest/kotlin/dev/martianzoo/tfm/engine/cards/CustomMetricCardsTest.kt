@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.DependencyException
+import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
@@ -72,6 +74,7 @@ internal class CustomMetricCardsTest : CardTest() {
   @Test
   fun miningAreaProducesTheResourcePrintedOnItsChosenArea() {
     val steelPlayer = newGame(Canon.fromOptionCodes("BRM", 2)).tfm(PLAYER1)
+    steelPlayer.manual("CityTile<Tharsis_2_1>")
 
     steelPlayer
         .manual("MiningArea") {
@@ -80,6 +83,7 @@ internal class CustomMetricCardsTest : CardTest() {
         .expect("2 Steel, PROD[Steel]")
 
     val titaniumPlayer = newGame(Canon.fromOptionCodes("BRM", 2)).tfm(PLAYER1)
+    titaniumPlayer.manual("CityTile<Tharsis_7_9>")
     titaniumPlayer
         .manual("MiningArea") {
           doTask("MiningAreaTile<Tharsis_8_9>")
@@ -90,7 +94,6 @@ internal class CustomMetricCardsTest : CardTest() {
   @Test
   fun miningRightsProducesTheResourceOnItsChosenArea() {
     val p1 = newGame(Canon.fromOptionCodes("BM", 2)).tfm(PLAYER1)
-    p1.manual("CityTile<Tharsis_2_1>")
 
     p1.manual("MiningRights") {
           doTask("MiningRightsTile<Tharsis_1_1>")
@@ -98,6 +101,29 @@ internal class CustomMetricCardsTest : CardTest() {
         .expect("2 Steel, PROD[Steel]")
 
     p1.count("PROD[Titanium]") shouldBe 0
+  }
+
+  @Test
+  fun miningAreaRequiresAnAdjacentOwnedTile() {
+    val p1 = newGame(Canon.fromOptionCodes("BRM", 2)).tfm(PLAYER1)
+
+    shouldThrow<DependencyException> {
+      p1.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_1_1>") }
+    }
+  }
+
+  @Test
+  fun miningCardsRejectAreasWithoutMetalBonuses() {
+    val areaPlayer = newGame(Canon.fromOptionCodes("BRM", 2)).tfm(PLAYER1)
+    areaPlayer.manual("CityTile<Tharsis_2_1>")
+    shouldThrow<NotNowException> {
+      areaPlayer.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_3_2>") }
+    }
+
+    val rightsPlayer = newGame(Canon.fromOptionCodes("BM", 2)).tfm(PLAYER1)
+    shouldThrow<NotNowException> {
+      rightsPlayer.manual("MiningRights") { doTask("MiningRightsTile<Tharsis_2_1>") }
+    }
   }
 
   @Test

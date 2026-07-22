@@ -37,8 +37,6 @@ Priorities appear in parentheses. An item without a priority has the default pri
   the bonus is ignored.
 - Make Head Start completely drain the tasks produced by its first independently selected action
   before the player may select its second independently selected action.
-- Check whether Mining Area and Mining Rights have their placement rules switched. Add focused
-  tests for both cards, including rejection of an area with no steel or titanium bonus.
 - [Issue #28: AMAP and ocean tiles](https://github.com/MartianZoo/solarnet/issues/28) — Make existing
   `.` try amounts from the requested maximum down to zero, choosing the greatest amount that lets
   the containing action finish; if zero does not help, the action still fails. Use this for optional

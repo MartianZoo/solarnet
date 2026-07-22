@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Multi
@@ -60,6 +61,7 @@ object Prod {
                 }
                 inner
               }
+              inProd && node is Expression && node.className == CLASS -> node
               inProd && node is Expression && node.className in classNames ->
                   PRODUCTION.of(node.arguments + node.className.classExpression())
               else -> transformChildren(node)

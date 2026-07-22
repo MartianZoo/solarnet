@@ -1565,7 +1565,7 @@
       "id": "067",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": "MiningRightsTile<LandArea(HAS Neighbor<OwnedTile>)> THEN (LandArea(HAS MiningRightsTile, MapBonus<Class<Steel>>): PROD[Steel] OR LandArea(HAS MiningRightsTile, MapBonus<Class<Titanium>>): PROD[Titanium])",
+      "immediate": "MiningRightsTile THEN PROD[(LandArea(HAS MiningRightsTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRightsTile, MapBonus<Class<Titanium>>): Titanium)]",
       "components": [ "CLASS MiningRightsTile : SpecialTile" ],
       "cost": 9,
       "projectKind": "AUTOMATED"
