@@ -10,8 +10,11 @@ data class GameOptions(
     /** Enabled game-rule and content options, identified by their Pets class names. */
     val enabled: Set<ClassName>,
 
-    /** Exact colony tiles to use; empty when the Colonies option is not enabled. */
+    /** Exact colony tiles to use; empty when selection is deferred or Colonies is not enabled. */
     val colonyTiles: Set<ClassName> = emptySet(),
+
+    /** Whether colony tiles will be added through gameplay instructions during setup. */
+    val deferredColonySelection: Boolean = false,
 ) {
   init {
     require(players in 1..5) { "player count not supported: $players" }

@@ -7,11 +7,15 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.api.tfmRuleset
 
 internal val coloniesCustomClasses: Set<CustomClass> =
-    setOf(ColoniesExpansion.AddColonyTile, ColoniesExpansion.ColoniesSetup)
+    setOf(
+        ColoniesExpansion.AddColonyTile,
+        ColoniesExpansion.ColoniesSetup,
+    )
 
 /** Namespace for Colonies' custom Pets implementations. */
 internal object ColoniesExpansion {
@@ -29,16 +33,27 @@ internal object ColoniesExpansion {
 
   internal object ColoniesSetup : CustomClass() {
     override fun translate(reader: GameReader): Instruction {
-      val tileInstructions =
-          reader.setup.colonyTiles.map {
-            parse<Instruction>("AddColonyTile<Class<${it.className}>>")
-          }
       val fleetInstructions =
           reader.setup.players().mapIndexed { index, player ->
             val letter = 'A' + index
             parse<Instruction>("TradeFleet$letter<$player>")
           }
+      if (reader.setup.options.deferredColonySelection) {
+        val tileChoices =
+            List(expectedColonyTileCount(reader)) {
+              parse<Instruction>("AddColonyTile<Class<ColonyTile>>")
+            }
+        return Multi.create(tileChoices + fleetInstructions)
+      }
+
+      val tileInstructions =
+          reader.setup.colonyTiles.map {
+            parse<Instruction>("AddColonyTile<Class<${it.className}>>")
+          }
       return Then.create(tileInstructions + fleetInstructions)
     }
   }
+
+  private fun expectedColonyTileCount(reader: GameReader): Int =
+      if (reader.setup.players == 2) 5 else reader.setup.players + 2
 }

@@ -10,7 +10,6 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
-import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
@@ -55,7 +54,6 @@ import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 import dev.martianzoo.types.MType
-import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 
 public class ScriptSession(
@@ -79,17 +77,16 @@ public class ScriptSession(
     }
   }
 
-  /** Adapts the REPL's option-code syntax, including its temporary random-colony convenience. */
-  internal fun newGame(optionCodes: String, players: Int, purple: Boolean = false) {
+  /** Adapts the REPL's option-code syntax, deferring colony selection to setup instructions. */
+  internal fun newGame(
+      optionCodes: String,
+      players: Int,
+      purple: Boolean = false,
+  ) {
     val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
     var options = Canon.options(effectiveCodes, players)
     if (cn("ColoniesExpansion") in options) {
-      val ruleset = Canon.resolve(Canon.bundleNames(options))
-      val colonyCount = if (players <= 2) players + 3 else players + 2
-      options =
-          options.copy(
-              colonyTiles = random(ruleset.colonyTileDefinitions.classNames(), colonyCount)
-          )
+      options = options.copy(deferredColonySelection = true)
     }
     newGame(Canon.gameSetup(options), purple)
   }

@@ -78,6 +78,7 @@ CLASS AddColonyTile<Class<ColonyTile>> : Custom, AutoLoad
 
 "If a ColonyTile gives card resources, one of these is created first instead"
 CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> : AutoLoad {
+  HAS MAX 1 This
   This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This // thanks Aridor
   ResourceCard<Class<CardResource>>: ColonyTile FROM This
 }

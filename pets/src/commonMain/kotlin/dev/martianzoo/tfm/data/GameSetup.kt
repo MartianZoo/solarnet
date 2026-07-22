@@ -28,12 +28,21 @@ data class GameSetup(
     }
     val expectedColonyCount = if (players <= 2) players + 3 else players + 2
     if (COLONIES_EXPANSION in options) {
-      require(options.colonyTiles.size == expectedColonyCount) {
-        "ColoniesExpansion requires exactly $expectedColonyCount colony tiles"
+      if (options.deferredColonySelection) {
+        require(options.colonyTiles.isEmpty()) {
+          "deferred colony selection cannot also specify colony tiles"
+        }
+      } else {
+        require(options.colonyTiles.size == expectedColonyCount) {
+          "ColoniesExpansion requires exactly $expectedColonyCount colony tiles"
+        }
       }
     } else {
       require(options.colonyTiles.isEmpty()) {
         "colony tiles require the ColoniesExpansion option"
+      }
+      require(!options.deferredColonySelection) {
+        "deferred colony selection requires the ColoniesExpansion option"
       }
     }
   }

@@ -59,6 +59,8 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
           }
           null -> repl.gameplay.tryTask(id)
           else ->
+              // TODO: Route this through gameplay's outer atomic boundary so revising to Ok can
+              // resume an automatic workflow when it removes the final queued task.
               repl.game.timeline.atomic {
                 repl.gameplay.reviseTask(id, rest)
                 if (id in repl.game.tasks) repl.gameplay.tryTask(id)

@@ -17,6 +17,68 @@ internal class ScriptSessionTest {
       line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
 
   @Test
+  fun newGameDefersColonySelection() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf("New 2-player game created with options: BRMCX"),
+        repl.command("newgame BRMCX 2"),
+    )
+    assertTrue(repl.setup.options.deferredColonySelection)
+    assertTrue(repl.setup.options.colonyTiles.isEmpty())
+    assertEquals(listOf("0 Ceres"), repl.command("count Ceres"))
+    assertEquals(listOf("0 Io"), repl.command("count Io"))
+    assertEquals(listOf("0 Titan"), repl.command("count Titan"))
+    val colonyTaskIds =
+        repl.game.tasks
+            .extract {
+              if (it.instruction.toString().startsWith("AddColonyTile")) it.id else null
+            }
+            .filterNotNull()
+    colonyTaskIds.zip(listOf("Ceres", "Io", "Titan", "Luna", "Pluto")).forEach { (id, tile) ->
+      repl.command("task $id AddColonyTile<Class<$tile>>")
+    }
+    repl.command("phase Corporation")
+  }
+
+  @Test
+  fun purpleModeSelectsColoniesAsSetupTasks() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf(
+            "New 1-player game created with options: BRMCS",
+            "Purple mode: workflow active",
+            "NOTE: Solo world-government terraforming and victory checking remain manual.",
+        ),
+        repl.command("newgame BRMC 1 purple"),
+    )
+
+    val colonyTaskIds =
+        repl.game.tasks
+            .extract {
+              if (it.instruction.toString().startsWith("AddColonyTile")) it.id else null
+            }
+            .filterNotNull()
+    assertEquals(3, colonyTaskIds.size)
+    repl.command("task ${colonyTaskIds[0]} AddColonyTile<Class<Ceres>>")
+    repl.command("task ${colonyTaskIds[1]} AddColonyTile<Class<Io>>")
+    repl.command("task ${colonyTaskIds[2]} AddColonyTile<Class<Titan>>")
+    repl.command("task N CityTile<Tharsis_2_4, Opponent>")
+    repl.command("task GreeneryTile<Tharsis_2_3, Opponent>")
+    repl.command("task CityTile<Tharsis_8_7, Opponent>")
+    repl.command("task GreeneryTile<Tharsis_8_6, Opponent>")
+
+    assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
+    assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
+    assertEquals(listOf("1 Io"), repl.command("count Io"))
+    assertEquals(
+        listOf("1 DelayedColonyTile<Class<Titan>>"),
+        repl.command("count DelayedColonyTile<Class<Titan>>"),
+    )
+  }
+
+  @Test
   fun testBasicRunthrough() {
     val repl = ScriptSession()
 

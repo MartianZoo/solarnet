@@ -198,6 +198,13 @@ Priorities appear in parentheses. An item without a priority has the default pri
 
 ### Diagnostics and Tooling
 
+- Make `task <id> Ok` notify an active workflow when revising the final optional task removes it.
+  The id-less `task Ok` path already crosses the gameplay atomic-completion boundary correctly.
+- Make `as Engine ...` honor its documented behavior; it currently routes `Engine` through the
+  player-only resolver and fails, while bare `become` correctly selects the engine actor.
+- Diagnose why the Kotlin/JS production executable misparses the final `Atomized` declaration in
+  `pets/system.pets` while the development executable and JS browser tests parse it correctly. Add
+  a smoke test that loads the production browser distribution before using it for deployment.
 - Improve parser errors in the maintained better-parse fork where appropriate: consolidate typed
   `parse(KClass, ...)` validation and local `myThrow` flatteners, and add structured alternatives
   and source locations rather than merely rearranging wrappers.
