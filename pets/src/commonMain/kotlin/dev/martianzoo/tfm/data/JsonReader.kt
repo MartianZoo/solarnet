@@ -101,15 +101,16 @@ public object JsonReader {
             code: String,
             legend: Legend,
         ): AreaDefinition? {
-          if (code.isEmpty()) return null
+          val compactCode = code.filterNot { it.isWhitespace() }
+          if (compactCode.isEmpty()) return null
           return AreaDefinition(
               mapName,
               areaShortNamePrefix,
               row0Index + 1,
               col0Index + 1,
-              legend.getType(code),
-              legend.getBonus(code),
-              code,
+              legend.getType(compactCode),
+              legend.getBonus(compactCode),
+              compactCode,
           )
         }
 

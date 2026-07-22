@@ -1,0 +1,2 @@
+"The Terra Cimmeria map bundle"
+CLASS TerraCimmeriaMap : System { HAS =1 This }

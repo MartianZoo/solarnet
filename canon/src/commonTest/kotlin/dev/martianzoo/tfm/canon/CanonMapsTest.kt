@@ -16,6 +16,13 @@ internal class CanonMapsTest {
 
   @Test fun testElysium() = checkMap(Canon.marsMap(cn("Elysium")))
 
+  @Test
+  fun testTerraCimmeria() {
+    val map = Canon.fromOptionCodes("BI", 2).map
+    map.className shouldBe cn("TerraCimmeria")
+    checkMap(map)
+  }
+
   private fun checkMap(map: MarsMapDefinition) {
     fun hasAtLeast5(it: Iterable<*>) = it.count { it != null } >= 5
 

@@ -15,6 +15,7 @@ public object Canon :
         StandardFormBundle("TharsisMap", areaShortNamePrefix = "M"),
         StandardFormBundle("HellasMap", areaShortNamePrefix = "H"),
         StandardFormBundle("ElysiumMap", areaShortNamePrefix = "E"),
+        StandardFormBundle("TerraCimmeriaMap", areaShortNamePrefix = "I"),
         StandardFormBundle("VenusNextExpansion"),
         StandardFormBundle("PreludeExpansion", preludeCustomClasses),
         StandardFormBundle("ColoniesExpansion", coloniesCustomClasses),
@@ -68,7 +69,7 @@ public object Canon :
   public val supportedOptionCodes: Set<String>
     get() = OPTIONS_BY_CODE.keys
 
-  public val mapOptionCodes: Set<String> = setOf("E", "H", "M")
+  public val mapOptionCodes: Set<String> = setOf("E", "H", "I", "M")
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val SOLO_MODE = cn("SoloMode")
@@ -76,6 +77,7 @@ public object Canon :
   private val THARSIS_MAP = cn("TharsisMap")
   private val HELLAS_MAP = cn("HellasMap")
   private val ELYSIUM_MAP = cn("ElysiumMap")
+  private val TERRA_CIMMERIA_MAP = cn("TerraCimmeriaMap")
   private val VENUS_NEXT = cn("VenusNextExpansion")
   private val PRELUDE = cn("PreludeExpansion")
   private val COLONIES = cn("ColoniesExpansion")
@@ -90,6 +92,7 @@ public object Canon :
           "M" to THARSIS_MAP,
           "H" to HELLAS_MAP,
           "E" to ELYSIUM_MAP,
+          "I" to TERRA_CIMMERIA_MAP,
           "V" to VENUS_NEXT,
           "P" to PRELUDE,
           "C" to COLONIES,
@@ -105,6 +108,7 @@ public object Canon :
           THARSIS_MAP to THARSIS_MAP,
           HELLAS_MAP to HELLAS_MAP,
           ELYSIUM_MAP to ELYSIUM_MAP,
+          TERRA_CIMMERIA_MAP to TERRA_CIMMERIA_MAP,
           VENUS_NEXT to VENUS_NEXT,
           PRELUDE to PRELUDE,
           COLONIES to COLONIES,

@@ -19,9 +19,9 @@ internal class MarsMapDefinitionTest {
           "maps": [{
             "name": "Demo",
             "rows": [
-              [ "VS", "L" ],
+              [ " V S ", "L" ],
               [ "V2P", "WPP", "WPC" ],
-              [ "", "LSS", "LC" ],
+              [ "   ", "LSS", "LC" ],
             ]
           }]
         }"""
@@ -32,5 +32,7 @@ internal class MarsMapDefinitionTest {
     map.className shouldBe cn("Demo")
     map.asClassDeclaration.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("MarsMap"))
     map.areas.shouldHaveSize(7)
+    map.areas[1, 1]!!.code shouldBe "VS"
+    map.areas[1, 1]!!.bonusText shouldBe "Steel"
   }
 }

@@ -1,0 +1,48 @@
+{
+  "legend": {
+    "L": "LandArea",
+    "W": "WaterArea",
+    "V": "VolcanicArea",
+
+    "P": "Plant",
+    "S": "Steel",
+    "T": "Titanium",
+    "C": "ProjectCard",
+  },
+
+  "maps": [
+    {
+      "name": "TerraCimmeria",
+      "rows": [
+        [
+                                               "W"  ,  "LP" ,  "VS" ,  "LP" , "WPP"
+
+        ], [
+                                          "WTT" ,  "L"  ,  "L"  ,  "L"  , "LPS" ,  "WP"
+
+        ], [
+                                       "L"  ,  "L"  ,  "L"  ,  "L"  ,  "L"  ,  "LP" ,  "L"
+
+        ], [
+                                   "VS" ,  "L"  ,  "LS" ,  "L"  , "LSS" ,  "L"  , "VTT" ,  "LC"
+
+        ], [
+                               "L"  ,  "L"  ,  "L"  ,  "LS" ,  "LS" ,  "LC" ,  "L"  , "LSC" ,  "W"
+
+        ], [
+                            ""  , "VCC" ,  "L"  , "LTSS",  "L"  ,  "LT" , "LSS" ,  "L"  , "LSS"
+
+        ], [
+                        ""  ,   ""  , "LPP" ,  "LT" ,  "L"  , "LPSS", "LPP" ,  "LP" , "WPP"
+
+        ], [
+                    ""  ,   ""  ,   ""  ,  "W"  ,  "LP" ,  "LT" ,  "LC" , "LPP" , "WPP"
+
+        ], [
+                ""  ,   ""  ,   ""  ,   ""  , "WPP" ,  "WP" ,  "WP" ,  "LP" ,  "WP"
+
+        ]
+      ]
+    },
+  ],
+}

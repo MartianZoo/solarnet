@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -124,6 +125,23 @@ internal class CustomMetricCardsTest : CardTest() {
     shouldThrow<NotNowException> {
       rightsPlayer.manual("MiningRights") { doTask("MiningRightsTile<Tharsis_2_1>") }
     }
+  }
+
+  @Test
+  fun miningRightsOnBothMetalsCanChooseAgainWhenCopied() {
+    // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
+    val p1 = newGame(Canon.fromOptionCodes("BRI", 2)).tfm(PLAYER1)
+
+    p1.manual("MiningRights") {
+          doTask("MiningRightsTile<TerraCimmeria_6_4>")
+          doTask("PROD[Steel]")
+        }
+        .expect("Titanium, 2 Steel, PROD[Steel]")
+
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    manual.beginManual("RoboticWorkforce")
+    manual.reviseTask(game.tasks.ids().single(), "CopyProductionBox<MiningRights>")
+    manual.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 
   @Test
