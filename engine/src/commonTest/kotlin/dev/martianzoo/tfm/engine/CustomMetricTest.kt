@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
+import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
@@ -63,8 +64,17 @@ internal class CustomMetricTest {
     p1.count("SplitBehavior") shouldBe 9
     p1.godMode().manual("SplitBehavior")
     p1.count("Heat") shouldBe 1
+  }
 
-    p1.count("AbstractAwareMetric<Component>") shouldBe 13
+  @Test
+  fun abstractArgumentsAreRejectedBeforeInvokingTheImplementation() {
+    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+
+    val invocationsBefore = ConcreteOnlyMetric.invocations
+    p1.count("ConcreteOnlyMetric<Player1>") shouldBe 17
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 1
+    shouldThrow<AbstractException> { p1.count("ConcreteOnlyMetric<Player>") }
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 1
   }
 }
 
@@ -86,9 +96,14 @@ private object SplitMetricImplementation {
   }
 }
 
-private object AbstractAwareMetric : CustomMetric() {
-  override fun count(game: GameReader, type: Type): Int =
-      if (game.resolve(type.expressionFull.arguments.single()).abstract) 13 else 17
+private object ConcreteOnlyMetric : CustomMetric() {
+  var invocations = 0
+    private set
+
+  override fun count(game: GameReader, type: Type): Int {
+    invocations++
+    return 17
+  }
 }
 
 private object CustomClassDeclarations : TfmRuleset.Empty() {
@@ -97,7 +112,7 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
               """
               CLASS BothBehavior : Custom, AutoLoad
               CLASS SplitBehavior : Custom, AutoLoad
-              CLASS AbstractAwareMetric<Component> : Custom, AutoLoad
+              CLASS ConcreteOnlyMetric<Player> : Custom, AutoLoad
               """
                   .trimIndent()
           )
@@ -108,7 +123,7 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
           BothBehavior,
           SplitInstructionImplementation.SplitBehavior,
           SplitMetricImplementation.SplitBehavior,
-          AbstractAwareMetric,
+          ConcreteOnlyMetric,
       )
 }
 

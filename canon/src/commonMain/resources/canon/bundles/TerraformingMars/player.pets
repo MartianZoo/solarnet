@@ -76,4 +76,4 @@ ABSTRACT CLASS Owned<Anyone> {
 }
 
 "Moves an owned component to the next player in seat order"
-CLASS PassLeft<Owned> : Custom
+CLASS PassLeft<StartToken> : Custom

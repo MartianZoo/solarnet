@@ -62,7 +62,7 @@ internal class RulesetCompositionTest {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS MissingBootstrapDependency : AutoLoad
+                      CLASS MissingBootstrapDependency : AutoLoad { HAS MAX 1 This }
                       CLASS BlockedBootstrap<MissingBootstrapDependency> : AutoLoad {
                         HAS =1 This
                       }

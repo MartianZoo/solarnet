@@ -173,10 +173,10 @@ and the REPL `count` command. An ordinary `Metric.Count` delegates to the compon
 resolved expression's root is a `Custom` class with a `CustomMetric` implementation, the reader
 instead asks that implementation for its non-negative virtual count.
 
-The custom class itself must be concrete, but its dependency arguments need not be. The Kotlin
-implementation receives the resolved type and decides how abstract arguments, absent components,
-and refinements affect its answer. This permits metrics that aggregate over a dependency class
-without imposing one generic aggregation rule on every custom class.
+The custom class and each dependency argument passed to its Kotlin implementation must be concrete.
+The engine rejects unsupported abstract queries before invoking the implementation, so plugins do
+not need to repeat that validation. Custom metrics may still decide how absent components and
+refinements affect their answers.
 
 A ruleset registers custom classes by capability. One Kotlin object may supply both instruction
 and metric implementations, or two objects with the same Pets class name may supply the

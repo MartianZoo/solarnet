@@ -33,6 +33,25 @@ internal class Limiter(private val classes: MClassTable, private val components:
     multimap
   }
 
+  init {
+    val invalidDependencies =
+        classes.allClasses().mapNotNull { dependent ->
+          dependent.dependencies
+              .concreteDependencyTargets()
+              .firstOrNull { target ->
+                applicableRangeRestrictions(target).all { it.range.last > 1 }
+              }
+              ?.let { dependent to it }
+        }
+
+    check(invalidDependencies.isEmpty()) {
+      "Dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
+          invalidDependencies.joinToString("\n") { (dependent, target) ->
+            "  ${dependent.className} -> ${target.expressionFull}"
+          }
+    }
+  }
+
   private fun toRangeRestriction(it: Counting, mclass: MClass): RangeRestriction {
     var expr = it.scaledEx.expression
 
@@ -71,6 +90,10 @@ internal class Limiter(private val classes: MClassTable, private val components:
 
   internal fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
     val mtype = component?.type?.let { classes.resolve(it) } ?: return setOf()
+    return applicableRangeRestrictions(mtype)
+  }
+
+  private fun applicableRangeRestrictions(mtype: MType): Set<SimpleRangeRestriction> {
     val allRestrictions = rangeRestrictionsByClass[mtype.root] ?: listOf()
     val ourRestrictions = allRestrictions.mapNotNull {
       val simple = it.bindThisTo(mtype) ?: return@mapNotNull null

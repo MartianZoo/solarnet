@@ -56,6 +56,17 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   fun complementDependencies(): Set<ComplementDependency> =
       deps.filterIsInstance<ComplementDependency>().toSet()
 
+  internal fun concreteDependencyTargets(): Sequence<MType> =
+      (typeDependencies().asSequence() + complementDependencies().asSequence())
+          .flatMap {
+            when (it) {
+              is TypeDependency -> it.allConcreteSpecializations()
+              is ComplementDependency -> it.allConcreteSpecializations()
+              else -> error("Unexpected dependency: $it")
+            }
+          }
+          .map { it.boundType }
+
   val keys: Set<Key> = deps.toSetStrict { it.key }
 
   fun expressions(): List<Expression> = deps.map { it.expression }

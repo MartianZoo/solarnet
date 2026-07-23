@@ -58,6 +58,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Engine Safety and Maintainability
 
+- Make abstract custom metrics automatically enumerate concrete dependency specializations satisfying their refinements, invoke the custom implementation for each fully concrete type, and sum the results.
+- Give custom implementations an explicit declaration of the types they require so loading the custom class also loads those types.
 - Replace or constrain `doFirstTask()`; require an id/match unless exactly one task applies.
 - Validate every shared `X` in a `THEN` against one multiplier without traversal-order zipping.
 - Add `setXTo(n)`-style test/task refinement. And `setTo(from, to)`.
@@ -67,7 +69,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Decide whether turn/action signals are generic engine protocol or Terraforming Mars rules, then colocate declarations and interpretation.
 - Make only choice-free setup effects automatic; consider immediate `Photosynthesis` creation. (Later)
 - Finish separating Canon selectors/providers from selected rulesets; never read an unselected bundle's payload.
-- Define abstract-custom-root aggregation semantics, or keep such roots invalid.
 - Preserve `Opponent` when narrowing only a queued solo tile's area.
 - Explain or remove `Initializer`'s synthetic mandatory intensity.
 - Remove whole-game-empty queue assumptions from Head Start helpers/tests.

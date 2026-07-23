@@ -54,6 +54,13 @@ We can see that:
 
 These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing), or more commonly just `GreeneryTile<Player1>`. We can always omit a dependency when it would be the same as that dependency's upper bound.
 
+The component graph identifies each dependency by its concrete type rather than by a separate
+instance identity. Therefore every concrete type admitted by a dependency must have an applicable
+upper bound of one, normally from `HAS =1 This` or `HAS MAX 1 This`. A stronger aggregate upper
+bound of one that covers the concrete type is also sufficient. When the engine constructs its
+limiter, it enumerates every concrete specialization of every dependency and rejects the ruleset
+before game initialization if any target violates this rule.
+
 ### Variance
 
 All Pets types are implicitly **covariant**. One subtype of `Tile<Area>` is `CityTile<Area>`; another is `Tile<LandArea>`, and subtyping both of *those* we have `CityTile<LandArea>`.

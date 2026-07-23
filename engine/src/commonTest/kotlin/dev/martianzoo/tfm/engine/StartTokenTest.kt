@@ -43,21 +43,6 @@ class StartTokenTest {
   }
 
   @Test
-  fun passLeftMovesAllOccurrencesAndPreservesAnotherDependency() {
-    val engine = setUpGame("BRMC", 3, TestHelpers.testColonyTiles(3, "Luna")).tfm(ENGINE)
-
-    engine.godMode().sneak("2 Colony<Luna, Player1>")
-    engine.godMode().manual("PassLeft<Colony<Luna, Player1>>")
-
-    engine.assertCounts(
-        0 to "Colony<Luna, Player1>",
-        2 to "Colony<Luna, Player2>",
-        0 to "Colony<Player1>",
-        2 to "Colony<Player2>",
-    )
-  }
-
-  @Test
   fun autoWorkflowReadsTheTokenOwner() {
     val setup = Canon.fromOptionCodes("BRHX", 2)
     val game = Engine.newGame(setup)

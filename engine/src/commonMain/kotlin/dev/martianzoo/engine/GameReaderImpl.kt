@@ -74,7 +74,7 @@ internal class GameReaderImpl(
     val implementation =
         classes.ruleset.customMetric(type.className)
             ?: error("Custom class `${type.className}` has no metric implementation")
-    if (type.root.abstract)
+    if (type.abstract)
         throw AbstractException("custom metric type is abstract: ${type.expressionFull}")
 
     return implementation.count(this, type).also {
