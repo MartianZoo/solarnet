@@ -14,6 +14,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost.Spend
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression
@@ -46,6 +47,7 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.PassLeft,
         TerraformingMars.MarsRow,
         TerraformingMars.CardCost,
+        TerraformingMars.CitationsIgnoringRemoves,
         TerraformingMars.CardRequirement,
         TerraformingMars.ClassCardRequirement,
         TerraformingMars.StandardProjectCost,
@@ -65,6 +67,37 @@ internal object TerraformingMars {
   internal object CardCost : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int =
         card(type.expressionFull.arguments.single(), game).cost
+  }
+
+  internal object CitationsIgnoringRemoves : CustomMetric() {
+    override fun count(game: GameReader, type: Type): Int {
+      val (cardExpression, targetExpression) = type.expressionFull.arguments
+      if (game.countComponent(game.resolve(cardExpression)) == 0) return 0
+      val effects = card(cardExpression, game).effects
+      val target = targetExpression.arguments.single().className
+      return effects.sumOf { it.citationsOutsideRemoval(target) }
+    }
+
+    private fun Effect.citationsOutsideRemoval(target: ClassName): Int {
+      var count = 0
+      visitDescendants { node ->
+        when {
+          node is Instruction.Change -> {
+            count +=
+                node.gaining?.descendantsOfType<Expression>()?.count {
+                  it.className == target
+                } ?: 0
+            false
+          }
+          node is Expression && node.className == target -> {
+            count++
+            true
+          }
+          else -> true
+        }
+      }
+      return count
+    }
   }
 
   internal object CardRequirement : CustomMetric() {

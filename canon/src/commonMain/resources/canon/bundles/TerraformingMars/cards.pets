@@ -34,6 +34,9 @@ ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed a
 "A virtual metric whose count is the printed megacredit cost of a card in play"
 CLASS CardCost<CardFront> : Custom
 
+"Counts a card effect's citations of the given class outside removal positions"
+CLASS CitationsIgnoringRemoves<CardFront, Class<Component>> : Custom
+
 "A virtual metric whose count is 1 when a card has a printed play requirement"
 CLASS CardRequirement<CardFront> : Custom
 

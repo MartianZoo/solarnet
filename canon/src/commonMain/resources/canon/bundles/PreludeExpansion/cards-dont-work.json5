@@ -1,18 +1,6 @@
 {
   "cards": [
 
-    // Vitor
-    {
-      "id": "PC5",
-      "deck": "CORPORATION",
-      "tags": [ "EarthTag" ],
-      "immediate": "45",
-      "effects": [
-         "CardFront(HAS positiveVpIcon): 3",
-         "DoMandate<This>: Award"
-      ]
-    },
-
     // Research Network
     {
       "id": "P28",
