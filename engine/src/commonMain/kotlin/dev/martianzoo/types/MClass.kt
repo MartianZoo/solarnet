@@ -30,6 +30,7 @@ import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
+import dev.martianzoo.types.DependencySet.DependencyPath
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
@@ -184,10 +185,94 @@ internal constructor(
     }
   }
 
+  private data class DependencyLink(
+      val expressions: Set<Expression>,
+      val paths: Set<DependencyPath>,
+  )
+
+  private val declaredDependencyLinks: List<DependencyLink> by lazy {
+    val occurrences = mutableMapOf<Pair<Expression, Key>, MutableSet<DependencyPath>>()
+
+    fun collectSpecializations(expression: Expression, prefix: List<Key>) {
+      if (expression.arguments.isEmpty()) return
+      val dependencySet = loader.load(expression.className).dependencies
+      val resolvedArguments =
+          expression.arguments.map(
+              replacer(THIS, className)::transform,
+          )
+      val matchedDependencies = dependencySet.matchPartialInOrder(resolvedArguments)
+      expression.arguments.zip(matchedDependencies).forEach { (argument, dependency) ->
+        val path = DependencyPath(prefix + dependency.key)
+        if (argument.simple && argument.className != THIS) {
+          occurrences.getOrPut(argument to dependency.key, ::mutableSetOf) += path
+        }
+        collectSpecializations(argument, path.keyList)
+      }
+    }
+
+    declaration.dependencies.forEachIndexed { index, expression ->
+      collectSpecializations(expression, listOf(Key(className, index)))
+    }
+    declaration.supertypes.forEach { collectSpecializations(it, listOf()) }
+
+    occurrences.mapNotNull { (binding, paths) ->
+      if (paths.size < 2) null else DependencyLink(setOf(binding.first), paths)
+    }
+  }
+
+  private val dependencyLinks: List<DependencyLink> by lazy {
+    val merged = mutableListOf<DependencyLink>()
+    (directSuperclasses.flatMap { it.dependencyLinks } + declaredDependencyLinks).forEach { link ->
+      val overlapping = merged.filter { it.paths.any(link.paths::contains) }
+      merged.removeAll(overlapping)
+      merged +=
+          DependencyLink(
+              expressions = link.expressions + overlapping.flatMap { it.expressions },
+              paths = link.paths + overlapping.flatMap { it.paths },
+          )
+    }
+    merged
+  }
+
+  private fun linkError(link: DependencyLink, dependencies: DependencySet): Nothing =
+      error(
+          "linked ${link.expressions.joinToString()} dependencies disagree in " +
+              className.of(dependencies.expressionsFull())
+      )
+
+  private fun normalizeLinkedDependencies(original: DependencySet): DependencySet {
+    var dependencies = original
+    var changed: Boolean
+    do {
+      changed = false
+      dependencyLinks.forEach { link ->
+        val linkedDependencies = link.paths.map(dependencies::at)
+        val intersection = linkedDependencies.reduce { left, right ->
+          (left glb right) ?: linkError(link, dependencies)
+        }
+        link.paths.forEach { path ->
+          if (dependencies.at(path) != intersection) {
+            dependencies = dependencies.replaceAt(path, intersection)
+            changed = true
+          }
+        }
+      }
+    } while (changed)
+    return dependencies
+  }
+
+  internal fun requireLinksSatisfied(dependencies: DependencySet) {
+    dependencyLinks.forEach { link ->
+      if (link.paths.map(dependencies::at).distinct().size > 1) {
+        linkError(link, dependencies)
+      }
+    }
+  }
+
   // GETTING TYPES
 
   internal fun withAllDependencies(deps: DependencySet) =
-      MType(this, deps.subMapInOrder(dependencies.keys))
+      MType(this, normalizeLinkedDependencies(deps.subMapInOrder(dependencies.keys)))
 
   /** Least upper bound of all types with mclass==this */
   val baseType: MType by lazy { withAllDependencies(dependencies) }

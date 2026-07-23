@@ -10,7 +10,6 @@ import dev.martianzoo.types.Dependency.ComplementDependency
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
-import dev.martianzoo.util.cartesianProduct
 import dev.martianzoo.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
@@ -47,7 +46,12 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   fun at(path: DependencyPath): Dependency {
     val x: Dependency = get(path.keyList.first())
     if ((path.keyList.size) == 1) return x
-    val type = (x as TypeDependency).boundType
+    val type =
+        when (x) {
+          is TypeDependency -> x.boundType
+          is ComplementDependency -> x.domainType
+          else -> error("unexpected dependency: $x")
+        }
     return type.dependencies.at(path.drop(1))
   }
 
@@ -125,6 +129,33 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     return of(keys.map { partial.getIfPresent(it) ?: get(it) })
   }
 
+  internal fun replaceAt(path: DependencyPath, replacement: Dependency): DependencySet {
+    val firstKey = path.keyList.first()
+    if (path.keyList.size == 1) {
+      require(replacement.key == firstKey)
+      return of(deps.map { if (it.key == firstKey) replacement else it })
+    }
+
+    fun MType.replaceNested(): MType =
+        root
+            .withAllDependencies(dependencies.replaceAt(path.drop(1), replacement))
+            .refine(refinement)
+
+    val first = get(firstKey)
+    val narrowed =
+        when (first) {
+          is TypeDependency -> first.copy(boundType = first.boundType.replaceNested())
+          is ComplementDependency -> {
+            val domain = first.domainType.replaceNested()
+            val excluded = first.excludedType glb domain
+            if (excluded == null) TypeDependency(first.key, domain)
+            else first.copy(domainType = domain, excludedType = excluded)
+          }
+          else -> error("unexpected dependency: $first")
+        }
+    return replaceAt(DependencyPath(firstKey), narrowed)
+  }
+
   /**
    * For an example expression like `Foo<Bar, Qux>`, pass in `[Bar, Qux]` and Foo's base dependency
    * set. This method decides which dependencies in the dependency set each of these args should be
@@ -132,6 +163,10 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
    * order to the input expressions.
    */
   fun matchPartial(args: List<Expression>): DependencySet {
+    return of(matchPartialInOrder(args))
+  }
+
+  internal fun matchPartialInOrder(args: List<Expression>): List<Dependency> {
     val alreadyMatchedDeps = mutableSetOf<Dependency>()
 
     fun tryMatch(arg: Expression, dep: Dependency): Dependency? {
@@ -141,25 +176,32 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
       return intersection
     }
 
-    fun matchToDependency(arg: Expression) =
+    fun matchToDependency(arg: Expression): Dependency =
         deps.firstNotNullOfOrNull { tryMatch(arg, it) }
             ?: throw Exceptions.badExpression(arg, toString())
 
-    return DependencySet.of(args.map(::matchToDependency))
+    return args.map(::matchToDependency)
   }
 
   fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {
     return if (isForClassType(deps)) {
       mtype.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
     } else {
-      val axes = deps.map {
-        when (it) {
-          is TypeDependency -> it.allConcreteSpecializations()
-          is ComplementDependency -> it.allConcreteSpecializations()
-          else -> error("unexpected")
+      keys.fold(sequenceOf(mtype)) { types, key ->
+        types.flatMap { type ->
+          val dependency = type.dependencies.get(key)
+          if (!dependency.abstract) return@flatMap sequenceOf(type)
+          when (dependency) {
+            is TypeDependency -> dependency.allConcreteSpecializations()
+            is ComplementDependency -> dependency.allConcreteSpecializations()
+            else -> error("unexpected")
+          }.map { concrete ->
+            type.root.withAllDependencies(
+                type.dependencies.replaceAt(DependencyPath(key), concrete)
+            )
+          }
         }
       }
-      axes.cartesianProduct().map { mtype.root.withAllDependencies(DependencySet.of(it)) }
     }
   }
 
@@ -189,11 +231,5 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     fun prepend(key: Key) = DependencyPath(listOf(key) + keyList)
 
     fun drop(i: Int) = DependencyPath(keyList.drop(i))
-
-    fun isProperSuffixOf(other: DependencyPath): Boolean {
-      val otherSize = other.keyList.size
-      val smallerBy = keyList.size - otherSize
-      return smallerBy > 0 && other.keyList.subList(smallerBy, otherSize) == keyList
-    }
   }
 }

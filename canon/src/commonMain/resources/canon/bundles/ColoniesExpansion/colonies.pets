@@ -48,7 +48,8 @@ CLASS Colony<ColonyTile> : Owned<Player> {
 
 "A Trade operation; it persists so we can tell the ColonyTile and TradeFleet are occupied"
 // A trade fleet sitting on a colony tile is represented by one of these, which go away at gen end
-CLASS Trade<ColonyTile, TradeFleet> : Owned, Generational
+// Repeating Owner makes the Trade operation belong to the TradeFleet's owner.
+CLASS Trade<ColonyTile, TradeFleet<Owner>> : Owned<Owner>, Generational
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
 CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }

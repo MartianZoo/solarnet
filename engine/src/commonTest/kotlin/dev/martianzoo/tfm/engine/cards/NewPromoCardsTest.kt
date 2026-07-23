@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -68,7 +70,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun cathedralOfferBelongsToTheCityOwner() {
+  fun cathedralOfferBelongsToTheCityOwnerAndVpBelongsToTheBuilder() {
     val game = newGame("BMX", 2)
     val builder = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
     val cityOwner = game.tfm(PLAYER2).also { it.autoExecMode = NONE }
@@ -76,10 +78,15 @@ class NewPromoCardsTest : CardTest() {
     builder.sneak("StJosephOfCupertinoMission")
     cityOwner.manual("CityTile<Player2, M42>") { doTask("Plant") }
 
-    builder.godMode().beginManual("Cathedral<Player2, CityTile<Player2, M42>>") {
+    builder.godMode().beginManual("Cathedral<CityTile<Player2, M42>>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     }
 
     cityOwner.doTask("Ok")
+    builder.autoExecMode = FIRST
+    cityOwner.autoExecMode = FIRST
+    game.tfm(ENGINE).phase("End")
+    builder.assertCounts(21 to "VictoryPoint")
+    cityOwner.assertCounts(20 to "VictoryPoint")
   }
 }

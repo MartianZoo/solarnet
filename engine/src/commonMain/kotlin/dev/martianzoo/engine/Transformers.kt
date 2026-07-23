@@ -186,9 +186,12 @@ internal class Transformers(internal val classes: MClassTable) {
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =
         defaultDeps.typeDependencies().associate { it.key to it.expression }
+    val inferred = mclass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
-        mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
+        mclass.dependencies.keys.mapNotNull {
+          preferred[it] ?: fallbacks[it]?.takeUnless { _ -> it in inferred }
+        }
 
     return original.copy(arguments = newArgs).also {
       require(it.className == original.className)
@@ -272,6 +275,11 @@ internal class Transformers(internal val classes: MClassTable) {
           } else {
             null
           }
+        }
+        // A name can occur in independent slots; only agreement makes it one binding.
+        .groupBy({ it.first }, { it.second })
+        .mapNotNull { (name, replacements) ->
+          replacements.distinct().singleOrNull()?.let { name to it }
         }
         .toMap()
   }

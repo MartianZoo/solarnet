@@ -98,8 +98,8 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
   /** A dependency constrained to exclude one narrower type, as in `OwnedTile<!Player1>`. */
   data class ComplementDependency(
       override val key: Key,
-      private val domainType: MType,
-      private val excludedType: MType,
+      internal val domainType: MType,
+      internal val excludedType: MType,
   ) : Dependency(), HasExpression {
     init {
       require(excludedType.narrows(domainType)) { "$excludedType does not narrow $domainType" }

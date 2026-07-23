@@ -120,7 +120,10 @@ Even with this simplification, the whole play-a-card process is a bit complex to
 
 Cards can have three types of things "on" them, which all share the superclass `Cardbound`. These are `Tag`s, `CardResource`s, and `ActionUsedMarker`s. What these all have in common is that the `CardFront` must exist before they can, and if the `CardFront` ever went away they would have to as well. This is, of course, just how dependencies work in PETS.
 
-`Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`, and we want to make a rule somehow that these two owners are always the same. We don't have that yet, so the system sees `Animal<Predators, Player2>` as abstract, and expects to see `Animal<Predators<Player2>, Player2>` to mean the concrete type. That's quite unfortunate and I hope to solve it soonish...
+`Cardbound` is both `Owned` and dependent on a `CardFront`, which is also `Owned`. Its declaration
+explicitly repeats `Owner` in those two positions, linking them so that the cardbound component and
+its card must have the same owner. Therefore `Animal<Player2, Predators>` and
+`Animal<Predators<Player2>>` are equivalent concrete types; specifying different owners is invalid.
 
 ### PaymentMechanic
 

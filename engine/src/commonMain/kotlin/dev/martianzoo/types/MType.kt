@@ -37,6 +37,7 @@ public data class MType(
     require(dependencies.keys.toList() == root.dependencies.keys.toList()) {
       "expected keys ${root.dependencies.keys}, got $dependencies"
     }
+    root.requireLinksSatisfied(dependencies)
     if (refinement != null) loader.checkAllTypes(refinement)
   }
 
@@ -69,7 +70,7 @@ public data class MType(
   }
 
   internal fun specialize(specs: List<Expression>): MType =
-      copy(dependencies = dependencies.specialize(specs))
+      root.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
 
   public fun refine(newRef: Refinement?) = copy(refinement = Refinement.join(refinement, newRef))
 

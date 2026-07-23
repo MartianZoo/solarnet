@@ -61,6 +61,25 @@ bound of one that covers the concrete type is also sufficient. When the engine c
 limiter, it enumerates every concrete specialization of every dependency and rejects the ruleset
 before game initialization if any target violates this rule.
 
+### Linked dependencies
+
+Top-level expressions in a class's dependency list always declare independent dependency slots,
+even when they are written identically. Thus the two `Tile` dependencies in
+`Adjacency<Tile, Tile>` can refer to tiles on different areas.
+
+A class signature can instead link two inherited occurrences of the same dependency declaration by
+writing the same simple specialization explicitly at both locations. For example:
+
+```
+ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
+```
+
+Both `Owner` expressions specialize the dependency originally declared by `Owned`, so they must
+always resolve to the same owner. As a result, `Animal<Player1, Pets>`,
+`Animal<Pets<Player1>>`, and `Animal<Player1, Pets<Player1>>` resolve to the same concrete type,
+while `Animal<Player1, Pets<Player2>>` is malformed. If the repeated specialization is omitted from
+the declaration, the dependency occurrences remain independent.
+
 ### Variance
 
 All Pets types are implicitly **covariant**. One subtype of `Tile<Area>` is `CityTile<Area>`; another is `Tile<LandArea>`, and subtyping both of *those* we have `CityTile<LandArea>`.

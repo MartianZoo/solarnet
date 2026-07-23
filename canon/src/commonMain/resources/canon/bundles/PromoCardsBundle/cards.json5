@@ -716,7 +716,9 @@
       "deck": "PROJECT",
       "actions": [ "-> 5 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: Cathedral<Anyone, CityTile<Anyone>>" ],
       "effects": [ "End: VictoryPoint / Cathedral<Anyone>" ],
-      "components": [ "CLASS Cathedral<CityTile> : Owned { HAS MAX 1 This; This: (-2 THEN ProjectCard) OR Ok }" ],
+      // The city owner owns the Cathedral and therefore receives its pay-2-to-draw offer. The
+      // Mission owner still receives the endgame VP through the effect above.
+      "components": [ "CLASS Cathedral<CityTile<Owner>> : Owned<Owner> { HAS MAX 1 This; This: (-2 THEN ProjectCard) OR Ok }" ],
       "cost": 7,
       "projectKind": "ACTIVE"
     },

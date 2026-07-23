@@ -22,7 +22,7 @@ internal class MTypeTest {
 
             ABSTRACT CLASS Owned<Owner> {
               ABSTRACT CLASS CardFront
-              ABSTRACT CLASS Cardbound<CardFront>
+              ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
             }
 
             // Treated as an extension of Cardbound<ResourceCard<Class<CardResource>>>, plus a rule
@@ -33,6 +33,7 @@ internal class MTypeTest {
 
             CLASS Fish : ResourceCard<Class<Animal>>
             CLASS Ants : ResourceCard<Class<Microbe>>
+            CLASS Pendant<CardFront> : Owned
             """
                 .trimIndent()
         )
@@ -40,17 +41,30 @@ internal class MTypeTest {
     table.getClass(cn("Animal")).baseType.expressionFull.toString() shouldBe
         "Animal<Owner, ResourceCard<Owner, Class<Animal>>>"
 
-    table.resolve(te("Animal<Fish>")).abstract shouldBe true
-
     val fish = table.resolve(te("Animal<Player1, Fish<Player1>>"))
     fish.abstract shouldBe false
+    fish.expression.toString() shouldBe "Animal<Player1, Fish<Player1>>"
+    table.resolve(te("Animal<Player1, Fish>")).also {
+      it.abstract shouldBe false
+      it shouldBe fish
+    }
+    table.resolve(te("Animal<Fish<Player1>>")).also {
+      it.abstract shouldBe false
+      it shouldBe fish
+    }
+    table.resolve(te("Animal<Fish>")).abstract shouldBe true
 
     table.resolve(te("Fish")).expressionFull.toString() shouldBe "Fish<Owner, Class<Animal>>"
 
     assertFails { table.resolve(te("Animal<Ants>")) }
 
-    // This should FAIL
-    // table.resolve(te("Microbe<Player1, Ants<Player2>>"))
+    assertFails { table.resolve(te("Microbe<Player1, Ants<Player2>>")) }
+    table.resolve(te("Animal<Player1, !Fish>")).abstract shouldBe true
+    table.resolve(te("Animal<!Fish<Player1>>")).abstract shouldBe true
+    table.resolve(te("Animal<Player1, !Fish<Player2>>")) shouldBe
+        table.resolve(te("Animal<Player1>"))
+
+    table.resolve(te("Pendant<Player1, Fish<Player2>>")).abstract shouldBe false
   }
 
   @Test
