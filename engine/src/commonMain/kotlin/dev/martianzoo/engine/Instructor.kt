@@ -138,6 +138,14 @@ internal class Instructor(
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
     if (listOfNotNull(g, r).any { it.abstract }) {
+      if (
+          intens == AMAP &&
+              g?.abstract == true &&
+              r == null &&
+              limiter.findAbstractGainLimit(g) == 0
+      ) {
+        return NoOp
+      }
       // Still abstract, don't check limits yet
       return change(count, g?.expression, r?.expression, intens)
     }

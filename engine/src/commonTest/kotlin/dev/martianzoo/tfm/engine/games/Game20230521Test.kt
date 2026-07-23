@@ -1389,10 +1389,6 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 4 animal(s) to Stratospheric Birds
     p1.playProject("LargeConvoy", 28, titanium = 1) {
-          // The oceans are already capped, but this task currently does not self-refine to `Ok`.
-          val cappedOcean =
-              tasks.matching { "${it.instruction}" == "OceanTile<WaterArea>." }.single()
-          p1.godMode().dropTask(cappedOcean)
           doTask("4 Animal<StratosphericBirds>")
         }
         .expect("ProjectCard, 3 Heat, 4 Animal")

@@ -88,6 +88,16 @@ internal class Limiter(private val classes: MClassTable, private val components:
     return (headroom + footroom).minOrNull() ?: MAX_VALUE
   }
 
+  internal fun findAbstractGainLimit(type: MType): Int {
+    val restrictions =
+        rangeRestrictionsByClass[type.root].orEmpty().mapNotNull {
+          val simple = it.bindThisTo(type) ?: return@mapNotNull null
+          if (type.narrows(simple.mtype)) simple else null
+        }
+    return restrictions.minOfOrNull { it.range.last - components.count(it.mtype, StubTypeInfo) }
+        ?: MAX_VALUE
+  }
+
   internal fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
     val mtype = component?.type?.let { classes.resolve(it) } ?: return setOf()
     return applicableRangeRestrictions(mtype)
