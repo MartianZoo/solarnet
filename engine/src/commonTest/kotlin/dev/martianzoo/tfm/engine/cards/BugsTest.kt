@@ -52,28 +52,28 @@ class BugsTest : CardTest() {
   }
 
   @Test
-  fun `use-card-action incorrectly leaves its used marker's card abstract`() {
+  fun `use-card-action incorrectly leaves its selected action card abstract`() {
     val game = setUpGame("BM", 2)
     val p1 = game.tfm(PLAYER1)
     p1.godMode().sneak("SymbioticFungus")
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.beginManual("UseAction1<UseCardActionSA>")
-    val actionChoice =
-        game.tasks.extract { it }.single { it.instruction.toString().startsWith("UseAction<") }
-    actionChoice.then.toString().startsWith("ActionUsedMarker<") shouldBe true
-
-    manual.doTask("UseAction1<SymbioticFungus>")
-
-    val markerTasks =
+    val markerChoice =
         game.tasks
             .extract { it }
-            .filter { it.instruction.toString().startsWith("ActionUsedMarker<") }
-    markerTasks.shouldHaveSize(1)
-    withClue(markerTasks.single()) {
+            .single { it.instruction.toString().startsWith("ActionUsedMarker<") }
+    markerChoice.then.toString().startsWith("UseAction<") shouldBe true
+
+    manual.doTask("ActionUsedMarker<SymbioticFungus>")
+
+    val actionTasks =
+        game.tasks.extract { it }.filter { it.instruction.toString().startsWith("UseAction<") }
+    actionTasks.shouldHaveSize(1)
+    withClue(actionTasks.single()) {
       // TODO(#12): The shared ActionCard dependency should specialize in the THEN tail too.
-      markerTasks.single().instruction.toString().contains("ActionCard") shouldBe true
-      markerTasks.single().instruction.toString().contains("SymbioticFungus") shouldBe false
+      actionTasks.single().instruction.toString().contains("ActionCard") shouldBe true
+      actionTasks.single().instruction.toString().contains("SymbioticFungus") shouldBe false
     }
   }
 

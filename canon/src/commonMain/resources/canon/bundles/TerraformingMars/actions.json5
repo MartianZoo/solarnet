@@ -16,7 +16,7 @@
     // Use card action
     {
       "id": "SAE",
-      "action": "-> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard>"
+      "action": "-> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard>"
     },
 
     // Convert plants

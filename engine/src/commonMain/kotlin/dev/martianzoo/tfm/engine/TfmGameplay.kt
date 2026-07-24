@@ -133,8 +133,8 @@ public class TfmGameplay(
 
   private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseCardActionSA") {
+      doTask("ActionUsedMarker<$cardName>")
       doTask("$USE_ACTION$which<$cardName>")
-      doTask("ActionUsedMarker<$cardName>") // will become automatic?
       body()
     }
   }
