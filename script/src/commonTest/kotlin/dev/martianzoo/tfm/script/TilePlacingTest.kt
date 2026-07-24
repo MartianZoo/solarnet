@@ -7,6 +7,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class TilePlacingTest {
@@ -30,7 +31,7 @@ class TilePlacingTest {
   }
 
   @Test
-  fun greeneryNextToOwned_notPossible() {
+  fun greeneryCanBePlacedAnywhereWhenOwnedTilesAreSurrounded() {
     val game = setUpGame(Canon.SIMPLE_GAME)
 
     with(game.tfm(PLAYER1)) {
@@ -43,11 +44,45 @@ class TilePlacingTest {
       // Yer surrounded!
       game.tfm(PLAYER2).godMode().manual("GT<M32>, GT<M33>, GT<M42>, GT<M44>")
 
-      // So now you should be able to do this, but oops, you can't. (#33)
-      assertFailsWith<NarrowingException> {
-        stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+      stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
+    }
+  }
+
+  @Test
+  fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
+    val game = setUpGame(Canon.fromOptionCodes("BH", 2))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+
+    // P1 has greenery next to south pole
+    p1.godMode().manual("4, GreeneryTile<H98>")
+
+    // P2 completely surrounds it except for south pole (H97)
+    p2.godMode().manual("GreeneryTile<H87>, GreeneryTile<H88>, GreeneryTile<H99>")
+
+    // P1 is 2 money short of what they need to place on the south pole
+    assertFailsWith<LimitsException> { // do we care which step fails?
+      p1.godMode().manual("GreeneryTile") {
+        doTask("GreeneryTile<H97>")
+        doTask("OceanTile<H46>")
       }
     }
+    assertEquals(0, p1.count("GreeneryTile<H97>")) // rolled back
+
+    // But too bad, they don't get permission to place elsewhere!
+    assertFailsWith<NarrowingException> {
+      p1.godMode().manual("GreeneryTile") { doTask("GreeneryTile<H75>") }
+    }
+
+    // That concludes our test. But for funsies,
+    // Suppose there had already been an ocean to place next to - now it works
+    p2.godMode().manual("OceanTile<H56>")
+    p1.godMode().manual("GreeneryTile") {
+      doTask("GreeneryTile<H97>")
+      doTask("OceanTile<H46>")
+    }
+    assertEquals(0, p1.count("Megacredit"))
+    assertEquals(1, p1.count("GreeneryTile<H97>"))
   }
 
   @Test

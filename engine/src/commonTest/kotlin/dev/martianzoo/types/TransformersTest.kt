@@ -44,7 +44,7 @@ class TransformersTest {
     )
     checkApplyDefaults(
         "GreeneryTile",
-        "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>), Owner>!",
+        "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>, MAX 0 Tile), Owner>!",
     )
   }
 

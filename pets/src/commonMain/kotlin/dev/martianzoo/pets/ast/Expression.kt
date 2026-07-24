@@ -6,12 +6,9 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.Type
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.ast.Requirement.Exact
-import dev.martianzoo.pets.ast.Requirement.Min
 import kotlin.reflect.KClass
 
 /**
@@ -69,12 +66,6 @@ public data class Expression(
       val requirement: Requirement,
       val forgiving: Boolean,
   ) : PetNode() {
-    init {
-      if (forgiving && requirement !is Min && requirement !is Exact) {
-        throw PetSyntaxException("HAS? can only be used with Min/Exact requirements")
-      }
-    }
-
     override val kind: KClass<out PetNode> = Refinement::class
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(requirement)

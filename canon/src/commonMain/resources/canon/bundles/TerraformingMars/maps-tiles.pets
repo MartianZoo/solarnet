@@ -42,7 +42,11 @@ ABSTRACT CLASS Tile<Area> {
   // Not narrowed to <Player> because Opponent gets four tiles
   ABSTRACT CLASS OwnedTile : Owned {
     CLASS GreeneryTile[GT] : Tile<MarsArea> {
-      DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>)>
+      // HAS? specifies a requirement with an "escape clause": the requirement is upheld as long as
+      // there is at least one component that satisfies it. If none do, it's dropped.
+      // `MAX 0 Tile` is normally not needed here (tiles on an area are limited to 1 anyway), but
+      // is here so the "escape clause" can take it into account.
+      DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>, MAX 0 Tile)>
 
       End: VictoryPoint
     }
