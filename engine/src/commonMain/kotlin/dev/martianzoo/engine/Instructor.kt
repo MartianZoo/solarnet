@@ -105,13 +105,8 @@ internal class Instructor(
       is Change -> prepareChange(unprepared)
       is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
       is Gated -> {
-        if (reader.has(unprepared.gate)) {
-          doPrepare(unprepared.inner)
-        } else if (unprepared.mandatory) {
-          throw requirementNotMet(unprepared.gate)
-        } else {
-          NoOp
-        }
+        if (!reader.has(unprepared.gate)) throw requirementNotMet(unprepared.gate)
+        doPrepare(unprepared.inner)
       }
       is Or -> prepareOr(unprepared)
       is Then ->

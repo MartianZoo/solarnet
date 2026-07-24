@@ -1,7 +1,6 @@
 package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.asJust
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
@@ -240,11 +239,10 @@ public sealed class Instruction : PetElement() {
     override fun toString() = "$inner / $metric"
   }
 
-  data class Gated(val gate: Requirement, val inner: Instruction, val mandatory: Boolean = true) :
-      Instruction() {
+  data class Gated(val gate: Requirement, val inner: Instruction) : Instruction() {
     companion object {
-      fun create(gate: Requirement?, inner: Instruction, mandatory: Boolean = true) =
-          if (gate == null) inner else Gated(gate, inner, mandatory)
+      fun create(gate: Requirement?, inner: Instruction) =
+          if (gate == null) inner else Gated(gate, inner)
     }
 
     init {
@@ -265,10 +263,7 @@ public sealed class Instruction : PetElement() {
       proposed.inner.ensureNarrows(inner, info)
     }
 
-    override fun toString(): String {
-      val connector = if (mandatory) ": " else " ?: "
-      return "${groupPartIfNeeded(gate)}$connector${groupPartIfNeeded(inner)}"
-    }
+    override fun toString() = "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(inner)}"
 
     // let's over-group for clarity
     override fun safeToNestIn(container: PetNode) =
@@ -545,13 +540,11 @@ public sealed class Instruction : PetElement() {
 
         val atom: Parser<Instruction> = group(parser()) or maybeTransform
 
-        val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
-
         val gated: Parser<Instruction> =
-            optional(Requirement.atomParser() and isMandatory) and
+            optional(Requirement.atomParser() and skipChar(':')) and
                 atom map
                 { (gate, ins) ->
-                  if (gate == null) ins else Gated(gate.t1, ins, gate.t2)
+                  if (gate == null) ins else Gated(gate, ins)
                 }
 
         val orInstr: Parser<Instruction> =
