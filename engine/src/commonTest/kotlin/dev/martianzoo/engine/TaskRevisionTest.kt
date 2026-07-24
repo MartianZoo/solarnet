@@ -167,6 +167,26 @@ class TaskRevisionTest {
     task3.then shouldBe null
   }
 
+  @Test
+  fun `executing a THEN head creates independent abstract tail tasks`() {
+    val head = initiate("Plant! THEN (Steel?, Heat?)").single()
+
+    writer.doTask(head)
+
+    tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>?", "Heat<Player1>?")
+    tasks.matching { it.then != null }.shouldBeEmpty()
+
+    val heat = tasks.matching { it.instruction.toString() == "Heat<Player1>?" }.single()
+    writer.reviseTask(heat, "Heat!")
+    writer.doTask(heat)
+
+    val steel = tasks.ids().single()
+    writer.reviseTask(steel, "Steel!")
+    writer.doTask(steel)
+
+    tasks.isEmpty() shouldBe true
+  }
+
   fun initiate(ins: String) = writer.godMode().addTasks(ins)
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
