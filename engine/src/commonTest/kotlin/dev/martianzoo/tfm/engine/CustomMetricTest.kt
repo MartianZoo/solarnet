@@ -76,6 +76,32 @@ internal class CustomMetricTest {
     shouldThrow<AbstractException> { p1.count("ConcreteOnlyMetric<Player>") }
     ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 1
   }
+
+  @Test
+  fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
+    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+
+    shouldThrow<IllegalStateException> {
+      p1.godMode().manual("ConcreteOnlyMetric<Player1>")
+    }
+    shouldThrow<IllegalArgumentException> {
+      p1.godMode().sneak("ConcreteOnlyMetric<Player1>")
+    }
+    shouldThrow<IllegalArgumentException> {
+      p1.godMode().sneak("-ConcreteOnlyMetric<Player1>")
+    }
+  }
+
+  @Test
+  fun changingACustomMetricDoesNotProduceAnEventForItsName() {
+    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+
+    p1.count("MetricTriggerObserver") shouldBe 1
+    p1.count("PlantCount<Player1>") shouldBe 0
+    p1.godMode().sneak("Plant<Player1>")
+    p1.count("PlantCount<Player1>") shouldBe 1
+    p1.count("Heat<Player1>") shouldBe 0
+  }
 }
 
 private object BothBehavior : CustomMetric() {
@@ -106,6 +132,13 @@ private object ConcreteOnlyMetric : CustomMetric() {
   }
 }
 
+private object PlantCount : CustomMetric() {
+  override fun count(game: GameReader, type: Type): Int {
+    val player = type.expressionFull.arguments.single()
+    return game.count(game.resolve(parse("Plant<$player>")))
+  }
+}
+
 private object CustomClassDeclarations : TfmRuleset.Empty() {
   override val explicitClassDeclarations =
       parseClasses(
@@ -113,6 +146,11 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
               CLASS BothBehavior : Custom, AutoLoad
               CLASS SplitBehavior : Custom, AutoLoad
               CLASS ConcreteOnlyMetric<Player> : Custom, AutoLoad
+              CLASS PlantCount<Player> : Custom
+              CLASS MetricTriggerObserver : AutoLoad {
+                HAS =1 This
+                PlantCount<Player1>: Heat<Player1>
+              }
               """
                   .trimIndent()
           )
@@ -124,6 +162,7 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
           SplitInstructionImplementation.SplitBehavior,
           SplitMetricImplementation.SplitBehavior,
           ConcreteOnlyMetric,
+          PlantCount,
       )
 }
 

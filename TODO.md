@@ -35,6 +35,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ### User-Facing Behavior
 
 - [#42: Failure reporting](https://github.com/MartianZoo/solarnet/issues/42) — Catch only expected script errors; preserve defects, stack traces, and appropriate server logging.
+- Audit the exception taxonomy and its call sites: domain operations should throw MartianZoo domain exceptions rather than `IllegalArgumentException`, `IllegalStateException`, or other platform exceptions; clarify and document when each domain exception type is appropriate.
 - [#30: Task refinement](https://github.com/MartianZoo/solarnet/issues/30) — Narrow tasks without repeating the full instruction.
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - [#46: Card identity in `list`](https://github.com/MartianZoo/solarnet/issues/46) — Do not collapse concrete cards into one abstract row.
