@@ -71,6 +71,26 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun promosReplaceThreeBaseGameCards() {
+    val originals = setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
+    val replacements =
+        setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
+    val relevantCards = originals + replacements
+
+    val withoutPromos =
+        Canon.fromOptionCodes("BM", 2).ruleset.cardDefinitions.mapTo(mutableSetOf()) {
+          it.className
+        }
+    val withPromos =
+        Canon.fromOptionCodes("BMX", 2).ruleset.cardDefinitions.mapTo(mutableSetOf()) {
+          it.className
+        }
+
+    withoutPromos.intersect(relevantCards) shouldBe originals
+    withPromos.intersect(relevantCards) shouldBe replacements
+  }
+
+  @Test
   fun coloniesRulesetOwnsItsVocabularyAndDefinitions() {
     val colonies = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
 
