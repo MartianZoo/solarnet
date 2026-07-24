@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
@@ -140,6 +139,6 @@ class BugsTest : CardTest() {
   fun `a quantified tile instruction incorrectly cannot be decomposed into placement choices`() {
     val p1 = newGame("BM", 2).tfm(PLAYER1)
 
-    shouldThrow<AbstractException> { p1.manual("2 CityTile") }
+    shouldThrow<IllegalArgumentException> { p1.manual("2 CityTile") }
   }
 }

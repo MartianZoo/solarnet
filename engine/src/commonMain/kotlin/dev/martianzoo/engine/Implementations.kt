@@ -62,7 +62,7 @@ internal class Implementations(
 
   internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     tasks.requireAllQueuesEmpty()
-    addTasks(initialInstruction).forEach(::doTask)
+    addTasks(initialInstruction).forEach(::doInitialTask)
     complete(autoExec, body)
   }
 
@@ -72,8 +72,16 @@ internal class Implementations(
       body: () -> Unit,
   ) {
     tasks.requireAllQueuesEmpty()
-    addTasks(initialInstruction).forEach(::doTask)
+    addTasks(initialInstruction).forEach(::doInitialTask)
     continueManual(autoExec, body)
+  }
+
+  private fun doInitialTask(taskId: TaskId) {
+    try {
+      doTask(taskId)
+    } catch (_: AbstractException) {
+      explainTask(taskId, "abstract")
+    }
   }
 
   internal fun continueManual(autoExec: AutoExecMode, body: () -> Unit) {

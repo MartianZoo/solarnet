@@ -343,8 +343,9 @@ Gameplay         ← query-only + task revision/preparation + doTask
 - **Normal callers** use `Gameplay` directly — they can revise abstract tasks and execute
   prepared ones, but can't create tasks from scratch.
 - **`OperationLayer`** is for structured operations: `manual()` requires the caller's queue is
-  empty, adds the instruction as tasks, runs them to completion (including autoexec), and verifies
-  the caller's queue is empty and no `Temporary` components remain.
+  empty, adds the instruction as tasks, and runs them to completion (including autoexec). An
+  abstract initial instruction remains pending for the operation body to narrow. Before returning,
+  `manual()` verifies the caller's queue is empty and no `Temporary` components remain.
 - **`OperationBody.tasks`** is the assignee's scoped read-only queue view.
 - **`TaskLayer`** lets you inject arbitrary tasks and remove them for any reason.
 - **`GodMode`** lets you make raw changes to the component graph, bypassing instruction
