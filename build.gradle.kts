@@ -4,6 +4,8 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
@@ -16,6 +18,10 @@ plugins {
 }
 
 repositories { mavenCentral() }
+
+rootProject.plugins.withType<YarnPlugin> {
+  rootProject.the<YarnRootExtension>().resolution("serialize-javascript", "7.0.3")
+}
 
 configure<SpotlessExtension> {
   kotlin {

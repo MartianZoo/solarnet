@@ -84,6 +84,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Diagnostics and Tooling
 
+- Remove the `serialize-javascript` Yarn resolution once Mocha accepts the patched 7.x release.
 - Make `task <id> Ok` notify workflow when it removes the final task.
 - Diagnose the production Kotlin/JS `Atomized` parse failure; add a production-distribution smoke test.
 - Improve better-parse errors with one typed validation path, structured alternatives, and source locations.
