@@ -15,18 +15,42 @@ import dev.martianzoo.engine.Engine.ChangeLogger
 import dev.martianzoo.engine.Engine.TaskListener
 import dev.martianzoo.engine.Timeline.Checkpoint
 
-internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
+/**
+ * Writable event history, optionally continuing a captured prefix held by [startingSequence].
+ * Events appended later to [startingSequence] are not part of this log. The captured events must
+ * not be rolled back while this log exists.
+ */
+internal class WritableEventLog(private val startingSequence: EventLog? = null) :
+    EventLog, TaskListener, ChangeLogger {
+  private val startingSize = startingSequence?.entriesSince(Checkpoint(0))?.size ?: 0
+  private val startingSetupSize = startingSequence?.entriesSinceSetup()?.size ?: 0
   private val events: MutableList<GameEvent> = mutableListOf()
-  internal val size: Int by events::size
 
-  internal fun eventsToRollBack(ordinal: Int) = events.subList(ordinal, events.size)
+  internal val size: Int
+    get() = startingSize + events.size
+
+  internal val firstWritableOrdinal = startingSize
+
+  private var start: Checkpoint? = startingSequence?.let {
+    Checkpoint(startingSize - startingSetupSize)
+  }
+
+  internal fun eventsToRollBack(ordinal: Int): List<GameEvent> {
+    require(ordinal >= firstWritableOrdinal)
+    return events.subList(ordinal - startingSize, events.size).toList()
+  }
+
+  internal fun removeEventsFrom(ordinal: Int) {
+    require(ordinal >= firstWritableOrdinal)
+    events.subList(ordinal - startingSize, events.size).clear()
+  }
 
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
-  override fun changesSinceSetup() = changesSince(start)
+  override fun changesSinceSetup() = entriesSinceSetup().filterIsInstance<ChangeEvent>()
 
-  override fun entriesSinceSetup() = entriesSince(start)
+  override fun entriesSinceSetup() = entriesSince(checkNotNull(start))
 
   // we don't treat a replacement task as new...
   override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> = buildSet {
@@ -39,13 +63,23 @@ internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
     }
   }
 
-  override fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
-      events.subList(checkpoint.ordinal, size).toList()
+  override fun entriesSince(checkpoint: Checkpoint): List<GameEvent> {
+    require(checkpoint.ordinal <= size)
+    if (checkpoint.ordinal >= startingSize) {
+      return events.subList(checkpoint.ordinal - startingSize, events.size).toList()
+    }
+
+    val startingEntries =
+        checkNotNull(startingSequence)
+            .entriesSince(checkpoint)
+            .take(startingSize - checkpoint.ordinal)
+    return startingEntries + events
+  }
 
   override fun activitySince(checkpoint: Checkpoint) =
       TaskResult(changesSince(checkpoint), newTasksSince(checkpoint))
 
-  internal fun <E : GameEvent> addEntry(entry: E): E {
+  private fun <E : GameEvent> addEntry(entry: E): E {
     require(entry.ordinal == size)
     events += entry
     return entry
@@ -62,8 +96,6 @@ internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
     require(oldTask.id == newTask.id)
     return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
   }
-
-  private lateinit var start: Checkpoint
 
   internal fun setStartPoint() {
     start = Checkpoint(size)

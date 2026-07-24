@@ -21,7 +21,7 @@ internal class TimelineImpl(
 
   override fun checkpoint() = Checkpoint(events.size)
 
-  private var commitFloor = Checkpoint(0)
+  private var commitFloor = Checkpoint(events.firstWritableOrdinal)
 
   override fun commit() {
     commitFloor = checkpoint()
@@ -35,8 +35,7 @@ internal class TimelineImpl(
     require(ordinal <= events.size)
     if (ordinal == events.size) return
 
-    val subList = events.eventsToRollBack(ordinal)
-    for (entry in subList.asReversed()) {
+    for (entry in events.eventsToRollBack(ordinal).asReversed()) {
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)
         is ChangeEvent ->
@@ -49,7 +48,7 @@ internal class TimelineImpl(
             }
       }
     }
-    subList.clear()
+    events.removeEventsFrom(ordinal)
   }
 
   internal class AbortOperationException : Exception()

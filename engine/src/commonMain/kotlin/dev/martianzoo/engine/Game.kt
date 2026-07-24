@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor
-import dev.martianzoo.engine.Engine.ActorComponent
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.GameSetup
@@ -19,36 +18,32 @@ import dev.martianzoo.types.MClassTable
  * The component graph can be queried programmatically, but a [GameReader] is also provided which
  * can answer queries expressed as a Pets [Metric] or [Requirement].
  */
-public class Game
-internal constructor(
-    /** The current state of the "board". */
-    public val components: ComponentGraph,
+public interface Game {
+  /** The current state of the "board". */
+  public val components: ComponentGraph
 
-    /** Everything that has already happened in the game. */
-    public val events: EventLog,
+  /** Everything that has already happened in the game. */
+  public val events: EventLog
 
-    /** What the game is waiting on someone to do. */
-    public val tasks: TaskQueue,
+  /** What the game is waiting on someone to do. */
+  public val tasks: TaskQueue
 
-    /** Checkpoint, rollback, atomic interactions. */
-    public val timeline: Timeline,
+  /** Checkpoint, rollback, atomic interactions. */
+  public val timeline: Timeline
 
-    /** Higher-level querying of game state (i.e. in Pets language). */
-    public val reader: GameReader,
+  /** Higher-level querying of game state (i.e. in Pets language). */
+  public val reader: GameReader
 
-    /** Configuration. */
-    public val setup: GameSetup,
+  /** Configuration. */
+  public val setup: GameSetup
 
-    /** Classes loaded in response to this game setup. */
-    public val classes: MClassTable,
-) {
+  /** Classes loaded in response to this game setup. */
+  public val classes: MClassTable
 
-  internal lateinit var actorComponents: Map<Actor, ActorComponent>
-
-  public fun gameplay(actor: Actor): Gameplay = actorComponents[actor]!!.gameplay
+  public fun gameplay(actor: Actor): Gameplay
 
   /**
    * Called after every outermost atomic() completes. A workflow sets this to react to game flow.
    */
-  public var onAtomicComplete: () -> Unit = {}
+  public var onAtomicComplete: () -> Unit
 }

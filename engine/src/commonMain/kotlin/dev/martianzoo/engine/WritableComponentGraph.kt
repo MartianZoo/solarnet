@@ -9,66 +9,71 @@ import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
-internal class WritableComponentGraph(private val effector: Effector) : ComponentGraph, Updater {
+/** Internal mutation capability paired with the public read-only [ComponentGraph]. */
+internal interface WritableComponentGraph : ComponentGraph, Updater {
 
-  private val multiset: HashMultiset<Component> = HashMultiset()
+  /** Component graph backed by the complete live game's component multiset. */
+  class Whole(private val effector: Effector) : WritableComponentGraph {
 
-  override operator fun contains(component: Component) = component in multiset.elements
+    private val multiset: HashMultiset<Component> = HashMultiset()
 
-  override fun count(parentType: MType, info: TypeInfo): Int {
-    return if (parentType.className == COMPONENT) {
-      multiset.size
-    } else if (parentType.abstract) {
-      multiset.entries.filter { (e, _) -> e.hasType(parentType, info) }.sumOf { (_, ct) -> ct }
-    } else {
-      countComponent(parentType.toComponent())
-    }
-  }
+    override operator fun contains(component: Component) = component in multiset.elements
 
-  override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
-    return if (parentType.abstract) {
-      multiset.elements.any { it.hasType(parentType, info) }
-    } else {
-      parentType.toComponent() in multiset
-    }
-  }
-
-  override fun countComponent(component: Component) = multiset.count(component)
-
-  override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
-    return if (parentType.className == COMPONENT) {
-      HashMultiset.of(multiset)
-    } else if (parentType.abstract) {
-      multiset.filter { it.hasType(parentType, info) }
-    } else {
-      val cpt = parentType.toComponent()
-      HashMultiset<Component>().also { it.add(cpt, multiset.count(cpt)) }
-    }
-  }
-
-  override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
-    listOfNotNull(gaining, removing).forEach {
-      require(!it.isCustom) {
-        "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+    override fun count(parentType: MType, info: TypeInfo): Int {
+      return if (parentType.className == COMPONENT) {
+        multiset.size
+      } else if (parentType.abstract) {
+        multiset.entries.filter { (e, _) -> e.hasType(parentType, info) }.sumOf { (_, ct) -> ct }
+      } else {
+        countComponent(parentType.toComponent())
       }
     }
-    removing?.let { r ->
-      checkDependents(count, r)
-      multiset.mustRemove(r, count)
-      effector.mustRemove(r, count)
-    }
-    gaining?.let { g ->
-      multiset.add(g, count)
-      effector.add(g, count)
-    }
-    return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
-  }
 
-  private fun checkDependents(count: Int, removing: Component) {
-    if (countComponent(removing) == count) {
-      if (multiset.elements.any { removing in it.dependencyComponents }) {
-        val dependents = multiset.elements.filter { removing in it.dependencyComponents }
-        throw ExistingDependentsException(dependents.map { it.type })
+    override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
+      return if (parentType.abstract) {
+        multiset.elements.any { it.hasType(parentType, info) }
+      } else {
+        parentType.toComponent() in multiset
+      }
+    }
+
+    override fun countComponent(component: Component) = multiset.count(component)
+
+    override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
+      return if (parentType.className == COMPONENT) {
+        HashMultiset.of(multiset)
+      } else if (parentType.abstract) {
+        multiset.filter { it.hasType(parentType, info) }
+      } else {
+        val cpt = parentType.toComponent()
+        HashMultiset<Component>().also { it.add(cpt, multiset.count(cpt)) }
+      }
+    }
+
+    override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
+      listOfNotNull(gaining, removing).forEach {
+        require(!it.isCustom) {
+          "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+        }
+      }
+      removing?.let { r ->
+        checkDependents(count, r)
+        multiset.mustRemove(r, count)
+        effector.mustRemove(r, count)
+      }
+      gaining?.let { g ->
+        multiset.add(g, count)
+        effector.add(g, count)
+      }
+      return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
+    }
+
+    private fun checkDependents(count: Int, removing: Component) {
+      if (countComponent(removing) == count) {
+        if (multiset.elements.any { removing in it.dependencyComponents }) {
+          val dependents = multiset.elements.filter { removing in it.dependencyComponents }
+          throw ExistingDependentsException(dependents.map { it.type })
+        }
       }
     }
   }

@@ -15,7 +15,7 @@ import dev.martianzoo.pets.ast.Instruction.InstructionGroup
 import dev.martianzoo.util.toSetStrict
 
 /**
- * ... With any change to the task queue, a set of normalizations is *always* applied. Here, the
+ * With any change to the task queue, a set of normalizations is *always* applied. Here, the
  * notation `a >> b` is used for a task whose [Task.instruction] is `a` and whose [Task.then] is
  * `b`.
  * * Removing task `a >> b` first creates task `b >> null`
@@ -32,8 +32,17 @@ import dev.martianzoo.util.toSetStrict
  * * New tasks created have the same assignee and cause as the original. Prepared tasks cannot be
  *   split
  */
-internal class TaskQueues(private val events: TaskListener) {
-  private val taskSet: MutableSet<Task> = mutableSetOf()
+internal class TaskQueues
+private constructor(
+    private val events: TaskListener,
+    initialTasks: Collection<Task>,
+) {
+  internal constructor(events: TaskListener) : this(events, emptyList())
+
+  private val taskSet: MutableSet<Task> = initialTasks.toMutableSet()
+
+  /** Copies current tasks without recording their existing additions in [events]. */
+  internal fun copy(events: TaskListener) = TaskQueues(events, taskSet)
 
   internal fun all(): WritableTaskQueue = WritableTaskQueue(this, assignee = null) { true }
 
@@ -41,10 +50,6 @@ internal class TaskQueues(private val events: TaskListener) {
       WritableTaskQueue(this, assignee = assignee) { it.assignee == assignee }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
-
-  internal operator fun contains(id: TaskId) = taskSet.any { it.id == id }
-
-  internal fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
 
   internal fun getTaskData(id: TaskId) =
       taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
@@ -150,7 +155,7 @@ internal class WritableTaskQueue(
 
   override fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
 
-  fun addTasks(
+  internal fun addTasks(
       instruction: InstructionGroup,
       cause: Cause?,
   ): List<TaskAddedEvent> {
@@ -158,25 +163,25 @@ internal class WritableTaskQueue(
     return taskQueues.addTasks(instruction, inferredAssignee, cause)
   }
 
-  fun addTasks(task: Task): List<TaskAddedEvent> {
+  internal fun addTasks(task: Task): List<TaskAddedEvent> {
     validateAssignee(task)
     return taskQueues.addTasks(task)
   }
 
-  fun removeTask(id: TaskId): TaskRemovedEvent {
+  internal fun removeTask(id: TaskId): TaskRemovedEvent {
     validateAssignee(getTaskData(id))
     return taskQueues.removeTask(id)
   }
 
-  fun editTask(newTask: Task): TaskEditedEvent? {
+  internal fun editTask(newTask: Task): TaskEditedEvent? {
     validateAssignee(newTask)
     validateAssignee(getTaskData(newTask.id))
     return taskQueues.editTask(newTask)
   }
 
-  fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
+  internal fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
 
-  fun queueFor(assignee: Actor): WritableTaskQueue = taskQueues[assignee]
+  internal fun queueFor(assignee: Actor): WritableTaskQueue = taskQueues[assignee]
 
   override fun toString() = filtered().joinToString("\n")
 }

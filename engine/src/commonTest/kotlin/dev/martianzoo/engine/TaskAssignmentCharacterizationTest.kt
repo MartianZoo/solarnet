@@ -72,4 +72,22 @@ class TaskAssignmentCharacterizationTest {
     added.cause shouldBe cause
     queues[PLAYER2].ids().shouldContainExactly(TaskId("A"))
   }
+
+  @Test
+  fun copiedQueuesRetainTasksAndThenDiverge() {
+    val queues = TaskQueues(WritableEventLog())
+    val task =
+        Task.noid(
+            assignee = PLAYER2,
+            automatic = false,
+            hit = parse<Instruction>("Plant<Player2>!"),
+            cause = Cause(te("TerraformingMars"), triggerEvent = 0),
+        )
+    queues[PLAYER2].addTasks(task)
+
+    val copied = queues.copy(WritableEventLog())
+    copied[PLAYER2].addTasks(task).single().task.id shouldBe TaskId("B")
+    queues[PLAYER2].ids().shouldContainExactly(TaskId("A"))
+    copied[PLAYER2].ids().shouldContainExactly(TaskId("A"), TaskId("B"))
+  }
 }

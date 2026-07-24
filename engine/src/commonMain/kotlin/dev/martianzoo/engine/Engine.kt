@@ -27,16 +27,16 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val koin = koinApplication { modules(gameModule(setup)) }.koin
 
-    val game = koin.get<Game>()
+    val game = koin.get<WholeGameState>()
     var initializer: Initializer? = null
-    val actorComponents =
+    val gameplayByActor =
         setup.actors().associateWith { actor ->
           val scope = koin.createScope<ActorScopeId>("$actor")
           scope.declare(actor)
           if (actor == ENGINE) initializer = scope.get<Initializer>()
-          scope.get<ActorComponent>()
+          scope.get<Gameplay>()
         }
-    game.actorComponents = actorComponents
+    game.initializeGameplay(gameplayByActor)
     initializer!!.initialize()
     return game
   }
@@ -47,22 +47,20 @@ public object Engine {
     single { setup }
     single { MClassLoader(setup) } bind MClassTable::class
     single { Effector(lazy { get<GameReaderImpl>() }) }
-    singleOf(::WritableEventLog) {
-      bind<EventLog>()
-      bind<TaskListener>()
-      bind<ChangeLogger>()
-    }
-    singleOf(::WritableComponentGraph) {
-      bind<ComponentGraph>()
-      bind<Updater>()
-    }
+    single { WritableEventLog() }
+    single<EventLog> { get<WritableEventLog>() }
+    single<TaskListener> { get<WritableEventLog>() }
+    single<ChangeLogger> { get<WritableEventLog>() }
+    single<WritableComponentGraph> { WritableComponentGraph.Whole(get()) }
+    single<ComponentGraph> { get<WritableComponentGraph>() }
+    single<Updater> { get<WritableComponentGraph>() }
     singleOf(::TaskQueues)
     single<TaskQueue> { get<TaskQueues>().all() }
     singleOf(::Transformers)
     singleOf(::GameReaderImpl) { bind<GameReader>() }
     singleOf(::TimelineImpl) { bind<Timeline>() }
     singleOf(::Limiter)
-    singleOf(::Game)
+    singleOf(::WholeGameState) { bind<Game>() }
 
     scope<ActorScopeId> {
       scoped<WritableTaskQueue> { get<TaskQueues>()[get<Actor>()] }
@@ -77,11 +75,8 @@ public object Engine {
         ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { game.onAtomicComplete() }
       } bind Gameplay::class
       scopedOf(::Initializer)
-      scopedOf(::ActorComponent)
     }
   }
-
-  internal data class ActorComponent(internal val gameplay: Gameplay)
 
   internal interface ChangeLogger {
     fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?): ChangeEvent

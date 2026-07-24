@@ -67,3 +67,8 @@
    app state than a missing `origin`.
 3. The repo is intended to use SSH remotes with the OS agent/keychain for noninteractive Git
    operations.
+
+## When Changing Public APIs
+
+1. Solarnet currently has no external users whose source or binary compatibility must be preserved.
+   Prefer the clean API change unless compatibility is explicitly requested.
