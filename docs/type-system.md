@@ -118,6 +118,8 @@ One possible way to think of this is that `PlantProduction<Player>` both specifi
 
 The effects inside a class declaration can use the special class name `This`. It is a placeholder for the *specific concrete type* of whatever component inherits it.
 
+`This` has the same inherited meaning in a class signature. If `SelfBound` extends `Link<Class<This>>`, then `SelfLeaf : SelfBound` extends `Link<Class<SelfLeaf>>`. Writing `Link<Class<SelfBound>>` explicitly is different: that class literal remains `Class<SelfBound>` in every subclass.
+
 ### Singleton types
 
 A class may be identifiable as a singleton class (*how* is not relevant here). If it is, then every concrete type whose root type is that class or any of its subclasses is considered a singleton type. Before a game begins, one instance of each singleton type is automatically created.

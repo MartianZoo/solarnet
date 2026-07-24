@@ -77,6 +77,9 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   fun expressionsFull(): List<Expression> = deps.map { it.expressionFull }
 
+  internal inline fun expressionsFull(function: (Dependency) -> Expression): List<Expression> =
+      deps.map(function)
+
   fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
 
   fun getIfPresent(key: Key): Dependency? = deps.firstOrNull { it.key == key }
@@ -122,6 +125,13 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   internal inline fun map(function: (MType) -> MType) =
       DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
+
+  internal inline fun mapWithKey(function: (Key, MType) -> MType) =
+      DependencySet(
+          deps.toSetStrict {
+            if (it is TypeDependency) it.map { type -> function(it.key, type) } else it
+          }
+      )
 
   fun specialize(specs: List<Expression>): DependencySet {
     // This has been a bit optimized

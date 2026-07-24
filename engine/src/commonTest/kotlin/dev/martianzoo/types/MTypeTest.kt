@@ -68,6 +68,45 @@ internal class MTypeTest {
   }
 
   @Test
+  fun inheritedThisRetainsItsIdentity() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Link<Class<Component>>
+
+            ABSTRACT CLASS SelfBound : Link<Class<This>>
+            ABSTRACT CLASS SelfMiddle : SelfBound
+            CLASS SelfLeaf : SelfMiddle
+
+            ABSTRACT CLASS LiteralBound : Link<Class<LiteralBound>>
+            ABSTRACT CLASS LiteralMiddle : LiteralBound
+            CLASS LiteralLeaf : LiteralMiddle
+
+            ABSTRACT CLASS LeftComponent
+            ABSTRACT CLASS RightComponent
+            ABSTRACT CLASS Pair<Class<LeftComponent>, Class<RightComponent>>
+            ABSTRACT CLASS Wrapper<Pair<Class<LeftComponent>, Class<RightComponent>>>
+            ABSTRACT CLASS Mixed : LeftComponent, RightComponent, Wrapper<Pair<Class<This>, Class<Mixed>>>
+            CLASS MixedLeaf : Mixed
+
+            CLASS LeftLiteral : LeftComponent
+            ABSTRACT CLASS Reordered : RightComponent, Wrapper<Pair<Class<This>, Class<LeftLiteral>>>
+            CLASS ReorderedLeaf : Reordered
+            """
+                .trimIndent()
+        )
+
+    table.getClass(cn("SelfLeaf")).baseType.expressionFull.toString() shouldBe
+        "SelfLeaf<Class<SelfLeaf>>"
+    table.getClass(cn("LiteralLeaf")).baseType.expressionFull.toString() shouldBe
+        "LiteralLeaf<Class<LiteralBound>>"
+    table.getClass(cn("MixedLeaf")).baseType.expressionFull.toString() shouldBe
+        "MixedLeaf<Pair<Class<MixedLeaf>, Class<Mixed>>>"
+    table.getClass(cn("ReorderedLeaf")).baseType.expressionFull.toString() shouldBe
+        "ReorderedLeaf<Pair<Class<LeftLiteral>, Class<ReorderedLeaf>>>"
+  }
+
+  @Test
   fun anyoneMeansUnrestrictedWithinTheDeclaredDependencyBound() {
     val table =
         loadTypes(

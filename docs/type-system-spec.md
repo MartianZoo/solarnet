@@ -118,6 +118,11 @@ For every admissible specialization `T`:
 Child<T> <: Base<T>
 ```
 
+An inherited `This` specialization remains bound to the current subclass. Thus if `SelfBound`
+extends `Link<Class<This>>`, then `SelfLeaf : SelfBound` has the bound `Class<SelfLeaf>`.
+An explicitly written `Class<SelfBound>` is a fixed class literal and remains unchanged in
+subclasses; textual equality after resolving `This` does not erase that distinction.
+
 ## 6. Refining a dependency
 
 ```pets

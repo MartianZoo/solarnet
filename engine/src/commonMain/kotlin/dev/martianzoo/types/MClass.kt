@@ -105,15 +105,14 @@ internal constructor(
 
   private val sups by declaration::supertypes
 
+  private fun replaceThis(expression: Expression): Expression =
+      replaceThisExpressionsWith(className.expression).transform(expression)
+
   private fun directSupertypes(): Set<MType> =
       when {
         className == COMPONENT -> setOf()
         sups.none() -> setOf(loader.componentClass.baseType)
-        else ->
-            sups.toSetStrict {
-              val dethissed = replaceThisExpressionsWith(className.expression).transform(it)
-              loader.resolve(dethissed)
-            }
+        else -> sups.toSetStrict { loader.resolve(replaceThis(it)) }
       }
 
   private val allSuperclasses: Set<MClass> by lazy {
@@ -154,24 +153,74 @@ internal constructor(
 
   // DEPENDENCIES
 
-  private val inheritedDeps: DependencySet by lazy {
-    val list: List<DependencySet> =
-        directSupertypes().map { supertype ->
-          val replacer = replacer(supertype.className, className)
-          supertype.dependencies.map {
-            val depExpr = it.expressionFull
-            val newArgs = depExpr.arguments.map(replacer::transform)
-            loader.resolve(depExpr.replaceArguments(newArgs))
-          }
-        }
-    glb(list) ?: DependencySet.of()
+  /** The dependency positions whose values are bound to the inheriting class. */
+  private val selfBindings: Set<DependencyPath> by lazy {
+    val inherited = directSuperclasses.flatMap { it.selfBindings }
+    val declared = sups.flatMap { sourceSupertype ->
+      val superclass = loader.getClass(sourceSupertype.className)
+      val arguments = sourceSupertype.arguments
+      val matched = superclass.dependencies.matchPartialInOrder(arguments.map(::replaceThis))
+      arguments.zip(matched).flatMap { (argument, dependency) ->
+        selfBindingsIn(argument, dependency, listOf(dependency.key))
+      }
+    }
+    (inherited + declared).toSet()
   }
 
-  // property because we don't retain `declaration`
+  private fun selfBindingsIn(
+      expression: Expression,
+      dependency: Dependency,
+      path: List<Key>,
+  ): List<DependencyPath> {
+    if (expression == THIS.expression) return listOf(DependencyPath(path))
+    if (expression.arguments.isEmpty()) return listOf()
+
+    val dependencies =
+        when (dependency) {
+          is TypeDependency -> dependency.boundType.dependencies
+          else -> return listOf()
+        }
+    val matched = dependencies.matchPartialInOrder(expression.arguments.map(::replaceThis))
+    return expression.arguments.zip(matched).flatMap { (argument, nestedDependency) ->
+      selfBindingsIn(argument, nestedDependency, path + nestedDependency.key)
+    }
+  }
+
+  private fun MType.bindSelfAt(paths: List<List<Key>>): Expression {
+    val pathsByKey = paths.groupBy { it.first() }
+    val arguments = dependencies.expressionsFull { dependency ->
+      val remainingPaths = pathsByKey[dependency.key]?.map { it.drop(1) }.orEmpty()
+      when {
+        remainingPaths.isEmpty() -> dependency.expressionFull
+        remainingPaths.any { it.isEmpty() } -> this@MClass.className.expression
+        dependency is TypeDependency -> dependency.boundType.bindSelfAt(remainingPaths)
+        else -> error("can't bind self within $dependency")
+      }
+    }
+    return expressionFull.replaceArguments(arguments)
+  }
+
+  private val inheritedDeps: DependencySet by lazy {
+    val inherited =
+        directSupertypes().map { supertype ->
+          val superclass = supertype.root
+          val pathsByKey = superclass.selfBindings.groupBy { it.keyList.first() }
+          supertype.dependencies.mapWithKey { key, boundType ->
+            val paths = pathsByKey[key]?.map { it.keyList.drop(1) }.orEmpty()
+            if (paths.isEmpty()) {
+              boundType
+            } else {
+              loader.resolve(boundType.bindSelfAt(paths))
+            }
+          }
+        }
+    glb(inherited) ?: DependencySet.of()
+  }
+
   private val declaredDeps by lazy {
     DependencySet.of(
-        declaration.dependencies.mapIndexed { i, dep ->
-          TypeDependency(Key(className, i), loader.resolve(dep))
+        declaration.dependencies.mapIndexed { index, expression ->
+          TypeDependency(Key(className, index), loader.resolve(expression))
         }
     )
   }
