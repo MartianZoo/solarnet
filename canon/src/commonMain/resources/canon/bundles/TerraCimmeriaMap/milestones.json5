@@ -1,0 +1,14 @@
+{
+  "milestones": [
+    // Collector
+    { "id": "IM1", "requirement": "3 AutomatedCard, 3 ActiveCard, 3 PlayedEvent" },
+    // Firestarter
+    { "id": "IM2", "requirement": "20 Heat" },
+    // Terra Pioneer
+    { "id": "IM3", "requirement": "5 OwnedTile" },
+    // Spacefarer
+    { "id": "IM4", "requirement": "6 SpaceTag" },
+//    // Gambler
+//    { "id": "IM5", "requirement": "2 FundedAward" },
+  ],
+}
