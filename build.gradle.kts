@@ -21,6 +21,7 @@ repositories { mavenCentral() }
 
 rootProject.plugins.withType<YarnPlugin> {
   rootProject.the<YarnRootExtension>().resolution("serialize-javascript", "7.0.3")
+  rootProject.the<YarnRootExtension>().resolution("fast-uri", "3.1.4")
 }
 
 configure<SpotlessExtension> {
