@@ -2,7 +2,6 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.SystemClasses.AUTO_LOAD
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
@@ -10,12 +9,10 @@ import dev.martianzoo.api.Type
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.engine.Transformers
-import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.tfm.data.GameSetup
 
 /**
  * All [MClass] instances come from here. Uses a [Ruleset] to pull class declarations from as
@@ -27,20 +24,8 @@ internal class MClassLoader(
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
-    override val ruleset: Ruleset,
+    internal val ruleset: Ruleset,
 ) : MClassTable() {
-
-  constructor(setup: GameSetup) : this(setup.ruleset) {
-    fun isAutoLoad(c: ClassDeclaration): Boolean =
-        c.className == AUTO_LOAD || c.supertypes.any { isAutoLoad(decl(it.className)) }
-
-    loadAll(setup.actors().classNames())
-    loadAll(setup.options.enabled)
-    loadAll(ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys)
-    loadAll(ruleset.allDefinitions.classNames())
-    freeze()
-  }
-
   private val cache = mutableMapOf<Expression, MType>()
 
   /** The `Component` class, which is the root of the class hierarchy. */

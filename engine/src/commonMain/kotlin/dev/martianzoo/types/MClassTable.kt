@@ -3,14 +3,10 @@ package dev.martianzoo.types
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.Type
-import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 
 public abstract class MClassTable {
-
-  internal abstract val ruleset: Ruleset
-
   /** The `Component` class, which is the root of the class hierarchy. */
   internal abstract val componentClass: MClass
 

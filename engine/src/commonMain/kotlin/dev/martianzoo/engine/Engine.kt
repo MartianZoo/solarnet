@@ -1,8 +1,10 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SystemClasses.AUTO_LOAD
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
@@ -10,6 +12,7 @@ import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task
+import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.MClassTable
@@ -45,7 +48,7 @@ public object Engine {
 
   private fun gameModule(setup: GameSetup) = module {
     single { setup }
-    single { MClassLoader(setup) } bind MClassTable::class
+    single { loadClassTable(setup) } bind MClassTable::class
     single { Effector(lazy { get<GameReaderImpl>() }) }
     single { WritableEventLog() }
     single<EventLog> { get<WritableEventLog>() }
@@ -93,4 +96,22 @@ public object Engine {
   internal interface Updater {
     fun update(count: Int, gaining: Component?, removing: Component?): StateChange
   }
+}
+
+internal fun loadClassTable(setup: GameSetup): MClassTable {
+  val ruleset = setup.ruleset
+
+  fun isAutoLoad(declaration: ClassDeclaration): Boolean =
+      declaration.className == AUTO_LOAD ||
+          declaration.supertypes.any {
+            isAutoLoad(ruleset.classDeclaration(it.className))
+          }
+
+  val rootClassNames =
+      setup.actors().classNames() +
+          setup.options.enabled +
+          ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys +
+          ruleset.allDefinitions.classNames()
+
+  return MClassLoader(ruleset).apply { rootClassNames.forEach(::load) }.freeze()
 }

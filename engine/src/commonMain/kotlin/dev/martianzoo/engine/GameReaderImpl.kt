@@ -30,7 +30,7 @@ internal class GameReaderImpl(
     override val setup: GameSetup,
 ) : GameReader, TypeInfo {
 
-  override val ruleset: TfmRuleset = classes.ruleset as TfmRuleset
+  override val ruleset: TfmRuleset = setup.ruleset
 
   override fun resolve(expression: Expression) = classes.resolve(expression)
 
@@ -72,7 +72,7 @@ internal class GameReaderImpl(
     if (type.root.custom == null) return components.count(type, this)
 
     val implementation =
-        classes.ruleset.customMetric(type.className)
+        ruleset.customMetric(type.className)
             ?: error("Custom class `${type.className}` has no metric implementation")
     if (type.abstract)
         throw AbstractException("custom metric type is abstract: ${type.expressionFull}")

@@ -12,6 +12,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
+import dev.martianzoo.engine.loadClassTable
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -171,7 +172,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = MClassLoader(Canon.fromOptionCodes("BRM", 2))
+    val table = loadClassTable(Canon.fromOptionCodes("BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val mtype = table.resolve(te(expr))
