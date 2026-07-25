@@ -1,8 +1,7 @@
 # Cards to add
 
-This table summarizes cards that still need complete working definitions. The old 455-card total
-predates the newer promo cards; the corresponding `cards-dont-work.json5` files are the source of
-truth for partial definitions.
+We have 441 cards working. We don't have the following ones or anything from the "Prelude 2"
+expansion.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
@@ -13,10 +12,9 @@ truth for partial definitions.
 | 153 | Adaptation Technology      | adjustreqt            |
 | B05 | Inventrix                  | adjustreqt            |
 | V04 | Morning Star Inc.          | adjustreqt            |
-| PC5 | Vitor                      | awards                |
 | B00 | Beginner Corporation       | beginner              |
 | XC1 | Arcadian Communities       | community             |
-| XC11 | PolderTECH Dutch          | community             |
+| XC11 | PolderTECH Dutch          | no reason?            |
 | 066 | Land Claim                 | community             |
 | XC5 | Mons Insurance             | complement, outofturn |
 | 173 | Protected Habitats         | complement            |
@@ -59,22 +57,3 @@ truth for partial definitions.
 | T15 | Wildlife Dome              | turmoil               |
 | T16 | Vote Of No Confidence      | turmoil               |
 | X09 | Political Alliance         | turmoil               |
-
-The following cards work, but need to be redone if we support "real cards mode".
-
-| id  | card name                  | blocker               |
-|-----|----------------------------|-----------------------|
-| XC4 | Factorum                   | realcards             |
-| XC8 | Pharmacy Union             | realcards             |
-| P12 | Experimental Forest        | realcards             |
-| P35 | Acquired Space Agency      | realcards             |
-| 005 | Search For Life            | realcards             |
-| 006 | Inventors' Guild           | realcards             |
-| 073 | Mars University            | realcards             |
-| 110 | Business Network           | realcards             |
-| 111 | Business Contacts          | realcards             |
-| 192 | Invention Contest          | realcards             |
-| X04 | Hi-Tech Lab                | realcards             |
-| X42 | New Partner                | realcards             |
-| X41 | Merger                     | realcards             |
-| X39 | Corporate Archives         | realcards             |
