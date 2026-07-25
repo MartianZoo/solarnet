@@ -18,7 +18,7 @@ internal class DependencyLinkTest {
           ABSTRACT CLASS Owned<Owner>
           CLASS Card : Owned
 
-          CLASS Linked<Card<Owner>> : Owned<Owner> {
+          ABSTRACT CLASS Linked<Card<Owner>> : Owned<Owner> {
             This: Token<Owner>
           }
           CLASS InheritedLink : Linked
@@ -32,7 +32,7 @@ internal class DependencyLinkTest {
 
   @Test
   fun `linked specialization also specializes effects`() {
-    val component = Component(table.resolve(te("Linked<Player1, Card>")) as MType)
+    val component = Component(table.resolve(te("InheritedLink<Player1, Card>")) as MType)
 
     component.effects.map(Any::toString).shouldContainExactly("This: Token<Player1>!")
   }
@@ -61,13 +61,13 @@ internal class DependencyLinkTest {
   @Test
   fun `linked concrete types are enumerated once`() {
     table
-        .getClass(te("Linked").className)
+        .getClass(te("InheritedLink").className)
         .concreteTypes()
         .map { it.expressionFull.toString() }
         .toList()
         .shouldContainExactlyInAnyOrder(
-            "Linked<Player1, Card<Player1>>",
-            "Linked<Player2, Card<Player2>>",
+            "InheritedLink<Player1, Card<Player1>>",
+            "InheritedLink<Player2, Card<Player2>>",
         )
   }
 }

@@ -82,11 +82,11 @@ evidence that Philares needs it, but abstractness itself must not infer who owns
 for the local case is the currently actionable queue, not the active player: an active player's
 queue may itself be suspended while another Actor handles delegated work.
 
-## Trigger specialization and Splice
+## Linked trigger narrowing and Splice
 
-Matching a concrete change may specialize abstract class names appearing in the trigger. Those
-specializations are bindings for the entire effect, including its instruction-side `BY` Actor. The
-same abstract class name must receive the same specialization at every linked occurrence; a match
+Matching a concrete change may narrow abstract class names appearing in the trigger. Those
+narrowings are bindings for the entire effect, including its instruction-side `BY` Actor. The
+same abstract class name must receive the same narrowing at every linked occurrence; a match
 that would bind it inconsistently is not valid. This is analogous to the linked occurrences of `X`
 within a `THEN` instruction.
 
@@ -102,13 +102,13 @@ MicrobeTag<CardFront, Anyone>:
     (2 Megacredit<Anyone> OR Microbe<CardFront, Anyone>) BY Anyone
 ```
 
-For a Microbe tag gained on Player1's Tardigrades, trigger specialization binds `Anyone` to Player1
+For a Microbe tag gained on Player1's Tardigrades, linked trigger narrowing binds `Anyone` to Player1
 and `CardFront` to that concrete Tardigrades card. Player1 already controls the operation, so the
 instruction-side `BY Player1` establishes Player1's choice authority without suspending the queue.
 
-Trigger specialization is fallible. A card can have a Microbe tag without being able to hold
+Linked trigger narrowing is fallible. A card can have a Microbe tag without being able to hold
 Microbes, so substituting that card into `Microbe<CardFront, Anyone>` may form an invalid type. An
-invalid specialized type makes its smallest enclosing atomic instruction `Die`, not `Ok`; ordinary
+invalid narrowed type makes its smallest enclosing atomic instruction `Die`, not `Ok`; ordinary
 instruction simplification then prunes `A OR Die` to `A`, while a sequence containing a mandatory
 `Die` remains impossible. Thus Splice gracefully leaves only the megacredit choice for such a card.
 
@@ -160,7 +160,7 @@ other queues, but changing preparation is not part of the first experiment.
 2. Add queue suspension and one-task delegation only far enough to implement the Philares rule.
    Remove the compatibility routing that directly assigns Philares's initial triggered task to its
    Owner once the new behavior is protected.
-3. Express Splice with trigger specialization and instruction-side `BY`. Cover both a Microbe
+3. Express Splice with linked trigger narrowing and instruction-side `BY`. Cover both a Microbe
    resource card and a Microbe-tagged card that cannot hold Microbes, including `OR Die` pruning.
 4. Exercise nested consequences from the delegated Philares task and verify that they return to
    the suspended parent queue unless they explicitly delegate again.

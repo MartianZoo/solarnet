@@ -13,14 +13,14 @@ class DefaultsTest {
     val loader =
         loader(
             """
-              CLASS Foo1 {
+              ABSTRACT CLASS Foo1 {
                 DEFAULT +Foo1.
               }
-              CLASS Bar1 {
+              ABSTRACT CLASS Bar1 {
                 DEFAULT -Bar1?
               }
               CLASS FooBar1 : Foo1, Bar1
-              CLASS Qux1 {
+              ABSTRACT CLASS Qux1 {
                 DEFAULT +Qux1!
               }
               CLASS Fixed: Qux1 {

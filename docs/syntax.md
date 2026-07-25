@@ -6,37 +6,38 @@ in `cards.json5`.
 ## Type expressions
 
 ```
-typeExpression  := genericTypeExpr | classLiteral
-genericTypeExpr := ['!'] className [specializations] [refinement]
-specializations := '<' typeExpression (',' typeExpression)* '>'
+typeExpression  := dependentTypeExpr | classLiteral
+dependentTypeExpr := ['!'] className [dependencyBounds] [refinement]
+dependencyBounds := '<' typeExpression (',' typeExpression)* '>'
 refinement      := '(HAS' requirement ')'
-classLiteral    := className '.CLASS'
+classLiteral    := 'Class' '<' className '>'
 className       := upperCamelRE
 ```
 
 Type expressions are the heart of the PETS language. There are two kinds.
 
-### Generic type expression
+### Dependency-bearing type expression
 
 This can be as simple as `Player1` or as complex as `CityTile<Player2, MarsArea(HAS MAX 0 CityTile<Anyone>)>`. First
-comes a class name, then an optional list of one or more specializations inside angle brackets, and finally an optional
-requirement. Of course, each listed specialization is an entire type expression itself.
+comes a class name, then an optional list of one or more dependency bounds inside angle brackets, and finally an optional
+requirement. Each listed bound is an entire type expression itself. In a class declaration these expressions instead
+introduce dependencies and state their original upper bounds.
 
 These expressions are a way of identifying a type, and types are explained in the [type system] article.
 
-A leading `!` can be used inside a specialization to mean "anything in this dependency's domain
+A leading `!` can be used inside a dependency bound to mean "anything in this dependency's domain
 except this type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not
 Player1. Complement type expressions are dependency constraints and have no standalone type.
 
 ### Class literal
 
-For any class name `Foo`, you can write the class literal `Class<Foo>`. An instace of `Foo.class` is created upon
+For any loaded class name `Foo`, you can write the class literal `Class<Foo>`. An instance of `Class<Foo>` is created upon
 initialization of the type system if and only if `Foo` is a concrete class. So, for example, an instance
-for `Class<StandardResource>` is not created; however if you `count StandardResource.class` you will get the answer `6`,
+for `Class<StandardResource>` is not created; however if you `count Class<StandardResource>` you will get the answer `6`,
 because it is counting all the subtypes. That is, class literals have the same subtype relationships as their
 corresponding classes do.
 
-`Class<AnyWordHere>` is not a valid type unless `AnyWordHere` names a loaded class. As a metric only, however, it is valid and counts as zero when that class is absent. This allows one bundle to query whether another bundle supplied a class without requiring that bundle. The expression remains invalid in instructions and dependency specializations, and all `Class` types are prohibited as triggers.
+`Class<AnyWordHere>` is not a valid type unless `AnyWordHere` names a loaded class. As a metric only, however, it is valid and counts as zero when that class is absent. This allows one bundle to query whether another bundle supplied a class without requiring that bundle. The expression remains invalid in instructions and dependency bounds, and all `Class` types are prohibited as triggers.
 
 ### Quantified expressions
 
@@ -56,7 +57,7 @@ the component graph; the REPL command `count Foo` evaluates exactly this kind of
 can instead have Kotlin metric behavior, in which case the implementation supplies the count even though no component
 of that class ever exists. For example, `MarsRow<Hellas_8_4>` evaluates to `8`.
 
-Custom metric types are specialized inside refinements in the usual way. Thus
+Custom metric types can state dependency bounds inside refinements in the usual way. Thus
 `OwnedTile<MarsArea(HAS 8 MarsRow)>` counts owned tiles in rows 8 and 9. Custom metrics can also appear after `/`, in
 milestone requirements, and anywhere else an ordinary metric can appear.
 

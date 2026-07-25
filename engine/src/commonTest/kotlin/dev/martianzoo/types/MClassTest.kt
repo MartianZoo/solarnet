@@ -36,7 +36,7 @@ internal class MClassTest {
 
   @Test
   fun subclass() {
-    val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
+    val loader = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar : Foo")
     val bar = loader.getClass(cn("Bar"))
     bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
     bar.allSuperclasses()
@@ -47,13 +47,21 @@ internal class MClassTest {
 
   @Test
   fun forwardReference() {
-    val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
+    val loader = loadTypes("CLASS Bar : Foo", "ABSTRACT CLASS Foo")
     val bar = loader.getClass(cn("Bar"))
     bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
     bar.allSuperclasses()
         .classNames()
         .shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
     bar.dependencies.keys.shouldBeEmpty()
+  }
+
+  @Test
+  fun concreteSuperclassRejected() {
+    shouldThrow<IllegalArgumentException> { loadTypes("CLASS Foo", "CLASS Bar : Foo") }
+    shouldThrow<IllegalArgumentException> {
+      loadTypes("CLASS Foo", "ABSTRACT CLASS Bar : Foo")
+    }
   }
 
   @Test
@@ -85,7 +93,7 @@ internal class MClassTest {
 
   @Test
   fun inheritedDependency() {
-    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar")
+    val loader = loadTypes("CLASS Foo", "ABSTRACT CLASS Bar<Foo>", "CLASS Qux : Bar")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
     qux.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Bar"))
@@ -97,7 +105,7 @@ internal class MClassTest {
 
   @Test
   fun restatedDependency() {
-    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
+    val loader = loadTypes("CLASS Foo", "ABSTRACT CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
     qux.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Bar"))
@@ -109,7 +117,8 @@ internal class MClassTest {
 
   @Test
   fun addedDependency() {
-    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz", "CLASS Qux<Baz> : Bar<Foo>")
+    val loader =
+        loadTypes("CLASS Foo", "ABSTRACT CLASS Bar<Foo>", "CLASS Baz", "CLASS Qux<Baz> : Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
 
@@ -119,7 +128,13 @@ internal class MClassTest {
 
   @Test
   fun refinedDependency() {
-    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz : Foo", "CLASS Qux : Bar<Baz>")
+    val loader =
+        loadTypes(
+            "ABSTRACT CLASS Foo",
+            "ABSTRACT CLASS Bar<Foo>",
+            "CLASS Baz : Foo",
+            "CLASS Qux : Bar<Baz>",
+        )
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
     qux.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Bar"))
@@ -142,7 +157,7 @@ internal class MClassTest {
             "ABSTRACT CLASS Foo : SuperFoo",
             "CLASS SubFoo : Foo",
             "ABSTRACT CLASS SuperBar<SuperFoo>",
-            "CLASS Bar : SuperBar<Foo>",
+            "ABSTRACT CLASS Bar : SuperBar<Foo>",
             "CLASS SubBar : Bar<SubFoo>",
             "CLASS Qux",
         )
@@ -172,7 +187,7 @@ internal class MClassTest {
     barFoo.isSubtypeOf(supFoo) shouldBe true
     barFoo.isSubtypeOf(barFoo) shouldBe true
 
-    barSub.abstract shouldBe false
+    barSub.abstract shouldBe true
     barSub.isSubtypeOf(supSup) shouldBe true
     barSub.isSubtypeOf(supFoo) shouldBe true
     barSub.isSubtypeOf(supSub) shouldBe true
@@ -215,7 +230,10 @@ internal class MClassTest {
 
   @Test
   fun testLubParent() {
-    val (cpt, foo, bar) = loadAndGetClasses("Foo", "Bar : Foo")
+    val table = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar : Foo")
+    val cpt = table.componentClass
+    val foo = table.getClass(cn("Foo"))
+    val bar = table.getClass(cn("Bar"))
     cpt.lub(cpt) shouldBe cpt
     cpt.lub(foo) shouldBe cpt
     cpt.lub(bar) shouldBe cpt
@@ -229,7 +247,11 @@ internal class MClassTest {
 
   @Test
   fun testLubNibling() {
-    val (cpt, foo, bar, qux) = loadAndGetClasses("Foo", "Bar", "Qux : Bar")
+    val table = loadTypes("CLASS Foo", "ABSTRACT CLASS Bar", "CLASS Qux : Bar")
+    val cpt = table.componentClass
+    val foo = table.getClass(cn("Foo"))
+    val bar = table.getClass(cn("Bar"))
+    val qux = table.getClass(cn("Qux"))
     qux.lub(qux) shouldBe qux
 
     cpt.lub(qux) shouldBe cpt

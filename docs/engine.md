@@ -221,7 +221,7 @@ is false if it had to stop to remove a dependent — the `Instructor` loops unti
 ## The Effector: From Active Effects to Triggered Instructions
 
 The same authored behavior has several representations during its lifecycle. A **source effect** is
-transformed into a loaded **class effect**, specialized for a concrete component as a **component
+transformed into a loaded **class effect**, bound to a concrete component as a **component
 effect**, and registered at runtime as an **active effect**. Matching an active effect against a
 particular change produces a **triggered instruction**. See the [glossary](../glossary.md) for the
 precise definitions.
@@ -254,20 +254,23 @@ is separate: it controls whether an implementation component normally appears in
 output. `System` extends `Hidden`, while `Signal` is hidden without necessarily being engine-only.
 These rules affect subscription matching and do not rewrite the authored effect.
 
-For "self" triggers (`WhenGain`/`WhenRemove`), the effect fires immediately when the component
-that carries it is the thing being gained/removed. For "other" triggers (`OnGainOf`/`OnRemoveOf`),
-the effector checks all registered active effects against each new change event.
+Pets spells the self triggers `This:` and `-This:`. They fire only for the occurrences of the
+effect-bearing concrete type changed by this event; they are not ordinary subscriptions to that
+type. Adding or removing `N` copies scales the instruction by `N` once, regardless of how many
+other copies already exist. For other triggers (`OnGainOf<X>`/`OnRemoveOf<X>`), the effector checks
+all registered active effects against each new change event, so their active multiplicity does
+matter.
 
-Creating a component effect applies the same checked specialization to its instruction: an invalid
+Creating a component effect applies the same checked narrowing to its instruction: an invalid
 atomic consequence becomes `Die`, allowing an enclosing `OR` to discard it. Every remaining type
 is then validated; an invalid trigger, gate, or other expression is a class-modeling error and fails
-with the component and specialized effect in the error message. The deliberate exception is an
-effect inherited by a passive, non-Player Owner when that effect requires Player-bound output; that
-inapplicable effect is omitted.
+with the component and bound effect in the error message. The deliberate exception is an effect
+declared by a supertype and applied to a passive, non-Player Owner when that effect requires
+Player-bound output; that inapplicable effect is omitted.
 
-When a concrete change matches an abstract trigger, the matching specialization is also applied to
-the triggered instruction. Repeated class names therefore stay linked across the trigger and its
-consequence. If specialization makes an atomic change's type invalid, that change becomes `Die`;
+When a concrete change narrows an abstract trigger, the same linked narrowing is applied to the
+triggered instruction. Repeated class names therefore stay linked across the trigger and its
+consequence. If narrowing makes an atomic change's type invalid, that change becomes `Die`;
 an enclosing `OR` discards the impossible branch, and fails if no branch remains.
 
 When an active effect fires, if the effect is **automatic** (double-colon in Pets syntax), the

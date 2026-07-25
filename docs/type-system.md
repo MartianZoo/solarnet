@@ -18,13 +18,13 @@ Note that components are never "out of play"; a tile that's not yet on the board
 
 As expected, we *declare* named classes (like `Player1`, `Animal`, or `EcologicalZone`) each class *defines* a type (by the same name), and then these types can be assembled into more complex types (like `Animal<Player1, EcologicalZone<Player1>>`).
 
-A class is abstract or concrete. It can have any number of superclasses, which might also be abstract or concrete, without restriction (concrete extending concrete is very rare: only `CapitalTile` does it).
+A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
 All classes are loaded and frozen before a game begins. So, for example, for any class we always know the complete set of its subclasses. Only the types that *might* be needed in that game are loaded. For example, without the Venus expansion there will be no such type as `VenusStep` or `VenusTag`. This also explains, for example, how we can tell which 5 milestones are available to be claimed, even though no instance of `Milestone` exists in the game state until we claim one; we just look at what classes have been loaded. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
 
-## Generic types / dependencies
+## Types and dependencies
 
-Pets types are generic types. We have `Energy<Player2>` and `CityTile<VolcanicArea>` etc. The first class named is the "root type", then comes a list of "specializations" (similar to "type arguments", but we'll get to the differences).
+Pets types can carry dependencies. We have `Energy<Player2>` and `CityTile<VolcanicArea>` etc. The first class named is the "root type", followed by the written dependency bounds. A top-level bound in a class's own declaration also introduces that dependency; elsewhere the notation only states the bound of an existing dependency.
 
 These types express not just an arbitrary parameterization, but a *dependency*. An instance of `Energy` cannot exist without one *specific* instance of `Player` to depend on. A `CityTile` can't exist without both a `Player` and an `Area` to depend on. A component can't be removed without dealing with its dependents somehow (for example, to remove `PharmacyUnion<Player2>` from play, all the `Disease<PharmacyUnion>` components must already be gone, and the two `MicrobeTag<PharmacyUnion>` components need to be removed automatically with the card).
 
@@ -48,37 +48,41 @@ We can see that:
 * `LandArea` is a subclass of `Area`, but is still abstract
 * `Tharsis_5_6` is one specific (concrete) subclass of `LandArea`
 * Any instance of `Tile` will depend on an instance of `Area`
-* `OceanTile` automatically inherits that dependency
-* `GreeneryTile` automatically inherits the `Player` dependency from `Owned`, and...
-* ... also inherits the `Area` dependency from `Tile`, which it *narrows* to `MarsArea` (since greenery tiles on Phobos Space Haven are not a thing)
+* Every `OceanTile` is a `Tile`, so it necessarily has that dependency
+* Every `GreeneryTile` is `Owned`, so it necessarily has the `Player` dependency, and...
+* ... every `GreeneryTile` is also a `Tile`, with the `Area` bound narrowed to `MarsArea` (since greenery tiles on Phobos Space Haven are not a thing)
 
-These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing), or more commonly just `GreeneryTile<Player1>`. We can always omit a dependency when it would be the same as that dependency's upper bound.
+These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing), or more commonly just `GreeneryTile<Player1>`. We can always omit a written dependency bound when it equals that dependency's upper bound.
 
-The component graph identifies each dependency by its concrete type rather than by a separate
-instance identity. Therefore every concrete type admitted by a dependency must have an applicable
+Components are the vertices of a directed component graph, and their dependencies are its directed
+edges. The target of each concrete dependency is identified by its concrete type rather than by a
+separate instance identity. Therefore every concrete type admitted by a dependency must have an applicable
 upper bound of one, normally from `HAS =1 This` or `HAS MAX 1 This`. A stronger aggregate upper
 bound of one that covers the concrete type is also sufficient. When the engine constructs its
-limiter, it enumerates every concrete specialization of every dependency and rejects the ruleset
+limiter, it enumerates every concrete type admitted by every dependency and rejects the ruleset
 before game initialization if any target violates this rule.
 
 ### Linked dependencies
 
-Top-level expressions in a class's dependency list always declare independent dependency slots,
+Top-level expressions in a class's dependency list always declare independent dependencies,
 even when they are written identically. Thus the two `Tile` dependencies in
 `Adjacency<Tile, Tile>` can refer to tiles on different areas.
 
-A class signature can instead link two inherited occurrences of the same dependency declaration by
-writing the same simple specialization explicitly at both locations. For example:
+A class signature can instead link two occurrences of the same dependency introduced by a
+supertype by writing the same simple bound explicitly at both locations. For example:
 
 ```
 ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
 ```
 
-Both `Owner` expressions specialize the dependency originally declared by `Owned`, so they must
+Both `Owner` expressions narrow the same dependency originally declared by `Owned`, so they must
 always resolve to the same owner. As a result, `Animal<Player1, Pets>`,
 `Animal<Pets<Player1>>`, and `Animal<Player1, Pets<Player1>>` resolve to the same concrete type,
-while `Animal<Player1, Pets<Player2>>` is malformed. If the repeated specialization is omitted from
+while `Animal<Player1, Pets<Player2>>` is malformed. If the repeated bound is omitted from
 the declaration, the dependency occurrences remain independent.
+
+This is one recognition scope of the more general [linkage rules](type-system-spec.md#10-linkages),
+which also distinguish the contextual `This` binding and cover effects, instructions, and `X`.
 
 ### Variance
 
@@ -94,7 +98,7 @@ This can be slightly confusing. The *class* `OceanTile` is a concrete class. Yet
 
 (Aside: a Pets instruction like `3 Animal<CardFront>` is valid even though the `Animal<CardFront>` type is abstract. It simply cannot be *executed* in that form. It must be narrowed to a concrete type first, such as `3 Animal<Player3, Predators<Player3>>`. There is no way to break it up into, say, `2 Animal<Predators>, 1 Animal<Fish>`. Conveniently, this simple constraint makes the game rules work correctly in a variety of ways. If a card says `-6 Plant<Anyone>?`, can you remove 4 from one player and 2 from another? No, you can't. There are a few automatic "narrowing" steps, but for the most part an abstract type left in an instruction allows the player to choose how they want to narrow it. For example, in `CityTile<VolcanicArea>`, the player can narrow it to `CityTile<Tharsis_2_2>`. Since that is concrete, however, they cannot choose to *further* narrow it to `CapitalTile<Tharsis_2_2>`. Okay, enough digression.)
 
-### Effects and specialization
+### Effects and narrowing
 
 Consider this example (it's a bit fictional; I'll show how production is really implemented lower down):
 
@@ -116,7 +120,18 @@ One possible way to think of this is that `PlantProduction<Player>` both specifi
 
 ### `This`
 
-The effects inside a class declaration can use the special class name `This`. It is a placeholder for the *specific concrete type* of whatever component inherits it.
+`This` is a built-in contextual binding for a class declaration, rather than a normal class name or
+a linkage inferred from repeated spelling. In an abstract class it remains a placeholder through
+subclassing. Once an exact component such as `Example<Player1>` supplies the context, ordinary
+`This` occurrences become that full concrete type; `Class<This>` becomes `Class<Example>` because a
+class literal contains only the root class.
+
+This applies in signatures as well as class bodies, including invariants and effects. If
+`SelfBound` extends `Link<Class<This>>`, then a concrete `SelfLeaf : SelfBound` extends
+`Link<Class<SelfLeaf>>`. Writing
+`Link<Class<SelfBound>>` explicitly is different: that literal remains fixed in every subclass.
+The [formal linkage rules](type-system-spec.md#101-the-contextual-this-binding) explain how this
+special binding relates to repetition-created type and scalar linkages.
 
 `This` has the same inherited meaning in a class signature. If `SelfBound` extends `Link<Class<This>>`, then `SelfLeaf : SelfBound` extends `Link<Class<SelfLeaf>>`. Writing `Link<Class<SelfBound>>` explicitly is different: that class literal remains `Class<SelfBound>` in every subclass.
 
@@ -128,7 +143,7 @@ For example, `Area` is a singleton abstract class. It has 61 concrete subclasses
 
 ### Class types
 
-The `Class` class is predefined. It accepts one "type argument" or "specialization", but works differently from all other generic types:
+The `Class` class is predefined. `Class<Foo>` contains one class name, not a dependency bound:
 
 * This is *not* a "dependency"; `Class<Steel>` can exist even though no `Steel` instance exists yet to be depended on.
 * Only a single class name can go inside the angle brackets. `Class<Steel>` works but `Class<Steel<Player2>>` does not.
@@ -136,7 +151,7 @@ The `Class` class is predefined. It accepts one "type argument" or "specializati
 
 `Class` is a singleton class. If you ask a game state to count the instances of the type `Class<StandardResource>` you will get the answer `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get 7, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract, and so cannot exist as a component.)
 
-`Class<AnyWordHere>` is not a valid type when `AnyWordHere` is not a loaded class. There is one metric-only exception: counting that expression produces zero instead of a class-not-found error. This lets one bundle query whether another bundle supplied a class without depending on that bundle. It remains invalid in instructions and dependency specializations. Also, no `Class` type, valid or otherwise, is legal as a trigger.
+`Class<AnyWordHere>` is not a valid type when `AnyWordHere` is not a loaded class. There is one metric-only exception: counting that expression produces zero instead of a class-not-found error. This lets one bundle query whether another bundle supplied a class without depending on that bundle. It remains invalid in instructions and dependency arguments. Also, no `Class` type, valid or otherwise, is legal as a trigger.
 
 An open question is whether the differences outlined here are enough to justify using a different syntax -- for example instead of `Class<Steel>` we could use `Steel.CLASS` or `{Steel}` or something else. Currently I think there are probably enough similarities to make it worth keeping as-is, but I'm not sure.
 
@@ -150,4 +165,4 @@ CLASS Production<Class<StandardResource>> : Owned {
 }
 ```
 
-`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because then anytime you had no `Energy` resources you would be unable to have any `Production<Energy>` either! (Remember, these aren't *just* generic types; they express real live dependencies.) But with this trick a game state can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first type specializes the class effect shown above into the component effect `ProductionPhase: Steel<Player2>`.
+`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because then anytime you had no `Energy` resources you would be unable to have any `Production<Energy>` either! (The angle-bracket expressions describe real dependencies, not arbitrary parameterization.) But with this trick a game state can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first type binds the class effect shown above, yielding the component effect `ProductionPhase: Steel<Player2>`.

@@ -6,7 +6,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Known Incorrect Behavior
 
-- [#12: Linked specialization](https://github.com/MartianZoo/solarnet/issues/12) — Link identical abstract expressions within one effect or `THEN`, but not across comma-separated instructions. This affects solo setup, Kaguya Tech, Flooding, Utopia Invest, Splice, Trade Envoys, Trading Colony, and action-used markers.
+- [#12: Linkages across `THEN`](https://github.com/MartianZoo/solarnet/issues/12) — Link identical abstract expressions within one effect or `THEN`, but not across comma-separated instructions. This affects solo setup, Kaguya Tech, Flooding, Utopia Invest, Splice, Trade Envoys, Trading Colony, and action-used markers.
 - Make Head Start finish its first selected action before selecting the second.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
 - [#63: Atmoscoop](https://github.com/MartianZoo/solarnet/issues/63) — Allow atomized `Multi` instructions inside `OR`, then restore simultaneous track raises. (Later)
@@ -22,6 +22,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ### Language and Engine Semantics
 
 - Do not infer dependency linkage between sibling positions in the same argument list. Repeating a bound there cannot usefully express linkage—the author could collapse linked positions into one dependency—and currently causes nested declarations such as `Pair<Class<Component>, Class<Component>>` to couple the two `Component` positions.
+- Inventory complement use sites and decide whether Pets needs proper difference types. The current cases are an other-owner constraint and Viron's nested `ActionUsedMarker<!Viron>` workaround; specify every legal complement context only after deciding whether one mechanism serves both.
+- Decide whether to reject dependency cycles or support creating an entire dependency cycle atomically; one-component-at-a-time creation cannot establish the currently loadable cycles.
+- Remove class short names from the type system and preserve only worthwhile abbreviations in a translation layer close to tests and the REPL.
+- Move the semantic type-system core toward `pets`; decide whether `MClassTable` and its loader stay engine-owned after separating game setup, component creation, and effect activation.
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - Consider letting custom metrics query typed, read-only event history for facts such as `HasRaisedTr` and this-generation attacks, avoiding permanent watchers; preserve semantic generation boundaries and rollback/replay determinism.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
@@ -61,7 +65,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Engine Safety and Maintainability
 
-- Make abstract custom metrics automatically enumerate concrete dependency specializations satisfying their refinements, invoke the custom implementation for each fully concrete type, and sum the results.
+- Make abstract custom metrics automatically enumerate concrete dependency bounds satisfying their refinements, invoke the custom implementation for each fully concrete type, and sum the results.
 - Give custom implementations an explicit declaration of the types they require so loading the custom class also loads those types.
 - Replace or constrain `doFirstTask()`; require an id/match unless exactly one task applies.
 - Validate every shared `X` in a `THEN` against one multiplier without traversal-order zipping.

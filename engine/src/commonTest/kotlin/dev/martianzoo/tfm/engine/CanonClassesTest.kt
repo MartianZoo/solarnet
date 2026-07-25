@@ -13,7 +13,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.HasClassName.Companion.classNames
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -114,18 +113,6 @@ internal class CanonClassesTest {
     engine.manual("End")
     game.gameplay(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
-  }
-
-  @Test
-  fun concreteExtendingConcrete() {
-    val map = mutableListOf<Pair<ClassName, ClassName>>()
-    table
-        .allClasses()
-        .filterNot { it.abstract }
-        .forEach { sup ->
-          (sup.allSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }
-        }
-    map.shouldBeEmpty()
   }
 
   @Test

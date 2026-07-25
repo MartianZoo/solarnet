@@ -61,6 +61,13 @@ internal constructor(
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
+  init {
+    require(directSuperclasses.all { it.abstract }) {
+      "$className cannot extend concrete class(es): " +
+          directSuperclasses.filterNot { it.abstract }.joinToString { "${it.className}" }
+    }
+  }
+
   /**
    * A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className].
    */
