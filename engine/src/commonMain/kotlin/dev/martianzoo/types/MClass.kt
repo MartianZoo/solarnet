@@ -1,32 +1,17 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.SystemClasses.OK
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasClassName.Companion.classNames
-import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
-import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.Companion.split
-import dev.martianzoo.pets.ast.Requirement.Counting
-import dev.martianzoo.pets.ast.Requirement.Min
-import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
@@ -37,10 +22,9 @@ import dev.martianzoo.util.toSetStrict
 
 /**
  * A class that has been loaded by a [MClassLoader] based on a [ClassDeclaration]. Each loader has
- * its own separate universe of [MClass]es. While a declaration is just inert data, this type has
- * behavior that is useful to the engine. This loaded class should be the source for most
- * information you need to know about a class at runtime, but the declaration itself can always be
- * retrieved from it when necessary.
+ * its own separate universe of [MClass]es. While a declaration is inert data, this type provides
+ * its resolved hierarchy, dependencies, and types. The source [declaration] remains available for
+ * non-type-system consumers.
  *
  * (Think of it as being called `Class`; it has a prefix just to distinguish it from
  * `java.lang.Class`. The name `MClass` comes from the fact that the object of the game is to turn
@@ -49,7 +33,7 @@ import dev.martianzoo.util.toSetStrict
 public class MClass
 internal constructor(
     /** The class declaration this class was loaded from. */
-    declaration: ClassDeclaration,
+    public val declaration: ClassDeclaration,
 
     /** The class loader that loaded this class. */
     internal val loader: MClassLoader,
@@ -354,72 +338,6 @@ internal constructor(
   internal val defaultsDecl by declaration::defaultsDeclaration
 
   internal val defaults: Defaults by lazy { Defaults.forClass(this) }
-
-  // EFFECTS
-
-  val custom: CustomClass? =
-      if (declaration.custom) {
-        loader.ruleset.customClass(className)
-      } else {
-        require(loader.ruleset.customClasses.none { it.className == className })
-        null
-      }
-
-  internal val declaredEffects: List<Effect> by declaration::effects
-
-  /**
-   * The effects belonging to this class; similar to those found on the declaration, but processed
-   * as far as we are able to. These effects will belong to every [MType] built from this class,
-   * where they will be processed further.
-   */
-  internal val classEffects: List<Effect> by lazy {
-    fun directClassEffects(mclass: MClass) =
-        mclass.declaredEffects.map(mclass.attachToClassTransformer::transform)
-
-    allSuperclasses().flatMap(::directClassEffects)
-  }
-
-  private val attachToClassTransformer: PetTransformer by lazy {
-    val weirdExpression = className.has(Min(scaledEx(1, OK)))
-    val xers = loader.transformers
-    chain(
-        xers.insertDefaults(weirdExpression),
-        xers.atomizer(),
-        Prod.deprodify(loader),
-        fixEffectForUnownedContext(),
-    )
-  }
-
-  private fun fixEffectForUnownedContext(): PetTransformer? {
-    if (allSuperclasses.any { it.className == OWNED || it.className == OWNER }) return null
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {
-          @Suppress("UNCHECKED_CAST")
-          node.copy(trigger = ByTrigger(node.trigger, OWNER)) as P
-        } else {
-          transformChildren(node)
-        }
-      }
-    }
-  }
-
-  // OTHER
-
-  private val directInvariants = split(declaration.invariants)
-
-  fun invariants(): Set<Requirement> {
-    return if (abstract) {
-      setOf()
-    } else {
-      allSuperclasses().flatMap { it.directInvariants }.toSet()
-    }
-  }
-
-  fun isSingletonType(): Boolean =
-      invariants().any {
-        (it as Counting).range.first == 1 && it.scaledEx.expression == THIS.expression
-      }
 
   override fun equals(other: Any?) =
       other is MClass && other.className == className && other.loader == loader

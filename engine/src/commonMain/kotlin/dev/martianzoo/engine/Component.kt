@@ -27,7 +27,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
 
   internal val type by ::mtype
 
-  internal val isCustom: Boolean = mtype.root.custom != null
+  internal val isCustom: Boolean = mtype.root.declaration.custom
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
@@ -50,12 +50,11 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
   internal val playerOwner: Player? =
       owner?.className?.let { if (Player.isValid(it)) Player(it) else null }
 
-  internal val effects: List<Effect> by lazy {
-    val transformers = Transformers(mtype.loader)
+  internal fun effects(transformers: Transformers): List<Effect> {
     val ownerBinding = owner?.let(::replaceOwnerWith)
     val thisBinding = replaceThisExpressionsWith(expression)
 
-    if (owner == null || playerOwner != null) {
+    return if (owner == null || playerOwner != null) {
       val checkedBinding =
           transformers.checkedSubstituter(
               mtype.root.defaultType,
@@ -63,7 +62,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
               ownerBinding,
               thisBinding,
           )
-      mtype.root.classEffects.map { effect ->
+      transformers.classEffects(mtype.root).map { effect ->
         val bound = checkedBinding.transform(effect)
         try {
           mtype.loader.checkAllTypes(bound)
@@ -78,7 +77,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
     } else {
       val uncheckedBinding =
           chain(transformers.substituter(mtype.root.defaultType, mtype), ownerBinding, thisBinding)
-      mtype.root.classEffects.mapNotNull { effect ->
+      transformers.classEffects(mtype.root).mapNotNull { effect ->
         val bound = uncheckedBinding.transform(effect)
         try {
           mtype.loader.checkAllTypes(bound)
@@ -105,7 +104,8 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
       }
 
   public fun prepareCustom(reader: GameReader): Instruction {
-    val implementation = requireNotNull(mtype.root.custom)
+    require(mtype.root.declaration.custom)
+    val implementation = reader.ruleset.customClass(mtype.className)
     val translated = implementation.prepare(reader, mtype)
     return customOutputTransformer.transform(translated)
   }

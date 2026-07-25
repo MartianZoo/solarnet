@@ -150,7 +150,7 @@ internal class Instructor(
     val gaining = g?.toComponent()
     val removing = r?.toComponent()
 
-    if (g?.root?.custom != null) {
+    if (g?.root?.declaration?.custom == true) {
       require(r == null) { "custom class instructions can only be pure gains" }
       val translated = Prod.deprodify(classes).transform(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)

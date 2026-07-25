@@ -4,12 +4,17 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.DIE
+import dev.martianzoo.api.SystemClasses.OK
+import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -20,8 +25,10 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.Defaults
 import dev.martianzoo.types.Defaults.DefaultSpec
 import dev.martianzoo.types.Dependency.Key
@@ -31,6 +38,44 @@ import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 
 internal class Transformers(internal val classes: MClassTable) {
+
+  private val effectsByClass = mutableMapOf<MClass, List<Effect>>()
+  private val resourceClassNames by lazy { Prod.findResourceClassNames(classes) }
+
+  /** Effects inherited by [mclass], processed as far as possible without a concrete component. */
+  internal fun classEffects(mclass: MClass): List<Effect> {
+    require(mclass.loader === classes) { "$mclass belongs to a different class table" }
+    return effectsByClass.getOrPut(mclass) {
+      fun directClassEffects(source: MClass) =
+          source.declaration.effects.map(attachToClassTransformer(source)::transform)
+
+      mclass.allSuperclasses().flatMap(::directClassEffects)
+    }
+  }
+
+  private fun attachToClassTransformer(mclass: MClass): PetTransformer {
+    val context = mclass.className.has(Min(scaledEx(1, OK)))
+    return chain(
+        insertDefaults(context),
+        atomizer(),
+        Prod.deprodify(resourceClassNames),
+        fixEffectForUnownedContext(mclass),
+    )
+  }
+
+  private fun fixEffectForUnownedContext(mclass: MClass): PetTransformer? {
+    if (mclass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {
+          @Suppress("UNCHECKED_CAST")
+          node.copy(trigger = ByTrigger(node.trigger, OWNER)) as P
+        } else {
+          transformChildren(node)
+        }
+      }
+    }
+  }
 
   internal fun useFullNames() =
       object : PetTransformer() {

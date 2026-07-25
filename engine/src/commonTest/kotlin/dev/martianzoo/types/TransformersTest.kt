@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -49,7 +50,7 @@ class TransformersTest {
   }
 
   private companion object {
-    val transformers = (CanonClassesTest.table as MClassLoader).transformers
+    val transformers = Transformers(CanonClassesTest.table)
   }
 
   private fun checkApplyDefaults(
@@ -73,7 +74,7 @@ class TransformersTest {
   @Test
   fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)
+    val deprodden: Effect = Prod.deprodify(setOf(cn("Plant"))).transform(prodden)
     deprodden.toString() shouldBe "This: Production<Class<Plant>> / PlantTag"
   }
 

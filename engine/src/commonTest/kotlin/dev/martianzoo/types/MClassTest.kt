@@ -1,5 +1,6 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -14,6 +15,16 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class MClassTest {
+  @Test
+  fun `root classes reject unexpected custom implementations`() {
+    val ruleset =
+        object : TfmRuleset.Empty() {
+          override val customClasses = setOf(object : CustomClass(COMPONENT) {})
+        }
+
+    shouldThrow<IllegalArgumentException> { MClassLoader(ruleset) }
+  }
+
   @Test
   fun nothingness() {
     val loader = loadTypes()

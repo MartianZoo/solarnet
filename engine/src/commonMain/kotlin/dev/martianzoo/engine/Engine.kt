@@ -49,7 +49,8 @@ public object Engine {
   private fun gameModule(setup: GameSetup) = module {
     single { setup }
     single { loadClassTable(setup) } bind MClassTable::class
-    single { Effector(lazy { get<GameReaderImpl>() }) }
+    singleOf(::Transformers)
+    single { Effector(get(), lazy { get<GameReaderImpl>() }) }
     single { WritableEventLog() }
     single<EventLog> { get<WritableEventLog>() }
     single<TaskListener> { get<WritableEventLog>() }
@@ -59,7 +60,6 @@ public object Engine {
     single<Updater> { get<WritableComponentGraph>() }
     singleOf(::TaskQueues)
     single<TaskQueue> { get<TaskQueues>().all() }
-    singleOf(::Transformers)
     singleOf(::GameReaderImpl) { bind<GameReader>() }
     singleOf(::TimelineImpl) { bind<Timeline>() }
     singleOf(::Limiter)

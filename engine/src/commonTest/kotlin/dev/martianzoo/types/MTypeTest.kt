@@ -2,6 +2,7 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -285,10 +286,11 @@ internal class MTypeTest {
   }
 
   fun findSubstitutions(mType: MType): Map<ClassName, Expression> =
-      mType.loader.transformers.findSubstitutions(
-          mType.root.defaultType.dependencies,
-          mType.dependencies,
-      )
+      Transformers(mType.loader)
+          .findSubstitutions(
+              mType.root.defaultType.dependencies,
+              mType.dependencies,
+          )
 
   @Test
   fun subs() {

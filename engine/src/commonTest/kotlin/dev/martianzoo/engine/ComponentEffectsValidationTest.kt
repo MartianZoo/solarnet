@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.types.MType
 import dev.martianzoo.types.loader
 import dev.martianzoo.types.te
@@ -21,25 +22,38 @@ class ComponentEffectsValidationTest {
           CLASS BrokenHolder<Target> { Wrapper<Target>: Good }
           """
       )
+  private val transformers = Transformers(table)
 
   @Test
   fun `valid specialized component effect is retained`() {
     val component = Component(table.resolve(te("Holder<Good>")) as MType)
 
-    component.effects.map(Any::toString).shouldContainExactly("This: Good! OR Wrapper<Good>!")
+    component
+        .effects(transformers)
+        .map(Any::toString)
+        .shouldContainExactly("This: Good! OR Wrapper<Good>!")
   }
 
   @Test
   fun `invalid atomic branch after component specialization becomes Die`() {
     val component = Component(table.resolve(te("Holder<Bad>")) as MType)
 
-    component.effects.map(Any::toString).shouldContainExactly("This: Good! OR Die!")
+    component.effects(transformers).map(Any::toString).shouldContainExactly("This: Good! OR Die!")
   }
 
   @Test
   fun `invalid specialized component trigger fails validation`() {
     val component = Component(table.resolve(te("BrokenHolder<Bad>")) as MType)
 
-    shouldThrow<ExpressionException> { component.effects }
+    shouldThrow<ExpressionException> { component.effects(transformers) }
+  }
+
+  @Test
+  fun `class effects reject a class from another table`() {
+    val otherTable = loader("CLASS Holder")
+
+    shouldThrow<IllegalArgumentException> {
+      transformers.classEffects(otherTable.getClass(cn("Holder")))
+    }
   }
 }

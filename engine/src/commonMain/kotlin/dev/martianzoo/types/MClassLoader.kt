@@ -8,7 +8,6 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Ruleset
-import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric.Count
@@ -29,16 +28,19 @@ internal class MClassLoader(
   private val cache = mutableMapOf<Expression, MType>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
-  override val componentClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
+  override val componentClass =
+      MClass(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
-  override val classClass = MClass(decl(CLASS), this, directSuperclasses = listOf(componentClass))
+  override val classClass =
+      MClass(
+          validateCustomImplementation(decl(CLASS)),
+          this,
+          directSuperclasses = listOf(componentClass),
+      )
 
   private val loadedClasses =
       mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
-
-  // MClasses & MTypes need this so this is where it has to be
-  internal val transformers = Transformers(this)
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
@@ -151,6 +153,7 @@ internal class MClassLoader(
   // all MClasses are created here (aside from Component and Class, at top)
   private fun construct(decl: ClassDeclaration): MClass {
     require(!frozen) { "Too late, this table is frozen!" }
+    validateCustomImplementation(decl)
 
     fun store(c: MClass?) {
       loadedClasses[decl.className] = c
@@ -185,6 +188,15 @@ internal class MClassLoader(
   override fun toString() = "loader$id"
 
   private fun decl(cn: ClassName) = ruleset.classDeclaration(cn)
+
+  private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
+    if (decl.custom) {
+      ruleset.customClass(decl.className)
+    } else {
+      require(ruleset.customClasses.none { it.className == decl.className })
+    }
+    return decl
+  }
 
   private val id = nextId++
 

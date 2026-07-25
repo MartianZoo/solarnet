@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Transform
@@ -15,15 +16,26 @@ import dev.martianzoo.types.MClassTable
 
 object Prod {
   public fun deprodify(table: MClassTable): PetTransformer {
+    return deprodify(findResourceClassNames(table))
+  }
+
+  internal fun findResourceClassNames(table: MClassTable): Set<ClassName> {
     if (
         STANDARD_RESOURCE !in table.allClassNamesAndIds || PRODUCTION !in table.allClassNamesAndIds
     ) {
-      return PetTransformer.noOp()
+      return setOf()
     }
-    val classNames =
-        table.getClass(STANDARD_RESOURCE).allSubclasses().flatMap {
-          setOf(it.className, it.shortName)
-        }
+    return table.getClass(STANDARD_RESOURCE).allSubclasses().flatMapTo(mutableSetOf()) {
+      setOf(it.className, it.shortName)
+    }
+  }
+
+  /**
+   * Rewrites `PROD` boxes, recognizing exactly the full or short class names in
+   * [resourceClassNames].
+   */
+  public fun deprodify(resourceClassNames: Set<ClassName>): PetTransformer {
+    if (resourceClassNames.isEmpty()) return PetTransformer.noOp()
 
     return object : PetTransformer() {
       private var inProd = false
@@ -62,7 +74,7 @@ object Prod {
                 inner
               }
               inProd && node is Expression && node.className == CLASS -> node
-              inProd && node is Expression && node.className in classNames ->
+              inProd && node is Expression && node.className in resourceClassNames ->
                   PRODUCTION.of(node.arguments + node.className.classExpression())
               else -> transformChildren(node)
             }

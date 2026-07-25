@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -23,13 +24,16 @@ internal class CanonEffectsTest {
   }
 
   fun classEffectsOf(name: String, table: MClassTable) =
-      table.getClass(cn(name)).classEffects.toStrings()
+      Transformers(table).classEffects(table.getClass(cn(name))).toStrings()
 
   @Test
   fun compiledByOwnerEffectsHaveResolvableOwnerBindings() {
+    val table = MClassLoader(Canon).loadEverything()
+    val transformers = Transformers(table)
     val compiledByOwnerEffects =
-        MClassLoader(Canon).loadEverything().allClasses().flatMap { mClass ->
-          mClass.classEffects
+        table.allClasses().flatMap { mClass ->
+          transformers
+              .classEffects(mClass)
               .filter { (it.trigger as? ByTrigger)?.by == OWNER }
               .map { mClass.className to it }
         }

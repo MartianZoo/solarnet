@@ -2,6 +2,7 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.Type
 import dev.martianzoo.engine.Transformers
+import dev.martianzoo.engine.invariants
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -11,6 +12,7 @@ import dev.martianzoo.util.toSetStrict
 public class TypeDescription public constructor(mtype: MType) {
 
   private val mclass: MClass by mtype::root
+  private val transformers = Transformers(mtype.loader)
 
   val classShortName: ClassName by mclass::shortName
 
@@ -19,8 +21,8 @@ public class TypeDescription public constructor(mtype: MType) {
   val superclassNames: Set<ClassName> = mclass.allSuperclasses().classNames()
   val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.allSubclasses())
 
-  val rawClassEffects: List<Effect> by mclass::declaredEffects
-  val classEffects: List<Effect> by mclass::classEffects
+  val rawClassEffects: List<Effect> = mclass.declaration.effects
+  val classEffects: List<Effect> = transformers.classEffects(mclass)
 
   val classInvariants: Set<Requirement> = mclass.invariants()
 
@@ -33,12 +35,12 @@ public class TypeDescription public constructor(mtype: MType) {
       mclass.allSuperclasses().map { it.withAllDependencies(mtype.dependencies) }
 
   val substitutions =
-      Transformers(mtype.loader)
-          .findSubstitutions(mtype.root.defaultType.dependencies, mtype.dependencies)
+      transformers.findSubstitutions(mtype.root.defaultType.dependencies, mtype.dependencies)
 
   val componentTypesCount: Int = mtype.allConcreteSubtypes().take(100).count()
 
-  val componentEffects: List<Effect> = if (mtype.abstract) listOf() else mtype.toComponent().effects
+  val componentEffects: List<Effect> =
+      if (mtype.abstract) listOf() else mtype.toComponent().effects(transformers)
 
   private fun descendingBySubclassCount(classes: Iterable<MClass>): Set<ClassName> =
       classes

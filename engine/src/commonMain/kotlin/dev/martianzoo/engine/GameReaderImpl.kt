@@ -69,7 +69,7 @@ internal class GameReaderImpl(
   private fun countExpression(expression: Expression): Int {
     if (classes.isUnresolvedClassLiteral(expression)) return 0
     val type = classes.resolve(expression)
-    if (type.root.custom == null) return components.count(type, this)
+    if (!type.root.declaration.custom) return components.count(type, this)
 
     val implementation =
         ruleset.customMetric(type.className)

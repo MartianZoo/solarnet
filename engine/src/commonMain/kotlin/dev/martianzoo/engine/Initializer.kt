@@ -7,6 +7,7 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 
@@ -39,7 +40,7 @@ internal class Initializer(
     val remaining =
         classes
             .allClasses()
-            .filter { it.isSingletonType() }
+            .filter(MClass::isSingletonType)
             .flatMap { it.baseType.concreteSubtypesSameClass() }
             .toMutableList()
     val missingByType = mutableMapOf<MType, Collection<Type>>()

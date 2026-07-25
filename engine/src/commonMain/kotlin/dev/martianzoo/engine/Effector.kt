@@ -31,8 +31,11 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 
-internal class Effector(readerProvider: Lazy<GameReader>? = null) {
-  private val reader: GameReader by lazy { readerProvider!!.value }
+internal class Effector(
+    private val transformers: Transformers,
+    readerProvider: Lazy<GameReader>,
+) {
+  private val reader: GameReader by lazy { readerProvider.value }
   private val registry = HashMultiset<ActiveEffect>()
 
   private val effects = mutableMapOf<Component, List<ActiveEffect>>()
@@ -52,7 +55,7 @@ internal class Effector(readerProvider: Lazy<GameReader>? = null) {
             component,
         )
 
-    return effects.getOrPut(component) { component.effects.map(::activeEffect) }
+    return effects.getOrPut(component) { component.effects(transformers).map(::activeEffect) }
   }
 
   internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =

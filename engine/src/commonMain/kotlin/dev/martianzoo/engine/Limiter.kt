@@ -8,13 +8,18 @@ import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.Companion.split
 import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import kotlin.Int.Companion.MAX_VALUE
 
-internal class Limiter(private val classes: MClassTable, private val components: ComponentGraph) {
+internal class Limiter(
+    private val classes: MClassTable,
+    private val components: ComponentGraph,
+) {
   // visible for testing
   internal val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {
     val multimap = mutableMapOf<MClass, MutableList<RangeRestriction>>()
@@ -157,3 +162,15 @@ internal class Limiter(private val classes: MClassTable, private val components:
     }
   }
 }
+
+internal fun MClass.invariants(): Set<Requirement> =
+    if (abstract) {
+      setOf()
+    } else {
+      allSuperclasses().flatMap { split(it.declaration.invariants) }.toSet()
+    }
+
+internal fun MClass.isSingletonType(): Boolean =
+    invariants().any {
+      (it as Counting).range.first == 1 && it.scaledEx.expression == THIS.expression
+    }
