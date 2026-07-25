@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
@@ -260,6 +261,34 @@ internal class MTypeTest {
 
     table.resolve(te("Owned<Player2>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe true
     table.resolve(te("Owned<Player1>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe false
+  }
+
+  @Test
+  fun complementConstraintWithExplicitDomain() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS TestPlayer : Actor { CLASS TestPlayer1, TestPlayer2 }
+            """
+                .trimIndent()
+        )
+    val actor = table.resolve(te("Actor"))
+    val notPlayer1 = te("!TestPlayer1")
+
+    table.matchesConstraint(
+        table.resolve(te("TestPlayer2")),
+        notPlayer1,
+        actor,
+        StubTypeInfo,
+    ) shouldBe true
+    table.matchesConstraint(
+        table.resolve(te("TestPlayer1")),
+        notPlayer1,
+        actor,
+        StubTypeInfo,
+    ) shouldBe false
+    table.matchesConstraint(table.resolve(te("Engine")), notPlayer1, actor, StubTypeInfo) shouldBe
+        true
   }
 
   @Test

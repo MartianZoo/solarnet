@@ -11,7 +11,6 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
@@ -105,7 +104,9 @@ public data class Effect(
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
     }
 
-    data class ByTrigger(override val inner: Trigger, val by: ClassName) : WrappingTrigger() {
+    data class ByTrigger(override val inner: Trigger, val by: Expression) : WrappingTrigger() {
+      constructor(inner: Trigger, by: ClassName) : this(inner, by.expression)
+
       init {
         if (inner is ByTrigger) throw PetSyntaxException("by the by")
       }
@@ -171,7 +172,7 @@ public data class Effect(
           val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
           val transform = transform(atom) map { (node, name) -> Transform(node, name) }
           val ifClause: Parser<Requirement> = skip(_if) and Requirement.atomParser()
-          val byClause: Parser<ClassName> = skip(_by) and classFullName
+          val byClause: Parser<Expression> = skip(_by) and Expression.parser()
 
           (transform or atom) and
               optional(ifClause) and

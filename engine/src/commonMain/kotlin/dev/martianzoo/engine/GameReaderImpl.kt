@@ -34,6 +34,9 @@ internal class GameReaderImpl(
 
   override fun resolve(expression: Expression) = classes.resolve(expression)
 
+  internal fun matchesConstraint(candidate: Type, constraint: Expression, domain: Type) =
+      classes.matchesConstraint(candidate, constraint, domain, this)
+
   // Next 3 are for TypeInfo interface
 
   override fun isAbstract(e: Expression) = resolve(e).abstract

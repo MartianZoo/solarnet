@@ -34,7 +34,10 @@ internal class CanonEffectsTest {
         table.allClasses().flatMap { mClass ->
           transformers
               .classEffects(mClass)
-              .filter { (it.trigger as? ByTrigger)?.by == OWNER }
+              .filter {
+                val by = it.trigger as? ByTrigger
+                by?.by?.className == OWNER && !by.by.complement
+              }
               .map { mClass.className to it }
         }
 

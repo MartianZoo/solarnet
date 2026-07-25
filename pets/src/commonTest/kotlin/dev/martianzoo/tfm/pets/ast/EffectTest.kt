@@ -83,4 +83,10 @@ internal class EffectTest {
 
     parse<Effect>("PlayCard<Class<Foo>>: Bar").toString() shouldBe "PlayCard<Class<Foo>>: Bar"
   }
+
+  @Test
+  fun bySelectorsAreExpressions() {
+    parse<Effect>("Foo BY !Owner: Bar").toString() shouldBe "Foo BY !Owner: Bar"
+    parse<Effect>("Foo BY !Player2: Bar").toString() shouldBe "Foo BY !Player2: Bar"
+  }
 }

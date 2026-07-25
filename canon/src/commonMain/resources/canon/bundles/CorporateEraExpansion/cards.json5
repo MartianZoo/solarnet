@@ -610,6 +610,19 @@
       "projectKind": "AUTOMATED"
     },
 
+    // Protected Habitats
+    {
+      "id": "173",
+      "deck": "PROJECT",
+      "effects": [
+        "-Plant<Owner> BY !Owner:: Die",
+        "-Animal<Owner> BY !Owner:: Die",
+        "-Microbe<Owner> BY !Owner:: Die"
+      ],
+      "cost": 5,
+      "projectKind": "ACTIVE"
+    },
+
     // Satellites
     {
       "id": "175",

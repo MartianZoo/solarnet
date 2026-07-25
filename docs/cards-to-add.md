@@ -1,7 +1,6 @@
 # Cards to add
 
-We have 441 cards working. We don't have the following ones or anything from the "Prelude 2"
-expansion.
+We have 444 cards working. We don't have the following ones or anything from the "Prelude 2" expansion.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
@@ -16,10 +15,7 @@ expansion.
 | XC1 | Arcadian Communities       | community             |
 | XC11 | PolderTECH Dutch          | no reason?            |
 | 066 | Land Claim                 | community             |
-| XC5 | Mons Insurance             | complement, outofturn |
-| 173 | Protected Habitats         | complement            |
-| X14 | Asteroid Deflection System | complement            |
-| X17 | Crash Site Cleanup         | complement            |
+| XC5 | Mons Insurance             | actorbinding          |
 | CC1 | Aridor                     | setupmandate          |
 | B03 | Helion                     | helion                |
 | CC5 | Stormcraft Incorporated    | payresource           |

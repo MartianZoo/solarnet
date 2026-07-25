@@ -121,6 +121,29 @@ class ByTriggerCharacterizationTest {
     }
   }
 
+  @Test
+  fun byNotOwnerUsesTheActorTypeDomain() {
+    val game = newGame()
+    val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    owner.sneak("OpponentByProbe<Player1>!")
+
+    owner.manual("ActorTriggerSignal!")
+    engine.beginManual("ActorTriggerSignal!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
+    }
+    owner.doTask("Heat<Player1>!")
+
+    other.beginManual("ActorTriggerSignal!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
+    }
+  }
+
   private fun newGame(): Game {
     val options = Canon.options("BM", 2)
     return Engine.newGame(GameSetup(ProbeRuleset.resolve(Canon.bundleNames(options)), options))
@@ -152,6 +175,10 @@ private object ProbeDeclarations : TfmRuleset.Empty() {
 
               CLASS OwnedTriggerProbe : Owned, AutoLoad {
                 OwnedActorTrigger<Anyone>: Plant<Owner>
+              }
+
+              CLASS OpponentByProbe : Owned, AutoLoad {
+                ActorTriggerSignal BY !Owner: Heat<Owner>
               }
               """
                   .trimIndent()

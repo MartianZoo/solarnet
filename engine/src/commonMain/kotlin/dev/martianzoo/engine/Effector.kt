@@ -1,16 +1,17 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SystemClasses.ACTOR
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.api.SystemClasses.SYSTEM
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -27,6 +28,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WrappingTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
@@ -112,7 +114,7 @@ internal class Effector(
       val hit =
           subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task.noid(assignee, automatic, hit(instruction), cause = cause)
+      return Task.noid(assignee, automatic, hit.specialize(instruction), cause = cause)
     }
 
     /**
@@ -160,7 +162,7 @@ internal class Effector(
                     implicitOwner = if (trigger is ByTrigger) null else implicitOwner,
                 )
             when (trigger) {
-              is ByTrigger -> Personal(inner, trigger.by, context.playerOwner)
+              is ByTrigger -> Personal(inner, trigger.by)
               is IfTrigger -> Conditional(inner, trigger.condition)
               is XTrigger -> Unscaled(inner)
               is Transform -> error("should have been transformed by now: $trigger")
@@ -225,10 +227,7 @@ internal class Effector(
                   changeType,
                   ownerSubstitution,
               )
-          val h: Hit = {
-            subber.transform(it) * change.count
-          }
-          h
+          Hit(listOf(subber), change.count)
         } else {
           null
         }
@@ -250,8 +249,7 @@ internal class Effector(
         val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
 
         return if (expr == context.expressionFull) {
-          val hit: Hit = { it * currentEvent.change.count }
-          hit
+          Hit(listOf(), currentEvent.change.count)
         } else {
           null
         }
@@ -262,12 +260,7 @@ internal class Effector(
 
     private data class Personal(
         val inner: Subscription,
-        val by: ClassName,
-        // Owner substitution specializes expressions in the effect, but ByTrigger stores its BY
-        // value as a raw ClassName. Keep the context's Player Owner explicitly so BY Owner can
-        // compare it with the Actor. A passive Owner is intentionally excluded: because it cannot
-        // perform a change, it can never satisfy an Actor filter.
-        val effectOwner: Player?,
+        val selector: Expression,
     ) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
@@ -275,35 +268,31 @@ internal class Effector(
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
+        var hit = inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
+
         // BY describes the Actor that performed the triggering change, recorded on the event.
         val actor = currentEvent.actor
+        var specializedSelector = hit.specialize(selector)
 
-        // Owner, Anyone, and Player are role words handled below. Every other BY value names one
-        // concrete configured Actor. Compare directly with the event Actor's class name; the
-        // runtime model deliberately has no generalized ClassName-to-Actor lookup.
-        if (by != OWNER && by != ANYONE && by != PLAYER && actor.className != by) return null
-
-        // Unlike Anyone, Player excludes administrative Actors.
-        if (by == PLAYER && actor !is Player) return null
-
-        // For an owned effect, BY Owner means equality with that effect's Owner. This comparison
-        // must use the Actor, not the task assignee or contextual Owner, because those may have
-        // been
-        // selected merely to receive or specialize the consequence (as with Lakefront and
-        // Philares).
-        if (by == OWNER && effectOwner != null && actor != effectOwner) return null
-
-        val originalHit =
-            inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
-
-        return if (by == OWNER) {
-          // An owned effect binds generic output to its effect Owner. For an unowned effect, BY
-          // Owner instead requires and binds the performing Owner.
-          val owner = effectOwner ?: (actor as? Player) ?: return null
-          { replaceOwnerWith(owner).transform(originalHit(it)) }
-        } else {
-          originalHit
+        // On an unowned effect, an otherwise-unbound positive Owner means the performing Player.
+        // Apply that established contextual rule before evaluating the selector as an Actor type.
+        if (specializedSelector == OWNER.expression) {
+          val owner = actor as? Player ?: return null
+          hit = hit.then(replaceOwnerWith(owner))
+          specializedSelector = hit.specialize(selector)
         }
+        val by = specializedSelector.className
+
+        // Anyone is the icon-grammar spelling for an unrestricted trigger; unlike the other
+        // selectors, its class hierarchy is about ownership rather than the Actor domain.
+        if (by == ANYONE && !specializedSelector.complement) return hit
+
+        reader as GameReaderImpl
+        val actorType = reader.resolve(actor.expression) as MType
+        val actorDomain = reader.resolve(ACTOR.expression) as MType
+        if (!reader.matchesConstraint(actorType, specializedSelector, actorDomain)) return null
+
+        return hit
       }
 
       override val classToCheck = inner.classToCheck
@@ -346,4 +335,16 @@ internal class Effector(
   }
 }
 
-private typealias Hit = (Instruction) -> Instruction
+private data class Hit(
+    private val transformers: List<PetTransformer>,
+    private val count: Int,
+) {
+  fun specialize(instruction: Instruction): Instruction = specializeNode(instruction) * count
+
+  fun specialize(expression: Expression): Expression = specializeNode(expression)
+
+  fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
+
+  private fun <P : PetNode> specializeNode(node: P): P =
+      transformers.fold(node) { current, transformer -> transformer.transform(current) }
+}

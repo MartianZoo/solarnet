@@ -294,6 +294,22 @@
       "projectKind": "ACTIVE"
     },
 
+    // Asteroid Deflection System
+    {
+      "id": "X14",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy]",
+      "actions": [ "-> Asteroid<This>?" ], // reveal/discard is on the honor system
+      "effects": [
+        "-Plant<Owner> BY !Owner:: Die",
+        "End: VictoryPoint / Asteroid<This>"
+      ],
+      "resourceType": "Asteroid",
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
     // Asteroid Hollowing
     {
       "id": "X15",
@@ -318,6 +334,21 @@
       "resourceType": "Asteroid",
       "cost": 17,
       "projectKind": "ACTIVE"
+    },
+
+    // Crash Site Cleanup
+    {
+      "id": "X17",
+      "deck": "PROJECT",
+      "immediate": "Titanium OR 2 Steel",
+      "effects": [ "End: VictoryPoint" ],
+      "components": [
+        "CLASS AttackHappened<Class<Resource>> : Generational, Hidden { HAS MAX 1 This }",
+        "CLASS AttackWatcher<Class<Resource>> : System { HAS =1 This; -X Resource<Owner> BY !Owner:: AttackHappened<Class<Resource>>. }"
+      ],
+      "requirement": "AttackHappened<Class<Plant>>",
+      "cost": 4,
+      "projectKind": "EVENT"
     },
 
     // Directed Impactors

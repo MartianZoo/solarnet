@@ -158,7 +158,8 @@ that gets translated to `UseAction2<ElectroCatapult>: -Plant THEN 7`).
 
 ```
 effect      := trigger (':' | '::') instruction
-trigger     := (prodTrigger | atomTrigger) ['IF' requirement] ['BY' className]
+trigger     := (prodTrigger | atomTrigger) ['IF' requirement] ['BY' actorSelector]
+actorSelector := typeExpression
 prodTrigger := 'PROD[' atomTrigger ']'
 atomTrigger := onGain | onRemove
 onGain      := genericTypeExpr
@@ -173,6 +174,11 @@ instruction will be carried out.
 grammar, an effect carried by an `Owned` component responds only to its Owner when its trigger
 component is unowned. Write `BY Anyone` explicitly for the red-outline, “anyone” form. Triggers on
 owned components already identify their Owner and need no Actor restriction.
+
+The selector is a type expression interpreted within the `Actor` domain. This gives complement
+expressions their domain just as a dependency declaration does: `BY !Owner`, once `Owner` is bound
+to `Player1`, matches Actors other than `Player1`. The selector participates in trigger
+specialization, so an unowned effect can bind `Owner` from its trigger before testing `BY !Owner`.
 
 An unowned component extending `System` represents engine-only machinery. A Player cannot create
 one, and its occurrence is not attributed to a particular Player for trigger matching, so every
