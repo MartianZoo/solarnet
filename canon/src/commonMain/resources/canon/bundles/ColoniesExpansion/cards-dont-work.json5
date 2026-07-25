@@ -23,26 +23,6 @@
       "deck": "PROJECT",
       "cost": 0,
       "projectKind": "AUTOMATED"
-    },
-
-    // Trade Envoys
-    {
-      "id": "C46",
-      "deck": "PROJECT",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // too late!
-      "cost": 6,
-      "projectKind": "ACTIVE"
-    },
-
-    // Trading Colony
-    {
-      "id": "C47",
-      "deck": "PROJECT",
-      "tags": [ "SpaceTag" ],
-      "immediate": "Colony",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // too late!
-      "cost": 18,
-      "projectKind": "ACTIVE"
     }
   ],
 }

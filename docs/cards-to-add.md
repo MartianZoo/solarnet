@@ -42,8 +42,6 @@ truth for partial definitions.
 | P40 | Research Coordination      | wildtag               |
 | TC3 | Septem Tribus              | wildtag, turmoil      |
 | C30 | Productive Outpost         | colonybonus           |
-| C46 | Trade Envoys               | pre?                  |
-| C47 | Trading Colony             | pre?                  |
 | T01 | Aerial Lenses              | turmoil               |
 | T02 | Banned Delegate            | turmoil               |
 | T03 | Cultural Metropolis        | turmoil               |
