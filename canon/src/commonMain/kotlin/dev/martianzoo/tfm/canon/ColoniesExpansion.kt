@@ -34,10 +34,7 @@ internal object ColoniesExpansion {
   internal object ColoniesSetup : CustomClass() {
     override fun translate(reader: GameReader): Instruction {
       val fleetInstructions =
-          reader.setup.players().mapIndexed { index, player ->
-            val letter = 'A' + index
-            parse<Instruction>("TradeFleet$letter<$player>")
-          }
+          reader.setup.players().map { player -> parse<Instruction>("ReserveTradeFleet<$player>") }
       if (reader.setup.options.deferredColonySelection) {
         val tileChoices =
             List(expectedColonyTileCount(reader)) {

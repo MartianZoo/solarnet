@@ -21,6 +21,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Language and Engine Semantics
 
+- Support an explicit default concrete subtype for abstract gains, so declarations such as a bare
+  `TradeFleet` gain can safely mean `ReserveTradeFleet` without permitting `FlownTradeFleet` as an
+  unintended narrowing.
 - Do not infer dependency linkage between sibling positions in the same argument list. Repeating a bound there cannot usefully express linkage—the author could collapse linked positions into one dependency—and currently causes nested declarations such as `Pair<Class<Component>, Class<Component>>` to couple the two `Component` positions.
 - Inventory complement use sites and decide whether Pets needs proper difference types. The current cases are an other-owner constraint and Viron's nested `ActionUsedMarker<!Viron>` workaround; specify every legal complement context only after deciding whether one mechanism serves both.
 - Decide whether to reject dependency cycles or support creating an entire dependency cycle atomically; one-component-at-a-time creation cannot establish the currently loadable cycles.

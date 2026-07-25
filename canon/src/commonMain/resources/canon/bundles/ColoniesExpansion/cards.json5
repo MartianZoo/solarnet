@@ -431,7 +431,7 @@
       "id": "C36",
       "deck": "PROJECT",
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "TradeFleet",
+      "immediate": "ReserveTradeFleet",
       "effects": [
         "PlayCard: -Owed",
         "End: 2 VictoryPoint"
@@ -467,7 +467,7 @@
       "id": "C39",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], CityTile, TradeFleet",
+      "immediate": "PROD[-Energy, 4], CityTile, ReserveTradeFleet",
       "requirement": "Colony",
       "cost": 22,
       "projectKind": "AUTOMATED"
@@ -478,7 +478,7 @@
       "id": "C40",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "immediate": "Colony<ColonyTile>, TradeFleet",
+      "immediate": "Colony<ColonyTile>, ReserveTradeFleet",
       "effects": [ "End: VictoryPoint / 2 Colony<Anyone>" ],
       "requirement": "Colony",
       "cost": 27,

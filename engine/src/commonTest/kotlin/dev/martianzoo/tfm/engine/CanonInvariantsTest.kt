@@ -88,19 +88,12 @@ internal class CanonInvariantsTest {
     checkSimple("Tharsis_5_5", range = 1..1)
     checkSimple("GreeneryTile", "Tile<Tharsis_5_5>", range = 0..1)
 
-    checkSimple("Trade", "Trade<Luna>", range = 0..1)
+    checkSimple("FlownTradeFleet", "FlownTradeFleet<Luna>", range = 0..1)
     checkSimple("Colony", "Colony<Luna>", range = 0..3)
-    checkSimple("TradeFleetA", range = 0..1)
 
     checkUnbound("Pass", THIS.expression, 0..1)
     checkUnbound("VenusTag", THIS.expression, 0..2)
     checkUnbound("ColonyProduction", THIS.expression, range = 0..6)
-    checkUnbound(
-        constrainedType = "Trade",
-        declaringType = "TradeFleetA",
-        expr = parse<Expression>("Trade<This>"),
-        range = 0..1,
-    )
   }
 
   private object EmptyComponentGraph : ComponentGraph {

@@ -7,7 +7,7 @@ class TitanFloatingLaunchPadTest : ColoniesCardTest() {
   fun `can trade for free`() {
     p1.sneak("TitanFloatingLaunchPad, 2 Floater<TitanFloatingLaunchPad>")
     p1.cardAction2("TitanFloatingLaunchPad") {
-          doTask("Trade<Io, TradeFleetA>")
+          doTask("Trade<Io>")
         }
         .expect("-Floater, 3 Heat")
   }

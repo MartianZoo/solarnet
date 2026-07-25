@@ -17,13 +17,13 @@ CLASS ColoniesSetup : Custom
 //   CLASS $name : ColonyTile {
 //     Colony<This>: $placementBonus
 //     GiveColonyBonus<This>: $colonyBonus
-//     Trade<This> IF =0 ColonyProduction<This>: ${tradeIncome[0]} // etc.
-//     Trade<This>: ResetProduction<This>
+//     FlownTradeFleet<This> IF =0 ColonyProduction<This>: ${tradeIncome[0]} // etc.
+//     FlownTradeFleet<This>: ResetProduction<This>
 //   }
 
 "A colony tile, such as Pluto"
 ABSTRACT CLASS ColonyTile {
-  HAS MAX 1 This,  MAX 3 Colony<This>, MAX 1 Trade<This>
+  HAS MAX 1 This,  MAX 3 Colony<This>, MAX 1 FlownTradeFleet<This>
 
   // WHITE CUBE MAINTENANCE
 
@@ -43,13 +43,13 @@ ABSTRACT CLASS ColonyTile {
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  Trade<Anyone, ColonyTile>: GiveColonyBonus<ColonyTile>
+  FlownTradeFleet<Anyone, ColonyTile>: GiveColonyBonus<ColonyTile>
 }
 
-"A Trade operation; it persists so we can tell the ColonyTile and TradeFleet are occupied"
-// A trade fleet sitting on a colony tile is represented by one of these, which go away at gen end
-// Repeating Owner makes the Trade operation belong to the TradeFleet's owner.
-CLASS Trade<ColonyTile, TradeFleet<Owner>> : Owned<Owner>, Generational
+"Initiates a Trade operation by moving one of the player's fleets to the colony tile"
+CLASS Trade<ColonyTile> : Owned, Signal {
+  This: FlownTradeFleet<ColonyTile> FROM ReserveTradeFleet
+}
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
 CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
@@ -60,18 +60,13 @@ CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
 CLASS ResetProduction<ColonyTile> : Signal
 
-"One of the 8 trade fleets players can own; sadly each is distinct even though you don't care about the difference"
-ABSTRACT CLASS TradeFleet : Owned<Player>, AutoLoad {
-  HAS MAX 1 Trade<This>
+"A player's trade fleet, either in reserve or flown to a ColonyTile this generation"
+ABSTRACT CLASS TradeFleet : Owned<Player> {
+  CLASS ReserveTradeFleet
 
-  CLASS TradeFleetA { HAS MAX 1 TradeFleetA }
-  CLASS TradeFleetB { HAS MAX 1 TradeFleetB }
-  CLASS TradeFleetC { HAS MAX 1 TradeFleetC }
-  CLASS TradeFleetD { HAS MAX 1 TradeFleetD }
-  CLASS TradeFleetE { HAS MAX 1 TradeFleetE }
-  CLASS TradeFleetF { HAS MAX 1 TradeFleetF }
-  CLASS TradeFleetG { HAS MAX 1 TradeFleetG }
-  CLASS TradeFleetH { HAS MAX 1 TradeFleetH }
+  CLASS FlownTradeFleet<ColonyTile> {
+    Generation:: ReserveTradeFleet FROM This
+  }
 }
 
 "To add a colony tile to the game (like Aridor does), gain this"

@@ -107,7 +107,7 @@ internal class ColoniesBasicRulesTest {
     // And just to show that it would have worked otherwise
     p1.playProject("Pets", 10)
     p1.stdAction("TradeSA") {
-      doTask("Trade<Miranda, TradeFleetA>")
+      doTask("Trade<Miranda>")
       doTask("Animal<Pets>")
     }
   }
@@ -156,7 +156,7 @@ internal class ColoniesBasicRulesTest {
     engine.godMode().sneak("5 ColonyProduction<Luna>, Colony<P1, Luna>, Colony<P2, Luna>, 3 E<P1>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
     p1.stdAction("TradeSA", 2) {
-          doTask("Trade<Luna, TradeFleetA>")
+          doTask("Trade<Luna>")
           // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
           // trade income, and give the local colony owners their colony bonus.
         }
@@ -169,21 +169,25 @@ internal class ColoniesBasicRulesTest {
 
     // A Colony Tile may only hold 1 trade fleet at a time.
     shouldThrow<LimitsException> {
-      p1.asPlayer(PLAYER2).godMode().manual("Trade<Luna, TradeFleetB>")
+      p1.asPlayer(PLAYER2).godMode().manual("Trade<Luna>")
     }
 
     // When the generation ends, all trade fleets move back from the Colony Tiles to the Trade
     // Fleets Tile, and all white markers moves 1 step up the Colony track.
     engine.nextGeneration(0, 0, 0, 0)
-    engine.assertCounts(0 to "Trade", 2 to "ColonyProduction<Ceres>")
+    engine.assertCounts(
+        0 to "FlownTradeFleet",
+        4 to "ReserveTradeFleet",
+        2 to "ColonyProduction<Ceres>",
+    )
   }
 
   @Test
   fun `trade fleet cannot be reused`() {
-    p1.stdAction("TradeSA", 1) { doTask("Trade<Luna, TradeFleetA>") }
+    p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
 
     shouldThrow<LimitsException> {
-      p1.godMode().manual("Trade<Triton, TradeFleetA>")
+      p1.godMode().manual("Trade<Triton>")
     }
   }
 
@@ -207,7 +211,7 @@ internal class ColoniesBasicRulesTest {
     }
 
     localP2.stdAction("TradeSA", 1) {
-      doTask("Trade<Enceladus, TradeFleetB>")
+      doTask("Trade<Enceladus>")
       doTask("Microbe<RegolithEaters>")
       localP1.doTask("Microbe<NitriteReducingBacteria>")
     }

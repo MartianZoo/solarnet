@@ -173,7 +173,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       playProject("SolarReflectors", titanium = 6) // "overpay" 1
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
-      stdAction("TradeSA", 2) { doTask("Trade<Ceres, TradeFleetA>") }.expect("-3 Energy, 8 Steel")
+      stdAction("TradeSA", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 8 Steel")
       // me played Deep Well Heating
       // me's energy production increased by 1
       // me's heat production increased by 1
@@ -205,7 +205,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(AtmoCollectors)
       // me spent 3 energy to trade with Luna
       // me's megacredits amount increased by 17
-      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }.expect("17")
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("17")
       // me played Extractor Balloons
       // me added 3 floater(s) to Extractor Balloons
       val ExtractorBalloons = "ExtractorBalloons"
@@ -266,7 +266,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       playProject("GeothermalPower", 7, steel = 2)
       // me spent 3 energy to trade with Triton
       // me's titanium amount increased by 5
-      stdAction("TradeSA", 2) { doTask("Trade<Triton, TradeFleetA>") }.expect("5 T")
+      stdAction("TradeSA", 2) { doTask("Trade<Triton>") }.expect("5 T")
 
       // me passed
       // me acted as World Government and increased Venus scale
@@ -349,7 +349,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me spent 3 energy to trade with Luna
       // me's megacredits amount increased by 7
       // me's megacredits amount increased by 2
-      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }.expect("9")
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("9")
       // me used Greenery standard project
       stdProject("GreenerySP") {
         // me placed greenery tile on row 5 position 7
@@ -415,7 +415,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       playProject("Insects", 9).expect("PROD[P]")
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
-      stdAction("TradeSA", 2) { doTask("Trade<Ceres, TradeFleetA>") }.expect("8 Steel")
+      stdAction("TradeSA", 2) { doTask("Trade<Ceres>") }.expect("8 Steel")
 
       // me passed
       // me placed ocean tile on row 2 position 4
@@ -440,7 +440,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me spent 3 energy to trade with Luna
       // me's megacredits amount increased by 7
       // me's megacredits amount increased by 2
-      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }.expect("9")
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("9")
       // me used Atmo Collectors action
       // me removed 1 resource(s) from me's Atmo Collectors
       cardAction2(AtmoCollectors) {
@@ -514,7 +514,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       stdAction("TradeSA", 2) {
         // me's megacredits amount increased by 4
         // me's megacredits amount increased by 2
-        doTask("Trade<Luna, TradeFleetA>")
+        doTask("Trade<Luna>")
       }
       // me used Atmo Collectors action
       // me added 1 floater(s) to Atmo Collectors

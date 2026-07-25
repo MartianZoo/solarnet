@@ -26,14 +26,14 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
               Colony<This>: $placementBonus
               GiveColonyBonus<This>: $colonyBonus
 
-              Trade<This> IF =0 ColonyProduction<This>: ${tradeIncome[0]}
-              Trade<This> IF =1 ColonyProduction<This>: ${tradeIncome[1]}
-              Trade<This> IF =2 ColonyProduction<This>: ${tradeIncome[2]}
-              Trade<This> IF =3 ColonyProduction<This>: ${tradeIncome[3]}
-              Trade<This> IF =4 ColonyProduction<This>: ${tradeIncome[4]}
-              Trade<This> IF =5 ColonyProduction<This>: ${tradeIncome[5]}
-              Trade<This> IF =6 ColonyProduction<This>: ${tradeIncome[6]}
-              Trade<This>: ResetProduction<This>
+              FlownTradeFleet<This> IF =0 ColonyProduction<This>: ${tradeIncome[0]}
+              FlownTradeFleet<This> IF =1 ColonyProduction<This>: ${tradeIncome[1]}
+              FlownTradeFleet<This> IF =2 ColonyProduction<This>: ${tradeIncome[2]}
+              FlownTradeFleet<This> IF =3 ColonyProduction<This>: ${tradeIncome[3]}
+              FlownTradeFleet<This> IF =4 ColonyProduction<This>: ${tradeIncome[4]}
+              FlownTradeFleet<This> IF =5 ColonyProduction<This>: ${tradeIncome[5]}
+              FlownTradeFleet<This> IF =6 ColonyProduction<This>: ${tradeIncome[6]}
+              FlownTradeFleet<This>: ResetProduction<This>
             }
           """
           )

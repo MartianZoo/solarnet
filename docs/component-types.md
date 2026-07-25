@@ -110,6 +110,15 @@ CLASS Energy { ProductionPhase:: Heat FROM This }
 
 We discussed the `Phase` types above. As much as possible, these types do nothing by themselves; they exist only to trigger instructions like this one. Every single Energy instance in the game will respond to that trigger by transmuting itself into Heat. The double colon ensures that it happens first before regular production.
 
+### Trade fleets
+
+The Colonies expansion represents each identityless fleet as either a `ReserveTradeFleet` or a
+`FlownTradeFleet<ColonyTile>`, both subtypes of `TradeFleet`. Initiating a trade creates a temporary
+`Trade` signal that transmutes one reserve fleet into a flown fleet, whose creation triggers
+colony income and bonuses. At the next generation, flown fleets
+transmute back into reserve fleets. Thus `TradeFleet<Player1>` always counts all of Player1's fleets
+without assigning artificial identities to them.
+
 ### Cards
 
 It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; its subtypes simply distinguish the generic card backs consumed when different kinds of cards are played. (Remember these things have no attributes either.)
