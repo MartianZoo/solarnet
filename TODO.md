@@ -16,25 +16,18 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Implement Terra Cimmeria's MSL Curiosity bonus once optional bundle vocabulary can be phantom: pay 5 M€ and place a colony only with Colonies enabled.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
-- [#48: Refinement-typed triggers](https://github.com/MartianZoo/solarnet/issues/48) — Honor trigger refinements, including card cost and requirement metrics. Uh but apparently this works already?
 - [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.
 
 ### Language and Engine Semantics
 
-- Support an explicit default concrete subtype for abstract gains, so declarations such as a bare
-  `TradeFleet` gain can safely mean `ReserveTradeFleet` without permitting `FlownTradeFleet` as an
-  unintended narrowing.
 - Do not infer dependency linkage between sibling positions in the same argument list. Repeating a bound there cannot usefully express linkage—the author could collapse linked positions into one dependency—and currently causes nested declarations such as `Pair<Class<Component>, Class<Component>>` to couple the two `Component` positions.
 - Inventory complement use sites and decide whether Pets needs proper difference types. The current cases are an other-owner constraint and Viron's nested `ActionUsedMarker<!Viron>` workaround; specify every legal complement context only after deciding whether one mechanism serves both.
-- Decide whether to reject dependency cycles or support creating an entire dependency cycle atomically; one-component-at-a-time creation cannot establish the currently loadable cycles.
 - Remove class short names from the type system and preserve only worthwhile abbreviations in a translation layer close to tests and the REPL.
-- Move the semantic type-system core toward `pets`; decide whether `MClassTable` and its loader stay engine-owned after separating game setup, component creation, and effect activation.
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - Consider letting custom metrics query typed, read-only event history for facts such as `HasRaisedTr` and this-generation attacks, avoiding permanent watchers; preserve semantic generation boundaries and rollback/replay determinism.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
 - Replace rollback speculation with disposable game-state forks: overlay components and active effects, copy the small task queues, and extend event history from a captured prefix.
 - [#24: Distinct classes](https://github.com/MartianZoo/solarnet/issues/24) — Define a generic owner-associated distinct-class metric, then replace `DistinctTagType` and `DistinctResourceType` if it is sound.
-- [#29: Incremental `THEN`](https://github.com/MartianZoo/solarnet/issues/29) — Narrow linked/coupled instructions together, execute the concrete head, then enqueue an abstract tail. Maybe we did all this already?
 - [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define a small set of rules for unique choices without removing real choices.
 - [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer.
 - [#59: `-This` intensity](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory. (Needs discussion)
@@ -57,7 +50,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Gameplay Correctness and Test Fidelity
 
-- Test the Hellas south-pole ocean payout funding its mandatory 6 M€ payment.
 - Restore Aridor's new-tag production gain without another one-off metric, then enable it.
 - Model Prelude plays as explicit first and second turns. (Somewhat soon)
 - Give Tharsis Republic an explicit solo-setup production gain instead of observing neutral-city placement. (Later)
