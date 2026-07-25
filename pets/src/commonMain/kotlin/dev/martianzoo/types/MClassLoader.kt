@@ -18,7 +18,8 @@ import dev.martianzoo.pets.ast.PetNode
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.allSubclasses] to work.
  */
-internal class MClassLoader(
+public class MClassLoader
+public constructor(
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
@@ -28,11 +29,11 @@ internal class MClassLoader(
   private val cache = mutableMapOf<Expression, MType>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
-  override val componentClass =
+  public override val componentClass =
       MClass(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
-  override val classClass =
+  public override val classClass =
       MClass(
           validateCustomImplementation(decl(CLASS)),
           this,
@@ -82,7 +83,7 @@ internal class MClassLoader(
    * Returns the class whose [MClass.className] or [MClass.shortName] is [name], loading it first if
    * necessary.
    */
-  internal fun load(name: ClassName): MClass {
+  public fun load(name: ClassName): MClass {
     if (!frozen) loadAll(listOf(name))
     return getClass(name)
   }
@@ -165,18 +166,18 @@ internal class MClassLoader(
 
   private var frozen: Boolean = false
 
-  internal fun freeze(): MClassTable {
+  public fun freeze(): MClassTable {
     require(!frozen)
     frozen = true
     return this
   }
 
-  override val allClassNamesAndIds: Set<ClassName> by lazy {
+  public override val allClassNamesAndIds: Set<ClassName> by lazy {
     require(frozen)
     loadedClasses.keys
   }
 
-  internal fun checkAllTypes(node: PetNode) = node.visitDescendants {
+  public fun checkAllTypes(node: PetNode) = node.visitDescendants {
     if (it is Expression) {
       resolve(it.uncomplemented()).expression
       false

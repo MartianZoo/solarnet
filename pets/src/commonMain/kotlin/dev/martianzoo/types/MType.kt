@@ -29,8 +29,8 @@ public data class MType(
     override val refinement: Refinement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
 
-  internal val loader by root::loader
-  internal val typeDependencies = dependencies.typeDependencies()
+  public val loader by root::loader
+  public val typeDependencies = dependencies.typeDependencies()
 
   init {
     require(dependencies.keys.toList() == root.dependencies.keys.toList()) {
@@ -81,7 +81,7 @@ public data class MType(
     toExpressionUsingSpecs(dependencies.expressionsFull())
   }
 
-  internal val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
+  public val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
@@ -89,7 +89,7 @@ public data class MType(
    * Returns every possible [MType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
    * this sequence can potentially be very large.
    */
-  internal fun allConcreteSubtypes(): Sequence<MType> {
+  public fun allConcreteSubtypes(): Sequence<MType> {
     return concreteSubclasses(root).flatMap {
       val deps: DependencySet? = dependencies glb it.baseType.dependencies
       if (deps == null) {
@@ -100,7 +100,7 @@ public data class MType(
     }
   }
 
-  internal fun singleConcreteSubtype(): MType? {
+  public fun singleConcreteSubtype(): MType? {
     val mclass = concreteSubclasses(root).singleOrNull() ?: return null
     val abstractType = this glb mclass.baseType
     val deps = abstractType!!.dependencies.singleConcreteSubtype() ?: return null

@@ -14,6 +14,10 @@ The Pets language. Parsers for elements and class declarations, the objects it p
 
 Pets element types, like Requirement, Action, Instruction, Expression, and so on. The abstract syntax tree the Pets language is parsed to.
 
+### <a href="pets/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
+
+The Pets type system.
+
 ### <a href="pets/dev.martianzoo.tfm.api/index.html">dev.martianzoo.tfm.api</a>
 
 ### <a href="pets/dev.martianzoo.tfm.data/index.html">dev.martianzoo.tfm.data</a>
@@ -33,10 +37,6 @@ Contains the data and custom instructions for officially published cards, maps, 
 ## module ENGINE
 
 ### <a href="engine/dev.martianzoo.analysis/index.html">dev.martianzoo.analysis</a>
-
-### <a href="engine/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
-
-The Pets type system.
 
 ### <a href="engine/dev.martianzoo.engine/index.html">dev.martianzoo.engine</a>
 

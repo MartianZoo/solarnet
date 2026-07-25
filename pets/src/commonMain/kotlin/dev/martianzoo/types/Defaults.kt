@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical.Companion.glb
 
-internal data class Defaults(
+public data class Defaults(
     val allUsages: DefaultSpec,
     val gainOnly: DefaultSpec,
     val removeOnly: DefaultSpec,

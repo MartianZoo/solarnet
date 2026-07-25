@@ -9,6 +9,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Type
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.types.MClassLoader
 import kotlin.reflect.KClass
 
 /**
@@ -20,8 +21,8 @@ import kotlin.reflect.KClass
  * Many types can have different representations; for example `Microbe<This, Player1>` and
  * `Microbe<Player1, This>` represent the same actual type, as do `Tile` and `Tile<Area>`. As
  * [Expression]s these four example types are all distinct, which could produce unexpected behavior.
- * A class in the *engine* module (`MClassLoader`) resolves expressions into [Type] instances, and
- * does resolve the distinct expressions `Tile` and `Tile<Area>` into the same type.
+ * [MClassLoader] resolves expressions into [Type] instances, and does resolve the distinct
+ * expressions `Tile` and `Tile<Area>` into the same type.
  */
 public data class Expression(
     override val className: ClassName,

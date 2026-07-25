@@ -60,7 +60,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   fun complementDependencies(): Set<ComplementDependency> =
       deps.filterIsInstance<ComplementDependency>().toSet()
 
-  internal fun concreteDependencyTargets(): Sequence<MType> =
+  public fun concreteDependencyTargets(): Sequence<MType> =
       (typeDependencies().asSequence() + complementDependencies().asSequence())
           .flatMap {
             when (it) {

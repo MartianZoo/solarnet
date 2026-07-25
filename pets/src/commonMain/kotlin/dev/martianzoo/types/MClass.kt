@@ -36,7 +36,7 @@ internal constructor(
     public val declaration: ClassDeclaration,
 
     /** The class loader that loaded this class. */
-    internal val loader: MClassLoader,
+    public val loader: MClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
     val directSuperclasses: List<MClass> = superclasses(declaration, loader),
@@ -132,7 +132,7 @@ internal constructor(
    * count `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile`
    * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
-  internal fun isIntersectionType(): Boolean = intersectionType
+  public fun isIntersectionType(): Boolean = intersectionType
 
   private val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
@@ -217,7 +217,7 @@ internal constructor(
   }
 
   // `by lazy` enables dependency cycles, yay
-  internal val dependencies: DependencySet by lazy {
+  public val dependencies: DependencySet by lazy {
     if (className == CLASS) {
       depsForClassType(loader.componentClass)
     } else {
@@ -311,19 +311,19 @@ internal constructor(
 
   // GETTING TYPES
 
-  internal fun withAllDependencies(deps: DependencySet) =
+  public fun withAllDependencies(deps: DependencySet) =
       MType(this, normalizeLinkedDependencies(deps.subMapInOrder(dependencies.keys)))
 
   /** Least upper bound of all types with mclass==this */
   val baseType: MType by lazy { withAllDependencies(dependencies) }
 
-  internal val defaultType: MType by lazy {
+  public val defaultType: MType by lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
     withAllDependencies(templateDependencies)
   }
 
-  internal fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)
+  public fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)
 
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
@@ -337,7 +337,7 @@ internal constructor(
 
   internal val defaultsDecl by declaration::defaultsDeclaration
 
-  internal val defaults: Defaults by lazy { Defaults.forClass(this) }
+  public val defaults: Defaults by lazy { Defaults.forClass(this) }
 
   override fun equals(other: Any?) =
       other is MClass && other.className == className && other.loader == loader
