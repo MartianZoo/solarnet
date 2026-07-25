@@ -2,6 +2,7 @@ package dev.martianzoo.script.commands
 
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.engine.TypeDescription
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.script.PetsCompletionRoot
@@ -10,7 +11,6 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.types.MType
-import dev.martianzoo.types.TypeDescription
 import dev.martianzoo.util.iff
 import dev.martianzoo.util.random
 

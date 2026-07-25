@@ -7,6 +7,7 @@ import dev.martianzoo.engine.ComponentGraph
 import dev.martianzoo.engine.Limiter
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
 import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
+import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression

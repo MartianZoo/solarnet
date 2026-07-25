@@ -5,7 +5,6 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.engine.Component
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Expression
@@ -171,13 +170,6 @@ public data class MType(
     } else {
       transformed
     }
-  }
-
-  private val asComponent: Component? by lazy { if (abstract) null else Component(this) }
-
-  fun toComponent(): Component {
-    require(!abstract) { "type is abstract: $expressionFull" }
-    return asComponent!!
   }
 
   override fun toString() = "$expression"

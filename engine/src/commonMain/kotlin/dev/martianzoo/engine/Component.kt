@@ -123,3 +123,8 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
         this as? Component ?: expression.toComponent(game)
   }
 }
+
+public fun MType.toComponent(): Component {
+  require(!abstract) { "type is abstract: $expressionFull" }
+  return Component(this)
+}

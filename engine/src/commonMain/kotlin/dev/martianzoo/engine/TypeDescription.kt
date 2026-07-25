@@ -1,12 +1,12 @@
-package dev.martianzoo.types
+package dev.martianzoo.engine
 
 import dev.martianzoo.api.Type
-import dev.martianzoo.engine.Transformers
-import dev.martianzoo.engine.invariants
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.MClass
+import dev.martianzoo.types.MType
 import dev.martianzoo.util.toSetStrict
 
 public class TypeDescription public constructor(mtype: MType) {
