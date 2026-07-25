@@ -19,9 +19,21 @@ plugins {
 
 repositories { mavenCentral() }
 
+val pinnedYarnResolutions =
+    mapOf(
+        "serialize-javascript" to "7.0.3",
+        "fast-uri" to "3.1.4",
+    )
+
 rootProject.plugins.withType<YarnPlugin> {
-  rootProject.the<YarnRootExtension>().resolution("serialize-javascript", "7.0.3")
-  rootProject.the<YarnRootExtension>().resolution("fast-uri", "3.1.4")
+  val yarn = rootProject.the<YarnRootExtension>()
+  pinnedYarnResolutions.forEach(yarn::resolution)
+
+  // Kotlin 2.2.21 does not track Yarn resolutions as inputs to this generated file. Without this,
+  // a stale build/js/package.json can omit new resolutions and repeatedly fight the lockfile.
+  rootProject.tasks.named("rootPackageJson") {
+    inputs.property("pinnedYarnResolutions", pinnedYarnResolutions)
+  }
 }
 
 configure<SpotlessExtension> {
