@@ -17,14 +17,14 @@ import dev.martianzoo.types.MType
 import kotlin.Int.Companion.MAX_VALUE
 
 internal class Limiter(
-    private val classes: MClassTable,
+    private val classTable: MClassTable,
     private val components: ComponentGraph,
 ) {
   // visible for testing
   internal val rangeRestrictionsByClass: Map<MClass, List<RangeRestriction>> by lazy {
     val multimap = mutableMapOf<MClass, MutableList<RangeRestriction>>()
 
-    classes
+    classTable
         .allClasses()
         .flatMap { mclass ->
           mclass.invariants().map { toRangeRestriction(it as Counting, mclass) }
@@ -40,7 +40,7 @@ internal class Limiter(
 
   init {
     val invalidDependencies =
-        classes.allClasses().mapNotNull { dependent ->
+        classTable.allClasses().mapNotNull { dependent ->
           dependent.dependencies
               .concreteDependencyTargets()
               .firstOrNull { target ->
@@ -68,7 +68,7 @@ internal class Limiter(
     return if (THIS in expr.descendantsOfType<ClassName>()) {
       UnboundRangeRestriction(expr, mclass, it.range)
     } else {
-      SimpleRangeRestriction(classes.resolve(expr), it.range)
+      SimpleRangeRestriction(classTable.resolve(expr), it.range)
     }
   }
 
@@ -104,7 +104,7 @@ internal class Limiter(
   }
 
   internal fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
-    val mtype = component?.type?.let { classes.resolve(it) } ?: return setOf()
+    val mtype = component?.type?.let { classTable.resolve(it) } ?: return setOf()
     return applicableRangeRestrictions(mtype)
   }
 
@@ -147,7 +147,7 @@ internal class Limiter(
     ) : RangeRestriction() {
       internal override val mclass =
           if (expression.className == THIS) declaringClass
-          else declaringClass.loader.getClass(expression.className)
+          else declaringClass.classTable.getClass(expression.className)
 
       internal override fun bindThisTo(mtype: MType): SimpleRangeRestriction? {
         val thisType =
@@ -155,7 +155,7 @@ internal class Limiter(
               it.root.isSubtypeOf(declaringClass)
             } ?: return null
         val expr = replaceThisExpressionsWith(thisType.expression).transform(expression)
-        return SimpleRangeRestriction(declaringClass.loader.resolve(expr), range)
+        return SimpleRangeRestriction(declaringClass.classTable.resolve(expr), range)
       }
 
       override fun toString() = "$expression $declaringClass $range"

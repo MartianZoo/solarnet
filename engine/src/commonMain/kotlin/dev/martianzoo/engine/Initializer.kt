@@ -15,7 +15,7 @@ internal class Initializer(
     private val gameplay: Gameplay,
     private val instructor: Instructor,
     private val tasks: TaskQueues,
-    private val classes: MClassTable,
+    private val classTable: MClassTable,
     private val timeline: TimelineImpl,
 ) {
   // Taking 14% of total solo game time
@@ -38,7 +38,7 @@ internal class Initializer(
    */
   private fun createSingletons(cause: Cause) {
     val remaining =
-        classes
+        classTable
             .allClasses()
             .filter(MClass::isSingletonType)
             .flatMap { it.baseType.concreteSubtypesSameClass() }

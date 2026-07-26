@@ -19,9 +19,8 @@ import dev.martianzoo.util.Reifiable
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [MClass]es loaded by a
- * [MClassLoader]. These are usually obtained by [MClassLoader.resolve]. These can be abstract.
- * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
- * state.
+ * [MClassTable]. These are usually obtained by [MClassTable.resolve]. These can be abstract. Usages
+ * of this type should be fairly unrelated to questions of whether instances exist in a game state.
  */
 public data class MType(
     val root: MClass,
@@ -29,7 +28,7 @@ public data class MType(
     override val refinement: Refinement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
 
-  public val loader by root::loader
+  public val classTable: MClassTable = root.classTable
   public val typeDependencies = dependencies.typeDependencies()
 
   init {
@@ -37,7 +36,7 @@ public data class MType(
       "expected keys ${root.dependencies.keys}, got $dependencies"
     }
     root.requireLinksSatisfied(dependencies)
-    if (refinement != null) loader.checkAllTypes(refinement)
+    if (refinement != null) classTable.checkAllTypes(refinement)
   }
 
   override val abstract = root.abstract || dependencies.abstract || refinement != null
@@ -153,7 +152,7 @@ public data class MType(
       return object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is Expression) {
-            val modded = root.loader.resolve(node).specialize(listOf(proposed))
+            val modded = classTable.resolve(node).specialize(listOf(proposed))
             @Suppress("UNCHECKED_CAST")
             modded.expressionFull as P
           } else {

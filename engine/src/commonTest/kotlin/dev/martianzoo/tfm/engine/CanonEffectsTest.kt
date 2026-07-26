@@ -23,8 +23,8 @@ internal class CanonEffectsTest {
     return classEffectsOf(name, loader.freeze())
   }
 
-  fun classEffectsOf(name: String, table: MClassTable) =
-      Transformers(table).classEffects(table.getClass(cn(name))).toStrings()
+  fun classEffectsOf(name: String, classTable: MClassTable) =
+      Transformers(classTable).classEffects(classTable.getClass(cn(name))).toStrings()
 
   @Test
   fun compiledByOwnerEffectsHaveResolvableOwnerBindings() {

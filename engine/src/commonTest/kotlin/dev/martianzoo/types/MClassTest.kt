@@ -213,8 +213,8 @@ internal class MClassTest {
     subSub.isSubtypeOf(barSub) shouldBe true
     subSub.isSubtypeOf(subSub) shouldBe true
 
-    fun checkAutoAdjust(`in`: String, out: String, table: MClassTable) =
-        table.resolve(te(`in`)).expressionFull.toString() shouldBe out
+    fun checkAutoAdjust(`in`: String, out: String, classTable: MClassTable) =
+        classTable.resolve(te(`in`)).expressionFull.toString() shouldBe out
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)

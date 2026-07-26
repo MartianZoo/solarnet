@@ -315,7 +315,7 @@ internal class MTypeTest {
   }
 
   fun findSubstitutions(mType: MType): Map<ClassName, Expression> =
-      Transformers(mType.loader)
+      Transformers(mType.classTable)
           .findSubstitutions(
               mType.root.defaultType.dependencies,
               mType.dependencies,

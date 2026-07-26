@@ -14,7 +14,7 @@ internal constructor(
     override val timeline: Timeline,
     override val reader: GameReader,
     override val setup: GameSetup,
-    override val classes: MClassTable,
+    override val classTable: MClassTable,
 ) : Game {
 
   private lateinit var gameplayByActor: Map<Actor, Gameplay>

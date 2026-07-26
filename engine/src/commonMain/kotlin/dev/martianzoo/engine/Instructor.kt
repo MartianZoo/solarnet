@@ -40,7 +40,7 @@ internal class Instructor(
     private val limiter: Limiter,
     private val changer: Changer?,
     private val effector: Effector?,
-    private val classes: MClassTable,
+    private val classTable: MClassTable,
 ) {
 
   internal fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
@@ -152,7 +152,7 @@ internal class Instructor(
 
     if (g?.root?.declaration?.custom == true) {
       require(r == null) { "custom class instructions can only be pure gains" }
-      val translated = Prod.deprodify(classes).transform(gaining!!.prepareCustom(reader))
+      val translated = Prod.deprodify(classTable).transform(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }
 
@@ -210,7 +210,7 @@ internal class Instructor(
 
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
-      r = reader.getComponents(r).singleOrNull()?.let { classes.resolve(it.expression) } ?: r
+      r = reader.getComponents(r).singleOrNull()?.let { classTable.resolve(it.expression) } ?: r
     }
     return g to r
   }

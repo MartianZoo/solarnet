@@ -67,10 +67,10 @@ internal class CanonClassesTest {
     Canon.SIMPLE_GAME.players().shouldContainExactly(PLAYER1, PLAYER2)
     Canon.SIMPLE_GAME.actors().shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
   }
 
   @Test
@@ -88,7 +88,7 @@ internal class CanonClassesTest {
     val game = setUpGame(Canon.SIMPLE_SOLO_GAME)
     game.setup.players().shouldContainExactly(PLAYER1)
     game.setup.actors().shouldContainExactly(PLAYER1, ENGINE)
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("Player2"))
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 1
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14

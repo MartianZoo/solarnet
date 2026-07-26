@@ -54,7 +54,7 @@ public data class Defaults(
     private fun gatherDefaultDeps(mclass: MClass, kind: DefaultKind): DependencySet {
       // TODO: this is complex and this human doesn't understand it
       fun toDependencyMap(specs: List<Expression>): DependencySet {
-        val resolved = mclass.loader.resolve(mclass.className.of(specs)).narrowedDependencies
+        val resolved = mclass.classTable.resolve(mclass.className.of(specs)).narrowedDependencies
         if (OWNER.expression !in specs) return resolved
 
         // Owner also acts as a contextual variable. Don't normalize that variable to its bound
@@ -65,7 +65,7 @@ public data class Defaults(
                 .typeDependencies()
                 .single()
                 .key
-        val owner = TypeDependency(ownerKey, mclass.loader.resolve(OWNER.expression))
+        val owner = TypeDependency(ownerKey, mclass.classTable.resolve(OWNER.expression))
         return resolved.merge(DependencySet.of(setOf(owner))) { _, contextual -> contextual }
       }
 

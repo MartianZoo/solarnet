@@ -37,14 +37,14 @@ import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 
-internal class Transformers(internal val classes: MClassTable) {
+internal class Transformers(internal val classTable: MClassTable) {
 
   private val effectsByClass = mutableMapOf<MClass, List<Effect>>()
-  private val resourceClassNames by lazy { Prod.findResourceClassNames(classes) }
+  private val resourceClassNames by lazy { Prod.findResourceClassNames(classTable) }
 
   /** Effects inherited by [mclass], processed as far as possible without a concrete component. */
   internal fun classEffects(mclass: MClass): List<Effect> {
-    require(mclass.loader === classes) { "$mclass belongs to a different class table" }
+    require(mclass.classTable === classTable) { "$mclass belongs to a different class table" }
     return effectsByClass.getOrPut(mclass) {
       fun directClassEffects(source: MClass) =
           source.declaration.effects.map(attachToClassTransformer(source)::transform)
@@ -80,11 +80,11 @@ internal class Transformers(internal val classes: MClassTable) {
   internal fun useFullNames() =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
-          return if (node is Count && classes.isUnresolvedClassLiteral(node.expression)) {
+          return if (node is Count && classTable.isUnresolvedClassLiteral(node.expression)) {
             node
           } else if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
-            classes.resolve(node.expression).className as P
+            classTable.resolve(node.expression).className as P
           } else {
             transformChildren(node)
           }
@@ -95,7 +95,7 @@ internal class Transformers(internal val classes: MClassTable) {
   internal fun atomizer(): PetTransformer {
     val atomized =
         try {
-          classes.getClass(ATOMIZED)
+          classTable.getClass(ATOMIZED)
         } catch (_: ExpressionException) {
           return noOp()
         }
@@ -124,7 +124,7 @@ internal class Transformers(internal val classes: MClassTable) {
             sc !is ActualScalar ||
                 sc.value == 1 ||
                 THIS in scex.expression ||
-                !classes.resolve(scex.expression).root.isSubtypeOf(atomized)
+                !classTable.resolve(scex.expression).root.isSubtypeOf(atomized)
         ) {
           return node
         }
@@ -168,13 +168,13 @@ internal class Transformers(internal val classes: MClassTable) {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val spec: DefaultSpec = extractor(classes.getClass(original.className).defaults)
+          val spec: DefaultSpec = extractor(classTable.getClass(original.className).defaults)
           val fixed =
               insertDefaultsIntoExpr(
                   original,
                   spec.dependencies,
                   context,
-                  classes,
+                  classTable,
               )
           val intensity = node.intensity ?: spec.intensity
 
@@ -206,8 +206,9 @@ internal class Transformers(internal val classes: MClassTable) {
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
-        val defaultDeps = classes.getClass(node.className).defaults.allUsages.dependencies
-        val result = insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, classes)
+        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
+        val result =
+            insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, classTable)
         @Suppress("UNCHECKED_CAST")
         return result as P
       }
@@ -221,10 +222,10 @@ internal class Transformers(internal val classes: MClassTable) {
       original: Expression,
       defaultDeps: DependencySet,
       contextCpt: Expression,
-      table: MClassTable,
+      classTable: MClassTable,
   ): Expression {
 
-    val mclass: MClass = table.getClass(original.className)
+    val mclass: MClass = classTable.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transform(original)
     val match: DependencySet = mclass.dependencies.matchPartial(dethissed.arguments)
 
@@ -295,8 +296,8 @@ internal class Transformers(internal val classes: MClassTable) {
         if (specialized !is Change) return specialized
 
         try {
-          specialized.gaining?.let(classes::resolve)
-          specialized.removing?.let(classes::resolve)
+          specialized.gaining?.let(classTable::resolve)
+          specialized.removing?.let(classTable::resolve)
         } catch (_: ExpressionException) {
           @Suppress("UNCHECKED_CAST")
           return gain(scaledEx(expression = DIE.expression)) as P

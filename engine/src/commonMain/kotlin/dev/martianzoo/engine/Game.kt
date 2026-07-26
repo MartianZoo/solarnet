@@ -38,7 +38,7 @@ public interface Game {
   public val setup: GameSetup
 
   /** Classes loaded in response to this game setup. */
-  public val classes: MClassTable
+  public val classTable: MClassTable
 
   public fun gameplay(actor: Actor): Gameplay
 
