@@ -29,25 +29,11 @@
 
 * It works! See the Issues tab for exceptions. I have just about 400 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
 
-* It's **not polished enough** for anyone to "just use". 2026 update: unless you are into agentic stuff like Codex or Claude Code; they figure it out quite easily. Speaking of which:
-
-## Statement about AI
-
-From 2020 to 2023 I put thousands of hours into this thing. I hoped to get it to a point where any other human on the planet might be interested in working with me on it. But I went as far as I could go.
-
-From 2023 to 2026 it sat idle, going nowhere.
-
-Then what changed? AI happened. These tools are honestly amazing. 
-
-So this project is "vibe-coded"? A few *parts* of it are. For example: I wanted tab completion in the REPL. It's a rare example of something where I don't really care how it's done, I just wanted it to work. So, I told the agent what to do, and it did it. I'm perfectly happy with that.
-
-The vast majority of the thing, though, I am extremely particular about how it's all designed.
-
-If this makes you write off my whole project as more "AI slop", that's your right. What I know is that what I'm able to do with these tools is much more than without, and my interest in the project is reinvigorated because of them. These same tools are not always put to the best ends, but for me, they've been fantastic so far.
+* It's **not polished enough** for anyone to "just use". 2026 update: unless you are into agentic stuff like Codex or Claude Code; they figure it out quite easily.
 
 ## Play around with it?
 
-Well, it is *supposed* to be as simple to get going as:
+`JAVA_HOME` needs to point to a JDK installation at version 17 or newer.  Then it is *supposed* to be as simple as this:
 
 ```
 git clone https://github.com/MartianZoo/solarnet.git
@@ -55,9 +41,9 @@ cd solarnet
 ./rego
 ```
 
-... and then typing `help`. If you're an agent, you can start a small repl server so you can issue repl commands from the normal command line instead of dealing with an interactive session.
+... and then type `help`.
 
-Run `./regoserve` to start that server and use `./rc 'command here'` as its thin client.
+You can also start a small REPL server with `./regoserve` and issue repl commands to it from the normal command line (`./rc 'repl command here'`).
 
 ## Learning more
 
