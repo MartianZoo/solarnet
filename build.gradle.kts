@@ -5,6 +5,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
@@ -27,6 +28,7 @@ val pinnedYarnResolutions =
 
 rootProject.plugins.withType<YarnPlugin> {
   val yarn = rootProject.the<YarnRootExtension>()
+  rootProject.the<YarnRootEnvSpec>().version.set("1.22.22")
   pinnedYarnResolutions.forEach(yarn::resolution)
 
   // Kotlin 2.2.21 does not track Yarn resolutions as inputs to this generated file. Without this,
