@@ -18,6 +18,10 @@
 ## When Running Gradle Or Tests
 
 1. Follow the commands and suite boundaries in `docs/testing.md`.
+2. Yarn's incompatible `serialize-javascript` resolution warning and its "Ignored scripts due to
+   flag" warning are expected for now. The former comes from the deliberate 7.x security pin while
+   Mocha still requests 6.x; the latter preserves Kotlin/JS's safer default of not running package
+   lifecycle scripts.
 
 ## When Changing Public APIs
 

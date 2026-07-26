@@ -21,6 +21,7 @@ kotlin {
         implementation(project(":script"))
         implementation(npm("jquery", "3.7.1"))
         implementation(npm("jquery.terminal", "2.46.1"))
+        implementation(devNpm("tslib", "2.8.1"))
       }
     }
     jsTest {
