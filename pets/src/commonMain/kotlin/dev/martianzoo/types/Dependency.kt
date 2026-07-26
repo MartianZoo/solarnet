@@ -75,11 +75,11 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun intersect(expression: Expression): Dependency? {
       if (expression.complement) {
-        val excluded = boundType.loader.resolve(expression.uncomplemented())
+        val excluded = boundType.classTable.resolve(expression.uncomplemented())
         if (!excluded.narrows(boundType)) return null
         return ComplementDependency(key, boundType, excluded)
       }
-      return glb(copy(boundType = boundType.loader.resolve(expression)))
+      return glb(copy(boundType = boundType.classTable.resolve(expression)))
     }
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
@@ -213,7 +213,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun intersect(expression: Expression): FakeDependency? {
       if (!expression.simple) return null
-      val mclass = boundClass.loader.getClass(expression.className)
+      val mclass = boundClass.classTable.getClass(expression.className)
       return glb(FakeDependency(mclass))
     }
   }

@@ -15,17 +15,18 @@ import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.MClassTable
 
 object Prod {
-  public fun deprodify(table: MClassTable): PetTransformer {
-    return deprodify(findResourceClassNames(table))
+  public fun deprodify(classTable: MClassTable): PetTransformer {
+    return deprodify(findResourceClassNames(classTable))
   }
 
-  internal fun findResourceClassNames(table: MClassTable): Set<ClassName> {
+  internal fun findResourceClassNames(classTable: MClassTable): Set<ClassName> {
     if (
-        STANDARD_RESOURCE !in table.allClassNamesAndIds || PRODUCTION !in table.allClassNamesAndIds
+        STANDARD_RESOURCE !in classTable.allClassNamesAndIds ||
+            PRODUCTION !in classTable.allClassNamesAndIds
     ) {
       return setOf()
     }
-    return table.getClass(STANDARD_RESOURCE).allSubclasses().flatMapTo(mutableSetOf()) {
+    return classTable.getClass(STANDARD_RESOURCE).allSubclasses().flatMapTo(mutableSetOf()) {
       setOf(it.className, it.shortName)
     }
   }

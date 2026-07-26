@@ -35,12 +35,15 @@ internal constructor(
     /** The class declaration this class was loaded from. */
     public val declaration: ClassDeclaration,
 
-    /** The class loader that loaded this class. */
-    public val loader: MClassLoader,
+    /** The class loader used while constructing this class. */
+    private val loader: MClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
     val directSuperclasses: List<MClass> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<MClass> {
+
+  /** The table containing this class and the other classes in its type universe. */
+  public val classTable: MClassTable = loader
 
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }

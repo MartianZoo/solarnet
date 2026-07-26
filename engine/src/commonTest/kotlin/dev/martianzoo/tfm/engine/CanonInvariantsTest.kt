@@ -23,7 +23,7 @@ import kotlin.test.Test
 
 internal class CanonInvariantsTest {
 
-  private val table = MClassLoader(Canon).loadEverything() as MClassLoader
+  private val table = MClassLoader(Canon).loadEverything()
 
   @Test
   fun introspect() {

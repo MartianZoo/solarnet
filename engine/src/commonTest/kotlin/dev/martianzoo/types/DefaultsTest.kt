@@ -10,7 +10,7 @@ import kotlin.test.Test
 class DefaultsTest {
   @Test
   fun testIntensities() {
-    val loader =
+    val classTable =
         loader(
             """
               ABSTRACT CLASS Foo1 {
@@ -28,17 +28,16 @@ class DefaultsTest {
               }
             """
         )
-            as MClassLoader
 
-    val d = loader.getClass(cn("Foo1")).defaults
+    val d = classTable.getClass(cn("Foo1")).defaults
     d.gainOnly.intensity shouldBe AMAP
     d.removeOnly.intensity shouldBe MANDATORY
 
-    val d2 = loader.getClass(cn("FooBar1")).defaults
+    val d2 = classTable.getClass(cn("FooBar1")).defaults
     d2.gainOnly.intensity shouldBe AMAP
     d2.removeOnly.intensity shouldBe OPTIONAL
 
-    val d3 = loader.getClass(cn("Fixed")).defaults
+    val d3 = classTable.getClass(cn("Fixed")).defaults
     d3.gainOnly.intensity shouldBe AMAP
     d3.removeOnly.intensity shouldBe MANDATORY
   }

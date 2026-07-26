@@ -19,7 +19,13 @@ import kotlin.test.Test
 internal class PrepareTest {
   val game: Game = setUpGame(Canon.SIMPLE_GAME)
   val instructor: Instructor =
-      Instructor(game.reader, Limiter(game.classes, game.components), null, null, game.classes)
+      Instructor(
+          game.reader,
+          Limiter(game.classTable, game.components),
+          null,
+          null,
+          game.classTable,
+      )
 
   init {
     game.tfm(PLAYER1).godMode().sneak("Plant, 10 ProjectCard, PROD[-1]")
@@ -28,8 +34,8 @@ internal class PrepareTest {
   fun preprocess(instr: Instruction): Instruction {
     val xer =
         chain(
-            deprodify(Transformers(game.classes).classes),
-            Transformers(game.classes).insertDefaults(),
+            deprodify(Transformers(game.classTable).classTable),
+            Transformers(game.classTable).insertDefaults(),
             replaceOwnerWith(PLAYER1),
         )
     return xer.transform(instr)

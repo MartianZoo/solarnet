@@ -6,6 +6,7 @@ import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 
@@ -32,6 +33,16 @@ public abstract class MClassTable {
 
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
   abstract fun resolve(type: Type): MType
+
+  /** Resolves every type expression in [node], throwing if any is invalid. */
+  public fun checkAllTypes(node: PetNode) = node.visitDescendants {
+    if (it is Expression) {
+      resolve(it.uncomplemented()).expression
+      false
+    } else {
+      true
+    }
+  }
 
   /**
    * Tests [candidate] against [constraint] within [domain]. The explicit domain lets a complement

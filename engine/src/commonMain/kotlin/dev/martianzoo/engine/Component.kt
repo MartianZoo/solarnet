@@ -40,7 +40,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type? =
-      if (hasType(mtype.loader.resolve(OWNER.expression))) {
+      if (hasType(mtype.classTable.resolve(OWNER.expression))) {
         mtype
       } else {
         mtype.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
@@ -65,7 +65,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
       transformers.classEffects(mtype.root).map { effect ->
         val bound = checkedBinding.transform(effect)
         try {
-          mtype.loader.checkAllTypes(bound)
+          mtype.classTable.checkAllTypes(bound)
           bound
         } catch (e: ExpressionException) {
           throw ExpressionException(
@@ -80,7 +80,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
       transformers.classEffects(mtype.root).mapNotNull { effect ->
         val bound = uncheckedBinding.transform(effect)
         try {
-          mtype.loader.checkAllTypes(bound)
+          mtype.classTable.checkAllTypes(bound)
           bound
         } catch (e: ExpressionException) {
           // An Owner-only component can inherit an effect whose output is Player-bound. The source
@@ -88,7 +88,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
           // tiles do not score VictoryPoint<Player> components.
           val sourceEffect =
               replaceThisExpressionsWith(mtype.root.className.expression).transform(effect)
-          mtype.loader.checkAllTypes(sourceEffect)
+          mtype.classTable.checkAllTypes(sourceEffect)
           null
         }
       }
@@ -99,7 +99,7 @@ public class Component internal constructor(private val mtype: MType) : HasExpre
       info?.let { mtype.narrows(supertype, it) } ?: mtype.narrows(supertype)
 
   private val customOutputTransformer =
-      with(Transformers(mtype.loader)) {
+      with(Transformers(mtype.classTable)) {
         chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
       }
 

@@ -177,15 +177,6 @@ public constructor(
     loadedClasses.keys
   }
 
-  public fun checkAllTypes(node: PetNode) = node.visitDescendants {
-    if (it is Expression) {
-      resolve(it.uncomplemented()).expression
-      false
-    } else {
-      true
-    }
-  }
-
   override fun toString() = "loader$id"
 
   private fun decl(cn: ClassName) = ruleset.classDeclaration(cn)

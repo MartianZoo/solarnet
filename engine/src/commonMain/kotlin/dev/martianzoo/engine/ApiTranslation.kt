@@ -35,7 +35,7 @@ internal class ApiTranslation(
     private val timeline: Timeline,
     private val impl: Implementations,
     private val tasks: TaskQueue,
-    table: MClassTable,
+    classTable: MClassTable,
     xers: Transformers,
     private val onAtomicComplete: () -> Unit,
 ) : GodMode { // so it really implements all gameplay layers
@@ -79,7 +79,7 @@ internal class ApiTranslation(
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(::replaceOwnerWith),
-          Prod.deprodify(table),
+          Prod.deprodify(classTable),
       )
 
   override fun <P : PetElement> parseInternal(type: KClass<P>, text: String) =

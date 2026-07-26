@@ -45,7 +45,7 @@ internal class DependencyMultiplicityTest {
 
   private fun load(classes: String) = loader(classes.trimIndent())
 
-  private fun limiter(table: MClassTable) = Limiter(table, EmptyComponentGraph)
+  private fun limiter(classTable: MClassTable) = Limiter(classTable, EmptyComponentGraph)
 
   private object EmptyComponentGraph : ComponentGraph {
     override fun contains(component: Component) = false

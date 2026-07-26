@@ -24,7 +24,7 @@ import dev.martianzoo.types.MClassTable
 import kotlin.math.min
 
 internal class GameReaderImpl(
-    private val classes: MClassTable,
+    private val classTable: MClassTable,
     private val components: ComponentGraph,
     internal val transformers: Transformers,
     override val setup: GameSetup,
@@ -32,10 +32,10 @@ internal class GameReaderImpl(
 
   override val ruleset: TfmRuleset = setup.ruleset
 
-  override fun resolve(expression: Expression) = classes.resolve(expression)
+  override fun resolve(expression: Expression) = classTable.resolve(expression)
 
   internal fun matchesConstraint(candidate: Type, constraint: Expression, domain: Type) =
-      classes.matchesConstraint(candidate, constraint, domain, this)
+      classTable.matchesConstraint(candidate, constraint, domain, this)
 
   // Next 3 are for TypeInfo interface
 
@@ -70,8 +70,8 @@ internal class GameReaderImpl(
       }
 
   private fun countExpression(expression: Expression): Int {
-    if (classes.isUnresolvedClassLiteral(expression)) return 0
-    val type = classes.resolve(expression)
+    if (classTable.isUnresolvedClassLiteral(expression)) return 0
+    val type = classTable.resolve(expression)
     if (!type.root.declaration.custom) return components.count(type, this)
 
     val implementation =
@@ -85,13 +85,13 @@ internal class GameReaderImpl(
     }
   }
 
-  override fun count(type: Type) = components.count(classes.resolve(type), this)
+  override fun count(type: Type) = components.count(classTable.resolve(type), this)
 
-  override fun containsAny(type: Type) = components.containsAny(classes.resolve(type), this)
+  override fun containsAny(type: Type) = components.containsAny(classTable.resolve(type), this)
 
   override fun countComponent(concreteType: Type) =
       components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) =
-      components.getAll(classes.resolve(type), this).map { it.type }
+      components.getAll(classTable.resolve(type), this).map { it.type }
 }

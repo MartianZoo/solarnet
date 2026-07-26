@@ -27,7 +27,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
           helpCommand.help.trimIndent().split("\n")
         } else {
           return try {
-            val docstring = repl.game.classes.getClass(cn(arg)).docstring
+            val docstring = repl.game.classTable.getClass(cn(arg)).docstring
             listOf("Class `$arg`: \"$docstring\"", "Type `desc $arg` for super gory details.")
           } catch (_: Exception) {
             listOf("¯\\_(ツ)_/¯ Type `help` for help")
