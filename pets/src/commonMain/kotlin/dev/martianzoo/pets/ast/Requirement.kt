@@ -111,10 +111,6 @@ sealed class Requirement : PetElement() {
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
 
     override fun precedence() = 3
-
-    override fun safeToNestIn(container: PetNode): Boolean {
-      return super.safeToNestIn(container) && container !is IfTrigger
-    }
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {

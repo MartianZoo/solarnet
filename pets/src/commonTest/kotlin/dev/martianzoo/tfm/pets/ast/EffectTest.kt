@@ -3,6 +3,9 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.Or
 import dev.martianzoo.tfm.pets.testSampleStrings
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -88,5 +91,41 @@ internal class EffectTest {
   fun bySelectorsAreExpressions() {
     parse<Effect>("Foo BY !Owner: Bar").toString() shouldBe "Foo BY !Owner: Bar"
     parse<Effect>("Foo BY !Player2: Bar").toString() shouldBe "Foo BY !Player2: Bar"
+  }
+
+  @Test
+  fun triggerAlternativesNeedNoParentheses() {
+    parse<Effect>("Foo OR -Bar BY Anyone:: Qux").toString() shouldBe "Foo OR -Bar BY Anyone:: Qux"
+  }
+
+  @Test
+  fun orBindsMoreTightlyThanByAndIf() {
+    val trigger = parse<Effect>("Foo OR -Bar BY Anyone IF Qux: Eep").trigger as IfTrigger
+
+    ((trigger.inner as ByTrigger).inner is Or) shouldBe true
+    trigger.toString() shouldBe "Foo OR -Bar BY Anyone IF Qux"
+  }
+
+  @Test
+  fun groupingAllowsBranchSpecificQualifiers() {
+    parse<Effect>("(Foo BY Player IF Qux) OR (-Bar BY Anyone IF Abc): Eep").toString() shouldBe
+        "(Foo BY Player IF Qux) OR (-Bar BY Anyone IF Abc): Eep"
+  }
+
+  @Test
+  fun groupingAllowsQualifiersAtDifferentLevels() {
+    parse<Effect>("(Foo IF Qux) OR Bar BY Anyone IF Abc: Eep").toString() shouldBe
+        "(Foo IF Qux) OR Bar BY Anyone IF Abc: Eep"
+  }
+
+  @Test
+  fun triggerAlternativesCannotMixSelfAndSubscriptions() {
+    assertFailsWith<PetSyntaxException> { parse<Effect>("This OR Foo: Qux") }
+  }
+
+  @Test
+  fun conditionalTriggerRequirementsNeedNoParentheses() {
+    parse<Effect>("This IF =3 This OR =5 This: PROD[Heat]").toString() shouldBe
+        "This IF =3 This OR =5 This: PROD[Heat]"
   }
 }

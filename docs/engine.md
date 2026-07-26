@@ -238,6 +238,7 @@ Each effect has a `Trigger` which is one of:
 | `WhenRemove` | the component carrying this effect is itself removed |
 | `OnGainOf<X>` | any component of type X is gained anywhere in the game |
 | `OnRemoveOf<X>` | any component of type X is removed |
+| `Or` | any one of two or more alternative triggers matches |
 
 These can be wrapped:
 - `ByTrigger` — only fires if the Actor recorded on the `ChangeEvent` matches its `BY` selector

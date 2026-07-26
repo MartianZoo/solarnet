@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.Or
 import dev.martianzoo.pets.ast.Effect.Trigger.Transform
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenRemove
@@ -144,6 +145,7 @@ internal class Effector(
           implicitOwner: Player? = context.playerOwner,
       ): Subscription {
         return when (trigger) {
+          is Or -> AnyOf(trigger.triggers.map { from(it, context, implicitOwner) })
           is BasicTrigger -> {
             when (trigger) {
               is WhenGain -> Self(context, matchOnGain = true)
@@ -185,6 +187,24 @@ internal class Effector(
     ): Hit?
 
     internal abstract val classToCheck: ClassName?
+
+    private data class AnyOf(val alternatives: List<Subscription>) : Subscription() {
+      override fun checkForHit(
+          currentEvent: ChangeEvent,
+          contextualOwner: Player?,
+          isSelf: Boolean,
+          reader: GameReader,
+      ): Hit? {
+        alternatives.forEach { alternative ->
+          alternative.checkForHit(currentEvent, contextualOwner, isSelf, reader)?.let {
+            return it
+          }
+        }
+        return null
+      }
+
+      override val classToCheck = null
+    }
 
     private data class Regular(
         val match: Expression,
@@ -308,7 +328,7 @@ internal class Effector(
       ): Hit? {
         val wouldHit =
             inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
-        return if (reader.has(condition)) wouldHit else null
+        return if (reader.has(wouldHit.specialize(condition))) wouldHit else null
       }
 
       override val classToCheck = inner.classToCheck
@@ -342,6 +362,8 @@ private data class Hit(
   fun specialize(instruction: Instruction): Instruction = specializeNode(instruction) * count
 
   fun specialize(expression: Expression): Expression = specializeNode(expression)
+
+  fun specialize(requirement: Requirement): Requirement = specializeNode(requirement)
 
   fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
 

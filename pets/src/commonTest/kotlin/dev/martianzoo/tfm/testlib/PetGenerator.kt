@@ -115,6 +115,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               9 to Trigger.BasicTrigger::class,
               3 to Trigger.ByTrigger::class,
               2 to Trigger.IfTrigger::class,
+              1 to Trigger.Or::class,
               2 to Trigger.XTrigger::class,
               1 to Trigger.Transform::class,
           )
@@ -126,6 +127,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Trigger.OnRemoveOf.create(recurse()) as Trigger.OnRemoveOf }
       register { Trigger.ByTrigger(recurse(), choose(1 to OWNER, 1 to PLAYER2.className)) }
       register { Trigger.IfTrigger(recurse(), recurse()) }
+      register { Trigger.Or(List(choose(2, 2, 3)) { recurse<Trigger>() }) }
       register { Trigger.XTrigger(recurse()) }
       register { Trigger.Transform(recurse(), PROD) }
 

@@ -114,6 +114,7 @@ public abstract class PetTransformer protected constructor() {
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
                 when (this) {
+                  is Trigger.Or -> Trigger.Or(x(triggers))
                   is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(expression))
                   is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(expression))
                   is Trigger.ByTrigger -> Trigger.ByTrigger(x(inner), x(by))

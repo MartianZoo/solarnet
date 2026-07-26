@@ -4,6 +4,7 @@ import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
@@ -36,22 +37,56 @@ public data class Effect(
   sealed class Trigger : PetNode() {
     override val kind = Trigger::class
 
+    /**
+     * An unmodified gain-or-removal selector: either a self event or a subscription to a component
+     * type. Basic triggers are the operands accepted by scalar and transform wrappers. They do not
+     * themselves include `OR`, `IF`, or `BY`.
+     */
     sealed class BasicTrigger : Trigger()
 
-    object WhenGain : BasicTrigger() {
+    /**
+     * A gain or removal of the concrete component carrying this effect, spelled `This` or `-This`.
+     * This is not a subscription to that component's type: changing N copies scales this effect's
+     * instruction by N once, regardless of how many other copies of the component already exist.
+     */
+    sealed class SelfTrigger : BasicTrigger()
+
+    /**
+     * A subscription to gains or removals matching an authored component expression. Each active
+     * copy of the effect-bearing component owns this subscription, so its multiplicity affects how
+     * many times a matching change triggers the effect.
+     */
+    sealed class SubscribedTrigger : BasicTrigger()
+
+    data class Or(val triggers: List<Trigger>) : Trigger() {
+      init {
+        require(triggers.size >= 2)
+        if (triggers.map { it.selfMode() }.distinct().size != 1) {
+          throw PetSyntaxException("OR trigger cannot mix This with subscribed triggers")
+        }
+      }
+
+      override fun visitChildren(visitor: Visitor) = visitor.visit(triggers)
+
+      override fun toString() = triggers.joinToString(" OR ") { groupPartIfNeeded(it) }
+
+      override fun precedence() = 30
+    }
+
+    object WhenGain : SelfTrigger() {
       override fun visitChildren(visitor: Visitor) = Unit
 
       override fun toString() = "This"
     }
 
-    object WhenRemove : BasicTrigger() {
+    object WhenRemove : SelfTrigger() {
       override fun visitChildren(visitor: Visitor) = Unit
 
       override fun toString() = "-This"
     }
 
     @ConsistentCopyVisibility
-    data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
+    data class OnGainOf private constructor(val expression: Expression) : SubscribedTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
@@ -75,7 +110,7 @@ public data class Effect(
     }
 
     @ConsistentCopyVisibility
-    data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
+    data class OnRemoveOf private constructor(val expression: Expression) : SubscribedTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
@@ -107,25 +142,20 @@ public data class Effect(
     data class ByTrigger(override val inner: Trigger, val by: Expression) : WrappingTrigger() {
       constructor(inner: Trigger, by: ClassName) : this(inner, by.expression)
 
-      init {
-        if (inner is ByTrigger) throw PetSyntaxException("by the by")
-      }
-
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
 
-      override fun toString() = "$inner BY $by"
+      override fun toString() = "${groupPartIfNeeded(inner)} BY $by"
+
+      override fun precedence() = 20
     }
 
     data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
         WrappingTrigger() {
-      init {
-        if (inner is ByTrigger) throw PetSyntaxException("if the by")
-        if (inner is IfTrigger) throw PetSyntaxException("if the if")
-      }
-
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
 
-      override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
+      override fun toString() = "${groupPartIfNeeded(inner)} IF ${groupPartIfNeeded(condition)}"
+
+      override fun precedence() = 10
     }
 
     data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
@@ -152,6 +182,14 @@ public data class Effect(
       override fun extract() = inner
     }
 
+    private fun selfMode(): Boolean =
+        when (this) {
+          is SelfTrigger -> true
+          is SubscribedTrigger -> false
+          is Or -> triggers.first().selfMode()
+          is WrappingTrigger -> inner.selfMode()
+        }
+
     internal companion object : PetTokenizer() {
       fun parser(): Parser<Trigger> {
         return parser {
@@ -171,17 +209,23 @@ public data class Effect(
 
           val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
           val transform = transform(atom) map { (node, name) -> Transform(node, name) }
-          val ifClause: Parser<Requirement> = skip(_if) and Requirement.atomParser()
+          val unmodified = transform or atom
+          val primary = unmodified or group(parser())
+          val alternatives =
+              separatedTerms(primary, _or) map { if (it.size == 1) it.first() else Or(it) }
           val byClause: Parser<Expression> = skip(_by) and Expression.parser()
+          val byTrigger =
+              alternatives and
+                  optional(byClause) map
+                  { (inner, by) ->
+                    if (by == null) inner else ByTrigger(inner, by)
+                  }
+          val ifClause: Parser<Requirement> = skip(_if) and Requirement.parser()
 
-          (transform or atom) and
-              optional(ifClause) and
-              optional(byClause) map
-              { (inTrigger, `if`, by) ->
-                var trig = inTrigger
-                if (`if` != null) trig = IfTrigger(trig, `if`)
-                if (by != null) trig = ByTrigger(trig, by)
-                trig
+          byTrigger and
+              optional(ifClause) map
+              { (inner, condition) ->
+                if (condition == null) inner else IfTrigger(inner, condition)
               }
         }
       }

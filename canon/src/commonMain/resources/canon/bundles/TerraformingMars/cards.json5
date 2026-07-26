@@ -7,8 +7,7 @@
       "deck": "CORPORATION",
       "immediate": "57",
       "effects": [
-        "CardFront(HAS 20 CardCost): 4",
-        "UseAction<StandardProject(HAS 20 StandardProjectCost)>: 4"
+        "CardFront(HAS 20 CardCost) OR UseAction<StandardProject(HAS 20 StandardProjectCost)>: 4"
       ]
     },
 
@@ -954,8 +953,7 @@
       "tags": [ "AnimalTag", "PlantTag" ],
       "immediate": "EzTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
       "effects": [
-        "AnimalTag: Animal<This>",
-        "PlantTag: Animal<This>",
+        "AnimalTag OR PlantTag: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
       ],
       "components": [ "CLASS EzTile : SpecialTile" ],

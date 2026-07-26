@@ -246,10 +246,7 @@
       "id": "071",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
-      "effects": [
-        "Pay<Class<Steel>>:: -Owed",
-        "Pay<Class<Titanium>>:: -Owed"
-      ],
+      "effects": [ "Pay<Class<Steel>> OR Pay<Class<Titanium>>:: -Owed" ],
       "cost": 9,
       "projectKind": "ACTIVE"
     },
@@ -614,11 +611,7 @@
     {
       "id": "173",
       "deck": "PROJECT",
-      "effects": [
-        "-Plant<Owner> BY !Owner:: Die",
-        "-Animal<Owner> BY !Owner:: Die",
-        "-Microbe<Owner> BY !Owner:: Die"
-      ],
+      "effects": [ "-Plant<Owner> OR -Animal<Owner> OR -Microbe<Owner> BY !Owner:: Die" ],
       "cost": 5,
       "projectKind": "ACTIVE"
     },

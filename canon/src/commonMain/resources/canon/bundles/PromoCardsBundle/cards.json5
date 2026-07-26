@@ -660,8 +660,7 @@
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
         "ScienceTag: Graphene<This>",
-        "PlayTag<Class<SpaceTag>>: (-X Graphene<This>! THEN -4X Owed.) OR Ok",
-        "PlayTag<Class<CityTag>>: (-X Graphene<This>! THEN -4X Owed.) OR Ok",
+        "PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>: (-X Graphene<This>! THEN -4X Owed.) OR Ok",
         "End: VictoryPoint"
       ],
       "resourceType": "Graphene",

@@ -158,7 +158,12 @@ that gets translated to `UseAction2<ElectroCatapult>: -Plant THEN 7`).
 
 ```
 effect      := trigger (':' | '::') instruction
-trigger     := (prodTrigger | atomTrigger) ['IF' requirement] ['BY' actorSelector]
+trigger     := ifTrigger
+ifTrigger   := byTrigger ['IF' requirement]
+byTrigger   := orTrigger ['BY' actorSelector]
+orTrigger   := triggerPrimary ('OR' triggerPrimary)*
+triggerPrimary := rawTrigger | '(' trigger ')'
+rawTrigger  := prodTrigger | atomTrigger
 actorSelector := typeExpression
 prodTrigger := 'PROD[' atomTrigger ']'
 atomTrigger := onGain | onRemove
@@ -169,6 +174,21 @@ onRemove    := '-' genericTypeExpr
 An effect consists of a trigger, either one or two colons, then an instruction. The trigger is essentially just a type
 optionally preceded by a minus sign. For each instance of that type that is gained (or, with minus sign, removed), the
 instruction will be carried out.
+
+Multiple triggers can share one effect without parentheses: `AnimalTag OR PlantTag: Animal<This>`.
+From tightest to loosest, trigger operators are grouping, `OR`, `BY`, then `IF`. Thus the qualifiers
+in `OceanTile OR VenusStep BY Anyone IF VenusTag: 2 Plant` apply to both alternatives. Parentheses
+permit qualifiers on an individual alternative or at different levels:
+`(AnimalTag IF PlantTag) OR (PlantTag BY Anyone): Animal<This>`. A change matching more than one
+alternative still triggers the effect only once; alternatives are tested from left to right, and the
+first match supplies the type specialization used by enclosing qualifiers and the instruction.
+
+Self triggers (`This` and `-This`) can be combined with each other but not with ordinary subscribed
+triggers because their occurrence-based and active-subscription multiplicities differ.
+
+Because `IF` consumes a complete requirement, a disjunction there also needs no parentheses:
+`This IF =3 This OR =5 This: PROD[Heat]`. To resume trigger-level `OR` after an `IF`, group the
+qualified trigger: `(AnimalTag IF PlantTag) OR PlantTag: Animal<This>`.
 
 `BY` restricts the Actor recorded on the triggering state change. Following the published card
 grammar, an effect carried by an `Owned` component responds only to its Owner when its trigger
