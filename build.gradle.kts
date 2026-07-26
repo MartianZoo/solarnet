@@ -1,20 +1,23 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.spotless.kotlin.KtfmtStep.TrailingCommaManagementStrategy.ONLY_ADD
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import dev.detekt.gradle.extensions.DetektExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
-  id("io.gitlab.arturbosch.detekt") version "1.23.8" apply false
+  id("dev.detekt") version "2.0.0-alpha.5" apply false
   id("com.diffplug.spotless") version "8.8.0"
-  id("org.jetbrains.kotlin.jvm") version "2.2.21"
-  id("org.jetbrains.kotlin.multiplatform") version "2.2.21" apply false
-  id("org.jetbrains.kotlin.plugin.serialization") version "2.2.21" apply false
+  id("org.jetbrains.kotlin.jvm") version "2.4.10"
+  id("org.jetbrains.kotlin.multiplatform") version "2.4.10" apply false
+  id("org.jetbrains.kotlin.plugin.serialization") version "2.4.10" apply false
   id("org.jetbrains.dokka") version "2.2.0"
 }
 
@@ -66,7 +69,7 @@ configure<SpotlessExtension> {
 }
 
 subprojects {
-  apply(plugin = "io.gitlab.arturbosch.detekt")
+  apply(plugin = "dev.detekt")
 
   extensions.configure<DetektExtension> {
     buildUponDefaultConfig = true
@@ -79,12 +82,27 @@ subprojects {
   }
 
   tasks.withType<KotlinCompilationTask<*>>().configureEach {
-    compilerOptions.allWarningsAsErrors.set(true)
-    compilerOptions.freeCompilerArgs.addAll(
-        "-Wextra",
-        "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
-        "-Xwarning-level=RETURN_VALUE_NOT_USED:disabled",
-    )
+    compilerOptions {
+      allWarningsAsErrors.set(true)
+      languageVersion.set(KotlinVersion.KOTLIN_2_2)
+      apiVersion.set(KotlinVersion.KOTLIN_2_2)
+      freeCompilerArgs.addAll(
+          "-Wextra",
+          "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
+          "-Xwarning-level=RETURN_VALUE_NOT_USED:disabled",
+      )
+    }
+  }
+
+  tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+      jvmTarget.set(JvmTarget.JVM_17)
+      freeCompilerArgs.add("-Xjdk-release=17")
+    }
+  }
+
+  tasks.withType<JavaCompile>().configureEach {
+    options.release.set(17)
   }
 
   configurations
@@ -92,7 +110,7 @@ subprojects {
       .configureEach {
         resolutionStrategy.eachDependency {
           if (requested.group == "org.jetbrains.kotlin") {
-            useVersion("2.2.21")
+            useVersion("2.4.10")
             because(
                 "Kotlin/JS compilation requires libraries compiled for the project Kotlin version"
             )
@@ -108,14 +126,8 @@ subprojects {
     }
     dokkaSourceSets.configureEach {
       documentedVisibilities.set(setOf(VisibilityModifier.Public, VisibilityModifier.Protected))
-      jdkVersion.set(21)
+      jdkVersion.set(17)
       skipEmptyPackages.set(true)
-    }
-  }
-
-  pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-    extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
-      jvmToolchain(21)
     }
   }
 

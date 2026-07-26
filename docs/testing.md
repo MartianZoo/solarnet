@@ -4,7 +4,9 @@
 
 ## Routine verification
 
-Use JDK 21 for Gradle work.
+The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
+targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
+Kotlin 2.2. Contributors do not need another JDK installed.
 
 - `./gradlew build` is the normal repository-wide check. It runs the JVM tests and the routine
   browser tests. The engine's slow browser suite is deliberately excluded.

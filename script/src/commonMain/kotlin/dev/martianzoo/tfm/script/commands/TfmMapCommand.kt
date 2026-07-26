@@ -74,7 +74,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
     private class CenteringAppender(val sb: StringBuilder) {
       var weird: Boolean = false
 
-      fun append(s: String) = sb.append(s)!!
+      fun append(s: String) = sb.append(s)
 
       fun appendHalfSpaces(n: Int) {
         append(" ".repeat(n / 2))

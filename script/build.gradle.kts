@@ -21,7 +21,7 @@ val copyPetsResourcesForKarma by
 
 kotlin {
   jvm()
-  js(IR) {
+  js {
     browser()
   }
 

@@ -73,8 +73,7 @@ public object Parsing {
     check(expectedType.isInstance(pet)) {
       "Expected ${expectedType.simpleName}, got ${pet.kind.simpleName}"
     }
-    @Suppress("UNCHECKED_CAST")
-    return pet as P
+    return pet
   }
 
   internal fun <T> parse(
