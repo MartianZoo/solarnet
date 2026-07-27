@@ -4,36 +4,36 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.pets.ast.ClassName
 
-interface Ruleset {
-  val allClassDeclarations: Map<ClassName, ClassDeclaration>
+public interface Ruleset {
+  public val allClassDeclarations: Map<ClassName, ClassDeclaration>
 
   /** Full bundle identities contributing each combined class declaration. */
-  val classDeclarationBundles: Map<ClassName, Set<ClassName>>
+  public val classDeclarationBundles: Map<ClassName, Set<ClassName>>
 
   /**
    * Every class declaration this ruleset knows about, including explicit ones and those converted
    * from [Definition]s.
    */
-  val allClassNames: Set<ClassName>
+  public val allClassNames: Set<ClassName>
 
   /**
    * All class declarations that were provided "directly" in source form (i.e., `CLASS Foo...`) as
    * opposed to being converted from [Definition] objects.
    */
-  val explicitClassDeclarations: Set<ClassDeclaration>
+  public val explicitClassDeclarations: Set<ClassDeclaration>
 
   /** Everything implementing [Definition] this ruleset knows about. */
-  val allDefinitions: Set<Definition>
+  public val allDefinitions: Set<Definition>
 
   /** Every Kotlin-provided implementation for this ruleset's `Custom` classes. */
-  val customClasses: Set<CustomClass>
+  public val customClasses: Set<CustomClass>
 
   /** Returns the class declaration having the full name [name]. */
-  fun classDeclaration(name: ClassName): ClassDeclaration
+  public fun classDeclaration(name: ClassName): ClassDeclaration
 
   /** Returns the custom implementation having the name [className]. */
-  fun customClass(className: ClassName): CustomClass
+  public fun customClass(className: ClassName): CustomClass
 
   /** Returns the custom metric implementation having the name [className], if any. */
-  fun customMetric(className: ClassName): CustomMetric?
+  public fun customMetric(className: ClassName): CustomMetric?
 }

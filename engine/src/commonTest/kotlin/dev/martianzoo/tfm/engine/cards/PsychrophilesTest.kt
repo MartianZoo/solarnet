@@ -10,7 +10,7 @@ class PsychrophilesTest : CardTest() {
     newGame("BRMP", 2)
   }
 
-  val Psychrophiles = "Psychrophiles"
+  private val Psychrophiles = "Psychrophiles"
 
   @BeforeTest
   fun setUp() {
@@ -20,7 +20,7 @@ class PsychrophilesTest : CardTest() {
     }
   }
 
-  fun setupWithCard() {
+  private fun setupWithCard() {
     with(player1) {
       playProject(Psychrophiles, 2)
       cardAction1(Psychrophiles).expect("Microbe<Psychrophiles>")

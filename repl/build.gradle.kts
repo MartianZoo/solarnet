@@ -20,6 +20,8 @@ dependencies {
   testImplementation("com.google.truth:truth:1.4.5")
 }
 
+kotlin { explicitApi() }
+
 dokka {
   dokkaSourceSets {
     configureEach {

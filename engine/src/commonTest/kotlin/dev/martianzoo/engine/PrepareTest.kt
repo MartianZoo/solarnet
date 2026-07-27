@@ -18,7 +18,7 @@ import kotlin.test.Test
 
 internal class PrepareTest {
   val game: Game = setUpGame(Canon.SIMPLE_GAME)
-  val instructor: Instructor =
+  private val instructor: Instructor =
       Instructor(
           game.reader,
           Limiter(game.typeUniverse, game.components),
@@ -31,7 +31,7 @@ internal class PrepareTest {
     game.tfm(PLAYER1).godMode().sneak("Plant, 10 ProjectCard, PROD[-1]")
   }
 
-  fun preprocess(instr: Instruction): Instruction {
+  private fun preprocess(instr: Instruction): Instruction {
     val xer =
         chain(
             deprodify(Transformers(game.typeUniverse).typeUniverse),
@@ -41,11 +41,11 @@ internal class PrepareTest {
     return xer.transform(instr)
   }
 
-  fun preprocessAndPrepare(unprepared: String): Instruction {
+  private fun preprocessAndPrepare(unprepared: String): Instruction {
     return instructor.prepare(preprocess(parse(unprepared)))
   }
 
-  fun checkPrepare(unprepared: String, expected: String?) {
+  private fun checkPrepare(unprepared: String, expected: String?) {
     val prepared = preprocessAndPrepare(unprepared)
     prepared.toString() shouldBe expected
   }

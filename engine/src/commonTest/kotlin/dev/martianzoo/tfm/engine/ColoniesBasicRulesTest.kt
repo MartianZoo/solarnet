@@ -21,7 +21,8 @@ import kotlin.test.Test
 
 /** Comment lines are quotes directly from the rulebook. */
 internal class ColoniesBasicRulesTest {
-  val normal = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
+  private val normal =
+      listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
   val setup = Canon.fromOptionCodes("BRMC", 4, normal)
   val game = setUpGame(setup)
   val engine = game.tfm(ENGINE)

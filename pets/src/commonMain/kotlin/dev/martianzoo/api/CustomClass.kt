@@ -23,33 +23,34 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
    * For a type with 0 dependencies: translates an instruction to gain this type into another
    * instruction that wil be prepared and executed instead.
    */
-  open fun translate(game: GameReader): Instruction = throw NotImplementedError()
+  public open fun translate(game: GameReader): Instruction = throw NotImplementedError()
 
   /**
    * For a type with 1 dependency: translates an instruction to gain this type into another
    * instruction that wil be prepared and executed instead.
    */
-  open fun translate(game: GameReader, type0: Type): Instruction = throw NotImplementedError()
+  public open fun translate(game: GameReader, type0: Type): Instruction =
+      throw NotImplementedError()
 
   /**
    * For a type with 2 dependencies: translates an instruction to gain this type into another
    * instruction that wil be prepared and executed instead.
    */
-  open fun translate(game: GameReader, type0: Type, type1: Type): Instruction =
+  public open fun translate(game: GameReader, type0: Type, type1: Type): Instruction =
       throw NotImplementedError()
 
   /**
    * For a type with 3 dependencies: translates an instruction to gain this type into another
    * instruction that wil be prepared and executed instead.
    */
-  open fun translate(game: GameReader, type0: Type, type1: Type, type2: Type): Instruction =
+  public open fun translate(game: GameReader, type0: Type, type1: Type, type2: Type): Instruction =
       throw NotImplementedError()
 
   /**
    * For a type with 4 dependencies: translates an instruction to gain this type into another
    * instruction that wil be prepared and executed instead.
    */
-  open fun translate(
+  public open fun translate(
       game: GameReader,
       type0: Type,
       type1: Type,

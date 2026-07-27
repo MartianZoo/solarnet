@@ -32,17 +32,17 @@ public interface Gameplay {
 
   // READ OPERATIONS
 
-  val actor: Actor
+  public val actor: Actor
 
-  fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
+  public fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
 
-  fun has(requirement: String): Boolean
+  public fun has(requirement: String): Boolean
 
-  fun count(metric: String): Int
+  public fun count(metric: String): Int
 
-  fun list(type: String): Multiset<Expression>
+  public fun list(type: String): Multiset<Expression>
 
-  fun resolve(expression: String): Type
+  public fun resolve(expression: String): Type
 
   // Purple mode (and below)
 
@@ -56,10 +56,10 @@ public interface Gameplay {
    * @throws [TaskException] if there is no task by this id assigned to this gameplay's Actor
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
-  fun reviseTask(taskId: TaskId, revised: String): TaskResult
+  public fun reviseTask(taskId: TaskId, revised: String): TaskResult
 
   /** Tells whether [prepareTask] will complete normallly. */
-  fun canPrepareTask(taskId: TaskId): Boolean
+  public fun canPrepareTask(taskId: TaskId): Boolean
 
   /**
    * Sets a task's [Task.next] bit, and simplifies its instruction according to the current game
@@ -78,13 +78,13 @@ public interface Gameplay {
    *   first be narrowed until it splits into tasks that can be prepared individually
    * @throws [NotNowException] if the prepared task would throw this exception on execution
    */
-  fun prepareTask(taskId: TaskId): TaskId?
+  public fun prepareTask(taskId: TaskId): TaskId?
 
   /**
    * Brittle convenience that selects by the task set's non-semantic iteration order. Prefer an
    * explicit task id unless the caller has established that only one task can apply.
    */
-  fun doFirstTask(revised: String? = null): TaskResult
+  public fun doFirstTask(revised: String? = null): TaskResult
 
   /**
    * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes
@@ -96,69 +96,69 @@ public interface Gameplay {
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be prepared
    */
-  fun doTask(taskId: TaskId): TaskResult
+  public fun doTask(taskId: TaskId): TaskResult
 
-  fun doTask(revised: String): TaskResult
+  public fun doTask(revised: String): TaskResult
 
-  fun tryTask(taskId: TaskId): TaskResult
+  public fun tryTask(taskId: TaskId): TaskResult
 
-  fun tryTask(revised: String): TaskResult
+  public fun tryTask(revised: String): TaskResult
 
-  fun tryPreparedTask(): TaskResult
+  public fun tryPreparedTask(): TaskResult
 
-  fun autoExecNow(): TaskResult
+  public fun autoExecNow(): TaskResult
 
-  var autoExecMode: AutoExecMode
+  public var autoExecMode: AutoExecMode
 
-  fun godMode(): GodMode
+  public fun godMode(): GodMode
 
   // Blue mode
 
-  interface TurnLayer : Gameplay {
-    fun startTurn(): TaskResult
+  public interface TurnLayer : Gameplay {
+    public fun startTurn(): TaskResult
 
-    fun turn(body: BodyLambda = {}): TaskResult
+    public fun turn(body: BodyLambda = {}): TaskResult
   }
 
   // Green mode
 
-  interface OperationLayer : TurnLayer {
-    fun manual(initialInstruction: String, body: BodyLambda = {}): TaskResult
+  public interface OperationLayer : TurnLayer {
+    public fun manual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
-    fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
+    public fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
-    fun continueManual(body: BodyLambda = {}): TaskResult
+    public fun continueManual(body: BodyLambda = {}): TaskResult
 
-    fun finish(body: BodyLambda = {}): TaskResult
+    public fun finish(body: BodyLambda = {}): TaskResult
   }
 
-  interface OperationBody {
-    val tasks: TaskQueue
-    val reader: GameReader
+  public interface OperationBody {
+    public val tasks: TaskQueue
+    public val reader: GameReader
 
-    fun doFirstTask(revised: String)
+    public fun doFirstTask(revised: String)
 
-    fun doTask(revised: String)
+    public fun doTask(revised: String)
 
-    fun tryTask(revised: String)
+    public fun tryTask(revised: String)
 
-    fun autoExecNow()
+    public fun autoExecNow()
 
-    fun abort(): Nothing = throw AbortOperationException()
+    public fun abort(): Nothing = throw AbortOperationException()
   }
 
   // Yellow
   public interface TaskLayer : OperationLayer {
     /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
-    fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
+    public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
     /** Removes a task for any reason or no reason at all. */
-    fun dropTask(taskId: TaskId): TaskRemovedEvent
+    public fun dropTask(taskId: TaskId): TaskRemovedEvent
   }
 
   // Red
   public interface GodMode : TaskLayer {
-    fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
+    public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
   }
 
   public companion object {
@@ -167,4 +167,4 @@ public interface Gameplay {
   }
 }
 
-internal typealias BodyLambda = OperationBody.() -> Unit
+public typealias BodyLambda = OperationBody.() -> Unit

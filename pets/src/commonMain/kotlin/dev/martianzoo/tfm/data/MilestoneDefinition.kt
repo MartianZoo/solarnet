@@ -5,6 +5,7 @@ import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
@@ -14,11 +15,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
-data class MilestoneDefinition(
+public data class MilestoneDefinition(
     val id: String,
     val replaces: String? = null,
     @SerialName("requirement") val requirementText: String,
-    val requiredBundles: String? = null,
+    private val requiredBundles: String? = null,
 ) : Definition {
 
   init {
@@ -27,13 +28,13 @@ data class MilestoneDefinition(
     require(requiredBundles?.isBlank() != false)
   }
 
-  @Transient override val shortName = cn(id)
+  @Transient override val shortName: ClassName = cn(id)
 
-  @Transient val requiredBundleNames = parseBundleNames(requiredBundles)
+  @Transient public val requiredBundleNames: Set<ClassName> = parseBundleNames(requiredBundles)
 
   @Transient val requirement: Requirement = parse(requirementText)
 
-  @Transient override val className = englishHack(id)
+  @Transient override val className: ClassName = englishHack(id)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(

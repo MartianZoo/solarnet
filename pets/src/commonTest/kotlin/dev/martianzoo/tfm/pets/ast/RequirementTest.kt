@@ -14,7 +14,7 @@ import kotlin.test.Test
 // Most testing is done by AutomatedTest
 internal class RequirementTest {
 
-  val inputs =
+  private val inputs =
       """
       5
       11
@@ -83,7 +83,7 @@ internal class RequirementTest {
     testSampleStrings<Requirement>(inputs)
   }
 
-  val fooEx = cn("Foo").expression
+  private val fooEx = cn("Foo").expression
 
   @Test
   fun simpleSourceToApi() {

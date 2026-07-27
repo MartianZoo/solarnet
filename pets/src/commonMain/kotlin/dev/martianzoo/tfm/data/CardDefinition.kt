@@ -130,7 +130,7 @@ public class CardDefinition(data: CardData) : Definition {
   public val extraClasses: List<ClassDeclaration> =
       data.components.map(::parseOneLinerClass) + listOfNotNull(resourceClassDeclaration())
 
-  override val asClassDeclaration by lazy {
+  override val asClassDeclaration: ClassDeclaration by lazy {
     val createTags =
         Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
 
@@ -162,14 +162,14 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */
-  enum class Deck(val className: ClassName) {
+  public enum class Deck(public val className: ClassName) {
     PROJECT(PROJECT_CARD),
     PRELUDE(PRELUDE_CARD),
     CORPORATION(CORPORATION_CARD),
   }
 
   /** A kind (color) of project; see [CardDefinition.ProjectInfo.kind]. */
-  enum class ProjectKind(val className: ClassName) {
+  public enum class ProjectKind(internal val className: ClassName) {
     EVENT(EVENT_CARD),
     AUTOMATED(AUTOMATED_CARD),
     ACTIVE(ACTIVE_CARD),

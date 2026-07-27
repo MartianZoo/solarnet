@@ -2,9 +2,9 @@ package dev.martianzoo.util
 
 import dev.martianzoo.api.TypeInfo
 
-interface Reifiable<R : Reifiable<R>> {
+public interface Reifiable<R : Reifiable<R>> {
   /** Completes normally if this is a narrowing of [that]. */
-  fun ensureNarrows(that: R, info: TypeInfo)
+  public fun ensureNarrows(that: R, info: TypeInfo)
 
-  val abstract: Boolean
+  public val abstract: Boolean
 }

@@ -11,17 +11,17 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  */
 public interface EventLog {
   /** Returns all change events since engine initialization concluded, including game setup. */
-  fun changesSinceSetup(): List<GameEvent.ChangeEvent>
+  public fun changesSinceSetup(): List<GameEvent.ChangeEvent>
 
-  fun entriesSinceSetup(): List<GameEvent>
+  public fun entriesSinceSetup(): List<GameEvent>
 
   /** Returns all change events since [checkpoint]. */
-  fun changesSince(checkpoint: Checkpoint): List<GameEvent.ChangeEvent>
+  public fun changesSince(checkpoint: Checkpoint): List<GameEvent.ChangeEvent>
 
   /** Returns the ids of all tasks created since [checkpoint] that still exist. */
-  fun newTasksSince(checkpoint: Checkpoint): Set<Task.TaskId>
+  public fun newTasksSince(checkpoint: Checkpoint): Set<Task.TaskId>
 
-  fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
+  public fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
 
-  fun activitySince(checkpoint: Checkpoint): TaskResult
+  public fun activitySince(checkpoint: Checkpoint): TaskResult
 }

@@ -14,13 +14,13 @@ public object JsonReader {
 
   // CARDS
 
-  fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
+  public fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
 
   @Serializable private data class CardList(val cards: List<CardData>)
 
   // MILESTONES
 
-  fun readMilestones(json5: String): List<MilestoneDefinition> =
+  public fun readMilestones(json5: String): List<MilestoneDefinition> =
       fromJson5<MilestoneList>(json5).milestones.map { it.complete() }
 
   @Serializable private data class MilestoneList(val milestones: List<MilestoneImport>)
@@ -38,7 +38,7 @@ public object JsonReader {
 
   // ACTIONS
 
-  fun readActions(json5: String): List<StandardActionDefinition> {
+  public fun readActions(json5: String): List<StandardActionDefinition> {
     val import = fromJson5<ActionsImport>(json5)
 
     return import.actions.map { it.complete(false) } + import.projects.map { it.complete(true) }
@@ -72,9 +72,10 @@ public object JsonReader {
 
   // MAPS
 
-  fun readMaps(json5: String): List<MarsMapDefinition> = fromJson5<MapsImport>(json5).definitions()
+  public fun readMaps(json5: String): List<MarsMapDefinition> =
+      fromJson5<MapsImport>(json5).definitions()
 
-  fun readMaps(json5: String, shortNamePrefix: String): List<MarsMapDefinition> =
+  public fun readMaps(json5: String, shortNamePrefix: String): List<MarsMapDefinition> =
       fromJson5<MapsImport>(json5).definitions(shortNamePrefix)
 
   @Serializable
@@ -150,7 +151,7 @@ public object JsonReader {
 
   // COLONIES
 
-  fun readColonyTiles(json5: String): List<ColonyTileData> =
+  public fun readColonyTiles(json5: String): List<ColonyTileData> =
       fromJson5<ColonyTileList>(json5).colonyTiles
 
   @Serializable private data class ColonyTileList(val colonyTiles: List<ColonyTileData>)

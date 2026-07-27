@@ -20,7 +20,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
  * Expresses a condition which is deterministically either true or false in any particular game
  * state, for example, `MAX 4 OxygenStep`.
  */
-sealed class Requirement : PetElement() {
+public sealed class Requirement : PetElement() {
   public companion object {
     public fun split(requirement: Iterable<Requirement>): List<Requirement> = requirement.flatMap {
       split(it)
@@ -48,17 +48,17 @@ sealed class Requirement : PetElement() {
     internal fun atomParser(): Parser<Requirement> = Parsers.atomParser()
   }
 
-  override fun safeToNestIn(container: PetNode) =
+  override fun safeToNestIn(container: PetNode): Boolean =
       super.safeToNestIn(container) || container is IfTrigger
 
   /** A requirement that counts (a min, max, or exact). */
-  sealed class Counting(open val scaledEx: ScaledExpression) : Requirement() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+  public sealed class Counting(public open val scaledEx: ScaledExpression) : Requirement() {
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scaledEx)
 
-    abstract val range: IntRange
+    public abstract val range: IntRange
   }
 
-  data class Min(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
+  public data class Min(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       Scalar.checkNonzero(scaledEx.scalar)
       if (scaledEx.scalar is XScalar) {
@@ -66,37 +66,37 @@ sealed class Requirement : PetElement() {
       }
     }
 
-    override fun toString() = "$scaledEx"
+    override fun toString(): String = "$scaledEx"
 
-    override val range = (scaledEx.scalar as ActualScalar).value..Int.MAX_VALUE
+    override val range: IntRange = (scaledEx.scalar as ActualScalar).value..Int.MAX_VALUE
   }
 
-  data class Max(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
+  public data class Max(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       if (scaledEx.scalar is XScalar) {
         throw PetSyntaxException("can't use X in requirements (yet?)")
       }
     }
 
-    override fun toString() = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
+    override fun toString(): String = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
 
-    override val range = 0..(scaledEx.scalar as ActualScalar).value
+    override val range: IntRange = 0..(scaledEx.scalar as ActualScalar).value
   }
 
-  data class Exact(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
+  public data class Exact(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       if (scaledEx.scalar is XScalar) {
         throw PetSyntaxException("can't use X in requirements (yet?)")
       }
     }
 
-    override fun toString() = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
+    override fun toString(): String = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
 
-    override val range = (scaledEx.scalar as ActualScalar).value..scaledEx.scalar.value
+    override val range: IntRange = (scaledEx.scalar as ActualScalar).value..scaledEx.scalar.value
   }
 
-  data class Or(val requirements: Set<Requirement>) : Requirement() {
-    constructor(
+  public data class Or(val requirements: Set<Requirement>) : Requirement() {
+    internal constructor(
         req1: Requirement,
         req2: Requirement,
         vararg rest: Requirement,
@@ -106,19 +106,19 @@ sealed class Requirement : PetElement() {
       require(requirements.size >= 2)
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(requirements)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirements)
 
-    override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
+    override fun toString(): String = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
 
-    override fun precedence() = 3
+    override fun precedence(): Int = 3
 
     override fun safeToNestIn(container: PetNode): Boolean {
       return super.safeToNestIn(container) && container !is IfTrigger
     }
   }
 
-  data class And(val requirements: List<Requirement>) : Requirement() {
-    constructor(
+  public data class And(val requirements: List<Requirement>) : Requirement() {
+    internal constructor(
         req1: Requirement,
         req2: Requirement,
         vararg rest: Requirement,
@@ -128,27 +128,27 @@ sealed class Requirement : PetElement() {
       require(requirements.size >= 2)
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(requirements)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirements)
 
-    override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
+    override fun toString(): String = requirements.joinToString { groupPartIfNeeded(it) }
 
-    override fun precedence() = 1
+    override fun precedence(): Int = 1
 
     override fun safeToNestIn(container: PetNode): Boolean {
       return super.safeToNestIn(container) && container !is IfTrigger
     }
   }
 
-  data class Transform(val requirement: Requirement, override val transformKind: String) :
+  public data class Transform(val requirement: Requirement, override val transformKind: String) :
       Requirement(), TransformNode<Requirement> {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(requirement)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirement)
 
-    override fun toString() = "$transformKind[$requirement]"
+    override fun toString(): String = "$transformKind[$requirement]"
 
-    override fun extract() = requirement
+    override fun extract(): Requirement = requirement
   }
 
-  override val kind = Requirement::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = Requirement::class
 
   private object Parsers : PetTokenizer() {
     fun parser(): Parser<Requirement> {

@@ -16,14 +16,14 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CanonEffectsTest {
-  fun classEffectsOf(name: String): List<String> {
+  private fun classEffectsOf(name: String): List<String> {
     val loader = ClassLoader(Canon)
     loader.load(OK)
     loader.load(cn(name))
     return classEffectsOf(name, loader.freeze())
   }
 
-  fun classEffectsOf(name: String, typeUniverse: TypeUniverse) =
+  private fun classEffectsOf(name: String, typeUniverse: TypeUniverse) =
       Transformers(typeUniverse).classEffects(typeUniverse.getClass(cn(name))).toStrings()
 
   @Test

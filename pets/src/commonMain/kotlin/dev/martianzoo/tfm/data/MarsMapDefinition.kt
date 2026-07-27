@@ -15,13 +15,13 @@ import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.util.Grid
 
-data class MarsMapDefinition(
+public data class MarsMapDefinition(
     override val className: ClassName,
     val areas: Grid<AreaDefinition>,
     val shortNamePrefix: String = className.toString(),
 ) : Definition {
-  override val shortName by ::className
-  override val asClassDeclaration =
+  override val shortName: ClassName by ::className
+  override val asClassDeclaration: ClassDeclaration =
       ClassDeclaration(
           className = className,
           shortName = shortName,
@@ -29,10 +29,10 @@ data class MarsMapDefinition(
           supertypes = setOf(MARS_MAP.expression),
       )
 
-  data class AreaDefinition(
+  public data class AreaDefinition(
       /** Mame of the MarsMapDefinition this area belongs to (e.g "Tharsis"). */
-      val mapName: ClassName,
-      val shortNamePrefix: String,
+      private val mapName: ClassName,
+      private val shortNamePrefix: String,
 
       /** The row number of this area; the top row is row `1`. */
       val row: Int,
@@ -63,7 +63,7 @@ data class MarsMapDefinition(
 
     val bonus: Instruction? = bonusText?.let(::parse)
 
-    override val asClassDeclaration by lazy {
+    override val asClassDeclaration: ClassDeclaration by lazy {
       ClassDeclaration(
           className = className,
           shortName = shortName,
@@ -73,14 +73,14 @@ data class MarsMapDefinition(
       )
     }
 
-    override val shortName =
+    override val shortName: ClassName =
         if (row > 9 || column > 9) {
           cn("${shortNamePrefix}_${row}_$column")
         } else {
           cn("$shortNamePrefix$row$column")
         }
 
-    override val className = cn("${mapName}_${row}_$column")
+    override val className: ClassName = cn("${mapName}_${row}_$column")
   }
 
   private companion object {

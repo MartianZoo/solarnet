@@ -10,18 +10,18 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.Hierarchical
 
 public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasClassName {
-  abstract val key: Key
+  public abstract val key: Key
 
   /**
    * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
    * dependency (which they inherit) by the same key, whether they narrow the type or not.
    */
-  data class Key(
+  public data class Key(
       /**
        * The name of the class originally declaring this dependency (not just narrowing it from a
        * supertype).
        */
-      val declaringClass: ClassName,
+      private val declaringClass: ClassName,
 
       /** The ordinal of this dependency within that list, 0-referenced. */
       val index: Int,
@@ -30,32 +30,32 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
       require(index >= 0)
     }
 
-    override fun toString() = "${declaringClass}_$index"
+    override fun toString(): String = "${declaringClass}_$index"
   }
 
-  abstract val boundClass: Class
+  internal abstract val boundClass: Class
 
-  abstract fun narrows(that: Dependency, info: TypeInfo): Boolean
+  internal abstract fun narrows(that: Dependency, info: TypeInfo): Boolean
 
-  abstract fun intersect(expression: Expression): Dependency?
+  internal abstract fun intersect(expression: Expression): Dependency?
 
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
-  data class TypeDependency(override val key: Key, val boundType: Type) :
+  public data class TypeDependency(override val key: Key, val boundType: Type) :
       Dependency(), HasExpression by boundType {
 
     override val boundClass by boundType::rootClass
-    override val className by boundClass::className
+    override val className: ClassName by boundClass::className
 
-    fun allConcreteSpecializations(): Sequence<TypeDependency> =
+    internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
         boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
 
-    override fun toString() = "$key=$expressionFull"
+    override fun toString(): String = "$key=$expressionFull"
 
     // Hierarchy
 
-    override val abstract by boundType::abstract
+    override val abstract: Boolean by boundType::abstract
 
-    override fun isSubtypeOf(that: Dependency) = boundType.isSubtypeOf(boundOf(that))
+    override fun isSubtypeOf(that: Dependency): Boolean = boundType.isSubtypeOf(boundOf(that))
 
     override fun glb(that: Dependency): TypeDependency? {
       if (that is ComplementDependency) {
@@ -65,7 +65,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
       return (boundType glb boundOf(that))?.let { copy(boundType = it) }
     }
 
-    override fun lub(that: Dependency) =
+    override fun lub(that: Dependency): Dependency =
         when (that) {
           is ComplementDependency -> if (narrows(that, StubTypeInfo)) that else that.domain()
           else -> copy(boundType = boundType lub boundOf(that))
@@ -82,7 +82,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
       return glb(copy(boundType = boundType.typeUniverse.resolve(expression)))
     }
 
-    override fun ensureNarrows(that: Dependency, info: TypeInfo) =
+    override fun ensureNarrows(that: Dependency, info: TypeInfo): Unit =
         boundType.ensureNarrows(boundOf(that), info)
 
     override fun narrows(that: Dependency, info: TypeInfo) =
@@ -96,7 +96,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
   }
 
   /** A dependency constrained to exclude one narrower type, as in `OwnedTile<!Player1>`. */
-  data class ComplementDependency(
+  internal data class ComplementDependency(
       override val key: Key,
       internal val domainType: Type,
       internal val excludedType: Type,
@@ -110,15 +110,15 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
     override val expression: Expression = excludedType.expression.copy(complement = true)
     override val expressionFull: Expression = excludedType.expressionFull.copy(complement = true)
 
-    fun domain() = TypeDependency(key, domainType)
+    internal fun domain() = TypeDependency(key, domainType)
 
-    fun allConcreteSpecializations(): Sequence<TypeDependency> =
+    internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
         domainType
             .allConcreteSubtypes()
             .filterNot { it.narrows(excludedType) }
             .map { TypeDependency(key, it) }
 
-    fun matches(type: Type, info: TypeInfo): Boolean =
+    internal fun matches(type: Type, info: TypeInfo): Boolean =
         type.narrows(domainType, info) && !type.narrows(excludedType, info)
 
     override fun toString() = "$key=$expressionFull"
@@ -218,7 +218,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
     }
   }
 
-  companion object {
+  internal companion object {
     // Note these don't really belong here; they're just here so that FakeDependency can be private
 
     internal fun validate(deps: Set<Dependency>) {

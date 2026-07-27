@@ -118,7 +118,7 @@ abstract class AbstractFullGameTest {
     }
   }
 
-  protected fun TfmGameplay.assertVps(expected: Int) {
+  private fun TfmGameplay.assertVps(expected: Int) {
     val onAtomicComplete = game.onAtomicComplete
     val checkpoint = game.timeline.checkpoint()
     game.onAtomicComplete = {}
@@ -146,7 +146,7 @@ abstract class AbstractFullGameTest {
     }
   }
 
-  protected fun TfmGameplay.assertActions(expected: Int) {
+  private fun TfmGameplay.assertActions(expected: Int) {
     count("ActionCard") - count("ActionUsedMarker") shouldBe expected
   }
 }

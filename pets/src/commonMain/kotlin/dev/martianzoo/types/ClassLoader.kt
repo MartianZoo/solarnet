@@ -27,11 +27,11 @@ public constructor(
   private val cache = mutableMapOf<Expression, Type>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
-  public override val componentClass =
+  public override val componentClass: Class =
       Class(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
-  public override val classClass =
+  public override val classClass: Class =
       Class(
           validateCustomImplementation(decl(CLASS)),
           this,
@@ -67,7 +67,7 @@ public constructor(
   }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
-  override fun allClasses() = frozenClasses
+  override fun allClasses(): Set<Class> = frozenClasses
 
   // LOADING
 
@@ -169,7 +169,7 @@ public constructor(
     loadedClasses.keys
   }
 
-  override fun toString() = "loader$id"
+  override fun toString(): String = "loader$id"
 
   private fun decl(cn: ClassName) = ruleset.classDeclaration(cn)
 

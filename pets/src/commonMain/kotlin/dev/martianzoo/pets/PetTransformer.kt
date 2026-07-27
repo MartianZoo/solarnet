@@ -38,7 +38,8 @@ public abstract class PetTransformer protected constructor() {
         InSeriesTransformer(transformers.filterNotNull())
 
     /** Vararg form of [chain]. */
-    public fun chain(vararg transformers: PetTransformer?) = chain(transformers.toList())
+    public fun chain(vararg transformers: PetTransformer?): PetTransformer =
+        chain(transformers.toList())
 
     private open class InSeriesTransformer(val transformers: List<PetTransformer>) :
         PetTransformer() {

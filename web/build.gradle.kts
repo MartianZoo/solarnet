@@ -6,6 +6,8 @@ plugins {
 }
 
 kotlin {
+  explicitApi()
+
   js {
     browser {
       commonWebpackConfig {

@@ -10,27 +10,27 @@ package dev.martianzoo.util
  * to be "columns" will actually slant up and to the right. In this case, the *diagonals* of this
  * grid represent the columns that slant the other way.
  */
-interface Grid<E> : Set<E> {
-  val rowCount: Int
-  val columnCount: Int
+public interface Grid<E> : Set<E> {
+  public val rowCount: Int
+  public val columnCount: Int
 
-  fun rows(): List<List<E?>>
+  public fun rows(): List<List<E?>>
 
-  fun columns(): List<List<E?>>
+  public fun columns(): List<List<E?>>
 
-  fun diagonals(): List<List<E?>>
+  public fun diagonals(): List<List<E?>>
 
-  operator fun get(rowIndex: Int, columnIndex: Int): E?
+  public operator fun get(rowIndex: Int, columnIndex: Int): E?
 
-  fun row(rowIndex: Int): List<E?> = rows()[rowIndex]
+  public fun row(rowIndex: Int): List<E?> = rows()[rowIndex]
 
-  fun column(columnIndex: Int): List<E?> = columns()[columnIndex]
+  public fun column(columnIndex: Int): List<E?> = columns()[columnIndex]
 
   // zero for the main diagonal, increasing to the right
   // all diagonals have size = grid height, using additional nulls as necessary
-  fun diagonal(columnMinusRow: Int): List<E?>
+  public fun diagonal(columnMinusRow: Int): List<E?>
 
-  fun cardinalNeighbors(r: Int, c: Int): List<E> =
+  public fun cardinalNeighbors(r: Int, c: Int): List<E> =
       listOfNotNull(
           this[r - 1, c + 0],
           this[r + 0, c - 1],
@@ -38,22 +38,22 @@ interface Grid<E> : Set<E> {
           this[r + 1, c + 0],
       )
 
-  fun hexNeighbors(r: Int, c: Int): List<E> =
+  public fun hexNeighbors(r: Int, c: Int): List<E> =
       cardinalNeighbors(r, c) + listOfNotNull(this[r - 1, c - 1], this[r + 1, c + 1])
 
-  fun allNeighbors(r: Int, c: Int): List<E> =
+  public fun allNeighbors(r: Int, c: Int): List<E> =
       hexNeighbors(r, c) + listOfNotNull(this[r - 1, c + 1], this[r + 1, c - 1])
 
-  companion object {
-    fun <E> empty(): Grid<E> {
+  public companion object {
+    internal fun <E> empty(): Grid<E> {
       return mutableGrid(listOf<E>(), { 0 }, { 0 }).immutable()
     }
 
-    fun <E> grid(cells: Iterable<E>, rowFn: (E) -> Int, columnFn: (E) -> Int): Grid<E> {
+    internal fun <E> grid(cells: Iterable<E>, rowFn: (E) -> Int, columnFn: (E) -> Int): Grid<E> {
       return mutableGrid(cells, rowFn, columnFn).immutable()
     }
 
-    fun <E> mutableGrid(
+    private fun <E> mutableGrid(
         cells: Iterable<E>,
         rowFn: (E) -> Int,
         columnFn: (E) -> Int,

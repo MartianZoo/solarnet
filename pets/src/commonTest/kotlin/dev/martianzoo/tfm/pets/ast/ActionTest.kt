@@ -12,7 +12,7 @@ internal class ActionTest {
     testRoundTrip<Action>("-> Ok")
   }
 
-  val inputs =
+  private val inputs =
       """
       -> 11
       -> Bar

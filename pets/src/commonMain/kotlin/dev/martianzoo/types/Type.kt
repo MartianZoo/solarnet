@@ -31,7 +31,7 @@ public data class Type(
 ) : HasExpression, Hierarchical<Type>, Reifiable<Type>, HasClassName by rootClass {
 
   public val typeUniverse: TypeUniverse = rootClass.typeUniverse
-  public val typeDependencies = dependencies.typeDependencies()
+  public val typeDependencies: Set<Dependency.TypeDependency> = dependencies.typeDependencies()
 
   init {
     dependencies.typeUniverse?.let {
@@ -46,9 +46,9 @@ public data class Type(
     if (refinement != null) typeUniverse.checkAllTypes(refinement)
   }
 
-  override val abstract = rootClass.abstract || dependencies.abstract || refinement != null
+  override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
 
-  override fun isSubtypeOf(that: Type) = narrows(that)
+  override fun isSubtypeOf(that: Type): Boolean = narrows(that)
 
   // Nearest common subtype
   // TODO allocating 28 MB per solo game
@@ -79,7 +79,8 @@ public data class Type(
   internal fun specialize(specs: List<Expression>): Type =
       rootClass.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
 
-  public fun refine(newRef: Refinement?) = copy(refinement = Refinement.join(refinement, newRef))
+  public fun refine(newRef: Refinement?): Type =
+      copy(refinement = Refinement.join(refinement, newRef))
 
   override val expression: Expression by lazy {
     toExpressionUsingSpecs(narrowedDependencies.expressions())
@@ -190,5 +191,5 @@ public data class Type(
     }
   }
 
-  override fun toString() = "$expression"
+  override fun toString(): String = "$expression"
 }

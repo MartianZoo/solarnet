@@ -58,7 +58,7 @@ public data class ClassDeclaration(
      */
     internal val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
-  val custom = CUSTOM.expression in supertypes
+  public val custom: Boolean = CUSTOM.expression in supertypes
 
   init {
     fun hasRefinement(it: Expression) = it.descendantsOfType<Requirement>().any()
@@ -71,12 +71,12 @@ public data class ClassDeclaration(
     }
   }
 
-  enum class ClassKind {
+  public enum class ClassKind {
     CONCRETE,
     ABSTRACT,
   }
 
-  public val abstract = kind == ABSTRACT
+  public val abstract: Boolean = kind == ABSTRACT
 
   public data class DefaultsDeclaration(
       val universal: OneDefault = OneDefault(),
@@ -84,23 +84,26 @@ public data class ClassDeclaration(
       val removeOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
-    data class OneDefault(val specs: List<Expression> = listOf(), val intensity: Intensity? = null)
+    public data class OneDefault(
+        val specs: List<Expression> = listOf(),
+        val intensity: Intensity? = null,
+    )
 
-    enum class DefaultKind {
+    internal enum class DefaultKind {
       ALL_USAGES,
       GAIN_ONLY,
       REMOVE_ONLY,
     }
 
-    fun default(kind: DefaultKind) =
+    internal fun default(kind: DefaultKind) =
         when (kind) {
           ALL_USAGES -> universal
           GAIN_ONLY -> gainOnly
           REMOVE_ONLY -> removeOnly
         }
 
-    companion object {
-      fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+    internal companion object {
+      internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         return DefaultsDeclaration(
             universal = merge(defs.map { it.universal }),
             gainOnly = merge(defs.map { it.gainOnly }),

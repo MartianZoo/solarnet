@@ -24,36 +24,36 @@ public data class Effect(
     val automatic: Boolean = false,
 ) : PetElement() {
 
-  override val kind = Effect::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = Effect::class
 
-  override fun visitChildren(visitor: Visitor) = visitor.visit(trigger, instruction)
+  override fun visitChildren(visitor: Visitor): Unit = visitor.visit(trigger, instruction)
 
-  override fun toString() =
+  override fun toString(): String =
       "$trigger:${":".iff(automatic)} " +
           if (instruction is Gated) "($instruction)" else "$instruction"
 
   /** The left-hand side of a triggered effect; the kind of event being subscribed to. */
-  sealed class Trigger : PetNode() {
-    override val kind = Trigger::class
+  public sealed class Trigger : PetNode() {
+    override val kind: kotlin.reflect.KClass<out PetNode> = Trigger::class
 
-    sealed class BasicTrigger : Trigger()
+    public sealed class BasicTrigger : Trigger()
 
-    object WhenGain : BasicTrigger() {
-      override fun visitChildren(visitor: Visitor) = Unit
+    public object WhenGain : BasicTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = Unit
 
-      override fun toString() = "This"
+      override fun toString(): String = "This"
     }
 
-    object WhenRemove : BasicTrigger() {
-      override fun visitChildren(visitor: Visitor) = Unit
+    public object WhenRemove : BasicTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = Unit
 
-      override fun toString() = "-This"
+      override fun toString(): String = "-This"
     }
 
     @ConsistentCopyVisibility
-    data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
-      companion object {
-        fun create(expression: Expression): BasicTrigger {
+    public data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
+      internal companion object {
+        internal fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
           }
@@ -69,15 +69,15 @@ public data class Effect(
         require(expression != THIS.expression)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
-      override fun toString() = "$expression"
+      override fun toString(): String = "$expression"
     }
 
     @ConsistentCopyVisibility
-    data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
-      companion object {
-        fun create(expression: Expression): BasicTrigger {
+    public data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
+      internal companion object {
+        internal fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
           }
@@ -93,42 +93,43 @@ public data class Effect(
         require(expression != THIS.expression)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
-      override fun toString() = "-$expression"
+      override fun toString(): String = "-$expression"
     }
 
-    sealed class WrappingTrigger : Trigger() {
-      abstract val inner: Trigger
+    public sealed class WrappingTrigger : Trigger() {
+      public abstract val inner: Trigger
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
     }
 
-    data class ByTrigger(override val inner: Trigger, val by: Expression) : WrappingTrigger() {
-      constructor(inner: Trigger, by: ClassName) : this(inner, by.expression)
+    public data class ByTrigger(override val inner: Trigger, val by: Expression) :
+        WrappingTrigger() {
+      public constructor(inner: Trigger, by: ClassName) : this(inner, by.expression)
 
       init {
         if (inner is ByTrigger) throw PetSyntaxException("by the by")
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, by)
 
-      override fun toString() = "$inner BY $by"
+      override fun toString(): String = "$inner BY $by"
     }
 
-    data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
+    public data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
         WrappingTrigger() {
       init {
         if (inner is ByTrigger) throw PetSyntaxException("if the by")
         if (inner is IfTrigger) throw PetSyntaxException("if the if")
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, condition)
 
-      override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
+      override fun toString(): String = "$inner IF ${groupPartIfNeeded(condition)}"
     }
 
-    data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
+    public data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
       override fun toString(): String {
         return when (inner) {
           is OnGainOf,
@@ -139,9 +140,9 @@ public data class Effect(
       }
     }
 
-    data class Transform(override val inner: Trigger, override val transformKind: String) :
+    public data class Transform(override val inner: Trigger, override val transformKind: String) :
         WrappingTrigger(), TransformNode<Trigger> {
-      override fun toString() = "$transformKind[$inner]"
+      override fun toString(): String = "$transformKind[$inner]"
 
       init {
         if (inner !is OnGainOf && inner !is OnRemoveOf && inner !is XTrigger) {
@@ -149,7 +150,7 @@ public data class Effect(
         }
       }
 
-      override fun extract() = inner
+      override fun extract(): Trigger = inner
     }
 
     internal companion object : PetTokenizer() {

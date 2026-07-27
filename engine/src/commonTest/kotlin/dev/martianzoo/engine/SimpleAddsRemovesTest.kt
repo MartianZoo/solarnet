@@ -84,7 +84,7 @@ internal class SimpleAddsRemovesTest {
         )
   }
 
-  fun strip(strings: Iterable<String>): List<String> {
+  private fun strip(strings: Iterable<String>): List<String> {
     return strings.map { endRegex.replace(startRegex.replace(it, ""), "") }
   }
 

@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.api.TfmRuleset
 import kotlin.js.JsName
 
 /** A fully specified, non-random configuration for one game. */
-data class GameSetup(
+public data class GameSetup(
     /** The ruleset already assembled from exactly the bundles needed by [options]. */
     val ruleset: TfmRuleset,
 
@@ -51,12 +51,12 @@ data class GameSetup(
   val map: MarsMapDefinition = ruleset.marsMapDefinitions.single()
 
   /** All [Definition] objects applicable to this game. */
-  fun allDefinitions(): List<Definition> = ruleset.allDefinitions.toList()
+  public fun allDefinitions(): List<Definition> = ruleset.allDefinitions.toList()
 
-  @JsName("playerList") fun players(): List<Player> = Player.players(players)
+  @JsName("playerList") public fun players(): List<Player> = Player.players(players)
 
   /** All identities that receive gameplay scopes and task queues. */
-  fun actors(): List<Actor> = players() + ENGINE
+  public fun actors(): List<Actor> = players() + ENGINE
 
   val colonyTiles: Set<ColonyTileDefinition> =
       options.colonyTiles.mapTo(linkedSetOf(), ruleset::colonyTile)

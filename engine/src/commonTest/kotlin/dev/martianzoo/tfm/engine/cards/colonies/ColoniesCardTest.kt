@@ -8,7 +8,7 @@ import dev.martianzoo.util.toSetStrict
 import kotlin.test.BeforeTest
 
 abstract class ColoniesCardTest : CardTest() {
-  protected val colonyTiles: Set<ClassName> =
+  private val colonyTiles: Set<ClassName> =
       setOf("Luna", "Io", "Triton", "Europa", /*delayed*/ "Titan").toSetStrict(::cn)
   protected val p1: TfmGameplay
     get() = player1

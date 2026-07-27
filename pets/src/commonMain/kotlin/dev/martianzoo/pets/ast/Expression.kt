@@ -31,10 +31,10 @@ public data class Expression(
     val complement: Boolean = false,
 ) : PetElement(), HasClassName {
 
-  override fun visitChildren(visitor: Visitor) =
+  override fun visitChildren(visitor: Visitor): Unit =
       visitor.visit(listOf(className) + arguments + refinement)
 
-  override fun toString() = buildString {
+  override fun toString(): String = buildString {
     if (complement) append("!")
     append(className)
     if (arguments.any()) append(arguments.joinToString(", ", "<", ">"))
@@ -44,37 +44,39 @@ public data class Expression(
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
   val simple: Boolean = !complement && arguments.isEmpty() && refinement == null
 
-  fun appendArguments(moreArgs: List<Expression>) = replaceArguments(arguments + moreArgs)
+  public fun appendArguments(moreArgs: List<Expression>): Expression =
+      replaceArguments(arguments + moreArgs)
 
-  fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
+  internal fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
 
-  fun uncomplemented(): Expression = copy(complement = false)
+  internal fun uncomplemented(): Expression = copy(complement = false)
 
   /**
    * Returns this expression with the given refinement. This expression must not already have a
    * refinement.
    */
-  fun has(refinement: Refinement?) = has(refinement?.requirement, refinement?.forgiving ?: false)
+  internal fun has(refinement: Refinement?) =
+      has(refinement?.requirement, refinement?.forgiving ?: false)
 
-  fun has(refinement: Requirement?, forgiving: Boolean): Expression {
+  internal fun has(refinement: Requirement?, forgiving: Boolean): Expression {
     require(this.refinement == null)
     return if (refinement != null) copy(refinement = Refinement(refinement, forgiving)) else this
   }
 
-  override val kind = Expression::class
+  override val kind: KClass<out PetNode> = Expression::class
 
-  data class Refinement(
+  public data class Refinement(
       val requirement: Requirement,
       val forgiving: Boolean,
   ) : PetNode() {
     override val kind: KClass<out PetNode> = Refinement::class
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(requirement)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirement)
 
-    override fun toString() = if (forgiving) "HAS? $requirement" else "HAS $requirement"
+    override fun toString(): String = if (forgiving) "HAS? $requirement" else "HAS $requirement"
 
-    companion object {
-      fun join(ref1: Refinement?, ref2: Refinement?): Refinement? {
+    internal companion object {
+      internal fun join(ref1: Refinement?, ref2: Refinement?): Refinement? {
         val refs = listOfNotNull(ref1, ref2)
         if (refs.size < 2) return refs.singleOrNull()
         return Refinement(

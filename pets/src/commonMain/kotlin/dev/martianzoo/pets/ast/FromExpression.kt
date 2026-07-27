@@ -12,11 +12,11 @@ public data class FromExpression(
     val toExpression: Expression,
     val fromExpression: Expression,
 ) : PetNode() {
-  override val kind = FromExpression::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = FromExpression::class
 
-  override fun visitChildren(visitor: Visitor) = visitor.visit(toExpression, fromExpression)
+  override fun visitChildren(visitor: Visitor): Unit = visitor.visit(toExpression, fromExpression)
 
-  override fun toString() = "$toExpression FROM $fromExpression"
+  override fun toString(): String = "$toExpression FROM $fromExpression"
 
   internal companion object : PetTokenizer() {
     fun parser(): Parser<FromExpression> {

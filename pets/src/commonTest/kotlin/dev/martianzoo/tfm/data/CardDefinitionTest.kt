@@ -14,7 +14,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CardDefinitionTest {
-  val birds =
+  private val birds =
       CardData(
           id = "072",
           deck = "PROJECT",

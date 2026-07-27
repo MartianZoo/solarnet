@@ -10,16 +10,16 @@ import dev.martianzoo.pets.ast.Instruction.Transform
  * example being `PROD[...]`. Each of those (e.g., [Instruction.Transform]) implements this
  * interface.
  */
-interface TransformNode<P : PetNode> {
+public interface TransformNode<P : PetNode> {
   /** The string that identifies this kind of transform, e.g. `"PROD"`. */
-  val transformKind: String
+  public val transformKind: String
 
   /** The node this transform node is wrapping. */
-  fun extract(): P
+  public fun extract(): P
 
-  companion object {
+  public companion object {
     /** Returns [node] wrapped as a [TransformNode] *if* that kind of node is supported. */
-    fun <P : PetNode?> wrap(node: P, kind: String): P {
+    public fun <P : PetNode?> wrap(node: P, kind: String): P {
       fun <P : PetNode?> isThisKind(node: P) = (node as? TransformNode<*>)?.transformKind == kind
 
       if (node == null || isThisKind(node)) return node
@@ -41,9 +41,9 @@ interface TransformNode<P : PetNode> {
       return wrapped as P
     }
 
-    fun <P : PetNode> unwrap(node: P, kind: String) = unwrapper(kind).transform(node)
+    internal fun <P : PetNode> unwrap(node: P, kind: String) = unwrapper(kind).transform(node)
 
-    fun unwrapper(kind: String): PetTransformer {
+    private fun unwrapper(kind: String): PetTransformer {
       return object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           val result: PetNode =

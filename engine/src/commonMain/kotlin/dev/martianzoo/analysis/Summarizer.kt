@@ -8,15 +8,17 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.types.Type
 
-public class Summarizer constructor(val events: EventLog, val reader: GameReader) {
-  constructor(game: Game) : this(game.events, game.reader)
+public class Summarizer
+internal constructor(internal val events: EventLog, internal val reader: GameReader) {
+  public constructor(game: Game) : this(game.events, game.reader)
 
-  fun net(byType: String, ofType: String): Int = net(parse<Expression>(byType), parse(ofType))
+  public fun net(byType: String, ofType: String): Int =
+      net(parse<Expression>(byType), parse(ofType))
 
-  fun net(byType: Expression, ofType: Expression): Int =
+  private fun net(byType: Expression, ofType: Expression): Int =
       net(reader.resolve(byType), reader.resolve(ofType))
 
-  fun net(byType: Type, ofType: Type): Int {
+  private fun net(byType: Type, ofType: Type): Int {
     val changes: List<StateChange> =
         events
             .changesSinceSetup()
@@ -31,7 +33,7 @@ public class Summarizer constructor(val events: EventLog, val reader: GameReader
     return pluses - minuses
   }
 
-  fun allTypesEver(): List<Expression> {
+  internal fun allTypesEver(): List<Expression> {
     return events
         .changesSinceSetup()
         .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }

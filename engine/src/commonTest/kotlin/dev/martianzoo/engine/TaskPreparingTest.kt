@@ -109,7 +109,7 @@ class TaskPreparingTest {
     tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>! / 2 OxygenStep")
   }
 
-  fun initiate(ins: String) = (gameplay as TaskLayer).addTasks(ins)
+  private fun initiate(ins: String) = (gameplay as TaskLayer).addTasks(ins)
 
   private fun history() = events.entriesSince(start)
 

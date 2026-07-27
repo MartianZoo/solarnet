@@ -246,13 +246,13 @@ public abstract class TfmRuleset : Ruleset {
 
   /** A ruleset providing no game-specific content; intended for tests. */
   public open class Empty : TfmRuleset() {
-    override val explicitClassDeclarations = emptySet<ClassDeclaration>()
-    override val cardDefinitions = emptySet<CardDefinition>()
-    override val marsMapDefinitions = emptySet<MarsMapDefinition>()
-    override val milestoneDefinitions = emptySet<MilestoneDefinition>()
-    override val colonyTileDefinitions = emptySet<ColonyTileDefinition>()
-    override val standardActionDefinitions = emptySet<StandardActionDefinition>()
-    override val customClasses = emptySet<CustomClass>()
+    override val explicitClassDeclarations: Set<ClassDeclaration> = emptySet()
+    override val cardDefinitions: Set<CardDefinition> = emptySet()
+    override val marsMapDefinitions: Set<MarsMapDefinition> = emptySet()
+    override val milestoneDefinitions: Set<MilestoneDefinition> = emptySet()
+    override val colonyTileDefinitions: Set<ColonyTileDefinition> = emptySet()
+    override val standardActionDefinitions: Set<StandardActionDefinition> = emptySet()
+    override val customClasses: Set<CustomClass> = emptySet()
   }
 
   public companion object {

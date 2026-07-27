@@ -3,30 +3,30 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 public object TfmClasses {
-  val STANDARD_ACTION = cn("StandardAction")
-  val STANDARD_PROJECT = cn("StandardProject")
+  internal val STANDARD_ACTION = cn("StandardAction")
+  internal val STANDARD_PROJECT = cn("StandardProject")
 
-  val END = cn("End")
+  internal val END = cn("End")
 
-  val MARS_MAP = cn("MarsMap")
-  val TILE = cn("Tile")
+  internal val MARS_MAP = cn("MarsMap")
+  public val TILE: dev.martianzoo.pets.ast.ClassName = cn("Tile")
 
-  val MILESTONE = cn("Milestone")
+  internal val MILESTONE = cn("Milestone")
 
-  val CORPORATION_CARD = cn("CorporationCard")
-  val PRELUDE_CARD = cn("PreludeCard")
-  val PROJECT_CARD = cn("ProjectCard")
-  val CARD_FRONT = cn("CardFront")
-  val ACTIVE_CARD = cn("ActiveCard")
-  val AUTOMATED_CARD = cn("AutomatedCard")
-  val EVENT_CARD = cn("EventCard")
-  val ACTION_CARD = cn("ActionCard")
-  val RESOURCE_CARD = cn("ResourceCard")
+  internal val CORPORATION_CARD = cn("CorporationCard")
+  internal val PRELUDE_CARD = cn("PreludeCard")
+  internal val PROJECT_CARD = cn("ProjectCard")
+  internal val CARD_FRONT = cn("CardFront")
+  internal val ACTIVE_CARD = cn("ActiveCard")
+  internal val AUTOMATED_CARD = cn("AutomatedCard")
+  internal val EVENT_CARD = cn("EventCard")
+  internal val ACTION_CARD = cn("ActionCard")
+  internal val RESOURCE_CARD = cn("ResourceCard")
 
-  val STANDARD_RESOURCE = cn("StandardResource")
-  val PRODUCTION = cn("Production")
-  val MEGACREDIT = cn("Megacredit")
+  public val STANDARD_RESOURCE: dev.martianzoo.pets.ast.ClassName = cn("StandardResource")
+  public val PRODUCTION: dev.martianzoo.pets.ast.ClassName = cn("Production")
+  public val MEGACREDIT: dev.martianzoo.pets.ast.ClassName = cn("Megacredit")
 
   // Okay so it's not really a class name
-  const val PROD = "PROD"
+  public const val PROD: String = "PROD"
 }

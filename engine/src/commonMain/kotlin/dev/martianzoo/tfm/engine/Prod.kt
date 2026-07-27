@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.TypeUniverse
 
-object Prod {
+public object Prod {
   public fun deprodify(typeUniverse: TypeUniverse): PetTransformer {
     return deprodify(findResourceClassNames(typeUniverse))
   }

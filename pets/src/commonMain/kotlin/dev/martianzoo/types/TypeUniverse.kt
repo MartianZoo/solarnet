@@ -18,7 +18,7 @@ public abstract class TypeUniverse {
   public abstract val classClass: Class
 
   /** Every class in this universe. */
-  abstract fun allClasses(): Set<Class>
+  public abstract fun allClasses(): Set<Class>
 
   public abstract val allClassNamesAndIds: Set<ClassName>
 
@@ -30,10 +30,10 @@ public abstract class TypeUniverse {
       findClass(name) ?: throw Exceptions.classNotFound(name)
 
   /** Returns the [Type] represented by [expression]. */
-  abstract fun resolve(expression: Expression): Type
+  public abstract fun resolve(expression: Expression): Type
 
   /** Resolves every type expression in [node], throwing if any is invalid. */
-  public fun checkAllTypes(node: PetNode) = node.visitDescendants {
+  public fun checkAllTypes(node: PetNode): Unit = node.visitDescendants {
     if (it is Expression) {
       resolve(it.uncomplemented()).expression
       false

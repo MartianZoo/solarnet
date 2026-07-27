@@ -11,7 +11,7 @@ import kotlin.test.assertFailsWith
 // Most testing is done by AutomatedTest
 internal class EffectTest {
 
-  val inputs =
+  private val inputs =
       """
       Ooh: 1
       Xyz: -1
