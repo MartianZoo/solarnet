@@ -6,6 +6,7 @@ import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.types.Type
 
 /**
  * Implementation for a "custom class" (of the form `CLASS Foo : Custom`). By default its Pets class

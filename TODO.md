@@ -85,6 +85,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Diagnostics and Tooling
 
+- Make the engine browser suite fail when Karma loses the browser before every registered test reports; the long first `CanonEffectsTest` currently leaves 14 tests unexecuted while Gradle reports success.
 - Remove the `serialize-javascript` Yarn resolution once Mocha accepts the patched 7.x release.
 - Remove the explicit `rootPackageJson` resolution input once the Kotlin plugin tracks Yarn
   resolutions itself.
@@ -100,4 +101,4 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Performance
 
-- Reduce type-system allocation without risking correctness; profile `MType.glb`, `narrows`, and repeated dependency/refinement construction. (Later)
+- Reduce type-system allocation without risking correctness; profile `Type.glb`, `narrows`, and repeated dependency/refinement construction. (Later)

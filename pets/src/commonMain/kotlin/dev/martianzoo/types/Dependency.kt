@@ -33,17 +33,17 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
     override fun toString() = "${declaringClass}_$index"
   }
 
-  abstract val boundClass: MClass
+  abstract val boundClass: Class
 
   abstract fun narrows(that: Dependency, info: TypeInfo): Boolean
 
   abstract fun intersect(expression: Expression): Dependency?
 
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
-  data class TypeDependency(override val key: Key, val boundType: MType) :
+  data class TypeDependency(override val key: Key, val boundType: Type) :
       Dependency(), HasExpression by boundType {
 
-    override val boundClass by boundType::root
+    override val boundClass by boundType::rootClass
     override val className by boundClass::className
 
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
@@ -71,7 +71,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
           else -> copy(boundType = boundType lub boundOf(that))
         }
 
-    internal inline fun map(function: (MType) -> MType) = copy(boundType = function(boundType))
+    internal inline fun map(function: (Type) -> Type) = copy(boundType = function(boundType))
 
     override fun intersect(expression: Expression): Dependency? {
       if (expression.complement) {
@@ -91,21 +91,21 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
           else -> boundType.narrows(boundOf(that), info)
         }
 
-    private fun boundOf(that: Dependency): MType =
+    private fun boundOf(that: Dependency): Type =
         (that as TypeDependency).boundType.also { require(key == that.key) }
   }
 
   /** A dependency constrained to exclude one narrower type, as in `OwnedTile<!Player1>`. */
   data class ComplementDependency(
       override val key: Key,
-      internal val domainType: MType,
-      internal val excludedType: MType,
+      internal val domainType: Type,
+      internal val excludedType: Type,
   ) : Dependency(), HasExpression {
     init {
       require(excludedType.narrows(domainType)) { "$excludedType does not narrow $domainType" }
     }
 
-    override val boundClass by domainType::root
+    override val boundClass by domainType::rootClass
     override val className by excludedType::className
     override val expression: Expression = excludedType.expression.copy(complement = true)
     override val expressionFull: Expression = excludedType.expressionFull.copy(complement = true)
@@ -118,7 +118,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
             .filterNot { it.narrows(excludedType) }
             .map { TypeDependency(key, it) }
 
-    fun matches(type: MType, info: TypeInfo): Boolean =
+    fun matches(type: Type, info: TypeInfo): Boolean =
         type.narrows(domainType, info) && !type.narrows(excludedType, info)
 
     override fun toString() = "$key=$expressionFull"
@@ -176,11 +176,11 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
   /**
    * A dependency used *only* by types of the class `Class`; for example `Class<Foo>` (in which
-   * example `mclass.name` is `"Foo"`). No other class can use this; for example, one cannot declare
-   * that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so instead we
-   * use `Production<Class<Plant>>`.
+   * example `boundClass.name` is `"Foo"`). No other class can use this; for example, one cannot
+   * declare that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so
+   * instead we use `Production<Class<Plant>>`.
    */
-  private data class FakeDependency(override val boundClass: MClass) : Dependency() {
+  private data class FakeDependency(override val boundClass: Class) : Dependency() {
     override val key: Key = Key(CLASS, 0)
 
     override val className by boundClass::className
@@ -208,13 +208,13 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun narrows(that: Dependency, info: TypeInfo) = boundClass.isSubtypeOf(boundOf(that))
 
-    private fun boundOf(that: Dependency): MClass =
+    private fun boundOf(that: Dependency): Class =
         (that as FakeDependency).boundClass.also { require(key == that.key) }
 
     override fun intersect(expression: Expression): FakeDependency? {
       if (!expression.simple) return null
-      val mclass = boundClass.classTable.getClass(expression.className)
-      return glb(FakeDependency(mclass))
+      val klass = boundClass.classTable.getClass(expression.className)
+      return glb(FakeDependency(klass))
     }
   }
 
@@ -227,9 +227,9 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     internal fun isForClassType(set: Set<Dependency>) = set.singleOrNull() is FakeDependency
 
-    internal fun getClassForClassType(set: Set<Dependency>): MClass =
+    internal fun getClassForClassType(set: Set<Dependency>): Class =
         (set.single() as FakeDependency).boundClass
 
-    internal fun depsForClassType(mclass: MClass) = DependencySet.of(setOf(FakeDependency(mclass)))
+    internal fun depsForClassType(klass: Class) = DependencySet.of(setOf(FakeDependency(klass)))
   }
 }

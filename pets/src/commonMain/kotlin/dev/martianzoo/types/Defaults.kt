@@ -18,13 +18,13 @@ public data class Defaults(
      * Determines the [Defaults] for this class, taking into account its own declaration and that of
      * all its superclasses.
      */
-    fun forClass(mclass: MClass): Defaults {
-      val allUsagesDeps: DependencySet = gatherDefaultDeps(mclass, DefaultKind.ALL_USAGES)
-      val gainDeps: DependencySet = gatherDefaultDeps(mclass, DefaultKind.GAIN_ONLY)
-      val removeDeps: DependencySet = gatherDefaultDeps(mclass, DefaultKind.REMOVE_ONLY)
+    fun forClass(klass: Class): Defaults {
+      val allUsagesDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.ALL_USAGES)
+      val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
+      val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
 
-      val gainIntensity = inheritDefault(mclass, { it.gainOnly.intensity })!!
-      val removeIntensity = inheritDefault(mclass, { it.removeOnly.intensity })!!
+      val gainIntensity = inheritDefault(klass, { it.gainOnly.intensity })!!
+      val removeIntensity = inheritDefault(klass, { it.removeOnly.intensity })!!
 
       return Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
@@ -34,14 +34,13 @@ public data class Defaults(
     }
 
     private fun <T> inheritDefault(
-        mclass: MClass,
+        klass: Class,
         extractor: (DefaultsDeclaration) -> T?,
         merger: (List<T>) -> T = { it.single() },
     ): T? {
-      fun extractFromClass(c: MClass): T? = extractor(c.defaultsDecl)
+      fun extractFromClass(c: Class): T? = extractor(c.defaultsDecl)
 
-      val haveDefault: List<MClass> =
-          mclass.allSuperclasses().filter { extractFromClass(it) != null }
+      val haveDefault: List<Class> = klass.allSuperclasses().filter { extractFromClass(it) != null }
 
       // Anything that was overridden by *any* of our superclasses must be discarded
       val lasdfasdf = haveDefault.flatMap { it.properSuperclasses() }.toSet()
@@ -51,28 +50,28 @@ public data class Defaults(
       return if (candidates.any()) merger(candidates) else null
     }
 
-    private fun gatherDefaultDeps(mclass: MClass, kind: DefaultKind): DependencySet {
+    private fun gatherDefaultDeps(klass: Class, kind: DefaultKind): DependencySet {
       // TODO: this is complex and this human doesn't understand it
       fun toDependencyMap(specs: List<Expression>): DependencySet {
-        val resolved = mclass.classTable.resolve(mclass.className.of(specs)).narrowedDependencies
+        val resolved = klass.classTable.resolve(klass.className.of(specs)).narrowedDependencies
         if (OWNER.expression !in specs) return resolved
 
         // Owner also acts as a contextual variable. Don't normalize that variable to its bound
         // before it can be replaced with Player1, etc.
         val ownerKey =
-            mclass.dependencies
+            klass.dependencies
                 .matchPartial(listOf(OWNER.expression))
                 .typeDependencies()
                 .single()
                 .key
-        val owner = TypeDependency(ownerKey, mclass.classTable.resolve(OWNER.expression))
+        val owner = TypeDependency(ownerKey, klass.classTable.resolve(OWNER.expression))
         return resolved.merge(DependencySet.of(setOf(owner))) { _, contextual -> contextual }
       }
 
       val deps: List<Dependency> =
-          mclass.dependencies.keys.mapNotNull { key ->
+          klass.dependencies.keys.mapNotNull { key ->
             inheritDefault(
-                mclass,
+                klass,
                 { toDependencyMap(it.default(kind).specs).getIfPresent(key) },
                 { deps: List<Dependency> -> glb(deps)!! },
             )

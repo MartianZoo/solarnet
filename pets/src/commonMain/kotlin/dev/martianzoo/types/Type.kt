@@ -3,9 +3,10 @@ package dev.martianzoo.types
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
+import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
@@ -18,35 +19,35 @@ import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
 
 /**
- * The translation of a [Expression] into a "live" type, referencing actual [MClass]es loaded by a
- * [MClassTable]. These are usually obtained by [MClassTable.resolve]. These can be abstract. Usages
+ * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
+ * [ClassTable]. These are usually obtained by [ClassTable.resolve]. These can be abstract. Usages
  * of this type should be fairly unrelated to questions of whether instances exist in a game state.
  */
-public data class MType(
-    val root: MClass,
+public data class Type(
+    val rootClass: Class,
     val dependencies: DependencySet,
-    override val refinement: Refinement? = null,
-) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
+    val refinement: Refinement? = null,
+) : HasExpression, Hierarchical<Type>, Reifiable<Type>, HasClassName by rootClass {
 
-  public val classTable: MClassTable = root.classTable
+  public val classTable: ClassTable = rootClass.classTable
   public val typeDependencies = dependencies.typeDependencies()
 
   init {
-    require(dependencies.keys.toList() == root.dependencies.keys.toList()) {
-      "expected keys ${root.dependencies.keys}, got $dependencies"
+    require(dependencies.keys.toList() == rootClass.dependencies.keys.toList()) {
+      "expected keys ${rootClass.dependencies.keys}, got $dependencies"
     }
-    root.requireLinksSatisfied(dependencies)
+    rootClass.requireLinksSatisfied(dependencies)
     if (refinement != null) classTable.checkAllTypes(refinement)
   }
 
-  override val abstract = root.abstract || dependencies.abstract || refinement != null
+  override val abstract = rootClass.abstract || dependencies.abstract || refinement != null
 
-  override fun isSubtypeOf(that: MType) = narrows(that)
+  override fun isSubtypeOf(that: Type) = narrows(that)
 
   // Nearest common subtype
   // TODO allocating 28 MB per solo game
-  override fun glb(that: MType): MType? {
-    val glbClass = (root glb that.root) ?: return null
+  override fun glb(that: Type): Type? {
+    val glbClass = (rootClass glb that.rootClass) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
     val glbRefin = Refinement.join(this.refinement, that.refinement)
     return glbClass.withAllDependencies(glbDeps).refine(glbRefin)
@@ -54,9 +55,9 @@ public data class MType(
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
-  override fun lub(that: MType): MType {
-    val unrefined: MType =
-        (root lub that.root).withAllDependencies(dependencies lub that.dependencies)
+  override fun lub(that: Type): Type {
+    val unrefined: Type =
+        (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
 
     return if (refinement != null && that.refinement == null) {
       unrefined.refine(refinement)
@@ -67,8 +68,8 @@ public data class MType(
     }
   }
 
-  internal fun specialize(specs: List<Expression>): MType =
-      root.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
+  internal fun specialize(specs: List<Expression>): Type =
+      rootClass.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
 
   public fun refine(newRef: Refinement?) = copy(refinement = Refinement.join(refinement, newRef))
 
@@ -80,16 +81,18 @@ public data class MType(
     toExpressionUsingSpecs(dependencies.expressionsFull())
   }
 
-  public val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
+  public val narrowedDependencies: DependencySet by lazy {
+    dependencies.minus(rootClass.dependencies)
+  }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**
-   * Returns every possible [MType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
+   * Returns every possible [Type] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
    * this sequence can potentially be very large.
    */
-  public fun allConcreteSubtypes(): Sequence<MType> {
-    return concreteSubclasses(root).flatMap {
+  public fun allConcreteSubtypes(): Sequence<Type> {
+    return concreteSubclasses(rootClass).flatMap {
       val deps: DependencySet? = dependencies glb it.baseType.dependencies
       if (deps == null) {
         emptySequence()
@@ -99,23 +102,23 @@ public data class MType(
     }
   }
 
-  public fun singleConcreteSubtype(): MType? {
-    val mclass = concreteSubclasses(root).singleOrNull() ?: return null
-    val abstractType = this glb mclass.baseType
+  public fun singleConcreteSubtype(): Type? {
+    val klass = concreteSubclasses(rootClass).singleOrNull() ?: return null
+    val abstractType = this glb klass.baseType
     val deps = abstractType!!.dependencies.singleConcreteSubtype() ?: return null
-    return abstractType.root.withAllDependencies(deps)
+    return abstractType.rootClass.withAllDependencies(deps)
   }
 
-  /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
+  /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
   // used publicly only by `desc random`
-  public fun concreteSubtypesSameClass(): Sequence<MType> =
-      if (root.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
+  public fun concreteSubtypesSameClass(): Sequence<Type> =
+      if (rootClass.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
 
-  internal fun concreteSubclasses(mclass: MClass) =
-      mclass.allSubclasses().asSequence().filter { !it.abstract }
+  internal fun concreteSubclasses(baseClass: Class) =
+      baseClass.allSubclasses().asSequence().filter { !it.abstract }
 
-  override fun ensureNarrows(that: MType, info: TypeInfo) {
-    root.ensureNarrows(that.root, info)
+  override fun ensureNarrows(that: Type, info: TypeInfo) {
+    rootClass.ensureNarrows(that.rootClass, info)
     dependencies.ensureNarrows(that.dependencies, info)
 
     if (that.refinement != null) {
@@ -132,8 +135,8 @@ public data class MType(
   }
 
   // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
-  override fun narrows(that: Type, info: TypeInfo): Boolean {
-    if (!root.isSubtypeOf((that as MType).root)) return false
+  public fun narrows(that: Type, info: TypeInfo = StubTypeInfo): Boolean {
+    if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
     that.refinement ?: return true

@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.Multiset
 
 /**
@@ -21,14 +21,14 @@ public interface ComponentGraph {
   fun countComponent(component: Component): Int
 
   /** How many total component instances have the type [parentType] (or any of its subtypes)? */
-  fun count(parentType: MType, info: TypeInfo): Int
+  fun count(parentType: Type, info: TypeInfo): Int
 
-  fun containsAny(parentType: MType, info: TypeInfo): Boolean
+  fun containsAny(parentType: Type, info: TypeInfo): Boolean
 
   /**
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
    * multiset. The size of the returned collection will be `[count]([parentType])` . If [parentType]
    * is `Component` this will return the entire component multiset.
    */
-  fun getAll(parentType: MType, info: TypeInfo): Multiset<Component>
+  fun getAll(parentType: Type, info: TypeInfo): Multiset<Component>
 }

@@ -27,7 +27,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     fun of(deps: Iterable<Dependency>) = of(deps.toSetStrict())
   }
 
-  fun flatten(): Map<DependencyPath, MClass> {
+  fun flatten(): Map<DependencyPath, Class> {
     return deps
         .flatMap { dep: Dependency ->
           // Throwing away refinements & links...
@@ -60,7 +60,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   fun complementDependencies(): Set<ComplementDependency> =
       deps.filterIsInstance<ComplementDependency>().toSet()
 
-  public fun concreteDependencyTargets(): Sequence<MType> =
+  public fun concreteDependencyTargets(): Sequence<Type> =
       (typeDependencies().asSequence() + complementDependencies().asSequence())
           .flatMap {
             when (it) {
@@ -123,10 +123,10 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
   fun subMapInOrder(keysInOrder: Iterable<Key>) = of(keysInOrder.mapNotNull(::getIfPresent))
 
-  internal inline fun map(function: (MType) -> MType) =
+  internal inline fun map(function: (Type) -> Type) =
       DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
 
-  internal inline fun mapWithKey(function: (Key, MType) -> MType) =
+  internal inline fun mapWithKey(function: (Key, Type) -> Type) =
       DependencySet(
           deps.toSetStrict {
             if (it is TypeDependency) it.map { type -> function(it.key, type) } else it
@@ -146,8 +146,8 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
       return of(deps.map { if (it.key == firstKey) replacement else it })
     }
 
-    fun MType.replaceNested(): MType =
-        root
+    fun Type.replaceNested(): Type =
+        rootClass
             .withAllDependencies(dependencies.replaceAt(path.drop(1), replacement))
             .refine(refinement)
 
@@ -193,11 +193,11 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     return args.map(::matchToDependency)
   }
 
-  fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {
+  fun concreteSubtypesSameClass(type: Type): Sequence<Type> {
     return if (isForClassType(deps)) {
-      mtype.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
+      type.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
     } else {
-      keys.fold(sequenceOf(mtype)) { types, key ->
+      keys.fold(sequenceOf(type)) { types, key ->
         types.flatMap { type ->
           val dependency = type.dependencies.get(key)
           if (!dependency.abstract) return@flatMap sequenceOf(type)
@@ -206,7 +206,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
             is ComplementDependency -> dependency.allConcreteSpecializations()
             else -> error("unexpected")
           }.map { concrete ->
-            type.root.withAllDependencies(
+            type.rootClass.withAllDependencies(
                 type.dependencies.replaceAt(DependencyPath(key), concrete)
             )
           }
@@ -217,9 +217,9 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   fun singleConcreteSubtype(): DependencySet? {
     return if (isForClassType(deps)) {
-      val abs: MClass = getClassForClassType(deps)
+      val abs: Class = getClassForClassType(deps)
       val conc = abs.allSubclasses().singleOrNull { !it.abstract }
-      return conc?.let { depsForClassType(it) }
+      conc?.let { depsForClassType(it) }
     } else {
       map { it.singleConcreteSubtype() ?: return null }
     }

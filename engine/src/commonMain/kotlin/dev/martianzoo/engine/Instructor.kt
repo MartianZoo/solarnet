@@ -30,8 +30,8 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.Type
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
@@ -40,7 +40,7 @@ internal class Instructor(
     private val limiter: Limiter,
     private val changer: Changer?,
     private val effector: Effector?,
-    private val classTable: MClassTable,
+    private val classTable: ClassTable,
 ) {
 
   internal fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
@@ -123,7 +123,7 @@ internal class Instructor(
     val count = (change.count as? ActualScalar)?.value ?: return change
     val intens = change.intensity ?: error("missing intensity: $change")
 
-    val (g: MType?, r: MType?) =
+    val (g: Type?, r: Type?) =
         try {
           autoNarrowTypes(change.gaining, change.removing)
         } catch (e: DependencyException) {
@@ -150,7 +150,7 @@ internal class Instructor(
     val gaining = g?.toComponent()
     val removing = r?.toComponent()
 
-    if (g?.root?.declaration?.custom == true) {
+    if (g?.rootClass?.declaration?.custom == true) {
       require(r == null) { "custom class instructions can only be pure gains" }
       val translated = Prod.deprodify(classTable).transform(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)
@@ -194,9 +194,9 @@ internal class Instructor(
   }
 
   // Still spending 25% of solo game time in this method
-  private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
-    var g = gaining?.let { reader.resolve(it) as MType }
-    var r = removing?.let { reader.resolve(it) as MType }
+  private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<Type?, Type?> {
+    var g = gaining?.let(reader::resolve)
+    var r = removing?.let(reader::resolve)
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }

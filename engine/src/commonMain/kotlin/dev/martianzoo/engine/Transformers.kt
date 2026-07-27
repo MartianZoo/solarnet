@@ -29,42 +29,42 @@ import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.types.Class
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Defaults
 import dev.martianzoo.types.Defaults.DefaultSpec
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.DependencySet
-import dev.martianzoo.types.MClass
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 
-internal class Transformers(internal val classTable: MClassTable) {
+internal class Transformers(internal val classTable: ClassTable) {
 
-  private val effectsByClass = mutableMapOf<MClass, List<Effect>>()
+  private val effectsByClass = mutableMapOf<Class, List<Effect>>()
   private val resourceClassNames by lazy { Prod.findResourceClassNames(classTable) }
 
-  /** Effects inherited by [mclass], processed as far as possible without a concrete component. */
-  internal fun classEffects(mclass: MClass): List<Effect> {
-    require(mclass.classTable === classTable) { "$mclass belongs to a different class table" }
-    return effectsByClass.getOrPut(mclass) {
-      fun directClassEffects(source: MClass) =
+  /** Effects inherited by [klass], processed as far as possible without a concrete component. */
+  internal fun classEffects(klass: Class): List<Effect> {
+    require(klass.classTable === classTable) { "$klass belongs to a different class table" }
+    return effectsByClass.getOrPut(klass) {
+      fun directClassEffects(source: Class) =
           source.declaration.effects.map(attachToClassTransformer(source)::transform)
 
-      mclass.allSuperclasses().flatMap(::directClassEffects)
+      klass.allSuperclasses().flatMap(::directClassEffects)
     }
   }
 
-  private fun attachToClassTransformer(mclass: MClass): PetTransformer {
-    val context = mclass.className.has(Min(scaledEx(1, OK)))
+  private fun attachToClassTransformer(klass: Class): PetTransformer {
+    val context = klass.className.has(Min(scaledEx(1, OK)))
     return chain(
         insertDefaults(context),
         atomizer(),
         Prod.deprodify(resourceClassNames),
-        fixEffectForUnownedContext(mclass),
+        fixEffectForUnownedContext(klass),
     )
   }
 
-  private fun fixEffectForUnownedContext(mclass: MClass): PetTransformer? {
-    if (mclass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
+  private fun fixEffectForUnownedContext(klass: Class): PetTransformer? {
+    if (klass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {
@@ -124,7 +124,7 @@ internal class Transformers(internal val classTable: MClassTable) {
             sc !is ActualScalar ||
                 sc.value == 1 ||
                 THIS in scex.expression ||
-                !classTable.resolve(scex.expression).root.isSubtypeOf(atomized)
+                !classTable.resolve(scex.expression).rootClass.isSubtypeOf(atomized)
         ) {
           return node
         }
@@ -222,20 +222,20 @@ internal class Transformers(internal val classTable: MClassTable) {
       original: Expression,
       defaultDeps: DependencySet,
       contextCpt: Expression,
-      classTable: MClassTable,
+      classTable: ClassTable,
   ): Expression {
 
-    val mclass: MClass = classTable.getClass(original.className)
+    val klass: Class = classTable.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transform(original)
-    val match: DependencySet = mclass.dependencies.matchPartial(dethissed.arguments)
+    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =
         defaultDeps.typeDependencies().associate { it.key to it.expression }
-    val inferred = mclass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
+    val inferred = klass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
-        mclass.dependencies.keys.mapNotNull {
+        klass.dependencies.keys.mapNotNull {
           preferred[it] ?: fallbacks[it]?.takeUnless { _ -> it in inferred }
         }
 
@@ -246,7 +246,7 @@ internal class Transformers(internal val classTable: MClassTable) {
     }
   }
 
-  internal fun substituter(general: MType, specific: MType): PetTransformer {
+  internal fun substituter(general: Type, specific: Type): PetTransformer {
     val gendeps = general.dependencies
     val specdeps = specific.dependencies
     val subs = findSubstitutions(gendeps, specdeps)
@@ -278,12 +278,12 @@ internal class Transformers(internal val classTable: MClassTable) {
    * into `Die`. This lets enclosing choices discard an impossible specialized branch.
    */
   internal fun checkedSubstituter(
-      general: MType,
-      specific: MType,
+      general: Type,
+      specific: Type,
       vararg afterSubstitution: PetTransformer?,
   ): PetTransformer {
     val subs = findSubstitutions(general.dependencies, specific.dependencies).toMutableMap()
-    if (general.root.abstract && specific.root != general.root) {
+    if (general.rootClass.abstract && specific.rootClass != general.rootClass) {
       subs[general.className] = specific.className.expression
     }
     return chain(listOf(substituter(subs)) + afterSubstitution + invalidChangesToDie())

@@ -30,7 +30,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
 
 internal class Effector(
@@ -66,7 +66,7 @@ internal class Effector(
   private fun fireSelfEffects(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
       listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
           .map(reader::resolve)
-          .map { (it as MType).toComponent() }
+          .map(Type::toComponent)
           .flatMap { activeEffects(it) }
           .filter { automatic == null || it.automatic == automatic }
           .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
@@ -132,7 +132,7 @@ internal class Effector(
 
     private fun changedComponentPlayer(triggerEvent: ChangeEvent, reader: GameReader): Player? {
       val expression = triggerEvent.change.gaining ?: triggerEvent.change.removing ?: return null
-      return (reader.resolve(expression) as MType).toComponent().playerOwner
+      return reader.resolve(expression).toComponent().playerOwner
     }
   }
 
@@ -205,7 +205,7 @@ internal class Effector(
         val changeType = reader.resolve(expr)
         val matchType = reader.resolve(match)
         val triggerIsOwnedOrSystem =
-            matchType.root.allSuperclasses().any {
+            matchType.rootClass.allSuperclasses().any {
               it.className == OWNED || it.className == SYSTEM
             }
         if (

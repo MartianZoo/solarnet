@@ -8,8 +8,8 @@ import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.types.MClassLoader
-import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.ClassLoader
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -17,18 +17,18 @@ import kotlin.test.Test
 
 internal class CanonEffectsTest {
   fun classEffectsOf(name: String): List<String> {
-    val loader = MClassLoader(Canon)
+    val loader = ClassLoader(Canon)
     loader.load(OK)
     loader.load(cn(name))
     return classEffectsOf(name, loader.freeze())
   }
 
-  fun classEffectsOf(name: String, classTable: MClassTable) =
+  fun classEffectsOf(name: String, classTable: ClassTable) =
       Transformers(classTable).classEffects(classTable.getClass(cn(name))).toStrings()
 
   @Test
   fun compiledByOwnerEffectsHaveResolvableOwnerBindings() {
-    val table = MClassLoader(Canon).loadEverything()
+    val table = ClassLoader(Canon).loadEverything()
     val transformers = Transformers(table)
     val compiledByOwnerEffects =
         table.allClasses().flatMap { mClass ->

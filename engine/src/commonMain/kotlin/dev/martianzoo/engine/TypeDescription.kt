@@ -1,48 +1,46 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Type
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.MClass
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Class
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.toSetStrict
 
-public class TypeDescription public constructor(mtype: MType) {
+public class TypeDescription public constructor(type: Type) {
 
-  private val mclass: MClass by mtype::root
-  private val transformers = Transformers(mtype.classTable)
+  private val rootClass: Class by type::rootClass
+  private val transformers = Transformers(type.classTable)
 
-  val classShortName: ClassName by mclass::shortName
+  val classShortName: ClassName by rootClass::shortName
 
-  val docstring: String? by mclass::docstring
+  val docstring: String? by rootClass::docstring
 
-  val superclassNames: Set<ClassName> = mclass.allSuperclasses().classNames()
-  val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.allSubclasses())
+  val superclassNames: Set<ClassName> = rootClass.allSuperclasses().classNames()
+  val subclassNames: Set<ClassName> = descendingBySubclassCount(rootClass.allSubclasses())
 
-  val rawClassEffects: List<Effect> = mclass.declaration.effects
-  val classEffects: List<Effect> = transformers.classEffects(mclass)
+  val rawClassEffects: List<Effect> = rootClass.declaration.effects
+  val classEffects: List<Effect> = transformers.classEffects(rootClass)
 
-  val classInvariants: Set<Requirement> = mclass.invariants()
+  val classInvariants: Set<Requirement> = rootClass.invariants()
 
-  val baseType: Type by mclass::baseType
+  val baseType: Type by rootClass::baseType
 
-  val concreteTypesForThisClassCount =
-      (baseType as MType).concreteSubtypesSameClass().take(100).count()
+  val concreteTypesForThisClassCount = baseType.concreteSubtypesSameClass().take(100).count()
 
   val supertypes: List<Type> =
-      mclass.allSuperclasses().map { it.withAllDependencies(mtype.dependencies) }
+      rootClass.allSuperclasses().map { it.withAllDependencies(type.dependencies) }
 
   val substitutions =
-      transformers.findSubstitutions(mtype.root.defaultType.dependencies, mtype.dependencies)
+      transformers.findSubstitutions(type.rootClass.defaultType.dependencies, type.dependencies)
 
-  val componentTypesCount: Int = mtype.allConcreteSubtypes().take(100).count()
+  val componentTypesCount: Int = type.allConcreteSubtypes().take(100).count()
 
   val componentEffects: List<Effect> =
-      if (mtype.abstract) listOf() else mtype.toComponent().effects(transformers)
+      if (type.abstract) listOf() else type.toComponent().effects(transformers)
 
-  private fun descendingBySubclassCount(classes: Iterable<MClass>): Set<ClassName> =
+  private fun descendingBySubclassCount(classes: Iterable<Class>): Set<ClassName> =
       classes
           .sortedWith(compareBy({ -it.allSubclasses().size }, { it.className }))
           .classNames()

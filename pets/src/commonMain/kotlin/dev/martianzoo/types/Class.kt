@@ -21,29 +21,25 @@ import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
 
 /**
- * A class that has been loaded by a [MClassLoader] based on a [ClassDeclaration]. Each loader has
- * its own separate universe of [MClass]es. While a declaration is inert data, this type provides
- * its resolved hierarchy, dependencies, and types. The source [declaration] remains available for
+ * A class that has been loaded by a [ClassLoader] based on a [ClassDeclaration]. Each loader has
+ * its own separate universe of [Class]es. While a declaration is inert data, this type provides its
+ * resolved hierarchy, dependencies, and types. The source [declaration] remains available for
  * non-type-system consumers.
- *
- * (Think of it as being called `Class`; it has a prefix just to distinguish it from
- * `java.lang.Class`. The name `MClass` comes from the fact that the object of the game is to turn
- * Mars into a "class M planet".)
  */
-public class MClass
+public class Class
 internal constructor(
     /** The class declaration this class was loaded from. */
     public val declaration: ClassDeclaration,
 
     /** The class loader used while constructing this class. */
-    private val loader: MClassLoader,
+    private val loader: ClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    val directSuperclasses: List<MClass> = superclasses(declaration, loader),
-) : HasClassName, Hierarchical<MClass> {
+    val directSuperclasses: List<Class> = superclasses(declaration, loader),
+) : HasClassName, Hierarchical<Class> {
 
   /** The table containing this class and the other classes in its type universe. */
-  public val classTable: MClassTable = loader
+  public val classTable: ClassTable = loader
 
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
@@ -67,9 +63,9 @@ internal constructor(
 
   override val abstract: Boolean by declaration::abstract
 
-  override fun isSubtypeOf(that: MClass): Boolean = that in allSuperclasses()
+  override fun isSubtypeOf(that: Class): Boolean = that in allSuperclasses()
 
-  override fun glb(that: MClass): MClass? =
+  override fun glb(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
@@ -82,17 +78,17 @@ internal constructor(
         }
       }
 
-  override fun lub(that: MClass): MClass {
-    val commonSupers: Set<MClass> = this.allSuperclasses.intersect(that.allSuperclasses)
-    val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
-    val candidates: Set<MClass> = commonSupers - supersOfSupers
+  override fun lub(that: Class): Class {
+    val commonSupers: Set<Class> = this.allSuperclasses.intersect(that.allSuperclasses)
+    val supersOfSupers: Set<Class> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
+    val candidates: Set<Class> = commonSupers - supersOfSupers
     // This is a weird and stupid heuristic, but does it really matter which one we pick?
     return candidates.maxBy {
       it.dependencies.typeDependencies().size * 100 + it.allSuperclasses.size
     }
   }
 
-  override fun ensureNarrows(that: MClass, info: TypeInfo) {
+  override fun ensureNarrows(that: Class, info: TypeInfo) {
     if (!isSubtypeOf(that))
         throw NarrowingException("${this.className} is not a subclass of ${that.className}")
   }
@@ -102,38 +98,38 @@ internal constructor(
   private fun replaceThis(expression: Expression): Expression =
       replaceThisExpressionsWith(className.expression).transform(expression)
 
-  private fun directSupertypes(): Set<MType> =
+  private fun directSupertypes(): Set<Type> =
       when {
         className == COMPONENT -> setOf()
         sups.none() -> setOf(loader.componentClass.baseType)
         else -> sups.toSetStrict { loader.resolve(replaceThis(it)) }
       }
 
-  private val allSuperclasses: Set<MClass> by lazy {
+  private val allSuperclasses: Set<Class> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
   /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
-  fun allSuperclasses(): Set<MClass> = allSuperclasses
+  fun allSuperclasses(): Set<Class> = allSuperclasses
 
-  fun properSuperclasses(): Set<MClass> = allSuperclasses() - this
+  fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
-  private val allSubclasses: Set<MClass> by lazy {
+  private val allSubclasses: Set<Class> by lazy {
     loader.allClasses().filter { this in it.allSuperclasses() }.toSet()
   }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  fun allSubclasses(): Set<MClass> = allSubclasses
+  fun allSubclasses(): Set<Class> = allSubclasses
 
-  fun directSubclasses(): Set<MClass> =
+  fun directSubclasses(): Set<Class> =
       loader.allClasses().filter { this in it.directSuperclasses }.toSet()
 
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
-   * that is, no other [MClass] in this [MClassTable] is a subclass of all of them unless it is also
-   * a subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award
-   * count `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile`
-   * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
+   * that is, no other [Class] in this [ClassTable] is a subclass of all of them unless it is also a
+   * subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award count
+   * `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile` (which
+   * is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
   public fun isIntersectionType(): Boolean = intersectionType
 
@@ -141,7 +137,7 @@ internal constructor(
     directSuperclasses.size >= 2 &&
         loader
             .allClasses()
-            .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
+            .filter { klass -> directSuperclasses.all(klass::isSubtypeOf) }
             .all(::isSupertypeOf)
   }
 
@@ -180,13 +176,13 @@ internal constructor(
     }
   }
 
-  private fun MType.bindSelfAt(paths: List<List<Key>>): Expression {
+  private fun Type.bindSelfAt(paths: List<List<Key>>): Expression {
     val pathsByKey = paths.groupBy { it.first() }
     val arguments = dependencies.expressionsFull { dependency ->
       val remainingPaths = pathsByKey[dependency.key]?.map { it.drop(1) }.orEmpty()
       when {
         remainingPaths.isEmpty() -> dependency.expressionFull
-        remainingPaths.any { it.isEmpty() } -> this@MClass.className.expression
+        remainingPaths.any { it.isEmpty() } -> this@Class.className.expression
         dependency is TypeDependency -> dependency.boundType.bindSelfAt(remainingPaths)
         else -> error("can't bind self within $dependency")
       }
@@ -197,7 +193,7 @@ internal constructor(
   private val inheritedDeps: DependencySet by lazy {
     val inherited =
         directSupertypes().map { supertype ->
-          val superclass = supertype.root
+          val superclass = supertype.rootClass
           val pathsByKey = superclass.selfBindings.groupBy { it.keyList.first() }
           supertype.dependencies.mapWithKey { key, boundType ->
             val paths = pathsByKey[key]?.map { it.keyList.drop(1) }.orEmpty()
@@ -315,42 +311,42 @@ internal constructor(
   // GETTING TYPES
 
   public fun withAllDependencies(deps: DependencySet) =
-      MType(this, normalizeLinkedDependencies(deps.subMapInOrder(dependencies.keys)))
+      Type(this, normalizeLinkedDependencies(deps.subMapInOrder(dependencies.keys)))
 
-  /** Least upper bound of all types with mclass==this */
-  val baseType: MType by lazy { withAllDependencies(dependencies) }
+  /** Least upper bound of all types with rootClass==this */
+  val baseType: Type by lazy { withAllDependencies(dependencies) }
 
-  public val defaultType: MType by lazy {
+  public val defaultType: Type by lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
     withAllDependencies(templateDependencies)
   }
 
-  public fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)
+  public fun specialize(specs: List<Expression>): Type = baseType.specialize(specs)
 
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
    * the type `Class<Resource>`.
    */
-  internal val classType: MType by lazy {
+  internal val classType: Type by lazy {
     loader.classClass.withAllDependencies(depsForClassType(this))
   }
 
-  fun concreteTypes(): Sequence<MType> = baseType.concreteSubtypesSameClass()
+  fun concreteTypes(): Sequence<Type> = baseType.concreteSubtypesSameClass()
 
   internal val defaultsDecl by declaration::defaultsDeclaration
 
   public val defaults: Defaults by lazy { Defaults.forClass(this) }
 
   override fun equals(other: Any?) =
-      other is MClass && other.className == className && other.loader == loader
+      other is Class && other.className == className && other.loader == loader
 
   override fun hashCode() = className.hashCode() xor loader.hashCode()
 
   override fun toString() = "$className"
 
   private companion object {
-    fun superclasses(declaration: ClassDeclaration, loader: MClassLoader): List<MClass> {
+    fun superclasses(declaration: ClassDeclaration, loader: ClassLoader): List<Class> {
       return declaration.supertypes
           .classNames()
           .also { require(COMPONENT !in it) }

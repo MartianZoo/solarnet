@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
@@ -20,11 +19,12 @@ import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.Type
 import kotlin.math.min
 
 internal class GameReaderImpl(
-    private val classTable: MClassTable,
+    private val classTable: ClassTable,
     private val components: ComponentGraph,
     internal val transformers: Transformers,
     override val setup: GameSetup,
@@ -72,7 +72,7 @@ internal class GameReaderImpl(
   private fun countExpression(expression: Expression): Int {
     if (classTable.isUnresolvedClassLiteral(expression)) return 0
     val type = classTable.resolve(expression)
-    if (!type.root.declaration.custom) return components.count(type, this)
+    if (!type.rootClass.declaration.custom) return components.count(type, this)
 
     val implementation =
         ruleset.customMetric(type.className)
@@ -85,13 +85,12 @@ internal class GameReaderImpl(
     }
   }
 
-  override fun count(type: Type) = components.count(classTable.resolve(type), this)
+  override fun count(type: Type) = components.count(type, this)
 
-  override fun containsAny(type: Type) = components.containsAny(classTable.resolve(type), this)
+  override fun containsAny(type: Type) = components.containsAny(type, this)
 
   override fun countComponent(concreteType: Type) =
       components.countComponent(concreteType.toComponent(this))
 
-  override fun getComponents(type: Type) =
-      components.getAll(classTable.resolve(type), this).map { it.type }
+  override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
 }

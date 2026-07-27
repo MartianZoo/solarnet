@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -11,6 +10,7 @@ import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.toSetStrict
 
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */

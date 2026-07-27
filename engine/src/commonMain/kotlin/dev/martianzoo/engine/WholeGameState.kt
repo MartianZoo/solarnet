@@ -3,7 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.ClassTable
 
 /** The live, complete state and control implementation for a [Game]. */
 internal class WholeGameState
@@ -14,7 +14,7 @@ internal constructor(
     override val timeline: Timeline,
     override val reader: GameReader,
     override val setup: GameSetup,
-    override val classTable: MClassTable,
+    override val classTable: ClassTable,
 ) : Game {
 
   private lateinit var gameplayByActor: Map<Actor, Gameplay>

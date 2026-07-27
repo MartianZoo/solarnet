@@ -5,12 +5,12 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PROD
+import dev.martianzoo.types.Type
 
 internal val corporateEraCustomClasses: Set<CustomClass> =
     setOf(CorporateEraExpansion.CopyProductionBox)

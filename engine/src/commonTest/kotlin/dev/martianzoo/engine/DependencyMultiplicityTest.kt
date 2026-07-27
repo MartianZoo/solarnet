@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.Type
 import dev.martianzoo.types.loader
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -45,17 +45,17 @@ internal class DependencyMultiplicityTest {
 
   private fun load(classes: String) = loader(classes.trimIndent())
 
-  private fun limiter(classTable: MClassTable) = Limiter(classTable, EmptyComponentGraph)
+  private fun limiter(classTable: ClassTable) = Limiter(classTable, EmptyComponentGraph)
 
   private object EmptyComponentGraph : ComponentGraph {
     override fun contains(component: Component) = false
 
     override fun countComponent(component: Component) = 0
 
-    override fun count(parentType: MType, info: TypeInfo) = 0
+    override fun count(parentType: Type, info: TypeInfo) = 0
 
-    override fun containsAny(parentType: MType, info: TypeInfo) = false
+    override fun containsAny(parentType: Type, info: TypeInfo) = false
 
-    override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> = HashMultiset()
+    override fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> = HashMultiset()
   }
 }

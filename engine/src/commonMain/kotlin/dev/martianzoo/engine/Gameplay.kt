@@ -5,7 +5,6 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
@@ -13,13 +12,11 @@ import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.OperationBody
-import dev.martianzoo.engine.Gameplay.OperationLayer
-import dev.martianzoo.engine.Gameplay.TaskLayer
-import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.Multiset
 import kotlin.reflect.KClass
 

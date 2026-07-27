@@ -10,7 +10,7 @@ import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.iff
 import dev.martianzoo.util.random
 
@@ -37,24 +37,24 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
                   .expressions()
                   .map { it.arguments.single() }
                   .random()
-                  .let { repl.game.reader.resolve(it) as MType }
+                  .let(repl.game.reader::resolve)
                   .concreteSubtypesSameClass()
                   .random()
           type.expressionFull to type
         } else {
           val expression: Expression = repl.gameplay.parse(args)
-          expression to repl.gameplay.resolve(args) as MType
+          expression to repl.gameplay.resolve(args)
         }
-    return listOf(MTypeToText.describe(expression, type))
+    return listOf(TypeToText.describe(expression, type))
   }
 
-  object MTypeToText {
+  object TypeToText {
     /** A detailed multi-line description of a type. */
-    internal fun describe(expression: Expression, mtype: MType): String {
+    internal fun describe(expression: Expression, type: Type): String {
 
-      val desc = TypeDescription(mtype)
+      val desc = TypeDescription(type)
 
-      val long = mtype.className
+      val long = type.className
       val short = desc.classShortName
       val classDisplay = "$long" + "[$short]".iff(short != long)
 
@@ -87,8 +87,8 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
       val typeStuff =
           """
           Expression `$expression`:
-            std. form:   ${mtype.expression}
-            long form:   ${mtype.expressionFull}
+            std. form:   ${type.expression}
+            long form:   ${type.expressionFull}
             supertypes:  ${desc.supertypes.joinToString { "${it.expressionFull}" }}
             cmpt types:  ${desc.componentTypesCount}
             subs:        ${desc.substitutions}
@@ -96,13 +96,13 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
               .trimIndent()
 
       val componentStuff =
-          if (mtype.abstract) {
+          if (type.abstract) {
             ""
           } else {
             """
 
 
-            Component `${mtype.expressionFull}`:
+            Component `${type.expressionFull}`:
               effects:     ${desc.componentEffects.joinToString("""
                            """)}
           """
