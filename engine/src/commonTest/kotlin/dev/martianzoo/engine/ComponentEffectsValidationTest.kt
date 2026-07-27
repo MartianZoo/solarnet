@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.types.MType
 import dev.martianzoo.types.loader
 import dev.martianzoo.types.te
 import io.kotest.assertions.throwables.shouldThrow
@@ -26,7 +25,7 @@ class ComponentEffectsValidationTest {
 
   @Test
   fun `valid specialized component effect is retained`() {
-    val component = Component(table.resolve(te("Holder<Good>")) as MType)
+    val component = Component(table.resolve(te("Holder<Good>")))
 
     component
         .effects(transformers)
@@ -36,14 +35,14 @@ class ComponentEffectsValidationTest {
 
   @Test
   fun `invalid atomic branch after component specialization becomes Die`() {
-    val component = Component(table.resolve(te("Holder<Bad>")) as MType)
+    val component = Component(table.resolve(te("Holder<Bad>")))
 
     component.effects(transformers).map(Any::toString).shouldContainExactly("This: Good! OR Die!")
   }
 
   @Test
   fun `invalid specialized component trigger fails validation`() {
-    val component = Component(table.resolve(te("BrokenHolder<Bad>")) as MType)
+    val component = Component(table.resolve(te("BrokenHolder<Bad>")))
 
     shouldThrow<ExpressionException> { component.effects(transformers) }
   }

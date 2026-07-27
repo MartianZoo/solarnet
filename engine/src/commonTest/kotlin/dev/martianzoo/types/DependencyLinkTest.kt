@@ -34,14 +34,14 @@ internal class DependencyLinkTest {
 
   @Test
   fun `linked specialization also specializes effects`() {
-    val component = Component(table.resolve(te("InheritedLink<Player1, Card>")) as MType)
+    val component = Component(table.resolve(te("InheritedLink<Player1, Card>")))
 
     component.effects(transformers).map(Any::toString).shouldContainExactly("This: Token<Player1>!")
   }
 
   @Test
   fun `an unlinked nested owner does not capture contextual Owner in effects`() {
-    val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")) as MType)
+    val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")))
 
     component.effects(transformers).map(Any::toString).shouldContainExactly("This: Token<Player1>!")
   }

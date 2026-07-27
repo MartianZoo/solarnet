@@ -31,7 +31,7 @@ val slowTestsExplicitlyRequested = requestedTaskNames.any {
 
 kotlin {
   jvm()
-  js(IR) {
+  js {
     browser()
   }
 

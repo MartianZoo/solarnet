@@ -97,10 +97,8 @@ class TransformersTest {
 
   @Test
   fun `invalid atomic change after trigger specialization becomes Die`() {
-    val general =
-        CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)")) as MType
-    val specific =
-        CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>")) as MType
+    val general = CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)"))
+    val specific = CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>"))
     val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
 
     transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe

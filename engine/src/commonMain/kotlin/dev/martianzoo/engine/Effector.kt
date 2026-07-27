@@ -225,7 +225,7 @@ internal class Effector(
         val changeType = reader.resolve(expr)
         val matchType = reader.resolve(match)
         val triggerIsOwnedOrSystem =
-            (matchType as MType).root.allSuperclasses().any {
+            matchType.root.allSuperclasses().any {
               it.className == OWNED || it.className == SYSTEM
             }
         if (
@@ -308,8 +308,8 @@ internal class Effector(
         if (by == ANYONE && !specializedSelector.complement) return hit
 
         reader as GameReaderImpl
-        val actorType = reader.resolve(actor.expression) as MType
-        val actorDomain = reader.resolve(ACTOR.expression) as MType
+        val actorType = reader.resolve(actor.expression)
+        val actorDomain = reader.resolve(ACTOR.expression)
         if (!reader.matchesConstraint(actorType, specializedSelector, actorDomain)) return null
 
         return hit

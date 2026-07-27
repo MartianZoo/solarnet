@@ -10,13 +10,13 @@ complexity:
     excludes: ['**/tfm/engine/games/**']
   NestedBlockDepth:
     # Deep parser/test construction is acceptable up to five nesting levels.
-    threshold: 5
+    allowedDepth: 5
   LongMethod:
     # Full-game logs and sample scenarios are intentionally long; method length is not useful here.
     active: false
   LongParameterList:
     # Constructor dependency injection is explicit by design; keep function checks but skip constructors.
-    constructorThreshold: 2147483647
+    allowedConstructorParameters: 2147483647
     excludes: ['**/tfm/engine/games/**']
   TooManyFunctions:
     # The default threshold does not fit cohesive domain-model and facade classes.
