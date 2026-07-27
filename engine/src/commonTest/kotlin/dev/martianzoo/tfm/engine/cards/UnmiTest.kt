@@ -1,50 +1,36 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class UnmiTest : CardTest() {
-
   @Test
-  fun unmi() {
-    val game = newGame(Canon.SIMPLE_GAME)
-    with(game.tfm(PLAYER1)) {
-      playCorp("UnitedNationsMarsInitiative", 0)
-      assertCounts(40 to "Megacredit", 20 to "TR")
-
-      phase("Action")
-
-      shouldThrow<RequirementException> { cardAction1("UnitedNationsMarsInitiative") }
-
-      // Do anything that raises TR
-      stdProject("AsteroidSP").expect("-14, TR")
-
-      cardAction1("UnitedNationsMarsInitiative").expect("-3, TR")
-    }
+  fun `after raising TR, uses the UNMI action`() {
+    initializeUnmi()
+    p1.stdProject("AsteroidSP").expect("-14, TerraformRating")
+    p1.cardAction1("UnitedNationsMarsInitiative").expect("-3, TerraformRating")
   }
 
   @Test
-  fun unmiOutOfOrder() {
-    val game = newGame(Canon.SIMPLE_GAME)
-    with(game.tfm(PLAYER1)) {
-      sneak("14")
-      assertCounts(14 to "Megacredit", 20 to "TR")
+  fun `after raising TR before choosing UNMI, uses its action`() {
+    newGame()
+    p1.manual("14")
+    p1.manual("UseAction1<AsteroidSP>")
+    p1.playCorp("UnitedNationsMarsInitiative", 0)
+    engine.phase("Action")
+    p1.cardAction1("UnitedNationsMarsInitiative").expect("-3, TerraformRating")
+  }
 
-      // Do anything that raises TR, while we aren't even UNMI yet
-      manual("UseAction1<AsteroidSP>")
-      assertCounts(0 to "Megacredit", 21 to "TR")
+  @Test
+  fun `without raising TR, tries to use the UNMI action`() {
+    initializeUnmi()
+    shouldThrow<RequirementException> { p1.cardAction1("UnitedNationsMarsInitiative") }
+  }
 
-      playCorp("UnitedNationsMarsInitiative", 0)
-      assertCounts(40 to "Megacredit", 21 to "TR")
-      phase("Action")
-
-      // The TR from earlier still counts
-      cardAction1("UnitedNationsMarsInitiative").expect("-3, TR")
-    }
+  private fun initializeUnmi() {
+    newGame()
+    p1.playCorp("UnitedNationsMarsInitiative", 0)
+    engine.phase("Action")
   }
 }

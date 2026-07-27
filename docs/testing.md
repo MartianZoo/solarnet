@@ -33,8 +33,10 @@ in a test merely to detect that the list changed.
 
 `CardTest` and the full-game fixtures provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Do not restate costs, fixture
-setup, or every incidental resource movement. `BugsTest` is different: its passing tests
-characterize known incorrect behavior, and their names say what currently happens incorrectly.
+setup, or every incidental resource movement. Use a zero scalar, such as `0 Plant` or
+`PROD[0 Energy]`, to assert that a particular type did not change. `BugsTest` is different: its
+passing tests characterize known incorrect behavior, and their names say what currently happens
+incorrectly.
 
 ## Translating game logs
 

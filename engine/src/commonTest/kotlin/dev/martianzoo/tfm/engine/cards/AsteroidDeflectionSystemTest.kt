@@ -1,34 +1,28 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.DeadEndException
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class AsteroidDeflectionSystemTest : CardTest() {
   @Test
-  fun `protects plants and scores revealed space cards`() {
-    val game = newGame("BRMPX", 2)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    p1.phase("Action")
-    p1.sneak("100, ProjectCard, Plant, Psychrophiles, Microbe<Psychrophiles>, PROD[Energy]")
+  fun `with protected plants, reveals cards using Asteroid Deflection System`() {
+    newGame("BMRX")
+    val p2 = requireP2()
+    engine.phase("Action")
+    p1.manual("13, ProjectCard, Plant, Tardigrades, Microbe<Tardigrades>, PROD[Energy]")
 
     p1.playProject("AsteroidDeflectionSystem", 13).expect("PROD[-Energy]")
 
     shouldThrow<DeadEndException> { p2.manual("-Plant<Player1>") }
-    p2.manual("-Microbe<Player1, Psychrophiles<Player1>>")
-        .expect("-Microbe<Player1, Psychrophiles<Player1>>")
+    p2.manual("-Microbe<Player1, Tardigrades<Player1>>").expect("-Microbe")
     p1.manual("-Plant<Player1>").expect("-Plant")
 
     p1.cardAction1("AsteroidDeflectionSystem") {
       doTask("Asteroid<AsteroidDeflectionSystem>")
     }
-    game.tfm(ENGINE).phase("End")
+    engine.phase("End")
     p1.assertCounts(21 to "VictoryPoint")
   }
 }

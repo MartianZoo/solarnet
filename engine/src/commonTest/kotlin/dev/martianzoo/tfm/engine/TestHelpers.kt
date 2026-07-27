@@ -61,15 +61,20 @@ object TestHelpers {
           )
         }
 
-    // Abusing the fact that these strings just happen to resemble instruction strings... except
-    // that this is currently preventing 0, sigh
-    val instruction = preprocessor.transform(Parsing.parse<Instruction>(expectedAsInstructions))
+    // Zero is not a valid instruction scalar, so preserve its position with a value that can pass
+    // through the normal parser and transformers before restoring it as an expected count.
+    val parseableExpectations =
+        expectedAsInstructions.replace(ZERO_SCALAR_REGEX, ZERO_SCALAR_SENTINEL.toString())
+    val instruction = preprocessor.transform(Parsing.parse<Instruction>(parseableExpectations))
 
     val expectedCountsToTypes: List<Pair<Int, Expression>> =
         split(instruction).map {
           when (it) {
-            is Gain -> (it.scaledEx.scalar as ActualScalar).value to it.scaledEx.expression
-            is Remove -> -(it.scaledEx.scalar as ActualScalar).value to it.scaledEx.expression
+            is Gain ->
+                (it.scaledEx.scalar as ActualScalar).value.expectedCount() to it.scaledEx.expression
+            is Remove ->
+                -(it.scaledEx.scalar as ActualScalar).value.expectedCount() to
+                    it.scaledEx.expression
             else -> error("")
           }
         }
@@ -88,6 +93,11 @@ object TestHelpers {
     }
     actuals shouldBe expectedCounts
   }
+
+  private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
+
+  private const val ZERO_SCALAR_SENTINEL = 987_654_321
+  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|])")
 
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")

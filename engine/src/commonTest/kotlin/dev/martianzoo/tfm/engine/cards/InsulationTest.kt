@@ -2,35 +2,61 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.TestHelpers.assertProds
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class InsulationTest : CardTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newGame()
+    engine.phase("Action")
+    p1.manual("2, ProjectCard, PROD[-1, 3 Heat]")
+  }
 
   @Test
-  fun insulation_normal() {
-    val game = newGame("BRM", 2)
-    with(game.tfm(PLAYER1)) {
-      phase("Action")
-      sneak("100, 5 ProjectCard, PROD[-1, 3 Heat]")
-      assertProds(-1 to "M", 3 to "H")
+  fun `with heat production, plays Insulation`() {
+    p1.playProject("Insulation", 2) { doTask("PROD[Megacredit FROM Heat]") }
+        .expect("PROD[Megacredit, -Heat]")
+  }
 
-      playProject("Insulation", 2) {
-        shouldThrow<PetSyntaxException> { doTask("PROD[0 Megacredit FROM Heat]") }
-        shouldThrow<PetSyntaxException> { doFirstTask("PROD[Ok]") }
-        shouldThrow<NarrowingException> { doFirstTask("Ok") }
-        shouldThrow<NarrowingException> { doFirstTask("PROD[2 Megacredit<P2> FROM Heat<P2>]") }
+  @Test
+  fun `with three heat production, converts two using Insulation`() {
+    p1.playProject("Insulation", 2) { doTask("PROD[2 Megacredit FROM Heat]") }
+        .expect("PROD[2 Megacredit, -2 Heat]")
+  }
 
-        doTask("PROD[2 Megacredit FROM Heat]")
-        assertProds(1 to "M", 1 to "H")
-        abort()
+  @Test
+  fun `with heat production, tries to convert none using Insulation`() {
+    p1.playProject("Insulation", 2) {
+      shouldThrow<PetSyntaxException> { doTask("PROD[0 Megacredit FROM Heat]") }
+      abort()
+    }
+  }
+
+  @Test
+  fun `with heat production, tries a non-production conversion using Insulation`() {
+    p1.playProject("Insulation", 2) {
+      shouldThrow<PetSyntaxException> { doFirstTask("PROD[Ok]") }
+      abort()
+    }
+  }
+
+  @Test
+  fun `with heat production, tries to skip the Insulation conversion`() {
+    p1.playProject("Insulation", 2) {
+      shouldThrow<NarrowingException> { doFirstTask("Ok") }
+      abort()
+    }
+  }
+
+  @Test
+  fun `with heat production, tries to convert p2 production using Insulation`() {
+    p1.playProject("Insulation", 2) {
+      shouldThrow<NarrowingException> {
+        doFirstTask("PROD[2 Megacredit<Player2> FROM Heat<Player2>]")
       }
-
-      playProject("Insulation", 2) { doFirstTask("PROD[Megacredit FROM Heat]") }
-      assertProds(0 to "M", 2 to "H")
+      abort()
     }
   }
 }

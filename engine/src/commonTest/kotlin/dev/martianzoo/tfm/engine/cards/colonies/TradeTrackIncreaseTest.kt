@@ -5,7 +5,8 @@ import kotlin.test.Test
 
 class TradeTrackIncreaseTest : ColoniesCardTest() {
   @Test
-  fun `trade envoys offers a production track increase when trading`() {
+  fun `with Trade Envoys, trades`() {
+    p1.manual("ProjectCard, 15")
     p1.playProject("TradeEnvoys", 6)
 
     p1.stdAction("TradeSA") {
