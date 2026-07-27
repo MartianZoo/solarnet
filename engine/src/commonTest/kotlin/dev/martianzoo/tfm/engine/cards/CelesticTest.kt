@@ -1,38 +1,51 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class CelesticTest : CardTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newGame("BMRV")
+    p1.playCorp("Celestic", 5)
+    p1.manual("10 Heat")
+    engine.phase("Action")
+  }
+
   @Test
-  fun celestic() {
-    val game = newGame("BRMV", 2)
-    with(game.tfm(PLAYER1)) {
-      playCorp("Celestic", 5)
-      assertCounts(5 to "ProjectCard", 27 to "M")
-      sneak("100, 10 Heat")
+  fun `with a mandate, handles it as Celestic`() {
+    advanceToMandate()
+    p1.assertCounts(1 to "Mandate", 7 to "ProjectCard")
+    p1.stdAction("HandleMandates").expect("-Mandate, 2 ProjectCard")
+  }
 
-      phase("Action")
-      shouldThrow<RequirementException> { playProject("Mine", 4) }
-      shouldThrow<RequirementException> { stdProject("AsteroidSP") }
-      shouldThrow<RequirementException> { stdAction("ConvertHeatSA") }
+  @Test
+  fun `after handling its mandate, plays a project as Celestic`() {
+    advanceToMandate()
+    p1.stdAction("HandleMandates")
+    p1.playProject("Mine", 4).expect("PROD[Steel]")
+  }
 
-      pass()
+  @Test
+  fun `before handling its mandate, tries to play a project as Celestic`() {
+    shouldThrow<RequirementException> { p1.playProject("Mine", 4) }
+  }
 
-      asActor(ENGINE).nextGeneration(2, 2)
+  @Test
+  fun `before handling its mandate, tries a standard project as Celestic`() {
+    shouldThrow<RequirementException> { p1.stdProject("AsteroidSP") }
+  }
 
-      shouldThrow<RequirementException> { playProject("Mine", 4) }
+  @Test
+  fun `before handling its mandate, tries a standard action as Celestic`() {
+    shouldThrow<RequirementException> { p1.stdAction("ConvertHeatSA") }
+  }
 
-      assertCounts(1 to "Mandate")
-      assertCounts(7 to "ProjectCard")
-      stdAction("HandleMandates")
-      assertCounts(9 to "ProjectCard")
-      playProject("Mine", 4)
-    }
+  private fun advanceToMandate() {
+    p1.pass()
+    engine.nextGeneration(2, 2)
   }
 }

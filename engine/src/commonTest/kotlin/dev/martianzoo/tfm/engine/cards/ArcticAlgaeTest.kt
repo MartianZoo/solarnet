@@ -1,41 +1,31 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class ArcticAlgaeTest : CardTest() {
   @Test
-  fun `ocean placed by another player gives plants to Arctic Algae's owner`() {
-    val game = newGame(Canon.SIMPLE_GAME)
-    val owner = game.tfm(PLAYER1)
-    val other = game.tfm(PLAYER2)
-    owner.sneak("ArcticAlgae")
-    val plantsBefore = owner.count("Plant")
-
-    other.manual("OceanTile<Tharsis_1_2>")
-
-    owner.count("Plant") shouldBe plantsBefore + 2
+  fun `with Arctic Algae owned by p2, p1 places an ocean`() {
+    newGame()
+    val p2 = requireP2()
+    p2.manual("ArcticAlgae")
+    p1.manual("OceanTile<Tharsis_1_2>").expect("2 Plant")
   }
 
   @Test
-  fun `Giant Ice Asteroid can remove plants just granted by Arctic Algae`() {
-    val game = newGame(Canon.SIMPLE_GAME)
-    val attacker = game.tfm(PLAYER1)
-    val algaeOwner = game.tfm(PLAYER2)
-    algaeOwner.sneak("ArcticAlgae, 2 Plant")
-    attacker.sneak("ProjectCard, 36 Megacredit")
-    attacker.phase("Action")
+  fun `after Arctic Algae grants plants, p1 plays Giant Ice Asteroid`() {
+    newGame()
+    val p2 = requireP2()
+    p2.manual("ArcticAlgae, Plant")
+    p1.manual("ProjectCard, 36 Megacredit")
+    engine.phase("Action")
 
-    attacker.playProject("GiantIceAsteroid", 36) {
+    p1.playProject("GiantIceAsteroid", 36) {
       doFirstTask("OceanTile<Tharsis_1_2>")
       doFirstTask("OceanTile<Tharsis_1_4>")
       doTask("-6 Plant<Player2>")
     }
 
-    algaeOwner.count("Plant") shouldBe 0
+    p2.count("Plant") shouldBe 0
   }
 }

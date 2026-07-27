@@ -1,32 +1,30 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class AirScrappingExpeditionTest : CardTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newGame("BMVC", colonyTiles = testColonyTiles(2))
+  }
+
   @Test
-  fun airScrappingExpedition() {
-    val game = newBareGame(Canon.fromOptionCodes("CVERB", 2, testColonyTiles(2)))
+  fun `with an eligible floater card, adds Air Scrapping Expedition`() {
+    p1.manual("ForcedPrecipitation")
+    p1.manual("AirScrappingExpedition") { doFirstTask("3 Floater<ForcedPrecipitation>") }
+        .expect("3 Floater")
+  }
 
-    with(game.tfm(PLAYER1)) {
-      manual("3 ProjectCard, ForcedPrecipitation, AtmoCollectors") {
-        doFirstTask("2 Floater<AtmoCollectors>")
-      }
-
-      assertCounts(2 to "Floater")
-
-      shouldThrow<NarrowingException> {
-        manual("AirScrappingExpedition") { doFirstTask("3 Floater<AtmoCollectors>") }
-      }
-
-      manual("AirScrappingExpedition") { doFirstTask("3 Floater<ForcedPrecipitation>") }
-      assertCounts(5 to "Floater")
+  @Test
+  fun `with two floaters on Atmo Collectors, tries to add three more`() {
+    p1.manual("ForcedPrecipitation")
+    p1.manual("AtmoCollectors") { doFirstTask("2 Floater<AtmoCollectors>") }
+    shouldThrow<NarrowingException> {
+      p1.manual("AirScrappingExpedition") { doFirstTask("3 Floater<AtmoCollectors>") }
     }
   }
 }

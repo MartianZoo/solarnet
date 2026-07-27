@@ -1,87 +1,67 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestHelpers.assertProds
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class RobinsonIndustriesTest : CardTest() {
-  init {
-    newGame("BRMP", 2)
-  }
-
-  val p1 = game.tfm(PLAYER1)
-
   @BeforeTest
-  fun setUp() {
+  fun initializeGame() {
+    newGame("BMP")
     p1.playCorp("RobinsonIndustries", 0)
-    p1.phase("Action")
+    engine.phase("Action")
   }
 
   @Test
-  fun megacredit1() {
-    with(p1) {
-      sneak("PROD[S, T, P, E, H]")
-      assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 1 to "H")
-
-      cardAction1("RobinsonIndustries")
-      assertCounts(43 to "M")
-      assertProds(1 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 1 to "H")
-    }
+  fun `with megacredit uniquely lowest, uses Robinson Industries`() {
+    p1.manual("PROD[Steel, Titanium, Plant, Energy, Heat]")
+    p1.cardAction1("RobinsonIndustries").expect("-4, PROD[Megacredit]")
   }
 
   @Test
-  fun megacredit2() {
-    with(p1) {
-      sneak("PROD[-1]")
-      assertProds(-1 to "M", 0 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
-
-      cardAction1("RobinsonIndustries")
-      assertProds(0 to "M", 0 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
-    }
+  fun `with megacredit below the production floor, uses Robinson Industries`() {
+    p1.manual("PROD[-Megacredit]")
+    p1.cardAction1("RobinsonIndustries").expect("-4, PROD[Megacredit]")
   }
 
   @Test
-  fun nonMegacredit() {
-    with(p1) {
-      sneak("PROD[1, S, P, E, H]")
-      assertProds(1 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
-      cardAction1("RobinsonIndustries")
-      assertProds(1 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 1 to "H")
-    }
+  fun `with titanium uniquely lowest, uses Robinson Industries`() {
+    p1.manual("PROD[Megacredit, Steel, Plant, Energy, Heat]")
+    p1.cardAction1("RobinsonIndustries").expect("-4, PROD[Titanium]")
   }
 
   @Test
-  fun choice() {
-    with(game.tfm(PLAYER1)) {
-      sneak("PROD[S, P, E, H]")
-      assertProds(0 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
+  fun `with megacredit and titanium tied, chooses megacredit using Robinson Industries`() {
+    seedProductionTie()
 
-      cardAction1("RobinsonIndustries") {
-        tasks
-            .extract { "${it.instruction}" }
-            .shouldContainExactlyInAnyOrder(
-                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
-            )
-        doTask("PROD[1]")
-        assertProds(1 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
-        abort()
-      }
+    p1.cardAction1("RobinsonIndustries") {
+          tasks
+              .extract { "${it.instruction}" }
+              .shouldContainExactlyInAnyOrder(
+                  "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
+              )
+          doTask("PROD[Megacredit]")
+        }
+        .expect("-4, PROD[Megacredit]")
+  }
 
-      cardAction1("RobinsonIndustries") {
-        doTask("PROD[T]")
-        assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 1 to "H")
-        abort()
-      }
+  @Test
+  fun `with megacredit and titanium tied, chooses titanium using Robinson Industries`() {
+    seedProductionTie()
+    p1.cardAction1("RobinsonIndustries") { doTask("PROD[Titanium]") }.expect("-4, PROD[Titanium]")
+  }
 
-      shouldThrow<NarrowingException> {
-        cardAction1("RobinsonIndustries") { doTask("PROD[Steel]") }
-      }
+  @Test
+  fun `with megacredit and titanium tied, tries to choose steel using Robinson Industries`() {
+    seedProductionTie()
+    shouldThrow<NarrowingException> {
+      p1.cardAction1("RobinsonIndustries") { doTask("PROD[Steel]") }
     }
+  }
+
+  private fun seedProductionTie() {
+    p1.manual("PROD[Steel, Plant, Energy, Heat]")
   }
 }

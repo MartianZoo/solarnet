@@ -1,30 +1,42 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.DeadEndException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class ProtectedHabitatsTest : CardTest() {
   @Test
-  fun `opponents cannot remove protected resources but the owner can`() {
-    val game = newGame("BRMP", 2)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    p1.sneak("ProtectedHabitats, Plant, Fish, Animal<Fish>, Psychrophiles, Microbe<Psychrophiles>")
+  fun `with p1 resources protected, p1 removes them`() {
+    newGame("BMR")
+    p1.manual("PROD[Plant], ProtectedHabitats, Plant, Fish, Tardigrades")
+    p1.manual("Animal<Fish>, Microbe<Tardigrades>")
+    p1.manual("-Plant, -Animal<Fish>, -Microbe<Tardigrades>").expect("-Plant, -Animal, -Microbe")
+  }
 
-    shouldThrow<DeadEndException> { p2.manual("-Plant<Player1>") }
-    p1.manual("-Plant<Player1>").expect("-Plant<Player1>")
+  @Test
+  fun `with p2 plants protected, p1 tries to remove one`() {
+    newGame("BMR")
+    seedProtectedP2Resources()
+    shouldThrow<DeadEndException> { p1.manual("-Plant<Player2>") }
+  }
 
-    shouldThrow<DeadEndException> { p2.manual("-Animal<Player1, Fish<Player1>>") }
-    p1.manual("-Animal<Player1, Fish<Player1>>").expect("-Animal<Player1, Fish<Player1>>")
+  @Test
+  fun `with p2 animals protected, p1 tries to remove one`() {
+    newGame("BMR")
+    seedProtectedP2Resources()
+    shouldThrow<DeadEndException> { p1.manual("-Animal<Player2, Fish<Player2>>") }
+  }
 
-    shouldThrow<DeadEndException> {
-      p2.manual("-Microbe<Player1, Psychrophiles<Player1>>")
-    }
-    p1.manual("-Microbe<Player1, Psychrophiles<Player1>>")
-        .expect("-Microbe<Player1, Psychrophiles<Player1>>")
+  @Test
+  fun `with p2 microbes protected, p1 tries to remove one`() {
+    newGame("BMR")
+    seedProtectedP2Resources()
+    shouldThrow<DeadEndException> { p1.manual("-Microbe<Player2, Tardigrades<Player2>>") }
+  }
+
+  private fun seedProtectedP2Resources() {
+    val p2 = requireP2()
+    p2.manual("PROD[Plant], ProtectedHabitats, Plant, Fish, Tardigrades")
+    p2.manual("Animal<Fish>, Microbe<Tardigrades>")
   }
 }

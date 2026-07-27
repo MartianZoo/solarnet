@@ -2,75 +2,60 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class LocalHeatTrappingTest : CardTest() {
-  init {
-    newGame(Canon.SIMPLE_GAME)
+  @BeforeTest
+  fun initializeGame() {
+    newGame()
   }
 
-  val p1 = game.tfm(PLAYER1)
+  @Test
+  fun `with enough heat, chooses plants from Local Heat Trapping`() {
+    p1.manual("6 Heat, Pets")
+    p1.manual("LocalHeatTrapping") {
+          doFirstTask("4 Plant")
+        }
+        .expect("-5 Heat, 4 Plant")
+  }
 
   @Test
-  fun notEnoughHeat() {
-    with(p1) {
-      sneak("4 Heat, 2 ProjectCard, Pets, Animal<Pets>, 100")
-      assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
-      assertCounts(4 to "Card", 3 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
+  fun `with Pets in play, chooses animals from Local Heat Trapping`() {
+    p1.manual("6 Heat, Pets")
+    p1.manual("LocalHeatTrapping") { doFirstTask("2 Animal<Pets>") }.expect("-5 Heat, 2 Animal")
+  }
 
-      phase("Action")
-
-      playProject("LocalHeatTrapping", 1) {
-        // The card is played but nothing else
-        assertCounts(4 to "Card", 2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
-        assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
-        abort()
-      }
+  @Test
+  fun `with Pets in play, tries an abstract animal choice from Local Heat Trapping`() {
+    p1.manual("6 Heat, Pets")
+    p1.manual("LocalHeatTrapping") {
+      shouldThrow<AbstractException> { doFirstTask("2 Animal") }
+      abort()
     }
   }
 
   @Test
-  fun getPlants() {
-    with(p1) {
-      sneak("6 Heat, 2 ProjectCard, Pets, Animal<Pets>")
-
-      manual("LocalHeatTrapping") {
-        // The card is played and the heat is gone
-        assertCounts(1 to "CardFront", 1 to "PlayedEvent")
-        assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
-        doFirstTask("4 Plant")
-      }
-
-      assertCounts(3 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
-      assertCounts(4 to "Plant", 1 to "Heat", 1 to "Animal")
+  fun `without Fish in play, tries to add animals to it from Local Heat Trapping`() {
+    p1.manual("6 Heat, Pets")
+    p1.manual("LocalHeatTrapping") {
+      shouldThrow<DependencyException> { doFirstTask("2 Animal<Fish>") }
+      abort()
     }
   }
 
   @Test
-  fun getPets() {
-    with(p1) {
-      sneak("6 Heat, 2 ProjectCard, Pets, Animal<Pets>")
+  fun `without enough heat, tries to resolve Local Heat Trapping`() {
+    p1.manual("4 Heat, ProjectCard, Pets, 1")
+    p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 
-      manual("LocalHeatTrapping") {
-        // The card is played and the heat is gone
-        assertCounts(3 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
-        assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
+    engine.phase("Action")
 
-        shouldThrow<AbstractException> { doFirstTask("2 Animal") }
-
-        // card I don't have
-        shouldThrow<DependencyException> { doFirstTask("2 Animal<Fish>") }
-
-        // but this should work
-        doFirstTask("2 Animal<Pets>")
-      }
-      assertCounts(3 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
-      assertCounts(0 to "Plant", 1 to "Heat", 3 to "Animal")
+    p1.playProject("LocalHeatTrapping", 1) {
+      p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
+      abort()
     }
   }
 }

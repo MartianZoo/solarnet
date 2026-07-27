@@ -1,28 +1,23 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
 class ValleyTrustTest : CardTest() {
   @Test
-  fun valleyTrust() {
-    val game = newGame("BRMP", 2)
-    with(game.tfm(PLAYER1)) {
-      playCorp("ValleyTrust", 5).expect("5 ProjectCard, 22")
+  fun `with a mandate, uses Valley Trust`() {
+    newGame("BMP")
+    p1.playCorp("ValleyTrust", 5).expect("5 ProjectCard, 22")
 
-      phase("Action")
-      assertCounts(1 to "Mandate")
-      assertCounts(0 to "PreludeCard")
+    engine.phase("Action")
+    p1.assertCounts(1 to "Mandate", 0 to "PreludeCard")
 
-      stdAction("HandleMandates") {
-            assertCounts(1 to "PreludeCard")
+    p1.stdAction("HandleMandates") {
+          p1.assertCounts(1 to "PreludeCard")
 
-            playPrelude("MartianIndustries")
-            assertCounts(0 to "PreludeCard")
-          }
-          .expect("PROD[Steel, Energy]")
-    }
+          p1.playPrelude("MartianIndustries")
+          p1.assertCounts(0 to "PreludeCard")
+        }
+        .expect("PROD[Steel, Energy]")
   }
 }

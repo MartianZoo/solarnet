@@ -2,36 +2,55 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactly
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class DoubleDownTest : CardTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newGame("BMPX")
+    p1.playCorp("PharmacyUnion", 5)
+    engine.phase("Prelude")
+    p1.playPrelude("BiosphereSupport")
+  }
 
   @Test
-  fun doubleDown() {
-    val game = newGame("BRHXP", 2)
+  fun `after Biosphere Support, plays Double Down`() {
+    p1.playPrelude("DoubleDown") { doFirstTask("CopyPrelude<BiosphereSupport>") }
+        .expect("PROD[-Megacredit, 0 Steel, 0 Titanium, 2 Plant, 0 Energy, 0 Heat]")
+  }
 
-    with(game.tfm(PLAYER1)) {
-      playCorp("PharmacyUnion", 5)
-      phase("Prelude")
-      playPrelude("BiosphereSupport")
-      production().values.shouldContainExactly(-1, 0, 0, 2, 0, 0)
+  @Test
+  fun `without Martian Industries in play, tries to copy it using Double Down`() {
+    p1.playPrelude("DoubleDown") {
+      shouldThrow<DependencyException> { doFirstTask("CopyPrelude<MartianIndustries>") }
+      abort()
+    }
+  }
 
-      asPlayer(PLAYER2).playPrelude("UnmiContractor")
+  @Test
+  fun `with Unmi Contractor owned by p2, tries to copy it using Double Down`() {
+    requireP2().playPrelude("UnmiContractor")
+    p1.playPrelude("DoubleDown") {
+      shouldThrow<DependencyException> { doFirstTask("CopyPrelude<UnmiContractor>") }
+      abort()
+    }
+  }
 
-      playPrelude("DoubleDown") {
-        shouldThrow<DependencyException> { doFirstTask("CopyPrelude<MartianIndustries>") }
-        shouldThrow<DependencyException> { doFirstTask("CopyPrelude<UnmiContractor>") }
-        shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<PharmacyUnion>") }
-        shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<DoubleDown>") }
+  @Test
+  fun `with Pharmacy Union in play, tries to copy it using Double Down`() {
+    p1.playPrelude("DoubleDown") {
+      shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<PharmacyUnion>") }
+      abort()
+    }
+  }
 
-        doFirstTask("CopyPrelude<BiosphereSupport>")
-        production().values.shouldContainExactly(-2, 0, 0, 4, 0, 0)
-      }
+  @Test
+  fun `while playing Double Down, tries to copy itself`() {
+    p1.playPrelude("DoubleDown") {
+      shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<DoubleDown>") }
+      abort()
     }
   }
 }

@@ -1,22 +1,15 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
 class TollStationTest : CardTest() {
   @Test
-  fun `counts opponents' space tags but not the owner's`() {
-    val game = newGame(Canon.fromOptionCodes("BMR", 2))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-
-    // Can't just sneak tags directly - they have a dependency!
+  fun `with space tags split between players, adds Toll Station`() {
+    newGame("BMR")
+    val p2 = requireP2()
+    // Tags must be added with the cards they depend on.
     p1.manual("AsteroidMining, TransNeptuneProbe").expect("2 SpaceTag")
     p2.manual("VestaShipyard, SpaceElevator, SolarWindPower").expect("3 SpaceTag")
-
     p1.manual("TollStation").expect("PROD[3 Megacredit]")
   }
 }

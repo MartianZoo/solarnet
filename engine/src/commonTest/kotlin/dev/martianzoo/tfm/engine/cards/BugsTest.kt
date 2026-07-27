@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
@@ -25,10 +24,9 @@ class BugsTest : CardTest() {
   // FAQ: "Place a city tile there, regardless of placement rules."
   @Test
   fun `Kaguya Tech can incorrectly move the selected greenery to another area`() {
-    val p1 = newGame("BMX", 2).tfm(PLAYER1)
-    p1.phase("Action")
-    p1.sneak("100, 5 ProjectCard, GreeneryTile<M42>")
-
+    newGame("BMX")
+    engine.phase("Action")
+    p1.manual("10, ProjectCard, GreeneryTile<M42>")
     // TODO(#12): Repeated LandArea occurrences should specialize together and reject this move.
     p1.playProject("KaguyaTech", 10) { doTask("CityTile<M43> FROM GreeneryTile<M42>") }
         .expect("-GreeneryTile<M42>, CityTile<M43>")
@@ -36,7 +34,7 @@ class BugsTest : CardTest() {
 
   @Test
   fun `solo setup can incorrectly link the second greenery to the first city`() {
-    val setup = Canon.fromOptionCodes("BRMS", 1)
+    val setup = Canon.fromOptionCodes("BMSR", 1)
     val game = setUpGame(setup)
     val engine = game.tfm(ENGINE)
 
@@ -52,19 +50,18 @@ class BugsTest : CardTest() {
 
   @Test
   fun `use-card-action incorrectly leaves its selected action card abstract`() {
-    val game = setUpGame("BM", 2)
-    val p1 = game.tfm(PLAYER1)
-    p1.godMode().sneak("SymbioticFungus")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    newGame()
+    p1.manual("SymbioticFungus")
+    val p1GodMode = p1.godMode().also { it.autoExecMode = NONE }
 
-    manual.beginManual("UseAction1<UseCardActionSA>")
+    p1GodMode.beginManual("UseAction1<UseCardActionSA>")
     val markerChoice =
         game.tasks
             .extract { it }
             .single { it.instruction.toString().startsWith("ActionUsedMarker<") }
     markerChoice.then.toString().startsWith("UseAction<") shouldBe true
 
-    manual.doTask("ActionUsedMarker<SymbioticFungus>")
+    p1GodMode.doTask("ActionUsedMarker<SymbioticFungus>")
 
     val actionTasks =
         game.tasks.extract { it }.filter { it.instruction.toString().startsWith("UseAction<") }
@@ -80,12 +77,12 @@ class BugsTest : CardTest() {
   // Start."
   @Test
   fun `Head Start incorrectly allows its two actions to interleave`() {
-    val p1 = newGame("BMPTX", 2).tfm(PLAYER1)
+    newGame("BMPTX")
     p1.phase("Prelude")
-    p1.sneak("4, 10 ProjectCard, PreludeCard, 10 Heat")
+    p1.manual("4, 10 ProjectCard, PreludeCard, 10 Heat")
 
     p1.playPrelude("HeadStart") {
-      p1.assertCounts(2 to "Steel", 24 to "M")
+      p1.assertCounts(2 to "Steel", 24 to "Megacredit")
       doFirstTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<ConvertHeatSA>")
       doTask("UseAction1<AquiferSP>")
@@ -97,8 +94,8 @@ class BugsTest : CardTest() {
   // ignore that effect."
   @Test
   fun `Local Heat Trapping incorrectly cannot discard its optional animal gain`() {
-    val p1 = newGame(Canon.SIMPLE_GAME).tfm(PLAYER1)
-    p1.sneak("6 Heat, 2 ProjectCard")
+    newGame()
+    p1.manual("6 Heat, 2 ProjectCard")
 
     p1.manual("LocalHeatTrapping") {
       tasks.extract { it.whyPending }.shouldContainExactlyInAnyOrder("abstract")
@@ -112,21 +109,20 @@ class BugsTest : CardTest() {
   // FAQ: "Draw 1 card for every 3 science tags you have, including this."
   @Test
   fun `Solar Probe can incorrectly lose its card draw if event cleanup is handled first`() {
-    val game = newGame(Canon.fromOptionCodes("BMRC", 2, testColonyTiles(2)))
-    val p1 = game.tfm(PLAYER1)
-    val manual = p1.godMode()
-    p1.phase("Action")
-    manual.manual("TransNeptuneProbe, PhysicsComplex, 100, 5 ProjectCard")
+    newGame("BMRC", colonyTiles = testColonyTiles(2))
+    val p1GodMode = p1.godMode()
+    engine.phase("Action")
+    p1GodMode.manual("TransNeptuneProbe, PhysicsComplex")
 
     p1.count("ScienceTag") shouldBe 2
 
-    manual.autoExecMode = NONE
-    manual.beginManual("SolarProbe") {
+    p1GodMode.autoExecMode = NONE
+    p1GodMode.beginManual("SolarProbe") {
       doTask("ProjectCard") // player deserves a card! but....
       abort()
     }
 
-    manual.beginManual("SolarProbe") {
+    p1GodMode.beginManual("SolarProbe") {
       // The user really shouldn't even have the option to do this first
       doTask("PlayedEvent<Class<SolarProbe>> FROM SolarProbe")
 
@@ -137,8 +133,28 @@ class BugsTest : CardTest() {
 
   @Test
   fun `a quantified tile instruction incorrectly cannot be decomposed into placement choices`() {
-    val p1 = newGame("BM", 2).tfm(PLAYER1)
-
+    newGame()
     shouldThrow<IllegalArgumentException> { p1.manual("2 CityTile") }
+  }
+
+  @Test
+  fun `Predators incorrectly throws IllegalArgumentException without a removable animal`() {
+    newGame()
+    p1.manual("Predators")
+    engine.phase("Action")
+    shouldThrow<IllegalArgumentException> { p1.cardAction1("Predators") }
+  }
+
+  @Test
+  fun `Artificial Lake incorrectly throws IllegalArgumentException without an available area`() {
+    newGame()
+    engine.phase("Action")
+    val landAreas =
+        p1.list("LandArea").filterNot { it.toString() == "VolcanicArea" } + p1.list("VolcanicArea")
+    p1.manual(
+        "15, ProjectCard, 12 TemperatureStep, " + landAreas.joinToString { "GreeneryTile<$it>" }
+    )
+
+    shouldThrow<IllegalArgumentException> { p1.playProject("ArtificialLake", 15) }
   }
 }

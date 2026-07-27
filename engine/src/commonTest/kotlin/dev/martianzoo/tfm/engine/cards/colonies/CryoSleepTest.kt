@@ -4,26 +4,26 @@ import kotlin.test.Test
 
 class CryoSleepTest : ColoniesCardTest() {
   @Test
-  fun testMegacredit() {
-    p1.sneak("CryoSleep")
+  fun `with Cryo Sleep, trades using megacredits`() {
+    p1.manual("CryoSleep, 8")
     p1.stdAction("TradeSA", 1) { doTask("Trade<Io>") }.expect("-8, 3 Heat")
   }
 
   @Test
-  fun testEnergy() {
-    p1.sneak("CryoSleep, 2 Energy")
+  fun `with Cryo Sleep, trades using energy`() {
+    p1.manual("CryoSleep, 2 Energy")
     p1.stdAction("TradeSA", 2) { doTask("Trade<Io>") }.expect("-2 Energy, 3 Heat")
   }
 
   @Test
-  fun testTitanium() {
-    p1.sneak("CryoSleep, 2 Titanium")
+  fun `with Cryo Sleep, trades using titanium`() {
+    p1.manual("CryoSleep, 2 Titanium")
     p1.stdAction("TradeSA", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 3 Heat")
   }
 
   @Test
-  fun testWithRimFreightersToo() {
-    p1.sneak("CryoSleep, RimFreighters")
+  fun `with Cryo Sleep and Rim Freighters, trades using megacredits`() {
+    p1.manual("CryoSleep, RimFreighters, 7")
     p1.stdAction("TradeSA", 1) { doTask("Trade<Io>") }.expect("-7, 3 Heat")
   }
 }
