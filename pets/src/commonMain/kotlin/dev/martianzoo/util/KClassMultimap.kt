@@ -2,28 +2,28 @@ package dev.martianzoo.util
 
 import kotlin.reflect.KClass
 
-class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
-  val map = mutableMapOf<KClass<out B>, MutableList<B>>()
+internal class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
+  internal val map = mutableMapOf<KClass<out B>, MutableList<B>>()
 
   init {
     this += list
   }
 
-  fun <T : B> put(type: KClass<T>, value: T) = doPut(type, value)
+  internal fun <T : B> put(type: KClass<T>, value: T) = doPut(type, value)
 
   private fun doPut(type: KClass<out B>, value: B) {
     val list = map.getOrPut(type) { mutableListOf() }
     list += value
   }
 
-  inline operator fun <reified T : B> plusAssign(value: T) {
+  internal inline operator fun <reified T : B> plusAssign(value: T) {
     put(T::class, value)
   }
 
-  operator fun plusAssign(values: Collection<B>) = values.forEach { doPut(it::class, it) }
+  internal operator fun plusAssign(values: Collection<B>) = values.forEach { doPut(it::class, it) }
 
-  inline fun <reified T : B> get(): List<T> = get(T::class)
+  internal inline fun <reified T : B> get(): List<T> = get(T::class)
 
   @Suppress("UNCHECKED_CAST")
-  fun <T : B> get(type: KClass<T>) = map[type]?.let { it as List<T> }.orEmpty()
+  internal fun <T : B> get(type: KClass<T>) = map[type]?.let { it as List<T> }.orEmpty()
 }

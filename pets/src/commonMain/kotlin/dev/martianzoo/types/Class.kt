@@ -35,7 +35,7 @@ internal constructor(
     private val loader: ClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    val directSuperclasses: List<Class> = superclasses(declaration, loader),
+    public val directSuperclasses: List<Class> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<Class> {
 
   /** The universe containing this class. */
@@ -120,18 +120,18 @@ internal constructor(
   }
 
   /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
-  fun allSuperclasses(): Set<Class> = allSuperclasses
+  public fun allSuperclasses(): Set<Class> = allSuperclasses
 
-  fun properSuperclasses(): Set<Class> = allSuperclasses() - this
+  internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
   private val allSubclasses: Set<Class> by lazy {
     loader.allClasses().filter { this in it.allSuperclasses() }.toSet()
   }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  fun allSubclasses(): Set<Class> = allSubclasses
+  public fun allSubclasses(): Set<Class> = allSubclasses
 
-  fun directSubclasses(): Set<Class> =
+  public fun directSubclasses(): Set<Class> =
       loader.allClasses().filter { this in it.directSuperclasses }.toSet()
 
   /**
@@ -320,11 +320,11 @@ internal constructor(
 
   // GETTING TYPES
 
-  public fun withAllDependencies(deps: DependencySet) =
+  public fun withAllDependencies(deps: DependencySet): Type =
       Type(this, normalizeLinkedDependencies(deps.subMapInOrder(dependencies.keys)))
 
   /** Least upper bound of all types with rootClass==this */
-  val baseType: Type by lazy { withAllDependencies(dependencies) }
+  public val baseType: Type by lazy { withAllDependencies(dependencies) }
 
   public val defaultType: Type by lazy {
     val templateDependencies =
@@ -342,18 +342,18 @@ internal constructor(
     loader.classClass.withAllDependencies(depsForClassType(this))
   }
 
-  fun concreteTypes(): Sequence<Type> = baseType.concreteSubtypesSameClass()
+  public fun concreteTypes(): Sequence<Type> = baseType.concreteSubtypesSameClass()
 
   internal val defaultsDecl by declaration::defaultsDeclaration
 
   public val defaults: Defaults by lazy { Defaults.forClass(this) }
 
-  override fun equals(other: Any?) =
+  override fun equals(other: Any?): Boolean =
       other is Class && other.className == className && other.loader == loader
 
-  override fun hashCode() = className.hashCode() xor loader.hashCode()
+  override fun hashCode(): Int = className.hashCode() xor loader.hashCode()
 
-  override fun toString() = "$className"
+  override fun toString(): String = "$className"
 
   private companion object {
     fun superclasses(declaration: ClassDeclaration, loader: ClassLoader): List<Class> {

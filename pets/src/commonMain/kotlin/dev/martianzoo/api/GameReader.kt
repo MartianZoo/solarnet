@@ -10,15 +10,15 @@ import dev.martianzoo.types.Type
 import dev.martianzoo.util.Multiset
 
 /** A readable view of the state of a game in progress. */
-interface GameReader : TypeInfo {
+public interface GameReader : TypeInfo {
   /** The initial configuration for the game. */
-  val setup: GameSetup
+  public val setup: GameSetup
 
   /** The resolved ruleset used by the game. */
-  val ruleset: Ruleset
+  public val ruleset: Ruleset
 
   /** Returns the type represented by the (fully-prepared) [expression]. */
-  fun resolve(expression: Expression): Type
+  public fun resolve(expression: Expression): Type
 
   /** Determines whether the (fully-prepared) [requirement] is met in the current game state. */
   override fun has(requirement: Requirement): Boolean
@@ -27,19 +27,19 @@ interface GameReader : TypeInfo {
    * Evaluates the (fully-prepared) [metric] in the current game state. A count whose root is a
    * custom class is computed by that Kotlin implementation rather than from components.
    */
-  fun count(metric: Metric): Int
+  public fun count(metric: Metric): Int
 
   /** Returns the number of component instances having type [type] in the current game state. */
-  fun count(type: Type): Int
+  public fun count(type: Type): Int
 
-  fun containsAny(type: Type): Boolean
+  public fun containsAny(type: Type): Boolean
 
   /** Returns the number of instances of [concreteType] in the current game state. */
-  fun countComponent(concreteType: Type): Int
+  public fun countComponent(concreteType: Type): Int
 
   /** Returns the types of all concrete components in the current game state. */
-  fun getComponents(type: Type): Multiset<Type>
+  public fun getComponents(type: Type): Multiset<Type>
 
   /** Returns the types of all concrete components matching the Pets type expression [type]. */
-  fun getComponents(type: String): Multiset<Type> = getComponents(resolve(parse(type)))
+  public fun getComponents(type: String): Multiset<Type> = getComponents(resolve(parse(type)))
 }

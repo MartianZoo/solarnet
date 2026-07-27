@@ -30,6 +30,8 @@ val slowTestsExplicitlyRequested = requestedTaskNames.any {
 }
 
 kotlin {
+  explicitApi()
+
   jvm()
   js {
     browser()

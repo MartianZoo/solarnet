@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class MarsMapDefinitionTest {
 
-  val demoMapJson =
+  private val demoMapJson =
       """
         {
           "legend": {

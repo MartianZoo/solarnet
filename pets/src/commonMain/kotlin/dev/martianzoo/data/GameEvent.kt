@@ -3,14 +3,14 @@ package dev.martianzoo.data
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.pre
 
-sealed class GameEvent {
-  abstract val ordinal: Int
+public sealed class GameEvent {
+  public abstract val ordinal: Int
 
-  sealed class TaskEvent : GameEvent() {
-    abstract val task: Task
+  public sealed class TaskEvent : GameEvent() {
+    public abstract val task: Task
 
     /** The assignment recorded by this task lifecycle event. */
-    val assignee: Actor
+    internal val assignee: Actor
       get() = task.assignee
 
     internal fun taskToString() = buildString {
@@ -21,15 +21,17 @@ sealed class GameEvent {
     }
   }
 
-  data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
-    override fun toString() = taskToString()
+  public data class TaskAddedEvent(override val ordinal: Int, override val task: Task) :
+      TaskEvent() {
+    override fun toString(): String = taskToString()
   }
 
-  data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
-    override fun toString() = "$ordinal: -Task${task.id}"
+  public data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) :
+      TaskEvent() {
+    override fun toString(): String = "$ordinal: -Task${task.id}"
   }
 
-  data class TaskEditedEvent(
+  public data class TaskEditedEvent(
       override val ordinal: Int,
       val oldTask: Task,
       override val task: Task,
@@ -38,11 +40,11 @@ sealed class GameEvent {
       require(task.id == oldTask.id)
     }
 
-    override fun toString() = taskToString() + " FROM Task${task.id}"
+    override fun toString(): String = taskToString() + " FROM Task${task.id}"
   }
 
   /** All interesting information about a state change that happened in a game. */
-  data class ChangeEvent(
+  public data class ChangeEvent(
       override val ordinal: Int,
       /** The Actor recorded as having performed [change]. */
       val actor: Actor,
@@ -54,13 +56,13 @@ sealed class GameEvent {
       require((cause?.triggerEvent ?: -1) < ordinal)
     }
 
-    override fun toString() = buildString {
+    override fun toString(): String = buildString {
       append("$ordinal: $change BY $actor")
       append(" ${cause ?: "(manual)"}")
     }
 
     /** The part of a `ChangeEvent` that describes only what actually changed. */
-    data class StateChange(
+    public data class StateChange(
         /**
          * How many of the component were gained/removed/transmuted. A positive integer. Often 1,
          * since many component types don't admit duplicates.
@@ -91,7 +93,7 @@ sealed class GameEvent {
     }
 
     /** Why a (non-manual) `ChangeEvent` happened. */
-    data class Cause(
+    public data class Cause(
         /** The type of the existing component the activated effect belonged to. */
         val context: Expression,
 
@@ -102,7 +104,7 @@ sealed class GameEvent {
         require(triggerEvent >= 0)
       }
 
-      override fun toString() = "VIA $context BECAUSE $triggerEvent"
+      override fun toString(): String = "VIA $context BECAUSE $triggerEvent"
     }
   }
 }

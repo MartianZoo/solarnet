@@ -96,7 +96,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
     }
   }
 
-  public fun hasType(supertype: Type, info: TypeInfo? = null) =
+  public fun hasType(supertype: Type, info: TypeInfo? = null): Boolean =
       info?.let { type.narrows(supertype, it) } ?: type.narrows(supertype)
 
   private val customOutputTransformer =
@@ -111,16 +111,16 @@ public class Component internal constructor(public val type: Type) : HasExpressi
     return customOutputTransformer.transform(translated)
   }
 
-  override fun equals(other: Any?) = other is Component && other.type == type
+  override fun equals(other: Any?): Boolean = other is Component && other.type == type
 
-  override fun hashCode() = type.hashCode()
+  override fun hashCode(): Int = type.hashCode()
 
-  override fun toString() = "$type"
+  override fun toString(): String = "$type"
 
   public companion object {
-    public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this))
+    public fun Expression.toComponent(game: GameReader): Component = Component(game.resolve(this))
 
-    public fun HasExpression.toComponent(game: GameReader) =
+    public fun HasExpression.toComponent(game: GameReader): Component =
         this as? Component ?: expression.toComponent(game)
   }
 }

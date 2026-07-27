@@ -49,7 +49,7 @@ public data class Task(
 ) {
 
   /** Normalized form of [instructionIn]. */
-  val instruction = normalizeForTask(instructionIn)
+  public val instruction: Instruction = normalizeForTask(instructionIn)
 
   /** Normalized form of [thenIn]. */
   val then: Instruction? by lazy { // should it be InstructionGroup?
@@ -70,7 +70,7 @@ public data class Task(
     }
   }
 
-  operator fun times(factor: Int): Task {
+  public operator fun times(factor: Int): Task {
     return copy(instructionIn = instruction * factor, thenIn = then?.times(factor))
   }
 
@@ -107,7 +107,7 @@ public data class Task(
     }
   }
 
-  override fun toString() = buildString {
+  override fun toString(): String = buildString {
     append(id)
     append(if (next) "* " else "  ")
     appendAssigneeLabel()
@@ -117,7 +117,7 @@ public data class Task(
     whyPending?.let { append(" ($it)") }
   }
 
-  fun toStringWithoutCause(queueAssignee: Actor? = null) = buildString {
+  public fun toStringWithoutCause(queueAssignee: Actor? = null): String = buildString {
     append(id)
     append(if (next) "* " else "  ")
     if (queueAssignee == null) {
@@ -136,7 +136,7 @@ public data class Task(
     append("] ")
   }
 
-  companion object {
+  public companion object {
     public fun newTasks(
         firstId: TaskId,
         assignee: Actor,
@@ -147,7 +147,7 @@ public data class Task(
       return instruction.map { newTask(ids.next(), assignee, it, cause) }
     }
 
-    public fun newTask(
+    private fun newTask(
         id: TaskId,
         assignee: Actor,
         instruction: Instruction,
@@ -174,12 +174,12 @@ public data class Task(
       }
     }
 
-    fun noid(
+    public fun noid(
         assignee: Actor,
         automatic: Boolean,
         hit: Instruction,
         cause: Cause,
-    ) =
+    ): Task =
         Task(
             id = TaskId("ZZ"),
             assignee = assignee,
@@ -189,17 +189,17 @@ public data class Task(
         )
   }
 
-  data class TaskId(val s: String) : Comparable<TaskId> {
+  public data class TaskId(val s: String) : Comparable<TaskId> {
     init {
       require(s.length in 1..2) { s }
       require(s.all { it in 'A'..'Z' })
     }
 
-    override fun compareTo(other: TaskId) = s.padStart(2).compareTo(other.s.padStart(2))
+    override fun compareTo(other: TaskId): Int = s.padStart(2).compareTo(other.s.padStart(2))
 
-    override fun toString() = s
+    override fun toString(): String = s
 
-    fun next(): TaskId {
+    public fun next(): TaskId {
       val news =
           when {
             s == "Z" -> "AA"

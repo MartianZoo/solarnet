@@ -37,7 +37,7 @@ import dev.martianzoo.types.DependencySet
 import dev.martianzoo.types.Type
 import dev.martianzoo.types.TypeUniverse
 
-internal class Transformers(internal val typeUniverse: TypeUniverse) {
+public class Transformers(public val typeUniverse: TypeUniverse) {
 
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
   private val resourceClassNames by lazy { Prod.findResourceClassNames(typeUniverse) }
@@ -77,7 +77,7 @@ internal class Transformers(internal val typeUniverse: TypeUniverse) {
     }
   }
 
-  internal fun useFullNames() =
+  public fun useFullNames(): PetTransformer =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is Count && typeUniverse.isUnresolvedClassLiteral(node.expression)) {
@@ -138,7 +138,7 @@ internal class Transformers(internal val typeUniverse: TypeUniverse) {
   internal fun insertDefaults(context: Expression) =
       chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
-  internal fun insertGainRemoveDefaults(context: Expression): PetTransformer {
+  private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         val result: PetNode =
@@ -195,7 +195,7 @@ internal class Transformers(internal val typeUniverse: TypeUniverse) {
     }
   }
 
-  internal fun insertExpressionDefaults(context: Expression): PetTransformer {
+  public fun insertExpressionDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         if (node !is Expression) return transformChildren(node)

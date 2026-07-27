@@ -66,7 +66,7 @@ public class ScriptSession(
 
   internal var mode: ScriptMode = GREEN
 
-  internal fun newGame(setup: GameSetup, purple: Boolean = false) {
+  private fun newGame(setup: GameSetup, purple: Boolean = false) {
     this.setup = setup
     game = Engine.newGame(setup)
     gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
@@ -96,7 +96,7 @@ public class ScriptSession(
     newGame(Canon.SIMPLE_GAME)
   }
 
-  public fun prompt() = mode.color.foreground(promptPlain())
+  public fun prompt(): String = mode.color.foreground(promptPlain())
 
   internal fun promptPlain(): String =
       with(gameplay) {
@@ -252,7 +252,7 @@ public class ScriptSession(
   }
 }
 
-public val welcome =
+public val welcome: String =
     """
     Welcome to REgo PLastics. Type `help` or `help <command>` for help.
     Warning: this is a bare-bones tool that is not trying to be easy to use... at all

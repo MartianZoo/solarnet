@@ -3,8 +3,8 @@ package dev.martianzoo.util
 // this is honestly bogus - it can't grow
 public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
 
-  override val rowCount by rows::size
-  override val columnCount by rows[0]::size
+  override val rowCount: Int by rows::size
+  override val columnCount: Int by rows[0]::size
 
   @Suppress("TooGenericExceptionCaught") // TODO fix
   override operator fun get(rowIndex: Int, columnIndex: Int): E? {
@@ -15,18 +15,19 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
     }
   }
 
-  fun set(rowIndex: Int, columnIndex: Int, value: E): E? {
+  internal fun set(rowIndex: Int, columnIndex: Int, value: E): E? {
     @Suppress("UNCHECKED_CAST") val row = row(rowIndex) as MutableList<E>
     return row.set(columnIndex, value)
   }
 
-  override fun rows() = rows
+  override fun rows(): List<List<E?>> = rows
 
-  override fun columns() = List(columnCount) { column(it) }
+  override fun columns(): List<List<E?>> = List(columnCount) { column(it) }
 
-  override fun diagonals() = List(rowCount + columnCount - 1) { diagonal(it - rowCount + 1) }
+  override fun diagonals(): List<List<E?>> =
+      List(rowCount + columnCount - 1) { diagonal(it - rowCount + 1) }
 
-  override fun row(rowIndex: Int) = rows[rowIndex]
+  override fun row(rowIndex: Int): List<E?> = rows[rowIndex]
 
   override fun column(columnIndex: Int): MutableList<E?> {
     return MutableColumn(rows, columnIndex)
@@ -34,16 +35,16 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
 
   private fun all() = rows.flatten().filterNotNull().toSet()
 
-  override val size
+  override val size: Int
     get() = all().size
 
-  override fun iterator() = all().iterator()
+  override fun iterator(): Iterator<E> = all().iterator()
 
-  override fun contains(element: E) = all().contains(element)
+  override fun contains(element: E): Boolean = all().contains(element)
 
-  override fun isEmpty() = false
+  override fun isEmpty(): Boolean = false
 
-  fun immutable(): Grid<E> {
+  internal fun immutable(): Grid<E> {
     return MutableGrid(rows.map { it.toList() }.toList())
   }
 

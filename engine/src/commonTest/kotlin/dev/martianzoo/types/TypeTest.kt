@@ -204,7 +204,7 @@ internal class TypeTest {
     // check...("Complex2<Bar1(HAS Qux2)>(HAS Foo1)", "Complex1<Bar1(HAS Qux2)>(HAS Foo1)")
   }
 
-  fun type(s: String) = table.resolve(te(s))
+  private fun type(s: String) = table.resolve(te(s))
 
   @Test
   fun partial() {
@@ -338,7 +338,7 @@ internal class TypeTest {
     // checkMinimal("TwoSame<Foo2, Foo3>")
   }
 
-  fun findSubstitutions(type: Type): Map<ClassName, Expression> =
+  private fun findSubstitutions(type: Type): Map<ClassName, Expression> =
       Transformers(type.typeUniverse)
           .findSubstitutions(
               type.rootClass.defaultType.dependencies,

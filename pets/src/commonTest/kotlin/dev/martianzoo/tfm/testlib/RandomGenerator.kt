@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 
 internal abstract class RandomGenerator<B : Any>(
     private val registry: Registry<B>,
-    val scaling: (Int) -> Double,
+    private val scaling: (Int) -> Double,
 ) {
   abstract class Registry<B : Any> {
     private val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()

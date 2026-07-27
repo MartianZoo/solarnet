@@ -187,7 +187,7 @@ class TaskRevisionTest {
     tasks.isEmpty() shouldBe true
   }
 
-  fun initiate(ins: String) = writer.godMode().addTasks(ins)
+  private fun initiate(ins: String) = writer.godMode().addTasks(ins)
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 

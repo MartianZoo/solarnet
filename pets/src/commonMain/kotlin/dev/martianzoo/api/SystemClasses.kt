@@ -13,28 +13,28 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  */
 public object SystemClasses {
   // A special fake class name that doesn't actually point to a class
-  public val THIS = cn("This")
+  public val THIS: ClassName = cn("This")
 
   // Classes defined in system.pets
 
-  public val ATOMIZED = cn("Atomized")
-  public val ACTOR = cn("Actor")
-  public val AUTO_LOAD = cn("AutoLoad")
-  public val CLASS = cn("Class")
-  public val CUSTOM = cn("Custom")
-  public val COMPONENT = cn("Component")
-  public val DIE = cn("Die")
-  public val HIDDEN = cn("Hidden")
-  public val OK = cn("Ok")
-  public val SIGNAL = cn("Signal")
-  public val SYSTEM = cn("System")
-  public val TEMPORARY = cn("Temporary")
+  public val ATOMIZED: ClassName = cn("Atomized")
+  public val ACTOR: ClassName = cn("Actor")
+  public val AUTO_LOAD: ClassName = cn("AutoLoad")
+  public val CLASS: ClassName = cn("Class")
+  public val CUSTOM: ClassName = cn("Custom")
+  public val COMPONENT: ClassName = cn("Component")
+  public val DIE: ClassName = cn("Die")
+  public val HIDDEN: ClassName = cn("Hidden")
+  public val OK: ClassName = cn("Ok")
+  public val SIGNAL: ClassName = cn("Signal")
+  public val SYSTEM: ClassName = cn("System")
+  public val TEMPORARY: ClassName = cn("Temporary")
 
   // Classes not defined in system.pets but which need to be defined by the game somewhere
 
-  public val ANYONE = cn("Anyone")
-  public val OWNED = cn("Owned")
-  public val OWNER = cn("Owner")
-  public val PLAYER = cn("Player")
-  public val USE_ACTION = cn("UseAction")
+  public val ANYONE: ClassName = cn("Anyone")
+  public val OWNED: ClassName = cn("Owned")
+  public val OWNER: ClassName = cn("Owner")
+  public val PLAYER: ClassName = cn("Player")
+  public val USE_ACTION: ClassName = cn("UseAction")
 }

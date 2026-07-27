@@ -6,22 +6,28 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.Parsing
 import kotlin.reflect.KClass
 
-abstract class ParserGroup<B : Any> {
-  inline fun <reified T : B> parse(source: String, input: TokenMatchesSequence) =
+internal abstract class ParserGroup<B : Any> {
+  internal inline fun <reified T : B> parse(source: String, input: TokenMatchesSequence) =
       parse(T::class, source, input)
 
-  inline fun <reified T : B> parser() = parser(T::class)
+  internal inline fun <reified T : B> parser() = parser(T::class)
 
-  abstract fun <T : B> parse(type: KClass<T>, source: String, matches: TokenMatchesSequence): T
+  internal abstract fun <T : B> parse(
+      type: KClass<T>,
+      source: String,
+      matches: TokenMatchesSequence,
+  ): T
 
-  abstract fun <T : B> parser(type: KClass<T>): Parser<T>
+  internal abstract fun <T : B> parser(type: KClass<T>): Parser<T>
 
-  class Builder<B : Any> : ParserGroup<B>() {
+  internal class Builder<B : Any> : ParserGroup<B>() {
     private val parsers = mutableMapOf<KClass<out B>, Parser<B>>()
 
-    inline fun <reified T : B> publish(parser: Parser<T>) = publish(T::class, parser)
+    internal inline fun <reified T : B> publish(parser: Parser<T>) = publish(T::class, parser)
 
-    fun <T : B> publish(type: KClass<T>, parser: Parser<T>) = parser.also { parsers[type] = it }
+    internal fun <T : B> publish(type: KClass<T>, parser: Parser<T>) = parser.also {
+      parsers[type] = it
+    }
 
     override fun <T : B> parse(
         type: KClass<T>,
@@ -37,6 +43,6 @@ abstract class ParserGroup<B : Any> {
       parsers[type] as? Parser<T> ?: error("unrecognized type $type")
     }
 
-    fun finish(): ParserGroup<B> = this
+    internal fun finish(): ParserGroup<B> = this
   }
 }

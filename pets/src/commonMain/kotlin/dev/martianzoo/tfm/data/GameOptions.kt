@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.pets.ast.ClassName
 
 /** Exact semantic choices for a game, independent of how Canon stores their ruleset data. */
-data class GameOptions(
+public data class GameOptions(
     /** Number of seated Players. */
     val players: Int,
 
@@ -20,5 +20,5 @@ data class GameOptions(
     require(players in 1..5) { "player count not supported: $players" }
   }
 
-  operator fun contains(option: ClassName): Boolean = option in enabled
+  public operator fun contains(option: ClassName): Boolean = option in enabled
 }

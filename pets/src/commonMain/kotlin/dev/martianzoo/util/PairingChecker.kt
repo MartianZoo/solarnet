@@ -17,13 +17,13 @@ import dev.martianzoo.util.Tokenizer.regex
 private const val ALLOW_EMPTY = false
 private const val ALLOW_REDUNDANT = false
 
-object PairingChecker {
-  fun check(s: String) {
+internal object PairingChecker {
+  internal fun check(s: String) {
     require(parsers.parse<String>(s, Tokenizer.tokenize(s)) != "ERR")
   }
 
   @Suppress("TooGenericExceptionCaught")
-  fun isValid(s: String) =
+  internal fun isValid(s: String) =
       try {
         check(s)
         true

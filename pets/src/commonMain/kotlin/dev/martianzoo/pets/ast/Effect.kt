@@ -25,40 +25,40 @@ public data class Effect(
     val automatic: Boolean = false,
 ) : PetElement() {
 
-  override val kind = Effect::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = Effect::class
 
-  override fun visitChildren(visitor: Visitor) = visitor.visit(trigger, instruction)
+  override fun visitChildren(visitor: Visitor): Unit = visitor.visit(trigger, instruction)
 
-  override fun toString() =
+  override fun toString(): String =
       "$trigger:${":".iff(automatic)} " +
           if (instruction is Gated) "($instruction)" else "$instruction"
 
   /** The left-hand side of a triggered effect; the kind of event being subscribed to. */
-  sealed class Trigger : PetNode() {
-    override val kind = Trigger::class
+  public sealed class Trigger : PetNode() {
+    override val kind: kotlin.reflect.KClass<out PetNode> = Trigger::class
 
     /**
      * An unmodified gain-or-removal selector: either a self event or a subscription to a component
      * type. Basic triggers are the operands accepted by scalar and transform wrappers. They do not
      * themselves include `OR`, `IF`, or `BY`.
      */
-    sealed class BasicTrigger : Trigger()
+    public sealed class BasicTrigger : Trigger()
 
     /**
      * A gain or removal of the concrete component carrying this effect, spelled `This` or `-This`.
      * This is not a subscription to that component's type: changing N copies scales this effect's
      * instruction by N once, regardless of how many other copies of the component already exist.
      */
-    sealed class SelfTrigger : BasicTrigger()
+    public sealed class SelfTrigger : BasicTrigger()
 
     /**
      * A subscription to gains or removals matching an authored component expression. Each active
      * copy of the effect-bearing component owns this subscription, so its multiplicity affects how
      * many times a matching change triggers the effect.
      */
-    sealed class SubscribedTrigger : BasicTrigger()
+    public sealed class SubscribedTrigger : BasicTrigger()
 
-    data class Or(val triggers: List<Trigger>) : Trigger() {
+    public data class Or(val triggers: List<Trigger>) : Trigger() {
       init {
         require(triggers.size >= 2)
         if (triggers.map { it.selfMode() }.distinct().size != 1) {
@@ -66,29 +66,30 @@ public data class Effect(
         }
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(triggers)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(triggers)
 
-      override fun toString() = triggers.joinToString(" OR ") { groupPartIfNeeded(it) }
+      override fun toString(): String = triggers.joinToString(" OR ") { groupPartIfNeeded(it) }
 
-      override fun precedence() = 30
+      override fun precedence(): Int = 30
     }
 
-    object WhenGain : SelfTrigger() {
-      override fun visitChildren(visitor: Visitor) = Unit
+    public object WhenGain : SelfTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = Unit
 
-      override fun toString() = "This"
+      override fun toString(): String = "This"
     }
 
-    object WhenRemove : SelfTrigger() {
-      override fun visitChildren(visitor: Visitor) = Unit
+    public object WhenRemove : SelfTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = Unit
 
-      override fun toString() = "-This"
+      override fun toString(): String = "-This"
     }
 
     @ConsistentCopyVisibility
-    data class OnGainOf private constructor(val expression: Expression) : SubscribedTrigger() {
-      companion object {
-        fun create(expression: Expression): BasicTrigger {
+    public data class OnGainOf private constructor(val expression: Expression) :
+        SubscribedTrigger() {
+      internal companion object {
+        internal fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
           }
@@ -104,15 +105,16 @@ public data class Effect(
         require(expression != THIS.expression)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
-      override fun toString() = "$expression"
+      override fun toString(): String = "$expression"
     }
 
     @ConsistentCopyVisibility
-    data class OnRemoveOf private constructor(val expression: Expression) : SubscribedTrigger() {
-      companion object {
-        fun create(expression: Expression): BasicTrigger {
+    public data class OnRemoveOf private constructor(val expression: Expression) :
+        SubscribedTrigger() {
+      internal companion object {
+        internal fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
           }
@@ -128,37 +130,39 @@ public data class Effect(
         require(expression != THIS.expression)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
-      override fun toString() = "-$expression"
+      override fun toString(): String = "-$expression"
     }
 
-    sealed class WrappingTrigger : Trigger() {
-      abstract val inner: Trigger
+    public sealed class WrappingTrigger : Trigger() {
+      public abstract val inner: Trigger
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
     }
 
-    data class ByTrigger(override val inner: Trigger, val by: Expression) : WrappingTrigger() {
-      constructor(inner: Trigger, by: ClassName) : this(inner, by.expression)
-
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
-
-      override fun toString() = "${groupPartIfNeeded(inner)} BY $by"
-
-      override fun precedence() = 20
-    }
-
-    data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
+    public data class ByTrigger(override val inner: Trigger, val by: Expression) :
         WrappingTrigger() {
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
+      public constructor(inner: Trigger, by: ClassName) : this(inner, by.expression)
 
-      override fun toString() = "${groupPartIfNeeded(inner)} IF ${groupPartIfNeeded(condition)}"
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, by)
 
-      override fun precedence() = 10
+      override fun toString(): String = "${groupPartIfNeeded(inner)} BY $by"
+
+      override fun precedence(): Int = 20
     }
 
-    data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
+    public data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
+        WrappingTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, condition)
+
+      override fun toString(): String =
+          "${groupPartIfNeeded(inner)} IF ${groupPartIfNeeded(condition)}"
+
+      override fun precedence(): Int = 10
+    }
+
+    public data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
       override fun toString(): String {
         return when (inner) {
           is OnGainOf,
@@ -169,9 +173,9 @@ public data class Effect(
       }
     }
 
-    data class Transform(override val inner: Trigger, override val transformKind: String) :
+    public data class Transform(override val inner: Trigger, override val transformKind: String) :
         WrappingTrigger(), TransformNode<Trigger> {
-      override fun toString() = "$transformKind[$inner]"
+      override fun toString(): String = "$transformKind[$inner]"
 
       init {
         if (inner !is OnGainOf && inner !is OnRemoveOf && inner !is XTrigger) {
@@ -179,7 +183,7 @@ public data class Effect(
         }
       }
 
-      override fun extract() = inner
+      override fun extract(): Trigger = inner
     }
 
     private fun selfMode(): Boolean =

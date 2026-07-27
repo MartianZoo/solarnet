@@ -25,13 +25,13 @@ public class TfmGameplay(
     internal val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
 ) : TurnLayer by gameplay {
 
-  val reader: GameReader by game::reader
+  public val reader: GameReader by game::reader
 
-  fun asActor(actor: Actor) = TfmGameplay(game, actor)
+  internal fun asActor(actor: Actor) = TfmGameplay(game, actor)
 
-  fun asPlayer(player: Player) = asActor(player)
+  public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
-  fun nextGeneration(vararg cardsBought: Int) {
+  public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(Player.players(5))) {
@@ -41,7 +41,7 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
+  public fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return turn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
@@ -49,25 +49,25 @@ public class TfmGameplay(
     }
   }
 
-  fun pass(): TaskResult = turn { doTask("Pass") }
+  public fun pass(): TaskResult = turn { doTask("Pass") }
 
-  fun declineSecondAction(): TaskResult = doFirstTask("Ok")
+  public fun declineSecondAction(): TaskResult = doFirstTask("Ok")
 
-  fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
+  public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
     return turn {
       doTask("UseAction$which<$stdAction>")
       body()
     }
   }
 
-  fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
+  public fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseStandardProjectSA") {
       doTask("UseAction1<$stdProject>")
       body()
     }
   }
 
-  fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
+  public fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
     return turn {
       doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
       body()
@@ -76,10 +76,10 @@ public class TfmGameplay(
 
   // In the method after this, all the cost parameters are optional,
   // but you've gotta provide ONE of them.
-  fun playProject(unused1: String, unused2: BodyLambda = {}): Nothing =
+  public fun playProject(unused1: String, unused2: BodyLambda = {}): Nothing =
       error("you must specify some cost")
 
-  fun playProject(
+  public fun playProject(
       cardName: String,
       megacredits: Int = 0,
       steel: Int = 0,
@@ -98,7 +98,7 @@ public class TfmGameplay(
     }
   }
 
-  fun pay(
+  public fun pay(
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
@@ -127,9 +127,11 @@ public class TfmGameplay(
     }
   }
 
-  fun cardAction1(cardName: String, body: BodyLambda = {}) = cardAction(1, cardName, body)
+  public fun cardAction1(cardName: String, body: BodyLambda = {}): TaskResult =
+      cardAction(1, cardName, body)
 
-  fun cardAction2(cardName: String, body: BodyLambda = {}) = cardAction(2, cardName, body)
+  public fun cardAction2(cardName: String, body: BodyLambda = {}): TaskResult =
+      cardAction(2, cardName, body)
 
   private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseCardActionSA") {
@@ -139,29 +141,29 @@ public class TfmGameplay(
     }
   }
 
-  fun sellPatents(count: Int) =
+  public fun sellPatents(count: Int): TaskResult =
       stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
 
-  fun phase(phase: String, body: BodyLambda = {}) {
+  public fun phase(phase: String, body: BodyLambda = {}) {
     require(count("Phase") == 1) {
       "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
     }
     asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
   }
 
-  fun production(): Map<ClassName, Int> =
+  internal fun production(): Map<ClassName, Int> =
       standardResourceNames(reader).associateWith { production(it) }
 
-  fun production(kind: ClassName) =
+  public fun production(kind: ClassName): Int =
       count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
 
-  fun oxygenPercent(): Int = count("OxygenStep")
+  public fun oxygenPercent(): Int = count("OxygenStep")
 
-  fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
+  public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
 
-  fun venusPercent(): Int = count("VenusStep") * 2
+  public fun venusPercent(): Int = count("VenusStep") * 2
 
-  companion object {
-    fun Game.tfm(actor: Actor) = TfmGameplay(this, actor)
+  public companion object {
+    public fun Game.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
   }
 }

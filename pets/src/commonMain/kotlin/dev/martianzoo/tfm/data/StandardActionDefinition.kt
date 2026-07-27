@@ -10,14 +10,14 @@ import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_ACTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_PROJECT
 
-data class StandardActionDefinition(
+public data class StandardActionDefinition(
     override val shortName: ClassName,
     val project: Boolean,
     val actions: List<String>,
 ) : Definition {
-  override val className = englishHack(shortName.toString())
+  override val className: ClassName = englishHack(shortName.toString())
 
-  override val asClassDeclaration by lazy {
+  override val asClassDeclaration: ClassDeclaration by lazy {
     val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION
     // TODO can share some of this across Definitions?
     ClassDeclaration(

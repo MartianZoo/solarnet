@@ -13,14 +13,15 @@ public sealed class PetNode {
    */
   public abstract val kind: KClass<out PetNode>
 
-  protected fun groupPartIfNeeded(part: PetNode) =
+  protected fun groupPartIfNeeded(part: PetNode): String =
       if (part.safeToNestIn(this)) "$part" else "($part)"
 
   /**
    * Can this node be nested inside [container] as-is, without inserting parentheses? Unless
    * overridden, this returns `true` when this node has the larger [precedence].
    */
-  protected open fun safeToNestIn(container: PetNode) = precedence() > container.precedence()
+  protected open fun safeToNestIn(container: PetNode): Boolean =
+      precedence() > container.precedence()
 
   /**
    * Returns an arbitrary integer for the sole purpose of determining [safeToNestIn] behavior. For
@@ -80,8 +81,8 @@ public sealed class PetNode {
   }
 
   /** See [PetNode.visitChildren]. */
-  protected class Visitor(val shouldContinue: (PetNode) -> Boolean) {
-    public fun visit(nodes: Iterable<PetNode?>) = nodes.forEach(::maybeVisit)
+  protected class Visitor(private val shouldContinue: (PetNode) -> Boolean) {
+    public fun visit(nodes: Iterable<PetNode?>): Unit = nodes.forEach(::maybeVisit)
 
     public fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
 

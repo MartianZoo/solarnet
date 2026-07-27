@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.OperationLayer
@@ -38,22 +39,22 @@ public object TfmWorkflow {
     /**
      * Starts fully effectful game setup; unlike later phases, setup has no prior Phase to remove.
      */
-    public fun setupPhase() = engineOps.beginManual("SetupPhase")
+    public fun setupPhase(): TaskResult = engineOps.beginManual("SetupPhase")
 
-    public fun corporationPhase() = engineOps.manual("CorporationPhase FROM Phase")
+    public fun corporationPhase(): TaskResult = engineOps.manual("CorporationPhase FROM Phase")
 
-    public fun preludePhase() = engineOps.manual("PreludePhase FROM Phase")
+    public fun preludePhase(): TaskResult = engineOps.manual("PreludePhase FROM Phase")
 
-    public fun actionPhase() = engineOps.manual("ActionPhase FROM Phase")
+    public fun actionPhase(): TaskResult = engineOps.manual("ActionPhase FROM Phase")
 
-    public fun productionPhase() = engineOps.manual("ProductionPhase FROM Phase")
+    public fun productionPhase(): TaskResult = engineOps.manual("ProductionPhase FROM Phase")
 
-    public fun finalGreeneryPhase() = engineOps.manual("FinalGreeneryPhase FROM Phase")
+    public fun finalGreeneryPhase(): TaskResult = engineOps.manual("FinalGreeneryPhase FROM Phase")
 
-    public fun researchPhase(body: BodyLambda = {}) =
+    public fun researchPhase(body: BodyLambda = {}): TaskResult =
         engineOps.manual("ResearchPhase FROM Phase", body)
 
-    public fun endPhase() = engineOps.manual("EndPhase FROM Phase")
+    public fun endPhase(): TaskResult = engineOps.manual("EndPhase FROM Phase")
   }
 
   /**
@@ -87,7 +88,7 @@ public object TfmWorkflow {
     private val workflowScope = CoroutineScope(lifecycleJob + Dispatchers.Unconfined)
     private var workflowJob: Job? = null
 
-    internal val isRunning: Boolean
+    public val isRunning: Boolean
       get() = workflowJob?.isActive == true
 
     /**
@@ -136,7 +137,7 @@ public object TfmWorkflow {
     }
 
     /** Orchestrates the complete game from its committed pre-setup baseline to finish. */
-    public suspend fun runGame() {
+    private suspend fun runGame() {
       m.setupPhase()
       awaitTasksDrained()
       corporationPhase()

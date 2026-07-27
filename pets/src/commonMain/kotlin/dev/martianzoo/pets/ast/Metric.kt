@@ -15,42 +15,43 @@ import dev.martianzoo.pets.PetTokenizer
  * A way of computing a non-negative integer based on a game state. Metrics appear after a slash in
  * instructions, and also belong to `Award`s.
  */
-sealed class Metric : PetElement() {
-  override val kind = Metric::class
+public sealed class Metric : PetElement() {
+  override val kind: kotlin.reflect.KClass<out PetNode> = Metric::class
 
-  data class Count(val expression: Expression) : Metric() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+  public data class Count(val expression: Expression) : Metric() {
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
-    override fun toString() = "$expression"
+    override fun toString(): String = "$expression"
 
-    override fun precedence() = 12
+    override fun precedence(): Int = 12
   }
 
-  data class Scaled(val unit: Int, val inner: Metric) : Metric() {
+  public data class Scaled(val unit: Int, val inner: Metric) : Metric() {
     init {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
 
-    override fun toString() = if (unit == 1) "$inner" else "$unit ${groupPartIfNeeded(inner)}"
+    override fun toString(): String =
+        if (unit == 1) "$inner" else "$unit ${groupPartIfNeeded(inner)}"
 
-    override fun precedence() = 11
+    override fun precedence(): Int = 11
   }
 
-  data class Max(val inner: Metric, val maximum: Int) : Metric() {
+  public data class Max(val inner: Metric, val maximum: Int) : Metric() {
     init {
       if (inner is Max) throw PetSyntaxException("what are you even doing")
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
 
-    override fun toString() = "${groupPartIfNeeded(inner)} MAX $maximum"
+    override fun toString(): String = "${groupPartIfNeeded(inner)} MAX $maximum"
 
-    override fun precedence() = 10
+    override fun precedence(): Int = 10
   }
 
-  data class Plus(val metrics: List<Metric>) : Metric() {
+  public data class Plus(val metrics: List<Metric>) : Metric() {
     init {
       if (metrics.any { it is Plus }) {
         // how did we get around this problem for other things??
@@ -58,8 +59,8 @@ sealed class Metric : PetElement() {
       }
     }
 
-    companion object {
-      fun create(metrics: List<Metric>): Metric? {
+    internal companion object {
+      internal fun create(metrics: List<Metric>): Metric? {
         return when (metrics.size) {
           0 -> null
           1 -> metrics.single()
@@ -67,7 +68,7 @@ sealed class Metric : PetElement() {
         }
       }
 
-      fun create(first: Metric, vararg rest: Metric) =
+      internal fun create(first: Metric, vararg rest: Metric) =
           if (rest.none()) first else create(listOf(first) + rest)
     }
 
@@ -75,20 +76,20 @@ sealed class Metric : PetElement() {
       require(metrics.size > 1)
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(metrics)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(metrics)
 
-    override fun toString() = metrics.joinToString(" + ")
+    override fun toString(): String = metrics.joinToString(" + ")
 
-    override fun precedence() = 9
+    override fun precedence(): Int = 9
   }
 
-  data class Transform(val inner: Metric, override val transformKind: String) :
+  public data class Transform(val inner: Metric, override val transformKind: String) :
       Metric(), TransformNode<Metric> {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
 
-    override fun toString() = "$transformKind[$inner]"
+    override fun toString(): String = "$transformKind[$inner]"
 
-    override fun extract() = inner
+    override fun extract(): Metric = inner
   }
 
   internal companion object : PetTokenizer() {

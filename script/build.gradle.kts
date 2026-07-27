@@ -20,6 +20,8 @@ val copyPetsResourcesForKarma by
     }
 
 kotlin {
+  explicitApi()
+
   jvm()
   js {
     browser()

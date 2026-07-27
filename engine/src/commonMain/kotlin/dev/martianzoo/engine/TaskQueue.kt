@@ -17,25 +17,25 @@ public interface TaskQueue {
    * Returns the id of each task currently in the queue. Current iteration order is stable by id so
    * arbitrary choices are reproducible, but has no gameplay meaning.
    */
-  fun ids(): Set<TaskId>
+  public fun ids(): Set<TaskId>
 
-  operator fun contains(id: TaskId): Boolean
+  public operator fun contains(id: TaskId): Boolean
 
   /** Returns true if the queue is empty. */
-  fun isEmpty() = ids().none()
+  public fun isEmpty(): Boolean = ids().none()
 
   /** Returns all task ids whose task data matches the given predicate. */
-  fun matching(predicate: (Task) -> Boolean): Set<TaskId>
+  public fun matching(predicate: (Task) -> Boolean): Set<TaskId>
 
   /** Returns the results of executing a function against every task in the queue. */
-  fun <T> extract(extractor: (Task) -> T): List<T>
+  public fun <T> extract(extractor: (Task) -> T): List<T>
 
   /** Returns the id of the task marked with [Task.next] if there is one. */
-  fun preparedTask(): TaskId?
+  public fun preparedTask(): TaskId?
 
   /** Returns true if no queue has any tasks. */
-  fun areAllQueuesEmpty(): Boolean
+  public fun areAllQueuesEmpty(): Boolean
 
   /** Throws if any queue has any tasks. */
-  fun requireAllQueuesEmpty()
+  public fun requireAllQueuesEmpty()
 }

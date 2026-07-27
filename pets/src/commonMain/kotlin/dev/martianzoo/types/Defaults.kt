@@ -13,12 +13,12 @@ public data class Defaults(
     val gainOnly: DefaultSpec,
     val removeOnly: DefaultSpec,
 ) {
-  companion object {
+  internal companion object {
     /**
      * Determines the [Defaults] for this class, taking into account its own declaration and that of
      * all its superclasses.
      */
-    fun forClass(klass: Class): Defaults {
+    internal fun forClass(klass: Class): Defaults {
       val allUsagesDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.ALL_USAGES)
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
       val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
@@ -80,7 +80,7 @@ public data class Defaults(
     }
   }
 
-  data class DefaultSpec(
+  public data class DefaultSpec(
       val dependencies: DependencySet = DependencySet.of(),
       val intensity: Intensity?,
   )

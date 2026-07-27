@@ -27,21 +27,21 @@ import dev.martianzoo.util.suf
  * `UseAction1<ElectroCatapult>: (-Steel OR -Plant) THEN 7`.
  */
 public data class Action(val cost: Cost?, val instruction: Instruction) : PetElement() {
-  override val kind = Action::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = Action::class
 
-  override fun toString() = "${cost.suf(' ')}-> $instruction"
+  override fun toString(): String = "${cost.suf(' ')}-> $instruction"
 
-  override fun visitChildren(visitor: Visitor) = visitor.visit(cost, instruction)
+  override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost, instruction)
 
-  sealed class Cost : PetNode() {
-    override val kind = Cost::class
+  public sealed class Cost : PetNode() {
+    override val kind: kotlin.reflect.KClass<out PetNode> = Cost::class
 
-    abstract fun toInstruction(): Instruction
+    internal abstract fun toInstruction(): Instruction
 
-    data class Spend(val scaledEx: ScaledExpression) : Cost() {
-      override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    public data class Spend(val scaledEx: ScaledExpression) : Cost() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scaledEx)
 
-      override fun toString() = scaledEx.toString()
+      override fun toString(): String = scaledEx.toString()
 
       init {
         checkNonzero(scaledEx.scalar)
@@ -52,7 +52,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     }
 
     // can't do non-prod per prod yet
-    data class Per(val cost: Cost, val metric: Metric) : Cost() {
+    internal data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
         when (cost) {
           is Or,
@@ -71,8 +71,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toInstruction() = Per(cost.toInstruction(), metric)
     }
 
-    data class Or(var costs: Set<Cost>) : Cost() {
-      constructor(vararg costs: Cost) : this(costs.toSet())
+    internal data class Or(var costs: Set<Cost>) : Cost() {
+      internal constructor(vararg costs: Cost) : this(costs.toSet())
 
       init {
         require(costs.size >= 2)
@@ -87,8 +87,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toInstruction() = Or(costs.map { it.toInstruction() })
     }
 
-    data class Multi(var costs: List<Cost>) : Cost() {
-      constructor(vararg costs: Cost) : this(costs.toList())
+    internal data class Multi(var costs: List<Cost>) : Cost() {
+      internal constructor(vararg costs: Cost) : this(costs.toList())
 
       init {
         require(costs.size >= 2)
@@ -103,7 +103,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toInstruction() = Multi(costs.map { it.toInstruction() })
     }
 
-    data class Transform(val cost: Cost, override val transformKind: String) :
+    internal data class Transform(val cost: Cost, override val transformKind: String) :
         Cost(), TransformNode<Cost> {
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost)
 

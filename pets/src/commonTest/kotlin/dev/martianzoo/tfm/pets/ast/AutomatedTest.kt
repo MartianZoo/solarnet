@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.testlib.PetGenerator
 import kotlin.test.Test
 
 internal class AutomatedTest {
-  val reps = 300 // it's been stable a while
+  private val reps = 300 // it's been stable a while
 
   @Test
   fun scaledExpressions() {

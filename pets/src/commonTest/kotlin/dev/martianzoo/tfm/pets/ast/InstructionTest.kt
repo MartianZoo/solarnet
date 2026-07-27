@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
 internal class InstructionTest {
-  val inputs =
+  private val inputs =
       """
       5
       1!
@@ -112,5 +112,6 @@ internal class InstructionTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Bar FROM Qux>") }
   }
 
-  fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)
+  private fun testRoundTrip(start: String, end: String = start) =
+      testRoundTrip<Instruction>(start, end)
 }

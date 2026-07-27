@@ -15,20 +15,20 @@ public interface ComponentGraph {
    * Does at least one instance of [component] exist currently? (That is, is [countComponent]
    * nonzero?
    */
-  operator fun contains(component: Component): Boolean
+  public operator fun contains(component: Component): Boolean
 
   /** How many instances of the exact component [component] currently exist? */
-  fun countComponent(component: Component): Int
+  public fun countComponent(component: Component): Int
 
   /** How many total component instances have the type [parentType] (or any of its subtypes)? */
-  fun count(parentType: Type, info: TypeInfo): Int
+  public fun count(parentType: Type, info: TypeInfo): Int
 
-  fun containsAny(parentType: Type, info: TypeInfo): Boolean
+  public fun containsAny(parentType: Type, info: TypeInfo): Boolean
 
   /**
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
    * multiset. The size of the returned collection will be `[count]([parentType])` . If [parentType]
    * is `Component` this will return the entire component multiset.
    */
-  fun getAll(parentType: Type, info: TypeInfo): Multiset<Component>
+  public fun getAll(parentType: Type, info: TypeInfo): Multiset<Component>
 }

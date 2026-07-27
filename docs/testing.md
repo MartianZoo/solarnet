@@ -26,6 +26,10 @@ signal first, then review static-analysis findings.
 
 `./gradlew dokkaGenerateHtml` generates the local API site at `docs/api/index.html`.
 
+All Kotlin modules use strict explicit API mode. Declarations that form a module's public API must
+spell out `public` and their public types; declarations used only within one module should be
+`internal` or `private`. This makes accidental API growth and signature changes visible in review.
+
 ## Test design
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
