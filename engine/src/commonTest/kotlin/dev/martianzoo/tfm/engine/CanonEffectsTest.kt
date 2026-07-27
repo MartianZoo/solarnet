@@ -9,7 +9,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.ClassLoader
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.TypeUniverse
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -23,8 +23,8 @@ internal class CanonEffectsTest {
     return classEffectsOf(name, loader.freeze())
   }
 
-  fun classEffectsOf(name: String, classTable: ClassTable) =
-      Transformers(classTable).classEffects(classTable.getClass(cn(name))).toStrings()
+  fun classEffectsOf(name: String, typeUniverse: TypeUniverse) =
+      Transformers(typeUniverse).classEffects(typeUniverse.getClass(cn(name))).toStrings()
 
   @Test
   fun compiledByOwnerEffectsHaveResolvableOwnerBindings() {

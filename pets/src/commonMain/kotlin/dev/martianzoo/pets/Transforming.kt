@@ -17,7 +17,7 @@ import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 
 /**
  * Various functions for transforming Pets syntax trees. Many more interesting transformers require
- * a class table, and therefore are found in the `engine` module (`MClassTable.transformers`).
+ * a type universe, and therefore are found in the `engine` module's `Transformers` class.
  */
 public object Transforming {
   /**

@@ -12,7 +12,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
-import dev.martianzoo.engine.loadClassTable
+import dev.martianzoo.engine.loadTypeUniverse
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -67,10 +67,10 @@ internal class CanonClassesTest {
     Canon.SIMPLE_GAME.players().shouldContainExactly(PLAYER1, PLAYER2)
     Canon.SIMPLE_GAME.actors().shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
+    game.typeUniverse.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
+    game.typeUniverse.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
+    game.typeUniverse.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
+    game.typeUniverse.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
   }
 
   @Test
@@ -88,7 +88,7 @@ internal class CanonClassesTest {
     val game = setUpGame(Canon.SIMPLE_SOLO_GAME)
     game.setup.players().shouldContainExactly(PLAYER1)
     game.setup.actors().shouldContainExactly(PLAYER1, ENGINE)
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Player2"))
+    game.typeUniverse.allClassNamesAndIds.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 1
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
@@ -172,7 +172,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = loadClassTable(Canon.fromOptionCodes("BRM", 2))
+    val table = loadTypeUniverse(Canon.fromOptionCodes("BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val type = table.resolve(te(expr))

@@ -89,7 +89,7 @@ abstract class AbstractFullGameTest {
         ant to "AnimalTag",
         cit to "CityTag",
     )
-    if (cn("VenusTag") in game.classTable.allClassNamesAndIds) {
+    if (game.typeUniverse.findClass(cn("VenusTag")) != null) {
       assertCounts(vet to "VenusTag")
     }
   }

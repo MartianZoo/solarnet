@@ -37,7 +37,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type? =
-      if (hasType(type.classTable.resolve(OWNER.expression))) {
+      if (hasType(type.typeUniverse.resolve(OWNER.expression))) {
         type
       } else {
         type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
@@ -62,7 +62,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
       transformers.classEffects(type.rootClass).map { effect ->
         val bound = checkedBinding.transform(effect)
         try {
-          type.classTable.checkAllTypes(bound)
+          type.typeUniverse.checkAllTypes(bound)
           bound
         } catch (e: ExpressionException) {
           throw ExpressionException(
@@ -81,7 +81,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
       transformers.classEffects(type.rootClass).mapNotNull { effect ->
         val bound = uncheckedBinding.transform(effect)
         try {
-          type.classTable.checkAllTypes(bound)
+          type.typeUniverse.checkAllTypes(bound)
           bound
         } catch (e: ExpressionException) {
           // An Owner-only component can inherit an effect whose output is Player-bound. The source
@@ -89,7 +89,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
           // tiles do not score VictoryPoint<Player> components.
           val sourceEffect =
               replaceThisExpressionsWith(type.rootClass.className.expression).transform(effect)
-          type.classTable.checkAllTypes(sourceEffect)
+          type.typeUniverse.checkAllTypes(sourceEffect)
           null
         }
       }
@@ -100,7 +100,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
       info?.let { type.narrows(supertype, it) } ?: type.narrows(supertype)
 
   private val customOutputTransformer =
-      with(Transformers(type.classTable)) {
+      with(Transformers(type.typeUniverse)) {
         chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
       }
 

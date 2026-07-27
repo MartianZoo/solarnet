@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
@@ -24,7 +23,7 @@ public constructor(
      * found here.
      */
     internal val ruleset: Ruleset,
-) : ClassTable() {
+) : TypeUniverse() {
   private val cache = mutableMapOf<Expression, Type>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
@@ -42,14 +41,8 @@ public constructor(
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
 
-  /**
-   * Returns the [Class] whose [Class.className] or [Class.shortName] is [name], or throws an
-   * exception.
-   */
-  override fun getClass(name: ClassName): Class {
-    if (name !in loadedClasses) throw Exceptions.classNotFound(name)
-    return loadedClasses[name] ?: error("reentrancy happened")
-  }
+  override fun findClass(name: ClassName): Class? =
+      if (name in loadedClasses) loadedClasses[name] ?: error("reentrancy happened") else null
 
   /** Returns the [Type] represented by [expression]. */
   override fun resolve(expression: Expression): Type {
@@ -68,10 +61,13 @@ public constructor(
         }
   }
 
-  private val allClasses: Set<Class> by lazy { loadedClasses.values.map { it!! }.toSet() }
+  private val frozenClasses: Set<Class> by lazy {
+    require(frozen)
+    loadedClasses.values.map { it!! }.toSet()
+  }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
-  override fun allClasses() = allClasses.also { require(frozen) }
+  override fun allClasses() = frozenClasses
 
   // LOADING
 
@@ -85,7 +81,7 @@ public constructor(
   }
 
   /** Loads every class known to this class loader's backing [Ruleset], and freezes. */
-  public fun loadEverything(): ClassTable {
+  public fun loadEverything(): TypeUniverse {
     ruleset.allClassNames.forEach(::loadSingle)
     return freeze()
   }
@@ -147,9 +143,9 @@ public constructor(
         loadedClasses[idOrName] ?: construct(decl)
       }
 
-  // all MClasses are created here (aside from Component and Class, at top)
+  // All classes are created here (aside from Component and Class, at top).
   private fun construct(decl: ClassDeclaration): Class {
-    require(!frozen) { "Too late, this table is frozen!" }
+    require(!frozen) { "Too late, this universe is frozen!" }
     validateCustomImplementation(decl)
 
     fun store(c: Class?) {
@@ -162,7 +158,7 @@ public constructor(
 
   private var frozen: Boolean = false
 
-  public fun freeze(): ClassTable {
+  public fun freeze(): TypeUniverse {
     require(!frozen)
     frozen = true
     return this

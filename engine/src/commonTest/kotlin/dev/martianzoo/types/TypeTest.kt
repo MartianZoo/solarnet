@@ -9,13 +9,37 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.engine.CanonClassesTest
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class TypeTest {
   @Test
+  fun typeUniversesCannotBeMixed() {
+    fun universe() = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar<Foo>")
+
+    val left = universe()
+    val right = universe()
+    val leftFoo = left.getClass(cn("Foo"))
+    val rightFoo = right.getClass(cn("Foo"))
+    val leftBar = left.resolve(te("Bar<Foo>"))
+    val rightBar = right.resolve(te("Bar<Foo>"))
+
+    shouldThrow<IllegalArgumentException> { leftFoo.isSubtypeOf(rightFoo) }
+    shouldThrow<IllegalArgumentException> { leftFoo lub rightFoo }
+    shouldThrow<IllegalArgumentException> { leftBar.narrows(rightBar) }
+    shouldThrow<IllegalArgumentException> { leftBar glb rightBar }
+    shouldThrow<IllegalArgumentException> {
+      left.getClass(cn("Bar")).withAllDependencies(rightBar.dependencies)
+    }
+    shouldThrow<IllegalArgumentException> {
+      left.matchesConstraint(leftBar, te("Foo"), rightBar, StubTypeInfo)
+    }
+  }
+
+  @Test
   fun testCardboundWeirdness() {
-    val table: ClassTable =
+    val table: TypeUniverse =
         loadTypes(
             """
             ABSTRACT CLASS Anyone {
@@ -315,7 +339,7 @@ internal class TypeTest {
   }
 
   fun findSubstitutions(type: Type): Map<ClassName, Expression> =
-      Transformers(type.classTable)
+      Transformers(type.typeUniverse)
           .findSubstitutions(
               type.rootClass.defaultType.dependencies,
               type.dependencies,

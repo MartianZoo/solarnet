@@ -15,7 +15,7 @@ import dev.martianzoo.data.Task
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.ClassLoader
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.TypeUniverse
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.scopedOf
 import org.koin.core.module.dsl.singleOf
@@ -48,14 +48,14 @@ public object Engine {
 
   private fun gameModule(setup: GameSetup) = module {
     single { setup }
-    single { loadClassTable(setup) } bind ClassTable::class
+    single { loadTypeUniverse(setup) } bind TypeUniverse::class
     singleOf(::Transformers)
     single { Effector(get(), lazy { get<GameReaderImpl>() }) }
     single { WritableEventLog() }
     single<EventLog> { get<WritableEventLog>() }
     single<TaskListener> { get<WritableEventLog>() }
     single<ChangeLogger> { get<WritableEventLog>() }
-    single<WritableComponentGraph> { WritableComponentGraph.Whole(get()) }
+    single<WritableComponentGraph> { WritableComponentGraph.Whole(get(), get()) }
     single<ComponentGraph> { get<WritableComponentGraph>() }
     single<Updater> { get<WritableComponentGraph>() }
     singleOf(::TaskQueues)
@@ -98,7 +98,7 @@ public object Engine {
   }
 }
 
-internal fun loadClassTable(setup: GameSetup): ClassTable {
+internal fun loadTypeUniverse(setup: GameSetup): TypeUniverse {
   val ruleset = setup.ruleset
 
   fun isAutoLoad(declaration: ClassDeclaration): Boolean =

@@ -38,8 +38,8 @@ internal constructor(
     val directSuperclasses: List<Class> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<Class> {
 
-  /** The table containing this class and the other classes in its type universe. */
-  public val classTable: ClassTable = loader
+  /** The universe containing this class. */
+  public val typeUniverse: TypeUniverse = loader
 
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
@@ -63,7 +63,10 @@ internal constructor(
 
   override val abstract: Boolean by declaration::abstract
 
-  override fun isSubtypeOf(that: Class): Boolean = that in allSuperclasses()
+  override fun isSubtypeOf(that: Class): Boolean {
+    requireSameUniverse(that)
+    return that in allSuperclasses()
+  }
 
   override fun glb(that: Class): Class? =
       when {
@@ -79,6 +82,7 @@ internal constructor(
       }
 
   override fun lub(that: Class): Class {
+    requireSameUniverse(that)
     val commonSupers: Set<Class> = this.allSuperclasses.intersect(that.allSuperclasses)
     val supersOfSupers: Set<Class> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
     val candidates: Set<Class> = commonSupers - supersOfSupers
@@ -91,6 +95,12 @@ internal constructor(
   override fun ensureNarrows(that: Class, info: TypeInfo) {
     if (!isSubtypeOf(that))
         throw NarrowingException("${this.className} is not a subclass of ${that.className}")
+  }
+
+  private fun requireSameUniverse(that: Class) {
+    require(typeUniverse === that.typeUniverse) {
+      "$className and ${that.className} belong to different type universes"
+    }
   }
 
   private val sups by declaration::supertypes
@@ -126,10 +136,10 @@ internal constructor(
 
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
-   * that is, no other [Class] in this [ClassTable] is a subclass of all of them unless it is also a
-   * subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award count
-   * `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile` (which
-   * is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
+   * that is, no other [Class] in this [TypeUniverse] is a subclass of all of them unless it is also
+   * a subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award
+   * count `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile`
+   * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
   public fun isIntersectionType(): Boolean = intersectionType
 

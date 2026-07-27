@@ -20,8 +20,9 @@ import dev.martianzoo.util.Reifiable
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
- * [ClassTable]. These are usually obtained by [ClassTable.resolve]. These can be abstract. Usages
- * of this type should be fairly unrelated to questions of whether instances exist in a game state.
+ * [TypeUniverse]. These are usually obtained by [TypeUniverse.resolve]. These can be abstract.
+ * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
+ * state.
  */
 public data class Type(
     val rootClass: Class,
@@ -29,15 +30,20 @@ public data class Type(
     val refinement: Refinement? = null,
 ) : HasExpression, Hierarchical<Type>, Reifiable<Type>, HasClassName by rootClass {
 
-  public val classTable: ClassTable = rootClass.classTable
+  public val typeUniverse: TypeUniverse = rootClass.typeUniverse
   public val typeDependencies = dependencies.typeDependencies()
 
   init {
+    dependencies.typeUniverse?.let {
+      require(typeUniverse === it) {
+        "$rootClass and its dependencies belong to different type universes"
+      }
+    }
     require(dependencies.keys.toList() == rootClass.dependencies.keys.toList()) {
       "expected keys ${rootClass.dependencies.keys}, got $dependencies"
     }
     rootClass.requireLinksSatisfied(dependencies)
-    if (refinement != null) classTable.checkAllTypes(refinement)
+    if (refinement != null) typeUniverse.checkAllTypes(refinement)
   }
 
   override val abstract = rootClass.abstract || dependencies.abstract || refinement != null
@@ -47,6 +53,7 @@ public data class Type(
   // Nearest common subtype
   // TODO allocating 28 MB per solo game
   override fun glb(that: Type): Type? {
+    requireSameUniverse(that)
     val glbClass = (rootClass glb that.rootClass) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
     val glbRefin = Refinement.join(this.refinement, that.refinement)
@@ -56,6 +63,7 @@ public data class Type(
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
   override fun lub(that: Type): Type {
+    requireSameUniverse(that)
     val unrefined: Type =
         (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
 
@@ -118,6 +126,7 @@ public data class Type(
       baseClass.allSubclasses().asSequence().filter { !it.abstract }
 
   override fun ensureNarrows(that: Type, info: TypeInfo) {
+    requireSameUniverse(that)
     rootClass.ensureNarrows(that.rootClass, info)
     dependencies.ensureNarrows(that.dependencies, info)
 
@@ -136,6 +145,7 @@ public data class Type(
 
   // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
   public fun narrows(that: Type, info: TypeInfo = StubTypeInfo): Boolean {
+    requireSameUniverse(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
@@ -149,13 +159,19 @@ public data class Type(
     return info.has(requirement)
   }
 
+  private fun requireSameUniverse(that: Type) {
+    require(typeUniverse === that.typeUniverse) {
+      "$this and $that belong to different type universes"
+    }
+  }
+
   private fun formRequirement(narrow: Expression, wide: Expression): Requirement {
 
     fun refinementMangler(proposed: Expression): PetTransformer {
       return object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is Expression) {
-            val modded = classTable.resolve(node).specialize(listOf(proposed))
+            val modded = typeUniverse.resolve(node).specialize(listOf(proposed))
             @Suppress("UNCHECKED_CAST")
             modded.expressionFull as P
           } else {

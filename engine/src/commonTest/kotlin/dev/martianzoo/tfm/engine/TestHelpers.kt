@@ -52,11 +52,11 @@ object TestHelpers {
       expectedAsInstructions: String,
   ) {
     val preprocessor =
-        with(Transformers(game.classTable)) {
+        with(Transformers(game.typeUniverse)) {
           chain(
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
-              Prod.deprodify(classTable),
+              Prod.deprodify(typeUniverse),
               (tfm.actor as? Player)?.let(::replaceOwnerWith),
           )
         }
