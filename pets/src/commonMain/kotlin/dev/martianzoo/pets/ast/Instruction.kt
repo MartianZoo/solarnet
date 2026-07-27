@@ -291,7 +291,8 @@ public sealed class Instruction : PetElement() {
         instructions.joinToString(connector()) { groupPartIfNeeded(it) }
   }
 
-  public data class Then(override val instructions: List<Instruction>) :
+  @ConsistentCopyVisibility
+  public data class Then internal constructor(override val instructions: List<Instruction>) :
       CompositeInstruction(instructions) {
     init {
       if (instructions.size < 2) throw PetSyntaxException("")
@@ -342,12 +343,13 @@ public sealed class Instruction : PetElement() {
           when (it.size) {
             0 -> NoOp
             1 -> it.first()
-            else -> Then(it)
+            else -> Then(it.toList())
           }
     }
   }
 
-  public data class Or(override val instructions: List<Instruction>) :
+  @ConsistentCopyVisibility
+  public data class Or internal constructor(override val instructions: List<Instruction>) :
       CompositeInstruction(instructions) {
     init {
       if (instructions.distinct().size != instructions.size) {
@@ -402,7 +404,8 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  public data class Multi(override val instructions: List<Instruction>) :
+  @ConsistentCopyVisibility
+  public data class Multi internal constructor(override val instructions: List<Instruction>) :
       CompositeInstruction(instructions) {
     init {
       require(instructions.count { it.descendantsOfType<XScalar>().any() } <= 1)
@@ -428,7 +431,7 @@ public sealed class Instruction : PetElement() {
         return when (instructions.size) {
           0 -> NoOp
           1 -> instructions.single()
-          else -> Multi(instructions)
+          else -> Multi(instructions.toList())
         }
       }
 

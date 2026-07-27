@@ -95,7 +95,8 @@ public sealed class Requirement : PetElement() {
     override val range: IntRange = (scaledEx.scalar as ActualScalar).value..scaledEx.scalar.value
   }
 
-  public data class Or(val requirements: Set<Requirement>) : Requirement() {
+  @ConsistentCopyVisibility
+  public data class Or internal constructor(val requirements: Set<Requirement>) : Requirement() {
     internal constructor(
         req1: Requirement,
         req2: Requirement,
@@ -115,9 +116,18 @@ public sealed class Requirement : PetElement() {
     override fun safeToNestIn(container: PetNode): Boolean {
       return super.safeToNestIn(container) && container !is IfTrigger
     }
+
+    public companion object {
+      public fun create(requirements: Collection<Requirement>): Requirement {
+        require(requirements.isNotEmpty())
+        val distinct = requirements.toSet()
+        return if (distinct.size == 1) distinct.single() else Or(distinct)
+      }
+    }
   }
 
-  public data class And(val requirements: List<Requirement>) : Requirement() {
+  @ConsistentCopyVisibility
+  public data class And internal constructor(val requirements: List<Requirement>) : Requirement() {
     internal constructor(
         req1: Requirement,
         req2: Requirement,
@@ -136,6 +146,13 @@ public sealed class Requirement : PetElement() {
 
     override fun safeToNestIn(container: PetNode): Boolean {
       return super.safeToNestIn(container) && container !is IfTrigger
+    }
+
+    public companion object {
+      public fun create(requirements: Collection<Requirement>): Requirement {
+        require(requirements.isNotEmpty())
+        return if (requirements.size == 1) requirements.single() else And(requirements.toList())
+      }
     }
   }
 
@@ -157,10 +174,10 @@ public sealed class Requirement : PetElement() {
             separatedTerms(atomParser(), _or) map
                 {
                   val set = it.toSet()
-                  if (set.size == 1) set.first() else Or(set)
+                  Or.create(set)
                 }
 
-        commaSeparated(orReq) map { if (it.size == 1) it.first() else And(it) }
+        commaSeparated(orReq) map And.Companion::create
       }
     }
 

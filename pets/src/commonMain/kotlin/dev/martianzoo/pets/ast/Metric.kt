@@ -51,7 +51,8 @@ public sealed class Metric : PetElement() {
     override fun precedence(): Int = 10
   }
 
-  public data class Plus(val metrics: List<Metric>) : Metric() {
+  @ConsistentCopyVisibility
+  public data class Plus internal constructor(val metrics: List<Metric>) : Metric() {
     init {
       if (metrics.any { it is Plus }) {
         // how did we get around this problem for other things??
@@ -59,12 +60,12 @@ public sealed class Metric : PetElement() {
       }
     }
 
-    internal companion object {
-      internal fun create(metrics: List<Metric>): Metric? {
+    public companion object {
+      public fun create(metrics: List<Metric>): Metric? {
         return when (metrics.size) {
           0 -> null
           1 -> metrics.single()
-          else -> Plus(metrics.flatMap { if (it is Plus) it.metrics else listOf(it) })
+          else -> Plus(metrics.flatMap { if (it is Plus) it.metrics else listOf(it) }.toList())
         }
       }
 

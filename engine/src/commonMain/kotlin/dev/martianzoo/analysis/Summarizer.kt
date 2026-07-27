@@ -33,6 +33,8 @@ internal constructor(internal val events: EventLog, internal val reader: GameRea
     return pluses - minuses
   }
 
+  private fun Type.narrows(supertype: Type): Boolean = narrows(supertype, reader)
+
   internal fun allTypesEver(): List<Expression> {
     return events
         .changesSinceSetup()

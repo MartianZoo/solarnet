@@ -20,6 +20,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Language and Engine Semantics
 
+- Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
+- Consider inline value types for `TaskId`, event ordinals, and player seats, while preserving sensible Java and JavaScript interop.
 - Do not infer dependency linkage between sibling positions in the same argument list. Repeating a bound there cannot usefully express linkage—the author could collapse linked positions into one dependency—and currently causes nested declarations such as `Pair<Class<Component>, Class<Component>>` to couple the two `Component` positions.
 - Decide how a trigger can bind its Actor into an instruction. Mons Insurance must bind both attacker and victim into its payout; `BY !Owner` supplies only the inequality test.
 - Remove class short names from the type system and preserve only worthwhile abbreviations in a translation layer close to tests and the REPL.

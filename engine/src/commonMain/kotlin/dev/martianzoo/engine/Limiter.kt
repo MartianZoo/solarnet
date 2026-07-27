@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.TypeInfo.StubTypeInfo
+import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
 import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
@@ -86,7 +86,7 @@ internal class Limiter(
           (g - r) to (r - g)
         }
 
-    fun count(type: Type) = components.count(type, StubTypeInfo)
+    fun count(type: Type) = components.count(type, NoGameState)
 
     val headroom = gainInvars.map { it.range.last - count(it.type) }
     val footroom = removeInvars.map { count(it.type) - it.range.first }
@@ -97,9 +97,9 @@ internal class Limiter(
     val restrictions =
         rangeRestrictionsByClass[type.rootClass].orEmpty().mapNotNull {
           val simple = it.bindThisTo(type) ?: return@mapNotNull null
-          if (type.narrows(simple.type)) simple else null
+          if (type.isSubtypeOf(simple.type)) simple else null
         }
-    return restrictions.minOfOrNull { it.range.last - components.count(it.type, StubTypeInfo) }
+    return restrictions.minOfOrNull { it.range.last - components.count(it.type, NoGameState) }
         ?: MAX_VALUE
   }
 
@@ -112,7 +112,7 @@ internal class Limiter(
     val allRestrictions = rangeRestrictionsByClass[type.rootClass] ?: listOf()
     val ourRestrictions = allRestrictions.mapNotNull {
       val simple = it.bindThisTo(type) ?: return@mapNotNull null
-      if (type.narrows(simple.type)) simple else null
+      if (type.isSubtypeOf(simple.type)) simple else null
     }
     return ourRestrictions.toSet() + SimpleRangeRestriction(type, 0..MAX_VALUE)
   }

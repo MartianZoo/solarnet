@@ -7,7 +7,6 @@ import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import kotlin.jvm.JvmName
 
 /**
  * A camel-case word used as a class name. Not validated except for its general pattern. Create one
@@ -30,23 +29,14 @@ public class ClassName private constructor(private val asString: String) :
   }
 
   /**
-   * Returns the expression having this class name as its [Expression.className], and [arguments] as
-   * its [Expression.arguments] (in order).
+   * Returns the expression having this class name as its [Expression.className], extracting
+   * [HasExpression.expression] from each argument (not [HasExpression.expressionFull]).
    */
-  public fun of(arguments: List<Expression>): Expression = expression.appendArguments(arguments)
+  public fun of(arguments: List<HasExpression>): Expression =
+      expression.appendArguments(arguments.expressions())
 
   /** Vararg form of [of]. */
-  public fun of(vararg arguments: Expression): Expression = of(arguments.toList())
-
-  /**
-   * Variant of [of] that extracts [HasExpression.expression] from each argument (note: not
-   * [HasExpression.expressionFull]).
-   */
-  @JvmName("addArgsFromClassNames")
-  public fun of(haveArguments: List<HasExpression>): Expression = of(haveArguments.expressions())
-
-  /** Vararg form of [of]. */
-  public fun of(vararg haveArguments: HasExpression): Expression = of(haveArguments.toList())
+  public fun of(vararg arguments: HasExpression): Expression = of(arguments.toList())
 
   public fun of(): Expression = expression
 

@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -28,7 +27,7 @@ internal class GameReaderImpl(
     private val components: ComponentGraph,
     internal val transformers: Transformers,
     override val setup: GameSetup,
-) : GameReader, TypeInfo {
+) : GameReader {
 
   override val ruleset: TfmRuleset = setup.ruleset
 

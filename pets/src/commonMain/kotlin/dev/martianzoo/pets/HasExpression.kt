@@ -10,6 +10,7 @@ public interface HasExpression {
 
   /** This object as a full expression. */
   public val expressionFull: Expression
+    get() = expression
 
   public companion object {
     public fun Iterable<HasExpression>.expressions(): List<Expression> = map { it.expression }

@@ -82,8 +82,8 @@ object TestHelpers {
       val g = change.gaining?.let(tfm.reader::resolve)
       val r = change.removing?.let(tfm.reader::resolve)
       for ((index, type) in types.withIndex()) {
-        if (g?.narrows(type) == true) actuals[index] += change.count
-        if (r?.narrows(type) == true) actuals[index] -= change.count
+        if (g?.isSubtypeOf(type) == true) actuals[index] += change.count
+        if (r?.isSubtypeOf(type) == true) actuals[index] -= change.count
       }
     }
     actuals shouldBe expectedCounts

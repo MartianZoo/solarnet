@@ -4,7 +4,7 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.api.TypeInfo.StubTypeInfo
+import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
@@ -48,7 +48,11 @@ public data class Type(
 
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
 
-  override fun isSubtypeOf(that: Type): Boolean = narrows(that)
+  /**
+   * Performs a context-free subtype check. Comparisons that reach a state-dependent refinement
+   * throw; use [narrows] in a [TypeInfo] for those.
+   */
+  override fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
 
   // Nearest common subtype
   // TODO allocating 28 MB per solo game
@@ -145,7 +149,8 @@ public data class Type(
   }
 
   // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
-  public fun narrows(that: Type, info: TypeInfo = StubTypeInfo): Boolean {
+  /** Performs a state-aware narrowing check using [info]. */
+  public fun narrows(that: Type, info: TypeInfo): Boolean {
     requireSameUniverse(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
