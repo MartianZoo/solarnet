@@ -17,7 +17,7 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.te
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -31,7 +31,7 @@ import kotlin.test.assertFailsWith
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
   companion object {
-    val table = MClassLoader(Canon).loadEverything()
+    val table = ClassLoader(Canon).loadEverything()
   }
 
   @Test
@@ -140,7 +140,7 @@ internal class CanonClassesTest {
 
   @Test
   fun component() {
-    val loader = MClassLoader(Canon)
+    val loader = ClassLoader(Canon)
 
     with(loader.componentClass) {
       abstract shouldBe true
@@ -175,8 +175,8 @@ internal class CanonClassesTest {
     val table = loadClassTable(Canon.fromOptionCodes("BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
-      val mtype = table.resolve(te(expr))
-      mtype.allConcreteSubtypes().toList().shouldHaveSize(size)
+      val type = table.resolve(te(expr))
+      type.allConcreteSubtypes().toList().shouldHaveSize(size)
     }
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)

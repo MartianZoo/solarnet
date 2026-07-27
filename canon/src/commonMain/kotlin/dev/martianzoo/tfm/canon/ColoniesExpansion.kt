@@ -4,12 +4,12 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.api.tfmRuleset
+import dev.martianzoo.types.Type
 
 internal val coloniesCustomClasses: Set<CustomClass> =
     setOf(

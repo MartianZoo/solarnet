@@ -6,7 +6,6 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
@@ -35,6 +34,7 @@ import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.TfmClasses.TILE
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.Grid
 
 internal val baseCustomClasses: Set<CustomClass> =
@@ -181,7 +181,11 @@ internal object TerraformingMars {
   }
 
   internal object HandleCardCost : CustomClass() {
-    override fun translate(reader: GameReader, owner: Type, cardFrontClassType: Type): Instruction {
+    override fun translate(
+        reader: GameReader,
+        owner: Type,
+        cardFrontClassType: Type,
+    ): Instruction {
       val card = cardFromClassType(cardFrontClassType, reader)
       if (card.cost == 0) return NoOp
 

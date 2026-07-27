@@ -14,7 +14,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class MClassTest {
+internal class ClassTest {
   @Test
   fun `root classes reject unexpected custom implementations`() {
     val ruleset =
@@ -22,7 +22,7 @@ internal class MClassTest {
           override val customClasses = setOf(object : CustomClass(COMPONENT) {})
         }
 
-    shouldThrow<IllegalArgumentException> { MClassLoader(ruleset) }
+    shouldThrow<IllegalArgumentException> { ClassLoader(ruleset) }
   }
 
   @Test
@@ -213,7 +213,7 @@ internal class MClassTest {
     subSub.isSubtypeOf(barSub) shouldBe true
     subSub.isSubtypeOf(subSub) shouldBe true
 
-    fun checkAutoAdjust(`in`: String, out: String, classTable: MClassTable) =
+    fun checkAutoAdjust(`in`: String, out: String, classTable: ClassTable) =
         classTable.resolve(te(`in`)).expressionFull.toString() shouldBe out
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
@@ -311,18 +311,18 @@ internal class MClassTest {
   }
 }
 
-internal fun loader(petsText: String): MClassTable {
+internal fun loader(petsText: String): ClassTable {
   val classes = parseClasses(petsText).toSetStrict()
   val ruleset =
       object : TfmRuleset.Empty() {
         override val explicitClassDeclarations = classes
       }
-  return MClassLoader(ruleset).loadEverything()
+  return ClassLoader(ruleset).loadEverything()
 }
 
 val regex = Regex("^(\\w+).*")
 
-internal fun loadAndGetClasses(vararg decl: String): List<MClass> {
+internal fun loadAndGetClasses(vararg decl: String): List<Class> {
   val all =
       """
         ${decl.joinToString("") { "CLASS $it\n" }}

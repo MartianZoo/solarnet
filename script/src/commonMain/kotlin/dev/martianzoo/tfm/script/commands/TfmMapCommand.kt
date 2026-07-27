@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.script.ScriptSession
@@ -13,6 +12,7 @@ import dev.martianzoo.tfm.script.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.script.TfmColor.GREENERY_TILE
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.SPECIAL_TILE
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 

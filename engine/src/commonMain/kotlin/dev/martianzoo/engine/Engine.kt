@@ -14,8 +14,8 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.types.MClassLoader
-import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.ClassLoader
+import dev.martianzoo.types.ClassTable
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.scopedOf
 import org.koin.core.module.dsl.singleOf
@@ -48,7 +48,7 @@ public object Engine {
 
   private fun gameModule(setup: GameSetup) = module {
     single { setup }
-    single { loadClassTable(setup) } bind MClassTable::class
+    single { loadClassTable(setup) } bind ClassTable::class
     singleOf(::Transformers)
     single { Effector(get(), lazy { get<GameReaderImpl>() }) }
     single { WritableEventLog() }
@@ -98,7 +98,7 @@ public object Engine {
   }
 }
 
-internal fun loadClassTable(setup: GameSetup): MClassTable {
+internal fun loadClassTable(setup: GameSetup): ClassTable {
   val ruleset = setup.ruleset
 
   fun isAutoLoad(declaration: ClassDeclaration): Boolean =
@@ -113,5 +113,5 @@ internal fun loadClassTable(setup: GameSetup): MClassTable {
           ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys +
           ruleset.allDefinitions.classNames()
 
-  return MClassLoader(ruleset).apply { rootClassNames.forEach(::load) }.freeze()
+  return ClassLoader(ruleset).apply { rootClassNames.forEach(::load) }.freeze()
 }

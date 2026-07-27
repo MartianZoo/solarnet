@@ -54,7 +54,7 @@ import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.toStrings
 
 public class ScriptSession(
@@ -247,7 +247,7 @@ public class ScriptSession(
 
   internal fun player(name: String): Player {
     // In case a shortname was used
-    val type: MType = game.reader.resolve(cn(name).expression) as MType
+    val type: Type = game.reader.resolve(cn(name).expression)
     return Player(type.className)
   }
 }

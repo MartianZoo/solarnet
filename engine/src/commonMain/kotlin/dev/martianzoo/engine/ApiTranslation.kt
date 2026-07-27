@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
@@ -18,8 +17,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.tfm.engine.Prod
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
@@ -35,7 +34,7 @@ internal class ApiTranslation(
     private val timeline: Timeline,
     private val impl: Implementations,
     private val tasks: TaskQueue,
-    classTable: MClassTable,
+    classTable: ClassTable,
     xers: Transformers,
     private val onAtomicComplete: () -> Unit,
 ) : GodMode { // so it really implements all gameplay layers
@@ -57,14 +56,14 @@ internal class ApiTranslation(
   override fun count(metric: String) = reader.count(parse<Metric>(metric))
 
   override fun list(type: String): Multiset<Expression> {
-    val typeToList: MType = reader.resolve(parse(type)) as MType
-    val allComponents: Multiset<out Type> = reader.getComponents(typeToList)
+    val typeToList: Type = reader.resolve(parse(type))
+    val allComponents: Multiset<Type> = reader.getComponents(typeToList)
 
     val result = HashMultiset<Expression>()
-    typeToList.root.directSubclasses().forEach { sub ->
+    typeToList.rootClass.directSubclasses().forEach { sub ->
       val matches = allComponents.filter { it.narrows(sub.baseType) }
       if (matches.any()) {
-        @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<MType>
+        @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<Type>
         result.add(lub(types)!!.expression, matches.size)
       }
     }

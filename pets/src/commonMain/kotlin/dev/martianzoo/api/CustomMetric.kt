@@ -1,6 +1,7 @@
 package dev.martianzoo.api
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.types.Type
 
 /** Metric behavior for a Pets [CustomClass]. */
 public abstract class CustomMetric(name: String? = null) : CustomClass(name) {

@@ -1,14 +1,13 @@
 package dev.martianzoo.script.commands
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
@@ -27,21 +26,21 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
 
   override fun withArgs(args: String): List<String> {
     val output = mutableListOf<String>()
-    val parentType: MType = repl.gameplay.resolve(args) as MType
+    val parentType: Type = repl.gameplay.resolve(args)
 
     // TODO When applicable include an explicit `<Anyone>` for clarity's sake
     val displayType = parentType.expression
 
-    val allComponents: Multiset<out Type> = repl.game.reader.getComponents(parentType)
+    val allComponents: Multiset<Type> = repl.game.reader.getComponents(parentType)
     if (allComponents.none()) return listOf("0 $displayType")
 
-    val directSubclassTypes: List<MType> =
-        parentType.root
+    val directSubclassTypes: List<Type> =
+        parentType.rootClass
             .directSubclasses()
             .map { (it.baseType glb parentType)!! }
             .ifEmpty { listOf(parentType) }
 
-    val listing = HashMultiset<MType>()
+    val listing = HashMultiset<Type>()
     directSubclassTypes.forEach { listing.add(it, repl.game.components.count(it, StubTypeInfo)) }
 
     // if (listing.elements.size == 1) {

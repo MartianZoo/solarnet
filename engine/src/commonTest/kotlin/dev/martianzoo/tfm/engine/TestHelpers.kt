@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
@@ -20,6 +19,7 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(setup: GameSetup): Game =

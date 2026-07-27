@@ -12,8 +12,8 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.types.MClassLoader
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.ClassLoader
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import io.kotest.matchers.collections.shouldContain
@@ -23,7 +23,7 @@ import kotlin.test.Test
 
 internal class CanonInvariantsTest {
 
-  private val table = MClassLoader(Canon).loadEverything()
+  private val table = ClassLoader(Canon).loadEverything()
 
   @Test
   fun introspect() {
@@ -35,7 +35,7 @@ internal class CanonInvariantsTest {
           limiter
               .applicableRangeRestrictions(c.toComponent())
               .filter { it.range != 0..MAX_VALUE }
-              .map { it.mtype.expression.toString() to it.range }
+              .map { it.type.expression.toString() to it.range }
       actual.shouldContainExactlyInAnyOrder(*pairs)
     }
     fun checkComponentLimit(s: String, range: IntRange) = checkTypeLimits(s, s to range)
@@ -102,10 +102,10 @@ internal class CanonInvariantsTest {
 
     override fun countComponent(component: Component) = 0
 
-    override fun count(parentType: MType, info: TypeInfo) = 0
+    override fun count(parentType: Type, info: TypeInfo) = 0
 
-    override fun containsAny(parentType: MType, info: TypeInfo) = false
+    override fun containsAny(parentType: Type, info: TypeInfo) = false
 
-    override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> = HashMultiset()
+    override fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> = HashMultiset()
   }
 }

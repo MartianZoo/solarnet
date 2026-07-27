@@ -2,7 +2,6 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -10,29 +9,26 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 
-public abstract class MClassTable {
+public abstract class ClassTable {
   /** The `Component` class, which is the root of the class hierarchy. */
-  public abstract val componentClass: MClass
+  public abstract val componentClass: Class
 
   /** The `Class` class, the other class that is required to exist. */
-  public abstract val classClass: MClass
+  public abstract val classClass: Class
 
   /** All classes loaded by this class loader; can only be accessed after the loader is frozen. */
-  abstract fun allClasses(): Set<MClass>
+  abstract fun allClasses(): Set<Class>
 
   public abstract val allClassNamesAndIds: Set<ClassName>
 
   /**
-   * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
+   * Returns the [Class] whose [Class.className] or [Class.shortName] is [name], or throws an
    * exception.
    */
-  abstract fun getClass(name: ClassName): MClass
+  abstract fun getClass(name: ClassName): Class
 
-  /** Returns the [MType] represented by [expression]. */
-  abstract fun resolve(expression: Expression): MType
-
-  /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
-  abstract fun resolve(type: Type): MType
+  /** Returns the [Type] represented by [expression]. */
+  abstract fun resolve(expression: Expression): Type
 
   /** Resolves every type expression in [node], throwing if any is invalid. */
   public fun checkAllTypes(node: PetNode) = node.visitDescendants {
@@ -54,11 +50,10 @@ public abstract class MClassTable {
       domain: Type,
       info: TypeInfo,
   ): Boolean {
-    val resolvedDomain = resolve(domain)
-    val key = Key(resolvedDomain.className, 0)
-    val domainDependency = TypeDependency(key, resolvedDomain)
+    val key = Key(domain.className, 0)
+    val domainDependency = TypeDependency(key, domain)
     val constrained = domainDependency.intersect(constraint) ?: return false
-    return TypeDependency(key, resolve(candidate)).narrows(constrained, info)
+    return TypeDependency(key, candidate).narrows(constrained, info)
   }
 
   public fun isUnresolvedClassLiteral(expression: Expression): Boolean {

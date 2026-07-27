@@ -5,7 +5,7 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.Engine.Updater
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
@@ -19,7 +19,7 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
 
     override operator fun contains(component: Component) = component in multiset.elements
 
-    override fun count(parentType: MType, info: TypeInfo): Int {
+    override fun count(parentType: Type, info: TypeInfo): Int {
       return if (parentType.className == COMPONENT) {
         multiset.size
       } else if (parentType.abstract) {
@@ -29,7 +29,7 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
       }
     }
 
-    override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
+    override fun containsAny(parentType: Type, info: TypeInfo): Boolean {
       return if (parentType.abstract) {
         multiset.elements.any { it.hasType(parentType, info) }
       } else {
@@ -39,7 +39,7 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
 
     override fun countComponent(component: Component) = multiset.count(component)
 
-    override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
+    override fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
       return if (parentType.className == COMPONENT) {
         HashMultiset.of(multiset)
       } else if (parentType.abstract) {

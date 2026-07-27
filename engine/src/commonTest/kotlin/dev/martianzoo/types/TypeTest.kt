@@ -12,10 +12,10 @@ import dev.martianzoo.tfm.engine.CanonClassesTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class MTypeTest {
+internal class TypeTest {
   @Test
   fun testCardboundWeirdness() {
-    val table: MClassTable =
+    val table: ClassTable =
         loadTypes(
             """
             ABSTRACT CLASS Anyone {
@@ -314,11 +314,11 @@ internal class MTypeTest {
     // checkMinimal("TwoSame<Foo2, Foo3>")
   }
 
-  fun findSubstitutions(mType: MType): Map<ClassName, Expression> =
-      Transformers(mType.classTable)
+  fun findSubstitutions(type: Type): Map<ClassName, Expression> =
+      Transformers(type.classTable)
           .findSubstitutions(
-              mType.root.defaultType.dependencies,
-              mType.dependencies,
+              type.rootClass.defaultType.dependencies,
+              type.dependencies,
           )
 
   @Test

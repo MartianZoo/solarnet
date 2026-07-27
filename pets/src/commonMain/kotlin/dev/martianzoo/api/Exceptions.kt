@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Type
 
 public object Exceptions {
 

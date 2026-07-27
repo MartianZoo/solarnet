@@ -5,7 +5,6 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.ast.ClassName
@@ -14,46 +13,46 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 
 /**
- * All [MClass] instances come from here. Uses a [Ruleset] to pull class declarations from as
- * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
- * features such as [MClass.allSubclasses] to work.
+ * All [Class] instances come from here. Uses a [Ruleset] to pull class declarations from as needed.
+ * Can be [frozen], which prevents additional classes from being loaded, and enables features such
+ * as [Class.allSubclasses] to work.
  */
-public class MClassLoader
+public class ClassLoader
 public constructor(
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
     internal val ruleset: Ruleset,
-) : MClassTable() {
-  private val cache = mutableMapOf<Expression, MType>()
+) : ClassTable() {
+  private val cache = mutableMapOf<Expression, Type>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public override val componentClass =
-      MClass(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = listOf())
+      Class(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
   public override val classClass =
-      MClass(
+      Class(
           validateCustomImplementation(decl(CLASS)),
           this,
           directSuperclasses = listOf(componentClass),
       )
 
   private val loadedClasses =
-      mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
+      mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
 
   /**
-   * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
+   * Returns the [Class] whose [Class.className] or [Class.shortName] is [name], or throws an
    * exception.
    */
-  override fun getClass(name: ClassName): MClass {
+  override fun getClass(name: ClassName): Class {
     if (name !in loadedClasses) throw Exceptions.classNotFound(name)
     return loadedClasses[name] ?: error("reentrancy happened")
   }
 
-  /** Returns the [MType] represented by [expression]. */
-  override fun resolve(expression: Expression): MType {
+  /** Returns the [Type] represented by [expression]. */
+  override fun resolve(expression: Expression): Type {
     if (expression.complement) {
       throw ExpressionException("complement type expression has no standalone type: $expression")
     }
@@ -69,10 +68,7 @@ public constructor(
         }
   }
 
-  /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
-  override fun resolve(type: Type): MType = type as? MType ?: resolve(type.expressionFull)
-
-  private val allClasses: Set<MClass> by lazy { loadedClasses.values.map { it!! }.toSet() }
+  private val allClasses: Set<Class> by lazy { loadedClasses.values.map { it!! }.toSet() }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
   override fun allClasses() = allClasses.also { require(frozen) }
@@ -80,16 +76,16 @@ public constructor(
   // LOADING
 
   /**
-   * Returns the class whose [MClass.className] or [MClass.shortName] is [name], loading it first if
+   * Returns the class whose [Class.className] or [Class.shortName] is [name], loading it first if
    * necessary.
    */
-  public fun load(name: ClassName): MClass {
+  public fun load(name: ClassName): Class {
     if (!frozen) loadAll(listOf(name))
     return getClass(name)
   }
 
   /** Loads every class known to this class loader's backing [Ruleset], and freezes. */
-  public fun loadEverything(): MClassTable {
+  public fun loadEverything(): ClassTable {
     ruleset.allClassNames.forEach(::loadSingle)
     return freeze()
   }
@@ -104,7 +100,7 @@ public constructor(
     }
   }
 
-  internal fun loadAndMaybeEnqueueRelated(next: ClassName): MClass {
+  internal fun loadAndMaybeEnqueueRelated(next: ClassName): Class {
     if (next in loadedClasses) return loadedClasses[next] ?: error("reentrant")
     val declaration = decl(next)
     return loadSingle(next, declaration).also {
@@ -137,14 +133,14 @@ public constructor(
       ruleset.allClassDeclarations[name]?.className
           ?: ruleset.allClassDeclarations.values.singleOrNull { it.shortName == name }?.className
 
-  private fun loadSingle(idOrName: ClassName): MClass =
+  private fun loadSingle(idOrName: ClassName): Class =
       if (frozen) {
         getClass(idOrName)
       } else {
         loadedClasses[idOrName] ?: construct(decl(idOrName))
       }
 
-  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): MClass =
+  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): Class =
       if (frozen) {
         getClass(idOrName)
       } else {
@@ -152,21 +148,21 @@ public constructor(
       }
 
   // all MClasses are created here (aside from Component and Class, at top)
-  private fun construct(decl: ClassDeclaration): MClass {
+  private fun construct(decl: ClassDeclaration): Class {
     require(!frozen) { "Too late, this table is frozen!" }
     validateCustomImplementation(decl)
 
-    fun store(c: MClass?) {
+    fun store(c: Class?) {
       loadedClasses[decl.className] = c
       loadedClasses[decl.shortName] = c
     }
     store(null) // to detect reentrancy
-    return MClass(decl, this).also(::store)
+    return Class(decl, this).also(::store)
   }
 
   private var frozen: Boolean = false
 
-  public fun freeze(): MClassTable {
+  public fun freeze(): ClassTable {
     require(!frozen)
     frozen = true
     return this

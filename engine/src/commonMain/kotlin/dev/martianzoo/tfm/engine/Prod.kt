@@ -12,14 +12,14 @@ import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.ClassTable
 
 object Prod {
-  public fun deprodify(classTable: MClassTable): PetTransformer {
+  public fun deprodify(classTable: ClassTable): PetTransformer {
     return deprodify(findResourceClassNames(classTable))
   }
 
-  internal fun findResourceClassNames(classTable: MClassTable): Set<ClassName> {
+  internal fun findResourceClassNames(classTable: ClassTable): Set<ClassName> {
     if (
         STANDARD_RESOURCE !in classTable.allClassNamesAndIds ||
             PRODUCTION !in classTable.allClassNamesAndIds

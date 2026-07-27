@@ -1,21 +1,20 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.types.MClass
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Class
+import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.Type
 
 internal class Initializer(
     private val gameplay: Gameplay,
     private val instructor: Instructor,
     private val tasks: TaskQueues,
-    private val classTable: MClassTable,
+    private val classTable: ClassTable,
     private val timeline: TimelineImpl,
 ) {
   // Taking 14% of total solo game time
@@ -40,10 +39,10 @@ internal class Initializer(
     val remaining =
         classTable
             .allClasses()
-            .filter(MClass::isSingletonType)
+            .filter(Class::isSingletonType)
             .flatMap { it.baseType.concreteSubtypesSameClass() }
             .toMutableList()
-    val missingByType = mutableMapOf<MType, Collection<Type>>()
+    val missingByType = mutableMapOf<Type, Collection<Type>>()
 
     while (remaining.isNotEmpty()) {
       var progress = false
