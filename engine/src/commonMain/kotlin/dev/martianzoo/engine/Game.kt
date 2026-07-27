@@ -5,7 +5,7 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.TypeUniverse
 
 /**
  * The mutable state of a game in progress. This state is the aggregation of three mutable child
@@ -38,7 +38,7 @@ public interface Game {
   public val setup: GameSetup
 
   /** Classes loaded in response to this game setup. */
-  public val classTable: ClassTable
+  public val typeUniverse: TypeUniverse
 
   public fun gameplay(actor: Actor): Gameplay
 

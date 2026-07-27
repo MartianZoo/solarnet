@@ -23,7 +23,7 @@ random choices, apply convenient defaults, or accept short option codes, but it 
 choices before constructing GameOptions. This is the conceptual role; it does not preserve the
 shape or responsibilities of the current `GameOptions` data class.
 
-A **GameAssembler** combines one Authority with GameOptions and produces the `MClassTable` for that
+A **GameAssembler** combines one Authority with GameOptions and produces the `TypeUniverse` for that
 game. It owns content selection, replacement, class reachability, phantom-type policy, and all
 configuration compatibility decisions. This is the proper home of the existing “slurping” policy
 that examines selected definitions to decide which classes the game actually needs.
@@ -129,7 +129,7 @@ validation may use all three.
 
 ## Phantom types
 
-A **Phantom Type** is known to the MClassTable because the Authority validated its name, but its
+A **Phantom Type** is known to the TypeUniverse because the Authority validated its name, but its
 class is inactive in this game. It retains enough catalog information to validate its type shape
 and relationships, but contributes no components, effects, defaults, invariants, or class-literal
 component.
@@ -199,4 +199,4 @@ GameOptions selection, rather than separate bundle variants or workflow code pat
 - GameOptions are exact and non-random.
 - Behavioral references do not activate provider content.
 - Known inactive classes are phantom; unknown names are errors.
-- The MClassTable represents exactly one assembled game and never expands after assembly.
+- The TypeUniverse represents exactly one assembled game and never expands after assembly.

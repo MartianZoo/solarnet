@@ -46,6 +46,27 @@ internal class ClassTest {
   }
 
   @Test
+  fun universeEnumerationRequiresFreezeWithoutCapturingAnEarlySnapshot() {
+    val classes = parseClasses("CLASS Foo").toSetStrict()
+    val ruleset =
+        object : TfmRuleset.Empty() {
+          override val explicitClassDeclarations = classes
+        }
+    val loader = ClassLoader(ruleset)
+
+    loader.findClass(cn("Foo")) shouldBe null
+    shouldThrow<IllegalArgumentException> { loader.allClasses() }
+    val foo = loader.load(cn("Foo"))
+    loader.findClass(cn("Foo")) shouldBe foo
+
+    loader
+        .freeze()
+        .allClasses()
+        .classNames()
+        .shouldContainExactlyInAnyOrder(COMPONENT, cn("Class"), cn("Foo"))
+  }
+
+  @Test
   fun subclass() {
     val loader = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar : Foo")
     val bar = loader.getClass(cn("Bar"))
@@ -213,8 +234,8 @@ internal class ClassTest {
     subSub.isSubtypeOf(barSub) shouldBe true
     subSub.isSubtypeOf(subSub) shouldBe true
 
-    fun checkAutoAdjust(`in`: String, out: String, classTable: ClassTable) =
-        classTable.resolve(te(`in`)).expressionFull.toString() shouldBe out
+    fun checkAutoAdjust(`in`: String, out: String, typeUniverse: TypeUniverse) =
+        typeUniverse.resolve(te(`in`)).expressionFull.toString() shouldBe out
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
@@ -311,7 +332,7 @@ internal class ClassTest {
   }
 }
 
-internal fun loader(petsText: String): ClassTable {
+internal fun loader(petsText: String): TypeUniverse {
   val classes = parseClasses(petsText).toSetStrict()
   val ruleset =
       object : TfmRuleset.Empty() {

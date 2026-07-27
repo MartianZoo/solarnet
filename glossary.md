@@ -28,7 +28,6 @@
 - **Class declaration:** The parsed, inert description of a class before the type system loads it.
 - **Class effect:** A loaded effect template after class-level transformations but before being bound to a concrete component.
 - **Class literal:** A type such as `Class<Steel>` that represents a class itself rather than depending on a Steel component.
-- **Class table:** The frozen set of loaded classes and resolved types available to one game setup.
 - **Complement type expression:** An expression like `!Player1` that excludes that type when constraining a dependency; it has no standalone type.
 - **Component:** One immutable occurrence of a concrete type; components have no identity or fields beyond their type.
 - **Component effect:** A class effect bound to one concrete component, with dependencies and contextual placeholders substituted where possible.
@@ -105,4 +104,5 @@
 - **Triggered instruction:** The instruction produced when an active effect matches one change event.
 - **Type:** The resolved identity of a component kind, independent of the expression used to write it.
 - **Type expression:** Pets syntax naming a type through a class, optional written dependency bounds, and an optional refinement.
+- **Type universe:** The frozen set of mutually compatible loaded classes and resolved types available to one game setup.
 - **Workflow:** The higher-level driver that orchestrates game phases and waits for task queues to drain.

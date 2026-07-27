@@ -19,12 +19,12 @@ import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
+import dev.martianzoo.types.TypeUniverse
 import kotlin.math.min
 
 internal class GameReaderImpl(
-    private val classTable: ClassTable,
+    private val typeUniverse: TypeUniverse,
     private val components: ComponentGraph,
     internal val transformers: Transformers,
     override val setup: GameSetup,
@@ -32,10 +32,10 @@ internal class GameReaderImpl(
 
   override val ruleset: TfmRuleset = setup.ruleset
 
-  override fun resolve(expression: Expression) = classTable.resolve(expression)
+  override fun resolve(expression: Expression) = typeUniverse.resolve(expression)
 
   internal fun matchesConstraint(candidate: Type, constraint: Expression, domain: Type) =
-      classTable.matchesConstraint(candidate, constraint, domain, this)
+      typeUniverse.matchesConstraint(candidate, constraint, domain, this)
 
   // Next 3 are for TypeInfo interface
 
@@ -70,8 +70,8 @@ internal class GameReaderImpl(
       }
 
   private fun countExpression(expression: Expression): Int {
-    if (classTable.isUnresolvedClassLiteral(expression)) return 0
-    val type = classTable.resolve(expression)
+    if (typeUniverse.isUnresolvedClassLiteral(expression)) return 0
+    val type = typeUniverse.resolve(expression)
     if (!type.rootClass.declaration.custom) return components.count(type, this)
 
     val implementation =

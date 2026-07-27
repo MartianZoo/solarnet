@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
+import dev.martianzoo.types.TypeUniverse
 import dev.martianzoo.types.loader
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -45,7 +45,7 @@ internal class DependencyMultiplicityTest {
 
   private fun load(classes: String) = loader(classes.trimIndent())
 
-  private fun limiter(classTable: ClassTable) = Limiter(classTable, EmptyComponentGraph)
+  private fun limiter(typeUniverse: TypeUniverse) = Limiter(typeUniverse, EmptyComponentGraph)
 
   private object EmptyComponentGraph : ComponentGraph {
     override fun contains(component: Component) = false

@@ -30,21 +30,21 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.Class
-import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Defaults
 import dev.martianzoo.types.Defaults.DefaultSpec
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.DependencySet
 import dev.martianzoo.types.Type
+import dev.martianzoo.types.TypeUniverse
 
-internal class Transformers(internal val classTable: ClassTable) {
+internal class Transformers(internal val typeUniverse: TypeUniverse) {
 
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
-  private val resourceClassNames by lazy { Prod.findResourceClassNames(classTable) }
+  private val resourceClassNames by lazy { Prod.findResourceClassNames(typeUniverse) }
 
   /** Effects inherited by [klass], processed as far as possible without a concrete component. */
   internal fun classEffects(klass: Class): List<Effect> {
-    require(klass.classTable === classTable) { "$klass belongs to a different class table" }
+    require(klass.typeUniverse === typeUniverse) { "$klass belongs to a different type universe" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
           source.declaration.effects.map(attachToClassTransformer(source)::transform)
@@ -80,11 +80,11 @@ internal class Transformers(internal val classTable: ClassTable) {
   internal fun useFullNames() =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
-          return if (node is Count && classTable.isUnresolvedClassLiteral(node.expression)) {
+          return if (node is Count && typeUniverse.isUnresolvedClassLiteral(node.expression)) {
             node
           } else if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
-            classTable.resolve(node.expression).className as P
+            typeUniverse.resolve(node.expression).className as P
           } else {
             transformChildren(node)
           }
@@ -93,12 +93,7 @@ internal class Transformers(internal val classTable: ClassTable) {
 
   @Suppress("ComplexCondition") // TODO: fix that
   internal fun atomizer(): PetTransformer {
-    val atomized =
-        try {
-          classTable.getClass(ATOMIZED)
-        } catch (_: ExpressionException) {
-          return noOp()
-        }
+    val atomized = typeUniverse.findClass(ATOMIZED) ?: return noOp()
 
     return object : PetTransformer() {
       var ourMulti: Multi? = null
@@ -124,7 +119,7 @@ internal class Transformers(internal val classTable: ClassTable) {
             sc !is ActualScalar ||
                 sc.value == 1 ||
                 THIS in scex.expression ||
-                !classTable.resolve(scex.expression).rootClass.isSubtypeOf(atomized)
+                !typeUniverse.resolve(scex.expression).rootClass.isSubtypeOf(atomized)
         ) {
           return node
         }
@@ -168,13 +163,13 @@ internal class Transformers(internal val classTable: ClassTable) {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val spec: DefaultSpec = extractor(classTable.getClass(original.className).defaults)
+          val spec: DefaultSpec = extractor(typeUniverse.getClass(original.className).defaults)
           val fixed =
               insertDefaultsIntoExpr(
                   original,
                   spec.dependencies,
                   context,
-                  classTable,
+                  typeUniverse,
               )
           val intensity = node.intensity ?: spec.intensity
 
@@ -206,9 +201,9 @@ internal class Transformers(internal val classTable: ClassTable) {
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
-        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
+        val defaultDeps = typeUniverse.getClass(node.className).defaults.allUsages.dependencies
         val result =
-            insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, classTable)
+            insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, typeUniverse)
         @Suppress("UNCHECKED_CAST")
         return result as P
       }
@@ -222,10 +217,10 @@ internal class Transformers(internal val classTable: ClassTable) {
       original: Expression,
       defaultDeps: DependencySet,
       contextCpt: Expression,
-      classTable: ClassTable,
+      typeUniverse: TypeUniverse,
   ): Expression {
 
-    val klass: Class = classTable.getClass(original.className)
+    val klass: Class = typeUniverse.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transform(original)
     val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments)
 
@@ -296,8 +291,8 @@ internal class Transformers(internal val classTable: ClassTable) {
         if (specialized !is Change) return specialized
 
         try {
-          specialized.gaining?.let(classTable::resolve)
-          specialized.removing?.let(classTable::resolve)
+          specialized.gaining?.let(typeUniverse::resolve)
+          specialized.removing?.let(typeUniverse::resolve)
         } catch (_: ExpressionException) {
           @Suppress("UNCHECKED_CAST")
           return gain(scaledEx(expression = DIE.expression)) as P

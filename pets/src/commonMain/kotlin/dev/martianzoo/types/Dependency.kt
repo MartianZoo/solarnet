@@ -75,11 +75,11 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun intersect(expression: Expression): Dependency? {
       if (expression.complement) {
-        val excluded = boundType.classTable.resolve(expression.uncomplemented())
+        val excluded = boundType.typeUniverse.resolve(expression.uncomplemented())
         if (!excluded.narrows(boundType)) return null
         return ComplementDependency(key, boundType, excluded)
       }
-      return glb(copy(boundType = boundType.classTable.resolve(expression)))
+      return glb(copy(boundType = boundType.typeUniverse.resolve(expression)))
     }
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
@@ -213,7 +213,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun intersect(expression: Expression): FakeDependency? {
       if (!expression.simple) return null
-      val klass = boundClass.classTable.getClass(expression.className)
+      val klass = boundClass.typeUniverse.getClass(expression.className)
       return glb(FakeDependency(klass))
     }
   }
@@ -223,6 +223,9 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     internal fun validate(deps: Set<Dependency>) {
       require(deps.none { it is FakeDependency } || deps.single() is FakeDependency)
+      require(deps.map { it.boundClass.typeUniverse }.distinct().size <= 1) {
+        "dependencies belong to different type universes"
+      }
     }
 
     internal fun isForClassType(set: Set<Dependency>) = set.singleOrNull() is FakeDependency

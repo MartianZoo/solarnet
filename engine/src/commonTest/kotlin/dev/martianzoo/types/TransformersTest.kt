@@ -67,7 +67,7 @@ class TransformersTest {
   fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
-    val ep: Effect = Prod.deprodify(transformers.classTable).transform(e)
+    val ep: Effect = Prod.deprodify(transformers.typeUniverse).transform(e)
     ep.toString() shouldBe s
   }
 
@@ -91,7 +91,7 @@ class TransformersTest {
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz> FROM Foo<Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
         )
-    val deprodden: Effect = Prod.deprodify(transformers.classTable).transform(prodden)
+    val deprodden: Effect = Prod.deprodify(transformers.typeUniverse).transform(prodden)
     deprodden shouldBe expected
   }
 

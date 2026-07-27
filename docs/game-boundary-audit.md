@@ -32,14 +32,10 @@ remain distinct in the AST until game-specific preprocessing.
 singleton components, then commits the pre-setup baseline. The Terraforming Mars workflow owns
 creating `SetupPhase` and waiting for its ordinary effectful setup tasks.
 
-### P0: The generic class loader contains Colonies-specific reachability rules
+### Resolved: Class reachability policy lives outside the generic class loader
 
-`engine/src/commonMain/kotlin/dev/martianzoo/types/MClassLoader.kt` specially loads colony tiles,
-`TradeFleet` subclasses, and `DelayedColonyTile` when bundle `C` is active.
-
-This is not merely a dependency problem: it is Terraforming Mars content-selection policy
-implemented inside the generic type system. The setup/game layer should provide the complete
-initial class-name roots, after which `MClassLoader` should only perform generic transitive loading.
+`Engine.loadTypeUniverse` supplies the complete initial class-name roots chosen from the game setup.
+`ClassLoader` performs only generic transitive loading from those roots.
 
 ### P0: Generic turn and action APIs encode the Terraforming Mars signaling protocol
 
@@ -79,8 +75,8 @@ instruction passes through it:
    the standard input preprocessing chain.
 2. `engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt` applies it to custom-class
    output.
-3. `engine/src/commonMain/kotlin/dev/martianzoo/types/MClass.kt` applies it while preparing class
-   effects.
+3. `engine/src/commonMain/kotlin/dev/martianzoo/engine/Transformers.kt` applies it while preparing
+   class effects.
 
 Because `Prod` returns a no-op transformer when the relevant classes are absent, this is less
 immediately obstructive than the earlier findings. Still, game-specific transform selection
