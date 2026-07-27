@@ -2,9 +2,11 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class ReifyTest {
@@ -43,6 +45,15 @@ class ReifyTest {
 
     test("WaterArea(HAS MAX 0 Tile)!", "M55!")
     shouldThrow<NarrowingException> { test("WaterArea(HAS Tile)!", "M55!") }
+  }
+
+  @Test
+  fun refinedTypeNarrowingNeedsGameContext() {
+    val concrete = game.reader.resolve(parse<Expression>("M55"))
+    val refined = game.reader.resolve(parse<Expression>("WaterArea(HAS MAX 0 Tile)"))
+
+    shouldThrow<IllegalStateException> { concrete.isSubtypeOf(refined) }
+    concrete.narrows(refined, game.reader) shouldBe true
   }
 
   fun test(original: String, replacement: String) {

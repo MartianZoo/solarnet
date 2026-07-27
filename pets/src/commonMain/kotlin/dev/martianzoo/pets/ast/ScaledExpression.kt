@@ -23,17 +23,11 @@ public data class ScaledExpression(
     val expression: Expression = MEGACREDIT.of(),
 ) : PetNode() {
   public companion object {
-    public fun scaledEx(scalar: Scalar, expression: Expression? = null): ScaledExpression =
-        ScaledExpression(scalar, expression ?: MEGACREDIT.of())
+    public fun scaledEx(scalar: Scalar, expression: HasExpression? = null): ScaledExpression =
+        ScaledExpression(scalar, expression?.expression ?: MEGACREDIT.of())
 
-    public fun scaledEx(value: Int? = null, expression: Expression? = null): ScaledExpression =
+    public fun scaledEx(value: Int? = null, expression: HasExpression? = null): ScaledExpression =
         scaledEx(ActualScalar(value ?: 1), expression)
-
-    public fun scaledEx(scalar: Scalar, hasEx: HasExpression): ScaledExpression =
-        scaledEx(scalar, hasEx.expression)
-
-    public fun scaledEx(value: Int? = null, hasEx: HasExpression): ScaledExpression =
-        scaledEx(value, hasEx.expression)
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
 

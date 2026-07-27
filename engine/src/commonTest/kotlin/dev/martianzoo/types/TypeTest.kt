@@ -1,7 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.TypeInfo.StubTypeInfo
+import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
@@ -27,13 +27,13 @@ internal class TypeTest {
 
     shouldThrow<IllegalArgumentException> { leftFoo.isSubtypeOf(rightFoo) }
     shouldThrow<IllegalArgumentException> { leftFoo lub rightFoo }
-    shouldThrow<IllegalArgumentException> { leftBar.narrows(rightBar) }
+    shouldThrow<IllegalArgumentException> { leftBar.isSubtypeOf(rightBar) }
     shouldThrow<IllegalArgumentException> { leftBar glb rightBar }
     shouldThrow<IllegalArgumentException> {
       left.getClass(cn("Bar")).withAllDependencies(rightBar.dependencies)
     }
     shouldThrow<IllegalArgumentException> {
-      left.matchesConstraint(leftBar, te("Foo"), rightBar, StubTypeInfo)
+      left.matchesConstraint(leftBar, te("Foo"), rightBar, NoGameState)
     }
   }
 
@@ -283,8 +283,10 @@ internal class TypeTest {
                 .trimIndent()
         )
 
-    table.resolve(te("Owned<Player2>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe true
-    table.resolve(te("Owned<Player1>")).narrows(table.resolve(te("Owned<!Player1>"))) shouldBe false
+    table.resolve(te("Owned<Player2>")).isSubtypeOf(table.resolve(te("Owned<!Player1>"))) shouldBe
+        true
+    table.resolve(te("Owned<Player1>")).isSubtypeOf(table.resolve(te("Owned<!Player1>"))) shouldBe
+        false
   }
 
   @Test
@@ -303,15 +305,15 @@ internal class TypeTest {
         table.resolve(te("TestPlayer2")),
         notPlayer1,
         actor,
-        StubTypeInfo,
+        NoGameState,
     ) shouldBe true
     table.matchesConstraint(
         table.resolve(te("TestPlayer1")),
         notPlayer1,
         actor,
-        StubTypeInfo,
+        NoGameState,
     ) shouldBe false
-    table.matchesConstraint(table.resolve(te("Engine")), notPlayer1, actor, StubTypeInfo) shouldBe
+    table.matchesConstraint(table.resolve(te("Engine")), notPlayer1, actor, NoGameState) shouldBe
         true
   }
 

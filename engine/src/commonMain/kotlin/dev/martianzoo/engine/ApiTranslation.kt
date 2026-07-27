@@ -61,7 +61,7 @@ internal class ApiTranslation(
 
     val result = HashMultiset<Expression>()
     typeToList.rootClass.directSubclasses().forEach { sub ->
-      val matches = allComponents.filter { it.narrows(sub.baseType) }
+      val matches = allComponents.filter { it.isSubtypeOf(sub.baseType) }
       if (matches.any()) {
         @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<Type>
         result.add(lub(types)!!.expression, matches.size)

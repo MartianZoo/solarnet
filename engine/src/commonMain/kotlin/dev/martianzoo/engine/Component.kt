@@ -96,8 +96,11 @@ public class Component internal constructor(public val type: Type) : HasExpressi
     }
   }
 
-  public fun hasType(supertype: Type, info: TypeInfo? = null): Boolean =
-      info?.let { type.narrows(supertype, it) } ?: type.narrows(supertype)
+  /** Context-free check; throws if [supertype] has a state-dependent refinement. */
+  public fun hasType(supertype: Type): Boolean = type.isSubtypeOf(supertype)
+
+  /** State-aware check for types that may have refinements. */
+  public fun hasType(supertype: Type, info: TypeInfo): Boolean = type.narrows(supertype, info)
 
   private val customOutputTransformer =
       with(Transformers(type.typeUniverse)) {

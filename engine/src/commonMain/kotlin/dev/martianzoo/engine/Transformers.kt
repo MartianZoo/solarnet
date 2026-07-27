@@ -109,7 +109,7 @@ public class Transformers(public val typeUniverse: TypeUniverse) {
                 }
               }
           @Suppress("UNCHECKED_CAST")
-          return Multi(flattened) as P
+          return Multi.create(flattened) as P
         }
         if (node !is Gain) return transformChildren(node)
         val scex = node.scaledEx
@@ -125,7 +125,7 @@ public class Transformers(public val typeUniverse: TypeUniverse) {
         }
 
         val one = gain(scex.copy(scalar = ActualScalar(1)), node.intensity) as Gain
-        ourMulti = Multi((1..sc.value).map { one })
+        ourMulti = Multi.create((1..sc.value).map { one }) as Multi
 
         @Suppress("UNCHECKED_CAST") // not technically safe...
         return ourMulti as P

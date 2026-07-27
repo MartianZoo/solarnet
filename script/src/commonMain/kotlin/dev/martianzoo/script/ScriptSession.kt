@@ -199,7 +199,8 @@ public class ScriptSession(
     val changedTypes = listOfNotNull(g, r).map(game::resolve)
     val hidden = game.resolve(HIDDEN.expression)
     val phase = game.resolve(cn("Phase").expression)
-    return changedTypes.all { it.narrows(hidden) } && changedTypes.none { it.narrows(phase) }
+    return changedTypes.all { it.isSubtypeOf(hidden) } &&
+        changedTypes.none { it.isSubtypeOf(phase) }
   }
 
   public fun command(wholeCommand: String): List<String> {

@@ -7,6 +7,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.Type
@@ -29,7 +30,10 @@ public data class Expression(
     val arguments: List<Expression> = listOf(),
     val refinement: Refinement? = null,
     val complement: Boolean = false,
-) : PetElement(), HasClassName {
+) : PetElement(), HasClassName, HasExpression {
+
+  override val expression: Expression
+    get() = this
 
   override fun visitChildren(visitor: Visitor): Unit =
       visitor.visit(listOf(className) + arguments + refinement)

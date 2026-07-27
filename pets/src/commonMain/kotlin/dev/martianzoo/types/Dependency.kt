@@ -2,7 +2,7 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.api.TypeInfo.StubTypeInfo
+import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.ast.ClassName
@@ -59,7 +59,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun glb(that: Dependency): TypeDependency? {
       if (that is ComplementDependency) {
-        return if (narrows(that, StubTypeInfo)) this else null
+        return if (narrows(that, NoGameState)) this else null
       }
       if (that !is TypeDependency) return null
       return (boundType glb boundOf(that))?.let { copy(boundType = it) }
@@ -67,7 +67,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun lub(that: Dependency): Dependency =
         when (that) {
-          is ComplementDependency -> if (narrows(that, StubTypeInfo)) that else that.domain()
+          is ComplementDependency -> if (narrows(that, NoGameState)) that else that.domain()
           else -> copy(boundType = boundType lub boundOf(that))
         }
 
@@ -76,7 +76,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
     override fun intersect(expression: Expression): Dependency? {
       if (expression.complement) {
         val excluded = boundType.typeUniverse.resolve(expression.uncomplemented())
-        if (!excluded.narrows(boundType)) return null
+        if (!excluded.isSubtypeOf(boundType)) return null
         return ComplementDependency(key, boundType, excluded)
       }
       return glb(copy(boundType = boundType.typeUniverse.resolve(expression)))
@@ -102,7 +102,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
       internal val excludedType: Type,
   ) : Dependency(), HasExpression {
     init {
-      require(excludedType.narrows(domainType)) { "$excludedType does not narrow $domainType" }
+      require(excludedType.isSubtypeOf(domainType)) { "$excludedType does not narrow $domainType" }
     }
 
     override val boundClass by domainType::rootClass
@@ -115,7 +115,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
     internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
         domainType
             .allConcreteSubtypes()
-            .filterNot { it.narrows(excludedType) }
+            .filterNot { it.isSubtypeOf(excludedType) }
             .map { TypeDependency(key, it) }
 
     internal fun matches(type: Type, info: TypeInfo): Boolean =
@@ -146,7 +146,7 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun lub(that: Dependency): Dependency =
         when (that) {
-          is TypeDependency -> if (that.narrows(this, StubTypeInfo)) this else domain()
+          is TypeDependency -> if (that.narrows(this, NoGameState)) this else domain()
           is ComplementDependency ->
               if (excludedType == that.excludedType) {
                 copy(domainType = domainType lub that.domainType)

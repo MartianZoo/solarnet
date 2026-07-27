@@ -1,7 +1,7 @@
 package dev.martianzoo.script.commands
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.api.TypeInfo.StubTypeInfo
+import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
@@ -41,7 +41,7 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
             .ifEmpty { listOf(parentType) }
 
     val listing = HashMultiset<Type>()
-    directSubclassTypes.forEach { listing.add(it, repl.game.components.count(it, StubTypeInfo)) }
+    directSubclassTypes.forEach { listing.add(it, repl.game.components.count(it, NoGameState)) }
 
     // if (listing.elements.size == 1) {
     //   if (parentType.dependencies.keys.any()) {
