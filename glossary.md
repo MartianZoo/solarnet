@@ -3,7 +3,7 @@
 - **Abstract task:** A task that is not fully specified so cannot be executed until it has been narrowed. Could be because it gains/removes a type that is abstract, or has a quantifier that isn't `!`, or includes an `OR`, etc.
 - **Abstract type:** A type that is not fully specified so cannot be gained/removed, but can still be counted and queried. (Antonym: Concrete type.)
 - **Action:** (1) A Pets element with an optional cost and an instruction, written with `->`; usually belongs to a card or a StandardAction. (2) What a player gets 1 or 2 of on their turn: lasts until their task queue is empty.
-- **Active effect:** The effect of an existing component which has been registered with the `Effector` and is ready to be triggered.
+- **Live effect:** The effect of an existing component which has been registered with the `Effector` and is ready to be triggered.
 - **Actor:** The entity whose gameplay context executes an instruction and is credited with its resulting state changes.
 - **Engine:** The non-player Actor that performs administrative operations.
 - **AMAP:** The `.` intensity meaning “as much as possible”; preparation fixes the possible amount and makes it mandatory.
@@ -101,7 +101,7 @@
 - **Transformer:** A pass that rewrites Pets AST nodes before loading, preparing, or executing them.
 - **Transmutation:** One atomic state change that removes copies of one component type and gains the same number of another.
 - **Trigger:** The part of an effect that selects the gains or removals to which it responds.
-- **Triggered instruction:** The instruction produced when an active effect matches one change event.
+- **Triggered instruction:** The instruction produced when a live effect matches one change event.
 - **Type:** The resolved identity of a component kind, independent of the expression used to write it.
 - **Type expression:** Pets syntax naming a type through a class, optional written dependency bounds, and an optional refinement.
 - **Type universe:** The frozen set of mutually compatible loaded classes and resolved types available to one game setup.

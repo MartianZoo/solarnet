@@ -28,7 +28,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - Consider letting custom metrics query typed, read-only event history for facts such as `HasRaisedTr` and this-generation attacks, avoiding permanent watchers; preserve semantic generation boundaries and rollback/replay determinism.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
-- Replace rollback speculation with disposable game-state forks: overlay components and active effects, copy the small task queues, and extend event history from a captured prefix.
+- Replace rollback speculation with disposable game-state forks: overlay components and live effects, copy the small task queues, and extend event history from a captured prefix.
 - [#24: Distinct classes](https://github.com/MartianZoo/solarnet/issues/24) — Define a generic owner-associated distinct-class metric, then replace `DistinctTagType` and `DistinctResourceType` if it is sound.
 - [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define a small set of rules for unique choices without removing real choices.
 - [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer.
@@ -62,6 +62,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Engine Safety and Maintainability
 
+- Give component and task mutations a single event-application boundary so primary state, derived indexes, and event history cannot be updated independently.
 - Make abstract custom metrics automatically enumerate concrete dependency bounds satisfying their refinements, invoke the custom implementation for each fully concrete type, and sum the results.
 - Give custom implementations an explicit declaration of the types they require so loading the custom class also loads those types.
 - Replace or constrain `doFirstTask()`; require an id/match unless exactly one task applies.

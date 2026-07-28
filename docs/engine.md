@@ -60,7 +60,7 @@ depend on this one. If so, something slightly strange happens: it throws a parti
 which is caught by `Changer` causing it to auto-remove the dependents first (!).
 
 Crucially, `ComponentGraph` informs the `Effector` about every change it makes, which often causes
-active effects to produce further component changes.
+live effects to produce further component changes.
 
 ---
 
@@ -218,15 +218,15 @@ is false if it had to stop to remove a dependent — the `Instructor` loops unti
 
 ---
 
-## The Effector: From Active Effects to Triggered Instructions
+## The Effector: From Live Effects to Triggered Instructions
 
 The same authored behavior has several representations during its lifecycle. A **source effect** is
 transformed into a loaded **class effect**, bound to a concrete component as a **component
-effect**, and registered at runtime as an **active effect**. Matching an active effect against a
+effect**, and registered at runtime as a **live effect**. Matching a live effect against a
 particular change produces a **triggered instruction**. See the [glossary](../glossary.md) for the
 precise definitions.
 
-The `Effector` maintains a registry of all **active effects** (one per component-effect pair,
+The `Effector` maintains a registry of all **live effects** (one per component-effect pair,
 counted by how many of that component exist). When a `ChangeEvent` fires, the effector is asked
 `fire(triggerEvent, automatic)` and returns a list of `Task` objects to execute.
 
@@ -259,7 +259,7 @@ Pets spells the self triggers `This:` and `-This:`. They fire only for the occur
 effect-bearing concrete type changed by this event; they are not ordinary subscriptions to that
 type. Adding or removing `N` copies scales the instruction by `N` once, regardless of how many
 other copies already exist. For other triggers (`OnGainOf<X>`/`OnRemoveOf<X>`), the effector checks
-all registered active effects against each new change event, so their active multiplicity does
+all registered live effects against each new change event, so their live multiplicity does
 matter.
 
 Creating a component effect applies the same checked narrowing to its instruction: an invalid
@@ -274,7 +274,7 @@ triggered instruction. Repeated class names therefore stay linked across the tri
 consequence. If narrowing makes an atomic change's type invalid, that change becomes `Die`;
 an enclosing `OR` discards the impossible branch, and fails if no branch remains.
 
-When an active effect fires, if the effect is **automatic** (double-colon in Pets syntax), the
+When a live effect fires, if the effect is **automatic** (double-colon in Pets syntax), the
 `Instructor` executes its triggered instruction inline in the same change loop. If the effect is
 **queued** (single colon), its triggered instruction becomes a new `Task` appended to the
 queue.
@@ -468,7 +468,7 @@ Player calls gameplay.doTask("3 Plant<Player2>!")
             → updater.update(count, g, r)    (update component multiset)
             → changeLogger.addChangeEvent(…) (append to event log)
             → effector.fire(event, auto=true)
-              → for each matching active effect → instructor.execute(...)  (recurse)
+              → for each matching live effect → instructor.execute(...)  (recurse)
             → effector.fire(event, auto=false) → new Tasks appended to queue
         → handleTask(id)                     (remove from queue, enqueue task.then)
       → new tasks from execute → tasks.addTasks(...)
