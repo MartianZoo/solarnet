@@ -39,26 +39,26 @@ internal class Effector(
     readerProvider: Lazy<GameReader>,
 ) {
   private val reader: GameReader by lazy { readerProvider.value }
-  private val registry = HashMultiset<ActiveEffect>()
+  private val registry = HashMultiset<LiveEffect>()
 
-  private val effects = mutableMapOf<Component, List<ActiveEffect>>()
+  private val effects = mutableMapOf<Component, List<LiveEffect>>()
 
   internal fun add(component: Component, delta: Int) =
-      activeEffects(component).forEach { registry.add(it, delta) }
+      liveEffects(component).forEach { registry.add(it, delta) }
 
   internal fun mustRemove(component: Component, delta: Int) =
-      activeEffects(component).forEach { registry.mustRemove(it, delta) }
+      liveEffects(component).forEach { registry.mustRemove(it, delta) }
 
-  private fun activeEffects(component: Component): List<ActiveEffect> {
-    fun activeEffect(fx: Effect) =
-        ActiveEffect(
+  private fun liveEffects(component: Component): List<LiveEffect> {
+    fun liveEffect(fx: Effect) =
+        LiveEffect(
             Subscription.from(fx.trigger, component),
             fx.automatic,
             fx.instruction,
             component,
         )
 
-    return effects.getOrPut(component) { component.effects(transformers).map(::activeEffect) }
+    return effects.getOrPut(component) { component.effects(transformers).map(::liveEffect) }
   }
 
   internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
@@ -68,7 +68,7 @@ internal class Effector(
       listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
           .map(reader::resolve)
           .map(Type::toComponent)
-          .flatMap { activeEffects(it) }
+          .flatMap { liveEffects(it) }
           .filter { automatic == null || it.automatic == automatic }
           .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
 
@@ -77,7 +77,7 @@ internal class Effector(
           .filter { (fx, _) -> automatic == null || fx.automatic == automatic }
           .mapNotNull { (fx, ct) -> fx.onChangeToOther(triggerEvent, reader)?.times(ct) }
 
-  private data class ActiveEffect(
+  private data class LiveEffect(
       private val subscription: Subscription,
       internal val automatic: Boolean,
       private val instruction: Instruction,
