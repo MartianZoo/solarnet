@@ -9,7 +9,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       repl.commands.values.map { ScriptCompletion(it.name, "commands", it.usage) }
 
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
-    val players = repl.setup.players()
+    val players = repl.game.setup.players()
     val eligiblePlayers = if (includeEngine) players + ENGINE else players
     val full = eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
     val short = eligiblePlayers.mapNotNull { player ->
@@ -40,7 +40,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
-      repl.setup.allDefinitions().filterIsInstance<CardDefinition>().map {
+      repl.game.setup.allDefinitions().filterIsInstance<CardDefinition>().map {
         ScriptCompletion(it.className.toString(), "cards", it.deck?.name?.lowercase())
       }
 
@@ -65,7 +65,14 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
     val maps = Canon.mapOptionCodes
     val nonMaps = options - maps
     val common =
-        listOf("BM", "BRM", "BRMVX", "BRMVPX", "BRMVPXT", Canon.optionCodes(repl.setup.options))
+        listOf(
+            "BM",
+            "BRM",
+            "BRMVX",
+            "BRMVPX",
+            "BRMVPXT",
+            Canon.optionCodes(repl.game.setup.options),
+        )
     val generated = maps.flatMap { map -> nonMaps.map { "$it$map" } }
     return (common + generated).map { ScriptCompletion(it, "option codes") }
   }

@@ -39,7 +39,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val playerCount = parts.getOrNull(1)?.toInt() ?: throw UsageException()
 
       repl.newGame(optionCodes, playerCount, purple)
-      val effectiveOptionCodes = Canon.optionCodes(repl.setup.options)
+      val effectiveOptionCodes = Canon.optionCodes(repl.game.setup.options)
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
           (if (purple) listOf("Purple mode: workflow active") else listOf()) +

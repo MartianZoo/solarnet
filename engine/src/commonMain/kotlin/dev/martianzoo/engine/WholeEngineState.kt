@@ -14,7 +14,8 @@ internal constructor(
     override val timeline: Timeline,
     override val reader: GameReader,
     override val classTable: ClassTable,
-) : EngineState {
+    override val setup: GameSetup,
+) : Game {
 
   private lateinit var gameplayByActor: Map<Actor, Gameplay>
 
@@ -27,9 +28,3 @@ internal constructor(
 
   override var onAtomicComplete: () -> Unit = {}
 }
-
-/** Couples generic live engine state to the setup metadata exposed by a playable [Game]. */
-internal class PlayableGame(
-    state: EngineState,
-    override val setup: GameSetup,
-) : Game, EngineState by state

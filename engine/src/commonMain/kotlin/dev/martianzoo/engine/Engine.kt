@@ -30,7 +30,7 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val koin = koinApplication { modules(gameModule(setup)) }.koin
 
-    val state = koin.get<WholeEngineState>()
+    val game = koin.get<WholeEngineState>()
     var initializer: Initializer? = null
     val gameplayByActor =
         setup.actors().associateWith { actor ->
@@ -39,9 +39,9 @@ public object Engine {
           if (actor == ENGINE) initializer = scope.get<Initializer>()
           scope.get<Gameplay>()
         }
-    state.initializeGameplay(gameplayByActor)
+    game.initializeGameplay(gameplayByActor)
     initializer!!.initialize()
-    return PlayableGame(state, setup)
+    return game
   }
 
   private class ActorScopeId

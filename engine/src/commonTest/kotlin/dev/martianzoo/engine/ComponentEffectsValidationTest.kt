@@ -6,6 +6,7 @@ import dev.martianzoo.types.loader
 import dev.martianzoo.types.te
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
 import kotlin.test.Test
 
 class ComponentEffectsValidationTest {
@@ -54,5 +55,12 @@ class ComponentEffectsValidationTest {
     shouldThrow<IllegalArgumentException> {
       transformers.classEffects(otherUniverse.getClass(cn("Holder")))
     }
+  }
+
+  @Test
+  fun `components do not require an Owner class in their type universe`() {
+    val ownerlessTable = loader("CLASS Token")
+
+    Component(ownerlessTable.resolve(te("Token"))).owner.shouldBeNull()
   }
 }

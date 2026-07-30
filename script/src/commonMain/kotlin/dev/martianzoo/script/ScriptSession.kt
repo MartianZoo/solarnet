@@ -60,14 +60,12 @@ import dev.martianzoo.util.toStrings
 public class ScriptSession(
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
-  internal lateinit var setup: GameSetup
   internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
 
   internal var mode: ScriptMode = GREEN
 
   private fun newGame(setup: GameSetup, purple: Boolean = false) {
-    this.setup = setup
     game = Engine.newGame(setup)
     gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
@@ -100,10 +98,10 @@ public class ScriptSession(
 
   internal fun promptPlain(): String =
       with(gameplay) {
-        val optionCodes = Canon.optionCodes(setup.options)
+        val optionCodes = Canon.optionCodes(game.setup.options)
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
-        "$optionCodes $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
+        "$optionCodes $phase ${gameplay.actor}/${game.setup.players} @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
