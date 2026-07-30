@@ -36,7 +36,7 @@ internal class SoloGenerationCountdownTest {
 
   @Test
   fun laterGenerationsRemoveOneGenerationLeft() {
-    val game = setUpGame(Canon.SIMPLE_SOLO_GAME)
+    val game = setUpGame("BSM", 1)
     val engine = game.tfm(ENGINE)
     finishNeutralSetup(engine)
 

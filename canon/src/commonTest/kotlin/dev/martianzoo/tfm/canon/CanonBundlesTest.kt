@@ -61,7 +61,7 @@ internal class CanonBundlesTest {
 
   @Test
   fun doubleDownRequiresBothPromosAndPrelude() {
-    val promos = setOf(cn("TerraformingMars"), cn("PromoCardsBundle"))
+    val promos = setOf(cn("TerraformingMars"), cn("PromoCardsExpansion"))
 
     Canon.resolve(promos).cardDefinitions.map { it.className }.contains(cn("DoubleDown")) shouldBe
         false

@@ -17,15 +17,15 @@ internal fun setUpGame(setup: GameSetup): Game =
     Engine.newGame(setup).apply { TfmWorkflow.Manual(this, setup).setupPhase() }
 
 internal fun setUpGame(
-    optionCodes: String,
-    players: Int,
+    optionCodes: String = "BM",
+    players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
 ): Game = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
 
 internal class BasicTest {
   @Test
   fun shortNames() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     val session = game.tfm(PLAYER2).godMode()
 
     session.manual("PROD[5, 4 E]")
@@ -42,7 +42,7 @@ internal class BasicTest {
 
   @Test
   fun removeAmap() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
     session.manual("3 Heat!")
@@ -53,7 +53,7 @@ internal class BasicTest {
 
   @Test
   fun rollback() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
     session.manual("3 Heat")
@@ -70,7 +70,7 @@ internal class BasicTest {
 
   @Test
   fun dependencies() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
 
     assertTrue(game.tasks.isEmpty())
@@ -90,7 +90,7 @@ internal class BasicTest {
 
   @Test
   fun counting() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
     session.manual("42 Heat")
     assertEquals(42, session.count("Heat"))
@@ -108,7 +108,7 @@ internal class BasicTest {
 
   @Test
   fun tempTrigger() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     val session = game.tfm(PLAYER1).godMode()
     assertEquals(20, session.count("TerraformRating"))
 

@@ -14,10 +14,10 @@ import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.types.Type
 
 internal val promoCardsCustomClasses: Set<CustomClass> =
-    setOf(PromoCardsBundle.CopyPrelude, PromoCardsBundle.DistinctResourceType)
+    setOf(PromoCardsExpansion.CopyPrelude, PromoCardsExpansion.DistinctResourceType)
 
 /** Namespace for the promotional cards' custom Pets implementations. */
-internal object PromoCardsBundle {
+internal object PromoCardsExpansion {
   internal object DistinctResourceType : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int =
         distinctClasses(game, type, cn("Resource"))

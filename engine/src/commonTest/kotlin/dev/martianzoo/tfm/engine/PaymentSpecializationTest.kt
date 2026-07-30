@@ -9,7 +9,7 @@ import kotlin.test.Test
 class PaymentSpecializationTest {
   @Test
   fun `an Accept can pay only with its specialized resource`() {
-    val p1 = setUpGame("BM", 2).tfm(PLAYER1)
+    val p1 = setUpGame().tfm(PLAYER1)
     p1.godMode().manual("Steel, Titanium")
 
     p1.godMode().beginManual("Owed<Class<Steel>>") {

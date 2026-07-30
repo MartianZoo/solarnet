@@ -18,7 +18,7 @@ internal class CanonMapsTest {
 
   @Test
   fun testTerraCimmeria() {
-    val map = Canon.fromOptionCodes("BI", 2).map
+    val map = Canon.marsMap(cn("TerraCimmeria"))
     map.className shouldBe cn("TerraCimmeria")
     checkMap(map)
   }

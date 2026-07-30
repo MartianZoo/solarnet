@@ -4,7 +4,6 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,7 +12,7 @@ import kotlin.test.assertFailsWith
 class TilePlacingTest {
   @Test
   fun citiesRepel() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     with(game.tfm(PLAYER2)) {
       phase("Action")
       godMode().manual("CityTile<M46>, CityTile<M44>, 25")
@@ -23,7 +22,7 @@ class TilePlacingTest {
 
   @Test
   fun cantStack() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
     val p2 = game.tfm(PLAYER2)
 
     p2.godMode().manual("CityTile<M33>")
@@ -32,7 +31,7 @@ class TilePlacingTest {
 
   @Test
   fun greeneryCanBePlacedAnywhereWhenOwnedTilesAreSurrounded() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
 
     with(game.tfm(PLAYER1)) {
       godMode().sneak("100")
@@ -50,7 +49,7 @@ class TilePlacingTest {
 
   @Test
   fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
-    val game = setUpGame(Canon.fromOptionCodes("BH", 2))
+    val game = setUpGame("BH", 2)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
@@ -87,7 +86,7 @@ class TilePlacingTest {
 
   @Test
   fun greeneryNextToOwned_possible() {
-    val game = setUpGame(Canon.SIMPLE_GAME)
+    val game = setUpGame()
 
     with(game.tfm(PLAYER1)) {
       phase("Action")

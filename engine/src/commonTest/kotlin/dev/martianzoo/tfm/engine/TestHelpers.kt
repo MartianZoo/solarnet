@@ -26,8 +26,8 @@ internal fun setUpGame(setup: GameSetup): Game =
     Engine.newGame(setup).apply { TfmWorkflow.Manual(this, setup).setupPhase() }
 
 internal fun setUpGame(
-    optionCodes: String,
-    players: Int,
+    optionCodes: String = "BM",
+    players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
 ): Game = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
 

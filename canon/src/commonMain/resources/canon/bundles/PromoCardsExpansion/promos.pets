@@ -1,0 +1,2 @@
+"The promotional card expansion"
+CLASS PromoCardsExpansion : System { HAS =1 This }

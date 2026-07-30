@@ -20,7 +20,7 @@ public object Canon :
         StandardFormBundle("PreludeExpansion", preludeCustomClasses),
         StandardFormBundle("ColoniesExpansion", coloniesCustomClasses),
         StandardFormBundle("TurmoilExpansion"),
-        StandardFormBundle("PromoCardsBundle", promoCardsCustomClasses),
+        StandardFormBundle("PromoCardsExpansion", promoCardsCustomClasses),
     ) {
   /** A minimal two-player game using the base game and Tharsis map. */
   public val SIMPLE_GAME: GameSetup by lazy { gameSetup(options("BM", 2)) }
@@ -82,7 +82,7 @@ public object Canon :
   private val PRELUDE = cn("PreludeExpansion")
   private val COLONIES = cn("ColoniesExpansion")
   private val TURMOIL = cn("TurmoilExpansion")
-  private val PROMOS = cn("PromoCardsBundle")
+  private val PROMOS = cn("PromoCardsExpansion")
 
   private val OPTIONS_BY_CODE =
       linkedMapOf(

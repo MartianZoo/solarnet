@@ -11,7 +11,7 @@ import kotlin.test.Test
 internal class ActionSequencingTest {
   @Test
   fun `city standard project creates independent production and placement tasks after payment`() {
-    val game = setUpGame("BM", 2)
+    val game = setUpGame()
     val p1 = game.tfm(PLAYER1)
     p1.godMode().sneak("25 Megacredit")
     val manual = p1.godMode().also { it.autoExecMode = NONE }
