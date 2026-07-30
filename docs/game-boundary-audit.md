@@ -34,7 +34,7 @@ creating `SetupPhase` and waiting for its ordinary effectful setup tasks.
 
 ### Resolved: Class reachability policy lives outside the generic class loader
 
-`Engine.loadTypeUniverse` supplies the complete initial class-name roots chosen from the game setup.
+`Engine.loadClassTable` supplies the complete initial class-name roots chosen from the game setup.
 `ClassLoader` performs only generic transitive loading from those roots.
 
 ### P0: Generic turn and action APIs encode the Terraforming Mars signaling protocol

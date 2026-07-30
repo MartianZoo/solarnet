@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 internal class TypeTest {
   @Test
-  fun typeUniversesCannotBeMixed() {
+  fun classTablesCannotBeMixed() {
     fun universe() = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar<Foo>")
 
     val left = universe()
@@ -39,7 +39,7 @@ internal class TypeTest {
 
   @Test
   fun testCardboundWeirdness() {
-    val table: TypeUniverse =
+    val table: ClassTable =
         loadTypes(
             """
             ABSTRACT CLASS Anyone {
@@ -341,7 +341,7 @@ internal class TypeTest {
   }
 
   private fun findSubstitutions(type: Type): Map<ClassName, Expression> =
-      Transformers(type.typeUniverse)
+      Transformers(type.classTable)
           .findSubstitutions(
               type.rootClass.defaultType.dependencies,
               type.dependencies,

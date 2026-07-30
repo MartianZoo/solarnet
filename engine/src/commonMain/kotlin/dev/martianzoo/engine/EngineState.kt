@@ -4,7 +4,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.types.TypeUniverse
+import dev.martianzoo.types.ClassTable
 
 /**
  * A live Pets component system with transactional mutation, pending tasks, and event history. This
@@ -35,7 +35,7 @@ public interface EngineState {
   public val reader: GameReader
 
   /** The immutable classes available to this state. */
-  public val typeUniverse: TypeUniverse
+  public val classTable: ClassTable
 
   /** Returns the mutation API scoped to [actor]. */
   public fun gameplay(actor: Actor): Gameplay

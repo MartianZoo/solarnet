@@ -198,7 +198,7 @@ above.
 
 ## 9. Closed-world type operations
 
-For a fixed loaded class universe, Pets can enumerate every concrete subtype of any type `T`:
+For a fixed class table, Pets can enumerate every concrete subtype of any type `T`:
 
 ```text
 concreteSubtypes(T) = { U | U is concrete and U <: T }
@@ -207,7 +207,7 @@ concreteSubtypes(T) = { U | U is concrete and U <: T }
 This includes choosing every concrete root class below `T`'s root and every admissible
 combination of concrete dependency bounds. A complement or linkage, when present, further
 constrains the enumerated combinations. Enumeration may be large but is finite whenever the
-loaded universe has finite dependency closure. In that case, Pets can determine whether an
+loaded class table has finite dependency closure. In that case, Pets can determine whether an
 abstract type has no concrete narrowing, exactly one concrete narrowing, or a genuine choice
 among several. A game engine can use this operation to generate legal choices rather than merely
 validate a choice already made.

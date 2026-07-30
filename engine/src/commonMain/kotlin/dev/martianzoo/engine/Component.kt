@@ -37,7 +37,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type? =
-      if (hasType(type.typeUniverse.resolve(OWNER.expression))) {
+      if (hasType(type.classTable.resolve(OWNER.expression))) {
         type
       } else {
         type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
@@ -62,7 +62,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
       transformers.classEffects(type.rootClass).map { effect ->
         val bound = checkedBinding.transform(effect)
         try {
-          type.typeUniverse.checkAllTypes(bound)
+          type.classTable.checkAllTypes(bound)
           bound
         } catch (e: ExpressionException) {
           throw ExpressionException(
@@ -81,7 +81,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
       transformers.classEffects(type.rootClass).mapNotNull { effect ->
         val bound = uncheckedBinding.transform(effect)
         try {
-          type.typeUniverse.checkAllTypes(bound)
+          type.classTable.checkAllTypes(bound)
           bound
         } catch (e: ExpressionException) {
           // An Owner-only component can inherit an effect whose output is Player-bound. The source
@@ -89,7 +89,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
           // tiles do not score VictoryPoint<Player> components.
           val sourceEffect =
               replaceThisExpressionsWith(type.rootClass.className.expression).transform(effect)
-          type.typeUniverse.checkAllTypes(sourceEffect)
+          type.classTable.checkAllTypes(sourceEffect)
           null
         }
       }
@@ -103,7 +103,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
   public fun hasType(supertype: Type, info: TypeInfo): Boolean = type.narrows(supertype, info)
 
   private val customOutputTransformer =
-      with(Transformers(type.typeUniverse)) {
+      with(Transformers(type.classTable)) {
         chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
       }
 

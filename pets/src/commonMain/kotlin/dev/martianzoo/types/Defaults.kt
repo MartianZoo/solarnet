@@ -53,7 +53,7 @@ public data class Defaults(
     private fun gatherDefaultDeps(klass: Class, kind: DefaultKind): DependencySet {
       // TODO: this is complex and this human doesn't understand it
       fun toDependencyMap(specs: List<Expression>): DependencySet {
-        val resolved = klass.typeUniverse.resolve(klass.className.of(specs)).narrowedDependencies
+        val resolved = klass.classTable.resolve(klass.className.of(specs)).narrowedDependencies
         if (OWNER.expression !in specs) return resolved
 
         // Owner also acts as a contextual variable. Don't normalize that variable to its bound
@@ -64,7 +64,7 @@ public data class Defaults(
                 .typeDependencies()
                 .single()
                 .key
-        val owner = TypeDependency(ownerKey, klass.typeUniverse.resolve(OWNER.expression))
+        val owner = TypeDependency(ownerKey, klass.classTable.resolve(OWNER.expression))
         return resolved.merge(DependencySet.of(setOf(owner))) { _, contextual -> contextual }
       }
 

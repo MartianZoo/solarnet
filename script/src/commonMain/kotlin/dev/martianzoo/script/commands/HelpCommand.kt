@@ -31,7 +31,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
               } catch (_: IllegalArgumentException) {
                 null
               }
-          val klass = className?.let(repl.game.typeUniverse::findClass)
+          val klass = className?.let(repl.game.classTable::findClass)
           if (klass == null) listOf("¯\\_(ツ)_/¯ Type `help` for help")
           else
               listOf(

@@ -12,16 +12,16 @@ import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.types.TypeUniverse
+import dev.martianzoo.types.ClassTable
 
 public object Prod {
-  public fun deprodify(typeUniverse: TypeUniverse): PetTransformer {
-    return deprodify(findResourceClassNames(typeUniverse))
+  public fun deprodify(classTable: ClassTable): PetTransformer {
+    return deprodify(findResourceClassNames(classTable))
   }
 
-  internal fun findResourceClassNames(typeUniverse: TypeUniverse): Set<ClassName> {
-    val standardResource = typeUniverse.findClass(STANDARD_RESOURCE) ?: return setOf()
-    if (typeUniverse.findClass(PRODUCTION) == null) return setOf()
+  internal fun findResourceClassNames(classTable: ClassTable): Set<ClassName> {
+    val standardResource = classTable.findClass(STANDARD_RESOURCE) ?: return setOf()
+    if (classTable.findClass(PRODUCTION) == null) return setOf()
     return standardResource.allSubclasses().flatMapTo(mutableSetOf()) {
       setOf(it.className, it.shortName)
     }

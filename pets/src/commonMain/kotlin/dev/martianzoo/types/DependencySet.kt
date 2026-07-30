@@ -74,7 +74,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   public val keys: Set<Key> = deps.toSetStrict { it.key }
 
-  internal val typeUniverse: TypeUniverse? = deps.firstOrNull()?.boundClass?.typeUniverse
+  internal val classTable: ClassTable? = deps.firstOrNull()?.boundClass?.classTable
 
   internal fun expressions(): List<Expression> = deps.map { it.expression }
 
@@ -92,28 +92,28 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   override val abstract: Boolean = deps.any { it.abstract }
 
   override fun isSubtypeOf(that: DependencySet): Boolean {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     return that.deps.all { get(it.key).isSubtypeOf(it) }
   }
 
   override fun glb(that: DependencySet): DependencySet? {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     return merge(that) { a, b -> (a glb b) ?: return@glb null }
   }
 
   override fun lub(that: DependencySet): DependencySet {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     val keys = keys.intersect(that.keys)
     return of(keys.map { this.get(it) lub that.get(it) })
   }
 
   override fun ensureNarrows(that: DependencySet, info: TypeInfo) {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     that.deps.forEach { get(it.key).ensureNarrows(it, info) }
   }
 
   internal fun narrows(that: DependencySet, info: TypeInfo): Boolean {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     return that.deps.all { get(it.key).narrows(it, info) }
   }
 
@@ -123,7 +123,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
       that: DependencySet,
       merger: (Dependency, Dependency) -> Dependency,
   ): DependencySet {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     val merged =
         (this.keys + that.keys).map {
           setOfNotNull(this.getIfPresent(it), that.getIfPresent(it)).reduce(merger)
@@ -132,15 +132,15 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
   }
 
   internal fun minus(that: DependencySet): DependencySet {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     return of(this.deps - that.deps)
   }
 
   @PublishedApi
-  internal fun requireSameUniverse(that: DependencySet) {
-    if (typeUniverse != null && that.typeUniverse != null) {
-      require(typeUniverse === that.typeUniverse) {
-        "dependencies belong to different type universes"
+  internal fun requireSameClassTable(that: DependencySet) {
+    if (classTable != null && that.classTable != null) {
+      require(classTable === that.classTable) {
+        "dependencies belong to different class tables"
       }
     }
   }

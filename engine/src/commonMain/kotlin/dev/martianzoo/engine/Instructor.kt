@@ -30,8 +30,8 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
-import dev.martianzoo.types.TypeUniverse
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
@@ -40,7 +40,7 @@ internal class Instructor(
     private val limiter: Limiter,
     private val changer: Changer?,
     private val effector: Effector?,
-    private val typeUniverse: TypeUniverse,
+    private val classTable: ClassTable,
 ) {
 
   internal fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
@@ -152,7 +152,7 @@ internal class Instructor(
 
     if (g?.rootClass?.declaration?.custom == true) {
       require(r == null) { "custom class instructions can only be pure gains" }
-      val translated = Prod.deprodify(typeUniverse).transform(gaining!!.prepareCustom(reader))
+      val translated = Prod.deprodify(classTable).transform(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }
 
@@ -210,7 +210,7 @@ internal class Instructor(
 
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
-      r = reader.getComponents(r).singleOrNull()?.let { typeUniverse.resolve(it.expression) } ?: r
+      r = reader.getComponents(r).singleOrNull()?.let { classTable.resolve(it.expression) } ?: r
     }
     return g to r
   }

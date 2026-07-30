@@ -9,10 +9,10 @@ This module's job is to represent game state (components and tasks), execute ins
 ## Overview: The Holy Trinity of Game State
 
 The common live abstraction is `EngineState`: a Pets component graph together with its tasks, event
-history, timeline, type universe, and Actor-scoped mutation API. `Game` is the playable role of an
+history, timeline, class table, and Actor-scoped mutation API. `Game` is the playable role of an
 engine state and additionally exposes the exact Terraforming Mars `GameSetup` used to create it.
 
-The setup and the `TypeUniverse` of loaded classes for that configuration are immutable. A setup records
+The setup and the `ClassTable` of loaded classes for that configuration are immutable. A setup records
 exact semantic game options and the ruleset already assembled from the bundles Canon determined
 were needed. `GameReader.ruleset` is that same selected ruleset. Terraforming Mars-specific clients can use
 `GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
@@ -204,7 +204,7 @@ Limits interact with instruction *intensity*:
   once the limit is known
 
 Invariants can reference `This` (meaning the type being constrained, resolved per-instance),
-which is how per-player limits work. The invariants are computed lazily from the type universe at
+which is how per-player limits work. The invariants are computed lazily from the class table at
 game start and compiled into a per-class lookup map.
 
 ---
@@ -423,7 +423,7 @@ This design means:
 The dependencies between all these things are shockingly complex and a pain to maintain manually. I
 decided to adopt Koin.
 
-`Engine.newGame()` builds a Koin DI container. The game-level singletons (`TypeUniverse`,
+`Engine.newGame()` builds a Koin DI container. The game-level singletons (`ClassTable`,
 `Effector`, `WritableEventLog`, `WritableComponentGraph`, etc.) are shared across all players.
 Each configured Actor also gets a Koin scope containing `Changer`, `Instructor`, `Implementations`,
 and `ApiTranslation` (the `Gameplay` impl). The Engine Actor's scope also supplies the

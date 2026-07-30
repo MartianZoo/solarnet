@@ -5,8 +5,8 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.Engine.Updater
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
-import dev.martianzoo.types.TypeUniverse
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
@@ -14,18 +14,18 @@ import dev.martianzoo.util.Multiset
 internal interface WritableComponentGraph : ComponentGraph, Updater {
 
   /** Component graph backed by the complete live game's component multiset. */
-  class Whole(private val effector: Effector, private val typeUniverse: TypeUniverse) :
+  class Whole(private val effector: Effector, private val classTable: ClassTable) :
       WritableComponentGraph {
 
     private val multiset: HashMultiset<Component> = HashMultiset()
 
     override operator fun contains(component: Component): Boolean {
-      requireOwnUniverse(component.type)
+      requireOwnClassTable(component.type)
       return component in multiset.elements
     }
 
     override fun count(parentType: Type, info: TypeInfo): Int {
-      requireOwnUniverse(parentType)
+      requireOwnClassTable(parentType)
       return if (parentType.className == COMPONENT) {
         multiset.size
       } else if (parentType.abstract) {
@@ -36,7 +36,7 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
     }
 
     override fun containsAny(parentType: Type, info: TypeInfo): Boolean {
-      requireOwnUniverse(parentType)
+      requireOwnClassTable(parentType)
       return if (parentType.abstract) {
         multiset.elements.any { it.hasType(parentType, info) }
       } else {
@@ -45,12 +45,12 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
     }
 
     override fun countComponent(component: Component): Int {
-      requireOwnUniverse(component.type)
+      requireOwnClassTable(component.type)
       return multiset.count(component)
     }
 
     override fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
-      requireOwnUniverse(parentType)
+      requireOwnClassTable(parentType)
       return if (parentType.className == COMPONENT) {
         HashMultiset.of(multiset)
       } else if (parentType.abstract) {
@@ -63,7 +63,7 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
 
     override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
       listOfNotNull(gaining, removing).forEach {
-        requireOwnUniverse(it.type)
+        requireOwnClassTable(it.type)
         require(!it.isCustom) {
           "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
         }
@@ -80,8 +80,8 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
       return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
     }
 
-    private fun requireOwnUniverse(type: Type) {
-      require(type.typeUniverse === typeUniverse) { "$type belongs to a different type universe" }
+    private fun requireOwnClassTable(type: Type) {
+      require(type.classTable === classTable) { "$type belongs to a different class table" }
     }
 
     private fun checkDependents(count: Int, removing: Component) {

@@ -10,14 +10,14 @@ import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 
 /** One closed set of mutually compatible loaded [Class]es and resolved [Type]s. */
-public abstract class TypeUniverse {
+public abstract class ClassTable {
   /** The `Component` class, which is the root of the class hierarchy. */
   public abstract val componentClass: Class
 
   /** The `Class` class, the other class that is required to exist. */
   public abstract val classClass: Class
 
-  /** Every class in this universe. */
+  /** Every class in this table. */
   public abstract fun allClasses(): Set<Class>
 
   public abstract val allClassNamesAndIds: Set<ClassName>
@@ -52,8 +52,8 @@ public abstract class TypeUniverse {
       domain: Type,
       info: TypeInfo,
   ): Boolean {
-    require(candidate.typeUniverse === this && domain.typeUniverse === this) {
-      "constraint types belong to a different type universe"
+    require(candidate.classTable === this && domain.classTable === this) {
+      "constraint types belong to a different class table"
     }
     val key = Key(domain.className, 0)
     val domainDependency = TypeDependency(key, domain)

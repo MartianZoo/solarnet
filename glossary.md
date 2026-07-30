@@ -104,5 +104,5 @@
 - **Triggered instruction:** The instruction produced when a live effect matches one change event.
 - **Type:** The resolved identity of a component kind, independent of the expression used to write it.
 - **Type expression:** Pets syntax naming a type through a class, optional written dependency bounds, and an optional refinement.
-- **Type universe:** The frozen set of mutually compatible loaded classes and resolved types available to one game setup.
+- **Class table:** The frozen set of mutually compatible loaded classes and resolved types available to one game setup.
 - **Workflow:** The higher-level driver that orchestrates game phases and waits for task queues to drain.

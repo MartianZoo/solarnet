@@ -12,19 +12,19 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
 import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.types.Class
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
-import dev.martianzoo.types.TypeUniverse
 import kotlin.Int.Companion.MAX_VALUE
 
 internal class Limiter(
-    private val typeUniverse: TypeUniverse,
+    private val classTable: ClassTable,
     private val components: ComponentGraph,
 ) {
   // visible for testing
   internal val rangeRestrictionsByClass: Map<Class, List<RangeRestriction>> by lazy {
     val multimap = mutableMapOf<Class, MutableList<RangeRestriction>>()
 
-    typeUniverse
+    classTable
         .allClasses()
         .flatMap { klass ->
           klass.invariants().map { toRangeRestriction(it as Counting, klass) }
@@ -40,7 +40,7 @@ internal class Limiter(
 
   init {
     val invalidDependencies =
-        typeUniverse.allClasses().mapNotNull { dependent ->
+        classTable.allClasses().mapNotNull { dependent ->
           dependent.dependencies
               .concreteDependencyTargets()
               .firstOrNull { target ->
@@ -68,7 +68,7 @@ internal class Limiter(
     return if (THIS in expr.descendantsOfType<ClassName>()) {
       UnboundRangeRestriction(expr, klass, it.range)
     } else {
-      SimpleRangeRestriction(typeUniverse.resolve(expr), it.range)
+      SimpleRangeRestriction(classTable.resolve(expr), it.range)
     }
   }
 
@@ -147,7 +147,7 @@ internal class Limiter(
     ) : RangeRestriction() {
       internal override val root =
           if (expression.className == THIS) declaringClass
-          else declaringClass.typeUniverse.getClass(expression.className)
+          else declaringClass.classTable.getClass(expression.className)
 
       internal override fun bindThisTo(type: Type): SimpleRangeRestriction? {
         val thisType =
@@ -155,7 +155,7 @@ internal class Limiter(
               it.rootClass.isSubtypeOf(declaringClass)
             } ?: return null
         val expr = replaceThisExpressionsWith(thisType.expression).transform(expression)
-        return SimpleRangeRestriction(declaringClass.typeUniverse.resolve(expr), range)
+        return SimpleRangeRestriction(declaringClass.classTable.resolve(expr), range)
       }
 
       override fun toString() = "$expression $declaringClass $range"

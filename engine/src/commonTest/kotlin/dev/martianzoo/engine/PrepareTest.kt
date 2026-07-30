@@ -20,10 +20,10 @@ internal class PrepareTest {
   private val instructor: Instructor =
       Instructor(
           game.reader,
-          Limiter(game.typeUniverse, game.components),
+          Limiter(game.classTable, game.components),
           null,
           null,
-          game.typeUniverse,
+          game.classTable,
       )
 
   init {
@@ -33,8 +33,8 @@ internal class PrepareTest {
   private fun preprocess(instr: Instruction): Instruction {
     val xer =
         chain(
-            deprodify(Transformers(game.typeUniverse).typeUniverse),
-            Transformers(game.typeUniverse).insertDefaults(),
+            deprodify(Transformers(game.classTable).classTable),
+            Transformers(game.classTable).insertDefaults(),
             replaceOwnerWith(PLAYER1),
         )
     return xer.transform(instr)

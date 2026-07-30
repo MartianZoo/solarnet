@@ -23,7 +23,7 @@ public constructor(
      * found here.
      */
     internal val ruleset: Ruleset,
-) : TypeUniverse() {
+) : ClassTable() {
   private val cache = mutableMapOf<Expression, Type>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
@@ -81,7 +81,7 @@ public constructor(
   }
 
   /** Loads every class known to this class loader's backing [Ruleset], and freezes. */
-  public fun loadEverything(): TypeUniverse {
+  public fun loadEverything(): ClassTable {
     ruleset.allClassNames.forEach(::loadSingle)
     return freeze()
   }
@@ -145,7 +145,7 @@ public constructor(
 
   // All classes are created here (aside from Component and Class, at top).
   private fun construct(decl: ClassDeclaration): Class {
-    require(!frozen) { "Too late, this universe is frozen!" }
+    require(!frozen) { "Too late, this class table is frozen!" }
     validateCustomImplementation(decl)
 
     fun store(c: Class?) {
@@ -158,7 +158,7 @@ public constructor(
 
   private var frozen: Boolean = false
 
-  public fun freeze(): TypeUniverse {
+  public fun freeze(): ClassTable {
     require(!frozen)
     frozen = true
     return this

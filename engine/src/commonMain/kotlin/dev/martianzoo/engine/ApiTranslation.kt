@@ -17,8 +17,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
-import dev.martianzoo.types.TypeUniverse
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
@@ -34,7 +34,7 @@ internal class ApiTranslation(
     private val timeline: Timeline,
     private val impl: Implementations,
     private val tasks: TaskQueue,
-    typeUniverse: TypeUniverse,
+    classTable: ClassTable,
     xers: Transformers,
     private val onAtomicComplete: () -> Unit,
 ) : GodMode { // so it really implements all gameplay layers
@@ -78,7 +78,7 @@ internal class ApiTranslation(
           xers.atomizer(),
           xers.insertDefaults(),
           (actor as? Player)?.let(::replaceOwnerWith),
-          Prod.deprodify(typeUniverse),
+          Prod.deprodify(classTable),
       )
 
   override fun <P : PetElement> parseInternal(type: KClass<P>, text: String) =

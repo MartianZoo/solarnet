@@ -48,7 +48,7 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `class effects reject a class from another type universe`() {
+  fun `class effects reject a class from another class table`() {
     val otherUniverse = loader("CLASS Holder")
 
     shouldThrow<IllegalArgumentException> {

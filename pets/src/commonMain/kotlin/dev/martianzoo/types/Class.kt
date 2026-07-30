@@ -22,7 +22,7 @@ import dev.martianzoo.util.toSetStrict
 
 /**
  * A class that has been loaded by a [ClassLoader] based on a [ClassDeclaration]. Each loader has
- * its own separate universe of [Class]es. While a declaration is inert data, this type provides its
+ * its own separate table of [Class]es. While a declaration is inert data, this type provides its
  * resolved hierarchy, dependencies, and types. The source [declaration] remains available for
  * non-type-system consumers.
  */
@@ -38,8 +38,8 @@ internal constructor(
     public val directSuperclasses: List<Class> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<Class> {
 
-  /** The universe containing this class. */
-  public val typeUniverse: TypeUniverse = loader
+  /** The table containing this class. */
+  public val classTable: ClassTable = loader
 
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
@@ -64,7 +64,7 @@ internal constructor(
   override val abstract: Boolean by declaration::abstract
 
   override fun isSubtypeOf(that: Class): Boolean {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     return that in allSuperclasses()
   }
 
@@ -82,7 +82,7 @@ internal constructor(
       }
 
   override fun lub(that: Class): Class {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     val commonSupers: Set<Class> = this.allSuperclasses.intersect(that.allSuperclasses)
     val supersOfSupers: Set<Class> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
     val candidates: Set<Class> = commonSupers - supersOfSupers
@@ -97,9 +97,9 @@ internal constructor(
         throw NarrowingException("${this.className} is not a subclass of ${that.className}")
   }
 
-  private fun requireSameUniverse(that: Class) {
-    require(typeUniverse === that.typeUniverse) {
-      "$className and ${that.className} belong to different type universes"
+  private fun requireSameClassTable(that: Class) {
+    require(classTable === that.classTable) {
+      "$className and ${that.className} belong to different class tables"
     }
   }
 
@@ -136,10 +136,10 @@ internal constructor(
 
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
-   * that is, no other [Class] in this [TypeUniverse] is a subclass of all of them unless it is also
-   * a subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award
-   * count `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile`
-   * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
+   * that is, no other [Class] in this [ClassTable] is a subclass of all of them unless it is also a
+   * subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award count
+   * `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile` (which
+   * is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
   public fun isIntersectionType(): Boolean = intersectionType
 

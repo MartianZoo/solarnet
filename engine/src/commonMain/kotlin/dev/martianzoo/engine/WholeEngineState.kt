@@ -3,7 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.types.TypeUniverse
+import dev.martianzoo.types.ClassTable
 
 /** The live, complete implementation of an [EngineState]. */
 internal class WholeEngineState
@@ -13,7 +13,7 @@ internal constructor(
     override val tasks: TaskQueue,
     override val timeline: Timeline,
     override val reader: GameReader,
-    override val typeUniverse: TypeUniverse,
+    override val classTable: ClassTable,
 ) : EngineState {
 
   private lateinit var gameplayByActor: Map<Actor, Gameplay>

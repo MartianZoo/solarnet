@@ -19,7 +19,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   fun classNames(): List<ScriptCompletion> =
-      repl.game.typeUniverse.allClasses().flatMap {
+      repl.game.classTable.allClasses().flatMap {
         setOf(
             ScriptCompletion(it.className.toString(), "classes", it.docstring),
             ScriptCompletion(it.shortName.toString(), "classes", it.className.toString()),
@@ -28,7 +28,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
 
   fun paymentWords(): List<ScriptCompletion> {
     val standards = setOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    return repl.game.typeUniverse
+    return repl.game.classTable
         .allClasses()
         .filter { it.className.toString() in standards }
         .flatMap {
@@ -96,7 +96,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   private fun classShortName(name: String): String? =
-      repl.game.typeUniverse
+      repl.game.classTable
           .allClasses()
           .firstOrNull { it.className.toString() == name }
           ?.shortName

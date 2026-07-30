@@ -12,7 +12,7 @@ import dev.martianzoo.util.toSetStrict
 public class TypeDescription public constructor(type: Type) {
 
   private val rootClass: Class by type::rootClass
-  private val transformers = Transformers(type.typeUniverse)
+  private val transformers = Transformers(type.classTable)
 
   public val classShortName: ClassName by rootClass::shortName
 

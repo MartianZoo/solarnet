@@ -46,7 +46,7 @@ internal class ClassTest {
   }
 
   @Test
-  fun universeEnumerationRequiresFreezeWithoutCapturingAnEarlySnapshot() {
+  fun classTableEnumerationRequiresFreezeWithoutCapturingAnEarlySnapshot() {
     val classes = parseClasses("CLASS Foo").toSetStrict()
     val ruleset =
         object : TfmRuleset.Empty() {
@@ -234,8 +234,8 @@ internal class ClassTest {
     subSub.isSubtypeOf(barSub) shouldBe true
     subSub.isSubtypeOf(subSub) shouldBe true
 
-    fun checkAutoAdjust(`in`: String, out: String, typeUniverse: TypeUniverse) =
-        typeUniverse.resolve(te(`in`)).expressionFull.toString() shouldBe out
+    fun checkAutoAdjust(`in`: String, out: String, classTable: ClassTable) =
+        classTable.resolve(te(`in`)).expressionFull.toString() shouldBe out
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
@@ -332,7 +332,7 @@ internal class ClassTest {
   }
 }
 
-internal fun loader(petsText: String): TypeUniverse {
+internal fun loader(petsText: String): ClassTable {
   val classes = parseClasses(petsText).toSetStrict()
   val ruleset =
       object : TfmRuleset.Empty() {

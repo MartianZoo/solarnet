@@ -7,14 +7,14 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.types.Class
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
-import dev.martianzoo.types.TypeUniverse
 
 internal class Initializer(
     private val gameplay: Gameplay,
     private val instructor: Instructor,
     private val tasks: TaskQueues,
-    private val typeUniverse: TypeUniverse,
+    private val classTable: ClassTable,
     private val timeline: TimelineImpl,
 ) {
   // Taking 14% of total solo game time
@@ -37,7 +37,7 @@ internal class Initializer(
    */
   private fun createSingletons(cause: Cause) {
     val remaining =
-        typeUniverse
+        classTable
             .allClasses()
             .filter(Class::isSingletonType)
             .flatMap { it.baseType.concreteSubtypesSameClass() }

@@ -20,9 +20,8 @@ import dev.martianzoo.util.Reifiable
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
- * [TypeUniverse]. These are usually obtained by [TypeUniverse.resolve]. These can be abstract.
- * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
- * state.
+ * [ClassTable]. These are usually obtained by [ClassTable.resolve]. These can be abstract. Usages
+ * of this type should be fairly unrelated to questions of whether instances exist in a game state.
  */
 public data class Type(
     val rootClass: Class,
@@ -30,20 +29,20 @@ public data class Type(
     val refinement: Refinement? = null,
 ) : HasExpression, Hierarchical<Type>, Reifiable<Type>, HasClassName by rootClass {
 
-  public val typeUniverse: TypeUniverse = rootClass.typeUniverse
+  public val classTable: ClassTable = rootClass.classTable
   public val typeDependencies: Set<Dependency.TypeDependency> = dependencies.typeDependencies()
 
   init {
-    dependencies.typeUniverse?.let {
-      require(typeUniverse === it) {
-        "$rootClass and its dependencies belong to different type universes"
+    dependencies.classTable?.let {
+      require(classTable === it) {
+        "$rootClass and its dependencies belong to different class tables"
       }
     }
     require(dependencies.keys.toList() == rootClass.dependencies.keys.toList()) {
       "expected keys ${rootClass.dependencies.keys}, got $dependencies"
     }
     rootClass.requireLinksSatisfied(dependencies)
-    if (refinement != null) typeUniverse.checkAllTypes(refinement)
+    if (refinement != null) classTable.checkAllTypes(refinement)
   }
 
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
@@ -57,7 +56,7 @@ public data class Type(
   // Nearest common subtype
   // TODO allocating 28 MB per solo game
   override fun glb(that: Type): Type? {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     val glbClass = (rootClass glb that.rootClass) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
     val glbRefin = Refinement.join(this.refinement, that.refinement)
@@ -67,7 +66,7 @@ public data class Type(
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
   override fun lub(that: Type): Type {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     val unrefined: Type =
         (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
 
@@ -131,7 +130,7 @@ public data class Type(
       baseClass.allSubclasses().asSequence().filter { !it.abstract }
 
   override fun ensureNarrows(that: Type, info: TypeInfo) {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     rootClass.ensureNarrows(that.rootClass, info)
     dependencies.ensureNarrows(that.dependencies, info)
 
@@ -151,7 +150,7 @@ public data class Type(
   // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
   /** Performs a state-aware narrowing check using [info]. */
   public fun narrows(that: Type, info: TypeInfo): Boolean {
-    requireSameUniverse(that)
+    requireSameClassTable(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
@@ -165,9 +164,9 @@ public data class Type(
     return info.has(requirement)
   }
 
-  private fun requireSameUniverse(that: Type) {
-    require(typeUniverse === that.typeUniverse) {
-      "$this and $that belong to different type universes"
+  private fun requireSameClassTable(that: Type) {
+    require(classTable === that.classTable) {
+      "$this and $that belong to different class tables"
     }
   }
 
@@ -177,7 +176,7 @@ public data class Type(
       return object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is Expression) {
-            val modded = typeUniverse.resolve(node).specialize(listOf(proposed))
+            val modded = classTable.resolve(node).specialize(listOf(proposed))
             @Suppress("UNCHECKED_CAST")
             modded.expressionFull as P
           } else {
