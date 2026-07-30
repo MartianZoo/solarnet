@@ -45,7 +45,7 @@ internal class BootstrapLifecycleTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val checkpoint = game.timeline.checkpoint()
 
-    TfmWorkflow.Manual(game, game.setup).setupPhase()
+    TfmWorkflow.Manual(game).setupPhase()
 
     val engine = game.gameplay(ENGINE)
     engine.count("SetupPhase") shouldBe 1
@@ -68,7 +68,7 @@ internal class BootstrapLifecycleTest {
   fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = Canon.SIMPLE_SOLO_GAME
     val game = Engine.newGame(setup)
-    val workflow = TfmWorkflow.Auto(game, setup).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
 
     val engine = game.gameplay(ENGINE)
     engine.count("SetupPhase") shouldBe 1

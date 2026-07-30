@@ -18,7 +18,7 @@ internal object SampleGames {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    TfmWorkflow.Manual(game, game.setup).setupPhase()
+    TfmWorkflow.Manual(game).setupPhase()
     engine.phase("Corporation")
     p1.playCorp("Manutech", 5)
     p2.playCorp("Factorum", 4)

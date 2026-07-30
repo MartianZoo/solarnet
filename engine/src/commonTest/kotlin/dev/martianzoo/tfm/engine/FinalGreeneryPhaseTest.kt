@@ -15,7 +15,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Auto(game, Canon.SIMPLE_GAME).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
 
     p1.playCorp("Ecoline", 0)
     game.tfm(PLAYER2).playCorp("TharsisRepublic", 0)
@@ -35,7 +35,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Manual(game, Canon.SIMPLE_GAME)
+    val workflow = TfmWorkflow.Manual(game)
 
     workflow.setupPhase()
     workflow.corporationPhase()
@@ -55,7 +55,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Auto(game, setup).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
 
     engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
@@ -80,7 +80,7 @@ internal class FinalGreeneryPhaseTest {
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game, setup).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
 
     p1.playCorp("Ecoline", 0)
     p2.playCorp("TharsisRepublic", 0)

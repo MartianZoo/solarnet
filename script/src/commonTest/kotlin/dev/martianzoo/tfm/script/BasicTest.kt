@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 internal fun setUpGame(setup: GameSetup): Game =
-    Engine.newGame(setup).apply { TfmWorkflow.Manual(this, setup).setupPhase() }
+    Engine.newGame(setup).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
     optionCodes: String = "BM",

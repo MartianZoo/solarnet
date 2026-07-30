@@ -21,7 +21,7 @@ class FirstPartialGameTest {
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
 
-      val workflow = TfmWorkflow.Auto(game, setup).launch()
+      val workflow = TfmWorkflow.Auto(game).launch()
 
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
@@ -114,7 +114,7 @@ class FirstPartialGameTest {
       p2.stdProject("CitySP") { doTask("CityTile<E65>") }
 
       workflow.shutdown()
-      TfmWorkflow.Manual(game, setup).productionPhase()
+      TfmWorkflow.Manual(game).productionPhase()
 
       eng.assertCounts(4 to "Generation")
       eng.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")

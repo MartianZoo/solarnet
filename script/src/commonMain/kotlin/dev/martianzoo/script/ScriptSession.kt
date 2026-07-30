@@ -72,9 +72,9 @@ public class ScriptSession(
     gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
       mode = PURPLE
-      TfmWorkflow.Auto(game, setup).launch()
+      TfmWorkflow.Auto(game).launch()
     } else {
-      TfmWorkflow.Manual(game, setup).setupPhase()
+      TfmWorkflow.Manual(game).setupPhase()
     }
   }
 

@@ -16,7 +16,7 @@ class EllieGameTest : AbstractFullGameTest() {
 
   @Test
   fun ellieGame() {
-    val workflow = TfmWorkflow.Auto(game, setup()).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
     workflow.isRunning shouldBe true
 
     p1.playCorp("InterplanetaryCinematics", 7)
@@ -127,7 +127,7 @@ class EllieGameTest : AbstractFullGameTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    TfmWorkflow.Auto(game, setup).launch()
+    TfmWorkflow.Auto(game).launch()
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)

@@ -10,7 +10,7 @@ class Game20260619Test : AbstractFullGameTest() {
 
   @Test
   fun gameThroughGeneration5() {
-    val workflow = TfmWorkflow.Auto(game, setup()).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
 
     // Game id: peae6273d6b33
     // First player this generation is ER

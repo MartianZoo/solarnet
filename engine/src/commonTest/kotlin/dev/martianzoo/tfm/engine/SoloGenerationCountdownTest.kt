@@ -14,7 +14,7 @@ internal class SoloGenerationCountdownTest {
     val game = Engine.newGame(setup)
     val checkpoint = game.timeline.checkpoint()
 
-    TfmWorkflow.Manual(game, setup).setupPhase()
+    TfmWorkflow.Manual(game).setupPhase()
 
     game.events
         .changesSince(checkpoint)
@@ -29,7 +29,7 @@ internal class SoloGenerationCountdownTest {
     val setup = Canon.fromOptionCodes("BSPM", 1)
     val game = Engine.newGame(setup)
 
-    TfmWorkflow.Manual(game, setup).setupPhase()
+    TfmWorkflow.Manual(game).setupPhase()
 
     game.tfm(ENGINE).count("GenerationsLeft") shouldBe 11
   }

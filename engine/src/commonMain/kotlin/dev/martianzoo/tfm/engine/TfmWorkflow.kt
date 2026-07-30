@@ -9,7 +9,6 @@ import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
-import dev.martianzoo.tfm.data.GameSetup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +31,7 @@ public object TfmWorkflow {
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via
    * [OperationLayer.turn] when no task is already pending, so no explicit turn-granting is needed.
    */
-  public class Manual(private val game: Game, private val setup: GameSetup) {
+  public class Manual(private val game: Game) {
 
     internal val engineOps: OperationLayer = game.gameplay(ENGINE) as OperationLayer
 
@@ -67,14 +66,14 @@ public object TfmWorkflow {
    * already waiting, so signals fired during automatic engine-owned phases are dropped rather than
    * queued, preventing spurious wakeups.
    */
-  public class Auto(private val game: Game, private val setup: GameSetup) {
+  public class Auto(private val game: Game) {
 
-    private val m = Manual(game, setup)
+    private val m = Manual(game)
     private val engineOps: OperationLayer
       get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
-    private val players: List<Player> = setup.players()
+    private val players: List<Player> = game.setup.players()
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all tasks drain. Only
@@ -141,7 +140,7 @@ public object TfmWorkflow {
       m.setupPhase()
       awaitTasksDrained()
       corporationPhase()
-      if (cn("PreludeExpansion") in setup.options) preludePhase()
+      if (cn("PreludeExpansion") in game.setup.options) preludePhase()
       actionPhase()
       while (!gameIsOver()) {
         productionPhase()
@@ -214,7 +213,7 @@ public object TfmWorkflow {
     }
 
     private fun gameIsOver() =
-        if (cn("SoloMode") in setup.options) {
+        if (cn("SoloMode") in game.setup.options) {
           engineOps.has("MAX 0 GenerationsLeft")
         } else {
           engineOps.has("=19 TemperatureStep") &&

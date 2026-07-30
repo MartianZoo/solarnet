@@ -8,10 +8,11 @@ This module's job is to represent game state (components and tasks), execute ins
 
 ## Overview: The Holy Trinity of Game State
 
-The centerpiece is the `Game` object. Of course, everything you want to know about a game in progress is here.
+The common live abstraction is `EngineState`: a Pets component graph together with its tasks, event
+history, timeline, type universe, and Actor-scoped mutation API. `Game` is the playable role of an
+engine state and additionally exposes the exact Terraforming Mars `GameSetup` used to create it.
 
-For starters, it holds a `GameSetup` (the complete configuration chosen before the game began) and
-the `TypeUniverse` of loaded classes for that configuration. These are immutable. A setup records
+The setup and the `TypeUniverse` of loaded classes for that configuration are immutable. A setup records
 exact semantic game options and the ruleset already assembled from the bundles Canon determined
 were needed. `GameReader.ruleset` is that same selected ruleset. Terraforming Mars-specific clients can use
 `GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.

@@ -15,7 +15,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   fun game20230521() {
-    TfmWorkflow.Auto(game, setup()).launch()
+    TfmWorkflow.Auto(game).launch()
 
     // Good luck Player1!
     // Good luck Player2!

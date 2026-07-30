@@ -30,7 +30,7 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val koin = koinApplication { modules(gameModule(setup)) }.koin
 
-    val game = koin.get<WholeGameState>()
+    val state = koin.get<WholeEngineState>()
     var initializer: Initializer? = null
     val gameplayByActor =
         setup.actors().associateWith { actor ->
@@ -39,9 +39,9 @@ public object Engine {
           if (actor == ENGINE) initializer = scope.get<Initializer>()
           scope.get<Gameplay>()
         }
-    game.initializeGameplay(gameplayByActor)
+    state.initializeGameplay(gameplayByActor)
     initializer!!.initialize()
-    return game
+    return PlayableGame(state, setup)
   }
 
   private class ActorScopeId
@@ -63,7 +63,7 @@ public object Engine {
     singleOf(::GameReaderImpl) { bind<GameReader>() }
     singleOf(::TimelineImpl) { bind<Timeline>() }
     singleOf(::Limiter)
-    singleOf(::WholeGameState) { bind<Game>() }
+    singleOf(::WholeEngineState) { bind<EngineState>() }
 
     scope<ActorScopeId> {
       scoped<WritableTaskQueue> { get<TaskQueues>()[get<Actor>()] }
@@ -74,8 +74,8 @@ public object Engine {
       } // Changer? and Effector? are nullable
       scopedOf(::Implementations)
       scoped {
-        val game = get<Game>()
-        ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { game.onAtomicComplete() }
+        val state = get<EngineState>()
+        ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { state.onAtomicComplete() }
       } bind Gameplay::class
       scopedOf(::Initializer)
     }

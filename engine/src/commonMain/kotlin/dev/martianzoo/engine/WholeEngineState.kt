@@ -5,17 +5,16 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.TypeUniverse
 
-/** The live, complete state and control implementation for a [Game]. */
-internal class WholeGameState
+/** The live, complete implementation of an [EngineState]. */
+internal class WholeEngineState
 internal constructor(
     override val components: ComponentGraph,
     override val events: EventLog,
     override val tasks: TaskQueue,
     override val timeline: Timeline,
     override val reader: GameReader,
-    override val setup: GameSetup,
     override val typeUniverse: TypeUniverse,
-) : Game {
+) : EngineState {
 
   private lateinit var gameplayByActor: Map<Actor, Gameplay>
 
@@ -28,3 +27,9 @@ internal constructor(
 
   override var onAtomicComplete: () -> Unit = {}
 }
+
+/** Couples generic live engine state to the setup metadata exposed by a playable [Game]. */
+internal class PlayableGame(
+    state: EngineState,
+    override val setup: GameSetup,
+) : Game, EngineState by state
