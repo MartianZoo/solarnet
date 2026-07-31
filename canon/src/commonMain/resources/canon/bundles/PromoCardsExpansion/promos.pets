@@ -1,2 +1,2 @@
 "The promotional card expansion"
-CLASS PromoCardsExpansion : System { HAS =1 This }
+CLASS PromoCardsExpansion : GameOption

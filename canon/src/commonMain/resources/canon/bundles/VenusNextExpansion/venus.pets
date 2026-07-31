@@ -1,5 +1,5 @@
 "The Venus Next expansion"
-CLASS VenusNextExpansion : System { HAS =1 This }
+CLASS VenusNextExpansion : GameOption
 
 "Represents a 2% increase in Venus... terraformedness"
 CLASS VenusStep[VEN] : GlobalParameter {

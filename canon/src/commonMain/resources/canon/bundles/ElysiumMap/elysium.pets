@@ -1,2 +1,2 @@
 "The Elysium map bundle"
-CLASS ElysiumMap : System { HAS =1 This }
+CLASS ElysiumMap : MarsMapOption

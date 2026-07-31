@@ -60,7 +60,7 @@ public object Canon :
     require(options.players > 1 || SOLO_MODE in options) {
       "SoloMode is required for a one-player game"
     }
-    val expectedColonyCount = if (options.players <= 2) options.players + 3 else options.players + 2
+    val expectedColonyCount = requiredColonyTileCount(options.players)
     if (COLONIES in options) {
       if (options.deferredColonySelection) {
         require(options.colonyTiles.isEmpty()) {
@@ -116,6 +116,16 @@ public object Canon :
     get() = OPTIONS_BY_CODE.keys
 
   public val mapOptionCodes: Set<String> = setOf("E", "H", "I", "M")
+
+  /** Number of colony tiles required for a game having [players] seated players. */
+  public fun requiredColonyTileCount(players: Int): Int {
+    require(players in 1..5) { "player count must be between 1 and 5" }
+    return when (players) {
+      1 -> 3
+      2 -> 5
+      else -> players + 2
+    }
+  }
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val SOLO_MODE = cn("SoloMode")

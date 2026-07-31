@@ -58,4 +58,14 @@ internal class GamePremiseTest {
     val premise = Canon.fromOptionCodes("BMC", 2, exact)
     premise.initialComponents.toSet().containsAll(exact.map { "${it}Selected" }) shouldBe true
   }
+
+  @Test
+  fun soloColoniesUseExactlyThreeTiles() {
+    val exact = setOf(cn("Luna"), cn("Ceres"), cn("Triton"))
+    Canon.fromOptionCodes("BSMC", 1, exact)
+
+    assertFails("four solo colonies") {
+      Canon.fromOptionCodes("BSMC", 1, exact + cn("Ganymede"))
+    }
+  }
 }

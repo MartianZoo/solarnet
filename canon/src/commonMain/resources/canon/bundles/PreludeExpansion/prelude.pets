@@ -1,7 +1,5 @@
 "The Prelude expansion"
-CLASS PreludeExpansion : System {
-  HAS =1 This
-
+CLASS PreludeExpansion : GameOption {
   Generation IF =1 Generation:: -2 GenerationsLeft.
 }
 

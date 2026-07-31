@@ -1,7 +1,5 @@
 "Configures the starting state used by the solo variant"
-CLASS SoloMode : System {
-  HAS =1 This
-
+CLASS SoloMode : GameOption {
   GenerationSetup:: 14 GenerationsLeft
   SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
 }

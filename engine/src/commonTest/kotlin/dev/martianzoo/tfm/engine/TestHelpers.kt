@@ -52,7 +52,7 @@ internal fun canonicalPremise(
 
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
-    val count = if (players <= 2) players + 3 else players + 2
+    val count = Canon.requiredColonyTileCount(players)
     val selected = included.mapTo(linkedSetOf(), ::cn)
     TEST_COLONY_TILES.map(::cn).filterNotTo(selected) { it in selected }
     return selected.take(count).toSet()

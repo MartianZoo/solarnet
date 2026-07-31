@@ -10,7 +10,8 @@ import kotlin.test.Test
 
 class SoloGame0710Test : AbstractSoloTest() {
   override fun setup(): GamePremise {
-    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"), cn("Miranda"))
+    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
+    // Miranda was removed because solo Colonies uses only three selected tiles.
     return canonicalPremise(
         "BRMVPSCTX",
         1,

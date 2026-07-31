@@ -40,7 +40,7 @@ internal object ColoniesExpansion {
       if (reader.getComponents("DeferredColonySelection").isNotEmpty()) {
         val players = reader.getComponents("Player").size
         val tileChoices =
-            List(if (players == 2) 5 else players + 2) {
+            List(Canon.requiredColonyTileCount(players)) {
               parse<Instruction>("AddColonyTile<Class<ColonyTile>>")
             }
         return Multi.create(tileChoices + fleetInstructions)
