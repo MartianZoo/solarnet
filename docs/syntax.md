@@ -7,10 +7,10 @@ in `cards.json5`.
 
 ```
 typeExpression  := dependentTypeExpr | classLiteral
-dependentTypeExpr := ['!'] className [dependencyBounds] [refinement]
+dependentTypeExpr := ['!'] className [dependencyBounds] [hasRefinement]
 dependencyBounds := '<' typeExpression (',' typeExpression)* '>'
-refinement      := '(HAS' requirement ')'
-classLiteral    := 'Class' '<' className '>'
+hasRefinement   := '(HAS' ['?'] requirement ')'
+classLiteral    := 'Class' '<' className '>' [hasRefinement]
 className       := upperCamelRE
 ```
 
@@ -22,6 +22,18 @@ This can be as simple as `Player1` or as complex as `CityTile<Player2, MarsArea(
 comes a class name, then an optional list of one or more dependency bounds inside angle brackets, and finally an optional
 requirement. Each listed bound is an entire type expression itself. In a class declaration these expressions instead
 introduce dependencies and state their original upper bounds.
+
+Refinements are tested against each candidate subtype. `Foo(HAS Bar)` specializes `Bar` by the
+candidate, so a candidate `SubFoo` qualifies when `Bar<SubFoo>` exists. A class literal adds one
+special represented-type linkage: its class argument links to occurrences with that root class in
+its `HAS` requirement. Thus `Class<SpaceTag>` satisfies `Class<Tag>(HAS Tag<Player2>)` when
+`SpaceTag<Player2>` exists. Class components themselves are never owned; the expression counts
+class tokens according to instances of the component types they represent. Therefore
+`Class<Tag>(HAS Tag<Player2>)` counts the distinct tag classes Player 2 has.
+
+Dependency constraints and complements work normally inside the linked expression. For example,
+`Class<Tag>(HAS Tag<Player1, !EventCard>)` counts Player 1's distinct tag classes while excluding
+tags on event cards.
 
 These expressions are a way of identifying a type, and types are explained in the [type system] article.
 
@@ -61,7 +73,7 @@ Custom metric types can state dependency bounds inside refinements in the usual 
 `OwnedTile<MarsArea(HAS 8 MarsRow)>` counts owned tiles in rows 8 and 9. Custom metrics can also appear after `/`, in
 milestone requirements, and anywhere else an ordinary metric can appear.
 
-Other canonical examples include `CardCost<EarthCatapult>`, `DistinctTagType<Player1>`, and refinements
+Other canonical examples include `CardCost<EarthCatapult>` and refinements
 such as `CardFront(HAS 20 CardCost)` or
 `MarsArea(HAS MapBonus<Class<Steel>> OR MapBonus<Class<Titanium>>)`. These are metric evaluations; none
 of the named virtual-property classes has components in the graph.

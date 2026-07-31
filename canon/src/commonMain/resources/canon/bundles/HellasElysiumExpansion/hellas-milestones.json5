@@ -2,7 +2,7 @@
   "milestones": [
 
     // Diversifier
-    { "id": "HM1", "setupRequirement": "HellasMapOption", "requirement": "8 DistinctTagType<Owner>" },
+    { "id": "HM1", "setupRequirement": "HellasMapOption", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
     // Tactician
     { "id": "HM2", "setupRequirement": "HellasMapOption", "requirement": "5 CardFront(HAS CardRequirement)" },
     // Polar Explorer

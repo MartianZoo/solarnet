@@ -20,6 +20,7 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 * `-Plant` means to remove one
 * `4` is a shortcut for `4 Megacredit`
 * `Plant / PlantTag` means to gain a plant for each plant tag you have
+* `Class<Tag>(HAS Tag<Player1>)` means the number of distinct tag classes Player 1 has
 * `PROD[Plant / PlantTag]` means to increase plant production for each plant tag you have
 * `PROD[Plant OR 3 PlantTag: 4 Plant]` means to increase plant production 1 step, or, if you have 3 plant tags, 4 steps
 * `2 Steel<Player1> FROM Steel<Player2>` means to transfer 2 steel directly from P2 to P1

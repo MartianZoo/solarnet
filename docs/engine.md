@@ -197,9 +197,11 @@ capabilities separately. By default, each implementation's Pets class name is it
 simple name.
 
 Canon uses virtual-property metrics for printed card cost, printed standard-project cost, presence
-of a card requirement, map row and placement bonus, and a player's distinct tag and resource type
-counts. `ClassCardRequirement` is the class-token counterpart of `CardRequirement`; it is used when
-the value being refined is a `Class<CardFront>` dependency such as the one on `PlayCard`.
+of a card requirement, map row, and placement bonus. Distinct tag and resource type counts instead
+use the represented-type linkage in refinements such as `Class<Tag>(HAS Tag<Owner>)`.
+`ClassCardRequirement` is the class-token
+counterpart of `CardRequirement`; it is used when the value being refined is a `Class<CardFront>`
+dependency such as the one on `PlayCard`.
 
 ---
 

@@ -6,7 +6,7 @@
       "id": "X05",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[1 / DistinctTagType<Owner>]",
+      "immediate": "PROD[1 / Class<Tag>(HAS Tag<Owner>)]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 27,
       "projectKind": "AUTOMATED"
@@ -27,10 +27,7 @@
       "id": "X20",
       "deck": "PROJECT",
       "immediate": "TerraformRating",
-      "requirement": "9 DistinctResourceType<Owner>",
-      "components": [
-        "CLASS DistinctResourceType<Player> : Custom"
-      ],
+      "requirement": "9 Class<Resource>(HAS Resource<Owner>)",
       "cost": 1,
       "projectKind": "EVENT"
     },

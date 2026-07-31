@@ -49,9 +49,6 @@ CLASS StandardProjectCost<StandardProject> : Custom
 "A virtual metric whose count is the number of a particular resource printed as an area's bonus"
 CLASS MapBonus<Class<Resource>, MarsArea> : Custom
 
-"A virtual metric whose count is the number of distinct tag classes a player has in play"
-CLASS DistinctTagType<Player> : Custom
-
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
 CLASS GetEventVps<Class<CardFront>> : Owned, Custom // need Owned?
 

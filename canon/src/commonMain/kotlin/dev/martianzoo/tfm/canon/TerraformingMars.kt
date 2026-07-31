@@ -52,7 +52,6 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.ClassCardRequirement,
         TerraformingMars.StandardProjectCost,
         TerraformingMars.MapBonus,
-        TerraformingMars.DistinctTagType,
     )
 
 /** Namespace for the core game's custom Pets implementations. */
@@ -130,10 +129,6 @@ internal object TerraformingMars {
         if (it.gaining.className == resourceName) (it.count as ActualScalar).value else 0
       }
     }
-  }
-
-  internal object DistinctTagType : CustomMetric() {
-    override fun count(game: GameReader, type: Type): Int = distinctClasses(game, type, cn("Tag"))
   }
 
   internal object CreateAdjacencies : CustomClass() {
@@ -237,17 +232,4 @@ internal object TerraformingMars {
 
   private fun card(type: HasClassName, reader: GameReader): CardDefinition =
       reader.tfmRuleset.card(type.className)
-}
-
-internal fun distinctClasses(
-    game: GameReader,
-    metricType: Type,
-    componentClass: ClassName,
-): Int {
-  val owner = metricType.expressionFull.arguments.single()
-  return game
-      .getComponents(game.resolve(componentClass.of(owner)))
-      .map { it.className }
-      .toSet()
-      .size
 }

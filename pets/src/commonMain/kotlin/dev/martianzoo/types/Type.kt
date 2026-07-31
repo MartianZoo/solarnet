@@ -3,6 +3,7 @@ package dev.martianzoo.types
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.HasClassName
@@ -172,11 +173,21 @@ public data class Type(
 
   private fun formRequirement(narrow: Expression, wide: Expression): Requirement {
 
-    fun refinementMangler(proposed: Expression): PetTransformer {
+    fun refinementMangler(
+        proposed: Expression,
+        ignoreUnmatched: Boolean = false,
+    ): PetTransformer {
       return object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is Expression) {
-            val modded = classTable.resolve(node).specialize(listOf(proposed))
+            val resolved = classTable.resolve(node)
+            val modded =
+                try {
+                  resolved.specialize(listOf(proposed))
+                } catch (e: ExpressionException) {
+                  if (!ignoreUnmatched) throw e
+                  resolved
+                }
             @Suppress("UNCHECKED_CAST")
             modded.expressionFull as P
           } else {
@@ -186,8 +197,30 @@ public data class Type(
       }
     }
 
+    fun linkRepresentedClass(requirement: Requirement): Requirement {
+      if (wide.className != CLASS) return requirement
+      check(narrow.className == CLASS)
+      val general = wide.arguments.single().className
+      val specific = narrow.arguments.single().className
+      return object : PetTransformer() {
+            override fun <P : PetNode> transform(node: P): P {
+              val linked =
+                  if (node is Expression && node.className == general) {
+                    node.copy(className = specific)
+                  } else {
+                    node
+                  }
+              @Suppress("UNCHECKED_CAST")
+              return transformChildren(linked) as P
+            }
+          }
+          .transform(requirement)
+    }
+
     val refin = wide.refinement!!
-    val transformed = refinementMangler(narrow).transform(refin.requirement)
+    val linked = linkRepresentedClass(refin.requirement)
+    val transformed =
+        refinementMangler(narrow, ignoreUnmatched = narrow.className == CLASS).transform(linked)
     return if (refin.forgiving) {
       Or(transformed, Max(scaledEx(0, wide.copy(refinement = refin.copy(forgiving = false)))))
     } else {

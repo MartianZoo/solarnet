@@ -35,6 +35,7 @@ internal class ExpressionTest {
     testRoundTrip("Foo(HAS MAX 0 Bar)")
     testRoundTrip("Foo<Bar>(HAS Baz, 2 Qux)")
     testRoundTrip("Foo(HAS? Bar, MAX 0 Baz)")
+    testRoundTrip("Class<Foo>(HAS Foo<Bar>)")
     testRoundTrip("!Foo")
     testRoundTrip("Foo<!Bar>")
   }
