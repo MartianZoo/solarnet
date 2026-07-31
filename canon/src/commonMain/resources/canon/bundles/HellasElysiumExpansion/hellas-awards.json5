@@ -1,4 +1,5 @@
 {
+  "setupRequirement": "HellasMapOption",
   "awards": [
     // Cultivator
     { "id": "HA1", "metric": "GreeneryTile" },

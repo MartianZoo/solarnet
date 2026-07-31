@@ -23,6 +23,8 @@ The Pets type system.
 ### <a href="pets/dev.martianzoo.tfm.data/index.html">dev.martianzoo.tfm.data</a>
 
 Data types for cards, milestones, maps, etc., and support for parsing these from JSON.
+Milestone JSON may put a `setupRequirement` beside the `milestones` list; each milestone inherits
+that requirement, conjoined with any `setupRequirement` on the individual milestone.
 
 ### <a href="pets/dev.martianzoo.util/index.html">dev.martianzoo.util</a>
 

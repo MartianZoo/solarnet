@@ -22,9 +22,19 @@ public object JsonReader {
   // MILESTONES
 
   public fun readMilestones(json5: String): List<MilestoneDefinition> =
-      fromJson5<MilestoneList>(json5).milestones.map { it.complete() }
+      fromJson5<MilestoneList>(json5).definitions()
 
-  @Serializable private data class MilestoneList(val milestones: List<MilestoneImport>)
+  @Serializable
+  private data class MilestoneList(
+      val milestones: List<MilestoneImport>,
+      val setupRequirement: String? = null,
+  ) {
+    init {
+      require(setupRequirement?.isNotBlank() != false)
+    }
+
+    fun definitions(): List<MilestoneDefinition> = milestones.map { it.complete(setupRequirement) }
+  }
 
   @Serializable
   private data class MilestoneImport(
@@ -33,8 +43,17 @@ public object JsonReader {
       val requirement: String,
       val setupRequirement: String? = null,
   ) {
-    fun complete(): MilestoneDefinition =
-        MilestoneDefinition(id, replaces, requirement, setupRequirement)
+    init {
+      require(setupRequirement?.isNotBlank() != false)
+    }
+
+    fun complete(groupSetupRequirement: String?): MilestoneDefinition =
+        MilestoneDefinition(
+            id,
+            replaces,
+            requirement,
+            listOfNotNull(groupSetupRequirement, setupRequirement).joinToString().ifEmpty { null },
+        )
   }
 
   // ACTIONS

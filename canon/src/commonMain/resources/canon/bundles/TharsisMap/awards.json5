@@ -1,4 +1,5 @@
 {
+  "setupRequirement": "TharsisMapOption",
   "awards": [
     // Landlord
     { "id": "MA1", "metric": "OwnedTile" },
