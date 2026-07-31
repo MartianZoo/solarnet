@@ -182,28 +182,28 @@ public class CardDefinition(data: CardData) : Definition {
       val deck: String? = null,
       val replaces: String? = null,
       val requiredBundles: String? = null,
-      val tags: List<String> = listOf(),
+      val tags: List<String> = emptyList(),
       val immediate: String? = null,
-      val actions: List<String> = listOf(),
-      val effects: List<String> = listOf(),
+      val actions: List<String> = emptyList(),
+      val effects: List<String> = emptyList(),
       val resourceType: String? = null,
-      val components: Set<String> = setOf(),
+      val components: Set<String> = emptySet(),
       val requirement: String? = null,
       val cost: Int = 0,
       val projectKind: String? = null,
   ) {
     init {
       require(id.isNotEmpty())
-      require(replaces?.isNotEmpty() ?: true)
+      require(replaces?.isNotEmpty() != false)
       require(requiredBundles?.isNotBlank() != false)
-      require(resourceType?.isNotEmpty() ?: true)
-      require(requirement?.isNotEmpty() ?: true)
+      require(resourceType?.isNotEmpty() != false)
+      require(requirement?.isNotEmpty() != false)
       require(cost >= 0)
 
       if (deck == "PROJECT") {
         require(projectKind != null)
       } else {
-        if (deck == "PRELUDE") immediate!!
+        if (deck == "PRELUDE") require(immediate != null) { "Prelude $id has no immediate effect" }
         require(projectKind == null) { "not a project: $id" }
         require(requirement == null) { "can't have requirement: $id" }
         require(cost == 0) { "can't have nonzero cost: $id" }

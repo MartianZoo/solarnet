@@ -38,16 +38,16 @@ public data class ClassDeclaration(
     public val kind: ClassKind,
 
     /** Any "new" dependencies being declared by this class (not inherited from a supertype). */
-    public val dependencies: List<Expression> = listOf(),
+    public val dependencies: List<Expression> = emptyList(),
 
     /** This class's listed direct supertypes, as they were expressed in the source. */
-    public val supertypes: Set<Expression> = setOf(),
+    public val supertypes: Set<Expression> = emptySet(),
 
     /** Any class invariants declared with `HAS` in the class body. */
-    public val invariants: Set<Requirement> = setOf(),
+    public val invariants: Set<Requirement> = emptySet(),
 
     /** The class's effects, in declaration order. Duplicate effects are preserved. */
-    public val effects: List<Effect> = listOf(),
+    public val effects: List<Effect> = emptyList(),
 
     /** The merged contents of any `DEFAULT` clauses in the class body. */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
@@ -56,7 +56,7 @@ public data class ClassDeclaration(
      * Any additional Pets elements belonging to this class that aren't given for the previous
      * arguments.
      */
-    internal val extraNodes: Set<PetNode> = setOf(),
+    internal val extraNodes: Set<PetNode> = emptySet(),
 ) : HasClassName {
   public val custom: Boolean = CUSTOM.expression in supertypes
 
@@ -85,7 +85,7 @@ public data class ClassDeclaration(
       val forClass: ClassName? = null,
   ) {
     public data class OneDefault(
-        val specs: List<Expression> = listOf(),
+        val specs: List<Expression> = emptyList(),
         val intensity: Intensity? = null,
     )
 
@@ -113,7 +113,7 @@ public data class ClassDeclaration(
       }
 
       private fun merge(ones: Collection<OneDefault>): OneDefault {
-        val deps = ones.map { it.specs }.firstOrNull { it.any() } ?: listOf()
+        val deps = ones.map { it.specs }.firstOrNull { it.isNotEmpty() }.orEmpty()
         val intensity = ones.firstNotNullOfOrNull { it.intensity }
         return OneDefault(deps, intensity)
       }

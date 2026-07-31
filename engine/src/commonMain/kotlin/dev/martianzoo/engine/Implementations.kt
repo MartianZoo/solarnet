@@ -37,7 +37,7 @@ internal class Implementations(
   // CHANGES LAYER
 
   internal fun sneak(changes: Instruction, cause: Cause? = null) {
-    split(changes).map {
+    split(changes).forEach {
       val count = (it as Change).count as ActualScalar
       changer.change(
           count.value,

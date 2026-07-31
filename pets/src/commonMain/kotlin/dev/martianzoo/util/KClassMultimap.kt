@@ -2,7 +2,7 @@ package dev.martianzoo.util
 
 import kotlin.reflect.KClass
 
-internal class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
+internal class KClassMultimap<B : Any>(list: Collection<B> = emptyList()) {
   internal val map = mutableMapOf<KClass<out B>, MutableList<B>>()
 
   init {

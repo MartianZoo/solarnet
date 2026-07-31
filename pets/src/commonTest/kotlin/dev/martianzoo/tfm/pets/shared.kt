@@ -35,6 +35,6 @@ internal fun <T : PetNode> testSampleStrings(type: KClass<T>, inputs: String) {
     if (regen != sample) errors += "$sample\n"
   }
   if (errors.isNotEmpty()) {
-    throw RuntimeException(errors)
+    throw AssertionError(errors)
   }
 }

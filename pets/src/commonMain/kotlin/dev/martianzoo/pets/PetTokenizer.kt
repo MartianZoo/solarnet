@@ -58,7 +58,7 @@ internal abstract class PetTokenizer {
       )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
-      optional(parser) map { it ?: listOf() }
+      optional(parser) map { it.orEmpty() }
 
   internal fun isPresent(parser: Parser<*>) = optional(parser) map { it != null }
 

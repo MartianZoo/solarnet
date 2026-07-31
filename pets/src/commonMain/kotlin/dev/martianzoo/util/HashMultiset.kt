@@ -61,7 +61,7 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
     } else {
       elements.forEach(::add)
     }
-    return elements.any()
+    return elements.isNotEmpty()
   }
 
   override fun clear(): Unit = map.clear()

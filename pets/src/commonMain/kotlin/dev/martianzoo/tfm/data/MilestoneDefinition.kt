@@ -24,8 +24,8 @@ public data class MilestoneDefinition(
 
   init {
     require(requirementText.isNotEmpty())
-    require(replaces?.isEmpty() != true)
-    require(requiredBundles?.isBlank() != false)
+    require(replaces?.isNotEmpty() != false)
+    require(requiredBundles?.isNotBlank() != false)
   }
 
   @Transient override val shortName: ClassName = cn(id)

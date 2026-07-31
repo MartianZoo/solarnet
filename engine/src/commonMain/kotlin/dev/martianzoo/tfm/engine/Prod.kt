@@ -20,8 +20,8 @@ public object Prod {
   }
 
   internal fun findResourceClassNames(classTable: ClassTable): Set<ClassName> {
-    val standardResource = classTable.findClass(STANDARD_RESOURCE) ?: return setOf()
-    if (classTable.findClass(PRODUCTION) == null) return setOf()
+    val standardResource = classTable.findClass(STANDARD_RESOURCE) ?: return emptySet()
+    if (classTable.findClass(PRODUCTION) == null) return emptySet()
     return standardResource.allSubclasses().flatMapTo(mutableSetOf()) {
       setOf(it.className, it.shortName)
     }
