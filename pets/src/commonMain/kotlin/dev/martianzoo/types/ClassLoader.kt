@@ -28,7 +28,7 @@ public constructor(
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public override val componentClass: Class =
-      Class(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = listOf())
+      Class(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = emptyList())
 
   /** The `Class` class, the other class that is required to exist. */
   public override val classClass: Class =
@@ -91,7 +91,7 @@ public constructor(
   /** Equivalent to calling [load] on every class name (or shortName) in [names]. */
   private fun loadAll(names: Collection<ClassName>) {
     queue += names
-    while (queue.any()) {
+    while (queue.isNotEmpty()) {
       loadAndMaybeEnqueueRelated(queue.removeFirst())
     }
   }

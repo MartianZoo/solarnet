@@ -59,7 +59,7 @@ public object JsonReader {
       fun complete(project: Boolean): StandardActionDefinition {
         val realActions =
             if (action == null) {
-              require(actions!!.any())
+              require(!actions.isNullOrEmpty())
               actions
             } else {
               require(actions == null)

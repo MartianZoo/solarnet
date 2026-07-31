@@ -80,7 +80,7 @@ private constructor(
 
 internal data class ScriptCompletionArgs(val text: String) {
   val words: List<String> =
-      text.trimStart().let { if (it.isEmpty()) listOf() else it.split(WHITESPACE) }
+      text.trimStart().let { if (it.isEmpty()) emptyList() else it.split(WHITESPACE) }
   val argIndex: Int =
       if (text.endsWithWhitespace()) words.size else words.lastIndex.coerceAtLeast(0)
   val currentWord: String = text.substringAfterLastWhitespace()

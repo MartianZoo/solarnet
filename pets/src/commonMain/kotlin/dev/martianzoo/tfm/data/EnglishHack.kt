@@ -11,7 +11,7 @@ internal object EnglishHack {
       return it
     }
     if (id.endsWith("F")) {
-      return englishHack(id.substring(0, id.length - 1))
+      return englishHack(id.dropLast(1))
     }
     error(id)
   }

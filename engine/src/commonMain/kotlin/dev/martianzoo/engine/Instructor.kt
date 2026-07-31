@@ -118,6 +118,7 @@ internal class Instructor(
     }
   }
 
+  // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.
   private fun prepareChange(change: Change): Instruction {
     // can't prepare at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change

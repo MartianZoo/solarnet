@@ -104,12 +104,12 @@ internal class Limiter(
   }
 
   internal fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {
-    val type = component?.type ?: return setOf()
+    val type = component?.type ?: return emptySet()
     return applicableRangeRestrictions(type)
   }
 
   private fun applicableRangeRestrictions(type: Type): Set<SimpleRangeRestriction> {
-    val allRestrictions = rangeRestrictionsByClass[type.rootClass] ?: listOf()
+    val allRestrictions = rangeRestrictionsByClass[type.rootClass].orEmpty()
     val ourRestrictions = allRestrictions.mapNotNull {
       val simple = it.bindThisTo(type) ?: return@mapNotNull null
       if (type.isSubtypeOf(simple.type)) simple else null
@@ -165,7 +165,7 @@ internal class Limiter(
 
 internal fun Class.invariants(): Set<Requirement> =
     if (abstract) {
-      setOf()
+      emptySet()
     } else {
       allSuperclasses().flatMap { split(it.declaration.invariants) }.toSet()
     }

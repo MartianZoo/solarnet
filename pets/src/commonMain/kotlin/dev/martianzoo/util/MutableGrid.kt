@@ -1,6 +1,6 @@
 package dev.martianzoo.util
 
-// this is honestly bogus - it can't grow
+// TODO: Replace this fixed-size mutable set/grid hybrid with a collection whose contracts match.
 public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
 
   override val rowCount: Int by rows::size
@@ -42,10 +42,10 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
 
   override fun contains(element: E): Boolean = all().contains(element)
 
-  override fun isEmpty(): Boolean = false
+  override fun isEmpty(): Boolean = all().isEmpty()
 
   internal fun immutable(): Grid<E> {
-    return MutableGrid(rows.map { it.toList() }.toList())
+    return MutableGrid(rows.map { it.toList() })
   }
 
   private class MutableColumn<E>(val rows: List<List<E?>>, val columnIndex: Int) :

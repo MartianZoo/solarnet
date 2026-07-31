@@ -29,8 +29,7 @@ internal class CanonBundlesTest {
   fun venusAddsHoverlordToTheMapsFiveMilestones() {
     val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
 
-    Canon.resolve(base).milestoneDefinitions.map { it.className }.contains(cn("Hoverlord")) shouldBe
-        false
+    Canon.resolve(base).milestoneDefinitions.any { it.className == cn("Hoverlord") } shouldBe false
     Canon.resolve(base + cn("VenusNextExpansion")).milestoneDefinitions.map {
       it.className
     } shouldContain cn("Hoverlord")
@@ -63,8 +62,7 @@ internal class CanonBundlesTest {
   fun doubleDownRequiresBothPromosAndPrelude() {
     val promos = setOf(cn("TerraformingMars"), cn("PromoCardsExpansion"))
 
-    Canon.resolve(promos).cardDefinitions.map { it.className }.contains(cn("DoubleDown")) shouldBe
-        false
+    Canon.resolve(promos).cardDefinitions.any { it.className == cn("DoubleDown") } shouldBe false
     Canon.resolve(promos + cn("PreludeExpansion")).cardDefinitions.map {
       it.className
     } shouldContain cn("DoubleDown")

@@ -126,8 +126,7 @@ internal object ClassParsing : PetTokenizer() {
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
 
-    private val docstring: Parser<String> =
-        _docString map { it.text.substring(1, it.text.length - 1) }
+    private val docstring: Parser<String> = _docString map { it.text.removeSurrounding("\"") }
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
@@ -201,7 +200,7 @@ internal object ClassParsing : PetTokenizer() {
   }
 
   internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
-    constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
+    constructor(list: List<BodyElement> = emptyList()) : this(KClassMultimap(list))
 
     override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
         NestableDeclGroup(kind, firstSignature, this)

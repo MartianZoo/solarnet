@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
  */
 public data class Expression(
     override val className: ClassName,
-    val arguments: List<Expression> = listOf(),
+    val arguments: List<Expression> = emptyList(),
     val refinement: Refinement? = null,
     val complement: Boolean = false,
 ) : PetElement(), HasClassName, HasExpression {
@@ -41,7 +41,7 @@ public data class Expression(
   override fun toString(): String = buildString {
     if (complement) append("!")
     append(className)
-    if (arguments.any()) append(arguments.joinToString(", ", "<", ">"))
+    if (arguments.isNotEmpty()) append(arguments.joinToString(", ", "<", ">"))
     refinement?.let { append("($it)") }
   }
 
