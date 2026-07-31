@@ -1,0 +1,14 @@
+{
+  "awards": [
+    // Biologist
+    { "id": "IA1", "metric": "BioTag" },
+    // Incorporator
+    { "id": "IA2", "metric": "ActiveCard(HAS MAX 10 CardCost) OR AutomatedCard(HAS MAX 10 CardCost)" },
+//    // Terra Politician
+//    { "id": "IA3", "metric": "Delegate" },
+    // Urbanist
+    { "id": "IA4", "metric": "Adjacency<CityTile, GreeneryTile<Anyone>>" },
+//    // Warmonger
+//    { "id": "IA5", "metric": "WarmongerCardPlayed" },
+  ],
+}

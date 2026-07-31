@@ -1,24 +1,19 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
-abstract class AbstractFullGameTest {
-  protected lateinit var game: World
-  protected lateinit var engine: TfmGameplay
+abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
 
@@ -27,7 +22,6 @@ abstract class AbstractFullGameTest {
   @BeforeTest
   open fun commonSetup() {
     game = Engine.newGame(setup())
-    engine = game.tfm(ENGINE)
     p1 = game.tfm(PLAYER1)
     if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
   }
@@ -40,9 +34,6 @@ abstract class AbstractFullGameTest {
     p1.assertDashRight(events = 0, tagless = 0, cities = 0, colonies = 0)
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
   }
-
-  protected fun TaskResult.expect(string: String) =
-      TestHelpers.assertNetChanges(this, game, engine, string)
 
   protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertProds(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")

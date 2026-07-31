@@ -1049,8 +1049,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's plants amount increased by 1
     p1.playProject("Trees", 13)
     // Player1 funded Banker award
-    p1.godMode().sneak("-8, 5 VP") // faking it for now, fix when awards work
-    p1.declineSecondAction()
+    p1.stdAction("FundAwardSA") { doTask("Banker") }
 
     // Player2 used Search For Life action
     p2.cardAction1("SearchForLife") {
@@ -1068,7 +1067,8 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.pass()
 
     // Player1 funded Venuphile award
-    p1.godMode().sneak("-14, 5 VP")
+    p1.stdAction("FundAwardSA") { doTask("Venuphile") }
+    p1.declineSecondAction()
     // Player1 passed
     p1.pass()
 
@@ -1425,7 +1425,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 placed greenery tile on row 9 position 4
     p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_9_8>") }
     // Player1 funded Thermalist award
-    p1.godMode().sneak("-20, 5 VP")
+    p1.stdAction("FundAwardSA") { doTask("Thermalist") }
     // Player1 used Convert Plants standard action
     p1.stdAction("ConvertPlantsSA") {
           // Player1 placed greenery tile on row 4 position 4
@@ -1433,7 +1433,6 @@ class Game20230521Test : AbstractFullGameTest() {
           // Player1's plants amount increased by 1
         }
         .expect("-7 Plant")
-    p1.declineSecondAction()
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents
     p2.sellPatents(3)

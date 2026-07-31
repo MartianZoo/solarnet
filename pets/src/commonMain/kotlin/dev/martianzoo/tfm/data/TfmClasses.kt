@@ -12,6 +12,7 @@ public object TfmClasses {
   public val TILE: dev.martianzoo.pets.ast.ClassName = cn("Tile")
 
   internal val MILESTONE = cn("Milestone")
+  internal val AWARD = cn("Award")
 
   internal val CORPORATION_CARD = cn("CorporationCard")
   internal val PRELUDE_CARD = cn("PreludeCard")

@@ -129,6 +129,7 @@ public abstract class PetTransformer protected constructor() {
             is Cost ->
                 when (this) {
                   is Cost.Spend -> Cost.Spend(x(scaledEx))
+                  is Cost.Gated -> Cost.Gated(x(gate), x(cost))
                   is Cost.Per -> Cost.Per(x(cost), x(metric))
                   is Cost.Or -> Cost.Or(x(costs))
                   is Cost.Multi -> Cost.Multi(x(costs))

@@ -4,7 +4,7 @@
     // Landlord
     { "id": "MA1", "metric": "OwnedTile" },
     // Banker
-    { "id": "MA2", "metric": "PROD[1]" },
+    { "id": "MA2", "metric": "PROD[Megacredit]" },
     // Scientist
     { "id": "MA3", "metric": "ScienceTag" },
     // Thermalist

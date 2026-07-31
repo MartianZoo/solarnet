@@ -1,0 +1,179 @@
+package dev.martianzoo.tfm.engine
+
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.Player.Companion.PLAYER3
+import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import kotlin.test.Test
+
+internal class AwardsTest : TfmTest() {
+  @Test
+  fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
+    game = Engine.newGame(canonicalPremise(players = 1))
+
+    game.classTable.findClass(cn("ClaimMilestoneSA")) shouldBe null
+    game.classTable.findClass(cn("FundAwardSA")) shouldBe null
+    engine.assertCounts(
+        1 to "PlayCardSA",
+        1 to "AquiferSP",
+    )
+  }
+
+  @Test
+  fun incorporatorCountsOnlyCheapActiveAndAutomatedProjects() {
+    game =
+        Engine.newGame(
+            canonicalPremise(
+                "TerraCimmeriaMapOption FROM TharsisMapOption",
+                2,
+            )
+        )
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+
+    p1.godMode().sneak("Incorporator, Ecoline, InterplanetaryCinematics")
+    p2.godMode().sneak("MiningGuild, Mine")
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(0 to "AwardTally<Player1, Incorporator>")
+    p2.assertCounts(
+        1 to "AwardTally<Player2, Incorporator>",
+        1 to "FirstPlace<Player2, Incorporator>",
+    )
+  }
+
+  @Test
+  fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
+    game = Engine.newGame(canonicalPremise(players = 2))
+    val p1 = game.tfm(PLAYER1)
+    p1.godMode().sneak("100 Megacredit")
+
+    val first = p1.godMode().manual("UseAction1<FundAwardSA>") { doTask("Landlord") }
+    first.expect("-8")
+    p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
+
+    shouldThrow<LimitsException> {
+      p1.godMode().manual("UseAction1<FundAwardSA>") { doTask("Landlord") }
+    }
+    p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
+
+    val second = p1.godMode().manual("UseAction1<FundAwardSA>") { doTask("Scientist") }
+    second.expect("-14")
+    p1.assertCounts(78 to "Megacredit", 1 to "Scientist")
+
+    val third = p1.godMode().manual("UseAction1<FundAwardSA>") { doTask("Thermalist") }
+    third.expect("-20")
+    p1.assertCounts(58 to "Megacredit", 1 to "Thermalist", 3 to "Award")
+
+    shouldThrow<NotNowException> {
+      p1.godMode().manual("UseAction1<FundAwardSA>") { doTask("Miner") }
+    }
+  }
+
+  @Test
+  fun scoringAwardsTiedFirstAndSecondPlaces() {
+    game = Engine.newGame(canonicalPremise(players = 3))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val p3 = game.tfm(PLAYER3)
+
+    p1.godMode().sneak("Thermalist, Miner, 3 Heat, 3 Steel")
+    p2.godMode().sneak("2 Heat, 3 Steel")
+    p3.godMode().sneak("2 Heat, 2 Steel")
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(
+        1 to "FirstPlace<Player1, Thermalist>",
+        1 to "FirstPlace<Player1, Miner>",
+        3 to "AwardTally<Player1, Thermalist>",
+        3 to "AwardTally<Player1, Miner>",
+        10 to "VictoryPoint",
+    )
+    p2.assertCounts(
+        1 to "SecondPlace<Player2, Thermalist>",
+        1 to "FirstPlace<Player2, Miner>",
+        7 to "VictoryPoint",
+    )
+    p3.assertCounts(
+        1 to "SecondPlace<Player3, Thermalist>",
+        0 to "SecondPlace<Player3, Miner>",
+        2 to "VictoryPoint",
+    )
+  }
+
+  @Test
+  fun zeroTalliesCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
+    game = Engine.newGame(canonicalPremise(players = 3))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val p3 = game.tfm(PLAYER3)
+
+    p1.godMode().sneak("Thermalist, Miner, Heat")
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(
+        1 to "FirstPlace<Player1, Thermalist>",
+        1 to "FirstPlace<Player1, Miner>",
+        0 to "FirstPlace<Player1, Scientist>",
+        10 to "VictoryPoint",
+    )
+    p2.assertCounts(
+        1 to "SecondPlace<Player2, Thermalist>",
+        1 to "FirstPlace<Player2, Miner>",
+        0 to "FirstPlace<Player2, Scientist>",
+        7 to "VictoryPoint",
+    )
+    p3.assertCounts(
+        1 to "SecondPlace<Player3, Thermalist>",
+        1 to "FirstPlace<Player3, Miner>",
+        0 to "FirstPlace<Player3, Scientist>",
+        7 to "VictoryPoint",
+    )
+  }
+
+  @Test
+  fun negativeBankerProductionCanEarnFirstAndSecond() {
+    game = Engine.newGame(canonicalPremise(players = 3))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val p3 = game.tfm(PLAYER3)
+
+    p1.godMode().sneak("Banker, PROD[-4]")
+    p2.godMode().sneak("PROD[-5]")
+    p3.godMode().sneak("PROD[-5]")
+    p1.assertProds(-4 to "Megacredit")
+    p2.assertProds(-5 to "Megacredit")
+    p3.assertProds(-5 to "Megacredit")
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
+    p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
+    p3.assertCounts(1 to "SecondPlace<Player3, Banker>", 2 to "VictoryPoint")
+  }
+
+  @Test
+  fun twoPlayerGameDoesNotAwardSecondPlace() {
+    game = Engine.newGame(canonicalPremise(players = 2))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+
+    p1.godMode().sneak("Thermalist, Heat")
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(1 to "FirstPlace<Player1, Thermalist>", 5 to "VictoryPoint")
+    p2.assertCounts(0 to "SecondPlace<Player2, Thermalist>", 0 to "VictoryPoint")
+  }
+}

@@ -12,6 +12,11 @@ internal class ActionTest {
     testRoundTrip<Action>("-> Ok")
   }
 
+  @Test
+  fun requirementGatedCosts() {
+    testRoundTrip<Action>("(=0 Award: 8) OR (=1 Award: 14) OR (=2 Award: 20) -> Award")
+  }
+
   private val inputs =
       """
       -> 11

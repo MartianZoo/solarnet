@@ -8,22 +8,18 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmTest
 import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.tfm.engine.setUpGame as setUpTfmGame
 
-abstract class CardTest {
-  protected lateinit var game: World
+abstract class CardTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
     private set
 
   protected var p2: TfmGameplay? = null
     private set
-
-  protected val engine: TfmGameplay
-    get() = game.tfm(ENGINE)
 
   protected fun newGame(premise: GamePremise): World =
       setUpTfmGame(premise).initializeCardTestGame()
@@ -81,9 +77,6 @@ abstract class CardTest {
       instruction: String,
       body: BodyLambda = {},
   ): TaskResult = godMode().manual(instruction, body)
-
-  protected fun TaskResult.expect(string: String) =
-      TestHelpers.assertNetChanges(this, game, engine, string)
 
   private companion object {
     private data class SetupKey(

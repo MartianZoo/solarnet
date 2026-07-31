@@ -13,6 +13,7 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.systemClassDeclarations
+import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition
@@ -86,6 +87,14 @@ public abstract class TfmRuleset : Ruleset {
           replaces = MilestoneDefinition::replaces,
           setupRequirement = MilestoneDefinition::setupRequirement,
       )
+    }
+
+    override val awardDefinitions: Set<AwardDefinition> by lazy {
+      super.awardDefinitions.filterTo(linkedSetOf(), ::setupRequirementHolds)
+    }
+
+    override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
+      super.standardActionDefinitions.filterTo(linkedSetOf(), ::setupRequirementHolds)
     }
 
     override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
@@ -219,6 +228,7 @@ public abstract class TfmRuleset : Ruleset {
   override val allDefinitions: Set<Definition> by lazy {
     setOf<Definition>() +
         cardDefinitions +
+        awardDefinitions +
         milestoneDefinitions +
         colonyTileDefinitions +
         standardActionDefinitions +
@@ -253,6 +263,12 @@ public abstract class TfmRuleset : Ruleset {
 
   public abstract val milestoneDefinitions: Set<MilestoneDefinition>
 
+  public fun award(name: ClassName): AwardDefinition = awardDefinitions.first {
+    it.className == name
+  }
+
+  public abstract val awardDefinitions: Set<AwardDefinition>
+
   public fun colonyTile(name: ClassName): ColonyTileDefinition = colonyTileDefinitions.first {
     it.className == name
   }
@@ -277,6 +293,7 @@ public abstract class TfmRuleset : Ruleset {
     override val cardDefinitions: Set<CardDefinition> = emptySet()
     override val marsMapDefinitions: Set<MarsMapDefinition> = emptySet()
     override val milestoneDefinitions: Set<MilestoneDefinition> = emptySet()
+    override val awardDefinitions: Set<AwardDefinition> = emptySet()
     override val colonyTileDefinitions: Set<ColonyTileDefinition> = emptySet()
     override val standardActionDefinitions: Set<StandardActionDefinition> = emptySet()
     override val customClasses: Set<CustomClass> = emptySet()
@@ -314,6 +331,10 @@ public abstract class TfmRuleset : Ruleset {
 
     override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
       rulesets.flatMap { it.milestoneDefinitions }.toSet()
+    }
+
+    override val awardDefinitions: Set<AwardDefinition> by lazy {
+      rulesets.flatMap { it.awardDefinitions }.toSet()
     }
 
     override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {

@@ -45,6 +45,7 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.HandleCardCost,
         TerraformingMars.GetEventVps,
         TerraformingMars.PassLeft,
+        TerraformingMars.AssignAwardPlaces,
         TerraformingMars.MarsRow,
         TerraformingMars.CardCost,
         TerraformingMars.CitationsIgnoringRemoves,
@@ -223,6 +224,41 @@ internal object TerraformingMars {
       )
     }
   }
+
+  internal object AssignAwardPlaces : CustomClass() {
+    override fun translate(reader: GameReader, awardType: Type): Instruction {
+      val players = reader.getComponents("Player").elements
+      val measuredType =
+          reader.resolve(cn("AwardMeasured").of(cn("Player").expression, awardType.expression))
+      if (reader.count(measuredType) < players.size) return NoOp
+
+      val scores = players.associateWith {
+        reader.count(reader.resolve(tally(it, awardType)))
+      }
+      val firstScore = scores.values.maxOrNull() ?: return NoOp
+
+      val first = scores.filterValues { it == firstScore }.keys
+      val winners = first.map { cn("FirstPlace").of(it.expression, awardType.expression) }
+      val placements =
+          if (players.size < 3 || first.size > 1) {
+            winners
+          } else {
+            val secondScore = scores.filterKeys { it !in first }.values.maxOrNull() ?: 0
+            val runnersUp =
+                scores
+                    .filter { (player, score) ->
+                      player !in first && score == secondScore
+                    }
+                    .keys
+                    .map { cn("SecondPlace").of(it.expression, awardType.expression) }
+            winners + runnersUp
+          }
+      return Then.create(placements.map { gain(scaledEx(1, it)) })
+    }
+  }
+
+  private fun tally(player: HasClassName, awardType: Type): Expression =
+      cn("AwardTally").of(player.className.expression, awardType.expression)
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
     require(cardClassType.className == CLASS)

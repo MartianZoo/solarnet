@@ -41,13 +41,16 @@
     },
 
     // Vitor
-    // TODO: Add the mandated free award once awards work; the card is otherwise correct in solo mode.
     {
       "id": "PC5",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "45",
-      "effects": [ "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3" ]
+      "effects": [
+        "This IF 2 Player: MandatePC5",
+        "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
+      ],
+      "components": [ "CLASS MandatePC5 : Mandate { -> Award }" ]
     },
 
     // Allied Bank

@@ -13,6 +13,22 @@ import kotlinx.serialization.json.Json
 
 public object JsonReader {
 
+  // AWARDS
+
+  public fun readAwards(json5: String): List<AwardDefinition> =
+      fromJson5<AwardList>(json5).complete()
+
+  @Serializable
+  private data class AwardList(
+      val setupRequirement: String? = null,
+      val awards: List<AwardDefinition>,
+  ) {
+    fun complete(): List<AwardDefinition> =
+        setupRequirement?.let { requirement ->
+          awards.map { it.withSetupRequirement(requirement) }
+        } ?: awards
+  }
+
   // CARDS
 
   public fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
@@ -75,6 +91,7 @@ public object JsonReader {
         val id: String,
         val action: String? = null,
         val actions: List<String>? = null,
+        val setupRequirement: String? = null,
     ) {
       fun complete(project: Boolean): StandardActionDefinition {
         val realActions =
@@ -85,7 +102,7 @@ public object JsonReader {
               require(actions == null)
               listOf(action)
             }
-        return StandardActionDefinition(cn(id), project, realActions)
+        return StandardActionDefinition(cn(id), project, realActions, setupRequirement)
       }
     }
   }

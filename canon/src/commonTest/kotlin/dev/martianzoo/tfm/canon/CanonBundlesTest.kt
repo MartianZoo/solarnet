@@ -107,6 +107,49 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun awardsComeFromTheSelectedMapAndExpansions() {
+    val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
+
+    Canon.resolve(base).awardDefinitions.map { it.className }.toSet() shouldBe
+        setOf(cn("Landlord"), cn("Banker"), cn("Scientist"), cn("Thermalist"), cn("Miner"))
+    Canon.resolve(base + cn("VenusNextExpansion")).awardDefinitions.map {
+      it.className
+    } shouldContain cn("Venuphile")
+  }
+
+  @Test
+  fun hellasAndElysiumAwardsFollowTheSelectedMapOption() {
+    val bundles = setOf(cn("TerraformingMars"), cn("HellasElysiumExpansion"))
+
+    Canon.resolve(bundles, setupReader(cn("HellasMapOption")))
+        .awardDefinitions
+        .map {
+          it.className
+        }
+        .toSet() shouldBe
+        setOf(
+            cn("Cultivator"),
+            cn("Magnate"),
+            cn("SpaceBaron"),
+            cn("Excentric"),
+            cn("Contractor"),
+        )
+    Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
+        .awardDefinitions
+        .map {
+          it.className
+        }
+        .toSet() shouldBe
+        setOf(
+            cn("Celebrity"),
+            cn("Industrialist"),
+            cn("DesertSettler"),
+            cn("EstateDealer"),
+            cn("Benefactor"),
+        )
+  }
+
+  @Test
   fun expansionVocabularyComesOnlyFromItsExpansionBundle() {
     val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
     val expansionVocabulary =

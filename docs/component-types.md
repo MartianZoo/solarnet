@@ -45,11 +45,13 @@ As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the 
 
 Any component that makes actions available for possible selection extends the supertype `HasActions`; these includes the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
 
-The first two are singleton types: each concrete subtype such as `Aquifer` automatically has an instance created before the game starts. Therefore if the user signals `UseAction<Aquifer>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue.
+The first two are singleton types: each concrete subtype in the selected ruleset, such as `Aquifer`, automatically has an instance created before the game starts. Therefore if the user signals `UseAction<Aquifer>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue. Multiplayer-only definitions such as Claim Milestone and Fund Award are excluded from solo rulesets, so those classes do not exist in solo worlds.
 
 ### Phases
 
 Once the workflow starts setup, exactly one Phase instance exists: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. A newly created engine is briefly at a committed pre-setup baseline with no Phase; the workflow owns creating `SetupPhase`. After the final `ProductionPhase`, `FinalGreeneryPhase` lets players convert remaining plants into greeneries before scoring. A phase called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!). When the final phase `Shutdown` is created, the game is thereby concluded and no more state changes can happen.
+
+Funded awards are `Award` components. The standard action charges 8, 14, then 20 megacredits as one cost; invariants prevent an award from being funded twice and limit the game to three funded awards. Award funding is unavailable in solo games. During `EndPhase`, each funded award records a persistent `AwardTally` for every player, then records `FirstPlace` and, in games with at least three players, `SecondPlace` components. Those placement components award 5 and 2 victory points themselves. Ties for first receive 5 points each and suppress second place; ties for second receive 2 points each.
 
 ## Player stuff
 
