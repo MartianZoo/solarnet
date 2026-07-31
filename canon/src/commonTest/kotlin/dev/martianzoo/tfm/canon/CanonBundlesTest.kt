@@ -36,6 +36,18 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun planetologistRequiresVenusNext() {
+    val terraCimmeria = setOf(cn("TerraformingMars"), cn("TerraCimmeriaMap"))
+
+    Canon.resolve(terraCimmeria).milestoneDefinitions.any {
+      it.className == cn("Planetologist")
+    } shouldBe false
+    Canon.resolve(terraCimmeria + cn("VenusNextExpansion")).milestoneDefinitions.map {
+      it.className
+    } shouldContain cn("Planetologist")
+  }
+
+  @Test
   fun expansionVocabularyComesOnlyFromItsExpansionBundle() {
     val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
     val expansionVocabulary =
