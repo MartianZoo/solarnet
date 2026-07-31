@@ -29,8 +29,9 @@ public object Canon :
             gameOptionClassNames = setOf(cn("HellasMapOption"), cn("ElysiumMapOption")),
         ),
         StandardFormBundle(
-            "TerraCimmeriaMap",
-            gameOptionClassNames = setOf(cn("TerraCimmeriaMapOption")),
+            "UtopiaCimmeriaExpansion",
+            utopiaCimmeriaCustomClasses,
+            setOf(cn("UtopiaPlanitiaMapOption"), cn("TerraCimmeriaMapOption")),
         ),
         StandardFormBundle(
             "VenusNextExpansion",
@@ -172,9 +173,10 @@ public object Canon :
   private val HELLAS_MAP_OPTION = cn("HellasMapOption")
   private val ELYSIUM_MAP_OPTION = cn("ElysiumMapOption")
   private val HELLAS_ELYSIUM_EXPANSION = cn("HellasElysiumExpansion")
+  private val UTOPIA_PLANITIA_MAP_OPTION = cn("UtopiaPlanitiaMapOption")
   private val TERRA_CIMMERIA_MAP_OPTION = cn("TerraCimmeriaMapOption")
   private val THARSIS_MAP_BUNDLE = cn("TharsisMap")
-  private val TERRA_CIMMERIA_MAP_BUNDLE = cn("TerraCimmeriaMap")
+  private val UTOPIA_CIMMERIA_EXPANSION = cn("UtopiaCimmeriaExpansion")
   private val VENUS_NEXT = cn("VenusNextExpansion")
   private val PRELUDE = cn("PreludeExpansion")
   private val COLONIES = cn("ColoniesExpansion")
@@ -191,7 +193,8 @@ public object Canon :
           THARSIS_MAP_OPTION to THARSIS_MAP_BUNDLE,
           HELLAS_MAP_OPTION to HELLAS_ELYSIUM_EXPANSION,
           ELYSIUM_MAP_OPTION to HELLAS_ELYSIUM_EXPANSION,
-          TERRA_CIMMERIA_MAP_OPTION to TERRA_CIMMERIA_MAP_BUNDLE,
+          UTOPIA_PLANITIA_MAP_OPTION to UTOPIA_CIMMERIA_EXPANSION,
+          TERRA_CIMMERIA_MAP_OPTION to UTOPIA_CIMMERIA_EXPANSION,
           VENUS_NEXT to VENUS_NEXT,
           PRELUDE to PRELUDE,
           COLONIES to COLONIES,

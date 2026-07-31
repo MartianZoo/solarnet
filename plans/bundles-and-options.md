@@ -51,10 +51,10 @@ particular:
 This validation distinguishes a known but inactive name from a typo. A game may leave `Colony`
 inactive, but an Authority containing `Colnoy` should be invalid.
 
-Bundle dependencies are hard environment dependencies, not option implications. The Terra Cimmeria
-bundle depends on the Colonies bundle because its rules mention Colonies vocabulary. Therefore an
-Authority cannot provide Terra Cimmeria without also making the Colonies data available. This does
-not enable the Colonies game option in any assembled game.
+Bundle dependencies are hard environment dependencies, not option implications. The Utopia &
+Cimmeria bundle depends on the Colonies bundle because its rules mention Colonies vocabulary.
+Therefore an Authority cannot provide those maps without also making the Colonies data available.
+This does not enable the Colonies game option in any assembled game.
 
 The Authority is also the boundary for future customization. “Canon plus my content” means a new
 Authority whose bundles are validated together; it does not mean mutating Canon or a running game.
@@ -168,8 +168,8 @@ play.
 ### Terra Cimmeria and Colonies
 
 The map data maps its special letter only to `TcColonyBonus`; that type owns the conditional rule.
-The Terra Cimmeria bundle has a hard provider dependency on the Colonies bundle, so every supporting
-Authority knows `ColoniesExpansion` and `Colony`.
+The Utopia & Cimmeria bundle has a hard provider dependency on the Colonies bundle, so every
+supporting Authority knows `ColoniesExpansion` and `Colony`.
 
 Without the Colonies option, those classes are phantom. Their class-literal metrics count zero and
 the mandatory colony branch becomes `Die`, leaving the no-op branch. With Colonies enabled, the

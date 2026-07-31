@@ -32,6 +32,44 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun utopiaAndCimmeriaAreSeparateOptionsFromOneBundle() {
+    val combinedBundle = cn("UtopiaCimmeriaExpansion")
+    val coreBundle = cn("TerraformingMars")
+
+    val utopiaOptions = GameOptions(2, setOf(cn("TerraformingMars"), cn("UtopiaPlanitiaMapOption")))
+    val cimmeriaOptions =
+        GameOptions(2, setOf(cn("TerraformingMars"), cn("TerraCimmeriaMapOption")))
+    Canon.bundleNames(utopiaOptions) shouldBe setOf(coreBundle, combinedBundle)
+    Canon.bundleNames(cimmeriaOptions) shouldBe setOf(coreBundle, combinedBundle)
+
+    val utopia = Canon.gamePremise(utopiaOptions).ruleset as TfmRuleset
+    utopia.marsMapDefinitions.single().className shouldBe cn("UtopiaPlanitia")
+    utopia.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe true
+    utopia.milestoneDefinitions.any { it.shortName == cn("UM2") } shouldBe false
+    utopia.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe false
+
+    val cimmeria = Canon.gamePremise(cimmeriaOptions).ruleset as TfmRuleset
+    cimmeria.marsMapDefinitions.single().className shouldBe cn("TerraCimmeria")
+    cimmeria.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe true
+    cimmeria.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe false
+  }
+
+  @Test
+  fun pioneerRequiresColonies() {
+    val utopia = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
+
+    Canon.resolve(utopia, setOf(cn("UtopiaPlanitiaMapOption"))).milestoneDefinitions.any {
+      it.className == cn("Pioneer")
+    } shouldBe false
+    Canon.resolve(
+            utopia + cn("ColoniesExpansion"),
+            setOf(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion")),
+        )
+        .milestoneDefinitions
+        .map { it.className } shouldContain cn("Pioneer")
+  }
+
+  @Test
   fun systemDeclarationsBelongToPetsRatherThanACanonBundle() {
     Canon.classDeclarationBundles.getValue(COMPONENT).shouldBeEmpty()
   }
@@ -59,7 +97,7 @@ internal class CanonBundlesTest {
 
   @Test
   fun planetologistRequiresVenusNext() {
-    val terraCimmeria = setOf(cn("TerraformingMars"), cn("TerraCimmeriaMap"))
+    val terraCimmeria = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
 
     Canon.resolve(terraCimmeria, setOf(cn("TerraCimmeriaMapOption"))).milestoneDefinitions.any {
       it.className == cn("Planetologist")

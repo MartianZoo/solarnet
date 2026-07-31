@@ -1,0 +1,14 @@
+{
+  "milestones": [
+    // Manager
+    { "id": "UM1", "setupRequirement": "UtopiaPlanitiaMapOption", "requirement": "3 SpecialTile" },
+    // Pioneer
+    { "id": "UM2", "setupRequirement": "UtopiaPlanitiaMapOption, ColoniesExpansion", "requirement": "3 Colony" },
+    // Trader
+    { "id": "UM3", "setupRequirement": "UtopiaPlanitiaMapOption", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
+    // Metallurgist
+    { "id": "UM4", "setupRequirement": "UtopiaPlanitiaMapOption", "requirement": "6 MetalProduction<Owner>" },
+    // Researcher
+    { "id": "UM5", "setupRequirement": "UtopiaPlanitiaMapOption", "requirement": "4 ScienceTag" },
+  ],
+}

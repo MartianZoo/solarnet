@@ -20,7 +20,7 @@ internal object OptionCodeTranslation {
       options.enabled.mapNotNull(codesByOption::get).joinToString("")
 
   fun suggestions(current: GameOptions): List<String> {
-    val maps = setOf("E", "H", "I", "M")
+    val maps = setOf("E", "H", "I", "M", "U")
     val nonMaps = optionsByCode.keys - maps
     val common = listOf("BM", "BRM", "BRMVX", "BRMVPX", "BRMVPXT", optionCodes(current))
     val generated = maps.flatMap { map -> nonMaps.map { "$it$map" } }
@@ -36,6 +36,7 @@ internal object OptionCodeTranslation {
           "H" to cn("HellasMapOption"),
           "E" to cn("ElysiumMapOption"),
           "I" to cn("TerraCimmeriaMapOption"),
+          "U" to cn("UtopiaPlanitiaMapOption"),
           "V" to cn("VenusNextExpansion"),
           "P" to cn("PreludeExpansion"),
           "C" to cn("ColoniesExpansion"),
