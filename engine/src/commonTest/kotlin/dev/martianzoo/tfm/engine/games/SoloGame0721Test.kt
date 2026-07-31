@@ -573,7 +573,7 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       assertProduction(m = 8, s = 0, t = 0, p = 5, e = 7, h = 10)
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
-      assertCounts(0 to "ProjectCard", 69 to "TR", 32 to "CardFront + PlayedEvent")
+      assertCounts(0 to "ProjectCard", 69 to "TR", 32 to "CardFront OR PlayedEvent")
       assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
       assertSidebar(gen = 12, temp = 4, oxygen = 12, oceans = 8, venus = 30)
 

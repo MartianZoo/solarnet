@@ -55,7 +55,7 @@ internal class ScriptCompletionEngineTest {
     assertContainsAll(values("exec Plant FROM P"), "Plant", "PlantTag")
     assertContainsAll(values("exec PROD["), "PROD[Plant", "PROD[PlantTag")
     assertContainsAll(values("desc Plant(HAS MAX "), "1", "Plant")
-    assertContainsAll(values("count Tag + "), "1", "PlantTag")
+    assertContainsAll(values("count Tag OR "), "1", "PlantTag")
   }
 
   @Test

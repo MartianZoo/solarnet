@@ -52,11 +52,10 @@ public sealed class Metric : PetElement() {
   }
 
   @ConsistentCopyVisibility
-  public data class Plus internal constructor(val metrics: List<Metric>) : Metric() {
+  public data class Or internal constructor(val metrics: List<Metric>) : Metric() {
     init {
-      if (metrics.any { it is Plus }) {
-        // how did we get around this problem for other things??
-        throw PetSyntaxException("Having a plus inside a plus causes problems...")
+      if (metrics.any { it is Or }) {
+        throw PetSyntaxException("Nested metric OR must be flattened")
       }
     }
 
@@ -65,7 +64,7 @@ public sealed class Metric : PetElement() {
         return when (metrics.size) {
           0 -> null
           1 -> metrics.single()
-          else -> Plus(metrics.flatMap { if (it is Plus) it.metrics else listOf(it) }.toList())
+          else -> Or(metrics.flatMap { if (it is Or) it.metrics else listOf(it) }.toList())
         }
       }
 
@@ -79,9 +78,9 @@ public sealed class Metric : PetElement() {
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(metrics)
 
-    override fun toString(): String = metrics.joinToString(" + ")
+    override fun toString(): String = metrics.joinToString(" OR ") { groupPartIfNeeded(it) }
 
-    override fun precedence(): Int = 9
+    override fun precedence(): Int = 4
   }
 
   public data class Transform(val inner: Metric, override val transformKind: String) :
@@ -93,8 +92,26 @@ public sealed class Metric : PetElement() {
     override fun extract(): Metric = inner
   }
 
-  internal companion object : PetTokenizer() {
+  internal companion object {
+    fun parser(): Parser<Metric> = Parsers.parser()
+
+    fun atomParser(): Parser<Metric> = Parsers.atomParser()
+  }
+
+  private object Parsers : PetTokenizer() {
     fun parser(): Parser<Metric> {
+      return parser {
+        val atom = atomParser()
+        atom and
+            zeroOrMore(skip(_or) and atom) map
+            { (met, addon) ->
+              if (addon.any()) Or.create(listOf(met) + addon)!! else met
+            }
+      }
+    }
+
+    /** A metric suitable for being nested directly after `/` in an instruction or cost. */
+    fun atomParser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map Metric::Count
 
@@ -113,13 +130,7 @@ public sealed class Metric : PetElement() {
                   limit?.let { Max(met, it) } ?: met
                 }
 
-        val result =
-            max and
-                zeroOrMore(skipChar('+') and max) map
-                { (met, addon) ->
-                  if (addon.any()) Plus(listOf(met) + addon) else met
-                }
-        result
+        max
       }
     }
   }

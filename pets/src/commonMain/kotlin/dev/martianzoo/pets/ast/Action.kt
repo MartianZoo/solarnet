@@ -64,7 +64,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost, metric)
 
-      override fun toString() = "$cost / $metric"
+      override fun toString() = "$cost / ${groupPartIfNeeded(metric)}"
 
       override fun precedence() = 5
 
@@ -123,7 +123,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
 
           val perCost =
               atomCost and
-                  optional(skipChar('/') and Metric.parser()) map
+                  optional(skipChar('/') and Metric.atomParser()) map
                   { (cost, met) ->
                     if (met == null) cost else Per(cost, met)
                   }

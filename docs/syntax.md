@@ -64,10 +64,25 @@ the type is missing, it defaults to `Megacredit`. At least one must be used.
 
 ### Metrics
 
+```
+metric := maxMetric ('OR' maxMetric)*
+maxMetric := scaledMetric ['MAX' scalar]
+scaledMetric := [scalar] metricAtom
+metricAtom := typeExpression | transform | '(' metric ')'
+```
+
 A metric computes a non-negative integer. A type expression used as a metric normally counts matching components in
 the component graph; the REPL command `count Foo` evaluates exactly this kind of metric. A class extending `Custom`
 can instead have Kotlin metric behavior, in which case the implementation supplies the count even though no component
 of that class ever exists. For example, `MarsRow<Hellas_8_4>` evaluates to `8`.
+
+`OR` counts the multiset union of its component-count alternatives. Thus `Steel OR Titanium` counts both resource
+types, while `OwnedTile OR CityTile` counts each city only once even though every city is also an owned tile. Its
+alternatives must be component-count metrics; virtual custom metrics cannot participate because they have no component
+identity with which to detect overlap.
+
+After `/`, surround a disjunctive metric with parentheses, as in
+`1 / (CityTile OR SpecialTile)`. This distinguishes metric `OR` from an `OR` between instructions or costs.
 
 Custom metric types can state dependency bounds inside refinements in the usual way. Thus
 `OwnedTile<MarsArea(HAS 8 MarsRow)>` counts owned tiles in rows 8 and 9. Custom metrics can also appear after `/`, in

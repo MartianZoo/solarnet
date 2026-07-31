@@ -25,6 +25,37 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun utopiaAndCimmeriaAreSeparateOptionsFromOneBundle() {
+    val bundles = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
+
+    val utopia = Canon.resolve(bundles, setOf(cn("UtopiaPlanitiaMapOption")))
+    utopia.marsMapDefinitions.single().className shouldBe cn("UtopiaPlanitia")
+    utopia.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe true
+    utopia.milestoneDefinitions.any { it.shortName == cn("UM2") } shouldBe false
+    utopia.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe false
+
+    val cimmeria = Canon.resolve(bundles, setOf(cn("TerraCimmeriaMapOption")))
+    cimmeria.marsMapDefinitions.single().className shouldBe cn("TerraCimmeria")
+    cimmeria.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe true
+    cimmeria.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe false
+  }
+
+  @Test
+  fun pioneerRequiresColonies() {
+    val utopia = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
+
+    Canon.resolve(utopia, setOf(cn("UtopiaPlanitiaMapOption"))).milestoneDefinitions.any {
+      it.className == cn("Pioneer")
+    } shouldBe false
+    Canon.resolve(
+            utopia + cn("ColoniesExpansion"),
+            setOf(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion")),
+        )
+        .milestoneDefinitions
+        .map { it.className } shouldContain cn("Pioneer")
+  }
+
+  @Test
   fun systemDeclarationsBelongToPetsRatherThanACanonBundle() {
     Canon.classDeclarationBundles.getValue(COMPONENT).shouldBeEmpty()
   }
@@ -52,7 +83,7 @@ internal class CanonBundlesTest {
 
   @Test
   fun planetologistRequiresVenusNext() {
-    val terraCimmeria = setOf(cn("TerraformingMars"), cn("TerraCimmeriaMap"))
+    val terraCimmeria = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
 
     Canon.resolve(terraCimmeria, setOf(cn("TerraCimmeriaMapOption"))).milestoneDefinitions.any {
       it.className == cn("Planetologist")

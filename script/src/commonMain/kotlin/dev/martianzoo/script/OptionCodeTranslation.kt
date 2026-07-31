@@ -32,7 +32,8 @@ internal object OptionCodeTranslation {
     return common + generated
   }
 
-  private val optionsByCode = linkedSetOf("S", "R", "M", "H", "E", "I", "V", "P", "C", "T", "X")
+  private val optionsByCode =
+      linkedSetOf("S", "R", "M", "H", "E", "I", "U", "V", "P", "C", "T", "X")
 
   private val mapInstructions =
       linkedMapOf(
@@ -40,6 +41,7 @@ internal object OptionCodeTranslation {
           "H" to "HellasMapOption FROM TharsisMapOption",
           "E" to "ElysiumMapOption FROM TharsisMapOption",
           "I" to "TerraCimmeriaMapOption FROM TharsisMapOption",
+          "U" to "UtopiaPlanitiaMapOption FROM TharsisMapOption",
       )
 
   private val positiveOptionInstructions =

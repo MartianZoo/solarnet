@@ -50,14 +50,14 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               7 to Metric.Count::class,
               5 to Metric.Scaled::class,
               3 to Metric.Max::class,
-              2 to Metric.Plus::class,
+              2 to Metric.Or::class,
               3 to Metric.Transform::class,
           )
       register(Metric::class) { recurse(choose(metricTypes)) }
       register { Metric.Count(recurse()) }
       register { Metric.Scaled(choose(2, 2, 3), recurse()) }
       register { Metric.Max(inner = recurse(), maximum = choose(5, 11)) }
-      register { Metric.Plus(listOfSize(choose(2, 2, 2, 3, 4))) }
+      register { Metric.Or(listOfSize(choose(2, 2, 2, 3, 4))) }
       register { Metric.Transform(recurse(), PROD) }
 
       val requirementTypes =

@@ -28,8 +28,9 @@ public object Canon :
             gameOptionClassNames = setOf(cn("HellasMapOption"), cn("ElysiumMapOption")),
         ),
         StandardFormBundle(
-            "TerraCimmeriaMap",
-            gameOptionClassNames = setOf(cn("TerraCimmeriaMapOption")),
+            "UtopiaCimmeriaExpansion",
+            utopiaCimmeriaCustomClasses,
+            setOf(cn("UtopiaPlanitiaMapOption"), cn("TerraCimmeriaMapOption")),
         ),
         StandardFormBundle(
             "VenusNextExpansion",

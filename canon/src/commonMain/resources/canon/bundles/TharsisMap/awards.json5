@@ -9,6 +9,6 @@
     // Thermalist
     { "id": "MA4", "metric": "Heat" },
     // Miner
-    { "id": "MA5", "metric": "Steel + Titanium" },
+    { "id": "MA5", "metric": "Steel OR Titanium" },
   ]
 }

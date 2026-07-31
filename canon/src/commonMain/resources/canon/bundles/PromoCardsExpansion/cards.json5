@@ -722,6 +722,18 @@
       "projectKind": "ACTIVE"
     },
 
+    // Red Ships
+    {
+      "id": "X62",
+      "deck": "PROJECT",
+      "actions": [
+        "-> 1 / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)"
+      ],
+      "requirement": "4 OxygenStep",
+      "cost": 2,
+      "projectKind": "ACTIVE"
+    },
+
     // Solar Logistics
     {
       "id": "X63",

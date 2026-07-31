@@ -1,0 +1,5 @@
+"Map option using the Utopia Planitia board and its map-specific milestones and awards"
+CLASS UtopiaPlanitiaMapOption : MarsMapOption
+
+"Map option using the Terra Cimmeria board and its map-specific milestones and awards"
+CLASS TerraCimmeriaMapOption : MarsMapOption

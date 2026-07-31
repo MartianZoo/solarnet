@@ -16,6 +16,8 @@ internal class CanonMapsTest {
 
   @Test fun testElysium() = checkMap(Canon.marsMap(cn("Elysium")))
 
+  @Test fun testUtopiaPlanitia() = checkMap(Canon.marsMap(cn("UtopiaPlanitia")))
+
   @Test
   fun testTerraCimmeria() {
     val map = Canon.marsMap(cn("TerraCimmeria"))

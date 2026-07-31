@@ -1,6 +1,6 @@
 # Cards to add
 
-We have 444 cards working. We don't have the following ones or anything from the "Prelude 2" expansion.
+We have 445 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
@@ -27,7 +27,6 @@ We have 444 cards working. We don't have the following ones or anything from the
 | X56 | Hermetic Order of Mars     | custommetric          |
 | X59 | Mars Nomads                | movablemarker         |
 | X-2 | New Holland                | hybridtile            |
-| X62 | Red Ships                  | distinctmetric        |
 | X75 | Vermin                     | globalvp              |
 | 210 | Self-Replicating Robots    | selfrep               |
 | TC5 | Utopia Invest              | thenspec              |
