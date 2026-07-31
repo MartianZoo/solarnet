@@ -59,7 +59,11 @@ internal class CanonInvariantsTest {
     checkComponentLimit("Pass<Player1>", 0..1)
 
     checkTypeLimits("SetupPhase", "Phase" to 1..1)
-    checkTypeLimits("OceanTile<Tharsis_5_5>", "OceanTile" to 0..9, "Tile<Tharsis_5_5>" to 0..1)
+    checkTypeLimits(
+        "OceanTile<Tharsis_5_5>",
+        "OceanTile" to 0..9,
+        "Tile<Tharsis_5_5>" to 0..1,
+    )
   }
 
   @Test

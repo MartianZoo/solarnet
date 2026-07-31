@@ -15,7 +15,7 @@ class LavaFlowsTest : CardTest() {
 
   @Test
   fun `on Hellas, resolves Lava Flows`() {
-    newGame("HellasMap FROM TharsisMap")
+    newGame("HellasMapOption FROM TharsisMapOption")
     p1.manual("LavaFlows") { doTask("LfTile<Hellas_1_5>") }.expect("2 TemperatureStep")
   }
 

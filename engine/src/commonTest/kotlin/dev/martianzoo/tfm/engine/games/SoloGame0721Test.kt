@@ -13,7 +13,7 @@ class SoloGame0721Test : AbstractSoloTest() {
     val colonyTiles = setOf(cn("Ceres"), cn("Luna"), cn("Triton"))
     // Enceladus was removed because solo Colonies uses only three selected tiles.
     return canonicalPremise(
-        "ElysiumMap FROM TharsisMap,VenusNextExpansion,PreludeExpansion,SoloMode,ColoniesExpansion,TurmoilCardPack,PromoCardPack",
+        "ElysiumMapOption FROM TharsisMapOption,VenusNextExpansion,PreludeExpansion,SoloMode,ColoniesExpansion,TurmoilCardPack,PromoCardPack",
         1,
         colonyTiles,
     )

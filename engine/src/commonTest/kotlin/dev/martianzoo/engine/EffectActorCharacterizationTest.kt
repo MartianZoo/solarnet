@@ -26,17 +26,19 @@ class EffectActorCharacterizationTest {
     val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
-    assertFailsWith<DeadEndException> { player.manual("-TharsisMap") }
-    player.count("TharsisMap") shouldBe 1
+    assertFailsWith<DeadEndException> { player.manual("-TharsisMapOption") }
+    player.count("TharsisMapOption") shouldBe 1
 
-    game.gameplay(ENGINE).godMode().manual("-TharsisMap")
-    player.count("TharsisMap") shouldBe 0
+    game.gameplay(ENGINE).godMode().manual("-TharsisMapOption")
+    player.count("TharsisMapOption") shouldBe 0
   }
 
   @Test
   fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerAReward() {
     val game =
-        Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise("ElysiumMap FROM TharsisMap", 2))
+        Engine.newGame(
+            dev.martianzoo.tfm.engine.canonicalPremise("ElysiumMapOption FROM TharsisMapOption", 2)
+        )
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 

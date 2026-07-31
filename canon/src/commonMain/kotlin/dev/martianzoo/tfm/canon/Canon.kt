@@ -21,19 +21,15 @@ public object Canon :
         ),
         StandardFormBundle(
             "TharsisMap",
-            gameOptionClassNames = setOf(cn("TharsisMap")),
+            gameOptionClassNames = setOf(cn("TharsisMapOption")),
         ),
         StandardFormBundle(
-            "HellasMap",
-            gameOptionClassNames = setOf(cn("HellasMap")),
-        ),
-        StandardFormBundle(
-            "ElysiumMap",
-            gameOptionClassNames = setOf(cn("ElysiumMap")),
+            "HellasElysiumExpansion",
+            gameOptionClassNames = setOf(cn("HellasMapOption"), cn("ElysiumMapOption")),
         ),
         StandardFormBundle(
             "TerraCimmeriaMap",
-            gameOptionClassNames = setOf(cn("TerraCimmeriaMap")),
+            gameOptionClassNames = setOf(cn("TerraCimmeriaMapOption")),
         ),
         StandardFormBundle(
             "VenusNextExpansion",
@@ -61,7 +57,7 @@ public object Canon :
 
   /** Default components of a newly created canonical setup world. */
   public val setupWorldInitialComponents: List<String> =
-      listOf("CorporateEraExpansion", "TharsisMap")
+      listOf("CorporateEraExpansion", "TharsisMapOption")
 
   /** Snapshots a validated canonical setup world for an independent playable game. */
   public fun assemble(setupWorld: GameReader): GamePremise {
@@ -76,7 +72,7 @@ public object Canon :
           setupOptionBundles[option]
               ?: throw IllegalArgumentException("unknown game option: $option")
         }
-    val ruleset = resolve(bundleNames)
+    val ruleset = resolve(bundleNames, setupWorld)
     val setupOptions = setupWorld.getComponents("GameOption").elements
     val selectedColonies = setupWorld.getComponents("SelectedColonyTile").elements
     val deferredColonySelection = setupWorld.getComponents("DeferredColonySelection").elements

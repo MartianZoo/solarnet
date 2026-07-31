@@ -18,7 +18,7 @@ internal class SetupWorldTest {
     val reader = setupWorld.gameplay(ENGINE)
 
     reader.count("CorporateEraExpansion") shouldBe 1
-    reader.count("TharsisMap") shouldBe 1
+    reader.count("TharsisMapOption") shouldBe 1
     setupWorld.classTable.allClassNamesAndIds.shouldNotContain(cn("TerraformRating"))
     setupWorld.classTable.allClassNamesAndIds.shouldNotContain(cn("Owner"))
     setupWorld.isIdle() shouldBe true
@@ -51,16 +51,16 @@ internal class SetupWorldTest {
   fun mapCardinalityRequiresAnExplicitReplacement() {
     val setupWorld = newSetupWorld().gameplay(ENGINE).godMode()
 
-    shouldThrow<LimitsException> { setupWorld.manual("ElysiumMap") }
-    setupWorld.manual("ElysiumMap FROM TharsisMap")
+    shouldThrow<LimitsException> { setupWorld.manual("ElysiumMapOption") }
+    setupWorld.manual("ElysiumMapOption FROM TharsisMapOption")
     setupWorld.count("MarsMapOption") shouldBe 1
-    setupWorld.count("TharsisMap") shouldBe 0
-    setupWorld.count("ElysiumMap") shouldBe 1
+    setupWorld.count("TharsisMapOption") shouldBe 0
+    setupWorld.count("ElysiumMapOption") shouldBe 1
 
-    setupWorld.manual("TerraCimmeriaMap FROM ElysiumMap")
+    setupWorld.manual("TerraCimmeriaMapOption FROM ElysiumMapOption")
     setupWorld.count("MarsMapOption") shouldBe 1
-    setupWorld.count("ElysiumMap") shouldBe 0
-    setupWorld.count("TerraCimmeriaMap") shouldBe 1
+    setupWorld.count("ElysiumMapOption") shouldBe 0
+    setupWorld.count("TerraCimmeriaMapOption") shouldBe 1
   }
 
   @Test
@@ -68,7 +68,7 @@ internal class SetupWorldTest {
     val setupWorld = newSetupWorld()
     with(setupWorld.gameplay(ENGINE).godMode()) {
       manual("2 Player")
-      manual("ElysiumMap FROM TharsisMap")
+      manual("ElysiumMapOption FROM TharsisMapOption")
       manual("PreludeExpansion, PromoCardPack")
     }
 
@@ -76,6 +76,11 @@ internal class SetupWorldTest {
 
     game.reader.tfmRuleset.marsMapDefinitions.single().className shouldBe cn("Elysium")
     game.gameplay(ENGINE).count("TerraformingMars") shouldBe 1
+    game.gameplay(ENGINE).count("ElysiumMapOption") shouldBe 1
+    game.gameplay(ENGINE).count("Elysium") shouldBe 1
+    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe true
+    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe false
+    game.reader.tfmRuleset.cardDefinitions.any { it.className == cn("DoubleDown") } shouldBe true
     game.gameplay(ENGINE).count("PromoCardPack") shouldBe 1
     game.gameplay(ENGINE).count("Player") shouldBe 2
   }
@@ -96,7 +101,7 @@ internal class SetupWorldTest {
     val setupWorld = newSetupWorld()
     with(setupWorld.gameplay(ENGINE).godMode()) {
       manual("Player")
-      manual("HellasMap FROM TharsisMap")
+      manual("HellasMapOption FROM TharsisMapOption")
       manual("-CorporateEraExpansion")
       manual("SoloMode, ColoniesExpansion")
       manual("CeresSelected, PlutoSelected, TitanSelected")

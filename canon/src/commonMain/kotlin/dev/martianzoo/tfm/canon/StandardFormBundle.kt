@@ -73,15 +73,15 @@ public class StandardFormBundle(
   }
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-    if (MAPS_FILENAME in resourceFilenames) {
-      JsonReader.readMaps(read(MAPS_FILENAME)).toSetStrict()
-    } else {
-      emptySet()
+    resourceFiles(MAPS_FILENAME).flatMapTo(linkedSetOf()) { filename ->
+      JsonReader.readMaps(read(filename))
     }
   }
 
   override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
-    readIfPresent(MILESTONES_FILENAME, JsonReader::readMilestones).toSetStrict()
+    resourceFiles(MILESTONES_FILENAME).flatMapTo(linkedSetOf()) { filename ->
+      JsonReader.readMilestones(read(filename))
+    }
   }
 
   override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
@@ -94,8 +94,12 @@ public class StandardFormBundle(
   private fun <T> readIfPresent(filename: String, parse: (String) -> List<T>): List<T> =
       if (filename in resourceFilenames) parse(read(filename)) else emptyList()
 
+  private fun resourceFiles(filename: String): List<String> =
+      resourceFilenames.filter { it == filename || it.endsWith("-$filename") }.sorted()
+
   private fun isExpected(filename: String): Boolean =
-      filename.endsWith(PETS_EXTENSION) || filename in KNOWN_JSON_FILENAMES
+      filename.endsWith(PETS_EXTENSION) ||
+          KNOWN_JSON_FILENAMES.any { known -> filename == known || filename.endsWith("-$known") }
 
   public companion object {
     public const val ACTIONS_FILENAME: String = "actions.json5"

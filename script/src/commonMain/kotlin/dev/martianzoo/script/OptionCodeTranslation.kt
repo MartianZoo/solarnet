@@ -37,9 +37,9 @@ internal object OptionCodeTranslation {
   private val mapInstructions =
       linkedMapOf(
           "M" to null,
-          "H" to "HellasMap FROM TharsisMap",
-          "E" to "ElysiumMap FROM TharsisMap",
-          "I" to "TerraCimmeriaMap FROM TharsisMap",
+          "H" to "HellasMapOption FROM TharsisMapOption",
+          "E" to "ElysiumMapOption FROM TharsisMapOption",
+          "I" to "TerraCimmeriaMapOption FROM TharsisMapOption",
       )
 
   private val positiveOptionInstructions =

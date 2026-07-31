@@ -13,6 +13,7 @@
   "maps": [
     {
       "name": "TerraCimmeria",
+      "setupRequirement": "TerraCimmeriaMapOption",
       "rows": [
         [
                                                "W"  ,  "LP" ,  "VS" ,  "LP" , "WPP"

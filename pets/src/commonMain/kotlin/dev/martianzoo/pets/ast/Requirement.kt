@@ -51,6 +51,23 @@ public sealed class Requirement : PetElement() {
   override fun safeToNestIn(container: PetNode): Boolean =
       super.safeToNestIn(container) || container is IfTrigger
 
+  /** Evaluates this requirement using [count] for each metric it needs. */
+  public fun isMetBy(count: (Metric) -> Int): Boolean =
+      when (this) {
+        is Counting -> {
+          val actual = count(Metric.Count(scaledEx.expression))
+          val target = (scaledEx.scalar as ActualScalar).value
+          when (this) {
+            is Min -> actual >= target
+            is Max -> actual <= target
+            is Exact -> actual == target
+          }
+        }
+        is Or -> requirements.any { it.isMetBy(count) }
+        is And -> requirements.all { it.isMetBy(count) }
+        is Transform -> error("should have been transformed before evaluation: $this")
+      }
+
   /** A requirement that counts (a min, max, or exact). */
   public sealed class Counting(public open val scaledEx: ScaledExpression) : Requirement() {
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scaledEx)

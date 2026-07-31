@@ -103,7 +103,7 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `after Mining Rights selects steel, copies its production box`() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
-    newGame("TerraCimmeriaMap FROM TharsisMap")
+    newGame("TerraCimmeriaMapOption FROM TharsisMapOption")
 
     p1.manual("MiningRights") {
           doTask("MiningRightsTile<TerraCimmeria_6_4>")
@@ -121,16 +121,32 @@ class CustomMetricCardsTest : CardTest() {
   fun `with three tag types, adds Interplanetary Trade`() {
     newGame("PromoCardPack")
     // These have to be played: tags depend on their cards.
-    p1.manual("Ecoline, Thorgate, Phobolog")
-    p1.count("DistinctTagType<Player1>") shouldBe 3
+    requireP2().manual("EarthOffice, InventorsGuild, 9 Plant, 7 Steel, 5 Heat")
+    p1.manual("Ecoline, Thorgate, Phobolog, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard")
+    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 3
     p1.manual("InterplanetaryTrade").expect("PROD[3]")
+  }
+
+  @Test
+  fun `event card tags can be excluded from distinct tag types`() {
+    newGame("")
+    requireP2().manual("Ecoline, Thorgate, Phobolog, 9 Plant, 7 Steel, 5 Heat")
+    p1.godMode()
+        .also { it.autoExecMode = NONE }
+        .beginManual(
+            "EarthCatapult, AsteroidCard, Comet, Mine, InventorsGuild, " +
+                "8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
+        )
+
+    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 4
+    p1.count("Class<Tag>(HAS Tag<Player1, !EventCard>)") shouldBe 3
   }
 
   @Test
   fun `with nine resource types, plays Diversity Support`() {
     seedDiversitySupportResources()
     p1.manual("ForcedPrecipitation, Floater<ForcedPrecipitation>")
-    p1.count("DistinctResourceType<Player1>") shouldBe 9
+    p1.count("Class<Resource>(HAS Resource<Player1>)") shouldBe 9
     p1.playProject("DiversitySupport", 1).expect("TerraformRating")
   }
 
@@ -162,7 +178,7 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `with eight resource types, tries to play Diversity Support`() {
     seedDiversitySupportResources()
-    p1.count("DistinctResourceType<Player1>") shouldBe 8
+    p1.count("Class<Resource>(HAS Resource<Player1>)") shouldBe 8
     p1.count("TerraformRating") shouldBe 20
     shouldThrow<RequirementException> { p1.playProject("DiversitySupport", 1) }
     p1.count("TerraformRating") shouldBe 20
@@ -171,8 +187,14 @@ class CustomMetricCardsTest : CardTest() {
   private fun seedDiversitySupportResources() {
     newGame("VenusNextExpansion,PromoCardPack")
     engine.phase("Action")
+    requireP2()
+        .manual(
+            "10 Megacredit, 9 ProjectCard, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat, " +
+                "EarthCatapult, Mine, InventorsGuild"
+        )
     p1.manual(
-        "Megacredit, ProjectCard, Steel, Titanium, Plant, Energy, Heat, Pets, Decomposers, " +
+        "6 Megacredit, 5 ProjectCard, 4 Steel, 3 Titanium, 2 Plant, 2 Energy, 2 Heat, " +
+            "Ecoline, Thorgate, Phobolog, Pets, Decomposers, " +
             "Extremophiles, Tardigrades, Animal<Pets>, Microbe<Decomposers>, " +
             "2 Microbe<Extremophiles>, 3 Microbe<Tardigrades>"
     )

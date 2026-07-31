@@ -1,4 +1,4 @@
-"Every game must have exactly one of these (Tharsis, etc.)"
+"Every game must have exactly one of these (Tharsis Map, etc.)"
 ABSTRACT CLASS MarsMap { HAS =1 This }
 
 "A hexagonal area where a tile can go (note the game does not call these 'spaces')"

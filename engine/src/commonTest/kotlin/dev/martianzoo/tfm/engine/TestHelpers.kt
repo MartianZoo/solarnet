@@ -58,7 +58,7 @@ internal fun canonicalPremise(
   val base = Canon.assemble(setupWorld.reader)
   if (ruleset == null) return base
   val bundleNames = (base.ruleset as TfmRuleset).bundles.mapTo(linkedSetOf()) { it.bundleName }
-  val selectedRuleset = ruleset.resolve(bundleNames)
+  val selectedRuleset = ruleset.resolve(bundleNames, setupWorld.reader)
   return base.copy(
       ruleset = selectedRuleset,
       rootClassNames = base.rootClassNames + selectedRuleset.allDefinitions.classNames(),

@@ -196,6 +196,15 @@ ordinary `T(HAS R)` refinement, or when the current world contains no component 
 `T(HAS R)`. The second condition is its escape clause; it does not change the static subtype rules
 above.
 
+A class literal creates a special represented-type linkage inside its `HAS` requirement. When
+testing candidate `Class<S>` against `Class<T>(HAS R)`, occurrences rooted at `T` within `R` are
+narrowed to `S`. Thus `Class<SpaceTag>` satisfies `Class<Tag>(HAS Tag<Player2>)` exactly when the
+world contains `SpaceTag<Player2>`. Class-token components themselves remain unowned; the
+requirement is tested against instances of the represented component type. Counting that metric
+therefore yields the number of distinct tag classes Player 2 has. Ordinary dependency constraints,
+including complements, remain available: `Class<Tag>(HAS Tag<Player2, !EventCard>)` excludes tag
+instances on Player 2's event cards.
+
 ## 9. Closed-world type operations
 
 For a fixed class table, Pets can enumerate every concrete subtype of any type `T`:
@@ -245,6 +254,10 @@ Whitespace, redundant parentheses, and the order in which unambiguous
 dependency bounds are written therefore do not matter. All other authored structure does:
 omitted bounds stay omitted, and refinements and complements are not rewritten
 merely because they are logically equivalent.
+
+The represented-type linkage is the deliberate exception to whole-expression equality. Within the
+`HAS` requirement of `Class<T>`, an occurrence rooted at `T` refers to the represented class even
+when that occurrence has dependency arguments, as in `Class<Tag>(HAS Tag<Owner>)`.
 
 In particular, linkage recognition does not use resolved-type equality. No pair below
 creates a linkage merely because later resolution or context makes its members equal:

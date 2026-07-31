@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -12,26 +13,31 @@ import kotlin.test.Test
 internal class CustomMetricMilestonesTest {
   @Test
   fun diversifierCanBeClaimedWithEightDistinctTagTypes() {
-    val p1 =
+    val game =
         Engine.newGame(
-                canonicalPremise(
-                    "ColoniesExpansion,HellasMap FROM TharsisMap,VenusNextExpansion,PromoCardPack",
-                    2,
-                    testColonyTiles(2),
-                )
+            canonicalPremise(
+                "ColoniesExpansion,HellasMapOption FROM TharsisMapOption,VenusNextExpansion,PromoCardPack",
+                2,
+                testColonyTiles(2),
             )
-            .tfm(PLAYER1)
+        )
+    val p1 = game.tfm(PLAYER1)
     p1.godMode()
         .manual(
             "Ecoline, Thorgate, Phobolog, InventorsGuild, EarthOffice, " +
-                "IoMiningIndustries, Pets"
+                "IoMiningIndustries, Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
         )
+    game
+        .tfm(PLAYER2)
+        .godMode()
+        .manual("EarthCatapult, Mine, DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
 
-    p1.count("DistinctTagType<Player1>") shouldBe 7
+    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 7
+    p1.count("Class<Tag>(HAS Tag<Player2>)") shouldBe 3
     shouldThrow<RequirementException> { p1.godMode().manual("Diversifier") }
 
     p1.godMode().manual("Decomposers")
-    p1.count("DistinctTagType<Player1>") shouldBe 8
+    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 8
     p1.godMode().manual("Diversifier")
     p1.count("Diversifier") shouldBe 1
   }
@@ -41,7 +47,7 @@ internal class CustomMetricMilestonesTest {
     val p1 =
         Engine.newGame(
                 canonicalPremise(
-                    "ColoniesExpansion,HellasMap FROM TharsisMap",
+                    "ColoniesExpansion,HellasMapOption FROM TharsisMapOption",
                     2,
                     testColonyTiles(2),
                 )

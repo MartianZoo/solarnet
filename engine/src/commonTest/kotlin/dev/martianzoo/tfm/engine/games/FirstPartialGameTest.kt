@@ -17,7 +17,7 @@ class FirstPartialGameTest {
     repeat(1) {
       val setup =
           canonicalPremise(
-              "ElysiumMap FROM TharsisMap,PreludeExpansion,TurmoilCardPack",
+              "ElysiumMapOption FROM TharsisMapOption,PreludeExpansion,TurmoilCardPack",
               2,
           )
       val game = Engine.newGame(setup)

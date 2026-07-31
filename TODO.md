@@ -31,7 +31,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Consider letting custom metrics query typed, read-only event history for facts such as `HasRaisedTr` and this-generation attacks, avoiding permanent watchers; preserve semantic generation boundaries and rollback/replay determinism.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
 - Replace rollback speculation with disposable game-state forks: overlay components and live effects, copy the small task queues, and extend event history from a captured prefix.
-- [#24: Distinct classes](https://github.com/MartianZoo/solarnet/issues/24) — Define a generic owner-associated distinct-class metric, then replace `DistinctTagType` and `DistinctResourceType` if it is sound.
 - [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define a small set of rules for unique choices without removing real choices.
 - [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer.
 - [#59: `-This` intensity](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory. (Needs discussion)
@@ -54,7 +53,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Gameplay Correctness and Test Fidelity
 
-- Restore Aridor's new-tag production gain without another one-off metric, then enable it.
+- Support refined class-literal count-increase triggers, then enable the latest Aridor definition
+  in `cards-dont-work.json5`.
 - Model Prelude plays as explicit first and second turns. (Somewhat soon)
 - Give Tharsis Republic an explicit solo-setup production gain instead of observing neutral-city placement. (Later)
 - Decide whether standard projects should use `Owed`, allowing Kuiper Cooperative asteroids only on Aquifer and Asteroid. (Needs discussion)

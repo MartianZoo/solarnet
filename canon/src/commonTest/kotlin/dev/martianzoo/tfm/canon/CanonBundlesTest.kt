@@ -10,6 +10,21 @@ import kotlin.test.Test
 
 internal class CanonBundlesTest {
   @Test
+  fun hellasAndElysiumAreSeparateOptionsFromOneBundle() {
+    val bundles = setOf(cn("TerraformingMars"), cn("HellasElysiumExpansion"))
+
+    val hellas = Canon.resolve(bundles, setOf(cn("HellasMapOption")))
+    hellas.marsMapDefinitions.single().className shouldBe cn("Hellas")
+    hellas.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe true
+    hellas.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe false
+
+    val elysium = Canon.resolve(bundles, setOf(cn("ElysiumMapOption")))
+    elysium.marsMapDefinitions.single().className shouldBe cn("Elysium")
+    elysium.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe true
+    elysium.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe false
+  }
+
+  @Test
   fun systemDeclarationsBelongToPetsRatherThanACanonBundle() {
     Canon.classDeclarationBundles.getValue(COMPONENT).shouldBeEmpty()
   }
@@ -39,12 +54,17 @@ internal class CanonBundlesTest {
   fun planetologistRequiresVenusNext() {
     val terraCimmeria = setOf(cn("TerraformingMars"), cn("TerraCimmeriaMap"))
 
-    Canon.resolve(terraCimmeria).milestoneDefinitions.any {
+    Canon.resolve(terraCimmeria, setOf(cn("TerraCimmeriaMapOption"))).milestoneDefinitions.any {
       it.className == cn("Planetologist")
     } shouldBe false
-    Canon.resolve(terraCimmeria + cn("VenusNextExpansion")).milestoneDefinitions.map {
-      it.className
-    } shouldContain cn("Planetologist")
+    Canon.resolve(
+            terraCimmeria + cn("VenusNextExpansion"),
+            setOf(cn("TerraCimmeriaMapOption"), cn("VenusNextExpansion")),
+        )
+        .milestoneDefinitions
+        .map {
+          it.className
+        } shouldContain cn("Planetologist")
   }
 
   @Test
@@ -74,10 +94,14 @@ internal class CanonBundlesTest {
   fun doubleDownRequiresBothPromosAndPrelude() {
     val promos = setOf(cn("TerraformingMars"), cn("PromoCardsExpansion"))
 
-    Canon.resolve(promos).cardDefinitions.any { it.className == cn("DoubleDown") } shouldBe false
-    Canon.resolve(promos + cn("PreludeExpansion")).cardDefinitions.map {
-      it.className
-    } shouldContain cn("DoubleDown")
+    Canon.resolve(promos, emptySet()).cardDefinitions.any {
+      it.className == cn("DoubleDown")
+    } shouldBe false
+    Canon.resolve(promos + cn("PreludeExpansion"), setOf(cn("PreludeExpansion")))
+        .cardDefinitions
+        .map {
+          it.className
+        } shouldContain cn("DoubleDown")
   }
 
   @Test
@@ -88,13 +112,19 @@ internal class CanonBundlesTest {
     val relevantCards = originals + replacements
 
     val withoutPromos =
-        Canon.resolve(setOf(cn("TerraformingMars"), cn("TharsisMap"))).cardDefinitions.mapTo(
-            mutableSetOf()
-        ) {
-          it.className
-        }
+        Canon.resolve(
+                setOf(cn("TerraformingMars"), cn("TharsisMap")),
+                setOf(cn("TharsisMapOption")),
+            )
+            .cardDefinitions
+            .mapTo(mutableSetOf()) {
+              it.className
+            }
     val withPromos =
-        Canon.resolve(setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("PromoCardsExpansion")))
+        Canon.resolve(
+                setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("PromoCardsExpansion")),
+                setOf(cn("TharsisMapOption"), cn("PromoCardPack")),
+            )
             .cardDefinitions
             .mapTo(mutableSetOf()) { it.className }
 
@@ -113,12 +143,12 @@ internal class CanonBundlesTest {
   fun standardFormBundleWithoutPetsDoesNotSynthesizeAComponent() {
     val bundle =
         StandardFormBundle(
-            name = "TharsisMap",
+            name = "MapProvider",
             resourceDirectory = "bundles/TharsisMap",
             resourceFilenames = setOf(StandardFormBundle.MAPS_FILENAME),
         )
 
-    (cn("TharsisMap") in bundle.allClassNames) shouldBe false
+    (cn("MapProvider") in bundle.allClassNames) shouldBe false
     bundle.marsMapDefinitions.single().className shouldBe cn("Tharsis")
   }
 

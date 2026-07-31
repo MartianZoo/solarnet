@@ -1,2 +1,2 @@
-"Map option using the Tharsis board and its map-specific milestones and awards"
-CLASS TharsisMap : MarsMapOption
+"Map option using the Tharsis Map board and its map-specific milestones and awards"
+CLASS TharsisMapOption : MarsMapOption

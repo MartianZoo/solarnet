@@ -1,12 +1,15 @@
 {
   "cards": [
 
-    // Aridor (both its distinct-new-tag effect and setup colony tile still need support)
+    // Aridor (its distinct-new-tag effect needs refined class-metric triggers)
     {
       "id": "CC1",
       "deck": "CORPORATION",
-      "immediate": "40",
-      "effects": [ "DoMandate<This>: NewColonyTile" ]
+      "immediate": "40, MandateCC1",
+      "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1]" ],
+      "components": [
+        "CLASS MandateCC1 : Mandate { -> AddColonyTile<Class<ColonyTile>> }"
+      ]
     },
 
     // Stormcraft Incorporated
