@@ -51,6 +51,20 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toInstruction() = Remove(scaledEx)
     }
 
+    public data class Gated(val gate: Requirement, val cost: Cost) : Cost() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(gate, cost)
+
+      override fun toString(): String = "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(cost)}"
+
+      override fun precedence(): Int = 4
+
+      override fun safeToNestIn(container: PetNode): Boolean =
+          super.safeToNestIn(container) && container !is Or
+
+      override fun toInstruction(): Instruction =
+          Instruction.Gated.create(gate, cost.toInstruction())
+    }
+
     // can't do non-prod per prod yet
     internal data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
@@ -119,7 +133,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
         return parser {
           val spend = ScaledExpression.parser() map Cost::Spend
           val transform = transform(parser()) map { (node, tname) -> Transform(node, tname) }
-          val atomCost = transform or spend
+          val atomCost = transform or spend or group(parser())
 
           val perCost =
               atomCost and
@@ -135,7 +149,14 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
                     if (set.size == 1) set.first() else Or(set)
                   }
 
-          commaSeparated(orCost or group(parser())) map
+          val gatedCost =
+              optional(Requirement.atomParser() and skipChar(':')) and
+                  orCost map
+                  { (gate, cost) ->
+                    if (gate == null) cost else Gated(gate, cost)
+                  }
+
+          commaSeparated(gatedCost) map
               {
                 if (it.size == 1) it.first() else Multi(it)
               }

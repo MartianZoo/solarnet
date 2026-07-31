@@ -11,31 +11,27 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameOptions
-import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmTest
 import dev.martianzoo.tfm.engine.setUpGame as setUpTfmGame
 
-abstract class CardTest {
-  protected lateinit var game: World
+abstract class CardTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
     private set
 
   protected var p2: TfmGameplay? = null
     private set
 
-  protected val engine: TfmGameplay
-    get() = game.tfm(ENGINE)
-
   protected fun newGame(premise: GamePremise): World =
       setUpTfmGame(premise).initializeCardTestGame()
 
   protected fun newGame(
-      optionNames: String = "TerraformingMars,TharsisMapOption",
+      optionNames: String = "TharsisMapOption",
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
   ): World {
-    val options = optionNames.split(',').mapTo(linkedSetOf(), ::cn)
+    val options = optionNames.split(',').mapTo(linkedSetOf(cn("TerraformingMars")), ::cn)
     if (players == 1) options += cn("SoloMode")
     return setUpTfmGame(cachedSetup(options, players, colonyTiles)).initializeCardTestGame()
   }
@@ -84,9 +80,6 @@ abstract class CardTest {
       instruction: String,
       body: BodyLambda = {},
   ): TaskResult = godMode().manual(instruction, body)
-
-  protected fun TaskResult.expect(string: String) =
-      TestHelpers.assertNetChanges(this, game, engine, string)
 
   private companion object {
     private data class SetupKey(

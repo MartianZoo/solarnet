@@ -6,7 +6,6 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
@@ -18,20 +17,21 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /** Comment lines are quotes directly from the rulebook. */
-internal class ColoniesBasicRulesTest {
+internal class ColoniesBasicRulesTest : TfmTest() {
   private val normal =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
-  val premise =
+  private val premise =
       canonicalPremise(
-          "TerraformingMars,CorporateEraExpansion,TharsisMapOption,ColoniesExpansion",
+          "CorporateEraExpansion,TharsisMapOption,ColoniesExpansion",
           4,
           normal,
       )
-  val game = setUpGame(premise)
-  val engine = game.tfm(ENGINE)
-  val p1 = game.tfm(PLAYER1)
 
-  fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, engine, string)
+  init {
+    game = setUpGame(premise)
+  }
+
+  private val p1 = game.tfm(PLAYER1)
 
   @BeforeTest
   fun setUp() {

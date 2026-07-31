@@ -7,6 +7,7 @@ import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.Bundle
+import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.JsonReader
@@ -84,6 +85,12 @@ public class StandardFormBundle(
     }
   }
 
+  override val awardDefinitions: Set<AwardDefinition> by lazy {
+    resourceFiles(AWARDS_FILENAME).flatMapTo(linkedSetOf()) { filename ->
+      JsonReader.readAwards(read(filename))
+    }
+  }
+
   override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
     readIfPresent(COLONIES_FILENAME, JsonReader::readColonyTiles)
         .toSetStrict(::ColonyTileDefinition)
@@ -109,7 +116,7 @@ public class StandardFormBundle(
     public const val MILESTONES_FILENAME: String = "milestones.json5"
     public const val SETUP_FILENAME: String = "setup.pets"
 
-    private const val AWARDS_FILENAME = "awards.json5"
+    public const val AWARDS_FILENAME: String = "awards.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val PETS_EXTENSION = ".pets"
     private val KNOWN_JSON_FILENAMES =

@@ -11,6 +11,7 @@ ABSTRACT CLASS Anyone[ANY] {
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard
       ResearchPhase: 4 BuyCard<This>?
+      EndPhase:: MeasureAward
 
       CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
     }
@@ -74,6 +75,26 @@ ABSTRACT CLASS Owned<Anyone> {
     ProductionPhase: -5
   }
 }
+
+"A funded award; unfunded awards exist only as a Class<ThatAwardType>"
+ABSTRACT CLASS Award[AWD] {
+  HAS MAX 1 This
+  HAS MAX 3 Award
+  AwardMeasured<Player, This>:: AssignAwardPlaces<This>
+}
+
+CLASS FirstPlace<Award> : Owned<Player>, AutoLoad {
+  This: 5 VictoryPoint
+}
+
+CLASS SecondPlace<Award> : Owned<Player>, AutoLoad {
+  This: 2 VictoryPoint
+}
+
+CLASS MeasureAward : Owned<Player>, Signal
+CLASS AwardTally<Award> : Owned<Player>, AutoLoad
+CLASS AwardMeasured<Award> : Owned<Player>, Hidden, AutoLoad
+CLASS AssignAwardPlaces<Award> : Custom, AutoLoad
 
 "Moves an owned component to the next player in seat order"
 CLASS PassLeft<StartToken> : Custom

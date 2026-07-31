@@ -29,18 +29,18 @@ internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
-    optionNames: String = "TerraformingMars,TharsisMapOption",
+    optionNames: String = "TharsisMapOption",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
 ): World = setUpGame(canonicalPremise(optionNames, players, colonyTiles))
 
 internal fun canonicalPremise(
-    optionNames: String = "TerraformingMars,TharsisMapOption",
+    optionNames: String = "TharsisMapOption",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
 ): GamePremise {
-  val enabled = optionNames.split(',').mapTo(linkedSetOf(), ::cn)
+  val enabled = optionNames.split(',').mapTo(linkedSetOf(cn("TerraformingMars")), ::cn)
   if (players == 1) enabled += cn("SoloMode")
   val options = GameOptions(players, enabled, colonyTiles)
   val base = Canon.gamePremise(options)

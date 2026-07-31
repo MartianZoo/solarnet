@@ -8,10 +8,14 @@
     { "id": "SAB", "action": "-> UseAction<StandardProject>" },
 
     // Claim milestone
-    { "id": "SAC", "action": "8 -> Milestone" },
+    { "id": "SAC", "action": "8 -> Milestone", "setupRequirement": "MAX 0 SoloMode" },
 
     // Fund award
-    // { "id": "SAD", "action": "6, 8 / Award -> Award" },
+    {
+      "id": "SAD",
+      "action": "(=0 Award: 8) OR (=1 Award: 14) OR (=2 Award: 20) -> Award",
+      "setupRequirement": "MAX 0 SoloMode"
+    },
 
     // Use card action
     {
