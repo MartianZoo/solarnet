@@ -3,7 +3,7 @@
   "milestones": [
 
     // Generalist
-    { "id": "EM1", "requirement": "PROD[7, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat]" },
+    { "id": "EM1", "requirement": "PROD[6, Steel, Titanium, Plant, Energy, Heat]" },
     // Specialist
     { "id": "EM2", "requirement": "PROD[15 OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" },
     // Ecologist
@@ -12,8 +12,5 @@
 //    { "id": "EM4", "requirement": "15 (ActiveCard OR AutomatedCard)" },
     // Legend
     { "id": "EM5", "requirement": "5 PlayedEvent" },
-
-    // Generalist[R]
-    { "id": "EM1R", "requirement": "PROD[6, Steel, Titanium, Plant, Energy, Heat]", "replaces": "EM1" },
   ],
 }
