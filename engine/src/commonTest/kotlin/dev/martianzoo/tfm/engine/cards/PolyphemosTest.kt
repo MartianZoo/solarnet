@@ -8,7 +8,7 @@ class PolyphemosTest : CardTest() {
   @Test
   fun `with Polyphemos, buys a card from Inventors Guild`() {
     newGame(
-        "TerraformingMars,TharsisMap,CorporateEraExpansion,ColoniesExpansion",
+        "ColoniesExpansion",
         colonyTiles = testColonyTiles(2),
     )
     p1.playCorp("Polyphemos", 7)

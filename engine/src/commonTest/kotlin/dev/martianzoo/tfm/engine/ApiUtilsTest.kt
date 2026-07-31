@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.api.ApiUtils.getOwner
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -18,7 +17,7 @@ import kotlin.test.Test
 internal class ApiUtilsTest {
   @Test
   fun componentOwnershipUsesTheOwnerRole() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
     val plant = game.gameplay(PLAYER1).resolve("Plant")
 
     getOwner(game.reader, plant).className shouldBe PLAYER1.className
@@ -27,7 +26,7 @@ internal class ApiUtilsTest {
 
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods
         .map { it.key to it.value }
@@ -56,7 +55,7 @@ internal class ApiUtilsTest {
 
   @Test
   fun stdResNamesInCanon() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
     standardResourceNames(game.reader)
         .toStrings()
         .shouldContainExactlyInAnyOrder(

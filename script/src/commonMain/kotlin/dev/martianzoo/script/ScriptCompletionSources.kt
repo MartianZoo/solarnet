@@ -10,7 +10,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       repl.commands.values.map { ScriptCompletion(it.name, "commands", it.usage) }
 
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
-    val players = Player.players(repl.options.players)
+    val players = Player.players(repl.setup.players)
     val eligiblePlayers = if (includeEngine) players + ENGINE else players
     val full = eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
     val short = eligiblePlayers.mapNotNull { player ->
@@ -62,7 +62,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun optionSuggestions(): List<ScriptCompletion> {
-    return OptionCodeTranslation.suggestions(repl.options).map {
+    return OptionCodeTranslation.suggestions(repl.setup).map {
       ScriptCompletion(it, "option codes")
     }
   }

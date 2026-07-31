@@ -24,7 +24,7 @@ class BugsTest : CardTest() {
   // FAQ: "Place a city tile there, regardless of placement rules."
   @Test
   fun `Kaguya Tech can incorrectly move the selected greenery to another area`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("PromoCardPack")
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
     // TODO(#12): Repeated LandArea occurrences should specialize together and reject this move.
@@ -36,7 +36,7 @@ class BugsTest : CardTest() {
 
   @Test
   fun `solo setup can incorrectly link the second greenery to the first city`() {
-    val setup = canonicalPremise("TerraformingMars,TharsisMap,SoloMode,CorporateEraExpansion", 1)
+    val setup = canonicalPremise("SoloMode", 1)
     val game = setUpGame(setup)
     val engine = game.tfm(ENGINE)
 
@@ -79,7 +79,7 @@ class BugsTest : CardTest() {
   // Start."
   @Test
   fun `Head Start incorrectly allows its two actions to interleave`() {
-    newGame("TerraformingMars,TharsisMap,PreludeExpansion,TurmoilCardPack,PromoCardPack")
+    newGame("PreludeExpansion,TurmoilCardPack,PromoCardPack")
     p1.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard, 10 Heat")
 
@@ -112,7 +112,7 @@ class BugsTest : CardTest() {
   @Test
   fun `Solar Probe can incorrectly lose its card draw if event cleanup is handled first`() {
     newGame(
-        "TerraformingMars,TharsisMap,CorporateEraExpansion,ColoniesExpansion",
+        "ColoniesExpansion",
         colonyTiles = testColonyTiles(2),
     )
     val p1GodMode = p1.godMode()

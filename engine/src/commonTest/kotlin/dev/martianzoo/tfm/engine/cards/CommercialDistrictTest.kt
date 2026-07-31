@@ -6,7 +6,7 @@ import kotlin.test.Test
 class CommercialDistrictTest : CardTest() {
   @Test
   fun `between two cities, places Commercial District`() {
-    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
+    newGame("")
     val p2 = requireP2()
 
     p1.manual("PROD[Energy], CityTile<Tharsis_3_2>")

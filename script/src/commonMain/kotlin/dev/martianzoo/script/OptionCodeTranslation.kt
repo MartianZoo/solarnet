@@ -1,47 +1,54 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.data.GameOptions
 import dev.martianzoo.util.toSetStrict
 
 /** Keeps the REPL's legacy one-letter game-option syntax out of Canon and the engine API. */
 internal object OptionCodeTranslation {
-  fun options(optionCodes: String, players: Int): GameOptions {
+  data class Setup(val optionCodes: String, val players: Int, val instruction: String)
+
+  fun setup(optionCodes: String, players: Int): Setup {
     val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
     val codes = effectiveCodes.asIterable().map(Char::toString).toSetStrict()
-    require(optionsByCode.keys.containsAll(codes)) {
-      "supported option codes are: ${optionsByCode.keys}"
+    require(optionsByCode.containsAll(codes)) {
+      "supported option codes are: $optionsByCode"
     }
-    return GameOptions(players, codes.mapTo(linkedSetOf()) { optionsByCode.getValue(it) })
+    val selectedMaps = codes.intersect(mapInstructions.keys)
+    require(selectedMaps.size == 1) { "select exactly one map: ${mapInstructions.keys}" }
+
+    val instructions = buildList {
+      add("$players Player")
+      if ("R" !in codes) add("-CorporateEraExpansion")
+      mapInstructions.getValue(selectedMaps.single())?.let(::add)
+      codes.mapNotNullTo(this) { positiveOptionInstructions[it] }
+      if ("C" in codes) add("DeferredColonySelection")
+    }
+    return Setup(effectiveCodes, players, instructions.joinToString(", "))
   }
 
-  fun optionCodes(options: GameOptions): String =
-      options.enabled.mapNotNull(codesByOption::get).joinToString("")
-
-  fun suggestions(current: GameOptions): List<String> {
-    val maps = setOf("E", "H", "I", "M")
-    val nonMaps = optionsByCode.keys - maps
-    val common = listOf("BM", "BRM", "BRMVX", "BRMVPX", "BRMVPXT", optionCodes(current))
-    val generated = maps.flatMap { map -> nonMaps.map { "$it$map" } }
+  fun suggestions(current: Setup): List<String> {
+    val nonMaps = optionsByCode - mapInstructions.keys
+    val common = listOf("M", "RM", "RMVX", "RMVPX", "RMVPXT", current.optionCodes)
+    val generated = mapInstructions.keys.flatMap { map -> nonMaps.map { "$it$map" } }
     return common + generated
   }
 
-  private val optionsByCode: Map<String, ClassName> =
+  private val optionsByCode = linkedSetOf("S", "R", "M", "H", "E", "I", "V", "P", "C", "T", "X")
+
+  private val mapInstructions =
       linkedMapOf(
-          "B" to cn("TerraformingMars"),
-          "S" to cn("SoloMode"),
-          "R" to cn("CorporateEraExpansion"),
-          "M" to cn("TharsisMap"),
-          "H" to cn("HellasMap"),
-          "E" to cn("ElysiumMap"),
-          "I" to cn("TerraCimmeriaMap"),
-          "V" to cn("VenusNextExpansion"),
-          "P" to cn("PreludeExpansion"),
-          "C" to cn("ColoniesExpansion"),
-          "T" to cn("TurmoilCardPack"),
-          "X" to cn("PromoCardPack"),
+          "M" to null,
+          "H" to "HellasMap FROM TharsisMap",
+          "E" to "ElysiumMap FROM TharsisMap",
+          "I" to "TerraCimmeriaMap FROM TharsisMap",
       )
 
-  private val codesByOption = optionsByCode.entries.associate { (code, option) -> option to code }
+  private val positiveOptionInstructions =
+      mapOf(
+          "S" to "SoloMode",
+          "V" to "VenusNextExpansion",
+          "P" to "PreludeExpansion",
+          "C" to "ColoniesExpansion",
+          "T" to "TurmoilCardPack",
+          "X" to "PromoCardPack",
+      )
 }

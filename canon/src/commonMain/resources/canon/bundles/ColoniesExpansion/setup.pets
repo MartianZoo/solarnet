@@ -3,3 +3,6 @@ CLASS ColoniesExpansion : GameOption
 
 "A colony tile selected for the eventual game; concrete subtypes come from colonies.json5"
 ABSTRACT CLASS SelectedColonyTile : System { HAS MAX 1 This }
+
+"Select colony tiles through gameplay setup tasks rather than naming them in the setup world"
+CLASS DeferredColonySelection : System { HAS MAX 1 This }

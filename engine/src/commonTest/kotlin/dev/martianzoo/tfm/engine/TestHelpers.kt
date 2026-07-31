@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
@@ -21,7 +22,6 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameOptions
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -29,23 +29,36 @@ internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
-    optionNames: String = "TerraformingMars,TharsisMap",
+    setupInstruction: String = "",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-): World = setUpGame(canonicalPremise(optionNames, players, colonyTiles))
+): World = setUpGame(canonicalPremise(setupInstruction, players, colonyTiles))
 
 internal fun canonicalPremise(
-    optionNames: String = "TerraformingMars,TharsisMap",
+    setupInstruction: String = "",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
 ): GamePremise {
-  val enabled = optionNames.split(',').mapTo(linkedSetOf(), ::cn)
-  if (players == 1) enabled += cn("SoloMode")
-  val options = GameOptions(players, enabled, colonyTiles)
-  val base = Canon.gamePremise(options)
+  val setupWorld =
+      Engine.newSetupWorld(
+          Canon.setupRuleset,
+          Canon.setupRootClassNames,
+          Canon.setupWorldInitialComponents,
+      )
+  val selections = buildList {
+    add("$players Player")
+    add(setupInstruction)
+    addAll(colonyTiles.map { "${it}Selected" })
+  }
+      .filter(String::isNotBlank)
+      .joinToString(", ")
+  setupWorld.gameplay(ENGINE).godMode().manual(selections)
+  setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
+  val base = Canon.assemble(setupWorld.reader)
   if (ruleset == null) return base
-  val selectedRuleset = ruleset.resolve(Canon.bundleNames(options))
+  val bundleNames = (base.ruleset as TfmRuleset).bundles.mapTo(linkedSetOf()) { it.bundleName }
+  val selectedRuleset = ruleset.resolve(bundleNames)
   return base.copy(
       ruleset = selectedRuleset,
       rootClassNames = base.rootClassNames + selectedRuleset.allDefinitions.classNames(),

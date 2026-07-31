@@ -8,7 +8,7 @@ import kotlin.test.Test
 class AsteroidDeflectionSystemTest : CardTest() {
   @Test
   fun `with protected plants, reveals cards using Asteroid Deflection System`() {
-    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,PromoCardPack")
+    newGame("PromoCardPack")
     val p2 = requireP2()
     engine.phase("Action")
     p1.manual("13, ProjectCard, Plant, Tardigrades, Microbe<Tardigrades>, PROD[Energy]")

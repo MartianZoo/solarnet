@@ -14,7 +14,7 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
 
   override fun setup() =
       canonicalPremise(
-          "TerraformingMars,CorporateEraExpansion,HellasMap,SoloMode,VenusNextExpansion,PreludeExpansion,PromoCardPack",
+          "HellasMap FROM TharsisMap,SoloMode,VenusNextExpansion,PreludeExpansion,PromoCardPack",
           1,
       )
 

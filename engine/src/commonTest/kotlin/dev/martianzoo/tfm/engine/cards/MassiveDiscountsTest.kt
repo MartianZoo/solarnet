@@ -6,9 +6,7 @@ class MassiveDiscountsTest : CardTest() {
 
   @Test
   fun `with stacked discounts, plays Space Elevator`() {
-    newGame(
-        "TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion,PreludeExpansion,PromoCardPack"
-    )
+    newGame("VenusNextExpansion,PreludeExpansion,PromoCardPack")
 
     engine.phase("Action")
     p1.manual(

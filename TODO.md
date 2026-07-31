@@ -14,8 +14,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Gameplay and Content
 
-- Migrate callers from Canon's temporary static `GameOptions` adapters to editable setup worlds,
-  then remove `GameOptions` and the `DeferredColonySelection` bridge component.
+- Replace `DeferredColonySelection` with setup-world colony choices once the REPL can collect them
+  before assembling the playable world.
 - Implement Terra Cimmeria's MSL Curiosity bonus once optional bundle vocabulary can be phantom: pay 5 M€ and place a colony only with Colonies enabled.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
 - [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.

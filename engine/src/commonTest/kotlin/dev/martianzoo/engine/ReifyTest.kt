@@ -4,13 +4,12 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.canon.Canon
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class ReifyTest {
-  val game = Engine.newGame(Canon.SIMPLE_GAME)
+  val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
 
   @Test
   fun testVarious() {

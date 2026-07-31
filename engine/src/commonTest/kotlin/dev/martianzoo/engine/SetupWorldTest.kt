@@ -75,6 +75,7 @@ internal class SetupWorldTest {
     val game = Engine.newGame(setupWorld, Canon::assemble)
 
     game.reader.tfmRuleset.marsMapDefinitions.single().className shouldBe cn("Elysium")
+    game.gameplay(ENGINE).count("TerraformingMars") shouldBe 1
     game.gameplay(ENGINE).count("PromoCardPack") shouldBe 1
     game.gameplay(ENGINE).count("Player") shouldBe 2
   }
@@ -123,6 +124,19 @@ internal class SetupWorldTest {
         .godMode()
         .manual("2 Player, ColoniesExpansion, LunaSelected")
     shouldThrow<DeadEndException> { Engine.newGame(incompleteColonies, Canon::assemble) }
+  }
+
+  @Test
+  fun colonySelectionCanBeDeferredByASetupInstruction() {
+    val setupWorld = newSetupWorld()
+    setupWorld
+        .gameplay(ENGINE)
+        .godMode()
+        .manual("2 Player, ColoniesExpansion, DeferredColonySelection")
+
+    val game = Engine.newGame(setupWorld, Canon::assemble)
+
+    game.gameplay(ENGINE).count("DeferredColonySelection") shouldBe 1
   }
 
   private fun newSetupWorld(): World =

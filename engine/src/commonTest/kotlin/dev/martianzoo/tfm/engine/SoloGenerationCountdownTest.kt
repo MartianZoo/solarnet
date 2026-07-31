@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -10,7 +9,7 @@ import kotlin.test.Test
 internal class SoloGenerationCountdownTest {
   @Test
   fun baseSoloBeginsGenerationOneWithThirteenGenerationsLeft() {
-    val setup = Canon.SIMPLE_SOLO_GAME
+    val setup = dev.martianzoo.tfm.engine.canonicalPremise("SoloMode", 1)
     val game = Engine.newGame(setup)
     val checkpoint = game.timeline.checkpoint()
 
@@ -26,7 +25,7 @@ internal class SoloGenerationCountdownTest {
 
   @Test
   fun preludeSoloBeginsGenerationOneWithElevenGenerationsLeft() {
-    val setup = canonicalPremise("TerraformingMars,SoloMode,PreludeExpansion,TharsisMap", 1)
+    val setup = canonicalPremise("SoloMode,PreludeExpansion", 1)
     val game = Engine.newGame(setup)
 
     TfmWorkflow.Manual(game).setupPhase()
@@ -36,7 +35,7 @@ internal class SoloGenerationCountdownTest {
 
   @Test
   fun laterGenerationsRemoveOneGenerationLeft() {
-    val game = setUpGame("TerraformingMars,SoloMode,TharsisMap", 1)
+    val game = setUpGame("SoloMode", 1)
     val engine = game.tfm(ENGINE)
     finishNeutralSetup(engine)
 

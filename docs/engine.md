@@ -16,9 +16,10 @@ worlds can be created.
 `Engine.newSetupWorld` creates an independent world for collecting setup components. Once it is
 idle, `Engine.newGame(setupWorld, assemble)` gains the setup ruleset's `ValidateSetup` signal,
 snapshots the world as a `GamePremise`, then constructs a separate playable world. Canon supplies
-its own setup ruleset, initial components, validation effects, and assembler. Its static
-`GameOptions` API remains a temporary adapter for callers that have not migrated to editable setup
-worlds. Canon reuses setup class
+its own setup ruleset, initial components, validation effects, and assembler. `TerraformingMars`
+is an unconditional assembly root rather than a setup option. `CorporateEraExpansion` and
+`TharsisMap` are default setup components and can be removed or replaced by setup instructions.
+Canon reuses setup class
 declarations in playable worlds unless ordinary gameplay Pets provide a same-named wholesale
 replacement. This lets the setup world's concrete `Player` count be replaced by the playable
 world's abstract `Player` hierarchy. Its gameplay `GameOption` replacement prevents non-Engine

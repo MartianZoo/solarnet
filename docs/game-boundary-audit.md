@@ -87,8 +87,8 @@ install its own syntax transforms.
 
 `script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt` hard-wires:
 
-1. `Canon.SIMPLE_GAME`.
-2. `GamePremise`.
+1. Canon's setup ruleset, defaults, and assembler.
+2. Terraforming Mars setup instructions.
 3. `TfmWorkflow`.
 4. Terraforming Mars commands and board/map views.
 5. Terraforming Mars colors for generic access modes.
@@ -156,9 +156,8 @@ can extend it and contribute its game-specific definition collections and indexe
 
 The live component/task/event/timeline machinery is the generic `World`. Construction accepts a
 generic `GamePremise` containing a ruleset, class roots, Actors, and initial components, and
-`GameReader` no longer exposes a Terraforming Mars setup object. Canon still uses `GameOptions` as
-its temporary static assembler input; replacing that input with an editable setup world is
-independent follow-up work.
+`GameReader` no longer exposes a Terraforming Mars setup object. Canon assembles a generic premise
+from a validated, editable setup world; there is no parallel static game-options input.
 
 ### P1: The reusable asynchronous workflow driver is buried inside `TfmWorkflow.Auto`
 

@@ -23,7 +23,7 @@ internal class ColoniesBasicRulesTest {
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
   val premise =
       canonicalPremise(
-          "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion",
+          "ColoniesExpansion",
           4,
           normal,
       )
@@ -62,7 +62,7 @@ internal class ColoniesBasicRulesTest {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val premise =
         canonicalPremise(
-            "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion",
+            "ColoniesExpansion",
             4,
             colonies,
         )
@@ -97,7 +97,7 @@ internal class ColoniesBasicRulesTest {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val premise =
         canonicalPremise(
-            "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion",
+            "ColoniesExpansion",
             4,
             colonies,
         )
@@ -205,7 +205,7 @@ internal class ColoniesBasicRulesTest {
     val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
     val localGame =
         setUpGame(
-            "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion,PromoCardPack",
+            "ColoniesExpansion,PromoCardPack",
             2,
             colonies,
         )

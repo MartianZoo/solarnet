@@ -54,7 +54,7 @@ class TilePlacingTest {
 
   @Test
   fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
-    val game = setUpGame("BH", 2)
+    val game = setUpGame("H", 2)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 

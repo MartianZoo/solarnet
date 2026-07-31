@@ -4,7 +4,6 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -12,7 +11,7 @@ import kotlin.test.Test
 internal class FinalGreeneryPhaseTest {
   @Test
   fun normalGreeneryRaisesOxygen() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -32,7 +31,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun finalGreeneryDoesNotRaiseOxygen() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Manual(game)
@@ -51,7 +50,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun automaticSoloEndDependsOnGenerationCountdown() {
-    val setup = Canon.SIMPLE_SOLO_GAME
+    val setup = dev.martianzoo.tfm.engine.canonicalPremise("SoloMode", 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -75,7 +74,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun automaticMultiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
-    val setup = Canon.SIMPLE_GAME
+    val setup = dev.martianzoo.tfm.engine.canonicalPremise()
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)

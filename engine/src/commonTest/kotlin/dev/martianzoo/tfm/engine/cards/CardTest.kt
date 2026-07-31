@@ -8,12 +8,10 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameOptions
 import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.tfm.engine.setUpGame as setUpTfmGame
 
 abstract class CardTest {
@@ -31,13 +29,12 @@ abstract class CardTest {
       setUpTfmGame(premise).initializeCardTestGame()
 
   protected fun newGame(
-      optionNames: String = "TerraformingMars,TharsisMap",
+      setupInstruction: String = "",
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
   ): World {
-    val options = optionNames.split(',').mapTo(linkedSetOf(), ::cn)
-    if (players == 1) options += cn("SoloMode")
-    return setUpTfmGame(cachedSetup(options, players, colonyTiles)).initializeCardTestGame()
+    return setUpTfmGame(cachedSetup(setupInstruction, players, colonyTiles))
+        .initializeCardTestGame()
   }
 
   protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }
@@ -90,7 +87,7 @@ abstract class CardTest {
 
   private companion object {
     private data class SetupKey(
-        val options: Set<ClassName>,
+        val setupInstruction: String,
         val players: Int,
         val colonyTiles: Set<ClassName>,
     )
@@ -98,12 +95,12 @@ abstract class CardTest {
     private val setupCache = mutableMapOf<SetupKey, GamePremise>()
 
     private fun cachedSetup(
-        options: Set<ClassName>,
+        setupInstruction: String,
         players: Int,
         colonyTiles: Set<ClassName>,
     ): GamePremise =
-        setupCache.getOrPut(SetupKey(options, players, colonyTiles)) {
-          Canon.gamePremise(GameOptions(players, options, colonyTiles))
+        setupCache.getOrPut(SetupKey(setupInstruction, players, colonyTiles)) {
+          canonicalPremise(setupInstruction, players, colonyTiles)
         }
   }
 }

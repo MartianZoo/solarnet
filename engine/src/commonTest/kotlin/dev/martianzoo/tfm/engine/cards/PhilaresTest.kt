@@ -10,7 +10,7 @@ import kotlin.test.Test
 class PhilaresTest : CardTest() {
   @Test
   fun `with Philares owned by p2, p1 places an adjacent greenery`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("PromoCardPack")
     val p2 = requireP2()
     p2.manual("Philares, GreeneryTile<Tharsis_3_2>")
     p1.manual("23")
@@ -25,7 +25,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p2, p1 creates adjacency`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("PromoCardPack")
     val p2 = requireP2()
     p2.manual("Philares")
     p1.autoExecMode = NONE
@@ -44,7 +44,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p1 and a p2 tile, p1 creates adjacency`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("PromoCardPack")
     val p2 = requireP2()
     p1.manual("Philares")
     p1.autoExecMode = NONE
@@ -60,7 +60,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p2, p1 joins two p1 tiles`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("PromoCardPack")
     val p2 = requireP2()
     p2.manual("Philares")
     p1.autoExecMode = NONE
@@ -74,7 +74,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares and an own tile, p1 places an adjacent greenery`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("PromoCardPack")
     p1.manual("Philares")
     p1.manual("-Mandate, GreeneryTile<Tharsis_4_2>, 23")
     engine.phase("Action")
