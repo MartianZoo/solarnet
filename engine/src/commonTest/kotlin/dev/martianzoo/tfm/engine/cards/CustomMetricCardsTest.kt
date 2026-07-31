@@ -12,7 +12,7 @@ import kotlin.test.Test
 class CustomMetricCardsTest : CardTest() {
   @Test
   fun `with Credicor, buys an expensive card and standard project`() {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     engine.phase("Action")
     p1.manual("40, 2 ProjectCard, Credicor")
     p1.playProject("EarthCatapult", 23).expect("-19")
@@ -21,7 +21,10 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with Advertising, adds cards costing twenty and nineteen`() {
-    newGame("BMRCX", colonyTiles = testColonyTiles(2))
+    newGame(
+        "TerraformingMars,TharsisMap,CorporateEraExpansion,ColoniesExpansion,PromoCardPack",
+        colonyTiles = testColonyTiles(2),
+    )
     p1.count("CardCost<Advertising>") shouldBe 4
     p1.manual("Advertising")
     p1.manual("LunarExports") { doTask("PROD[5]") }.expect("PROD[5]")
@@ -30,7 +33,10 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with Spin-Off Department, adds cards costing twenty and less`() {
-    newGame("BMRC", colonyTiles = testColonyTiles(2))
+    newGame(
+        "TerraformingMars,TharsisMap,CorporateEraExpansion,ColoniesExpansion",
+        colonyTiles = testColonyTiles(2),
+    )
     p1.manual("SpinOffDepartment")
     p1.manual("Mine")
     p1.count("ProjectCard") shouldBe 0
@@ -39,7 +45,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with Cutting Edge Technology, plays cards with and without requirements`() {
-    newGame("BMRVX")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion,PromoCardPack")
     engine.phase("Action")
     p1.manual(
         "4, 2 ProjectCard, CuttingEdgeTechnology, Steel, Titanium, Plant, Energy, Heat, " +
@@ -53,7 +59,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with Mining Guild, places tiles on steel and card bonuses`() {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     p1.manual("MiningGuild")
     p1.count("PROD[Steel]") shouldBe 0
 
@@ -66,7 +72,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with a steel area adjacent, plays Mining Area`() {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     p1.manual("CityTile<Tharsis_2_1>")
     p1.manual("MiningArea") {
           doTask("MiningAreaTile<Tharsis_1_1>")
@@ -76,7 +82,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with a titanium area adjacent, plays Mining Area`() {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     p1.manual("CityTile<Tharsis_7_9>")
     p1.manual("MiningArea") {
           doTask("MiningAreaTile<Tharsis_8_9>")
@@ -97,7 +103,7 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `after Mining Rights selects steel, copies its production box`() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
-    newGame("BIR")
+    newGame("TerraformingMars,TerraCimmeriaMap,CorporateEraExpansion")
 
     p1.manual("MiningRights") {
           doTask("MiningRightsTile<TerraCimmeria_6_4>")
@@ -113,7 +119,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with three tag types, adds Interplanetary Trade`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     // These have to be played: tags depend on their cards.
     p1.manual("Ecoline, Thorgate, Phobolog")
     p1.count("DistinctTagType<Player1>") shouldBe 3
@@ -130,7 +136,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `without an adjacent tile, tries to play Mining Area`() {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     shouldThrow<DependencyException> {
       p1.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_1_1>") }
     }
@@ -138,7 +144,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with a card-bonus area selected, tries to play Mining Area`() {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     p1.manual("CityTile<Tharsis_2_1>")
     shouldThrow<NotNowException> {
       p1.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_3_2>") }
@@ -163,7 +169,7 @@ class CustomMetricCardsTest : CardTest() {
   }
 
   private fun seedDiversitySupportResources() {
-    newGame("BMRVX")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion,PromoCardPack")
     engine.phase("Action")
     p1.manual(
         "Megacredit, ProjectCard, Steel, Titanium, Plant, Energy, Heat, Pets, Decomposers, " +

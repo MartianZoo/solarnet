@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.tfm.engine.setUpGame
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
@@ -24,17 +24,19 @@ class BugsTest : CardTest() {
   // FAQ: "Place a city tile there, regardless of placement rules."
   @Test
   fun `Kaguya Tech can incorrectly move the selected greenery to another area`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     engine.phase("Action")
-    p1.manual("10, ProjectCard, GreeneryTile<M42>")
+    p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
     // TODO(#12): Repeated LandArea occurrences should specialize together and reject this move.
-    p1.playProject("KaguyaTech", 10) { doTask("CityTile<M43> FROM GreeneryTile<M42>") }
-        .expect("-GreeneryTile<M42>, CityTile<M43>")
+    p1.playProject("KaguyaTech", 10) {
+          doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
+        }
+        .expect("-GreeneryTile<Tharsis_4_2>, CityTile<Tharsis_4_3>")
   }
 
   @Test
   fun `solo setup can incorrectly link the second greenery to the first city`() {
-    val setup = Canon.fromOptionCodes("BMSR", 1)
+    val setup = canonicalPremise("TerraformingMars,TharsisMap,SoloMode,CorporateEraExpansion", 1)
     val game = setUpGame(setup)
     val engine = game.tfm(ENGINE)
 
@@ -77,7 +79,7 @@ class BugsTest : CardTest() {
   // Start."
   @Test
   fun `Head Start incorrectly allows its two actions to interleave`() {
-    newGame("BMPTX")
+    newGame("TerraformingMars,TharsisMap,PreludeExpansion,TurmoilCardPack,PromoCardPack")
     p1.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard, 10 Heat")
 
@@ -86,7 +88,7 @@ class BugsTest : CardTest() {
       doFirstTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<ConvertHeatSA>")
       doTask("UseAction1<AquiferSP>")
-      doTask("OceanTile<M55>")
+      doTask("OceanTile<Tharsis_5_5>")
     }
   }
 
@@ -109,7 +111,10 @@ class BugsTest : CardTest() {
   // FAQ: "Draw 1 card for every 3 science tags you have, including this."
   @Test
   fun `Solar Probe can incorrectly lose its card draw if event cleanup is handled first`() {
-    newGame("BMRC", colonyTiles = testColonyTiles(2))
+    newGame(
+        "TerraformingMars,TharsisMap,CorporateEraExpansion,ColoniesExpansion",
+        colonyTiles = testColonyTiles(2),
+    )
     val p1GodMode = p1.godMode()
     engine.phase("Action")
     p1GodMode.manual("TransNeptuneProbe, PhysicsComplex")

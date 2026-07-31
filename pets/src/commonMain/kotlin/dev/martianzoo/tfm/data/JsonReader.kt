@@ -75,14 +75,11 @@ public object JsonReader {
   public fun readMaps(json5: String): List<MarsMapDefinition> =
       fromJson5<MapsImport>(json5).definitions()
 
-  public fun readMaps(json5: String, shortNamePrefix: String): List<MarsMapDefinition> =
-      fromJson5<MapsImport>(json5).definitions(shortNamePrefix)
-
   @Serializable
   private data class MapsImport(val maps: List<MapImport>, val legend: Map<String, String>) {
-    fun definitions(shortNamePrefix: String? = null): List<MarsMapDefinition> {
+    fun definitions(): List<MarsMapDefinition> {
       val leg = Legend(legend.mapKeys { (key) -> key.toLegendKey() })
-      return maps.map { it.toDefinition(leg, shortNamePrefix) }
+      return maps.map { it.toDefinition(leg) }
     }
 
     @Serializable
@@ -92,10 +89,8 @@ public object JsonReader {
     ) {
       internal fun toDefinition(
           legend: Legend,
-          shortNamePrefix: String?,
       ): MarsMapDefinition {
         val mapName = cn(name)
-        val areaShortNamePrefix = shortNamePrefix ?: name
         fun mapArea(
             row0Index: Int,
             col0Index: Int,
@@ -106,7 +101,6 @@ public object JsonReader {
           if (compactCode.isEmpty()) return null
           return AreaDefinition(
               mapName,
-              areaShortNamePrefix,
               row0Index + 1,
               col0Index + 1,
               legend.getType(compactCode),
@@ -121,7 +115,7 @@ public object JsonReader {
           }
         }
         val grid = Grid.grid(areas, { it.row }, { it.column })
-        return MarsMapDefinition(mapName, grid, areaShortNamePrefix)
+        return MarsMapDefinition(mapName, grid)
       }
     }
 

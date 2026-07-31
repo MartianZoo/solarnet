@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.GameOptions
-import dev.martianzoo.util.toSetStrict
 
 /** Catalog of the official bundles and the game options they provide. */
 public object Canon :
@@ -24,22 +23,18 @@ public object Canon :
         StandardFormBundle(
             "TharsisMap",
             gameOptionClassNames = setOf(cn("TharsisMap")),
-            areaShortNamePrefix = "M",
         ),
         StandardFormBundle(
             "HellasMap",
             gameOptionClassNames = setOf(cn("HellasMap")),
-            areaShortNamePrefix = "H",
         ),
         StandardFormBundle(
             "ElysiumMap",
             gameOptionClassNames = setOf(cn("ElysiumMap")),
-            areaShortNamePrefix = "E",
         ),
         StandardFormBundle(
             "TerraCimmeriaMap",
             gameOptionClassNames = setOf(cn("TerraCimmeriaMap")),
-            areaShortNamePrefix = "I",
         ),
         StandardFormBundle(
             "VenusNextExpansion",
@@ -92,26 +87,13 @@ public object Canon :
   }
 
   /** A minimal two-player game using the base game and Tharsis map. */
-  public val SIMPLE_GAME: GamePremise by lazy { gamePremise(options("BM", 2)) }
+  public val SIMPLE_GAME: GamePremise by lazy {
+    gamePremise(GameOptions(2, setOf(TERRAFORMING_MARS, THARSIS_MAP)))
+  }
 
   /** A minimal solo game using the base game, solo mode, and Tharsis map. */
-  public val SIMPLE_SOLO_GAME: GamePremise by lazy { gamePremise(options("BSM", 1)) }
-
-  /** Creates exact game options from a client's one-letter option syntax. */
-  public fun options(
-      optionCodes: String,
-      players: Int,
-      colonyTiles: Set<ClassName> = emptySet(),
-  ): GameOptions {
-    val codes = optionCodes.asIterable().map(Char::toString).toSetStrict()
-    require(OPTIONS_BY_CODE.keys.containsAll(codes)) {
-      "supported option codes are: ${OPTIONS_BY_CODE.keys}"
-    }
-    return GameOptions(
-        players,
-        codes.mapTo(linkedSetOf()) { OPTIONS_BY_CODE.getValue(it) },
-        colonyTiles,
-    )
+  public val SIMPLE_SOLO_GAME: GamePremise by lazy {
+    gamePremise(GameOptions(1, setOf(TERRAFORMING_MARS, SOLO_MODE, THARSIS_MAP)))
   }
 
   /** Returns the bundle identities required to provide [options]. */
@@ -165,22 +147,6 @@ public object Canon :
     )
   }
 
-  /** Creates a fully specified setup from one-letter option codes. */
-  public fun fromOptionCodes(
-      optionCodes: String,
-      players: Int,
-      colonyTiles: Set<ClassName> = emptySet(),
-  ): GamePremise = gamePremise(options(optionCodes, players, colonyTiles))
-
-  /** Formats known options using the client's one-letter syntax. */
-  public fun optionCodes(options: GameOptions): String =
-      options.enabled.mapNotNull(OPTION_CODES::get).joinToString("")
-
-  public val supportedOptionCodes: Set<String>
-    get() = OPTIONS_BY_CODE.keys
-
-  public val mapOptionCodes: Set<String> = setOf("E", "H", "I", "M")
-
   /** Number of colony tiles required for a game having [players] seated players. */
   public fun requiredColonyTileCount(players: Int): Int {
     require(players in 1..5) { "player count must be between 1 and 5" }
@@ -218,22 +184,6 @@ public object Canon :
   private val TURMOIL_BUNDLE = cn("TurmoilExpansion")
   private val PROMO_CARDS_BUNDLE = cn("PromoCardsExpansion")
 
-  private val OPTIONS_BY_CODE =
-      linkedMapOf(
-          "B" to TERRAFORMING_MARS,
-          "S" to SOLO_MODE,
-          "R" to CORPORATE_ERA,
-          "M" to THARSIS_MAP,
-          "H" to HELLAS_MAP,
-          "E" to ELYSIUM_MAP,
-          "I" to TERRA_CIMMERIA_MAP,
-          "V" to VENUS_NEXT,
-          "P" to PRELUDE,
-          "C" to COLONIES,
-          "T" to TURMOIL_CARD_PACK,
-          "X" to PROMO_CARD_PACK,
-      )
-  private val OPTION_CODES = OPTIONS_BY_CODE.entries.associate { (code, option) -> option to code }
   private val OPTION_BUNDLES =
       mapOf(
           TERRAFORMING_MARS to TERRAFORMING_MARS,

@@ -89,8 +89,7 @@ public class ScriptSession(
       players: Int,
       purple: Boolean = false,
   ) {
-    val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
-    var options = Canon.options(effectiveCodes, players)
+    var options = OptionCodeTranslation.options(optionCodes, players)
     if (cn("ColoniesExpansion") in options) {
       options = options.copy(deferredColonySelection = true)
     }
@@ -105,7 +104,7 @@ public class ScriptSession(
 
   internal fun promptPlain(): String =
       with(gameplay) {
-        val optionCodes = Canon.optionCodes(options)
+        val optionCodes = OptionCodeTranslation.optionCodes(options)
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
         "$optionCodes $phase ${gameplay.actor}/${options.players} @$checkpoint> "

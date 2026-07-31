@@ -30,7 +30,6 @@ public class StandardFormBundle(
     name: String,
     override val customClasses: Set<CustomClass> = emptySet(),
     gameOptionClassNames: Set<ClassName> = emptySet(),
-    private val areaShortNamePrefix: String? = null,
     public val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,
@@ -75,7 +74,7 @@ public class StandardFormBundle(
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
     if (MAPS_FILENAME in resourceFilenames) {
-      JsonReader.readMaps(read(MAPS_FILENAME), requireNotNull(areaShortNamePrefix)).toSetStrict()
+      JsonReader.readMaps(read(MAPS_FILENAME)).toSetStrict()
     } else {
       emptySet()
     }

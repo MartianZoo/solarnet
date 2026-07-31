@@ -15,8 +15,10 @@ class TilePlacingTest {
     val game = setUpGame()
     with(game.tfm(PLAYER2)) {
       phase("Action")
-      godMode().manual("CityTile<M46>, CityTile<M44>, 25")
-      assertFailsWith<NarrowingException> { stdProject("CitySP") { doTask("CityTile<M34>") } }
+      godMode().manual("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25")
+      assertFailsWith<NarrowingException> {
+        stdProject("CitySP") { doTask("CityTile<Tharsis_3_4>") }
+      }
     }
   }
 
@@ -25,8 +27,8 @@ class TilePlacingTest {
     val game = setUpGame()
     val p2 = game.tfm(PLAYER2)
 
-    p2.godMode().manual("CityTile<M33>")
-    assertFailsWith<LimitsException> { p2.godMode().manual("OceanTile<M33>!") }
+    p2.godMode().manual("CityTile<Tharsis_3_3>")
+    assertFailsWith<LimitsException> { p2.godMode().manual("OceanTile<Tharsis_3_3>!") }
   }
 
   @Test
@@ -41,7 +43,10 @@ class TilePlacingTest {
         stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
       }
       // Yer surrounded!
-      game.tfm(PLAYER2).godMode().manual("GT<M32>, GT<M33>, GT<M42>, GT<M44>")
+      game
+          .tfm(PLAYER2)
+          .godMode()
+          .manual("GT<Tharsis_3_2>, GT<Tharsis_3_3>, GT<Tharsis_4_2>, GT<Tharsis_4_4>")
 
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
     }
@@ -54,34 +59,35 @@ class TilePlacingTest {
     val p2 = game.tfm(PLAYER2)
 
     // P1 has greenery next to south pole
-    p1.godMode().manual("4, GreeneryTile<H98>")
+    p1.godMode().manual("4, GreeneryTile<Hellas_9_8>")
 
-    // P2 completely surrounds it except for south pole (H97)
-    p2.godMode().manual("GreeneryTile<H87>, GreeneryTile<H88>, GreeneryTile<H99>")
+    // P2 completely surrounds it except for south pole (Hellas_9_7)
+    p2.godMode()
+        .manual("GreeneryTile<Hellas_8_7>, GreeneryTile<Hellas_8_8>, GreeneryTile<Hellas_9_9>")
 
     // P1 is 2 money short of what they need to place on the south pole
     assertFailsWith<LimitsException> { // do we care which step fails?
       p1.godMode().manual("GreeneryTile") {
-        doTask("GreeneryTile<H97>")
-        doTask("OceanTile<H46>")
+        doTask("GreeneryTile<Hellas_9_7>")
+        doTask("OceanTile<Hellas_4_6>")
       }
     }
-    assertEquals(0, p1.count("GreeneryTile<H97>")) // rolled back
+    assertEquals(0, p1.count("GreeneryTile<Hellas_9_7>")) // rolled back
 
     // But too bad, they don't get permission to place elsewhere!
     assertFailsWith<NarrowingException> {
-      p1.godMode().manual("GreeneryTile") { doTask("GreeneryTile<H75>") }
+      p1.godMode().manual("GreeneryTile") { doTask("GreeneryTile<Hellas_7_5>") }
     }
 
     // That concludes our test. But for funsies,
     // Suppose there had already been an ocean to place next to - now it works
-    p2.godMode().manual("OceanTile<H56>")
+    p2.godMode().manual("OceanTile<Hellas_5_6>")
     p1.godMode().manual("GreeneryTile") {
-      doTask("GreeneryTile<H97>")
-      doTask("OceanTile<H46>")
+      doTask("GreeneryTile<Hellas_9_7>")
+      doTask("OceanTile<Hellas_4_6>")
     }
     assertEquals(0, p1.count("Megacredit"))
-    assertEquals(1, p1.count("GreeneryTile<H97>"))
+    assertEquals(1, p1.count("GreeneryTile<Hellas_9_7>"))
   }
 
   @Test
@@ -91,10 +97,10 @@ class TilePlacingTest {
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      godMode().manual("666, CityTile<M86>") // shown as [] in comment below
+      godMode().manual("666, CityTile<Tharsis_8_6>") // shown as [] in comment below
 
       // try to fool it by having an opponent tile at the XX below
-      godMode().manual("CityTile<P2, M67>")
+      godMode().manual("CityTile<P2, Tharsis_6_7>")
 
       // Use the standard project so that the placement rule is in effect
       stdProject("GreenerySP") {
@@ -108,30 +114,30 @@ class TilePlacingTest {
 
         // 2 away - should not work
 
-        checkCantPlaceGreenery("M64") // NW
-        checkCantPlaceGreenery("M65") // N
-        checkCantPlaceGreenery("M66") // NE
-        checkCantPlaceGreenery("M74") // WNW
-        checkCantPlaceGreenery("M77") // ENE
-        checkCantPlaceGreenery("M84") // W
-        checkCantPlaceGreenery("M88") // E
-        checkCantPlaceGreenery("M95") // WSW
-        checkCantPlaceGreenery("M98") // ESE
+        checkCantPlaceGreenery("Tharsis_6_4") // NW
+        checkCantPlaceGreenery("Tharsis_6_5") // N
+        checkCantPlaceGreenery("Tharsis_6_6") // NE
+        checkCantPlaceGreenery("Tharsis_7_4") // WNW
+        checkCantPlaceGreenery("Tharsis_7_7") // ENE
+        checkCantPlaceGreenery("Tharsis_8_4") // W
+        checkCantPlaceGreenery("Tharsis_8_8") // E
+        checkCantPlaceGreenery("Tharsis_9_5") // WSW
+        checkCantPlaceGreenery("Tharsis_9_8") // ESE
 
         // 1 away - should work
 
         val cp = game.timeline.checkpoint()
-        doTask("GreeneryTile<M75>") // NW
+        doTask("GreeneryTile<Tharsis_7_5>") // NW
         game.timeline.rollBack(cp)
-        doTask("GreeneryTile<M76>") // NE
+        doTask("GreeneryTile<Tharsis_7_6>") // NE
         game.timeline.rollBack(cp)
-        doTask("GreeneryTile<M85>") // W
+        doTask("GreeneryTile<Tharsis_8_5>") // W
         game.timeline.rollBack(cp)
-        doTask("GreeneryTile<M87>") // E
+        doTask("GreeneryTile<Tharsis_8_7>") // E
         game.timeline.rollBack(cp)
-        doTask("GreeneryTile<M96>") // SW
+        doTask("GreeneryTile<Tharsis_9_6>") // SW
         game.timeline.rollBack(cp)
-        doTask("GreeneryTile<M97>") // SE
+        doTask("GreeneryTile<Tharsis_9_7>") // SE
       }
     }
   }

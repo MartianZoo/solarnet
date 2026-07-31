@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.GameOptions
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toSetStrict
 import io.kotest.matchers.shouldBe
@@ -10,62 +11,71 @@ import kotlin.test.Test
 internal class GamePremiseTest {
   @Test
   fun good() {
-    Canon.fromOptionCodes("BM", 2)
-    Canon.fromOptionCodes("BE", 3)
-    Canon.fromOptionCodes("BRMVPX", 4)
-    Canon.fromOptionCodes("BM", 5)
+    premise("TerraformingMars,TharsisMap", 2)
+    premise("TerraformingMars,ElysiumMap", 3)
+    premise(
+        "TerraformingMars,CorporateEraExpansion,TharsisMap,VenusNextExpansion,PreludeExpansion,PromoCardPack",
+        4,
+    )
+    premise("TerraformingMars,TharsisMap", 5)
   }
 
   @Test
   fun badPlayerCount() {
-    assertFails("many") { Canon.fromOptionCodes("BM", 6) }
+    assertFails("many") { premise("TerraformingMars,TharsisMap", 6) }
   }
 
   @Test
   fun badOptions() {
-    assertFails("no base") { Canon.fromOptionCodes("M", 4) }
-    assertFails("repeated") { Canon.fromOptionCodes("MBM", 4) }
-    assertFails("no map") { Canon.fromOptionCodes("B", 4) }
-    assertFails("two maps") { Canon.fromOptionCodes("BME", 4) }
-    assertFails("wrong bundle") { Canon.fromOptionCodes("BMZ", 4) }
+    assertFails("no base") { premise("TharsisMap", 4) }
+    assertFails("repeated") { premise("TharsisMap,TerraformingMars,TharsisMap", 4) }
+    assertFails("no map") { premise("TerraformingMars", 4) }
+    assertFails("two maps") { premise("TerraformingMars,TharsisMap,ElysiumMap", 4) }
+    assertFails("wrong bundle") { premise("TerraformingMars,UnknownOption", 4) }
   }
 
   @Test
-  fun optionCodeAdapterSelectsTheNeededRuleset() {
-    val premise = Canon.fromOptionCodes("BM", 2)
+  fun exactOptionsSelectTheNeededRuleset() {
+    val premise = premise("TerraformingMars,TharsisMap", 2)
     val ruleset = premise.ruleset as TfmRuleset
 
     ruleset.bundles.map { it.bundleName }.toSet() shouldBe
         setOf(cn("TerraformingMars"), cn("TharsisMap"))
-    Canon.optionCodes(Canon.options("BM", 2)) shouldBe "BM"
     ruleset.marsMapDefinitions.single().className shouldBe cn("Tharsis")
+    ruleset.marsMapDefinitions.single().areas[5, 5]!!.shortName shouldBe cn("Tharsis_5_5")
   }
 
   @Test
   fun onePlayerCompatibilitySetupSelectsSoloMode() {
-    Canon.fromOptionCodes("BSM", 1).initialComponents.toSet() shouldBe
+    premise("TerraformingMars,SoloMode,TharsisMap", 1).initialComponents.toSet() shouldBe
         setOf("TerraformingMars", "TharsisMap", "SoloMode")
   }
 
   @Test
   fun coloniesMustBeSpecifiedExactly() {
-    assertFails("missing colonies") { Canon.fromOptionCodes("BMC", 2) }
+    assertFails("missing colonies") { premise("TerraformingMars,TharsisMap,ColoniesExpansion", 2) }
     assertFails("partial colonies") {
-      Canon.fromOptionCodes("BMC", 2, setOf(cn("Luna")))
+      premise("TerraformingMars,TharsisMap,ColoniesExpansion", 2, setOf(cn("Luna")))
     }
 
     val exact = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").toSetStrict(::cn)
-    val premise = Canon.fromOptionCodes("BMC", 2, exact)
+    val premise = premise("TerraformingMars,TharsisMap,ColoniesExpansion", 2, exact)
     premise.initialComponents.toSet().containsAll(exact.map { "${it}Selected" }) shouldBe true
   }
 
   @Test
   fun soloColoniesUseExactlyThreeTiles() {
     val exact = setOf(cn("Luna"), cn("Ceres"), cn("Triton"))
-    Canon.fromOptionCodes("BSMC", 1, exact)
+    premise("TerraformingMars,SoloMode,TharsisMap,ColoniesExpansion", 1, exact)
 
     assertFails("four solo colonies") {
-      Canon.fromOptionCodes("BSMC", 1, exact + cn("Ganymede"))
+      premise("TerraformingMars,SoloMode,TharsisMap,ColoniesExpansion", 1, exact + cn("Ganymede"))
     }
   }
+
+  private fun premise(
+      optionNames: String,
+      players: Int,
+      colonyTiles: Set<dev.martianzoo.pets.ast.ClassName> = emptySet(),
+  ) = Canon.gamePremise(GameOptions(players, optionNames.split(',').toSetStrict(::cn), colonyTiles))
 }

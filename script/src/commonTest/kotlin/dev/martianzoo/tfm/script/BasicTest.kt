@@ -6,6 +6,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.script.OptionCodeTranslation
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -20,7 +21,10 @@ internal fun setUpGame(
     optionCodes: String = "BM",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-): World = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
+): World {
+  val options = OptionCodeTranslation.options(optionCodes, players).copy(colonyTiles = colonyTiles)
+  return setUpGame(Canon.gamePremise(options))
+}
 
 internal class BasicTest {
   @Test

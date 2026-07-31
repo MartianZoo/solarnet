@@ -6,7 +6,7 @@ import kotlin.test.Test
 class ExcentricSponsorTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("BMVP")
+    newGame("TerraformingMars,TharsisMap,VenusNextExpansion,PreludeExpansion")
     engine.phase("Prelude")
     p1.manual("44, ProjectCard, PreludeCard")
   }

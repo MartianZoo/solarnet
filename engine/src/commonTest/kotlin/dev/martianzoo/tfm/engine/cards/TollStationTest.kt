@@ -5,7 +5,7 @@ import kotlin.test.Test
 class TollStationTest : CardTest() {
   @Test
   fun `with space tags split between players, adds Toll Station`() {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     val p2 = requireP2()
     // Tags must be added with the cards they depend on.
     p1.manual("AsteroidMining, TransNeptuneProbe").expect("2 SpaceTag")

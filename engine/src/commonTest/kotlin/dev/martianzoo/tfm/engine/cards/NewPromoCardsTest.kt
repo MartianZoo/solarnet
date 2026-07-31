@@ -11,7 +11,7 @@ import kotlin.test.Test
 class NewPromoCardsTest : CardTest() {
   @Test
   fun `with Carbon Nanosystems in hand, plays a space card`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
 
     engine.phase("Action")
     p1.manual("25, 2 ProjectCard")
@@ -26,7 +26,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with Martian Lumber Corporation, plays a building card`() {
-    newGame("BMRX")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,PromoCardPack")
 
     engine.phase("Action")
     p1.manual("ProjectCard, MartianLumberCorp, 2 Plant, 20")
@@ -38,7 +38,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with Homeostasis Bureau, each actor raises temperature`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     val p2 = requireP2()
     p1.manual("HomeostasisBureau")
     p1.count("Megacredit") shouldBe 0
@@ -52,24 +52,26 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with a greenery selected, plays Kaguya Tech`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     engine.phase("Action")
-    p1.manual("10, ProjectCard, GreeneryTile<M42>")
-    p1.playProject("KaguyaTech", 10) { doTask("CityTile<M42> FROM GreeneryTile<M42>") }
-        .expect("-GreeneryTile<M42>, CityTile<M42>")
+    p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
+    p1.playProject("KaguyaTech", 10) {
+          doTask("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>")
+        }
+        .expect("-GreeneryTile<Tharsis_4_2>, CityTile<Tharsis_4_2>")
   }
 
   @Test
   fun `with a p2 city, p1 builds a cathedral`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     val p2 = requireP2()
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE
 
     p1.manual("StJosephOfCupertinoMission")
-    p2.manual("CityTile<Player2, M42>") { doTask("Plant") }
+    p2.manual("CityTile<Player2, Tharsis_4_2>") { doTask("Plant") }
 
-    p1.godMode().beginManual("Cathedral<CityTile<Player2, M42>>") {
+    p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     }
 

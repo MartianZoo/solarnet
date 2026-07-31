@@ -55,7 +55,10 @@ class VironTest : CardTest() {
 
   @Test
   fun `after p2 uses a card, p1 tries to choose it through Viron`() {
-    newGame("BMVC", colonyTiles = testColonyTiles(2))
+    newGame(
+        "TerraformingMars,TharsisMap,VenusNextExpansion,ColoniesExpansion",
+        colonyTiles = testColonyTiles(2),
+    )
     val p2 = requireP2()
     engine.phase("Action")
     p1.manual("Viron, ExtractorBalloons")
@@ -72,7 +75,10 @@ class VironTest : CardTest() {
   }
 
   private fun initializeGame() {
-    newGame("BMVC", colonyTiles = testColonyTiles(2))
+    newGame(
+        "TerraformingMars,TharsisMap,VenusNextExpansion,ColoniesExpansion",
+        colonyTiles = testColonyTiles(2),
+    )
     engine.phase("Action")
     p1.manual("Viron, AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
   }

@@ -7,7 +7,7 @@ import kotlin.test.Test
 class VitorTest : CardTest() {
   @Test
   fun `in solo mode, plays Vitor`() {
-    newGame("BMRP", players = 1)
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,PreludeExpansion", players = 1)
     p1.playCorp("Vitor", 5).expect("5 ProjectCard, 33")
     p1.assertCounts(0 to "Mandate")
   }
@@ -35,7 +35,7 @@ class VitorTest : CardTest() {
   }
 
   private fun initializeVitor() {
-    newGame("BMRP", players = 1)
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,PreludeExpansion", players = 1)
     p1.manual("Vitor")
   }
 }

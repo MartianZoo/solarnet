@@ -5,7 +5,7 @@ import kotlin.test.Test
 class DirigiblesTest : CardTest() {
   @Test
   fun `with two floaters, pays for a Venus card using Dirigibles`() {
-    newGame("BMV")
+    newGame("TerraformingMars,TharsisMap,VenusNextExpansion")
 
     engine.phase("Action")
     p1.manual("ProjectCard, Dirigibles, 2 Floater<Dirigibles>, 5")

@@ -113,14 +113,14 @@ class SoloGame0611Test : AbstractSoloTest() {
       nextGeneration(3)
 
       stdAction("ConvertPlantsSA") {
-        doTask("GreeneryTile<H97>")
-        doTask("OceanTile<H56>")
+        doTask("GreeneryTile<Hellas_9_7>")
+        doTask("OceanTile<Hellas_5_6>")
       }
 
       cardAction1(SubCrustMeasurements)
       cardAction1(ForcedPrecipitation).expect("-2")
       cardAction1(RegolithEaters).expect("Microbe")
-      playProject("ResearchOutpost", 12, steel = 2) { doTask("CityTile<H76>") }
+      playProject("ResearchOutpost", 12, steel = 2) { doTask("CityTile<Hellas_7_6>") }
 
       playProject("Cartel", 7).expect("PROD[5]")
       playProject("Supercapacitors", 3).expect("PROD[1]")
@@ -148,7 +148,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(EquatorialMagnetizer)
       playProject("VestaShipyard", 2, titanium = 4)
       sellPatents(4)
-      playProject("CorporateStronghold", 10) { doTask("CityTile<H55>") }
+      playProject("CorporateStronghold", 10) { doTask("CityTile<Hellas_5_5>") }
       pass()
 
       phase("Production") { me.doTask("Ok") }
@@ -190,7 +190,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("MirandaResort", 2, titanium = 3)
       cardAction1(RegolithEaters)
       cardAction1(ForcedPrecipitation)
-      stdProject("AquiferSP") { doTask("OceanTile<H67>") }
+      stdProject("AquiferSP") { doTask("OceanTile<Hellas_6_7>") }
       sellPatents(3)
       stdProject("AirScrappingSP")
       pass()
@@ -205,7 +205,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(AiCentral)
       cardAction1(SubCrustMeasurements)
       cardAction2(ForcedPrecipitation)
-      stdAction("ConvertPlantsSA") { doTask("GT<H66>") }
+      stdAction("ConvertPlantsSA") { doTask("GT<Hellas_6_6>") }
 
       val WaterSplittingPlant = "WaterSplittingPlant"
       playProject(WaterSplittingPlant, 5, steel = 3)
@@ -217,7 +217,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(EquatorialMagnetizer)
       playProject("ImportedGhg", 4)
       playProject("NitrogenRichAsteroid", 7, titanium = 7)
-      stdProject("GreenerySP") { doTask("GT<H77>") }
+      stdProject("GreenerySP") { doTask("GT<Hellas_7_7>") }
       cardAction1(RegolithEaters)
       pass()
 
@@ -243,7 +243,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       stdProject("AirScrappingSP").expect("2 TR")
       sellPatents(3)
       playProject("TransNeptuneProbe", 1)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<H65>") }
+      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_6_5>") }
 
       assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
       assertResources(m = 8, s = 1, t = 0, p = 0, e = 0, h = 1)

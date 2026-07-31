@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.GameOptions
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -28,19 +29,20 @@ internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
-    optionCodes: String = "BM",
+    optionNames: String = "TerraformingMars,TharsisMap",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-): World = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
+): World = setUpGame(canonicalPremise(optionNames, players, colonyTiles))
 
 internal fun canonicalPremise(
-    optionCodes: String = "BM",
+    optionNames: String = "TerraformingMars,TharsisMap",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
 ): GamePremise {
-  val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
-  val options = Canon.options(effectiveCodes, players, colonyTiles)
+  val enabled = optionNames.split(',').mapTo(linkedSetOf(), ::cn)
+  if (players == 1) enabled += cn("SoloMode")
+  val options = GameOptions(players, enabled, colonyTiles)
   val base = Canon.gamePremise(options)
   if (ruleset == null) return base
   val selectedRuleset = ruleset.resolve(Canon.bundleNames(options))

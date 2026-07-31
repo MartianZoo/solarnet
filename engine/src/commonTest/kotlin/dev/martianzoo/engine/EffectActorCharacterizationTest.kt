@@ -36,7 +36,8 @@ class EffectActorCharacterizationTest {
 
   @Test
   fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerAReward() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BE", 2))
+    val game =
+        Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise("TerraformingMars,ElysiumMap", 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 

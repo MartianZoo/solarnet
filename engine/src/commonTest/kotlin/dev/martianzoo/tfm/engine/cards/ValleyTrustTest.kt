@@ -6,7 +6,7 @@ import kotlin.test.Test
 class ValleyTrustTest : CardTest() {
   @Test
   fun `with a mandate, uses Valley Trust`() {
-    newGame("BMP")
+    newGame("TerraformingMars,TharsisMap,PreludeExpansion")
     p1.playCorp("ValleyTrust", 5).expect("5 ProjectCard, 22")
 
     engine.phase("Action")

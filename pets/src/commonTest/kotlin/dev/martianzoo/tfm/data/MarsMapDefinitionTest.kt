@@ -34,5 +34,6 @@ internal class MarsMapDefinitionTest {
     map.areas.shouldHaveSize(7)
     map.areas[1, 1]!!.code shouldBe "VS"
     map.areas[1, 1]!!.bonusText shouldBe "Steel"
+    map.areas[1, 1]!!.shortName shouldBe cn("Demo_1_1")
   }
 }

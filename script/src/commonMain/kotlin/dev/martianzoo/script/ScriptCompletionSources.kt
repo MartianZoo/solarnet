@@ -3,7 +3,6 @@ package dev.martianzoo.script
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
 import dev.martianzoo.tfm.api.tfmRuleset
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {
@@ -63,20 +62,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun optionSuggestions(): List<ScriptCompletion> {
-    val options = Canon.supportedOptionCodes
-    val maps = Canon.mapOptionCodes
-    val nonMaps = options - maps
-    val common =
-        listOf(
-            "BM",
-            "BRM",
-            "BRMVX",
-            "BRMVPX",
-            "BRMVPXT",
-            Canon.optionCodes(repl.options),
-        )
-    val generated = maps.flatMap { map -> nonMaps.map { "$it$map" } }
-    return (common + generated).map { ScriptCompletion(it, "option codes") }
+    return OptionCodeTranslation.suggestions(repl.options).map {
+      ScriptCompletion(it, "option codes")
+    }
   }
 
   fun broadPetsCandidates(): List<ScriptCompletion> =

@@ -37,7 +37,7 @@ class IndenturedWorkersTest : CardTest() {
   }
 
   private fun initializeGame(instruction: String) {
-    newGame("BMR")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
     engine.phase("Action")
     p1.manual(instruction)
   }

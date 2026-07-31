@@ -11,7 +11,7 @@ import kotlin.test.Test
 class SulphurEatingBacteriaTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("BMV")
+    newGame("TerraformingMars,TharsisMap,VenusNextExpansion")
     engine.phase("Action")
     p1.manual("SulphurEatingBacteria, 4 Microbe<SulphurEatingBacteria>")
   }

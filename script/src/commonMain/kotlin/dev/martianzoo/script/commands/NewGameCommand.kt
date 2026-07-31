@@ -1,11 +1,11 @@
 package dev.martianzoo.script.commands
 
+import dev.martianzoo.script.OptionCodeTranslation
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.tfm.canon.Canon
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
   override val usage = "newgame <options> <player count> [purple]"
@@ -39,7 +39,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val playerCount = parts.getOrNull(1)?.toInt() ?: throw UsageException()
 
       repl.newGame(optionCodes, playerCount, purple)
-      val effectiveOptionCodes = Canon.optionCodes(repl.options)
+      val effectiveOptionCodes = OptionCodeTranslation.optionCodes(repl.options)
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
           (if (purple) listOf("Purple mode: workflow active") else emptyList()) +

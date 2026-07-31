@@ -339,8 +339,10 @@ internal class ScriptSessionTest {
   fun testMap() {
     val repl = ScriptSession()
     repl.command("become Player1")
-    repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>")
-    repl.command("as Player2 exec GT<M45>, CT<M66>, MaTile<M99>")
+    repl.command(
+        "exec OT<Tharsis_2_6>, OT<Tharsis_5_5>, OT<Tharsis_5_6>, CT<Tharsis_4_6>, GT<Tharsis_5_7>"
+    )
+    repl.command("as Player2 exec GT<Tharsis_4_5>, CT<Tharsis_6_6>, MaTile<Tharsis_9_9>")
     assertTrue(repl.command("tasks").isEmpty())
     assertEquals(8, repl.gameplay.count("Tile"))
 

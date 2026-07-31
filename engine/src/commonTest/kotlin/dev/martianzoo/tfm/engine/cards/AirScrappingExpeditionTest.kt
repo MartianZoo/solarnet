@@ -9,7 +9,10 @@ import kotlin.test.Test
 class AirScrappingExpeditionTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("BMVC", colonyTiles = testColonyTiles(2))
+    newGame(
+        "TerraformingMars,TharsisMap,VenusNextExpansion,ColoniesExpansion",
+        colonyTiles = testColonyTiles(2),
+    )
   }
 
   @Test

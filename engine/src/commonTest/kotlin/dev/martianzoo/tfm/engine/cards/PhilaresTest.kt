@@ -10,14 +10,14 @@ import kotlin.test.Test
 class PhilaresTest : CardTest() {
   @Test
   fun `with Philares owned by p2, p1 places an adjacent greenery`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     val p2 = requireP2()
-    p2.manual("Philares, GreeneryTile<M32>")
+    p2.manual("Philares, GreeneryTile<Tharsis_3_2>")
     p1.manual("23")
     engine.phase("Action")
 
     p1.stdProject("GreenerySP") {
-      doTask("GreeneryTile<M43>")
+      doTask("GreeneryTile<Tharsis_4_3>")
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
       p2.doTask("Titanium").expect("Titanium")
     }
@@ -25,15 +25,15 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p2, p1 creates adjacency`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     val p2 = requireP2()
     p2.manual("Philares")
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE
-    p2.manual("CityTile<M23>")
+    p2.manual("CityTile<Tharsis_2_3>")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.godMode().beginManual("CityTile<M33>") {
+    p1.godMode().beginManual("CityTile<Tharsis_3_3>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     }
 
@@ -44,14 +44,14 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p1 and a p2 tile, p1 creates adjacency`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     val p2 = requireP2()
     p1.manual("Philares")
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE
-    p2.manual("CityTile<M23>")
+    p2.manual("CityTile<Tharsis_2_3>")
 
-    p1.godMode().beginManual("CityTile<M33>") {
+    p1.godMode().beginManual("CityTile<Tharsis_3_3>") {
       game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER1)
     }
 
@@ -60,25 +60,25 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p2, p1 joins two p1 tiles`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     val p2 = requireP2()
     p2.manual("Philares")
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE
-    p1.manual("CityTile<M23>")
+    p1.manual("CityTile<Tharsis_2_3>")
 
-    p1.manual("CityTile<M33>")
+    p1.manual("CityTile<Tharsis_3_3>")
 
     game.tasks.isEmpty() shouldBe true
   }
 
   @Test
   fun `with Philares and an own tile, p1 places an adjacent greenery`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     p1.manual("Philares")
-    p1.manual("-Mandate, GreeneryTile<M42>, 23")
+    p1.manual("-Mandate, GreeneryTile<Tharsis_4_2>, 23")
     engine.phase("Action")
-    p1.stdProject("GreenerySP") { doTask("GreeneryTile<M32>") }
+    p1.stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_3_2>") }
     game.tasks.isEmpty() shouldBe true
   }
 }

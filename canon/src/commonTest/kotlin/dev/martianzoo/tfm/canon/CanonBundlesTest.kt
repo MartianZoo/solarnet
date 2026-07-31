@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.data.GameOptions
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -88,13 +89,20 @@ internal class CanonBundlesTest {
     val relevantCards = originals + replacements
 
     val withoutPromos =
-        (Canon.fromOptionCodes("BM", 2).ruleset as dev.martianzoo.tfm.api.TfmRuleset)
+        (Canon.gamePremise(GameOptions(2, setOf(cn("TerraformingMars"), cn("TharsisMap")))).ruleset
+                as dev.martianzoo.tfm.api.TfmRuleset)
             .cardDefinitions
             .mapTo(mutableSetOf()) {
               it.className
             }
     val withPromos =
-        (Canon.fromOptionCodes("BMX", 2).ruleset as dev.martianzoo.tfm.api.TfmRuleset)
+        (Canon.gamePremise(
+                    GameOptions(
+                        2,
+                        setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("PromoCardPack")),
+                    )
+                )
+                .ruleset as dev.martianzoo.tfm.api.TfmRuleset)
             .cardDefinitions
             .mapTo(mutableSetOf()) {
               it.className
@@ -116,7 +124,6 @@ internal class CanonBundlesTest {
     val bundle =
         StandardFormBundle(
             name = "TharsisMap",
-            areaShortNamePrefix = "M",
             resourceDirectory = "bundles/TharsisMap",
             resourceFilenames = setOf(StandardFormBundle.MAPS_FILENAME),
         )

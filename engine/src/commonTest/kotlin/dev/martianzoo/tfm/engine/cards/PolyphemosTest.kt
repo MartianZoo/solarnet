@@ -7,7 +7,10 @@ class PolyphemosTest : CardTest() {
 
   @Test
   fun `with Polyphemos, buys a card from Inventors Guild`() {
-    newGame("BMRC", colonyTiles = testColonyTiles(2))
+    newGame(
+        "TerraformingMars,TharsisMap,CorporateEraExpansion,ColoniesExpansion",
+        colonyTiles = testColonyTiles(2),
+    )
     p1.playCorp("Polyphemos", 7)
     engine.phase("Action")
     p1.playProject("InventorsGuild", 9)

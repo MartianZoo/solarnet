@@ -5,6 +5,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
+import dev.martianzoo.script.OptionCodeTranslation
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -13,7 +14,8 @@ internal object SampleGames {
   internal fun sampleGame(generations: Int): World {
     var gens = generations
 
-    val game = Engine.newGame(Canon.fromOptionCodes("BRMVPXT", 2))
+    val options = OptionCodeTranslation.options("BRMVPXT", 2)
+    val game = Engine.newGame(Canon.gamePremise(options))
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

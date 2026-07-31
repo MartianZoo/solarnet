@@ -4,10 +4,10 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
@@ -15,7 +15,11 @@ class FirstPartialGameTest {
   @Test
   fun fourWholeGenerations() {
     repeat(1) {
-      val setup = Canon.fromOptionCodes("BREPT", 2)
+      val setup =
+          canonicalPremise(
+              "TerraformingMars,CorporateEraExpansion,ElysiumMap,PreludeExpansion,TurmoilCardPack",
+              2,
+          )
       val game = Engine.newGame(setup)
       val eng = game.tfm(ENGINE)
       val p1 = game.tfm(PLAYER1)
@@ -36,7 +40,7 @@ class FirstPartialGameTest {
       p1.playProject("AsteroidMining", 30)
       p1.declineSecondAction()
 
-      p2.playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<E37>") }
+      p2.playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<Elysium_3_7>") }
       p2.playProject("SpaceElevator", 1, steel = 13)
 
       p1.pass()
@@ -101,7 +105,7 @@ class FirstPartialGameTest {
       p2.cardAction1("ElectroCatapult")
       p2.cardAction1("SpaceElevator")
 
-      p1.playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<E56>") }
+      p1.playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
       p1.playProject("IoMiningIndustries", 1, titanium = 13)
 
       p2.playProject("TransNeptuneProbe", 1, titanium = 1)
@@ -111,7 +115,7 @@ class FirstPartialGameTest {
       p1.declineSecondAction()
 
       p2.playProject("SolarPower", 1, steel = 4)
-      p2.stdProject("CitySP") { doTask("CityTile<E65>") }
+      p2.stdProject("CitySP") { doTask("CityTile<Elysium_6_5>") }
 
       workflow.shutdown()
       TfmWorkflow.Manual(game).productionPhase()

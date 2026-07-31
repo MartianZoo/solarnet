@@ -13,7 +13,7 @@ class SoloGame0710Test : AbstractSoloTest() {
     val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
     // Miranda was removed because solo Colonies uses only three selected tiles.
     return canonicalPremise(
-        "BRMVPSCTX",
+        "TerraformingMars,CorporateEraExpansion,TharsisMap,VenusNextExpansion,PreludeExpansion,SoloMode,ColoniesExpansion,TurmoilCardPack,PromoCardPack",
         1,
         colonyTiles,
     )

@@ -8,7 +8,7 @@ import kotlin.test.Test
 class CrashSiteCleanupTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     engine.phase("Action")
     p1.manual("4, ProjectCard")
     requireP2().manual("Plant")

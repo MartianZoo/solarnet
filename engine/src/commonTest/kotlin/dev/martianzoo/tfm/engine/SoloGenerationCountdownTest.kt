@@ -26,7 +26,7 @@ internal class SoloGenerationCountdownTest {
 
   @Test
   fun preludeSoloBeginsGenerationOneWithElevenGenerationsLeft() {
-    val setup = Canon.fromOptionCodes("BSPM", 1)
+    val setup = canonicalPremise("TerraformingMars,SoloMode,PreludeExpansion,TharsisMap", 1)
     val game = Engine.newGame(setup)
 
     TfmWorkflow.Manual(game).setupPhase()
@@ -36,7 +36,7 @@ internal class SoloGenerationCountdownTest {
 
   @Test
   fun laterGenerationsRemoveOneGenerationLeft() {
-    val game = setUpGame("BSM", 1)
+    val game = setUpGame("TerraformingMars,SoloMode,TharsisMap", 1)
     val engine = game.tfm(ENGINE)
     finishNeutralSetup(engine)
 

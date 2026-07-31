@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.canonicalPremise
 import kotlin.test.BeforeTest
 
 /**
@@ -12,7 +12,11 @@ import kotlin.test.BeforeTest
 abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
 
-  override fun setup() = Canon.fromOptionCodes("BRHSVPX", 1)
+  override fun setup() =
+      canonicalPremise(
+          "TerraformingMars,CorporateEraExpansion,HellasMap,SoloMode,VenusNextExpansion,PreludeExpansion,PromoCardPack",
+          1,
+      )
 
   protected abstract fun cityAreas(): Pair<String, String>
 

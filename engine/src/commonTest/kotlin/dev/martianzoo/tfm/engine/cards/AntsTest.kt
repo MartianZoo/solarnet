@@ -7,7 +7,7 @@ class AntsTest : CardTest() {
   // FAQ: "consume an ant to produce an ant"
   @Test
   fun `with a microbe on Ants, uses its action`() {
-    newGame("BMX")
+    newGame("TerraformingMars,TharsisMap,PromoCardPack")
     p1.manual("Ants, TopsoilContract")
     p1.manual("SymbioticFungus")
     engine.phase("Action")

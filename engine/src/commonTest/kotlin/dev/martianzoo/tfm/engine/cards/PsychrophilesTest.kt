@@ -8,7 +8,7 @@ import kotlin.test.Test
 class PsychrophilesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("BMP")
+    newGame("TerraformingMars,TharsisMap,PreludeExpansion")
     engine.phase("Action")
     p1.manual("10, ProjectCard")
   }

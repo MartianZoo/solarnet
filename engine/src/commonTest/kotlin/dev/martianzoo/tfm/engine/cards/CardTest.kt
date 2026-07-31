@@ -8,7 +8,9 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.GameOptions
 import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -29,13 +31,13 @@ abstract class CardTest {
       setUpTfmGame(premise).initializeCardTestGame()
 
   protected fun newGame(
-      optionCodes: String = "BM",
+      optionNames: String = "TerraformingMars,TharsisMap",
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
   ): World {
-    val orderedOptionCodes = optionCodes.withSoloMode(players).inStandardOrder()
-    return setUpTfmGame(cachedSetup(orderedOptionCodes, players, colonyTiles))
-        .initializeCardTestGame()
+    val options = optionNames.split(',').mapTo(linkedSetOf(), ::cn)
+    if (players == 1) options += cn("SoloMode")
+    return setUpTfmGame(cachedSetup(options, players, colonyTiles)).initializeCardTestGame()
   }
 
   protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }
@@ -88,7 +90,7 @@ abstract class CardTest {
 
   private companion object {
     private data class SetupKey(
-        val optionCodes: String,
+        val options: Set<ClassName>,
         val players: Int,
         val colonyTiles: Set<ClassName>,
     )
@@ -96,22 +98,12 @@ abstract class CardTest {
     private val setupCache = mutableMapOf<SetupKey, GamePremise>()
 
     private fun cachedSetup(
-        optionCodes: String,
+        options: Set<ClassName>,
         players: Int,
         colonyTiles: Set<ClassName>,
     ): GamePremise =
-        setupCache.getOrPut(
-            SetupKey(optionCodes.toList().sorted().joinToString(""), players, colonyTiles)
-        ) {
-          Canon.fromOptionCodes(optionCodes, players, colonyTiles)
+        setupCache.getOrPut(SetupKey(options, players, colonyTiles)) {
+          Canon.gamePremise(GameOptions(players, options, colonyTiles))
         }
-
-    private fun String.withSoloMode(players: Int): String =
-        if (players == 1 && 'S' !in this) this + 'S' else this
-
-    private fun String.inStandardOrder(): String =
-        toList().sortedBy(STANDARD_OPTION_ORDER::indexOf).joinToString("")
-
-    private const val STANDARD_OPTION_ORDER = "BMHIESRVPCTX"
   }
 }

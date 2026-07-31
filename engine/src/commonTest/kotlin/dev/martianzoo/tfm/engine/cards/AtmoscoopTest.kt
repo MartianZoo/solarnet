@@ -6,7 +6,7 @@ class AtmoscoopTest : CardTest() {
   // FAQ: "you can choose to raise Temperature or Venus even if that parameter is maxed"
   @Test
   fun `with Venus maxed, resolves Atmoscoop`() {
-    newGame("BMV")
+    newGame("TerraformingMars,TharsisMap,VenusNextExpansion")
     p1.manual("15 VenusStep, AerialMappers")
 
     p1.manual("Atmoscoop") {

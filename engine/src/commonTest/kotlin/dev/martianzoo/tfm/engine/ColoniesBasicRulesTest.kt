@@ -21,7 +21,12 @@ import kotlin.test.Test
 internal class ColoniesBasicRulesTest {
   private val normal =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
-  val premise = canonicalPremise("BRMC", 4, normal)
+  val premise =
+      canonicalPremise(
+          "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion",
+          4,
+          normal,
+      )
   val game = setUpGame(premise)
   val engine = game.tfm(ENGINE)
   val p1 = game.tfm(PLAYER1)
@@ -55,7 +60,12 @@ internal class ColoniesBasicRulesTest {
   @Test
   fun `card resource colonies start not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
-    val premise = canonicalPremise("BRMC", 4, colonies)
+    val premise =
+        canonicalPremise(
+            "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion",
+            4,
+            colonies,
+        )
     val engine = setUpGame(premise).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
 
@@ -85,7 +95,12 @@ internal class ColoniesBasicRulesTest {
   @Test
   fun `cant do anything with colony not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
-    val premise = canonicalPremise("BRMC", 4, colonies)
+    val premise =
+        canonicalPremise(
+            "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion",
+            4,
+            colonies,
+        )
     val engine = setUpGame(premise).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
 
@@ -190,7 +205,7 @@ internal class ColoniesBasicRulesTest {
     val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
     val localGame =
         setUpGame(
-            "BRMCX",
+            "TerraformingMars,CorporateEraExpansion,TharsisMap,ColoniesExpansion,PromoCardPack",
             2,
             colonies,
         )

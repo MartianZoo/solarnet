@@ -9,7 +9,7 @@ class CeosFavoriteTest : CardTest() {
   // FAQ: "This card can be played to add an additional resource to 'Search for Life'."
   @Test
   fun `with science on Search for Life, resolves CEO's Favorite Project`() {
-    newGame("BMRV")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion")
     p1.manual("SearchForLife, Science<SearchForLife>")
     p1.manual("CeosFavoriteProject") { doTask("Science<SearchForLife>") }
         .expect("Science<SearchForLife>")
@@ -19,7 +19,7 @@ class CeosFavoriteTest : CardTest() {
   // FAQ: "this card can still be played without effect."
   @Test
   fun `without a resource-bearing card, resolves CEO's Favorite Project`() {
-    newGame("BMRV")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion")
     p1.manual("Tardigrades")
     p1.manual("CeosFavoriteProject")
     p1.assertCounts(0 to "Microbe<Tardigrades>")
@@ -27,7 +27,7 @@ class CeosFavoriteTest : CardTest() {
 
   @Test
   fun `with an eligible card, tries to skip its resource choice`() {
-    newGame("BMRV")
+    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion")
     p1.manual("SearchForLife, Science<SearchForLife>")
     shouldThrow<NarrowingException> { p1.manual("CeosFavoriteProject") { doTask("Ok") } }
   }

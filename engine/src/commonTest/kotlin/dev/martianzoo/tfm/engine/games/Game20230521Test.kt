@@ -2,16 +2,20 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.engine.World
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class Game20230521Test : AbstractFullGameTest() {
 
-  override fun setup() = Canon.fromOptionCodes("BRMVPXT", 2)
+  override fun setup() =
+      canonicalPremise(
+          "TerraformingMars,CorporateEraExpansion,TharsisMap,VenusNextExpansion,PreludeExpansion,PromoCardPack,TurmoilCardPack",
+          2,
+      )
 
   @Test
   fun game20230521() {

@@ -27,7 +27,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Consider inline value types for `TaskId`, event ordinals, and player seats, while preserving sensible Java and JavaScript interop.
 - Do not infer dependency linkage between sibling positions in the same argument list. Repeating a bound there cannot usefully express linkage—the author could collapse linked positions into one dependency—and currently causes nested declarations such as `Pair<Class<Component>, Class<Component>>` to couple the two `Component` positions.
 - Decide how a trigger can bind its Actor into an instruction. Mons Insurance must bind both attacker and victim into its payout; `BY !Owner` supplies only the inequality test.
-- Remove class short names from the type system and preserve only worthwhile abbreviations in a translation layer close to tests and the REPL.
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - Consider letting custom metrics query typed, read-only event history for facts such as `HasRaisedTr` and this-generation attacks, avoiding permanent watchers; preserve semantic generation boundaries and rollback/replay determinism.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.

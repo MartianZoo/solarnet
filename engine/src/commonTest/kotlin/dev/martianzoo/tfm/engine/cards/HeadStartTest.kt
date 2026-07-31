@@ -6,7 +6,7 @@ import kotlin.test.Test
 class HeadStartTest : CardTest() {
   @Test
   fun `with Head Start, declines both actions`() {
-    newGame("BMPX")
+    newGame("TerraformingMars,TharsisMap,PreludeExpansion,PromoCardPack")
     engine.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard")
     p1.playPrelude("HeadStart") {

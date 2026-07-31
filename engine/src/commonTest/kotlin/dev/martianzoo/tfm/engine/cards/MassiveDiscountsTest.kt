@@ -6,7 +6,9 @@ class MassiveDiscountsTest : CardTest() {
 
   @Test
   fun `with stacked discounts, plays Space Elevator`() {
-    newGame("BMRVPX")
+    newGame(
+        "TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion,PreludeExpansion,PromoCardPack"
+    )
 
     engine.phase("Action")
     p1.manual(
@@ -14,7 +16,7 @@ class MassiveDiscountsTest : CardTest() {
             "ResearchOutpost, MassConverter, QuantumExtractor, Shuttles, SpaceStation, " +
             "AdvancedAlloys, Phobolog, MercurianAlloys, RegoPlastics"
     ) {
-      doTask("CityTile<M42>")
+      doTask("CityTile<Tharsis_4_2>")
     }
 
     p1.playProject("SpaceElevator", 4, steel = 1, titanium = 1)
