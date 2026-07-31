@@ -1,0 +1,2 @@
+"Map option using the Terra Cimmeria board and its map-specific milestones and awards"
+CLASS TerraCimmeriaMap : MarsMapOption

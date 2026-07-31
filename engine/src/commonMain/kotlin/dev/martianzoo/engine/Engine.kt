@@ -12,8 +12,10 @@ import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.Ruleset
 import dev.martianzoo.data.Task
 import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import org.koin.core.module.dsl.bind
@@ -28,6 +30,34 @@ public object Engine {
 
   /** Creates a game at its committed pre-setup baseline, ready to be given to a workflow. */
   public fun newGame(premise: GamePremise): World {
+    return newWorld(premise)
+  }
+
+  /**
+   * Validates a quiescent [setupWorld], snapshots it through [assemble], and creates a playable
+   * game.
+   */
+  public fun newGame(
+      setupWorld: World,
+      assemble: (GameReader) -> GamePremise,
+  ): World {
+    require(setupWorld.isIdle()) { "a completed setup world must be idle" }
+    setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
+    check(setupWorld.isIdle()) { "setup validation did not leave the world idle" }
+    return newGame(assemble(setupWorld.reader))
+  }
+
+  /** Creates a standalone setup world and resolves its choice-free initialization tasks. */
+  public fun newSetupWorld(
+      ruleset: Ruleset,
+      rootClassNames: Set<ClassName>,
+      initialComponents: List<String>,
+  ): World =
+      newWorld(GamePremise(ruleset, rootClassNames, listOf(ENGINE), initialComponents)).also {
+        it.gameplay(ENGINE).autoExecNow()
+      }
+
+  private fun newWorld(premise: GamePremise): WholeWorld {
     val koin = koinApplication { modules(gameModule(premise)) }.koin
 
     val game = koin.get<WholeWorld>()

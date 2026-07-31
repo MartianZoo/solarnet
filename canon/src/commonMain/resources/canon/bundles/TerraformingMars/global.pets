@@ -9,9 +9,6 @@ ABSTRACT CLASS GameOption : System {
   -This BY !Engine:: Die!
 }
 
-"The selected map option; only one map can be selected"
-ABSTRACT CLASS MarsMapOption : GameOption { HAS MAX 1 MarsMapOption }
-
 "A catch-all for arbitrary global effects that don't seem to belong anywhere else"
 CLASS TerraformingMars : System {
   HAS =1 This, =1 MarsMap

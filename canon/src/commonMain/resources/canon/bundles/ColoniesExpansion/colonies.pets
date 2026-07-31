@@ -2,7 +2,7 @@
 // Colonies expansion!
 //
 
-"The selected Colonies expansion bundle"
+"Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : GameOption {
   SetupPhase: ColoniesSetup
   SetupPhase IF =1 Player:: PROD[-2 Megacredit<Player1>]
@@ -10,9 +10,6 @@ CLASS ColoniesExpansion : GameOption {
 
 "Creates the colony tiles and one trade fleet for each player"
 CLASS ColoniesSetup : Custom
-
-"A colony tile selected while assembling the game"
-ABSTRACT CLASS SelectedColonyTile : GameOption
 
 "Requests the existing gameplay-time colony selection flow"
 CLASS DeferredColonySelection : System { HAS MAX 1 This }

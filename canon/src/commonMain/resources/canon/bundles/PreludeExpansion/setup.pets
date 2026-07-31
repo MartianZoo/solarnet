@@ -1,0 +1,2 @@
+"Expansion giving each player two prelude cards to accelerate the opening game"
+CLASS PreludeExpansion : GameOption

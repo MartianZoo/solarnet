@@ -1,0 +1,5 @@
+"Expansion adding colony tiles, player colonies, and trade fleets"
+CLASS ColoniesExpansion : GameOption
+
+"A colony tile selected for the eventual game; concrete subtypes come from colonies.json5"
+ABSTRACT CLASS SelectedColonyTile : System { HAS MAX 1 This }

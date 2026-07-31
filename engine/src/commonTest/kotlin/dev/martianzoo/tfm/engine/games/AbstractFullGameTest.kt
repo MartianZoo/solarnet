@@ -29,7 +29,7 @@ abstract class AbstractFullGameTest {
     game = Engine.newGame(setup())
     engine = game.tfm(ENGINE)
     p1 = game.tfm(PLAYER1)
-    if (game.reader.getComponents("PlayerSeat").size > 1) p2 = game.tfm(PLAYER2)
+    if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
   }
 
   fun copyThis() {

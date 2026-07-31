@@ -51,13 +51,6 @@ The first two are singleton types: each concrete subtype such as `Aquifer` autom
 
 Once the workflow starts setup, exactly one Phase instance exists: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. A newly created engine is briefly at a committed pre-setup baseline with no Phase; the workflow owns creating `SetupPhase`. After the final `ProductionPhase`, `FinalGreeneryPhase` lets players convert remaining plants into greeneries before scoring. A phase called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!). When the final phase `Shutdown` is created, the game is thereby concluded and no more state changes can happen.
 
-### Game options
-
-Selected expansions, variants, and maps are represented by `GameOption` components in the playable
-world. Each option can occur at most once and only the Engine Actor can remove one. Map options
-also extend `MarsMapOption`, of which at most one can occur. The required base-game
-`TerraformingMars` component is system machinery rather than a selectable `GameOption`.
-
 ## Player stuff
 
 Concrete classes called Player1, Player2, etc. will exist. The player owning the unique
@@ -125,9 +118,6 @@ The Colonies expansion represents each identityless fleet as either a `ReserveTr
 colony income and bonuses. At the next generation, flown fleets
 transmute back into reserve fleets. Thus `TradeFleet<Player1>` always counts all of Player1's fleets
 without assigning artificial identities to them.
-
-A Colonies game uses five colony tiles with two players and two more tiles than players with three
-to five players. The solo variant uses three colony tiles.
 
 ### Cards
 

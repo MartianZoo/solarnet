@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.ClassTable
@@ -37,6 +38,9 @@ public interface World {
 
   /** The immutable classes available to this world. */
   public val classTable: ClassTable
+
+  /** Whether no task or temporary component remains from an unfinished operation. */
+  public fun isIdle(): Boolean = tasks.isEmpty() && reader.has(parse("MAX 0 Temporary"))
 
   public fun gameplay(actor: Actor): Gameplay
 

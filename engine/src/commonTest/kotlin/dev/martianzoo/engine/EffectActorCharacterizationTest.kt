@@ -27,8 +27,6 @@ class EffectActorCharacterizationTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val player = game.gameplay(PLAYER1).godMode()
 
-    player.count("GameOption") shouldBe 1
-    player.count("MarsMapOption") shouldBe 1
     assertFailsWith<DeadEndException> { player.manual("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
 

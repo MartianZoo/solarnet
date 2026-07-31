@@ -44,7 +44,7 @@ internal class GamePremiseTest {
   @Test
   fun onePlayerCompatibilitySetupSelectsSoloMode() {
     Canon.fromOptionCodes("BSM", 1).initialComponents.toSet() shouldBe
-        setOf("TerraformingMars", "TharsisMap", "SoloMode", "1 PlayerSeat")
+        setOf("TerraformingMars", "TharsisMap", "SoloMode")
   }
 
   @Test

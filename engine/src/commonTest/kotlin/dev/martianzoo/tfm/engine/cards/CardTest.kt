@@ -67,7 +67,7 @@ abstract class CardTest {
 
   private fun World.bindPlayers(): World = apply {
     game = this
-    val players = Player.players(reader.getComponents("PlayerSeat").size)
+    val players = Player.players(reader.getComponents("Player").size)
     p1 = tfm(players.first())
     p2 = players.getOrNull(1)?.let { tfm(it) }
   }

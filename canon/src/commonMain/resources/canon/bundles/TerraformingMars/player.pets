@@ -1,6 +1,3 @@
-"One seated participant in the assembled game"
-CLASS PlayerSeat : System { HAS MAX 5 This }
-
 "The icon-grammar spelling for an unrestricted ownership target"
 ABSTRACT CLASS Anyone[ANY] {
   "An entity that can own things, including the non-Player Opponent in solo mode"

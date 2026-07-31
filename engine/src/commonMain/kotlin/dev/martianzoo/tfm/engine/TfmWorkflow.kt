@@ -73,7 +73,7 @@ public object TfmWorkflow {
       get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
-    private val players: List<Player> = Player.players(game.reader.getComponents("PlayerSeat").size)
+    private val players: List<Player> = Player.players(game.reader.getComponents("Player").size)
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all tasks drain. Only
@@ -98,7 +98,7 @@ public object TfmWorkflow {
     private var shutdownCheckpoint: Timeline.Checkpoint? = null
 
     init {
-      game.onAtomicComplete = { if (game.tasks.isEmpty()) resumeSignal.trySend(Unit) }
+      game.onAtomicComplete = { if (game.isIdle()) resumeSignal.trySend(Unit) }
     }
 
     /**
@@ -232,20 +232,20 @@ public object TfmWorkflow {
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()
       opsFor(player).beginManual("NewTurn!")
-      if (!game.tasks.isEmpty()) resumeSignal.receive()
+      if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
     }
 
     private suspend fun grantSecondActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()
       opsFor(player).beginManual("SecondAction")
-      if (!game.tasks.isEmpty()) resumeSignal.receive()
+      if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
     }
 
     private suspend fun awaitTasksDrained() {
       game.timeline.commit()
-      if (!game.tasks.isEmpty()) resumeSignal.receive()
+      if (!game.isIdle()) resumeSignal.receive()
     }
 
     private suspend fun letPlayerFinish() = awaitTasksDrained()

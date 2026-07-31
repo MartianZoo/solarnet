@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -13,18 +15,82 @@ import dev.martianzoo.util.toSetStrict
 /** Catalog of the official bundles and the game options they provide. */
 public object Canon :
     TfmRuleset.Composite(
-        StandardFormBundle("TerraformingMars", baseCustomClasses),
-        StandardFormBundle("CorporateEraExpansion", corporateEraCustomClasses),
-        StandardFormBundle("TharsisMap", areaShortNamePrefix = "M"),
-        StandardFormBundle("HellasMap", areaShortNamePrefix = "H"),
-        StandardFormBundle("ElysiumMap", areaShortNamePrefix = "E"),
-        StandardFormBundle("TerraCimmeriaMap", areaShortNamePrefix = "I"),
-        StandardFormBundle("VenusNextExpansion"),
-        StandardFormBundle("PreludeExpansion", preludeCustomClasses),
-        StandardFormBundle("ColoniesExpansion", coloniesCustomClasses),
-        StandardFormBundle("TurmoilExpansion"),
-        StandardFormBundle("PromoCardsExpansion", promoCardsCustomClasses),
+        StandardFormBundle("TerraformingMars", baseCustomClasses, setOf(cn("SoloMode"))),
+        StandardFormBundle(
+            "CorporateEraExpansion",
+            corporateEraCustomClasses,
+            setOf(cn("CorporateEraExpansion")),
+        ),
+        StandardFormBundle(
+            "TharsisMap",
+            gameOptionClassNames = setOf(cn("TharsisMap")),
+            areaShortNamePrefix = "M",
+        ),
+        StandardFormBundle(
+            "HellasMap",
+            gameOptionClassNames = setOf(cn("HellasMap")),
+            areaShortNamePrefix = "H",
+        ),
+        StandardFormBundle(
+            "ElysiumMap",
+            gameOptionClassNames = setOf(cn("ElysiumMap")),
+            areaShortNamePrefix = "E",
+        ),
+        StandardFormBundle(
+            "TerraCimmeriaMap",
+            gameOptionClassNames = setOf(cn("TerraCimmeriaMap")),
+            areaShortNamePrefix = "I",
+        ),
+        StandardFormBundle(
+            "VenusNextExpansion",
+            gameOptionClassNames = setOf(cn("VenusNextExpansion")),
+        ),
+        StandardFormBundle("PreludeExpansion", preludeCustomClasses, setOf(cn("PreludeExpansion"))),
+        StandardFormBundle(
+            "ColoniesExpansion",
+            coloniesCustomClasses,
+            setOf(cn("ColoniesExpansion")),
+        ),
+        StandardFormBundle("TurmoilExpansion", gameOptionClassNames = setOf(cn("TurmoilCardPack"))),
+        StandardFormBundle(
+            "PromoCardsExpansion",
+            promoCardsCustomClasses,
+            setOf(cn("PromoCardPack")),
+        ),
     ) {
+  /** The canonical type universe used by setup worlds. */
+  public val setupRuleset: Ruleset = CanonSetupRuleset
+
+  /** Classes loaded into the canonical setup world's independent type universe. */
+  public val setupRootClassNames: Set<ClassName>
+    get() = setupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className }
+
+  /** Default components of a newly created canonical setup world. */
+  public val setupWorldInitialComponents: List<String> =
+      listOf("CorporateEraExpansion", "TharsisMap")
+
+  /** Snapshots a validated canonical setup world for an independent playable game. */
+  public fun assemble(setupWorld: GameReader): GamePremise {
+    require(setupWorld.ruleset === setupRuleset) { "not a canonical setup world" }
+    val players = setupWorld.getComponents("Player").size
+
+    val enabledOptions =
+        setupWorld.getComponents("GameOption").elements.mapTo(linkedSetOf()) { it.className }
+
+    val bundleNames =
+        enabledOptions.mapTo(linkedSetOf(cn("TerraformingMars"))) { option ->
+          setupOptionBundles[option]
+              ?: throw IllegalArgumentException("unknown game option: $option")
+        }
+    val ruleset = resolve(bundleNames)
+    val setupOptions = setupWorld.getComponents("GameOption").elements
+    val selectedColonies = setupWorld.getComponents("SelectedColonyTile").elements
+    val initialComponents = (setupOptions + selectedColonies).map { it.expression.toString() }
+    val componentRoots = (setupOptions + selectedColonies).mapTo(linkedSetOf()) { it.className }
+    val roots = componentRoots + ruleset.allDefinitions.classNames() + cn("TerraformingMars")
+    return GamePremise(ruleset, roots, Player.players(players) + ENGINE, initialComponents)
+  }
+
   /** A minimal two-player game using the base game and Tharsis map. */
   public val SIMPLE_GAME: GamePremise by lazy { gamePremise(options("BM", 2)) }
 
@@ -85,12 +151,10 @@ public object Canon :
     val selectionClassNames = options.colonyTiles.mapTo(linkedSetOf()) { cn("${it}Selected") }
     val configurationRoots =
         options.enabled +
-            cn("PlayerSeat") +
             selectionClassNames +
             setOf(cn("DeferredColonySelection")).filter { COLONIES in options }
     val initialComponents =
         options.enabled.map(ClassName::toString) +
-            "${options.players} PlayerSeat" +
             selectionClassNames.map(ClassName::toString) +
             listOf("DeferredColonySelection").filter { options.deferredColonySelection }
     return GamePremise(
@@ -127,6 +191,18 @@ public object Canon :
     }
   }
 
+  private val setupOptionBundles by lazy {
+    buildMap {
+      bundles.forEach { bundle ->
+        bundle.gameOptionClassNames.forEach { option ->
+          require(put(option, bundle.bundleName) == null) {
+            "multiple setup bundles provide $option"
+          }
+        }
+      }
+    }
+  }
+
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val SOLO_MODE = cn("SoloMode")
   private val CORPORATE_ERA = cn("CorporateEraExpansion")
@@ -137,8 +213,10 @@ public object Canon :
   private val VENUS_NEXT = cn("VenusNextExpansion")
   private val PRELUDE = cn("PreludeExpansion")
   private val COLONIES = cn("ColoniesExpansion")
-  private val TURMOIL = cn("TurmoilExpansion")
-  private val PROMOS = cn("PromoCardsExpansion")
+  private val TURMOIL_CARD_PACK = cn("TurmoilCardPack")
+  private val PROMO_CARD_PACK = cn("PromoCardPack")
+  private val TURMOIL_BUNDLE = cn("TurmoilExpansion")
+  private val PROMO_CARDS_BUNDLE = cn("PromoCardsExpansion")
 
   private val OPTIONS_BY_CODE =
       linkedMapOf(
@@ -152,8 +230,8 @@ public object Canon :
           "V" to VENUS_NEXT,
           "P" to PRELUDE,
           "C" to COLONIES,
-          "T" to TURMOIL,
-          "X" to PROMOS,
+          "T" to TURMOIL_CARD_PACK,
+          "X" to PROMO_CARD_PACK,
       )
   private val OPTION_CODES = OPTIONS_BY_CODE.entries.associate { (code, option) -> option to code }
   private val OPTION_BUNDLES =
@@ -168,7 +246,7 @@ public object Canon :
           VENUS_NEXT to VENUS_NEXT,
           PRELUDE to PRELUDE,
           COLONIES to COLONIES,
-          TURMOIL to TURMOIL,
-          PROMOS to PROMOS,
+          TURMOIL_CARD_PACK to TURMOIL_BUNDLE,
+          PROMO_CARD_PACK to PROMO_CARDS_BUNDLE,
       )
 }

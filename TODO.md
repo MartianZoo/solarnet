@@ -14,14 +14,15 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Gameplay and Content
 
-- Replace Canon's temporary static `GameOptions` premise input with an editable setup world, and
-  remove the `DeferredColonySelection` bridge component when colony selection is modeled there.
+- Migrate callers from Canon's temporary static `GameOptions` adapters to editable setup worlds,
+  then remove `GameOptions` and the `DeferredColonySelection` bridge component.
 - Implement Terra Cimmeria's MSL Curiosity bonus once optional bundle vocabulary can be phantom: pay 5 M€ and place a colony only with Colonies enabled.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
 - [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.
 
 ### Language and Engine Semantics
 
+- Move `Anyone` and `Owner` from Canon into the shared `system.pets` vocabulary.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
 - Consider inline value types for `TaskId`, event ordinals, and player seats, while preserving sensible Java and JavaScript interop.
 - Do not infer dependency linkage between sibling positions in the same argument list. Repeating a bound there cannot usefully express linkage—the author could collapse linked positions into one dependency—and currently causes nested declarations such as `Pair<Class<Component>, Class<Component>>` to couple the two `Component` positions.

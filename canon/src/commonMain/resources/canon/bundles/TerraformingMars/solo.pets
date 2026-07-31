@@ -1,4 +1,4 @@
-"Configures the starting state used by the solo variant"
+"Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : GameOption {
   GenerationSetup:: 14 GenerationsLeft
   SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
