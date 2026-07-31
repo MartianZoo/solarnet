@@ -58,7 +58,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   define semantics for wrapped metrics, and cover the result from parsing through world evaluation.
 - Support refined class-literal count-increase triggers, then enable the latest Aridor definition
   in `cards-dont-work.json5`.
-- Implement Terra Politician and Warmonger once delegate placements and attacking card plays can be scored.
 - Model Prelude plays as explicit first and second turns. (Somewhat soon)
 - Give Tharsis Republic an explicit solo-setup production gain instead of observing neutral-city placement. (Later)
 - Decide whether standard projects should use `Owed`, allowing Kuiper Cooperative asteroids only on Aquifer and Asteroid. (Needs discussion)

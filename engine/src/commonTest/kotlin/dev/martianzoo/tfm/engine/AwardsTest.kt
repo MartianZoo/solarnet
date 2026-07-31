@@ -17,7 +17,7 @@ import kotlin.test.Test
 internal class AwardsTest : TfmTest() {
   @Test
   fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
-    game = Engine.newGame(canonicalPremise(players = 1))
+    game = Engine.newGame(canonicalPremise("SoloMode", players = 1))
 
     game.classTable.findClass(cn("ClaimMilestoneSA")) shouldBe null
     game.classTable.findClass(cn("FundAwardSA")) shouldBe null
@@ -32,7 +32,7 @@ internal class AwardsTest : TfmTest() {
     game =
         Engine.newGame(
             canonicalPremise(
-                "TerraCimmeriaMapOption FROM TharsisMapOption",
+                "UtopiaPlanitiaMapOption FROM TharsisMapOption",
                 2,
             )
         )
