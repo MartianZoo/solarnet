@@ -22,7 +22,7 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
       return DependencySet(deps)
     }
 
-    internal fun of() = of(setOf())
+    internal fun of() = of(emptySet())
 
     internal fun of(deps: Iterable<Dependency>) = of(deps.toSetStrict())
   }

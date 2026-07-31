@@ -269,7 +269,7 @@ internal class Effector(
         val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
 
         return if (expr == context.expressionFull) {
-          Hit(listOf(), currentEvent.change.count)
+          Hit(emptyList(), currentEvent.change.count)
         } else {
           null
         }

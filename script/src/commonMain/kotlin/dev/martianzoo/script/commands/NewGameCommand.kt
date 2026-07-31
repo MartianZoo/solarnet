@@ -42,10 +42,10 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val effectiveOptionCodes = Canon.optionCodes(repl.options)
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
-          (if (purple) listOf("Purple mode: workflow active") else listOf()) +
+          (if (purple) listOf("Purple mode: workflow active") else emptyList()) +
           (if (playerCount == 1)
               listOf("NOTE: Solo world-government terraforming and victory checking remain manual.")
-          else listOf())
+          else emptyList())
     } catch (e: RuntimeException) {
       throw UsageException(e.message)
     }

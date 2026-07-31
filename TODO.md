@@ -85,6 +85,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Simplify AST transforms: centralize child copying, type `Change` operations, make atomization stateless, and name owner replacement. (Needs discussion)
 - Follow `docs/engine-api-review.md`: replace `godMode()` and layer casts with explicit roles; defer script access cleanup. (Later)
 - Simplify and document default-dependency normalization, especially contextual `Owner` handling.
+- Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
 - Narrow `MutableGrid` bounds handling instead of catching every exception.
 - Document the `BuyCard`/payment protocol and verify delayed 3 M€ payment cannot be exploited.
 

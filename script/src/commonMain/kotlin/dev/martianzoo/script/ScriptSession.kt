@@ -186,7 +186,7 @@ public class ScriptSession(
                   }
                   .filterNotNull()
         } else {
-          listOf()
+          emptyList()
         }
     return if (changes.none() && taskLines.none()) {
       listOf("um, nothing happened")
@@ -212,7 +212,7 @@ public class ScriptSession(
     val stripped = wholeCommand.replace(Regex("//.*"), "")
     val groups = inputRegex.matchEntire(stripped)?.groupValues
     return if (groups == null) {
-      listOf()
+      emptyList()
     } else {
       val (_, commandName, arguments) = groups
       val args = arguments.trim().ifEmpty { null }
