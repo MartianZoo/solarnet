@@ -12,10 +12,9 @@ import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.Ruleset
 import dev.martianzoo.data.Task
+import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.pets.HasClassName.Companion.classNames
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import org.koin.core.module.dsl.bind
@@ -48,13 +47,12 @@ public object Engine {
   }
 
   /** Creates a standalone setup world and resolves its choice-free initialization tasks. */
-  public fun newSetupWorld(
-      ruleset: Ruleset,
-      rootClassNames: Set<ClassName>,
-      initialComponents: List<String>,
-  ): World =
-      newWorld(GamePremise(ruleset, rootClassNames, listOf(ENGINE), initialComponents)).also {
-        it.gameplay(ENGINE).autoExecNow()
+  public fun newSetupWorld(premise: GamePremise): World =
+      newWorld(premise).also {
+        with(it.gameplay(ENGINE)) {
+          autoExecMode = SAFE
+          autoExecNow()
+        }
       }
 
   private fun newWorld(premise: GamePremise): WholeWorld {

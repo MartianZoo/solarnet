@@ -54,6 +54,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Gameplay Correctness and Test Fidelity
 
+- Reconcile `Metric.Or` syntax with execution: either restrict alternatives to component counts or
+  define semantics for wrapped metrics, and cover the result from parsing through world evaluation.
 - Support refined class-literal count-increase triggers, then enable the latest Aridor definition
   in `cards-dont-work.json5`.
 - Load canonical award definitions; the official map award data is present, but `StandardFormBundle`

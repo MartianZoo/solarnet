@@ -1,7 +1,13 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.api.TfmRuleset
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -13,12 +19,12 @@ internal class CanonBundlesTest {
   fun hellasAndElysiumAreSeparateOptionsFromOneBundle() {
     val bundles = setOf(cn("TerraformingMars"), cn("HellasElysiumExpansion"))
 
-    val hellas = Canon.resolve(bundles, setOf(cn("HellasMapOption")))
+    val hellas = Canon.resolve(bundles, setupReader(cn("HellasMapOption")))
     hellas.marsMapDefinitions.single().className shouldBe cn("Hellas")
     hellas.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe true
     hellas.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe false
 
-    val elysium = Canon.resolve(bundles, setOf(cn("ElysiumMapOption")))
+    val elysium = Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
     elysium.marsMapDefinitions.single().className shouldBe cn("Elysium")
     elysium.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe true
     elysium.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe false
@@ -28,13 +34,13 @@ internal class CanonBundlesTest {
   fun utopiaAndCimmeriaAreSeparateOptionsFromOneBundle() {
     val bundles = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
 
-    val utopia = Canon.resolve(bundles, setOf(cn("UtopiaPlanitiaMapOption")))
+    val utopia = Canon.resolve(bundles, setupReader(cn("UtopiaPlanitiaMapOption")))
     utopia.marsMapDefinitions.single().className shouldBe cn("UtopiaPlanitia")
     utopia.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe true
     utopia.milestoneDefinitions.any { it.shortName == cn("UM2") } shouldBe false
     utopia.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe false
 
-    val cimmeria = Canon.resolve(bundles, setOf(cn("TerraCimmeriaMapOption")))
+    val cimmeria = Canon.resolve(bundles, setupReader(cn("TerraCimmeriaMapOption")))
     cimmeria.marsMapDefinitions.single().className shouldBe cn("TerraCimmeria")
     cimmeria.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe true
     cimmeria.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe false
@@ -44,12 +50,12 @@ internal class CanonBundlesTest {
   fun pioneerRequiresColonies() {
     val utopia = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
 
-    Canon.resolve(utopia, setOf(cn("UtopiaPlanitiaMapOption"))).milestoneDefinitions.any {
+    Canon.resolve(utopia, setupReader(cn("UtopiaPlanitiaMapOption"))).milestoneDefinitions.any {
       it.className == cn("Pioneer")
     } shouldBe false
     Canon.resolve(
             utopia + cn("ColoniesExpansion"),
-            setOf(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion")),
+            setupReader(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion")),
         )
         .milestoneDefinitions
         .map { it.className } shouldContain cn("Pioneer")
@@ -85,12 +91,14 @@ internal class CanonBundlesTest {
   fun planetologistRequiresVenusNext() {
     val terraCimmeria = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
 
-    Canon.resolve(terraCimmeria, setOf(cn("TerraCimmeriaMapOption"))).milestoneDefinitions.any {
-      it.className == cn("Planetologist")
-    } shouldBe false
+    Canon.resolve(terraCimmeria, setupReader(cn("TerraCimmeriaMapOption")))
+        .milestoneDefinitions
+        .any {
+          it.className == cn("Planetologist")
+        } shouldBe false
     Canon.resolve(
             terraCimmeria + cn("VenusNextExpansion"),
-            setOf(cn("TerraCimmeriaMapOption"), cn("VenusNextExpansion")),
+            setupReader(cn("TerraCimmeriaMapOption"), cn("VenusNextExpansion")),
         )
         .milestoneDefinitions
         .map {
@@ -125,10 +133,10 @@ internal class CanonBundlesTest {
   fun doubleDownRequiresBothPromosAndPrelude() {
     val promos = setOf(cn("TerraformingMars"), cn("PromoCardsExpansion"))
 
-    Canon.resolve(promos, emptySet()).cardDefinitions.any {
+    Canon.resolve(promos, setupReader()).cardDefinitions.any {
       it.className == cn("DoubleDown")
     } shouldBe false
-    Canon.resolve(promos + cn("PreludeExpansion"), setOf(cn("PreludeExpansion")))
+    Canon.resolve(promos + cn("PreludeExpansion"), setupReader(cn("PreludeExpansion")))
         .cardDefinitions
         .map {
           it.className
@@ -145,7 +153,7 @@ internal class CanonBundlesTest {
     val withoutPromos =
         Canon.resolve(
                 setOf(cn("TerraformingMars"), cn("TharsisMap")),
-                setOf(cn("TharsisMapOption")),
+                setupReader(cn("TharsisMapOption")),
             )
             .cardDefinitions
             .mapTo(mutableSetOf()) {
@@ -154,7 +162,7 @@ internal class CanonBundlesTest {
     val withPromos =
         Canon.resolve(
                 setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("PromoCardsExpansion")),
-                setOf(cn("TharsisMapOption"), cn("PromoCardPack")),
+                setupReader(cn("TharsisMapOption"), cn("PromoCardPack")),
             )
             .cardDefinitions
             .mapTo(mutableSetOf()) { it.className }
@@ -207,5 +215,23 @@ internal class CanonBundlesTest {
     TfmRuleset.compose(selected, unselected).resolve(setOf(cn("SelectedBundle"))).allClassNames
 
     unselectedReads shouldBe 0
+  }
+
+  private fun setupReader(vararg enabledOptions: ClassName): TypeInfo =
+      ExactOptionsState(enabledOptions.toSet())
+
+  private class ExactOptionsState(private val enabledOptions: Set<ClassName>) : TypeInfo {
+    override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
+
+    private fun count(metric: Metric): Int {
+      require(metric is Count && metric.expression.simple) { "unsupported test metric: $metric" }
+      return if (metric.expression.className in enabledOptions) 1 else 0
+    }
+
+    override fun isAbstract(e: Expression): Boolean = unused()
+
+    override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = unused()
+
+    private fun unused(): Nothing = error("not needed by setup-requirement tests")
   }
 }

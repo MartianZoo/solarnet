@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 internal class ScriptSessionTest {
@@ -33,6 +34,20 @@ internal class ScriptSessionTest {
     assertTrue("-CorporateEraExpansion" in repl.setup.instruction)
     repl.command("newgame RM 2")
     assertEquals(listOf("1 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
+  }
+
+  @Test
+  fun failedNewGameLeavesTheCurrentGameUntouched() {
+    val repl = ScriptSession()
+    val originalGame = repl.game
+    val originalSetup = repl.setup
+    val originalPrompt = repl.promptPlain()
+
+    assertTrue(repl.command("newgame U 6").first().contains("between 1 and 5"))
+
+    assertSame(originalGame, repl.game)
+    assertSame(originalSetup, repl.setup)
+    assertEquals(originalPrompt, repl.promptPlain())
   }
 
   @Test

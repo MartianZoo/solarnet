@@ -16,7 +16,7 @@ We have 445 cards working. We don't have the following ones or anything else fro
 | XC11 | PolderTECH Dutch          | no reason?            |
 | 066 | Land Claim                 | community             |
 | XC5 | Mons Insurance             | actorbinding          |
-| CC1 | Aridor                     | setupmandate          |
+| CC1 | Aridor                     | classmetrictrigger    |
 | B03 | Helion                     | helion                |
 | CC5 | Stormcraft Incorporated    | payresource           |
 | XC10 | Kuiper Cooperative        | payresource           |

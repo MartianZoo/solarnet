@@ -69,15 +69,17 @@ public class ScriptSession(
       setup: OptionCodeTranslation.Setup,
       purple: Boolean = false,
   ) {
-    this.setup = setup
-    game = createGame(setup)
-    gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
+    val candidateGame = createGame(setup)
+    val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
-      mode = PURPLE
-      TfmWorkflow.Auto(game).launch()
+      TfmWorkflow.Auto(candidateGame).launch()
     } else {
-      TfmWorkflow.Manual(game).setupPhase()
+      TfmWorkflow.Manual(candidateGame).setupPhase()
     }
+    this.setup = setup
+    game = candidateGame
+    gameplay = candidateGameplay
+    if (purple) mode = PURPLE
   }
 
   /** Adapts the REPL's option-code syntax to an instruction executed in a setup world. */
@@ -250,12 +252,7 @@ public class ScriptSession(
 }
 
 internal fun createGame(setup: OptionCodeTranslation.Setup): World {
-  val setupWorld =
-      Engine.newSetupWorld(
-          Canon.setupRuleset,
-          Canon.setupRootClassNames,
-          Canon.setupWorldInitialComponents,
-      )
+  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition)
   setupWorld.gameplay(ENGINE).godMode().manual(setup.instruction)
   return Engine.newGame(setupWorld, Canon::assemble)
 }

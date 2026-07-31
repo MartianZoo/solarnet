@@ -40,12 +40,7 @@ internal fun canonicalPremise(
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
 ): GamePremise {
-  val setupWorld =
-      Engine.newSetupWorld(
-          Canon.setupRuleset,
-          Canon.setupRootClassNames,
-          Canon.setupWorldInitialComponents,
-      )
+  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition)
   val selections = buildList {
     add("$players Player")
     add(setupInstruction)
