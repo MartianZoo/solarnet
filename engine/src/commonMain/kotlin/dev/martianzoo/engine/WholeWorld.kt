@@ -5,8 +5,8 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.ClassTable
 
-/** The live, complete implementation of an [EngineState]. */
-internal class WholeEngineState
+/** The live, complete implementation of a [World]. */
+internal class WholeWorld
 internal constructor(
     override val components: ComponentGraph,
     override val events: EventLog,

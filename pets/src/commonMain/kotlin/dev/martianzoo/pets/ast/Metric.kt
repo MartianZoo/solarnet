@@ -12,7 +12,7 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
 
 /**
- * A way of computing a non-negative integer based on a game state. Metrics appear after a slash in
+ * A way of computing a non-negative integer based on a world. Metrics appear after a slash in
  * instructions, and also belong to `Award`s.
  */
 public sealed class Metric : PetElement() {

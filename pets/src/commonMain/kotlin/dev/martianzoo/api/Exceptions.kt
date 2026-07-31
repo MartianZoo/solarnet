@@ -66,8 +66,8 @@ public object Exceptions {
   public class AbstractException(message: String) : RecoverableException(message)
 
   /**
-   * Someone tried to do something that can't work against *this* game state, but could potentially
-   * work later as far as we know.
+   * Someone tried to do something that can't work against *this* world, but could potentially work
+   * later as far as we know.
    */
   public open class NotNowException(message: String) : RecoverableException(message)
 

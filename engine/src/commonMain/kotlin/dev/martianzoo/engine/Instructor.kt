@@ -84,9 +84,9 @@ internal class Instructor(
   }
 
   /**
-   * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
-   * state itself). The returned instruction *must* be executed against this very same game state
-   * (i.e., must be the next one executed. The returned instruction might still be abstract.
+   * Returns a narrowed form of [unprepared] based on the current world (but does not change the
+   * world itself). The returned instruction *must* be executed against this very same world (i.e.,
+   * must be the next one executed. The returned instruction might still be abstract.
    *
    * Preparing iterates to a fixed point. Examples of preparing:
    * * Replaces inert instructions with `Ok`

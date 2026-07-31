@@ -7,7 +7,7 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 
 /**
  * A complete record of everything that happened in a particular game (in progress or finished). A
- * complete game state could be reconstructed by replaying these events.
+ * complete world could be reconstructed by replaying these events.
  */
 public interface EventLog {
   /** Returns all change events since engine initialization concluded, including game setup. */

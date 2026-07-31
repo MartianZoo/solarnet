@@ -154,8 +154,8 @@ can extend it and contribute its game-specific definition collections and indexe
 
 ### P1: `GameSetup` contains a useful generic setup model embedded in a game-specific class
 
-The live component/task/event/timeline machinery is now separated as the generic `EngineState`;
-`Game` adds the Terraforming Mars setup while delegating that machinery to the shared state
+The live component/task/event/timeline machinery is separated as the generic `World`; `Game` adds
+the Terraforming Mars setup while delegating that machinery to the shared world
 implementation. Construction and `GameReader` still depend on `GameSetup`, so the remaining setup
 boundary is:
 

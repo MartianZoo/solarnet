@@ -21,12 +21,12 @@ import dev.martianzoo.util.Multiset
 import kotlin.reflect.KClass
 
 /**
- * All modifications to a game state (not counting rollbacks) are done via this interface.
+ * All modifications to a world (not counting rollbacks) are done via this interface.
  *
- * It should not be possible to break the game state through this interface, except by calling
- * [godMode] which will then let you do whatever the heck you want. Or, the instance returned by
- * [godMode] could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods
- * you don't need; see those interfaces for more explanation.
+ * It should not be possible to break the world through this interface, except by calling [godMode]
+ * which will then let you do whatever the heck you want. Or, the instance returned by [godMode]
+ * could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods you don't
+ * need; see those interfaces for more explanation.
  */
 public interface Gameplay {
 
@@ -62,8 +62,8 @@ public interface Gameplay {
   public fun canPrepareTask(taskId: TaskId): Boolean
 
   /**
-   * Sets a task's [Task.next] bit, and simplifies its instruction according to the current game
-   * state. It will be impossible to change the game state except by executing this task.
+   * Sets a task's [Task.next] bit, and simplifies its instruction according to the current world.
+   * It will be impossible to change the world except by executing this task.
    *
    * If the prepared task is concrete, but would fail to execute, that exception is thrown now
    * instead of preparing the task.

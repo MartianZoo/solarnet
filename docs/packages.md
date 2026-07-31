@@ -40,7 +40,7 @@ Contains the data and custom instructions for officially published cards, maps, 
 
 ### <a href="engine/dev.martianzoo.engine/index.html">dev.martianzoo.engine</a>
 
-The engine knows how to modify a game state by actually executing card instructions, etc.
+The engine knows how to modify a world by actually executing card instructions, etc.
 
 ### <a href="engine/dev.martianzoo.tfm.engine/index.html">dev.martianzoo.tfm.engine</a>
 

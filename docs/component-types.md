@@ -9,7 +9,7 @@ Here's an overview of the component classes that (currently) make up the core of
 
 ## Communal / non-player-owned
 
-First, `Component` is the root of the class hierarchy; *every* instance of anything in a game state is always a `Component`.
+First, `Component` is the root of the class hierarchy; *every* instance of anything in a world is always a `Component`.
 
 ### Global parameters
 

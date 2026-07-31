@@ -16,8 +16,8 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
 /**
- * A triggered effect, like `CityTile: 2`. Any existing component in a game state can have some
- * number of these, which are all active until the component is removed.
+ * A triggered effect, like `CityTile: 2`. Any existing component in a world can have some number of
+ * these, which are all active until the component is removed.
  */
 public data class Effect(
     val trigger: Trigger,

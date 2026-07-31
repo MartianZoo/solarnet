@@ -30,7 +30,7 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val koin = koinApplication { modules(gameModule(setup)) }.koin
 
-    val game = koin.get<WholeEngineState>()
+    val game = koin.get<WholeWorld>()
     var initializer: Initializer? = null
     val gameplayByActor =
         setup.actors().associateWith { actor ->
@@ -63,7 +63,7 @@ public object Engine {
     singleOf(::GameReaderImpl) { bind<GameReader>() }
     singleOf(::TimelineImpl) { bind<Timeline>() }
     singleOf(::Limiter)
-    singleOf(::WholeEngineState) { bind<EngineState>() }
+    singleOf(::WholeWorld) { bind<World>() }
 
     scope<ActorScopeId> {
       scoped<WritableTaskQueue> { get<TaskQueues>()[get<Actor>()] }
@@ -74,8 +74,8 @@ public object Engine {
       } // Changer? and Effector? are nullable
       scopedOf(::Implementations)
       scoped {
-        val state = get<EngineState>()
-        ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { state.onAtomicComplete() }
+        val world = get<World>()
+        ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { world.onAtomicComplete() }
       } bind Gameplay::class
       scopedOf(::Initializer)
     }

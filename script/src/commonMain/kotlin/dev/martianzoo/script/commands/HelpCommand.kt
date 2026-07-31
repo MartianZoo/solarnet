@@ -54,9 +54,9 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         as <player> <cmd>   -> temporarily changes default player to run a single command
         script <filename>   -> reads a file and performs REPL commands as if typed
       QUERYING
-        has <requirement>   -> evaluates a requirement (true/false) in the current game state
-        count <metric>      -> counts something in the game state, like `count Tag<Player2>`
-        list <expression>   -> lists all instances of some type in the current game state
+        has <requirement>   -> evaluates a requirement (true/false) in the current world
+        count <metric>      -> counts something in the world, like `count Tag<Player2>`
+        list <expression>   -> lists all instances of some type in the current world
       EXECUTION
         exec <instruction>  -> initiates an arbitrary instruction if current mode allows it
         tasks               -> shows your current to-do list

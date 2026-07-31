@@ -21,7 +21,7 @@ import dev.martianzoo.util.Reifiable
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
  * [ClassTable]. These are usually obtained by [ClassTable.resolve]. These can be abstract. Usages
- * of this type should be fairly unrelated to questions of whether instances exist in a game state.
+ * of this type should be fairly unrelated to questions of whether instances exist in a world.
  */
 public data class Type(
     val rootClass: Class,

@@ -26,7 +26,7 @@ public data class Task(
     /** Whose pending-work queue contains this task and whose scoped gameplay may revise it. */
     val assignee: Actor,
 
-    /** If true, no game state may be modified until this task is completed. */
+    /** If true, the world may not be modified until this task is completed. */
     val next: Boolean = false,
 
     /**

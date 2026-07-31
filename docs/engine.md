@@ -2,15 +2,15 @@
 
 The job of a game engine is to *know the rules of the game*. That is, at any given point, it knows what choices a player is allowed to make, and exactly what happens next if they do.
 
-This module's job is to represent game state (components and tasks), execute instructions, and trigger effects, keeping all these activities tightly coordinated. It also has optional workflow engine that orchestrates the overall flow of a game phase by phase.
+This module's job is to represent a world, execute instructions, and trigger effects, keeping all these activities tightly coordinated. It also has optional workflow engine that orchestrates the overall flow of a game phase by phase.
 
 ---
 
-## Overview: The Holy Trinity of Game State
+## Overview: The Holy Trinity of a World
 
-The common live abstraction is `EngineState`: a Pets component graph together with its tasks, event
-history, timeline, class table, and Actor-scoped mutation API. `Game` is the playable role of an
-engine state and additionally exposes the exact Terraforming Mars `GameSetup` used to create it.
+The common live abstraction is `World`: a Pets component graph together with its tasks, event
+history, timeline, class table, and Actor-scoped mutation API. `Game` is the playable subtype of a
+world and additionally exposes the exact Terraforming Mars `GameSetup` used to create it.
 
 The setup and the `ClassTable` of loaded classes for that configuration are immutable. A setup records
 exact semantic game options and the ruleset already assembled from the bundles Canon determined
@@ -118,10 +118,10 @@ There are several ways for a task to be abstract: its component type is abstract
 "intensity" other than `!`, it includes an `OR` instruction, etc. Anything that makes it less than
 fully specified.
 
-Sometimes refining a task from concrete to abstract depends on reading game state. For example any
+Sometimes refining a task from concrete to abstract depends on reading the world. For example any
 "as much as possible" (AMAP) quantifier has to read how much is, well, possible. Once that resolution
 happens, the task is marked as "prepared", meaning that it *must* be the next one executed.  If we
-let any other task jump ahead, it could change the game state that was already read.
+let any other task jump ahead, it could change the world that was already read.
 
 ---
 
@@ -141,7 +141,7 @@ The process has two stages.
 
 ### 1. Prepare
 
-`instructor.prepare(instruction)` evaluates the *current game state* to simplify an instruction
+`instructor.prepare(instruction)` evaluates the *current world* to simplify an instruction
 as much as possible without actually changing anything:
 
 - `Per`: count the metric and actually multiply the inner instruction by that value
@@ -392,7 +392,7 @@ A convenience wrapper around `TurnLayer` that adds Terraforming helpers:
 - `playCorp(cardName, buyCards)`, `playProject(cardName, mc, steel, titanium)`, `cardAction1/2()`
 - `phase(phaseName)` — executes a phase transition as `ENGINE`
 - `pay(mc, steel, titanium)` — handles the payment sub-protocol (Owed/Accept tasks)
-- `production(resource)`, `oxygenPercent()`, `temperatureC()`, etc. for reading game state
+- `production(resource)`, `oxygenPercent()`, `temperatureC()`, etc. for reading the world
   translated to human terms (TODO: do these belong?)
 
 ### `TfmWorkflow`
@@ -408,7 +408,7 @@ fired when no one is waiting (e.g., during automatic engine phases) are silently
 
 Action and final-greenery turn order begins with the player who owns `StartToken`. Creating each
 generation after the first passes that token one seat left, so the workflow reads turn order from
-game state rather than maintaining a separate generation counter.
+the world rather than maintaining a separate generation counter.
 
 This design means:
 - The game flow reads naturally (setupPhase, corporationPhase, then preludePhase, then action loop,

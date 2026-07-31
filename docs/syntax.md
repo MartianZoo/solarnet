@@ -79,7 +79,7 @@ prodReqt    := 'PROD[' requirement ']'
 groupedReqt := '(' requirement ')'
 ```
 
-A requirement expresses a condition that can be checked against a game state to determine a `true` or `false` value. Of
+A requirement expresses a condition that can be checked against a world to determine a `true` or `false` value. Of
 course, these are familiar from cards; many control whether the card can be played (`MAX 4 OxygenStep`), and in a few
 cases gate an instruction on the card (like in Nitro-Rich Asteroid, `PROD[Plant OR 3 PlantTag: 4 Plant]`).
 

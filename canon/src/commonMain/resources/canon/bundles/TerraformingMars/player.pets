@@ -62,7 +62,7 @@ ABSTRACT CLASS Owned<Anyone> {
     ProductionPhase:: 999 Heat FROM Energy.
   }
 
-  // Because of our model that the game state is "just a bag of things", you can't have a negative
+  // Because of our model that the world is "just a bag of things", you can't have a negative
   // number of any kind of thing. But in TfM megacredit production can be negative. Uh oh. There are
   // a few ways we could hack around this. This hack is actually not that bad; it confines the
   // damage to mostly just Specialist, Generalist, and Robinson. It is bug-prone, but all the

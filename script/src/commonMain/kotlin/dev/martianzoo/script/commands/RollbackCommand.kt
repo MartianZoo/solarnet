@@ -15,7 +15,7 @@ internal class RollbackCommand(private val repl: ScriptSession) : ScriptCommand(
         ~/.rego_history). If you want to undo your command `exec 5 Plant`, look for the number in
         the command prompt on that line; that's the number to use here. Or check `log`. Be careful
         though, as you it will let you undo to a position when the engine was in the middle of
-        doing stuff, which would put you in an invalid game state.
+        doing stuff, which would put you in an invalid world.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =

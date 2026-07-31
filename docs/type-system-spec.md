@@ -30,7 +30,7 @@ no superclass has `Component` as its implicit superclass.
 
 ## 2. Components and game states
 
-A component is the basic unit of game state. It has several types. Exactly one is concrete and
+A component is the basic unit of a world. It has several types. Exactly one is concrete and
 is called its concrete type; the others are the proper supertypes of that concrete type.
 
 A component has no identity and no state beyond its concrete type. Several components may have
@@ -57,7 +57,7 @@ Foo <: Bar  implies  Class<Foo> <: Class<Bar>
 ```
 
 If `Foo` is concrete, `Class<Foo>` is concrete, and exactly one component of this type exists
-in every game state in which `Foo` is loaded.
+in every world in which `Foo` is loaded.
 
 If `Foo` is abstract, `Class<Foo>` is abstract and cannot have its own corresponding
 components. Counting it nevertheless counts the class-literal components of all concrete
@@ -172,9 +172,9 @@ of its unrefined type.
 
 A refinement type selects the components of its unrefined type that satisfy the given
 requirement. Since components have no distinguishing features beyond their concrete type, this
-might initially appear to be of little use. However, `R` may act on any part of game state after
+might initially appear to be of little use. However, `R` may act on any part of the world after
 the candidate type has been substituted according to the dependency-binding rules. Whether a
-candidate satisfies the refinement therefore depends on game state and is decided outside the
+candidate satisfies the refinement therefore depends on the world and is decided outside the
 static type system; satisfying concrete types are not subtypes of the refinement type.
 
 The subtypes of `T(HAS R)` are the types `S(HAS R)` for `S <: T`. The refinement itself may not
@@ -183,7 +183,7 @@ the latter.
 
 Whether a concrete type satisfies a refinement is consequently a game-state-dependent narrowing
 operation, not a subtype judgment. First, the concrete type must be a subtype of `T`; then the
-game state must satisfy the substituted `R`. This operation allows a refinement type to be
+world must satisfy the substituted `R`. This operation allows a refinement type to be
 counted or narrowed to a concrete choice without asserting a static relationship that the type
 system cannot establish by itself.
 
@@ -192,7 +192,7 @@ proper abstract subtype of `T`, but it does not violate the finality of concrete
 refinement introduces no subclass and has no exact component instances of its own.
 
 `T(HAS? R)` is a forgiving refinement. A candidate satisfies it when the candidate satisfies the
-ordinary `T(HAS R)` refinement, or when the current game state contains no component satisfying
+ordinary `T(HAS R)` refinement, or when the current world contains no component satisfying
 `T(HAS R)`. The second condition is its escape clause; it does not change the static subtype rules
 above.
 

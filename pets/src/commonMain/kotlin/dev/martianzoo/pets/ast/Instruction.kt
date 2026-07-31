@@ -24,7 +24,7 @@ import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.toSetStrict
 
 /**
- * A specification of steps that might be taken (or were taken) to alter a game state. Instructions
+ * A specification of steps that might be taken (or were taken) to alter a world. Instructions
  * appear as the right-hand side of [Action]s and [Effect]s, on map areas, in the "do this now"
  * section of cards, in an engine's task queues, and so forth.
  */
