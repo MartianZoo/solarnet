@@ -8,14 +8,14 @@ import kotlin.test.Test
 
 class LavaFlowsTest : CardTest() {
   @Test
-  fun `on Tharsis, resolves Lava Flows`() {
+  fun `on Tharsis Map, resolves Lava Flows`() {
     newGame()
     p1.manual("LavaFlows") { doTask("LfTile<Tharsis_2_2>") }.expect("2 TemperatureStep")
   }
 
   @Test
   fun `on Hellas, resolves Lava Flows`() {
-    newGame("TerraformingMars,HellasMap")
+    newGame("TerraformingMars,HellasMapOption")
     p1.manual("LavaFlows") { doTask("LfTile<Hellas_1_5>") }.expect("2 TemperatureStep")
   }
 

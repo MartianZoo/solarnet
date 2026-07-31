@@ -115,10 +115,10 @@ internal class RulesetTest {
   }
 
   @Test
-  fun everyRequiredBundleMustBeSelected() {
+  fun everySetupRequirementMustBeMet() {
     val card =
         CardDefinition(
-            CardData(id = "X40", requiredBundles = "PreludeExpansion, VenusNextExpansion")
+            CardData(id = "X40", setupRequirement = "PreludeExpansion, VenusNextExpansion")
         )
     val source =
         TfmRuleset.compose(
@@ -127,15 +127,15 @@ internal class RulesetTest {
             bundle("VenusNextExpansion", "CLASS VenusNextExpansion"),
         )
 
-    val withoutVenus = source.resolve(setOf(cn("PromoCardsExpansion"), cn("PreludeExpansion")))
+    val selectedBundles =
+        setOf(cn("PromoCardsExpansion"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
+    val withoutVenus = source.resolve(selectedBundles, setOf(cn("PreludeExpansion")))
     withoutVenus.cardDefinitions.shouldHaveSize(0)
     withoutVenus.classDeclarationBundles.keys shouldBe withoutVenus.allClassNames
     (card.className in withoutVenus.classDeclarationBundles) shouldBe false
 
     val withVenus =
-        source.resolve(
-            setOf(cn("PromoCardsExpansion"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
-        )
+        source.resolve(selectedBundles, setOf(cn("PreludeExpansion"), cn("VenusNextExpansion")))
     withVenus.cardDefinitions.shouldContainExactly(card)
     withVenus.classDeclarationBundles
         .getValue(card.className)

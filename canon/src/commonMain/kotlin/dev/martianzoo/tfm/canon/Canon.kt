@@ -22,19 +22,15 @@ public object Canon :
         ),
         StandardFormBundle(
             "TharsisMap",
-            gameOptionClassNames = setOf(cn("TharsisMap")),
+            gameOptionClassNames = setOf(cn("TharsisMapOption")),
         ),
         StandardFormBundle(
-            "HellasMap",
-            gameOptionClassNames = setOf(cn("HellasMap")),
-        ),
-        StandardFormBundle(
-            "ElysiumMap",
-            gameOptionClassNames = setOf(cn("ElysiumMap")),
+            "HellasElysiumExpansion",
+            gameOptionClassNames = setOf(cn("HellasMapOption"), cn("ElysiumMapOption")),
         ),
         StandardFormBundle(
             "TerraCimmeriaMap",
-            gameOptionClassNames = setOf(cn("TerraCimmeriaMap")),
+            gameOptionClassNames = setOf(cn("TerraCimmeriaMapOption")),
         ),
         StandardFormBundle(
             "VenusNextExpansion",
@@ -62,7 +58,7 @@ public object Canon :
 
   /** Default components of a newly created canonical setup world. */
   public val setupWorldInitialComponents: List<String> =
-      listOf("CorporateEraExpansion", "TharsisMap")
+      listOf("CorporateEraExpansion", "TharsisMapOption")
 
   /** Snapshots a validated canonical setup world for an independent playable game. */
   public fun assemble(setupWorld: GameReader): GamePremise {
@@ -77,7 +73,7 @@ public object Canon :
           setupOptionBundles[option]
               ?: throw IllegalArgumentException("unknown game option: $option")
         }
-    val ruleset = resolve(bundleNames)
+    val ruleset = resolve(bundleNames, setupWorld)
     val setupOptions = setupWorld.getComponents("GameOption").elements
     val selectedColonies = setupWorld.getComponents("SelectedColonyTile").elements
     val initialComponents = (setupOptions + selectedColonies).map { it.expression.toString() }
@@ -88,12 +84,12 @@ public object Canon :
 
   /** A minimal two-player game using the base game and Tharsis map. */
   public val SIMPLE_GAME: GamePremise by lazy {
-    gamePremise(GameOptions(2, setOf(TERRAFORMING_MARS, THARSIS_MAP)))
+    gamePremise(GameOptions(2, setOf(TERRAFORMING_MARS, THARSIS_MAP_OPTION)))
   }
 
   /** A minimal solo game using the base game, solo mode, and Tharsis map. */
   public val SIMPLE_SOLO_GAME: GamePremise by lazy {
-    gamePremise(GameOptions(1, setOf(TERRAFORMING_MARS, SOLO_MODE, THARSIS_MAP)))
+    gamePremise(GameOptions(1, setOf(TERRAFORMING_MARS, SOLO_MODE, THARSIS_MAP_OPTION)))
   }
 
   /** Returns the bundle identities required to provide [options]. */
@@ -128,7 +124,7 @@ public object Canon :
       }
     }
 
-    val ruleset = resolve(bundleNames(options))
+    val ruleset = resolve(bundleNames(options), options.enabled)
     ruleset.marsMapDefinitions.single()
     val selectionClassNames = options.colonyTiles.mapTo(linkedSetOf()) { cn("${it}Selected") }
     val configurationRoots =
@@ -172,10 +168,13 @@ public object Canon :
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val SOLO_MODE = cn("SoloMode")
   private val CORPORATE_ERA = cn("CorporateEraExpansion")
-  private val THARSIS_MAP = cn("TharsisMap")
-  private val HELLAS_MAP = cn("HellasMap")
-  private val ELYSIUM_MAP = cn("ElysiumMap")
-  private val TERRA_CIMMERIA_MAP = cn("TerraCimmeriaMap")
+  private val THARSIS_MAP_OPTION = cn("TharsisMapOption")
+  private val HELLAS_MAP_OPTION = cn("HellasMapOption")
+  private val ELYSIUM_MAP_OPTION = cn("ElysiumMapOption")
+  private val HELLAS_ELYSIUM_EXPANSION = cn("HellasElysiumExpansion")
+  private val TERRA_CIMMERIA_MAP_OPTION = cn("TerraCimmeriaMapOption")
+  private val THARSIS_MAP_BUNDLE = cn("TharsisMap")
+  private val TERRA_CIMMERIA_MAP_BUNDLE = cn("TerraCimmeriaMap")
   private val VENUS_NEXT = cn("VenusNextExpansion")
   private val PRELUDE = cn("PreludeExpansion")
   private val COLONIES = cn("ColoniesExpansion")
@@ -189,10 +188,10 @@ public object Canon :
           TERRAFORMING_MARS to TERRAFORMING_MARS,
           SOLO_MODE to TERRAFORMING_MARS,
           CORPORATE_ERA to CORPORATE_ERA,
-          THARSIS_MAP to THARSIS_MAP,
-          HELLAS_MAP to HELLAS_MAP,
-          ELYSIUM_MAP to ELYSIUM_MAP,
-          TERRA_CIMMERIA_MAP to TERRA_CIMMERIA_MAP,
+          THARSIS_MAP_OPTION to THARSIS_MAP_BUNDLE,
+          HELLAS_MAP_OPTION to HELLAS_ELYSIUM_EXPANSION,
+          ELYSIUM_MAP_OPTION to HELLAS_ELYSIUM_EXPANSION,
+          TERRA_CIMMERIA_MAP_OPTION to TERRA_CIMMERIA_MAP_BUNDLE,
           VENUS_NEXT to VENUS_NEXT,
           PRELUDE to PRELUDE,
           COLONIES to COLONIES,

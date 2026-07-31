@@ -78,7 +78,7 @@ internal class CanonClassesTest {
 
   @Test
   fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
-    val game = setUpGame(canonicalPremise("TerraformingMars,TharsisMap,PreludeExpansion", 2))
+    val game = setUpGame(canonicalPremise("TerraformingMars,TharsisMapOption,PreludeExpansion", 2))
 
     game.tfm(PLAYER1).phase("Prelude")
 
@@ -176,7 +176,9 @@ internal class CanonClassesTest {
   @Test
   fun testAllConcreteSubtypes() {
     val table =
-        loadClassTable(canonicalPremise("TerraformingMars,TharsisMap,CorporateEraExpansion", 2))
+        loadClassTable(
+            canonicalPremise("TerraformingMars,TharsisMapOption,CorporateEraExpansion", 2)
+        )
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val type = table.resolve(te(expr))
@@ -209,7 +211,7 @@ internal class CanonClassesTest {
     val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(PLAYER1) as GodMode
     val withVenus =
-        Engine.newGame(canonicalPremise("TerraformingMars,TharsisMap,VenusNextExpansion", 2))
+        Engine.newGame(canonicalPremise("TerraformingMars,TharsisMapOption,VenusNextExpansion", 2))
             .gameplay(PLAYER1) as GodMode
 
     gameplay.count("Class<AnyWordHere>") shouldBe 0

@@ -8,7 +8,7 @@ import kotlin.test.Test
 class NoctisCityTest : CardTest() {
   @Test
   fun `on Hellas, plays Noctis City`() {
-    newGame("TerraformingMars,HellasMap")
+    newGame("TerraformingMars,HellasMapOption")
     p1.manual("PROD[Energy]")
     p1.manual("NoctisCity") {
           doTask("CityTile<Hellas_1_3>")
@@ -17,7 +17,7 @@ class NoctisCityTest : CardTest() {
   }
 
   @Test
-  fun `on Tharsis, tries to place Noctis City off Noctis`() {
+  fun `on Tharsis Map, tries to place Noctis City off Noctis`() {
     newGame()
     p1.manual("PROD[Energy]")
 

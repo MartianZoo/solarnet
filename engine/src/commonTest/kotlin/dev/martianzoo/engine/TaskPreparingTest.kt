@@ -92,7 +92,9 @@ class TaskPreparingTest {
 
   @Test
   fun `preparing an OR prunes the options`() {
-    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!").also { it.shouldContainExactlyInAnyOrder(A) }
+    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!").also {
+      it.shouldContainExactlyInAnyOrder(A)
+    }
     gameplay.prepareTask(A).also { it shouldBe A }
 
     tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")

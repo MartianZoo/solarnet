@@ -14,7 +14,7 @@ import kotlin.test.Test
 class EllieGameTest : AbstractFullGameTest() {
   override fun setup() =
       canonicalPremise(
-          "TerraformingMars,CorporateEraExpansion,HellasMap,PromoCardPack,PreludeExpansion",
+          "TerraformingMars,CorporateEraExpansion,HellasMapOption,PromoCardPack,PreludeExpansion",
           2,
       )
 
@@ -127,7 +127,7 @@ class EllieGameTest : AbstractFullGameTest() {
   @Test
   fun earlyGameWithNoPrelude() {
     val setup =
-        canonicalPremise("TerraformingMars,CorporateEraExpansion,HellasMap,PromoCardPack", 2)
+        canonicalPremise("TerraformingMars,CorporateEraExpansion,HellasMapOption,PromoCardPack", 2)
     val game = Engine.newGame(setup)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)

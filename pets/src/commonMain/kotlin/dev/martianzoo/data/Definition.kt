@@ -2,6 +2,7 @@ package dev.martianzoo.data
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Requirement
 
 /**
  * All information about a particular game component (card, map area, milestone, etc.). These
@@ -13,6 +14,10 @@ public interface Definition : HasClassName {
 
   /** A shorter name, to be supplied as [ClassDeclaration.shortName]. */
   public val shortName: ClassName
+
+  /** Setup-world condition that must hold for this definition to be active. */
+  public val setupRequirement: Requirement?
+    get() = null
 
   /**
    * Converts this definition to a class declaration. As much information as possible should be

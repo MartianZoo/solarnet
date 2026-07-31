@@ -7,7 +7,7 @@ class FreyjaBiodomesTest : CardTest() {
   // FAQ: "you can still choose to take microbes"
   @Test
   fun `without an eligible Venus card, resolves Freyja Biodomes`() {
-    newGame("TerraformingMars,TharsisMap,VenusNextExpansion")
+    newGame("TerraformingMars,TharsisMapOption,VenusNextExpansion")
     p1.manual("PROD[Energy]")
     p1.manual("VenusianAnimals")
     p1.assertCounts(1 to "VenusTag<VenusianAnimals>", 1 to "Animal<VenusianAnimals>")

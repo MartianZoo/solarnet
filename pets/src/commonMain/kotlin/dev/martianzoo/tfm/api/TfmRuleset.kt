@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.Exceptions.PetException
+import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.data.ClassDeclaration
@@ -10,6 +11,8 @@ import dev.martianzoo.data.Definition
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
@@ -27,14 +30,36 @@ public abstract class TfmRuleset : Ruleset {
   /** Bundle contributions contained anywhere in this ruleset composition. */
   public open val bundles: List<Bundle> = emptyList()
 
-  /** Returns a ruleset containing only the selected bundles and non-bundle contributions. */
+  /**
+   * Returns a ruleset containing the selected bundles without evaluating setup requirements.
+   * Intended for authority/catalog inspection; playable games should supply a setup world.
+   */
   public fun resolve(selectedBundles: Set<ClassName>): TfmRuleset {
+    return resolveInternal(selectedBundles, null)
+  }
+
+  /** Temporary static-options adapter for resolving setup requirements without a setup world. */
+  public fun resolve(
+      selectedBundles: Set<ClassName>,
+      enabledGameOptions: Set<ClassName>,
+  ): TfmRuleset {
+    return resolveInternal(selectedBundles) { it.matchesExactOptions(enabledGameOptions) }
+  }
+
+  /** Returns selected bundle content whose setup requirements hold in [setupWorld]. */
+  public fun resolve(selectedBundles: Set<ClassName>, setupWorld: GameReader): TfmRuleset =
+      resolveInternal(selectedBundles, setupWorld::has)
+
+  private fun resolveInternal(
+      selectedBundles: Set<ClassName>,
+      setupRequirementMet: ((Requirement) -> Boolean)?,
+  ): TfmRuleset {
     val available = bundles.map { it.bundleName }.toSet()
     require(available.containsAll(selectedBundles)) {
       "unknown bundles: ${selectedBundles - available}; available bundles: $available"
     }
     val selected = selectedContribution(selectedBundles) ?: Empty()
-    return Resolved(selected, this)
+    return Resolved(selected, this, setupRequirementMet)
   }
 
   private fun selectedContribution(selectedBundles: Set<ClassName>): TfmRuleset? =
@@ -50,16 +75,15 @@ public abstract class TfmRuleset : Ruleset {
   private class Resolved(
       private val selected: TfmRuleset,
       private val allKnown: TfmRuleset,
+      private val setupRequirementMet: ((Requirement) -> Boolean)?,
   ) : Composite(selected) {
-    private val presentBundles = bundles.map { it.bundleName }.toSet()
-
     override val cardDefinitions: Set<CardDefinition> by lazy {
       applicable(
           selected = super.cardDefinitions,
           allKnown = allKnown.cardDefinitions,
           id = CardDefinition::id,
           replaces = CardDefinition::replaces,
-          requiredBundles = CardDefinition::requiredBundles,
+          setupRequirement = CardDefinition::setupRequirement,
       )
     }
 
@@ -69,8 +93,12 @@ public abstract class TfmRuleset : Ruleset {
           allKnown = allKnown.milestoneDefinitions,
           id = MilestoneDefinition::id,
           replaces = MilestoneDefinition::replaces,
-          requiredBundles = MilestoneDefinition::requiredBundleNames,
+          setupRequirement = MilestoneDefinition::setupRequirement,
       )
+    }
+
+    override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
+      super.marsMapDefinitions.filterTo(linkedSetOf(), ::setupRequirementHolds)
     }
 
     override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
@@ -98,7 +126,7 @@ public abstract class TfmRuleset : Ruleset {
         allKnown: Set<D>,
         id: (D) -> String,
         replaces: (D) -> String?,
-        requiredBundles: (D) -> Set<ClassName>,
+        setupRequirement: (D) -> Requirement?,
     ): Set<D> {
       val knownById = allKnown.associateByStrict(id)
       allKnown.forEach { definition ->
@@ -108,7 +136,9 @@ public abstract class TfmRuleset : Ruleset {
       }
       checkReplacementCycles(knownById, id, replaces)
 
-      val applicable = selected.filter { presentBundles.containsAll(requiredBundles(it)) }
+      val applicable = selected.filter { definition ->
+        setupRequirement(definition)?.let(::requirementHolds) != false
+      }
       applicable
           .mapNotNull { replacement -> replaces(replacement)?.let { it to replacement } }
           .groupBy({ it.first }, { it.second })
@@ -128,6 +158,12 @@ public abstract class TfmRuleset : Ruleset {
       return applicable.filterTo(linkedSetOf()) { id(it) !in removedIds }
     }
 
+    private fun setupRequirementHolds(definition: Definition): Boolean =
+        definition.setupRequirement?.let(::requirementHolds) != false
+
+    private fun requirementHolds(requirement: Requirement): Boolean =
+        setupRequirementMet?.invoke(requirement) ?: true
+
     private fun <D> checkReplacementCycles(
         knownById: Map<String, D>,
         id: (D) -> String,
@@ -143,6 +179,14 @@ public abstract class TfmRuleset : Ruleset {
       }
     }
   }
+
+  private fun Requirement.matchesExactOptions(enabledOptions: Set<ClassName>): Boolean =
+      isMetBy { metric ->
+        require(metric is Count && metric.expression.simple) {
+          "static GameOptions cannot evaluate setup requirement metric: $metric"
+        }
+        if (metric.expression.className in enabledOptions) 1 else 0
+      }
 
   // CLASS DECLARATIONS
 

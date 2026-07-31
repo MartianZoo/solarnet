@@ -31,7 +31,7 @@ abstract class CardTest {
       setUpTfmGame(premise).initializeCardTestGame()
 
   protected fun newGame(
-      optionNames: String = "TerraformingMars,TharsisMap",
+      optionNames: String = "TerraformingMars,TharsisMapOption",
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
   ): World {
@@ -52,11 +52,11 @@ abstract class CardTest {
     if (p2 != null) return
     val (cities, greeneries) =
         when {
-          p1.count("TharsisMap") == 1 ->
+          p1.count("Tharsis") == 1 ->
               listOf("Tharsis_4_1", "Tharsis_2_2") to listOf("Tharsis_5_1", "Tharsis_2_3")
-          p1.count("HellasMap") == 1 ->
+          p1.count("Hellas") == 1 ->
               listOf("Hellas_5_1", "Hellas_8_4") to listOf("Hellas_6_2", "Hellas_9_5")
-          p1.count("ElysiumMap") == 1 ->
+          p1.count("Elysium") == 1 ->
               listOf("Elysium_2_6", "Elysium_8_9") to listOf("Elysium_1_5", "Elysium_7_8")
           else -> return
         }

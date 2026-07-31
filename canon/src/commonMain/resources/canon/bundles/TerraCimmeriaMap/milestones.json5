@@ -4,15 +4,15 @@
     {
       "id": "IM1",
       "requirement": "2 EarthTag, 2 VenusTag, 2 JovianTag",
-      "requiredBundles": "VenusNextExpansion",
+      "setupRequirement": "TerraCimmeriaMapOption, VenusNextExpansion",
     },
     // Architect
-    { "id": "IM2", "requirement": "3 CityTag" },
+    { "id": "IM2", "setupRequirement": "TerraCimmeriaMapOption", "requirement": "3 CityTag" },
     // Coastguard
-    { "id": "IM3", "requirement": "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
+    { "id": "IM3", "setupRequirement": "TerraCimmeriaMapOption", "requirement": "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
     // Forester
-    { "id": "IM4", "requirement": "PROD[3 Plant]" },
+    { "id": "IM4", "setupRequirement": "TerraCimmeriaMapOption", "requirement": "PROD[3 Plant]" },
     // Fundraiser
-    { "id": "IM5", "requirement": "PROD[12 Megacredit]" },
+    { "id": "IM5", "setupRequirement": "TerraCimmeriaMapOption", "requirement": "PROD[12 Megacredit]" },
   ],
 }

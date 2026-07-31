@@ -9,7 +9,7 @@ import kotlin.test.Test
 class RobinsonIndustriesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("TerraformingMars,TharsisMap,PreludeExpansion")
+    newGame("TerraformingMars,TharsisMapOption,PreludeExpansion")
     p1.playCorp("RobinsonIndustries", 0)
     engine.phase("Action")
   }

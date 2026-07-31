@@ -19,18 +19,18 @@ public data class MilestoneDefinition(
     val id: String,
     val replaces: String? = null,
     @SerialName("requirement") val requirementText: String,
-    private val requiredBundles: String? = null,
+    @SerialName("setupRequirement") private val setupRequirementText: String? = null,
 ) : Definition {
 
   init {
     require(requirementText.isNotEmpty())
     require(replaces?.isNotEmpty() != false)
-    require(requiredBundles?.isNotBlank() != false)
+    require(setupRequirementText?.isNotBlank() != false)
   }
 
   @Transient override val shortName: ClassName = cn(id)
 
-  @Transient public val requiredBundleNames: Set<ClassName> = parseBundleNames(requiredBundles)
+  @Transient override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
 
   @Transient val requirement: Requirement = parse(requirementText)
 

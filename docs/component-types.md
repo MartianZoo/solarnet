@@ -23,7 +23,7 @@ The definition of the GlobalParameter class includes the line `+This.`. Any gain
 
 ### Maps
 
-One `MarsMap` instance will exist, such as `Hellas`, but it doesn't do much. The interesting part is the areas. Every area is its own component instance; these are singleton classes so one of each is automatically created before the game begins.
+One `MarsMap` instance will exist, such as `HellasMap`, but it doesn't do much. The setup-world selector is the separate `HellasMapOption`. The interesting part is the areas. Every area is its own component instance; these are singleton classes so one of each is automatically created before the game begins.
 
 The created areas have names like `Hellas_1_1`, `Hellas_1_2`, etc. The coordinate system is easy to understand if you try the `map` command in the command-line REPL tool (`./rego`).
 

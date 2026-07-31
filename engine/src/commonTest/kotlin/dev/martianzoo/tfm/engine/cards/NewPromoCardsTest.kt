@@ -11,7 +11,7 @@ import kotlin.test.Test
 class NewPromoCardsTest : CardTest() {
   @Test
   fun `with Carbon Nanosystems in hand, plays a space card`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("TerraformingMars,TharsisMapOption,PromoCardPack")
 
     engine.phase("Action")
     p1.manual("25, 2 ProjectCard")
@@ -26,7 +26,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with Martian Lumber Corporation, plays a building card`() {
-    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,PromoCardPack")
+    newGame("TerraformingMars,TharsisMapOption,CorporateEraExpansion,PromoCardPack")
 
     engine.phase("Action")
     p1.manual("ProjectCard, MartianLumberCorp, 2 Plant, 20")
@@ -38,7 +38,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with Homeostasis Bureau, each actor raises temperature`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("TerraformingMars,TharsisMapOption,PromoCardPack")
     val p2 = requireP2()
     p1.manual("HomeostasisBureau")
     p1.count("Megacredit") shouldBe 0
@@ -52,7 +52,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with a greenery selected, plays Kaguya Tech`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("TerraformingMars,TharsisMapOption,PromoCardPack")
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
     p1.playProject("KaguyaTech", 10) {
@@ -63,7 +63,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with a p2 city, p1 builds a cathedral`() {
-    newGame("TerraformingMars,TharsisMap,PromoCardPack")
+    newGame("TerraformingMars,TharsisMapOption,PromoCardPack")
     val p2 = requireP2()
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE

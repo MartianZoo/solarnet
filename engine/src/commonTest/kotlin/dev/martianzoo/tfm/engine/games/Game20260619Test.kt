@@ -8,7 +8,7 @@ class Game20260619Test : AbstractFullGameTest() {
 
   override fun setup() =
       canonicalPremise(
-          "TerraformingMars,CorporateEraExpansion,TharsisMap,VenusNextExpansion,PreludeExpansion,PromoCardPack,TurmoilCardPack",
+          "TerraformingMars,CorporateEraExpansion,TharsisMapOption,VenusNextExpansion,PreludeExpansion,PromoCardPack,TurmoilCardPack",
           2,
       )
 

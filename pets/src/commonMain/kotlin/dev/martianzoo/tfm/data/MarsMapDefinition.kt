@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.util.Grid
@@ -18,6 +19,7 @@ import dev.martianzoo.util.Grid
 public data class MarsMapDefinition(
     override val className: ClassName,
     val areas: Grid<AreaDefinition>,
+    override val setupRequirement: Requirement? = null,
 ) : Definition {
   override val shortName: ClassName by ::className
   override val asClassDeclaration: ClassDeclaration =
@@ -29,7 +31,7 @@ public data class MarsMapDefinition(
       )
 
   public data class AreaDefinition(
-      /** Mame of the MarsMapDefinition this area belongs to (e.g "Tharsis"). */
+      /** Prefix used by area class names, such as the `Tharsis_1_1` prefix. */
       private val mapName: ClassName,
 
       /** The row number of this area; the top row is row `1`. */

@@ -12,7 +12,7 @@ import kotlin.test.Test
 class StartTokenTest {
   @Test
   fun startsWithPlayer1AndPassesLeftEachGeneration() {
-    val engine = setUpGame("TerraformingMars,CorporateEraExpansion,TharsisMap", 3).tfm(ENGINE)
+    val engine = setUpGame("TerraformingMars,CorporateEraExpansion,TharsisMapOption", 3).tfm(ENGINE)
 
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
@@ -29,7 +29,7 @@ class StartTokenTest {
 
   @Test
   fun staysWithPlayer1InAnActualOnePlayerSetup() {
-    val game = setUpGame("TerraformingMars,CorporateEraExpansion,TharsisMap,SoloMode", 1)
+    val game = setUpGame("TerraformingMars,CorporateEraExpansion,TharsisMapOption,SoloMode", 1)
     val engine = game.tfm(ENGINE)
 
     engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
@@ -44,7 +44,7 @@ class StartTokenTest {
   @Test
   fun autoWorkflowReadsTheTokenOwner() {
     val setup =
-        canonicalPremise("TerraformingMars,CorporateEraExpansion,HellasMap,PromoCardPack", 2)
+        canonicalPremise("TerraformingMars,CorporateEraExpansion,HellasMapOption,PromoCardPack", 2)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)

@@ -12,7 +12,7 @@ abstract class ColoniesCardTest : CardTest() {
 
   @BeforeTest
   fun initializeGame() {
-    newGame("TerraformingMars,TharsisMap,ColoniesExpansion", colonyTiles = colonyTiles)
+    newGame("TerraformingMars,TharsisMapOption,ColoniesExpansion", colonyTiles = colonyTiles)
     engine.phase("Action")
   }
 }

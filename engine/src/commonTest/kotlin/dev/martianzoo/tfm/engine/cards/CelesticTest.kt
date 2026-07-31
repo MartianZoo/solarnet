@@ -9,7 +9,7 @@ import kotlin.test.Test
 class CelesticTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion,VenusNextExpansion")
+    newGame("TerraformingMars,TharsisMapOption,CorporateEraExpansion,VenusNextExpansion")
     p1.playCorp("Celestic", 5)
     p1.manual("10 Heat")
     engine.phase("Action")

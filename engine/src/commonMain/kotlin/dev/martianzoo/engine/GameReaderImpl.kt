@@ -10,13 +10,6 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Metric.Plus
 import dev.martianzoo.pets.ast.Metric.Scaled
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.And
-import dev.martianzoo.pets.ast.Requirement.Counting
-import dev.martianzoo.pets.ast.Requirement.Exact
-import dev.martianzoo.pets.ast.Requirement.Max
-import dev.martianzoo.pets.ast.Requirement.Min
-import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import kotlin.math.min
@@ -41,21 +34,7 @@ internal class GameReaderImpl(
   override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)
 
-  override fun has(requirement: Requirement): Boolean =
-      when (requirement) {
-        is Counting -> {
-          val actual = count(Count(requirement.scaledEx.expression))
-          val target = (requirement.scaledEx.scalar as ActualScalar).value
-          when (requirement) {
-            is Min -> actual >= target
-            is Max -> actual <= target
-            is Exact -> actual == target
-          }
-        }
-        is Or -> requirement.requirements.any { has(it) }
-        is And -> requirement.requirements.all { has(it) }
-        is Requirement.Transform -> error("should have been transformed by now: $requirement")
-      }
+  override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
 
   override fun count(metric: Metric): Int =
       when (metric) {

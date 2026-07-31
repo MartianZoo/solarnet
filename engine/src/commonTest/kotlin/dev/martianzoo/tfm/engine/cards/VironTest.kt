@@ -56,7 +56,7 @@ class VironTest : CardTest() {
   @Test
   fun `after p2 uses a card, p1 tries to choose it through Viron`() {
     newGame(
-        "TerraformingMars,TharsisMap,VenusNextExpansion,ColoniesExpansion",
+        "TerraformingMars,TharsisMapOption,VenusNextExpansion,ColoniesExpansion",
         colonyTiles = testColonyTiles(2),
     )
     val p2 = requireP2()
@@ -76,7 +76,7 @@ class VironTest : CardTest() {
 
   private fun initializeGame() {
     newGame(
-        "TerraformingMars,TharsisMap,VenusNextExpansion,ColoniesExpansion",
+        "TerraformingMars,TharsisMapOption,VenusNextExpansion,ColoniesExpansion",
         colonyTiles = testColonyTiles(2),
     )
     engine.phase("Action")

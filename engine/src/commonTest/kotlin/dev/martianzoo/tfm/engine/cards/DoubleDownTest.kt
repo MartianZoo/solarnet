@@ -9,7 +9,7 @@ import kotlin.test.Test
 class DoubleDownTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("TerraformingMars,TharsisMap,PreludeExpansion,PromoCardPack")
+    newGame("TerraformingMars,TharsisMapOption,PreludeExpansion,PromoCardPack")
     p1.playCorp("PharmacyUnion", 5)
     engine.phase("Prelude")
     p1.playPrelude("BiosphereSupport")

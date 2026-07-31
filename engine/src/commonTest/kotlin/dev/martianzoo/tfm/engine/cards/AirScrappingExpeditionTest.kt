@@ -10,7 +10,7 @@ class AirScrappingExpeditionTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(
-        "TerraformingMars,TharsisMap,VenusNextExpansion,ColoniesExpansion",
+        "TerraformingMars,TharsisMapOption,VenusNextExpansion,ColoniesExpansion",
         colonyTiles = testColonyTiles(2),
     )
   }

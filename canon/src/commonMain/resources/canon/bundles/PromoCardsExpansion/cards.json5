@@ -105,7 +105,7 @@
     // Corporate Archives[F]
     {
       "id": "X39F",
-      "requiredBundles": "PreludeExpansion",
+      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
       "immediate": "13, 2 ProjectCard"
@@ -114,7 +114,7 @@
     // Double Down
     {
       "id": "X40",
-      "requiredBundles": "PreludeExpansion",
+      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
       "components": [ "CLASS CopyPrelude : Cardbound, Custom" ]
@@ -123,7 +123,7 @@
     // Merger[F]
     {
       "id": "X41F",
-      "requiredBundles": "PreludeExpansion",
+      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CorporationCard THEN PlayCard<Class<CorporationCard>>, -42"
     },
@@ -131,7 +131,7 @@
     // New Partner[F]
     {
       "id": "X42F",
-      "requiredBundles": "PreludeExpansion",
+      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "PROD[1], PreludeCard, PlayCard<Class<PreludeCard>>"
     },
@@ -139,7 +139,7 @@
     // Head Start
     {
       "id": "X43",
-      "requiredBundles": "PreludeExpansion",
+      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
       "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>?, UseAction<StandardAction>?"
@@ -625,7 +625,7 @@
     // Anti-desertification Techniques
     {
       "id": "X49",
-      "requiredBundles": "PreludeExpansion",
+      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag", "PlantTag" ],
       "immediate": "3, PROD[Plant, Steel]"
@@ -671,7 +671,7 @@
     // Giant Solar Collector
     {
       "id": "X55",
-      "requiredBundles": "PreludeExpansion, VenusNextExpansion",
+      "setupRequirement": "PreludeExpansion, VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "PowerTag", "SpaceTag" ],
       "immediate": "PROD[2 Energy], VenusStep"
@@ -756,7 +756,7 @@
     // Strategic Base Planning
     {
       "id": "X65",
-      "requiredBundles": "PreludeExpansion, ColoniesExpansion",
+      "setupRequirement": "PreludeExpansion, ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
       "immediate": "-3, CityTile, Colony"
@@ -896,7 +896,7 @@
     // Albedo Plants
     {
       "id": "X78",
-      "requiredBundles": "PreludeExpansion",
+      "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant], Plant",

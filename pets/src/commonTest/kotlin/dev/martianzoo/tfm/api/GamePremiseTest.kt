@@ -11,32 +11,36 @@ import kotlin.test.Test
 internal class GamePremiseTest {
   @Test
   fun good() {
-    premise("TerraformingMars,TharsisMap", 2)
-    premise("TerraformingMars,ElysiumMap", 3)
+    premise("TerraformingMars,TharsisMapOption", 2)
+    premise("TerraformingMars,ElysiumMapOption", 3)
     premise(
-        "TerraformingMars,CorporateEraExpansion,TharsisMap,VenusNextExpansion,PreludeExpansion,PromoCardPack",
+        "TerraformingMars,CorporateEraExpansion,TharsisMapOption,VenusNextExpansion,PreludeExpansion,PromoCardPack",
         4,
     )
-    premise("TerraformingMars,TharsisMap", 5)
+    premise("TerraformingMars,TharsisMapOption", 5)
   }
 
   @Test
   fun badPlayerCount() {
-    assertFails("many") { premise("TerraformingMars,TharsisMap", 6) }
+    assertFails("many") { premise("TerraformingMars,TharsisMapOption", 6) }
   }
 
   @Test
   fun badOptions() {
-    assertFails("no base") { premise("TharsisMap", 4) }
-    assertFails("repeated") { premise("TharsisMap,TerraformingMars,TharsisMap", 4) }
+    assertFails("no base") { premise("TharsisMapOption", 4) }
+    assertFails("repeated") {
+      premise("TharsisMapOption,TerraformingMars,TharsisMapOption", 4)
+    }
     assertFails("no map") { premise("TerraformingMars", 4) }
-    assertFails("two maps") { premise("TerraformingMars,TharsisMap,ElysiumMap", 4) }
+    assertFails("two maps") {
+      premise("TerraformingMars,TharsisMapOption,ElysiumMapOption", 4)
+    }
     assertFails("wrong bundle") { premise("TerraformingMars,UnknownOption", 4) }
   }
 
   @Test
   fun exactOptionsSelectTheNeededRuleset() {
-    val premise = premise("TerraformingMars,TharsisMap", 2)
+    val premise = premise("TerraformingMars,TharsisMapOption", 2)
     val ruleset = premise.ruleset as TfmRuleset
 
     ruleset.bundles.map { it.bundleName }.toSet() shouldBe
@@ -47,29 +51,35 @@ internal class GamePremiseTest {
 
   @Test
   fun onePlayerCompatibilitySetupSelectsSoloMode() {
-    premise("TerraformingMars,SoloMode,TharsisMap", 1).initialComponents.toSet() shouldBe
-        setOf("TerraformingMars", "TharsisMap", "SoloMode")
+    premise("TerraformingMars,SoloMode,TharsisMapOption", 1).initialComponents.toSet() shouldBe
+        setOf("TerraformingMars", "TharsisMapOption", "SoloMode")
   }
 
   @Test
   fun coloniesMustBeSpecifiedExactly() {
-    assertFails("missing colonies") { premise("TerraformingMars,TharsisMap,ColoniesExpansion", 2) }
+    assertFails("missing colonies") {
+      premise("TerraformingMars,TharsisMapOption,ColoniesExpansion", 2)
+    }
     assertFails("partial colonies") {
-      premise("TerraformingMars,TharsisMap,ColoniesExpansion", 2, setOf(cn("Luna")))
+      premise("TerraformingMars,TharsisMapOption,ColoniesExpansion", 2, setOf(cn("Luna")))
     }
 
     val exact = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").toSetStrict(::cn)
-    val premise = premise("TerraformingMars,TharsisMap,ColoniesExpansion", 2, exact)
+    val premise = premise("TerraformingMars,TharsisMapOption,ColoniesExpansion", 2, exact)
     premise.initialComponents.toSet().containsAll(exact.map { "${it}Selected" }) shouldBe true
   }
 
   @Test
   fun soloColoniesUseExactlyThreeTiles() {
     val exact = setOf(cn("Luna"), cn("Ceres"), cn("Triton"))
-    premise("TerraformingMars,SoloMode,TharsisMap,ColoniesExpansion", 1, exact)
+    premise("TerraformingMars,SoloMode,TharsisMapOption,ColoniesExpansion", 1, exact)
 
     assertFails("four solo colonies") {
-      premise("TerraformingMars,SoloMode,TharsisMap,ColoniesExpansion", 1, exact + cn("Ganymede"))
+      premise(
+          "TerraformingMars,SoloMode,TharsisMapOption,ColoniesExpansion",
+          1,
+          exact + cn("Ganymede"),
+      )
     }
   }
 

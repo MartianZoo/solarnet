@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.ColonyTileDefinition.ColonyTileData
@@ -30,10 +31,10 @@ public object JsonReader {
       val id: String,
       val replaces: String? = null,
       val requirement: String,
-      val requiredBundles: String? = null,
+      val setupRequirement: String? = null,
   ) {
     fun complete(): MilestoneDefinition =
-        MilestoneDefinition(id, replaces, requirement, requiredBundles)
+        MilestoneDefinition(id, replaces, requirement, setupRequirement)
   }
 
   // ACTIONS
@@ -85,6 +86,7 @@ public object JsonReader {
     @Serializable
     data class MapImport(
         val name: String,
+        val setupRequirement: String? = null,
         val rows: List<List<String>>,
     ) {
       internal fun toDefinition(
@@ -115,7 +117,7 @@ public object JsonReader {
           }
         }
         val grid = Grid.grid(areas, { it.row }, { it.column })
-        return MarsMapDefinition(mapName, grid)
+        return MarsMapDefinition(mapName, grid, setupRequirement?.let(::parse))
       }
     }
 

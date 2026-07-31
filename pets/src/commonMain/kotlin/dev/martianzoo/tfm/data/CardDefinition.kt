@@ -65,8 +65,8 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val replaces: String? by data::replaces
 
-  /** Bundles that must all be selected for this card to be included. */
-  public val requiredBundles: Set<ClassName> = parseBundleNames(data.requiredBundles)
+  /** Setup-world condition that must hold for this card to be included. */
+  override val setupRequirement: Requirement? = data.setupRequirement?.let(::parse)
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
 
@@ -181,7 +181,7 @@ public class CardDefinition(data: CardData) : Definition {
       val id: String,
       val deck: String? = null,
       val replaces: String? = null,
-      val requiredBundles: String? = null,
+      val setupRequirement: String? = null,
       val tags: List<String> = emptyList(),
       val immediate: String? = null,
       val actions: List<String> = emptyList(),
@@ -195,7 +195,7 @@ public class CardDefinition(data: CardData) : Definition {
     init {
       require(id.isNotEmpty())
       require(replaces?.isNotEmpty() != false)
-      require(requiredBundles?.isNotBlank() != false)
+      require(setupRequirement?.isNotBlank() != false)
       require(resourceType?.isNotEmpty() != false)
       require(requirement?.isNotEmpty() != false)
       require(cost >= 0)

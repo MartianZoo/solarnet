@@ -22,7 +22,8 @@ import kotlin.test.Test
 internal class CustomMetricTest {
   @Test
   fun marsRowIsCountedAsAMetricButNeverStoredAsAComponent() {
-    val game = Engine.newGame(canonicalPremise("TerraformingMars,HellasMap,VenusNextExpansion", 2))
+    val game =
+        Engine.newGame(canonicalPremise("TerraformingMars,HellasMapOption,VenusNextExpansion", 2))
     val p1 = game.tfm(PLAYER1)
     val componentCount = p1.count("Component")
 
@@ -35,7 +36,7 @@ internal class CustomMetricTest {
 
   @Test
   fun marsRowWorksInsideARefinement() {
-    val game = Engine.newGame(canonicalPremise("TerraformingMars,HellasMap", 2))
+    val game = Engine.newGame(canonicalPremise("TerraformingMars,HellasMapOption", 2))
     val p1 = game.tfm(PLAYER1)
 
     p1.godMode()
@@ -168,6 +169,6 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
 
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
-        "TerraformingMars,TharsisMap,CorporateEraExpansion",
+        "TerraformingMars,TharsisMapOption,CorporateEraExpansion",
         ruleset = TfmRuleset.compose(Canon, CustomClassDeclarations),
     )

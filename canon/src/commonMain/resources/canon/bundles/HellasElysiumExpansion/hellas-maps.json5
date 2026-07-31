@@ -12,10 +12,10 @@
     "-": "-6",
   },
 
-  "maps": [  // Why all those extra "",s? This approach lets us support *any* map shape, by having you
-        // overlay it on a parallelogram-shaped grid. Of course "" cells are treated as not there.
+  "maps": [
     {
       "name": "Hellas",
+      "setupRequirement": "HellasMapOption",
       "rows": [
         [
                                      "WPP","LPP","LPP","LPS","LP"

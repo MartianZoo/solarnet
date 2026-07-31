@@ -17,6 +17,12 @@ declarations, JSON definitions, custom implementations, and metadata. Bundle pre
 meaning and is not observable through Pets. A bundle is neither a game option nor a live component,
 even when their names happen to coincide.
 
+One bundle may provide several separately selectable game options. For example, the canonical
+`HellasElysiumExpansion` bundle owns both published boards while `HellasMapOption` and
+`ElysiumMapOption` remain distinct options. The corresponding live map components are `Hellas`
+and `Elysium`. Each board and map-specific milestone has a Pets `setupRequirement`, so only
+definitions applicable to the completed setup world become active game content.
+
 **GameOptions** fully specify one game without randomness. They select actors, rule options, maps,
 individual definitions, content groups, vocabulary, and any exact setup values. A client may make
 random choices, apply convenient defaults, or accept short option codes, but it must resolve those
@@ -76,7 +82,7 @@ The common text representation is one selector per line, with `-` marking a coun
 ```
 Player1
 CorporateEra
-ElysiumMap
+ElysiumMapOption
 PreludeExpansion
 VenusNextExpansion
 -Hoverlord
@@ -94,10 +100,11 @@ a rule option may create a singleton component before `SetupPhase` so its behavi
 Pets rules. Selecting vocabulary is not inherently a rule option: activating `VenusTag` need not
 mean enabling the Venus track, World Government Terraforming, or all Venus cards.
 
-Semantic requirements refer to GameOptions, never to bundle presence. Filtering and replacement
-happen after signed selections and defaults are resolved but before class assembly. Replacement is
-same-kind, transitive, and based on stable definition identities. Replacement targets must be known
-to the Authority; cycles and multiple applicable replacements for one target are errors.
+Each definition may have a Pets `setupRequirement`, which is evaluated in the completed setup world
+and never against bundle presence. Filtering and replacement happen after signed selections and
+defaults are resolved but before class assembly. Replacement is same-kind, transitive, and based on
+stable definition identities. Replacement targets must be known to the Authority; cycles and
+multiple applicable replacements for one target are errors.
 
 Configuration constraints and option-specific setup behavior should be ordinary Pets rules where
 that is natural. For example, the selected map can be constrained to exactly one and the Colonies

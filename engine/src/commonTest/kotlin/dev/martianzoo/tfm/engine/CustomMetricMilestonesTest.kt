@@ -15,7 +15,7 @@ internal class CustomMetricMilestonesTest {
     val p1 =
         Engine.newGame(
                 canonicalPremise(
-                    "TerraformingMars,CorporateEraExpansion,ColoniesExpansion,HellasMap,VenusNextExpansion,PromoCardPack",
+                    "TerraformingMars,CorporateEraExpansion,ColoniesExpansion,HellasMapOption,VenusNextExpansion,PromoCardPack",
                     2,
                     testColonyTiles(2),
                 )
@@ -41,7 +41,7 @@ internal class CustomMetricMilestonesTest {
     val p1 =
         Engine.newGame(
                 canonicalPremise(
-                    "TerraformingMars,CorporateEraExpansion,ColoniesExpansion,HellasMap",
+                    "TerraformingMars,CorporateEraExpansion,ColoniesExpansion,HellasMapOption",
                     2,
                     testColonyTiles(2),
                 )

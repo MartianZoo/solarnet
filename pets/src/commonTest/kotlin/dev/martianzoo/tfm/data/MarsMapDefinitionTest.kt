@@ -18,6 +18,7 @@ internal class MarsMapDefinitionTest {
           },
           "maps": [{
             "name": "Demo",
+            "setupRequirement": "DemoMap",
             "rows": [
               [ " V S ", "L" ],
               [ "V2P", "WPP", "WPC" ],
@@ -30,6 +31,7 @@ internal class MarsMapDefinitionTest {
   fun testDemoMapFromJson() {
     val map: MarsMapDefinition = JsonReader.readMaps(demoMapJson).single()
     map.className shouldBe cn("Demo")
+    map.setupRequirement.toString() shouldBe "DemoMap"
     map.asClassDeclaration.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("MarsMap"))
     map.areas.shouldHaveSize(7)
     map.areas[1, 1]!!.code shouldBe "VS"

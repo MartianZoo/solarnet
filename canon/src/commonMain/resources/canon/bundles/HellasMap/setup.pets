@@ -1,2 +1,0 @@
-"Map option using the Hellas board and its map-specific milestones and awards"
-CLASS HellasMap : MarsMapOption

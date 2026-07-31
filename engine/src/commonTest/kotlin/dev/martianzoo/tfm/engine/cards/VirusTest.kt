@@ -9,7 +9,7 @@ import kotlin.test.Test
 class VirusTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("TerraformingMars,TharsisMap,CorporateEraExpansion")
+    newGame("TerraformingMars,TharsisMapOption,CorporateEraExpansion")
     val p2 = requireP2()
     p2.manual("PROD[2 Plant], Birds") { doTask("PROD[-2 Plant<Player2>]") }
     p2.manual("PROD[Plant], Fish")

@@ -17,7 +17,7 @@ class FirstPartialGameTest {
     repeat(1) {
       val setup =
           canonicalPremise(
-              "TerraformingMars,CorporateEraExpansion,ElysiumMap,PreludeExpansion,TurmoilCardPack",
+              "TerraformingMars,CorporateEraExpansion,ElysiumMapOption,PreludeExpansion,TurmoilCardPack",
               2,
           )
       val game = Engine.newGame(setup)

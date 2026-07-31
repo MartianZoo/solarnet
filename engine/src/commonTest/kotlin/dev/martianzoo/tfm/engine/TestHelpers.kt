@@ -29,13 +29,13 @@ internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
-    optionNames: String = "TerraformingMars,TharsisMap",
+    optionNames: String = "TerraformingMars,TharsisMapOption",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
 ): World = setUpGame(canonicalPremise(optionNames, players, colonyTiles))
 
 internal fun canonicalPremise(
-    optionNames: String = "TerraformingMars,TharsisMap",
+    optionNames: String = "TerraformingMars,TharsisMapOption",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
@@ -45,7 +45,7 @@ internal fun canonicalPremise(
   val options = GameOptions(players, enabled, colonyTiles)
   val base = Canon.gamePremise(options)
   if (ruleset == null) return base
-  val selectedRuleset = ruleset.resolve(Canon.bundleNames(options))
+  val selectedRuleset = ruleset.resolve(Canon.bundleNames(options), options.enabled)
   return base.copy(
       ruleset = selectedRuleset,
       rootClassNames = base.rootClassNames + selectedRuleset.allDefinitions.classNames(),

@@ -8,7 +8,7 @@ import kotlin.test.Test
 class MergerTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("TerraformingMars,TharsisMap,VenusNextExpansion,PreludeExpansion,PromoCardPack")
+    newGame("TerraformingMars,TharsisMapOption,VenusNextExpansion,PreludeExpansion,PromoCardPack")
     p1.playCorp("ValleyTrust", 5)
     engine.phase("Prelude")
     p1.playPrelude("UnmiContractor")
