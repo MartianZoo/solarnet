@@ -144,10 +144,5 @@ internal class SetupWorldTest {
     game.gameplay(ENGINE).count("DeferredColonySelection") shouldBe 1
   }
 
-  private fun newSetupWorld(): World =
-      Engine.newSetupWorld(
-          Canon.setupRuleset,
-          Canon.setupRootClassNames,
-          Canon.setupWorldInitialComponents,
-      )
+  private fun newSetupWorld(): World = Engine.newSetupWorld(Canon.setupWorldDefinition)
 }

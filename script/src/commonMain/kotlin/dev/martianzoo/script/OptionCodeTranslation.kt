@@ -7,6 +7,7 @@ internal object OptionCodeTranslation {
   data class Setup(val optionCodes: String, val players: Int, val instruction: String)
 
   fun setup(optionCodes: String, players: Int): Setup {
+    require(players in 1..5) { "player count must be between 1 and 5" }
     val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
     val codes = effectiveCodes.asIterable().map(Char::toString).toSetStrict()
     require(optionsByCode.containsAll(codes)) {

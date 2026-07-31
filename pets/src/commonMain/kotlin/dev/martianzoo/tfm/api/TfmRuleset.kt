@@ -3,15 +3,14 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.data.CardDefinition
@@ -38,17 +37,9 @@ public abstract class TfmRuleset : Ruleset {
     return resolveInternal(selectedBundles, null)
   }
 
-  /** Temporary static-options adapter for resolving setup requirements without a setup world. */
-  public fun resolve(
-      selectedBundles: Set<ClassName>,
-      enabledGameOptions: Set<ClassName>,
-  ): TfmRuleset {
-    return resolveInternal(selectedBundles) { it.matchesExactOptions(enabledGameOptions) }
-  }
-
-  /** Returns selected bundle content whose setup requirements hold in [setupWorld]. */
-  public fun resolve(selectedBundles: Set<ClassName>, setupWorld: GameReader): TfmRuleset =
-      resolveInternal(selectedBundles, setupWorld::has)
+  /** Returns selected bundle content whose setup requirements hold in [setupState]. */
+  public fun resolve(selectedBundles: Set<ClassName>, setupState: TypeInfo): TfmRuleset =
+      resolveInternal(selectedBundles, setupState::has)
 
   private fun resolveInternal(
       selectedBundles: Set<ClassName>,
@@ -179,14 +170,6 @@ public abstract class TfmRuleset : Ruleset {
       }
     }
   }
-
-  private fun Requirement.matchesExactOptions(enabledOptions: Set<ClassName>): Boolean =
-      isMetBy { metric ->
-        require(metric is Count && metric.expression.simple) {
-          "static GameOptions cannot evaluate setup requirement metric: $metric"
-        }
-        if (metric.expression.className in enabledOptions) 1 else 0
-      }
 
   // CLASS DECLARATIONS
 

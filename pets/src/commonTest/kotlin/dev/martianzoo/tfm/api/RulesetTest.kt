@@ -2,9 +2,15 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import io.kotest.assertions.throwables.shouldThrow
@@ -129,13 +135,16 @@ internal class RulesetTest {
 
     val selectedBundles =
         setOf(cn("PromoCardsExpansion"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
-    val withoutVenus = source.resolve(selectedBundles, setOf(cn("PreludeExpansion")))
+    val withoutVenus = source.resolve(selectedBundles, setupReader(cn("PreludeExpansion")))
     withoutVenus.cardDefinitions.shouldHaveSize(0)
     withoutVenus.classDeclarationBundles.keys shouldBe withoutVenus.allClassNames
     (card.className in withoutVenus.classDeclarationBundles) shouldBe false
 
     val withVenus =
-        source.resolve(selectedBundles, setOf(cn("PreludeExpansion"), cn("VenusNextExpansion")))
+        source.resolve(
+            selectedBundles,
+            setupReader(cn("PreludeExpansion"), cn("VenusNextExpansion")),
+        )
     withVenus.cardDefinitions.shouldContainExactly(card)
     withVenus.classDeclarationBundles
         .getValue(card.className)
@@ -162,4 +171,22 @@ internal class RulesetTest {
       object : Bundle(cn(name)) {
         override val cardDefinitions = cards.toSet()
       }
+
+  private fun setupReader(vararg enabledOptions: ClassName): TypeInfo =
+      ExactOptionsState(enabledOptions.toSet())
+
+  private class ExactOptionsState(private val enabledOptions: Set<ClassName>) : TypeInfo {
+    override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
+
+    private fun count(metric: Metric): Int {
+      require(metric is Count && metric.expression.simple) { "unsupported test metric: $metric" }
+      return if (metric.expression.className in enabledOptions) 1 else 0
+    }
+
+    override fun isAbstract(e: Expression): Boolean = unused()
+
+    override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = unused()
+
+    private fun unused(): Nothing = error("not needed by setup-requirement tests")
+  }
 }

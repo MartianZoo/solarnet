@@ -4,9 +4,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
 
@@ -49,20 +47,18 @@ public object Canon :
             setOf(cn("PromoCardPack")),
         ),
     ) {
-  /** The canonical type universe used by setup worlds. */
-  public val setupRuleset: Ruleset = CanonSetupRuleset
-
-  /** Classes loaded into the canonical setup world's independent type universe. */
-  public val setupRootClassNames: Set<ClassName>
-    get() = setupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className }
-
-  /** Default components of a newly created canonical setup world. */
-  public val setupWorldInitialComponents: List<String> =
-      listOf("CorporateEraExpansion", "TharsisMapOption")
+  /** Definition used to construct independent canonical setup worlds. */
+  public val setupWorldDefinition: GamePremise =
+      GamePremise(
+          CanonSetupRuleset,
+          CanonSetupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className },
+          listOf(ENGINE),
+          listOf("CorporateEraExpansion", "TharsisMapOption"),
+      )
 
   /** Snapshots a validated canonical setup world for an independent playable game. */
   public fun assemble(setupWorld: GameReader): GamePremise {
-    require(setupWorld.ruleset === setupRuleset) { "not a canonical setup world" }
+    require(setupWorld.ruleset === setupWorldDefinition.ruleset) { "not a canonical setup world" }
     val players = setupWorld.getComponents("Player").size
 
     val enabledOptions =

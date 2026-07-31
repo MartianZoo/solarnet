@@ -18,7 +18,7 @@ idle, `Engine.newGame(setupWorld, assemble)` gains the setup ruleset's `Validate
 snapshots the world as a `GamePremise`, then constructs a separate playable world. Canon supplies
 its own setup ruleset, initial components, validation effects, and assembler. `TerraformingMars`
 is an unconditional assembly root rather than a setup option. `CorporateEraExpansion` and
-`TharsisMap` are default setup components and can be removed or replaced by setup instructions.
+`TharsisMapOption` are default setup components and can be removed or replaced by setup instructions.
 Canon reuses setup class
 declarations in playable worlds unless ordinary gameplay Pets provide a same-named wholesale
 replacement. This lets the setup world's concrete `Player` count be replaced by the playable
