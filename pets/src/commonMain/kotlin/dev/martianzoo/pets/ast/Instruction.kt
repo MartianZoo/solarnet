@@ -236,7 +236,7 @@ public sealed class Instruction : PetElement() {
       proposed.inner.ensureNarrows(inner, info)
     }
 
-    override fun toString(): String = "$inner / $metric"
+    override fun toString(): String = "$inner / ${groupPartIfNeeded(metric)}"
   }
 
   public data class Gated(val gate: Requirement, val inner: Instruction) : Instruction() {
@@ -534,7 +534,7 @@ public sealed class Instruction : PetElement() {
 
         val maybePer: Parser<Instruction> =
             perable and
-                optional(skipChar('/') and Metric.parser()) map
+                optional(skipChar('/') and Metric.atomParser()) map
                 { (instr, metric) ->
                   if (metric == null) instr else Per(instr, metric)
                 }

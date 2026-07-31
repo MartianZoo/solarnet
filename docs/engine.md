@@ -186,6 +186,11 @@ and the REPL `count` command. An ordinary `Metric.Count` delegates to the compon
 resolved expression's root is a `Custom` class with a `CustomMetric` implementation, the reader
 instead asks that implementation for its non-negative virtual count.
 
+`Metric.Or` evaluates the multiset union of ordinary component-count alternatives. For each exact
+component type it keeps the greatest matching multiplicity, so overlapping alternatives do not
+double-count components. Custom metrics cannot be alternatives because their virtual results have
+no component identities to union.
+
 The custom class and each dependency argument passed to its Kotlin implementation must be concrete.
 The engine rejects unsupported abstract queries before invoking the implementation, so plugins do
 not need to repeat that validation. Custom metrics may still decide how absent components and

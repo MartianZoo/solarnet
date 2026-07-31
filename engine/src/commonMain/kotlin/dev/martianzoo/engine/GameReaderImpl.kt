@@ -7,11 +7,12 @@ import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
-import dev.martianzoo.pets.ast.Metric.Plus
+import dev.martianzoo.pets.ast.Metric.Or
 import dev.martianzoo.pets.ast.Metric.Scaled
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
+import dev.martianzoo.util.HashMultiset
 import kotlin.math.min
 
 internal class GameReaderImpl(
@@ -41,8 +42,32 @@ internal class GameReaderImpl(
         is Count -> countExpression(metric.expression)
         is Scaled -> count(metric.inner) / metric.unit
         is Metric.Max -> min(count(metric.inner), metric.maximum)
-        is Plus -> metric.metrics.sumOf(::count)
+        is Or -> countUnion(metric)
         is Metric.Transform -> error("should have been transformed by now: $metric")
+      }
+
+  private fun countUnion(metric: Or): Int {
+    val union = mutableMapOf<Component, Int>()
+    metric.metrics.forEach { alternative ->
+      require(alternative is Count) {
+        "OR metric alternatives must count components, but found: $alternative"
+      }
+      componentsMatching(alternative.expression).entries.forEach { (component, count) ->
+        union[component] = maxOf(union[component] ?: 0, count)
+      }
+    }
+    return union.values.sum()
+  }
+
+  private fun componentsMatching(expression: Expression) =
+      if (classTable.isUnresolvedClassLiteral(expression)) {
+        HashMultiset<Component>()
+      } else {
+        val type = classTable.resolve(expression)
+        require(!type.rootClass.declaration.custom) {
+          "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
+        }
+        components.getAll(type, this)
       }
 
   private fun countExpression(expression: Expression): Int {

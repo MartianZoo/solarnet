@@ -70,7 +70,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Replace or constrain `doFirstTask()`; require an id/match unless exactly one task applies.
 - Validate every shared `X` in a `THEN` against one multiplier without traversal-order zipping.
 - Add `setXTo(n)`-style test/task refinement. And `setTo(from, to)`.
-- Add a duplicate-free OR metric for Red Ships' `CityTile OR SpecialTile` count.
 - Narrow speculative preparation/autoexec failures to domain errors; surface defects and simplify `autoExecNext`.
 - Narrow boolean compatibility probes so `Instruction.narrows` does not hide broken invariants. (Needs discussion)
 - Decide whether turn/action signals are generic engine protocol or Terraforming Mars rules, then colocate declarations and interpretation.

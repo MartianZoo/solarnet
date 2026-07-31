@@ -59,7 +59,7 @@ abstract class AbstractFullGameTest {
       tr: Int,
       hand: Int,
   ) {
-    assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront + PlayedEvent")
+    assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront OR PlayedEvent")
     assertActions(actions)
     assertVps(vp)
   }
