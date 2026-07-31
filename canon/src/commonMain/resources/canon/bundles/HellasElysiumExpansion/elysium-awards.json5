@@ -1,4 +1,5 @@
 {
+  "setupRequirement": "ElysiumMapOption",
   "awards": [
 //    // Celebrity
 //    { "id": "EA1", "metric": "CardFront(HAS 20 Cost)" },

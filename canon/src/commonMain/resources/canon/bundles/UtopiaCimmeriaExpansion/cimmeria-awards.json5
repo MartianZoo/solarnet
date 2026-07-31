@@ -1,4 +1,5 @@
 {
+  "setupRequirement": "TerraCimmeriaMapOption",
   "awards": [
     // Electrician
     { "id": "IA1", "metric": "PowerTag" },

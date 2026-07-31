@@ -1,4 +1,5 @@
 {
+  "setupRequirement": "UtopiaPlanitiaMapOption",
   "awards": [
     // Suburbian
     { "id": "UA1", "metric": "OwnedTile(HAS MAX 4 Neighbor<OwnedTile>)" },
