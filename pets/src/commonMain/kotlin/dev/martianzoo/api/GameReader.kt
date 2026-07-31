@@ -5,16 +5,12 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.Multiset
 
-/** A readable view of a world. */
+/** A readable view of a live Pets world. */
 public interface GameReader : TypeInfo {
-  /** The initial configuration for the game. */
-  public val setup: GameSetup
-
-  /** The resolved ruleset used by the game. */
+  /** The resolved ruleset used by the world. */
   public val ruleset: Ruleset
 
   /** Returns the type represented by the (fully-prepared) [expression]. */

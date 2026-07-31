@@ -52,11 +52,10 @@
 - **Follow mode:** Using Solarnet to reproduce or accompany a game whose concrete setup choices and
   actions are supplied by a client or another authoritative source. The engine follows those facts;
   it does not choose random content such as maps, milestones, or colony tiles.
-- **Game:** A playable World that additionally exposes its exact Terraforming Mars setup.
 - **Game option:** An exact semantic choice for a game, such as using SoloMode, the Prelude rules, or
   a particular map. Canon translates options into the raw bundles needed to provide them.
-- **Game setup:** The complete, immutable, non-random configuration for one game: its exact options
-  and the ruleset already assembled to provide them.
+- **Game premise:** The complete, immutable facts from which equivalent games can be created: the
+  ruleset, loaded class roots, Actors, and initial components.
 - **Gameplay:** The Actor-scoped API through which a world is queried and changed.
 - **Immediate instruction:** A card's instruction carried out when the card is played, stored as `CardDefinition.immediate`.
 - **Instruction:** A Pets specification of steps that may alter a world.

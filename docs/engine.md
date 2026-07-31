@@ -9,12 +9,12 @@ This module's job is to represent a world, execute instructions, and trigger eff
 ## Overview: The Holy Trinity of a World
 
 The common live abstraction is `World`: a Pets component graph together with its tasks, event
-history, timeline, class table, and Actor-scoped mutation API. `Game` is the playable subtype of a
-world and additionally exposes the exact Terraforming Mars `GameSetup` used to create it.
+history, timeline, class table, and Actor-scoped mutation API. `GamePremise` is the immutable,
+reusable input—ruleset, class roots, Actors, and initial components—from which equivalent playable
+worlds can be created.
 
-The setup and the `ClassTable` of loaded classes for that configuration are immutable. A setup records
-exact semantic game options and the ruleset already assembled from the bundles Canon determined
-were needed. `GameReader.ruleset` is that same selected ruleset. Terraforming Mars-specific clients can use
+The `ClassTable` of loaded classes is immutable. `GameReader.ruleset` is the selected ruleset from
+the premise. Terraforming Mars-specific clients can use
 `GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
@@ -89,7 +89,7 @@ mutation. Task order has no game meaning: stable `TaskId` iteration only makes a
 auto-exec choices reproducible. Public readers and gameplay operation bodies see read-only
 `TaskQueue` views.
 Those views may be scoped; for example, gameplay for an assignee exposes only that assignee's tasks,
-while `Game.tasks` remains a global read-only view for diagnostics and workflow checks.
+while `World.tasks` remains a global read-only view for diagnostics and workflow checks.
 Internal code that mutates tasks uses `WritableTaskQueue`, following the same read-only/writable
 split as the component graph and event log.
 
@@ -437,7 +437,7 @@ Owner such as `Opponent` has no corresponding Kotlin identity and receives neith
 The `Effector` takes a `Lazy<GameReader>` to break a bootstrapping cycle: the game's reader isn't
 available until after the effector exists, but the effector needs the reader to fire effects.
 
-After scopes are created and attached to the `Game`, `Initializer.initialize()` runs for `ENGINE`.
+After scopes are created and attached to the `World`, `Initializer.initialize()` runs for `ENGINE`.
 It creates the administrative `ENGINE` component and all singleton-type components directly
 through `Instructor`, without manufacturing a task for each top-level instruction. Automatic
 effects still execute inline and queued effects still add ordinary tasks. Singleton types whose
@@ -445,7 +445,7 @@ dependencies do not exist yet are retried in progress-based rounds; a round with
 reports the unresolved types and dependencies.
 
 Initialization then marks `initializationFinished()` and commits that pre-setup baseline. The
-returned `Game` therefore has no current Phase. `TfmWorkflow.Manual.setupPhase()` or
+returned `World` therefore has no current Phase. `TfmWorkflow.Manual.setupPhase()` or
 `TfmWorkflow.Auto` creates `SetupPhase` as an ordinary, fully effectful game operation. Automatic
 workflow waits for any resulting setup tasks before entering `CorporationPhase`.
 

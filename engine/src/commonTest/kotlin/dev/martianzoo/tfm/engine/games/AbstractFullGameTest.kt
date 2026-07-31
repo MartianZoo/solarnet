@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Game
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
@@ -17,19 +17,19 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
 abstract class AbstractFullGameTest {
-  protected lateinit var game: Game
+  protected lateinit var game: World
   protected lateinit var engine: TfmGameplay
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
 
-  protected abstract fun setup(): GameSetup
+  protected abstract fun setup(): GamePremise
 
   @BeforeTest
   open fun commonSetup() {
     game = Engine.newGame(setup())
     engine = game.tfm(ENGINE)
     p1 = game.tfm(PLAYER1)
-    if (PLAYER2 in game.setup.players()) p2 = game.tfm(PLAYER2)
+    if (game.reader.getComponents("PlayerSeat").size > 1) p2 = game.tfm(PLAYER2)
   }
 
   fun copyThis() {
@@ -105,7 +105,12 @@ abstract class AbstractFullGameTest {
         tagless to "CardFront(HAS MAX 0 Tag)",
         cities to "CityTile",
     )
-    if (cn("ColoniesExpansion") in setup().options) assertCounts(colonies to "Colony")
+    if (
+        game.classTable.findClass(cn("ColoniesExpansion")) != null &&
+            game.reader.getComponents("ColoniesExpansion").isNotEmpty()
+    ) {
+      assertCounts(colonies to "Colony")
+    }
   }
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {

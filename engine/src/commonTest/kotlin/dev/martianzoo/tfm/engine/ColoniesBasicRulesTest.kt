@@ -8,13 +8,11 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -23,8 +21,8 @@ import kotlin.test.Test
 internal class ColoniesBasicRulesTest {
   private val normal =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
-  val setup = Canon.fromOptionCodes("BRMC", 4, normal)
-  val game = setUpGame(setup)
+  val premise = canonicalPremise("BRMC", 4, normal)
+  val game = setUpGame(premise)
   val engine = game.tfm(ENGINE)
   val p1 = game.tfm(PLAYER1)
 
@@ -41,11 +39,6 @@ internal class ColoniesBasicRulesTest {
   @Test
   fun `number of colony tiles`() {
     engine.count("ColonyTile") shouldBe 6
-
-    Canon.fromOptionCodes("BRMC", 2, testColonyTiles(2)).colonyTiles.shouldHaveSize(5)
-    Canon.fromOptionCodes("BRMC", 3, testColonyTiles(3)).colonyTiles.shouldHaveSize(5)
-    Canon.fromOptionCodes("BRMC", 4, testColonyTiles(4)).colonyTiles.shouldHaveSize(6)
-    Canon.fromOptionCodes("BRMC", 5, testColonyTiles(5)).colonyTiles.shouldHaveSize(7)
   }
 
   // Place a white cube on the highlighted second step of each Colony Tile track.
@@ -62,8 +55,8 @@ internal class ColoniesBasicRulesTest {
   @Test
   fun `card resource colonies start not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
-    val setup = Canon.fromOptionCodes("BRMC", 4, colonies)
-    val engine = setUpGame(setup).tfm(ENGINE)
+    val premise = canonicalPremise("BRMC", 4, colonies)
+    val engine = setUpGame(premise).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
 
     engine.assertCounts(
@@ -92,8 +85,8 @@ internal class ColoniesBasicRulesTest {
   @Test
   fun `cant do anything with colony not in play`() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
-    val setup = Canon.fromOptionCodes("BRMC", 4, colonies)
-    val engine = setUpGame(setup).tfm(ENGINE)
+    val premise = canonicalPremise("BRMC", 4, colonies)
+    val engine = setUpGame(premise).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
 
     engine.phase("Action")
@@ -195,7 +188,12 @@ internal class ColoniesBasicRulesTest {
   @Test
   fun `card resource colony bonus goes to colony owner`() {
     val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
-    val localGame = setUpGame("BRMCX", 2, colonies)
+    val localGame =
+        setUpGame(
+            "BRMCX",
+            2,
+            colonies,
+        )
     val localEngine = localGame.tfm(ENGINE)
     val localP1 = localGame.tfm(PLAYER1)
     val localP2 = localGame.tfm(PLAYER2)

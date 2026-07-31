@@ -1,17 +1,21 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SoloGame0710Test : AbstractSoloTest() {
-  override fun setup(): GameSetup {
+  override fun setup(): GamePremise {
     val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"), cn("Miranda"))
-    return Canon.fromOptionCodes("BRMVPSCTX", 1, colonyTiles)
+    return canonicalPremise(
+        "BRMVPSCTX",
+        1,
+        colonyTiles,
+    )
   }
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"

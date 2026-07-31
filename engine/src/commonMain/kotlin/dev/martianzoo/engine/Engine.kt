@@ -11,9 +11,9 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Task
 import dev.martianzoo.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import org.koin.core.module.dsl.bind
@@ -27,13 +27,13 @@ import org.koin.dsl.module
 public object Engine {
 
   /** Creates a game at its committed pre-setup baseline, ready to be given to a workflow. */
-  public fun newGame(setup: GameSetup): Game {
-    val koin = koinApplication { modules(gameModule(setup)) }.koin
+  public fun newGame(premise: GamePremise): World {
+    val koin = koinApplication { modules(gameModule(premise)) }.koin
 
     val game = koin.get<WholeWorld>()
     var initializer: Initializer? = null
     val gameplayByActor =
-        setup.actors().associateWith { actor ->
+        premise.actors.associateWith { actor ->
           val scope = koin.createScope<ActorScopeId>("$actor")
           scope.declare(actor)
           if (actor == ENGINE) initializer = scope.get<Initializer>()
@@ -46,9 +46,9 @@ public object Engine {
 
   private class ActorScopeId
 
-  private fun gameModule(setup: GameSetup) = module {
-    single { setup }
-    single { loadClassTable(setup) } bind ClassTable::class
+  private fun gameModule(premise: GamePremise) = module {
+    single { premise }
+    single { loadClassTable(premise) } bind ClassTable::class
     singleOf(::Transformers)
     single { Effector(get(), lazy { get<GameReaderImpl>() }) }
     single { WritableEventLog() }
@@ -98,8 +98,8 @@ public object Engine {
   }
 }
 
-internal fun loadClassTable(setup: GameSetup): ClassTable {
-  val ruleset = setup.ruleset
+internal fun loadClassTable(premise: GamePremise): ClassTable {
+  val ruleset = premise.ruleset
 
   fun isAutoLoad(declaration: ClassDeclaration): Boolean =
       declaration.className == AUTO_LOAD ||
@@ -108,10 +108,9 @@ internal fun loadClassTable(setup: GameSetup): ClassTable {
           }
 
   val rootClassNames =
-      setup.actors().classNames() +
-          setup.options.enabled +
-          ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys +
-          ruleset.allDefinitions.classNames()
+      premise.actors.classNames() +
+          premise.rootClassNames +
+          ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys
 
   return ClassLoader(ruleset).apply { rootClassNames.forEach(::load) }.freeze()
 }

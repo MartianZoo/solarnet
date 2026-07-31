@@ -88,7 +88,7 @@ install its own syntax transforms.
 `script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt` hard-wires:
 
 1. `Canon.SIMPLE_GAME`.
-2. `GameSetup`.
+2. `GamePremise`.
 3. `TfmWorkflow`.
 4. Terraforming Mars commands and board/map views.
 5. Terraforming Mars colors for generic access modes.
@@ -99,7 +99,7 @@ More Terraforming Mars behavior is spread through generic command/support packag
 1. `script/src/commonMain/kotlin/dev/martianzoo/script/Access.kt` defines any phase change as
    `${name}Phase FROM Phase`.
 2. `script/src/commonMain/kotlin/dev/martianzoo/script/commands/NewGameCommand.kt` understands
-   Terraforming Mars expansion letters and `GameSetup`.
+   Terraforming Mars expansion letters and `GamePremise`.
 3. `script/src/commonMain/kotlin/dev/martianzoo/script/ScriptCompletionSources.kt` knows the six
    Terraforming Mars resources, playable `CardDefinition`s, maps, expansion combinations, phases,
    and `PROD`.
@@ -152,23 +152,13 @@ independently of canonical bundles, and Terraforming Mars canon extends it with 
 The generic half should be something like `AbstractRuleset` or `DefinitionRuleset`. `TfmRuleset`
 can extend it and contribute its game-specific definition collections and indexes.
 
-### P1: `GameSetup` contains a useful generic setup model embedded in a game-specific class
+### Resolved: generic construction no longer depends on `GameSetup`
 
-The live component/task/event/timeline machinery is separated as the generic `World`; `Game` adds
-the Terraforming Mars setup while delegating that machinery to the shared world
-implementation. Construction and `GameReader` still depend on `GameSetup`, so the remaining setup
-boundary is:
-
-`pets/src/commonMain/kotlin/dev/martianzoo/tfm/data/GameSetup.kt` combines:
-
-1. Generally useful setup information: ruleset, selected content bundles, actors, and selected
-   definitions.
-2. Terraforming Mars policy: mandatory base/map bundles, exactly one Mars map, 1–5 players, and
-   Colonies tile selection.
-
-A generic setup interface/value should expose a ruleset, participating actors, initial
-class roots/definitions, and initialization behavior. The current `GameSetup` can remain as the
-Terraforming Mars implementation.
+The live component/task/event/timeline machinery is the generic `World`. Construction accepts a
+generic `GamePremise` containing a ruleset, class roots, Actors, and initial components, and
+`GameReader` no longer exposes a Terraforming Mars setup object. Canon still uses `GameOptions` as
+its temporary static assembler input; replacing that input with an editable setup world is
+independent follow-up work.
 
 ### P1: The reusable asynchronous workflow driver is buried inside `TfmWorkflow.Auto`
 

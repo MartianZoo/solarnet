@@ -5,6 +5,7 @@ import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
@@ -12,7 +13,6 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.Type
 import io.kotest.assertions.throwables.shouldThrow
@@ -22,7 +22,7 @@ import kotlin.test.Test
 internal class CustomMetricTest {
   @Test
   fun marsRowIsCountedAsAMetricButNeverStoredAsAComponent() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BHV", 2))
+    val game = Engine.newGame(canonicalPremise("BHV", 2))
     val p1 = game.tfm(PLAYER1)
     val componentCount = p1.count("Component")
 
@@ -35,7 +35,7 @@ internal class CustomMetricTest {
 
   @Test
   fun marsRowWorksInsideARefinement() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BH", 2))
+    val game = Engine.newGame(canonicalPremise("BH", 2))
     val p1 = game.tfm(PLAYER1)
 
     p1.godMode()
@@ -166,7 +166,8 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
       )
 }
 
-private fun customClassSetup(): GameSetup {
-  val base = Canon.fromOptionCodes("BMR", 2)
-  return GameSetup(TfmRuleset.compose(base.ruleset, CustomClassDeclarations), base.options)
-}
+private fun customClassSetup(): GamePremise =
+    canonicalPremise(
+        "BMR",
+        ruleset = TfmRuleset.compose(Canon, CustomClassDeclarations),
+    )

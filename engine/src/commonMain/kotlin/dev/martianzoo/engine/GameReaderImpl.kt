@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -16,8 +17,6 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.api.TfmRuleset
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import kotlin.math.min
@@ -26,10 +25,9 @@ internal class GameReaderImpl(
     private val classTable: ClassTable,
     private val components: ComponentGraph,
     internal val transformers: Transformers,
-    override val setup: GameSetup,
+    private val premise: GamePremise,
 ) : GameReader {
-
-  override val ruleset: TfmRuleset = setup.ruleset
+  override val ruleset = premise.ruleset
 
   override fun resolve(expression: Expression) = classTable.resolve(expression)
 

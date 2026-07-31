@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.Player
+import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.GameOptions
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.util.toSetStrict
 
 /** Catalog of the official bundles and the game options they provide. */
@@ -23,10 +26,10 @@ public object Canon :
         StandardFormBundle("PromoCardsExpansion", promoCardsCustomClasses),
     ) {
   /** A minimal two-player game using the base game and Tharsis map. */
-  public val SIMPLE_GAME: GameSetup by lazy { gameSetup(options("BM", 2)) }
+  public val SIMPLE_GAME: GamePremise by lazy { gamePremise(options("BM", 2)) }
 
   /** A minimal solo game using the base game, solo mode, and Tharsis map. */
-  public val SIMPLE_SOLO_GAME: GameSetup by lazy { gameSetup(options("BSM", 1)) }
+  public val SIMPLE_SOLO_GAME: GamePremise by lazy { gamePremise(options("BSM", 1)) }
 
   /** Creates exact game options from a client's one-letter option syntax. */
   public fun options(
@@ -51,16 +54,59 @@ public object Canon :
         OPTION_BUNDLES[option] ?: throw IllegalArgumentException("unknown game option: $option")
       }
 
-  /** Assembles the selected ruleset and fully specified setup for [options]. */
-  public fun gameSetup(options: GameOptions): GameSetup =
-      GameSetup(resolve(bundleNames(options)), options)
+  /** Resolves exact Terraforming Mars options into generic engine construction inputs. */
+  public fun gamePremise(options: GameOptions): GamePremise {
+    require(TERRAFORMING_MARS in options) { "missing TerraformingMars option" }
+    require(options.players > 1 || SOLO_MODE in options) {
+      "SoloMode is required for a one-player game"
+    }
+    val expectedColonyCount = if (options.players <= 2) options.players + 3 else options.players + 2
+    if (COLONIES in options) {
+      if (options.deferredColonySelection) {
+        require(options.colonyTiles.isEmpty()) {
+          "deferred colony selection cannot also specify colony tiles"
+        }
+      } else {
+        require(options.colonyTiles.size == expectedColonyCount) {
+          "ColoniesExpansion requires exactly $expectedColonyCount colony tiles"
+        }
+      }
+    } else {
+      require(options.colonyTiles.isEmpty()) {
+        "colony tiles require the ColoniesExpansion option"
+      }
+      require(!options.deferredColonySelection) {
+        "deferred colony selection requires the ColoniesExpansion option"
+      }
+    }
+
+    val ruleset = resolve(bundleNames(options))
+    ruleset.marsMapDefinitions.single()
+    val selectionClassNames = options.colonyTiles.mapTo(linkedSetOf()) { cn("${it}Selected") }
+    val configurationRoots =
+        options.enabled +
+            cn("PlayerSeat") +
+            selectionClassNames +
+            setOf(cn("DeferredColonySelection")).filter { COLONIES in options }
+    val initialComponents =
+        options.enabled.map(ClassName::toString) +
+            "${options.players} PlayerSeat" +
+            selectionClassNames.map(ClassName::toString) +
+            listOf("DeferredColonySelection").filter { options.deferredColonySelection }
+    return GamePremise(
+        ruleset,
+        configurationRoots + ruleset.allDefinitions.classNames(),
+        Player.players(options.players) + ENGINE,
+        initialComponents,
+    )
+  }
 
   /** Creates a fully specified setup from one-letter option codes. */
   public fun fromOptionCodes(
       optionCodes: String,
       players: Int,
       colonyTiles: Set<ClassName> = emptySet(),
-  ): GameSetup = gameSetup(options(optionCodes, players, colonyTiles))
+  ): GamePremise = gamePremise(options(optionCodes, players, colonyTiles))
 
   /** Formats known options using the client's one-letter syntax. */
   public fun optionCodes(options: GameOptions): String =

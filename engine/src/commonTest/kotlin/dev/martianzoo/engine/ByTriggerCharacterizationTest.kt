@@ -9,7 +9,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -158,9 +158,8 @@ class ByTriggerCharacterizationTest {
     }
   }
 
-  private fun newGame(): Game {
-    val options = Canon.options("BM", 2)
-    return Engine.newGame(GameSetup(ProbeRuleset.resolve(Canon.bundleNames(options)), options))
+  private fun newGame(): World {
+    return Engine.newGame(canonicalPremise(ruleset = ProbeRuleset))
   }
 }
 

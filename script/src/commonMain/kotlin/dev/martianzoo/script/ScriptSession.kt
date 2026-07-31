@@ -5,12 +5,13 @@ import dev.martianzoo.api.SystemClasses.HIDDEN
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
@@ -41,7 +42,7 @@ import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.data.GameOptions
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
@@ -60,13 +61,19 @@ import dev.martianzoo.util.toStrings
 public class ScriptSession(
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
-  internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
+  internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
   internal lateinit var gameplay: TurnLayer
+  internal lateinit var options: GameOptions
 
   internal var mode: ScriptMode = GREEN
 
-  private fun newGame(setup: GameSetup, purple: Boolean = false) {
-    game = Engine.newGame(setup)
+  private fun newGame(
+      premise: GamePremise,
+      options: GameOptions,
+      purple: Boolean = false,
+  ) {
+    this.options = options
+    game = Engine.newGame(premise)
     gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
       mode = PURPLE
@@ -87,21 +94,21 @@ public class ScriptSession(
     if (cn("ColoniesExpansion") in options) {
       options = options.copy(deferredColonySelection = true)
     }
-    newGame(Canon.gameSetup(options), purple)
+    newGame(Canon.gamePremise(options), options, purple)
   }
 
   init {
-    newGame(Canon.SIMPLE_GAME)
+    newGame("BM", 2)
   }
 
   public fun prompt(): String = mode.color.foreground(promptPlain())
 
   internal fun promptPlain(): String =
       with(gameplay) {
-        val optionCodes = Canon.optionCodes(game.setup.options)
+        val optionCodes = Canon.optionCodes(options)
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
-        "$optionCodes $phase ${gameplay.actor}/${game.setup.players} @$checkpoint> "
+        "$optionCodes $phase ${gameplay.actor}/${options.players} @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")

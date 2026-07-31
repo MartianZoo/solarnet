@@ -1,26 +1,26 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Game
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-internal fun setUpGame(setup: GameSetup): Game =
-    Engine.newGame(setup).apply { TfmWorkflow.Manual(this).setupPhase() }
+internal fun setUpGame(premise: GamePremise): World =
+    Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
     optionCodes: String = "BM",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-): Game = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
+): World = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
 
 internal class BasicTest {
   @Test

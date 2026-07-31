@@ -9,7 +9,7 @@ coherent while allowing the current internals to keep working.
 The main conclusion is that the API should be designed around injectable capability objects. A
 client should ask for the capabilities it needs, such as player actions, task monitoring, workflow
 control, or debug fixture powers. Wiring outside the client decides whether it gets them. The client
-should not navigate from `Game` to `Gameplay` to `godMode()` to casts.
+should not navigate from `World` to `Gameplay` to `godMode()` to casts.
 
 ## Direction
 
@@ -58,9 +58,9 @@ should not navigate from `Game` to `Gameplay` to `godMode()` to casts.
 
 ## Current Shape
 
-### Root Game Object
+### Root World Object
 
-`Engine.newGame(setup)` creates a `Game`. `Game` exposes:
+`Engine.newGame(premise)` creates a `World`. `World` exposes:
 
 1. `components`: current component graph.
 2. `events`: event log.
@@ -74,9 +74,9 @@ should not navigate from `Game` to `Gameplay` to `godMode()` to casts.
 This is useful for diagnostics and tests, but it is too much for ordinary clients. It encourages
 reach-through when clients want only one role-specific capability.
 
-Near-term recommendation: keep `Game` as the aggregate and compatibility object, but start adding
+Near-term recommendation: keep `World` as the aggregate object, but start adding
 role objects that clients can receive directly. Do not require clients to discover capabilities by
-starting from `Game`.
+starting from `World`.
 
 ### Gameplay Layers
 
@@ -277,7 +277,7 @@ code and easier to wire with Koin.
 ## Task Visibility
 
 The current task queue model is halfway to the right place. Player-scoped `WritableTaskQueue` views
-already exist internally, while `Game.tasks` is a global read-only view.
+already exist internally, while `World.tasks` is a global read-only view.
 
 The API should make that distinction explicit:
 
@@ -316,7 +316,7 @@ Examples:
 2. `giveResourcesForTest` should extend a fixture/debug capability, not a player capability.
 3. `phase` and `nextGeneration` should belong to a TfM workflow/Engine facade, not ordinary player
    actions.
-4. Board display helpers should depend on a TfM read model or query capability, not on full `Game`.
+4. Board display helpers should depend on a TfM read model or query capability, not on full `World`.
 
 This structure also lets the generic engine stop knowing Terraforming Mars workflow. It only needs
 to support actors, commands, tasks, transactions, and read models well enough for TfM to build on.
@@ -371,7 +371,7 @@ Do not remove `Gameplay` yet. Add new interfaces that wrap/delegate to it:
 8. `RawStateEditor`
 
 Wire them through Koin for each player/session. The first implementation can be thin adapters around
-existing `Gameplay`, `Game.tasks`, `Game.timeline`, and `Game.reader`.
+existing `Gameplay`, `World.tasks`, `World.timeline`, and `World.reader`.
 
 ### 3. Move REPL to Injected Capabilities
 
@@ -501,7 +501,7 @@ That suggests this concrete order:
    multiple interfaces. That gives clients better types without forcing separate implementation
    classes prematurely.
 
-6. Add compatibility accessors on `Game` only after the interfaces exist.
+6. Add compatibility accessors on `World` only after the interfaces exist.
 
    Accessors such as `playerActions(player)`, `operationRunner(player)`, and `rawStateEditor(player)`
    would be a bridge for current tests and the REPL. They should return capability interfaces, not

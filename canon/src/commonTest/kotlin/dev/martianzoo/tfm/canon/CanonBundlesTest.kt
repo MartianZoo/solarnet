@@ -78,13 +78,17 @@ internal class CanonBundlesTest {
     val relevantCards = originals + replacements
 
     val withoutPromos =
-        Canon.fromOptionCodes("BM", 2).ruleset.cardDefinitions.mapTo(mutableSetOf()) {
-          it.className
-        }
+        (Canon.fromOptionCodes("BM", 2).ruleset as dev.martianzoo.tfm.api.TfmRuleset)
+            .cardDefinitions
+            .mapTo(mutableSetOf()) {
+              it.className
+            }
     val withPromos =
-        Canon.fromOptionCodes("BMX", 2).ruleset.cardDefinitions.mapTo(mutableSetOf()) {
-          it.className
-        }
+        (Canon.fromOptionCodes("BMX", 2).ruleset as dev.martianzoo.tfm.api.TfmRuleset)
+            .cardDefinitions
+            .mapTo(mutableSetOf()) {
+              it.className
+            }
 
     withoutPromos.intersect(relevantCards) shouldBe originals
     withPromos.intersect(relevantCards) shouldBe replacements

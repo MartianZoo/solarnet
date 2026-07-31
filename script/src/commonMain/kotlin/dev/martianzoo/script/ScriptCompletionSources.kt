@@ -1,6 +1,8 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.Player
+import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
 
@@ -9,7 +11,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       repl.commands.values.map { ScriptCompletion(it.name, "commands", it.usage) }
 
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
-    val players = repl.game.setup.players()
+    val players = Player.players(repl.options.players)
     val eligiblePlayers = if (includeEngine) players + ENGINE else players
     val full = eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
     val short = eligiblePlayers.mapNotNull { player ->
@@ -40,7 +42,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
-      repl.game.setup.allDefinitions().filterIsInstance<CardDefinition>().map {
+      repl.game.reader.tfmRuleset.allDefinitions.filterIsInstance<CardDefinition>().map {
         ScriptCompletion(it.className.toString(), "cards", it.deck?.name?.lowercase())
       }
 
@@ -71,7 +73,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
             "BRMVX",
             "BRMVPX",
             "BRMVPXT",
-            Canon.optionCodes(repl.game.setup.options),
+            Canon.optionCodes(repl.options),
         )
     val generated = maps.flatMap { map -> nonMaps.map { "$it$map" } }
     return (common + generated).map { ScriptCompletion(it, "option codes") }

@@ -34,8 +34,8 @@ internal class ScriptSessionTest {
         listOf("New 2-player game created with options: BRMCX"),
         repl.command("newgame BRMCX 2"),
     )
-    assertTrue(repl.game.setup.options.deferredColonySelection)
-    assertTrue(repl.game.setup.options.colonyTiles.isEmpty())
+    assertTrue(repl.options.deferredColonySelection)
+    assertTrue(repl.options.colonyTiles.isEmpty())
     assertEquals(listOf("0 Ceres"), repl.command("count Ceres"))
     assertEquals(listOf("0 Io"), repl.command("count Io"))
     assertEquals(listOf("0 Titan"), repl.command("count Titan"))

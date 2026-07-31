@@ -7,7 +7,7 @@ import dev.martianzoo.util.toSetStrict
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class GameSetupTest {
+internal class GamePremiseTest {
   @Test
   fun good() {
     Canon.fromOptionCodes("BM", 2)
@@ -32,18 +32,19 @@ internal class GameSetupTest {
 
   @Test
   fun optionCodeAdapterSelectsTheNeededRuleset() {
-    val setup = Canon.fromOptionCodes("BM", 2)
+    val premise = Canon.fromOptionCodes("BM", 2)
+    val ruleset = premise.ruleset as TfmRuleset
 
-    setup.ruleset.bundles.map { it.bundleName }.toSet() shouldBe
+    ruleset.bundles.map { it.bundleName }.toSet() shouldBe
         setOf(cn("TerraformingMars"), cn("TharsisMap"))
-    Canon.optionCodes(setup.options) shouldBe "BM"
-    setup.map.className shouldBe cn("Tharsis")
+    Canon.optionCodes(Canon.options("BM", 2)) shouldBe "BM"
+    ruleset.marsMapDefinitions.single().className shouldBe cn("Tharsis")
   }
 
   @Test
   fun onePlayerCompatibilitySetupSelectsSoloMode() {
-    Canon.fromOptionCodes("BSM", 1).options.enabled shouldBe
-        setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("SoloMode"))
+    Canon.fromOptionCodes("BSM", 1).initialComponents.toSet() shouldBe
+        setOf("TerraformingMars", "TharsisMap", "SoloMode", "1 PlayerSeat")
   }
 
   @Test
@@ -54,6 +55,7 @@ internal class GameSetupTest {
     }
 
     val exact = listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").toSetStrict(::cn)
-    Canon.fromOptionCodes("BMC", 2, exact).options.colonyTiles shouldBe exact
+    val premise = Canon.fromOptionCodes("BMC", 2, exact)
+    premise.initialComponents.toSet().containsAll(exact.map { "${it}Selected" }) shouldBe true
   }
 }

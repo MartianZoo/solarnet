@@ -7,9 +7,9 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
@@ -20,7 +20,7 @@ import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
  * *Terraforming Mars*.
  */
 public class TfmGameplay(
-    private val game: Game,
+    private val game: World,
     override val actor: Actor,
     internal val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
 ) : TurnLayer by gameplay {
@@ -164,6 +164,6 @@ public class TfmGameplay(
   public fun venusPercent(): Int = count("VenusStep") * 2
 
   public companion object {
-    public fun Game.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
+    public fun World.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
   }
 }

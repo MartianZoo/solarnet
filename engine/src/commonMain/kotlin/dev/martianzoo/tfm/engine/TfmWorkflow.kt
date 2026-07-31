@@ -4,9 +4,9 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +31,7 @@ public object TfmWorkflow {
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via
    * [OperationLayer.turn] when no task is already pending, so no explicit turn-granting is needed.
    */
-  public class Manual(private val game: Game) {
+  public class Manual(private val game: World) {
 
     internal val engineOps: OperationLayer = game.gameplay(ENGINE) as OperationLayer
 
@@ -66,14 +66,14 @@ public object TfmWorkflow {
    * already waiting, so signals fired during automatic engine-owned phases are dropped rather than
    * queued, preventing spurious wakeups.
    */
-  public class Auto(private val game: Game) {
+  public class Auto(private val game: World) {
 
     private val m = Manual(game)
     private val engineOps: OperationLayer
       get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
-    private val players: List<Player> = game.setup.players()
+    private val players: List<Player> = Player.players(game.reader.getComponents("PlayerSeat").size)
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all tasks drain. Only
@@ -140,7 +140,7 @@ public object TfmWorkflow {
       m.setupPhase()
       awaitTasksDrained()
       corporationPhase()
-      if (cn("PreludeExpansion") in game.setup.options) preludePhase()
+      if (hasComponent("PreludeExpansion")) preludePhase()
       actionPhase()
       while (!gameIsOver()) {
         productionPhase()
@@ -213,7 +213,7 @@ public object TfmWorkflow {
     }
 
     private fun gameIsOver() =
-        if (cn("SoloMode") in game.setup.options) {
+        if (hasComponent("SoloMode")) {
           engineOps.has("MAX 0 GenerationsLeft")
         } else {
           engineOps.has("=19 TemperatureStep") &&
@@ -224,6 +224,10 @@ public object TfmWorkflow {
     private fun opsFor(player: Player) = game.gameplay(player) as OperationLayer
 
     private fun hasPassed(player: Player) = opsFor(player).has("Pass")
+
+    private fun hasComponent(className: String): Boolean =
+        game.classTable.findClass(cn(className)) != null &&
+            game.reader.getComponents(className).isNotEmpty()
 
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()

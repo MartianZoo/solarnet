@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.data.CardDefinition
@@ -43,6 +44,11 @@ public class StandardFormBundle(
         .filter { it.endsWith(PETS_EXTENSION) }
         .sorted()
         .flatMap { parseClasses(read(it)) }
+        .plus(
+            colonyTileDefinitions.map {
+              parseOneLinerClass("CLASS ${it.className}Selected : SelectedColonyTile")
+            }
+        )
         .toSetStrict()
   }
 

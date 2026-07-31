@@ -3,14 +3,14 @@ package dev.martianzoo.analysis
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.EventLog
-import dev.martianzoo.engine.Game
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.types.Type
 
 public class Summarizer
 internal constructor(internal val events: EventLog, internal val reader: GameReader) {
-  public constructor(game: Game) : this(game.events, game.reader)
+  public constructor(game: World) : this(game.events, game.reader)
 
   public fun net(byType: String, ofType: String): Int =
       net(parse<Expression>(byType), parse(ofType))

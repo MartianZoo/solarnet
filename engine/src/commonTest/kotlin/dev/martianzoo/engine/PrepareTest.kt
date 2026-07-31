@@ -10,13 +10,14 @@ import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.Prod.deprodify
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.tfm.engine.setUpGame
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PrepareTest {
-  val game: Game = setUpGame()
+  val game: World = setUpGame(canonicalPremise())
   private val instructor: Instructor =
       Instructor(
           game.reader,

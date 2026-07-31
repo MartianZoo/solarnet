@@ -1,17 +1,21 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SoloGame0721Test : AbstractSoloTest() {
-  override fun setup(): GameSetup {
+  override fun setup(): GamePremise {
     val colonyTiles = setOf(cn("Ceres"), cn("Luna"), cn("Triton"), cn("Enceladus"))
-    return Canon.fromOptionCodes("BREVPSCTX", 1, colonyTiles)
+    return canonicalPremise(
+        "BREVPSCTX",
+        1,
+        colonyTiles,
+    )
   }
 
   // Could at some point calculate these automatically from cards drawn

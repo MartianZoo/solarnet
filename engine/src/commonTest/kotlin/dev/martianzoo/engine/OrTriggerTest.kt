@@ -5,7 +5,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
@@ -25,9 +25,8 @@ class OrTriggerTest {
     }
   }
 
-  private fun newGame(): Game {
-    val options = Canon.options("BM", 2)
-    return Engine.newGame(GameSetup(OrProbeRuleset.resolve(Canon.bundleNames(options)), options))
+  private fun newGame(): World {
+    return Engine.newGame(canonicalPremise(ruleset = OrProbeRuleset))
   }
 }
 

@@ -7,7 +7,6 @@ import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -24,10 +23,8 @@ internal class RulesetCompositionTest {
         }
     val ruleset = TfmRuleset.compose(Canon, extension)
 
-    val options = Canon.options("BM", 2)
-    val game = setUpGame(GameSetup(ruleset.resolve(Canon.bundleNames(options)), options))
+    val game = setUpGame(canonicalPremise(ruleset = ruleset))
 
-    game.reader.ruleset.allClassNames shouldBe game.setup.ruleset.allClassNames
     game.classTable.allClassNamesAndIds.shouldContain(cn("CompositionProbe"))
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
   }
@@ -46,10 +43,9 @@ internal class RulesetCompositionTest {
                   )
                   .toSet()
         }
-    val options = Canon.options("BM", 2)
     val ruleset = TfmRuleset.compose(Canon, extension)
 
-    val game = Engine.newGame(GameSetup(ruleset.resolve(Canon.bundleNames(options)), options))
+    val game = Engine.newGame(canonicalPremise(ruleset = ruleset))
 
     game.gameplay(PLAYER1).count("BootstrapDependency") shouldBe 1
     game.gameplay(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
@@ -71,12 +67,11 @@ internal class RulesetCompositionTest {
                   )
                   .toSet()
         }
-    val options = Canon.options("BM", 2)
     val ruleset = TfmRuleset.compose(Canon, extension)
 
     val failure =
         shouldThrow<IllegalStateException> {
-          Engine.newGame(GameSetup(ruleset.resolve(Canon.bundleNames(options)), options))
+          Engine.newGame(canonicalPremise(ruleset = ruleset))
         }
 
     failure.message.orEmpty().shouldInclude("BlockedBootstrap<MissingBootstrapDependency>")

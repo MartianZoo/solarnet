@@ -12,6 +12,12 @@ CLASS ColoniesExpansion : System {
 "Creates the colony tiles and one trade fleet for each player"
 CLASS ColoniesSetup : Custom
 
+"A colony tile selected while assembling the game"
+ABSTRACT CLASS SelectedColonyTile : System
+
+"Requests the existing gameplay-time colony selection flow"
+CLASS DeferredColonySelection : System { HAS MAX 1 This }
+
 // Colony tile data read from colonies.json5 is converted to classes in this form:
 //
 //   CLASS $name : ColonyTile {

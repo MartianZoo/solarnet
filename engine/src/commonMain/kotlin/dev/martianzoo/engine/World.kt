@@ -7,16 +7,17 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.ClassTable
 
 /**
- * A live Pets component system with transactional mutation, pending tasks, and event history. A
- * world aggregates three mutable child objects, which callers access directly: a [ComponentGraph],
- * an [EventLog], and a [TaskQueue]. These types embody the present, past, and future of the world
+ * A live Pets world with transactional mutation, pending tasks, and event history. A world is the
+ * aggregation of three mutable child objects, which callers access directly: a [ComponentGraph], an
+ * [EventLog], and a [TaskQueue]. These types embody the present, past, and future of the world
  * (respectively).
  *
- * These three objects are read-only, but are always up-to-date (i.e., they are not immutable).
- * Modifying the world is done through [gameplay].
+ * These three views are read-only, but are always up-to-date (i.e., they are not immutable).
+ * Modifying a world is done through [gameplay].
  *
  * The component graph can be queried programmatically, but a [GameReader] is also provided which
- * can answer queries expressed as a Pets [Metric] or [Requirement].
+ * can answer queries expressed as a Pets [Metric] or [Requirement]. Setup worlds and game worlds
+ * are specialized uses of the same machinery.
  */
 public interface World {
   /** The current component graph. */
@@ -25,7 +26,7 @@ public interface World {
   /** Everything that has already happened in this world. */
   public val events: EventLog
 
-  /** What this world is waiting on an [Actor] to do. */
+  /** What this world is waiting on an Actor to do. */
   public val tasks: TaskQueue
 
   /** Checkpoint, rollback, and atomic interaction control. */
@@ -37,7 +38,6 @@ public interface World {
   /** The immutable classes available to this world. */
   public val classTable: ClassTable
 
-  /** Returns the mutation API scoped to [actor]. */
   public fun gameplay(actor: Actor): Gameplay
 
   /** Called after every outermost atomic operation completes. */

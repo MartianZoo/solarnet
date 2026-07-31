@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.engine.Game
+import dev.martianzoo.engine.World
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
@@ -1493,7 +1493,7 @@ class Game20230521Test : AbstractFullGameTest() {
     summ.net("TR<P2>", "Megacredit<P1>") shouldBe 0
   }
 
-  private fun checkSummaryAfterGen4(game: Game) {
+  private fun checkSummaryAfterGen4(game: World) {
     val summer = Summarizer(game)
 
     // AA's effect has triggered once, plus the immediate plant

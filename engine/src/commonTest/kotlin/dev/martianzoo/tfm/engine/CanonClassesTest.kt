@@ -64,9 +64,12 @@ internal class CanonClassesTest {
 
   @Test
   fun setupSeparatesPlayersFromActors() {
-    Canon.SIMPLE_GAME.players().shouldContainExactly(PLAYER1, PLAYER2)
-    Canon.SIMPLE_GAME.actors().shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val premise = canonicalPremise()
+    premise.actors
+        .filterIsInstance<dev.martianzoo.data.Player>()
+        .shouldContainExactly(PLAYER1, PLAYER2)
+    premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
+    val game = Engine.newGame(premise)
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
@@ -75,7 +78,7 @@ internal class CanonClassesTest {
 
   @Test
   fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
-    val game = setUpGame(Canon.fromOptionCodes("BMP", 2))
+    val game = setUpGame(canonicalPremise("BMP", 2))
 
     game.tfm(PLAYER1).phase("Prelude")
 
@@ -85,9 +88,9 @@ internal class CanonClassesTest {
 
   @Test
   fun soloSetupUsesPetsOnlyOpponent() {
-    val game = setUpGame("BSM", 1)
-    game.setup.players().shouldContainExactly(PLAYER1)
-    game.setup.actors().shouldContainExactly(PLAYER1, ENGINE)
+    val premise = canonicalPremise(players = 1)
+    premise.actors.shouldContainExactly(PLAYER1, ENGINE)
+    val game = setUpGame(premise)
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 1
@@ -172,7 +175,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = loadClassTable(Canon.fromOptionCodes("BRM", 2))
+    val table = loadClassTable(canonicalPremise("BMR", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val type = table.resolve(te(expr))
@@ -202,9 +205,9 @@ internal class CanonClassesTest {
 
   @Test
   fun unknownClassLiteralCountsZeroAndCannotBeChanged() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(PLAYER1) as GodMode
-    val withVenus = Engine.newGame(Canon.fromOptionCodes("BMV", 2)).gameplay(PLAYER1) as GodMode
+    val withVenus = Engine.newGame(canonicalPremise("BMV", 2)).gameplay(PLAYER1) as GodMode
 
     gameplay.count("Class<AnyWordHere>") shouldBe 0
     gameplay.count("Class<VenusStep>") shouldBe 0

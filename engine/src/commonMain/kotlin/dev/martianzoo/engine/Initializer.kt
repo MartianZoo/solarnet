@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Instruction
@@ -16,12 +17,16 @@ internal class Initializer(
     private val tasks: TaskQueues,
     private val classTable: ClassTable,
     private val timeline: TimelineImpl,
+    private val premise: GamePremise,
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
     val engineEvent = execute("$ENGINE", cause = null).changes.first()
     val engineCause = Cause(ENGINE.expression, engineEvent.ordinal)
     createSingletons(engineCause)
+    premise.initialComponents.forEach { component ->
+      if (gameplay.count(component) == 0) execute(component, engineCause)
+    }
     timeline.initializationFinished()
     timeline.commit()
   }

@@ -34,23 +34,25 @@ internal object ColoniesExpansion {
   internal object ColoniesSetup : CustomClass() {
     override fun translate(reader: GameReader): Instruction {
       val fleetInstructions =
-          reader.setup.players().map { player -> parse<Instruction>("ReserveTradeFleet<$player>") }
-      if (reader.setup.options.deferredColonySelection) {
+          reader.getComponents("Player").map { player ->
+            parse<Instruction>("ReserveTradeFleet<${player.expression}>")
+          }
+      if (reader.getComponents("DeferredColonySelection").isNotEmpty()) {
+        val players = reader.getComponents("Player").size
         val tileChoices =
-            List(expectedColonyTileCount(reader)) {
+            List(if (players == 2) 5 else players + 2) {
               parse<Instruction>("AddColonyTile<Class<ColonyTile>>")
             }
         return Multi.create(tileChoices + fleetInstructions)
       }
-
+      val colonyBySelectionClass =
+          reader.tfmRuleset.colonyTileDefinitions.associateBy { "${it.className}Selected" }
       val tileInstructions =
-          reader.setup.colonyTiles.map {
-            parse<Instruction>("AddColonyTile<Class<${it.className}>>")
+          reader.getComponents("SelectedColonyTile").map { selection ->
+            val colony = colonyBySelectionClass.getValue(selection.className.toString())
+            parse<Instruction>("AddColonyTile<Class<${colony.className}>>")
           }
       return Then.create(tileInstructions + fleetInstructions)
     }
   }
-
-  private fun expectedColonyTileCount(reader: GameReader): Int =
-      if (reader.setup.players == 2) 5 else reader.setup.players + 2
 }

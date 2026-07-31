@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Transformers
+import dev.martianzoo.engine.World
+import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -17,19 +19,36 @@ import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
-internal fun setUpGame(setup: GameSetup): Game =
-    Engine.newGame(setup).apply { TfmWorkflow.Manual(this).setupPhase() }
+internal fun setUpGame(premise: GamePremise): World =
+    Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
     optionCodes: String = "BM",
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-): Game = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
+): World = setUpGame(Canon.fromOptionCodes(optionCodes, players, colonyTiles))
+
+internal fun canonicalPremise(
+    optionCodes: String = "BM",
+    players: Int = 2,
+    colonyTiles: Set<ClassName> = emptySet(),
+    ruleset: TfmRuleset? = null,
+): GamePremise {
+  val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
+  val options = Canon.options(effectiveCodes, players, colonyTiles)
+  val base = Canon.gamePremise(options)
+  if (ruleset == null) return base
+  val selectedRuleset = ruleset.resolve(Canon.bundleNames(options))
+  return base.copy(
+      ruleset = selectedRuleset,
+      rootClassNames = base.rootClassNames + selectedRuleset.allDefinitions.classNames(),
+  )
+}
 
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
@@ -47,7 +66,7 @@ object TestHelpers {
 
   fun assertNetChanges(
       result: TaskResult,
-      game: Game,
+      game: World,
       tfm: TfmGameplay,
       expectedAsInstructions: String,
   ) {

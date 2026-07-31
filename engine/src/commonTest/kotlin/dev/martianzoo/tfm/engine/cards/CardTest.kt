@@ -1,20 +1,21 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.setUpGame as setUpTfmGame
 
 abstract class CardTest {
-  protected lateinit var game: Game
+  protected lateinit var game: World
   protected lateinit var p1: TfmGameplay
     private set
 
@@ -24,13 +25,14 @@ abstract class CardTest {
   protected val engine: TfmGameplay
     get() = game.tfm(ENGINE)
 
-  protected fun newGame(setup: GameSetup): Game = setUpTfmGame(setup).initializeCardTestGame()
+  protected fun newGame(premise: GamePremise): World =
+      setUpTfmGame(premise).initializeCardTestGame()
 
   protected fun newGame(
       optionCodes: String = "BM",
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
-  ): Game {
+  ): World {
     val orderedOptionCodes = optionCodes.withSoloMode(players).inStandardOrder()
     return setUpTfmGame(cachedSetup(orderedOptionCodes, players, colonyTiles))
         .initializeCardTestGame()
@@ -38,7 +40,7 @@ abstract class CardTest {
 
   protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }
 
-  private fun Game.initializeCardTestGame(): Game = apply {
+  private fun World.initializeCardTestGame(): World = apply {
     bindPlayers()
     finishSoloSetup()
     tfm(ENGINE).phase("Corporation")
@@ -63,10 +65,11 @@ abstract class CardTest {
     }
   }
 
-  private fun Game.bindPlayers(): Game = apply {
+  private fun World.bindPlayers(): World = apply {
     game = this
-    p1 = tfm(setup.players().first())
-    p2 = setup.players().getOrNull(1)?.let { tfm(it) }
+    val players = Player.players(reader.getComponents("PlayerSeat").size)
+    p1 = tfm(players.first())
+    p2 = players.getOrNull(1)?.let { tfm(it) }
   }
 
   /** Runs an instruction through the engine while hiding the uninteresting GodMode plumbing. */
@@ -90,13 +93,13 @@ abstract class CardTest {
         val colonyTiles: Set<ClassName>,
     )
 
-    private val setupCache = mutableMapOf<SetupKey, GameSetup>()
+    private val setupCache = mutableMapOf<SetupKey, GamePremise>()
 
     private fun cachedSetup(
         optionCodes: String,
         players: Int,
         colonyTiles: Set<ClassName>,
-    ): GameSetup =
+    ): GamePremise =
         setupCache.getOrPut(
             SetupKey(optionCodes.toList().sorted().joinToString(""), players, colonyTiles)
         ) {
