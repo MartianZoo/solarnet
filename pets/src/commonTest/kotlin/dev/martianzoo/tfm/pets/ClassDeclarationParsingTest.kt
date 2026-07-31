@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 internal class ClassDeclarationParsingTest {
   @Test
@@ -20,6 +22,17 @@ internal class ClassDeclarationParsingTest {
     parseClasses("\nCLASS Foo") // with newline first
     parseClasses("CLASS Foo ") // with space after
     parseClasses("CLASS Foo\n") // with newline after
+  }
+
+  @Test
+  fun ordinaryWhitespaceLineEndingsAndFinalComments() {
+    parseClasses("CLASS\tFoo\r\nCLASS\tBar // final comment") shouldHaveSize 2
+  }
+
+  @Test
+  fun incompleteFinalDeclarationIsRejected() {
+    assertFailsWith<PetSyntaxException> { parseClasses("CLASS Foo\nABSTRACT") }
+    assertFailsWith<PetSyntaxException> { parseClasses("CLASS Foo\nCLASS") }
   }
 
   @Test

@@ -84,7 +84,7 @@ public abstract class PetTransformer protected constructor() {
             is Metric ->
                 when (this) {
                   is Metric.Count -> Metric.Count(x(expression))
-                  is Metric.Scaled -> Metric.Scaled(unit, x(inner))
+                  is Metric.Scaled -> Metric.scaled(unit, x(inner))
                   is Metric.Max -> Metric.Max(x(inner), maximum)
                   is Metric.Or -> Metric.Or(x(metrics))
                   is Metric.Transform -> Metric.Transform(x(inner), transformKind)

@@ -46,7 +46,7 @@ internal abstract class PetTokenizer {
   internal val _default = literal("DEFAULT")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
-  internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
+  internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z_][A-Za-z0-9_]*\b"""), "UpperCamel")
   internal val _allCapsWordRE = regex(Regex("""([A-Z][A-Z0-9]{0,4})\b"""), "ALLCAPS")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
 
@@ -85,8 +85,9 @@ internal abstract class PetTokenizer {
   internal object TokenCache {
     private val ignoreList =
         listOf<Token>(
-            regexToken("backslash-newline", "\\\\\n", true), // ignore these
-            regexToken("spaces", " +", true),
+            regexToken("backslash-newline", "\\\\\r?\n", true), // ignore these
+            regexToken("horizontal-whitespace", "[ \\t\\r]+", true),
+            regexToken("line-comment", "//[^\\r\\n]*", true),
         )
 
     private val map = mutableMapOf<Pair<String, Boolean>, Token>()

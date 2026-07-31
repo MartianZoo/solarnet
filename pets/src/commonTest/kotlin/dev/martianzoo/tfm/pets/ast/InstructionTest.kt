@@ -112,6 +112,11 @@ internal class InstructionTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Bar FROM Qux>") }
   }
 
+  @Test
+  fun backslashCrLfContinuesAnElement() {
+    testRoundTrip("Foo\\\r\n OR Bar", "Foo OR Bar")
+  }
+
   private fun testRoundTrip(start: String, end: String = start) =
       testRoundTrip<Instruction>(start, end)
 }

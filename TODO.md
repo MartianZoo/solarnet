@@ -36,6 +36,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer.
 - [#59: `-This` intensity](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory. (Needs discussion)
 - Decide whether a whole gated instruction may narrow to `Ok`; restore the disabled `ReifyTest` case if so.
+- Decide whether instruction gating (`:`) should bind less tightly than `OR`: that would simplify
+  `R: (A OR B)` but require parentheses around gated alternatives; Canon already parenthesizes the
+  latter.
+- Make `OR` construction consistent across AST families: reject duplicate authored arms, let
+  programmatic factories deduplicate while preserving first-occurrence order, and keep trigger order
+  semantically significant.
 
 ### User-Facing Behavior
 

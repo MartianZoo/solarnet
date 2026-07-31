@@ -144,6 +144,9 @@ internal object ClassParsing : PetTokenizer() {
     // a declaration group that could've been nested but is *NOT*
     val topLevelGroup: Parser<List<ClassDeclaration>> = nestableGroup map { it.finishAll() }
 
+    val declarationFile: Parser<List<ClassDeclaration>> =
+        zeroOrMore(topLevelGroup) and skip(nls) map { it.flatten() }
+
     // For CardDefinition
 
     private val oneLineBody: Parser<Body> =

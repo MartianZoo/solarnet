@@ -16,6 +16,18 @@ import dev.martianzoo.pets.PetTokenizer
  * instructions, and also belong to `Award`s.
  */
 public sealed class Metric : PetElement() {
+  public companion object {
+    /** Returns [inner] scaled by [unit], omitting the meaningless wrapper when [unit] is one. */
+    public fun scaled(unit: Int, inner: Metric): Metric {
+      if (unit < 1) throw PetSyntaxException("metric can't be zero")
+      return if (unit == 1) inner else Scaled(unit, inner)
+    }
+
+    internal fun parser(): Parser<Metric> = Parsers.parser()
+
+    internal fun atomParser(): Parser<Metric> = Parsers.atomParser()
+  }
+
   override val kind: kotlin.reflect.KClass<out PetNode> = Metric::class
 
   public data class Count(val expression: Expression) : Metric() {
@@ -26,15 +38,15 @@ public sealed class Metric : PetElement() {
     override fun precedence(): Int = 12
   }
 
-  public data class Scaled(val unit: Int, val inner: Metric) : Metric() {
+  @ConsistentCopyVisibility
+  public data class Scaled internal constructor(val unit: Int, val inner: Metric) : Metric() {
     init {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
 
-    override fun toString(): String =
-        if (unit == 1) "$inner" else "$unit ${groupPartIfNeeded(inner)}"
+    override fun toString(): String = "$unit ${groupPartIfNeeded(inner)}"
 
     override fun precedence(): Int = 11
   }
@@ -92,12 +104,6 @@ public sealed class Metric : PetElement() {
     override fun extract(): Metric = inner
   }
 
-  internal companion object {
-    fun parser(): Parser<Metric> = Parsers.parser()
-
-    fun atomParser(): Parser<Metric> = Parsers.atomParser()
-  }
-
   private object Parsers : PetTokenizer() {
     fun parser(): Parser<Metric> {
       return parser {
@@ -121,7 +127,7 @@ public sealed class Metric : PetElement() {
         val atom: Parser<Metric> = transform or count or group(parser())
 
         val scaled: Parser<Metric> =
-            optional(rawScalar) and atom map { (scal, met) -> scal?.let { Scaled(it, met) } ?: met }
+            optional(rawScalar) and atom map { (scal, met) -> scal?.let { scaled(it, met) } ?: met }
 
         val max: Parser<Metric> =
             scaled and

@@ -2,9 +2,11 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.tfm.pets.testSampleStrings
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class MetricTest {
@@ -76,5 +78,13 @@ internal class MetricTest {
   @Test
   fun plusIsNotMetricSyntax() {
     shouldThrow<PetSyntaxException> { parse<Metric>("Steel + Titanium") }
+  }
+
+  @Test
+  fun unitScalingIsCanonicalizedAway() {
+    val count = Metric.Count(cn("Foo").expression)
+
+    Metric.scaled(1, count) shouldBe count
+    parse<Metric>("1 Foo") shouldBe count
   }
 }

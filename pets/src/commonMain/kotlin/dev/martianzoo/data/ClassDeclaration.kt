@@ -29,7 +29,7 @@ public data class ClassDeclaration(
     override val className: ClassName,
 
     /**
-     * A short name for the class (1-4 characters, all upper case letters or digits). All
+     * A short name for the class (1-5 characters, all upper case letters or digits). All
      * [className]s and [shortName]s loaded for a game share the same single namespace.
      */
     public val shortName: ClassName = className,

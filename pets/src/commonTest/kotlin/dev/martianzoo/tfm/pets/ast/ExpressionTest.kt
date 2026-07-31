@@ -38,6 +38,7 @@ internal class ExpressionTest {
     testRoundTrip("Class<Foo>(HAS Foo<Bar>)")
     testRoundTrip("!Foo")
     testRoundTrip("Foo<!Bar>")
+    testRoundTrip("A_foo")
   }
 
   @Test
