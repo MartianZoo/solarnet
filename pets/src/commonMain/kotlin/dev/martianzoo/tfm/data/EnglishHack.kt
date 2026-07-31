@@ -54,7 +54,6 @@ internal object EnglishHack {
           "EM3" to "Ecologist",
           "EM4" to "Tycoon",
           "EM5" to "Legend",
-          "EM1R" to "GeneralistR",
           "VM1" to "Hoverlord",
           "IM1" to "Planetologist",
           "IM2" to "Architect",

@@ -9,7 +9,6 @@ ABSTRACT CLASS MarsMapOption : GameOption { HAS MAX 1 MarsMapOption }
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : GameOption
-// CLASS StartingProductionVariant : GameOption
 
 "Checks whether the current selections describe one complete game"
 CLASS ValidateSetup : Signal {

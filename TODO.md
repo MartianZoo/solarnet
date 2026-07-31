@@ -14,6 +14,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Gameplay and Content
 
+- Implement the standard-game rule that starts every production at 1 when Corporate Era is disabled; until then, keep canonical requirements at their printed values.
 - Replace `DeferredColonySelection` with setup-world colony choices once the REPL can collect them
   before assembling the playable world.
 - Implement Terra Cimmeria's MSL Curiosity bonus once optional bundle vocabulary can be phantom: pay 5 M€ and place a colony only with Colonies enabled.
