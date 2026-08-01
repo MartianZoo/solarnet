@@ -33,7 +33,7 @@ ABSTRACT CLASS Temporary : Hidden {
     CLASS Ok : AutoLoad
 
     "A component you can't create; the task queue will refuse to enqueue an attempt to"
-    CLASS Die { HAS MAX 0 This }
+    CLASS Die : AutoLoad { HAS MAX 0 This }
   }
 
   "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"

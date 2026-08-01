@@ -6,6 +6,7 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
@@ -46,6 +47,7 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.GetEventVps,
         TerraformingMars.PassLeft,
         TerraformingMars.AssignAwardPlaces,
+        TerraformingMars.MeasureAwards,
         TerraformingMars.MultiplayerVictoryCheck,
         TerraformingMars.MarsRow,
         TerraformingMars.CardCost,
@@ -133,7 +135,14 @@ internal object TerraformingMars {
     }
   }
 
+  private val NEIGHBOR = cn("Neighbor")
+  private val FORWARD_ADJACENCY = cn("ForwardAdjacency")
+  private val BACKWARD_ADJACENCY = cn("BackwardAdjacency")
+
   internal object CreateAdjacencies : CustomClass() {
+    override val requiredClassNames: Set<ClassName> =
+        setOf(NEIGHBOR, FORWARD_ADJACENCY, BACKWARD_ADJACENCY)
+
     override fun translate(reader: GameReader, areaType: Type): Instruction {
       val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
       val area = grid.firstOrNull { it.className == areaType.className } ?: error(areaType)
@@ -145,12 +154,12 @@ internal object TerraformingMars {
       }
 
       val newTile: Expression = tileOn(area)!!
-      val neighbors = neighborAreas.map { cn("Neighbor").of(newTile, it.className.expression) }
+      val neighbors = neighborAreas.map { NEIGHBOR.of(newTile, it.className.expression) }
       val adjacencies =
           neighborAreas.mapNotNull(::tileOn).flatMap {
             listOf(
-                cn("ForwardAdjacency").of(it, newTile),
-                cn("BackwardAdjacency").of(newTile, it),
+                FORWARD_ADJACENCY.of(it, newTile),
+                BACKWARD_ADJACENCY.of(newTile, it),
             )
           }
       return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
@@ -167,7 +176,7 @@ internal object TerraformingMars {
       return if (cardBackClassType.expression.arguments.single().className == deck?.className) {
         NoOp
       } else {
-        parse("DIE!")
+        gain(scaledEx(1, DIE))
       }
     }
   }
@@ -177,7 +186,12 @@ internal object TerraformingMars {
         Gated.create(cardFromClassType(cardClassType, reader).requirement, NoOp)
   }
 
+  private val OWED = cn("Owed")
+  private val PLAY_TAG = cn("PlayTag")
+
   internal object HandleCardCost : CustomClass() {
+    override val requiredClassNames: Set<ClassName> = setOf(OWED, PLAY_TAG)
+
     override fun translate(
         reader: GameReader,
         owner: Type,
@@ -188,9 +202,9 @@ internal object TerraformingMars {
 
       val playTagSignals =
           card.tags.entries.map { (tagName, count) ->
-            gain(scaledEx(count, cn("PlayTag").of(tagName.classExpression())))
+            gain(scaledEx(count, PLAY_TAG.of(tagName.classExpression())))
           }
-      val instructions = listOf(gain(scaledEx(card.cost, cn("Owed")))) + playTagSignals
+      val instructions = listOf(gain(scaledEx(card.cost, OWED))) + playTagSignals
       return Then.create(instructions)
     }
   }
@@ -226,11 +240,19 @@ internal object TerraformingMars {
     }
   }
 
+  private val AWARD_MEASURED = cn("AwardMeasured")
+  private val AWARD_TALLY = cn("AwardTally")
+  private val FIRST_PLACE = cn("FirstPlace")
+  private val SECOND_PLACE = cn("SecondPlace")
+
   internal object AssignAwardPlaces : CustomClass() {
+    override val requiredClassNames: Set<ClassName> =
+        setOf(AWARD_MEASURED, AWARD_TALLY, FIRST_PLACE, SECOND_PLACE)
+
     override fun translate(reader: GameReader, awardType: Type): Instruction {
       val players = reader.getComponents("Player").elements
       val measuredType =
-          reader.resolve(cn("AwardMeasured").of(cn("Player").expression, awardType.expression))
+          reader.resolve(AWARD_MEASURED.of(cn("Player").expression, awardType.expression))
       if (reader.count(measuredType) < players.size) return NoOp
 
       val scores = players.associateWith {
@@ -239,7 +261,7 @@ internal object TerraformingMars {
       val firstScore = scores.values.maxOrNull() ?: return NoOp
 
       val first = scores.filterValues { it == firstScore }.keys
-      val winners = first.map { cn("FirstPlace").of(it.expression, awardType.expression) }
+      val winners = first.map { FIRST_PLACE.of(it.expression, awardType.expression) }
       val placements =
           if (players.size < 3 || first.size > 1) {
             winners
@@ -251,14 +273,28 @@ internal object TerraformingMars {
                       player !in first && score == secondScore
                     }
                     .keys
-                    .map { cn("SecondPlace").of(it.expression, awardType.expression) }
+                    .map { SECOND_PLACE.of(it.expression, awardType.expression) }
             winners + runnersUp
           }
       return Then.create(placements.map { gain(scaledEx(1, it)) })
     }
   }
 
+  private val AWARD_MEASUREMENT = cn("AwardMeasurement")
+  private val AWARD_MEASURER = cn("AwardMeasurer")
+
+  internal object MeasureAwards : CustomClass() {
+    override val requiredClassNames: Set<ClassName> = setOf(AWARD_MEASUREMENT, AWARD_MEASURER)
+
+    override fun translate(ignoredReader: GameReader): Instruction =
+        gain(scaledEx(1, AWARD_MEASUREMENT))
+  }
+
+  private val VICTORY = cn("Victory")
+
   internal object MultiplayerVictoryCheck : CustomClass() {
+    override val requiredClassNames: Set<ClassName> = setOf(VICTORY)
+
     override fun translate(reader: GameReader): Instruction {
       val players = reader.getComponents("Player").elements
       val victoryPoints = players.associateWith {
@@ -271,12 +307,12 @@ internal object TerraformingMars {
       }
       val mostMegacredits = megacredits.values.maxOrNull() ?: return NoOp
       val winners = megacredits.filterValues { it == mostMegacredits }.keys
-      return Then.create(winners.map { gain(scaledEx(1, cn("Victory").of(it.expression))) })
+      return Then.create(winners.map { gain(scaledEx(1, VICTORY.of(it.expression))) })
     }
   }
 
   private fun tally(player: HasClassName, awardType: Type): Expression =
-      cn("AwardTally").of(player.className.expression, awardType.expression)
+      AWARD_TALLY.of(player.className.expression, awardType.expression)
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
     require(cardClassType.className == CLASS)

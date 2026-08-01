@@ -7,6 +7,7 @@ CLASS SoloMode : GameOption {
   -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
   SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
+  EndPhase:: End THEN FinalScore
 }
 
 "Lets selected variants initialize solo state immediately before generation 1 begins"
@@ -35,7 +36,8 @@ CLASS Opponent[OPP] : Owner {
 "Multiplayer rules, including the end condition that deliberately excludes Venus"
 CLASS MultiplayerMode : GameOption {
   GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
+  EndPhase:: MeasureAwards THEN End THEN FinalScore
   FinalScore: MultiplayerVictoryCheck
 }
 
-CLASS MultiplayerVictoryCheck : Custom, AutoLoad
+CLASS MultiplayerVictoryCheck : Custom

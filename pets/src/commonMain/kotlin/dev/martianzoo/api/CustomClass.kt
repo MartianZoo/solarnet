@@ -22,6 +22,12 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
   }
 
   /**
+   * Pets classes this implementation may resolve or produce at runtime. Class loading follows these
+   * names when this custom class loads; other references may still load them independently.
+   */
+  public open val requiredClassNames: Set<ClassName> = emptySet()
+
+  /**
    * For a type with 0 dependencies: translates an instruction to gain this type into another
    * instruction that wil be prepared and executed instead.
    */

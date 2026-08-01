@@ -13,7 +13,9 @@
 - **Ruleset:** The lazy composition of the raw class declarations, definitions, and custom
   instruction implementations from exactly the bundles needed for one game setup.
 - **Autoexec:** A convenience feature that prepares and executes pending work when its policy permits.
-- **AutoLoad:** A marker that makes a class load even when no selected content refers to it.
+- **AutoLoad:** A marker that makes a class load even when no selected content refers to it. Reserve
+  it for classes needed by host-driven operations, bootstrap discovery, or transforms that run
+  after the class table freezes.
 - **Automatic effect:** An effect written with `::`; its triggered instruction executes inline instead of becoming a queued task. (Antonym: queued effect.)
 - **Barrier:** A temporary component that must be removed before blocked work can continue.
 - **Bundle:** One raw grouping of ruleset data. Loading a bundle makes its content available but has

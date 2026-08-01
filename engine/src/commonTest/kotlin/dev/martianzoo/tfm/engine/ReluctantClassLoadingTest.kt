@@ -9,18 +9,17 @@ import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
 import kotlin.test.Test
 
-/** Characterizes classes deliberately omitted from playable games that do not need them. */
+/** Verifies reluctant class loading and characterizes known unwanted loading. */
 internal class ReluctantClassLoadingTest {
-  // Behaves as intended
+  // Deliberate expansion-specific omissions
 
   @Test
   fun `Colonies classes stay unloaded without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
-    matchingClasses("colon(y|ie)", Setup.PROMOS_UTOPIA_PLANITIA)
-        .shouldContainExactlyInAnyOrder(cn("GanymedeColony"), cn("InterstellarColonyShip"))
-    matchingClasses("trade", Setup.PROMOS_UTOPIA_PLANITIA)
+    matchingClasses("colon(y|ie)", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA)
+        .shouldContainExactlyInAnyOrder(cn("GanymedeColony"))
+    matchingClasses("trade", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA)
         .shouldContainExactlyInAnyOrder(cn("InterplanetaryTrade"), cn("Trader"))
-    assertNotLoaded("ResetProduction", Setup.PROMOS_UTOPIA_PLANITIA)
   }
 
   @Test
@@ -31,15 +30,17 @@ internal class ReluctantClassLoadingTest {
   @Test
   fun `Prelude classes stay unloaded without Prelude`() {
     // Promo has Prelude-gated cards, including one whose instruction names PreludeCard.
-    matchingClasses("prelude", Setup.PROMOS_UTOPIA_PLANITIA).shouldBeEmpty()
+    matchingClasses("prelude", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA).shouldBeEmpty()
   }
 
   @Test
   fun `Venus classes stay unloaded without Venus Next`() {
     // Promo names VenusStep; Terra Cimmeria names VenusTag. Both definitions are Venus-gated.
-    assertNotLoaded("VenusStep", Setup.PROMOS_TERRA_CIMMERIA)
-    assertNotLoaded("VenusTag", Setup.PROMOS_TERRA_CIMMERIA)
+    assertNotLoaded("VenusStep", Setup.PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA)
+    assertNotLoaded("VenusTag", Setup.PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA)
   }
+
+  // Deliberate setup- and mode-specific omissions
 
   @Test
   fun `player classes follow the selected seats and mode`() {
@@ -48,29 +49,40 @@ internal class ReluctantClassLoadingTest {
     assertNotLoaded("Player3", Setup.BASE_MULTIPLAYER)
   }
 
-  @Test fun `ValidateSetup`() = assertNotLoaded("ValidateSetup", Setup.BASE_MULTIPLAYER)
-
-  // Current behavior we would like to change
+  @Test
+  fun `setup-world classes stay unloaded in playable games`() =
+      assertNotLoaded("ValidateSetup", Setup.BASE_MULTIPLAYER)
 
   @Test
-  fun `award classes are incorrectly loaded in solo`() {
-    matchingClasses("award", Setup.BASE_SOLO).shouldNotBeEmpty()
-    assertLoaded("FirstPlace", Setup.BASE_SOLO)
-    assertLoaded("SecondPlace", Setup.BASE_SOLO)
+  fun `multiplayer standard actions stay unloaded in solo`() {
+    assertNotLoaded("ClaimMilestoneSA", Setup.BASE_SOLO)
+    assertNotLoaded("FundAwardSA", Setup.BASE_SOLO)
   }
+
+  @Test
+  fun `award definitions and scoring classes stay unloaded in solo`() {
+    matchingClasses("award", Setup.BASE_SOLO).shouldBeEmpty()
+    assertNotLoaded("FirstPlace", Setup.BASE_SOLO)
+    assertNotLoaded("SecondPlace", Setup.BASE_SOLO)
+  }
+
+  @Test
+  fun `MultiplayerVictoryCheck stays unloaded in solo`() =
+      assertNotLoaded("MultiplayerVictoryCheck", Setup.BASE_SOLO)
+
+  // Known unwanted loading
 
   @Test
   fun `GenerationSetup is incorrectly loaded in multiplayer`() =
       assertLoaded("GenerationSetup", Setup.BASE_MULTIPLAYER)
 
   @Test
-  fun `MultiplayerVictoryCheck is incorrectly loaded in solo`() =
-      assertLoaded("MultiplayerVictoryCheck", Setup.BASE_SOLO)
-
-  @Test
   fun `solo classes are incorrectly loaded in multiplayer`() {
     matchingClasses("solo", Setup.PRELUDE_VENUS_MULTIPLAYER).shouldNotBeEmpty()
   }
+
+  @Test
+  fun `Vitor incorrectly loads award classes in solo`() = assertLoaded("Award", Setup.PRELUDE_SOLO)
 
   private fun assertLoaded(className: String, setup: Setup) {
     setup.classNames.shouldContain(cn(className))
@@ -92,9 +104,14 @@ internal class ReluctantClassLoadingTest {
   ) {
     BASE_MULTIPLAYER(""),
     BASE_SOLO("SoloMode", 1),
+    PRELUDE_SOLO("PreludeExpansion,SoloMode", 1),
     WITHOUT_CORPORATE_ERA("-CorporateEraExpansion"),
-    PROMOS_UTOPIA_PLANITIA("PromoCardPack, UtopiaPlanitiaMapOption FROM TharsisMapOption"),
-    PROMOS_TERRA_CIMMERIA("PromoCardPack, TerraCimmeriaMapOption FROM TharsisMapOption"),
+    PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA(
+        "-CorporateEraExpansion, PromoCardPack, UtopiaPlanitiaMapOption FROM TharsisMapOption"
+    ),
+    PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA(
+        "-CorporateEraExpansion, PromoCardPack, TerraCimmeriaMapOption FROM TharsisMapOption"
+    ),
     PRELUDE_VENUS_MULTIPLAYER("PreludeExpansion, VenusNextExpansion");
 
     val classTable by lazy { Engine.newGame(canonicalPremise(instruction, players)).classTable }

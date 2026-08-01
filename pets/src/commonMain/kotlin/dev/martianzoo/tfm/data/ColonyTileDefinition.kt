@@ -33,7 +33,7 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
               FlownTradeFleet<This> IF =4 ColonyProduction<This>: ${tradeIncome[4]}
               FlownTradeFleet<This> IF =5 ColonyProduction<This>: ${tradeIncome[5]}
               FlownTradeFleet<This> IF =6 ColonyProduction<This>: ${tradeIncome[6]}
-              FlownTradeFleet<This>: ResetProduction<This>
+              FlownTradeFleet<This>: ResetColonyProduction<This>
             }
           """
           )

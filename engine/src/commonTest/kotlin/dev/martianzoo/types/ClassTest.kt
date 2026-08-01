@@ -68,6 +68,33 @@ internal class ClassTest {
   }
 
   @Test
+  fun `custom class requirements load with the custom class only`() {
+    val declarations =
+        parseClasses(
+                """
+                CLASS DependencySource : Custom
+                CLASS RuntimeDependency
+                """
+                    .trimIndent()
+            )
+            .toSetStrict()
+    val implementation =
+        object : CustomClass(cn("DependencySource")) {
+          override val requiredClassNames = setOf(cn("RuntimeDependency"))
+        }
+    val ruleset =
+        object : TfmRuleset.Empty() {
+          override val explicitClassDeclarations = declarations
+          override val customClasses = setOf(implementation)
+        }
+
+    ClassLoader(ruleset).freeze().findClass(cn("RuntimeDependency")) shouldBe null
+
+    val loaded = ClassLoader(ruleset).apply { load(cn("DependencySource")) }.freeze()
+    loaded.findClass(cn("RuntimeDependency"))?.className shouldBe cn("RuntimeDependency")
+  }
+
+  @Test
   fun subclass() {
     val loader = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar : Foo")
     val bar = loader.getClass(cn("Bar"))
