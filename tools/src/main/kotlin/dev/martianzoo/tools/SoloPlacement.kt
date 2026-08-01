@@ -15,7 +15,7 @@ internal enum class SoloTile {
 }
 
 internal enum class PlacementMode {
-  COUNT_FROM_ZERO,
+  STANDARD,
   COMPATIBILITY,
 }
 
@@ -24,6 +24,7 @@ internal data class Placement(
     val ordinal: Int,
     val area: AreaDefinition,
     val card: CardDefinition,
+    val drawOrdinal: Int,
 )
 
 internal class SoloPlacementCalculator(
@@ -42,6 +43,13 @@ internal class SoloPlacementCalculator(
       }
     }
 
+    return when (mode) {
+      PlacementMode.STANDARD -> calculateOfficialOrder(cards)
+      PlacementMode.COMPATIBILITY -> calculateCompatibilityOrder(cards)
+    }
+  }
+
+  private fun calculateOfficialOrder(cards: List<CardDefinition>): List<Placement> {
     val firstCity = placeCity(cards[0], availableCityAreas())
     val secondCity = placeCity(cards[1], availableCityAreas().asReversed())
 
@@ -61,10 +69,23 @@ internal class SoloPlacementCalculator(
         }
 
     return listOf(
-        Placement(SoloTile.CITY, 1, firstCity, cards[0]),
-        Placement(SoloTile.GREENERY, 1, greenCardsAndAreas.first, cards[2]),
-        Placement(SoloTile.CITY, 2, secondCity, cards[1]),
-        Placement(SoloTile.GREENERY, 2, greenCardsAndAreas.second, cards[3]),
+        Placement(SoloTile.CITY, 1, firstCity, cards[0], 1),
+        Placement(SoloTile.GREENERY, 1, greenCardsAndAreas.first, cards[2], 3),
+        Placement(SoloTile.CITY, 2, secondCity, cards[1], 2),
+        Placement(SoloTile.GREENERY, 2, greenCardsAndAreas.second, cards[3], 4),
+    )
+  }
+
+  private fun calculateCompatibilityOrder(cards: List<CardDefinition>): List<Placement> {
+    val firstCity = placeCity(cards[0], availableCityAreas())
+    val firstGreenery = placeGreenery(cards[1], firstCity)
+    val secondCity = placeCity(cards[2], availableCityAreas().asReversed())
+    val secondGreenery = placeGreenery(cards[3], secondCity)
+    return listOf(
+        Placement(SoloTile.CITY, 1, firstCity, cards[0], 1),
+        Placement(SoloTile.GREENERY, 1, firstGreenery, cards[1], 2),
+        Placement(SoloTile.CITY, 2, secondCity, cards[2], 3),
+        Placement(SoloTile.GREENERY, 2, secondGreenery, cards[3], 4),
     )
   }
 
@@ -84,7 +105,7 @@ internal class SoloPlacementCalculator(
 
   private fun index(cost: Int): Int =
       when (mode) {
-        PlacementMode.COUNT_FROM_ZERO -> cost
+        PlacementMode.STANDARD -> cost
         PlacementMode.COMPATIBILITY -> cost - 1
       }
 
@@ -116,18 +137,17 @@ internal fun calculateSoloPlacements(arguments: List<String>): List<Placement> {
   val compatibility = arguments.firstOrNull() == "--compatibility"
   val namesInOrder = if (compatibility) arguments.drop(1) else arguments
   require(namesInOrder.size == 5) {
-    "usage: solo-placement [--compatibility] MAP CITY1_CARD CITY2_CARD " +
-        "GREENERY1_CARD GREENERY2_CARD"
+    "usage: solo-placement [--compatibility] MAP CARD1 CARD2 CARD3 CARD4"
   }
   val names = namesInOrder.map(::cn)
   val map = Canon.marsMap(names.first())
   val cards = names.drop(1).map(Canon::card)
-  val mode = if (compatibility) PlacementMode.COMPATIBILITY else PlacementMode.COUNT_FROM_ZERO
+  val mode = if (compatibility) PlacementMode.COMPATIBILITY else PlacementMode.STANDARD
   return SoloPlacementCalculator(map, mode).calculate(cards)
 }
 
 internal fun formatPlacements(placements: List<Placement>): String {
-  val drawOrder = listOf(placements[0], placements[2], placements[1], placements[3])
+  val drawOrder = placements.sortedBy(Placement::drawOrdinal)
   return buildString {
     appendLine("Cards (draw order):")
     drawOrder.forEachIndexed { index, placement ->

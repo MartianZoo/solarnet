@@ -21,19 +21,19 @@ internal class SoloPlacementTest {
         )
 
     assertEquals(
-        listOf("Tharsis_4_6", "Tharsis_3_6", "Tharsis_6_6", "Tharsis_6_5"),
+        listOf("Tharsis_4_6", "Tharsis_4_7", "Tharsis_9_7", "Tharsis_8_6"),
         placements.map { it.area.className.toString() },
     )
     assertEquals(
-        listOf("MiningColony", "Potatoes", "ResearchOutpost", "JupiterFloatingStation"),
+        listOf("MiningColony", "ResearchOutpost", "Potatoes", "JupiterFloatingStation"),
         placements.map { it.card.className.toString() },
     )
-    assertEquals(listOf(20, 2, 18, 9), placements.map { it.card.cost })
+    assertEquals(listOf(20, 18, 2, 9), placements.map { it.card.cost })
     assertEquals(4, placements.map { it.area }.toSet().size)
   }
 
   @Test
-  fun countFromZeroModeAcceptsZeroAndCountsOneAsSecond() {
+  fun standardModeAcceptsZeroAndCountsOneAsSecond() {
     val zeroPlacements =
         calculateSoloPlacements(
             listOf(
