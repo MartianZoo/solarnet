@@ -61,6 +61,14 @@ internal class DependencyLinkTest {
   }
 
   @Test
+  fun `linked complement constrains every occurrence`() {
+    val notPlayer1 = table.resolve(te("Linked<!Player1>"))
+
+    table.resolve(te("Linked<Player2>")).isSubtypeOf(notPlayer1) shouldBe true
+    table.resolve(te("Linked<Player1>")).isSubtypeOf(notPlayer1) shouldBe false
+  }
+
+  @Test
   fun `linked concrete types are enumerated once`() {
     table
         .getClass(te("InheritedLink").className)
