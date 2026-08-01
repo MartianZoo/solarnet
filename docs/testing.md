@@ -28,6 +28,16 @@ signal first, then review static-analysis findings.
 
 `./gradlew dokkaGenerateHtml` generates the local API site at `docs/api/index.html`.
 
+## Build configuration
+
+Shared Kotlin, static-analysis, documentation, and multiplatform browser-test resource configuration
+lives in three convention plugins under `build-logic`: common Kotlin policy, JVM modules, and
+JVM/JavaScript modules. Module build scripts keep only module-specific configuration; the sole
+JavaScript-only application configures its target directly. Repository-wide formatting remains in
+the root build so the qualified `:spotlessApply` task formats every module. Dependency and plugin
+versions are declared in `gradle/libs.versions.toml`, while dependency repositories are declared
+centrally in `settings.gradle.kts`; JitPack is restricted to the pinned better-parse fork.
+
 All Kotlin modules use strict explicit API mode. Declarations that form a module's public API must
 spell out `public` and their public types; declarations used only within one module should be
 `internal` or `private`. This makes accidental API growth and signature changes visible in review.

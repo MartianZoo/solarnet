@@ -1,3 +1,5 @@
+pluginManagement { includeBuild("build-logic") }
+
 // Enable Build Scans
 // https://docs.gradle.org/current/userguide/github-actions.html#enable_build_scan_publishing
 plugins {
@@ -15,3 +17,13 @@ develocity {
 rootProject.name = "solarnet"
 
 include("pets", "engine", "script", "repl", "canon", "web", "tools")
+
+dependencyResolutionManagement {
+  repositories {
+    mavenCentral()
+    exclusiveContent {
+      forRepository { maven { url = uri("https://jitpack.io") } }
+      filter { includeGroup("com.github.kevinb9n.better-parse") }
+    }
+  }
+}

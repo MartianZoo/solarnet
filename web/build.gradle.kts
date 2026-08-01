@@ -1,8 +1,6 @@
-import java.net.URI
-
 plugins {
   id("org.jetbrains.kotlin.multiplatform")
-  id("org.jetbrains.dokka")
+  id("solarnet.kotlin-base")
 }
 
 kotlin {
@@ -26,9 +24,7 @@ kotlin {
         implementation(devNpm("tslib", "2.8.1"))
       }
     }
-    jsTest {
-      dependencies { implementation(kotlin("test")) }
-    }
+    jsTest { dependencies { implementation(kotlin("test")) } }
   }
 }
 
@@ -51,15 +47,3 @@ tasks
 tasks
     .matching { it.name.startsWith("compile") && it.name.endsWith("KotlinJs") }
     .configureEach { dependsOn(collectRuntimeResources) }
-
-dokka {
-  dokkaSourceSets {
-    configureEach {
-      sourceLink {
-        localDirectory.set(file("src"))
-        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/web/src"))
-        remoteLineSuffix.set("#L")
-      }
-    }
-  }
-}

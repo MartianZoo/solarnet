@@ -1,0 +1,40 @@
+[versions]
+better-parse = "1e227e760395f6dca1cfd00de4d499c7229c51e3"
+detekt = "2.0.0-alpha.5"
+dokka = "2.2.0"
+jline = "3.30.15"
+junit = "5.14.4"
+koin = "4.1.1"
+kotest = "6.1.11"
+kotlin = "2.4.10"
+kotlinx-coroutines = "1.10.2"
+kotlinx-serialization = "1.9.0"
+shadow = "9.2.2"
+spotless = "8.8.0"
+truth = "1.4.5"
+
+[libraries]
+better-parse = { module = "com.github.kevinb9n.better-parse:better-parse", version.ref = "better-parse" }
+jline = { module = "org.jline:jline", version.ref = "jline" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+
+# Plugin markers used to compile the convention plugins in build-logic.
+detekt-gradle-plugin = { module = "dev.detekt:dev.detekt.gradle.plugin", version.ref = "detekt" }
+dokka-gradle-plugin = { module = "org.jetbrains.dokka:org.jetbrains.dokka.gradle.plugin", version.ref = "dokka" }
+kotlin-multiplatform-gradle-plugin = { module = "org.jetbrains.kotlin.multiplatform:org.jetbrains.kotlin.multiplatform.gradle.plugin", version.ref = "kotlin" }
+kotlin-jvm-gradle-plugin = { module = "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
+
+[plugins]
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
