@@ -38,8 +38,16 @@ public interface Grid<E> : Set<E> {
           this[r + 1, c + 0],
       )
 
+  /** Returns existing hex neighbors clockwise from the upper-right neighbor. */
   public fun hexNeighbors(r: Int, c: Int): List<E> =
-      cardinalNeighbors(r, c) + listOfNotNull(this[r - 1, c - 1], this[r + 1, c + 1])
+      listOfNotNull(
+          this[r - 1, c],
+          this[r, c + 1],
+          this[r + 1, c + 1],
+          this[r + 1, c],
+          this[r, c - 1],
+          this[r - 1, c - 1],
+      )
 
   public fun allNeighbors(r: Int, c: Int): List<E> =
       hexNeighbors(r, c) + listOfNotNull(this[r - 1, c + 1], this[r + 1, c - 1])

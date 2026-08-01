@@ -69,3 +69,15 @@ and executable entry point.
 
 The browser-hosted REgo PLastics application. It adapts the shared Script session and completion
 engine to a browser terminal, with browser-local command history and no server-side game process.
+
+## module TOOLS
+
+### dev.martianzoo.tools
+
+Standalone JVM command-line utilities built from Solarnet's canonical data. The `solo-placement`
+application accepts a map and four project-card class names and reports the neutral solo setup tile
+locations. Its optional `--compatibility` mode rejects zero-cost cards and uses one-based counting.
+Standard mode accepts zero-cost cards, uses zero-based counting, and assigns the four cards to city
+1, city 2, greenery 1, and greenery 2. Compatibility mode instead places and assigns cards to city
+1, greenery 1, city 2, and greenery 2. All placement counts skip nonexistent, reserved, and
+occupied areas.
