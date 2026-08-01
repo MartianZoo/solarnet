@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
@@ -132,8 +133,8 @@ internal class PrepareTest {
 
   @Test
   fun testPrepareMulti() {
-    shouldThrow<IllegalStateException> { preprocessAndPrepare("Plant, Heat") }
-    shouldThrow<IllegalStateException> { preprocessAndPrepare("(TR: Plant), Heat") }
-    shouldThrow<IllegalStateException> { preprocessAndPrepare("TR: (Plant, Heat)") }
+    shouldThrow<AbstractException> { preprocessAndPrepare("Plant, Heat") }
+    shouldThrow<AbstractException> { preprocessAndPrepare("(TR: Plant), Heat") }
+    shouldThrow<AbstractException> { preprocessAndPrepare("TR: (Plant, Heat)") }
   }
 }

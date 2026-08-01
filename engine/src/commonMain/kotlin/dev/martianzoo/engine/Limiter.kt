@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
+import dev.martianzoo.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
@@ -27,7 +28,14 @@ internal class Limiter(
     classTable
         .allClasses()
         .flatMap { klass ->
-          klass.invariants().map { toRangeRestriction(it as Counting, klass) }
+          klass.invariants().map {
+            val counting =
+                it as? Counting
+                    ?: throw invalidPetDefinition(
+                        "Class invariant on ${klass.className} is not a counting requirement: $it"
+                    )
+            toRangeRestriction(counting, klass)
+          }
         }
         .forEach { restriction ->
           restriction.root.allSubclasses().forEach {
@@ -39,6 +47,7 @@ internal class Limiter(
   }
 
   init {
+    rangeRestrictionsByClass
     val invalidDependencies =
         classTable.allClasses().mapNotNull { dependent ->
           dependent.dependencies
@@ -49,11 +58,13 @@ internal class Limiter(
               ?.let { dependent to it }
         }
 
-    check(invalidDependencies.isEmpty()) {
-      "Dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
-          invalidDependencies.joinToString("\n") { (dependent, target) ->
-            "  ${dependent.className} -> ${target.expressionFull}"
-          }
+    if (invalidDependencies.isNotEmpty()) {
+      throw invalidPetDefinition(
+          "Dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
+              invalidDependencies.joinToString("\n") { (dependent, target) ->
+                "  ${dependent.className} -> ${target.expressionFull}"
+              }
+      )
     }
   }
 
@@ -172,5 +183,6 @@ internal fun Class.invariants(): Set<Requirement> =
 
 internal fun Class.isSingletonType(): Boolean =
     invariants().any {
-      (it as Counting).range.first == 1 && it.scaledEx.expression == THIS.expression
+      val counting = it as? Counting ?: return@any false
+      counting.range.first == 1 && counting.scaledEx.expression == THIS.expression
     }

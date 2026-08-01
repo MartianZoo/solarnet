@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.CustomCodeException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.GamePremise
@@ -60,7 +61,7 @@ internal class CustomMetricTest {
     val p1 = game.tfm(PLAYER1)
 
     p1.count("BothBehavior") shouldBe 7
-    shouldThrow<IllegalArgumentException> { p1.godMode().sneak("BothBehavior") }
+    shouldThrow<ExpressionException> { p1.godMode().sneak("BothBehavior") }
     p1.godMode().manual("BothBehavior")
     p1.count("Plant") shouldBe 1
 
@@ -84,13 +85,13 @@ internal class CustomMetricTest {
   fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
-    shouldThrow<IllegalStateException> {
+    shouldThrow<ExpressionException> {
       p1.godMode().manual("ConcreteOnlyMetric<Player1>")
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<ExpressionException> {
       p1.godMode().sneak("ConcreteOnlyMetric<Player1>")
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<ExpressionException> {
       p1.godMode().sneak("-ConcreteOnlyMetric<Player1>")
     }
   }
@@ -104,6 +105,14 @@ internal class CustomMetricTest {
     p1.godMode().sneak("Plant<Player1>")
     p1.count("PlantCount<Player1>") shouldBe 1
     p1.count("Heat<Player1>") shouldBe 0
+  }
+
+  @Test
+  fun customImplementationRuntimeFailuresHaveTheirOwnDomain() {
+    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+
+    shouldThrow<CustomCodeException> { p1.count("BrokenMetric") }
+    shouldThrow<CustomCodeException> { p1.godMode().manual("BrokenInstruction") }
   }
 }
 
@@ -142,6 +151,14 @@ private object PlantCount : CustomMetric() {
   }
 }
 
+private object BrokenMetric : CustomMetric() {
+  override fun count(game: GameReader, type: Type): Int = error("broken metric")
+}
+
+private object BrokenInstruction : CustomClass() {
+  override fun translate(game: GameReader): Instruction = error("broken instruction")
+}
+
 private object CustomClassDeclarations : TfmRuleset.Empty() {
   override val explicitClassDeclarations =
       parseClasses(
@@ -150,6 +167,8 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
               CLASS SplitBehavior : Custom, AutoLoad
               CLASS ConcreteOnlyMetric<Player> : Custom, AutoLoad
               CLASS PlantCount<Player> : Custom
+              CLASS BrokenMetric : Custom, AutoLoad
+              CLASS BrokenInstruction : Custom, AutoLoad
               CLASS MetricTriggerObserver : AutoLoad {
                 HAS =1 This
                 PlantCount<Player1>: Heat<Player1>
@@ -166,6 +185,8 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
           SplitMetricImplementation.SplitBehavior,
           ConcreteOnlyMetric,
           PlantCount,
+          BrokenMetric,
+          BrokenInstruction,
       )
 }
 

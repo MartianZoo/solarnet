@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
@@ -21,7 +22,7 @@ internal class DependencyMultiplicityTest {
             """
         )
 
-    val failure = shouldThrow<IllegalStateException> { limiter(table) }
+    val failure = shouldThrow<PetException> { limiter(table) }
 
     failure.message shouldContain "Dependent -> Target"
   }
@@ -41,6 +42,21 @@ internal class DependencyMultiplicityTest {
         )
 
     limiter(table)
+  }
+
+  @Test
+  fun rejectsNonCountingClassInvariantsWithAPetsException() {
+    val table =
+        load(
+            """
+            CLASS Foo
+            CLASS Bar
+            CLASS InvalidInvariant { HAS Foo OR Bar }
+            CLASS Dependent<InvalidInvariant>
+            """
+        )
+
+    shouldThrow<PetException> { limiter(table) }
   }
 
   private fun load(classes: String) = loader(classes.trimIndent())

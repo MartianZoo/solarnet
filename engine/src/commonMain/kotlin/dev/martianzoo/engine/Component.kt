@@ -132,6 +132,6 @@ public class Component internal constructor(public val type: Type) : HasExpressi
 }
 
 public fun Type.toComponent(): Component {
-  require(!abstract) { "type is abstract: $expressionFull" }
+  if (abstract) throw Exceptions.abstractComponent(this)
   return Component(this)
 }

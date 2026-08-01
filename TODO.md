@@ -100,6 +100,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Make `task <id> Ok` notify workflow when it removes the final task.
 - Diagnose the production Kotlin/JS `Atomized` parse failure; add a production-distribution smoke test.
 - Improve better-parse errors with one typed validation path, structured alternatives, and source locations.
+- Reject truncated class declarations instead of treating unexpected EOF as the end of the declaration stream.
 - Explain missing “currently impossible” text for `MAX 0 Barrier`; decide whether the extra output blank line is intentional.
 - Extend the real-terminal smoke test to cover prompt and `board`/`map` colors while keeping ordinary output plain. (Needs discussion)
 - Move PET AST generation to Kotest property tests only if domain-aware shrinking improves failures. (Later)

@@ -39,10 +39,14 @@ public object Parsing {
    * examples can be reviewed in `global.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
-    val stripped = lineCommentRegex.replace(declarationsSource, "\n")
-    val topLevelGroup = Declarations.topLevelGroup
-    val tokens = TokenCache.tokenize(stripped)
-    return parseRepeated(topLevelGroup, tokens).flatten()
+    try {
+      val stripped = lineCommentRegex.replace(declarationsSource, "\n")
+      val topLevelGroup = Declarations.topLevelGroup
+      val tokens = TokenCache.tokenize(stripped)
+      return parseRepeated(topLevelGroup, tokens).flatten()
+    } catch (e: RuntimeException) {
+      throw PetSyntaxException("Invalid class declaration source", e)
+    }
   }
 
   private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
@@ -100,6 +104,8 @@ public object Parsing {
               .trimIndent(),
           e,
       )
+    } catch (e: RuntimeException) {
+      throw PetSyntaxException("Invalid Pets syntax: $source", e)
     }
   }
 
@@ -195,7 +201,7 @@ public object Parsing {
     visit(result)
 
     message.append("\nNow, here is the input:\n")
-    inputs.last().split("\n").forEachIndexed { lineNum, line ->
+    inputs.lastOrNull().orEmpty().split("\n").forEachIndexed { lineNum, line ->
       message.append("$line\n")
       (1..100).forEach { columnNum ->
         val loc = (lineNum + 1) to columnNum
@@ -204,6 +210,6 @@ public object Parsing {
       message.append("\n")
     }
 
-    throw RuntimeException(message.toString())
+    throw PetSyntaxException(message.toString())
   }
 }

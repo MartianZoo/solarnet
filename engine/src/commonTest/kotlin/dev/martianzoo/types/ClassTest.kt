@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.CustomClass
+import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -22,7 +23,7 @@ internal class ClassTest {
           override val customClasses = setOf(object : CustomClass(COMPONENT) {})
         }
 
-    shouldThrow<IllegalArgumentException> { ClassLoader(ruleset) }
+    shouldThrow<PetException> { ClassLoader(ruleset) }
   }
 
   @Test
@@ -90,8 +91,8 @@ internal class ClassTest {
 
   @Test
   fun concreteSuperclassRejected() {
-    shouldThrow<IllegalArgumentException> { loadTypes("CLASS Foo", "CLASS Bar : Foo") }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<PetException> { loadTypes("CLASS Foo", "CLASS Bar : Foo") }
+    shouldThrow<PetException> {
       loadTypes("CLASS Foo", "ABSTRACT CLASS Bar : Foo")
     }
   }
@@ -103,7 +104,7 @@ internal class ClassTest {
       CLASS Foo : Bar
       CLASS Bar : Foo
     """
-    shouldThrow<IllegalStateException> { loader(s) }
+    shouldThrow<PetException> { loader(s) }
   }
 
   @Test
@@ -112,7 +113,7 @@ internal class ClassTest {
         """
       CLASS Foo : Foo
     """
-    shouldThrow<IllegalStateException> { loader(s) }
+    shouldThrow<PetException> { loader(s) }
   }
 
   @Test

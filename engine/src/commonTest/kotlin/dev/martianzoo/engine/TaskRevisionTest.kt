@@ -111,6 +111,15 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `changing a grouped instruction is a narrowing failure`() {
+    initiate("TR: (Plant, Heat)")
+
+    shouldThrow<NarrowingException> {
+      writer.reviseTask(A, "TR: (Plant, Steel)")
+    }
+  }
+
+  @Test
   fun `narrowing to Ok automatically handles the task`() {
     initiate("2 Plant?")
 

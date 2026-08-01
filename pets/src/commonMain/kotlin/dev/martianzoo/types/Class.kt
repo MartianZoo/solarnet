@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
@@ -45,9 +46,11 @@ internal constructor(
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   init {
-    require(directSuperclasses.all { it.abstract }) {
-      "$className cannot extend concrete class(es): " +
-          directSuperclasses.filterNot { it.abstract }.joinToString { "${it.className}" }
+    if (directSuperclasses.any { !it.abstract }) {
+      throw PetException(
+          "$className cannot extend concrete class(es): " +
+              directSuperclasses.filterNot { it.abstract }.joinToString { "${it.className}" }
+      )
     }
   }
 

@@ -8,6 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
@@ -65,7 +66,7 @@ public sealed class Requirement : PetElement() {
         }
         is Or -> requirements.any { it.isMetBy(count) }
         is And -> requirements.all { it.isMetBy(count) }
-        is Transform -> error("should have been transformed before evaluation: $this")
+        is Transform -> throw ExpressionException("unhandled requirement transform: $this")
       }
 
   /** A requirement that counts (a min, max, or exact). */

@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.tfmRuleset
@@ -93,7 +94,7 @@ internal class SetupWorldTest {
       addTasks("PreludeExpansion")
     }
 
-    shouldThrow<IllegalArgumentException> { Engine.newGame(setupWorld, Canon::assemble) }
+    shouldThrow<TaskException> { Engine.newGame(setupWorld, Canon::assemble) }
   }
 
   @Test

@@ -1,6 +1,7 @@
 package dev.martianzoo.data
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.ast.Instruction
@@ -65,7 +66,7 @@ public data class Task(
       "Die remained after task normalization: $instruction"
     }
     when (instruction) {
-      is Transform -> error("can't enqueue: $instruction")
+      is Transform -> throw ExpressionException("unhandled transform in task: $instruction")
       else -> {}
     }
   }
@@ -98,12 +99,14 @@ public data class Task(
       }
       is Then -> {
         val parts = instruction.instructions
-        parts.firstOrNull { (it as? Gain)?.gaining?.className == DIE }
-            ?: Then.create(parts.map(::normalizeForTask))
+        if ((parts.first() as? Gain)?.gaining?.className == DIE) {
+          throw DeadEndException("a Die instruction was reached")
+        }
+        Then.create(parts.map(::normalizeForTask))
       }
       is NoOp,
       is Multi -> split(instruction).asInstruction()
-      is Transform -> error("can't enqueue: $instruction")
+      is Transform -> throw ExpressionException("unhandled transform in task: $instruction")
     }
   }
 

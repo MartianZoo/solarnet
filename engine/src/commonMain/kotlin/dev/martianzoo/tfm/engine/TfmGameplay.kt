@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.Actor
@@ -116,7 +118,9 @@ public class TfmGameplay(
 
       // MC really should be equal to owed, but if it's less we might be legitimately testing how
       // the engine responds. We know it doesn't respond usefully to an overage so we check that.
-      require(megacredits <= owed) { "Overpaying $megacredits MC when only $owed is owed" }
+      if (megacredits > owed) {
+        throw LimitsException("Overpaying $megacredits MC when only $owed is owed")
+      }
       pay(megacredits, "Megacredit")
 
       // Take care of other Accepts we didn't need
@@ -145,8 +149,10 @@ public class TfmGameplay(
       stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
 
   public fun phase(phase: String, body: BodyLambda = {}) {
-    require(count("Phase") == 1) {
-      "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
+    if (count("Phase") != 1) {
+      throw NotNowException(
+          "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
+      )
     }
     asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
   }

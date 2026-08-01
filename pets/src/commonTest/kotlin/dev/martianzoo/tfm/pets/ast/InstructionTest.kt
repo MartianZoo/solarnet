@@ -16,6 +16,15 @@ import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
 internal class InstructionTest {
+  @Test
+  fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("999999999999999999999999999999 Plant")
+    }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant OR Plant") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("X Plant, X Heat") }
+  }
+
   private val inputs =
       """
       5
