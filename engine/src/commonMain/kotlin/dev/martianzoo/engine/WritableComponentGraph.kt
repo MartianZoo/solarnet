@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
@@ -64,8 +65,10 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
     override fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
       listOfNotNull(gaining, removing).forEach {
         requireOwnClassTable(it.type)
-        require(!it.isCustom) {
-          "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+        if (it.isCustom) {
+          throw ExpressionException(
+              "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+          )
         }
       }
       removing?.let { r ->

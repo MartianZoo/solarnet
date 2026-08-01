@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
+import dev.martianzoo.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GamePremise
@@ -69,7 +70,9 @@ internal class Initializer(
               val missing = missingByType.getValue(type).joinToString { "${it.expressionFull}" }
               "  ${type.expressionFull} requires $missing"
             }
-        error("Could not create singleton components; dependencies remain missing:\n$diagnostic")
+        throw invalidPetDefinition(
+            "Could not create singleton components; dependencies remain missing:\n$diagnostic"
+        )
       }
     }
   }

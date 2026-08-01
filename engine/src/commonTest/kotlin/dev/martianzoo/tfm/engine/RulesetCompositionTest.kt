@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -70,7 +71,7 @@ internal class RulesetCompositionTest {
     val ruleset = TfmRuleset.compose(Canon, extension)
 
     val failure =
-        shouldThrow<IllegalStateException> {
+        shouldThrow<PetException> {
           Engine.newGame(canonicalPremise(ruleset = ruleset))
         }
 

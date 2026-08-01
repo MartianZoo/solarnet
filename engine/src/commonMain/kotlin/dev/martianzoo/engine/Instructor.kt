@@ -113,8 +113,8 @@ internal class Instructor(
           Then.create(
               listOf(doPrepare(unprepared.instructions.first())) + unprepared.instructions.drop(1)
           )
-      is Multi -> error("")
-      is Transform -> error("should have been transformed already: $unprepared")
+      is Multi -> throw abstractInstruction(unprepared)
+      is Transform -> throw ExpressionException("unhandled instruction transform: $unprepared")
     }
   }
 
@@ -152,7 +152,9 @@ internal class Instructor(
     val removing = r?.toComponent()
 
     if (g?.rootClass?.declaration?.custom == true) {
-      require(r == null) { "custom class instructions can only be pure gains" }
+      if (r != null) {
+        throw ExpressionException("custom class instructions can only be pure gains: $change")
+      }
       val translated = Prod.deprodify(classTable).transform(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }

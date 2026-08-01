@@ -4,12 +4,22 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 internal class ClassDeclarationParsingTest {
+  @Test
+  fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar, Bar") }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }")
+    }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo @ CLASS Bar") }
+  }
+
   @Test
   fun simpleOneLiners() {
     parseClasses("CLASS Foo") // minimal

@@ -40,14 +40,21 @@ public object Exceptions {
   internal fun refinementNotMet(reqt: Requirement) =
       NarrowingException("requirement not met: `$reqt`")
 
+  public fun invalidPetDefinition(message: String, cause: Throwable? = null): PetException =
+      PetException(message, cause)
+
   // TOP-LEVEL EXCEPTIONS
 
-  /** A problem with Pets... stuff. */
+  /** A problem in authored Pets source or in the definitions assembled from it. */
   public open class PetException internal constructor(message: String, cause: Throwable? = null) :
       Exception(message, cause)
 
   /** Something is not a valid narrowing of something else. */
   public class NarrowingException(message: String, cause: Throwable? = null) :
+      Exception(message, cause)
+
+  /** A custom Kotlin implementation failed while evaluating otherwise valid Pets input. */
+  public class CustomCodeException(message: String, cause: Throwable? = null) :
       Exception(message, cause)
 
   public open class RecoverableException(message: String) : Exception(message)

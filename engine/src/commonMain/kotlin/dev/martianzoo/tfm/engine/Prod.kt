@@ -57,7 +57,7 @@ public object Prod {
                 }
               }
               node is TransformNode<*> && node.transformKind == PROD -> {
-                require(!inProd)
+                if (inProd) throw PetSyntaxException("PROD boxes cannot be nested")
                 inProd = true
                 val inner =
                     try {

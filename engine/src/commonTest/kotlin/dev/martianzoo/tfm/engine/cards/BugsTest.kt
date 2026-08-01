@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.AutoExecMode.NONE
@@ -137,21 +138,21 @@ class BugsTest : CardTest() {
   }
 
   @Test
-  fun `a quantified tile instruction incorrectly cannot be decomposed into placement choices`() {
+  fun `a quantified tile instruction incorrectly remains abstract instead of decomposing`() {
     newGame()
-    shouldThrow<IllegalArgumentException> { p1.manual("2 CityTile") }
+    shouldThrow<AbstractException> { p1.manual("2 CityTile") }
   }
 
   @Test
-  fun `Predators incorrectly throws IllegalArgumentException without a removable animal`() {
+  fun `Predators incorrectly remains abstract instead of unavailable without an animal`() {
     newGame()
     p1.manual("Predators")
     engine.phase("Action")
-    shouldThrow<IllegalArgumentException> { p1.cardAction1("Predators") }
+    shouldThrow<AbstractException> { p1.cardAction1("Predators") }
   }
 
   @Test
-  fun `Artificial Lake incorrectly throws IllegalArgumentException without an available area`() {
+  fun `Artificial Lake incorrectly remains abstract instead of unavailable without an area`() {
     newGame()
     engine.phase("Action")
     val landAreas =
@@ -160,6 +161,6 @@ class BugsTest : CardTest() {
         "15, ProjectCard, 12 TemperatureStep, " + landAreas.joinToString { "GreeneryTile<$it>" }
     )
 
-    shouldThrow<IllegalArgumentException> { p1.playProject("ArtificialLake", 15) }
+    shouldThrow<AbstractException> { p1.playProject("ArtificialLake", 15) }
   }
 }

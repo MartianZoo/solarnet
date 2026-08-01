@@ -91,6 +91,8 @@ public object Parsing {
               .trimIndent(),
           e,
       )
+    } catch (e: RuntimeException) {
+      throw PetSyntaxException("Invalid Pets syntax: $source", e)
     }
   }
 

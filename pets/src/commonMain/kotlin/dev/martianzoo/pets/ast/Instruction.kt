@@ -418,7 +418,7 @@ public sealed class Instruction : PetElement() {
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       if (proposed != this) {
-        error("should have been split by now: $this")
+        throw NarrowingException("$proposed does not narrow grouped instruction $this")
       }
     }
 

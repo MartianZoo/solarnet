@@ -1,6 +1,8 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.CustomCodeException
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.Component.Companion.toComponent
@@ -43,14 +45,16 @@ internal class GameReaderImpl(
         is Scaled -> count(metric.inner) / metric.unit
         is Metric.Max -> min(count(metric.inner), metric.maximum)
         is Or -> countUnion(metric)
-        is Metric.Transform -> error("should have been transformed by now: $metric")
+        is Metric.Transform -> throw ExpressionException("unhandled metric transform: $metric")
       }
 
   private fun countUnion(metric: Or): Int {
     val union = mutableMapOf<Component, Int>()
     metric.metrics.forEach { alternative ->
-      require(alternative is Count) {
-        "OR metric alternatives must count components, but found: $alternative"
+      if (alternative !is Count) {
+        throw ExpressionException(
+            "OR metric alternatives must count components, but found: $alternative"
+        )
       }
       componentsMatching(alternative.expression).entries.forEach { (component, count) ->
         union[component] = maxOf(union[component] ?: 0, count)
@@ -64,8 +68,10 @@ internal class GameReaderImpl(
         HashMultiset<Component>()
       } else {
         val type = classTable.resolve(expression)
-        require(!type.rootClass.declaration.custom) {
-          "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
+        if (type.rootClass.declaration.custom) {
+          throw ExpressionException(
+              "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
+          )
         }
         components.getAll(type, this)
       }
@@ -77,13 +83,22 @@ internal class GameReaderImpl(
 
     val implementation =
         ruleset.customMetric(type.className)
-            ?: error("Custom class `${type.className}` has no metric implementation")
+            ?: throw CustomCodeException(
+                "Custom class `${type.className}` has no metric implementation"
+            )
     if (type.abstract)
         throw AbstractException("custom metric type is abstract: ${type.expressionFull}")
 
-    return implementation.count(this, type).also {
-      require(it >= 0) { "Custom metric `${type.expressionFull}` returned $it" }
+    val count =
+        try {
+          implementation.count(this, type)
+        } catch (e: RuntimeException) {
+          throw CustomCodeException("Custom metric failed for ${type.expressionFull}", e)
+        }
+    if (count < 0) {
+      throw CustomCodeException("Custom metric `${type.expressionFull}` returned $count")
     }
+    return count
   }
 
   override fun count(type: Type) = components.count(type, this)

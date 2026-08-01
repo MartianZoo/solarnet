@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
@@ -42,7 +43,11 @@ public constructor(
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
 
   override fun findClass(name: ClassName): Class? =
-      if (name in loadedClasses) loadedClasses[name] ?: error("reentrancy happened") else null
+      if (name in loadedClasses) {
+        loadedClasses[name] ?: throw PetException("Class-loading cycle involving $name")
+      } else {
+        null
+      }
 
   /** Returns the [Type] represented by [expression]. */
   override fun resolve(expression: Expression): Type {
@@ -56,7 +61,7 @@ public constructor(
               .specialize(expression.arguments)
               .refine(expression.refinement)
               .also { cache[expression] = it }
-        } catch (e: IllegalStateException) {
+        } catch (e: RuntimeException) {
           throw ExpressionException("can't resolve $expression", e)
         }
   }
@@ -97,7 +102,9 @@ public constructor(
   }
 
   internal fun loadAndMaybeEnqueueRelated(next: ClassName): Class {
-    if (next in loadedClasses) return loadedClasses[next] ?: error("reentrant")
+    if (next in loadedClasses) {
+      return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
+    }
     val declaration = decl(next)
     return loadSingle(next, declaration).also {
       val needed = buildSet {
@@ -177,7 +184,9 @@ public constructor(
     if (decl.custom) {
       ruleset.customClass(decl.className)
     } else {
-      require(ruleset.customClasses.none { it.className == decl.className })
+      if (ruleset.customClasses.any { it.className == decl.className }) {
+        throw PetException("Non-custom class ${decl.className} has a custom implementation")
+      }
     }
     return decl
   }

@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
@@ -52,7 +53,7 @@ private constructor(
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 
   internal fun getTaskData(id: TaskId) =
-      taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
+      taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
 
   internal fun getAllTaskData(): List<Task> = taskSet.toList()
 
@@ -133,7 +134,9 @@ internal class WritableTaskQueue(
 
   private fun validateAssignee(task: Task) {
     if (assignee != null && task.assignee != assignee) {
-      error("$assignee's queue can't contain a task assigned to ${task.assignee}: $task")
+      throw TaskException(
+          "$assignee's queue can't contain a task assigned to ${task.assignee}: $task"
+      )
     }
   }
 
@@ -145,7 +148,7 @@ internal class WritableTaskQueue(
 
   override fun requireAllQueuesEmpty() {
     val allTasks = taskQueues.getAllTaskData()
-    require(allTasks.none()) { allTasks.joinToString("\n") }
+    if (allTasks.any()) throw TaskException("pending tasks:\n${allTasks.joinToString("\n")}")
   }
 
   override fun matching(predicate: (Task) -> Boolean) =

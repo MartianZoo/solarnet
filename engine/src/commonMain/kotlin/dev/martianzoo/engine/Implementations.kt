@@ -2,8 +2,11 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
+import dev.martianzoo.api.Exceptions.abstractInstruction
+import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.TEMPORARY
 import dev.martianzoo.data.Actor
@@ -38,11 +41,14 @@ internal class Implementations(
 
   internal fun sneak(changes: Instruction, cause: Cause? = null) {
     split(changes).forEach {
-      val count = (it as Change).count as ActualScalar
+      if (it is Instruction.Or) throw orWithoutChoice(it)
+      val change =
+          it as? Change ?: throw ExpressionException("sneak accepts only direct changes, not: $it")
+      val count = change.count as? ActualScalar ?: throw abstractInstruction(change)
       changer.change(
           count.value,
-          it.gaining?.toComponent(reader),
-          it.removing?.toComponent(reader),
+          change.gaining?.toComponent(reader),
+          change.removing?.toComponent(reader),
           cause,
           orRemoveOneDependent = false,
       )
@@ -92,8 +98,16 @@ internal class Implementations(
 
   internal fun complete(autoExec: AutoExecMode, body: () -> Unit) {
     continueManual(autoExec, body)
-    tasks.requireAllQueuesEmpty()
-    require(reader.has(parse("MAX 0 $TEMPORARY")))
+    if (!tasks.areAllQueuesEmpty()) {
+      val pending = allTasks.extract { it }
+      if (pending.any { it.whyPending == "abstract" }) {
+        throw AbstractException("pending abstract tasks:\n${pending.joinToString("\n")}")
+      }
+      throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
+    }
+    if (!reader.has(parse("MAX 0 $TEMPORARY"))) {
+      throw DeadEndException("temporary components remained after the operation")
+    }
   }
 
   internal fun autoExecNow(mode: AutoExecMode) {

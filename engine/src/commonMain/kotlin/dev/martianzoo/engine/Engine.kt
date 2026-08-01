@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.AUTO_LOAD
 import dev.martianzoo.data.Actor
@@ -40,9 +41,9 @@ public object Engine {
       setupWorld: World,
       assemble: (GameReader) -> GamePremise,
   ): World {
-    require(setupWorld.isIdle()) { "a completed setup world must be idle" }
+    if (!setupWorld.isIdle()) throw TaskException("a completed setup world must be idle")
     setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
-    check(setupWorld.isIdle()) { "setup validation did not leave the world idle" }
+    if (!setupWorld.isIdle()) throw TaskException("setup validation did not leave the world idle")
     return newGame(assemble(setupWorld.reader))
   }
 
