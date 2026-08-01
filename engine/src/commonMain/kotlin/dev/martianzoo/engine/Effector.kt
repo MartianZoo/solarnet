@@ -39,24 +39,42 @@ internal class Effector(
     readerProvider: Lazy<GameReader>,
 ) {
   private val reader: GameReader by lazy { readerProvider.value }
-  private val registry = HashMultiset<LiveEffect>()
+  private val registry = mutableMapOf<RegistryKey, HashMultiset<LiveEffect>>()
+  private val registryOrder = mutableMapOf<LiveEffect, Long>()
+  private var nextRegistryOrder = 0L
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
 
   internal fun add(component: Component, delta: Int) =
-      liveEffects(component).forEach { registry.add(it, delta) }
+      liveEffects(component).forEach { effect ->
+        if (delta == 0) return@forEach
+        val bucket = registry.getOrPut(effect.registryKey, ::HashMultiset)
+        if (bucket.count(effect) == 0) registryOrder[effect] = nextRegistryOrder++
+        bucket.add(effect, delta)
+      }
 
   internal fun mustRemove(component: Component, delta: Int) =
-      liveEffects(component).forEach { registry.mustRemove(it, delta) }
+      liveEffects(component).forEach { effect ->
+        if (delta == 0) return@forEach
+        val key = effect.registryKey
+        val bucket = checkNotNull(registry[key])
+        if (bucket.mustRemove(effect, delta) == 0) registryOrder.remove(effect)
+        if (bucket.isEmpty()) registry.remove(key)
+      }
 
   private fun liveEffects(component: Component): List<LiveEffect> {
-    fun liveEffect(fx: Effect) =
-        LiveEffect(
-            Subscription.from(fx.trigger, component),
-            fx.automatic,
-            fx.instruction,
-            component,
-        )
+    fun liveEffect(fx: Effect): LiveEffect {
+      val subscription = Subscription.from(fx.trigger, component)
+      val triggerClass =
+          subscription.classToCheck?.let(transformers.classTable::getClass)?.className
+      return LiveEffect(
+          subscription,
+          fx.automatic,
+          fx.instruction,
+          component,
+          triggerClass,
+      )
+    }
 
     return effects.getOrPut(component) { component.effects(transformers).map(::liveEffect) }
   }
@@ -73,16 +91,50 @@ internal class Effector(
           .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
 
   private fun fireOtherEffects(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
-      registry.entries
-          .filter { (fx, _) -> automatic == null || fx.automatic == automatic }
-          .mapNotNull { (fx, ct) -> fx.onChangeToOther(triggerEvent, reader)?.times(ct) }
+      candidatesFor(triggerEvent, automatic).mapNotNull { (fx, ct) ->
+        fx.onChangeToOther(triggerEvent, reader)?.times(ct)
+      }
+
+  private fun candidatesFor(
+      triggerEvent: ChangeEvent,
+      automatic: Boolean?,
+  ): List<Pair<LiveEffect, Int>> {
+    val changedClasses =
+        listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+            .flatMap { reader.resolve(it).rootClass.allSuperclasses() }
+            .mapTo(linkedSetOf()) { it.className }
+    val automaticValues = automatic?.let(::setOf) ?: setOf(true, false)
+
+    // OR and self subscriptions have no single trigger class and remain in the null bucket. The
+    // subscription matcher is still authoritative for every selected candidate.
+    val candidates = HashMultiset<LiveEffect>()
+    automaticValues.forEach { mode ->
+      registry[RegistryKey(mode, null)]?.let(candidates::addAll)
+      changedClasses.forEach { changedClass ->
+        registry[RegistryKey(mode, changedClass)]?.let(candidates::addAll)
+      }
+    }
+    // Effects can be selected through different superclass buckets. Preserve the old registry's
+    // insertion order because automatic effects may observe changes made by earlier effects.
+    return candidates.entries
+        .sortedBy { (effect, _) -> checkNotNull(registryOrder[effect]) }
+        .map { (effect, count) -> effect to count }
+  }
+
+  private data class RegistryKey(
+      val automatic: Boolean,
+      val triggerClass: ClassName?,
+  )
 
   private data class LiveEffect(
       private val subscription: Subscription,
       internal val automatic: Boolean,
       private val instruction: Instruction,
       private val context: Component,
+      private val triggerClass: ClassName?,
   ) {
+    val registryKey = RegistryKey(automatic, triggerClass)
+
     fun onChangeToSelf(triggerEvent: ChangeEvent, reader: GameReader) =
         onChange(triggerEvent, reader, isSelf = true)
 

@@ -32,6 +32,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Consider letting custom metrics query typed, read-only event history for facts such as `HasRaisedTr` and this-generation attacks, avoiding permanent watchers; preserve semantic generation boundaries and rollback/replay determinism.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
 - Replace rollback speculation with disposable game-state forks: overlay components and live effects, copy the small task queues, and extend event history from a captured prefix.
+- After `OverlayWorld`, revisit task preparation so a prepared task remains authoritative for its world revision instead of being repeatedly prepared, executed speculatively, rolled back, and prepared again.
 - [#60: Auto-narrowing](https://github.com/MartianZoo/solarnet/issues/60) — Define a small set of rules for unique choices without removing real choices.
 - [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer.
 - [#59: `-This` intensity](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory. (Needs discussion)

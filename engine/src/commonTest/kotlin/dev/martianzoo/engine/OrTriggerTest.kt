@@ -6,10 +6,37 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.canonicalPremise
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
 class OrTriggerTest {
+  @Test
+  fun simpleSuperclassTriggerFiresForSubclass() {
+    val game = newGame()
+    val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+
+    gameplay.beginManual("ConcreteIndexedSignal!") {
+      game.tasks
+          .extract { it.instruction.toString() }
+          .filter { it == "IndexedReward!" }
+          .shouldContainExactlyInAnyOrder("IndexedReward!")
+    }
+  }
+
+  @Test
+  fun indexingPreservesEffectRegistrationOrderAcrossTriggerClasses() {
+    val game = newGame()
+    val gameplay = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+
+    gameplay.beginManual("ConcreteOrderedSignal!") {
+      game.tasks
+          .extract { it.instruction.toString() }
+          .filter { it.startsWith("OrderedReward") }
+          .shouldContainExactly("OrderedReward1!", "OrderedReward2!")
+    }
+  }
+
   @Test
   fun firstMatchingArmGovernsSpecialization() {
     val game = newGame()
@@ -43,6 +70,22 @@ private object OrProbeDeclarations : TfmRuleset.Empty() {
               CLASS BothSpecializedSignals : LeftSpecializedSignal, RightSpecializedSignal, AutoLoad
               CLASS LeftFirstReward<LeftSpecializedSignal, RightSpecializedSignal>
               CLASS RightFirstReward<LeftSpecializedSignal, RightSpecializedSignal>
+              ABSTRACT CLASS IndexedSignal
+              CLASS ConcreteIndexedSignal : IndexedSignal, AutoLoad
+              CLASS IndexedReward
+              CLASS ConcreteOrderedSignal : IndexedSignal, AutoLoad
+              CLASS OrderedReward1, OrderedReward2
+
+              CLASS IndexedProbe : AutoLoad {
+                HAS =1 This
+                IndexedSignal: IndexedReward
+              }
+
+              CLASS OrderedIndexedProbe : AutoLoad {
+                HAS =1 This
+                IndexedSignal: OrderedReward1
+                ConcreteOrderedSignal: OrderedReward2
+              }
 
               CLASS LeftFirstOrProbe : AutoLoad {
                 HAS =1 This
