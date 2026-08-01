@@ -61,6 +61,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Move Colonies fleet return and colony-track advancement from Production into its Solar subphase, after the game-end check, so neither happens after the final production.
 - Implement Prelude's TR 63 solo option, including Buffer Gas and the 14-generation/12-with-Prelude objective check described in `plans/native-workflow.md`.
 
+### Project Structure
+
+- Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once module/package ownership is unambiguous, consider merging the modules' physical source directories into shared package-shaped trees.
+
 ## Autonomous Follow-ups
 
 ### Gameplay Correctness and Test Fidelity
