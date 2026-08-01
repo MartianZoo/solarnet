@@ -82,7 +82,6 @@ internal class ScriptSessionTest {
         listOf(
             "New 1-player game created with options: RMCS",
             "Purple mode: workflow active",
-            "NOTE: Solo world-government terraforming and victory checking remain manual.",
         ),
         repl.command("newgame RMC 1 purple"),
     )

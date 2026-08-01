@@ -34,6 +34,7 @@ ABSTRACT CLASS Tile<Area> {
   CLASS OceanTile[OT] : Tile<MarsArea>, GlobalParameter {
     HAS MAX 9 OceanTile                                // `HAS MAX 9 This` wouldn't work!
     DEFAULT +OceanTile<WaterArea>
+    This IF =9 OceanTile: GpComplete<Class<OceanTile>>
                                                        // We could almost count all adjacencies,
     ForwardAdjacency<This, Tile>: 2                    // but then the tile would trigger itself
   }

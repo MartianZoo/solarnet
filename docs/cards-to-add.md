@@ -1,6 +1,6 @@
 # Cards to add
 
-We have 448 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
+We have 449 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
@@ -22,7 +22,6 @@ We have 448 cards working. We don't have the following ones or anything else fro
 | X06 | Law Suit                   | playerplayer          |
 | X53 | Cyberia Systems            | copyproduction        |
 | X54 | Established Methods        | else                  |
-| X-1 | Floyd Continuum            | custommetric          |
 | X59 | Mars Nomads                | movablemarker         |
 | X-2 | New Holland                | hybridtile            |
 | X75 | Vermin                     | globalvp              |

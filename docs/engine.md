@@ -430,6 +430,16 @@ Action and final-greenery turn order begins with the player who owns `StartToken
 generation after the first passes that token one seat left, so the workflow reads turn order from
 the world rather than maintaining a separate generation counter.
 
+In multiplayer, a rules component watches the temperature, oxygen, and ocean `GpComplete` markers
+and creates `LastCall` when all three exist; Venus completion is deliberately irrelevant. Solo
+creates the same marker upon entering its final configured generation. The workflow consults only
+that shared fact. After the final solo production, `SoloVictoryCheck` awards `Victory<Player1>` only
+if the applicable objective is complete; the workflow enters final greenery and scoring only when
+that component exists. Multiplayer end scoring first measures awards and assigns their places,
+then `End` pays out ordinary and award victory points. Once `FinalScore` exists,
+`MultiplayerVictoryCheck` awards `Victory` to the highest final score with megacredits as the
+tiebreaker.
+
 This design means:
 - The game flow reads naturally (setupPhase, corporationPhase, then preludePhase, then action loop,
   etc.)

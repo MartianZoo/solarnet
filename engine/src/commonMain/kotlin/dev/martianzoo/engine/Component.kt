@@ -88,7 +88,8 @@ public class Component internal constructor(public val type: Type) : HasExpressi
           bound
         } catch (e: ExpressionException) {
           // An Owner-only component can inherit an effect whose output is Player-bound. The source
-          // effect is valid, but it does not apply to that Owner; for example, Opponent's starting
+          // effect is valid, but it does not apply to that Owner; for example, Opponent's
+          // starting
           // tiles do not score VictoryPoint<Player> components.
           val sourceEffect =
               replaceThisExpressionsWith(type.rootClass.className.expression).transform(effect)

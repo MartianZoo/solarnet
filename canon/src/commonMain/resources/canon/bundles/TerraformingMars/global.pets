@@ -15,6 +15,7 @@ CLASS TerraformingMars : System {
 
   SetupPhase:: GenerationSetup THEN Generation THEN StartToken<Player1>
   CorporationPhase: Photosynthesis
+
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed
@@ -38,28 +39,32 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   "Represents 2 degrees C of temperature increase"
   CLASS TemperatureStep[TEMP] {
     HAS MAX 19 This
+
     This IF =3 This: PROD[Heat]
     This IF =5 This: PROD[Heat]
     This IF =15 This: OceanTile
+    This IF =19 This: GpComplete<Class<TemperatureStep>>
   }
 
   "Represents a 1% increase in oxygen level"
   CLASS OxygenStep[O2] {
     HAS MAX 14 This
+
     This IF =8 This: TemperatureStep
+    This IF =14 This: GpComplete<Class<OxygenStep>>
   }
 
   // OceanTile is in maps-tiles.pets
 }
 
-"Tells what generation we're in; mostly matters in solo games"
-CLASS Generation : System { This:: -GenerationsLeft. }
+"Records that a particular global parameter track has reached its maximum"
+CLASS GpComplete<Class<GlobalParameter>> { HAS MAX 1 This }
 
-"Lets selected variants initialize state immediately before generation 1 begins"
-CLASS GenerationSetup : Signal, System
+"Records that the current generation will be the last one played"
+CLASS LastCall { HAS MAX 1 This }
 
-"The number of generations remaining in a solo game"
-CLASS GenerationsLeft
+"Tells what generation we're in"
+CLASS Generation : System
 
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational { Generation:: -This. }
@@ -85,8 +90,14 @@ ABSTRACT CLASS Phase : AutoLoad, System {
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction1<ConvertPlantsSA>?
   }
-  CLASS EndPhase { This:: End }
+  CLASS EndPhase { This:: MeasureAwards THEN End THEN FinalScore }
 }
 
-"This Signal causes components to pay out victory points, after which the game terminates"
+"This Signal causes funded awards to be measured and places to be assigned"
+CLASS MeasureAwards : Signal, System
+
+"This Signal causes components to pay out victory points"
 CLASS End : Signal, System
+
+"Signals that the final score is available"
+CLASS FinalScore : Signal, System

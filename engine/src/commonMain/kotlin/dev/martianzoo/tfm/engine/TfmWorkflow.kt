@@ -142,7 +142,7 @@ public object TfmWorkflow {
       corporationPhase()
       if (hasComponent("PreludeExpansion")) preludePhase()
       actionPhase()
-      while (!gameIsOver()) {
+      while (!engineOps.has("LastCall")) {
         productionPhase()
         // TODO: worldGovernmentPhase()
 
@@ -150,6 +150,10 @@ public object TfmWorkflow {
         actionPhase()
       }
       productionPhase()
+      if (hasComponent("SoloMode")) {
+        engineOps.manual("SoloVictoryCheck")
+        if (!engineOps.has("Victory<Player1>")) return
+      }
       finalGreeneryPhase()
       m.endPhase()
     }
@@ -211,15 +215,6 @@ public object TfmWorkflow {
       val firstPlayerIndex = players.indexOf(firstPlayer)
       return players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
     }
-
-    private fun gameIsOver() =
-        if (hasComponent("SoloMode")) {
-          engineOps.has("MAX 0 GenerationsLeft")
-        } else {
-          engineOps.has("=19 TemperatureStep") &&
-              engineOps.has("=14 OxygenStep") &&
-              engineOps.has("=9 OceanTile")
-        }
 
     private fun opsFor(player: Player) = game.gameplay(player) as OperationLayer
 

@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class SoloGenerationCountdownTest {
   @Test
-  fun baseSoloBeginsGenerationOneWithThirteenGenerationsLeft() {
+  fun baseSoloBeginsGenerationOneWithThirteenGenerationsRemaining() {
     val setup = dev.martianzoo.tfm.engine.canonicalPremise("SoloMode", 1)
     val game = Engine.newGame(setup)
     val checkpoint = game.timeline.checkpoint()
@@ -17,20 +17,20 @@ internal class SoloGenerationCountdownTest {
 
     game.events
         .changesSince(checkpoint)
-        .single { it.change.gaining?.toString() == "GenerationsLeft" }
+        .single { it.change.gaining?.toString() == "SoloGenerationsLeft" }
         .change
         .count shouldBe 14
-    game.tfm(ENGINE).count("GenerationsLeft") shouldBe 13
+    game.tfm(ENGINE).count("SoloGenerationsLeft") shouldBe 13
   }
 
   @Test
-  fun preludeSoloBeginsGenerationOneWithElevenGenerationsLeft() {
+  fun preludeSoloBeginsGenerationOneWithElevenGenerationsRemaining() {
     val setup = canonicalPremise("SoloMode,PreludeExpansion", 1)
     val game = Engine.newGame(setup)
 
     TfmWorkflow.Manual(game).setupPhase()
 
-    game.tfm(ENGINE).count("GenerationsLeft") shouldBe 11
+    game.tfm(ENGINE).count("SoloGenerationsLeft") shouldBe 11
   }
 
   @Test
@@ -41,7 +41,20 @@ internal class SoloGenerationCountdownTest {
 
     engine.godMode().manual("Generation")
 
-    engine.count("GenerationsLeft") shouldBe 12
+    engine.count("SoloGenerationsLeft") shouldBe 12
+  }
+
+  @Test
+  fun enteringTheFinalSoloGenerationRecordsIt() {
+    val game = setUpGame("SoloMode", 1)
+    val engine = game.tfm(ENGINE)
+    finishNeutralSetup(engine)
+    engine.godMode().sneak("-12 SoloGenerationsLeft")
+
+    engine.godMode().manual("-SoloGenerationsLeft")
+
+    engine.count("SoloGenerationsLeft") shouldBe 0
+    engine.count("LastCall") shouldBe 1
   }
 
   private fun finishNeutralSetup(engine: TfmGameplay) {

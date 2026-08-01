@@ -11,7 +11,11 @@ import dev.martianzoo.tfm.api.TfmRuleset
 /** Catalog of the official bundles and the game options they provide. */
 public object Canon :
     TfmRuleset.Composite(
-        StandardFormBundle("TerraformingMars", baseCustomClasses, setOf(cn("SoloMode"))),
+        StandardFormBundle(
+            "TerraformingMars",
+            baseCustomClasses,
+            setOf(cn("SoloMode"), cn("MultiplayerMode")),
+        ),
         StandardFormBundle(
             "CorporateEraExpansion",
             corporateEraCustomClasses,

@@ -10,8 +10,12 @@ ABSTRACT CLASS MarsMapOption : GameOption { HAS MAX 1 MarsMapOption }
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : GameOption
 
+"A game with at least two players"
+CLASS MultiplayerMode : GameOption
+
 "Checks whether the current selections describe one complete game"
 CLASS ValidateSetup : Signal {
+  This IF 2 Player, MAX 0 MultiplayerMode:: MultiplayerMode
   This IF MAX 0 Player: Die
   This IF MAX 0 MarsMapOption: Die
   This IF =1 Player, MAX 0 SoloMode: Die

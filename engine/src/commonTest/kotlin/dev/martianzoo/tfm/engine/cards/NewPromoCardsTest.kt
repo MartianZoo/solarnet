@@ -10,6 +10,21 @@ import kotlin.test.Test
 
 class NewPromoCardsTest : CardTest() {
   @Test
+  fun `Floyd Continuum pays for every completed parameter`() {
+    newGame("PromoCardPack, VenusNextExpansion")
+    engine.phase("Action")
+    p1.manual(
+        "FloydContinuum, " +
+            "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>, " +
+            "GpComplete<Class<VenusStep>>"
+    )
+
+    p1.cardAction1("FloydContinuum").expect("12 Megacredit")
+  }
+
+  @Test
   fun `with Carbon Nanosystems in hand, plays a space card`() {
     newGame("PromoCardPack")
 

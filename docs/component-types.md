@@ -3,6 +3,7 @@
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to the source code as you read:
 
 * [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
+* [modes.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/modes.pets)
 * [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
 * [venus.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/venus.pets)
 * [prelude.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/PreludeExpansion/prelude.pets)
@@ -57,7 +58,7 @@ Funded awards are `Award` components. The standard action charges 8, 14, then 20
 
 Concrete classes called Player1, Player2, etc. will exist. The player owning the unique
 `StartToken` is the start player; it begins with Player1 and passes one seat left when each later
-`Generation` is created. In solo mode, setup creates 14 `GenerationsLeft` components and every
+`Generation` is created. In solo mode, setup creates 14 `SoloGenerationsLeft` components and every
 `Generation` removes one; Prelude removes two additional counters during generation 1, giving a
 Prelude solo game 12 generations. Mapping player classes to players' names is considered a UI-level
 task.

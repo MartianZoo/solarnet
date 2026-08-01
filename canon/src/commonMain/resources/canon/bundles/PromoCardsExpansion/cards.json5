@@ -1,6 +1,16 @@
 {
   "cards": [
 
+    // Floyd Continuum
+    {
+      "id": "XM1",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "ScienceTag" ],
+      "actions": [ "-> 3 / GpComplete" ]
+    },
+
     // Interplanetary Trade
     {
       "id": "X05",

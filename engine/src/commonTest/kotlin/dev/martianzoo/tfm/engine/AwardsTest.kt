@@ -176,4 +176,18 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(1 to "FirstPlace<Player1, Thermalist>", 5 to "VictoryPoint")
     p2.assertCounts(0 to "SecondPlace<Player2, Thermalist>", 0 to "VictoryPoint")
   }
+
+  @Test
+  fun awardPointsArePaidBeforeMultiplayerVictoryIsChecked() {
+    game = Engine.newGame(canonicalPremise())
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    p1.godMode().sneak("3 VictoryPoint")
+    p2.godMode().sneak("Banker, PROD[Megacredit]")
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(0 to "Victory<Player1>")
+    p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")
+  }
 }

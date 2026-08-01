@@ -15,8 +15,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         together: R=coRpoRate eRa, M=Tharsis, H=Hellas, I=Terra Cimmeria, U=Utopia Planitia,
         X=Promos, and the rest
         are what you'd think. The base game is always included. The player count can be from 1 to 5. A count of 1 applies
-        the solo starting state. In purple mode the solo generation limit is automatic, but world-government
-        terraforming and victory checking remain manual.
+        the solo starting state.
 
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
@@ -42,10 +41,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val effectiveOptionCodes = repl.setup.optionCodes
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
-          (if (purple) listOf("Purple mode: workflow active") else emptyList()) +
-          (if (playerCount == 1)
-              listOf("NOTE: Solo world-government terraforming and victory checking remain manual.")
-          else emptyList())
+          (if (purple) listOf("Purple mode: workflow active") else emptyList())
     } catch (e: RuntimeException) {
       throw UsageException(e.message)
     }

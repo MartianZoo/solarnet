@@ -1,8 +1,14 @@
 "Represents a 2% increase in Venus... terraformedness"
 CLASS VenusStep[VEN] : GlobalParameter {
   HAS MAX 15 This
+  This IF =15 This: GpComplete<Class<VenusStep>>
   This IF =4 This: ProjectCard
   This IF =8 This: TerraformRating
+}
+
+CLASS VenusNextExpansion : GameOption {
+  SetupPhase:: SoloVictoryRequirement
+  SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
 }
 
 CLASS VenusTag[VET] : PlanetTag

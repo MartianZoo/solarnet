@@ -46,6 +46,7 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.GetEventVps,
         TerraformingMars.PassLeft,
         TerraformingMars.AssignAwardPlaces,
+        TerraformingMars.MultiplayerVictoryCheck,
         TerraformingMars.MarsRow,
         TerraformingMars.CardCost,
         TerraformingMars.CitationsIgnoringRemoves,
@@ -254,6 +255,23 @@ internal object TerraformingMars {
             winners + runnersUp
           }
       return Then.create(placements.map { gain(scaledEx(1, it)) })
+    }
+  }
+
+  internal object MultiplayerVictoryCheck : CustomClass() {
+    override fun translate(reader: GameReader): Instruction {
+      val players = reader.getComponents("Player").elements
+      val victoryPoints = players.associateWith {
+        reader.count(reader.resolve(cn("VictoryPoint").of(it.expression)))
+      }
+      val mostVictoryPoints = victoryPoints.values.maxOrNull() ?: return NoOp
+      val leaders = victoryPoints.filterValues { it == mostVictoryPoints }.keys
+      val megacredits = leaders.associateWith {
+        reader.count(reader.resolve(cn("Megacredit").of(it.expression)))
+      }
+      val mostMegacredits = megacredits.values.maxOrNull() ?: return NoOp
+      val winners = megacredits.filterValues { it == mostMegacredits }.keys
+      return Then.create(winners.map { gain(scaledEx(1, cn("Victory").of(it.expression))) })
     }
   }
 
