@@ -8,13 +8,13 @@ import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
+// Thermal Matter Wave - https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
 class Game20260730Test : AbstractSoloTest() {
   override fun setup(): GamePremise {
-    val colonyTiles = setOf(cn("Ceres"), cn("Io"), cn("Triton"))
     return canonicalPremise(
         "VenusNextExpansion,PreludeExpansion,SoloMode,ColoniesExpansion,PromoCardPack",
         1,
-        colonyTiles,
+        setOf(cn("Ceres"), cn("Io"), cn("Triton")),
     )
   }
 
@@ -740,9 +740,38 @@ class Game20260730Test : AbstractSoloTest() {
       assertTags(15, 16, 10, 5, eat = 3, jot = 8, vet = 4, plt = 1, mit = 4, ant = 0, cit = 4)
 
       val sum = Summarizer(game)
-      sum.net("GreeneryTile", "VictoryPoint<P1>") shouldBe 6
-      sum.net("CityTile", "VictoryPoint<P1>") shouldBe 7
-      sum.net("Card", "VictoryPoint<P1>") shouldBe 43
+
+      // Best current match for the app's reported action count: turns offered plus passes.
+      (-sum.net("NewTurn", "NewTurn<P1>") + sum.net("ActionPhase", "Pass<P1>")) shouldBe 168
+
+      // Discounts earned
+      sum.net("AdvancedAlloys", "Owed<P1>") shouldBe -84
+      sum.net("Shuttles", "Owed<P1>") shouldBe -14
+
+      // Resources and cards gained from active cards
+      sum.net("CryoSleep", "Energy") shouldBe 2
+      sum.net("CryoSleep", "Titanium") shouldBe 2
+      sum.net("DevelopmentCenter", "ProjectCard") shouldBe 6
+      sum.net("ElectroCatapult", "Plant") shouldBe -6
+      sum.net("ElectroCatapult", "Steel") shouldBe -3
+      sum.net("ElectroCatapult", "Megacredit") shouldBe 63
+      sum.net("OptimalAerobraking", "Megacredit") shouldBe 9
+      sum.net("OptimalAerobraking", "Heat") shouldBe 9
+      sum.net("SaturnSurfing", "Megacredit") shouldBe 29
+      sum.net("SpinOffDepartment", "ProjectCard") shouldBe 12
+      sum.net("TitanShuttles", "Titanium") shouldBe 19
+      sum.net("TitanShuttles", "Floater<SaturnSurfing>") shouldBe 8
+
+      // Terraforming gains
+      sum.net("EquatorialMagnetizer", "TerraformRating") shouldBe 2
+      sum.net("ForcedPrecipitation", "VenusStep") shouldBe 1
+      sum.net("RotatorImpacts", "VenusStep") shouldBe 4
+      sum.net("Thermophiles", "VenusStep") shouldBe 2
+
+      // Puntos
+      sum.net("GreeneryTile", "VictoryPoint") shouldBe 6
+      sum.net("CityTile", "VictoryPoint") shouldBe 7
+      sum.net("Card", "VictoryPoint") shouldBe 43
       assertCounts(131 to "VictoryPoint")
     }
   }
