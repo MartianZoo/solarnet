@@ -10,6 +10,8 @@ Kotlin 2.2. Contributors do not need another JDK installed.
 
 - `./gradlew build` is the normal repository-wide check. It runs the JVM tests and the routine
   browser tests. The engine's slow browser suite is deliberately excluded.
+- `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
+  JVM test tasks are named `jvmTest`.
 - `./gradlew :engine:allTests` is the routine engine suite.
 - `./gradlew :engine:allTestsIncludingSlow` or
   `./gradlew :engine:allTests -PincludeSlowTests=true` includes the slow engine browser tests.

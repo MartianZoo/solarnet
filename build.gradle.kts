@@ -141,6 +141,18 @@ subprojects {
   }
 }
 
+tasks.named<Test>("test") {
+  description = "Runs all repository JVM test suites."
+  dependsOn(
+      ":canon:jvmTest",
+      ":engine:jvmTest",
+      ":pets:jvmTest",
+      ":script:jvmTest",
+      ":repl:test",
+      ":tools:test",
+  )
+}
+
 tasks
     .matching { it.name == "rootPackageJson" }
     .configureEach {
