@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -10,7 +11,8 @@ class AirScrappingExpeditionTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(
-        "VenusNextExpansion,ColoniesExpansion",
+        VenusNextExpansion,
+        ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
   }

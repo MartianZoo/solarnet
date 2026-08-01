@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.games
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
 import kotlin.test.Test
@@ -8,8 +9,11 @@ class Game20260619Test : AbstractFullGameTest() {
 
   override fun setup() =
       canonicalPremise(
-          "VenusNextExpansion,PreludeExpansion,PromoCardPack,TurmoilCardPack",
-          2,
+          VenusNextExpansion,
+          PreludeExpansion,
+          PromoCardPack,
+          TurmoilCardPack,
+          players = 2,
       )
 
   @Test

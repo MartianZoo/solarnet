@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.engine.World
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -13,8 +14,11 @@ class Game20230521Test : AbstractFullGameTest() {
 
   override fun setup() =
       canonicalPremise(
-          "VenusNextExpansion,PreludeExpansion,PromoCardPack,TurmoilCardPack",
-          2,
+          VenusNextExpansion,
+          PreludeExpansion,
+          PromoCardPack,
+          TurmoilCardPack,
+          players = 2,
       )
 
   @Test

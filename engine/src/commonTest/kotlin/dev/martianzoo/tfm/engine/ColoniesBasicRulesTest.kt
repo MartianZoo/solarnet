@@ -7,6 +7,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -22,9 +23,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
   private val premise =
       canonicalPremise(
-          "ColoniesExpansion",
-          4,
-          normal,
+          ColoniesExpansion,
+          players = 4,
+          colonyTiles = normal,
       )
 
   init {
@@ -62,9 +63,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val premise =
         canonicalPremise(
-            "ColoniesExpansion",
-            4,
-            colonies,
+            ColoniesExpansion,
+            players = 4,
+            colonyTiles = colonies,
         )
     val engine = setUpGame(premise).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
@@ -97,9 +98,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val colonies = testColonyTiles(4, "Titan", "Enceladus", "Miranda")
     val premise =
         canonicalPremise(
-            "ColoniesExpansion",
-            4,
-            colonies,
+            ColoniesExpansion,
+            players = 4,
+            colonyTiles = colonies,
         )
     val engine = setUpGame(premise).tfm(ENGINE)
     val p1 = engine.asPlayer(PLAYER1)
@@ -205,9 +206,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
     val localGame =
         setUpGame(
-            "ColoniesExpansion,PromoCardPack",
-            2,
-            colonies,
+            ColoniesExpansion,
+            PromoCardPack,
+            players = 2,
+            colonyTiles = colonies,
         )
     val localEngine = localGame.tfm(ENGINE)
     val localP1 = localGame.tfm(PLAYER1)

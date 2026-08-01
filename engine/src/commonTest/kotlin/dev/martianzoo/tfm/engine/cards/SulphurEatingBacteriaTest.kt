@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -11,7 +12,7 @@ import kotlin.test.Test
 class SulphurEatingBacteriaTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("VenusNextExpansion")
+    newGame(VenusNextExpansion)
     engine.phase("Action")
     p1.manual("SulphurEatingBacteria, 4 Microbe<SulphurEatingBacteria>")
   }

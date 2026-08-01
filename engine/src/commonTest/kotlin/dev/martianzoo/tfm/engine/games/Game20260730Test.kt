@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
@@ -12,9 +13,12 @@ import kotlin.test.Test
 class Game20260730Test : AbstractSoloTest() {
   override fun setup(): GamePremise {
     return canonicalPremise(
-        "VenusNextExpansion,PreludeExpansion,SoloMode,ColoniesExpansion,PromoCardPack",
-        1,
-        setOf(cn("Ceres"), cn("Io"), cn("Triton")),
+        VenusNextExpansion,
+        PreludeExpansion,
+        ColoniesExpansion,
+        PromoCardPack,
+        players = 1,
+        colonyTiles = setOf(cn("Ceres"), cn("Io"), cn("Triton")),
     )
   }
 

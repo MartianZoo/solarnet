@@ -14,6 +14,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.Type
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,10 +24,7 @@ import kotlin.test.Test
 internal class CustomMetricTest {
   @Test
   fun marsRowIsCountedAsAMetricButNeverStoredAsAComponent() {
-    val game =
-        Engine.newGame(
-            canonicalPremise("HellasMapOption FROM TharsisMapOption,VenusNextExpansion", 2)
-        )
+    val game = Engine.newGame(canonicalPremise(HellasMapOption, VenusNextExpansion, players = 2))
     val p1 = game.tfm(PLAYER1)
     val componentCount = p1.count("Component")
 
@@ -39,7 +37,7 @@ internal class CustomMetricTest {
 
   @Test
   fun marsRowWorksInsideARefinement() {
-    val game = Engine.newGame(canonicalPremise("HellasMapOption FROM TharsisMapOption", 2))
+    val game = Engine.newGame(canonicalPremise(HellasMapOption, players = 2))
     val p1 = game.tfm(PLAYER1)
 
     p1.godMode()
@@ -192,6 +190,5 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
 
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
-        "",
         ruleset = TfmRuleset.compose(Canon, CustomClassDeclarations),
     )

@@ -10,6 +10,7 @@ import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.types.te
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -19,7 +20,7 @@ import kotlin.test.Test
 class TaskAssignmentCharacterizationTest {
   @Test
   fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
 
@@ -35,7 +36,7 @@ class TaskAssignmentCharacterizationTest {
 
   @Test
   fun wholeGameAutoExecutionUsesTheCallingActorToPerformAnotherAssigneesTask() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()

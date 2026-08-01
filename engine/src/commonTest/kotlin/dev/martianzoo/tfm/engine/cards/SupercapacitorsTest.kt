@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import kotlin.test.Test
 
 class SupercapacitorsTest : CardTest() {
   @Test
   fun `with Supercapacitors, runs production`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
     p1.assertCounts(3 to "Energy", 9 to "Heat")
     engine.phase("Production") { p1.doTask("2 Heat FROM Energy!") }

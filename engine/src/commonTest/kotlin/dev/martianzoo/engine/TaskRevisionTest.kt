@@ -8,6 +8,7 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -19,7 +20,7 @@ import kotlin.test.Test
 
 class TaskRevisionTest {
   private val A = TaskId("A")
-  private val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+  private val game = Engine.newGame(canonicalPremise())
 
   // Kinda gross
   private val tasks: TaskQueue = game.tasks

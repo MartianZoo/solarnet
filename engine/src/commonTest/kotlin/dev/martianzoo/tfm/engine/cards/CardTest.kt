@@ -8,6 +8,7 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.tfm.canon.Canon.Option
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmTest
@@ -25,11 +26,11 @@ abstract class CardTest : TfmTest() {
       setUpTfmGame(premise).initializeCardTestGame()
 
   protected fun newGame(
-      setupInstruction: String = "",
+      vararg selectedOptions: Option,
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
   ): World {
-    return setUpTfmGame(cachedSetup(setupInstruction, players, colonyTiles))
+    return setUpTfmGame(cachedSetup(selectedOptions.toSet(), players, colonyTiles))
         .initializeCardTestGame()
   }
 
@@ -80,7 +81,7 @@ abstract class CardTest : TfmTest() {
 
   private companion object {
     private data class SetupKey(
-        val setupInstruction: String,
+        val selectedOptions: Set<Option>,
         val players: Int,
         val colonyTiles: Set<ClassName>,
     )
@@ -88,12 +89,16 @@ abstract class CardTest : TfmTest() {
     private val setupCache = mutableMapOf<SetupKey, GamePremise>()
 
     private fun cachedSetup(
-        setupInstruction: String,
+        selectedOptions: Set<Option>,
         players: Int,
         colonyTiles: Set<ClassName>,
     ): GamePremise =
-        setupCache.getOrPut(SetupKey(setupInstruction, players, colonyTiles)) {
-          canonicalPremise(setupInstruction, players, colonyTiles)
+        setupCache.getOrPut(SetupKey(selectedOptions, players, colonyTiles)) {
+          canonicalPremise(
+              *selectedOptions.toTypedArray(),
+              players = players,
+              colonyTiles = colonyTiles,
+          )
         }
   }
 }

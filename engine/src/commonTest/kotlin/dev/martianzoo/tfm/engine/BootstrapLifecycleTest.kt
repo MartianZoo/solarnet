@@ -4,6 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -14,7 +15,7 @@ import kotlin.test.Test
 internal class BootstrapLifecycleTest {
   @Test
   fun newGameReturnsCommittedCausallyCleanPreSetupBaseline() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val engine = game.gameplay(ENGINE)
 
     engine.count("Phase") shouldBe 0
@@ -41,7 +42,7 @@ internal class BootstrapLifecycleTest {
 
   @Test
   fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val checkpoint = game.timeline.checkpoint()
 
     TfmWorkflow.Manual(game).setupPhase()
@@ -65,7 +66,7 @@ internal class BootstrapLifecycleTest {
 
   @Test
   fun automaticWorkflowWaitsForSoloSetupChoices() {
-    val setup = dev.martianzoo.tfm.engine.canonicalPremise("SoloMode", 1)
+    val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val workflow = TfmWorkflow.Auto(game).launch()
 

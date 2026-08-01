@@ -17,7 +17,7 @@ import kotlin.test.Test
 internal class ApiUtilsTest {
   @Test
   fun componentOwnershipUsesTheOwnerRole() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val plant = game.gameplay(PLAYER1).resolve("Plant")
 
     getOwner(game.reader, plant).className shouldBe PLAYER1.className
@@ -26,7 +26,7 @@ internal class ApiUtilsTest {
 
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods
         .map { it.key to it.value }
@@ -55,7 +55,7 @@ internal class ApiUtilsTest {
 
   @Test
   fun stdResNamesInCanon() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     standardResourceNames(game.reader)
         .toStrings()
         .shouldContainExactlyInAnyOrder(

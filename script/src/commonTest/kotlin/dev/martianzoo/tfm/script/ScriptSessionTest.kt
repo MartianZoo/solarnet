@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.tfm.canon.Canon.Option.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
@@ -20,7 +21,7 @@ internal class ScriptSessionTest {
   @Test
   fun `as Engine temporarily selects the Engine actor`() {
     val repl = ScriptSession()
-    repl.command("newgame M 2")
+    repl.command("newgame BM 2")
     repl.command("become Player1")
 
     assertEquals(listOf("1 Phase"), repl.command("as Engine count Phase"))
@@ -28,12 +29,21 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun optionCodesExecuteAgainstCanonicalSetupDefaults() {
+  fun optionCodesSelectCanonicalOptionsDirectly() {
     val repl = ScriptSession()
 
-    assertTrue("-CorporateEraExpansion" in repl.setup.instruction)
-    repl.command("newgame RM 2")
+    assertTrue(CorporateEraExpansion !in repl.setup.options)
+    repl.command("newgame BRM 2")
+    assertTrue(CorporateEraExpansion in repl.setup.options)
     assertEquals(listOf("1 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
+  }
+
+  @Test
+  fun optionCodesRequireBaseAndDoNotAcceptSolo() {
+    val repl = ScriptSession()
+
+    assertTrue(repl.command("newgame M 2").any { it.contains("include B") })
+    assertTrue(repl.command("newgame BSM 1").any { it.contains("supported option codes") })
   }
 
   @Test
@@ -43,7 +53,7 @@ internal class ScriptSessionTest {
     val originalSetup = repl.setup
     val originalPrompt = repl.promptPlain()
 
-    assertTrue(repl.command("newgame U 6").first().contains("between 1 and 5"))
+    assertTrue(repl.command("newgame BU 6").first().contains("between 1 and 5"))
 
     assertSame(originalGame, repl.game)
     assertSame(originalSetup, repl.setup)
@@ -55,8 +65,8 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
 
     assertEquals(
-        listOf("New 2-player game created with options: RMCX"),
-        repl.command("newgame RMCX 2"),
+        listOf("New 2-player game created with options: BRMCX"),
+        repl.command("newgame BRMCX 2"),
     )
     assertTrue("DeferredColonySelection" in repl.setup.instruction)
     assertEquals(listOf("0 Ceres"), repl.command("count Ceres"))
@@ -80,10 +90,10 @@ internal class ScriptSessionTest {
 
     assertEquals(
         listOf(
-            "New 1-player game created with options: RMCS",
+            "New 1-player game created with options: BRMC",
             "Purple mode: workflow active",
         ),
-        repl.command("newgame RMC 1 purple"),
+        repl.command("newgame BRMC 1 purple"),
     )
 
     val colonyTaskIds =
@@ -119,7 +129,7 @@ internal class ScriptSessionTest {
       assertEquals(expected.split("\n"), results)
     }
 
-    command("newgame RMPX 3", "New 3-player game created with options: RMPX")
+    command("newgame BRMPX 3", "New 3-player game created with options: BRMPX")
     command("tfm_sample A 3", "Okay, did that.")
     command(
         "tfm_board P1",
@@ -176,7 +186,7 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
     val commands =
         """
-        newgame RMVPX 2; mode blue; auto safe; phase Corporation
+        newgame BRMVPX 2; mode blue; auto safe; phase Corporation
 
         become P1; turn; tfm_play Manutech; task 5 BuyCard
         become P2; turn; tfm_play Factorum; task 4 BuyCard
@@ -202,7 +212,7 @@ internal class ScriptSessionTest {
 
     val expectedOutput =
         """
-        New 2-player game created with options: RMVPX
+        New 2-player game created with options: BRMVPX
         Mode BLUE: Turn integrity: must perform a valid game turn for this phase
         Autoexec mode is: SAFE
         0000: +CorporationPhase FROM SetupPhase BY Engine (manual)

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -8,7 +9,7 @@ import kotlin.test.Test
 internal class GlobalParameterCompletionTest {
   @Test
   fun eachTrackRecordsCompletionOnItsFinalStep() {
-    val game = setUpGame("VenusNextExpansion")
+    val game = setUpGame(VenusNextExpansion)
     val p1 = game.tfm(PLAYER1)
     val waterAreas = p1.list("WaterArea")
 

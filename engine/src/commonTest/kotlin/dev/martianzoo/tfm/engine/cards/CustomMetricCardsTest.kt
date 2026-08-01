@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -12,7 +13,7 @@ import kotlin.test.Test
 class CustomMetricCardsTest : CardTest() {
   @Test
   fun `with Credicor, buys an expensive card and standard project`() {
-    newGame("")
+    newGame()
     engine.phase("Action")
     p1.manual("40, 2 ProjectCard, Credicor")
     p1.playProject("EarthCatapult", 23).expect("-19")
@@ -22,7 +23,8 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `with Advertising, adds cards costing twenty and nineteen`() {
     newGame(
-        "ColoniesExpansion,PromoCardPack",
+        ColoniesExpansion,
+        PromoCardPack,
         colonyTiles = testColonyTiles(2),
     )
     p1.count("CardCost<Advertising>") shouldBe 4
@@ -34,7 +36,7 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `with Spin-Off Department, adds cards costing twenty and less`() {
     newGame(
-        "ColoniesExpansion",
+        ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
     p1.manual("SpinOffDepartment")
@@ -45,7 +47,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with Cutting Edge Technology, plays cards with and without requirements`() {
-    newGame("VenusNextExpansion,PromoCardPack")
+    newGame(VenusNextExpansion, PromoCardPack)
     engine.phase("Action")
     p1.manual(
         "4, 2 ProjectCard, CuttingEdgeTechnology, Steel, Titanium, Plant, Energy, Heat, " +
@@ -59,7 +61,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with Mining Guild, places tiles on steel and card bonuses`() {
-    newGame("")
+    newGame()
     p1.manual("MiningGuild")
     p1.count("PROD[Steel]") shouldBe 1
 
@@ -72,7 +74,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with a steel area adjacent, plays Mining Area`() {
-    newGame("")
+    newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     p1.manual("MiningArea") {
           doTask("MiningAreaTile<Tharsis_1_1>")
@@ -82,7 +84,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with a titanium area adjacent, plays Mining Area`() {
-    newGame("")
+    newGame()
     p1.manual("CityTile<Tharsis_7_9>")
     p1.manual("MiningArea") {
           doTask("MiningAreaTile<Tharsis_8_9>")
@@ -103,7 +105,7 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `after Mining Rights selects steel, copies its production box`() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
-    newGame("TerraCimmeriaMapOption FROM TharsisMapOption")
+    newGame(TerraCimmeriaMapOption)
 
     p1.manual("MiningRights") {
           doTask("MiningRightsTile<TerraCimmeria_6_4>")
@@ -119,7 +121,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with three tag types, adds Interplanetary Trade`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     // These have to be played: tags depend on their cards.
     requireP2().manual("EarthOffice, InventorsGuild, 9 Plant, 7 Steel, 5 Heat")
     p1.manual("Ecoline, Thorgate, Phobolog, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard")
@@ -129,7 +131,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `event card tags can be excluded from distinct tag types`() {
-    newGame("")
+    newGame()
     requireP2().manual("Ecoline, Thorgate, Phobolog, 9 Plant, 7 Steel, 5 Heat")
     p1.godMode()
         .also { it.autoExecMode = NONE }
@@ -152,7 +154,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `without an adjacent tile, tries to play Mining Area`() {
-    newGame("")
+    newGame()
     shouldThrow<DependencyException> {
       p1.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_1_1>") }
     }
@@ -160,7 +162,7 @@ class CustomMetricCardsTest : CardTest() {
 
   @Test
   fun `with a card-bonus area selected, tries to play Mining Area`() {
-    newGame("")
+    newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     shouldThrow<NotNowException> {
       p1.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_3_2>") }
@@ -185,7 +187,7 @@ class CustomMetricCardsTest : CardTest() {
   }
 
   private fun seedDiversitySupportResources() {
-    newGame("VenusNextExpansion,PromoCardPack")
+    newGame(VenusNextExpansion, PromoCardPack)
     engine.phase("Action")
     requireP2()
         .manual(

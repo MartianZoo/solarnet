@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -11,7 +12,7 @@ import kotlin.test.Test
 class NewPromoCardsTest : CardTest() {
   @Test
   fun `Floyd Continuum pays for every completed parameter`() {
-    newGame("PromoCardPack, VenusNextExpansion")
+    newGame(PromoCardPack, VenusNextExpansion)
     engine.phase("Action")
     p1.manual(
         "FloydContinuum, " +
@@ -26,7 +27,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with Carbon Nanosystems in hand, plays a space card`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
 
     engine.phase("Action")
     p1.manual("25, 2 ProjectCard")
@@ -41,7 +42,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with Martian Lumber Corporation, plays a building card`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
 
     engine.phase("Action")
     p1.manual("ProjectCard, MartianLumberCorp, 2 Plant, 20")
@@ -53,7 +54,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with Homeostasis Bureau, each actor raises temperature`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("HomeostasisBureau")
     p1.count("Megacredit") shouldBe 0
@@ -67,7 +68,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with a greenery selected, plays Kaguya Tech`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
     p1.playProject("KaguyaTech", 10) {
@@ -78,7 +79,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `with a p2 city, p1 builds a cathedral`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     val p2 = requireP2()
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE
@@ -100,7 +101,7 @@ class NewPromoCardsTest : CardTest() {
 
   @Test
   fun `Red Ships counts each city or special tile beside an ocean`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("RedShips, CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
     p1.manual("MiningRightsTile<Tharsis_2_2>")

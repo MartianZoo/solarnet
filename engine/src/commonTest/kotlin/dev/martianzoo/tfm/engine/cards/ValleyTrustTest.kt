@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import kotlin.test.Test
 
 class ValleyTrustTest : CardTest() {
   @Test
   fun `with a mandate, uses Valley Trust`() {
-    newGame("PreludeExpansion")
+    newGame(PreludeExpansion)
     p1.playCorp("ValleyTrust", 5).expect("5 ProjectCard, 22")
 
     engine.phase("Action")

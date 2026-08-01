@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -9,7 +10,7 @@ import kotlin.test.Test
 class VirusTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("")
+    newGame()
     val p2 = requireP2()
     p2.manual("PROD[2 Plant], Birds")
     p2.manual("PROD[Plant], Fish")

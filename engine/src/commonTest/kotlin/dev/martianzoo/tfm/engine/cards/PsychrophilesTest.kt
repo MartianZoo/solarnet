@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -8,7 +9,7 @@ import kotlin.test.Test
 class PsychrophilesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("PreludeExpansion")
+    newGame(PreludeExpansion)
     engine.phase("Action")
     p1.manual("10, ProjectCard")
   }

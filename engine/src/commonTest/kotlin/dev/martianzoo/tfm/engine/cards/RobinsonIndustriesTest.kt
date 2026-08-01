@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.BeforeTest
@@ -9,7 +10,7 @@ import kotlin.test.Test
 class RobinsonIndustriesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("PreludeExpansion")
+    newGame(PreludeExpansion)
     p1.playCorp("RobinsonIndustries", 0)
     engine.phase("Action")
   }

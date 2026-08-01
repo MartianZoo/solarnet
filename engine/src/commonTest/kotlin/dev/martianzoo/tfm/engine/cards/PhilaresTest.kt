@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -10,7 +11,7 @@ import kotlin.test.Test
 class PhilaresTest : CardTest() {
   @Test
   fun `with Philares owned by p2, p1 places an adjacent greenery`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("Philares, GreeneryTile<Tharsis_3_2>")
     p1.manual("23")
@@ -25,7 +26,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p2, p1 creates adjacency`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("Philares")
     p1.autoExecMode = NONE
@@ -44,7 +45,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p1 and a p2 tile, p1 creates adjacency`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("Philares")
     p1.autoExecMode = NONE
@@ -60,7 +61,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares owned by p2, p1 joins two p1 tiles`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("Philares")
     p1.autoExecMode = NONE
@@ -74,7 +75,7 @@ class PhilaresTest : CardTest() {
 
   @Test
   fun `with Philares and an own tile, p1 places an adjacent greenery`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     p1.manual("Philares")
     p1.manual("-Mandate, GreeneryTile<Tharsis_4_2>, 23")
     engine.phase("Action")

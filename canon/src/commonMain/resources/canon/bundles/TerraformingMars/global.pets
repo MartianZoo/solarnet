@@ -3,12 +3,6 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
-"A selected game option, fixed against removal by non-Engine Actors"
-ABSTRACT CLASS GameOption : System {
-  HAS MAX 1 This
-  -This BY !Engine:: Die!
-}
-
 "A catch-all for arbitrary global effects that don't seem to belong anywhere else"
 CLASS TerraformingMars : System {
   HAS =1 This, =1 MarsMap

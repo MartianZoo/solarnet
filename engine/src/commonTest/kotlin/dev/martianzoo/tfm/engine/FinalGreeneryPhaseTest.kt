@@ -5,6 +5,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -13,7 +14,7 @@ import kotlin.test.Test
 internal class FinalGreeneryPhaseTest {
   @Test
   fun normalGreeneryRaisesOxygen() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
@@ -33,7 +34,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun finalGreeneryDoesNotRaiseOxygen() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Manual(game)
@@ -52,7 +53,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun automaticSoloLossSkipsFinalGreeneryAndScoring() {
-    val setup = dev.martianzoo.tfm.engine.canonicalPremise("SoloMode", 1)
+    val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -79,7 +80,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun automaticSoloWinRequiresCompletedBaseParameters() {
-    val setup = dev.martianzoo.tfm.engine.canonicalPremise("SoloMode", 1)
+    val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -108,7 +109,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun venusSoloAlsoRequiresCompletedVenusParameter() {
-    val setup = dev.martianzoo.tfm.engine.canonicalPremise("SoloMode, VenusNextExpansion", 1)
+    val setup = canonicalPremise(VenusNextExpansion, players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -139,7 +140,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun automaticMultiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
-    val setup = dev.martianzoo.tfm.engine.canonicalPremise()
+    val setup = canonicalPremise()
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -159,7 +160,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun multiplayerCompletesOneFinalProductionBeforeFinalGreenery() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
@@ -186,7 +187,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   fun multiplayerEndConditionIgnoresVenusCompletion() {
-    val game = setUpGame("VenusNextExpansion")
+    val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
 
     engine

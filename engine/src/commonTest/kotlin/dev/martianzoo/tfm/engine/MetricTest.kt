@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -9,7 +10,7 @@ import kotlin.test.Test
 internal class MetricTest {
   @Test
   fun orCountsTheUnionOfMatchingComponents() {
-    val p1 = Engine.newGame(canonicalPremise("", 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode()
         .sneak(
             "CityTile<Player1, Tharsis_4_2>, GreeneryTile<Player1, Tharsis_4_3>, " +

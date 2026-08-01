@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
@@ -13,9 +14,13 @@ class SoloGame0710Test : AbstractSoloTest() {
     val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
     // Miranda was removed because solo Colonies uses only three selected tiles.
     return canonicalPremise(
-        "VenusNextExpansion,PreludeExpansion,SoloMode,ColoniesExpansion,TurmoilCardPack,PromoCardPack",
-        1,
-        colonyTiles,
+        VenusNextExpansion,
+        PreludeExpansion,
+        ColoniesExpansion,
+        TurmoilCardPack,
+        PromoCardPack,
+        players = 1,
+        colonyTiles = colonyTiles,
     )
   }
 

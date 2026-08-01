@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -9,7 +10,7 @@ import kotlin.test.Test
 class DoubleDownTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("PreludeExpansion,PromoCardPack")
+    newGame(PreludeExpansion, PromoCardPack)
     p1.playCorp("PharmacyUnion", 5)
     engine.phase("Prelude")
     p1.playPrelude("BiosphereSupport")

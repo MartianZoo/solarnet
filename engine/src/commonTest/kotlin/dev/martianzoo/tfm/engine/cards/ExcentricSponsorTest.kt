@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class ExcentricSponsorTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("VenusNextExpansion,PreludeExpansion")
+    newGame(VenusNextExpansion, PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("44, ProjectCard, PreludeCard")
   }

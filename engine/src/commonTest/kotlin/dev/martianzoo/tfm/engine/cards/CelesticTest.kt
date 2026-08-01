@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -9,7 +10,7 @@ import kotlin.test.Test
 class CelesticTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("VenusNextExpansion")
+    newGame(VenusNextExpansion)
     p1.playCorp("Celestic", 5)
     p1.manual("10 Heat")
     engine.phase("Action")

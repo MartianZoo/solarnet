@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import kotlin.test.Test
 
 class SaturnSurfingTest : CardTest() {
@@ -40,7 +41,7 @@ class SaturnSurfingTest : CardTest() {
   }
 
   private fun initializeSaturnSurfing(floatersRemoved: Int = 0) {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("Teractor, EarthOffice, AcquiredCompany, MediaGroup, Cartel, SaturnSurfing")
     if (floatersRemoved > 0) p1.manual("-$floatersRemoved Floater<SaturnSurfing>")

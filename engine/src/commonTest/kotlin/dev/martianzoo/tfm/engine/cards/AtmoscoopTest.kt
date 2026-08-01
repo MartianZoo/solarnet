@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import kotlin.test.Test
 
 class AtmoscoopTest : CardTest() {
   // FAQ: "you can choose to raise Temperature or Venus even if that parameter is maxed"
   @Test
   fun `with Venus maxed, resolves Atmoscoop`() {
-    newGame("VenusNextExpansion")
+    newGame(VenusNextExpansion)
     p1.manual("15 VenusStep, AerialMappers")
 
     p1.manual("Atmoscoop") {
