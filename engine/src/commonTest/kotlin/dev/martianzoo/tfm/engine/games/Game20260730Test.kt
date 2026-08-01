@@ -450,9 +450,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 added 1 Microbe to Tardigrades
       cardAction1("Tardigrades")
       // Player1 played Power Supply Consortium
-      playProject("PowerSupplyConsortium", 5) {
-        doTask("PROD[-Energy<Opponent>]")
-      }
+      playProject("PowerSupplyConsortium", 5)
       // Player1 used Forced Precipitation action
       // Player1 added 1 Floater to Forced Precipitation
       cardAction1("ForcedPrecipitation")

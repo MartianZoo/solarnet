@@ -25,7 +25,7 @@ class PredatorsTest : CardTest() {
 
   private fun addBirdForP2() {
     val p2 = requireP2()
-    p2.manual("PROD[2 Plant], Birds") { doTask("PROD[-2 Plant<Player2>]") }
+    p2.manual("PROD[2 Plant], Birds")
     p2.manual("Animal<Birds>")
   }
 }

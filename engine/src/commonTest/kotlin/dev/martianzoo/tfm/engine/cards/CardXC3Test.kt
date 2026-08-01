@@ -43,6 +43,14 @@ class CardXC3Test : CardTest() {
   }
 
   @Test
+  fun `abstract removal auto-narrows one concrete type regardless of its multiplicity`() {
+    newGame("PromoCardPack")
+    p1.manual("GhgProducingBacteria, 2 Microbe<GhgProducingBacteria>")
+
+    p1.manual("-Microbe").expect("-Microbe<GhgProducingBacteria>")
+  }
+
+  @Test
   fun `microbe-tag player can take a microbe instead of money`() {
     newGame("PromoCardPack")
     val p2 = requireP2()

@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
@@ -85,8 +86,8 @@ class TaskPreparingTest {
     initiate("PROD[-2 StandardResource]").also { it.shouldContainExactlyInAnyOrder(A) }
     gameplay.prepareTask(A).also { it shouldBe A }
 
-    tasksAsText().shouldContainExactlyInAnyOrder("-2 Production<Player1>!")
-    shouldThrow<LimitsException> { gameplay.reviseTask(A, "PROD[-2 Plant]") }
+    tasksAsText().shouldContainExactlyInAnyOrder("-2 Production<Player1, Class<Megacredit>>!")
+    shouldThrow<NarrowingException> { gameplay.reviseTask(A, "PROD[-2 Plant]") }
     gameplay.reviseTask(A, "PROD[-2]")
   }
 

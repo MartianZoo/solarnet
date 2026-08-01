@@ -47,6 +47,19 @@ class TransformersTest {
         "GreeneryTile",
         "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>, MAX 0 Tile), Owner>!",
     )
+
+    checkApplyDefaults(
+        "Heat FROM Owed!",
+        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
+    )
+    checkApplyDefaults(
+        "Heat FROM Owed.",
+        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>.",
+    )
+    checkApplyDefaults(
+        "Heat FROM Owed",
+        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
+    )
   }
 
   private companion object {
@@ -58,10 +71,13 @@ class TransformersTest {
       expected: String,
       context: Expression = THIS.expression,
   ) {
-    val node: Instruction = parse(original)
-    val xfd = transformers.insertDefaults(context).transform(node)
-    xfd.toString() shouldBe expected
+    applyDefaults(original, context).toString() shouldBe expected
   }
+
+  private fun applyDefaults(
+      original: String,
+      context: Expression = THIS.expression,
+  ): Instruction = transformers.insertDefaults(context).transform(parse(original))
 
   @Test
   fun testDeprodify_noProd() {
