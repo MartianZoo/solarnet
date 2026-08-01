@@ -10,6 +10,7 @@ import dev.martianzoo.api.Exceptions.abstractInstruction
 import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.Exceptions.requirementNotMet
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Task
@@ -133,6 +134,14 @@ internal class Instructor(
         }
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
+    val atomized = classTable.findClass(ATOMIZED)
+    if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
+      throw ExpressionException(
+          "Can't transmute $count components into atomized type ${g.expression}; " +
+              "split it into one-component transmutations"
+      )
+    }
+
     if (listOfNotNull(g, r).any { it.abstract }) {
       if (
           intens == AMAP &&
@@ -213,7 +222,10 @@ internal class Instructor(
 
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
-      r = reader.getComponents(r).singleOrNull()?.let { classTable.resolve(it.expression) } ?: r
+      r =
+          reader.getComponents(r).elements.singleOrNull()?.let {
+            classTable.resolve(it.expression)
+          } ?: r
     }
     return g to r
   }

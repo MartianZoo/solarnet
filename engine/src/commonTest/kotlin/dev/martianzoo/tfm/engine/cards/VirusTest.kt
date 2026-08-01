@@ -11,7 +11,7 @@ class VirusTest : CardTest() {
   fun initializeGame() {
     newGame("")
     val p2 = requireP2()
-    p2.manual("PROD[2 Plant], Birds") { doTask("PROD[-2 Plant<Player2>]") }
+    p2.manual("PROD[2 Plant], Birds")
     p2.manual("PROD[Plant], Fish")
     p2.manual("Animal<Birds>, Animal<Fish>")
   }

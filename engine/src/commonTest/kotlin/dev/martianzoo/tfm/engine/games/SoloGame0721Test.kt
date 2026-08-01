@@ -125,7 +125,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("UseAction1<$UnitedNationsMarsInitiative>")
       }
       // me played Energy Tapping
-      playProject("EnergyTapping", 3) { doTask("PROD[-Energy<Opponent>]") }
+      playProject("EnergyTapping", 3)
 
       // me passed
       // me acted as World Government and increased temperature

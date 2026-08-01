@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
@@ -144,9 +145,15 @@ public class Transformers(public val classTable: ClassTable) {
         val result: PetNode =
             if (node is Change) {
               when (node) {
-                is Gain -> handleIt(node, node.gaining) { it.gainOnly }
-                is Remove -> handleIt(node, node.removing) { it.removeOnly }
-                is Transmute -> handleIt(node, node.gaining) { it.gainOnly }
+                is Gain ->
+                    handleIt(node, node.gaining, { it.gainOnly }) { fixed, intensity ->
+                      gain(scaledEx(node.count, fixed), intensity) as Gain
+                    }
+                is Remove ->
+                    handleIt(node, node.removing, { it.removeOnly }) { fixed, intensity ->
+                      Remove(scaledEx(node.count, fixed), intensity)
+                    }
+                is Transmute -> handleTransmute(node)
               }
             } else {
               transformChildren(node)
@@ -159,6 +166,7 @@ public class Transformers(public val classTable: ClassTable) {
           node: P,
           original: Expression,
           extractor: (Defaults) -> DefaultSpec,
+          rebuild: (Expression, Instruction.Intensity?) -> P,
       ): P {
         return if (leaveItAlone(original)) {
           node // don't descend
@@ -172,26 +180,55 @@ public class Transformers(public val classTable: ClassTable) {
                   classTable,
               )
           val intensity = node.intensity ?: spec.intensity
-
-          val result: Change =
-              when (node) { // TODO it's weird that the shared method is doing this
-                is Gain -> gain(scaledEx(node.count, fixed), intensity) as Gain
-                is Remove -> Remove(scaledEx(node.count, fixed), intensity)
-                is Transmute -> {
-                  val fixedFrom =
-                      if (node.gaining == fixed) {
-                        node.fromEx // no change, so don't mess up the structure
-                      } else {
-                        FromExpression(fixed, node.removing)
-                      }
-                  Transmute(fixedFrom, node.count, intensity)
-                }
-              }
-
-          @Suppress("UNCHECKED_CAST")
-          result as P
+          rebuild(fixed, intensity)
         }
       }
+
+      private fun handleTransmute(node: Transmute): Transmute {
+        val gainDefault = defaultFor(node.gaining) { it.gainOnly }
+        val removeDefault = defaultFor(node.removing) { it.removeOnly }
+        val intensity =
+            node.intensity ?: intersectIntensities(gainDefault?.intensity, removeDefault?.intensity)
+
+        return Transmute(
+            FromExpression(
+                applyDefault(node.gaining, gainDefault, context),
+                applyDefault(node.removing, removeDefault, context),
+            ),
+            node.count,
+            intensity,
+        )
+      }
+
+      private fun defaultFor(
+          expression: Expression,
+          extractor: (Defaults) -> DefaultSpec,
+      ): DefaultSpec? =
+          if (leaveItAlone(expression)) null
+          else extractor(classTable.getClass(expression.className).defaults)
+
+      private fun applyDefault(
+          expression: Expression,
+          default: DefaultSpec?,
+          context: Expression,
+      ): Expression =
+          if (default == null) expression
+          else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
+
+      private fun intersectIntensities(
+          gainIntensity: Instruction.Intensity?,
+          removeIntensity: Instruction.Intensity?,
+      ): Instruction.Intensity? =
+          when {
+            gainIntensity == null -> removeIntensity
+            removeIntensity == null -> gainIntensity
+            gainIntensity == Instruction.Intensity.MANDATORY ||
+                removeIntensity == Instruction.Intensity.MANDATORY ->
+                Instruction.Intensity.MANDATORY
+            gainIntensity == Instruction.Intensity.AMAP ||
+                removeIntensity == Instruction.Intensity.AMAP -> Instruction.Intensity.AMAP
+            else -> Instruction.Intensity.OPTIONAL
+          }
     }
   }
 
