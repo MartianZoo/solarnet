@@ -1,10 +1,9 @@
 # Cards to add
 
-We have 445 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
+We have 448 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
-| XC3 | Splice Tactical Genomics   | none?                 |
 | 008 | Capital                    | concrete              |
 | 206 | Special Design             | adjustreqt            |
 | P10 | Ecology Experts            | adjustreqt            |
@@ -24,7 +23,6 @@ We have 445 cards working. We don't have the following ones or anything else fro
 | X53 | Cyberia Systems            | copyproduction        |
 | X54 | Established Methods        | else                  |
 | X-1 | Floyd Continuum            | custommetric          |
-| X56 | Hermetic Order of Mars     | custommetric          |
 | X59 | Mars Nomads                | movablemarker         |
 | X-2 | New Holland                | hybridtile            |
 | X75 | Vermin                     | globalvp              |
@@ -34,7 +32,6 @@ We have 445 cards working. We don't have the following ones or anything else fro
 | P28 | Research Network           | wildtag               |
 | P40 | Research Coordination      | wildtag               |
 | TC3 | Septem Tribus              | wildtag, turmoil      |
-| C30 | Productive Outpost         | colonybonus           |
 | T01 | Aerial Lenses              | turmoil               |
 | T02 | Banned Delegate            | turmoil               |
 | T03 | Cultural Metropolis        | turmoil               |

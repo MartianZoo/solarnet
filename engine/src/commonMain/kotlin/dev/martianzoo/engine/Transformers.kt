@@ -311,10 +311,12 @@ public class Transformers(public val classTable: ClassTable) {
         .mapNotNull {
           val replaced = gendeps.at(it).expression
           val replacement = specdeps.at(it).expression
-          if (replaced.simple && replacement != replaced) {
-            replaced.className to replacement
-          } else {
-            null
+          when {
+            classTable.getClass(replaced.className).abstract &&
+                replaced.className != replacement.className ->
+                replaced.className to replacement.className.expression
+            replaced.simple && replacement != replaced -> replaced.className to replacement
+            else -> null
           }
         }
         // A name can occur in independent slots; only agreement makes it one binding.

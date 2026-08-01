@@ -104,4 +104,18 @@ class TransformersTest {
     transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
         "Plant OR Die!"
   }
+
+  @Test
+  fun `nested abstract dependency specializes to the concrete changed component`() {
+    val general =
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
+    val specific =
+        CanonClassesTest.table.resolve(
+            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
+        )
+    val instruction = parse<Instruction>("Microbe<CardFront<Player1>>")
+
+    transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
+        "Microbe<Decomposers<Player1>>"
+  }
 }

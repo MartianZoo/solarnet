@@ -1,22 +1,6 @@
 {
   "cards": [
 
-    // Splice Tactical Genomics
-    {
-      "id": "XC3",
-      "deck": "CORPORATION",
-      "tags": [ "MicrobeTag" ],
-      "immediate": "44",
-      "effects": [
-        "MicrobeTag<Anyone>: 2",
-        "DoMandate<This>: ProjectCard"
-      ],
-      "components": [
-        "CLASS SpliceWatcher : Owned { HAS =1 This; SpliceTacticalGenomics<Anyone>: FriendOfSplice }",
-        "CLASS FriendOfSplice : Owned { MicrobeTag<CardFront>: 2 OR Microbe<CardFront> }"
-      ]
-    },
-
     // Self-Replicating Robots
     {
       "id": "210",

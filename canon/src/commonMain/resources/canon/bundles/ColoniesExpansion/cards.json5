@@ -599,5 +599,14 @@
       "cost": 10,
       "projectKind": "ACTIVE"
     },
+
+    // Productive Outpost
+    {
+      "id": "C30",
+      "immediate": "GiveColonyBonuses",
+      "deck": "PROJECT",
+      "cost": 0,
+      "projectKind": "AUTOMATED"
+    },
   ],
 }
