@@ -6,12 +6,12 @@
       "id": "CC2",
       "deck": "CORPORATION",
       "tags": [ "AnimalTag" ],
+      "resourceType": "Animal",
       "immediate": "45, PROD[2]",
       "effects" : [
         "AnimalTag OR PlantTag: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
       ],
-      "resourceType": "Animal"
     },
 
     // Polyphemos
@@ -27,81 +27,83 @@
       "id": "CC4",
       "deck": "CORPORATION",
       "immediate": "45, Colony",
-      "effects": [ "Colony<Anyone>: PROD[1]" ]
+      "effects": [ "Colony<Anyone>: PROD[1]" ],
     },
 
     // Airliners
     {
       "id": "C01",
       "deck": "PROJECT",
-      "immediate": "PROD[2], 2 Floater",
-      "effects": [ "End: VictoryPoint" ],
+      "projectKind": "AUTOMATED",
       "requirement": "3 Floater",
       "cost": 11,
-      "projectKind": "AUTOMATED"
+      "immediate": "PROD[2], 2 Floater",
+      "effects": [ "End: VictoryPoint" ],
     },
 
     // Air Raid
     {
       "id": "C02",
       "deck": "PROJECT",
-      "immediate": "-Floater, 5 Megacredit<Owner> FROM Megacredit<Anyone>?",
+      "projectKind": "EVENT",
       "cost": 0,
-      "projectKind": "EVENT"
+      "immediate": "-Floater, 5 Megacredit<Owner> FROM Megacredit<Anyone>?",
     },
 
     // Atmo Collectors
     {
       "id": "C03",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 15,
+      "resourceType": "Floater",
       "immediate": "2 Floater",
       "actions": [
         "-> Floater<This>",
         "Floater<This> -> 2 Titanium OR 3 Energy OR 4 Heat"
       ],
-      "resourceType": "Floater",
-      "cost": 15,
-      "projectKind": "ACTIVE"
     },
 
     // Community Services
     {
       "id": "C04",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 13,
       "immediate": "PROD[1 / CardFront(HAS MAX 0 Tag)]",
       "effects": [ "End: VictoryPoint" ],
-      "cost": 13,
-      "projectKind": "AUTOMATED"
     },
 
     // Conscription
     {
       "id": "C05",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "2 EarthTag",
+      "cost": 5,
       "tags": [ "EarthTag" ],
       "immediate": "CardC05Effect",
       "effects": [ "End: -VictoryPoint" ],
       "components": [ "CLASS CardC05Effect : NextCardEffect { PlayCard:: -16 Owed }" ],
-      "requirement": "2 EarthTag",
-      "cost": 5,
-      "projectKind": "EVENT"
     },
 
     // Corona Extractor
     {
       "id": "C06",
       "deck": "PROJECT",
-      "tags": [ "PowerTag", "SpaceTag" ],
-      "immediate": "PROD[4 Energy]",
+      "projectKind": "AUTOMATED",
       "requirement": "4 ScienceTag",
       "cost": 10,
-      "projectKind": "AUTOMATED"
+      "tags": [ "PowerTag", "SpaceTag" ],
+      "immediate": "PROD[4 Energy]",
     },
 
     // Cryo-Sleep
     {
       "id": "C07",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 10,
       "tags": [ "ScienceTag" ],
       "effects": [
         // a little dodgy... as soon as you commit to taking the action we just *give* you
@@ -111,310 +113,310 @@
         "UseAction3<TradeSA>:: Titanium",
         "End: VictoryPoint"
       ],
-      "cost": 10,
-      "projectKind": "ACTIVE"
     },
 
     // Earth Elevator
     {
       "id": "C08",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 43,
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[3 Titanium]",
       "effects": [ "End: 4 VictoryPoint" ],
-      "cost": 43,
-      "projectKind": "AUTOMATED"
     },
 
     // Ecology Research
     {
       "id": "C09",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 21,
       "tags": [ "ScienceTag", "AnimalTag", "MicrobeTag", "PlantTag" ],
       "immediate": "PROD[Plant / Colony], Animal, 2 Microbe",
       "effects": [ "End: VictoryPoint" ],
-      "cost": 21,
-      "projectKind": "AUTOMATED"
     },
 
     // Floater Leasing
     {
       "id": "C10",
       "deck": "PROJECT",
-      "immediate": "PROD[1 / 3 Floater]",
+      "projectKind": "AUTOMATED",
       "cost": 3,
-      "projectKind": "AUTOMATED"
+      "immediate": "PROD[1 / 3 Floater]",
     },
 
     // Floater Prototypes
     {
       "id": "C11",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 2,
       "tags": [ "ScienceTag" ],
       "immediate": "2 Floater",
-      "cost": 2,
-      "projectKind": "EVENT"
     },
 
     // Floater Technology
     {
       "id": "C12",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 7,
       "tags": [ "ScienceTag" ],
       "actions": [ "-> Floater" ],
-      "cost": 7,
-      "projectKind": "ACTIVE"
     },
 
     // Galilean Waystation
     {
       "id": "C13",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 15,
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[1 / JovianTag<Anyone>]",
       "effects": [ "End: VictoryPoint" ],
-      "cost": 15,
-      "projectKind": "AUTOMATED"
     },
 
     // Heavy Taxation
     {
       "id": "C14",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "2 EarthTag",
+      "cost": 3,
       "tags": [ "EarthTag" ],
       "immediate": "PROD[2], 4",
       "effects": [ "End: -VictoryPoint" ],
-      "requirement": "2 EarthTag",
-      "cost": 3,
-      "projectKind": "AUTOMATED"
     },
 
     // Ice Moon Colony
     {
       "id": "C15",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 23,
       "tags": [ "SpaceTag" ],
       "immediate": "Colony, OceanTile",
-      "cost": 23,
-      "projectKind": "AUTOMATED"
     },
 
     // Impactor Swarm
     {
       "id": "C16",
       "deck": "PROJECT",
-      "tags": [ "SpaceTag" ],
-      "immediate": "12 Heat, -2 Plant<Anyone>?",
+      "projectKind": "EVENT",
       "requirement": "2 JovianTag",
       "cost": 11,
-      "projectKind": "EVENT"
+      "tags": [ "SpaceTag" ],
+      "immediate": "12 Heat, -2 Plant<Anyone>?",
     },
 
     // Interplanetary Colony Ship
     {
       "id": "C17",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 12,
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "Colony",
-      "cost": 12,
-      "projectKind": "EVENT"
     },
 
     // Jovian Lanterns
     {
       "id": "C18",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "JovianTag",
+      "cost": 20,
       "tags": [ "JovianTag" ],
+      "resourceType": "Floater",
       "immediate": "TerraformRating, 2 Floater",
       "actions": [ "Titanium -> 2 Floater<This>" ],
       "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
-      "resourceType": "Floater",
-      "requirement": "JovianTag",
-      "cost": 20,
-      "projectKind": "ACTIVE"
     },
 
     // Jupiter Floating Station
     {
       "id": "C19",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "3 ScienceTag",
+      "cost": 9,
       "tags": [ "JovianTag" ],
+      "resourceType": "Floater",
       "actions": [
         "-> Floater<CardFront(HAS JovianTag)>",
         "-> 1 / Floater<This> MAX 4"
       ],
       "effects": [ "End: VictoryPoint" ],
-      "resourceType": "Floater",
-      "requirement": "3 ScienceTag",
-      "cost": 9,
-      "projectKind": "ACTIVE"
     },
 
     // Luna Governor
     {
       "id": "C20",
       "deck": "PROJECT",
-      "tags": [ "EarthTag", "EarthTag" ],
-      "immediate": "PROD[2]",
+      "projectKind": "AUTOMATED",
       "requirement": "3 EarthTag",
       "cost": 4,
-      "projectKind": "AUTOMATED"
+      "tags": [ "EarthTag", "EarthTag" ],
+      "immediate": "PROD[2]",
     },
 
     // Lunar Exports
     {
       "id": "C21",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 19,
       "tags": [ "SpaceTag", "EarthTag" ],
       "immediate": "PROD[2 Plant OR 5]",
-      "cost": 19,
-      "projectKind": "AUTOMATED"
     },
 
     // Lunar Mining
     {
       "id": "C22",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 11,
       "tags": [ "EarthTag" ],
       "immediate": "PROD[Titanium / 2 EarthTag]",
-      "cost": 11,
-      "projectKind": "AUTOMATED"
     },
 
     // Market Manipulation
     {
       "id": "C23",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 1,
       "tags": [ "EarthTag" ],
       "immediate": "ColonyProduction FROM ColonyProduction",
-      "cost": 1,
-      "projectKind": "EVENT"
     },
 
     // Martian Zoo
     {
       "id": "C24",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "2 CityTile<Anyone>",
+      "cost": 12,
       "tags": [ "AnimalTag", "BuildingTag" ],
+      "resourceType": "Animal",
       "actions": [ "-> 1 / Animal<This>" ],
       "effects": [
         "EarthTag: Animal<This>",
         "End: VictoryPoint"
       ],
-      "resourceType": "Animal",
-      "requirement": "2 CityTile<Anyone>",
-      "cost": 12,
-      "projectKind": "ACTIVE"
     },
 
     // Mining Colony
     {
       "id": "C25",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 20,
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Titanium], Colony",
-      "cost": 20,
-      "projectKind": "AUTOMATED"
     },
 
     // Minority Refuge
     {
       "id": "C26",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 5,
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-2], Colony",
-      "cost": 5,
-      "projectKind": "AUTOMATED"
     },
 
     // Molecular Printing
     {
       "id": "C27",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 11,
       "tags": [ "ScienceTag" ],
       "immediate": "1 / CityTile<Anyone>, 1 / Colony<Anyone>",
       "effects": [ "End: VictoryPoint" ],
-      "cost": 11,
-      "projectKind": "AUTOMATED"
     },
 
     // Nitrogen From Titan
     {
       "id": "C28",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 25,
       "tags": [ "JovianTag", "SpaceTag" ],
       "immediate": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
       "effects": [ "End: VictoryPoint" ],
-      "cost": 25,
-      "projectKind": "AUTOMATED"
     },
 
     // Pioneer Settlement
     {
       "id": "C29",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "MAX 1 Colony",
+      "cost": 13,
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-2], Colony",
       "effects": [ "End: 2 VictoryPoint" ],
-      "requirement": "MAX 1 Colony",
-      "cost": 13,
-      "projectKind": "AUTOMATED"
     },
 
     // Quantum Communications
     {
       "id": "C31",
       "deck": "PROJECT",
-      "immediate": "PROD[1 / Colony<Anyone>]",
-      "effects": [ "End: VictoryPoint" ],
+      "projectKind": "AUTOMATED",
       "requirement": "4 ScienceTag",
       "cost": 8,
-      "projectKind": "AUTOMATED"
+      "immediate": "PROD[1 / Colony<Anyone>]",
+      "effects": [ "End: VictoryPoint" ],
     },
 
     // Red Spot Observatory
     {
       "id": "C32",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "3 ScienceTag",
+      "cost": 17,
       "tags": [ "ScienceTag", "JovianTag" ],
+      "resourceType": "Floater",
       "immediate": "2 ProjectCard",
       "actions": [
         "-> Floater<This>",
         "Floater<This> -> ProjectCard"
       ],
       "effects": [ "End: 2 VictoryPoint" ],
-      "resourceType": "Floater",
-      "requirement": "3 ScienceTag",
-      "cost": 17,
-      "projectKind": "ACTIVE"
     },
 
     // Refugee Camps
     {
       "id": "C33",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 10,
       "tags": [ "EarthTag" ],
+      "resourceType": "Camp",
       "actions": [ "PROD[1] -> Camp<This>" ],
       "effects": [ "End: VictoryPoint / Camp<This>" ],
-      "resourceType": "Camp",
-      "cost": 10,
-      "projectKind": "ACTIVE"
     },
 
     // Research Colony
     {
       "id": "C34",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 20,
       "tags": [ "ScienceTag", "SpaceTag" ],
       "immediate": "Colony<ColonyTile>, 2 ProjectCard",
-      "cost": 20,
-      "projectKind": "AUTOMATED"
     },
 
     // Rim Freighters
     {
       "id": "C35",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
       "tags": [ "SpaceTag" ],
       "effects": [
         // See Cryo-Sleep comments
@@ -422,192 +424,190 @@
         "UseAction2<TradeSA>:: Energy",
         "UseAction3<TradeSA>:: Titanium"
       ],
-      "cost": 4,
-      "projectKind": "ACTIVE"
     },
 
     // Sky Docks
     {
       "id": "C36",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "2 EarthTag",
+      "cost": 18,
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "ReserveTradeFleet",
       "effects": [
         "PlayCard: -Owed",
         "End: 2 VictoryPoint"
       ],
-      "requirement": "2 EarthTag",
-      "cost": 18,
-      "projectKind": "ACTIVE"
     },
 
     // Solar Probe
     {
       "id": "C37",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 9,
       "tags": [ "ScienceTag", "SpaceTag" ],
       "immediate": "ProjectCard / 3 ScienceTag", // should be in play at the time
       "effects": [ "End: VictoryPoint" ],
-      "cost": 9,
-      "projectKind": "EVENT",
     },
 
     // Solar Reflectors
     {
       "id": "C38",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 23,
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[5 Heat]",
-      "cost": 23,
-      "projectKind": "AUTOMATED"
     },
 
     // Space Port
     {
       "id": "C39",
       "deck": "PROJECT",
-      "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], CityTile, ReserveTradeFleet",
+      "projectKind": "AUTOMATED",
       "requirement": "Colony",
       "cost": 22,
-      "projectKind": "AUTOMATED"
+      "tags": [ "CityTag", "BuildingTag" ],
+      "immediate": "PROD[-Energy, 4], CityTile, ReserveTradeFleet",
     },
 
     // Space Port Colony
     {
       "id": "C40",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "Colony",
+      "cost": 27,
       "tags": [ "SpaceTag" ],
       "immediate": "Colony<ColonyTile>, ReserveTradeFleet",
       "effects": [ "End: VictoryPoint / 2 Colony<Anyone>" ],
-      "requirement": "Colony",
-      "cost": 27,
-      "projectKind": "AUTOMATED"
     },
 
     // Sub-Zero Salt Fish
     {
       "id": "C42",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "12 TemperatureStep",
+      "cost": 5,
       "tags": [ "AnimalTag" ],
+      "resourceType": "Animal",
       "immediate": "PROD[-Plant<Anyone>]",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
-      "resourceType": "Animal",
-      "requirement": "12 TemperatureStep",
-      "cost": 5,
-      "projectKind": "ACTIVE"
     },
 
     // Titan Air-Scrapping
     {
       "id": "C43",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 21,
       "tags": [ "JovianTag" ],
+      "resourceType": "Floater",
       "actions": [
         "Titanium -> 2 Floater<This>",
         "2 Floater<This> -> TerraformRating"
       ],
       "effects": [ "End: 2 VictoryPoint" ],
-      "resourceType": "Floater",
-      "cost": 21,
-      "projectKind": "ACTIVE"
     },
 
     // Titan Floating Launch-Pad
     {
       "id": "C44",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 18,
       "tags": [ "JovianTag" ],
+      "resourceType": "Floater",
       "immediate": "2 Floater<CardFront(HAS JovianTag)>",
       "actions": [
         "-> Floater<CardFront(HAS JovianTag)>",
         "Floater<This> -> Trade"
       ],
       "effects": [ "End: VictoryPoint" ],
-      "cost": 18,
-      "projectKind": "ACTIVE",
-      "resourceType": "Floater"
     },
 
     // Titan Shuttles
     {
       "id": "C45",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 23,
       "tags": [ "JovianTag", "SpaceTag" ],
+      "resourceType": "Floater",
       "actions": [
         "-> 2 Floater<CardFront(HAS JovianTag)>",
         "X Floater<This> -> X Titanium",
       ],
       "effects": [ "End: VictoryPoint" ],
-      "resourceType": "Floater",
-      "cost": 23,
-      "projectKind": "ACTIVE"
     },
 
     // Trade Envoys
     {
       "id": "C46",
       "deck": "PROJECT",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ],
+      "projectKind": "ACTIVE",
       "cost": 6,
-      "projectKind": "ACTIVE"
+      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ],
     },
 
     // Trading Colony
     {
       "id": "C47",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 18,
       "tags": [ "SpaceTag" ],
       "immediate": "Colony",
       "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ],
-      "cost": 18,
-      "projectKind": "ACTIVE"
     },
 
     // Urban Decomposers
     {
       "id": "C48",
       "deck": "PROJECT",
-      "tags": [ "MicrobeTag" ],
-      "immediate": "PROD[Plant], 2 Microbe",
+      "projectKind": "AUTOMATED",
       "requirement": "Colony, CityTile",
       "cost": 6,
-      "projectKind": "AUTOMATED"
+      "tags": [ "MicrobeTag" ],
+      "immediate": "PROD[Plant], 2 Microbe",
     },
 
     // Warp Drive
     {
       "id": "C49",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "5 ScienceTag",
+      "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
         "PlayTag<Class<SpaceTag>>:: -4 Owed",
         "End: 2 VictoryPoint"
       ],
-      "requirement": "5 ScienceTag",
-      "cost": 14,
-      "projectKind": "ACTIVE"
     },
 
     // Spin-Off Department
     {
       "id": "C41",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 10,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2]",
       "effects": [ "CardFront(HAS 20 CardCost): ProjectCard" ],
-      "cost": 10,
-      "projectKind": "ACTIVE"
     },
 
     // Productive Outpost
     {
       "id": "C30",
-      "immediate": "GiveColonyBonuses",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
       "cost": 0,
-      "projectKind": "AUTOMATED"
+      "immediate": "GiveColonyBonuses",
     },
   ],
 }

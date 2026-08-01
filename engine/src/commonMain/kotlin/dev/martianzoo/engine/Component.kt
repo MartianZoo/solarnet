@@ -61,6 +61,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
               type,
               ownerBinding,
               thisBinding,
+              transformers.insertDeferredComplementDefaults(expression),
           )
       transformers.classEffects(type.rootClass).map { effect ->
         val bound = checkedBinding.transform(effect)
@@ -80,6 +81,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
               transformers.substituter(type.rootClass.defaultType, type),
               ownerBinding,
               thisBinding,
+              transformers.insertDeferredComplementDefaults(expression),
           )
       transformers.classEffects(type.rootClass).mapNotNull { effect ->
         val bound = uncheckedBinding.transform(effect)

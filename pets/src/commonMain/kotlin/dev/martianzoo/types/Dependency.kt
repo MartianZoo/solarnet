@@ -57,9 +57,9 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun isSubtypeOf(that: Dependency): Boolean = boundType.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency): TypeDependency? {
+    override fun glb(that: Dependency): Dependency? {
       if (that is ComplementDependency) {
-        return if (narrows(that, NoGameState)) this else null
+        return that glb this
       }
       if (that !is TypeDependency) return null
       return (boundType glb boundOf(that))?.let { copy(boundType = it) }
@@ -134,7 +134,15 @@ public sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasCla
 
     override fun glb(that: Dependency): Dependency? =
         when (that) {
-          is TypeDependency -> that.glb(this)
+          is TypeDependency -> {
+            val intersectionDomain = domainType glb that.boundType ?: return null
+            val intersectionExcluded = excludedType glb intersectionDomain
+            when {
+              intersectionExcluded == null -> TypeDependency(key, intersectionDomain)
+              intersectionDomain.isSubtypeOf(intersectionExcluded) -> null
+              else -> copy(domainType = intersectionDomain, excludedType = intersectionExcluded)
+            }
+          }
           is ComplementDependency ->
               if (excludedType == that.excludedType) {
                 (domainType glb that.domainType)?.let { copy(domainType = it) }

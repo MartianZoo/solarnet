@@ -9,14 +9,14 @@
       "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1]" ],
       "components": [
         "CLASS MandateCC1 : Mandate { -> AddColonyTile<Class<ColonyTile>> }"
-      ]
+      ],
     },
 
     // Stormcraft Incorporated
     {
       "id": "CC5",
       "deck": "CORPORATION",
-      "tags": [ "JovianTag" ]
+      "tags": [ "JovianTag" ],
     },
 
   ],
