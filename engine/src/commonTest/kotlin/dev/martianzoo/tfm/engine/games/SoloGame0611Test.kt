@@ -123,10 +123,13 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("ResearchOutpost", 12, steel = 2) { doTask("CityTile<Hellas_7_6>") }
 
       playProject("Cartel", 7).expect("PROD[5]")
-      playProject("Supercapacitors", 3).expect("PROD[1]")
+      // The player played Supercapacitors, which is no longer supported by Canon.
+      godMode().manual("-3, PROD[1], -ProjectCard")
       pass()
 
-      phase("Production") { me.doTask("1 Heat<P1> FROM Energy<P1>") }
+      phase("Production")
+      // The player chose to convert only one of three energy with Supercapacitors.
+      godMode().manual("2 Energy FROM Heat")
       phase("Research") {
         me.doTask("3 BuyCard")
       }
@@ -134,7 +137,7 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       assertProduction(m = 14, s = 1, t = 2, p = 2, e = 3, h = 1)
       assertResources(m = 33, s = 1, t = 4, p = 2, e = 5, h = 5)
-      assertDashMiddle(played = 22, actions = 3, vp = 29, tr = 27, hand = 14)
+      assertDashMiddle(played = 21, actions = 3, vp = 29, tr = 27, hand = 14)
       assertDashRight(events = 3, tagless = 2, cities = 1)
       assertSidebar(gen = 8, temp = -22, oxygen = 2, oceans = 1, venus = 2)
 
@@ -151,7 +154,9 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("CorporateStronghold", 10) { doTask("CityTile<Hellas_5_5>") }
       pass()
 
-      phase("Production") { me.doTask("Ok") }
+      phase("Production")
+      // The player chose to convert none of five energy with Supercapacitors.
+      godMode().manual("5 Energy FROM Heat")
       phase("Research") {
         me.doTask("2 BuyCard")
       }
@@ -163,13 +168,17 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction2(RegolithEaters)
       playProject("Archaebacteria", 5)
       playProject("PowerGrid", 17)
+      // The unsupported Supercapacitors supplied one of the power tags counted by Power Grid.
+      godMode().manual("PROD[Energy]")
       cardAction1(EquatorialMagnetizer)
       playProject(AiCentral, 16, steel = 1)
       cardAction1(AiCentral)
       cardAction1(ForcedPrecipitation)
       pass()
 
-      phase("Production") { me.doTask("2 Heat FROM Energy") }
+      phase("Production")
+      // The player chose to convert only two of five energy with Supercapacitors.
+      godMode().manual("3 Energy FROM Heat")
       phase("Research") {
         me.doTask("Ok")
       }
@@ -177,7 +186,7 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
       assertResources(m = 56, s = 1, t = 6, p = 7, e = 6, h = 8)
-      assertDashMiddle(played = 30, actions = 5, vp = 36, tr = 32, hand = 10)
+      assertDashMiddle(played = 29, actions = 5, vp = 36, tr = 32, hand = 10)
       assertDashRight(events = 3, tagless = 2, cities = 2)
       assertSidebar(gen = 10, temp = -20, oxygen = 3, oceans = 1, venus = 4)
 
@@ -195,7 +204,9 @@ class SoloGame0611Test : AbstractSoloTest() {
       stdProject("AirScrappingSP")
       pass()
 
-      phase("Production") { me.doTask("3 Heat FROM Energy") }
+      phase("Production")
+      // The player chose to convert only three of six energy with Supercapacitors.
+      godMode().manual("3 Energy FROM Heat")
       phase("Research") {
         me.doTask("3 BuyCard")
       }
@@ -221,7 +232,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(RegolithEaters)
       pass()
 
-      phase("Production") { me.doTask("Ok") }
+      phase("Production")
       phase("Research") {
         me.doTask("Ok")
       }
@@ -247,12 +258,12 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
       assertResources(m = 8, s = 1, t = 0, p = 0, e = 0, h = 1)
-      assertDashMiddle(played = 41, actions = 1, vp = 78, tr = 64, hand = 0)
+      assertDashMiddle(played = 40, actions = 1, vp = 78, tr = 64, hand = 0)
       assertDashRight(events = 6, tagless = 2, cities = 2)
       assertSidebar(gen = 12, temp = -10, oxygen = 11, oceans = 2, venus = 16)
 
       pass()
-      phase("Production") { me.doTask("Ok") }
+      phase("Production")
 
       // Victory check should happen here
       count("TR").shouldBeGreaterThanOrEqual(63)

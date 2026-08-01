@@ -14,5 +14,18 @@
       ],
     },
 
+    // Supercapacitors
+    {
+      "id": "X46",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "PowerTag", "BuildingTag"],
+      "immediate": "PROD[1], -Entropy",
+      "effects": [
+        "ProductionPhase: X Heat FROM Energy?"
+      ],
+    },
+
   ],
 }

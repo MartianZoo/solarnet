@@ -541,7 +541,6 @@ internal object EnglishHack {
           "X43" to "HeadStart",
           "X44" to "SixteenPsyche",
           "X45" to "RobotPollinators",
-          "X46" to "Supercapacitors",
           "X47" to "IcyImpactors",
           "X48" to "DirectedHeatUsage",
           "X49" to "AntiDesertificationTechniques",

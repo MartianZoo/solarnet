@@ -82,11 +82,7 @@ ABSTRACT CLASS Phase : AutoLoad, System {
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
   }
-  CLASS ProductionPhase {
-    This: Production2Phase FROM This
-  }
-  "An unfortunate implementation detail seemingly forced by Supercapacitors :-("
-  CLASS Production2Phase
+  CLASS ProductionPhase
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction1<ConvertPlantsSA>?
   }
