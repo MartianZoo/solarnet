@@ -1,6 +1,6 @@
 # Cards to add
 
-We have 449 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
+We have 448 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
@@ -20,6 +20,7 @@ We have 449 cards working. We don't have the following ones or anything else fro
 | CC5 | Stormcraft Incorporated    | payresource           |
 | XC10 | Kuiper Cooperative        | payresource           |
 | X06 | Law Suit                   | playerplayer          |
+| X46 | Supercapacitors            | productionorder       |
 | X53 | Cyberia Systems            | copyproduction        |
 | X54 | Established Methods        | else                  |
 | X59 | Mars Nomads                | movablemarker         |

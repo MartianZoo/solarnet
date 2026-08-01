@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone[ANY] {
     ABSTRACT CLASS Player : Actor {
       HAS =1 This
 
-      This:: GrossHack<This>, Entropy<This>
+      This:: GrossHack<This>
 
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard
@@ -39,13 +39,15 @@ ABSTRACT CLASS Owned<Anyone> {
   "Anything represented by a copper cube IRL, perhaps except for SRR resources (not sure)"
   ABSTRACT CLASS Resource[RES] {
     ABSTRACT CLASS StandardResource[SR] {
-      CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P], Energy[E], Heat[H]
+      CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P]
+      CLASS Energy[E] { ProductionPhase: Heat FROM This }
+      CLASS Heat[H]
     }
   }
 
   "Each instance of this creates an instance of a standard resource during ProductionPhase"
   CLASS Production<Class<StandardResource>> : AutoLoad {
-    Production2Phase: StandardResource
+    ProductionPhase: StandardResource
   }
 
   "A milestone already claimed; unclaimed milestones exist only as a Class<ThatMilestoneType>"
@@ -60,12 +62,6 @@ ABSTRACT CLASS Owned<Anyone> {
   CLASS StartToken : Owned<Player> {
     HAS MAX 1 StartToken
     Generation:: PassLeft<This>
-  }
-
-  "Performs energy-to-heat conversion for a player; exists only so that Supercapacitors can remove it"
-  CLASS Entropy {
-    HAS MAX 1 This
-    ProductionPhase:: 999 Heat FROM Energy.
   }
 
   // Because of our model that the world is "just a bag of things", you can't have a negative
