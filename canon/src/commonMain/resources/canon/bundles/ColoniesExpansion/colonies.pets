@@ -45,7 +45,7 @@ ABSTRACT CLASS ColonyTile {
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  FlownTradeFleet<Anyone, ColonyTile>: GiveColonyBonus<ColonyTile>
+  FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses: GiveColonyBonus<ColonyTile>
 }
 
 "Initiates a Trade operation by moving one of the player's fleets to the colony tile"
@@ -58,6 +58,9 @@ CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
 
 "An implementation detail used to trigger colony bonuses to be paid out"
 CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
+
+"Requests one colony bonus payment for each colony the player owns"
+CLASS GiveColonyBonuses : Owned, Signal
 
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
 CLASS ResetProduction<ColonyTile> : Signal

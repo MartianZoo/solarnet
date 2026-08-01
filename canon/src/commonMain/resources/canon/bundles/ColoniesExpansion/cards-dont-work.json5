@@ -19,13 +19,5 @@
       "tags": [ "JovianTag" ]
     },
 
-    // Productive Outpost
-    {
-      "id": "C30",
-      "immediate": "PayOnlyMyColonyBonuses",
-      "deck": "PROJECT",
-      "cost": 0,
-      "projectKind": "AUTOMATED"
-    }
   ],
 }

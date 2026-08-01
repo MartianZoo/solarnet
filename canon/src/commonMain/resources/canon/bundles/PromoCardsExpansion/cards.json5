@@ -54,6 +54,20 @@
       "resourceType": "Microbe"
     },
 
+    // Splice Tactical Genomics
+    {
+      "id": "XC3",
+      "deck": "CORPORATION",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "44, MandateXC3",
+      "effects": [ "MicrobeTag<Anyone>: 2 Megacredit<Owner>" ],
+      "components": [
+        "CLASS MandateXC3 : Mandate { -> ProjectCard }",
+        "CLASS Splicer : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF CXC3<Anyone>: 2 OR Microbe<CardFront> }"
+      ],
+      "resourceType": "Microbe"
+    },
+
     // Factorum[F]
     {
       "id": "XC4F",
@@ -672,6 +686,16 @@
       "deck": "PRELUDE",
       "tags": [ "PowerTag", "SpaceTag" ],
       "immediate": "PROD[2 Energy], VenusStep"
+    },
+
+    // Hermetic Order of Mars
+    {
+      "id": "X56",
+      "deck": "PROJECT",
+      "immediate": "PROD[2], 1 / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)",
+      "requirement": "MAX 4 OxygenStep",
+      "cost": 10,
+      "projectKind": "AUTOMATED"
     },
 
     // Homeostasis Bureau
