@@ -92,7 +92,7 @@ public class ScriptSession(
   }
 
   init {
-    newGame("M", 2)
+    newGame("BM", 2)
   }
 
   public fun prompt(): String = mode.color.foreground(promptPlain())
@@ -252,8 +252,10 @@ public class ScriptSession(
 }
 
 internal fun createGame(setup: OptionCodeTranslation.Setup): World {
-  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition)
-  setupWorld.gameplay(ENGINE).godMode().manual(setup.instruction)
+  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition(setup.players, setup.options))
+  if (setup.instruction.isNotEmpty()) {
+    setupWorld.gameplay(ENGINE).godMode().manual(setup.instruction)
+  }
   return Engine.newGame(setupWorld, Canon::assemble)
 }
 

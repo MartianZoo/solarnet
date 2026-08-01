@@ -2,13 +2,14 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
   fun `Incorporator counts inexpensive active and automated projects only`() {
-    newGame("UtopiaPlanitiaMapOption FROM TharsisMapOption,PreludeExpansion")
+    newGame(UtopiaPlanitiaMapOption, PreludeExpansion)
     p1.manual("Ecoline, Donation, SearchForLife, Mine, PlayedEvent<Class<InventionContest>>")
 
     p1.count("CardFront") shouldBe 4
@@ -18,7 +19,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
 
   @Test
   fun `Suburbian counts tiles having at most four neighboring Mars areas`() {
-    newGame("UtopiaPlanitiaMapOption FROM TharsisMapOption")
+    newGame(UtopiaPlanitiaMapOption)
     val marsAreas = Canon.marsMap(cn("UtopiaPlanitia")).areas.filterNotNull()
     p1.manual(marsAreas.joinToString { "CityTile<${it.className}>" })
 
@@ -62,7 +63,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
 
   @Test
   fun `Utopia milestone metrics count combined metal production and card resource types`() {
-    newGame("UtopiaPlanitiaMapOption FROM TharsisMapOption")
+    newGame(UtopiaPlanitiaMapOption)
     p1.manual(
         "PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, Predators, " +
             "Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"

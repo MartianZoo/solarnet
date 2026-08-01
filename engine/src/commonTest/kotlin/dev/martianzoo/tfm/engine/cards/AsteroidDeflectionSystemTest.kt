@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -8,7 +9,7 @@ import kotlin.test.Test
 class AsteroidDeflectionSystemTest : CardTest() {
   @Test
   fun `with protected plants, reveals cards using Asteroid Deflection System`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     val p2 = requireP2()
     engine.phase("Action")
     p1.manual("13, ProjectCard, Plant, Tardigrades, Microbe<Tardigrades>, PROD[Energy]")

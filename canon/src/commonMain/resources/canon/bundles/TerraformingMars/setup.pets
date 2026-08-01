@@ -1,25 +1,30 @@
-"A selected game option; every concrete subtype has at most one instance"
-ABSTRACT CLASS GameOption : System { HAS MAX 1 This }
+"A selected game option; every concrete subtype has at most one immutable instance"
+ABSTRACT CLASS GameOption : System {
+  HAS MAX 1 This
+  -This:: Die!
+}
 
 "One participant seated for the game being configured"
 CLASS Player { HAS MAX 5 This }
 
-"The map option currently selected in the setup world"
+"The map option selected for the setup world"
 ABSTRACT CLASS MarsMapOption : GameOption { HAS MAX 1 MarsMapOption }
 
+"The player-count mode selected for the game"
+ABSTRACT CLASS Mode : GameOption { HAS MAX 1 Mode }
+
 "Solo play with a neutral opponent and a fixed generation limit"
-CLASS SoloMode : GameOption
+CLASS SoloMode : Mode
 
 "A game with at least two players"
-CLASS MultiplayerMode : GameOption
+CLASS MultiplayerMode : Mode
 
 "Checks whether the current selections describe one complete game"
 CLASS ValidateSetup : Signal {
-  This IF 2 Player, MAX 0 MultiplayerMode:: MultiplayerMode
   This IF MAX 0 Player: Die
   This IF MAX 0 MarsMapOption: Die
   This IF =1 Player, MAX 0 SoloMode: Die
-  This IF 2 Player, SoloMode: Die
+  This IF 2 Player, MAX 0 MultiplayerMode: Die
 
   This IF MAX 0 ColoniesExpansion, SelectedColonyTile: Die
   This IF MAX 0 ColoniesExpansion, DeferredColonySelection: Die

@@ -2,13 +2,14 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class NoctisCityTest : CardTest() {
   @Test
   fun `on Hellas, plays Noctis City`() {
-    newGame("HellasMapOption FROM TharsisMapOption")
+    newGame(HellasMapOption)
     p1.manual("PROD[Energy]")
     p1.manual("NoctisCity") {
           doTask("CityTile<Hellas_1_3>")

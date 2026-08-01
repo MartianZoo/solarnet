@@ -4,6 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.collections.shouldContainExactly
@@ -12,7 +13,7 @@ import kotlin.test.Test
 class StartTokenTest {
   @Test
   fun startsWithPlayer1AndPassesLeftEachGeneration() {
-    val engine = setUpGame("", 3).tfm(ENGINE)
+    val engine = setUpGame(players = 3).tfm(ENGINE)
 
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
@@ -29,7 +30,7 @@ class StartTokenTest {
 
   @Test
   fun staysWithPlayer1InAnActualOnePlayerSetup() {
-    val game = setUpGame("SoloMode", 1)
+    val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
 
     engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
@@ -43,7 +44,7 @@ class StartTokenTest {
 
   @Test
   fun autoWorkflowReadsTheTokenOwner() {
-    val setup = canonicalPremise("HellasMapOption FROM TharsisMapOption,PromoCardPack", 2)
+    val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)

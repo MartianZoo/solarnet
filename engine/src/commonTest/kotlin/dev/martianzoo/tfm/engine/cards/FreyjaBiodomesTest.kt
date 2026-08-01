@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import kotlin.test.Test
 
@@ -7,7 +8,7 @@ class FreyjaBiodomesTest : CardTest() {
   // FAQ: "you can still choose to take microbes"
   @Test
   fun `without an eligible Venus card, resolves Freyja Biodomes`() {
-    newGame("VenusNextExpansion")
+    newGame(VenusNextExpansion)
     p1.manual("PROD[Energy]")
     p1.manual("VenusianAnimals")
     p1.assertCounts(1 to "VenusTag<VenusianAnimals>", 1 to "Animal<VenusianAnimals>")

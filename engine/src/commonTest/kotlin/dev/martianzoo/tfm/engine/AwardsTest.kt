@@ -7,6 +7,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -17,7 +18,7 @@ import kotlin.test.Test
 internal class AwardsTest : TfmTest() {
   @Test
   fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
-    game = Engine.newGame(canonicalPremise("SoloMode", players = 1))
+    game = Engine.newGame(canonicalPremise(players = 1))
 
     game.classTable.findClass(cn("ClaimMilestoneSA")) shouldBe null
     game.classTable.findClass(cn("FundAwardSA")) shouldBe null
@@ -32,8 +33,8 @@ internal class AwardsTest : TfmTest() {
     game =
         Engine.newGame(
             canonicalPremise(
-                "UtopiaPlanitiaMapOption FROM TharsisMapOption",
-                2,
+                UtopiaPlanitiaMapOption,
+                players = 2,
             )
         )
     val p1 = game.tfm(PLAYER1)

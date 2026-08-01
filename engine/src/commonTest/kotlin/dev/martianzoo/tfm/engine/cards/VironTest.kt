@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -56,7 +57,8 @@ class VironTest : CardTest() {
   @Test
   fun `after p2 uses a card, p1 tries to choose it through Viron`() {
     newGame(
-        "VenusNextExpansion,ColoniesExpansion",
+        VenusNextExpansion,
+        ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
     val p2 = requireP2()
@@ -76,7 +78,8 @@ class VironTest : CardTest() {
 
   private fun initializeGame() {
     newGame(
-        "VenusNextExpansion,ColoniesExpansion",
+        VenusNextExpansion,
+        ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
     engine.phase("Action")

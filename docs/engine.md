@@ -16,15 +16,17 @@ worlds can be created.
 `Engine.newSetupWorld` creates an independent world for collecting setup components. Once it is
 idle, `Engine.newGame(setupWorld, assemble)` gains the setup ruleset's `ValidateSetup` signal,
 snapshots the world as a `GamePremise`, then constructs a separate playable world. Canon supplies
-its own setup ruleset, initial components, validation effects, and assembler. `TerraformingMars`
-is an unconditional assembly root rather than a setup option. `CorporateEraExpansion` and
-`TharsisMapOption` are default setup components and can be removed or replaced by setup instructions.
-Canon reuses setup class
+its own setup ruleset, initial components, validation effects, and assembler. Callers construct a
+canonical setup premise with a player count, a `Set<Canon.Option>`, and optionally a set of selected
+colony class names; Canon adds those players, colony selections, and the corresponding `SoloMode` or
+`MultiplayerMode`. `Canon.Option.DEFAULTS` selects Corporate Era and the Tharsis map. Options cannot
+be removed in either setup or playable worlds, while Pets validation checks that the completed
+option set contains exactly one map and is otherwise consistent. `TerraformingMars` is an
+unconditional assembly root rather than a setup option. Canon reuses setup class
 declarations in playable worlds unless ordinary gameplay Pets provide a same-named wholesale
 replacement. This lets the setup world's concrete `Player` count be replaced by the playable
-world's abstract `Player` hierarchy. Its gameplay `GameOption` replacement prevents non-Engine
-Actors from removing assembled options while retaining Engine as an initialization and
-administrative authority.
+world's abstract `Player` hierarchy. The shared `GameOption` declaration prevents every Actor,
+including Engine, from removing assembled options.
 
 The `ClassTable` of loaded classes is immutable. `GameReader.ruleset` is the selected ruleset from
 the premise. Terraforming Mars-specific clients can use

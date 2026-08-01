@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -15,7 +16,7 @@ class LavaFlowsTest : CardTest() {
 
   @Test
   fun `on Hellas, resolves Lava Flows`() {
-    newGame("HellasMapOption FROM TharsisMapOption")
+    newGame(HellasMapOption)
     p1.manual("LavaFlows") { doTask("LfTile<Hellas_1_5>") }.expect("2 TemperatureStep")
   }
 

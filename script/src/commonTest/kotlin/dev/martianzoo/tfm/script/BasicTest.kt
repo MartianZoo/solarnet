@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 internal fun setUpGame(
-    optionCodes: String = "M",
+    optionCodes: String = "BM",
     players: Int = 2,
 ): World {
   val setup = OptionCodeTranslation.setup(optionCodes, players)

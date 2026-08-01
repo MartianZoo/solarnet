@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import kotlin.test.Test
 
 class IndenturedWorkersTest : CardTest() {
@@ -37,7 +38,7 @@ class IndenturedWorkersTest : CardTest() {
   }
 
   private fun initializeGame(instruction: String) {
-    newGame("")
+    newGame()
     engine.phase("Action")
     p1.manual(instruction)
   }

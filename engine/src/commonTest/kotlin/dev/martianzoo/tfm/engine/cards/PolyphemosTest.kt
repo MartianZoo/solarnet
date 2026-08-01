@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import kotlin.test.Test
 
@@ -8,7 +9,7 @@ class PolyphemosTest : CardTest() {
   @Test
   fun `with Polyphemos, buys a card from Inventors Guild`() {
     newGame(
-        "ColoniesExpansion",
+        ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
     p1.playCorp("Polyphemos", 7)

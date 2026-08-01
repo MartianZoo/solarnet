@@ -5,6 +5,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.data.AwardDefinition
@@ -52,18 +53,59 @@ public object Canon :
             setOf(cn("PromoCardPack")),
         ),
     ) {
-  /** Definition used to construct independent canonical setup worlds. */
-  public val setupWorldDefinition: GamePremise =
-      GamePremise(
-          CanonSetupRuleset,
-          CanonSetupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className },
-          listOf(ENGINE),
-          listOf("CorporateEraExpansion", "TharsisMapOption"),
-      )
+  /** A canonical game option, named identically to its Pets component class. */
+  public enum class Option {
+    SoloMode,
+    MultiplayerMode,
+    CorporateEraExpansion,
+    TharsisMapOption,
+    HellasMapOption,
+    ElysiumMapOption,
+    UtopiaPlanitiaMapOption,
+    TerraCimmeriaMapOption,
+    VenusNextExpansion,
+    PreludeExpansion,
+    ColoniesExpansion,
+    TurmoilCardPack,
+    PromoCardPack,
+    // Tr63SoloVariant,
+    // NoWorldGovernmentVariant,
+    // MandatoryVenusVariant,
+    // OfferBeginnerCorpsVariant,
+    ;
+
+    public val className: ClassName = cn(name)
+
+    public companion object {
+      /** The options used when a caller does not make an explicit selection. */
+      public val DEFAULTS: Set<Option> = setOf(CorporateEraExpansion, TharsisMapOption)
+    }
+  }
+
+  /** Definition used to construct an independent canonical setup world. */
+  public fun setupWorldDefinition(
+      players: Int,
+      options: Set<Option> = Option.DEFAULTS,
+      selectedColonies: Set<ClassName> = emptySet(),
+  ): GamePremise {
+    require(players in 1..5) { "player count must be between 1 and 5" }
+    val mode = if (players == 1) Option.SoloMode else Option.MultiplayerMode
+    val initialComponents = buildList {
+      add("$players Player")
+      (options + mode).mapTo(this) { it.className.toString() }
+      selectedColonies.mapTo(this) { "${it}Selected" }
+    }
+    return GamePremise(
+        CanonSetupRuleset,
+        CanonSetupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className },
+        listOf(ENGINE),
+        initialComponents,
+    )
+  }
 
   /** Snapshots a validated canonical setup world for an independent playable game. */
   public fun assemble(setupWorld: GameReader): GamePremise {
-    require(setupWorld.ruleset === setupWorldDefinition.ruleset) { "not a canonical setup world" }
+    require(setupWorld.ruleset === CanonSetupRuleset) { "not a canonical setup world" }
     val players = setupWorld.getComponents("Player").size
 
     val enabledOptions =
@@ -104,7 +146,7 @@ public object Canon :
   }
 
   private val setupOptionBundles by lazy {
-    buildMap {
+    val result = buildMap {
       bundles.forEach { bundle ->
         bundle.gameOptionClassNames.forEach { option ->
           require(put(option, bundle.bundleName) == null) {
@@ -113,6 +155,10 @@ public object Canon :
         }
       }
     }
+    require(result.keys == Option.entries.mapTo(linkedSetOf()) { it.className }) {
+      "canonical option enum does not match the available setup options"
+    }
+    result
   }
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")

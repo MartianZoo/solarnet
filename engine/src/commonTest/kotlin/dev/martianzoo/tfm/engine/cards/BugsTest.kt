@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -25,7 +26,7 @@ class BugsTest : CardTest() {
   // FAQ: "Place a city tile there, regardless of placement rules."
   @Test
   fun `Kaguya Tech can incorrectly move the selected greenery to another area`() {
-    newGame("PromoCardPack")
+    newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
     // TODO(#12): Repeated LandArea occurrences should specialize together and reject this move.
@@ -37,7 +38,7 @@ class BugsTest : CardTest() {
 
   @Test
   fun `solo setup can incorrectly link the second greenery to the first city`() {
-    val setup = canonicalPremise("SoloMode", 1)
+    val setup = canonicalPremise(players = 1)
     val game = setUpGame(setup)
     val engine = game.tfm(ENGINE)
 
@@ -80,7 +81,7 @@ class BugsTest : CardTest() {
   // Start."
   @Test
   fun `Head Start incorrectly allows its two actions to interleave`() {
-    newGame("PreludeExpansion,TurmoilCardPack,PromoCardPack")
+    newGame(PreludeExpansion, TurmoilCardPack, PromoCardPack)
     p1.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard, 10 Heat")
 
@@ -113,7 +114,7 @@ class BugsTest : CardTest() {
   @Test
   fun `Solar Probe can incorrectly lose its card draw if event cleanup is handled first`() {
     newGame(
-        "ColoniesExpansion",
+        ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
     val p1GodMode = p1.godMode()

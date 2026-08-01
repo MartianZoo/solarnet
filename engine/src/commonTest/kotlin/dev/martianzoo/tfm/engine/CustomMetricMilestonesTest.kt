@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
@@ -16,9 +17,12 @@ internal class CustomMetricMilestonesTest {
     val game =
         Engine.newGame(
             canonicalPremise(
-                "ColoniesExpansion,HellasMapOption FROM TharsisMapOption,VenusNextExpansion,PromoCardPack",
-                2,
-                testColonyTiles(2),
+                ColoniesExpansion,
+                HellasMapOption,
+                VenusNextExpansion,
+                PromoCardPack,
+                players = 2,
+                colonyTiles = testColonyTiles(2),
             )
         )
     val p1 = game.tfm(PLAYER1)
@@ -47,9 +51,10 @@ internal class CustomMetricMilestonesTest {
     val p1 =
         Engine.newGame(
                 canonicalPremise(
-                    "ColoniesExpansion,HellasMapOption FROM TharsisMapOption",
-                    2,
-                    testColonyTiles(2),
+                    ColoniesExpansion,
+                    HellasMapOption,
+                    players = 2,
+                    colonyTiles = testColonyTiles(2),
                 )
             )
             .tfm(PLAYER1)

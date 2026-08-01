@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import kotlin.test.Test
 
 class CommercialDistrictTest : CardTest() {
   @Test
   fun `between two cities, places Commercial District`() {
-    newGame("")
+    newGame()
     val p2 = requireP2()
 
     p1.manual("PROD[Energy], CityTile<Tharsis_3_2>")

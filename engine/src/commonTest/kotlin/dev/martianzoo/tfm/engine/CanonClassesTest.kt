@@ -16,6 +16,7 @@ import dev.martianzoo.engine.loadClassTable
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.te
@@ -78,7 +79,7 @@ internal class CanonClassesTest {
 
   @Test
   fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
-    val game = setUpGame(canonicalPremise("PreludeExpansion", 2))
+    val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
 
     game.tfm(PLAYER1).phase("Prelude")
 
@@ -88,7 +89,7 @@ internal class CanonClassesTest {
 
   @Test
   fun soloSetupUsesPetsOnlyOpponent() {
-    val premise = canonicalPremise("SoloMode", players = 1)
+    val premise = canonicalPremise(players = 1)
     premise.actors.shouldContainExactly(PLAYER1, ENGINE)
     val game = setUpGame(premise)
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("Player2"))
@@ -175,7 +176,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = loadClassTable(canonicalPremise("", 2))
+    val table = loadClassTable(canonicalPremise(players = 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val type = table.resolve(te(expr))
@@ -208,7 +209,8 @@ internal class CanonClassesTest {
     val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(PLAYER1) as GodMode
     val withVenus =
-        Engine.newGame(canonicalPremise("VenusNextExpansion", 2)).gameplay(PLAYER1) as GodMode
+        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).gameplay(PLAYER1)
+            as GodMode
 
     gameplay.count("Class<AnyWordHere>") shouldBe 0
     gameplay.count("Class<VenusStep>") shouldBe 0

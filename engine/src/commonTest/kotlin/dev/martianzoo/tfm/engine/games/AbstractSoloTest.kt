@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.games
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
@@ -14,8 +15,11 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
 
   override fun setup() =
       canonicalPremise(
-          "HellasMapOption FROM TharsisMapOption,SoloMode,VenusNextExpansion,PreludeExpansion,PromoCardPack",
-          1,
+          HellasMapOption,
+          VenusNextExpansion,
+          PreludeExpansion,
+          PromoCardPack,
+          players = 1,
       )
 
   protected abstract fun cityAreas(): Pair<String, String>

@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import kotlin.test.Test
 
 class LakefrontResortsTest : CardTest() {
   @Test
   fun `with Lakefront Resorts and an ocean, p1 places an adjacent tile`() {
-    newGame("TurmoilCardPack")
+    newGame(TurmoilCardPack)
     val p2 = requireP2()
 
     engine.phase("Action")
@@ -21,7 +22,7 @@ class LakefrontResortsTest : CardTest() {
 
   @Test
   fun `with Lakefront Resorts owned by p2, p1 places an adjacent tile`() {
-    newGame("TurmoilCardPack")
+    newGame(TurmoilCardPack)
     val p2 = requireP2()
     engine.phase("Action")
     p2.manual("LakefrontResorts, 54")

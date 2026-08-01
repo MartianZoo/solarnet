@@ -34,7 +34,7 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   fun completesCardsInTheCurrentSetup() {
-    repl.command("newgame RMVPX 2")
+    repl.command("newgame BRMVPX 2")
 
     assertContainsAll(values("tfm_play Man"), "Mangrove", "Manutech")
   }

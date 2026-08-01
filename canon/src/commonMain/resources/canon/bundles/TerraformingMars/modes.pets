@@ -1,7 +1,7 @@
 // Solo mode
 
 "Solo play with a neutral opponent and a fixed generation limit"
-CLASS SoloMode : GameOption {
+CLASS SoloMode : Mode {
   GenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
   -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
@@ -34,7 +34,7 @@ CLASS Opponent[OPP] : Owner {
 // Multiplayer mode
 
 "Multiplayer rules, including the end condition that deliberately excludes Venus"
-CLASS MultiplayerMode : GameOption {
+CLASS MultiplayerMode : Mode {
   GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
   EndPhase:: MeasureAwards THEN End THEN FinalScore
   FinalScore: MultiplayerVictoryCheck

@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import kotlin.test.Test
 
 class DirigiblesTest : CardTest() {
   @Test
   fun `with two floaters, pays for a Venus card using Dirigibles`() {
-    newGame("VenusNextExpansion")
+    newGame(VenusNextExpansion)
 
     engine.phase("Action")
     p1.manual("ProjectCard, Dirigibles, 2 Floater<Dirigibles>, 5")

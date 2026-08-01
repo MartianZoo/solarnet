@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import kotlin.test.Test
 
 class MassiveDiscountsTest : CardTest() {
 
   @Test
   fun `with stacked discounts, plays Space Elevator`() {
-    newGame("VenusNextExpansion,PreludeExpansion,PromoCardPack")
+    newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
 
     engine.phase("Action")
     p1.manual(

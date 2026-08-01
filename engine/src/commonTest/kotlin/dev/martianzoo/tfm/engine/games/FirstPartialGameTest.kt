@@ -4,6 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -17,8 +18,10 @@ class FirstPartialGameTest {
     repeat(1) {
       val setup =
           canonicalPremise(
-              "ElysiumMapOption FROM TharsisMapOption,PreludeExpansion,TurmoilCardPack",
-              2,
+              ElysiumMapOption,
+              PreludeExpansion,
+              TurmoilCardPack,
+              players = 2,
           )
       val game = Engine.newGame(setup)
       val eng = game.tfm(ENGINE)

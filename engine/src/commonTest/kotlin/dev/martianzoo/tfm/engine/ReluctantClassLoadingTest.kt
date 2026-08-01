@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -99,22 +101,20 @@ internal class ReluctantClassLoadingTest {
           .filter { Regex(pattern, RegexOption.IGNORE_CASE).containsMatchIn(it.toString()) }
 
   private enum class Setup(
-      private val instruction: String,
+      private val options: Set<Canon.Option>,
       private val players: Int = 2,
   ) {
-    BASE_MULTIPLAYER(""),
-    BASE_SOLO("SoloMode", 1),
-    PRELUDE_SOLO("PreludeExpansion,SoloMode", 1),
-    WITHOUT_CORPORATE_ERA("-CorporateEraExpansion"),
-    PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA(
-        "-CorporateEraExpansion, PromoCardPack, UtopiaPlanitiaMapOption FROM TharsisMapOption"
-    ),
-    PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA(
-        "-CorporateEraExpansion, PromoCardPack, TerraCimmeriaMapOption FROM TharsisMapOption"
-    ),
-    PRELUDE_VENUS_MULTIPLAYER("PreludeExpansion, VenusNextExpansion");
+    BASE_MULTIPLAYER(Canon.Option.DEFAULTS),
+    BASE_SOLO(Canon.Option.DEFAULTS, 1),
+    PRELUDE_SOLO(Canon.Option.DEFAULTS + PreludeExpansion, players = 1),
+    WITHOUT_CORPORATE_ERA(Canon.Option.DEFAULTS - CorporateEraExpansion),
+    PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA(setOf(PromoCardPack, UtopiaPlanitiaMapOption)),
+    PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA(setOf(PromoCardPack, TerraCimmeriaMapOption)),
+    PRELUDE_VENUS_MULTIPLAYER(Canon.Option.DEFAULTS + setOf(PreludeExpansion, VenusNextExpansion));
 
-    val classTable by lazy { Engine.newGame(canonicalPremise(instruction, players)).classTable }
+    val classTable by lazy {
+      Engine.newGame(canonicalPremise(options, players = players)).classTable
+    }
     val classNames by lazy { classTable.allClassNamesAndIds }
   }
 }

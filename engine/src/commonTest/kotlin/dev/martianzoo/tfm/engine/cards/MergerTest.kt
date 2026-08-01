@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import kotlin.test.BeforeTest
@@ -8,7 +9,7 @@ import kotlin.test.Test
 class MergerTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame("VenusNextExpansion,PreludeExpansion,PromoCardPack")
+    newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
     p1.playCorp("ValleyTrust", 5)
     engine.phase("Prelude")
     p1.playPrelude("UnmiContractor")

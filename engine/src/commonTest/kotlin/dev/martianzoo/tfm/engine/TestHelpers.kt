@@ -22,6 +22,7 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -29,26 +30,32 @@ internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
-    setupInstruction: String = "",
+    vararg selectedOptions: Option,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-): World = setUpGame(canonicalPremise(setupInstruction, players, colonyTiles))
+): World =
+    setUpGame(canonicalPremise(*selectedOptions, players = players, colonyTiles = colonyTiles))
 
 internal fun canonicalPremise(
-    setupInstruction: String = "",
+    vararg selectedOptions: Option,
+    players: Int = 2,
+    colonyTiles: Set<ClassName> = emptySet(),
+    ruleset: TfmRuleset? = null,
+): GamePremise =
+    canonicalPremise(
+        canonicalOptions(*selectedOptions),
+        players,
+        colonyTiles,
+        ruleset,
+    )
+
+internal fun canonicalPremise(
+    options: Set<Option>,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
 ): GamePremise {
-  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition)
-  val selections = buildList {
-    add("$players Player")
-    add(setupInstruction)
-    addAll(colonyTiles.map { "${it}Selected" })
-  }
-      .filter(String::isNotBlank)
-      .joinToString(", ")
-  setupWorld.gameplay(ENGINE).godMode().manual(selections)
+  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition(players, options, colonyTiles))
   setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
   val base = Canon.assemble(setupWorld.reader)
   if (ruleset == null) return base
@@ -59,6 +66,23 @@ internal fun canonicalPremise(
       rootClassNames = base.rootClassNames + selectedRuleset.allDefinitions.classNames(),
   )
 }
+
+internal fun canonicalOptions(vararg selectedOptions: Option): Set<Option> {
+  val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }
+  require(selectedMaps.size <= 1) { "select at most one map" }
+  val defaults =
+      if (selectedMaps.isEmpty()) Canon.Option.DEFAULTS else Canon.Option.DEFAULTS - MAP_OPTIONS
+  return defaults + selectedOptions
+}
+
+private val MAP_OPTIONS =
+    setOf(
+        Option.TharsisMapOption,
+        Option.HellasMapOption,
+        Option.ElysiumMapOption,
+        Option.UtopiaPlanitiaMapOption,
+        Option.TerraCimmeriaMapOption,
+    )
 
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {

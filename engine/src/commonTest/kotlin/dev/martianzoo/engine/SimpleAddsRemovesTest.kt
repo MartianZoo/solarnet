@@ -5,6 +5,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.types.te
 import dev.martianzoo.util.toStrings
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,7 +16,7 @@ import kotlin.test.Test
 internal class SimpleAddsRemovesTest {
   @Test
   fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2).godMode()
 
     p2.manual("StandardResource") { doTask("Plant") }
@@ -25,14 +26,14 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
-    val p2 = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise()).tfm(PLAYER2).godMode()
+    val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2).godMode()
 
     shouldThrow<LimitsException> { p2.manual("-Plant") }
   }
 
   @Test
   fun basicByApi() {
-    val game = Engine.newGame(dev.martianzoo.tfm.engine.canonicalPremise())
+    val game = Engine.newGame(canonicalPremise())
 
     val checkpoint = game.timeline.checkpoint()
 
