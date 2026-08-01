@@ -50,7 +50,10 @@
         "This IF 2 Player: MandatePC5",
         "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
       ],
-      "components": [ "CLASS MandatePC5 : Mandate { -> Award }" ],
+      "components": [
+        "CLASS CitationsIgnoringRemoves<CardFront, Class<Component>> : Custom",
+        "CLASS MandatePC5 : Mandate { -> Award }",
+      ],
     },
 
     // Allied Bank
