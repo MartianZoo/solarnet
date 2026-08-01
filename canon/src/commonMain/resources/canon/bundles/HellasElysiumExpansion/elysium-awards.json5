@@ -6,9 +6,9 @@
     // Industrialist
     { "id": "EA2", "metric": "Steel OR Energy" },
     // Desert Settler
-    { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 5 MarsRow)>" },
+    { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 6 MarsRow)>" },
     // Estate Dealer
-    { "id": "EA4", "metric": "Adjacency<OwnedTile, OceanTile>" },
+    { "id": "EA4", "metric": "OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
     // Benefactor
     { "id": "EA5", "metric": "TerraformRating" },
   ]

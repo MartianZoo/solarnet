@@ -243,6 +243,7 @@
         "-> Floater<CardFront(HAS JovianTag)>",
         "-> 1 / Floater<This> MAX 4"
       ],
+      "effects": [ "End: VictoryPoint" ],
       "resourceType": "Floater",
       "requirement": "3 ScienceTag",
       "cost": 9,

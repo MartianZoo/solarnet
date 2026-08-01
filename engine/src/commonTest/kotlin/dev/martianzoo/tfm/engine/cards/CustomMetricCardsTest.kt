@@ -61,13 +61,13 @@ class CustomMetricCardsTest : CardTest() {
   fun `with Mining Guild, places tiles on steel and card bonuses`() {
     newGame("")
     p1.manual("MiningGuild")
-    p1.count("PROD[Steel]") shouldBe 0
+    p1.count("PROD[Steel]") shouldBe 1
 
     p1.manual("CityTile<Tharsis_1_1>").expect("PROD[Steel]") // LSS
-    p1.count("PROD[Steel]") shouldBe 1
+    p1.count("PROD[Steel]") shouldBe 2
 
     p1.manual("CityTile<Tharsis_2_1>") // L
-    p1.count("PROD[Steel]") shouldBe 1
+    p1.count("PROD[Steel]") shouldBe 2
   }
 
   @Test

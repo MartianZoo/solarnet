@@ -223,7 +223,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "PROD[-Energy, 2], 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
-      "effects": [ "End: VictoryPoint" ],
+      "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "5 VenusStep",
       "cost": 14,
       "projectKind": "AUTOMATED"

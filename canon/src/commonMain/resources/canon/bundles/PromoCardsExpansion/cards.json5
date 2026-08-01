@@ -17,7 +17,10 @@
       "id": "X18",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
-      "effects": [ "PlayCard<Class<CardFront>(HAS ClassCardRequirement)>:: -2 Owed" ],
+      "effects": [
+        "PlayCard<Class<CardFront>(HAS ClassCardRequirement)>:: -2 Owed",
+        "End: VictoryPoint"
+      ],
       "cost": 12,
       "projectKind": "ACTIVE"
     },

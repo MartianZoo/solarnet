@@ -34,6 +34,7 @@
       "id": "B06",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag", "BuildingTag" ],
+      "immediate": "30, 5 Steel, PROD[Steel]",
       "effects": [
         "Tile<MarsArea(HAS MapBonus<Class<Steel>> OR MapBonus<Class<Titanium>>)>: PROD[Steel]"
       ]
@@ -968,6 +969,7 @@
       "id": "129",
       "deck": "PROJECT",
       "immediate": "PROD[1 / CityTile<MarsArea, Anyone>]",
+      "effects": [ "End: VictoryPoint" ],
       "requirement": "5 OxygenStep",
       "cost": 13,
       "projectKind": "AUTOMATED"
