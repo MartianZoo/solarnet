@@ -10,13 +10,14 @@
       "effects": [
         "OceanTile BY Anyone: PROD[1]",
         "ForwardAdjacency<OceanTile, Tile>: 1"
-      ]
+      ],
     },
 
     // Pristar
     {
       "id": "TC2",
       "deck": "CORPORATION",
+      "resourceType": "Preservation",
       "immediate": "53, -2 TerraformRating",
       "effects": [
         "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6",
@@ -27,7 +28,6 @@
         "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
         "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
       ],
-      "resourceType": "Preservation"
     },
 
     // TerraLabs Research
@@ -36,7 +36,7 @@
       "deck": "CORPORATION",
       "tags": [ "ScienceTag", "EarthTag" ],
       "immediate": "14, -TerraformRating",
-      "effects": [ "BuyCard:: 2" ]
+      "effects": [ "BuyCard:: 2" ],
     },
   ],
 }
