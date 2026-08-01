@@ -7,7 +7,7 @@ CLASS VenusStep[VEN] : GlobalParameter {
 }
 
 CLASS VenusNextExpansion : GameOption {
-  SetupPhase:: SoloVictoryRequirement
+  SetupPhase: SoloVictoryRequirement
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
 }
 

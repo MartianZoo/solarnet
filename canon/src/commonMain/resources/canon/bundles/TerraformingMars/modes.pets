@@ -2,11 +2,11 @@
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : GameOption {
-  GenerationSetup:: 14 SoloGenerationsLeft
-  Generation:: -SoloGenerationsLeft.
+  GenerationSetup: 14 SoloGenerationsLeft
+  Generation: -SoloGenerationsLeft.
   -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
-  SetupPhase:: Opponent THEN -6 TerraformRating<Player1>
+  SetupPhase: Opponent THEN -6 TerraformRating<Player1>
 }
 
 "Lets selected variants initialize solo state immediately before generation 1 begins"

@@ -96,7 +96,7 @@ internal class ScriptSessionTest {
     repl.command("task ${colonyTaskIds[0]} AddColonyTile<Class<Ceres>>")
     repl.command("task ${colonyTaskIds[1]} AddColonyTile<Class<Io>>")
     repl.command("task ${colonyTaskIds[2]} AddColonyTile<Class<Titan>>")
-    repl.command("task N CityTile<Tharsis_2_4, Opponent>")
+    repl.command("task W CityTile<Tharsis_2_4, Opponent>")
     repl.command("task GreeneryTile<Tharsis_2_3, Opponent>")
     repl.command("task CityTile<Tharsis_8_7, Opponent>")
     repl.command("task GreeneryTile<Tharsis_8_6, Opponent>")

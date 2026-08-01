@@ -59,13 +59,13 @@ ABSTRACT CLASS Owned<Anyone> {
   "Marks the player who takes the first turn; passes one seat left with each new generation"
   CLASS StartToken : Owned<Player> {
     HAS MAX 1 StartToken
-    Generation:: PassLeft<This>
+    Generation: PassLeft<This>
   }
 
   "Performs energy-to-heat conversion for a player; exists only so that Supercapacitors can remove it"
   CLASS Entropy {
     HAS MAX 1 This
-    ProductionPhase:: 999 Heat FROM Energy.
+    ProductionPhase: 999 Heat FROM Energy.
   }
 
   // Because of our model that the world is "just a bag of things", you can't have a negative

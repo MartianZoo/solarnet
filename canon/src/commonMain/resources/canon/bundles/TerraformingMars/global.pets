@@ -77,7 +77,7 @@ ABSTRACT CLASS Phase : AutoLoad, System {
   CLASS CorporationPhase {
     NewTurn: PlayCard<Class<CorporationCard>>, 10 BuyCard?
   }
-  CLASS ResearchPhase { This:: Generation }
+  CLASS ResearchPhase { This: Generation }
   CLASS ActionPhase {
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?

@@ -19,7 +19,7 @@
       "id": "CC3",
       "deck": "CORPORATION",
       "immediate": "50, PROD[5], 5 Titanium",
-      "effects" : [ "BuyCard:: -2" ],
+      "effects" : [ "BuyCard: -2" ],
     },
 
     // Poseidon
@@ -108,9 +108,9 @@
       "effects": [
         // a little dodgy... as soon as you commit to taking the action we just *give* you
         // the resource... this only works because we know we can't top out
-        "UseAction1<TradeSA>:: 1",
-        "UseAction2<TradeSA>:: Energy",
-        "UseAction3<TradeSA>:: Titanium",
+        "UseAction1<TradeSA>: 1",
+        "UseAction2<TradeSA>: Energy",
+        "UseAction3<TradeSA>: Titanium",
         "End: VictoryPoint"
       ],
     },
@@ -420,9 +420,9 @@
       "tags": [ "SpaceTag" ],
       "effects": [
         // See Cryo-Sleep comments
-        "UseAction1<TradeSA>:: 1",
-        "UseAction2<TradeSA>:: Energy",
-        "UseAction3<TradeSA>:: Titanium"
+        "UseAction1<TradeSA>: 1",
+        "UseAction2<TradeSA>: Energy",
+        "UseAction3<TradeSA>: Titanium"
       ],
     },
 

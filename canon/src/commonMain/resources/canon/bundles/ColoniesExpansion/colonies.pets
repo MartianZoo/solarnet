@@ -5,7 +5,7 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : GameOption {
   SetupPhase: ColoniesSetup
-  SetupPhase IF =1 Player:: PROD[-2 Megacredit<Player1>]
+  SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
 }
 
 "Creates the colony tiles and one trade fleet for each player"
@@ -30,13 +30,13 @@ ABSTRACT CLASS ColonyTile {
   // WHITE CUBE MAINTENANCE
 
   // Start at 1, not 0
-  This:: ColonyProduction<This>
+  This: ColonyProduction<This>
 
   // When colony built, move it right if necessary
   Colony<This>: -ColonyProduction<This>. / Colony<This> THEN ColonyProduction<This> / Colony<This>
 
   // After trade, move it all the way left
-  ResetProduction<This>:: -6 ColonyProduction<This>. THEN ColonyProduction<This> / Colony<This, Anyone>
+  ResetProduction<This>: -6 ColonyProduction<This>. THEN ColonyProduction<This> / Colony<This, Anyone>
 
   // At end of gen, move it right one (technically during the "colonies solar phase" but shrug)
   ProductionPhase: ColonyProduction<This>.
@@ -70,7 +70,7 @@ ABSTRACT CLASS TradeFleet : Owned<Player> {
   CLASS ReserveTradeFleet
 
   CLASS FlownTradeFleet<ColonyTile> {
-    Generation:: ReserveTradeFleet FROM This
+    Generation: ReserveTradeFleet FROM This
   }
 }
 
@@ -80,6 +80,6 @@ CLASS AddColonyTile<Class<ColonyTile>> : Custom, AutoLoad
 "If a ColonyTile gives card resources, one of these is created first instead"
 CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> : AutoLoad {
   HAS MAX 1 This
-  This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This // thanks Aridor
+  This IF ResourceCard<Class<CardResource>>: ColonyTile FROM This // thanks Aridor
   ResourceCard<Class<CardResource>>: ColonyTile FROM This
 }

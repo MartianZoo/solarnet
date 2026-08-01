@@ -12,7 +12,7 @@ ABSTRACT CLASS Hidden
 
 "Engine-only machinery; unowned occurrences are independent of any Player Actor"
 ABSTRACT CLASS System : Hidden {
-  This BY Player:: Die
+  This BY Player: Die
 
   "Magic rules: only a class name can go inside `<>`; `Class<Foo>` is concrete iff `Foo` is"
   CLASS Class<Component> { HAS =1 This }

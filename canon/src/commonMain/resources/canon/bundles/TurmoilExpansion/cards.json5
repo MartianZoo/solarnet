@@ -36,7 +36,7 @@
       "deck": "CORPORATION",
       "tags": [ "ScienceTag", "EarthTag" ],
       "immediate": "14, -TerraformRating",
-      "effects": [ "BuyCard:: 2" ],
+      "effects": [ "BuyCard: 2" ],
     },
   ],
 }
