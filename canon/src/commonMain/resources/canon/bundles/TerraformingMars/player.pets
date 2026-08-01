@@ -11,7 +11,6 @@ ABSTRACT CLASS Anyone[ANY] {
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard
       ResearchPhase: 4 BuyCard<This>?
-      MeasureAwards:: MeasureAward
       CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
     }
 
@@ -28,7 +27,7 @@ ABSTRACT CLASS Owned<Anyone> {
   CLASS VictoryPoint[VP] : Owned<Player>
 
   "The only component to have absolutely no purpose whatsoever"
-  CLASS Victory : Owned<Player>, AutoLoad { HAS MAX 1 This }
+  CLASS Victory : Owned<Player> { HAS MAX 1 This }
 
   "One step on the terraform rating track; you generally start with 20 of them"
   CLASS TerraformRating[TR] : Owned<Player> {
@@ -88,18 +87,23 @@ ABSTRACT CLASS Award[AWD] {
   AwardMeasured<Player, This>:: AssignAwardPlaces<This>
 }
 
-CLASS FirstPlace<Award> : Owned<Player>, AutoLoad {
+CLASS FirstPlace<Award> : Owned<Player> {
   End: 5 VictoryPoint
 }
 
-CLASS SecondPlace<Award> : Owned<Player>, AutoLoad {
+CLASS SecondPlace<Award> : Owned<Player> {
   End: 2 VictoryPoint
 }
 
 CLASS MeasureAward : Owned<Player>, Signal
-CLASS AwardTally<Award> : Owned<Player>, AutoLoad
-CLASS AwardMeasured<Award> : Owned<Player>, Hidden, AutoLoad
-CLASS AssignAwardPlaces<Award> : Custom, AutoLoad
+CLASS AwardMeasurer : Owned<Player>, Hidden, System {
+  HAS =1 This
+  AwardMeasurement:: MeasureAward
+}
+CLASS AwardMeasurement : Signal, System
+CLASS AwardTally<Award> : Owned<Player>
+CLASS AwardMeasured<Award> : Owned<Player>, Hidden
+CLASS AssignAwardPlaces<Award> : Custom
 
 "Moves an owned component to the next player in seat order"
 CLASS PassLeft<StartToken> : Custom

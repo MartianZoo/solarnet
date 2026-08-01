@@ -67,7 +67,7 @@ ABSTRACT CLASS Tile<Area> {
 CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR]
 
 "When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created"
-ABSTRACT CLASS Adjacency<Tile, Tile> : AutoLoad {
+ABSTRACT CLASS Adjacency<Tile, Tile> {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 

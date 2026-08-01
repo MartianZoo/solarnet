@@ -90,11 +90,11 @@ ABSTRACT CLASS Phase : AutoLoad, System {
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction1<ConvertPlantsSA>?
   }
-  CLASS EndPhase { This:: MeasureAwards THEN End THEN FinalScore }
+  CLASS EndPhase
 }
 
-"This Signal causes funded awards to be measured and places to be assigned"
-CLASS MeasureAwards : Signal, System
+"Measures funded awards and causes their places to be assigned"
+CLASS MeasureAwards : Custom, System
 
 "This Signal causes components to pay out victory points"
 CLASS End : Signal, System

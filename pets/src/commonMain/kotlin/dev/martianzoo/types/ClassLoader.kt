@@ -127,6 +127,9 @@ public constructor(
           }
         }
         declaration.allNodes.forEach(::collectRelated)
+        if (declaration.custom) {
+          addAll(ruleset.customClass(declaration.className).requiredClassNames)
+        }
       }
       queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
     }

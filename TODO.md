@@ -82,9 +82,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Engine Safety and Maintainability
 
+- Give `Gain` and `Remove` convenience factories that accept an expression and count without requiring callers to construct a `ScaledExpression`.
 - Give component and task mutations a single event-application boundary so primary state, derived indexes, and event history cannot be updated independently.
 - Make abstract custom metrics automatically enumerate concrete dependency bounds satisfying their refinements, invoke the custom implementation for each fully concrete type, and sum the results.
-- Give custom implementations an explicit declaration of the types they require so loading the custom class also loads those types.
 - Replace or constrain `doFirstTask()`; require an id/match unless exactly one task applies.
 - Validate every shared `X` in a `THEN` against one multiplier without traversal-order zipping.
 - Add `setXTo(n)`-style test/task refinement. And `setTo(from, to)`.

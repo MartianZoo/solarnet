@@ -4,10 +4,13 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.types.Type
 
@@ -19,29 +22,44 @@ internal val coloniesCustomClasses: Set<CustomClass> =
 
 /** Namespace for Colonies' custom Pets implementations. */
 internal object ColoniesExpansion {
+  private val ADD_COLONY_TILE = cn("AddColonyTile")
+  private val COLONY_TILE = cn("ColonyTile")
+  private val DELAYED_COLONY_TILE = cn("DelayedColonyTile")
+  private val RESERVE_TRADE_FLEET = cn("ReserveTradeFleet")
+
   internal object AddColonyTile : CustomClass() {
+    override val requiredClassNames: Set<ClassName> = setOf(DELAYED_COLONY_TILE)
+
     override fun translate(reader: GameReader, tileClassType: Type): Instruction {
       val name = tileClassType.expression.arguments.single().className
       val tile = reader.tfmRuleset.colonyTile(name)
-      return if (tile.resourceType == null) {
-        parse("$name")
+      val resourceType = tile.resourceType
+      return if (resourceType == null) {
+        gain(scaledEx(1, name))
       } else {
-        parse("DelayedColonyTile<Class<$name>, Class<${tile.resourceType}>>")
+        gain(
+            scaledEx(
+                1,
+                DELAYED_COLONY_TILE.of(name.classExpression(), resourceType.classExpression()),
+            )
+        )
       }
     }
   }
 
   internal object ColoniesSetup : CustomClass() {
+    override val requiredClassNames: Set<ClassName> = setOf(ADD_COLONY_TILE, RESERVE_TRADE_FLEET)
+
     override fun translate(reader: GameReader): Instruction {
       val fleetInstructions =
           reader.getComponents("Player").map { player ->
-            parse<Instruction>("ReserveTradeFleet<${player.expression}>")
+            gain(scaledEx(1, RESERVE_TRADE_FLEET.of(player.expression)))
           }
       if (reader.getComponents("DeferredColonySelection").isNotEmpty()) {
         val players = reader.getComponents("Player").size
         val tileChoices =
             List(Canon.requiredColonyTileCount(players)) {
-              parse<Instruction>("AddColonyTile<Class<ColonyTile>>")
+              gain(scaledEx(1, ADD_COLONY_TILE.of(COLONY_TILE.classExpression())))
             }
         return Multi.create(tileChoices + fleetInstructions)
       }
@@ -50,7 +68,7 @@ internal object ColoniesExpansion {
       val tileInstructions =
           reader.getComponents("SelectedColonyTile").map { selection ->
             val colony = colonyBySelectionClass.getValue(selection.className.toString())
-            parse<Instruction>("AddColonyTile<Class<${colony.className}>>")
+            gain(scaledEx(1, ADD_COLONY_TILE.of(colony.className.classExpression())))
           }
       return Then.create(tileInstructions + fleetInstructions)
     }

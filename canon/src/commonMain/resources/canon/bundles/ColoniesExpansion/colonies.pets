@@ -20,7 +20,7 @@ CLASS DeferredColonySelection : System { HAS MAX 1 This }
 //     Colony<This>: $placementBonus
 //     GiveColonyBonus<This>: $colonyBonus
 //     FlownTradeFleet<This> IF =0 ColonyProduction<This>: ${tradeIncome[0]} // etc.
-//     FlownTradeFleet<This>: ResetProduction<This>
+//     FlownTradeFleet<This>: ResetColonyProduction<This>
 //   }
 
 "A colony tile, such as Pluto"
@@ -36,7 +36,7 @@ ABSTRACT CLASS ColonyTile {
   Colony<This>: -ColonyProduction<This>. / Colony<This> THEN ColonyProduction<This> / Colony<This>
 
   // After trade, move it all the way left
-  ResetProduction<This>: -6 ColonyProduction<This>. THEN ColonyProduction<This> / Colony<This, Anyone>
+  ResetColonyProduction<This>: -6 ColonyProduction<This>. THEN ColonyProduction<This> / Colony<This, Anyone>
 
   // At end of gen, move it right one (technically during the "colonies solar phase" but shrug)
   ProductionPhase: ColonyProduction<This>.
@@ -63,7 +63,7 @@ CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
 CLASS GiveColonyBonuses : Owned, Signal
 
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
-CLASS ResetProduction<ColonyTile> : Signal
+CLASS ResetColonyProduction<ColonyTile> : Signal
 
 "A player's trade fleet, either in reserve or flown to a ColonyTile this generation"
 ABSTRACT CLASS TradeFleet : Owned<Player> {
@@ -75,10 +75,10 @@ ABSTRACT CLASS TradeFleet : Owned<Player> {
 }
 
 "To add a colony tile to the game (like Aridor does), gain this"
-CLASS AddColonyTile<Class<ColonyTile>> : Custom, AutoLoad
+CLASS AddColonyTile<Class<ColonyTile>> : Custom
 
 "If a ColonyTile gives card resources, one of these is created first instead"
-CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> : AutoLoad {
+CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
   HAS MAX 1 This
   This IF ResourceCard<Class<CardResource>>: ColonyTile FROM This // thanks Aridor
   ResourceCard<Class<CardResource>>: ColonyTile FROM This
