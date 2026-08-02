@@ -42,8 +42,8 @@ multiplicity is not relevant.
 
 ## 3. Class literals
 
-For every loaded class `Foo`, the type `Class<Foo>` exists. The contents of the angle brackets
-are a single class name: `Class<Foo>` is admissible, but
+For every authority-known class `Foo`, the type `Class<Foo>` exists. The contents of the angle
+brackets are a single class name: `Class<Foo>` is admissible, but
 `Class<Foo<Bar>>` is not.
 
 The class named in the angle brackets is not a dependency. A dependency would require a
@@ -56,16 +56,23 @@ Like other angle-bracketed types, class literals are covariant:
 Foo <: Bar  implies  Class<Foo> <: Class<Bar>
 ```
 
-If `Foo` is concrete, `Class<Foo>` is concrete, and exactly one component of this type exists
-in every world in which `Foo` is loaded.
+If active `Foo` is concrete, `Class<Foo>` is concrete, and exactly one component of this type
+exists in every world in which `Foo` is active.
 
 If `Foo` is abstract, `Class<Foo>` is abstract and cannot have its own corresponding
 components. Counting it nevertheless counts the class-literal components of all concrete
 subclasses of `Foo`, by the usual subtype-counting rule.
 
-If `Bar` is not loaded, `Class<Bar>` is not a valid type. Used as a metric, however, the
-expression can still be evaluated, and its count is zero. This exception does not create a
-phantom `Bar` or `Class<Bar>` type.
+An authority-known class that is inactive in a particular class table is **phantom**. A type is
+phantom when its root class or any dependency bound is phantom. Phantom types and their class
+literals are valid and count zero, but have no components, effects, defaults, invariants, or
+enumerated concrete subtypes. Optional and as-many-as-possible changes to them perform a
+quantity-zero no-op. Mandatory changes are dead; choices discard dead branches, while an
+unavoidable dead change fails. They are excluded from automatic narrowing and cannot fire as
+triggers. An active class cannot have a phantom superclass or dependency bound.
+
+If the authority does not know `Bar`, neither `Bar` nor `Class<Bar>` is a valid type in any
+context. In particular, counting an unknown class literal is an error rather than zero.
 
 ## 4. Dependencies
 

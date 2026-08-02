@@ -3,10 +3,38 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class UtopiaCimmeriaExpansionTest : CardTest() {
+  @Test
+  fun `MSL Curiosity bonus is inert without Colonies`() {
+    newGame("TerraCimmeriaMapOption FROM TharsisMapOption")
+    p1.manual("10")
+
+    p1.manual("CityTile<TerraCimmeria_3_3>")
+
+    p1.count("Megacredit") shouldBe 10
+    p1.count("Colony") shouldBe 0
+  }
+
+  @Test
+  fun `MSL Curiosity bonus can buy a colony with Colonies`() {
+    newGame(
+        "ColoniesExpansion,TerraCimmeriaMapOption FROM TharsisMapOption",
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.manual("10")
+
+    p1.manual("CityTile<TerraCimmeria_3_3>") {
+      doTask("Colony<Luna>")
+    }
+
+    p1.count("Megacredit") shouldBe 5
+    p1.count("Colony<Luna>") shouldBe 1
+  }
+
   @Test
   fun `Incorporator counts inexpensive active and automated projects only`() {
     newGame(UtopiaPlanitiaMapOption, PreludeExpansion)

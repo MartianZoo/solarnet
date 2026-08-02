@@ -1,7 +1,6 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -9,7 +8,7 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 
-/** One closed set of mutually compatible loaded [Class]es and resolved [Type]s. */
+/** One closed set of mutually compatible active and authority-known phantom [Class]es. */
 public abstract class ClassTable {
   /** The `Component` class, which is the root of the class hierarchy. */
   public abstract val componentClass: Class
@@ -17,12 +16,13 @@ public abstract class ClassTable {
   /** The `Class` class, the other class that is required to exist. */
   public abstract val classClass: Class
 
-  /** Every class in this table. */
+  /** Every active class in this table; phantom classes are deliberately not enumerated. */
   public abstract fun allClasses(): Set<Class>
 
+  /** Every active class's full and short names; phantom names are deliberately excluded. */
   public abstract val allClassNamesAndIds: Set<ClassName>
 
-  /** Returns the [Class] whose [Class.className] or [Class.shortName] is [name], if present. */
+  /** Returns the active or phantom [Class] having this full or short [name], if authority-known. */
   public abstract fun findClass(name: ClassName): Class?
 
   /** Returns the [Class] whose [Class.className] or [Class.shortName] is [name], or throws. */
@@ -59,11 +59,5 @@ public abstract class ClassTable {
     val domainDependency = TypeDependency(key, domain)
     val constrained = domainDependency.intersect(constraint) ?: return false
     return TypeDependency(key, candidate).narrows(constrained, info)
-  }
-
-  public fun isUnresolvedClassLiteral(expression: Expression): Boolean {
-    if (expression.className != CLASS) return false
-    val argument = expression.arguments.singleOrNull()?.takeIf(Expression::simple) ?: return false
-    return findClass(argument.className) == null
   }
 }

@@ -20,15 +20,19 @@ public interface ComponentGraph {
   /** How many instances of the exact component [component] currently exist? */
   public fun countComponent(component: Component): Int
 
-  /** How many total component instances have the type [parentType] (or any of its subtypes)? */
+  /**
+   * How many total component instances have the type [parentType] (or any of its subtypes)? Returns
+   * zero for a phantom type, which cannot have stored components.
+   */
   public fun count(parentType: Type, info: TypeInfo): Int
 
   public fun containsAny(parentType: Type, info: TypeInfo): Boolean
 
   /**
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
-   * multiset. The size of the returned collection will be `[count]([parentType])` . If [parentType]
-   * is `Component` this will return the entire component multiset.
+   * multiset. The size of the returned collection will be `[count]([parentType])` . A phantom type
+   * returns an empty multiset. If [parentType] is `Component` this returns the entire component
+   * multiset.
    */
   public fun getAll(parentType: Type, info: TypeInfo): Multiset<Component>
 }

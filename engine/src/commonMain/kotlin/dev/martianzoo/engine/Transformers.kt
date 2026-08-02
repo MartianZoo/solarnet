@@ -21,10 +21,11 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
+import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
-import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -81,9 +82,7 @@ public class Transformers(public val classTable: ClassTable) {
   public fun useFullNames(): PetTransformer =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
-          return if (node is Count && classTable.isUnresolvedClassLiteral(node.expression)) {
-            node
-          } else if (node is ClassName) {
+          return if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
             classTable.resolve(node.expression).className as P
           } else {
@@ -328,8 +327,9 @@ public class Transformers(public val classTable: ClassTable) {
   }
 
   /**
-   * Specializes linked type names and turns any atomic change made invalid by that specialization
-   * into `Die`. This lets enclosing choices discard an impossible specialized branch.
+   * Specializes linked type names and normalizes atomic changes made invalid by that
+   * specialization. Optional phantom changes become `Ok`; dead changes become `Die` so enclosing
+   * choices can discard them.
    */
   internal fun checkedSubstituter(
       general: Type,
@@ -350,8 +350,19 @@ public class Transformers(public val classTable: ClassTable) {
         if (specialized !is Change) return specialized
 
         try {
-          specialized.gaining?.let(classTable::resolve)
-          specialized.removing?.let(classTable::resolve)
+          val types =
+              listOfNotNull(
+                  specialized.gaining?.let(classTable::resolve),
+                  specialized.removing?.let(classTable::resolve),
+              )
+          if (types.any(Type::phantom)) {
+            @Suppress("UNCHECKED_CAST")
+            return if (specialized.intensity == MANDATORY) {
+              gain(scaledEx(expression = DIE.expression)) as P
+            } else {
+              NoOp as P
+            }
+          }
         } catch (_: ExpressionException) {
           @Suppress("UNCHECKED_CAST")
           return gain(scaledEx(expression = DIE.expression)) as P

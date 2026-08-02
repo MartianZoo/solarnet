@@ -205,14 +205,14 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun unknownClassLiteralCountsZeroAndCannotBeChanged() {
+  fun phantomClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(PLAYER1) as GodMode
     val withVenus =
         Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).gameplay(PLAYER1)
             as GodMode
 
-    gameplay.count("Class<AnyWordHere>") shouldBe 0
+    assertFailsWith<ExpressionException> { gameplay.count("Class<AnyWordHere>") }
     gameplay.count("Class<VenusStep>") shouldBe 0
     withVenus.count("Class<VenusStep>") shouldBe 1
     assertFailsWith<ExpressionException> { gameplay.count("AnyWordHere") }

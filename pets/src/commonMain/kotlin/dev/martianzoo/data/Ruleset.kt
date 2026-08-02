@@ -7,6 +7,13 @@ import dev.martianzoo.pets.ast.ClassName
 public interface Ruleset {
   public val allClassDeclarations: Map<ClassName, ClassDeclaration>
 
+  /**
+   * Every class declaration recognized by the authority that produced this ruleset, including
+   * declarations inactive in this particular game.
+   */
+  public val knownClassDeclarations: Map<ClassName, ClassDeclaration>
+    get() = allClassDeclarations
+
   /** Full bundle identities contributing each combined class declaration. */
   public val classDeclarationBundles: Map<ClassName, Set<ClassName>>
 

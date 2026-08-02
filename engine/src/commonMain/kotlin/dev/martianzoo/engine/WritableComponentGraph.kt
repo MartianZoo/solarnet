@@ -27,7 +27,9 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
 
     override fun count(parentType: Type, info: TypeInfo): Int {
       requireOwnClassTable(parentType)
-      return if (parentType.className == COMPONENT) {
+      return if (parentType.phantom) {
+        0
+      } else if (parentType.className == COMPONENT) {
         multiset.size
       } else if (parentType.abstract) {
         multiset.entries.filter { (e, _) -> e.hasType(parentType, info) }.sumOf { (_, ct) -> ct }
@@ -38,7 +40,9 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
 
     override fun containsAny(parentType: Type, info: TypeInfo): Boolean {
       requireOwnClassTable(parentType)
-      return if (parentType.abstract) {
+      return if (parentType.phantom) {
+        false
+      } else if (parentType.abstract) {
         multiset.elements.any { it.hasType(parentType, info) }
       } else {
         parentType.toComponent() in multiset
@@ -52,7 +56,9 @@ internal interface WritableComponentGraph : ComponentGraph, Updater {
 
     override fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
       requireOwnClassTable(parentType)
-      return if (parentType.className == COMPONENT) {
+      return if (parentType.phantom) {
+        HashMultiset()
+      } else if (parentType.className == COMPONENT) {
         HashMultiset.of(multiset)
       } else if (parentType.abstract) {
         multiset.filter { it.hasType(parentType, info) }

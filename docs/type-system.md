@@ -20,7 +20,7 @@ As expected, we *declare* named classes (like `Player1`, `Animal`, or `Ecologica
 
 A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
-All classes are loaded and frozen before a game begins. So, for example, for any class we always know the complete set of its subclasses. Only the types that *might* be needed in that game are loaded. For example, without the Venus expansion there will be no such type as `VenusStep` or `VenusTag`. This also explains, for example, how we can tell which 5 milestones are available to be claimed, even though no instance of `Milestone` exists in the world until we claim one; we just look at what classes have been loaded. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
+The class table is frozen before a game begins. Its **active classes** are the types that might be needed in that game, and their complete subtype relationships are known. The table also recognizes **phantom classes**: names validated by the full authority catalog but inactive in this game. Phantom types retain enough shape to validate references, but have no components, behavior, defaults, invariants, or place in subtype enumeration. For example, without Venus Next, `VenusStep` and `VenusTag` are valid phantom types whose counts are zero. An unknown name is still an error. This also explains how we can tell which 5 milestones are available to be claimed, even though no instance of `Milestone` exists until one is claimed: playable enumeration considers active classes only. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
 
 ## Types and dependencies
 
@@ -151,7 +151,9 @@ The `Class` class is predefined. `Class<Foo>` contains one class name, not a dep
 
 `Class` is a singleton class. If you ask a world to count the instances of the type `Class<StandardResource>` you will get the answer `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get 7, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract, and so cannot exist as a component.)
 
-`Class<AnyWordHere>` is not a valid type when `AnyWordHere` is not a loaded class. There is one metric-only exception: counting that expression produces zero instead of a class-not-found error. This lets one bundle query whether another bundle supplied a class without depending on that bundle. It remains invalid in instructions and dependency arguments. Also, no `Class` type, valid or otherwise, is legal as a trigger.
+`Class<Foo>` is also a phantom type when authority-known `Foo` is inactive. It has no class-literal component and counts zero, just like `Foo` itself. This lets rules safely query optional vocabulary without treating typos as absence. `Class<AnyWordHere>` remains invalid when the authority does not know `AnyWordHere`; metrics, instructions, and dependency arguments all report that error consistently. No `Class` type is legal as a trigger.
+
+Optional (`?`) and as-many-as-possible (`.`) gains or removals of a phantom type succeed at quantity zero. A mandatory (`!`) change is a dead instruction, so an enclosing `OR` can discard that branch; an unavoidable mandatory phantom change fails. Phantom types cannot be created, selected by automatic narrowing, or used as active trigger types. An active class also cannot extend a phantom class or have a dependency whose bound is phantom.
 
 An open question is whether the differences outlined here are enough to justify using a different syntax -- for example instead of `Class<Steel>` we could use `Steel.CLASS` or `{Steel}` or something else. Currently I think there are probably enough similarities to make it worth keeping as-is, but I'm not sure.
 

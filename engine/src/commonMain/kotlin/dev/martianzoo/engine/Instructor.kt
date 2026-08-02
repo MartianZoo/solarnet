@@ -132,6 +132,13 @@ internal class Instructor(
           if (intens == AMAP && change.gaining != null && change.removing == null) return NoOp
           throw e
         }
+    if (listOfNotNull(g, r).any(Type::phantom)) {
+      if (intens != MANDATORY) return NoOp
+      throw DeadEndException(
+          "mandatory change uses inactive type: " +
+              listOfNotNull(g, r).filter(Type::phantom).joinToString()
+      )
+    }
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
     val atomized = classTable.findClass(ATOMIZED)
@@ -195,11 +202,15 @@ internal class Instructor(
             if (it is Multi) it else doPrepare(it)
           } catch (e: NotNowException) {
             e
+          } catch (e: DeadEndException) {
+            e
           }
         }
     val good = options.filterIsInstance<Instruction>()
     return if (good.any()) {
       Or.create(good)
+    } else if (options.any { it is DeadEndException }) {
+      throw DeadEndException("every choice reaches an inactive type: $options")
     } else {
       throw NotNowException("all options impossible: $options")
     }
@@ -209,6 +220,8 @@ internal class Instructor(
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<Type?, Type?> {
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
+
+    if (listOfNotNull(g, r).any(Type::phantom)) return g to r
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }

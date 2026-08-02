@@ -28,8 +28,10 @@ replacement. This lets the setup world's concrete `Player` count be replaced by 
 world's abstract `Player` hierarchy. The shared `GameOption` declaration prevents every Actor,
 including Engine, from removing assembled options.
 
-The `ClassTable` of loaded classes is immutable. `GameReader.ruleset` is the selected ruleset from
-the premise. Terraforming Mars-specific clients can use
+The `ClassTable` of active classes and authority-known inactive phantom classes is immutable. APIs
+that enumerate playable classes exclude phantoms, while type resolution accepts them with zero
+count. `GameReader.ruleset` is the selected ruleset from the premise. Terraforming Mars-specific
+clients can use
 `GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
