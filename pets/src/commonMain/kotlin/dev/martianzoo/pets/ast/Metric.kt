@@ -33,8 +33,8 @@ public sealed class Metric : PetElement() {
   override val kind: kotlin.reflect.KClass<out PetNode> = Metric::class
 
   /**
-   * Evaluates this metric using [count] for component counts and [countUnion] for the multiset-union
-   * semantics of an [Or].
+   * Evaluates this metric using [count] for component counts and [countUnion] for the
+   * multiset-union semantics of an [Or].
    *
    * The callbacks supply the world-dependent operations; scaling and maximum behavior are intrinsic
    * to the metric syntax tree.
