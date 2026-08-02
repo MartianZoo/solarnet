@@ -46,7 +46,7 @@ internal class ReluctantClassLoadingTest {
 
   @Test
   fun `player classes follow the selected seats and mode`() {
-    assertNotLoaded("Opponent", Setup.BASE_MULTIPLAYER)
+    assertNotLoaded("SoloOpponent", Setup.BASE_MULTIPLAYER)
     assertNotLoaded("Player2", Setup.BASE_SOLO)
     assertNotLoaded("Player3", Setup.BASE_MULTIPLAYER)
   }

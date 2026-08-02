@@ -1,6 +1,6 @@
 "The icon-grammar spelling for an unrestricted ownership target"
 ABSTRACT CLASS Anyone[ANY] {
-  "An entity that can own things, including the non-Player Opponent in solo mode"
+  "An entity that can own things, including the non-Player SoloOpponent in solo mode"
   ABSTRACT CLASS Owner {
     "One of the actual people or bots playing Terraforming Mars"
     ABSTRACT CLASS Player : Actor {

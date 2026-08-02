@@ -6,7 +6,7 @@ CLASS SoloMode : Mode {
   Generation: -SoloGenerationsLeft.
   -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
-  SetupPhase: Opponent THEN -6 TerraformRating<Player1>
+  SetupPhase: SoloOpponent THEN -6 TerraformRating<Player1>
   EndPhase: End THEN FinalScore
 }
 
@@ -23,7 +23,7 @@ CLASS SoloGenerationsLeft
 CLASS SoloVictoryCheck : Signal, System
 
 "The passive owner of the removable neutral stock in solo mode"
-CLASS Opponent[OPP] : Owner {
+CLASS SoloOpponent[OPP] : Owner {
   HAS MAX 1 This
   This: 99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
   This: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]

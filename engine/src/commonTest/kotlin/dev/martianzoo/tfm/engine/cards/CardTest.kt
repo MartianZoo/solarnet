@@ -56,8 +56,8 @@ abstract class CardTest : TfmTest() {
         }
 
     cities.zip(greeneries).forEach { (city, greenery) ->
-      engine.doFirstTask("CityTile<$city, Opponent>")
-      engine.doTask("GreeneryTile<$greenery, Opponent>")
+      engine.doFirstTask("CityTile<$city, SoloOpponent>")
+      engine.doTask("GreeneryTile<$greenery, SoloOpponent>")
     }
   }
 

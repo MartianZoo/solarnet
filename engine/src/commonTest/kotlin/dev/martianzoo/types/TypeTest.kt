@@ -139,7 +139,7 @@ internal class TypeTest {
             """
             ABSTRACT CLASS Anyone {
               ABSTRACT CLASS Owner {
-                CLASS Opponent
+                CLASS SoloOpponent
                 ABSTRACT CLASS Player { CLASS Player1 }
               }
             }
@@ -153,8 +153,8 @@ internal class TypeTest {
     table.resolve(te("Badge<Anyone>")).expressionFull.toString() shouldBe "Badge<Player>"
     table.resolve(te("Coin<Anyone>")).expressionFull.toString() shouldBe "Coin<Owner>"
     table.resolve(te("Badge<Player1>")).abstract shouldBe false
-    table.resolve(te("Coin<Opponent>")).abstract shouldBe false
-    assertFails { table.resolve(te("Badge<Opponent>")) }
+    table.resolve(te("Coin<SoloOpponent>")).abstract shouldBe false
+    assertFails { table.resolve(te("Badge<SoloOpponent>")) }
   }
 
   val table =

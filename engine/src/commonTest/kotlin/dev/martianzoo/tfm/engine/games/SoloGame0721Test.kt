@@ -227,7 +227,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction2(ExtractorBalloons).expect("TR")
       // me played Mining Expedition
       // me's steel amount increased by 2
-      playProject("MiningExpedition", 12) { doTask("-2 Plant<Opponent>") }.expect("2 Steel, TR")
+      playProject("MiningExpedition", 12) { doTask("-2 Plant<SoloOpponent>") }.expect("2 Steel, TR")
 
       // NOTE: this is a hack, because I should have banned Flooding
       // me played Flooding

@@ -74,7 +74,7 @@ internal class CanonClassesTest {
     premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
     val game = Engine.newGame(premise)
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloOpponent"))
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
   }
@@ -120,24 +120,24 @@ internal class CanonClassesTest {
     val game = setUpGame(premise)
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
-    game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 1
+    game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<Opponent>") shouldBe 99
-      game.gameplay(PLAYER1).count("PROD[$it<Opponent>]") shouldBe 99
+      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 99
+      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 99
     }
 
     val engine = game.gameplay(ENGINE) as GodMode
     game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.manual("OceanTile<Tharsis_1_2>")
-    game.gameplay(PLAYER1).count("CityTile<Opponent>") shouldBe 2
-    game.gameplay(PLAYER1).count("GreeneryTile<Opponent>") shouldBe 2
+    game.gameplay(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
+    game.gameplay(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<Opponent>") shouldBe 99
+      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 99
       game.gameplay(PLAYER1).count("$it<Player1>") shouldBe 0
     }
 
