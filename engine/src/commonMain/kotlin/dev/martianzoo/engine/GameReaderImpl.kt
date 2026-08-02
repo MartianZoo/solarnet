@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.CustomCodeException
-import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.Component.Companion.toComponent
@@ -10,12 +9,10 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Metric.Or
-import dev.martianzoo.pets.ast.Metric.Scaled
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
-import kotlin.math.min
 
 internal class GameReaderImpl(
     private val classTable: ClassTable,
@@ -40,13 +37,7 @@ internal class GameReaderImpl(
   override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
 
   override fun count(metric: Metric): Int =
-      when (metric) {
-        is Count -> countExpression(metric.expression)
-        is Scaled -> count(metric.inner) / metric.unit
-        is Metric.Max -> min(count(metric.inner), metric.maximum)
-        is Or -> countUnion(metric)
-        is Metric.Transform -> throw ExpressionException("unhandled metric transform: $metric")
-      }
+      metric.evaluate({ countExpression(it.expression) }, ::countUnion)
 
   private fun countUnion(metric: Or): Int {
     val union = mutableMapOf<Component, Int>()

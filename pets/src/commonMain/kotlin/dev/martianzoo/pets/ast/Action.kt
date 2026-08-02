@@ -14,6 +14,7 @@ import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
@@ -32,6 +33,17 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
   override fun toString(): String = "${cost.suf(' ')}-> $instruction"
 
   override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost, instruction)
+
+  /** Converts this action into the instruction performed when the action is used. */
+  internal fun toInstruction(): Instruction {
+    val lhs = cost?.toInstruction() ?: return instruction
+    val allInstructions =
+        when (instruction) {
+          is Then -> listOf(lhs) + instruction.instructions
+          else -> listOf(lhs, instruction)
+        }
+    return Then(allInstructions)
+  }
 
   public sealed class Cost : PetNode() {
     override val kind: kotlin.reflect.KClass<out PetNode> = Cost::class
