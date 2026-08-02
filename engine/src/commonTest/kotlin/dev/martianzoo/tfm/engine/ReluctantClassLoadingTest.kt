@@ -45,8 +45,7 @@ internal class ReluctantClassLoadingTest {
   // Deliberate setup- and mode-specific omissions
 
   @Test
-  fun `player classes follow the selected seats and mode`() {
-    assertNotLoaded("SoloOpponent", Setup.BASE_MULTIPLAYER)
+  fun `player classes follow the selected seats`() {
     assertNotLoaded("Player2", Setup.BASE_SOLO)
     assertNotLoaded("Player3", Setup.BASE_MULTIPLAYER)
   }

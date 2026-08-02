@@ -6,7 +6,7 @@ CLASS SoloMode : Mode {
   Generation: -SoloGenerationsLeft.
   -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
-  SetupPhase: SoloOpponent THEN -6 TerraformRating<Player1>
+  SetupPhase: SoloOpponent, -6 TerraformRating<Player1>
   EndPhase: End THEN FinalScore
 }
 
