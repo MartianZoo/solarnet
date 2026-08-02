@@ -6,6 +6,7 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
@@ -88,10 +89,82 @@ internal class ClassTest {
           override val customClasses = setOf(implementation)
         }
 
-    ClassLoader(ruleset).freeze().findClass(cn("RuntimeDependency")) shouldBe null
+    val inactive = ClassLoader(ruleset).freeze().getClass(cn("RuntimeDependency"))
+    inactive.phantom shouldBe true
 
     val loaded = ClassLoader(ruleset).apply { load(cn("DependencySource")) }.freeze()
-    loaded.findClass(cn("RuntimeDependency"))?.className shouldBe cn("RuntimeDependency")
+    loaded.getClass(cn("RuntimeDependency")).phantom shouldBe false
+  }
+
+  @Test
+  fun `authority-known inactive classes resolve as phantoms but are not enumerated`() {
+    val activeBundle = bundle("ActiveBundle", "CLASS Active")
+    val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
+    val ruleset =
+        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
+    val table = ClassLoader(ruleset).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Inactive")).phantom shouldBe true
+    table.resolve(te("Inactive")).phantom shouldBe true
+    table.resolve(te("Class<Inactive>")).phantom shouldBe true
+    table.resolve(te("Inactive")).allConcreteSubtypes().toList() shouldBe emptyList()
+    table.allClasses().classNames() shouldBe setOf(COMPONENT, cn("Class"), cn("Active"))
+  }
+
+  @Test
+  fun `dependency signatures activate available vocabulary`() {
+    val activeBundle =
+        bundle(
+            "ActiveBundle",
+            """
+            CLASS SelectedContent<AvailableVocabulary>
+            CLASS AvailableVocabulary
+            """,
+        )
+    val ruleset = TfmRuleset.compose(activeBundle).resolve(setOf(cn("ActiveBundle")))
+    val table = ClassLoader(ruleset).apply { load(cn("SelectedContent")) }.freeze()
+
+    table.getClass(cn("AvailableVocabulary")).phantom shouldBe false
+  }
+
+  @Test
+  fun `excluding an inactive type does not make a complement dependency phantom`() {
+    val activeBundle =
+        bundle(
+            "ActiveBundle",
+            """
+            ABSTRACT CLASS Domain
+            ABSTRACT CLASS Holder<Domain>
+            """,
+        )
+    val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive : Domain")
+    val ruleset =
+        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
+    val table = ClassLoader(ruleset).apply { load(cn("Holder")) }.freeze()
+
+    table.resolve(te("Holder<!Inactive>")).phantom shouldBe false
+  }
+
+  @Test
+  fun `active classes cannot structurally depend on inactive classes`() {
+    val activeBundle = bundle("ActiveBundle", "CLASS Active<Inactive>")
+    val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
+    val ruleset =
+        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
+
+    shouldThrow<PetException> {
+      ClassLoader(ruleset).apply { load(cn("Active")) }.freeze().getClass(cn("Active")).dependencies
+    }
+  }
+
+  @Test
+  fun `active classes cannot extend inactive classes`() {
+    val activeBundle = bundle("ActiveBundle", "CLASS Active : Inactive")
+    val inactiveBundle = bundle("InactiveBundle", "ABSTRACT CLASS Inactive")
+    val ruleset =
+        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
+
+    shouldThrow<PetException> { ClassLoader(ruleset).load(cn("Active")) }
   }
 
   @Test
@@ -359,6 +432,11 @@ internal class ClassTest {
     assertFails { loader.resolve(te("AnyWordHere")) }
   }
 }
+
+private fun bundle(name: String, declarations: String): Bundle =
+    object : Bundle(cn(name)) {
+      override val explicitClassDeclarations = parseClasses(declarations).toSetStrict()
+    }
 
 internal fun loader(petsText: String): ClassTable {
   val classes = parseClasses(petsText).toSetStrict()

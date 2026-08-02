@@ -22,6 +22,7 @@ internal class CanonMapsTest {
   fun testTerraCimmeria() {
     val map = Canon.marsMap(cn("TerraCimmeria"))
     map.className shouldBe cn("TerraCimmeria")
+    map.areas.single { it.className == cn("TerraCimmeria_3_3") }.bonusText shouldBe "TcColonyBonus"
     checkMap(map)
   }
 

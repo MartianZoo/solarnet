@@ -221,7 +221,7 @@ public object TfmWorkflow {
     private fun hasPassed(player: Player) = opsFor(player).has("Pass")
 
     private fun hasComponent(className: String): Boolean =
-        game.classTable.findClass(cn(className)) != null &&
+        game.classTable.findClass(cn(className))?.phantom == false &&
             game.reader.getComponents(className).isNotEmpty()
 
     private suspend fun grantFirstActionTo(player: Player) {

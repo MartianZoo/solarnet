@@ -100,6 +100,8 @@ internal class RulesetTest {
     resolved.allClassNames.containsAll(setOf(cn("BaseContent"), cn("ExtensionContent"))) shouldBe
         true
     (cn("VenusContent") in resolved.allClassNames) shouldBe false
+    (cn("VenusContent") in resolved.knownClassDeclarations) shouldBe true
+    (cn("VenusContent") in TfmRuleset.Composite(resolved).knownClassDeclarations) shouldBe true
   }
 
   @Test

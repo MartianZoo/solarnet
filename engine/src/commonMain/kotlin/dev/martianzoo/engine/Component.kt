@@ -22,6 +22,7 @@ import dev.martianzoo.types.Type
 public class Component internal constructor(public val type: Type) : HasExpression by type {
   init {
     if (type.abstract) throw Exceptions.abstractComponent(type)
+    if (type.phantom) throw ExpressionException("inactive type has no components: $type")
   }
 
   internal val isCustom: Boolean = type.rootClass.declaration.custom
@@ -38,7 +39,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type? =
       if (
-          type.classTable.findClass(OWNER) != null &&
+          type.classTable.findClass(OWNER)?.phantom == false &&
               hasType(type.classTable.resolve(OWNER.expression))
       ) {
         type

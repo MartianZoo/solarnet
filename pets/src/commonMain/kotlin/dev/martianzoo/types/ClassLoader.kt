@@ -1,11 +1,13 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -68,7 +70,7 @@ public constructor(
 
   private val frozenClasses: Set<Class> by lazy {
     require(frozen)
-    loadedClasses.values.map { it!! }.toSet()
+    loadedClasses.values.map { it!! }.filterNot(Class::phantom).toSet()
   }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
@@ -97,16 +99,24 @@ public constructor(
   private fun loadAll(names: Collection<ClassName>) {
     queue += names
     while (queue.isNotEmpty()) {
-      loadAndMaybeEnqueueRelated(queue.removeFirst())
+      loadRelated(queue.removeFirst(), active = true)
     }
   }
 
-  internal fun loadAndMaybeEnqueueRelated(next: ClassName): Class {
+  internal fun loadRelated(next: ClassName, active: Boolean): Class {
     if (next in loadedClasses) {
-      return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
+      val loaded = loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
+      if (active && loaded.phantom) {
+        throw PetException("Class $next was already loaded as inactive")
+      }
+      return loaded
     }
-    val declaration = decl(next)
-    return loadSingle(next, declaration).also {
+    val activeDeclaration = activeDeclaration(next)
+    val declaration =
+        if (active) activeDeclaration ?: knownDeclaration(next) else knownDeclaration(next)
+    val phantom = !active || activeDeclaration == null
+    return construct(declaration, phantom).also {
+      if (phantom) return@also
       val needed = buildSet {
         fun collectRelated(node: PetNode) {
           node.visitDescendants {
@@ -136,52 +146,72 @@ public constructor(
   }
 
   private fun knownClassName(name: ClassName): ClassName? =
-      ruleset.allClassDeclarations[name]?.className
+      activeDeclaration(name)?.className
           ?: ruleset.allClassDeclarations.values.singleOrNull { it.shortName == name }?.className
 
   private fun loadSingle(idOrName: ClassName): Class =
       if (frozen) {
         getClass(idOrName)
       } else {
-        loadedClasses[idOrName] ?: construct(decl(idOrName))
-      }
-
-  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): Class =
-      if (frozen) {
-        getClass(idOrName)
-      } else {
-        loadedClasses[idOrName] ?: construct(decl)
+        loadedClasses[idOrName] ?: loadRelated(idOrName, active = true)
       }
 
   // All classes are created here (aside from Component and Class, at top).
-  private fun construct(decl: ClassDeclaration): Class {
+  private fun construct(source: ClassDeclaration, phantom: Boolean): Class {
     require(!frozen) { "Too late, this class table is frozen!" }
-    validateCustomImplementation(decl)
+    if (!phantom) validateCustomImplementation(source)
+    val decl =
+        if (phantom) {
+          source.copy(
+              invariants = emptySet(),
+              effects = emptyList(),
+              defaultsDeclaration = DefaultsDeclaration(),
+          )
+        } else {
+          source
+        }
 
     fun store(c: Class?) {
       loadedClasses[decl.className] = c
       loadedClasses[decl.shortName] = c
     }
     store(null) // to detect reentrancy
-    return Class(decl, this).also(::store)
+    return Class(decl, this, phantom).also(::store)
   }
 
   private var frozen: Boolean = false
 
   public fun freeze(): ClassTable {
     require(!frozen)
+    ruleset.knownClassDeclarations.values
+        .distinctBy { it.className }
+        .forEach { declaration ->
+          if (declaration.className !in loadedClasses) construct(declaration, phantom = true)
+        }
     frozen = true
     return this
   }
 
   public override val allClassNamesAndIds: Set<ClassName> by lazy {
     require(frozen)
-    loadedClasses.keys
+    loadedClasses.filterValues { it?.phantom == false }.keys
   }
 
   override fun toString(): String = "loader$id"
 
-  private fun decl(cn: ClassName) = ruleset.classDeclaration(cn)
+  private fun decl(cn: ClassName) = activeDeclaration(cn) ?: ruleset.classDeclaration(cn)
+
+  private fun activeDeclaration(name: ClassName): ClassDeclaration? =
+      declarationIn(ruleset.allClassDeclarations, name)
+
+  private fun knownDeclaration(name: ClassName): ClassDeclaration =
+      declarationIn(ruleset.knownClassDeclarations, name) ?: throw Exceptions.classNotFound(name)
+
+  private fun declarationIn(
+      declarations: Map<ClassName, ClassDeclaration>,
+      name: ClassName,
+  ): ClassDeclaration? =
+      declarations[name] ?: declarations.values.singleOrNull { it.shortName == name }
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
     if (decl.custom) {

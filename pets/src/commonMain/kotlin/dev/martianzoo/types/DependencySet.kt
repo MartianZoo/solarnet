@@ -91,6 +91,15 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
 
   override val abstract: Boolean = deps.any { it.abstract }
 
+  internal val phantom: Boolean = deps.any {
+    it.boundClass.phantom ||
+        when (it) {
+          is TypeDependency -> it.boundType.phantom
+          is ComplementDependency -> it.domainType.phantom
+          else -> false
+        }
+  }
+
   override fun isSubtypeOf(that: DependencySet): Boolean {
     requireSameClassTable(that)
     return that.deps.all { get(it.key).isSubtypeOf(it) }

@@ -19,8 +19,8 @@ internal class AwardsTest : TfmTest() {
   fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = Engine.newGame(canonicalPremise("SoloMode", players = 1))
 
-    game.classTable.findClass(cn("ClaimMilestoneSA")) shouldBe null
-    game.classTable.findClass(cn("FundAwardSA")) shouldBe null
+    game.classTable.findClass(cn("ClaimMilestoneSA"))?.phantom shouldBe true
+    game.classTable.findClass(cn("FundAwardSA"))?.phantom shouldBe true
     engine.assertCounts(
         1 to "PlayCardSA",
         1 to "AquiferSP",

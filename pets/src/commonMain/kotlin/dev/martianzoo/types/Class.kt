@@ -35,8 +35,11 @@ internal constructor(
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
+    /** Whether this authority-known class is inactive in this particular class table. */
+    public val phantom: Boolean = false,
+
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    public val directSuperclasses: List<Class> = superclasses(declaration, loader),
+    public val directSuperclasses: List<Class> = superclasses(declaration, loader, phantom),
 ) : HasClassName, Hierarchical<Class> {
 
   /** The table containing this class. */
@@ -46,6 +49,12 @@ internal constructor(
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   init {
+    if (!phantom && directSuperclasses.any(Class::phantom)) {
+      throw PetException(
+          "$className cannot extend inactive class(es): " +
+              directSuperclasses.filter(Class::phantom).joinToString { "${it.className}" }
+      )
+    }
     if (directSuperclasses.any { !it.abstract }) {
       throw PetException(
           "$className cannot extend concrete class(es): " +
@@ -230,11 +239,16 @@ internal constructor(
 
   // `by lazy` enables dependency cycles, yay
   public val dependencies: DependencySet by lazy {
-    if (className == CLASS) {
-      depsForClassType(loader.componentClass)
-    } else {
-      inheritedDeps.merge(declaredDeps) { _, _ -> error("unexpected") }
+    val result =
+        if (className == CLASS) {
+          depsForClassType(loader.componentClass)
+        } else {
+          inheritedDeps.merge(declaredDeps) { _, _ -> error("unexpected") }
+        }
+    if (!phantom && result.phantom) {
+      throw PetException("$className has an inactive dependency type")
     }
+    result
   }
 
   private data class DependencyLink(
@@ -359,12 +373,16 @@ internal constructor(
   override fun toString(): String = "$className"
 
   private companion object {
-    fun superclasses(declaration: ClassDeclaration, loader: ClassLoader): List<Class> {
+    fun superclasses(
+        declaration: ClassDeclaration,
+        loader: ClassLoader,
+        phantom: Boolean,
+    ): List<Class> {
       return declaration.supertypes
           .classNames()
           .also { require(COMPONENT !in it) }
           .ifEmpty { listOf(COMPONENT) }
-          .map(loader::loadAndMaybeEnqueueRelated)
+          .map { loader.loadRelated(it, active = !phantom) }
     }
   }
 }

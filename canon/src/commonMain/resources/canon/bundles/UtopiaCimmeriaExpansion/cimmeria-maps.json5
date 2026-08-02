@@ -8,6 +8,7 @@
     "S": "Steel",
     "T": "Titanium",
     "C": "ProjectCard",
+    "X": "TcColonyBonus",
   },
 
   "maps": [
@@ -22,7 +23,7 @@
                                           "WTT" ,  "L"  ,  "L"  ,  "L"  , "LPS" ,  "WP"
 
         ], [
-                                       "L"  ,  "L"  ,  "L"  ,  "L"  ,  "L"  ,  "LP" ,  "L"
+                                       "L"  ,  "L"  , "LX"  ,  "L"  ,  "L"  ,  "LP" ,  "L"
 
         ], [
                                    "VS" ,  "L"  ,  "LS" ,  "L"  , "LSS" ,  "L"  , "VTT" ,  "LC"

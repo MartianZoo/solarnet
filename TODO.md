@@ -18,7 +18,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Implement the standard-game rule that starts every production at 1 when Corporate Era is disabled; until then, keep canonical requirements at their printed values.
 - Replace `DeferredColonySelection` with setup-world colony choices once the REPL can collect them
   before assembling the playable world.
-- Implement Terra Cimmeria's MSL Curiosity bonus once optional bundle vocabulary can be phantom: pay 5 M€ and place a colony only with Colonies enabled.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
 - [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.
 

@@ -79,10 +79,8 @@ abstract class AbstractFullGameTest : TfmTest() {
         mit to "MicrobeTag",
         ant to "AnimalTag",
         cit to "CityTag",
+        vet to "VenusTag",
     )
-    if (game.classTable.findClass(cn("VenusTag")) != null) {
-      assertCounts(vet to "VenusTag")
-    }
   }
 
   protected fun TfmGameplay.assertDashRight(
@@ -97,7 +95,7 @@ abstract class AbstractFullGameTest : TfmTest() {
         cities to "CityTile",
     )
     if (
-        game.classTable.findClass(cn("ColoniesExpansion")) != null &&
+        game.classTable.findClass(cn("ColoniesExpansion"))?.phantom == false &&
             game.reader.getComponents("ColoniesExpansion").isNotEmpty()
     ) {
       assertCounts(colonies to "Colony")

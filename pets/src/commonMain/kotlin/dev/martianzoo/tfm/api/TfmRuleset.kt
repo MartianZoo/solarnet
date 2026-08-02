@@ -69,6 +69,9 @@ public abstract class TfmRuleset : Ruleset {
       private val allKnown: TfmRuleset,
       private val setupRequirementMet: ((Requirement) -> Boolean)?,
   ) : Composite(selected) {
+    override val knownClassDeclarations: Map<ClassName, ClassDeclaration>
+      get() = allKnown.knownClassDeclarations
+
     override val cardDefinitions: Set<CardDefinition> by lazy {
       applicable(
           selected = super.cardDefinitions,
@@ -309,6 +312,15 @@ public abstract class TfmRuleset : Ruleset {
     public val rulesets: List<TfmRuleset> = rulesets.toList()
 
     final override val bundles: List<Bundle> = rulesets.flatMap { it.bundles }
+
+    override val knownClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
+      val declarations = rulesets.flatMap { it.knownClassDeclarations.values }.toSet()
+      try {
+        declarations.associateByStrict { it.className }
+      } catch (e: IllegalArgumentException) {
+        throw PetException("Multiple known class declarations must be identical: ${e.message}")
+      }
+    }
 
     override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
       rulesets

@@ -26,8 +26,10 @@ world's abstract `Player` hierarchy. Its gameplay `GameOption` replacement preve
 Actors from removing assembled options while retaining Engine as an initialization and
 administrative authority.
 
-The `ClassTable` of loaded classes is immutable. `GameReader.ruleset` is the selected ruleset from
-the premise. Terraforming Mars-specific clients can use
+The `ClassTable` of active classes and authority-known inactive phantom classes is immutable. APIs
+that enumerate playable classes exclude phantoms, while type resolution accepts them with zero
+count. `GameReader.ruleset` is the selected ruleset from the premise. Terraforming Mars-specific
+clients can use
 `GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:

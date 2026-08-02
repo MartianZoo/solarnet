@@ -64,10 +64,8 @@ internal class GameReaderImpl(
   }
 
   private fun componentsMatching(expression: Expression) =
-      if (classTable.isUnresolvedClassLiteral(expression)) {
-        HashMultiset<Component>()
-      } else {
-        val type = classTable.resolve(expression)
+      classTable.resolve(expression).let { type ->
+        if (type.phantom) return@let HashMultiset<Component>()
         if (type.rootClass.declaration.custom) {
           throw ExpressionException(
               "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
@@ -77,8 +75,8 @@ internal class GameReaderImpl(
       }
 
   private fun countExpression(expression: Expression): Int {
-    if (classTable.isUnresolvedClassLiteral(expression)) return 0
     val type = classTable.resolve(expression)
+    if (type.phantom) return 0
     if (!type.rootClass.declaration.custom) return components.count(type, this)
 
     val implementation =
@@ -106,7 +104,7 @@ internal class GameReaderImpl(
   override fun containsAny(type: Type) = components.containsAny(type, this)
 
   override fun countComponent(concreteType: Type) =
-      components.countComponent(concreteType.toComponent(this))
+      if (concreteType.phantom) 0 else components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
 }

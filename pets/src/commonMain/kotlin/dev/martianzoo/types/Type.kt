@@ -48,6 +48,9 @@ public data class Type(
 
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
 
+  /** Whether this type names an authority-known class that is inactive in this class table. */
+  public val phantom: Boolean = rootClass.phantom || dependencies.phantom
+
   /**
    * Performs a context-free subtype check. Comparisons that reach a state-dependent refinement
    * throw; use [narrows] in a [TypeInfo] for those.
