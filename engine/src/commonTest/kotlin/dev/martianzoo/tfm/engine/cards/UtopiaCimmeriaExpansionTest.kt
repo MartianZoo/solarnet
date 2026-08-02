@@ -10,7 +10,7 @@ import kotlin.test.Test
 class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
   fun `MSL Curiosity bonus is inert without Colonies`() {
-    newGame("TerraCimmeriaMapOption FROM TharsisMapOption")
+    newGame(TerraCimmeriaMapOption)
     p1.manual("10")
 
     p1.manual("CityTile<TerraCimmeria_3_3>")
@@ -22,7 +22,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
   fun `MSL Curiosity bonus can buy a colony with Colonies`() {
     newGame(
-        "ColoniesExpansion,TerraCimmeriaMapOption FROM TharsisMapOption",
+        ColoniesExpansion,
+        TerraCimmeriaMapOption,
         colonyTiles = testColonyTiles(2),
     )
     p1.manual("10")
