@@ -46,8 +46,8 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.HandleCardCost,
         TerraformingMars.GetEventVps,
         TerraformingMars.PassLeft,
+        TerraformingMars.TallyAward,
         TerraformingMars.AssignAwardPlaces,
-        TerraformingMars.MeasureAwards,
         TerraformingMars.MultiplayerVictoryCheck,
         TerraformingMars.MarsRow,
         TerraformingMars.CardCost,
@@ -240,21 +240,24 @@ internal object TerraformingMars {
     }
   }
 
-  private val AWARD_MEASURED = cn("AwardMeasured")
   private val AWARD_TALLY = cn("AwardTally")
   private val FIRST_PLACE = cn("FirstPlace")
   private val SECOND_PLACE = cn("SecondPlace")
 
+  internal object TallyAward : CustomClass() {
+    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY)
+
+    override fun translate(reader: GameReader, owner: Type, awardType: Type): Instruction {
+      val metric = reader.tfmRuleset.award(awardType.className).metric
+      return parse("AwardTally<${owner.className}, ${awardType.className}> / ($metric)")
+    }
+  }
+
   internal object AssignAwardPlaces : CustomClass() {
-    override val requiredClassNames: Set<ClassName> =
-        setOf(AWARD_MEASURED, AWARD_TALLY, FIRST_PLACE, SECOND_PLACE)
+    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY, FIRST_PLACE, SECOND_PLACE)
 
     override fun translate(reader: GameReader, awardType: Type): Instruction {
       val players = reader.getComponents("Player").elements
-      val measuredType =
-          reader.resolve(AWARD_MEASURED.of(cn("Player").expression, awardType.expression))
-      if (reader.count(measuredType) < players.size) return NoOp
-
       val scores = players.associateWith {
         reader.count(reader.resolve(tally(it, awardType)))
       }
@@ -278,16 +281,6 @@ internal object TerraformingMars {
           }
       return Then.create(placements.map { gain(scaledEx(1, it)) })
     }
-  }
-
-  private val AWARD_MEASUREMENT = cn("AwardMeasurement")
-  private val AWARD_MEASURER = cn("AwardMeasurer")
-
-  internal object MeasureAwards : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(AWARD_MEASUREMENT, AWARD_MEASURER)
-
-    override fun translate(ignoredReader: GameReader): Instruction =
-        gain(scaledEx(1, AWARD_MEASUREMENT))
   }
 
   private val VICTORY = cn("Victory")

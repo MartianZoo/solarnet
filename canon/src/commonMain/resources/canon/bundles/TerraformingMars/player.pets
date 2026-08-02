@@ -11,6 +11,7 @@ ABSTRACT CLASS Anyone[ANY] {
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard
       ResearchPhase: 4 BuyCard<This>?
+      MeasureAward<Award>:: TallyAward<This, Award>
       CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
     }
 
@@ -83,21 +84,16 @@ ABSTRACT CLASS Award[AWD] {
 }
 
 CLASS FirstPlace<Award> : Owned<Player> {
-  End: 5 VictoryPoint
+  This:: 5 VictoryPoint
 }
 
 CLASS SecondPlace<Award> : Owned<Player> {
-  End: 2 VictoryPoint
+  This:: 2 VictoryPoint
 }
 
-CLASS MeasureAward : Owned<Player>, Signal
-CLASS AwardMeasurer : Owned<Player>, Hidden, System {
-  HAS =1 This
-  AwardMeasurement:: MeasureAward
-}
-CLASS AwardMeasurement : Signal, System
+CLASS MeasureAward<Award> : Signal, System
+CLASS TallyAward<Award> : Owned<Player>, Custom
 CLASS AwardTally<Award> : Owned<Player>
-CLASS AwardMeasured<Award> : Owned<Player>, Hidden
 CLASS AssignAwardPlaces<Award> : Custom
 
 "Moves an owned component to the next player in seat order"

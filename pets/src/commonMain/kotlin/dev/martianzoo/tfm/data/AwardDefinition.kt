@@ -50,12 +50,8 @@ public data class AwardDefinition(
         supertypes = setOf(AWARD.expression),
         effects =
             listOf(
-                parse<Effect>(
-                    "MeasureAward<Owner>:: " +
-                        "(AwardTally<Owner, This> / ($metricText)) " +
-                        "THEN AwardMeasured<Owner, This>"
-                ),
-                parse<Effect>("AwardMeasured<Player, This>:: AssignAwardPlaces<This>"),
+                parse<Effect>("EndPhase:: MeasureAward<This>"),
+                parse<Effect>("EndPhase: AssignAwardPlaces<This>"),
             ),
     )
   }

@@ -61,10 +61,15 @@ internal class ReluctantClassLoadingTest {
   }
 
   @Test
-  fun `award definitions and scoring classes stay unloaded in solo`() {
-    matchingClasses("award", Setup.BASE_SOLO).shouldBeEmpty()
+  fun `concrete award definitions and placement classes stay unloaded in solo`() {
+    Setup.BASE_SOLO.classTable
+        .getClass(cn("Award"))
+        .allSubclasses()
+        .map { it.className }
+        .shouldContainExactly(cn("Award"))
     assertNotLoaded("FirstPlace", Setup.BASE_SOLO)
     assertNotLoaded("SecondPlace", Setup.BASE_SOLO)
+    assertNotLoaded("AssignAwardPlaces", Setup.BASE_SOLO)
   }
 
   @Test
@@ -82,9 +87,26 @@ internal class ReluctantClassLoadingTest {
       matchingClasses("solo", Setup.PRELUDE_VENUS_MULTIPLAYER).shouldBeEmpty()
 
   @Test
-  fun `Vitor loads only the abstract Award class in solo`() {
+  fun `abstract Award and its tallying machinery are incorrectly loaded in solo`() {
+    matchingClasses("award", Setup.BASE_SOLO)
+        .shouldContainExactlyInAnyOrder(
+            cn("Award"),
+            cn("MeasureAward"),
+            cn("TallyAward"),
+            cn("AwardTally"),
+        )
+  }
+
+  @Test
+  fun `Vitor does not load concrete award classes in solo`() {
     val setup = Setup.PRELUDE_SOLO
-    matchingClasses("award", setup).shouldContainExactlyInAnyOrder(cn("Award"))
+    matchingClasses("award", setup)
+        .shouldContainExactlyInAnyOrder(
+            cn("MeasureAward"),
+            cn("TallyAward"),
+            cn("AwardTally"),
+            cn("Award"),
+        )
     setup.classTable
         .getClass(cn("Award"))
         .allSubclasses()

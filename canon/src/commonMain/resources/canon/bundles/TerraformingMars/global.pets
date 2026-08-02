@@ -7,6 +7,7 @@
 CLASS TerraformingMars : System {
   HAS =1 This, =1 MarsMap
 
+  SetupPhase IF 2 Player:: BeginGame
   CorporationPhase: Photosynthesis
 
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
@@ -59,6 +60,11 @@ CLASS LastCall { HAS MAX 1 This }
 "Tells what generation we're in"
 CLASS Generation : System
 
+"Starts generation one after mode-specific setup is complete"
+CLASS BeginGame : Signal, System {
+  This:: Generation THEN StartToken<Player1>
+}
+
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational { Generation:: -This. }
 
@@ -81,9 +87,6 @@ ABSTRACT CLASS Phase : AutoLoad, System {
   }
   CLASS EndPhase
 }
-
-"Measures funded awards and causes their places to be assigned"
-CLASS MeasureAwards : Custom, System
 
 "This Signal causes components to pay out victory points"
 CLASS End : Signal, System
