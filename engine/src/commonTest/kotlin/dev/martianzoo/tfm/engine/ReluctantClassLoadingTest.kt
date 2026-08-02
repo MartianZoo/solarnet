@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
 import kotlin.test.Test
 
@@ -71,19 +71,26 @@ internal class ReluctantClassLoadingTest {
   fun `MultiplayerVictoryCheck stays unloaded in solo`() =
       assertNotLoaded("MultiplayerVictoryCheck", Setup.BASE_SOLO)
 
-  // Known unwanted loading
+  // Mode and player-count boundaries
 
   @Test
-  fun `GenerationSetup is incorrectly loaded in multiplayer`() =
-      assertLoaded("GenerationSetup", Setup.BASE_MULTIPLAYER)
+  fun `GenerationSetup stays unloaded in multiplayer`() =
+      assertNotLoaded("GenerationSetup", Setup.BASE_MULTIPLAYER)
 
   @Test
-  fun `solo classes are incorrectly loaded in multiplayer`() {
-    matchingClasses("solo", Setup.PRELUDE_VENUS_MULTIPLAYER).shouldNotBeEmpty()
+  fun `solo classes stay unloaded in multiplayer`() =
+      matchingClasses("solo", Setup.PRELUDE_VENUS_MULTIPLAYER).shouldBeEmpty()
+
+  @Test
+  fun `Vitor loads only the abstract Award class in solo`() {
+    val setup = Setup.PRELUDE_SOLO
+    matchingClasses("award", setup).shouldContainExactlyInAnyOrder(cn("Award"))
+    setup.classTable
+        .getClass(cn("Award"))
+        .allSubclasses()
+        .map { it.className }
+        .shouldContainExactly(cn("Award"))
   }
-
-  @Test
-  fun `Vitor incorrectly loads award classes in solo`() = assertLoaded("Award", Setup.PRELUDE_SOLO)
 
   private fun assertLoaded(className: String, setup: Setup) {
     setup.classNames.shouldContain(cn(className))

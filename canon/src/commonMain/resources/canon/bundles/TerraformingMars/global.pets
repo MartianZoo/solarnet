@@ -7,7 +7,6 @@
 CLASS TerraformingMars : System {
   HAS =1 This, =1 MarsMap
 
-  SetupPhase:: GenerationSetup THEN Generation THEN StartToken<Player1>
   CorporationPhase: Photosynthesis
 
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>

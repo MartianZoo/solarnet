@@ -55,6 +55,7 @@ public data class AwardDefinition(
                         "(AwardTally<Owner, This> / ($metricText)) " +
                         "THEN AwardMeasured<Owner, This>"
                 ),
+                parse<Effect>("AwardMeasured<Player, This>:: AssignAwardPlaces<This>"),
             ),
     )
   }

@@ -80,7 +80,6 @@ ABSTRACT CLASS Owned<Anyone> {
 ABSTRACT CLASS Award[AWD] {
   HAS MAX 1 This
   HAS MAX 3 Award
-  AwardMeasured<Player, This>:: AssignAwardPlaces<This>
 }
 
 CLASS FirstPlace<Award> : Owned<Player> {

@@ -45,9 +45,8 @@
       "id": "PC5",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "45",
+      "immediate": "45, (Class<Award>: MandatePC5) OR Ok",
       "effects": [
-        "This IF 2 Player: MandatePC5",
         "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
       ],
       "components": [
