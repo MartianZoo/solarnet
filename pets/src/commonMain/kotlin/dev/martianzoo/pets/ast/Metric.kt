@@ -8,8 +8,10 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
+import kotlin.math.min
 
 /**
  * A way of computing a non-negative integer based on a world. Metrics appear after a slash in
@@ -29,6 +31,22 @@ public sealed class Metric : PetElement() {
   }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Metric::class
+
+  /**
+   * Evaluates this metric using [count] for component counts and [countUnion] for the multiset-union
+   * semantics of an [Or].
+   *
+   * The callbacks supply the world-dependent operations; scaling and maximum behavior are intrinsic
+   * to the metric syntax tree.
+   */
+  public fun evaluate(count: (Count) -> Int, countUnion: (Or) -> Int): Int =
+      when (this) {
+        is Count -> count(this)
+        is Scaled -> inner.evaluate(count, countUnion) / unit
+        is Max -> min(inner.evaluate(count, countUnion), maximum)
+        is Or -> countUnion(this)
+        is Transform -> throw ExpressionException("unhandled metric transform: $this")
+      }
 
   public data class Count(val expression: Expression) : Metric() {
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
