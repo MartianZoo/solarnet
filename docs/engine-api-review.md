@@ -1,561 +1,317 @@
-# Engine API Review
+# Engine API Restructuring
 
-**NOTE:** This is a collection of API ideas, not a requirements document.
+**NOTE:** This records the current direction for preparatory engine simplification and the later
+client API. It is not a requirements document or a commitment to particular type names.
 
-This document reviews the engine API surface used by tests, the REPL, and future clients. It is not
-trying to design the final engine internals. The near-term goal is to make the public capabilities
-coherent while allowing the current internals to keep working.
+The current engine API tries to express who is allowed to do what. `Gameplay` has nested power
+layers, `godMode()` reveals more of them, and several live data structures have paired read-only and
+writable types. This has not produced a meaningful authority boundary: the same implementation
+implements every gameplay layer, callers cast between them, and the REPL obtains `godMode()` before
+hiding methods again according to its color mode.
 
-The main conclusion is that the API should be designed around injectable capability objects. A
-client should ask for the capabilities it needs, such as player actions, task monitoring, workflow
-control, or debug fixture powers. Wiring outside the client decides whether it gets them. The client
-should not navigate from `World` to `Gameplay` to `godMode()` to casts.
+The preparatory direction is to stop making the current engine responsible for authority. It should
+be a trusted, low-level workhorse with a straightforward API that permits all supported engine
+operations. The later client API is where we should design roles, permissions, capability objects,
+and safe workflows deliberately.
 
-## Direction
+## Decision
 
-1. Keep the engine internals and public API in the same module for now.
+Separate two concerns that the current API mixes together:
 
-   Eventually, most engine machinery may become `internal`, with public clients using a sibling
-   `api` package. But this should wait. First prove the shape of the public capability objects,
-   migrate clients to them, and only then hide internals behind module boundaries.
+1. **Engine integrity:** keep worlds structurally coherent, transactional, reversible, and
+   correctly indexed even when a caller requests a rules-bypassing operation.
+2. **Caller authority:** decide whether a particular caller should be offered that operation.
 
-2. Treat dependency injection as a first-class API experience.
+The current `engine` module remains responsible for the first concern and deliberately stops trying
+to solve the second. For now, the `script` module owns its color-mode restrictions. A future API
+layer will provide the principled authority boundary for normal clients.
 
-   The cleanest client code should look like ordinary constructor injection:
+This is not a claim that every internal collection should become directly mutable. A caller may be
+allowed to request any *engine operation* without being allowed to corrupt the engine's bookkeeping.
+For example, raw state editing may bypass Pets instruction semantics, but it must still update the
+component graph and effect indexes together, log the change, and remain reversible.
 
-   ```kotlin
-   class ReplTaskCommand(
-     private val tasks: PlayerTaskActions,
-     private val inbox: TaskInbox,
-     private val results: ResultPresenter,
-   )
-   ```
+## The Current Problem
 
-   The command does not need to know where `PlayerTaskActions` came from, whether it is backed by
-   `ApiTranslation`, or how it coordinates with auto-exec. This matches the current Koin direction
-   and gives capability objects a concrete purpose.
+### Gameplay layers do not enforce authority
 
-3. Model auto-exec as an injected helper/agent, not as a hardwired property of every gameplay
-   object.
-
-   Auto-exec is a convenience that helps an assignee drain its own pending work after it asks the
-   API to do something. It should be plugged into the command lifecycle so the `TaskResult` includes
-   both the explicit command and any automatically executed follow-up work. It should not be a
-   global license for one player action to drain other players' choices.
-
-4. Keep string APIs for now.
-
-   Pets strings are valuable in tests and the REPL. If later we want typed commands, we can add
-   contextual parser objects such as `PlayerSyntax.instr("...")`. This is not the main source of
-   disorder.
-
-5. Move Terraforming Mars-specific APIs toward a separate module/facade layer.
-
-   The generic engine should know about identities, tasks, components, and transactions. A TfM
-   workflow facade may use the administrative Actor for bookkeeping. It
-   should not own Terraforming Mars phase workflow,
-   board projections, payment conveniences, or card-play helper DSLs.
-
-## Current Shape
-
-### Root World Object
-
-`Engine.newGame(premise)` creates a `World`. `World` exposes:
-
-1. `components`: current component graph.
-2. `events`: event log.
-3. `tasks`: whole-game task view.
-4. `timeline`: checkpoints, rollback, atomic blocks.
-5. `reader`: Pets/AST-oriented state reader.
-6. `setup` and `classes`.
-7. `gameplay(player)`.
-8. `onAtomicComplete`.
-
-This is useful for diagnostics and tests, but it is too much for ordinary clients. It encourages
-reach-through when clients want only one role-specific capability.
-
-Near-term recommendation: keep `World` as the aggregate object, but start adding
-role objects that clients can receive directly. Do not require clients to discover capabilities by
-starting from `World`.
-
-### Gameplay Layers
-
-`Gameplay` is currently a nested tower:
+`Gameplay` is currently an inheritance tower:
 
 | Interface | Adds |
 | --- | --- |
-| `Gameplay` | read methods, task revision/preparation/execution, auto-exec controls, `godMode()` |
-| `TurnLayer` | `startTurn`, `turn` |
-| `OperationLayer` | `manual`, `beginManual`, `continueManual`, `finish` |
-| `TaskLayer` | `addTasks`, `dropTask` |
-| `GodMode` | `sneak` |
+| `Gameplay` | queries, task actions, auto-exec controls, `godMode()` |
+| `TurnLayer` | turns |
+| `OperationLayer` | manual operations |
+| `TaskLayer` | task insertion and removal |
+| `GodMode` | raw state changes |
 
-The original instinct is good: an object represents a set of capabilities. The problem is that
-`Gameplay` includes `godMode()`, and `ApiTranslation` implements all layers at once. That turns the
-capability model into a local hiding convention rather than an authority boundary.
+`ApiTranslation` implements the entire tower. Any holder of `Gameplay` can call `godMode()`, and the
+returned object can be cast back to any layer. The layers therefore describe intended usage without
+actually constraining it. They also make signatures, adapters, and Terraforming Mars helpers more
+complicated.
 
-Current clients then compensate manually:
+### Read-only/writable pairs mix two different ideas
 
-1. The REPL obtains `gameplay.godMode()` and casts it back down for colored modes.
-2. Tests call `godMode()` for fixture setup, missing-rule workarounds, and raw state edits.
-3. `TfmGameplay` wraps `TurnLayer` but can still call `godMode()` because `TurnLayer` extends
-   `Gameplay`.
+The public `ComponentGraph`, `EventLog`, and `TaskQueue` are live read-only views. Internal types
+such as `WritableComponentGraph`, `WritableEventLog`, and `WritableTaskQueue` add mutation. Some of
+this split is useful implementation encapsulation, but the paired type hierarchy also resembles the
+same ineffective authority model as the gameplay layers.
 
-This does not need to be fixed by immediately deleting `godMode()`. A safer path is to introduce
-better-named injectable capabilities first, migrate clients, and deprecate `godMode()` only after it
-is no longer the main way to express legitimate needs.
+The important boundary is not whether a type's name says `Writable`. It is whether every mutation
+passes through the one mechanism that preserves the object's invariants. A single concrete service
+can expose public queries, broad public workhorse operations where appropriate, and internal
+bookkeeping primitives without requiring parallel read/write interfaces.
 
-### ApiTranslation and Implementations
+### Script color modes rebuild the layers with casts
 
-`Implementations` contains the instruction/task algorithms. It is internal, parsed-instruction
-oriented, and mostly returns `Unit`, task ids, or raw events.
+`ScriptSession.access()` currently calls `gameplay.godMode()` for every color and `Access` casts the
+result down to the desired gameplay layer. This is ceremony rather than protection. The script
+session already knows its mode and is the natural temporary place to allow or reject commands.
 
-`ApiTranslation` is the public-ish adapter. It parses strings, preprocesses in player context,
-wraps many calls in `Timeline.atomic`, runs auto-exec, returns `TaskResult`, and fires
-`onAtomicComplete`.
+## Target for the Existing Engine
 
-That split is useful, but transaction behavior is inconsistent:
+### One flat gameplay workhorse
 
-1. `manual`, `beginManual`, `continueManual`, `finish`, `startTurn`, `doTask`, `tryTask`, and
-   `doFirstTask` use the adapter's `atomic` wrapper.
-2. `reviseTask` and `sneak` use `timeline.atomic` directly.
-3. `addTasks`, `dropTask`, `prepareTask`, and `canPrepareTask` delegate without a public
-   transaction wrapper.
-4. Some client code, such as the REPL `task` command, reaches for `game.timeline.atomic` to compose
-   operations.
+Replace the inheritance tower with one flat engine-facing API, retaining `Gameplay` as the
+compatibility name unless a clearly better name emerges. It should expose the operations the engine
+knows how to perform:
 
-The fix is not primarily package structure. The fix is to make a single command pipeline explicit.
+1. contextual parsing and queries;
+2. task revision, preparation, execution, insertion, and removal;
+3. manual operations and turns;
+4. auto-execution controls;
+5. raw, rules-bypassing state changes.
 
-## Proposed Command Pipeline
+`godMode()` disappears because there is no hidden layer to reveal. Method names and documentation
+should still distinguish ordinary ruleful operations from dangerous workhorse operations. `sneak`
+and `dropTask`, for example, should be candid that they bypass normal game semantics.
 
-Public API commands should run through one command runner:
+Actor scoping remains meaningful even without authority layers. A gameplay object still supplies
+the Actor used for contextual defaults, task assignment, execution, and event attribution.
+
+### One integrity-preserving mutation path per structure
+
+Remove paired read-only/writable interfaces where they do not buy implementation safety. Prefer a
+single implementation type with:
+
+1. public observation methods;
+2. public high-level workhorse operations only when direct engine clients need them; and
+3. internal low-level mutation methods used to keep related state synchronized.
+
+In particular:
+
+1. Component changes must update the multiset and live-effect indexes together.
+2. Task changes must preserve normalization, assignee validation, prepared-task rules, and event
+   logging.
+3. Event history must remain append-only except through rollback machinery coordinated with the
+   state it describes.
+
+The goal is to remove the writable/not-writable *API taxonomy*, not to publish mutable collections
+or independent event-log append methods.
+
+### `World` as the trusted aggregate
+
+`World` can remain the live aggregate for components, events, tasks, timeline control, readers, and
+Actor-scoped gameplay. Direct engine clients are trusted and may reach all of these facilities.
+There is no need to add current-engine accessors such as `playerActions`, `rawStateEditor`, or
+`timelineControl` merely to ration authority.
+
+This also means we should not introduce dependency-injected capability interfaces into the current
+engine as an intermediate architecture. DI may still assemble engine internals, but it should not
+simulate a client permission system that the workhorse explicitly does not promise.
+
+## What Must Remain Protected
+
+Flattening authority layers must not weaken these engine properties:
+
+1. Atomic commands roll back every component, task, index, and event change on failure.
+2. Every component mutation keeps dependent indexes and live effects synchronized.
+3. Every task mutation is logged and reversible and preserves queue normalization.
+4. The global prepared-task lock remains coherent across Actor-scoped queue views.
+5. Components and parsed types belong to the world's own class table.
+6. Actor context continues to control defaults, `Owner` substitution where applicable, task scope,
+   and event attribution.
+7. Initialization and committed workflow boundaries cannot be accidentally undone through ordinary
+   rollback.
+
+These are correctness boundaries, not caller-permission boundaries. Keeping them inside the
+workhorse is compatible with letting trusted callers perform arbitrary ruleful or rules-bypassing
+operations.
+
+## Script Color Modes
+
+Until the new API exists, the `script` module should enforce its color modes locally. This is an
+intentional transitional policy shim, not a security boundary and not a reusable authorization
+framework.
+
+`Access` can hold the flat `Gameplay` object and decide which operation to invoke or reject for the
+current mode. Script commands that currently bypass `Access` should either be routed through it or
+perform an explicit mode check in one obvious place. No command should rely on a cast failing to
+enforce its mode.
+
+Visible behavior should remain unchanged:
+
+| Mode | Script policy |
+| --- | --- |
+| Purple | workflow stays engine-controlled; the user may resolve offered tasks |
+| Blue | user actions must enter through turn operations |
+| Green | arbitrary complete operations are allowed |
+| Yellow | task insertion/removal powers are additionally allowed |
+| Red | raw state changes are allowed without normal triggered consequences |
+
+The mode checks may be somewhat custom because the modes themselves are a REPL feature. They should
+nevertheless be centralized and directly tested so a new command cannot accidentally ignore them.
+
+## Command Pipeline
+
+The proposed command runner remains useful, but as an integrity and lifecycle mechanism rather than
+an authority object. Public command-style operations should eventually share one pipeline:
 
 ```text
 checkpoint
-run explicit command body
-run this actor's auto-exec policy
+run explicit operation
+run configured auto-exec behavior
 collect TaskResult from all activity since checkpoint
 rollback on failure
-publish after-command/after-commit notifications
+publish outermost after-command notification
 return TaskResult
 ```
 
-The command runner is the place where transaction semantics live. Internal engine operations should
-mostly assume they are already inside a command/transaction.
+This pipeline should make current behavioral differences explicit before normalizing them.
+`reviseTask`, `prepareTask`, `addTasks`, `dropTask`, and `sneak` currently do not all have the same
+transaction, auto-exec, result, or notification semantics. Flat access does not imply that every
+method must trigger auto-exec, but each method's command boundary must be intentional.
 
-### Command Runner Responsibilities
+The first extraction can preserve the current whole-game auto-exec behavior. Actor-local auto-exec
+and workflow handoff are separate semantic changes and should not be smuggled into an API cleanup.
 
-1. Create and own the checkpoint.
-2. Roll back if the command fails.
-3. Run post-command agents such as auto-exec.
-4. Include all command and auto-exec activity in one `TaskResult`.
-5. Notify workflow/monitor listeners after the outermost successful command.
-6. Keep nested command behavior coherent.
+## The Later Client API
 
-This is close to what `ApiTranslation.atomic` already does, but it should become a named service
-instead of an adapter detail.
+The future API should wrap the workhorse instead of forcing the workhorse itself to impersonate a
+safe client API. That later layer can provide small role-appropriate objects such as:
 
-Possible names:
+1. player queries and visible task choices;
+2. player actions and turn actions;
+3. workflow monitoring and administrative operations;
+4. test-fixture and diagnostic powers;
+5. timeline or composition control for privileged tools; and
+6. Terraforming Mars-specific player actions and read models.
 
-1. `CommandRunner`
-2. `GameCommandRunner`
-3. `TransactionRunner`
-4. `TurnCommandRunner`
+At that point, capability objects, dependency injection, unforgeable tokens, or another authority
+model can be evaluated against real client needs. The new API may expose only a small subset of the
+workhorse and can translate higher-level requests into several engine operations.
 
-I slightly prefer `CommandRunner` for the public API layer because it describes what clients do. The
-lower-level implementation can still use `Timeline` and checkpoints.
+The important architectural dependency points one way:
 
-### Who Gets Transaction Control?
-
-Most clients should not compose arbitrary transactions. If a client has direct rollback/roll-forward
-timeline access, it is already highly privileged and can be given composition tools too. Otherwise,
-it should ask for named command capabilities.
-
-That suggests:
-
-1. Normal player clients get methods like `doTask`, `reviseTask`, `choose`, `pass`, and perhaps
-   named composite commands like `reviseAndTryTask`.
-2. Debug, test, and workflow clients may get `TimelineControl` or `CommandComposer`.
-3. The REPL's rollback command is a privileged diagnostic command, not a normal player command.
-
-### AutoExecutor as Agent
-
-Auto-exec should become an agent plugged into the command runner.
-
-Important policy choices:
-
-1. It drains only the assignee's own pending work.
-2. It runs after the initiating Actor's explicit command, before the returned `TaskResult` is finalized.
-3. It may have modes such as `NONE`, `SAFE`, and `FIRST`.
-4. Its state/policy can be injected per assignee or session.
-5. It should not silently resolve another human player's meaningful choice.
-
-This implies a conceptual split:
-
-| Current concept | Proposed concept |
-| --- | --- |
-| `Gameplay.autoExecMode` | Session-scoped `AutoExecPolicy` or `AutoExecutor` configuration |
-| `impl.autoExecNow(mode)` | Internal service used by `AutoExecutor` |
-| whole-game autoexec scan | Workflow/Engine concern or special privileged policy, not default player behavior |
-
-Administrative operations may still be attributed to a non-player Actor. Its domain name is
-`Engine`, represented as `ENGINE` in Kotlin. It is not a Player, an Owner, or a separate `Npc` role.
-
-## Capability Objects
-
-The public API should be a set of small interfaces that can be injected independently. These
-interfaces can still coordinate through shared internals.
-
-### Core Capabilities
-
-| Capability | Purpose |
-| --- | --- |
-| `GameQueries` | Player-contextual `has`, `count`, `resolve`, maybe `list`. |
-| `PlayerTaskActions` | Act on tasks assigned to this player: revise, prepare, do, try. |
-| `TaskInbox` | Read this player's visible tasks. |
-| `TaskMonitor` | Read whole-game task state for workflow/diagnostics. |
-| `OperationRunner` | Run a manual operation with command transaction semantics. |
-| `TurnActions` | Start/request/complete turns where that is a public concept. |
-| `TimelineControl` | Checkpoint, rollback, commit; privileged. |
-| `DebugTaskEditor` | Add/drop/edit tasks for tests and debug tools. |
-| `RawStateEditor` | Apply raw component changes; privileged. |
-| `AutoExecutor` | Drain one assignee's pending work according to an injected policy. |
-
-These do not need to form one inheritance tower. A role receives whichever capabilities make sense.
-
-### Example Role Bundles
-
-| Role | Typical injected capabilities |
-| --- | --- |
-| Player UI/session | `GameQueries`, `TaskInbox`, `PlayerTaskActions`, maybe `TurnActions` |
-| REPL green mode | `GameQueries`, `TaskInbox`, `OperationRunner`, `TurnActions` |
-| REPL red mode | green mode plus `RawStateEditor` and `DebugTaskEditor` |
-| Workflow/Engine | `TaskMonitor`, `OperationRunner`, `TimelineControl`, task-drain notifications |
-| Test fixture | `DebugTaskEditor`, `RawStateEditor`, `TimelineControl`, high-level fixture helpers |
-| Board renderer | `GameQueries`, maybe a TfM read model |
-
-This is where DI becomes valuable. A client can depend on disconnected-looking interfaces, but the
-composition root wires all of them to the same game/session.
-
-For example:
-
-```kotlin
-class TfmBoardPresenter(
-  private val queries: GameQueries,
-  private val tfmReadModel: TfmReadModel,
-)
-
-class TfmWorkflowAgent(
-  private val adminOps: OperationRunner,
-  private val tasks: TaskMonitor,
-  private val timeline: TimelineControl,
-)
-
-class CardTestFixture(
-  private val raw: RawStateEditor,
-  private val taskEditor: DebugTaskEditor,
-  private val player: PlayerTaskActions,
-)
+```text
+normal clients -> future policy/client API -> engine workhorse
+scripts (temporarily) ---------------------> engine workhorse
+tests and diagnostics ---------------------> engine workhorse
 ```
 
-None of these classes should need to call `game.gameplay(player).godMode() as Something`.
+Terraforming Mars conveniences should likewise be separated by client purpose in the later API:
+player actions, game flow, fixtures, and read models should not all be one wrapper. This separation
+does not need to block simplification of today's `TfmGameplay`; it can temporarily depend on the
+flat workhorse.
 
-### Tokens
+## Refactoring Sequence
 
-Token objects are still available if a specific problem calls for them. They should not be the
-default model.
+### 1. Characterize the boundaries we are about to simplify
 
-Good token use cases:
+Before changing interfaces, cover behavior that the type hierarchy currently obscures:
 
-1. A rare method on a mostly-normal interface needs extra proof of authority.
-2. A workflow lease should expire or be scoped tightly.
-3. A test-only operation should be hard to call accidentally.
+1. which script commands each color mode accepts and rejects;
+2. rollback on command failure and `AbortOperationException`;
+3. returned `TaskResult` contents;
+4. inclusion of auto-executed follow-up work;
+5. single outermost `onAtomicComplete` notification; and
+6. raw changes and task edits remaining reversible.
 
-But most authority should be expressed by injected capabilities, because that is clearer for client
-code and easier to wire with Koin.
+These should be behavior tests spanning the actual engine and script pieces, not tests that merely
+repeat interface declarations.
 
-## Task Visibility
+### 2. Flatten `Gameplay`
 
-The current task queue model is halfway to the right place. Player-scoped `WritableTaskQueue` views
-already exist internally, while `World.tasks` is a global read-only view.
+1. Move turn, operation, task-editing, and raw-change methods onto `Gameplay`.
+2. Remove `TurnLayer`, `OperationLayer`, `TaskLayer`, and `GodMode`.
+3. Remove `godMode()`.
+4. Update `ApiTranslation`, operation bodies, `TfmGameplay`, workflows, and tests to use the flat
+   type without casts.
+5. Preserve existing behavior while changing the surface.
 
-The API should make that distinction explicit:
+This is the first implementation step because it directly deletes a hierarchy that provides no
+real protection.
 
-1. `TaskInbox`: this assignee's pending tasks.
-2. `TaskMonitor`: whole-game task state, for workflow, REPL diagnostics, and tests.
-3. `DebugTaskEditor`: privileged task mutation.
+### 3. Put script policy in `script`
 
-Whole-game concepts such as "is any queue empty?" and "which task is globally prepared?" should not
-be methods on every player inbox. They are monitor/engine concerns.
+1. Give each `Access` mode the flat gameplay object.
+2. Replace layer casts with explicit allow/reject behavior.
+3. Route mode-sensitive commands through the centralized policy.
+4. Add an explicit test whenever a command receives a new mode-sensitive power.
 
-One subtlety remains: `Task.next` is currently a global lock because preparing a task reads game
-state. That invariant can stay internal. The player action API can still say "prepare my task"; the
-engine can reject it if another prepared task has the lock.
+Keep this small and local. Do not build the future authorization framework in `script`.
 
-## Terraforming Mars Layer
+### 4. Collapse read/write API pairs selectively
 
-Terraforming Mars-specific helpers should move toward a separate module/facade layer. They can be
-extension functions when that makes the call site natural.
+For components, events, and tasks, remove paired interfaces where one service with internal
+mutation methods is clearer. Do one structure at a time and preserve its mutation/event/rollback
+tests. The likely order is:
 
-Good extension-function candidates:
+1. event log, whose append operations are already internal service roles;
+2. component graph, keeping its update primitive internal;
+3. task queues, where scoped views and normalization make the change most delicate.
 
-```kotlin
-fun PlayerTaskActions.playProject(...)
-fun PlayerTaskActions.stdProject(...)
-fun GameQueries.temperatureC(): Int
-fun GameQueries.oxygenPercent(): Int
-fun RawStateEditor.giveTfmResourcesForTest(...)
-```
+Do not expose backing mutable collections. If merging a pair would force unrelated code to see a
+dangerous primitive, retain implementation encapsulation without treating it as caller authority.
 
-The rule of thumb: an extension should attach to the capability it actually needs.
+### 5. Name the command pipeline
 
-Examples:
+Extract `CommandRunner` (name tentative) from `ApiTranslation.atomic` after the flat surface has
+made command boundaries easier to compare. Initially preserve current auto-exec and notification
+semantics. Then decide method by method which operations use the full pipeline.
 
-1. `playProject` should extend a normal player action capability only if it can be implemented as a
-   normal player operation.
-2. `giveResourcesForTest` should extend a fixture/debug capability, not a player capability.
-3. `phase` and `nextGeneration` should belong to a TfM workflow/Engine facade, not ordinary player
-   actions.
-4. Board display helpers should depend on a TfM read model or query capability, not on full `World`.
+### 6. Simplify wiring and documentation
 
-This structure also lets the generic engine stop knowing Terraforming Mars workflow. It only needs
-to support actors, commands, tasks, transactions, and read models well enough for TfM to build on.
+Remove DI bindings, casts, compatibility accessors, and documentation that exist only for the old
+layers or paired writable types. Keep stable engine documentation honest: direct engine callers are
+trusted, while structural invariants remain enforced.
 
-## Strings and Parsing
+### 7. Stop before designing the new API accidentally
 
-String methods are not the urgent problem. Keep them where they help tests and the REPL.
+Once the current engine is a coherent workhorse, use actual upcoming clients and workflow needs to
+design the restrictive API separately. Do not preserve speculative capability interfaces in the
+engine just because they might resemble that future design.
 
-If they become awkward, introduce contextual syntax services rather than global parsers:
+## Risks and Mitigations
 
-```kotlin
-val instruction = playerSyntax.instr("Plant")
-val requirement = playerSyntax.reqt("MAX 0 Temporary")
-```
+1. **A flat API is easy to misuse.** This is deliberate for direct engine clients. Use conspicuous
+   names and KDoc for rules-bypassing methods, and direct normal applications to the future API.
+2. **Script checks can drift.** Centralize them and test the command/mode matrix.
+3. **Removing writable types could expose corrupting mutation.** Collapse type pairs only while
+   keeping structural mutation primitives internal and synchronized.
+4. **Flattening can accidentally change transactions.** First change types mechanically; normalize
+   command semantics only after characterization tests exist.
+5. **The temporary script policy might become permanent.** Document that it is REPL-specific and do
+   not let other clients depend on it as their authority model.
 
-Parsing is contextual because defaults, aliases, `Owner`, production sugar, and atomization depend
-on the acting player and loaded classes. A global `instr("...")` would hide that context.
+## Open Questions
 
-The command APIs can gradually accept typed `Instruction`, `Requirement`, and `Metric` values while
-convenience overloads remain for strings.
+1. Should the flat workhorse retain the name `Gameplay`, or would `EngineSession` or `ActorEngine`
+   make its trusted, Actor-scoped nature clearer?
+2. Which flat methods are complete commands and which are composable primitives inside another
+   command?
+3. Should `World` continue exposing read interfaces while gameplay exposes all high-level mutation,
+   even after the internal writable interface pairs disappear?
+4. How much of timeline control belongs on the workhorse root versus `World.timeline`?
 
-## Recommended Refactoring Sequence
-
-### 1. Introduce CommandRunner
-
-First make transaction semantics explicit without changing package structure.
-
-1. Extract the standard command lifecycle out of `ApiTranslation.atomic`.
-2. Make `ApiTranslation` delegate public commands to `CommandRunner`.
-3. Keep the existing whole-game auto-exec policy intact at first; move auto-exec behind an
-   `AutoExecutor` or `AutoExecAgent` only after the runner has made the current behavior explicit.
-4. Add characterization tests for:
-   1. rollback on failure,
-   2. returned `TaskResult`,
-   3. auto-exec inclusion in the result,
-   4. after-command notifications.
-
-This is the highest-leverage step because it clarifies atomicity and autoexec before any larger API
-split.
-
-### 2. Add Capability Interfaces Beside Existing Gameplay
-
-Do not remove `Gameplay` yet. Add new interfaces that wrap/delegate to it:
-
-1. `GameQueries`
-2. `PlayerTaskActions`
-3. `TaskInbox`
-4. `TaskMonitor`
-5. `OperationRunner`
-6. `TimelineControl`
-7. `DebugTaskEditor`
-8. `RawStateEditor`
-
-Wire them through Koin for each player/session. The first implementation can be thin adapters around
-existing `Gameplay`, `World.tasks`, `World.timeline`, and `World.reader`.
-
-### 3. Move REPL to Injected Capabilities
-
-The REPL is the best early client because its colored modes map directly to capabilities.
-
-1. Replace `gameplay.godMode()` plus casts in `Access` with injected/retrieved capability bundles.
-2. Keep visible behavior unchanged.
-3. Move direct `game.timeline.atomic` usage in `TaskCommand` into a named command capability, such
-   as `reviseAndTryTask`.
-4. Keep rollback as a privileged command using `TimelineControl`.
-
-### 4. Move Tests Toward Fixture Capabilities
-
-Tests should still be able to cheat, but the kind of cheating should be named.
-
-Add fixture helpers such as:
-
-1. `giveResourcesForTest`
-2. `forcePhaseForTest`
-3. `placeTileForTest`
-4. `dropTaskForTest`
-5. `applyRawChangesForTest`
-
-Then migrate repeated `godMode().manual` and `godMode().sneak` patterns when it improves clarity.
-Do not attempt a mechanical replacement all at once.
-
-### 5. Split TfM Facades
-
-After generic capabilities exist, split `TfmGameplay` conceptually:
-
-1. `TfmPlayerActions`: card play, standard projects, pass, payment.
-2. `TfmGameFlow`: phases, generations, and administrative actions.
-3. `TfmFixture`: test setup and rule-bypass helpers.
-4. `TfmReadModel`: board/player/global-parameter projections.
-
-These can be implemented as extension functions or small injected services. Prefer whichever keeps
-dependencies honest.
-
-### 6. De-escalate Gameplay
-
-Only after the above migrations:
-
-1. Deprecate `Gameplay.godMode()`.
-2. Replace remaining legitimate uses with explicit debug/workflow/fixture capabilities.
-3. Reconsider whether the old nested layer interfaces are still needed.
-
-### 7. Hide Internals Later
-
-Once clients use role/capability APIs:
-
-1. Move public API types to an `api` package if helpful.
-2. Mark low-level engine classes/methods `internal` where possible.
-3. Consider moving TfM-specific API/extensions/workflow to a separate module.
-
-This is intentionally late. Hiding internals before the replacement API is proven would make
-refactoring harder, not easier.
-
-## Small Starting Refactorings
-
-After rereading the engine overview and current code, the safest small moves are narrower than a
-full capability split. The current implementation has a few constraints worth respecting:
-
-1. `ApiTranslation.atomic` is already the command lifecycle in miniature: it opens a timeline
-   atomic block, runs the explicit command, runs auto-exec, returns activity since the checkpoint,
-   and fires `onAtomicComplete` only for the outermost command.
-2. `Implementations.autoExecNow` intentionally scans the whole-game task view today, even though
-   assignee views are scoped. Existing workflows rely on this behavior.
-3. `Task.next` is still a whole-game lock. An assignee may prepare only their own task,
-   but it must still reject cutting in front of a prepared task elsewhere.
-4. The REPL is currently the clearest client smell: `ScriptSession.access()` obtains `godMode()` and
-   `Access` casts it back down to colored power levels, while `TaskCommand` reaches directly for
-   `game.timeline.atomic` to compose a revise-and-try operation.
-5. `TfmGameplay` and `TfmWorkflow` show two different kinds of Terraforming Mars convenience mixed
-   into engine-facing types: player helpers such as `playProject` and payment, and Engine/workflow
-   helpers such as phases and generations.
-
-That suggests this concrete order:
-
-1. Add command lifecycle characterization tests before moving code.
-
-   Cover rollback on failure, `AbortOperationException`, returned `TaskResult` contents, inclusion
-   of auto-executed follow-up work, and single outermost `onAtomicComplete` notification. These
-   tests should describe current behavior, including whole-game auto-exec.
-
-2. Extract `CommandRunner` as an internal service from `ApiTranslation.atomic`.
-
-   The first extraction should be mechanical. It can still call `Timeline.atomic`, still run
-   `impl.autoExecNow(autoExecMode)`, and still use the same nesting rule for `onAtomicComplete`.
-   The win is that transaction semantics get a name before clients or capabilities are rearranged.
-
-3. Route `ApiTranslation.reviseTask` and `sneak` through the named runner only if their current
-   semantics are meant to be public commands.
-
-   This is not an automatic cleanup. `reviseTask` currently returns a `TaskResult` from
-   `timeline.atomic` without the normal post-command auto-exec/notification path, and `sneak` is a
-   debug/raw-state operation. Decide whether each method should be a command, a debug command, or a
-   lower-level primitive before changing behavior.
-
-4. Add a named player command for the REPL's revise-and-try flow.
-
-   `TaskCommand` currently performs:
-
-   ```kotlin
-   game.timeline.atomic {
-     gameplay.reviseTask(id, rest)
-     if (id in game.tasks) gameplay.tryTask(id)
-   }
-   ```
-
-   A method such as `reviseAndTryTask(id, revised)` would remove public transaction composition
-   from the REPL without requiring a broad API migration. If this method lives on the future
-   `PlayerTaskActions` capability, it also helps prove that capability's shape.
-
-5. Introduce capability interfaces as names first, not new architecture.
-
-   Start with the interfaces that map cleanly to current methods:
-
-   1. `GameQueries` for player-contextual `has`, `count`, `list`, and `resolve`.
-   2. `PlayerTaskActions` for `reviseTask`, `prepareTask`, `doTask`, `tryTask`, and the new
-      `reviseAndTryTask`.
-   3. `OperationRunner` for `manual`, `beginManual`, `continueManual`, and `finish`.
-   4. `TurnActions` for `startTurn` and `turn`.
-   5. `DebugTaskEditor` for `addTasks` and `dropTask`.
-   6. `RawStateEditor` for `sneak`.
-
-   `ApiTranslation` can implement these directly at first. Koin can bind the same scoped object to
-   multiple interfaces. That gives clients better types without forcing separate implementation
-   classes prematurely.
-
-6. Add compatibility accessors on `World` only after the interfaces exist.
-
-   Accessors such as `playerActions(player)`, `operationRunner(player)`, and `rawStateEditor(player)`
-   would be a bridge for current tests and the REPL. They should return capability interfaces, not
-   the old inheritance tower. Keep `gameplay(player)` until callers have migrated.
-
-7. Move `repl.Access` to capability-shaped constructor parameters.
-
-   The colored modes already express authority levels, so they are a good early proving ground.
-   `BlueMode` should not need to cast a `Gameplay` to `TurnLayer`, and `RedMode` should receive the
-   raw-state/debug capabilities it actually uses. This keeps visible REPL behavior unchanged while
-   removing `godMode()` as the way to discover authority.
-
-8. Split the obvious Terraforming Mars facades later, after generic capabilities exist.
-
-   The first useful splits are likely:
-
-   1. player helpers that need normal task/turn/operation capabilities,
-   2. workflow/Engine helpers that need administrative operations and timeline control,
-   3. fixture helpers that need raw state or task editing,
-   4. read-model helpers that need only queries.
-
-   This should not be the first refactoring because today `TfmGameplay` also acts as a convenient
-   compatibility wrapper around `TurnLayer`.
-
-## Open Design Questions
-
-1. Should `AutoExecMode.FIRST` remain the default for all developer clients?
-
-   `FIRST` explicitly permits an arbitrary choice from an otherwise unordered task set; it does not
-   identify a domain-priority task. It is convenient, but assignee-local autoexec may require
-   explicit Engine workflow or task-drain behavior.
-
-2. What should count as a public command?
-
-   `prepareTask`, `addTasks`, `dropTask`, and `sneak` currently have mixed transaction semantics.
-   We need to decide which are normal commands, which are debug commands, and which should become
-   lower-level internals.
-
-3. How structured should UI task choices be?
-
-   This can wait, but a web UI should eventually receive structured choices instead of rendering raw
-   Pets text as its main interaction model.
+None of these questions changes the main boundary decision.
 
 ## Bottom Line
 
-The next clean model is not "one better `Gameplay`". It is:
+This is a good preparatory simplification if we are precise about what “let everyone do whatever
+they want” means. The existing engine should stop rationing legitimate operations through nominal
+layers. It should not stop protecting its own data-structure and transaction invariants.
 
-1. A command runner that owns transaction semantics.
-2. Auto-exec as an actor-local, injected post-command agent.
-3. Small injectable capability interfaces.
-4. Koin wiring that gives each client only the capabilities it should have.
-5. Terraforming Mars helpers/workflow as a facade layer outside the generic engine.
-6. Internal/public package separation only after the capability model is already working.
-
-This lets the code move toward principled boundaries without first tearing apart the engine
-internals. The first refactorings can be additive adapters and wiring changes, with behavior kept
-stable while clients stop depending on `godMode()` and casts.
+The near-term model is one flat, trusted engine workhorse; localized script color-mode checks; and
+no speculative client-authority architecture inside the engine. The principled role- and
+capability-aware API comes afterward as a separate layer around the simplified workhorse.

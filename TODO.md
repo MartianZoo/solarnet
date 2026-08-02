@@ -60,6 +60,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Project Structure
 
+- Simplify the current engine into a flat, trusted workhorse before designing the new restrictive
+  client API: remove gameplay power layers and `godMode()`, keep structural mutation invariants
+  internal, and enforce REPL color modes locally in `script` as a transitional policy.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once module/package ownership is unambiguous, consider merging the modules' physical source directories into shared package-shaped trees.
 
 ## Autonomous Follow-ups
@@ -97,7 +100,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Extract shared `Definition`-to-`ClassDeclaration` assembly without hiding category-specific behavior.
 - Decide whether humanized Terraforming Mars readers belong on `TfmGameplay`; document the boundary. (Somewhat soon)
 - Simplify AST transforms: centralize child copying, type `Change` operations, make atomization stateless, and name owner replacement. (Needs discussion)
-- Follow `docs/engine-api-review.md`: replace `godMode()` and layer casts with explicit roles; defer script access cleanup. (Later)
 - Simplify and document default-dependency normalization, especially contextual `Owner` handling.
 - Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
 - Narrow `MutableGrid` bounds handling instead of catching every exception.
