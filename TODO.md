@@ -24,7 +24,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Language and Engine Semantics
 
-- See whether the `MetalProduction` custom metric can be eliminated.
 - Move `Anyone` and `Owner` from Canon into the shared `system.pets` vocabulary.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
 - Consider inline value types for `TaskId`, event ordinals, and player seats, while preserving sensible Java and JavaScript interop.

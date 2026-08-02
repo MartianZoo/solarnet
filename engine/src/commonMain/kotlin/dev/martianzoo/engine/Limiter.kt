@@ -9,6 +9,7 @@ import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
 import dev.martianzoo.pets.ast.Requirement.Counting
@@ -69,7 +70,11 @@ internal class Limiter(
   }
 
   private fun toRangeRestriction(it: Counting, klass: Class): RangeRestriction {
-    var expr = it.scaledEx.expression
+    var expr =
+        (it.metric as? Metric.Count)?.expression
+            ?: throw invalidPetDefinition(
+                "Class invariant on ${klass.className} must count one component expression: $it"
+            )
 
     // Simplify it if we can
     if (klass.concreteTypes().drop(1).none()) {
@@ -184,5 +189,5 @@ internal fun Class.invariants(): Set<Requirement> =
 internal fun Class.isSingletonType(): Boolean =
     invariants().any {
       val counting = it as? Counting ?: return@any false
-      counting.range.first == 1 && counting.scaledEx.expression == THIS.expression
+      counting.range.first == 1 && (counting.metric as? Metric.Count)?.expression == THIS.expression
     }

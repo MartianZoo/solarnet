@@ -33,8 +33,8 @@ public object Canon :
         ),
         StandardFormBundle(
             "UtopiaCimmeriaExpansion",
-            utopiaCimmeriaCustomClasses,
-            setOf(cn("UtopiaPlanitiaMapOption"), cn("TerraCimmeriaMapOption")),
+            gameOptionClassNames =
+                setOf(cn("UtopiaPlanitiaMapOption"), cn("TerraCimmeriaMapOption")),
         ),
         StandardFormBundle(
             "VenusNextExpansion",

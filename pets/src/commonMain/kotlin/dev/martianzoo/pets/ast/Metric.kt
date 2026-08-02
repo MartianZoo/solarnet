@@ -38,6 +38,7 @@ public sealed class Metric : PetElement() {
     override fun precedence(): Int = 12
   }
 
+  /** Counts one unit for each complete group of [unit] counted by [inner]. */
   @ConsistentCopyVisibility
   public data class Scaled internal constructor(val unit: Int, val inner: Metric) : Metric() {
     init {

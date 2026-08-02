@@ -91,9 +91,9 @@ public abstract class PetTransformer protected constructor() {
                 }
             is Requirement ->
                 when (this) {
-                  is Requirement.Min -> Requirement.Min(x(scaledEx))
-                  is Requirement.Max -> Requirement.Max(x(scaledEx))
-                  is Requirement.Exact -> Requirement.Exact(x(scaledEx))
+                  is Requirement.Min -> Requirement.Min(target, x(metric))
+                  is Requirement.Max -> Requirement.Max(target, x(metric))
+                  is Requirement.Exact -> Requirement.Exact(target, x(metric))
                   is Requirement.Or -> Requirement.Or(x(requirements))
                   is Requirement.And -> Requirement.And(x(requirements))
                   is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)

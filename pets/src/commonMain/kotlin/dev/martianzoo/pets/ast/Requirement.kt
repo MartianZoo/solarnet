@@ -56,8 +56,7 @@ public sealed class Requirement : PetElement() {
   public fun isMetBy(count: (Metric) -> Int): Boolean =
       when (this) {
         is Counting -> {
-          val actual = count(Metric.Count(scaledEx.expression))
-          val target = (scaledEx.scalar as ActualScalar).value
+          val actual = count(metric)
           when (this) {
             is Min -> actual >= target
             is Max -> actual <= target
@@ -69,48 +68,72 @@ public sealed class Requirement : PetElement() {
         is Transform -> throw ExpressionException("unhandled requirement transform: $this")
       }
 
-  /** A requirement that counts (a min, max, or exact). */
-  public sealed class Counting(public open val scaledEx: ScaledExpression) : Requirement() {
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scaledEx)
+  /**
+   * A requirement comparing [target] with [metric]. The target is independent of any unit scaling
+   * inside the metric.
+   */
+  public sealed class Counting(
+      public val target: Int,
+      public val metric: Metric,
+  ) : Requirement() {
+    init {
+      require(target >= 0)
+    }
+
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(metric)
 
     public abstract val range: IntRange
+
+    protected fun countingString(prefix: String = "", fullSimpleMetric: Boolean = false): String {
+      val countedMetric = metric
+      val counted =
+          when (countedMetric) {
+            is Metric.Count ->
+                ScaledExpression(ActualScalar(target), countedMetric.expression).let {
+                  if (fullSimpleMetric) it.toFullString() else it.toString()
+                }
+            is Metric.Transform -> "$target $countedMetric"
+            else -> "$target ($countedMetric)"
+          }
+      return prefix + counted
+    }
   }
 
-  public data class Min(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
+  public data class Min(val minimum: Int, val countedMetric: Metric) :
+      Counting(minimum, countedMetric) {
+    public constructor(
+        scaledEx: ScaledExpression
+    ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
+
     init {
-      Scalar.checkNonzero(scaledEx.scalar)
-      if (scaledEx.scalar is XScalar) {
-        throw PetSyntaxException("can't use X in requirements (yet?)")
-      }
+      Scalar.checkNonzero(ActualScalar(target))
     }
 
-    override fun toString(): String = "$scaledEx"
+    override fun toString(): String = countingString()
 
-    override val range: IntRange = (scaledEx.scalar as ActualScalar).value..Int.MAX_VALUE
+    override val range: IntRange = target..Int.MAX_VALUE
   }
 
-  public data class Max(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
-    init {
-      if (scaledEx.scalar is XScalar) {
-        throw PetSyntaxException("can't use X in requirements (yet?)")
-      }
-    }
+  public data class Max(val maximum: Int, val countedMetric: Metric) :
+      Counting(maximum, countedMetric) {
+    public constructor(
+        scaledEx: ScaledExpression
+    ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 
-    override fun toString(): String = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
+    override fun toString(): String = countingString("MAX ", fullSimpleMetric = true)
 
-    override val range: IntRange = 0..(scaledEx.scalar as ActualScalar).value
+    override val range: IntRange = 0..target
   }
 
-  public data class Exact(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
-    init {
-      if (scaledEx.scalar is XScalar) {
-        throw PetSyntaxException("can't use X in requirements (yet?)")
-      }
-    }
+  public data class Exact(val expected: Int, val countedMetric: Metric) :
+      Counting(expected, countedMetric) {
+    public constructor(
+        scaledEx: ScaledExpression
+    ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 
-    override fun toString(): String = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
+    override fun toString(): String = countingString("=", fullSimpleMetric = true)
 
-    override val range: IntRange = (scaledEx.scalar as ActualScalar).value..scaledEx.scalar.value
+    override val range: IntRange = target..target
   }
 
   @ConsistentCopyVisibility
@@ -212,9 +235,19 @@ public sealed class Requirement : PetElement() {
               }
         }
 
-        val min = scaledEx map Requirement::Min
-        val max = skip(_max) and scaledEx map Requirement::Max
-        val exact = skipChar('=') and scaledEx map Requirement::Exact
+        val countedMetric = rawScalar and Metric.atomParser()
+
+        val min =
+            (countedMetric map { (target, metric) -> Min(target, metric) }) or
+                (scaledEx map Requirement::Min)
+        val max =
+            skip(_max) and
+                ((countedMetric map { (target, metric) -> Max(target, metric) }) or
+                    (scaledEx map Requirement::Max))
+        val exact =
+            skipChar('=') and
+                ((countedMetric map { (target, metric) -> Exact(target, metric) }) or
+                    (scaledEx map Requirement::Exact))
         val transform =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
         transform or min or max or exact or group(parser())
@@ -222,3 +255,9 @@ public sealed class Requirement : PetElement() {
     }
   }
 }
+
+private fun ScaledExpression.actualScalar(): Int =
+    when (val scalar = scalar) {
+      is ActualScalar -> scalar.value
+      is XScalar -> throw PetSyntaxException("can't use X in requirements (yet?)")
+    }

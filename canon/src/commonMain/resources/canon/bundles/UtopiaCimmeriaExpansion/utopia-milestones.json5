@@ -8,7 +8,7 @@
     // Trader
     { "id": "UM3", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
     // Metallurgist
-    { "id": "UM4", "requirement": "6 MetalProduction<Owner>" },
+    { "id": "UM4", "requirement": "6 PROD[Steel OR Titanium]" },
     // Researcher
     { "id": "UM5", "requirement": "4 ScienceTag" },
   ],

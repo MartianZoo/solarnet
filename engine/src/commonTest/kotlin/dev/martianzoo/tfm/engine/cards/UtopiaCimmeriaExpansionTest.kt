@@ -64,12 +64,17 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
   fun `Utopia milestone metrics count combined metal production and card resource types`() {
     newGame(UtopiaPlanitiaMapOption)
+    val otherPlayer = requireP2()
     p1.manual(
         "PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, Predators, " +
             "Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"
     )
+    otherPlayer.manual("PROD[10 Steel]")
 
-    p1.count("MetalProduction<Player1>") shouldBe 6
+    p1.count("PROD[Steel OR Titanium]") shouldBe 6
+    otherPlayer.count("PROD[Steel OR Titanium]") shouldBe 10
     p1.count("Class<CardResource>(HAS CardResource<Player1>)") shouldBe 3
+    p1.manual("Metallurgist")
+    p1.count("Metallurgist") shouldBe 1
   }
 }

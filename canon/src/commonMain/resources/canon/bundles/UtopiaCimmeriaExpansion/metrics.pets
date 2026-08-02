@@ -1,2 +1,0 @@
-"Combined steel and titanium production owned by a player"
-CLASS MetalProduction<Player> : Custom

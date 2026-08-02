@@ -76,6 +76,10 @@ the component graph; the REPL command `count Foo` evaluates exactly this kind of
 can instead have Kotlin metric behavior, in which case the implementation supplies the count even though no component
 of that class ever exists. For example, `MarsRow<Hellas_8_4>` evaluates to `8`.
 
+A scalar within a metric is a unit size: `3 Microbe` evaluates to one per three microbes, using integer division. It
+is not a threshold. Thus the metric in `Plant / 3 Microbe` has different semantics from the requirement `3 Microbe`,
+which asks whether at least three microbes exist, or `HAS MAX 3 Microbe`, which asks whether at most three exist.
+
 `OR` counts the multiset union of its component-count alternatives. Thus `Steel OR Titanium` counts both resource
 types, while `OwnedTile OR CityTile` counts each city only once even though every city is also an owned tile. Its
 alternatives must be component-count metrics; virtual custom metrics cannot participate because they have no component
@@ -99,9 +103,10 @@ of the named virtual-property classes has components in the graph.
 requirement := orReqt (',' orReqt)*
 orReqt      := atomReqt ('OR' atomReqt)*
 atomReqt    := minReqt | maxReqt | exactReqt | prodReqt | groupedReqt
-minReqt     := scalarAndType
-maxReqt     := 'MAX' scalarAndType
-exactReqt   := '=' scalarAndType
+countedReqt := scalarAndType | scalar metricAtom
+minReqt     := countedReqt
+maxReqt     := 'MAX' countedReqt
+exactReqt   := '=' countedReqt
 prodReqt    := 'PROD[' requirement ']'
 groupedReqt := '(' requirement ')'
 ```
@@ -109,6 +114,9 @@ groupedReqt := '(' requirement ')'
 A requirement expresses a condition that can be checked against a world to determine a `true` or `false` value. Of
 course, these are familiar from cards; many control whether the card can be played (`MAX 4 OxygenStep`), and in a few
 cases gate an instruction on the card (like in Nitro-Rich Asteroid, `PROD[Plant OR 3 PlantTag: 4 Plant]`).
+
+A minimum, maximum, or exact threshold can count any metric atom. A transform already provides grouping, as in
+`6 PROD[Steel OR Titanium]`; a bare union is parenthesized, as in `15 (ActiveCard OR AutomatedCard)`.
 
 The requirement `a, b, c` will be true if all three of given requirements are true. The comma is the lowest-precedence
 operator.

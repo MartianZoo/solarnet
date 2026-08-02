@@ -8,8 +8,8 @@
     { "id": "EM2", "requirement": "PROD[15 OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" },
     // Ecologist
     { "id": "EM3", "requirement": "4 BioTag" },
-//    // Tycoon
-//    { "id": "EM4", "requirement": "15 (ActiveCard OR AutomatedCard)" },
+    // Tycoon
+    { "id": "EM4", "requirement": "15 (ActiveCard OR AutomatedCard)" },
     // Legend
     { "id": "EM5", "requirement": "5 PlayedEvent" },
   ],

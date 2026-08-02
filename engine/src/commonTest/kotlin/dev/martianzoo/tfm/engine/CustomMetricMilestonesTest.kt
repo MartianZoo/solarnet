@@ -13,6 +13,26 @@ import kotlin.test.Test
 
 internal class CustomMetricMilestonesTest {
   @Test
+  fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
+    val p1 = Engine.newGame(canonicalPremise(ElysiumMapOption, players = 2)).tfm(PLAYER1)
+    p1.godMode()
+        .sneak(
+            "ColonizerTrainingCamp, DeepWellHeating, CloudSeeding, MartianRails, " +
+                "WaterImportFromEuropa, EquatorialMagnetizer, DomedCrater, NoctisCity, " +
+                "MethaneFromTitan, ResearchOutpost, PhobosSpaceHaven, BlackPolarDust, " +
+                "ArcticAlgae, Predators"
+        )
+
+    p1.count("ActiveCard OR AutomatedCard") shouldBe 14
+    shouldThrow<RequirementException> { p1.godMode().manual("Tycoon") }
+
+    p1.godMode().sneak("EosChasmaNationalPark")
+    p1.count("ActiveCard OR AutomatedCard") shouldBe 15
+    p1.godMode().manual("Tycoon")
+    p1.count("Tycoon") shouldBe 1
+  }
+
+  @Test
   fun diversifierCanBeClaimedWithEightDistinctTagTypes() {
     val game =
         Engine.newGame(

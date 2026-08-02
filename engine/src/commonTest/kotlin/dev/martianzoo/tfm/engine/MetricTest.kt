@@ -9,6 +9,18 @@ import kotlin.test.Test
 
 internal class MetricTest {
   @Test
+  fun metricUnitsAndRequirementThresholdsHaveDifferentMeanings() {
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    p1.godMode().sneak("8 Plant")
+
+    p1.godMode().manual("Heat / 3 Plant")
+    p1.count("Heat<Player1>") shouldBe 2
+    p1.count("3 Plant<Player1>") shouldBe 2
+    p1.has("3 Plant<Player1>") shouldBe true
+    p1.has("MAX 3 Plant<Player1>") shouldBe false
+  }
+
+  @Test
   fun orCountsTheUnionOfMatchingComponents() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode()
