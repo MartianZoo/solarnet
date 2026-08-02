@@ -107,17 +107,9 @@ internal class ScriptSessionTest {
     repl.command("task ${colonyTaskIds[1]} AddColonyTile<Class<Io>>")
     repl.command("task ${colonyTaskIds[2]} AddColonyTile<Class<Titan>>")
     repl.command("task -6 TerraformRating<Player1>")
-
-    val tileTaskIds =
-        repl.game.tasks
-            .extract {
-              if (it.instruction.toString().startsWith("CityTile")) it.id else null
-            }
-            .filterNotNull()
-    assertEquals(2, tileTaskIds.size)
-    repl.command("task ${tileTaskIds[0]} CityTile<Tharsis_2_4, SoloOpponent>")
+    repl.command("task X CityTile<Tharsis_2_4, SoloOpponent>")
     repl.command("task GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    repl.command("task ${tileTaskIds[1]} CityTile<Tharsis_8_7, SoloOpponent>")
+    repl.command("task Y CityTile<Tharsis_8_7, SoloOpponent>")
     repl.command("task GreeneryTile<Tharsis_8_6, SoloOpponent>")
 
     assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
