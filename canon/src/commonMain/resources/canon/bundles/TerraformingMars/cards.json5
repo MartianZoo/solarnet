@@ -54,7 +54,7 @@
       "id": "B08",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "40, MandateB08",
+      "immediate": "40, MandateB08, (=1 Player: PROD[2]) OR Ok",
       "effects": [
         "CityTile<Anyone, MarsArea>: PROD[1]",
         "CityTile: 3",
