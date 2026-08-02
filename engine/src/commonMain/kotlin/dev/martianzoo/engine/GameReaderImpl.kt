@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.CustomCodeException
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.Component.Companion.toComponent
