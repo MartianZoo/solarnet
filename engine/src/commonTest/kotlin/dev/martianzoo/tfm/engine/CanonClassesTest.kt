@@ -17,9 +17,11 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.te
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -75,6 +77,30 @@ internal class CanonClassesTest {
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
+  }
+
+  @Test
+  fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
+    val maps = Canon.Option.entries.filter { it.name.endsWith("MapOption") }
+
+    maps.forEach { map ->
+      val game =
+          Engine.newGame(
+              canonicalPremise(
+                  map,
+                  VenusNextExpansion,
+                  ColoniesExpansion,
+                  players = 2,
+                  colonyTiles = testColonyTiles(2),
+              )
+          )
+      val gameplay = game.tfm(PLAYER1)
+
+      withClue(map.name) {
+        gameplay.count("Class<Milestone>") shouldBe 6
+        gameplay.count("Class<Award>") shouldBe 6
+      }
+    }
   }
 
   @Test
