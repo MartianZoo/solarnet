@@ -74,21 +74,17 @@ public class StandardFormBundle(
   }
 
   override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
-    resourceFiles(MAPS_FILENAME).flatMapTo(linkedSetOf()) { filename ->
+    mapResourceFiles().flatMapTo(linkedSetOf()) { filename ->
       JsonReader.readMaps(read(filename))
     }
   }
 
   override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
-    resourceFiles(MILESTONES_FILENAME).flatMapTo(linkedSetOf()) { filename ->
-      JsonReader.readMilestones(read(filename))
-    }
+    readIfPresent(MILESTONES_FILENAME, JsonReader::readMilestones).toSetStrict()
   }
 
   override val awardDefinitions: Set<AwardDefinition> by lazy {
-    resourceFiles(AWARDS_FILENAME).flatMapTo(linkedSetOf()) { filename ->
-      JsonReader.readAwards(read(filename))
-    }
+    readIfPresent(AWARDS_FILENAME, JsonReader::readAwards).toSetStrict()
   }
 
   override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
@@ -101,12 +97,13 @@ public class StandardFormBundle(
   private fun <T> readIfPresent(filename: String, parse: (String) -> List<T>): List<T> =
       if (filename in resourceFilenames) parse(read(filename)) else emptyList()
 
-  private fun resourceFiles(filename: String): List<String> =
-      resourceFilenames.filter { it == filename || it.endsWith("-$filename") }.sorted()
+  private fun mapResourceFiles(): List<String> =
+      resourceFilenames.filter { it == MAPS_FILENAME || it.endsWith("-$MAPS_FILENAME") }.sorted()
 
   private fun isExpected(filename: String): Boolean =
       filename.endsWith(PETS_EXTENSION) ||
-          KNOWN_JSON_FILENAMES.any { known -> filename == known || filename.endsWith("-$known") }
+          filename in KNOWN_JSON_FILENAMES ||
+          filename.endsWith("-$MAPS_FILENAME")
 
   public companion object {
     public const val ACTIONS_FILENAME: String = "actions.json5"

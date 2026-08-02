@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "setupRequirement": "UtopiaPlanitiaMapOption",
+      "awards": [
+        // Suburbian
+        { "id": "UA1", "metric": "OwnedTile(HAS MAX 4 Neighbor<OwnedTile>)" },
+        // Investor
+        { "id": "UA2", "metric": "EarthTag" },
+        // Botanist
+        { "id": "UA3", "metric": "PROD[Plant]" },
+        // Incorporator
+        { "id": "UA4", "metric": "ActiveCard(HAS MAX 10 CardCost) OR AutomatedCard(HAS MAX 10 CardCost)" },
+        // Metropolist
+        { "id": "UA5", "metric": "CityTile" },
+      ],
+    },
+    {
+      "setupRequirement": "TerraCimmeriaMapOption",
+      "awards": [
+        // Electrician
+        { "id": "IA1", "metric": "PowerTag" },
+        // Founder
+        { "id": "IA2", "metric": "Adjacency<OwnedTile, SpecialTile>" },
+        // Mogul
+        { "id": "IA3", "metric": "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" },
+        // Zoologist
+        { "id": "IA4", "metric": "Animal OR Microbe" },
+        // Forecaster
+        { "id": "IA5", "metric": "CardFront(HAS CardRequirement)" },
+      ],
+    },
+  ],
+}

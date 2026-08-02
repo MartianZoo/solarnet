@@ -23,8 +23,10 @@ The Pets type system.
 ### <a href="pets/dev.martianzoo.tfm.data/index.html">dev.martianzoo.tfm.data</a>
 
 Data types for cards, milestones, maps, etc., and support for parsing these from JSON.
-Milestone JSON may put a `setupRequirement` beside the `milestones` list; each milestone inherits
-that requirement, conjoined with any `setupRequirement` on the individual milestone.
+Milestone and award JSON may group definition lists under `groups`. A group's `setupRequirement`
+is inherited by every definition in that group and conjoined with requirements on enclosing groups
+or individual definitions. Canon's two-map expansions use this to keep one milestone file and one
+award file while activating only the classes belonging to the selected map option.
 
 ### <a href="pets/dev.martianzoo.util/index.html">dev.martianzoo.util</a>
 

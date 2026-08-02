@@ -36,8 +36,10 @@ public data class AwardDefinition(
   @Transient override val className: ClassName = englishHack(id)
 
   internal fun withSetupRequirement(setupRequirement: String): AwardDefinition {
-    require(setupRequirementText == null) { "$id has both file and definition setup requirements" }
-    return copy(setupRequirementText = setupRequirement)
+    return copy(
+        setupRequirementText =
+            listOfNotNull(setupRequirement, setupRequirementText).joinToString().ifEmpty { null }
+    )
   }
 
   override val asClassDeclaration: ClassDeclaration by lazy {

@@ -23,11 +23,19 @@ internal class CanonBundlesTest {
     hellas.marsMapDefinitions.single().className shouldBe cn("Hellas")
     hellas.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe true
     hellas.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe false
+    (cn("Diversifier") in hellas.allClassNames) shouldBe true
+    (cn("Specialist") in hellas.allClassNames) shouldBe false
+    (cn("Cultivator") in hellas.allClassNames) shouldBe true
+    (cn("Celebrity") in hellas.allClassNames) shouldBe false
 
     val elysium = Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
     elysium.marsMapDefinitions.single().className shouldBe cn("Elysium")
     elysium.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe true
     elysium.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe false
+    (cn("Specialist") in elysium.allClassNames) shouldBe true
+    (cn("Diversifier") in elysium.allClassNames) shouldBe false
+    (cn("Celebrity") in elysium.allClassNames) shouldBe true
+    (cn("Cultivator") in elysium.allClassNames) shouldBe false
   }
 
   @Test

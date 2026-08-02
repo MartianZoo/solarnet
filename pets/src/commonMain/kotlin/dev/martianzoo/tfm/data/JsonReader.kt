@@ -21,12 +21,20 @@ public object JsonReader {
   @Serializable
   private data class AwardList(
       val setupRequirement: String? = null,
-      val awards: List<AwardDefinition>,
+      val awards: List<AwardDefinition> = emptyList(),
+      val groups: List<AwardList> = emptyList(),
   ) {
-    fun complete(): List<AwardDefinition> =
-        setupRequirement?.let { requirement ->
-          awards.map { it.withSetupRequirement(requirement) }
-        } ?: awards
+    init {
+      require(awards.isNotEmpty() || groups.isNotEmpty())
+      require(setupRequirement?.isNotBlank() != false)
+    }
+
+    fun complete(inheritedRequirement: String? = null): List<AwardDefinition> {
+      val requirement = combineRequirements(inheritedRequirement, setupRequirement)
+      return awards.map { definition ->
+        requirement?.let(definition::withSetupRequirement) ?: definition
+      } + groups.flatMap { it.complete(requirement) }
+    }
   }
 
   // CARDS
@@ -42,14 +50,20 @@ public object JsonReader {
 
   @Serializable
   private data class MilestoneList(
-      val milestones: List<MilestoneImport>,
+      val milestones: List<MilestoneImport> = emptyList(),
       val setupRequirement: String? = null,
+      val groups: List<MilestoneList> = emptyList(),
   ) {
     init {
+      require(milestones.isNotEmpty() || groups.isNotEmpty())
       require(setupRequirement?.isNotBlank() != false)
     }
 
-    fun definitions(): List<MilestoneDefinition> = milestones.map { it.complete(setupRequirement) }
+    fun definitions(inheritedRequirement: String? = null): List<MilestoneDefinition> {
+      val requirement = combineRequirements(inheritedRequirement, setupRequirement)
+      return milestones.map { it.complete(requirement) } +
+          groups.flatMap { it.definitions(requirement) }
+    }
   }
 
   @Serializable
@@ -191,6 +205,9 @@ public object JsonReader {
   // HELPERS
 
   private inline fun <reified T : Any> fromJson5(input: String): T = JSON5.decodeFromString(input)
+
+  private fun combineRequirements(first: String?, second: String?): String? =
+      listOfNotNull(first, second).joinToString().ifEmpty { null }
 
   private fun String.toLegendKey(): Char {
     require(length == 1) { "bad legend key: $this" }

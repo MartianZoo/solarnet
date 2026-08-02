@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "setupRequirement": "HellasMapOption",
+      "milestones": [
+        // Diversifier
+        { "id": "HM1", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
+        // Tactician
+        { "id": "HM2", "requirement": "5 CardFront(HAS CardRequirement)" },
+        // Polar Explorer
+        { "id": "HM3", "requirement": "3 OwnedTile<MarsArea(HAS 8 MarsRow)>" },
+        // Energizer
+        { "id": "HM4", "requirement": "PROD[6 Energy]" },
+        // Rim Settler
+        { "id": "HM5", "requirement": "3 JovianTag" },
+      ],
+    },
+    {
+      "setupRequirement": "ElysiumMapOption",
+      "milestones": [
+        // Generalist
+        { "id": "EM1", "requirement": "PROD[6, Steel, Titanium, Plant, Energy, Heat]" },
+        // Specialist
+        { "id": "EM2", "requirement": "PROD[15 OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" },
+        // Ecologist
+        { "id": "EM3", "requirement": "4 BioTag" },
+        // Tycoon
+        { "id": "EM4", "requirement": "15 (ActiveCard OR AutomatedCard)" },
+        // Legend
+        { "id": "EM5", "requirement": "5 PlayedEvent" },
+      ],
+    },
+  ],
+}
