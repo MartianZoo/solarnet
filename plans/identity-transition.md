@@ -3,7 +3,7 @@
 ## Purpose
 
 This plan resumes the cross-owner task handoff deliberately deferred by the earlier identity
-cleanup. Preserve its settled Actor, Owner, Player, Engine, Opponent, assignee, and authored `BY`
+cleanup. Preserve its settled Actor, Owner, Player, Engine, SoloOpponent, assignee, and authored `BY`
 distinctions while adding the minimum queue-control model needed by Philares and native workflow.
 
 The immediate goal is not a generalized identity framework. It is to distinguish two concrete
@@ -17,7 +17,7 @@ operations that had previously been conflated:
 - **Actor** is who executes an instruction and is recorded as `BY` on resulting state changes.
 - **Owner** says whose components they are. Changing another Owner's components does not make that
   Owner the Actor.
-- **Player** is both an Actor and an Owner. **Engine** is an Actor but not an Owner. **Opponent** is
+- **Player** is both an Actor and an Owner. **Engine** is an Actor but not an Owner. **SoloOpponent** is
   an Owner but not an Actor.
 - Trigger-side `BY` filters the Actor of the triggering change. Instruction-side `BY`, described
   below, instead says which Actor performs and narrows that instruction. Neither use selects an

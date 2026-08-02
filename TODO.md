@@ -14,7 +14,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Gameplay and Content
 
-- Rename `Opponent` to `SoloOpponent`.
 - Implement the standard-game rule that starts every production at 1 when Corporate Era is disabled; until then, keep canonical requirements at their printed values.
 - Replace `DeferredColonySelection` with setup-world colony choices once the REPL can collect them
   before assembling the playable world.
@@ -91,7 +90,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Decide whether turn/action signals are generic engine protocol or Terraforming Mars rules, then colocate declarations and interpretation.
 - Make only choice-free setup effects automatic; consider immediate `Photosynthesis` creation. (Later)
 - Finish separating Canon selectors/providers from selected rulesets; never read an unselected bundle's payload.
-- Preserve `Opponent` when narrowing only a queued solo tile's area.
+- Preserve `SoloOpponent` when narrowing only a queued solo tile's area.
 - Explain or remove `Initializer`'s synthetic mandatory intensity.
 - Remove whole-game-empty queue assumptions from Head Start helpers/tests.
 - Separate corporation-task selection from `playCorp` for Merger and logged-game tests.

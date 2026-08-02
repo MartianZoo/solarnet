@@ -87,7 +87,7 @@
   presentation classification, not an Actor or ownership rule.
 - **Signal:** A hidden temporary component that immediately removes itself after triggering its effects.
 - **Singleton type:** A concrete type for which one component is created automatically during initialization.
-- **Opponent:** The passive Owner created by SoloMode; it is not a Player or Actor and receives no tasks or turns.
+- **SoloOpponent:** The passive Owner created by SoloMode; it is not a Player or Actor and receives no tasks or turns.
 - **Represented-type linkage:** Inside a refined class literal such as `Class<Tag>(HAS Tag<Player1>)`, the class argument links to matching root-class occurrences in the requirement, so candidate `Class<SpaceTag>` tests for `SpaceTag<Player1>` without treating the class token itself as owned.
 - **Source effect:** An effect as authored in `.pets` or JSON data, before engine transformations.
 - **State change:** An exact component gain, removal, or transmutation that happened in a game.

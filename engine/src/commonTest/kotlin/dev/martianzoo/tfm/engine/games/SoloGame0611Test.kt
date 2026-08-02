@@ -56,7 +56,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       engine.nextGeneration(2)
 
       val ForcedPrecipitation = "ForcedPrecipitation"
-      playProject("AsteroidCard", 2, titanium = 4) { doTask("-2 Plant<Opponent>") }
+      playProject("AsteroidCard", 2, titanium = 4) { doTask("-2 Plant<SoloOpponent>") }
           .expect("TEMP, TR")
       playProject("PeroxidePower", 3, steel = 2)
       playProject(ForcedPrecipitation, 8)
@@ -87,7 +87,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements).expect("Card")
       cardAction2(ForcedPrecipitation).expect("TR")
       cardAction1(RegolithEaters)
-      playProject("SmallAsteroid", 1, titanium = 3) { doTask("-2 Plant<Opponent>") }.expect("TR")
+      playProject("SmallAsteroid", 1, titanium = 3) { doTask("-2 Plant<SoloOpponent>") }
+          .expect("TR")
       stdProject("AsteroidSP").expect("PROD[H]")
       playProject("MagneticFieldDome", 3, steel = 1).expect("TR, PROD[P, -2 E], AutomatedCard")
 
@@ -104,8 +105,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements).expect("ProjectCard")
       cardAction2(RegolithEaters).expect("O2, TR")
       playProject("FueledGenerators", 1)
-      playProject("EnergyTapping", 3) { doTask("PROD[-E<Opponent>]") }
-          .expect("PROD[E<P1>, -E<Opponent>]")
+      playProject("EnergyTapping", 3) { doTask("PROD[-E<SoloOpponent>]") }
+          .expect("PROD[E<P1>, -E<SoloOpponent>]")
       playProject("MagneticShield", 9, titanium = 5).expect("4 TR")
       cardAction1(ForcedPrecipitation)
 

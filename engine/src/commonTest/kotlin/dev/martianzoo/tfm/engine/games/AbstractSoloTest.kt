@@ -33,10 +33,10 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     me = p1
     TfmWorkflow.Manual(game).setupPhase()
 
-    engine.doFirstTask("CityTile<${cityAreas().first}, Opponent>")
-    engine.doTask("GreeneryTile<${greeneryAreas().first}, Opponent>")
-    engine.doFirstTask("CityTile<${cityAreas().second}, Opponent>")
-    engine.doTask("GreeneryTile<${greeneryAreas().second}, Opponent>")
+    engine.doFirstTask("CityTile<${cityAreas().first}, SoloOpponent>")
+    engine.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
+    engine.doFirstTask("CityTile<${cityAreas().second}, SoloOpponent>")
+    engine.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
 
     engine.phase("Corporation")
   }

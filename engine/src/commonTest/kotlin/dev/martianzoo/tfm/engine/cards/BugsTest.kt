@@ -42,14 +42,14 @@ class BugsTest : CardTest() {
     val game = setUpGame(setup)
     val engine = game.tfm(ENGINE)
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
 
-    engine.doFirstTask("CityTile<Tharsis_5_8, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_5_8, SoloOpponent>")
 
     // TODO(#12): This area neighbors the first city at Tharsis_4_1, but not the second city at
     // Tharsis_5_8. The current unlinked Neighbor<CityTile> accepts it.
-    engine.doTask("GreeneryTile<Tharsis_3_1, Opponent>")
+    engine.doTask("GreeneryTile<Tharsis_3_1, SoloOpponent>")
   }
 
   @Test

@@ -40,7 +40,7 @@ ABSTRACT CLASS Tile<Area> {
   }
 
   "Any tile that someone/something owns: city tile, greenery tile, or special tile"
-  // Not narrowed to <Player> because Opponent gets four tiles
+  // Not narrowed to <Player> because SoloOpponent gets four tiles
   ABSTRACT CLASS OwnedTile : Owned {
     CLASS GreeneryTile[GT] : Tile<MarsArea> {
       // HAS? specifies a requirement with an "escape clause": the requirement is upheld as long as

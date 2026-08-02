@@ -33,10 +33,10 @@ class StartTokenTest {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.godMode().manual("Generation")
 
     engine.assertCounts(1 to "StartToken<Player1>")

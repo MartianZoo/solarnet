@@ -466,7 +466,7 @@ and `ApiTranslation` (the `Gameplay` impl). The Engine Actor's scope also suppli
 Components expose their concrete Owner as a resolved Pets type. Kotlin runtime identities retain
 separate `Actor` and `Owner` roles where code needs an entity to participate directly; `Player` is
 their current intersection. Only Actors receive gameplay scopes and task queues. A passive Pets
-Owner such as `Opponent` has no corresponding Kotlin identity and receives neither capability.
+Owner such as `SoloOpponent` has no corresponding Kotlin identity and receives neither capability.
 
 The `Effector` takes a `Lazy<GameReader>` to break a bootstrapping cycle: the game's reader isn't
 available until after the effector exists, but the effector needs the reader to fire effects.

@@ -141,7 +141,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
 
       playProject("GiantIceAsteroid", 18, titanium = 4) {
-        doTask("-6 Plant<Opponent>")
+        doTask("-6 Plant<SoloOpponent>")
         doFirstTask("OceanTile<Tharsis_5_4>")
         doFirstTask("OceanTile<Tharsis_5_6>")
       }
@@ -175,7 +175,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       nextRound("OxygenStep", 2)
 
-      playProject("MiningExpedition", 11) { doTask("-2 Plant<Opponent>") }
+      playProject("MiningExpedition", 11) { doTask("-2 Plant<SoloOpponent>") }
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
       playProject("StripMine", 12, steel = 4)
@@ -183,7 +183,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       val SubZeroSaltFish = "SubZeroSaltFish"
       playProject(SubZeroSaltFish, 4) {
-        doTask("PROD[-Plant<Opponent>]")
+        doTask("PROD[-Plant<SoloOpponent>]")
         doTask("Animal<$SubZeroSaltFish>") // Viral Enhancers
       }
       cardAction1(SubZeroSaltFish).expect("Animal")

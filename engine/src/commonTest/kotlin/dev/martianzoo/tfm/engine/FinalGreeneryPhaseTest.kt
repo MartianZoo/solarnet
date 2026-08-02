@@ -59,10 +59,10 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp("Ecoline", 0)
     engine.godMode().sneak("-13 SoloGenerationsLeft, LastCall")
 
@@ -86,10 +86,10 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp("Ecoline", 0)
     engine
         .godMode()
@@ -115,10 +115,10 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp("Ecoline", 0)
     engine
         .godMode()
