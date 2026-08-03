@@ -47,6 +47,17 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  fun listCountsCustomMetrics() {
+    val repl = ScriptSession()
+    repl.command("newgame BH 2")
+
+    assertEquals(
+        listOf("8 MarsRow<Hellas_8_4>:", "  8 MarsRow<Hellas_8_4>"),
+        repl.command("list MarsRow<Hellas_8_4>"),
+    )
+  }
+
+  @Test
   fun failedNewGameLeavesTheCurrentGameUntouched() {
     val repl = ScriptSession()
     val originalGame = repl.game
