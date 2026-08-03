@@ -1,5 +1,6 @@
 package dev.martianzoo.script
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.canon.Canon.Option
 import dev.martianzoo.util.toSetStrict
 
@@ -9,10 +10,14 @@ internal object OptionCodeTranslation {
       val optionCodes: String,
       val players: Int,
       val options: Set<Option>,
-      val instruction: String,
+      val selectedColonies: Set<ClassName>,
   )
 
-  fun setup(optionCodes: String, players: Int): Setup {
+  fun setup(
+      optionCodes: String,
+      players: Int,
+      selectedColonies: Set<ClassName> = emptySet(),
+  ): Setup {
     require(players in 1..5) { "player count must be between 1 and 5" }
     val codes = optionCodes.asIterable().map(Char::toString).toSetStrict()
     require(optionsByCode.containsAll(codes)) {
@@ -26,8 +31,7 @@ internal object OptionCodeTranslation {
       add(mapOptions.getValue(selectedMaps.single()))
       codes.mapNotNullTo(this) { positiveOptions[it] }
     }
-    val instruction = if ("C" in codes) "DeferredColonySelection" else ""
-    return Setup(optionCodes, players, options, instruction)
+    return Setup(optionCodes, players, options, selectedColonies)
   }
 
   fun suggestions(current: Setup): List<String> {

@@ -1,13 +1,15 @@
 package dev.martianzoo.script.commands
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
+import dev.martianzoo.util.toSetStrict
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
-  override val usage = "newgame <options> <player count> [purple]"
+  override val usage = "newgame <options> <player count> [colony tiles...] [purple]"
   override val help =
       """
         Erases your current game and starts a new one. You can't undo that (but you can get your
@@ -18,6 +20,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         are what you'd think. The base game is always included. The player count can be from 1 to 5. A count of 1 applies
         the solo starting state.
 
+        When using Colonies, list the selected colony tile names after the player count.
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
       """
@@ -34,11 +37,13 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
   override fun withArgs(args: String): List<String> {
     try {
       val parts = args.trim().split(Regex("\\s+"))
-      val purple = parts.getOrNull(2) == "purple"
+      val purple = parts.lastOrNull() == "purple"
       val optionCodes = parts.getOrNull(0) ?: throw UsageException()
       val playerCount = parts.getOrNull(1)?.toInt() ?: throw UsageException()
+      val colonyNames = parts.drop(2).let { if (purple) it.dropLast(1) else it }
+      val selectedColonies = colonyNames.map(::cn).toSetStrict()
 
-      repl.newGame(optionCodes, playerCount, purple)
+      repl.newGame(optionCodes, playerCount, selectedColonies, purple)
       val effectiveOptionCodes = repl.setup.optionCodes
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +

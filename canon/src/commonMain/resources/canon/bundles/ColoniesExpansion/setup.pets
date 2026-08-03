@@ -1,8 +1,13 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
-CLASS ColoniesExpansion : GameOption
+CLASS ColoniesExpansion : GameOption {
+  ValidateSetup IF =1 Player: (=3 SelectedColonyTile: Ok)
+  ValidateSetup IF (=2 Player OR =3 Player): (=5 SelectedColonyTile: Ok)
+  ValidateSetup IF =4 Player: (=6 SelectedColonyTile: Ok)
+  ValidateSetup IF =5 Player: (=7 SelectedColonyTile: Ok)
+}
 
 "A colony tile selected for the eventual game; concrete subtypes come from colonies.json5"
-ABSTRACT CLASS SelectedColonyTile : System { HAS MAX 1 This }
-
-"Select colony tiles through gameplay setup tasks rather than naming them in the setup world"
-CLASS DeferredColonySelection : System { HAS MAX 1 This }
+ABSTRACT CLASS SelectedColonyTile : System {
+  HAS MAX 1 This
+  This IF MAX 0 ColoniesExpansion:: Die
+}

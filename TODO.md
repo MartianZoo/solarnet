@@ -12,7 +12,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Treat linkage semantics as one project ([#12](https://github.com/MartianZoo/solarnet/issues/12), [plan](plans/linkages.md)): link identical abstract expressions within one effect or `THEN`, but not across comma-separated instructions or sibling argument positions; validate every shared `X` directly against one multiplier instead of traversal-order zipping. This affects solo setup, Kaguya Tech, Flooding, Utopia Invest, Splice, Trade Envoys, Trading Colony, action-used markers, and nested dependency declarations.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
-- Replace `DeferredColonySelection` with setup-world choices collected before assembling the playable world; solve the corresponding solo setup choice that removes one colony tile.
+- Model the solo setup choice that selects four colony tiles and removes one before assembling the playable world.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
 - Decide how a trigger binds its Actor into an instruction. Mons Insurance must bind both attacker and victim into its payout; `BY !Owner` supplies only the inequality test.
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.

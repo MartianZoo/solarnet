@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.ast.ClassName
@@ -54,6 +55,13 @@ internal class SetupWorldTest {
 
     shouldThrow<DeadEndException> { setupWorld.manual("-CorporateEraExpansion") }
     setupWorld.count("CorporateEraExpansion") shouldBe 1
+  }
+
+  @Test
+  fun colonySelectionsRequireTheColoniesExpansion() {
+    shouldThrow<DeadEndException> {
+      newSetupWorld(selectedColonies = setOf(cn("Luna")))
+    }
   }
 
   @Test
@@ -124,17 +132,14 @@ internal class SetupWorldTest {
             options = Canon.Option.DEFAULTS + ColoniesExpansion,
             selectedColonies = setOf(cn("Luna")),
         )
-    shouldThrow<DeadEndException> { Engine.newGame(incompleteColonies, Canon::assemble) }
+    shouldThrow<RequirementException> { Engine.newGame(incompleteColonies, Canon::assemble) }
   }
 
   @Test
-  fun colonySelectionCanBeDeferredByASetupInstruction() {
+  fun colonySelectionMustBeCompletedInTheSetupWorld() {
     val setupWorld = newSetupWorld(options = Canon.Option.DEFAULTS + ColoniesExpansion)
-    setupWorld.gameplay(ENGINE).godMode().manual("DeferredColonySelection")
 
-    val game = Engine.newGame(setupWorld, Canon::assemble)
-
-    game.gameplay(ENGINE).count("DeferredColonySelection") shouldBe 1
+    shouldThrow<RequirementException> { Engine.newGame(setupWorld, Canon::assemble) }
   }
 
   private fun newSetupWorld(

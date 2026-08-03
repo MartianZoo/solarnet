@@ -8,7 +8,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.types.Type
@@ -22,7 +21,6 @@ internal val coloniesCustomClasses: Set<CustomClass> =
 /** Namespace for Colonies' custom Pets implementations. */
 internal object ColoniesExpansion {
   private val ADD_COLONY_TILE = cn("AddColonyTile")
-  private val COLONY_TILE = cn("ColonyTile")
   private val DELAYED_COLONY_TILE = cn("DelayedColonyTile")
   private val RESERVE_TRADE_FLEET = cn("ReserveTradeFleet")
 
@@ -51,14 +49,6 @@ internal object ColoniesExpansion {
           reader.getComponents("Player").map { player ->
             gain(RESERVE_TRADE_FLEET.of(player.expression))
           }
-      if (reader.getComponents("DeferredColonySelection").isNotEmpty()) {
-        val players = reader.getComponents("Player").size
-        val tileChoices =
-            List(Canon.requiredColonyTileCount(players)) {
-              gain(ADD_COLONY_TILE.of(COLONY_TILE.classExpression()))
-            }
-        return Multi.create(tileChoices + fleetInstructions)
-      }
       val colonyBySelectionClass =
           reader.tfmRuleset.colonyTileDefinitions.associateBy { "${it.className}Selected" }
       val tileInstructions =

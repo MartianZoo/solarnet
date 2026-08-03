@@ -61,31 +61,25 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun newGameDefersColonySelection() {
+  fun newGameCollectsColonySelectionBeforeCreatingTheGame() {
     val repl = ScriptSession()
 
     assertEquals(
         listOf("New 2-player game created with options: BRMCX"),
-        repl.command("newgame BRMCX 2"),
+        repl.command("newgame BRMCX 2 Ceres Io Titan Luna Pluto"),
     )
-    assertTrue("DeferredColonySelection" in repl.setup.instruction)
-    assertEquals(listOf("0 Ceres"), repl.command("count Ceres"))
-    assertEquals(listOf("0 Io"), repl.command("count Io"))
-    assertEquals(listOf("0 Titan"), repl.command("count Titan"))
-    val colonyTaskIds =
-        repl.game.tasks
-            .extract {
-              if (it.instruction.toString().startsWith("AddColonyTile")) it.id else null
-            }
-            .filterNotNull()
-    colonyTaskIds.zip(listOf("Ceres", "Io", "Titan", "Luna", "Pluto")).forEach { (id, tile) ->
-      repl.command("task $id AddColonyTile<Class<$tile>>")
-    }
+    assertEquals(5, repl.setup.selectedColonies.size)
+    assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
+    assertEquals(listOf("1 Io"), repl.command("count Io"))
+    assertEquals(
+        listOf("1 DelayedColonyTile<Class<Titan>>"),
+        repl.command("count DelayedColonyTile<Class<Titan>>"),
+    )
     repl.command("phase Corporation")
   }
 
   @Test
-  fun purpleModeSelectsColoniesAsSetupTasks() {
+  fun purpleModeUsesColoniesSelectedBeforeGameplaySetup() {
     val repl = ScriptSession()
 
     assertEquals(
@@ -93,23 +87,19 @@ internal class ScriptSessionTest {
             "New 1-player game created with options: BRMC",
             "Purple mode: workflow active",
         ),
-        repl.command("newgame BRMC 1 purple"),
+        repl.command("newgame BRMC 1 Ceres Io Titan purple"),
     )
-
-    val colonyTaskIds =
+    repl.command("task -6 TerraformRating<Player1>")
+    val cityTaskIds =
         repl.game.tasks
             .extract {
-              if (it.instruction.toString().startsWith("AddColonyTile")) it.id else null
+              if (it.instruction.toString().startsWith("CityTile")) it.id else null
             }
             .filterNotNull()
-    assertEquals(3, colonyTaskIds.size)
-    repl.command("task ${colonyTaskIds[0]} AddColonyTile<Class<Ceres>>")
-    repl.command("task ${colonyTaskIds[1]} AddColonyTile<Class<Io>>")
-    repl.command("task ${colonyTaskIds[2]} AddColonyTile<Class<Titan>>")
-    repl.command("task -6 TerraformRating<Player1>")
-    repl.command("task X CityTile<Tharsis_2_4, SoloOpponent>")
+    assertEquals(2, cityTaskIds.size)
+    repl.command("task ${cityTaskIds[0]} CityTile<Tharsis_2_4, SoloOpponent>")
     repl.command("task GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    repl.command("task Y CityTile<Tharsis_8_7, SoloOpponent>")
+    repl.command("task ${cityTaskIds[1]} CityTile<Tharsis_8_7, SoloOpponent>")
     repl.command("task GreeneryTile<Tharsis_8_6, SoloOpponent>")
 
     assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
