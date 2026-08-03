@@ -41,8 +41,17 @@ internal class ClassDeclarationParsingTest {
 
   @Test
   fun incompleteFinalDeclarationIsRejected() {
-    assertFailsWith<PetSyntaxException> { parseClasses("CLASS Foo\nABSTRACT") }
-    assertFailsWith<PetSyntaxException> { parseClasses("CLASS Foo\nCLASS") }
+    listOf(
+            "CLASS Foo\nABSTRACT",
+            "CLASS Foo\nCLASS",
+            "CLASS Foo\nCLASS Bar<",
+            "CLASS Foo\nCLASS Bar {",
+            "CLASS Foo\nCLASS Bar { HAS",
+            "CLASS Foo\n\"Bar docs\"",
+        )
+        .forEach { source ->
+          assertFailsWith<PetSyntaxException>(source) { parseClasses(source) }
+        }
   }
 
   @Test
