@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Then
-import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.types.Type
 
@@ -35,13 +34,10 @@ internal object ColoniesExpansion {
       val tile = reader.tfmRuleset.colonyTile(name)
       val resourceType = tile.resourceType
       return if (resourceType == null) {
-        gain(scaledEx(1, name))
+        gain(name)
       } else {
         gain(
-            scaledEx(
-                1,
-                DELAYED_COLONY_TILE.of(name.classExpression(), resourceType.classExpression()),
-            )
+            DELAYED_COLONY_TILE.of(name.classExpression(), resourceType.classExpression()),
         )
       }
     }
@@ -53,13 +49,13 @@ internal object ColoniesExpansion {
     override fun translate(reader: GameReader): Instruction {
       val fleetInstructions =
           reader.getComponents("Player").map { player ->
-            gain(scaledEx(1, RESERVE_TRADE_FLEET.of(player.expression)))
+            gain(RESERVE_TRADE_FLEET.of(player.expression))
           }
       if (reader.getComponents("DeferredColonySelection").isNotEmpty()) {
         val players = reader.getComponents("Player").size
         val tileChoices =
             List(Canon.requiredColonyTileCount(players)) {
-              gain(scaledEx(1, ADD_COLONY_TILE.of(COLONY_TILE.classExpression())))
+              gain(ADD_COLONY_TILE.of(COLONY_TILE.classExpression()))
             }
         return Multi.create(tileChoices + fleetInstructions)
       }
@@ -68,7 +64,7 @@ internal object ColoniesExpansion {
       val tileInstructions =
           reader.getComponents("SelectedColonyTile").map { selection ->
             val colony = colonyBySelectionClass.getValue(selection.className.toString())
-            gain(scaledEx(1, ADD_COLONY_TILE.of(colony.className.classExpression())))
+            gain(ADD_COLONY_TILE.of(colony.className.classExpression()))
           }
       return Then.create(tileInstructions + fleetInstructions)
     }

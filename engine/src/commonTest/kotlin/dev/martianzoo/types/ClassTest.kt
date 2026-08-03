@@ -256,7 +256,10 @@ internal class ClassTest {
     val qux = loader.getClass(cn("Qux"))
 
     bar.dependencies.keys.shouldContainExactlyInAnyOrder(Key(cn("Bar"), 0))
-    qux.dependencies.keys.shouldContainExactlyInAnyOrder(Key(cn("Bar"), 0), Key(cn("Qux"), 0))
+    qux.dependencies.keys.shouldContainExactlyInAnyOrder(
+        Key(cn("Bar"), 0),
+        Key(cn("Qux"), 0),
+    )
   }
 
   @Test

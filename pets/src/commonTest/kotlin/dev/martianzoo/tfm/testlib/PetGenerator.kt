@@ -40,8 +40,8 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
       register {
         scaledEx(
-            choose(0, 1, 1, 1, 5, 11),
             choose(1 to MEGACREDIT.of(), 3 to recurse<Expression>()),
+            choose(0, 1, 1, 1, 5, 11),
         )
       }
 
@@ -55,7 +55,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           )
       register(Metric::class) { recurse(choose(metricTypes)) }
       register { Metric.Count(recurse()) }
-      register { Metric.Scaled(choose(2, 2, 3), recurse()) }
+      register { Metric.Scaled(recurse(), choose(2, 2, 3)) }
       register { Metric.Max(inner = recurse(), maximum = choose(5, 11)) }
       register { Metric.Or(listOfSize(choose(2, 2, 2, 3, 4))) }
       register { Metric.Transform(recurse(), PROD) }

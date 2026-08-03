@@ -14,6 +14,10 @@ The Pets language. Parsers for elements and class declarations, the objects it p
 
 Pets element types, like Requirement, Action, Instruction, Expression, and so on. The abstract syntax tree the Pets language is parsed to.
 
+Public AST construction favors compact companion factories such as `cn`, `scaledEx`, `gain`, and
+`remove`. These factories may canonicalize their result without promising a particular concrete
+node type. Raw constructors are non-public for nodes where canonicalization is meaningful.
+
 ### <a href="pets/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
 
 The Pets type system.

@@ -25,6 +25,7 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement.Min
@@ -56,7 +57,7 @@ public class Transformers(public val classTable: ClassTable) {
   }
 
   private fun attachToClassTransformer(klass: Class): PetTransformer {
-    val context = klass.className.has(Min(scaledEx(1, OK)))
+    val context = klass.className.has(Min(scaledEx(OK, 1)))
     return chain(
         insertDefaults(context),
         atomizer(),
@@ -124,7 +125,7 @@ public class Transformers(public val classTable: ClassTable) {
           return node
         }
 
-        val one = gain(scex.copy(scalar = ActualScalar(1)), node.intensity) as Gain
+        val one = gain(scaledEx(scex.expression, ActualScalar(1)), node.intensity) as Gain
         ourMulti = Multi.create((1..sc.value).map { one }) as Multi
 
         @Suppress("UNCHECKED_CAST") // not technically safe...
@@ -146,11 +147,11 @@ public class Transformers(public val classTable: ClassTable) {
               when (node) {
                 is Gain ->
                     handleIt(node, node.gaining, { it.gainOnly }) { fixed, intensity ->
-                      gain(scaledEx(node.count, fixed), intensity) as Gain
+                      gain(scaledEx(fixed, node.count), intensity)
                     }
                 is Remove ->
                     handleIt(node, node.removing, { it.removeOnly }) { fixed, intensity ->
-                      Remove(scaledEx(node.count, fixed), intensity)
+                      remove(scaledEx(fixed, node.count), intensity)
                     }
                 is Transmute -> handleTransmute(node)
               }
@@ -161,12 +162,12 @@ public class Transformers(public val classTable: ClassTable) {
         return result as P
       }
 
-      private fun <P : Change> handleIt(
-          node: P,
+      private fun handleIt(
+          node: Change,
           original: Expression,
           extractor: (Defaults) -> DefaultSpec,
-          rebuild: (Expression, Instruction.Intensity?) -> P,
-      ): P {
+          rebuild: (Expression, Instruction.Intensity?) -> Instruction,
+      ): Instruction {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
@@ -358,14 +359,14 @@ public class Transformers(public val classTable: ClassTable) {
           if (types.any(Type::phantom)) {
             @Suppress("UNCHECKED_CAST")
             return if (specialized.intensity == MANDATORY) {
-              gain(scaledEx(expression = DIE.expression)) as P
+              gain(DIE) as P
             } else {
               NoOp as P
             }
           }
         } catch (_: ExpressionException) {
           @Suppress("UNCHECKED_CAST")
-          return gain(scaledEx(expression = DIE.expression)) as P
+          return gain(DIE) as P
         }
         return specialized
       }

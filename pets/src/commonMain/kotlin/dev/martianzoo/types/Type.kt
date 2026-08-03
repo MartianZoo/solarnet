@@ -225,7 +225,10 @@ public data class Type(
     val transformed =
         refinementMangler(narrow, ignoreUnmatched = narrow.className == CLASS).transform(linked)
     return if (refin.forgiving) {
-      Or(transformed, Max(scaledEx(0, wide.copy(refinement = refin.copy(forgiving = false)))))
+      Or(
+          transformed,
+          Max(scaledEx(wide.copy(refinement = refin.copy(forgiving = false)), 0)),
+      )
     } else {
       transformed
     }

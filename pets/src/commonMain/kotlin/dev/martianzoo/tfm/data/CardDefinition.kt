@@ -131,8 +131,7 @@ public class CardDefinition(data: CardData) : Definition {
       data.components.map(::parseOneLinerClass) + listOfNotNull(resourceClassDeclaration())
 
   override val asClassDeclaration: ClassDeclaration by lazy {
-    val createTags =
-        Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
+    val createTags = Multi.create(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
 
     val automaticFx: List<Effect> = listOfNotNull(immediateToEffect(createTags, true))
 
@@ -155,7 +154,7 @@ public class CardDefinition(data: CardData) : Definition {
         kind = CONCRETE,
         supertypes = supertypes,
         effects = allEffects,
-        invariants = setOf(Max(scaledEx(1, className.expression))),
+        invariants = setOf(Max(scaledEx(className.expression, 1))),
         extraNodes =
             setOfNotNull(requirement, deck?.className) + extraClasses.flatMap { it.allNodes },
     )

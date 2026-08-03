@@ -61,7 +61,13 @@ internal class CanonClassesTest {
     engine
         .allSuperclasses()
         .classNames()
-        .shouldContainExactlyInAnyOrder(COMPONENT, HIDDEN, ACTOR, cn("System"), cn("Engine"))
+        .shouldContainExactlyInAnyOrder(
+            COMPONENT,
+            HIDDEN,
+            ACTOR,
+            cn("System"),
+            cn("Engine"),
+        )
     (actor glb owner) shouldBe player
   }
 

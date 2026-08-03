@@ -13,7 +13,7 @@ import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
-import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
@@ -60,7 +60,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       }
 
       // I believe Ants/Predators are the reasons for MANDATORY here
-      override fun toInstruction() = Remove(scaledEx)
+      override fun toInstruction() = remove(scaledEx)
     }
 
     public data class Gated(val gate: Requirement, val cost: Cost) : Cost() {

@@ -11,8 +11,8 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.TypeInfo
+import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -87,17 +87,18 @@ public sealed class Instruction : PetElement() {
 
   public sealed class Change : Instruction() {
     public companion object {
+      /** Creates and canonicalizes a gain, removal, or transmutation instruction. */
       public fun change(
-          count: Int = 1,
           gaining: Expression? = null,
           removing: Expression? = null,
+          count: Int = 1,
           intensity: Intensity? = MANDATORY,
       ): Instruction {
         require(count >= 0)
         return when {
           count == 0 -> NoOp
-          removing == null -> gain(scaledEx(count, gaining!!), intensity)
-          gaining == null -> Remove(scaledEx(count, removing), intensity)
+          removing == null -> Gain.gain(gaining!!, count, intensity)
+          gaining == null -> Remove.remove(removing, count, intensity)
           else -> Transmute(FromExpression(gaining, removing), ActualScalar(count), intensity)
         }
       }
@@ -140,15 +141,28 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  @ExposedCopyVisibility
+  @ConsistentCopyVisibility
   public data class Gain
   internal constructor(
       val scaledEx: ScaledExpression,
       override val intensity: Intensity?,
   ) : Change() {
     public companion object {
-      public fun gain(scaledEx: ScaledExpression, intensity: Intensity? = MANDATORY): Instruction =
-          if (scaledEx.expression == OK.expression) NoOp else Gain(scaledEx, intensity)
+      /** Creates and canonicalizes a gain of one copy of [expression]. */
+      public fun gain(expression: HasExpression): Instruction = gain(expression, 1)
+
+      /** Creates a gain of [scaledEx], or [NoOp] when its expression is `Ok`. */
+      public fun gain(
+          scaledEx: ScaledExpression,
+          intensity: Intensity? = MANDATORY,
+      ): Instruction = if (scaledEx.expression == OK.expression) NoOp else Gain(scaledEx, intensity)
+
+      /** Creates and canonicalizes a gain of [count] copies of [expression]. */
+      public fun gain(
+          expression: HasExpression,
+          count: Int = 1,
+          intensity: Intensity? = MANDATORY,
+      ): Instruction = gain(scaledEx(expression, count), intensity)
     }
 
     override val count: Scalar = scaledEx.scalar
@@ -166,10 +180,30 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  public data class Remove(
+  @ConsistentCopyVisibility
+  public data class Remove
+  internal constructor(
       val scaledEx: ScaledExpression,
       override val intensity: Intensity? = MANDATORY,
   ) : Change() {
+    public companion object {
+      /** Creates and canonicalizes a removal of one copy of [expression]. */
+      public fun remove(expression: HasExpression): Instruction = remove(expression, 1)
+
+      /** Creates and canonicalizes a removal of [scaledEx]. */
+      public fun remove(
+          scaledEx: ScaledExpression,
+          intensity: Intensity? = MANDATORY,
+      ): Instruction = Remove(scaledEx, intensity)
+
+      /** Creates and canonicalizes a removal of [count] copies of [expression]. */
+      public fun remove(
+          expression: HasExpression,
+          count: Int = 1,
+          intensity: Intensity? = MANDATORY,
+      ): Instruction = remove(scaledEx(expression, count), intensity)
+    }
+
     override val count: Scalar = scaledEx.scalar
     override val gaining: Expression? = null
     override val removing: Expression = scaledEx.expression
@@ -239,7 +273,9 @@ public sealed class Instruction : PetElement() {
     override fun toString(): String = "$inner / ${groupPartIfNeeded(metric)}"
   }
 
-  public data class Gated(val gate: Requirement, val inner: Instruction) : Instruction() {
+  @ConsistentCopyVisibility
+  public data class Gated internal constructor(val gate: Requirement, val inner: Instruction) :
+      Instruction() {
     public companion object {
       public fun create(gate: Requirement?, inner: Instruction): Instruction =
           if (gate == null) inner else Gated(gate, inner)
@@ -512,14 +548,18 @@ public sealed class Instruction : PetElement() {
     internal fun parser(): Parser<Instruction> {
       return parser {
         val gain: Parser<Instruction> =
-            ScaledExpression.parser() and optional(intensity) map { (ste, int) -> gain(ste, int) }
+            ScaledExpression.parser() and
+                optional(intensity) map
+                { (ste, int) ->
+                  Gain.gain(ste, int)
+                }
 
-        val remove: Parser<Remove> =
+        val remove: Parser<Instruction> =
             skipChar('-') and
                 ScaledExpression.parser() and
                 optional(intensity) map
                 { (ste, int) ->
-                  Remove(ste, int)
+                  Remove.remove(ste, int)
                 }
 
         val transmute: Parser<Transmute> =
@@ -550,7 +590,7 @@ public sealed class Instruction : PetElement() {
             optional(Requirement.atomParser() and skipChar(':')) and
                 atom map
                 { (gate, ins) ->
-                  if (gate == null) ins else Gated(gate, ins)
+                  Gated.create(gate, ins)
                 }
 
         val orInstr: Parser<Instruction> =

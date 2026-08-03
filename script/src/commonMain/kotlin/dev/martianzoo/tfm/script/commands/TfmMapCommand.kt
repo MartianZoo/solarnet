@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
@@ -110,10 +110,10 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
     private fun describeEmpty(area: AreaDefinition): Pair<String, TfmColor> {
       val color =
           when (area.kind) {
-            ClassName.cn("LandArea") -> TfmColor.LAND_AREA
-            ClassName.cn("WaterArea") -> TfmColor.WATER_AREA
-            ClassName.cn("VolcanicArea") -> TfmColor.VOLCANIC_AREA
-            ClassName.cn("NoctisArea") -> TfmColor.NOCTIS_AREA
+            cn("LandArea") -> TfmColor.LAND_AREA
+            cn("WaterArea") -> TfmColor.WATER_AREA
+            cn("VolcanicArea") -> TfmColor.VOLCANIC_AREA
+            cn("NoctisArea") -> TfmColor.NOCTIS_AREA
             else -> error("unrecognized: ${area.kind}")
           }
       return area.code to color
@@ -122,8 +122,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
     private fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
     private fun describe(tile: Type): Pair<String, TfmColor> {
-      fun isIt(tile: Type, kind: String) =
-          tile.narrows(game.resolve(ClassName.cn(kind).expression), game)
+      fun isIt(tile: Type, kind: String) = tile.narrows(game.resolve(cn(kind).expression), game)
 
       val kind: Pair<String, TfmColor> =
           when {

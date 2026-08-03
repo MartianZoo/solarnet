@@ -89,7 +89,7 @@ public sealed class Requirement : PetElement() {
       val counted =
           when (countedMetric) {
             is Metric.Count ->
-                ScaledExpression(ActualScalar(target), countedMetric.expression).let {
+                scaledEx(countedMetric.expression, ActualScalar(target)).let {
                   if (fullSimpleMetric) it.toFullString() else it.toString()
                 }
             is Metric.Transform -> "$target $countedMetric"
@@ -231,7 +231,7 @@ public sealed class Requirement : PetElement() {
           scalarAndOptionalEx or
               optionalScalarAndEx map
               { (scalar, expr) ->
-                scaledEx(ActualScalar(scalar ?: 1), expr)
+                scaledEx(expr, ActualScalar(scalar ?: 1))
               }
         }
 

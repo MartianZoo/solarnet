@@ -40,13 +40,20 @@ public object Canon :
             "VenusNextExpansion",
             gameOptionClassNames = setOf(cn("VenusNextExpansion")),
         ),
-        StandardFormBundle("PreludeExpansion", preludeCustomClasses, setOf(cn("PreludeExpansion"))),
+        StandardFormBundle(
+            "PreludeExpansion",
+            preludeCustomClasses,
+            setOf(cn("PreludeExpansion")),
+        ),
         StandardFormBundle(
             "ColoniesExpansion",
             coloniesCustomClasses,
             setOf(cn("ColoniesExpansion")),
         ),
-        StandardFormBundle("TurmoilExpansion", gameOptionClassNames = setOf(cn("TurmoilCardPack"))),
+        StandardFormBundle(
+            "TurmoilExpansion",
+            gameOptionClassNames = setOf(cn("TurmoilCardPack")),
+        ),
         StandardFormBundle(
             "PromoCardsExpansion",
             promoCardsCustomClasses,

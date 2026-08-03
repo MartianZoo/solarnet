@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -46,7 +46,7 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
           }
 
       fun prodAndResource(s: String) =
-          prodMap[ClassName.cn(s)].toString() to resourceMap[ClassName.cn(s)].toString().padStart(3)
+          prodMap[cn(s)].toString() to resourceMap[cn(s)].toString().padStart(3)
 
       val (mp, mres) = prodAndResource("Megacredit")
       val (sp, sres) = prodAndResource("Steel")
