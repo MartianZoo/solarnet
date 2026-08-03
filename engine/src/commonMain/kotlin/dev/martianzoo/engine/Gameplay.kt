@@ -58,6 +58,12 @@ public interface Gameplay {
    */
   public fun reviseTask(taskId: TaskId, revised: String): TaskResult
 
+  /**
+   * Revises the single task whose current instruction is [current]. This avoids depending on its
+   * generated [TaskId] when the instruction itself identifies the task.
+   */
+  public fun reviseTask(current: String, revised: String): TaskResult
+
   /** Tells whether [prepareTask] will complete normallly. */
   public fun canPrepareTask(taskId: TaskId): Boolean
 
@@ -79,6 +85,12 @@ public interface Gameplay {
    * @throws [NotNowException] if the prepared task would throw this exception on execution
    */
   public fun prepareTask(taskId: TaskId): TaskId?
+
+  /**
+   * Prepares the single task whose current instruction is [instruction]. Equivalent tasks that
+   * differ only by id are interchangeable.
+   */
+  public fun prepareTask(instruction: String): TaskId?
 
   /**
    * Brittle convenience that selects by the task set's non-semantic iteration order. Prefer an
@@ -154,6 +166,9 @@ public interface Gameplay {
 
     /** Removes a task for any reason or no reason at all. */
     public fun dropTask(taskId: TaskId): TaskRemovedEvent
+
+    /** Removes every task assigned to this gameplay's Actor. */
+    public fun dropTasks(): List<TaskRemovedEvent>
   }
 
   // Red

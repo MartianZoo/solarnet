@@ -104,7 +104,7 @@ class BugsTest : CardTest() {
     p1.manual("LocalHeatTrapping") {
       tasks.extract { it.whyPending }.shouldContainExactlyInAnyOrder("abstract")
 
-      p1.prepareTask(tasks.ids().single())
+      p1.prepareTask("4 Plant OR Ok")
       tasks.extract { it.whyPending }.shouldContainExactlyInAnyOrder("abstract")
       abort()
     }

@@ -132,12 +132,12 @@ abstract class AbstractFullGameTest : TfmTest() {
   // Pending choices describe future play, so the scoring snapshot must neither execute nor count
   // them. Privileged removal is safe here because the enclosing checkpoint restores every task.
   private fun dropPendingTasksForScoring() {
-    while (!game.tasks.isEmpty()) {
-      val taskId = game.tasks.ids().first()
-      val assignee =
-          game.tasks.extract { it.id to it.assignee }.single { it.first == taskId }.second
-      game.gameplay(assignee).godMode().dropTask(taskId)
-    }
+    game.tasks
+        .extract { it.assignee }
+        .toSet()
+        .forEach {
+          game.gameplay(it).godMode().dropTasks()
+        }
   }
 
   private fun TfmGameplay.assertActions(expected: Int) {

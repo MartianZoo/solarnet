@@ -97,6 +97,8 @@ internal class ApiTranslation(
 
   override fun dropTask(taskId: TaskId) = impl.dropTask(taskId)
 
+  override fun dropTasks() = impl.dropTasks()
+
   // OPERATIONS
 
   override fun manual(initialInstruction: String, body: BodyLambda): TaskResult {
@@ -158,9 +160,15 @@ internal class ApiTranslation(
     impl.reviseTask(taskId, parse(revised))
   }
 
+  override fun reviseTask(current: String, revised: String) = timeline.atomic {
+    impl.reviseTask(parse(current), parse(revised))
+  }
+
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
 
   override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
+
+  override fun prepareTask(instruction: String) = impl.prepareTask(parse(instruction))
 
   override fun doFirstTask(revised: String?) = atomic {
     impl.doFirstTask(revised?.let { parse(it) })

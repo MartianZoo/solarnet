@@ -101,16 +101,13 @@ internal class ScriptSessionTest {
         repl.command("newgame BRMC 1 Ceres Io Titan purple"),
     )
     repl.command("task -6 TerraformRating<Player1>")
-    val cityTaskIds =
-        repl.game.tasks
-            .extract {
-              if (it.instruction.toString().startsWith("CityTile")) it.id else null
-            }
-            .filterNotNull()
-    assertEquals(2, cityTaskIds.size)
-    repl.command("task ${cityTaskIds[0]} CityTile<Tharsis_2_4, SoloOpponent>")
+    assertEquals(
+        2,
+        repl.game.tasks.extract { it.instruction.toString() }.count { it.startsWith("CityTile") },
+    )
+    repl.command("task CityTile<Tharsis_2_4, SoloOpponent>")
     repl.command("task GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    repl.command("task ${cityTaskIds[1]} CityTile<Tharsis_8_7, SoloOpponent>")
+    repl.command("task CityTile<Tharsis_8_7, SoloOpponent>")
     repl.command("task GreeneryTile<Tharsis_8_6, SoloOpponent>")
 
     assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))

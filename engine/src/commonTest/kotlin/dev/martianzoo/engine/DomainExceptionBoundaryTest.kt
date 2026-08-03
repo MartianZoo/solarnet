@@ -6,7 +6,6 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -37,7 +36,7 @@ internal class DomainExceptionBoundaryTest {
   fun taskBoundaryFailuresUseTaskOrDeadEndExceptions() {
     val gameplay = gameplay()
 
-    shouldThrow<TaskException> { gameplay.prepareTask(TaskId("A")) }
+    shouldThrow<TaskException> { gameplay.prepareTask("Plant") }
     shouldThrow<DeadEndException> { gameplay.addTasks("Die THEN Plant") }
   }
 }

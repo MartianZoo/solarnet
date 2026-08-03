@@ -24,7 +24,7 @@ internal class ActionSequencingTest {
       payment.then.toString().contains("CityTile<") shouldBe true
     }
 
-    manual.doTask(payment.id)
+    manual.doTask(payment.instruction.toString())
 
     val results =
         game.tasks
