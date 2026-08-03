@@ -77,3 +77,6 @@ ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
 ABSTRACT CLASS NextCardEffect : Owned, Generational {
   PlayCard:: -This!
 }
+
+"Copies the single immediate production box on a chosen card"
+CLASS CopyProductionBox : Cardbound, Custom

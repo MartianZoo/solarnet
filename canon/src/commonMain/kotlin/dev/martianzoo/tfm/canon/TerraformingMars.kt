@@ -4,6 +4,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.DIE
@@ -25,6 +26,7 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -41,6 +43,7 @@ import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.Grid
@@ -63,10 +66,27 @@ internal val baseCustomClasses: Set<CustomClass> =
         TerraformingMars.ClassCardRequirement,
         TerraformingMars.StandardProjectCost,
         TerraformingMars.MapBonus,
+        TerraformingMars.CopyProductionBox,
     )
 
 /** Namespace for the core game's custom Pets implementations. */
 internal object TerraformingMars {
+  internal object CopyProductionBox : CustomClass() {
+    override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
+      val card: CardDefinition = reader.tfmRuleset.card(cardType.className)
+      val immediate =
+          card.immediate
+              ?: throw NarrowingException("card ${card.className} has no immediate instruction")
+      val matches = immediate.descendantsOfType<Transform>().filter { it.transformKind == PROD }
+
+      return when (matches.size) {
+        0 -> throw NarrowingException("must choose a card that has an immediate PROD box")
+        1 -> matches.first()
+        else -> error("Card ${card.className} is malformed, has ${matches.size} PROD blocks")
+      }
+    }
+  }
+
   internal object MarsRow : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val areaName = type.expressionFull.arguments.single().className

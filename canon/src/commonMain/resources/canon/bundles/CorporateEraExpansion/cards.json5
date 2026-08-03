@@ -327,7 +327,6 @@
       "cost": 9,
       "tags": [ "ScienceTag" ],
       "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
-      "components": [ "CLASS CopyProductionBox : Cardbound, Custom" ],
     },
 
     // Research
