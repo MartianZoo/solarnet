@@ -9,7 +9,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Implement [World Government Terraforming](plans/world-government.md) as an Engine operation chosen by the `StartToken` owner, preserving Solar Phase and Actor/Owner rules.
 - Implement Prelude's TR 63 solo option, including Buffer Gas and the 14-generation/12-with-Prelude objective check described in `plans/native-workflow.md`.
 - Give Tharsis Republic an explicit solo-setup production gain instead of observing neutral-city placement.
-- Load Elysium milestones in `Game20260619Test` and claim Specialist normally.
 - Give `Gain` and `Remove` convenience factories that accept an expression and count without requiring callers to construct a `ScaledExpression`.
 
 ### Soon
@@ -29,6 +28,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Medium Soon
 
+- Support selecting milestone and award sets independently of the map, including flexible combinations for logged games.
 - Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return and colony-track advancement from Production into its Solar subphase after the game-end check.
 - Consolidate exception cleanup ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain boundaries, narrow `Instruction.narrows`, and start unavailable-operation coverage with Predators lacking a target.
 - [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54) — Resolve contextual ownership correctly and display the resolved player.
