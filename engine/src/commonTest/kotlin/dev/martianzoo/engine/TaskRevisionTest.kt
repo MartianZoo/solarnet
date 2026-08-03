@@ -108,6 +108,18 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `narrowing an OR can narrow each instruction in a grouped arm`() {
+    initiate("5 Plant OR (4 StandardResource, 2 StandardResource)")
+
+    writer.reviseTask(
+        "5 Plant OR (4 StandardResource, 2 StandardResource)",
+        "4 Heat, 2 Energy",
+    )
+
+    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
+  }
+
+  @Test
   fun `changing a grouped instruction is a narrowing failure`() {
     initiate("TR: (Plant, Heat)")
 

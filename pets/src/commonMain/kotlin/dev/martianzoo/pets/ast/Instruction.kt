@@ -477,8 +477,13 @@ public sealed class Instruction : PetElement() {
     override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
-      if (proposed != this) {
+      proposed as? Multi
+          ?: throw NarrowingException("$proposed does not narrow grouped instruction $this")
+      if (proposed.instructions.size != instructions.size) {
         throw NarrowingException("$proposed does not narrow grouped instruction $this")
+      }
+      for ((wide, narrow) in instructions.zip(proposed.instructions)) {
+        narrow.ensureNarrows(wide, info)
       }
     }
 

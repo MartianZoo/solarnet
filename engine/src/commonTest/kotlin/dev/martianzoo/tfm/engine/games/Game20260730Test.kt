@@ -621,7 +621,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 raised the Venus scale 2 step(s)
       // Player1 added 2 Floater(s) to Titan Shuttles
       playProject("Atmoscoop", 8, titanium = 3) {
-        doTask("VenusStep! THEN VenusStep")
+        doTask("2 VenusStep")
         doTask("2 Floater<TitanShuttles>")
       }
       // Player1 played Floater Prototypes

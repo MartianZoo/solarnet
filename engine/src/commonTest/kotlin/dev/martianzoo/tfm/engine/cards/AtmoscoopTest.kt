@@ -11,9 +11,33 @@ class AtmoscoopTest : CardTest() {
     p1.manual("15 VenusStep, AerialMappers")
 
     p1.manual("Atmoscoop") {
-          doTask("Ok THEN VenusStep")
+          doTask("2 VenusStep")
           doTask("2 Floater<AerialMappers>")
         }
         .expect("0 TemperatureStep, 0 VenusStep, 2 Floater<AerialMappers>")
+  }
+
+  @Test
+  fun `at twenty-eight percent, raises Venus only once`() {
+    newGame(VenusNextExpansion)
+    p1.manual("14 VenusStep, AerialMappers")
+
+    p1.manual("Atmoscoop") {
+          doTask("2 VenusStep")
+          doTask("2 Floater<AerialMappers>")
+        }
+        .expect("VenusStep, TerraformRating, 2 Floater<AerialMappers>")
+  }
+
+  @Test
+  fun `raises Venus two atomized steps`() {
+    newGame(VenusNextExpansion)
+    p1.manual("AerialMappers")
+
+    p1.manual("Atmoscoop") {
+          doTask("2 VenusStep")
+          doTask("2 Floater<AerialMappers>")
+        }
+        .expect("2 VenusStep, 2 TerraformRating, 2 Floater<AerialMappers>")
   }
 }

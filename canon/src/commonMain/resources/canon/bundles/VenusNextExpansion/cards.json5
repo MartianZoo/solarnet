@@ -106,8 +106,7 @@
       "requirement": "3 ScienceTag",
       "cost": 22,
       "tags": [ "JovianTag", "SpaceTag" ],
-      // Temporarily sequential pending #63: a Multi OR arm cannot be narrowed.
-      "immediate": "(TemperatureStep THEN TemperatureStep) OR (VenusStep THEN VenusStep), 2 Floater",
+      "immediate": "2 TemperatureStep OR 2 VenusStep, 2 Floater",
       "effects": [ "End: VictoryPoint" ],
     },
 

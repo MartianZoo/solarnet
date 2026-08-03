@@ -21,6 +21,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
+import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal class Implementations(
@@ -205,7 +206,8 @@ internal class Implementations(
 
     if (revised != task.instruction) {
       revised.ensureNarrows(task.instruction, reader)
-      val replacement = if (task.next) instructor.prepare(revised) else revised
+      // A selected group must split before its children are prepared against successive worlds.
+      val replacement = if (task.next && revised !is Multi) instructor.prepare(revised) else revised
       replace1WithN(tasks, tasks.getTaskData(taskId).copy(instructionIn = replacement))
     }
   }
