@@ -26,7 +26,7 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
-import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -36,7 +36,7 @@ import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.ast.Requirement.Transform
+import dev.martianzoo.pets.ast.Requirement.Transform as RequirementTransform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
@@ -77,7 +77,8 @@ internal object TerraformingMars {
       val immediate =
           card.immediate
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")
-      val matches = immediate.descendantsOfType<Transform>().filter { it.transformKind == PROD }
+      val matches =
+          immediate.descendantsOfType<InstructionTransform>().filter { it.transformKind == PROD }
 
       return when (matches.size) {
         0 -> throw NarrowingException("must choose a card that has an immediate PROD box")
@@ -250,7 +251,7 @@ internal object TerraformingMars {
           is Counting -> true
           is Or -> requirements.all { it.canEvaluateDirectly() }
           is And -> requirements.all { it.canEvaluateDirectly() }
-          is Transform -> false
+          is RequirementTransform -> false
         }
   }
 
