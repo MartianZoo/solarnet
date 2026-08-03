@@ -63,6 +63,7 @@ internal class PrepareTest {
     // checkPrepare("55 OxygenStep.", "14 OxygenStep!")
     checkPrepare("-4 Heat.", "Ok")
     checkPrepare("-4 Heat?", "Ok")
+    checkPrepare("-CardFront.", "Ok")
     checkPrepare("Heat FROM Plant.", "Heat<Player1> FROM Plant<Player1>!")
     checkPrepare("9 Heat FROM Plant?", "Heat<Player1> FROM Plant<Player1>?")
     checkPrepare("Plant FROM Heat.", "Ok")

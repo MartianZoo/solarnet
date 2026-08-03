@@ -157,6 +157,9 @@ internal class Instructor(
       ) {
         return NoOp
       }
+      if (intens == AMAP && g == null && r?.abstract == true && !reader.containsAny(r)) {
+        return NoOp
+      }
       // Still abstract, don't check limits yet
       return Change.change(g?.expression, r?.expression, count, intens)
     }

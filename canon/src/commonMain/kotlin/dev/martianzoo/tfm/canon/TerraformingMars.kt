@@ -27,6 +27,14 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.And
+import dev.martianzoo.pets.ast.Requirement.Counting
+import dev.martianzoo.pets.ast.Requirement.Exact
+import dev.martianzoo.pets.ast.Requirement.Max
+import dev.martianzoo.pets.ast.Requirement.Min
+import dev.martianzoo.pets.ast.Requirement.Or
+import dev.martianzoo.pets.ast.Requirement.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
@@ -181,12 +189,55 @@ internal object TerraformingMars {
   }
 
   internal object CheckCardRequirement : CustomClass() {
-    override fun translate(reader: GameReader, owner: Type, cardClassType: Type) =
-        Gated.create(cardFromClassType(cardClassType, reader).requirement, NoOp)
+    override val requiredClassNames: Set<ClassName> = setOf(REQUIRED, GLOBAL_PARAMETER)
+
+    override fun translate(
+        reader: GameReader,
+        ignoredOwner: Type,
+        cardClassType: Type,
+    ): Instruction {
+      val requirement = cardFromClassType(cardClassType, reader).requirement ?: return NoOp
+      if (requirement.canEvaluateDirectly() && reader.has(requirement)) return NoOp
+
+      return requirement.globalParameterShortfall(reader)?.let { (parameter, count) ->
+        gain(REQUIRED.of(CLASS.of(parameter)), count)
+      } ?: Gated.create(requirement, NoOp)
+    }
+
+    private fun Requirement.globalParameterShortfall(reader: GameReader): Pair<Expression, Int>? {
+      val counting = this as? Counting ?: return null
+      val counted = counting.metric as? Metric.Count ?: return null
+      val parameter = counted.expression
+      val isGlobalParameter =
+          reader.resolve(parameter).rootClass.allSuperclasses().any {
+            it.className == GLOBAL_PARAMETER
+          }
+      if (!isGlobalParameter) return null
+
+      val actual = reader.count(counting.metric)
+      val shortfall =
+          when (counting) {
+            is Min -> counting.target - actual
+            is Max -> actual - counting.target
+            is Exact -> kotlin.math.abs(actual - counting.target)
+          }
+      check(shortfall > 0)
+      return parameter to shortfall
+    }
+
+    private fun Requirement.canEvaluateDirectly(): Boolean =
+        when (this) {
+          is Counting -> true
+          is Or -> requirements.all { it.canEvaluateDirectly() }
+          is And -> requirements.all { it.canEvaluateDirectly() }
+          is Transform -> false
+        }
   }
 
   private val OWED = cn("Owed")
   private val PLAY_TAG = cn("PlayTag")
+  private val REQUIRED = cn("Required")
+  private val GLOBAL_PARAMETER = cn("GlobalParameter")
 
   internal object HandleCardCost : CustomClass() {
     override val requiredClassNames: Set<ClassName> = setOf(OWED, PLAY_TAG)

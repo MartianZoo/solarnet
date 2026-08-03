@@ -1,19 +1,14 @@
 # Cards to add
 
-We have 448 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
+We have 453 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
 
 | id   | card name                  | expansion | blocker               |
 |------|----------------------------|-----------|-----------------------|
 | 008  | Capital                    | base      | concrete              |
-| 206  | Special Design             | base      | adjustreqt            |
-| 153  | Adaptation Technology      | base      | adjustreqt            |
-| B05  | Inventrix                  | base      | adjustreqt            |
 | B00  | Beginner Corporation       | base      | beginner              |
 | B03  | Helion                     | base      | helion                |
 | 188  | Flooding                   | base      | thenspec              |
 | 066  | Land Claim                 | corpera   | community             |
-| V04  | Morning Star Inc.          | venus     | adjustreqt            |
-| P10  | Ecology Experts            | prelude   | adjustreqt            |
 | P28  | Research Network           | prelude   | wildtag               |
 | P40  | Research Coordination      | prelude   | wildtag               |
 | CC1  | Aridor                     | colonies  | classmetrictrigger    |

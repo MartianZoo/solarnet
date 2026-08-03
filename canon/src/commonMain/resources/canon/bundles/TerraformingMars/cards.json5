@@ -29,6 +29,16 @@
       "effects": [ "EventCard: 2" ],
     },
 
+    // Inventrix
+    {
+      "id": "B05",
+      "deck": "CORPORATION",
+      "tags": [ "ScienceTag" ],
+      "immediate": "45, MandateB05",
+      "effects": [ "PlayCard: -2 Required<Class<GlobalParameter>>." ],
+      "components": [ "CLASS MandateB05 : Mandate { -> 3 ProjectCard }" ],
+    },
+
     // Mining Guild
     {
       "id": "B06",
@@ -1183,6 +1193,19 @@
       "immediate": "PROD[X Megacredit FROM Heat]",
     },
 
+    // Adaptation Technology
+    {
+      "id": "153",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 12,
+      "tags": [ "ScienceTag" ],
+      "effects": [
+        "PlayCard: -2 Required<Class<GlobalParameter>>.",
+        "End: VictoryPoint"
+      ],
+    },
+
     // Designed Microorganisms
     {
       "id": "155",
@@ -1558,6 +1581,19 @@
       "cost": 8,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy], 2 TerraformRating",
+    },
+
+    // Special Design
+    {
+      "id": "206",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 4,
+      "tags": [ "ScienceTag" ],
+      "immediate": "SpecialDesignEffect",
+      "components": [
+        "CLASS SpecialDesignEffect : Owned, Generational { PlayCard: -This!; PlayCard: -2 Required<Class<GlobalParameter>>. }"
+      ],
     },
 
     // Mining Rights

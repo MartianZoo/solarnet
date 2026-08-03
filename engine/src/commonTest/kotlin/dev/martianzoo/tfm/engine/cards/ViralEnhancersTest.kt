@@ -20,6 +20,14 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
+  fun `with Viral Enhancers, reacts once to each bio tag on a card`() {
+    newGame()
+    p1.manual("ViralEnhancers")
+
+    p1.manual("AdvancedEcosystems").expect("3 Plant")
+  }
+
+  @Test
   fun `with Viral Enhancers, adds a microbe card choosing a microbe`() {
     newGame()
     p1.manual("ViralEnhancers")

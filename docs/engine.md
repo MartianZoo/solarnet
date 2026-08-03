@@ -213,6 +213,16 @@ use the represented-type linkage in refinements such as `Class<Tag>(HAS Tag<Owne
 counterpart of `CardRequirement`; it is used when the value being refined is a `Class<CardFront>`
 dependency such as the one on `PlayCard`.
 
+Card play checks a printed requirement directly first. If an unmet requirement is a simple count
+of a global parameter, Canon converts the difference into temporary `Required` barriers. Effects
+such as Inventrix and Adaptation Technology remove a limited number of those barriers, while
+Ecology Experts removes the entire shortfall for its selected card. The final card
+conversion remains gated on having no barriers, so an unadjusted shortfall still rejects the play.
+Non-global and compound requirements continue through ordinary requirement evaluation.
+
+Ecology Experts adds its printed tags only after its selected card enters play. The selected card
+therefore observes those tag gains through ordinary effect dispatch.
+
 ---
 
 ## Limits and Invariants

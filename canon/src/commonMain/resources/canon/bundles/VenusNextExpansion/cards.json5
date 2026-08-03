@@ -31,6 +31,16 @@
       "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
+    // Morning Star Inc.
+    {
+      "id": "V04",
+      "deck": "CORPORATION",
+      "tags": [ "VenusTag" ],
+      "immediate": "50, MandateV04",
+      "effects": [ "PlayCard: -2 Required<Class<VenusStep>>." ],
+      "components": [ "CLASS MandateV04 : Mandate { -> 3 ProjectCard }" ],
+    },
+
     // Viron
     {
       "id": "V05",

@@ -126,6 +126,16 @@
       "immediate": "PROD[Plant], CityTile",
     },
 
+    // Ecology Experts
+    {
+      "id": "P10",
+      "deck": "PRELUDE",
+      "immediate": "PROD[Plant], CardP10Effect, PlayCard THEN -99 Required<Class<GlobalParameter>>.",
+      "components": [
+        "CLASS CardP10Effect : Owned, Temporary { CardFront: PlantTag<EcologyExperts>, MicrobeTag<EcologyExperts>, -This! }"
+      ],
+    },
+
     // Excentric Sponsor
     {
       "id": "P11",

@@ -42,13 +42,13 @@ internal class ReluctantClassLoadingTest {
 
     totals.shouldContainExactly(
         mapOf(
-            TharsisMapOption to 141, // 148 minus BeCo,He,In,Ca,Fl,SpDe,AdTe
-            CorporateEraExpansion to 141 + 72, // 73 minus Land Claim
-            VenusNextExpansion to 213 + 53, // 54 minus Morning Star
-            PreludeExpansion to 266 + 44, // 47 minus ResearchN/C, EcoEx
-            ColoniesExpansion to 310 + 52, // 54 minus Aridor, Stormcraft
-            TurmoilCardPack to 362 + 3, // only 3 corps working haha
-            PromoCardPack to 365 + 83 - 3, // 96 minus 13 unsupported
+            TharsisMapOption to 144, // 148 minus BegCorp, Helion, Capital, and Flooding
+            CorporateEraExpansion to 144 + 72, // 73 minus Land Claim
+            VenusNextExpansion to 216 + 54,
+            PreludeExpansion to 270 + 45, // 47 minus Research Network/Coordination
+            ColoniesExpansion to 315 + 52, // 54 minus Aridor and Stormcraft
+            TurmoilCardPack to 367 + 3, // only 3 corps working haha
+            PromoCardPack to 370 + 83 - 3, // 96 minus 13 unsupported
         )
     )
   }
@@ -64,7 +64,7 @@ internal class ReluctantClassLoadingTest {
 
   @Test
   fun `Corporate Era classes stay unloaded without Corporate Era`() {
-    assertNotLoaded("NextCardEffect", Setup.WITHOUT_CORPORATE_ERA)
+    assertNotLoaded("CopyProductionBox", Setup.WITHOUT_CORPORATE_ERA)
   }
 
   @Test
