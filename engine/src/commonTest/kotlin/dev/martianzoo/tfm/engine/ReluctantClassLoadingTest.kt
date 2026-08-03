@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -9,11 +10,48 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.maps.shouldContainExactly
 import kotlin.test.Test
 
 /** Verifies reluctant class loading and characterizes known unwanted loading. */
 internal class ReluctantClassLoadingTest {
   // Deliberate expansion-specific omissions
+
+  @Test
+  fun `card totals characterize progressively selected expansions`() {
+    val selected = linkedSetOf<Canon.Option>()
+    val totals = linkedMapOf<Canon.Option, Int>()
+    for (option in
+        listOf(
+            TharsisMapOption,
+            CorporateEraExpansion,
+            VenusNextExpansion,
+            PreludeExpansion,
+            ColoniesExpansion,
+            TurmoilCardPack,
+            PromoCardPack,
+        )) {
+      selected += option
+      val colonyTiles =
+          if (ColoniesExpansion in selected) TestHelpers.testColonyTiles(2) else emptySet()
+      totals[option] =
+          Engine.newGame(canonicalPremise(selected, colonyTiles = colonyTiles))
+              .gameplay(ENGINE)
+              .count("Class<CardFront>")
+    }
+
+    totals.shouldContainExactly(
+        mapOf(
+            TharsisMapOption to 141, // 148 minus BeCo,He,In,Ca,Fl,SpDe,AdTe
+            CorporateEraExpansion to 141 + 72, // 73 minus Land Claim
+            VenusNextExpansion to 213 + 53, // 54 minus Morning Star
+            PreludeExpansion to 266 + 44, // 47 minus ResearchN/C, EcoEx
+            ColoniesExpansion to 310 + 52, // 54 minus Aridor, Stormcraft
+            TurmoilCardPack to 362 + 3, // only 3 corps working haha
+            PromoCardPack to 365 + 83 - 3, // 96 minus 13 unsupported
+        )
+    )
+  }
 
   @Test
   fun `Colonies classes stay unloaded without Colonies`() {

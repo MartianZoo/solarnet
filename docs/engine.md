@@ -310,8 +310,8 @@ state changes and receives their `ChangeEvent.actor` attribution. `BY` independe
 Actor on the triggering `ChangeEvent`.
 
 For automatic effects the temporary Task still carries routing metadata in its `assignee` field,
-but that field does not select the executor. Execution remains inline through the triggering
-Actor's `Instructor` and `Changer`, so resulting change events retain the triggering Actor.
+but execution remains inline through the triggering Actor's `Instructor` and `Changer`, so
+resulting change events retain the triggering Actor.
 
 ---
 
@@ -422,9 +422,10 @@ A convenience wrapper around `TurnLayer` that adds Terraforming helpers:
 ### `TfmWorkflow`
 
 Orchestrates the full game loop using Kotlin coroutines. The workflow coroutine runs the complete
-game sequence (Setup → Corp → [Prelude] → Action → Production → Research → repeat) as straight-line
-sequential code. It suspends whenever it calls `awaitTasksDrained()`, which commits the current
-state (preventing rollback past this point) and then waits on a rendezvous channel.
+game sequence (Setup → Corp → [Prelude] → Action → Production → Solar → Generation → Research →
+repeat) as straight-line sequential code. Solar checks for `LastCall` before the workflow proceeds
+to Generation. The workflow suspends whenever it calls `awaitTasksDrained()`, which commits the
+current state (preventing rollback past this point) and then waits on a rendezvous channel.
 
 The hook `game.onAtomicComplete` is wired to send a signal on this channel whenever the task
 queue drains after an atomic operation completes. Since the channel is `RENDEZVOUS`, signals
@@ -438,8 +439,8 @@ In multiplayer, a rules component watches the temperature, oxygen, and ocean `Gp
 and creates `LastCall` when all three exist; Venus completion is deliberately irrelevant. Solo
 creates the same marker upon entering its final configured generation. The workflow consults only
 that shared fact. After the final solo production, `SoloVictoryCheck` awards `Victory<Player1>` only
-if the applicable objective is complete; the workflow enters final greenery and scoring only when
-that component exists. Multiplayer end scoring first measures awards and assigns their places,
+if the applicable global-parameter objective is complete; the workflow enters final greenery and
+scoring only when that victory component exists. Multiplayer end scoring first measures awards and assigns their places,
 then `End` pays out ordinary and award victory points. Once `FinalScore` exists,
 `MultiplayerVictoryCheck` awards `Victory` to the highest final score with megacredits as the
 tiebreaker.

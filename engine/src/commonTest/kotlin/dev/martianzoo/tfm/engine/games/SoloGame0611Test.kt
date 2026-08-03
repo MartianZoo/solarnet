@@ -128,13 +128,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       godMode().manual("-3, PROD[1], -ProjectCard")
       pass()
 
-      phase("Production")
       // The player chose to convert only one of three energy with Supercapacitors.
-      godMode().manual("2 Energy FROM Heat")
-      phase("Research") {
-        me.doTask("3 BuyCard")
-      }
-      phase("Action")
+      nextGenerationWithSupercapacitors(energyKept = 2, cardsBought = 3)
 
       assertProduction(m = 14, s = 1, t = 2, p = 2, e = 3, h = 1)
       assertResources(m = 33, s = 1, t = 4, p = 2, e = 5, h = 5)
@@ -155,13 +150,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("CorporateStronghold", 10) { doTask("CityTile<Hellas_5_5>") }
       pass()
 
-      phase("Production")
       // The player chose to convert none of five energy with Supercapacitors.
-      godMode().manual("5 Energy FROM Heat")
-      phase("Research") {
-        me.doTask("2 BuyCard")
-      }
-      phase("Action")
+      nextGenerationWithSupercapacitors(energyKept = 5, cardsBought = 2)
 
       val AiCentral = "AiCentral"
       stdAction("ConvertHeatSA")
@@ -177,13 +167,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(ForcedPrecipitation)
       pass()
 
-      phase("Production")
       // The player chose to convert only two of five energy with Supercapacitors.
-      godMode().manual("3 Energy FROM Heat")
-      phase("Research") {
-        me.doTask("Ok")
-      }
-      phase("Action")
+      nextGenerationWithSupercapacitors(energyKept = 3, cardsBought = 0)
 
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
       assertResources(m = 56, s = 1, t = 6, p = 7, e = 6, h = 8)
@@ -205,13 +190,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       stdProject("AirScrappingSP")
       pass()
 
-      phase("Production")
       // The player chose to convert only three of six energy with Supercapacitors.
-      godMode().manual("3 Energy FROM Heat")
-      phase("Research") {
-        me.doTask("3 BuyCard")
-      }
-      phase("Action")
+      nextGenerationWithSupercapacitors(energyKept = 3, cardsBought = 3)
 
       stdAction("ConvertHeatSA")
       cardAction1(AiCentral)
@@ -233,11 +213,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(RegolithEaters)
       pass()
 
-      phase("Production")
-      phase("Research") {
-        me.doTask("Ok")
-      }
-      phase("Action")
+      nextGenerationWithSupercapacitors(energyKept = 0, cardsBought = 0)
 
       stdAction("ConvertHeatSA")
       cardAction1(AiCentral)
@@ -276,5 +252,15 @@ class SoloGame0611Test : AbstractSoloTest() {
       phase("End")
       assertCounts(78 to "VP") // wow that was not good
     }
+  }
+
+  private fun nextGenerationWithSupercapacitors(energyKept: Int, cardsBought: Int) {
+    me.phase("Production")
+    if (energyKept > 0) me.godMode().manual("$energyKept Energy FROM Heat")
+    engine.godMode().manual("Generation")
+    me.phase("Research") {
+      me.doTask(if (cardsBought > 0) "$cardsBought BuyCard" else "Ok")
+    }
+    me.phase("Action")
   }
 }

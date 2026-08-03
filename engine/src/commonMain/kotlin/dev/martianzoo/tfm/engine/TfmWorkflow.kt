@@ -48,6 +48,11 @@ public object TfmWorkflow {
 
     public fun productionPhase(): TaskResult = engineOps.manual("ProductionPhase FROM Phase")
 
+    /** Enters the universal Solar phase. */
+    public fun solarPhase(): TaskResult = engineOps.beginManual("SolarPhase FROM Phase")
+
+    public fun generation(): TaskResult = engineOps.beginManual("Generation")
+
     public fun finalGreeneryPhase(): TaskResult = engineOps.manual("FinalGreeneryPhase FROM Phase")
 
     public fun researchPhase(body: BodyLambda = {}): TaskResult =
@@ -141,15 +146,13 @@ public object TfmWorkflow {
       awaitTasksDrained()
       corporationPhase()
       if (hasComponent("PreludeExpansion")) preludePhase()
-      actionPhase()
-      while (!engineOps.has("LastCall")) {
-        productionPhase()
-        // TODO: worldGovernmentPhase()
-
-        researchPhase()
+      while (true) {
+        if (engineOps.count("Generation") > 1) researchPhase()
         actionPhase()
+        productionPhase()
+        if (!solarPhase()) break
+        generation()
       }
-      productionPhase()
       if (hasComponent("SoloMode")) {
         engineOps.manual("SoloVictoryCheck")
         if (!engineOps.has("Victory<Player1>")) return
@@ -174,6 +177,18 @@ public object TfmWorkflow {
 
     private suspend fun productionPhase() {
       engineOps.beginManual("ProductionPhase FROM Phase")
+      letPlayerFinish()
+    }
+
+    private suspend fun solarPhase(): Boolean {
+      m.solarPhase()
+      if (engineOps.has("LastCall")) return false
+      letPlayerFinish()
+      return true
+    }
+
+    private suspend fun generation() {
+      m.generation()
       letPlayerFinish()
     }
 
