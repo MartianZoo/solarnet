@@ -6,7 +6,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
+import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -72,7 +74,7 @@ internal class InstructionTest {
       (5 Bar<Abc> FROM Bar) OR -Foo, Bar
       PROD[Abc FROM Qux, 5 Foo FROM Abc]
       PROD[(1: Foo) OR -1, 11 Abc FROM Abc]
-      ((MAX 1 Bar OR 1) OR Foo): (1 OR Ahh!)
+      ((MAX 1 Bar OR 1) OR Foo): 1 OR Ahh!
       5 / Megacredit OR (Foo, Ooh FROM Foo)
       1 / Abc THEN ((Foo FROM Xyz) OR 5 Bar)
       (11 Bar<Foo> FROM Bar) OR (Foo FROM Abc)
@@ -87,7 +89,7 @@ internal class InstructionTest {
       Foo FROM Ooh, PROD[1: (-1, 1)], 5 / 11 Megacredit
       Ooh. OR 1 OR (1, Foo FROM Eep, Bar / 5 Megacredit)
       PROD[(Ooh / Megacredit, Foo, 1), Bar / Bar THEN 1, 1]
-      11 Bar, (Xyz, (Foo OR 1): 1) OR (Foo: (-1 OR 1 OR Qux))
+      11 Bar, (Xyz, (Foo OR 1): 1) OR (Foo: -1 OR 1 OR Qux)
       1, Bar, -Foo OR PROD[Foo FROM Abc] OR (Foo FROM Xyz)
       11 Qux<Qux<Ooh<Foo>(HAS 5)>, Ooh(HAS MAX 1 Bar)> FROM Qux<Qux<Foo>, Ooh(HAS MAX 1 Bar)>
       PROD[((1 OR MAX 1 Megacredit): 1) OR (1 OR -Bar) OR 1, Bar]
@@ -134,6 +136,24 @@ internal class InstructionTest {
   @Test
   fun backslashCrLfContinuesAnElement() {
     testRoundTrip("Foo\\\r\n OR Bar", "Foo OR Bar")
+  }
+
+  @Test
+  fun gatingBindsLessTightlyThanOr() {
+    val gated = parse<Instruction>("Foo: Bar OR Baz") as Gated
+
+    (gated.inner is Or) shouldBe true
+    gated.toString() shouldBe "Foo: Bar OR Baz"
+    parse<Instruction>("Foo: (Bar OR Baz)").toString() shouldBe "Foo: Bar OR Baz"
+  }
+
+  @Test
+  fun aGatedAlternativeRequiresParentheses() {
+    val alternatives = parse<Instruction>("(Foo: Bar) OR Baz") as Or
+
+    (alternatives.instructions.first() is Gated) shouldBe true
+    alternatives.toString() shouldBe "(Foo: Bar) OR Baz"
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Bar OR Foo: Baz") }
   }
 
   private fun testRoundTrip(start: String, end: String = start) =

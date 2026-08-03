@@ -50,7 +50,7 @@ internal class EffectTest {
       Eep: (1 THEN 1) OR (-Qux, 1, -5 Foo, 1)
       Qux:: Bar FROM Bar / Bar<Qux>, -5 Qux?
       -Ooh: Ooh, (5 Abc<Foo>, 1: -1), 5 Foo!, 1
-      Foo: PROD[5. OR (=1 Megacredit: (-1 OR 1))]
+      Foo: PROD[5. OR (=1 Megacredit: -1 OR 1)]
       Xyz<Xyz>: Xyz FROM Abc / Xyz<Xyz<Bar>, Bar>
       PROD[Abc]: Ooh OR (1 THEN Foo.), -11, Foo, Ooh
       -Ooh<Foo<Ahh>>(HAS 1 OR (1 OR Foo)): Bar, -5 Ooh

@@ -101,7 +101,7 @@ internal class PrepareTest {
     // TODO I'm nervous about the <Anyone> disappearing
     checkPrepare("10 TR: Plant<Anyone> / TerraformRating", "20 Plant!")
     checkPrepare(
-        "10 TR: (Titanium OR TerraformRating)",
+        "10 TR: Titanium OR TerraformRating",
         "Titanium<Player1>! OR TerraformRating<Player1>!",
     )
     shouldThrow<RequirementException> { preprocessAndPrepare("30 TR: Plant") }
@@ -111,30 +111,30 @@ internal class PrepareTest {
   fun testPrepareOr() {
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +
-            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
+            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
         "Ok",
     )
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR (TR: 8 Steel) OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
         "8 Steel<Player1>!",
     )
 
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR -Plant. / TR OR 8 Steel OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
         "-Plant<Player1>! OR 8 Steel<Player1>!",
     )
 
-    checkPrepare("PROD[Plant OR 3 PlantTag: 4 Plant]", "Production<Player1, Class<Plant>>!")
+    checkPrepare("PROD[Plant OR (3 PlantTag: 4 Plant)]", "Production<Player1, Class<Plant>>!")
     checkPrepare(
-        "Steel / 2 ProjectCard OR -Titanium? OR Plant: 5 Steel OR Ok OR 5 Steel",
+        "Steel / 2 ProjectCard OR -Titanium? OR (Plant: 5 Steel) OR Ok OR 5 Steel",
         "5 Steel<Player1>! OR Ok",
     )
     shouldThrow<NotNowException> {
       preprocessAndPrepare(
           "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
-              "OR 2 Plant<Player2> FROM Plant<Player1> OR 30 TR: Plant",
+              "OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
       )
     }
   }

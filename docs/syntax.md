@@ -113,7 +113,7 @@ groupedReqt := '(' requirement ')'
 
 A requirement expresses a condition that can be checked against a world to determine a `true` or `false` value. Of
 course, these are familiar from cards; many control whether the card can be played (`MAX 4 OxygenStep`), and in a few
-cases gate an instruction on the card (like in Nitro-Rich Asteroid, `PROD[Plant OR 3 PlantTag: 4 Plant]`).
+cases gate an instruction on the card (like in Nitro-Rich Asteroid, `PROD[Plant OR (3 PlantTag: 4 Plant)]`).
 
 A minimum, maximum, or exact threshold can count any metric atom. A transform already provides grouping, as in
 `6 PROD[Steel OR Titanium]`; a bare union is parenthesized, as in `15 (ActiveCard OR AutomatedCard)`.
@@ -128,9 +128,10 @@ higher precedence than the comma, so `a, b OR c` means that `a` must be true, an
 
 ```
 instruction := thenInst (',' thenInst)*
-thenInst    := orInst ('THEN' orInst)*
-orInst      := gatedInst ('OR' gatedInst)*
-gatedInst   := [atomReqt ':'] (groupedInst | prodInst | customInst)
+thenInst    := gatedInst ('THEN' gatedInst)*
+gatedInst   := [atomReqt ':'] orInst
+orInst      := atomInst ('OR' atomInst)*
+atomInst    := groupedInst | prodInst | customInst
 prodInst    := perInst | ('PROD[' instruction ']')
 customInst  := '@' lowerCamelRE '(' [arguments] ')'
 arguments   := typeExpression (',' typeExpression)*
@@ -148,11 +149,11 @@ one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Play
 
 Commas separate multiple independent instructions. The comma has the lowest precedence of all instruction operators.
 Within each comma-separated section, you might find instructions separated by `THEN`; this is similar to the comma, but
-the player can't choose the order the tasks will be carried out (even once we support choosing that order!). Next, `OR`
-separates instructions which the player can choose between.
-
-Continuing in precedence order: an instruction can be preceded by a requirement and a colon (':'), as seen within the
-parentheses in the example `PROD[Plant OR (3 PlantTag: 4 Plant)]`. Note that because `4 Plant` is a mandatory
+the player can't choose the order the tasks will be carried out (even once we support choosing that order!). An
+instruction can then be preceded by a requirement and a colon (`:`). `OR`, which separates instructions the player can
+choose between, binds more tightly than the gate: `3 PlantTag: Plant OR 4 Plant` gates both alternatives. To gate only
+one alternative, surround that alternative with parentheses, as in `PROD[Plant OR (3 PlantTag: 4 Plant)]`.
+Note that because `4 Plant` is a mandatory
 instruction, `3 PlantTag: 4 Plant` is as well; if there was not another option separated by `OR` then this entire
 instruction would be unexecutable by a player with only 2 plant tags.
 

@@ -301,11 +301,7 @@ public sealed class Instruction : PetElement() {
 
     override fun toString(): String = "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(inner)}"
 
-    // let's over-group for clarity
-    override fun safeToNestIn(container: PetNode): Boolean =
-        super.safeToNestIn(container) && container !is Or
-
-    override fun precedence(): Int = 6
+    override fun precedence(): Int = 4
   }
 
   public sealed class CompositeInstruction(instrs: List<Instruction>) : Instruction() {
@@ -399,7 +395,7 @@ public sealed class Instruction : PetElement() {
     override fun safeToNestIn(container: PetNode): Boolean =
         super.safeToNestIn(container) && container !is Then
 
-    override fun precedence(): Int = 4
+    override fun precedence(): Int = 6
 
     override fun isAbstract(info: TypeInfo): Boolean = true
 
@@ -586,21 +582,21 @@ public sealed class Instruction : PetElement() {
 
         val atom: Parser<Instruction> = group(parser()) or maybeTransform
 
-        val gated: Parser<Instruction> =
-            optional(Requirement.atomParser() and skipChar(':')) and
-                atom map
-                { (gate, ins) ->
-                  Gated.create(gate, ins)
-                }
-
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map
+            separatedTerms(atom, _or) map
                 {
                   val set = it.toSetStrict().toList()
                   if (set.size == 1) set.first() else Or(set)
                 }
 
-        val then = separatedTerms(orInstr, _then) map { Then.create(it) }
+        val gated: Parser<Instruction> =
+            optional(Requirement.atomParser() and skipChar(':')) and
+                orInstr map
+                { (gate, ins) ->
+                  Gated.create(gate, ins)
+                }
+
+        val then = separatedTerms(gated, _then) map { Then.create(it) }
 
         commaSeparated(then) map { Multi.create(it) }
       }
