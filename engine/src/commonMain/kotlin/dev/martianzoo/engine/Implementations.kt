@@ -70,9 +70,12 @@ internal class Implementations(
   // OPERATIONS LAYER
 
   internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    tasks.requireAllQueuesEmpty()
+    val preexistingTasks = allTasks.ids()
+    allTasks.preparedTask()?.let {
+      throw TaskException("can't start a manual operation while task $it is prepared")
+    }
     addTasks(initialInstruction).forEach(::doInitialTask)
-    complete(autoExec, body)
+    complete(autoExec, preexistingTasks, body)
   }
 
   internal fun beginManual(
@@ -99,10 +102,14 @@ internal class Implementations(
     autoExecNow(autoExec)
   }
 
-  internal fun complete(autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun complete(
+      autoExec: AutoExecMode,
+      allowedPendingTasks: Set<TaskId> = emptySet(),
+      body: () -> Unit,
+  ) {
     continueManual(autoExec, body)
-    if (!tasks.areAllQueuesEmpty()) {
-      val pending = allTasks.extract { it }
+    val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
+    if (pending.isNotEmpty()) {
       if (pending.any { it.whyPending == "abstract" }) {
         throw AbstractException("pending abstract tasks:\n${pending.joinToString("\n")}")
       }
