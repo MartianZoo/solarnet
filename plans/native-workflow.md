@@ -19,7 +19,7 @@ The coarse workflow is:
 3. `ActionPhase`
 4. `ProductionPhase`
 5. `SolarPhase`
-6. `GenerationPhase`
+6. `Generation`
 7. `ResearchPhase`, which always continues to `ActionPhase`
 8. `FinalGreeneryPhase`
 9. `EndPhase`
@@ -27,7 +27,7 @@ The coarse workflow is:
 This list describes the available coarse phases, not one straight-line execution. After
 `ActionPhase`, play continues to `ProductionPhase`. `SolarPhase` either ends the game or continues
 through the applicable Solar subphases. Normal continuation after the last applicable Solar
-subphase goes to `GenerationPhase`, then `ResearchPhase`, then back to `ActionPhase`.
+subphase advances `Generation`, then goes to `ResearchPhase`, then back to `ActionPhase`.
 
 `SolarPhase` is universal. Although introduced by an expansion in the published rules, Solarnet
 treats its game-end-check step as having been retroactively added to the base game's workflow.
@@ -35,16 +35,15 @@ treats its game-end-check step as having been retroactively added to the base ga
 ### Generation 1
 
 `SetupPhase` must create generation 1 before any player involvement. The first generation has no
-`GenerationPhase` or `ResearchPhase`; setup and corporation selection already serve the relevant
+`Generation` advance or `ResearchPhase`; setup and corporation selection already serve the relevant
 purposes, and follow mode has no meaningful initial deal or research operation to perform.
 
 Consequently the initial path is:
 
 `SetupPhase -> CorporationPhase -> [PreludePhase] -> ActionPhase`
 
-Later `GenerationPhase` instances implement the published Player Order phase: advance the
-generation and pass the first-player marker. They occur only between generations, immediately
-before `ResearchPhase`.
+Later `Generation` gains implement the published Player Order phase and pass the first-player
+marker. They occur only between generations, immediately before `ResearchPhase`.
 
 ### Expansion-owned insertion
 
