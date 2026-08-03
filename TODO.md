@@ -17,7 +17,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Decide how a trigger binds its Actor into an instruction. Mons Insurance must bind both attacker and victim into its payout; `BY !Owner` supplies only the inequality test.
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - During preparation, allow a satisfied gate with an inner `Ok` to reduce to `Ok`; context-free narrowing must preserve the gate.
-- Make instruction gating (`:`) bind less tightly than `OR`, simplifying `R: (A OR B)` while requiring parentheses around gated alternatives.
 - Unify `OR` semantics and construction across AST families: reject duplicate authored arms; let programmatic factories deduplicate in first-occurrence order; preserve significant trigger order; reconcile `Metric.Or` syntax with execution; and allow atomized `Multi` arms so Atmoscoop can restore simultaneous track raises ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
 - [#30: Task refinement](https://github.com/MartianZoo/solarnet/issues/30) — Narrow tasks without repeating the full instruction.
 - Determine whether gated preparation's loss of `<Anyone>` is harmless canonicalization or an invalid target; document or test the result.
