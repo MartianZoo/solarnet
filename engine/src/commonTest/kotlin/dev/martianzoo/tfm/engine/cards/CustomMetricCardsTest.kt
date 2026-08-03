@@ -115,7 +115,10 @@ class CustomMetricCardsTest : CardTest() {
 
     val p1GodMode = p1.godMode().also { it.autoExecMode = NONE }
     p1GodMode.beginManual("RoboticWorkforce")
-    p1GodMode.reviseTask(game.tasks.ids().single(), "CopyProductionBox<MiningRights>")
+    p1GodMode.reviseTask(
+        "CopyProductionBox<CardFront(HAS BuildingTag)>",
+        "CopyProductionBox<MiningRights>",
+    )
     p1GodMode.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 

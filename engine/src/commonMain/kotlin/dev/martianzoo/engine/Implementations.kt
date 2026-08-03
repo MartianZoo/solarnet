@@ -64,6 +64,8 @@ internal class Implementations(
 
   internal fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
+  internal fun dropTasks(): List<TaskRemovedEvent> = tasks.ids().map(tasks::removeTask)
+
   // OPERATIONS LAYER
 
   internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
@@ -208,6 +210,10 @@ internal class Implementations(
     }
   }
 
+  internal fun reviseTask(current: Instruction, revised: Instruction) {
+    reviseTask(taskWithInstruction(current), revised)
+  }
+
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   internal fun canPrepareTask(taskId: TaskId): Boolean {
     // TODO better way
@@ -223,6 +229,9 @@ internal class Implementations(
 
   internal fun prepareTask(taskId: TaskId): TaskId? =
       doPrepare(tasks, tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
+
+  internal fun prepareTask(instruction: Instruction): TaskId? =
+      prepareTask(taskWithInstruction(instruction))
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   private fun canPrepareAnyTask(taskId: TaskId): Boolean {
@@ -331,8 +340,18 @@ internal class Implementations(
       }
     }
 
-    return tasks.matching(::weCanReviseIt).singleOrNull()
-        ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+    return uniqueMatchingTask(tasks.extract { it }.filter(::weCanReviseIt))
+  }
+
+  private fun taskWithInstruction(instruction: Instruction): TaskId =
+      uniqueMatchingTask(tasks.extract { it }.filter { it.instruction == instruction })
+
+  private fun uniqueMatchingTask(matches: List<Task>): TaskId {
+    val first =
+        matches.firstOrNull()
+            ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+    if (matches.map { it.copy(id = first.id) }.distinct().size == 1) return first.id
+    throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
   }
 
   internal fun tryTask(id: TaskId) {

@@ -7,7 +7,6 @@ import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.tfm.engine.setUpGame
 import io.kotest.assertions.throwables.shouldThrow
@@ -19,7 +18,6 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 
 class TaskPreparingTest {
-  private val A = TaskId("A")
   private val game = setUpGame()
   private val tasks = game.tasks
   private val events = game.events
@@ -28,8 +26,8 @@ class TaskPreparingTest {
 
   @Test
   fun `can prepare an abstract task`() {
-    initiate("2 Plant?").also { it.shouldContainExactlyInAnyOrder(A) }
-    gameplay.prepareTask(A).also { it shouldBe A }
+    initiate("2 Plant?")
+    gameplay.prepareTask("2 Plant?")
 
     val task = tasks.extract { it }.single()
     task.next shouldBe true
@@ -39,8 +37,8 @@ class TaskPreparingTest {
 
   @Test
   fun `preparing to NoOp automatically handles the task 1`() {
-    initiate("-2 Plant?").also { it.shouldContainExactlyInAnyOrder(A) }
-    gameplay.prepareTask(A).also { it shouldBe null }
+    initiate("-2 Plant?")
+    gameplay.prepareTask("-2 Plant?").also { it shouldBe null }
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
@@ -48,8 +46,8 @@ class TaskPreparingTest {
 
   @Test
   fun `preparing to NoOp automatically handles the task 2`() {
-    initiate("Plant / Heat").also { it.shouldContainExactlyInAnyOrder(A) }
-    gameplay.prepareTask(A).also { it shouldBe null }
+    initiate("Plant / Heat")
+    gameplay.prepareTask("Plant / Heat").also { it shouldBe null }
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
@@ -57,56 +55,54 @@ class TaskPreparingTest {
 
   @Test
   fun `preparing adjusts for limits 1`() {
-    initiate("-30 TerraformRating?").also { it.shouldContainExactlyInAnyOrder(A) }
-    gameplay.reviseTask(A, "-25 TerraformRating?")
-    gameplay.prepareTask(A).also { it shouldBe A }
+    initiate("-30 TerraformRating?")
+    gameplay.reviseTask("-30 TerraformRating?", "-25 TerraformRating?")
+    gameplay.prepareTask("-25 TerraformRating?")
     tasksAsText().shouldContainExactlyInAnyOrder("-20 TerraformRating<Player1>?")
-    gameplay.reviseTask(A, "-15 TerraformRating!")
+    gameplay.reviseTask("-20 TerraformRating?", "-15 TerraformRating!")
   }
 
   @Test
   fun `preparing adjusts for limits 2`() {
-    initiate("-30 TerraformRating.").also { it.shouldContainExactlyInAnyOrder(A) }
-    gameplay.prepareTask(A).also { it shouldBe A }
+    initiate("-30 TerraformRating.")
+    gameplay.prepareTask("-30 TerraformRating.")
 
     tasksAsText().shouldContainExactlyInAnyOrder("-20 TerraformRating<Player1>!")
   }
 
   @Test
   fun `preparing fails due to limit`() {
-    initiate("-Plant!").also { it.shouldContainExactlyInAnyOrder(A) }
+    initiate("-Plant!")
     history().shouldHaveSize(1)
-    shouldThrow<LimitsException> { gameplay.prepareTask(A) }
+    shouldThrow<LimitsException> { gameplay.prepareTask("-Plant!") }
 
     history().shouldHaveSize(1)
   }
 
   @Test
   fun `preparing then narrowing results in automatic re-preparing`() {
-    initiate("PROD[-2 StandardResource]").also { it.shouldContainExactlyInAnyOrder(A) }
-    gameplay.prepareTask(A).also { it shouldBe A }
+    initiate("PROD[-2 StandardResource]")
+    gameplay.prepareTask("PROD[-2 StandardResource]")
 
     tasksAsText().shouldContainExactlyInAnyOrder("-2 Production<Player1, Class<Megacredit>>!")
-    shouldThrow<NarrowingException> { gameplay.reviseTask(A, "PROD[-2 Plant]") }
-    gameplay.reviseTask(A, "PROD[-2]")
+    shouldThrow<NarrowingException> {
+      gameplay.reviseTask("PROD[-2]", "PROD[-2 Plant]")
+    }
+    gameplay.reviseTask("PROD[-2]", "PROD[-2]")
   }
 
   @Test
   fun `preparing an OR prunes the options`() {
-    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!").also {
-      it.shouldContainExactlyInAnyOrder(A)
-    }
-    gameplay.prepareTask(A).also { it shouldBe A }
+    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!")
+    gameplay.prepareTask("-TR OR -Plant OR Heat OR Tharsis_5_5!")
 
     tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
   }
 
   @Test
   fun `preparing to NoOp enqueues the THEN instructions`() {
-    initiate("Plant / Heat THEN Steel / 2 OxygenStep THEN Heat").also {
-      it.shouldContainExactlyInAnyOrder(A)
-    }
-    gameplay.prepareTask(A).also { it shouldBe null }
+    initiate("Plant / Heat THEN Steel / 2 OxygenStep THEN Heat")
+    gameplay.prepareTask("Plant / Heat").also { it shouldBe null }
 
     tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>! / 2 OxygenStep")
   }

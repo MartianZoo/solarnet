@@ -24,12 +24,12 @@ class TaskAssignmentCharacterizationTest {
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
 
-    val taskId = p2.godMode().addTasks("Plant").single()
+    p2.godMode().addTasks("Plant")
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     shouldThrow<TaskException> { p1.doTask("Plant<Player2>") }
 
-    p2.doTask(taskId)
+    p2.doTask("Plant")
     p2.count("Plant") shouldBe 1
     game.tasks.isEmpty() shouldBe true
   }
