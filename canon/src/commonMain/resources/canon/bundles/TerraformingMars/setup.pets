@@ -25,12 +25,4 @@ CLASS ValidateSetup : Signal {
   This IF MAX 0 MarsMapOption: Die
   This IF =1 Player, MAX 0 SoloMode: Die
   This IF 2 Player, MAX 0 MultiplayerMode: Die
-
-  This IF MAX 0 ColoniesExpansion, SelectedColonyTile: Die
-  This IF MAX 0 ColoniesExpansion, DeferredColonySelection: Die
-  This IF ColoniesExpansion, DeferredColonySelection, SelectedColonyTile: Die
-  This IF =1 Player, ColoniesExpansion, MAX 0 DeferredColonySelection, (MAX 2 SelectedColonyTile OR 4 SelectedColonyTile): Die
-  This IF (=2 Player OR =3 Player), ColoniesExpansion, MAX 0 DeferredColonySelection, (MAX 4 SelectedColonyTile OR 6 SelectedColonyTile): Die
-  This IF =4 Player, ColoniesExpansion, MAX 0 DeferredColonySelection, (MAX 5 SelectedColonyTile OR 7 SelectedColonyTile): Die
-  This IF =5 Player, ColoniesExpansion, MAX 0 DeferredColonySelection, (MAX 6 SelectedColonyTile OR 8 SelectedColonyTile): Die
 }

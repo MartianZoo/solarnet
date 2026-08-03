@@ -11,6 +11,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
@@ -86,9 +87,10 @@ public class ScriptSession(
   internal fun newGame(
       optionCodes: String,
       players: Int,
+      selectedColonies: Set<ClassName> = emptySet(),
       purple: Boolean = false,
   ) {
-    newGame(OptionCodeTranslation.setup(optionCodes, players), purple)
+    newGame(OptionCodeTranslation.setup(optionCodes, players, selectedColonies), purple)
   }
 
   init {
@@ -252,10 +254,10 @@ public class ScriptSession(
 }
 
 internal fun createGame(setup: OptionCodeTranslation.Setup): World {
-  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition(setup.players, setup.options))
-  if (setup.instruction.isNotEmpty()) {
-    setupWorld.gameplay(ENGINE).godMode().manual(setup.instruction)
-  }
+  val setupWorld =
+      Engine.newSetupWorld(
+          Canon.setupWorldDefinition(setup.players, setup.options, setup.selectedColonies)
+      )
   return Engine.newGame(setupWorld, Canon::assemble)
 }
 

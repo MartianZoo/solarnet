@@ -128,17 +128,10 @@ public object Canon :
         if (SOLO_MODE in enabledOptions) WithoutAwards(selectedRuleset) else selectedRuleset
     val setupOptions = setupWorld.getComponents("GameOption").elements
     val selectedColonies = setupWorld.getComponents("SelectedColonyTile").elements
-    val deferredColonySelection = setupWorld.getComponents("DeferredColonySelection").elements
-    val setupComponents = setupOptions + selectedColonies + deferredColonySelection
+    val setupComponents = setupOptions + selectedColonies
     val initialComponents = setupComponents.map { it.expression.toString() }
     val componentRoots = setupComponents.mapTo(linkedSetOf()) { it.className }
-    val deferredSelectionRoots =
-        setOf(cn("DeferredColonySelection")).filter { COLONIES in enabledOptions }
-    val roots =
-        componentRoots +
-            deferredSelectionRoots +
-            ruleset.allDefinitions.classNames() +
-            TERRAFORMING_MARS
+    val roots = componentRoots + ruleset.allDefinitions.classNames() + TERRAFORMING_MARS
     return GamePremise(ruleset, roots, Player.players(players) + ENGINE, initialComponents)
   }
 
@@ -169,7 +162,6 @@ public object Canon :
   }
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
-  private val COLONIES = cn("ColoniesExpansion")
   private val SOLO_MODE = cn("SoloMode")
 
   private class WithoutAwards(ruleset: TfmRuleset) : TfmRuleset.Composite(ruleset) {
