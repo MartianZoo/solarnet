@@ -679,6 +679,18 @@
       ],
     },
 
+    // Cyberia Systems
+    {
+      "id": "X53",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 16,
+      "immediate": "PROD[Steel], CyberiaFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS CyberiaFirstChoice)> THEN CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaFirstChoice)> THEN -CyberiaFirstChoice",
+      "components": [
+        "CLASS CyberiaFirstChoice : Cardbound, Temporary"
+      ],
+    },
+
     // Giant Solar Collector
     {
       "id": "X55",

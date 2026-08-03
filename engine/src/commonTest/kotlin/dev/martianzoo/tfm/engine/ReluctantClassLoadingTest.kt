@@ -48,7 +48,7 @@ internal class ReluctantClassLoadingTest {
             PreludeExpansion to 266 + 44, // 47 minus ResearchN/C, EcoEx
             ColoniesExpansion to 310 + 52, // 54 minus Aridor, Stormcraft
             TurmoilCardPack to 362 + 3, // only 3 corps working haha
-            PromoCardPack to 365 + 83 - 3, // 96 minus 13 unsupported
+            PromoCardPack to 365 + 84 - 3, // 96 minus 12 unsupported
         )
     )
   }
