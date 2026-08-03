@@ -99,7 +99,7 @@ public object Engine {
       scoped<TaskQueue> { get<WritableTaskQueue>() }
       scopedOf(::Changer)
       scoped {
-        Instructor(get(), get(), get(), get(), get())
+        Instructor(get(), get(), get(), get(), get(), get())
       } // Changer? and Effector? are nullable
       scopedOf(::Implementations)
       scoped {

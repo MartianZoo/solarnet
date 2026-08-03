@@ -14,7 +14,7 @@ internal class Changer(
     private val reader: GameReader,
     private val updater: Updater,
     private val changeLog: ChangeLogger,
-    private val actor: Actor,
+    private val defaultActor: Actor,
 ) {
 
   internal fun change(
@@ -23,23 +23,25 @@ internal class Changer(
       removing: Component?,
       cause: Cause?,
       orRemoveOneDependent: Boolean,
+      actor: Actor = defaultActor,
   ): Pair<ChangeEvent, Boolean> {
     return try {
       val change = updater.update(count, gaining, removing)
       changeLog.addChangeEvent(change, actor, cause) to true
     } catch (e: ExistingDependentsException) {
       if (!orRemoveOneDependent) throw e
-      removeAll(e.dependents.first(), cause) to false
+      removeAll(e.dependents.first(), cause, actor) to false
     }
   }
 
-  private fun removeAll(dependent: Type, cause: Cause?): ChangeEvent =
+  private fun removeAll(dependent: Type, cause: Cause?, actor: Actor): ChangeEvent =
       change(
               count = reader.countComponent(dependent),
               gaining = null,
               removing = dependent.toComponent(reader),
               cause = cause,
               orRemoveOneDependent = true,
+              actor = actor,
           )
           .first
 }

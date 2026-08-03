@@ -10,13 +10,18 @@ import dev.martianzoo.api.Exceptions.abstractInstruction
 import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.Exceptions.requirementNotMet
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SystemClasses.ACTOR
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.DIE
+import dev.martianzoo.data.Actor
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -41,23 +46,35 @@ internal class Instructor(
     private val changer: Changer?,
     private val effector: Effector?,
     private val classTable: ClassTable,
+    private val defaultActor: Actor? = null,
 ) {
 
   internal fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
-    doExecute(instruction, cause, this)
+    doExecute(instruction, cause, this, checkNotNull(defaultActor))
   }
 
-  private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>) {
+  private fun doExecute(
+      instruction: Instruction,
+      cause: Cause?,
+      deferred: MutableList<Task>,
+      actor: Actor,
+  ) {
     when (val prepped = prepare(instruction)) { // idempotent?
-      is Change -> executeChange(prepped, cause, deferred)
-      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred) }
+      is Change -> executeChange(prepped, cause, deferred, actor)
+      is By -> doExecute(prepped.inner, cause, deferred, actorFor(prepped))
+      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred, actor) }
       is Or -> throw orWithoutChoice(prepped)
       is NoOp -> {}
       else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
     }
   }
 
-  private fun executeChange(instruction: Change, cause: Cause?, deferred: MutableList<Task>) {
+  private fun executeChange(
+      instruction: Change,
+      cause: Cause?,
+      deferred: MutableList<Task>,
+      actor: Actor,
+  ) {
     val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
     if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
 
@@ -72,11 +89,12 @@ internal class Instructor(
               removing = removing,
               cause = cause,
               orRemoveOneDependent = true,
+              actor = actor,
           )
 
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
-        split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
+        split(task.instruction).forEach { doExecute(it, task.cause, deferred, actor) }
       }
       deferred += effector.fire(result, automatic = false)
       if (done) break
@@ -103,6 +121,7 @@ internal class Instructor(
     return when (unprepared) {
       is NoOp -> NoOp
       is Change -> prepareChange(unprepared)
+      is By -> By.create(doPrepare(unprepared.inner), canonicalActorExpression(unprepared))
       is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
       is Gated -> {
         if (!reader.has(unprepared.gate)) throw requirementNotMet(unprepared.gate)
@@ -115,6 +134,29 @@ internal class Instructor(
           )
       is Multi -> throw abstractInstruction(unprepared)
       is Transform -> throw ExpressionException("unhandled instruction transform: $unprepared")
+    }
+  }
+
+  private fun canonicalActorExpression(instruction: By): Expression {
+    val type = reader.resolve(instruction.actor)
+    if (!type.rootClass.isSubtypeOf(classTable.getClass(ACTOR))) {
+      throw ExpressionException("BY requires an Actor, not ${instruction.actor}")
+    }
+    if (type.abstract) {
+      throw ExpressionException("BY requires one concrete Actor, not ${instruction.actor}")
+    }
+    return type.expression
+  }
+
+  private fun actorFor(instruction: By): Actor {
+    val type = reader.resolve(canonicalActorExpression(instruction))
+    if (reader.countComponent(type) != 1) {
+      throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
+    }
+    return when {
+      type.className == ENGINE.className -> ENGINE
+      Player.isValid(type.className) -> Player(type.className)
+      else -> throw ExpressionException("unsupported Actor: ${type.expression}")
     }
   }
 

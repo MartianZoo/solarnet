@@ -5,6 +5,7 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
+import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.NarrowingException
@@ -35,6 +36,8 @@ public sealed class Instruction : PetElement() {
         InstructionGroup(
             when (instruction) {
               is Multi -> instruction.instructions.flatMap { split(it).instructions }
+              is By ->
+                  split(instruction.inner).instructions.map { By.create(it, instruction.actor) }
               is NoOp -> listOf()
               else -> listOf(instruction)
             }
@@ -271,6 +274,31 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun toString(): String = "$inner / ${groupPartIfNeeded(metric)}"
+  }
+
+  /** Carries out [inner] as the concrete [actor], independently of who narrows the task. */
+  public data class By(val inner: Instruction, val actor: Expression) : Instruction() {
+    public companion object {
+      /** Creates a performer override. */
+      public fun create(inner: Instruction, actor: Expression): Instruction = By(inner, actor)
+    }
+
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, actor)
+
+    override fun scale(factor: Int): Instruction = create(inner * factor, actor)
+
+    override fun isAbstract(info: TypeInfo): Boolean =
+        inner.isAbstract(info) || info.isAbstract(actor)
+
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+      proposed as? By ?: throw NarrowingException("$proposed does not preserve performer $actor")
+      if (proposed.actor != actor) throw NarrowingException("can't change performer $actor")
+      proposed.inner.ensureNarrows(inner, info)
+    }
+
+    override fun toString(): String = "${groupPartIfNeeded(inner)} BY $actor"
+
+    override fun precedence(): Int = 9
   }
 
   @ConsistentCopyVisibility
@@ -580,7 +608,14 @@ public sealed class Instruction : PetElement() {
 
         val maybeTransform: Parser<Instruction> = transform or maybePer
 
-        val atom: Parser<Instruction> = group(parser()) or maybeTransform
+        val atomBase: Parser<Instruction> = group(parser()) or maybeTransform
+
+        val atom: Parser<Instruction> =
+            atomBase and
+                optional(skip(_by) and Expression.parser()) map
+                { (instruction, actor) ->
+                  if (actor == null) instruction else By.create(instruction, actor)
+                }
 
         val orInstr: Parser<Instruction> =
             separatedTerms(atom, _or) map

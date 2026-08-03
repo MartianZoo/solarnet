@@ -620,7 +620,7 @@
       "resourceType": "Asteroid",
       "actions": [
         "-> 10 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: 2 Asteroid<This>",
-        "Asteroid<This> -> OceanTile"
+        "Asteroid<This> -> FirstPlayerOcean<Owner>"
       ],
     },
 

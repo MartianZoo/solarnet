@@ -73,6 +73,7 @@
 - **Pets:** Solarnet's specification language for component types, rules, and game-state changes.
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **Prepared task:** A task simplified against the current world and therefore required to finish next; it may still need further narrowing.
+- **Performer:** The Actor credited with an instruction's state changes; normally the gameplay Actor, but an instruction-level `BY` can override it without changing the task's assignee.
 - **Preprocessing:** The transformer pipeline that resolves aliases, atomization, defaults, contextual ownership, and production notation.
 - **Production box:** Terraforming Mars-specific `PROD[...]` notation that preprocessing rewrites into production-component operations.
 - **Queued effect:** An effect written with `:`; its triggered instruction becomes a task instead of executing inline. (Antonym: automatic effect.)

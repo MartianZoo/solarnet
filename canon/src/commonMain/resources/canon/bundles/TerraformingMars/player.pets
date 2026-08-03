@@ -62,6 +62,7 @@ ABSTRACT CLASS Owned<Anyone> {
   CLASS StartToken : Owned<Player> {
     HAS MAX 1 StartToken
     Generation: PassLeft<This>
+    FirstPlayerOcean<Actor> BY Anyone: OceanTile BY Actor
   }
 
   // Because of our model that the world is "just a bag of things", you can't have a negative
@@ -98,3 +99,6 @@ CLASS AssignAwardPlaces<Award> : Custom
 
 "Moves an owned component to the next player in seat order"
 CLASS PassLeft<StartToken> : Custom
+
+"Asks the first player where an ocean is placed while preserving the performing Actor"
+CLASS FirstPlayerOcean<Actor> : Signal

@@ -13,8 +13,7 @@
 - Otherwise, increasing one global parameter is mandatory. A maxed parameter must not be a legal
   choice; this differs from the usual as-much-as-possible behavior of global-parameter gains.
 - The Player owning `StartToken` chooses and completes the task, but the resulting changes are
-  performed by `Engine`. We need a small explicit "do it as" mechanism without adding another
-  task identity concept.
+  performed by `Engine` through instruction-level `BY`, without adding another task identity.
 - The World Government operation should originate from Pets behavior triggered by the Solar Phase.
 - Owned effects on ordinary unowned components use the icon-grammar default of responding only to
   their Owner. World Government changes are performed by `Engine`, so they do not trigger those

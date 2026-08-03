@@ -151,6 +151,7 @@ let any other task jump ahead, it could change the world that was already read.
 - `Or` — a choice (player must revise to pick one branch)
 - `Gated` — conditional: only execute if a requirement is met
 - `Per` — scaled: multiply the inner instruction by a metric count
+- `By` — perform the inner instruction as a specified concrete Actor without changing its task assignee
 - `Multi` — parallel splits (used by atomization; see below)
 - `NoOp` — does nothing
 
@@ -315,9 +316,10 @@ When a live effect fires, if the effect is **automatic** (double-colon in Pets s
 queue.
 
 The `Task.assignee` field records whose queue contains deferred work and whose scoped gameplay may
-narrow it. When a gameplay context executes the task, that context's Actor performs the resulting
-state changes and receives their `ChangeEvent.actor` attribution. `BY` independently matches the
-Actor on the triggering `ChangeEvent`.
+narrow it. When a gameplay context executes the task, that context's Actor normally performs the
+resulting state changes and receives their `ChangeEvent.actor` attribution. An instruction-level
+`BY` explicitly overrides that performer without changing who owns or may narrow the task.
+Trigger-level `BY` independently matches the Actor on the triggering `ChangeEvent`.
 
 For automatic effects the temporary Task still carries routing metadata in its `assignee` field,
 but execution remains inline through the triggering Actor's `Instructor` and `Changer`, so

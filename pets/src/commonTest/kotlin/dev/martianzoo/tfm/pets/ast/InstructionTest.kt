@@ -51,6 +51,8 @@ internal class InstructionTest {
       PROD[-Foo]
       11 Ahh<Bar>
       PROD[11 Ahh]
+      Ahh BY Player1
+      (Ahh OR Eep) BY Engine
       PROD[-5 Xyz!]
       PROD[Bar<Abc>]
       5 Bar<Abc<Qux>>

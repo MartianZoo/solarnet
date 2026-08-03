@@ -28,6 +28,7 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 * `-3 Megacredit.` (with a dot) means to lose 3 megacredits or as much of that amount as possible
 * `-6 Plant<Anyone>?` (with a question mark) means to remove *up to* 6 plants from any player (i.e., optional)
 * `Ok` means to do nothing, which is sometimes needed because instructions are mandatory
+* `OceanTile BY Player2` lets the task's assignee choose the location but records Player 2 as performing the placement
 
 ## other syntax
 

@@ -5,6 +5,7 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -83,6 +84,14 @@ public data class Task(
           } else {
             throw DeadEndException("a Die instruction was reached")
           }
+      is By -> {
+        val inner = normalizeForTask(instruction.inner)
+        if (inner is Then) {
+          Then.create(inner.instructions.map { By.create(it, instruction.actor) })
+        } else {
+          By.create(inner, instruction.actor)
+        }
+      }
       is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Or -> {
