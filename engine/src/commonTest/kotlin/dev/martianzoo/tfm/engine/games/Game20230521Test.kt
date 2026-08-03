@@ -1159,7 +1159,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Atmoscoop
     // Player2 added 2 floater(s) to Aerial Mappers
     p2.playProject("Atmoscoop", 5, titanium = 3) {
-      doTask("VenusStep! THEN VenusStep")
+      doTask("2 VenusStep")
       doTask("2 Floater<AerialMappers>")
     }
 
