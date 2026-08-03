@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.AutoExecMode.NONE
@@ -91,6 +92,33 @@ class BugsTest : CardTest() {
       doTask("UseAction1<ConvertHeatSA>")
       doTask("UseAction1<AquiferSP>")
       doTask("OceanTile<Tharsis_5_5>")
+    }
+  }
+
+  // FAQ: Ecology Experts' tags trigger both Splice and the card it plays. Splice's payment should
+  // therefore be available to pay for that card, while Decomposers should still receive 2 microbes.
+  @Test
+  fun `Ecology Experts incorrectly cannot use Splice income to pay for Decomposers`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    val p2 = requireP2()
+    p1.playCorp("TychoMagnetics", 9)
+    p2.playCorp("SpliceTacticalGenomics", 0) {
+      doTask("Microbe<SpliceTacticalGenomics>!")
+    }
+    engine.phase("Prelude")
+
+    p1.playPrelude("ExcentricSponsor") {
+      p1.playProject("GiantIceAsteroid", 11) {
+        doFirstTask("OceanTile<Tharsis_1_2>")
+        doFirstTask("OceanTile<Tharsis_1_4>")
+        doTask("Ok")
+      }
+    }
+    p1.assertCounts(4 to "Megacredit")
+
+    p1.playPrelude("EcologyExperts") {
+      shouldThrow<LimitsException> { p1.playProject("Decomposers", 5) }
+      abort()
     }
   }
 
