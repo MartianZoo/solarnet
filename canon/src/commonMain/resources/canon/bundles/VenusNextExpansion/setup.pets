@@ -1,2 +1,7 @@
 "Expansion introducing the Venus track (global parameter), Venus tags, Floater resources, etc."
 CLASS VenusNextExpansion : GameOption
+
+"Disables World Government Terraforming while retaining the rest of Venus Next"
+CLASS NoWgtVariant : GameOption {
+  ValidateSetup IF MAX 0 VenusNextExpansion: Die
+}

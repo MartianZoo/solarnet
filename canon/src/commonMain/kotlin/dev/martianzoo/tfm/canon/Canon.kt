@@ -38,7 +38,7 @@ public object Canon :
         ),
         StandardFormBundle(
             "VenusNextExpansion",
-            gameOptionClassNames = setOf(cn("VenusNextExpansion")),
+            gameOptionClassNames = setOf(cn("VenusNextExpansion"), cn("NoWgtVariant")),
         ),
         StandardFormBundle(
             "PreludeExpansion",
@@ -75,8 +75,8 @@ public object Canon :
     ColoniesExpansion,
     TurmoilCardPack,
     PromoCardPack,
+    NoWgtVariant,
     // Tr63SoloVariant,
-    // NoWorldGovernmentVariant,
     // MandatoryVenusVariant,
     // OfferBeginnerCorpsVariant,
     ;

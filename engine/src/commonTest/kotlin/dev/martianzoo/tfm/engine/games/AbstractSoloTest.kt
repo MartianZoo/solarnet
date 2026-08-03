@@ -6,12 +6,10 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
 import kotlin.test.BeforeTest
 
-/**
- * Follow-along solo fixtures intentionally drive phases manually and inject the app's
- * world-government action between generations, which [TfmWorkflow.Auto] does not support yet.
- */
+/** Follow-along solo fixtures intentionally drive phases manually. */
 abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
+  protected lateinit var workflow: TfmWorkflow.Manual
 
   override fun setup() =
       canonicalPremise(
@@ -31,7 +29,8 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
     super.commonSetup()
 
     me = p1
-    TfmWorkflow.Manual(game).setupPhase()
+    workflow = TfmWorkflow.Manual(game)
+    workflow.setupPhase()
 
     engine.doFirstTask("CityTile<${cityAreas().first}, SoloOpponent>")
     engine.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
@@ -43,7 +42,11 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
 
   protected fun nextRound(wgt: String, cardsBought: Int) {
     p1.pass()
-    engine.godMode().manual(wgt)
-    engine.nextGeneration(cardsBought)
+    workflow.productionPhase()
+    workflow.solarPhase()
+    me.doTask("$wgt! BY Engine")
+    workflow.generation()
+    workflow.researchPhase { p1.doTask(if (cardsBought > 0) "$cardsBought BuyCard" else "Ok") }
+    workflow.actionPhase()
   }
 }

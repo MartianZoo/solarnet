@@ -442,6 +442,12 @@ repeat) as straight-line sequential code. Solar checks for `LastCall` before the
 to Generation. The workflow suspends whenever it calls `awaitTasksDrained()`, which commits the
 current state (preventing rollback past this point) and then waits on a rendezvous channel.
 
+When Venus Next is selected, its `SolarPhase` effect automatically creates a transient
+`WorldGovernmentTerraforming` signal unless the game is ending, every global parameter is complete,
+or `NoWgtVariant` is selected. The `StartToken` component responds by assigning its Owner the
+mandatory `GlobalParameter! BY Engine` choice. Thus the first player narrows the task, maxed tracks
+are illegal choices, and Engine remains the performer for effect matching and event attribution.
+
 The hook `game.onAtomicComplete` is wired to send a signal on this channel whenever the task
 queue drains after an atomic operation completes. Since the channel is `RENDEZVOUS`, signals
 fired when no one is waiting (e.g., during automatic engine phases) are silently dropped.

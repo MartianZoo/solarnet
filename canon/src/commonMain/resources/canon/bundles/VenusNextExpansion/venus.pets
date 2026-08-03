@@ -9,6 +9,8 @@ CLASS VenusStep[VEN] : GlobalParameter {
 CLASS VenusNextExpansion : GameOption {
   SetupPhase: SoloVictoryRequirement
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
+  // A Venus game has four global parameters, so MAX 3 means at least one is still incomplete.
+  SolarPhase IF MAX 0 LastCall, MAX 3 GpComplete, MAX 0 NoWgtVariant:: WorldGovernmentTerraforming
 }
 
 CLASS VenusTag[VET] : PlanetTag

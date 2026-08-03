@@ -13,6 +13,7 @@ class Game20260619Test : AbstractFullGameTest() {
           PreludeExpansion,
           PromoCardPack,
           TurmoilCardPack,
+          NoWgtVariant,
           players = 2,
       )
 

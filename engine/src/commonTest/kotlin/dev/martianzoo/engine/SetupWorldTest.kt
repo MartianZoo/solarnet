@@ -65,6 +65,13 @@ internal class SetupWorldTest {
   }
 
   @Test
+  fun noWgtVariantRequiresVenusNext() {
+    val setupWorld = newSetupWorld(options = Canon.Option.DEFAULTS + NoWgtVariant)
+
+    shouldThrow<DeadEndException> { Engine.newGame(setupWorld, Canon::assemble) }
+  }
+
+  @Test
   fun mapCardinalityIsValidatedByPets() {
     val noMap = newSetupWorld(options = emptySet())
     shouldThrow<DeadEndException> { Engine.newGame(noMap, Canon::assemble) }
