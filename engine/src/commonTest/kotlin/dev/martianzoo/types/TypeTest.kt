@@ -351,14 +351,20 @@ internal class TypeTest {
   fun subs() {
     val pprod = CanonClassesTest.table.resolve(te("Production<Player1, Class<Plant>>"))
     findSubstitutions(pprod) shouldBe
-        mapOf(cn("StandardResource") to cn("Plant").expression, OWNER to PLAYER1.expression)
+        mapOf(
+            cn("StandardResource") to cn("Plant").expression,
+            OWNER to PLAYER1.expression,
+        )
   }
 
   @Test
   fun subs2() {
     val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))
     findSubstitutions(pprod) shouldBe
-        mapOf(cn("CardFront") to cn("MediaGroup").expression, OWNER to PLAYER1.expression)
+        mapOf(
+            cn("CardFront") to cn("MediaGroup").expression,
+            OWNER to PLAYER1.expression,
+        )
   }
 
   private fun te(s: String): Expression = parse(s)

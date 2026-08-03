@@ -18,16 +18,20 @@ import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.util.Reifiable
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
-public data class ScaledExpression(
-    val scalar: Scalar,
+@ConsistentCopyVisibility
+public data class ScaledExpression
+internal constructor(
     val expression: Expression = MEGACREDIT.of(),
+    val scalar: Scalar,
 ) : PetNode() {
   public companion object {
-    public fun scaledEx(scalar: Scalar, expression: HasExpression? = null): ScaledExpression =
-        ScaledExpression(scalar, expression?.expression ?: MEGACREDIT.of())
+    /** Returns [expression] scaled by [scalar], defaulting the expression to `Megacredit`. */
+    public fun scaledEx(expression: HasExpression? = null, scalar: Scalar): ScaledExpression =
+        ScaledExpression(expression?.expression ?: MEGACREDIT.of(), scalar)
 
-    public fun scaledEx(value: Int? = null, expression: HasExpression? = null): ScaledExpression =
-        scaledEx(ActualScalar(value ?: 1), expression)
+    /** Returns [expression] scaled by [count], defaulting to one `Megacredit`. */
+    public fun scaledEx(expression: HasExpression? = null, count: Int = 1): ScaledExpression =
+        scaledEx(expression, ActualScalar(count))
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
 
@@ -117,7 +121,7 @@ public data class ScaledExpression(
         scalarAndOptionalEx or
             optionalScalarAndEx map
             { (scalar, expr) ->
-              scaledEx(scalar ?: ActualScalar(1), expr)
+              scaledEx(expr, scalar ?: ActualScalar(1))
             }
       }
     }

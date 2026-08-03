@@ -5,7 +5,9 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.testRoundTrip
@@ -16,6 +18,14 @@ import kotlin.test.Test
 
 // Most testing is done by AutomatedTest
 internal class InstructionTest {
+  @Test
+  fun gainAndRemoveConvenienceFactories() {
+    gain(cn("Foo")) shouldBe parse<Instruction>("Foo!")
+    gain(cn("Foo"), count = 3, intensity = AMAP) shouldBe parse<Instruction>("3 Foo.")
+    remove(cn("Foo")) shouldBe parse<Instruction>("-Foo!")
+    remove(cn("Foo"), count = 3, intensity = AMAP) shouldBe parse<Instruction>("-3 Foo.")
+  }
+
   @Test
   fun contextFreeInstructionFailuresUseThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> {

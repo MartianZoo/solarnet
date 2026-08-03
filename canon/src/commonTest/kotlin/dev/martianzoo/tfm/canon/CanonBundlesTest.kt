@@ -77,7 +77,9 @@ internal class CanonBundlesTest {
   @Test
   fun resolvedRulesetIncludesSelectedBundlesCustomImplementations() {
     val coreCustomClasses =
-        Canon.resolve(setOf(cn("TerraformingMars"))).customClasses.map { it.className.toString() }
+        Canon.resolve(setOf(cn("TerraformingMars"))).customClasses.map {
+          it.className.toString()
+        }
 
     coreCustomClasses.contains("GainLowestProduction") shouldBe false
     Canon.resolve(setOf(cn("TerraformingMars"), cn("PreludeExpansion"))).customClasses.map {
@@ -119,7 +121,13 @@ internal class CanonBundlesTest {
     val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
 
     Canon.resolve(base).awardDefinitions.map { it.className }.toSet() shouldBe
-        setOf(cn("Landlord"), cn("Banker"), cn("Scientist"), cn("Thermalist"), cn("Miner"))
+        setOf(
+            cn("Landlord"),
+            cn("Banker"),
+            cn("Scientist"),
+            cn("Thermalist"),
+            cn("Miner"),
+        )
     Canon.resolve(base + cn("VenusNextExpansion")).awardDefinitions.map {
       it.className
     } shouldContain cn("Venuphile")
@@ -164,7 +172,11 @@ internal class CanonBundlesTest {
         mapOf(
             cn("VenusNextExpansion") to setOf(cn("VenusStep"), cn("VenusTag")),
             cn("PreludeExpansion") to
-                setOf(cn("PreludeCard"), cn("PreludePhase"), cn("PreludeSetup")),
+                setOf(
+                    cn("PreludeCard"),
+                    cn("PreludePhase"),
+                    cn("PreludeSetup"),
+                ),
         )
 
     val baseRuleset = Canon.resolve(base)
@@ -187,7 +199,10 @@ internal class CanonBundlesTest {
     Canon.resolve(promos, setupReader()).cardDefinitions.any {
       it.className == cn("DoubleDown")
     } shouldBe false
-    Canon.resolve(promos + cn("PreludeExpansion"), setupReader(cn("PreludeExpansion")))
+    Canon.resolve(
+            promos + cn("PreludeExpansion"),
+            setupReader(cn("PreludeExpansion")),
+        )
         .cardDefinitions
         .map {
           it.className
@@ -198,7 +213,11 @@ internal class CanonBundlesTest {
   fun promosReplaceThreeBaseGameCards() {
     val originals = setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
     val replacements =
-        setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
+        setOf(
+            cn("DeimosDownPromo"),
+            cn("GreatDamPromo"),
+            cn("MagneticFieldGeneratorsPromo"),
+        )
     val relevantCards = originals + replacements
 
     val withoutPromos =
@@ -212,7 +231,11 @@ internal class CanonBundlesTest {
             }
     val withPromos =
         Canon.resolve(
-                setOf(cn("TerraformingMars"), cn("TharsisMap"), cn("PromoCardsExpansion")),
+                setOf(
+                    cn("TerraformingMars"),
+                    cn("TharsisMap"),
+                    cn("PromoCardsExpansion"),
+                ),
                 setupReader(cn("TharsisMapOption"), cn("PromoCardPack")),
             )
             .cardDefinitions

@@ -18,7 +18,6 @@ import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Change.Companion.change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
@@ -159,7 +158,7 @@ internal class Instructor(
         return NoOp
       }
       // Still abstract, don't check limits yet
-      return change(count, g?.expression, r?.expression, intens)
+      return Change.change(g?.expression, r?.expression, count, intens)
     }
 
     if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
@@ -192,7 +191,12 @@ internal class Instructor(
       throw LimitsException("Can't $mesg: max possible is $adjusted")
     }
 
-    return change(adjusted, g?.expression, r?.expression, if (intens == AMAP) MANDATORY else intens)
+    return Change.change(
+        g?.expression,
+        r?.expression,
+        adjusted,
+        if (intens == AMAP) MANDATORY else intens,
+    )
   }
 
   private fun prepareOr(unprepared: Or): Instruction {

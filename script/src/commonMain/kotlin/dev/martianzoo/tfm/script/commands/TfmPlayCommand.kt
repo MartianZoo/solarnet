@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -16,7 +16,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
       context.playableCardNames()
 
   override fun withArgs(args: String): List<String> {
-    val cardName = ClassName.cn(args)
+    val cardName = cn(args)
     val kind = repl.game.reader.tfmRuleset.card(cardName).deck!!.className
     return TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$args>>")
   }

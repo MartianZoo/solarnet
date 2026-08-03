@@ -14,6 +14,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.util.toSetStrict
 
@@ -79,12 +80,12 @@ public abstract class PetTransformer protected constructor() {
             is ClassName -> this
             is Refinement -> Refinement(x(requirement), forgiving)
             is Expression -> Expression(x(className), x(arguments), x(refinement), complement)
-            is ScaledExpression -> ScaledExpression(x(scalar), x(expression))
+            is ScaledExpression -> scaledEx(x(expression), x(scalar))
             is Scalar -> this
             is Metric ->
                 when (this) {
                   is Metric.Count -> Metric.Count(x(expression))
-                  is Metric.Scaled -> Metric.scaled(unit, x(inner))
+                  is Metric.Scaled -> Metric.scaled(x(inner), unit)
                   is Metric.Max -> Metric.Max(x(inner), maximum)
                   is Metric.Or -> Metric.Or(x(metrics))
                   is Metric.Transform -> Metric.Transform(x(inner), transformKind)

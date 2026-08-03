@@ -27,7 +27,6 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
@@ -162,7 +161,7 @@ internal object TerraformingMars {
                 BACKWARD_ADJACENCY.of(newTile, it),
             )
           }
-      return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
+      return Then.create((neighbors + adjacencies).map(::gain))
     }
   }
 
@@ -176,7 +175,7 @@ internal object TerraformingMars {
       return if (cardBackClassType.expression.arguments.single().className == deck?.className) {
         NoOp
       } else {
-        gain(scaledEx(1, DIE))
+        gain(DIE)
       }
     }
   }
@@ -202,9 +201,9 @@ internal object TerraformingMars {
 
       val playTagSignals =
           card.tags.entries.map { (tagName, count) ->
-            gain(scaledEx(count, PLAY_TAG.of(tagName.classExpression())))
+            gain(PLAY_TAG.of(tagName.classExpression()), count)
           }
-      val instructions = listOf(gain(scaledEx(card.cost, OWED))) + playTagSignals
+      val instructions = listOf(gain(OWED, card.cost)) + playTagSignals
       return Then.create(instructions)
     }
   }
@@ -279,7 +278,7 @@ internal object TerraformingMars {
                     .map { SECOND_PLACE.of(it.expression, awardType.expression) }
             winners + runnersUp
           }
-      return Then.create(placements.map { gain(scaledEx(1, it)) })
+      return Then.create(placements.map(::gain))
     }
   }
 
@@ -300,7 +299,7 @@ internal object TerraformingMars {
       }
       val mostMegacredits = megacredits.values.maxOrNull() ?: return NoOp
       val winners = megacredits.filterValues { it == mostMegacredits }.keys
-      return Then.create(winners.map { gain(scaledEx(1, VICTORY.of(it.expression))) })
+      return Then.create(winners.map { gain(VICTORY.of(it.expression)) })
     }
   }
 

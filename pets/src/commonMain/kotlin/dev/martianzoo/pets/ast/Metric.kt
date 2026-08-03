@@ -20,9 +20,9 @@ import kotlin.math.min
 public sealed class Metric : PetElement() {
   public companion object {
     /** Returns [inner] scaled by [unit], omitting the meaningless wrapper when [unit] is one. */
-    public fun scaled(unit: Int, inner: Metric): Metric {
+    public fun scaled(inner: Metric, unit: Int): Metric {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")
-      return if (unit == 1) inner else Scaled(unit, inner)
+      return if (unit == 1) inner else Scaled(inner, unit)
     }
 
     internal fun parser(): Parser<Metric> = Parsers.parser()
@@ -58,7 +58,7 @@ public sealed class Metric : PetElement() {
 
   /** Counts one unit for each complete group of [unit] counted by [inner]. */
   @ConsistentCopyVisibility
-  public data class Scaled internal constructor(val unit: Int, val inner: Metric) : Metric() {
+  public data class Scaled internal constructor(val inner: Metric, val unit: Int) : Metric() {
     init {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")
     }
@@ -146,7 +146,11 @@ public sealed class Metric : PetElement() {
         val atom: Parser<Metric> = transform or count or group(parser())
 
         val scaled: Parser<Metric> =
-            optional(rawScalar) and atom map { (scal, met) -> scal?.let { scaled(it, met) } ?: met }
+            optional(rawScalar) and
+                atom map
+                { (scal, met) ->
+                  scal?.let { scaled(met, it) } ?: met
+                }
 
         val max: Parser<Metric> =
             scaled and

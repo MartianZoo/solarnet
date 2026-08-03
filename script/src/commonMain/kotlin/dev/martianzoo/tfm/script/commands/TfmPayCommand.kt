@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.Parsing
-import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -26,7 +26,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
     val ins: List<String> = gains.map {
       val sex = (it as Gain).scaledEx
       val currency = sex.expression
-      val pay = ClassName.cn("Pay").of(CLASS.of(currency))
+      val pay = cn("Pay").of(CLASS.of(currency))
       Transmute(FromExpression(pay, currency), sex.scalar).toString()
     }
     val cmd = TaskCommand(repl)

@@ -136,7 +136,11 @@ internal class RulesetTest {
         )
 
     val selectedBundles =
-        setOf(cn("PromoCardsExpansion"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
+        setOf(
+            cn("PromoCardsExpansion"),
+            cn("PreludeExpansion"),
+            cn("VenusNextExpansion"),
+        )
     val withoutVenus = source.resolve(selectedBundles, setupReader(cn("PreludeExpansion")))
     withoutVenus.cardDefinitions.shouldHaveSize(0)
     withoutVenus.classDeclarationBundles.keys shouldBe withoutVenus.allClassNames

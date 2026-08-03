@@ -84,7 +84,7 @@ internal class MetricTest {
   fun unitScalingIsCanonicalizedAway() {
     val count = Metric.Count(cn("Foo").expression)
 
-    Metric.scaled(1, count) shouldBe count
+    Metric.scaled(count, 1) shouldBe count
     parse<Metric>("1 Foo") shouldBe count
   }
 }
