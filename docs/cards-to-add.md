@@ -2,50 +2,50 @@
 
 We have 448 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
 
-| id  | card name                  | blocker               |
-|-----|----------------------------|-----------------------|
-| 008 | Capital                    | concrete              |
-| 206 | Special Design             | adjustreqt            |
-| P10 | Ecology Experts            | adjustreqt            |
-| 153 | Adaptation Technology      | adjustreqt            |
-| B05 | Inventrix                  | adjustreqt            |
-| V04 | Morning Star Inc.          | adjustreqt            |
-| B00 | Beginner Corporation       | beginner              |
-| XC1 | Arcadian Communities       | community             |
-| XC11 | PolderTECH Dutch          | no reason?            |
-| 066 | Land Claim                 | community             |
-| XC5 | Mons Insurance             | actorbinding          |
-| CC1 | Aridor                     | classmetrictrigger    |
-| B03 | Helion                     | helion                |
-| CC5 | Stormcraft Incorporated    | payresource           |
-| XC10 | Kuiper Cooperative        | payresource           |
-| X06 | Law Suit                   | playerplayer          |
-| X46 | Supercapacitors            | productionorder       |
-| X53 | Cyberia Systems            | copyproduction        |
-| X54 | Established Methods        | else                  |
-| X59 | Mars Nomads                | movablemarker         |
-| X-2 | New Holland                | hybridtile            |
-| X75 | Vermin                     | globalvp              |
-| 210 | Self-Replicating Robots    | selfrep               |
-| TC5 | Utopia Invest              | thenspec              |
-| 188 | Flooding                   | thenspec              |
-| P28 | Research Network           | wildtag               |
-| P40 | Research Coordination      | wildtag               |
-| TC3 | Septem Tribus              | wildtag, turmoil      |
-| T01 | Aerial Lenses              | turmoil               |
-| T02 | Banned Delegate            | turmoil               |
-| T03 | Cultural Metropolis        | turmoil               |
-| T04 | Diaspora Movement          | turmoil               |
-| T05 | Event Analysts             | turmoil               |
-| T06 | GMO Contract               | turmoil               |
-| T07 | Martian Media Center       | turmoil               |
-| T08 | Parliament Hall            | turmoil               |
-| T09 | PR Office                  | turmoil               |
-| T10 | Public Celebrations        | turmoil               |
-| T11 | Recruitment                | turmoil               |
-| T12 | Red Tourism Wave           | turmoil               |
-| T13 | Sponsored Mohole           | turmoil               |
-| T14 | Supported Research         | turmoil               |
-| T15 | Wildlife Dome              | turmoil               |
-| T16 | Vote Of No Confidence      | turmoil               |
-| X09 | Political Alliance         | turmoil               |
+| id   | card name                  | expansion | blocker               |
+|------|----------------------------|-----------|-----------------------|
+| 008  | Capital                    | base      | concrete              |
+| 206  | Special Design             | base      | adjustreqt            |
+| 153  | Adaptation Technology      | base      | adjustreqt            |
+| B05  | Inventrix                  | base      | adjustreqt            |
+| B00  | Beginner Corporation       | base      | beginner              |
+| B03  | Helion                     | base      | helion                |
+| 188  | Flooding                   | base      | thenspec              |
+| 066  | Land Claim                 | corpera   | community             |
+| V04  | Morning Star Inc.          | venus     | adjustreqt            |
+| P10  | Ecology Experts            | prelude   | adjustreqt            |
+| P28  | Research Network           | prelude   | wildtag               |
+| P40  | Research Coordination      | prelude   | wildtag               |
+| CC1  | Aridor                     | colonies  | classmetrictrigger    |
+| CC5  | Stormcraft Incorporated    | colonies  | payresource           |
+| TC5  | Utopia Invest              | turmoil   | thenspec              |
+| TC3  | Septem Tribus              | turmoil   | wildtag, turmoil      |
+| T01  | Aerial Lenses              | turmoil   | turmoil               |
+| T02  | Banned Delegate            | turmoil   | turmoil               |
+| T03  | Cultural Metropolis        | turmoil   | turmoil               |
+| T04  | Diaspora Movement          | turmoil   | turmoil               |
+| T05  | Event Analysts             | turmoil   | turmoil               |
+| T06  | GMO Contract               | turmoil   | turmoil               |
+| T07  | Martian Media Center       | turmoil   | turmoil               |
+| T08  | Parliament Hall            | turmoil   | turmoil               |
+| T09  | PR Office                  | turmoil   | turmoil               |
+| T10  | Public Celebrations        | turmoil   | turmoil               |
+| T11  | Recruitment                | turmoil   | turmoil               |
+| T12  | Red Tourism Wave           | turmoil   | turmoil               |
+| T13  | Sponsored Mohole           | turmoil   | turmoil               |
+| T14  | Supported Research         | turmoil   | turmoil               |
+| T15  | Wildlife Dome              | turmoil   | turmoil               |
+| T16  | Vote Of No Confidence      | turmoil   | turmoil               |
+| XC1  | Arcadian Communities       | promo     | community             |
+| XC11 | PolderTECH Dutch           | promo     | no reason?            |
+| XC5  | Mons Insurance             | promo     | actorbinding          |
+| XC10 | Kuiper Cooperative         | promo     | payresource           |
+| X06  | Law Suit                   | promo     | playerplayer          |
+| X46  | Supercapacitors            | promo     | productionorder       |
+| X53  | Cyberia Systems            | promo     | copyproduction        |
+| X54  | Established Methods        | promo     | else                  |
+| X59  | Mars Nomads                | promo     | movablemarker         |
+| X-2  | New Holland                | promo     | hybridtile            |
+| X75  | Vermin                     | promo     | globalvp              |
+| 210  | Self-Replicating Robots    | promo     | selfrep               |
+| X09  | Political Alliance         | promo     | turmoil               |
