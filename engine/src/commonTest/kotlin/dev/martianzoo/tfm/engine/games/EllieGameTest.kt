@@ -72,7 +72,6 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
 
     p1.playProject("MicroMills", 1)
-    p1.declineSecondAction()
 
     p1.pass()
 

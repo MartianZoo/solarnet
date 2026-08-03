@@ -735,7 +735,6 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Stratospheric Birds action
     p1.cardAction1("StratosphericBirds").expect("Animal<StratosphericBirds>")
-    p1.declineSecondAction()
     // Player1 passed
     p1.pass()
 
@@ -1073,7 +1072,6 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 funded Venuphile award
     p1.stdAction("FundAwardSA") { doTask("Venuphile") }
-    p1.declineSecondAction()
     // Player1 passed
     p1.pass()
 
@@ -1247,7 +1245,6 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Search For Life action
     // Player2 revealed and discarded Geothermal Power
     p2.cardAction1("SearchForLife") { doTask("Ok") }
-    p2.declineSecondAction()
     // Player2 passed
     p2.pass()
     // Generation 11

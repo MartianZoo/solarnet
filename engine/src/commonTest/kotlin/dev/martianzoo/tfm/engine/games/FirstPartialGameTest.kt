@@ -52,7 +52,6 @@ class FirstPartialGameTest {
       p2.playProject("InventionContest", 2)
 
       p2.playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
-      p2.declineSecondAction()
 
       p2.pass()
 
@@ -97,7 +96,6 @@ class FirstPartialGameTest {
       p2.playProject("ArtificialPhotosynthesis", 10) { doTask("PROD[2 Energy]") }
 
       p2.playProject("BribedCommittee", 5)
-      p2.declineSecondAction()
 
       p2.pass()
 

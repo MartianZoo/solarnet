@@ -454,7 +454,8 @@ fired when no one is waiting (e.g., during automatic engine phases) are silently
 
 Action and final-greenery turn order begins with the player who owns `StartToken`. Creating each
 generation after the first passes that token one seat left, so the workflow reads turn order from
-the world rather than maintaining a separate generation counter.
+the world rather than maintaining a separate generation counter. During the action phase, players
+receive an optional second action only while at least two players have not passed.
 
 In multiplayer, a rules component watches the temperature, oxygen, and ocean `GpComplete` markers
 and creates `LastCall` when all three exist; Venus completion is deliberately irrelevant. Solo

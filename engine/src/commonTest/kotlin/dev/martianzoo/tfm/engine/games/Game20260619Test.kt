@@ -106,7 +106,6 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER gained 2 plants
     ER.playProject("SubterraneanReservoir", 11) { doTask("OceanTile<Tharsis_4_8>") }
         .expect("TR, 2 Plant")
-    ER.declineSecondAction()
 
     // ER passed
     ER.pass()
@@ -263,7 +262,6 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Permafrost Extraction
     ER.playProject("ImportedGhg", 4)
-    ER.declineSecondAction()
 
     // ER passed
     ER.pass()

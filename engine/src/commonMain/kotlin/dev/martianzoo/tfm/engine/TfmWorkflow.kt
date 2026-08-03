@@ -218,7 +218,7 @@ public object TfmWorkflow {
         if (hasPassed(player)) {
           active.removeFirst()
         } else {
-          grantSecondActionTo(player)
+          if (active.size > 1) grantSecondActionTo(player)
           active.addLast(active.removeFirst())
         }
       }
