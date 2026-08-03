@@ -8,7 +8,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Implement [World Government Terraforming](plans/world-government.md) as an Engine operation chosen by the `StartToken` owner, preserving Solar Phase and Actor/Owner rules.
 - Implement Prelude's TR 63 solo option, including Buffer Gas and the 14-generation/12-with-Prelude objective check described in `plans/native-workflow.md`.
-- Give Tharsis Republic an explicit solo-setup production gain instead of observing neutral-city placement.
 - Give `Gain` and `Remove` convenience factories that accept an expression and count without requiring callers to construct a `ScaledExpression`.
 
 ### Soon
