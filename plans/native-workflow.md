@@ -18,7 +18,7 @@ The coarse workflow is:
 3. `ActionPhase`
 4. `ProductionPhase`
 5. `SolarPhase`
-6. `Generation`
+6. `GenerationPhase`
 7. `ResearchPhase`, which always continues to `ActionPhase`
 8. `FinalGreeneryPhase`
 9. `EndPhase`
@@ -108,3 +108,125 @@ When Engine gives a Player a turn, this is control-until-drain rather than the o
 continuation task in its suspended queue; consequences of the Player's work remain in the Player's
 queue; and Engine resumes only after that queue drains and any nested delegation has returned. The
 workflow must therefore not depend on Engine's queue becoming physically empty.
+
+## Proposed Pets shape
+
+The generic runtime should contribute a small workflow vocabulary:
+
+```pets
+"Selects the first step of a native workflow"
+ABSTRACT CLASS Workflow<Class<WorkflowStep>> : System
+
+"One durable state in a native workflow"
+ABSTRACT CLASS WorkflowStep : System
+
+"A transient signal emitted after one workflow step's control scope drains"
+CLASS StepComplete<WorkflowStep> : Signal, System
+
+"A normally contiguous part of a workflow, including its two endpoints"
+ABSTRACT CLASS WorkflowSpan<Class<WorkflowStep>, Class<WorkflowStep>> : System
+
+"A forward ordering constraint within one workflow span"
+ABSTRACT CLASS WorkflowPrecedence<
+    Class<WorkflowSpan>, Class<WorkflowStep>, Class<WorkflowStep>> : System
+```
+
+Terraforming Mars selects its entry point, keeps phases as ordinary components, and declares
+normal ordering separately and uniformly:
+
+```pets
+CLASS TerraformingMarsWorkflow : Workflow<Class<SetupPhase>>, AutoLoad
+
+ABSTRACT CLASS Phase : WorkflowStep, AutoLoad, System {
+  HAS =1 Phase
+
+  CLASS SetupPhase
+  CLASS CorporationPhase
+  CLASS ActionPhase
+}
+
+CLASS SetupToCorporation :
+    WorkflowSpan<Class<SetupPhase>, Class<CorporationPhase>>
+
+CLASS AfterCorporation :
+    WorkflowSpan<Class<CorporationPhase>, Class<ActionPhase>>
+
+CLASS ActionToProduction :
+    WorkflowSpan<Class<ActionPhase>, Class<ProductionPhase>>
+```
+
+The runner reads the unique `Workflow` component to create its declared first step. After the
+step's own effects and delegated control have finished, it gains `StepComplete<the current step>`.
+That signal removes itself like every other `Signal`. Unless an ordinary effect performs a
+conditional terminal transition, the runner advances through the current span's resolved order,
+transmuting the old phase into the next phase. It then waits on the new step. If completion leaves
+no successor, the workflow has terminated. More than one immediate successor is invalid.
+
+This completion signal is preferable to a persistent readiness component or a `nextPhase` field:
+it records no duplicate workflow state, it preserves the exactly-one-`Phase` invariant during a
+normal transition, and requirements on ordinary effects provide branching without a separate
+workflow expression language.
+
+An expansion inserts a phase by contributing forward precedence constraints within a core-owned
+span. It does not replace the span or modify either endpoint:
+
+```pets
+CLASS PreludePhase : Phase
+
+CLASS CorporationBeforePrelude : WorkflowPrecedence<
+    Class<AfterCorporation>, Class<CorporationPhase>, Class<PreludePhase>>
+
+CLASS PreludeBeforeAction : WorkflowPrecedence<
+    Class<AfterCorporation>, Class<PreludePhase>, Class<ActionPhase>>
+```
+
+The base knows only that `CorporationPhase` precedes `ActionPhase`. When Prelude is selected, the
+two additional constraints make its phase the unique intermediate step. Every topology relation
+points forward; no phase sometimes names a predecessor and sometimes names a successor.
+
+Solar expansion phases use the same scheme within one `SolarPhase`-to-`GenerationPhase` span.
+Venus contributes `SolarPhase < VenusSolarPhase < GenerationPhase`; Colonies contributes
+`SolarPhase < SolarColoniesPhase < GenerationPhase` plus
+`VenusSolarPhase < SolarColoniesPhase`; Turmoil does likewise for every earlier Solar subphase.
+The applicable constraints produce the required order without the base rules naming any expansion
+phase.
+
+Names used by `WorkflowPrecedence` are **weak class references**: a constraint participates only
+when its span and both endpoint phase classes were independently activated by the selected rules.
+Reading the constraint must never activate an absent endpoint. This differs intentionally from an
+ordinary component dependency, whose existence asserts that its dependency exists. Workflow
+topology is ruleset metadata, not additional game-world state; the declarations may use ordinary
+Pets class syntax, but the runner should compile them from the selected ruleset rather than create
+their instances in the world.
+
+Dynamic decisions remain ordinary component effects. For example, completion of `SolarPhase` may
+transmute directly to `FinalGreeneryPhase` when the game-end requirement is true. Such an explicit
+transition supersedes normal advancement through the Solar span. Structural insertion and dynamic
+branching therefore remain separate concepts.
+
+```pets
+CLASS SolarPhase {
+  StepComplete<This> IF LastCall:: FinalGreeneryPhase FROM This
+}
+```
+
+`StepComplete` does not itself solve player iteration. Action turns, Prelude plays, and final
+greenery still require the control-until-drain operation described in `identity-transition.md`.
+Those rules should create ordinary turn work and delegate its control to a Player; once that
+Player's control scope drains, Engine's suspended phase continuation resumes. The runner must use
+that control-scope completion, not whole-world queue emptiness, as the condition for emitting
+`StepComplete`.
+
+## Implementation direction
+
+1. Add the generic workflow vocabulary and compile weak, span-scoped precedence declarations from
+   the selected ruleset without activating their referenced phase classes.
+2. Build a generic runner by extracting the lifecycle, checkpoint, cancellation, and wakeup
+   mechanics from `TfmWorkflow.Auto`. Prove it with a synthetic linear span, an inserted phase, a
+   requirement-selected branch, and termination.
+3. Move the coarse Terraforming Mars phase graph into Pets, including expansion-owned precedence
+   constraints and the multiplayer/solo terminal branches.
+4. Implement control-until-drain and express corporation, Prelude, action, and final-greenery turns
+   as component behavior.
+5. Migrate callers to the generic runner and ordinary manual instructions, then delete both
+   `TfmWorkflow.Auto` and `TfmWorkflow.Manual`.

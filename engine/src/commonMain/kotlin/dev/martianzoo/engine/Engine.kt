@@ -93,6 +93,7 @@ public object Engine {
     singleOf(::TimelineImpl) { bind<Timeline>() }
     singleOf(::Limiter)
     singleOf(::WholeWorld) { bind<World>() }
+    single { AtomicOperationBoundary(get()) { get<World>().onAtomicComplete() } }
 
     scope<ActorScopeId> {
       scoped<WritableTaskQueue> { get<TaskQueues>()[get<Actor>()] }
@@ -102,10 +103,7 @@ public object Engine {
         Instructor(get(), get(), get(), get(), get(), get())
       } // Changer? and Effector? are nullable
       scopedOf(::Implementations)
-      scoped {
-        val world = get<World>()
-        ApiTranslation(get(), get(), get(), get(), get(), get(), get()) { world.onAtomicComplete() }
-      } bind Gameplay::class
+      scopedOf(::ApiTranslation) { bind<Gameplay>() }
       scopedOf(::Initializer)
     }
   }

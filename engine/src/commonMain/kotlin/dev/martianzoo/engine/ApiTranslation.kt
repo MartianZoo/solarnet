@@ -36,7 +36,7 @@ internal class ApiTranslation(
     private val tasks: TaskQueue,
     classTable: ClassTable,
     xers: Transformers,
-    private val onAtomicComplete: () -> Unit,
+    private val atomicOperationBoundary: AtomicOperationBoundary,
 ) : GodMode { // so it really implements all gameplay layers
 
   override var autoExecMode: AutoExecMode = FIRST
@@ -184,23 +184,10 @@ internal class ApiTranslation(
 
   override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
 
-  // Tracks nesting depth so we fire onQueueEmpty only once the outermost atomic completes.
-  // autoExecNow() re-enters atomic(), so nesting is common.
-  private var atomicDepth = 0
-
-  fun atomic(block: () -> Unit): TaskResult {
-    atomicDepth++
-    return try {
-      timeline
-          .atomic {
-            block()
-            impl.autoExecNow(autoExecMode)
-          }
-          .also {
-            if (atomicDepth == 1) onAtomicComplete()
-          }
-    } finally {
-      atomicDepth--
-    }
+  // autoExecNow() and cross-Actor gameplay calls can re-enter this boundary. Its depth is shared
+  // by every Actor in the world so only the true outermost operation reports completion.
+  fun atomic(block: () -> Unit): TaskResult = atomicOperationBoundary.run {
+    block()
+    impl.autoExecNow(autoExecMode)
   }
 }

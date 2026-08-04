@@ -67,4 +67,5 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-None currently.
+- Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
+  multiple workflow or monitoring observers need to coexist.
