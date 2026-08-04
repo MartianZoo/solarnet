@@ -5,7 +5,7 @@ implementation sequence.
 
 ## The model
 
-Starting a game requires an `Authority`, exact `GameOptions`, and a `GameAssembler`.
+Starting a game requires an `Authority`, a completed setup world, and a `GameAssembler`.
 
 An **Authority** defines the complete environment in which games may be assembled. It provides a
 closed set of **Bundles** whose combined contents are self-consistent. `Canon` is the only important
@@ -23,16 +23,21 @@ One bundle may provide several separately selectable game options. For example, 
 and `Elysium`. Each board and map-specific milestone has a Pets `setupRequirement`, so only
 definitions applicable to the completed setup world become active game content.
 
-**GameOptions** fully specify one game without randomness. They select actors, rule options, maps,
-individual definitions, content groups, vocabulary, and any exact setup values. A client may make
-random choices, apply convenient defaults, or accept short option codes, but it must resolve those
-choices before constructing GameOptions. This is the conceptual role; it does not preserve the
-shape or responsibilities of the current `GameOptions` data class.
+The **setup world** is the editable expression of what the user wants. It may contain policies such
+as choosing milestones randomly, convenient defaults, and explicit exclusions. Ordinary Pets
+effects may expand one selection into defaults; exclusions mask those effects. Before assembly,
+all policies are resolved into exact selections.
 
-A **GameAssembler** combines one Authority with GameOptions and produces the `ClassTable` for that
-game. It owns content selection, replacement, class reachability, phantom-type policy, and all
-configuration compatibility decisions. This is the proper home of the existing “slurping” policy
-that examines selected definitions to decide which classes the game actually needs.
+**GameModules** are the affirmative, immutable rule components produced by that resolution. Along
+with exact selected content and actors, they fully specify the equivalent games that could be used
+at every table of a duplicate-style tournament. A module adds behavior by being present; disabling
+behavior means omitting its module, not adding a negative gameplay variant.
+
+A **GameAssembler** combines one Authority with a validated, fully resolved setup world and
+produces a reusable `GamePremise`. It owns content selection, replacement, class reachability,
+phantom-type policy, and all configuration compatibility decisions. This is the proper home of the
+existing “slurping” policy that examines selected definitions to decide which classes the game
+actually needs.
 
 `Ruleset` is not a fourth configuration layer. The responsibilities currently associated with that
 name divide between the Authority's available catalog and the GameAssembler's game-specific output.
@@ -65,11 +70,11 @@ derive their provenance from the bundle that reads their directory rather than c
 attributes. Canonical bundle directories follow the `StandardFormBundle` resource contract so JVM
 and JavaScript discover the same supported files and report unexpected ones.
 
-## GameOptions and active content
+## Setup options, game modules, and active content
 
-GameOptions are an exact signed selection. Positive selections may contribute defaults, while
-explicit negative selections mask those defaults before expansion. Selectors may denote different
-kinds of things:
+Setup options are a signed selection. Positive selections may contribute defaults, while explicit
+negative selections mask those defaults before expansion. They may also eventually request a
+selection policy whose result is not yet exact. Selectors may denote different kinds of things:
 
 - a rule option such as `SoloMode` or `ColoniesExpansion`;
 - a map or a map's milestone set;
@@ -91,14 +96,15 @@ Io
 ```
 
 Counteractions take precedence independently of file order and mask defaults before those defaults
-are expanded. They are not cleanup applied after content has loaded. An independently selected item
-from a counteracted group does not re-enable the group or its other defaults; its own semantic
-requirements must still hold.
+are expanded. They exist only in the setup world, not as negative modules in a playable game. An
+independently selected item from a counteracted group does not re-enable the group or its other
+defaults; its own semantic requirements must still hold.
 
-Selecting a definition makes it active content; it does not gain an instance of its class. Enabling
-a rule option may create a singleton component before `SetupPhase` so its behavior can be ordinary
-Pets rules. Selecting vocabulary is not inherently a rule option: activating `VenusTag` need not
-mean enabling the Venus track, World Government Terraforming, or all Venus cards.
+Selecting a definition makes it active content; it does not gain an instance of its class.
+Resolving a rule option creates an affirmative `GameModule` component before `SetupPhase` so its
+behavior can be ordinary Pets rules. Selecting vocabulary is not inherently a rule option:
+activating `VenusTag` need not mean enabling the Venus track, World Government Terraforming, or all
+Venus cards.
 
 Each definition may have a Pets `setupRequirement`, which is evaluated in the completed setup world
 and never against bundle presence. Filtering and replacement happen after signed selections and
@@ -113,7 +119,7 @@ changes may remain explicit until the language has a convincing model for them.
 
 ## Game assembly and class reachability
 
-The GameAssembler begins with roots supplied by the resolved GameOptions: option singletons,
+The GameAssembler begins with roots supplied by the resolved setup world: game modules,
 selected definitions, actors, explicitly selected vocabulary, and shared runtime classes. It then
 follows **activation edges** from those roots. Structural needs such as supertypes and dependency
 signatures are activation edges; a behavioral mention is not automatically one.
@@ -177,7 +183,7 @@ classes are active and the bonus means paying 5 M€ and placing a colony.
 
 ### Selected Venus cards without Venus Next
 
-An Authority may provide the Venus bundle while GameOptions select a few Venus cards but not the
+An Authority may provide the Venus bundle while setup options select a few Venus cards but not the
 Venus Next option. Bundle availability alone activates nothing. If `VenusTag` remains phantom, the
 cards' mandatory tag creation becomes `Die`; the assembler should detect that those cards cannot be
 constructed correctly and reject the selection.
@@ -197,13 +203,14 @@ enable Venus in any game.
 Without the Venus option, `VenusNextExpansion` and `VenusSolarPhase` are phantom and the guarded
 ordering rule is inert. With Venus enabled, they are active and the same rule enforces the phase
 ordering. The Colonies bundle therefore contains one valid rule that is innocuous under every valid
-GameOptions selection, rather than separate bundle variants or workflow code paths.
+resolved module selection, rather than separate bundle variants or workflow code paths.
 
 ## Invariants
 
-- Authorities define valid available environments; GameOptions define games.
+- Authorities define valid available environments; completed setup worlds define games.
 - Bundle dependencies affect availability only and never imply game options.
-- GameOptions are exact and non-random.
+- Setup options express user intent; assembled game modules and content are exact and non-random.
+- Playable games contain affirmative modules and no exclusion or negative-variant components.
 - Behavioral references do not activate provider content.
 - Known inactive classes are phantom; unknown names are errors.
 - The ClassTable represents exactly one assembled game and never expands after assembly.

@@ -22,6 +22,7 @@ internal class SetupWorldTest {
     val reader = setupWorld.gameplay(ENGINE)
 
     reader.count("CorporateEraExpansion") shouldBe 1
+    reader.count("TerraformingMars") shouldBe 1
     reader.count("TharsisMapOption") shouldBe 1
     reader.count("MultiplayerMode") shouldBe 1
     reader.count("Player") shouldBe 2
@@ -45,16 +46,35 @@ internal class SetupWorldTest {
             .godMode()
 
     setupWorld.count("Player") shouldBe 5
-    setupWorld.count("GameOption") shouldBe 7
+    setupWorld.count("GameOption") shouldBe 9
     setupWorld.count("TitanSelected") shouldBe 1
   }
 
   @Test
-  fun setupOptionsCannotBeRemoved() {
+  fun setupOptionsAreEditable() {
     val setupWorld = newSetupWorld().gameplay(ENGINE).godMode()
 
-    shouldThrow<DeadEndException> { setupWorld.manual("-CorporateEraExpansion") }
-    setupWorld.count("CorporateEraExpansion") shouldBe 1
+    setupWorld.manual("-CorporateEraExpansion")
+    setupWorld.count("CorporateEraExpansion") shouldBe 0
+  }
+
+  @Test
+  fun explicitExclusionsMaskDefaultsAndDoNotReachThePlayableWorld() {
+    val setupWorld =
+        Engine.newSetupWorld(
+            Canon.setupWorldDefinition(
+                players = 2,
+                options = Canon.GameOptions(excluded = setOf(CorporateEraExpansion)),
+            )
+        )
+    val setup = setupWorld.gameplay(ENGINE)
+
+    setup.count("CorporateEraExpansion") shouldBe 0
+    setup.count("Exclude<Class<CorporateEraExpansion>>") shouldBe 1
+
+    val game = Engine.newGame(setupWorld, Canon::assemble)
+    game.gameplay(ENGINE).count("CorporateEraExpansion") shouldBe 0
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Exclude"))
   }
 
   @Test
@@ -65,8 +85,8 @@ internal class SetupWorldTest {
   }
 
   @Test
-  fun noWgtVariantRequiresVenusNext() {
-    val setupWorld = newSetupWorld(options = Canon.Option.DEFAULTS + NoWgtVariant)
+  fun worldGovernmentOptionRequiresVenusNext() {
+    val setupWorld = newSetupWorld(options = Canon.Option.DEFAULTS + WorldGovernmentOption)
 
     shouldThrow<DeadEndException> { Engine.newGame(setupWorld, Canon::assemble) }
   }
@@ -86,13 +106,21 @@ internal class SetupWorldTest {
     val setupWorld =
         newSetupWorld(
             options =
-                setOf(CorporateEraExpansion, ElysiumMapOption, PreludeExpansion, PromoCardPack)
+                setOf(
+                    TerraformingMars,
+                    CorporateEraExpansion,
+                    ElysiumMapOption,
+                    PreludeExpansion,
+                    PromoCardPack,
+                )
         )
 
     val game = Engine.newGame(setupWorld, Canon::assemble)
 
     game.reader.tfmRuleset.marsMapDefinitions.single().className shouldBe cn("Elysium")
     game.gameplay(ENGINE).count("TerraformingMars") shouldBe 1
+    game.classTable.allClassNamesAndIds.shouldNotContain(cn("GameOption"))
+    game.gameplay(ENGINE).count("GameModule") shouldBe 6
     game.gameplay(ENGINE).count("ElysiumMapOption") shouldBe 1
     game.gameplay(ENGINE).count("Elysium") shouldBe 1
     game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe true
@@ -116,7 +144,7 @@ internal class SetupWorldTest {
     val setupWorld =
         newSetupWorld(
             players = 1,
-            options = setOf(HellasMapOption, ColoniesExpansion),
+            options = setOf(TerraformingMars, HellasMapOption, ColoniesExpansion),
             selectedColonies = selectedColonies,
         )
 

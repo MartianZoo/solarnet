@@ -23,6 +23,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Option
+import dev.martianzoo.tfm.canon.Canon.OptionSelection
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -30,32 +31,43 @@ internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
 
 internal fun setUpGame(
-    vararg selectedOptions: Option,
+    vararg selectedOptions: OptionSelection,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
 ): World =
     setUpGame(canonicalPremise(*selectedOptions, players = players, colonyTiles = colonyTiles))
 
 internal fun canonicalPremise(
-    vararg selectedOptions: Option,
+    vararg selectedOptions: OptionSelection,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
 ): GamePremise =
-    canonicalPremise(
-        canonicalOptions(*selectedOptions),
-        players,
-        colonyTiles,
-        ruleset,
-    )
+    with(Canon.GameOptions(selectedOptions.asIterable())) {
+      canonicalPremise(
+          canonicalOptions(*included.toTypedArray()),
+          players,
+          colonyTiles,
+          ruleset,
+          excluded,
+      )
+    }
 
 internal fun canonicalPremise(
     options: Set<Option>,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     ruleset: TfmRuleset? = null,
+    excludedOptions: Set<Option> = emptySet(),
 ): GamePremise {
-  val setupWorld = Engine.newSetupWorld(Canon.setupWorldDefinition(players, options, colonyTiles))
+  val setupWorld =
+      Engine.newSetupWorld(
+          Canon.setupWorldDefinition(
+              players,
+              Canon.GameOptions(options, excludedOptions),
+              colonyTiles,
+          )
+      )
   setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
   val base = Canon.assemble(setupWorld.reader)
   if (ruleset == null) return base

@@ -3,10 +3,13 @@
 //
 
 "Expansion adding colony tiles, player colonies, and trade fleets"
-CLASS ColoniesExpansion : GameOption {
+CLASS ColoniesExpansion : GameModule {
   SetupPhase: ColoniesSetup
   SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
 }
+
+"A colony tile chosen for this fully resolved game configuration"
+ABSTRACT CLASS SelectedColonyTile : GameConfiguration { HAS MAX 1 This }
 
 "Creates the colony tiles and one trade fleet for each player"
 CLASS ColoniesSetup : Custom

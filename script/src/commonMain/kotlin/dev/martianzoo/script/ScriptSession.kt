@@ -256,7 +256,11 @@ public class ScriptSession(
 internal fun createGame(setup: OptionCodeTranslation.Setup): World {
   val setupWorld =
       Engine.newSetupWorld(
-          Canon.setupWorldDefinition(setup.players, setup.options, setup.selectedColonies)
+          Canon.setupWorldDefinition(
+              setup.players,
+              Canon.GameOptions(setup.options, setup.excludedOptions),
+              setup.selectedColonies,
+          )
       )
   return Engine.newGame(setupWorld, Canon::assemble)
 }

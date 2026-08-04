@@ -21,11 +21,12 @@ import dev.martianzoo.util.toSetStrict
  *
  * Every `.pets` file in [resourceDirectory] is loaded. The supported JSON filenames are exposed as
  * constants below. Files for unsupported canonical data are recognized but ignored; other files
- * produce a warning. A declaration outside `setup.pets` replaces a same-named setup declaration
- * wholesale in gameplay rulesets; setup declarations without replacements are reused. A bundle
- * identity is raw source provenance, not a Pets class, so no declaration is required or synthesized
- * for it. Callers whose resources are not in Canon's generated index can provide
- * [resourceFilenames] and [resourceReader] directly.
+ * produce a warning. Setup declarations are not reused by gameplay rulesets; active game
+ * configuration has explicit gameplay declarations instead. Generated selected-colony declarations
+ * are emitted in both vocabularies because they are resolved in setup and copied into the playable
+ * world. A bundle identity is raw source provenance, not a Pets class, so no declaration is
+ * required or synthesized for it. Callers whose resources are not in Canon's generated index can
+ * provide [resourceFilenames] and [resourceReader] directly.
  */
 public class StandardFormBundle(
     name: String,
@@ -50,8 +51,7 @@ public class StandardFormBundle(
             .sorted()
             .flatMap { parseClasses(read(it)) }
             .toSetStrict()
-    val gameplayNames = gameplayDeclarations.mapTo(hashSetOf()) { it.className }
-    gameplayDeclarations + setupClassDeclarations.filter { it.className !in gameplayNames }
+    gameplayDeclarations + selectedColonyDeclarations
   }
 
   /** Setup-world declarations contributed separately from this bundle's gameplay rules. */
@@ -59,10 +59,13 @@ public class StandardFormBundle(
     val sourceDeclarations =
         if (SETUP_FILENAME in resourceFilenames) parseClasses(read(SETUP_FILENAME)).toSetStrict()
         else emptySet()
-    sourceDeclarations +
-        colonyTileDefinitions.map {
-          parseOneLinerClass("CLASS ${it.className}Selected : SelectedColonyTile")
-        }
+    sourceDeclarations + selectedColonyDeclarations
+  }
+
+  private val selectedColonyDeclarations: Set<ClassDeclaration> by lazy {
+    colonyTileDefinitions.mapTo(linkedSetOf()) {
+      parseOneLinerClass("CLASS ${it.className}Selected : SelectedColonyTile")
+    }
   }
 
   override val cardDefinitions: Set<CardDefinition> by lazy {

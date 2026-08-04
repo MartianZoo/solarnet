@@ -41,8 +41,8 @@ Various non-Terraforming-specific helpers.
 ### <a href="canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
 
 Contains the data and custom instructions for officially published cards, maps, etc. Canon also
-provides an independent setup-world vocabulary and converts completed setup worlds into reusable
-`GamePremise` values.
+provides an independent, editable setup-world vocabulary and converts its resolved options into
+affirmative gameplay modules in reusable `GamePremise` values.
 
 ## module ENGINE
 

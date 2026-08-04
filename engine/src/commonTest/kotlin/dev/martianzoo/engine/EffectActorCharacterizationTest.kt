@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
@@ -24,14 +25,14 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun noActorCanRemoveGameOptions() {
+  fun noActorCanRemoveGameModules() {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
-    assertFailsWith<DeadEndException> { player.manual("-TharsisMapOption") }
+    assertFailsWith<LimitsException> { player.manual("-TharsisMapOption") }
     player.count("TharsisMapOption") shouldBe 1
 
-    assertFailsWith<DeadEndException> {
+    assertFailsWith<LimitsException> {
       game.gameplay(ENGINE).godMode().manual("-TharsisMapOption")
     }
     player.count("TharsisMapOption") shouldBe 1

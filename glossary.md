@@ -54,8 +54,10 @@
 - **Follow mode:** Using Solarnet to reproduce or accompany a game whose concrete setup choices and
   actions are supplied by a client or another authoritative source. The engine follows those facts;
   it does not choose random content such as maps, milestones, or colony tiles.
-- **Game option:** An exact semantic choice for a game, such as using SoloMode, the Prelude rules, or
-  a particular map. Canon translates options into the raw bundles needed to provide them.
+- **Game option:** An editable setup-world expression of user intent. Positive options may add
+  defaults through effects, while explicit exclusions mask those defaults before they fire.
+- **Game module:** An affirmative, immutable rules component in a playable world. The complete set
+  records the fully resolved rules shared by every equivalent game created from a premise.
 - **Game premise:** The complete, immutable facts from which equivalent games can be created: the
   ruleset, loaded class roots, Actors, and initial components.
 - **Gameplay:** The Actor-scoped API through which a world is queried and changed.

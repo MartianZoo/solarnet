@@ -3,9 +3,17 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
-"A catch-all for arbitrary global effects that don't seem to belong anywhere else"
-CLASS TerraformingMars : System {
-  HAS =1 This, =1 MarsMap
+"An immutable fact in the fully resolved configuration of a playable game"
+ABSTRACT CLASS GameConfiguration : System {
+  -This:: Die!
+}
+
+"An affirmative module of rules active in a playable game"
+ABSTRACT CLASS GameModule : GameConfiguration { HAS =1 This }
+
+"The base Terraforming Mars rules"
+CLASS TerraformingMars : GameModule {
+  HAS =1 MarsMap
 
   SetupPhase IF 2 Player:: BeginGame
   CorporationPhase: Photosynthesis

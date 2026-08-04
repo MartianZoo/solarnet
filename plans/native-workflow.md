@@ -7,8 +7,7 @@ structure and behavior come from Pets declarations. The engine may provide gener
 workflow semantics, but Kotlin must not actively manage the Terraforming Mars phase sequence or
 know which expansions insert phases.
 
-This file is authoritative for phase ordering and terminal behavior where an earlier focused plan,
-such as `world-government.md`, differs.
+This file is authoritative for phase ordering and terminal behavior.
 
 ## Correct phase requirements
 
@@ -50,17 +49,17 @@ marker. They occur only between generations, immediately before `ResearchPhase`.
 Each expansion must declare its own workflow contribution without Kotlin knowing about it:
 
 - `PreludeExpansion` inserts `PreludePhase` after `CorporationPhase`.
-- `VenusNextExpansion` inserts `SolarVenusPhase` after `SolarPhase`.
+- `VenusNextExpansion` inserts `VenusSolarPhase` after `SolarPhase`.
 - `ColoniesExpansion` inserts `SolarColoniesPhase` after every member of
-  `{SolarPhase, SolarVenusPhase}` that actually exists in this game.
+  `{SolarPhase, VenusSolarPhase}` that actually exists in this game.
 - `TurmoilExpansion` inserts `SolarTurmoilPhase` after every member of
-  `{SolarPhase, SolarVenusPhase, SolarColoniesPhase}` that actually exists in this game.
+  `{SolarPhase, VenusSolarPhase, SolarColoniesPhase}` that actually exists in this game.
 
 These are precedence constraints over the phases present in one configured game. Merely
 expressing a constraint must not cause an absent expansion phase class to be loaded. Thus the
 resulting Solar order is always the applicable subsequence of:
 
-`SolarPhase -> SolarVenusPhase -> SolarColoniesPhase -> SolarTurmoilPhase`
+`SolarPhase -> VenusSolarPhase -> SolarColoniesPhase -> SolarTurmoilPhase`
 
 Insertion applies only to normal continuation. If `SolarPhase` ends or aborts the game, no later
 Solar subphase runs.
