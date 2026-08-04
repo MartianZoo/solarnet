@@ -271,7 +271,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag", "MicrobeTag" ],
-      "effects": [ "BioTag: Plant OR CardResource<CardFront(HAS BioTag)>" ],
+      "effects": [ "BioTag<CardFront>: Plant OR CardResource<CardFront>" ],
     },
 
     // Quantum Extractor

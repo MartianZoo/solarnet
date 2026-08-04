@@ -10,6 +10,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
@@ -42,7 +43,9 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
           is Then -> listOf(lhs) + instruction.instructions
           else -> listOf(lhs, instruction)
         }
-    return Then(allInstructions)
+    val actionSources = TypeLinking.sourcesAcrossRegions(this)
+    val resultSources = (instruction as? Then)?.linkedTypeSources.orEmpty()
+    return Then(allInstructions).withLinkedTypeSources(actionSources + resultSources)
   }
 
   public sealed class Cost : PetNode() {

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -7,6 +8,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
@@ -40,6 +42,20 @@ class StartTokenTest {
     engine.godMode().manual("Generation")
 
     engine.assertCounts(1 to "StartToken<Player1>")
+  }
+
+  @Test
+  fun `solo setup links each greenery to its own city`() {
+    val engine = setUpGame(players = 1).tfm(ENGINE)
+
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_5_8, SoloOpponent>")
+
+    // This area neighbors the first city, but not the selected second city.
+    shouldThrow<NarrowingException> {
+      engine.doTask("GreeneryTile<Tharsis_3_1, SoloOpponent>")
+    }
   }
 
   @Test

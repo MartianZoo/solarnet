@@ -37,6 +37,16 @@ public sealed class PetNode {
    */
   protected abstract fun visitChildren(visitor: Visitor)
 
+  /** Immediate children in the same stable order used by descendant traversal. */
+  internal fun immediateChildren(): List<PetNode> = buildList {
+    visitChildren(
+        Visitor {
+          add(it)
+          false
+        }
+    )
+  }
+
   /**
    * Passes every node of a subtree to [visitor], including this. [visitor] should return `true` if
    * it wants child subtrees to be traversed.

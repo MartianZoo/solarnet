@@ -42,13 +42,13 @@ internal class ReluctantClassLoadingTest {
 
     totals.shouldContainExactly(
         mapOf(
-            TharsisMapOption to 144, // 148 minus BegCorp, Helion, Capital, and Flooding
-            CorporateEraExpansion to 144 + 72, // 73 minus Land Claim
-            VenusNextExpansion to 216 + 54,
-            PreludeExpansion to 270 + 45, // 47 minus Research Network/Coordination
-            ColoniesExpansion to 315 + 52, // 54 minus Aridor and Stormcraft
-            TurmoilCardPack to 367 + 3, // only 3 corps working haha
-            PromoCardPack to 370 + 84 - 3, // 96 minus 12 unsupported
+            TharsisMapOption to 145, // 148 minus BegCorp, Helion, and Capital
+            CorporateEraExpansion to 145 + 72, // 73 minus Land Claim
+            VenusNextExpansion to 217 + 54,
+            PreludeExpansion to 271 + 45, // 47 minus Research Network/Coordination
+            ColoniesExpansion to 316 + 52, // 54 minus Aridor and Stormcraft
+            TurmoilCardPack to 368 + 4,
+            PromoCardPack to 372 + 84 - 3, // 96 minus 12 unsupported
         )
     )
   }

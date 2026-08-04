@@ -64,7 +64,10 @@ internal class Effector(
 
   private fun liveEffects(component: Component): List<LiveEffect> {
     fun liveEffect(fx: Effect): LiveEffect {
-      val subscription = Subscription.from(fx.trigger, component)
+      // Lowering can consume the trigger-side occurrence (for example PROD), so prefer the frozen
+      // authored origins even when they can no longer be rediscovered from the transformed tree.
+      val linkedSources = fx.linkedTypeSources
+      val subscription = Subscription.from(fx.trigger, component, linkedSources)
       val triggerClass =
           subscription.classToCheck?.let(transformers.classTable::getClass)?.className
       return LiveEffect(
@@ -194,18 +197,29 @@ internal class Effector(
       fun from(
           trigger: Trigger,
           context: Component,
+          linkedSources: Set<Expression>,
           implicitOwner: Player? = context.playerOwner,
       ): Subscription {
         return when (trigger) {
-          is Or -> AnyOf(trigger.triggers.map { from(it, context, implicitOwner) })
+          is Or -> AnyOf(trigger.triggers.map { from(it, context, linkedSources, implicitOwner) })
           is BasicTrigger -> {
             when (trigger) {
               is WhenGain -> Self(context, matchOnGain = true)
               is WhenRemove -> Self(context, matchOnGain = false)
               is OnGainOf ->
-                  Regular(trigger.expression, matchOnGain = true, implicitOwner = implicitOwner)
+                  Regular(
+                      trigger.expression,
+                      matchOnGain = true,
+                      implicitOwner = implicitOwner,
+                      linkedSources = linkedSources,
+                  )
               is OnRemoveOf ->
-                  Regular(trigger.expression, matchOnGain = false, implicitOwner = implicitOwner)
+                  Regular(
+                      trigger.expression,
+                      matchOnGain = false,
+                      implicitOwner = implicitOwner,
+                      linkedSources = linkedSources,
+                  )
             }
           }
           is WrappingTrigger -> {
@@ -213,6 +227,7 @@ internal class Effector(
                 from(
                     trigger.inner,
                     context,
+                    linkedSources,
                     implicitOwner = if (trigger is ByTrigger) null else implicitOwner,
                 )
             when (trigger) {
@@ -262,6 +277,7 @@ internal class Effector(
         val match: Expression,
         val matchOnGain: Boolean,
         val implicitOwner: Player?,
+        val linkedSources: Set<Expression>,
     ) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
@@ -294,9 +310,10 @@ internal class Effector(
           val ownerSubstitution =
               if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null
           val subber =
-              reader.transformers.checkedSubstituter(
+              reader.transformers.checkedLinkageSubstituter(
                   matchType,
                   changeType,
+                  linkedSources,
                   ownerSubstitution,
               )
           Hit(listOf(subber), change.count)

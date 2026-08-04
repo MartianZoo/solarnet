@@ -9,7 +9,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Implement Prelude's TR 63 solo option, including Buffer Gas and the 14-generation/12-with-Prelude objective check described in `plans/native-workflow.md`.
 ### Soon
 
-- Treat linkage semantics as one project ([#12](https://github.com/MartianZoo/solarnet/issues/12), [plan](plans/linkages.md)): link identical abstract expressions within one effect or `THEN`, but not across comma-separated instructions or sibling argument positions; validate every shared `X` directly against one multiplier instead of traversal-order zipping. This affects solo setup, Kaguya Tech, Flooding, Utopia Invest, Splice, Trade Envoys, Trading Colony, action-used markers, and nested dependency declarations.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable world.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.

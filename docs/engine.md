@@ -305,10 +305,10 @@ with the component and bound effect in the error message. The deliberate excepti
 declared by a supertype and applied to a passive, non-Player Owner when that effect requires
 Player-bound output; that inapplicable effect is omitted.
 
-When a concrete change narrows an abstract trigger, the same linked narrowing is applied to the
-triggered instruction. Repeated class names therefore stay linked across the trigger and its
-consequence. If narrowing makes an atomic change's type invalid, that change becomes `Die`;
-an enclosing `OR` discards the impossible branch, and fails if no branch remains.
+When a concrete change narrows an abstract trigger, the same narrowing is applied to the exact
+source expressions linked across that trigger and its instruction. Other occurrences of the same
+class remain independent. If narrowing makes an atomic change's type invalid, that change becomes
+`Die`; an enclosing `OR` discards the impossible branch, and fails if no branch remains.
 
 When a live effect fires, if the effect is **automatic** (double-colon in Pets syntax), the
 `Instructor` executes its triggered instruction inline in the same change loop. If the effect is

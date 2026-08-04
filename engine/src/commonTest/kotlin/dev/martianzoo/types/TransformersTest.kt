@@ -134,4 +134,25 @@ class TransformersTest {
     transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
         "Microbe<Decomposers<Player1>>"
   }
+
+  @Test
+  fun `linkage specialization leaves an unlinked occurrence of the same class independent`() {
+    val general =
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
+    val specific =
+        CanonClassesTest.table.resolve(
+            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
+        )
+    val instruction =
+        parse<Instruction>("Microbe<CardFront<Player1>> OR Microbe<CardFront<Player2>>")
+
+    transformers
+        .checkedLinkageSubstituter(
+            general,
+            specific,
+            setOf(parse("CardFront<Player1>")),
+        )
+        .transform(instruction)
+        .toString() shouldBe "Microbe<Decomposers<Player1>> OR Microbe<CardFront<Player2>>"
+  }
 }

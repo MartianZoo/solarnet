@@ -11,8 +11,10 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Engine.TaskListener
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.InstructionGroup
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -36,14 +38,21 @@ import dev.martianzoo.util.toSetStrict
 internal class TaskQueues
 private constructor(
     private val events: TaskListener,
+    private val classTable: ClassTable?,
     initialTasks: Collection<Task>,
 ) {
-  internal constructor(events: TaskListener) : this(events, emptyList())
+  internal constructor(
+      events: TaskListener,
+      classTable: ClassTable? = null,
+  ) : this(events, classTable, emptyList())
 
   private val taskSet: MutableSet<Task> = initialTasks.toMutableSet()
+  private val isAbstract: ((Expression) -> Boolean)? = classTable?.let { table ->
+    { expression -> table.resolve(expression).abstract }
+  }
 
   /** Copies current tasks without recording their existing additions in [events]. */
-  internal fun copy(events: TaskListener) = TaskQueues(events, taskSet)
+  internal fun copy(events: TaskListener) = TaskQueues(events, classTable, taskSet)
 
   internal fun all(): WritableTaskQueue = WritableTaskQueue(this, assignee = null) { true }
 
@@ -69,7 +78,7 @@ private constructor(
       assignee: Actor,
       cause: Cause?,
   ): List<TaskAddedEvent> {
-    val newTasks = Task.newTasks(nextAvailableId(), assignee, instruction, cause)
+    val newTasks = Task.newTasks(nextAvailableId(), assignee, instruction, cause, isAbstract)
     return newTasks.map {
       val task = addToTaskSet(it)
       events.taskAdded(task)

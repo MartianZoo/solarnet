@@ -12,6 +12,7 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
@@ -24,6 +25,8 @@ public data class Effect(
     val instruction: Instruction,
     val automatic: Boolean = false,
 ) : PetElement() {
+  public val linkedTypeSources: Set<Expression>
+    get() = recordedLinkedTypeSources
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Effect::class
 
@@ -244,7 +247,13 @@ public data class Effect(
           colons and
           maybeGroup(Instruction.parser()) map
           { (trig, immed, instr) ->
-            Effect(trigger = trig, automatic = immed, instruction = instr)
+            val effect =
+                Effect(
+                    trigger = trig,
+                    automatic = immed,
+                    instruction = instr,
+                )
+            effect.withLinkedTypeSources(TypeLinking.sourcesAcrossRegions(effect))
           }
     }
   }

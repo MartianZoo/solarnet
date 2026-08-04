@@ -1491,6 +1491,16 @@
       ],
     },
 
+    // Flooding
+    {
+      "id": "188",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 7,
+      "immediate": "OceanTile OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 Megacredit<Anyone>?)",
+      "effects": [ "End: -VictoryPoint" ],
+    },
+
     // Energy Saving
     {
       "id": "189",

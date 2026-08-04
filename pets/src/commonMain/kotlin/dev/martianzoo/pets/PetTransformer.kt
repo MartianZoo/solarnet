@@ -16,6 +16,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.ast.withLinkedTypeSources
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -108,13 +109,16 @@ public abstract class PetTransformer protected constructor() {
                   is Instruction.Per -> Instruction.Per(x(inner), x(metric))
                   is Instruction.By -> Instruction.By.create(x(inner), x(actor))
                   is Instruction.Gated -> Instruction.Gated(x(gate), x(inner))
-                  is Instruction.Then -> Instruction.Then(x(instructions))
+                  is Instruction.Then ->
+                      withInstructions(x(instructions)).withLinkedTypeSources(x(linkedTypeSources))
                   is Instruction.Or -> Instruction.Or(x(instructions))
                   is Instruction.Multi -> Instruction.Multi(x(instructions))
                   is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
                 }
             is FromExpression -> FromExpression(x(toExpression), x(fromExpression))
-            is Effect -> Effect(x(trigger), x(instruction), automatic)
+            is Effect ->
+                copy(trigger = x(trigger), instruction = x(instruction))
+                    .withLinkedTypeSources(x(linkedTypeSources))
             is Trigger ->
                 when (this) {
                   is Trigger.Or -> Trigger.Or(x(triggers))
