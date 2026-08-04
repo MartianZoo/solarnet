@@ -21,6 +21,7 @@ public object Canon :
                 cn("SoloMode"),
                 cn("MultiplayerMode"),
                 cn("StandardSoloVariant"),
+                cn("Tr63SoloVariant"),
             ),
         ),
         StandardFormBundle(
@@ -74,6 +75,7 @@ public object Canon :
     SoloMode,
     MultiplayerMode,
     StandardSoloVariant,
+    Tr63SoloVariant,
     CorporateEraExpansion,
     TharsisMapOption,
     HellasMapOption,
@@ -86,7 +88,6 @@ public object Canon :
     TurmoilCardPack,
     PromoCardPack,
     WorldGovernmentOption,
-    // Tr63SoloVariant,
     // MandatoryVenusVariant,
     // OfferBeginnerCorpsVariant,
     ;

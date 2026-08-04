@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
@@ -17,6 +18,7 @@ class Game20260730Test : AbstractSoloTest() {
         PreludeExpansion,
         ColoniesExpansion,
         PromoCardPack,
+        Tr63SoloVariant,
         players = 1,
         colonyTiles = setOf(cn("Ceres"), cn("Io"), cn("Triton")),
     )
@@ -41,7 +43,6 @@ class Game20260730Test : AbstractSoloTest() {
       playCorp("Credicor", 7).expect("36")
 
       // You discarded Miranda
-      phase("Prelude")
       // Player1 played Society Support
       // Player1 lost 1 M€ production
       // Player1 gained 1 plant production
@@ -55,7 +56,6 @@ class Game20260730Test : AbstractSoloTest() {
         playProject("TitanShuttles", 0).expect("4")
       }
 
-      phase("Action")
       // Player1 used Titan Shuttles action
       cardAction1("TitanShuttles") {
         // Player1 added 2 Floater(s) to Titan Shuttles
@@ -534,9 +534,18 @@ class Game20260730Test : AbstractSoloTest() {
       playProject("OptimalAerobraking", 7)
       // Player1 used Sell Patents standard project
       // Player1 sold 1 patents
-      sellPatents(1)
-      // The log does not expose every earlier metal payment; reconcile its available M€ here.
-      godMode().manual("8")
+      withAutoExecLoweredAfterOperation(
+          NONE,
+          operation = { lowerAutoExec ->
+            stdAction("SellPatents") {
+              doTask("-ProjectCard THEN 1")
+              lowerAutoExec()
+            }
+          },
+      ) {
+        // The log does not expose every earlier metal payment; reconcile its available M€ here.
+        godMode().manual("8")
+      }
       // Player1 played Imported Nutrients
       // Player1 gained 4 plants
       // Player1 gained 3 M€ because of Optimal Aerobraking
@@ -728,11 +737,10 @@ class Game20260730Test : AbstractSoloTest() {
 
       // Player1 passed
       pass()
-      engine.phase("Production")
+      has("Victory") shouldBe true
       // Final greenery placement
-      engine.phase("FinalGreenery")
+      doFirstTask("Ok")
       // This game id was gafda6ee74f34
-      engine.phase("End")
 
       assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)
       assertResources(m = 106, s = 4, t = 6, p = 4, e = 1, h = 17)
@@ -743,8 +751,9 @@ class Game20260730Test : AbstractSoloTest() {
 
       val sum = Summarizer(game)
 
-      // Best current match for the app's reported action count: turns offered plus passes.
-      (-sum.net("NewTurn", "NewTurn<P1>") + sum.net("ActionPhase", "Pass<P1>")) shouldBe 168
+      // Best current match for the app's reported action count: turns offered plus passes,
+      // excluding the final-greenery offer.
+      (-sum.net("NewTurn", "NewTurn<P1>") + sum.net("ActionPhase", "Pass<P1>") - 1) shouldBe 168
 
       // Discounts earned
       sum.net("AdvancedAlloys", "Owed<P1>") shouldBe -84

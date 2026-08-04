@@ -4,9 +4,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
-### Very Soon
-
-- Implement Prelude's TR 63 solo option, including Buffer Gas and the 14-generation/12-with-Prelude objective check described in `plans/native-workflow.md`.
 ### Soon
 
 - Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game fixtures.

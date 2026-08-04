@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
@@ -20,6 +22,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         ColoniesExpansion,
         TurmoilCardPack,
         PromoCardPack,
+        Tr63SoloVariant,
         players = 1,
         colonyTiles = colonyTiles,
     )
@@ -48,7 +51,6 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       // You discarded Enceladus
 
-      phase("Prelude")
       // me played Merger
       val UnitedNationsMarsInitiative = "UnitedNationsMarsInitiative"
       playPrelude("Merger") {
@@ -66,8 +68,6 @@ class SoloGame0721Test : AbstractSoloTest() {
         // me's plants amount increased by 1
         doFirstTask("OceanTile<Elysium_4_7>")
       }
-
-      phase("Action")
 
       // me used United Nations Mars Initiative action
       cardAction1(UnitedNationsMarsInitiative)
@@ -227,14 +227,29 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction2(ExtractorBalloons).expect("TR")
       // me played Mining Expedition
       // me's steel amount increased by 2
-      playProject("MiningExpedition", 12) { doTask("-2 Plant<SoloOpponent>") }.expect("2 Steel, TR")
-
-      // NOTE: this is a hack, because I should have banned Flooding
-      // me played Flooding
-      // me placed ocean tile on row 4 position 6
-      // me's plants amount increased by 1
-      godMode().manual("-7 THEN OceanTile<Elysium_4_6>").expect("Plant, -3")
-      godMode().manual("PlayedEvent<Class<Conscription>> FROM ProjectCard") // ewww!
+      withAutoExecLoweredAfterOperation(
+              NONE,
+              operation = { lowerAutoExec ->
+                playProject("MiningExpedition", 12) {
+                  doTask("-2 Plant<SoloOpponent>")
+                  lowerAutoExec()
+                }
+              },
+          ) {
+            // NOTE: this is a hack, because I should have banned Flooding
+            // me played Flooding
+            // me placed ocean tile on row 4 position 6
+            // me's plants amount increased by 1
+            godMode()
+                .manual(
+                    "-7 THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<Conscription>> FROM ProjectCard"
+                ) {
+                  doTask("OceanTile<Elysium_4_6>!")
+                  autoExecMode = FIRST
+                }
+                .expect("Plant, -3")
+          }
+          .expect("2 Steel, TR")
 
       // me passed
       // me acted as World Government and increased oxygen level
@@ -560,20 +575,14 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       // me passed
       pass()
-      engine.phase("Production")
-
-      has("63 TR") shouldBe true // victory!
+      has("Victory") shouldBe true
 
       // Final greenery placement
-      phase("FinalGreenery")
-      startTurn()
       doTask("UseAction1<ConvertPlantsSA>")
       // me placed greenery tile on row 8 position 5
       // me's steel amount increased by 2
       doTask("GreeneryTile<Elysium_8_8>")
-
-      engine.phase("End")
-
+      doFirstTask("Ok")
       // This game id was gf33a06d07a1c
       // herokuapp results image: https://tinyurl.com/39xerd7w
 

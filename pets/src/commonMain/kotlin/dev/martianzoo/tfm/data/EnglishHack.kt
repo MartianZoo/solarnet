@@ -35,6 +35,7 @@ internal object EnglishHack {
           "SP11" to "PowerPlantSP",
           "SP14" to "AsteroidSP",
           "SP15" to "AirScrappingSP",
+          "SP16" to "BufferGasSP",
           "SP17" to "BuildColonySP",
           "SP18" to "AquiferSP",
           "SP23" to "GreenerySP",

@@ -78,6 +78,25 @@ internal class SetupWorldTest {
   }
 
   @Test
+  fun explicitStandardSoloExclusionSuppressesTheDefaultVariant() {
+    val setupWorld =
+        Engine.newSetupWorld(
+            Canon.setupWorldDefinition(
+                players = 1,
+                options =
+                    Canon.GameOptions(
+                        included = Canon.Option.DEFAULTS,
+                        excluded = setOf(StandardSoloVariant),
+                    ),
+            )
+        )
+    val setup = setupWorld.gameplay(ENGINE)
+
+    setup.count("StandardSoloVariant") shouldBe 0
+    shouldThrow<DeadEndException> { setup.godMode().manual("ValidateSetup") }
+  }
+
+  @Test
   fun colonySelectionsRequireTheColoniesExpansion() {
     shouldThrow<DeadEndException> {
       newSetupWorld(selectedColonies = setOf(cn("Luna")))

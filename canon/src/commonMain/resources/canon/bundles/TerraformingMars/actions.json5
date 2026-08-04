@@ -44,6 +44,9 @@
     // Asteroid
     { "id": "SP14", "action": "14 -> TemperatureStep" },
 
+    // Buffer Gas (TR 63 solo variant)
+    { "id": "SP16", "action": "16 -> TerraformRating", "setupRequirement": "Tr63SoloVariant" },
+
     // Aquifer
     { "id": "SP18", "action": "18 -> OceanTile" },
 

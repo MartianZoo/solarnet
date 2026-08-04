@@ -21,7 +21,8 @@ canonical setup premise with a player count, signed `Canon.GameOptions`, and opt
 colony class names. Included options express user intent; exclusions mask effect-contributed
 defaults. For example, `TerraformingMars` adds Corporate Era and `VenusNextExpansion` adds
 `WorldGovernmentOption` unless explicitly excluded. Canon also derives `SoloMode` or
-`MultiplayerMode` from player count, and SoloMode defaults to `StandardSoloVariant`.
+`MultiplayerMode` from player count. SoloMode defaults to `StandardSoloVariant` unless another
+`SoloVariant`, such as `Tr63SoloVariant`, is selected.
 
 Setup-world `GameOption` components are editable. Same-named gameplay declarations replace them
 during assembly and inherit immutable `GameModule`, so the playable world contains only the fully
@@ -463,8 +464,10 @@ In multiplayer, a rules component watches the temperature, oxygen, and ocean `Gp
 and creates `LastCall` when all three exist; Venus completion is deliberately irrelevant. Solo
 creates the same marker upon entering its final configured generation. The workflow consults only
 that shared fact. After the final solo production, `SoloVictoryCheck` awards `Victory<Player1>` only
-if the applicable global-parameter objective is complete; the workflow enters final greenery and
-scoring only when that victory component exists. Multiplayer end scoring first measures awards and assigns their places,
+if the selected solo objective is complete. The standard variant checks the applicable global
+parameters; TR 63 checks for 63 terraform rating and adds the 16 M€ Buffer Gas standard project.
+The workflow enters final greenery and scoring only when that victory component exists. Multiplayer
+end scoring first measures awards and assigns their places,
 then `End` pays out ordinary and award victory points. Once `FinalScore` exists,
 `MultiplayerVictoryCheck` awards `Victory` to the highest final score with megacredits as the
 tiebreaker.

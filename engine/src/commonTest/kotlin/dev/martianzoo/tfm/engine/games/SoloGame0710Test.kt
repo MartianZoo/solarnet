@@ -19,6 +19,7 @@ class SoloGame0710Test : AbstractSoloTest() {
         ColoniesExpansion,
         TurmoilCardPack,
         PromoCardPack,
+        Tr63SoloVariant,
         players = 1,
         colonyTiles = colonyTiles,
     )
@@ -32,8 +33,6 @@ class SoloGame0710Test : AbstractSoloTest() {
   fun soloGame0710() {
     with(me) {
       playCorp("PharmacyUnion", 10).expect("16, 11 ProjectCard")
-
-      phase("Prelude")
 
       playPrelude("Merger") {
         // playCorp("Manutech", 0) - TODO this really should work
@@ -51,7 +50,6 @@ class SoloGame0710Test : AbstractSoloTest() {
         playProject("OlympusConference", 4, steel = 3).expect("Science")
       }
 
-      phase("Action")
       playProject("StandardTechnology", 6) { doTask("ProjectCard FROM Science<OlympusConference>") }
       playProject("AdvancedAlloys", 9) {
         doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
@@ -263,9 +261,8 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdProject("AirScrappingSP")
 
       pass()
-      engine.phase("Production")
-      engine.phase("End")
-
+      has("Victory") shouldBe true
+      doFirstTask("Ok")
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")

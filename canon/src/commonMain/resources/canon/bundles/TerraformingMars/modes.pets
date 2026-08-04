@@ -18,11 +18,20 @@ CLASS StandardSoloVariant : GameModule {
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
 }
 
+"The solo objective is 63 terraform rating instead of completed global parameters"
+CLASS Tr63SoloVariant : GameModule {
+  SetupPhase: Tr63SoloObjective
+  SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
+}
+
 "Lets selected variants initialize solo state immediately before generation 1 begins"
 CLASS GenerationSetup : Signal, System
 
 "Records that a selected expansion extends the ordinary solo victory objective"
 CLASS SoloVictoryRequirement { HAS MAX 1 This }
+
+"Records that the selected solo objective is 63 terraform rating"
+CLASS Tr63SoloObjective { HAS MAX 1 This }
 
 "The number of generations remaining in a solo game"
 CLASS SoloGenerationsLeft
