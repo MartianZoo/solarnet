@@ -7,7 +7,6 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -118,31 +117,38 @@ public constructor(
     val phantom = !active || activeDeclaration == null
     return construct(declaration, phantom).also {
       if (phantom) return@also
-      val needed = buildSet {
-        fun collectRelated(node: PetNode) {
-          node.visitDescendants {
-            when {
-              it is Count && it.expression.className == CLASS -> {
-                add(CLASS)
-                val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
-                argument?.let { expression -> knownClassName(expression.className)?.let(::add) }
-                it.expression.refinement?.let(::collectRelated)
-                false
-              }
-              it is ClassName -> {
-                add(it)
-                false
-              }
-              else -> true
-            }
+      queue.addAll(activationEdges(declaration) - loadedClasses.keys - THIS)
+    }
+  }
+
+  /**
+   * The class names that loading [declaration] as active demands also be loaded as active. Today
+   * this is every name the declaration mentions anywhere, no matter how it is mentioned; only the
+   * argument of a `Class<...>` metric gets narrower treatment. Note that a name reachable only this
+   * way still loads as a phantom when the ruleset has no active declaration for it.
+   */
+  private fun activationEdges(declaration: ClassDeclaration): Set<ClassName> = buildSet {
+    fun collectRelated(node: PetNode) {
+      node.visitDescendants {
+        when {
+          it is Count && it.expression.className == CLASS -> {
+            add(CLASS)
+            val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
+            argument?.let { expression -> knownClassName(expression.className)?.let(::add) }
+            it.expression.refinement?.let(::collectRelated)
+            false
           }
-        }
-        declaration.allNodes.forEach(::collectRelated)
-        if (declaration.custom) {
-          addAll(ruleset.customClass(declaration.className).requiredClassNames)
+          it is ClassName -> {
+            add(it)
+            false
+          }
+          else -> true
         }
       }
-      queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
+    }
+    declaration.allNodes.forEach(::collectRelated)
+    if (declaration.custom) {
+      addAll(ruleset.customClass(declaration.className).requiredClassNames)
     }
   }
 
@@ -161,16 +167,7 @@ public constructor(
   private fun construct(source: ClassDeclaration, phantom: Boolean): Class {
     require(!frozen) { "Too late, this class table is frozen!" }
     if (!phantom) validateCustomImplementation(source)
-    val decl =
-        if (phantom) {
-          source.copy(
-              invariants = emptySet(),
-              effects = emptyList(),
-              defaultsDeclaration = DefaultsDeclaration(),
-          )
-        } else {
-          source
-        }
+    val decl = if (phantom) source.withoutDeclaredBehavior() else source
 
     fun store(c: Class?) {
       loadedClasses[decl.className] = c

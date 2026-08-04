@@ -78,7 +78,6 @@ public abstract class TfmRuleset : Ruleset {
           allKnown = allKnown.cardDefinitions,
           id = CardDefinition::id,
           replaces = CardDefinition::replaces,
-          setupRequirement = CardDefinition::setupRequirement,
       )
     }
 
@@ -88,7 +87,6 @@ public abstract class TfmRuleset : Ruleset {
           allKnown = allKnown.milestoneDefinitions,
           id = MilestoneDefinition::id,
           replaces = MilestoneDefinition::replaces,
-          setupRequirement = MilestoneDefinition::setupRequirement,
       )
     }
 
@@ -124,12 +122,11 @@ public abstract class TfmRuleset : Ruleset {
       allClassNames.associateWith { contributions[it].orEmpty() }
     }
 
-    private fun <D> applicable(
+    private fun <D : Definition> applicable(
         selected: Set<D>,
         allKnown: Set<D>,
         id: (D) -> String,
         replaces: (D) -> String?,
-        setupRequirement: (D) -> Requirement?,
     ): Set<D> {
       val knownById = allKnown.associateByStrict(id)
       allKnown.forEach { definition ->
@@ -139,9 +136,7 @@ public abstract class TfmRuleset : Ruleset {
       }
       checkReplacementCycles(knownById, id, replaces)
 
-      val applicable = selected.filter { definition ->
-        setupRequirement(definition)?.let(::requirementHolds) != false
-      }
+      val applicable = selected.filter(::setupRequirementHolds)
       applicable
           .mapNotNull { replacement -> replaces(replacement)?.let { it to replacement } }
           .groupBy({ it.first }, { it.second })
@@ -161,6 +156,10 @@ public abstract class TfmRuleset : Ruleset {
       return applicable.filterTo(linkedSetOf()) { id(it) !in removedIds }
     }
 
+    /**
+     * The one place a [Definition.setupRequirement] is consulted. A definition with no requirement
+     * is always applicable, as is any definition when no setup world was supplied.
+     */
     private fun setupRequirementHolds(definition: Definition): Boolean =
         definition.setupRequirement?.let(::requirementHolds) != false
 

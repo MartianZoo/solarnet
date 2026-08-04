@@ -48,7 +48,11 @@ public data class Type(
 
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
 
-  /** Whether this type names an authority-known class that is inactive in this class table. */
+  /**
+   * Whether this type names an authority-known class that is inactive in this class table. A
+   * [refinement] is deliberately not consulted: it is state-dependent, and a refinement that
+   * mentions an inactive class is simply unsatisfiable rather than making the type phantom.
+   */
   public val phantom: Boolean = rootClass.phantom || dependencies.phantom
 
   /**

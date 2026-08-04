@@ -29,6 +29,12 @@ public abstract class ClassTable {
   public fun getClass(name: ClassName): Class =
       findClass(name) ?: throw Exceptions.classNotFound(name)
 
+  /** Returns the active [Class] having this full or short [name]; null if unknown or phantom. */
+  public fun findActiveClass(name: ClassName): Class? = findClass(name)?.takeUnless(Class::phantom)
+
+  /** Whether [name] names a class that is active in this table (not unknown, not phantom). */
+  public fun isActive(name: ClassName): Boolean = findActiveClass(name) != null
+
   /** Returns the [Type] represented by [expression]. */
   public abstract fun resolve(expression: Expression): Type
 

@@ -236,8 +236,7 @@ public object TfmWorkflow {
     private fun hasPassed(player: Player) = opsFor(player).has("Pass")
 
     private fun hasComponent(className: String): Boolean =
-        game.classTable.findClass(cn(className))?.phantom == false &&
-            game.reader.getComponents(className).isNotEmpty()
+        game.classTable.isActive(cn(className)) && game.reader.getComponents(className).isNotEmpty()
 
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()

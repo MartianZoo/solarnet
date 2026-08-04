@@ -123,6 +123,18 @@ public data class ClassDeclaration(
         listOf(universal, gainOnly, removeOnly).flatMap { it.specs }.toSet()
   }
 
+  /**
+   * This declaration stripped of the rules it contributes by itself (its invariants, effects, and
+   * defaults), leaving only its name, hierarchy, and dependencies. This is the form a phantom class
+   * is loaded from, since an inactive class contributes no rules.
+   */
+  public fun withoutDeclaredBehavior(): ClassDeclaration =
+      copy(
+          invariants = emptySet(),
+          effects = emptyList(),
+          defaultsDeclaration = DefaultsDeclaration(),
+      )
+
   public val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
         className +

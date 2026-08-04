@@ -38,10 +38,7 @@ public class Component internal constructor(public val type: Type) : HasExpressi
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type? =
-      if (
-          type.classTable.findClass(OWNER)?.phantom == false &&
-              hasType(type.classTable.resolve(OWNER.expression))
-      ) {
+      if (type.classTable.isActive(OWNER) && hasType(type.classTable.resolve(OWNER.expression))) {
         type
       } else {
         type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
