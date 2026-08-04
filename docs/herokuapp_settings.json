@@ -58,6 +58,7 @@
         "Arklight",
         "Polyphemos",
         "Poseidon",
+        "PolderTECH Dutch",
         "AstroDrill",
         "Factorum",
         "Pharmacy Union",
@@ -119,8 +120,7 @@
         "Mars Nomads",
         "New Holland",
         "Research Coordination",
-        "Self-replicating Robots",
-        "Vermin"
+        "Self-replicating Robots"
     ],
     "includedCards": [],
     "board": "random official",
