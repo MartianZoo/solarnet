@@ -4,9 +4,10 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon.Option.NoWgtVariant
 import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
 import dev.martianzoo.tfm.canon.Canon.Option.VenusNextExpansion
+import dev.martianzoo.tfm.canon.Canon.Option.WorldGovernmentOption
+import dev.martianzoo.tfm.canon.exclude
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -27,6 +28,7 @@ internal class WorldGovernmentTerraformingTest {
 
     TfmWorkflow.Manual(game).solarPhase()
 
+    engine.count("VenusSolarPhase") shouldBe 1
     game.tasks
         .extract { it.assignee to it.instruction.toString() }
         .shouldContainExactly(PLAYER2 to "GlobalParameter! BY Engine")
@@ -71,7 +73,7 @@ internal class WorldGovernmentTerraformingTest {
     TfmWorkflow.Manual(ordinary).solarPhase()
     ordinary.tasks.ids() shouldBe emptySet()
 
-    val disabled = setUpGame(VenusNextExpansion, NoWgtVariant)
+    val disabled = setUpGame(VenusNextExpansion, exclude(WorldGovernmentOption))
     TfmWorkflow.Manual(disabled).solarPhase()
     disabled.tasks.ids() shouldBe emptySet()
   }
@@ -92,6 +94,19 @@ internal class WorldGovernmentTerraformingTest {
 
     TfmWorkflow.Manual(game).solarPhase()
 
+    game.tasks.ids() shouldBe emptySet()
+  }
+
+  @Test
+  fun `Venus Solar phase is skipped when the universal Solar phase ends the game`() {
+    val game = setUpGame(VenusNextExpansion)
+    val engine = game.tfm(ENGINE)
+    engine.godMode().sneak("LastCall")
+
+    TfmWorkflow.Manual(game).solarPhase()
+
+    engine.count("SolarPhase") shouldBe 1
+    engine.count("VenusSolarPhase") shouldBe 0
     game.tasks.ids() shouldBe emptySet()
   }
 }

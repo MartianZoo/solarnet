@@ -17,16 +17,17 @@ worlds can be created.
 idle, `Engine.newGame(setupWorld, assemble)` gains the setup ruleset's `ValidateSetup` signal,
 snapshots the world as a `GamePremise`, then constructs a separate playable world. Canon supplies
 its own setup ruleset, initial components, validation effects, and assembler. Callers construct a
-canonical setup premise with a player count, a `Set<Canon.Option>`, and optionally a set of selected
-colony class names; Canon adds those players, colony selections, and the corresponding `SoloMode` or
-`MultiplayerMode`. `Canon.Option.DEFAULTS` selects Corporate Era and the Tharsis map. Options cannot
-be removed in either setup or playable worlds, while Pets validation checks that the completed
-option set contains exactly one map and is otherwise consistent. `TerraformingMars` is an
-unconditional assembly root rather than a setup option. Canon reuses setup class
-declarations in playable worlds unless ordinary gameplay Pets provide a same-named wholesale
-replacement. This lets the setup world's concrete `Player` count be replaced by the playable
-world's abstract `Player` hierarchy. The shared `GameOption` declaration prevents every Actor,
-including Engine, from removing assembled options.
+canonical setup premise with a player count, signed `Canon.GameOptions`, and optionally selected
+colony class names. Included options express user intent; exclusions mask effect-contributed
+defaults. For example, `TerraformingMars` adds Corporate Era and `VenusNextExpansion` adds
+`WorldGovernmentOption` unless explicitly excluded. Canon also derives `SoloMode` or
+`MultiplayerMode` from player count, and SoloMode defaults to `StandardSoloVariant`.
+
+Setup-world `GameOption` components are editable. Same-named gameplay declarations replace them
+during assembly and inherit immutable `GameModule`, so the playable world contains only the fully
+resolved, affirmative rules active at every equivalent table. Exclusion components are never
+copied. Pets validation requires the base game, exactly one map, a mode consistent with player
+count, and a solo variant exactly when SoloMode is active.
 
 The `ClassTable` of active classes and authority-known inactive phantom classes is immutable. APIs
 that enumerate playable classes exclude phantoms, while type resolution accepts them with zero
@@ -443,9 +444,9 @@ repeat) as straight-line sequential code. Solar checks for `LastCall` before the
 to Generation. The workflow suspends whenever it calls `awaitTasksDrained()`, which commits the
 current state (preventing rollback past this point) and then waits on a rendezvous channel.
 
-When Venus Next is selected, its `SolarPhase` effect automatically creates a transient
-`WorldGovernmentTerraforming` signal unless the game is ending, every global parameter is complete,
-or `NoWgtVariant` is selected. The `StartToken` component responds by assigning its Owner the
+When `WorldGovernmentOption` is active, its `VenusSolarPhase` effect automatically creates a transient
+`WorldGovernmentTerraforming` signal unless the game is ending or every global parameter is complete.
+The `StartToken` component responds by assigning its Owner the
 mandatory `GlobalParameter! BY Engine` choice. Thus the first player narrows the task, maxed tracks
 are illegal choices, and Engine remains the performer for effect matching and event attribution.
 

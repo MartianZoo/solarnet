@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.canon.exclude
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
 import kotlin.test.Test
@@ -13,7 +14,7 @@ class Game20260619Test : AbstractFullGameTest() {
           PreludeExpansion,
           PromoCardPack,
           TurmoilCardPack,
-          NoWgtVariant,
+          exclude(WorldGovernmentOption),
           players = 2,
       )
 

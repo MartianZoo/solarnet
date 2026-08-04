@@ -16,7 +16,12 @@ public object Canon :
         StandardFormBundle(
             "TerraformingMars",
             baseCustomClasses,
-            setOf(cn("SoloMode"), cn("MultiplayerMode")),
+            setOf(
+                cn("TerraformingMars"),
+                cn("SoloMode"),
+                cn("MultiplayerMode"),
+                cn("StandardSoloVariant"),
+            ),
         ),
         StandardFormBundle(
             "CorporateEraExpansion",
@@ -38,7 +43,7 @@ public object Canon :
         ),
         StandardFormBundle(
             "VenusNextExpansion",
-            gameOptionClassNames = setOf(cn("VenusNextExpansion"), cn("NoWgtVariant")),
+            gameOptionClassNames = setOf(cn("VenusNextExpansion"), cn("WorldGovernmentOption")),
         ),
         StandardFormBundle(
             "PreludeExpansion",
@@ -60,10 +65,15 @@ public object Canon :
             setOf(cn("PromoCardPack")),
         ),
     ) {
+  /** One positive or negative statement in a canonical game-options expression. */
+  public sealed interface OptionSelection
+
   /** A canonical game option, named identically to its Pets component class. */
-  public enum class Option {
+  public enum class Option : OptionSelection {
+    TerraformingMars,
     SoloMode,
     MultiplayerMode,
+    StandardSoloVariant,
     CorporateEraExpansion,
     TharsisMapOption,
     HellasMapOption,
@@ -75,7 +85,7 @@ public object Canon :
     ColoniesExpansion,
     TurmoilCardPack,
     PromoCardPack,
-    NoWgtVariant,
+    WorldGovernmentOption,
     // Tr63SoloVariant,
     // MandatoryVenusVariant,
     // OfferBeginnerCorpsVariant,
@@ -85,21 +95,44 @@ public object Canon :
 
     public companion object {
       /** The options used when a caller does not make an explicit selection. */
-      public val DEFAULTS: Set<Option> = setOf(CorporateEraExpansion, TharsisMapOption)
+      public val DEFAULTS: Set<Option> = setOf(TerraformingMars, TharsisMapOption)
+    }
+  }
+
+  /** An explicit mask for defaults contributed by [option]. Prefer the [exclude] factory. */
+  public data class Exclude(public val option: Option) : OptionSelection
+
+  /** User intent: positive selections plus explicit masks for effect-contributed defaults. */
+  public data class GameOptions(
+      public val included: Set<Option> = Option.DEFAULTS,
+      public val excluded: Set<Option> = emptySet(),
+  ) {
+    public constructor(
+        selections: Iterable<OptionSelection>
+    ) : this(
+        included = selections.filterIsInstance<Option>().toSet(),
+        excluded = selections.filterIsInstance<Exclude>().mapTo(linkedSetOf(), Exclude::option),
+    )
+
+    init {
+      require(included.intersect(excluded).isEmpty()) {
+        "game options cannot be both included and excluded"
+      }
     }
   }
 
   /** Definition used to construct an independent canonical setup world. */
   public fun setupWorldDefinition(
       players: Int,
-      options: Set<Option> = Option.DEFAULTS,
+      options: GameOptions = GameOptions(),
       selectedColonies: Set<ClassName> = emptySet(),
   ): GamePremise {
     require(players in 1..5) { "player count must be between 1 and 5" }
     val mode = if (players == 1) Option.SoloMode else Option.MultiplayerMode
     val initialComponents = buildList {
       add("$players Player")
-      (options + mode).mapTo(this) { it.className.toString() }
+      options.excluded.mapTo(this) { "Exclude<Class<${it.className}>>" }
+      (options.included + mode).mapTo(this) { it.className.toString() }
       selectedColonies.mapTo(this) { "${it}Selected" }
     }
     return GamePremise(
@@ -109,6 +142,13 @@ public object Canon :
         initialComponents,
     )
   }
+
+  /** Convenience for callers whose selections contain no explicit default masks. */
+  public fun setupWorldDefinition(
+      players: Int,
+      options: Set<Option>,
+      selectedColonies: Set<ClassName> = emptySet(),
+  ): GamePremise = setupWorldDefinition(players, GameOptions(options), selectedColonies)
 
   /** Snapshots a validated canonical setup world for an independent playable game. */
   public fun assemble(setupWorld: GameReader): GamePremise {
@@ -168,3 +208,6 @@ public object Canon :
     override val awardDefinitions: Set<AwardDefinition> = emptySet()
   }
 }
+
+/** Counteracts defaults for [option] in the same expression as positive options. */
+public fun exclude(option: Canon.Option): Canon.OptionSelection = Canon.Exclude(option)

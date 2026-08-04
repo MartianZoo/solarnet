@@ -126,6 +126,7 @@ internal class CanonClassesTest {
     val game = setUpGame(premise)
     game.classTable.allClassNamesAndIds.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
+    game.reader.count(game.reader.resolve(te("StandardSoloVariant"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {

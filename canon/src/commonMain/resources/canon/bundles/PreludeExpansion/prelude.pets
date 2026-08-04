@@ -1,5 +1,5 @@
 "Expansion giving each player two prelude cards to accelerate the opening game"
-CLASS PreludeExpansion : GameOption {
+CLASS PreludeExpansion : GameModule {
   Generation IF =1 Generation: -2 SoloGenerationsLeft.
 }
 

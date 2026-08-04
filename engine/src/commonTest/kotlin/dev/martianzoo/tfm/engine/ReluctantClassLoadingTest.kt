@@ -19,7 +19,7 @@ internal class ReluctantClassLoadingTest {
 
   @Test
   fun `card totals characterize progressively selected expansions`() {
-    val selected = linkedSetOf<Canon.Option>()
+    val selected = linkedSetOf(TerraformingMars)
     val totals = linkedMapOf<Canon.Option, Int>()
     for (option in
         listOf(
@@ -35,7 +35,15 @@ internal class ReluctantClassLoadingTest {
       val colonyTiles =
           if (ColoniesExpansion in selected) TestHelpers.testColonyTiles(2) else emptySet()
       totals[option] =
-          Engine.newGame(canonicalPremise(selected, colonyTiles = colonyTiles))
+          Engine.newGame(
+                  canonicalPremise(
+                      selected,
+                      colonyTiles = colonyTiles,
+                      excludedOptions =
+                          if (CorporateEraExpansion in selected) emptySet()
+                          else setOf(CorporateEraExpansion),
+                  )
+              )
               .gameplay(ENGINE)
               .count("Class<CardFront>")
     }
@@ -169,17 +177,34 @@ internal class ReluctantClassLoadingTest {
   private enum class Setup(
       private val options: Set<Canon.Option>,
       private val players: Int = 2,
+      private val excludedOptions: Set<Canon.Option> = emptySet(),
   ) {
     BASE_MULTIPLAYER(Canon.Option.DEFAULTS),
     BASE_SOLO(Canon.Option.DEFAULTS, 1),
     PRELUDE_SOLO(Canon.Option.DEFAULTS + PreludeExpansion, players = 1),
-    WITHOUT_CORPORATE_ERA(Canon.Option.DEFAULTS - CorporateEraExpansion),
-    PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA(setOf(PromoCardPack, UtopiaPlanitiaMapOption)),
-    PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA(setOf(PromoCardPack, TerraCimmeriaMapOption)),
+    WITHOUT_CORPORATE_ERA(
+        Canon.Option.DEFAULTS,
+        excludedOptions = setOf(CorporateEraExpansion),
+    ),
+    PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA(
+        setOf(TerraformingMars, PromoCardPack, UtopiaPlanitiaMapOption),
+        excludedOptions = setOf(CorporateEraExpansion),
+    ),
+    PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA(
+        setOf(TerraformingMars, PromoCardPack, TerraCimmeriaMapOption),
+        excludedOptions = setOf(CorporateEraExpansion),
+    ),
     PRELUDE_VENUS_MULTIPLAYER(Canon.Option.DEFAULTS + setOf(PreludeExpansion, VenusNextExpansion));
 
     val classTable by lazy {
-      Engine.newGame(canonicalPremise(options, players = players)).classTable
+      Engine.newGame(
+              canonicalPremise(
+                  options,
+                  players = players,
+                  excludedOptions = excludedOptions,
+              )
+          )
+          .classTable
     }
     val classNames by lazy { classTable.allClassNamesAndIds }
   }

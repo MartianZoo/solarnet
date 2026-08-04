@@ -10,6 +10,7 @@ internal object OptionCodeTranslation {
       val optionCodes: String,
       val players: Int,
       val options: Set<Option>,
+      val excludedOptions: Set<Option>,
       val selectedColonies: Set<ClassName>,
   )
 
@@ -28,10 +29,14 @@ internal object OptionCodeTranslation {
     require(selectedMaps.size == 1) { "select exactly one map: ${mapOptions.keys}" }
 
     val options = buildSet {
+      add(Option.TerraformingMars)
       add(mapOptions.getValue(selectedMaps.single()))
       codes.mapNotNullTo(this) { positiveOptions[it] }
     }
-    return Setup(optionCodes, players, options, selectedColonies)
+    val excludedOptions =
+        if (Option.CorporateEraExpansion in options) emptySet()
+        else setOf(Option.CorporateEraExpansion)
+    return Setup(optionCodes, players, options, excludedOptions, selectedColonies)
   }
 
   fun suggestions(current: Setup): List<String> {

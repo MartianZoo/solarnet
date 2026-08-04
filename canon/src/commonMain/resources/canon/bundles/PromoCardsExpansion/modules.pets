@@ -1,0 +1,2 @@
+"Adds official promotional project, corporation, and prelude cards"
+CLASS PromoCardPack : GameModule

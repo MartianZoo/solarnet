@@ -1,0 +1,2 @@
+"Uses the Tharsis board and its map-specific rules and content"
+CLASS TharsisMapOption : GameModule

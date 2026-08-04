@@ -1,7 +1,14 @@
-"A selected game option; every concrete subtype has at most one immutable instance"
+"An editable statement of user intent while configuring a game"
 ABSTRACT CLASS GameOption : System {
   HAS MAX 1 This
-  -This:: Die!
+}
+
+"An explicit user request suppressing a default option in the setup world"
+CLASS Exclude<Class<GameOption>> : System { HAS MAX 1 This }
+
+"Selects the base game and its usual Corporate Era default"
+CLASS TerraformingMars : GameOption {
+  This IF MAX 0 Exclude<Class<CorporateEraExpansion>>:: CorporateEraExpansion
 }
 
 "One participant seated for the game being configured"
@@ -14,15 +21,23 @@ ABSTRACT CLASS MarsMapOption : GameOption { HAS MAX 1 MarsMapOption }
 ABSTRACT CLASS Mode : GameOption { HAS MAX 1 Mode }
 
 "Solo play with a neutral opponent and a fixed generation limit"
-CLASS SoloMode : Mode
+CLASS SoloMode : Mode {
+  This IF MAX 0 Exclude<Class<StandardSoloVariant>>:: StandardSoloVariant
+}
 
 "A game with at least two players"
 CLASS MultiplayerMode : Mode
 
+"The solo rules used by the original game"
+CLASS StandardSoloVariant : GameOption
+
 "Checks whether the current selections describe one complete game"
 CLASS ValidateSetup : Signal {
   This IF MAX 0 Player: Die
+  This IF MAX 0 TerraformingMars: Die
   This IF MAX 0 MarsMapOption: Die
   This IF =1 Player, MAX 0 SoloMode: Die
   This IF 2 Player, MAX 0 MultiplayerMode: Die
+  This IF =1 Player, MAX 0 StandardSoloVariant: Die
+  This IF 2 Player, 1 StandardSoloVariant: Die
 }
