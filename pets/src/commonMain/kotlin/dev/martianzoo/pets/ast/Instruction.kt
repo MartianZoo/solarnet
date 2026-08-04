@@ -476,7 +476,24 @@ public sealed class Instruction : PetElement() {
     ): Then {
       proposed.ensureNarrows(instructions.first(), info)
       val partial = withInstructions(listOf(proposed) + instructions.drop(1))
-      val specialized = bindTypeLinksFrom(partial, info, loweredBinding)
+      val authoredBinding =
+          PetTransformer.chain(
+              linkedTypeSources.mapNotNull { source ->
+                val bindings =
+                    proposed
+                        .descendantsOfType<Expression>()
+                        .filter { it != source && narrowsExpression(it, source, info) }
+                        .distinct()
+                if (bindings.size > 1) {
+                  throw NarrowingException(
+                      "Can't bind linked type $source differently: ${bindings.toSet()}"
+                  )
+                }
+                bindings.singleOrNull()?.let { PetNode.replacer(source, it) }
+              }
+          )
+      val specialized =
+          bindTypeLinksFrom(partial, info, PetTransformer.chain(loweredBinding, authoredBinding))
       if (specialized == this) {
         throw NarrowingException("The first stage does not bind this THEN's type linkage")
       }
