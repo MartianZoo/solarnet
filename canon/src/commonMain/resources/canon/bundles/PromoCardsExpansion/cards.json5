@@ -1,6 +1,21 @@
 {
   "cards": [
 
+    // PolderTECH Dutch
+    {
+      "id": "XC11",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": "35, MandateXC11",
+      "effects": [
+        "OceanTile: Energy",
+        "GreeneryTile: Plant",
+      ],
+      "components": [
+        "CLASS MandateXC11 : Mandate { -> OceanTile THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
+      ],
+    },
+
     // Floyd Continuum
     {
       "id": "XM1",
@@ -65,6 +80,21 @@
       "resourceType": "Microbe",
       "immediate": "38, PROD[Steel]",
       "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
+    },
+
+    // Vermin
+    {
+      "id": "X75",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 8,
+      "tags": [ "MicrobeTag", "AnimalTag" ],
+      "resourceType": "Animal",
+      "actions": [ "-> Animal<This> OR Microbe" ],
+      "effects": [ "CityTile<Anyone>: Animal<This>" ],
+      "components": [
+        "CLASS VerminWatcher : Owned<Player> { HAS =1 This; End IF 10 Animal<Anyone, Vermin<Anyone>>: -VictoryPoint / CityTile<Owner> }"
+      ],
     },
 
     // Splice Tactical Genomics

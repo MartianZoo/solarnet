@@ -1,6 +1,6 @@
 # Cards to add
 
-We have 454 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
+We have 456 cards working. We don't have the following ones or anything else from the "Prelude 2" expansion.
 
 | id   | card name                  | expansion | blocker               |
 |------|----------------------------|-----------|-----------------------|
@@ -32,7 +32,6 @@ We have 454 cards working. We don't have the following ones or anything else fro
 | T15  | Wildlife Dome              | turmoil   | turmoil               |
 | T16  | Vote Of No Confidence      | turmoil   | turmoil               |
 | XC1  | Arcadian Communities       | promo     | community             |
-| XC11 | PolderTECH Dutch           | promo     | no reason?            |
 | XC5  | Mons Insurance             | promo     | actorbinding          |
 | XC10 | Kuiper Cooperative         | promo     | payresource           |
 | X06  | Law Suit                   | promo     | playerplayer          |
@@ -40,6 +39,5 @@ We have 454 cards working. We don't have the following ones or anything else fro
 | X54  | Established Methods        | promo     | else                  |
 | X59  | Mars Nomads                | promo     | movablemarker         |
 | X-2  | New Holland                | promo     | hybridtile            |
-| X75  | Vermin                     | promo     | globalvp              |
 | 210  | Self-Replicating Robots    | promo     | selfrep               |
 | X09  | Political Alliance         | promo     | turmoil               |
