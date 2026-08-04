@@ -9,13 +9,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Implement Prelude's TR 63 solo option, including Buffer Gas and the 14-generation/12-with-Prelude objective check described in `plans/native-workflow.md`.
 ### Soon
 
-- Restore Flooding to Canon after fixing its shared-expression/`THEN` specialization, then replace the solo whole-game fixture's manual payment, ocean placement, and fabricated played-event marker with a normal card play.
 - Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game fixtures.
 - Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game fixture to decline one action early.
 - Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game fixture's mandatory `!` override.
 - Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game fixture can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
 - Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game fixture no longer needs an 8 M€ reconciliation injection.
-- Treat linkage semantics as one project ([#12](https://github.com/MartianZoo/solarnet/issues/12), [plan](plans/linkages.md)): link identical abstract expressions within one effect or `THEN`, but not across comma-separated instructions or sibling argument positions; validate every shared `X` directly against one multiplier instead of traversal-order zipping. This affects solo setup, Kaguya Tech, Flooding, Utopia Invest, Splice, Trade Envoys, Trading Colony, action-used markers, and nested dependency declarations.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable world.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.

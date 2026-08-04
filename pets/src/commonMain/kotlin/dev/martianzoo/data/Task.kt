@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -87,7 +88,7 @@ public data class Task(
       is By -> {
         val inner = normalizeForTask(instruction.inner)
         if (inner is Then) {
-          Then.create(inner.instructions.map { By.create(it, instruction.actor) })
+          inner.withInstructions(inner.instructions.map { By.create(it, instruction.actor) })
         } else {
           By.create(inner, instruction.actor)
         }
@@ -111,7 +112,7 @@ public data class Task(
         if ((parts.first() as? Gain)?.gaining?.className == DIE) {
           throw DeadEndException("a Die instruction was reached")
         }
-        Then.create(parts.map(::normalizeForTask))
+        instruction.withInstructions(parts.map(::normalizeForTask))
       }
       is NoOp,
       is Multi -> split(instruction).asInstruction()
@@ -154,9 +155,10 @@ public data class Task(
         assignee: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
+        isAbstract: ((Expression) -> Boolean)? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map { newTask(ids.next(), assignee, it, cause) }
+      return instruction.map { newTask(ids.next(), assignee, it, cause, isAbstract = isAbstract) }
     }
 
     private fun newTask(
@@ -165,6 +167,7 @@ public data class Task(
         instruction: Instruction,
         cause: Cause?,
         automatic: Boolean = false,
+        isAbstract: ((Expression) -> Boolean)? = null,
     ): Task {
       val task =
           Task(
@@ -176,7 +179,7 @@ public data class Task(
           )
       val normal = task.instruction
 
-      return if (normal is Then && !normal.keepLinked()) {
+      return if (normal is Then && !normal.keepLinked(isAbstract)) {
         task.copy(
             instructionIn = normal.instructions.first(),
             thenIn = Then.create(normal.instructions.drop(1)),

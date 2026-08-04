@@ -2,17 +2,15 @@
 
 ## Goal
 
-Make a linkage a first-class Pets concept: an authored equality constraint whose type or
-scalar occurrences narrow together. Preserve independent choices, make coupled choices
-visible, and let task splitting operate from explicit linkage state rather than syntax
-heuristics.
+Make authored equality constraints coherent across Pets: linked type or scalar occurrences narrow
+together, independent choices remain independent, and task splitting preserves unresolved links.
 
-Treat `This` as a distinct, explicitly named contextual binding on the same underlying
-machinery, not as a repeated-expression linkage.
+Keep `This` as a distinct contextual binding rather than forcing every related mechanism into one
+public abstraction.
 
-The proposed language rules are in
+The language rules are in
 [the concise type-system specification](../docs/type-system-spec.md#10-linkages). This plan
-does not call for an immediate runtime rewrite.
+records the design rationale and implementation boundaries.
 
 ## Findings
 
@@ -49,7 +47,7 @@ dormant card source, `TODO.md`, and the relevant GitHub issues.
 | --- | --- |
 | Preserved | `Cardbound`, `Trade`, and `Cathedral` class-signature links; dependency-to-effect narrowing including `Production`, `PlayCard`, `PlayedEvent`, `PaymentMechanic`, `Colony`, and `DelayedColonyTile`; linked trigger narrowing including Manutech, Viral Enhancers, colony trading, Splice, Trade Envoys, and Trading Colony; every working-canon `X` linkage |
 | Newly recognized in loaded canon | Kaguya Tech's nested `LandArea`; the use-card action's `ActionCard`; behavior-neutral repetitions on Mining Rights and Sponsored Academies |
-| Newly recognized in dormant source | Flooding's `Anyone` and Utopia Invest's `StandardResource` |
+| Newly recognized in canon | Flooding's `Anyone` and Utopia Invest's `StandardResource` |
 | Contextual rather than repetition-created | late-bound `Class<This>` in `CardResource`; self-bound invariants such as `HAS MAX 1 This`; the many card-resource effects such as `Microbe<This>` and `Floater<This>`; `This:` and `-This:` self triggers |
 | Intentionally not recognized | the separately declared dependencies of `Adjacency<Tile, Tile>` and `Neighbor<Tile<MarsArea>, MarsArea>`; sibling dependency branches such as `Pair<Class<Component>, Class<Component>>`; the two complete operands of Market Manipulation's `ColonyProduction FROM ColonyProduction`; comma siblings; `OR` siblings; repetitions created only by defaults or preprocessing |
 | Needs clearer source | Each solo setup pair intends the placed city, not the greenery's area, to be reused. Spell the later reference as `CityTile<LandArea>` so the maximal repeated expression says exactly that; the current bare `CityTile` should not become linked merely because its default is `LandArea` |
@@ -58,9 +56,8 @@ The working scalar cases are Carbon Nanosystems (two effects), Dirigibles, Energ
 Martian Lumber Corp, Power Infrastructure, Psychrophiles, Sell Patents, Sulphur-Eating
 Bacteria, and Titan Shuttles: ten effect/action occurrences across nine definitions.
 
-`BugsTest` currently characterizes the incorrect Kaguya Tech, solo setup, and use-card
-action outcomes. As implementation reaches each scope, those tests should move to their
-own integration suites and assert that disagreement is rejected or the tail is narrowed.
+Regression tests now assert the corrected Kaguya Tech, solo setup, and use-card action
+outcomes: disagreement is rejected and linked tails are narrowed.
 
 This audit finds no intended existing linkage that the source rule must discard. It does
 identify behaviors currently obtained from broad class-name substitution rather than a
@@ -73,23 +70,14 @@ The primary issue trail is [#12](https://github.com/MartianZoo/solarnet/issues/1
 
 ## Runtime model
 
-Introduce an immutable binding substrate with:
+The AST retains only the authored type expressions needed after lowering. At a narrowing boundary,
+the runtime rediscovers their exact occurrence paths and applies one choice to the whole group.
+Repeated `X`, class dependency equality, and `This` paths remain focused mechanisms rather than
+variants of a public generic model. `Owner` substitution is also separate.
 
-- a stable identity within its source declaration;
-- kind, source scope, and source expression or reserved name;
-- the exact AST occurrence paths that participate;
-- its binding source and current value or constraint.
-
-Represent repetition-created type and scalar linkages on that substrate. Represent `This`
-as a distinct contextual binding: it can have one occurrence, continues into subclasses,
-and is fixed by the concrete component rather than by narrowing. `Class<This>` projects
-the root class from that value. Keep `Owner` contextual substitution separate until its
-semantics are similarly explicit.
-
-The existing class-loader `selfBindings` paths are good evidence for occurrence-path
-identity, but they should become `This` binding provenance rather than being folded into
-the repeated-expression detector. Likewise, the special self trigger remains an event
-selector associated with the binding; it is not modeled as an ordinary expression match.
+The class loader's `selfBindings` paths remain separate from repeated-expression detection.
+Likewise, the special self trigger remains an event selector rather than an ordinary expression
+match.
 
 Narrowing should constrain the linkage once, substitute the result into every occurrence,
 and validate every containing expression. Conflicting constraints fail as one operation.
@@ -104,23 +92,22 @@ Do not add explicit linkage syntax initially. If later canon needs two different
 structured expressions to share only part of a choice, add a named binding construct
 rather than broadening recognition to semantic type equality.
 
-## Path forward
+Effects freeze linked source expressions before transformation and specialize only those exact
+expressions. Actions preserve the same information across cost/result lowering. Atomic
+transmutations and `THEN` progression enforce their crossing links directly. Flooding and Utopia
+Invest are enabled, and Cyberia uses the first copy choice to specialize its later stages.
 
-1. Preserve source provenance through parsing and add an audit-only binding discoverer.
-   It should report repeated-expression groups, scalar groups, and `This` occurrence paths,
-   while explicitly rejecting sibling-argument inference. Compare its report with focused
-   semantic tests; do not freeze the whole canon report as a change-detector test.
-2. Add the binding substrate and migrate class-signature linkage grouping and `This`
-   self-binding paths first, retaining behavior while replacing the private structural
-   representations.
-3. Migrate dependency-to-effect and linked trigger narrowing. Keep contextual `Owner`
-   substitution separate, and express `This` through its contextual binding kind.
-4. Make instruction narrowing linkage-aware. Fix type-linked `THEN` and transmutation
-   before replacing the existing special case for `X`.
-5. Clarify the two solo expressions, enable the dormant affected cards as their other
-   blockers permit, and close or narrow the issue/TODO entries case by case.
-6. Remove class-name-wide substitution and traversal-order scalar pairing only after
-   positive and negative integration tests establish parity.
+## Boundaries
+
+- Linkages come from authored source equality, never equality introduced by defaults or lowering.
+- Recognition is maximal, except that a nested expression remains linked when it also occurs
+  outside the maximal expression.
+- Comma and `OR` siblings stay independent. `THEN`, action cost/result, effect trigger/result, and
+  the two sides of an atomic transmutation are linkage boundaries.
+- Trigger specialization is exact to the declared linked expressions; contextual `Owner`
+  substitution is applied separately.
+- If canon eventually needs differently structured expressions to share only part of a choice,
+  add explicit named binding syntax instead of broadening implicit recognition.
 
 The essential tests are behavioral: linked choices must reject disagreement, independent
 choices must still diverge, and a `THEN` must split as soon as every crossing linkage is

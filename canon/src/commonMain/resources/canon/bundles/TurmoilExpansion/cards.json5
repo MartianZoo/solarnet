@@ -38,5 +38,13 @@
       "immediate": "14, -TerraformRating",
       "effects": [ "BuyCard: 2" ],
     },
+
+    // Utopia Invest
+    {
+      "id": "TC5",
+      "deck": "CORPORATION",
+      "immediate": "40, PROD[Steel, Titanium]",
+      "actions": [ "PROD[StandardResource] -> 4 StandardResource" ],
+    },
   ],
 }

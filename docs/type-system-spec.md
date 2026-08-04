@@ -243,11 +243,8 @@ definition.
 
 ## 10. Linkages
 
-> The rules in this section are proposed target semantics. The runtime implements several
-> of them through older, separate mechanisms; [the linkage plan](../plans/linkages.md)
-> records the remaining discrepancies and migration work. Sections 10 and 11 intentionally
-> range beyond the type system into effects, instructions, and task splitting so that
-> linkage has one coherent end-to-end meaning.
+Sections 10 and 11 intentionally range beyond the type system into effects, instructions, and task
+splitting so that linkage has one coherent end-to-end meaning.
 
 A linkage is a source-declared equality constraint among two or more occurrences of one
 abstract type expression. The occurrences denote one choice: narrowing any occurrence
@@ -278,12 +275,12 @@ Owner                 Anyone
 This distinction makes linkage intentional enough to inspect in source and prevents
 defaults or normalization from silently coupling independent choices.
 
-Only an expression whose resolved type is abstract can introduce a type linkage. If a
-larger repeated expression introduces a linkage, occurrences nested inside those larger
-occurrences do not introduce additional linkages. For example, repeating
-`CardFront(HAS BioTag)` links that whole expression, not a second independent `BioTag`
-choice. Within one recognition scope, all eligible maximal occurrences of the same
-normalized expression form one linkage. A linkage declared by a supertype remains the same
+Only an expression whose resolved type is abstract can introduce a type linkage. If every
+occurrence of a smaller repeated expression is nested inside occurrences of a larger linkage, the
+smaller expression does not introduce another linkage. If it also occurs independently, it remains
+linked. For example, repeating `CardFront(HAS BioTag)` links that whole expression, not a second
+independent `BioTag` choice. Within one recognition scope, all eligible maximal occurrences of the
+same normalized expression form one linkage. A linkage declared by a supertype remains the same
 linkage in its subclasses; coincidentally matching text elsewhere creates no relationship.
 
 ### 10.1 The contextual `This` binding
@@ -312,10 +309,8 @@ This: B
 A: B
 ```
 
-The future runtime model may share binding identity and occurrence-path machinery between
-`This` and repetition-created linkages. Their recognition and binding sources remain
-distinct: repetition creates a choice to be narrowed, while the enclosing concrete
-component supplies `This`.
+Signature-level `This` paths remain distinct from repetition-created linkages: repetition creates a
+choice to be narrowed, while the enclosing concrete class supplies `This`.
 
 ### 10.2 Recognition scopes
 

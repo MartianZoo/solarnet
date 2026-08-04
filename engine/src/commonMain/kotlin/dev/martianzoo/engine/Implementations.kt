@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.Exceptions.abstractInstruction
@@ -18,10 +19,12 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal class Implementations(
@@ -211,12 +214,19 @@ internal class Implementations(
       throw TaskException("$actor can't revise a task assigned to ${task.assignee}")
     }
 
-    if (revised != task.instruction) {
-      revised.ensureNarrows(task.instruction, reader)
-      // A selected group must split before its children are prepared against successive worlds.
-      val replacement = if (task.next && revised !is Multi) instructor.prepare(revised) else revised
-      replace1WithN(tasks, tasks.getTaskData(taskId).copy(instructionIn = replacement))
-    }
+    if (revised == task.instruction) return
+    val linkedThen = bindFirstStageOrNull(task.instruction, revised)
+    if (linkedThen == null) revised.ensureNarrows(task.instruction, reader)
+
+    // A selected group must split before its children are prepared against successive worlds.
+    val replacement = if (task.next && revised !is Multi) instructor.prepare(revised) else revised
+    val continuation =
+        linkedThen?.let { Then.create(it.instructions.drop(1) + listOfNotNull(task.then)) }
+            ?: task.then
+    replace1WithN(
+        tasks,
+        task.copy(instructionIn = replacement, thenIn = continuation),
+    )
   }
 
   internal fun reviseTask(current: Instruction, revised: Instruction) {
@@ -341,15 +351,40 @@ internal class Implementations(
 
     fun weCanReviseIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
-      if (revised.narrows(taskData.instruction, reader)) return true
+      val instruction = taskData.instruction
+      if (narrowsTask(revised, instruction)) return true
       return try {
-        revised.narrows(instructor.prepare(taskData.instruction), reader)
+        narrowsTask(revised, instructor.prepare(instruction))
       } catch (_: NotNowException) {
         false
       }
     }
 
     return uniqueMatchingTask(tasks.extract { it }.filter(::weCanReviseIt))
+  }
+
+  private fun narrowsTask(revised: Instruction, existing: Instruction): Boolean =
+      revised.narrows(existing, reader) || bindFirstStageOrNull(existing, revised) != null
+
+  private fun bindFirstStageOrNull(instruction: Instruction, revised: Instruction): Then? {
+    val then = instruction as? Then ?: return null
+    if (revised is Then) return null
+    return try {
+      then.bindFirstStage(
+          revised,
+          reader,
+          loweredRemovalBinding(then.instructions.first(), revised),
+      )
+    } catch (_: NarrowingException) {
+      null
+    }
+  }
+
+  private fun loweredRemovalBinding(wide: Instruction, narrow: Instruction): PetTransformer? {
+    val general = (wide as? Change)?.removing ?: return null
+    val specific = (narrow as? Change)?.removing ?: return null
+    val transformers = (reader as GameReaderImpl).transformers
+    return transformers.checkedSubstituter(reader.resolve(general), reader.resolve(specific))
   }
 
   private fun taskWithInstruction(instruction: Instruction): TaskId =

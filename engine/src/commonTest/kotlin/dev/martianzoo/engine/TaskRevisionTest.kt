@@ -185,6 +185,15 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `a lone X does not keep otherwise independent THEN stages together`() {
+    initiate("Plant? THEN X StandardResource?")
+
+    val task = tasks.extract { it }.single()
+    task.instruction.toString() shouldBe "Plant<Player1>?"
+    task.then.toString() shouldBe "X StandardResource<Player1>?"
+  }
+
+  @Test
   fun `executing a THEN head creates independent abstract tail tasks`() {
     initiate("Plant! THEN (Steel?, Heat?)")
 

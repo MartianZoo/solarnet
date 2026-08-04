@@ -33,6 +33,7 @@ import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.ClassTable
@@ -129,7 +130,7 @@ internal class Instructor(
       }
       is Or -> prepareOr(unprepared)
       is Then ->
-          Then.create(
+          unprepared.withInstructions(
               listOf(doPrepare(unprepared.instructions.first())) + unprepared.instructions.drop(1)
           )
       is Multi -> throw abstractInstruction(unprepared)
@@ -173,6 +174,13 @@ internal class Instructor(
           if (intens == AMAP && change.gaining != null && change.removing == null) return NoOp
           throw e
         }
+    if (
+        change is Transmute &&
+            !Change.change(g?.expression, r?.expression, count, intens).narrows(change, reader)
+    ) {
+      // Independent auto-narrowing must not choose conflicting values for one atomic linkage.
+      return change
+    }
     if (listOfNotNull(g, r).any(Type::phantom)) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(

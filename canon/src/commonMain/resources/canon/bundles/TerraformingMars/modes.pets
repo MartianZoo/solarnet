@@ -35,8 +35,8 @@ CLASS SoloOpponent[OPP] : Owner {
   HAS MAX 1 This
   This: 99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
   This: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]
-  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile>)>
-  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile>)>
+  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea>>)>
+  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea>>)>
 }
 
 // Multiplayer mode

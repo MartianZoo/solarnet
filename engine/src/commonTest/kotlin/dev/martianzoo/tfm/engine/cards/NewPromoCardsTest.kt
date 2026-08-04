@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -149,6 +150,9 @@ class NewPromoCardsTest : CardTest() {
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
     p1.playProject("KaguyaTech", 10) {
+          shouldThrow<NarrowingException> {
+            doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
+          }
           doTask("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>")
         }
         .expect("-GreeneryTile<Tharsis_4_2>, CityTile<Tharsis_4_2>")

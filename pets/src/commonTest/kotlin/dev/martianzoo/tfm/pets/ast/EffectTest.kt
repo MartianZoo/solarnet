@@ -73,9 +73,8 @@ internal class EffectTest {
 
   @Test
   fun nodeCount() {
-    val eff: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
-    // ef, og, te, cn, te, cn, pr, or, tr, sc, fr, te, cn, te, cn, ga, ste, te, cn
-    eff.descendantCount() shouldBe 19
+    val effect: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
+    effect.descendantCount() shouldBe 20
   }
 
   @Test

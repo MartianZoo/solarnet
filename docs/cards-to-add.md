@@ -7,13 +7,11 @@ We have 456 cards working. We don't have the following ones or anything else fro
 | 008  | Capital                    | base      | concrete              |
 | B00  | Beginner Corporation       | base      | beginner              |
 | B03  | Helion                     | base      | helion                |
-| 188  | Flooding                   | base      | thenspec              |
 | 066  | Land Claim                 | corpera   | community             |
 | P28  | Research Network           | prelude   | wildtag               |
 | P40  | Research Coordination      | prelude   | wildtag               |
 | CC1  | Aridor                     | colonies  | classmetrictrigger    |
 | CC5  | Stormcraft Incorporated    | colonies  | payresource           |
-| TC5  | Utopia Invest              | turmoil   | thenspec              |
 | TC3  | Septem Tribus              | turmoil   | wildtag, turmoil      |
 | T01  | Aerial Lenses              | turmoil   | turmoil               |
 | T02  | Banned Delegate            | turmoil   | turmoil               |

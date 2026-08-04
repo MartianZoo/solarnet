@@ -14,6 +14,8 @@ import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -231,7 +233,7 @@ public sealed class Instruction : PetElement() {
     override val gaining: Expression = fromEx.toExpression
     override val removing: Expression = fromEx.fromExpression
 
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(fromEx)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scalar, fromEx)
 
     override fun scale(factor: Int): Instruction = copy(scalar = scalar * factor)
 
@@ -248,6 +250,18 @@ public sealed class Instruction : PetElement() {
         super.safeToNestIn(container) && container !is Or
 
     override fun precedence(): Int = 7
+
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+      super.ensureIsNarrowedBy_doNotCall(proposed, info)
+      if (proposed == NoOp) return
+      proposed as Transmute
+      for (source in TypeLinking.atomicSources(this, info::isAbstract)) {
+        val bindings = TypeLinking.bindings(this, proposed, source)
+        if (bindings.distinct().size > 1) {
+          throw NarrowingException("Can't set linked type $source differently: ${bindings.toSet()}")
+        }
+      }
+    }
   }
 
   public data class Per(val inner: Instruction, val metric: Metric) : Instruction() {
@@ -352,8 +366,13 @@ public sealed class Instruction : PetElement() {
   }
 
   @ConsistentCopyVisibility
-  public data class Then internal constructor(override val instructions: List<Instruction>) :
-      CompositeInstruction(instructions) {
+  public data class Then
+  internal constructor(
+      override val instructions: List<Instruction>,
+  ) : CompositeInstruction(instructions) {
+    internal val linkedTypeSources: Set<Expression>
+      get() = recordedLinkedTypeSources
+
     init {
       if (instructions.size < 2) throw PetSyntaxException("")
 
@@ -363,38 +382,110 @@ public sealed class Instruction : PetElement() {
       if (problem) throw PetSyntaxException("Bad THEN")
     }
 
-    override fun copy(instructions: Iterable<Instruction>) =
-        copy(instructions = instructions.toList())
+    override fun copy(instructions: Iterable<Instruction>) = withInstructions(instructions.toList())
+
+    /** Replaces stages while preserving the authored linkage identities carried by this `THEN`. */
+    public fun withInstructions(instructions: List<Instruction>): Then =
+        copy(instructions = instructions).withLinkedTypeSources(linkedTypeSources)
 
     override fun precedence(): Int = 2
 
     override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
 
-    // TODO understand and simplify
+    private val hasLinkedX: Boolean by lazy {
+      instructions.count { it.descendantsOfType<XScalar>().isNotEmpty() } >= 2
+    }
+
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as? Then ?: throw NarrowingException("Can't reify $this to $proposed")
-      for ((wide, narrow) in instructions.zip(proposed.instructions)) {
+      if (instructions.size != proposed.instructions.size) {
+        throw NarrowingException("Can't change the number of THEN stages")
+      }
+      val specialized = bindTypeLinksFrom(proposed, info)
+      for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      val maybeXs = this.descendantsOfType<Scalar>()
-      if (maybeXs.any { it is XScalar }) {
-        val noXs = proposed.descendantsOfType<ActualScalar>()
-        require(maybeXs.size == noXs.size) { "$maybeXs / $noXs" }
-
-        val allXValues = mutableSetOf<Int>()
-        for ((maybeX, noX) in maybeXs.zip(noXs)) {
-          if (maybeX is XScalar) {
-            require(noX.value % maybeX.multiple == 0)
-            allXValues += noX.value / maybeX.multiple
-          }
+      if (hasLinkedX) {
+        val wideScalars = descendantsOfType<Scalar>()
+        val narrowScalars = proposed.descendantsOfType<Scalar>()
+        if (wideScalars.size != narrowScalars.size) {
+          throw NarrowingException("Can't match X occurrences in $proposed")
         }
-        if (allXValues.size > 1) {
-          throw NarrowingException("Can't set different values for X: $allXValues")
+        val xValues =
+            wideScalars.zip(narrowScalars).mapNotNull { (wide, narrow) ->
+              if (wide !is XScalar) return@mapNotNull null
+              narrow as? ActualScalar
+                  ?: throw NarrowingException("Can't bind X occurrence in $proposed")
+              if (narrow.value % wide.multiple != 0) {
+                throw NarrowingException("${narrow.value} isn't a multiple of ${wide.multiple}")
+              }
+              narrow.value / wide.multiple
+            }
+        if (xValues.distinct().size > 1) {
+          throw NarrowingException("Can't set different values for X: ${xValues.toSet()}")
         }
       }
     }
 
-    internal fun keepLinked() = descendantsOfType<XScalar>().any()
+    private fun bindTypeLinksFrom(
+        proposed: Then,
+        info: TypeInfo,
+        fallback: PetTransformer? = null,
+    ): Then {
+      var specialized = this
+      for (source in linkedTypeSources.filter(info::isAbstract)) {
+        val bindings =
+            TypeLinking.bindings(this, proposed, source)
+                .filter { it != source && narrowsExpression(it, source, info) }
+                .distinct()
+        if (bindings.size > 1) {
+          throw NarrowingException("Can't bind linked type $source differently: $bindings")
+        }
+        val binding =
+            bindings.singleOrNull()
+                ?: fallback
+                    ?.takeIf { bindings.isEmpty() }
+                    ?.transform(source)
+                    ?.takeIf { it != source }
+        binding?.let {
+          specialized = PetNode.replacer(source, binding).transform(specialized)
+        }
+      }
+      return specialized
+    }
+
+    private fun narrowsExpression(
+        narrow: Expression,
+        wide: Expression,
+        info: TypeInfo,
+    ): Boolean =
+        try {
+          info.ensureNarrows(wide, narrow)
+          true
+        } catch (_: NarrowingException) {
+          false
+        }
+
+    /**
+     * Narrows the first stage and carries every choice linked from that stage into later stages.
+     */
+    public fun bindFirstStage(
+        proposed: Instruction,
+        info: TypeInfo,
+        loweredBinding: PetTransformer? = null,
+    ): Then {
+      proposed.ensureNarrows(instructions.first(), info)
+      val partial = withInstructions(listOf(proposed) + instructions.drop(1))
+      val specialized = bindTypeLinksFrom(partial, info, loweredBinding)
+      if (specialized == this) {
+        throw NarrowingException("The first stage does not bind this THEN's type linkage")
+      }
+
+      return specialized.withInstructions(listOf(proposed) + specialized.instructions.drop(1))
+    }
+
+    internal fun keepLinked(isAbstract: ((Expression) -> Boolean)?) =
+        hasLinkedX || isAbstract?.let(linkedTypeSources::any) == true
 
     override fun connector() = " THEN "
 
@@ -403,7 +494,10 @@ public sealed class Instruction : PetElement() {
           when (it.size) {
             0 -> NoOp
             1 -> it.first()
-            else -> Then(it.toList())
+            else -> {
+              val then = Then(it.toList())
+              then.withLinkedTypeSources(TypeLinking.sourcesAcrossRegions(then))
+            }
           }
     }
   }

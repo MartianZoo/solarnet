@@ -337,11 +337,38 @@ public class Transformers(public val classTable: ClassTable) {
       specific: Type,
       vararg afterSubstitution: PetTransformer?,
   ): PetTransformer {
+    return chain(
+        listOf(substituter(specializationSubstitutions(general, specific))) +
+            afterSubstitution +
+            invalidChangesToDie()
+    )
+  }
+
+  /** Applies trigger narrowing only to the source expressions declared by linkages. */
+  internal fun checkedLinkageSubstituter(
+      general: Type,
+      specific: Type,
+      linkedSources: Set<Expression>,
+      vararg afterSubstitution: PetTransformer?,
+  ): PetTransformer {
+    val substitutions = specializationSubstitutions(general, specific)
+    val broad = substituter(substitutions)
+    val linkedReplacements = linkedSources.mapNotNull { source ->
+      val replacement = broad.transform(source)
+      if (replacement == source) null else PetNode.replacer(source, replacement)
+    }
+    return chain(linkedReplacements + afterSubstitution + invalidChangesToDie())
+  }
+
+  private fun specializationSubstitutions(
+      general: Type,
+      specific: Type,
+  ): Map<ClassName, Expression> {
     val subs = findSubstitutions(general.dependencies, specific.dependencies).toMutableMap()
     if (general.rootClass.abstract && specific.rootClass != general.rootClass) {
       subs[general.className] = specific.className.expression
     }
-    return chain(listOf(substituter(subs)) + afterSubstitution + invalidChangesToDie())
+    return subs
   }
 
   private fun invalidChangesToDie(): PetTransformer {

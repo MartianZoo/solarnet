@@ -38,6 +38,7 @@
         "CrediCor",
         "Ecoline",
         "Interplanetary Cinematics",
+        "Inventrix",
         "Mining Guild",
         "PhoboLog",
         "Tharsis Republic",
@@ -52,6 +53,7 @@
         "Aphrodite",
         "Celestic",
         "Manutech",
+        "Morning Star Inc.",
         "Viron",
         "Arklight",
         "Polyphemos",
@@ -61,7 +63,8 @@
         "Pharmacy Union",
         "Philares",
         "Recyclon",
-        "Tycho Magnetics"
+        "Tycho Magnetics",
+        "Utopia Invest"
     ],
     "customColoniesList": [],
     "customCeos": [],
@@ -71,6 +74,7 @@
         "Aquifer Turbines",
         "Mohole Excavation",
         "Early Settlement",
+        "Ecology Experts",
         "Biofuels",
         "Power Generation",
         "Self-Sufficient Settlement",
@@ -109,17 +113,13 @@
         "Albedo Plants"
     ],
     "bannedCards": [
-        "Adaptation Technology",
         "Capital",
-        "Cyberia Systems",
-        "Flooding",
         "Land Claim",
         "Law Suit",
         "Mars Nomads",
         "New Holland",
         "Research Coordination",
         "Self-replicating Robots",
-        "Special Design",
         "Vermin"
     ],
     "includedCards": [],
