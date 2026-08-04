@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -29,6 +30,28 @@ internal class SimpleAddsRemovesTest {
     val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2).godMode()
 
     shouldThrow<LimitsException> { p2.manual("-Plant") }
+  }
+
+  @Test
+  fun manualPreservesTasksThatWereAlreadyPending() {
+    val game = Engine.newGame(canonicalPremise())
+    val p2 = game.tfm(PLAYER2).godMode()
+    val pendingTask = p2.addTasks("StandardResource").single()
+
+    p2.manual("Heat")
+
+    p2.count("Heat") shouldBe 1
+    (pendingTask in game.tasks) shouldBe true
+  }
+
+  @Test
+  fun manualRejectsAPreparedTask() {
+    val game = Engine.newGame(canonicalPremise())
+    val p2 = game.tfm(PLAYER2).godMode()
+    val pendingTask = p2.addTasks("StandardResource").single()
+    p2.prepareTask(pendingTask)
+
+    shouldThrow<TaskException> { p2.manual("Heat") }
   }
 
   @Test
