@@ -1,5 +1,7 @@
 # Linkages
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 ## Goal
 
 Make authored equality constraints coherent across Pets: linked type or scalar occurrences narrow
@@ -9,7 +11,7 @@ Keep `This` as a distinct contextual binding rather than forcing every related m
 public abstraction.
 
 The language rules are in
-[the concise type-system specification](../docs/type-system-spec.md#10-linkages). This plan
+[the concise type-system specification](TYPES.md#10-linkages). This plan
 records the design rationale and implementation boundaries.
 
 ## Findings

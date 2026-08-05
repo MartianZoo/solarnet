@@ -1,5 +1,7 @@
 # Testing and verification
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 (This is a by-codex-for-codex doc.)
 
 ## Routine verification

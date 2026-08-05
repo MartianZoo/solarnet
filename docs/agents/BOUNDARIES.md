@@ -1,5 +1,7 @@
 # Game Boundary Audit
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 This audit reviews whether an unrelated board game with suitable mechanics could reuse all
 Solarnet code outside `dev.martianzoo.tfm` while using none of the code inside
 `dev.martianzoo.tfm`.

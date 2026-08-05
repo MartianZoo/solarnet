@@ -1,5 +1,7 @@
 # Native Pets Workflow
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 ## Goal
 
 Replace the Terraforming Mars-specific Kotlin workflow with a native workflow whose game-specific
@@ -94,8 +96,7 @@ prevents final greenery placement from appearing to satisfy a solo objective aft
 time has expired.
 
 The solo victory predicate depends on the configured variant. Ordinary solo uses its required
-global parameters, Venus solo includes the Venus parameter, and TR 63 solo uses Terraform Rating
-63. These predicates affect victory at the terminal check, never the number of generations played.
+global parameters, Venus solo includes the Venus parameter, and TR 63 solo uses Terraform Rating 63. These predicates affect victory at the terminal check, never the number of generations played.
 
 ## Workflow-state principle
 
@@ -104,7 +105,7 @@ rules context. Pending work, readiness, and waiting belong to Tasks and should n
 components merely to tell the engine that something remains to be done.
 
 When Engine gives a Player a turn, this is control-until-drain rather than the one-instruction
-`BY` operation described in [identity-transition.md](identity-transition.md). Engine keeps its
+`BY` operation described in [IDENTITY.md](IDENTITY.md). Engine keeps its
 continuation task in its suspended queue; consequences of the Player's work remain in the Player's
 queue; and Engine resumes only after that queue drains and any nested delegation has returned. The
 workflow must therefore not depend on Engine's queue becoming physically empty.
@@ -211,7 +212,7 @@ CLASS SolarPhase {
 ```
 
 `StepComplete` does not itself solve player iteration. Action turns, Prelude plays, and final
-greenery still require the control-until-drain operation described in `identity-transition.md`.
+greenery still require the control-until-drain operation described in `IDENTITY.md`.
 Those rules should create ordinary turn work and delegate its control to a Player; once that
 Player's control scope drains, Engine's suspended phase continuation resumes. The runner must use
 that control-scope completion, not whole-world queue emptiness, as the condition for emitting

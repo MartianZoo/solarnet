@@ -1,5 +1,7 @@
 # Bundles and game options
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 This document defines the configuration model. It deliberately does not describe a migration or
 implementation sequence.
 

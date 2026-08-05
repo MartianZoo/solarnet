@@ -7,17 +7,17 @@
    `docs/component-types.md` for the specific component classes.
 3. Read `docs/type-system.md` for the Pets type system, and `docs/syntax.md` plus
    `docs/cheat-sheet.md` for Pets syntax.
-4. Read `docs/engine.md` for engine execution, queues, events, gameplay APIs, dependency injection,
+4. Read `docs/agents/ENGINE.md` for engine execution, queues, events, gameplay APIs, dependency injection,
    and workflow details.
 5. Read `docs/game-insights.md` for obscure design decisions and `docs/faq.md` for project goals,
    non-goals, and priorities.
-6. For identity vocabulary, use `glossary.md` and `docs/engine.md`. For World Government
-   Terraforming work, use `plans/world-government.md`.
-7. Read `docs/testing.md` before changing or running tests.
+6. For identity vocabulary, use `glossary.md` and `docs/agents/ENGINE.md`. For World Government
+   Terraforming work, use `docs/agents/WORKFLOW.md`.
+7. Read `docs/agents/TESTING.md` before changing or running tests.
 
 ## When Running Gradle Or Tests
 
-1. Follow the commands and suite boundaries in `docs/testing.md`.
+1. Follow the commands and suite boundaries in `docs/agents/TESTING.md`.
 2. Yarn's incompatible `serialize-javascript` resolution warning and its "Ignored scripts due to
    flag" warning are expected for now. The former comes from the deliberate 7.x security pin while
    Mocha still requests 6.x; the latter preserves Kotlin/JS's safer default of not running package

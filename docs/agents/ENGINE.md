@@ -1,5 +1,7 @@
 # The Solarnet Engine module
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 The job of a game engine is to *know the rules of the game*. That is, at any given point, it knows what choices a player is allowed to make, and exactly what happens next if they do.
 
 This module's job is to represent a world, execute instructions, and trigger effects, keeping all these activities tightly coordinated. It also has optional workflow engine that orchestrates the overall flow of a game phase by phase.
@@ -73,7 +75,6 @@ Being a multiset, the only mutation is
 ```
 update(count, gaining, removing) → StateChange
 ```
-
 This removes `count` copies of `removing` (if not null) and adds `count` copies of `gaining`
 (if not null), in that order. Before removing, it checks whether any *other* components currently
 depend on this one. If so, something slightly strange happens: it throws a particular exception
@@ -261,7 +262,7 @@ is false if it had to stop to remove a dependent — the `Instructor` loops unti
 The same authored behavior has several representations during its lifecycle. A **source effect** is
 transformed into a loaded **class effect**, bound to a concrete component as a **component
 effect**, and registered at runtime as a **live effect**. Matching a live effect against a
-particular change produces a **triggered instruction**. See the [glossary](../glossary.md) for the
+particular change produces a **triggered instruction**. See the [glossary](../../glossary.md) for the
 precise definitions.
 
 The `Effector` maintains a registry of all **live effects** (one per component-effect pair,
@@ -401,7 +402,7 @@ Gameplay         ← query-only + task revision/preparation + doTask
 The concrete implementation is `ApiTranslation`, which wraps most command-style methods in
 `atomic` and invokes `autoExecNow` at the end of each outermost adapter atomic block. Some methods,
 including task preparation/editing and raw debug changes, still have mixed transaction semantics;
-see `docs/engine-api-review.md` for the current API cleanup direction.
+see `docs/agents/API.md` for the current API cleanup direction.
 
 ---
 

@@ -65,7 +65,7 @@ I haven't written too much yet. There are too many things I could write down nex
 * Overview of [component types](docs/component-types.md) -- not a bad place to start
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md) (incomplete)
-* [Testing and verification](docs/testing.md)
+* [Testing and verification](docs/agents/TESTING.md)
 * The growing project [glossary](glossary.md)
 * API docs -- see below
 

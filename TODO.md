@@ -35,7 +35,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Rethink autoexec as a coherent project: distinguish expected domain failures from defects and simplify `autoExecNext`.
 - Finish separating Canon selectors/providers from selected rulesets; never read an unselected bundle's payload.
 - Extract shared `Definition`-to-`ClassDeclaration` assembly without hiding category-specific behavior.
-- Follow `docs/engine-api-review.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately. Then replace rollback speculation with disposable game-state forks that overlay components and live effects, copy the small task queues, and extend event history from a captured prefix.
+- Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately. Then replace rollback speculation with disposable game-state forks that overlay components and live effects, copy the small task queues, and extend event history from a captured prefix.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated dependency/refinement construction without risking correctness.
 

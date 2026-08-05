@@ -1,6 +1,8 @@
 # Pets type system: concise specification
 
-See [Type system](type-system.md) for a more human-readable tutorial.
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
+See [Type system](../type-system.md) for a more human-readable tutorial.
 
 ## 1. Classes and nominal subtyping
 
