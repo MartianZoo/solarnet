@@ -1,5 +1,7 @@
 # Identity and Control Transition
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 ## Purpose
 
 This plan resumes the cross-owner task handoff deliberately deferred by the earlier identity

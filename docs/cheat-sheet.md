@@ -20,7 +20,6 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 * `-Plant` means to remove one
 * `4` is a shortcut for `4 Megacredit`
 * `Plant / PlantTag` means to gain a plant for each plant tag you have
-* `Class<Tag>(HAS Tag<Player1>)` means the number of distinct tag classes Player 1 has
 * `PROD[Plant / PlantTag]` means to increase plant production for each plant tag you have
 * `PROD[Plant OR (3 PlantTag: 4 Plant)]` means to increase plant production 1 step, or, if you have 3 plant tags, 4 steps
 * `2 Steel<Player1> FROM Steel<Player2>` means to transfer 2 steel directly from P2 to P1
@@ -28,11 +27,10 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 * `-3 Megacredit.` (with a dot) means to lose 3 megacredits or as much of that amount as possible
 * `-6 Plant<Anyone>?` (with a question mark) means to remove *up to* 6 plants from any player (i.e., optional)
 * `Ok` means to do nothing, which is sometimes needed because instructions are mandatory
-* `OceanTile BY Player2` lets the task's assignee choose the location but records Player 2 as performing the placement
 
 ## other syntax
 
 * `Steel -> 5` is an action, meaning to spend one steel to gain 5 megacredits
 * `X Microbe<This> -> 3X` means to spend one or more microbes from this card to get 3 megacredits each
-* `CityTile<Anyone>: PROD[1]` is a triggered effect (in source form), meaning when anyone gains a city tile, you get a money production
+* `CityTile<Anyone>: PROD[1]` is a triggered effect, meaning when anyone gains a city tile, you get a money production
 * A requirement of `MAX 5 OxygenStep` means the oxygen level must be 5% or lower to do the thing

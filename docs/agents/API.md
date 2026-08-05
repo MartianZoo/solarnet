@@ -1,5 +1,7 @@
 # Engine API Restructuring
 
+> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+
 **NOTE:** This records the current direction for preparatory engine simplification and the later
 client API. It is not a requirements document or a commitment to particular type names.
 
