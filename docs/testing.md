@@ -45,17 +45,35 @@ spell out `public` and their public types; declarations used only within one mod
 ## Test design
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
-in a test merely to detect that the list changed.
+in a test merely to detect that the list changed. Test observable behavior through the normal
+test-facing layer: test the card, rule, or workflow result rather than a private transformation,
+exact intermediate task text, or other implementation detail.
+
+Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
+the behavior requires something else, add only relevant options and components, and consistently
+name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
+of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 
 `CardTest` and the full-game fixtures provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Do not restate costs, fixture
 setup, or every incidental resource movement. Use a zero scalar, such as `0 Plant` or
-`PROD[0 Energy]`, to assert that a particular type did not change. `BugsTest` is different: its
-passing tests characterize known incorrect behavior, and their names say what currently happens
-incorrectly.
+`PROD[0 Energy]`, to assert that a particular type did not change.
+
+Cover meaningful boundaries, negative cases, non-targets, and option combinations rather than only
+the happy path. A filtering or linkage test should include several tempting components that must not
+match. Preserve this coverage during refactoring.
+
+`BugsTest` is different: its passing tests characterize known incorrect behavior, and their names
+say what currently happens incorrectly. Prefer such a characterization over a disproportionate
+workaround. Once the bug is fixed, move the useful scenario to its proper behavioral suite.
 
 ## Translating game logs
 
+Whole-game tests are high-value integration evidence. When translating a supplied game log:
+
+- Preserve supplied log lines as comments near the test actions that translate them. Assert
+  selective checkpoints, summaries, and final facts rather than mechanically asserting every log
+  entry.
 - Treat screenshot assertions as snapshots at a particular moment. If the screenshot was taken
   before card buying but the assertion is after Research, adjust only money and hand counts.
 - Logs may not indicate how much steel/titanium/etc. was used toward a purchase. A reasonable
