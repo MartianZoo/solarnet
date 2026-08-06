@@ -1,19 +1,13 @@
 # Project Notes For Codex
 
-## When Learning About The Project
+This project has both:
 
-1. Read `README.md` for project basics and `docs/packages.md` for the package layout.
-2. Read `docs/language-intro.md` for the component-based representation model and
-   `docs/component-types.md` for the specific component classes.
-3. Read `docs/type-system.md` for the Pets type system, and `docs/syntax.md` plus
-   `docs/cheat-sheet.md` for Pets syntax.
-4. Read `docs/agents/ENGINE.md` for engine execution, queues, events, gameplay APIs, dependency injection,
-   and workflow details.
-5. Read `docs/game-insights.md` for obscure design decisions and `docs/faq.md` for project goals,
-   non-goals, and priorities.
-6. For identity vocabulary, use `glossary.md` and `docs/agents/ENGINE.md`. For World Government
-   Terraforming work, use `docs/agents/WORKFLOW.md`.
-7. Read `docs/agents/TESTING.md` before changing or running tests.
+* documentation written by humans for humans, directly in `docs/`.
+* documentation written by agents for agents, in `docs/agents/`.
+
+You should freely *read* both kinds before editing code.
+You should autonomously maintain the documentation in docs/agents/ however you see fit.
+Do not propose any more than slight correctness updates to the human-authored docs; do not assume that any new information needs to be added there.
 
 ## When Running Gradle Or Tests
 
