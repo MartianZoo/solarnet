@@ -11,7 +11,7 @@ Keep `This` as a distinct contextual binding rather than forcing every related m
 public abstraction.
 
 The language rules are in
-[the type-system walkthrough](TYPES.md#13-linkages). This plan
+[the type-system walkthrough](TYPES.md#13-implicit-type-variables). This plan
 records the design rationale and implementation boundaries.
 
 ## Findings

@@ -84,10 +84,12 @@ Almost everything in the rest of this document is downstream of those two facts.
 - An abstract type is a choice not yet made — "a tile", "an ocean somewhere". The engine must be
   able to *enumerate* the concrete choices and offer them, not merely validate one afterward, which
   requires a closed, frozen vocabulary (sections 3 and 12).
-- Nothing has a name to refer back to, so the only way to say "the same one" twice is to write the
-  same expression twice. That is a **linkage** (section 13), and it is how
-  `Cardbound<CardFront<Owner>> : Owned<Owner>` manages to say "a tag belongs to whoever owns the
-  card it is printed on."
+- Pets has no separate syntax for naming a pending type choice, so it says "the same one" by writing
+  the same expression twice. An abstract expression in a choice-producing position therefore
+  introduces an implicit **type variable** bounded by the type it denotes, which a repetition of the
+  expression refers back to (section 13). That is how
+  `Cardbound<CardFront<Owner>> : Owned<Owner>` manages to say "a tag belongs to whoever owns the card
+  it is printed on."
 
 ## 1. Classes and nominal subtyping
 
@@ -324,7 +326,7 @@ CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR]
 ```
 
 the inner `MarsArea` sits at `Neighbor_0.Tile_0` and the outer one at `Neighbor_1`. Paths are how
-linked positions are tracked and rewritten (section 13).
+the positions sharing one type variable are tracked and rewritten (section 13).
 
 Dependencies also form a graph, with components as vertices and dependencies as directed edges from
 dependent to target, each labeled by its key; ordinary directed-graph terminology applies. A target
@@ -407,8 +409,8 @@ CLASS MixedLeaf : Mixed
 MixedLeaf      resolves to      MixedLeaf<Pair<Class<MixedLeaf>, Class<Mixed>>>
 ```
 
-Since `Tile` and `Tile<Area>` are the same type, either could be written as `CityTile`'s supertype
-with the same effect.
+Since `Tile` and `Tile<Area>` are the same type, either gives `CityTile` the same resolved
+supertype. Their authored spellings remain distinct for the repetition matching of section 13.
 
 ## 7. Narrowing a dependency bound
 
@@ -541,7 +543,7 @@ proper superclass of another declarer drops out, and whatever survives is combin
 bounds. Intensities are not combined; two surviving incomparable superclasses declaring different
 intensities is an error.
 
-One special case matters, because it interacts with contextual `Owner` (section 13.2). Writing
+One special case matters, because it interacts with contextual `Owner` (section 13.1). Writing
 `Owner` in a default's arguments keeps the literal `Owner` bound rather than normalizing it to the
 class's own narrower bound for that key, so that the contextual binding still has something to
 replace when a component is created.
@@ -611,20 +613,21 @@ Owned<!Player1> glb Card<!Player1>      Card<!Player1>
 Owned<!Player1> glb Owned<!Player2>     no common subtype
 ```
 
-Complements participate in linkage like any other bound *within a class signature*, and narrowing is
-applied before exclusion, so a complement that excludes something the linkage has already ruled out
-simply disappears (section 13.3):
+Within a class signature a complemented bound can occupy a type variable's positions like any other
+bound, and narrowing is applied before exclusion, so a complement that excludes something the
+variable has already ruled out simply disappears (section 13.3):
 
 ```text
 Cardbound<Player1, !CardFront<Player2>>    resolves to    Cardbound<Player1>
 ```
 
-In every other recognition scope the opposite holds: an expression written with `!` is never a
-linkage source, so two occurrences of `OwnedTile<!Owner>` in one effect are two independent choices.
+In every other scope the opposite holds: an expression written with `!` neither introduces a
+variable nor refers to one, so two occurrences of `OwnedTile<!Owner>` in one effect are two
+independent choices.
 
 A complement's domain is not written out. Both written forms of a complemented bound show only the
-`!`-marked exclusion, so when a `glb` or a linkage has narrowed the domain below what the printed
-root class implies, that narrowing is lost on re-resolution; section 15 records this.
+`!`-marked exclusion, so when a `glb` or a type variable has narrowed the domain below what the
+printed root class implies, that narrowing is lost on re-resolution; section 15 records this.
 
 Finally, as noted in section 3, excluding a phantom type does not make the containing type phantom;
 only the domain counts.
@@ -681,7 +684,7 @@ argument matching.
 An expression with no room for the candidate fails the whole test, so `LandArea(HAS 8 BuildingTag)`
 is satisfied by nothing: a building tag's dependencies are an `Owner` and a `CardFront`, and an area
 is neither. Within a class literal's refinement, unmatched expressions are left alone instead — that
-is what makes the represented-type linkage of section 11.4 work.
+is what makes the represented-type reference of section 11.4 work.
 
 Satisfaction is therefore a world-dependent narrowing operation in two steps: the candidate must be
 a subtype of `T`, and the world must satisfy the substituted `R`. This lets a refinement type be
@@ -729,9 +732,9 @@ than beside it. Areas are limited to one tile anyway, but including it here mean
 considers occupancy too: the rule that gets dropped is "adjacent to your tile *and* empty", so a
 player whose only adjacent areas are full may place anywhere empty.
 
-### 11.4 The represented-type linkage
+### 11.4 The represented-type reference
 
-A class literal links its `HAS` requirement to the class it represents. When testing candidate
+A class literal's `HAS` requirement refers back to the class it represents. When testing candidate
 `Class<S>` against `Class<T>(HAS R)`, occurrences rooted at `T` within `R` are narrowed to `S`. Thus
 `Class<SpaceTag>` satisfies `Class<Tag>(HAS Tag<Player2>)` exactly when the world contains
 `SpaceTag<Player2>`, and counting that metric yields the number of distinct tag classes Player 2
@@ -760,8 +763,8 @@ triggers.)
 
 ## 12. Closed-world type operations
 
-A frozen class table makes three operations decidable that an open world could not. All three are
-confined to one table; see section 3.
+A frozen class table makes the following operations decidable in ways that an open world could not.
+All of them are confined to one table; see section 3.
 
 **Enumeration.** For any type `T`, Pets can list
 
@@ -770,9 +773,9 @@ concreteSubtypes(T) = { U | U is concrete and U <: T }
 ```
 
 by choosing every concrete root class below `T`'s root and every admissible combination of concrete
-bounds, as constrained by any complement or linkage. The result may be large, but is finite whenever
-the table's dependency closure is. A game engine uses it to *generate* legal choices rather than
-merely validate one already made: an instruction that says `OceanTile` picks up the class's
+bounds, as constrained by any complement or type variable. The result may be large, but is finite
+whenever the table's dependency closure is. A game engine uses it to *generate* legal choices rather
+than merely validate one already made: an instruction that says `OceanTile` picks up the class's
 `DEFAULT +OceanTile<WaterArea>`, and enumerating that yields one concrete type per water area on the
 map — the placements to offer. A refinement is dropped rather than applied: by section 11.2 a
 refinement type has no concrete subtypes, so a state-aware consumer enumerates the unrefined type
@@ -823,30 +826,65 @@ and a `Tile` but forgets to extend `OwnedTile` would silently stop counting for 
 District's `CLASS CdTile : SpecialTile` gets it right by extending `SpecialTile`, which is already
 an `OwnedTile`.
 
-**Least upper bound**, in contrast, always exists — `Component` if nothing closer does. With multiple
-inheritance the candidates need not be unique, and the implementation then picks among the
-incomparable minimal ones by a heuristic, so `lub` is best read as "a" least upper bound. Multiple
-inheritance is ordinary here — `OceanTile` is both a `Tile` and a `GlobalParameter` — which is what
-makes the qualifier necessary.
+**Upper bound (`lub`)**, in contrast, always returns a common upper bound — `Component` if nothing
+closer does. With multiple inheritance a mathematical least upper bound need not exist: there may be
+several incomparable minimal common upper bounds, and the implementation picks one by a heuristic.
+Multiple inheritance is ordinary here — `OceanTile` is both a `Tile` and a `GlobalParameter` — which
+is why the distinction matters.
 
-## 13. Linkages
+## 13. Implicit type variables
 
 Sections 13 and 14 intentionally range beyond the type system into effects, instructions, and task
-splitting so that linkage has one coherent end-to-end meaning.
+splitting so that one mechanism has a coherent end-to-end meaning.
 
-A linkage is a source-declared equality constraint among two or more occurrences of one abstract
-type expression. The occurrences denote one choice: narrowing any occurrence narrows every
-occurrence in the linkage to the same type. Because components have no names, repeating the
-expression is the only way the language can say "the same one".
+An abstract type is a choice not yet made. In certain **choice-producing** positions, an authored
+expression that resolves to an abstract type introduces an implicit **type variable** whose upper
+bound is the type denoted by that expression. Within that variable's scope there are **eligible**
+positions where an exact repetition of the same authored expression indicates the variable rather
+than opening a new choice. Narrowing the variable narrows every one of its occurrences to the same
+type.
 
-Recognition works on the authored expression tree, before defaults or other preprocessing insert
-expressions, and never on resolved types. Two occurrences are the same expression when their parsed
-trees are structurally equal, once external source translation has produced canonical class names
-and each explicitly written bound has been associated with its dependency key. Whitespace, redundant
-parentheses, and the order of unambiguous bounds are therefore all irrelevant, while every other
-authored difference matters: omitted bounds stay omitted, and refinements and complements are not
-rewritten merely because they are logically equivalent. No pair below is linked, even where later
-resolution or context makes its two members equal:
+This adds no new kind of choice. A lone abstract expression in a choice-producing position was
+always a choice bounded by that expression; a variable is that same choice, made referrable for the
+length of a scope. The reference is the new part. Pets has no separate syntax for naming type
+variables, so it says "the same one" by writing the expression again.
+
+That the game already reads repetition this way can be checked against the printed cards. The icon
+grammar has one glyph for "a standard resource, unspecified", and nothing that marks one wildcard as
+distinct from another: no subscript, no prime, no "a different one". Manutech uses that glyph twice,
+inside a production box on the trigger side and alone on the result side:
+
+```json5
+// Manutech
+"effects": [ "PROD[StandardResource]: StandardResource" ],
+```
+
+Nobody reads that as two unrelated resources, and it is hard to see what the icons *could* do to say
+that they were. Where the grammar wants a wildcard constrained it spends notation on a qualifier
+instead, and when it has no qualifier to spend, the card stops being expressible at all. Robinson
+Industries wants "your lowest production" — a wildcard the world narrows rather than the player —
+and the printed card has to fall back on words, while the canon has to fall back out of Pets
+entirely:
+
+```json5
+// Robinson Industries
+"actions": [ "4 -> GainLowestProduction" ],
+"components": [ "CLASS GainLowestProduction : Owned, Custom" ],
+```
+
+So the grammar spends real effort on narrowing a wildcard and none at all on re-opening one.
+Repetition is not available to mean "another one", which leaves it free to mean "the same one". Pets
+is not inventing a coupling rule here; it is declining to break one the game already relies on. That
+is what justifies the rule's real cost — that meaning comes to depend on authored spelling.
+
+A repetition is matched on the authored expression tree, before defaults or other preprocessing
+insert expressions, and never on resolved types. Two occurrences are the same expression when their
+parsed trees are structurally equal, once external source translation has produced canonical class
+names and each explicitly written bound has been associated with its dependency key. Whitespace,
+redundant parentheses, and the order of unambiguous bounds are therefore all irrelevant, while every
+other authored difference matters: omitted bounds stay omitted, and refinements and complements are
+not rewritten merely because they are logically equivalent. No pair below shares a variable, even
+where later resolution or context makes its two members equal:
 
 ```pets
 Tile                  Tile<Area>
@@ -854,31 +892,32 @@ OceanTile             OceanTile<MarsArea>
 Owner                 Anyone
 ```
 
-Keeping recognition this literal makes a linkage something one can find by reading the source, and
-stops defaults or normalization from silently coupling independent choices. The one deliberate
-exception to whole-expression equality is the represented-type linkage of section 11.4: within the
-`HAS` requirement of `Class<T>`, an occurrence rooted at `T` refers to the represented class even
+Keeping matching this literal makes a variable something one can find by reading the source, and
+stops defaults or normalization from silently coupling independent choices. The represented-type
+reference of section 11.4 is a separate binding mechanism rather than repetition matching: within
+the `HAS` requirement of `Class<T>`, an occurrence rooted at `T` refers to the represented class even
 when it carries dependency arguments, as in `Class<Tag>(HAS Tag<Owner>)`.
 
-Among expressions that do match, these rules decide what a linkage covers:
+Among expressions that do match, these rules decide which positions belong to one variable:
 
-- Only an expression whose resolved type is abstract can introduce one.
-- Within a recognition scope (section 13.2), all eligible maximal occurrences of the same expression
-  form one linkage.
-- A smaller repeated expression nested inside every occurrence of a larger linkage introduces no
-  second linkage: repeating `CardFront(HAS BioTag)` links that whole expression rather than creating
-  an independent `BioTag` choice. Where the smaller expression also occurs on its own, it stays
-  linked too.
-- A linkage declared by a supertype remains the same linkage in its subclasses. Coincidentally
-  matching text elsewhere creates no relationship.
+- Only an expression whose resolved type is abstract introduces one; a concrete expression denotes
+  no choice.
+- Within a scope (section 13.2), all eligible maximal occurrences of the same expression belong to
+  one variable.
+- A smaller repeated expression nested inside every occurrence of a larger one introduces no
+  variable of its own: repeating `CardFront(HAS BioTag)` gives a single variable bounded by that
+  whole expression rather than an independent `BioTag` choice. Where the smaller expression also
+  occurs on its own, the nested occurrences belong to its variable too.
+- A variable introduced by a supertype is the same variable in its subclasses. Coincidentally
+  matching text elsewhere does not join it.
 
-### 13.1 The contextual `This` binding
+### 13.1 Contextual bindings
 
-`This` is closely related but is not a linkage inferred from repetition. It is a reserved,
-explicitly named contextual binding belonging to a class declaration. One occurrence is enough to
-refer to it, and every `This` occurrence in that class's signature or body refers to the same
-binding. `This` occurrences are therefore excluded from repeated-expression recognition; repetition
-adds no second constraint.
+**`This`.** `This` is closely related but is not a variable inferred from repetition. It is a
+reserved, explicitly named contextual binding belonging to a class declaration. One occurrence is
+enough to refer to it, and every `This` occurrence in that class's signature or body refers to the
+same binding. `This` occurrences are therefore excluded from repetition matching; repetition adds
+no second constraint.
 
 In an abstract class, `This` remains late-bound as the declaration applies to subclasses. For a
 component whose exact concrete type is `C<Args>`, an ordinary `This` occurrence binds to `C<Args>`,
@@ -910,36 +949,45 @@ TerraformRating: VictoryPoint
 ```
 
 The first fires for the terraform-rating steps gained right now. Signature-level `This` paths remain
-distinct from repetition-created linkages: repetition creates a choice to be narrowed, while the
-enclosing concrete class supplies `This`.
+distinct from implicit variables: a variable is a choice waiting to be narrowed, while the enclosing
+concrete class supplies `This`.
 
-### 13.2 Recognition scopes
+**`Owner`.** Within an effect belonging to a concrete owned component, `Owner` refers to that
+component's exact owner. If a card belongs to `Player1`, for example, its inherited effect
+`This: VictoryPoint<Owner>` becomes `This: VictoryPoint<Player1>`. One occurrence is enough, and the
+binding applies independently of repetition-created variables. In class signatures and other
+context-free type expressions, `Owner` remains the ordinary abstract class and can participate in
+the rules below like any other expression. Effects without an owning component may leave it abstract
+until execution supplies a contextual player; the engine rules for that fallback are recorded in
+[Engine](ENGINE.md).
 
-Repetition creates a linkage only across these related source regions:
+### 13.2 Scopes
 
-- **Within a class signature.** Two explicitly written bounds link when they are the same expression
-  *and* bind the same dependency key. This is how the canon says that a tag, or a resource cube,
-  belongs to whoever owns the card it sits on:
+Implicit variables can span only the following related source regions:
+
+- **Within a class signature.** Two explicitly written bounds belong to one variable when they are
+  the same expression *and* bind the same dependency key. This is how the canon says that a tag, or
+  a resource cube, belongs to whoever owns the card it sits on:
 
   ```pets
-  // Repeating Owner links the Cardbound's owner to the CardFront's owner.
+  // Repeating Owner makes the Cardbound's owner and the CardFront's owner one variable.
   ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
   ```
 
   There is one `Owner` choice here: both occurrences bind `Owned_0`, the nested one through
-  `CardFront` and the other through the supertype. Identical spellings binding different keys do not
-  link.
+  `CardFront` and the other through the supertype. Identical spellings binding different keys stay
+  separate.
 
   Binding the same key is the only rule this scope adds. Which occurrences are eligible, and which
-  of several nested ones a linkage covers, follow the same rules as everywhere else: whole authored
+  of several nested ones a variable covers, follow the same rules as everywhere else: whole authored
   expressions, maximal ones preferred, abstract ones only. `Cardbound` happens to repeat a bare
-  class name, but a signature repeating a bound that carries arguments links that whole bound, not
-  the names inside it. When a subclass declares a link sharing a position with one it inherits, the
-  two merge into a single link over the union of their positions. Section 15 records that
-  recognition here is narrower than this today.
-- **From a class signature to its effects.** An expression in the dependency signature links to the
-  same expression in each of that class's effects, so narrowing the component through that
-  dependency narrows its effects the same way. Playing a card relies on it:
+  class name, but in a signature repeating a bound that carries arguments, the variable is that
+  whole bound, not the names inside it. When a subclass introduces a variable sharing a position
+  with one it inherits, the two merge into a single variable over the union of their positions.
+  Section 15 records that matching here is narrower than this today.
+- **From a class signature to its effects.** A variable introduced in the dependency signature
+  extends to the same expression in each of that class's effects, so narrowing the component through
+  that dependency narrows its effects the same way. Playing a card relies on it:
 
   ```pets
   CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned, Signal {
@@ -951,23 +999,25 @@ Repetition creates a linkage only across these related source regions:
   Choosing which card to play narrows `Class<CardFront>` once, and the requirement check and the
   cost calculation are both narrowed to that same card.
 
-  Like the other scopes, this one narrows only at the occurrences a linkage names, and a
+  Like the other scopes, this one narrows only at the occurrences the variable covers, and a
   disagreement among them is an error rather than a silent choice. Section 15 records that today it
   is done by class-name substitution instead.
-- **From a trigger to its instruction.** A match that narrows a linked trigger expression applies
-  the same narrowing to the instruction. Awards are scored this way, by an effect on `Player`:
+- **From a trigger to its instruction.** A match that narrows a trigger expression applies the same
+  narrowing to every occurrence of it in the instruction. Awards are scored this way, by an effect
+  on `Player`:
 
   ```pets
   MeasureAward<Award>:: TallyAward<This, Award>
   ```
 
   Whichever award is being measured is the one tallied. This is the behavior historically called
-  *trigger specialization*; under this terminology it is linked trigger narrowing.
+  *trigger specialization*; under this terminology the trigger match narrows the variable and the
+  instruction holds another of its occurrences.
 - **Within one action, `THEN`, or atomic instruction.** The cost and result of an action, the stages
   of one `THEN`, and distinct operand roles of one atomic instruction are all related regions. A
   transmutation deliberately excludes its complete source and destination expressions — those are
-  independent choices — but matching proper subexpressions inside them can link. Compare two real
-  cards. Kaguya Tech turns one of your greeneries into a city, on the same hex:
+  independent choices — but matching proper subexpressions inside them can share a variable. Compare
+  two real cards. Kaguya Tech turns one of your greeneries into a city, on the same hex:
 
   ```json5
   // Repeated LandArea occurrences must specialize to the same concrete area.
@@ -982,41 +1032,44 @@ Repetition creates a linkage only across these related source regions:
   ```
 
 Outside a class signature, a scope is a set of *regions* — trigger and instruction, cost and result,
-the stages of a `THEN`, the two operands of a transmutation — and an expression links only when it
-occurs in at least two different ones. Three occurrences inside a single `THEN` stage, or inside the
-trigger alone, are three writings of the same type and nothing more.
+the stages of a `THEN`, the two operands of a transmutation — and a repetition refers back only when
+its occurrences lie in at least two different ones. Three choice-producing occurrences inside a
+single `THEN` stage, or inside the trigger alone, therefore introduce three separate variables:
+three writings of the same type and nothing more.
 
 Two exclusions cut across every scope. First, the root occurrence of each entry in a class's own
-dependency declaration introduces a fresh dependency and is never eligible, so the two `Tile`
-dependencies of `Adjacency<Tile, Tile>` stay independent — adjacency relates two tiles on
-*different* areas — as do the top-level and nested `MarsArea` occurrences in
-`Neighbor<Tile<MarsArea>, MarsArea>`, where the whole point is that the tile is on one area and the
-neighbor is another. Second, requirement-only repetition introduces nothing: testing two facts does
-not assert that one witness satisfies both. An occurrence inside a requirement or refinement may
-still join a linkage introduced by a matching occurrence outside requirements — with one further
-restriction, that a *counted* expression is not an occurrence at all. The `X` of `2 X`, `MAX 0 X`,
-or an award's metric neither introduces a linkage nor joins one, wherever it appears; only the
+dependency declaration *declares* a dependency — a keyed variable of its own — so it always
+introduces a fresh one and never refers back. The two `Tile` dependencies of `Adjacency<Tile, Tile>`
+therefore stay independent — adjacency relates two tiles on *different* areas — as do the top-level
+and nested `MarsArea` occurrences in `Neighbor<Tile<MarsArea>, MarsArea>`, where the whole point is
+that the tile is on one area and the neighbor is another. Second, a position inside a requirement or
+refinement is eligible but not choice-producing: testing two facts does not assert that one witness
+satisfies both, so requirement-only repetition introduces nothing. Such an occurrence may still
+refer to a variable introduced by a matching occurrence outside requirements — with one further
+restriction, that a *counted* expression is not an occurrence at all. The `T` of `2 T`, `MAX 0 T`,
+or an award's metric neither introduces a variable nor refers to one, wherever it appears; only the
 expressions nested inside it can.
 
 Nested occurrences in sibling branches of one `<...>` list are meant to be independent as well, but
-today they link: a hypothetical `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` would couple its two
-`MarsArea` occurrences because both bind `Tile_0`, and any class written with two identical class
-literal bounds would couple its two because every class literal slot binds `Class_0`. See section 15.
+today they share a variable: a hypothetical `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` would couple
+its two `MarsArea` occurrences because both bind `Tile_0`, and any class written with two identical
+class literal bounds would couple its two because every class literal slot binds `Class_0`. See
+section 15.
 
-Comma-separated instructions and alternative `OR` arms do not create linkages with one another. A
-linkage established by an enclosing class, effect, action, or `THEN` may still have occurrences
-inside those instructions or arms, and is applied before they separate.
+Comma-separated instructions and alternative `OR` arms are not in scope for one another. A variable
+introduced by an enclosing class, effect, action, or `THEN` may still have occurrences inside those
+instructions or arms, and is applied before they separate.
 
-### 13.3 Applying a linkage
+### 13.3 Narrowing a variable
 
-A type linkage begins with the upper bound denoted by its repeated source expression. A proposed
-narrowing supplies one subtype of that bound and substitutes it at every linked occurrence. The
+A type variable begins at the upper bound denoted by its source expression. A proposed narrowing
+supplies one subtype of that bound and substitutes it at every occurrence of the variable. The
 containing expressions are then resolved and validated. The narrowing is rejected if any occurrence
 cannot accept it or if different occurrences would require different types.
 
-Within a class signature, this is enforced whenever a type is formed. Every linked position is
-intersected with every other, and the result is written back to all of them; because a position may
-belong to a linkage whose other positions are nested inside it, the process repeats until it
+Within a class signature, this is enforced whenever a type is formed. Every position of one variable
+is intersected with every other, and the result is written back to all of them; because a position
+may belong to a variable whose other positions are nested inside it, the process repeats until it
 reaches a fixed point. Narrowing any one occurrence therefore narrows the rest automatically, and
 disagreement is an error rather than a silent choice:
 
@@ -1030,12 +1083,12 @@ ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
 
 ```text
 SpaceTag<Player1, CardFront>            same type as SpaceTag<CardFront<Player1>>
-SpaceTag<Player1, CardFront<Player2>>   error: the linked occurrences disagree
+SpaceTag<Player1, CardFront<Player2>>   error: the variable's occurrences disagree
 ```
 
-Links survive inheritance, and enumeration respects them. There is no such thing as Player 1's space
-tag on Player 2's card, so enumerating `SpaceTag` in a two-player game yields one concrete type per
-(owner, card-they-own) pair rather than one per (owner, any card) pair:
+Variables survive inheritance, and enumeration respects them. There is no such thing as Player 1's
+space tag on Player 2's card, so enumerating `SpaceTag` in a two-player game yields one concrete
+type per (owner, card-they-own) pair rather than one per (owner, any card) pair:
 
 ```text
 SpaceTag<Player1, SpaceElevator<Player1>>
@@ -1043,20 +1096,20 @@ SpaceTag<Player2, SpaceElevator<Player2>>
 ...one such pair per player, per card front, never crossed
 ```
 
-Outside a class signature, a linkage remains unresolved while more than one concrete binding is
-possible. A composite instruction must not be split across a boundary crossed by an unresolved
-linkage — Kaguya Tech's `CityTile<LandArea> FROM GreeneryTile<LandArea>` cannot be executed as two
+Outside a class signature, a variable remains unbound while more than one concrete binding is
+possible. A composite instruction must not be split across a boundary crossed by an unbound
+variable — Kaguya Tech's `CityTile<LandArea> FROM GreeneryTile<LandArea>` cannot be executed as two
 independent halves, or the city could land on a different hex than the greenery it replaced. Once
-earlier work or an enclosing binding fixes the linkage, its value is substituted into all later
-occurrences; ordinary task splitting may then continue. This rule couples only the linked choice,
+earlier work or an enclosing binding fixes the variable, its value is substituted into all later
+occurrences; ordinary task splitting may then continue. This rule couples only the shared choice,
 not the execution of otherwise sequential stages.
 
-## 14. Scalar linkages
+## 14. Scalar variables
 
-Two or more authored `X` occurrences in linkage-eligible regions introduce a scalar linkage rather
-than a type linkage. All linked occurrences denote one positive integer, and a coefficient such as
-`3X` denotes three times that integer. Sell Patents — discard any number of cards, gain that many
-megacredits — is the pure case:
+`X` is the one kind of variable Pets spells out. In a choice-producing count position, an authored
+`X` introduces a **scalar variable** denoting one positive integer. Eligible repetitions in the
+scopes of section 13 refer to that same variable, and a coefficient such as `3X` denotes three times
+its value. Sell Patents — discard any number of cards, gain that many megacredits — is the pure case:
 
 ```json5
 { "id": "SELL", "action": "X ProjectCard -> X" },
@@ -1074,23 +1127,26 @@ and a floater-spending discount shows one on a payment:
 "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed.) OR Ok"
 ```
 
-The recognition scopes and splitting rules of section 13 apply unchanged. A lone `X`, including the
-`X` modifier on a trigger such as `X This:: Accept<Class<Resource>>`, retains its ordinary scalar or
-trigger meaning without creating a linkage. Scalar linkage is determined by occurrence identity, not
-by pairing `X` occurrences in traversal order.
+The scopes and splitting rules of section 13 apply unchanged, and nobody reads `X ProjectCard -> X`
+as two unrelated numbers either: section 13 is that same convention applied to a position holding a
+type rather than a count. A lone `X` in a count position is still a scalar variable; it simply has no
+other occurrences. The `X` modifier on a trigger such as `X This:: Accept<Class<Resource>>` instead
+retains its ordinary trigger meaning and introduces no scalar variable. Variable identity follows
+the authored occurrences and scopes, not traversal-order pairing.
 
 ## 15. Known divergences
 
 Each item below is current implementation behavior that this walkthrough would otherwise describe
 differently. They are recorded here rather than smoothed over.
 
-1. **Sibling nested bounds link.** Section 13.2's same-key rule is applied to nested occurrences in
-   sibling branches of one `<...>` list, so a declaration like
+1. **Sibling nested bounds share a variable.** Section 13.2's same-key rule is applied to nested
+   occurrences in sibling branches of one `<...>` list, so a declaration like
    `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` couples choices that were meant to stay independent.
    With class literals the coupling is easy to miss, since all class literal slots share the key
    `Class_0`: had `PlayCard<Class<CardBack>, Class<CardFront>>` instead been written with the same
-   literal twice, those two slots would link. The intent is that only a class's *own* repeated
-   writing of a bound at distinct positions of the same inherited dependency should link.
+   literal twice, those two slots would share one variable. The intent is that only a class's *own*
+   repeated writing of a bound at distinct positions of the same inherited dependency should share
+   one.
 2. **`lub` is not an upper bound when exactly one side is refined.**
    `CardFront(HAS 20 CardCost) lub CardFront` yields `CardFront(HAS 20 CardCost)`, which `CardFront`
    does not narrow. Only the greatest lower bound handles refinements correctly.
@@ -1109,19 +1165,21 @@ differently. They are recorded here rather than smoothed over.
    as `Adjacency<CityTile>`, which greedy matching re-resolves to `Adjacency<CityTile, Tile>`.
    Minimal forms of types whose narrowed dependency is not the first of several same-bounded ones
    should not be treated as round-trippable.
-6. **Class signatures recognize only bare class names.** Section 13.2 says a signature adds only the
-   same-key requirement to the shared recognition rules; in fact it uses a separate mechanism in
+6. **Class signatures match only bare class names.** Section 13.2 says a signature adds only the
+   same-key requirement to the shared matching rules; in fact it uses a separate mechanism in
    which only a bare class name is an occurrence. A repeated bound carrying arguments, a refinement,
-   or a `!` never links as a unit, so recognition reaches past it to the names inside. In the
-   invented `ABSTRACT CLASS Thing<Holder<Card<Owner>>> : Keeper<Card<Owner>>`, the two `Card<Owner>`
-   bounds should be one choice; instead only their two `Owner`s are coupled, leaving the two cards
-   free to differ. Abstractness is not consulted either, though a link over concrete positions has
-   no effect. Item 1 is the other half of this: one shared recognition mechanism would fix both.
-7. **Signature-to-effect narrowing is class-name substitution, not linkage.** Section 13.2's second
-   bullet describes a linkage; what runs is a substitution built by comparing every bound of the
-   class's own type — nested bounds included — with the component's, and rewriting every occurrence
-   of each differing class name anywhere in the effects, arguments and requirements alike. It
-   therefore rewrites expressions the author never wrote alike, and when one name would map to two
+   or a `!` never becomes a variable as a unit, so matching reaches past it to the names inside. In
+   the invented `ABSTRACT CLASS Thing<Holder<Card<Owner>>> : Keeper<Card<Owner>>`, the two
+   `Card<Owner>` bounds should be one choice; instead only their two `Owner`s are coupled, leaving
+   the two cards free to differ. Abstractness is not consulted either, though a variable over
+   concrete positions has no effect. Item 1 is the other half of this: one shared matching
+   mechanism would fix both.
+7. **Signature-to-effect narrowing is class-name substitution, not a variable.** Section 13.2's
+   second bullet describes one variable spanning signature and effects; what runs is a substitution
+   built by comparing every bound of the class's own type — nested bounds included — with the
+   component's, and rewriting every occurrence of each differing class name anywhere in the effects,
+   arguments and requirements alike. It therefore rewrites expressions the author never wrote alike,
+   and when one name would map to two
    different replacements it drops that substitution silently instead of reporting the disagreement
    a class signature would report.
 8. **Automatic narrowing drops refinements and ignores complements.** `Type.singleConcreteSubtype`
@@ -1132,9 +1190,9 @@ differently. They are recorded here rather than smoothed over.
    `NullPointerException` when the type's bounds are incompatible with those of the single concrete
    subclass, instead of reporting no such subtype.
 9. **A complement's domain is not written out.** Both written forms of a complemented bound show
-   only the exclusion, so a domain narrowed by `glb` or by a linkage below what the printed root
-   class implies is lost when the printed form is re-resolved. Unlike item 5 this affects the full
-   form too, and it is one of several signs that a complement is not really the simple thing
+   only the exclusion, so a domain narrowed by `glb` or by a type variable below what the printed
+   root class implies is lost when the printed form is re-resolved. Unlike item 5 this affects the
+   full form too, and it is one of several signs that a complement is not really the simple thing
    section 10 presents it as.
 10. **Conjoining refinements spreads forgiveness.** `Refinement.join` ORs the `HAS?` flag, so
     `T(HAS R1) glb T(HAS? R2)` yields `T(HAS? R1 AND R2)`, whose escape clause can now discard the
@@ -1149,3 +1207,13 @@ differently. They are recorded here rather than smoothed over.
     inside the lazily computed dependency set — laziness that dependency cycles (section 5) depend
     on. Such a table builds and freezes successfully and throws only when something first asks the
     offending class for its dependencies.
+13. **A nested complement does not block repetition matching.** Section 10 says an expression
+    written with `!` neither introduces nor refers to an implicit variable outside a class
+    signature. The matcher checks only whether the candidate expression itself is complemented, so
+    the root `OwnedTile<!Owner>` remains eligible even though its argument is complemented. Repeating
+    that complete expression across regions therefore shares a variable today.
+14. **Matching does not canonicalize argument order.** Section 13 matches authored expressions after
+    associating their explicitly written bounds with dependency keys, so two unambiguous argument
+    orders are meant to match. Today the matcher compares raw expression trees, whose argument lists
+    remain ordered: `GreeneryTile<Player1, LandArea>` and `GreeneryTile<LandArea, Player1>` therefore
+    introduce separate variables.
