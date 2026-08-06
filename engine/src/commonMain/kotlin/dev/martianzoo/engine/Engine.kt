@@ -2,28 +2,11 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.AUTO_LOAD
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.Task
 import dev.martianzoo.engine.AutoExecMode.SAFE
-import dev.martianzoo.pets.HasClassName.Companion.classNames
-import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.scopedOf
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.bind
-import org.koin.dsl.koinApplication
-import org.koin.dsl.module
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -56,88 +39,84 @@ public object Engine {
         }
       }
 
-  private fun newWorld(premise: GamePremise): WholeWorld {
-    val koin = koinApplication { modules(gameModule(premise)) }.koin
+  private fun newWorld(premise: GamePremise): WholeWorld = Wiring(premise).createWorld()
 
-    val game = koin.get<WholeWorld>()
-    var initializer: Initializer? = null
-    val gameplayByActor =
-        premise.actors.associateWith { actor ->
-          val scope = koin.createScope<ActorScopeId>("$actor")
-          scope.declare(actor)
-          if (actor == ENGINE) initializer = scope.get<Initializer>()
-          scope.get<Gameplay>()
+  /** Constructs one engine world and owns the lifetimes of all its collaborators. */
+  internal class Wiring(private val premise: GamePremise) {
+    init {
+      require(ENGINE in premise.actors) { "Game premise must include $ENGINE as an actor" }
+    }
+
+    private val classTable: ClassTable = ClassTable.forPremise(premise)
+    private val transformers: Transformers = Transformers(classTable)
+
+    // Reader construction depends on the component graph, whose effector in turn needs the reader.
+    // The effector does not read it until components begin changing, after construction is
+    // complete.
+    private val effector: Effector = Effector(transformers) { reader }
+    private val components: WritableComponentGraph =
+        WritableComponentGraph.Whole(effector, classTable)
+    private val events = WritableEventLog()
+    private val taskQueues = TaskQueues(events, classTable)
+    private val reader: GameReaderImpl =
+        GameReaderImpl(classTable, components, transformers, premise)
+    private val timeline = TimelineImpl(reader, components, events, taskQueues)
+    private val limiter = Limiter(classTable, components)
+    private val atomicOperationBoundary: AtomicOperationBoundary =
+        AtomicOperationBoundary(timeline) {
+          world.onAtomicComplete()
         }
-    game.initializeGameplay(gameplayByActor)
-    initializer!!.initialize()
-    return game
-  }
+    private val changerByActor: Map<Actor, Changer> =
+        premise.actors.associateWith { Changer(reader, components, events, it) }
+    private val instructorByActor: Map<Actor, Instructor> =
+        premise.actors.associateWith {
+          Instructor(reader, limiter, changerByActor.getValue(it), effector, classTable, it)
+        }
+    private val gameplayByActor: Map<Actor, Gameplay> =
+        premise.actors.associateWith(::createGameplay)
+    private val initializer =
+        Initializer(
+            gameplayByActor.getValue(ENGINE),
+            instructorByActor.getValue(ENGINE),
+            taskQueues,
+            classTable,
+            timeline,
+            premise,
+        )
+    private val world: WholeWorld =
+        WholeWorld(
+            components,
+            events,
+            taskQueues.all(),
+            timeline,
+            reader,
+            classTable,
+            gameplayByActor,
+        )
 
-  private class ActorScopeId
+    internal fun createWorld(): WholeWorld {
+      initializer.initialize()
+      return world
+    }
 
-  private fun gameModule(premise: GamePremise) = module {
-    single { premise }
-    single { loadClassTable(premise) } bind ClassTable::class
-    singleOf(::Transformers)
-    single { Effector(get(), lazy { get<GameReaderImpl>() }) }
-    single { WritableEventLog() }
-    single<EventLog> { get<WritableEventLog>() }
-    single<TaskListener> { get<WritableEventLog>() }
-    single<ChangeLogger> { get<WritableEventLog>() }
-    single<WritableComponentGraph> { WritableComponentGraph.Whole(get(), get()) }
-    single<ComponentGraph> { get<WritableComponentGraph>() }
-    single<Updater> { get<WritableComponentGraph>() }
-    singleOf(::TaskQueues)
-    single<TaskQueue> { get<TaskQueues>().all() }
-    singleOf(::GameReaderImpl) { bind<GameReader>() }
-    singleOf(::TimelineImpl) { bind<Timeline>() }
-    singleOf(::Limiter)
-    singleOf(::WholeWorld) { bind<World>() }
-    single { AtomicOperationBoundary(get()) { get<World>().onAtomicComplete() } }
-
-    scope<ActorScopeId> {
-      scoped<WritableTaskQueue> { get<TaskQueues>()[get<Actor>()] }
-      scoped<TaskQueue> { get<WritableTaskQueue>() }
-      scopedOf(::Changer)
-      scoped {
-        Instructor(get(), get(), get(), get(), get(), get())
-      } // Changer? and Effector? are nullable
-      scopedOf(::Implementations)
-      scopedOf(::ApiTranslation) { bind<Gameplay>() }
-      scopedOf(::Initializer)
+    private fun createGameplay(actor: Actor): Gameplay {
+      val tasks = taskQueues[actor]
+      val changer = changerByActor.getValue(actor)
+      val instructor = instructorByActor.getValue(actor)
+      val implementations =
+          Implementations(tasks, taskQueues, reader, timeline, actor, instructor, changer)
+      val gameplay =
+          ApiTranslation(
+              actor,
+              reader,
+              timeline,
+              implementations,
+              tasks,
+              classTable,
+              transformers,
+              atomicOperationBoundary,
+          )
+      return gameplay
     }
   }
-
-  internal interface ChangeLogger {
-    fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?): ChangeEvent
-  }
-
-  internal interface TaskListener {
-    fun taskAdded(task: Task): TaskAddedEvent
-
-    fun taskRemoved(task: Task): TaskRemovedEvent
-
-    fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent
-  }
-
-  internal interface Updater {
-    fun update(count: Int, gaining: Component?, removing: Component?): StateChange
-  }
-}
-
-internal fun loadClassTable(premise: GamePremise): ClassTable {
-  val ruleset = premise.ruleset
-
-  fun isAutoLoad(declaration: ClassDeclaration): Boolean =
-      declaration.className == AUTO_LOAD ||
-          declaration.supertypes.any {
-            isAutoLoad(ruleset.classDeclaration(it.className))
-          }
-
-  val rootClassNames =
-      premise.actors.classNames() +
-          premise.rootClassNames +
-          ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys
-
-  return ClassLoader(ruleset).apply { rootClassNames.forEach(::load) }.freeze()
 }

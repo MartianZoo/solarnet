@@ -76,6 +76,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Separate `Instructor`'s preparation-only capability from execution so `Changer`, `Effector`, and
+  the default Actor do not remain nullable solely for `PrepareTest`.
 - Canonicalize unambiguous authored dependency arguments by key before implicit-variable matching, so equivalent argument orders share a variable as intended (`docs/agents/TYPES.md` §15.14).
 - Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

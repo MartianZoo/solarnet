@@ -12,7 +12,6 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
-import dev.martianzoo.engine.loadClassTable
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -20,6 +19,7 @@ import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.ClassLoader
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.te
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -209,7 +209,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = loadClassTable(canonicalPremise(players = 2))
+    val table = ClassTable.forPremise(canonicalPremise(players = 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val type = table.resolve(te(expr))

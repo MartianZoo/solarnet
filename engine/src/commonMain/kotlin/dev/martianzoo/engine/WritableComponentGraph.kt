@@ -5,7 +5,6 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.engine.Engine.Updater
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
@@ -13,7 +12,8 @@ import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
 /** Internal mutation capability paired with the public read-only [ComponentGraph]. */
-internal interface WritableComponentGraph : ComponentGraph, Updater {
+internal interface WritableComponentGraph : ComponentGraph {
+  fun update(count: Int, gaining: Component?, removing: Component?): StateChange
 
   /** Component graph backed by the complete live game's component multiset. */
   class Whole(private val effector: Effector, private val classTable: ClassTable) :

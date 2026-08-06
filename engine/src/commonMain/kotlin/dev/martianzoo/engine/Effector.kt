@@ -36,9 +36,9 @@ import dev.martianzoo.util.HashMultiset
 
 internal class Effector(
     private val transformers: Transformers,
-    readerProvider: Lazy<GameReader>,
+    readerProvider: () -> GameReader,
 ) {
-  private val reader: GameReader by lazy { readerProvider.value }
+  private val reader: GameReader by lazy(readerProvider)
   private val registry = mutableMapOf<RegistryKey, HashMultiset<LiveEffect>>()
   private val registryOrder = mutableMapOf<LiveEffect, Long>()
   private var nextRegistryOrder = 0L
@@ -422,20 +422,20 @@ internal class Effector(
       override val classToCheck = inner.classToCheck
     }
   }
-}
 
-private data class Hit(
-    private val transformers: List<PetTransformer>,
-    private val count: Int,
-) {
-  fun specialize(instruction: Instruction): Instruction = specializeNode(instruction) * count
+  private data class Hit(
+      private val transformers: List<PetTransformer>,
+      private val count: Int,
+  ) {
+    fun specialize(instruction: Instruction): Instruction = specializeNode(instruction) * count
 
-  fun specialize(expression: Expression): Expression = specializeNode(expression)
+    fun specialize(expression: Expression): Expression = specializeNode(expression)
 
-  fun specialize(requirement: Requirement): Requirement = specializeNode(requirement)
+    fun specialize(requirement: Requirement): Requirement = specializeNode(requirement)
 
-  fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
+    fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
 
-  private fun <P : PetNode> specializeNode(node: P): P =
-      transformers.fold(node) { current, transformer -> transformer.transform(current) }
+    private fun <P : PetNode> specializeNode(node: P): P =
+        transformers.fold(node) { current, transformer -> transformer.transform(current) }
+  }
 }

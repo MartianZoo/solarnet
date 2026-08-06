@@ -177,8 +177,8 @@ as much as possible without actually changing anything:
 
 `instructor.execute(instruction, cause)` is called only on a prepared, concrete instruction:
 
-- `Change` actually calls `changer.change(...)`, which calls `updater.update(...)`, then logs
-  the event via `ChangeLogger`. As noted this informs `Effector`; automatic effects execute inline
+- `Change` actually calls `changer.change(...)`, which calls `components.update(...)`, then logs
+  the event via `WritableEventLog`. As noted this informs `Effector`; automatic effects execute inline
   (recursively), while queued effects are returned as new tasks.
 - `Then` recursively executes each sub-instruction
 - `NoOp` does nothing
@@ -483,24 +483,21 @@ This design means:
 
 ## Wiring it all together
 
-The dependencies between all these things are shockingly complex and a pain to maintain manually. I
-decided to adopt Koin.
-
-`Engine.newGame()` builds a Koin DI container. The game-level singletons (`ClassTable`,
-`Effector`, `WritableEventLog`, `WritableComponentGraph`, etc.) are shared across all players.
-Each configured Actor also gets a Koin scope containing `Changer`, `Instructor`, `Implementations`,
-and `ApiTranslation` (the `Gameplay` impl). The Engine Actor's scope also supplies the
-`Initializer` used during bootstrap.
+`Engine.newGame()` delegates construction to `Engine.Wiring`, the engine's manual dependency-injection
+composition root. Game-level objects (`ClassTable`, `Effector`, `WritableEventLog`,
+`WritableComponentGraph`, etc.) are shared across all players. Each configured Actor gets its own
+`Changer`, `Instructor`, `Implementations`, and `ApiTranslation` (the `Gameplay` implementation).
+The Engine Actor also supplies the `Initializer` used during bootstrap.
 
 Components expose their concrete Owner as a resolved Pets type. Kotlin runtime identities retain
 separate `Actor` and `Owner` roles where code needs an entity to participate directly; `Player` is
 their current intersection. Only Actors receive gameplay scopes and task queues. A passive Pets
 Owner such as `SoloOpponent` has no corresponding Kotlin identity and receives neither capability.
 
-The `Effector` takes a `Lazy<GameReader>` to break a bootstrapping cycle: the game's reader isn't
+The `Effector` takes a `GameReader` provider to break a bootstrapping cycle: the game's reader isn't
 available until after the effector exists, but the effector needs the reader to fire effects.
 
-After scopes are created and attached to the `World`, `Initializer.initialize()` runs for `ENGINE`.
+After per-Actor gameplay is constructed and passed into the `World`, `Initializer.initialize()` runs for `ENGINE`.
 It creates the administrative `ENGINE` component and all singleton-type components directly
 through `Instructor`, without manufacturing a task for each top-level instruction. Automatic
 effects still execute inline and queued effects still add ordinary tasks. Singleton types whose

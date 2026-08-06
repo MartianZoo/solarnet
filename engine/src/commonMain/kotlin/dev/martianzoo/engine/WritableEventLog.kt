@@ -11,8 +11,6 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
-import dev.martianzoo.engine.Engine.ChangeLogger
-import dev.martianzoo.engine.Engine.TaskListener
 import dev.martianzoo.engine.Timeline.Checkpoint
 
 /**
@@ -20,8 +18,7 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  * Events appended later to [startingSequence] are not part of this log. The captured events must
  * not be rolled back while this log exists.
  */
-internal class WritableEventLog(private val startingSequence: EventLog? = null) :
-    EventLog, TaskListener, ChangeLogger {
+internal class WritableEventLog(private val startingSequence: EventLog? = null) : EventLog {
   private val startingSize = startingSequence?.entriesSince(Checkpoint(0))?.size ?: 0
   private val startingSetupSize = startingSequence?.entriesSinceSetup()?.size ?: 0
   private val events: MutableList<GameEvent> = mutableListOf()
@@ -85,14 +82,14 @@ internal class WritableEventLog(private val startingSequence: EventLog? = null) 
     return entry
   }
 
-  override fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?): ChangeEvent =
+  internal fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?): ChangeEvent =
       addEntry(ChangeEvent(size, actor, change, cause))
 
-  override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
+  internal fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
-  override fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
+  internal fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  override fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
+  internal fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
     require(oldTask.id == newTask.id)
     return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
   }
