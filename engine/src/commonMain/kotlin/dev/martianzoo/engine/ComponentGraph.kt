@@ -4,7 +4,6 @@ import dev.martianzoo.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
@@ -102,7 +101,7 @@ private constructor(
   }
 
   /** Removes and/or gains [count] copies while keeping live-effect indexes synchronized. */
-  internal fun update(count: Int, gaining: Component?, removing: Component?): StateChange {
+  internal fun applyChange(count: Int, gaining: Component?, removing: Component?) {
     listOfNotNull(gaining, removing).forEach {
       requireOwnClassTable(it.type)
       if (it.isCustom) {
@@ -120,7 +119,6 @@ private constructor(
       components.add(it, count)
       addEffects(it, count)
     }
-    return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
   }
 
   private fun requireOwnClassTable(type: Type) {

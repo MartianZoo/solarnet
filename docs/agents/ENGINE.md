@@ -55,7 +55,7 @@ The fourth critical piece is a `Timeline`, which coordinates atomic changes acro
 The component graph is just a multiset, nothing more, nothing less. Literally all it supports is
 add, remove, and count -- this is what makes rollback-and-replay so trivial!
 
-`Custom` classes are never admitted to this multiset. `ComponentGraph.update` enforces that
+`Custom` classes are never admitted to this multiset. `ComponentGraph.applyChange` enforces that
 invariant at the graph boundary. A custom metric may report a virtual count for a type, but that
 value does not add components, affect the total `Component` count, fire effects, satisfy
 dependencies, or appear in component enumeration.
@@ -95,6 +95,17 @@ four event types:
 
 The event log is the basis for **rollback**: `TimelineImpl.rollBack(checkpoint)` iterates the
 log backward from the current end to the checkpoint, reversing each event in turn.
+
+`EventLog.record` and `EventLog.rollBackTo` are the single mutation/history boundary. A component
+or task mutation is supplied to that boundary and must succeed before the corresponding event is
+appended or removed. Each successful application or reversal also advances an opaque
+`WorldRevision`. Unlike an event-count checkpoint, a revision is never reused after rollback, so a
+future overlay can reliably notice any mutation of its backing world.
+
+An event log may capture another log as an immutable prefix. Capturing retains the source and its
+current size and setup checkpoint directly, so creating the suffix is constant-time in the length
+of the existing history. Later source events are excluded; the captured prefix must not be rolled
+back while the suffix exists.
 
 Change events render the performing Actor with `BY` and the effect-bearing causal component with
 `VIA`, followed by the causal event ordinal: `+OxygenStep BY Player2 VIA GreeneryTile<...> BECAUSE
@@ -178,7 +189,7 @@ as much as possible without actually changing anything:
 
 `instructor.execute(instruction, cause)` is called only on a prepared, concrete instruction:
 
-- `Change` actually calls `changer.change(...)`, which calls `components.update(...)`, then logs
+- `Change` actually calls `changer.change(...)`, which calls `components.applyChange(...)`, then logs
   the event via `EventLog`. As noted this informs `Effector`; automatic effects execute inline
   (recursively), while queued effects are returned as new tasks.
 - `Then` recursively executes each sub-instruction
@@ -251,7 +262,7 @@ game start and compiled into a per-class lookup map.
 ## Dependency Removal Cascade
 
 When you try to remove the last instance of a component that other components depend on,
-`ComponentGraph.update` throws `ExistingDependentsException`. `Changer.change` catches
+`ComponentGraph.applyChange` throws `ExistingDependentsException`. `Changer.change` catches
 this and recursively removes the dependents first (via `removeAll`), then retries the original
 remove. This cascades as needed. Note that `changer.change` returns `(event, done)` where `done`
 is false if it had to stop to remove a dependent — the `Instructor` loops until `done` is true.
@@ -348,6 +359,10 @@ resulting change events retain the triggering Actor.
 
 Every public `Gameplay` method wraps its work in `atomic`. This means all state changes within
 one operation are either fully committed or fully reversed.
+
+A checkpoint is an event ordinal and may be reached again after rollback. `WorldRevision` instead
+advances on both forward and reverse event application; it identifies whether the live world has
+remained untouched, not merely whether it currently has the same number of events.
 
 ---
 
@@ -527,7 +542,7 @@ Player calls gameplay.doTask("3 Plant<Player2>!")
       → impl.doTask(id)
         → instructor.execute(instruction, cause)
           → changer.change(...)
-            → updater.update(count, g, r)    (update component multiset)
+            → components.applyChange(count, g, r) (update component multiset)
             → changeLogger.addChangeEvent(…) (append to event log)
             → effector.fire(event, auto=true)
               → for each matching live effect → instructor.execute(...)  (recurse)

@@ -17,6 +17,10 @@ internal constructor(
     override val classSynonyms: ClassSynonyms,
     private val gameplayByActor: Map<Actor, Gameplay>,
 ) : World {
+  /** The exact event-backed state revision, including changes later rolled back. */
+  internal val revision: WorldRevision
+    get() = events.revision
+
   override fun gameplay(actor: Actor): Gameplay = gameplayByActor[actor]!!
 
   override var onAtomicComplete: () -> Unit = {}

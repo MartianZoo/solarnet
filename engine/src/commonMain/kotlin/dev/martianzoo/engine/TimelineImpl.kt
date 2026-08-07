@@ -32,14 +32,12 @@ internal class TimelineImpl(
       "Cannot roll back to $ordinal; committed through ${commitFloor.ordinal}"
     }
     require(ordinal <= events.size)
-    if (ordinal == events.size) return
-
-    for (entry in events.eventsToRollBack(ordinal).asReversed()) {
+    events.rollBackTo(ordinal) { entry ->
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)
         is ChangeEvent ->
             with(entry.change) {
-              components.update(
+              components.applyChange(
                   count = count,
                   gaining = removing?.toComponent(reader),
                   removing = gaining?.toComponent(reader),
@@ -47,7 +45,6 @@ internal class TimelineImpl(
             }
       }
     }
-    events.removeEventsFrom(ordinal)
   }
 
   internal class AbortOperationException : Exception()
@@ -66,5 +63,5 @@ internal class TimelineImpl(
     return events.activitySince(checkpoint)
   }
 
-  internal fun initializationFinished() = events.setStartPoint()
+  internal fun initializationFinished() = events.markSetupStart()
 }
