@@ -10,8 +10,8 @@ import dev.martianzoo.types.Type
 
 internal class Changer(
     private val reader: GameReader,
-    private val components: WritableComponentGraph,
-    private val events: WritableEventLog,
+    private val components: ComponentGraph,
+    private val events: EventLog,
     private val defaultActor: Actor,
 ) {
 

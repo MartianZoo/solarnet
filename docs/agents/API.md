@@ -6,10 +6,10 @@
 client API. It is not a requirements document or a commitment to particular type names.
 
 The current engine API tries to express who is allowed to do what. `Gameplay` has nested power
-layers, `godMode()` reveals more of them, and several live data structures have paired read-only and
-writable types. This has not produced a meaningful authority boundary: the same implementation
-implements every gameplay layer, callers cast between them, and the REPL obtains `godMode()` before
-hiding methods again according to its color mode.
+layers and `godMode()` reveals more of them. Until recently, several live data structures also had
+paired read-only and writable types. This did not produce a meaningful authority boundary: the
+same implementation implements every gameplay layer, callers cast between them, and the REPL
+obtains `godMode()` before hiding methods again according to its color mode.
 
 The preparatory direction is to stop making the current engine responsible for authority. It should
 be a trusted, low-level workhorse with a straightforward API that permits all supported engine
@@ -52,17 +52,17 @@ returned object can be cast back to any layer. The layers therefore describe int
 actually constraining it. They also make signatures, adapters, and Terraforming Mars helpers more
 complicated.
 
-### Read-only/writable pairs mix two different ideas
+### Read-only/writable pairs mixed two different ideas
 
-The public `ComponentGraph`, `EventLog`, and `TaskQueue` are live read-only views. Internal types
-such as `WritableComponentGraph`, `WritableEventLog`, and `WritableTaskQueue` add mutation. Some of
-this split is useful implementation encapsulation, but the paired type hierarchy also resembles the
-same ineffective authority model as the gameplay layers.
+`ComponentGraph`, `EventLog`, and `TaskQueue` formerly had separate internal writable counterparts.
+They are now single concrete types whose mutation paths preserve the same invariants. The
+paired hierarchy resembled the same ineffective authority model as the gameplay layers without
+providing useful implementation encapsulation.
 
-The important boundary is not whether a type's name says `Writable`. It is whether every mutation
-passes through the one mechanism that preserves the object's invariants. A single concrete service
-can expose public queries, broad public workhorse operations where appropriate, and internal
-bookkeeping primitives without requiring parallel read/write interfaces.
+The important boundary is not whether a type's name advertises mutation. It is whether every
+mutation passes through the one mechanism that preserves the object's invariants. A single concrete
+service can expose only the queries required across modules while keeping other queries and
+bookkeeping primitives internal, without requiring parallel read/write interfaces.
 
 ### Script color modes rebuild the layers with casts
 
@@ -96,8 +96,8 @@ the Actor used for contextual defaults, task assignment, execution, and event at
 Remove paired read-only/writable interfaces where they do not buy implementation safety. Prefer a
 single implementation type with:
 
-1. public observation methods;
-2. public high-level workhorse operations only when direct engine clients need them; and
+1. observation methods, public only when another module needs them;
+2. high-level workhorse operations, public only when direct engine clients need them; and
 3. internal low-level mutation methods used to keep related state synchronized.
 
 In particular:
@@ -302,8 +302,8 @@ engine just because they might resemble that future design.
    make its trusted, Actor-scoped nature clearer?
 2. Which flat methods are complete commands and which are composable primitives inside another
    command?
-3. Should `World` continue exposing read interfaces while gameplay exposes all high-level mutation,
-   even after the internal writable interface pairs disappear?
+3. Which child-object mutations, if any, should eventually become direct public engine operations
+   rather than remaining coordinated through gameplay?
 4. How much of timeline control belongs on the workhorse root versus `World.timeline`?
 
 None of these questions changes the main boundary decision.

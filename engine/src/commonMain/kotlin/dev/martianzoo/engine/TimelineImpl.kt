@@ -13,14 +13,14 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  */
 internal class TimelineImpl(
     private val reader: GameReader,
-    private val components: WritableComponentGraph,
-    private val events: WritableEventLog,
+    private val components: ComponentGraph,
+    private val events: EventLog,
     private val tasks: TaskQueues,
 ) : Timeline {
 
   override fun checkpoint() = Checkpoint(events.size)
 
-  private var commitFloor = Checkpoint(events.firstWritableOrdinal)
+  private var commitFloor = Checkpoint(events.firstLocalOrdinal)
 
   override fun commit() {
     commitFloor = checkpoint()

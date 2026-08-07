@@ -12,12 +12,12 @@ import kotlin.test.Test
 internal class EventLogPrefixTest {
   @Test
   fun capturesAStartingSequenceAndAppendsLocally() {
-    val parent = WritableEventLog()
+    val parent = EventLog()
     parent.addChangeEvent(StateChange(1, parse<Expression>("Energy"), null), ENGINE, null)
     parent.setStartPoint()
     parent.addChangeEvent(StateChange(1, parse<Expression>("Plant"), null), ENGINE, null)
 
-    val child = WritableEventLog(parent)
+    val child = EventLog(parent)
     parent.addChangeEvent(StateChange(1, parse<Expression>("Steel"), null), ENGINE, null)
     child.addChangeEvent(StateChange(1, parse<Expression>("Titanium"), null), ENGINE, null)
 

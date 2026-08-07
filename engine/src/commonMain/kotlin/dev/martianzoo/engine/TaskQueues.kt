@@ -35,12 +35,12 @@ import dev.martianzoo.types.ClassTable
  */
 internal class TaskQueues
 private constructor(
-    private val events: WritableEventLog,
+    private val events: EventLog,
     private val classTable: ClassTable?,
     initialTasks: Collection<Task>,
 ) {
   internal constructor(
-      events: WritableEventLog,
+      events: EventLog,
       classTable: ClassTable? = null,
   ) : this(events, classTable, emptyList())
 
@@ -50,12 +50,12 @@ private constructor(
   }
 
   /** Copies current tasks without recording their existing additions in [events]. */
-  internal fun copy(events: WritableEventLog) = TaskQueues(events, classTable, taskSet)
+  internal fun copy(events: EventLog) = TaskQueues(events, classTable, taskSet)
 
-  internal fun all(): WritableTaskQueue = WritableTaskQueue(this, assignee = null) { true }
+  internal fun all(): TaskQueue = TaskQueue(this, assignee = null) { true }
 
-  internal operator fun get(assignee: Actor): WritableTaskQueue =
-      WritableTaskQueue(this, assignee = assignee) { it.assignee == assignee }
+  internal operator fun get(assignee: Actor): TaskQueue =
+      TaskQueue(this, assignee = assignee) { it.assignee == assignee }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 

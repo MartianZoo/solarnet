@@ -55,7 +55,7 @@ The fourth critical piece is a `Timeline`, which coordinates atomic changes acro
 The component graph is just a multiset, nothing more, nothing less. Literally all it supports is
 add, remove, and count -- this is what makes rollback-and-replay so trivial!
 
-`Custom` classes are never admitted to this multiset. `WritableComponentGraph.update` enforces that
+`Custom` classes are never admitted to this multiset. `ComponentGraph.update` enforces that
 invariant at the graph boundary. A custom metric may report a virtual count for a type, but that
 value does not add components, affect the total `Component` count, fire effects, satisfy
 dependencies, or appear in component enumeration.
@@ -87,7 +87,7 @@ live effects to produce further component changes.
 
 ## The Event Log
 
-Every state change and task event is appended via `WritableEventLog` as a `GameEvent`. There are
+Every state change and task event is appended via `EventLog` as a `GameEvent`. There are
 four event types:
 
 - `ChangeEvent` — a `StateChange` plus the performing `actor` and cause
@@ -106,12 +106,13 @@ Change events render the performing Actor with `BY` and the effect-bearing causa
 
 The internal task queue manager is `TaskQueues`, which owns the set of `Task` objects and all task
 mutation. Task order has no game meaning: stable `TaskId` iteration only makes arbitrary API and
-auto-exec choices reproducible. Public readers and gameplay operation bodies see read-only
-`TaskQueue` views.
+auto-exec choices reproducible. Public readers and gameplay operation bodies see scoped `TaskQueue`
+objects.
 Those views may be scoped; for example, gameplay for an assignee exposes only that assignee's tasks,
-while `World.tasks` remains a global read-only view for diagnostics and workflow checks.
-Internal code that mutates tasks uses `WritableTaskQueue`, following the same read-only/writable
-split as the component graph and event log.
+while `World.tasks` remains a global view for diagnostics and workflow checks. Query and mutation
+operations live on the same `TaskQueue` type; mutations still delegate to `TaskQueues`, which owns
+normalization, storage, and event logging. Only queries used across module boundaries are public;
+the engine's mutation and bookkeeping operations remain internal.
 
 Each task has:
 
@@ -178,7 +179,7 @@ as much as possible without actually changing anything:
 `instructor.execute(instruction, cause)` is called only on a prepared, concrete instruction:
 
 - `Change` actually calls `changer.change(...)`, which calls `components.update(...)`, then logs
-  the event via `WritableEventLog`. As noted this informs `Effector`; automatic effects execute inline
+  the event via `EventLog`. As noted this informs `Effector`; automatic effects execute inline
   (recursively), while queued effects are returned as new tasks.
 - `Then` recursively executes each sub-instruction
 - `NoOp` does nothing
@@ -250,7 +251,7 @@ game start and compiled into a per-class lookup map.
 ## Dependency Removal Cascade
 
 When you try to remove the last instance of a component that other components depend on,
-`WritableComponentGraph.update` throws `ExistingDependentsException`. `Changer.change` catches
+`ComponentGraph.update` throws `ExistingDependentsException`. `Changer.change` catches
 this and recursively removes the dependents first (via `removeAll`), then retries the original
 remove. This cascades as needed. Note that `changer.change` returns `(event, done)` where `done`
 is false if it had to stop to remove a dependent — the `Instructor` loops until `done` is true.
@@ -484,8 +485,8 @@ This design means:
 ## Wiring it all together
 
 `Engine.newGame()` delegates construction to `Engine.Wiring`, the engine's manual dependency-injection
-composition root. Game-level objects (`ClassTable`, `Effector`, `WritableEventLog`,
-`WritableComponentGraph`, etc.) are shared across all players. Each configured Actor gets its own
+composition root. Game-level objects (`ClassTable`, `Effector`, `EventLog`, `ComponentGraph`, etc.)
+are shared across all players. Each configured Actor gets its own
 `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` (the `Gameplay` implementation).
 The Engine Actor also supplies the `Initializer` used during bootstrap.
 

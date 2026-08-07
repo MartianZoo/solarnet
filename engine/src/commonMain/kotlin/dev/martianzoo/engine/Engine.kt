@@ -54,9 +54,8 @@ public object Engine {
     // The effector does not read it until components begin changing, after construction is
     // complete.
     private val effector: Effector = Effector(transformers) { reader }
-    private val components: WritableComponentGraph =
-        WritableComponentGraph.Whole(effector, classTable)
-    private val events = WritableEventLog()
+    private val components = ComponentGraph(effector, classTable)
+    private val events = EventLog()
     private val taskQueues = TaskQueues(events, classTable)
     private val reader: GameReaderImpl =
         GameReaderImpl(classTable, components, transformers, premise)
