@@ -29,8 +29,9 @@ public data class ClassDeclaration(
     override val className: ClassName,
 
     /**
-     * A short name for the class (1-5 characters, all upper case letters or digits). All
-     * [className]s and [shortName]s loaded for a game share the same single namespace.
+     * A programmatically supplied short name for the class, usually a structured definition id.
+     * Pets class declaration syntax does not assign short names. All [className]s and [shortName]s
+     * loaded for a game share the same single namespace.
      */
     public val shortName: ClassName = className,
 

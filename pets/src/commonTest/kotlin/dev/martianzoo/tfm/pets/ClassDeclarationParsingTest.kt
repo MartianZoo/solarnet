@@ -25,13 +25,17 @@ internal class ClassDeclarationParsingTest {
     parseClasses("CLASS Foo") // minimal
     parseClasses("ABSTRACT CLASS Foo") // abstract
     parseClasses("CLASS Foo<Bar>") // with spec
-    parseClasses("CLASS Foo[FOO]") // with shortname
     parseClasses("CLASS Foo : Bar") // with supertype
     parseClasses("CLASS Foo { HAS 1 }") // with same-line body
     parseClasses(" CLASS Foo") // with space first
     parseClasses("\nCLASS Foo") // with newline first
     parseClasses("CLASS Foo ") // with space after
     parseClasses("CLASS Foo\n") // with newline after
+  }
+
+  @Test
+  fun declarationShortNamesAreNotPetsSyntax() {
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo[FOO]") }
   }
 
   @Test

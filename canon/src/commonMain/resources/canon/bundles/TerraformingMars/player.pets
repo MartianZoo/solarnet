@@ -1,5 +1,5 @@
 "The icon-grammar spelling for an unrestricted ownership target"
-ABSTRACT CLASS Anyone[ANY] {
+ABSTRACT CLASS Anyone {
   "An entity that can own things, including the non-Player SoloOpponent"
   ABSTRACT CLASS Owner {
     "One of the actual people or bots playing Terraforming Mars"
@@ -12,7 +12,7 @@ ABSTRACT CLASS Anyone[ANY] {
       CorporationPhase:: CorporationCard
       ResearchPhase: 4 BuyCard<This>?
       MeasureAward<Award>:: TallyAward<This, Award>
-      CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
+      CLASS Player1, Player2, Player3, Player4, Player5
     }
 
   }
@@ -25,23 +25,23 @@ ABSTRACT CLASS Owned<Anyone> {
   DEFAULT Owned<Owner>                            // affects ALL refs to subtypes that don't give
                                                   // an owner... the only default of this kind
   "Well it's a victory point"
-  CLASS VictoryPoint[VP] : Owned<Player>
+  CLASS VictoryPoint : Owned<Player>
 
   "The only component to have absolutely no purpose whatsoever"
   CLASS Victory : Owned<Player> { HAS MAX 1 This }
 
   "One step on the terraform rating track; you generally start with 20 of them"
-  CLASS TerraformRating[TR] : Owned<Player> {
+  CLASS TerraformRating : Owned<Player> {
     ProductionPhase: 1
     End: VictoryPoint
   }
 
   "Anything represented by a copper cube IRL, perhaps except for SRR resources (not sure)"
-  ABSTRACT CLASS Resource[RES] {
-    ABSTRACT CLASS StandardResource[SR] {
-      CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P]
-      CLASS Energy[E] { ProductionPhase: Heat FROM This }
-      CLASS Heat[H]
+  ABSTRACT CLASS Resource {
+    ABSTRACT CLASS StandardResource {
+      CLASS Megacredit, Steel, Titanium, Plant
+      CLASS Energy { ProductionPhase: Heat FROM This }
+      CLASS Heat
     }
   }
 
@@ -51,7 +51,7 @@ ABSTRACT CLASS Owned<Anyone> {
   }
 
   "A milestone already claimed; unclaimed milestones exist only as a Class<ThatMilestoneType>"
-  ABSTRACT CLASS Milestone[MIL] : Owned<Player> {
+  ABSTRACT CLASS Milestone : Owned<Player> {
     HAS MAX 3 Milestone
     // Each subclass needs HAS MAX 1 SubclassName
 
@@ -80,7 +80,7 @@ ABSTRACT CLASS Owned<Anyone> {
 }
 
 "A funded award; unfunded awards exist only as a Class<ThatAwardType>"
-ABSTRACT CLASS Award[AWD] {
+ABSTRACT CLASS Award {
   HAS MAX 1 This
   HAS MAX 3 Award
 }

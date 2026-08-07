@@ -31,7 +31,6 @@ import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
-import dev.martianzoo.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
@@ -58,10 +57,9 @@ internal object ClassParsing : PetTokenizer() {
     val signature: Parser<Signature> =
         classFullName and
             dependencies and
-            optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
             supertypeList map
-            { (name, deps, short, supes) ->
-              Signature(name, short, deps, supes)
+            { (name, deps, supes) ->
+              Signature(name, deps, supes)
             }
 
     // This should only be included in the bodiless case
@@ -170,13 +168,11 @@ internal object ClassParsing : PetTokenizer() {
       HasClassName by asDeclaration {
     constructor(
         className: ClassName,
-        shortName: ClassName?,
         dependencies: List<Expression>,
         supertypes: List<Expression>,
     ) : this(
         ClassDeclaration(
             className = className,
-            shortName = shortName ?: className,
             kind = ABSTRACT, // needs to be overwritten!
             dependencies = dependencies,
             supertypes = supertypes.toSetStrict(),

@@ -152,7 +152,7 @@
         "MicrobeTag<Anyone>: Disease<This>, -4.",
         // ideally: `ScienceTag: TR FROM Disease ELSE (PlayedEvent<Class<This>> FROM This, 3 TR)?`
         "ScienceTag IF Disease: TerraformRating FROM Disease<This>",
-        "ScienceTag IF MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TR) OR Ok"
+        "ScienceTag IF MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok"
       ],
     },
 

@@ -46,7 +46,10 @@ class TilePlacingTest {
       game
           .tfm(PLAYER2)
           .godMode()
-          .manual("GT<Tharsis_3_2>, GT<Tharsis_3_3>, GT<Tharsis_4_2>, GT<Tharsis_4_4>")
+          .manual(
+              "GreeneryTile<Tharsis_3_2>, GreeneryTile<Tharsis_3_3>, " +
+                  "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
+          )
 
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_5>") }
     }

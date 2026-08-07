@@ -5,6 +5,7 @@ import dev.martianzoo.api.SystemClasses.AUTO_LOAD
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.pets.ClassSynonyms
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -16,7 +17,10 @@ import dev.martianzoo.types.Dependency.TypeDependency
 public abstract class ClassTable {
   public companion object {
     /** Loads and freezes the classes activated by [premise]. */
-    public fun forPremise(premise: GamePremise): ClassTable {
+    public fun forPremise(
+        premise: GamePremise,
+        classSynonyms: ClassSynonyms = ClassSynonyms.NONE,
+    ): ClassTable {
       val ruleset = premise.ruleset
 
       fun isAutoLoad(declaration: ClassDeclaration): Boolean =
@@ -30,7 +34,7 @@ public abstract class ClassTable {
               premise.rootClassNames +
               ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys
 
-      return ClassLoader(ruleset).apply { rootClassNames.forEach(::load) }.freeze()
+      return ClassLoader(ruleset, classSynonyms).apply { rootClassNames.forEach(::load) }.freeze()
     }
   }
 
@@ -43,17 +47,17 @@ public abstract class ClassTable {
   /** Every active class in this table; phantom classes are deliberately not enumerated. */
   public abstract fun allClasses(): Set<Class>
 
-  /** Every active class's full and short names; phantom names are deliberately excluded. */
+  /** Every active class's full names and programmatic ids; phantom names are excluded. */
   public abstract val allClassNamesAndIds: Set<ClassName>
 
-  /** Returns the active or phantom [Class] having this full or short [name], if authority-known. */
+  /** Returns the active or phantom [Class] having this name, id, or configured synonym. */
   public abstract fun findClass(name: ClassName): Class?
 
-  /** Returns the [Class] whose [Class.className] or [Class.shortName] is [name], or throws. */
+  /** Returns the [Class] having this name, id, or configured synonym, or throws. */
   public fun getClass(name: ClassName): Class =
       findClass(name) ?: throw Exceptions.classNotFound(name)
 
-  /** Returns the active [Class] having this full or short [name]; null if unknown or phantom. */
+  /** Returns the active [Class] having this name, id, or synonym; null if unknown or phantom. */
   public fun findActiveClass(name: ClassName): Class? = findClass(name)?.takeUnless(Class::phantom)
 
   /** Whether [name] names a class that is active in this table (not unknown, not phantom). */

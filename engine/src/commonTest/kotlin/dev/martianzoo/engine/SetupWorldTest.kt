@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -200,5 +201,9 @@ internal class SetupWorldTest {
       players: Int = 2,
       options: Set<Canon.Option> = Canon.Option.DEFAULTS,
       selectedColonies: Set<ClassName> = emptySet(),
-  ): World = Engine.newSetupWorld(Canon.setupWorldDefinition(players, options, selectedColonies))
+  ): World =
+      Engine.newSetupWorld(
+          Canon.setupWorldDefinition(players, options, selectedColonies),
+          TEST_CLASS_SYNONYMS,
+      )
 }

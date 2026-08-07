@@ -6,14 +6,18 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.pets.ClassSynonyms
 import dev.martianzoo.types.ClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
   /** Creates a game at its committed pre-setup baseline, ready to be given to a workflow. */
-  public fun newGame(premise: GamePremise): World {
-    return newWorld(premise)
+  public fun newGame(
+      premise: GamePremise,
+      classSynonyms: ClassSynonyms = ClassSynonyms.NONE,
+  ): World {
+    return newWorld(premise, classSynonyms)
   }
 
   /**
@@ -23,31 +27,39 @@ public object Engine {
   public fun newGame(
       setupWorld: World,
       assemble: (GameReader) -> GamePremise,
+      classSynonyms: ClassSynonyms = setupWorld.classSynonyms,
   ): World {
     if (!setupWorld.isIdle()) throw TaskException("a completed setup world must be idle")
     setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
     if (!setupWorld.isIdle()) throw TaskException("setup validation did not leave the world idle")
-    return newGame(assemble(setupWorld.reader))
+    return newGame(assemble(setupWorld.reader), classSynonyms)
   }
 
   /** Creates a standalone setup world and resolves its choice-free initialization tasks. */
-  public fun newSetupWorld(premise: GamePremise): World =
-      newWorld(premise).also {
+  public fun newSetupWorld(
+      premise: GamePremise,
+      classSynonyms: ClassSynonyms = ClassSynonyms.NONE,
+  ): World =
+      newWorld(premise, classSynonyms).also {
         with(it.gameplay(ENGINE)) {
           autoExecMode = SAFE
           autoExecNow()
         }
       }
 
-  private fun newWorld(premise: GamePremise): WholeWorld = Wiring(premise).createWorld()
+  private fun newWorld(premise: GamePremise, classSynonyms: ClassSynonyms): WholeWorld =
+      Wiring(premise, classSynonyms).createWorld()
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
-  internal class Wiring(private val premise: GamePremise) {
+  internal class Wiring(
+      private val premise: GamePremise,
+      private val classSynonyms: ClassSynonyms,
+  ) {
     init {
       require(ENGINE in premise.actors) { "Game premise must include $ENGINE as an actor" }
     }
 
-    private val classTable: ClassTable = ClassTable.forPremise(premise)
+    private val classTable: ClassTable = ClassTable.forPremise(premise, classSynonyms)
     private val transformers: Transformers = Transformers(classTable)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
@@ -90,6 +102,7 @@ public object Engine {
             timeline,
             reader,
             classTable,
+            classSynonyms,
             gameplayByActor,
         )
 

@@ -5,6 +5,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -23,7 +24,7 @@ class FirstPartialGameTest {
               TurmoilCardPack,
               players = 2,
           )
-      val game = Engine.newGame(setup)
+      val game = Engine.newGame(setup, TEST_CLASS_SYNONYMS)
       val eng = game.tfm(ENGINE)
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
@@ -133,8 +134,7 @@ class FirstPartialGameTest {
         assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
         assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
-        assertCounts(5 to "BUT", 2 to "SPT", 2 to "SCT", 0 to "POT", 1 to "EAT")
-        assertCounts(3 to "JOT", 0 to "PLT", 0 to "MIT", 0 to "ANT", 1 to "CIT")
+        assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
 
         assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
       }
@@ -148,8 +148,7 @@ class FirstPartialGameTest {
         assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
         assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
-        assertCounts(9 to "BUT", 3 to "SPT", 4 to "SCT", 2 to "POT", 3 to "EAT")
-        assertCounts(0 to "JOT", 0 to "PLT", 1 to "MIT", 0 to "ANT", 0 to "CIT")
+        assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)
 
         assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
       }

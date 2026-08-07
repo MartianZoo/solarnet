@@ -1,5 +1,5 @@
 "Represents a 2% increase in Venus... terraformedness"
-CLASS VenusStep[VEN] : GlobalParameter {
+CLASS VenusStep : GlobalParameter {
   HAS MAX 15 This
   This IF =15 This: GpComplete<Class<VenusStep>>
   This IF =4 This: ProjectCard
@@ -21,4 +21,4 @@ CLASS WorldGovernmentOption : GameModule {
   VenusSolarPhase IF MAX 3 GpComplete:: WorldGovernmentTerraforming
 }
 
-CLASS VenusTag[VET] : PlanetTag
+CLASS VenusTag : PlanetTag
