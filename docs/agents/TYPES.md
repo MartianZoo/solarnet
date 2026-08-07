@@ -1,265 +1,331 @@
-# Pets type system: a comprehensive walkthrough
+# The Pets type system: walkthrough
 
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
-This document walks through the whole Pets type system one construct at a time, in an order where
-each step depends only on earlier ones. It aims to be complete rather than readable-first; see
-[Type system](../type-system.md) for the friendlier tutorial. Despite the file name it is not a formal
-specification: it is a worked example-driven tour of the model that
-`pets/src/commonMain/kotlin/dev/martianzoo/types` exists to implement. Where the implementation and
-that model disagree, the walkthrough describes the intended rule, section 15 records what today's
-code does instead, and `TODO.md` carries the fix.
-
-Nearly every example below is a real declaration, quoted (sometimes with an unrelated dependency or
-effect elided) from `pets/src/commonMain/resources/pets/system.pets` or from the canon sources under
-`canon/src/commonMain/resources/canon/bundles/`. Where an example is invented, it says so.
+This document walks through the intended Pets type model one construct at a time. It is a detailed,
+example-driven companion to the friendlier [Type system](../type-system.md) tutorial and describes
+the model implemented under `dev.martianzoo.types`.
 
 ## Introduction
 
-Pets is a programming language designed for exactly one program: the rules of the board game
-*Terraforming Mars*. It has no other users and is not trying to acquire any. That focus is the
-reason it looks the way it does — most of its unusual features exist because some real card, tile,
-or standard project needed them, and features a general-purpose language would consider essential
-(fields, identity, mutation, subtype-independent parameterization) are simply absent, because the
-game never needs them.
+Pets is a specification language for one purpose: faithfully modeling the rules of *Terraforming
+Mars*. It has no other users and is not trying to acquire any. Most of its unusual features exist
+because a real card, tile, or standard project needs them. Features that a general-purpose language
+would consider essential — fields, identity, mutation, subtype-independent parameterization — are
+absent because the game does not need them.
 
-If you have played the game once, you already know its vocabulary: players, cards, tags, tiles,
-areas of the map, cubes of steel and plants and heat, production tracks, global parameters,
-milestones, awards. Every one of those is a **class** in Pets, and this document uses them as its
-examples throughout. If you have never played, you lose nothing: each example explains the rule it
-encodes.
+Pets also tries to preserve the game's existing iconographic grammar. A player already understands
+that a brown cube means any standard resource and that a production box changes a production track.
+Pets gives those familiar forms precise semantics instead of first translating them into a
+conventional object model. This fidelity is both the language's organizing principle and the source
+of several features that would otherwise look arbitrary.
 
-### A world is a multiset
+### The component graph
 
-The complete state of a game — everything except the queue of work still to do — is a **world**: a
-multiset of **components**. A component has no identity, no fields, and no mutable state. It has
-only a type. Two components of the same type are not merely equal, they are indistinguishable, and
-nothing in the language can tell them apart or hold a reference to one in particular.
+A game world is coordinated by a `Timeline` and includes a component graph, a task queue, and an
+event log. The type system is chiefly concerned with the **component graph**. Its vertices are
+**components**, and the graph contains a multiset of them.
 
-At the start of a game a world contains twenty components of type `TerraformRating<Player1>`,
-twenty of `TerraformRating<Player2>`, one of `Tharsis_2_2` (an area of the map), sixty more like it,
-and so on. There are exactly two ways to change a world: add N components of some concrete type, or
-remove N of them. (Atomic transmutation, `A FROM B`, is a third, but it behaves like a paired
-remove-and-add.)
+A component has no identity, properties, or state beyond its type. Two components of the same type
+are indistinguishable: nothing in the language can tell them apart or retain a reference to one
+particular copy. At the start of a game the graph contains twenty components of type
+`TerraformRating<Player1>`, twenty of `TerraformRating<Player2>`, one of `Tharsis_2_2`, and sixty
+more map areas like it.
 
-Several familiar things follow immediately. There is no "out of play": a tile that has not been
-placed does not exist, and a card you paid for did not move its cost anywhere — those megacredits
-are gone. There is no negative quantity of anything, which eliminates a large class of bugs and
-creates exactly one headache, since megacredit *production* in Terraforming Mars can legitimately go
-below zero. (The workaround is a hidden class named `GrossHack`, and its declaration says
-`"You didn't see this"`.) And the only question you can ask a world is a count: how many components
-match this type?
+Three operations change the graph: adding components, removing components, and atomically
+transmuting components with `A FROM B`. A tile that has not been placed does not exist in the graph,
+and megacredits paid for a card are removed rather than moved to an "out of play" location. Counts
+cannot be negative. The fundamental observation available to rules is therefore: how many
+components match this type?
 
-### A type is a claim about what must exist
+## 1. Components and classes
 
-Types carry other types in angle brackets: `Plant<Player2>`, `CityTile<Tharsis_2_2>`,
-`Animal<Player1, Pets<Player1>>`. This is not parameterization for convenience. Each such argument
-is a **dependency**, and it means something specific:
-
-> A component of type `A<B>` cannot exist unless a component of type `B` exists too.
-
-A plant cube cannot exist unless there is a player to own it. A city tile cannot exist unless there
-is a player to own it *and* a specific area of the map for it to sit on. An animal cube cannot exist
-unless there is a card that collects animals — and that card cannot exist unless a player owns it,
-which is why `Animal<Player1, Pets<Player1>>` is one coherent claim about three components rather
-than a tuple of unrelated labels. Remove the card and the animals on it must go first; that is not a
-special rule about cards, it is what the type already said.
-
-So the components of a world are the vertices of a directed graph, with an edge from each dependent
-to each of its targets. Because components have no identity, an edge cannot point at "that one over
-there" — it points at a *concrete type*, and the type system has to guarantee that at most one
-component of that type can ever exist. (Section 5 explains how; the short version is that `Area`
-declares `HAS =1 This` and every card class gets `HAS MAX 1 This`.)
-
-### What follows
-
-Almost everything in the rest of this document is downstream of those two facts.
-
-- Components have no fields, so a type that wants to select "cards costing at least 20" cannot
-  inspect a candidate; it has to ask the world a question about it. That is a **refinement**
-  (section 11), and CrediCor's `CardFront(HAS 20 CardCost)` is exactly that.
-- Angle brackets mean existence, so `Production<Steel>` would be a disaster: your steel production
-  would vanish the moment you spent your last steel cube. Hence **class literals** (section 4) and
-  the real declaration `Production<Class<StandardResource>>`.
-- An abstract type is a choice not yet made — "a tile", "an ocean somewhere". The engine must be
-  able to *enumerate* the concrete choices and offer them, not merely validate one afterward, which
-  requires a closed, frozen vocabulary (sections 3 and 12).
-- Pets has no separate syntax for naming a pending type choice, so it says "the same one" by writing
-  the same expression twice. An abstract expression in a choice-producing position therefore
-  introduces an implicit **type variable** bounded by the type it denotes, which a repetition of the
-  expression refers back to (section 13). That is how
-  `Cardbound<CardFront<Owner>> : Owned<Owner>` manages to say "a tag belongs to whoever owns the card
-  it is printed on."
-
-## 1. Classes and nominal subtyping
-
-A class declaration introduces a type of the same name.
+The printed map provides a simple physical component. Pets records each hex as a component and uses
+classes to distinguish its kind. A small part of the map hierarchy is:
 
 ```pets
-CLASS Generation
-```
-
-The type `Generation` is concrete. Declaring a class inside another class's body is shorthand for
-naming the enclosing class as a superclass, so these two spellings of the global-parameter classes
-are equivalent:
-
-```pets
-ABSTRACT CLASS GlobalParameter {
-  CLASS TemperatureStep
-  CLASS OxygenStep
+ABSTRACT CLASS Area {
+  ABSTRACT CLASS MarsArea {
+    ABSTRACT CLASS LandArea
+  }
 }
+CLASS Tharsis_2_2 : LandArea
 ```
+
+A `CLASS` declaration introduces a class and a type with the same name. `Tharsis_2_2` is concrete:
+that map hex has exactly that type. `Area`, `MarsArea`, and `LandArea` are abstract: they group
+possible components, but no component has any of them as its exact type.
+
+Nesting a declaration is shorthand for naming the enclosing class as a direct supertype. The same
+hierarchy could be written:
 
 ```pets
-ABSTRACT CLASS GlobalParameter
-CLASS TemperatureStep : GlobalParameter
-CLASS OxygenStep : GlobalParameter
+ABSTRACT CLASS Area
+ABSTRACT CLASS MarsArea : Area
+ABSTRACT CLASS LandArea : MarsArea
+CLASS Tharsis_2_2 : LandArea
 ```
 
-`GlobalParameter` is an abstract class; `TemperatureStep` and `OxygenStep` are concrete and are its
-direct subclasses. Concrete classes may not have subclasses, abstract or concrete; since `CityTile`
-is concrete, both of these are rejected:
+Thus `Tharsis_2_2` is a subtype of `LandArea`, written `Tharsis_2_2 <: LandArea`, and
+`LandArea <: MarsArea`. Subtyping is reflexive and transitive, so `Tharsis_2_2 <: MarsArea` too. The
+map-hex component has all of those supertypes.
+
+A component has exactly one concrete type and may have any number of other types through subtyping.
+Several components may share one concrete type; ten otherwise identical plant cubes are ten
+components, not one component whose state is ten. A component and its concrete type can sometimes
+be discussed interchangeably, but multiplicity always belongs to components.
+
+## 2. Nominal subtyping
+
+A class may name any number of abstract classes as direct supertypes, separated by commas. This is
+useful when one physical piece participates in two parts of the rules. An ocean tile, for example,
+is both a map tile and one step of a global parameter:
+
+```pets
+CLASS OceanTile : Tile<MarsArea>, GlobalParameter
+```
+
+The dependency in `Tile<MarsArea>` will be explained next. For now, the declaration directly says
+which two types are supertypes of `OceanTile`; there is no separate structural inference.
+
+Concrete classes may not have subtypes, abstract or concrete. Since `CityTile` is concrete, both of
+these declarations are rejected:
 
 ```pets
 CLASS CapitalTile : CityTile
 ABSTRACT CLASS FancyCityTile : CityTile
 ```
 
-A class may have any number of abstract classes as superclasses, separated by commas. An ocean tile
-is both a tile on the map and a step along a global parameter track, and says so:
+The universal top type is `Component`. Except for `Component` itself, every class that declares no
+supertype has `Component` as its implicit supertype. Writing `Component` explicitly is an error
+rather than a no-op. Direct-supertype declarations may appear in any source order, but they cannot
+form a cycle.
+
+## 3. Dependencies
+
+A plant cube is not just a plant: it belongs to a player. The resource hierarchy sits inside an
+owned-component declaration:
 
 ```pets
-CLASS OceanTile[OT] : Tile<MarsArea>, GlobalParameter
+ABSTRACT CLASS Anyone
+ABSTRACT CLASS Owned<Anyone> {
+  ABSTRACT CLASS Resource {
+    ABSTRACT CLASS StandardResource {
+      CLASS Plant
+    }
+  }
+}
 ```
 
-As types, `TemperatureStep` is a subtype of `GlobalParameter`, written
-`TemperatureStep <: GlobalParameter`. Other cases of subtyping are defined below. The subtype
-relation is the reflexive, transitive closure of the relationships specified in this document.
-
-The universal top type is `Component`. Except for `Component` itself, every class that declares no
-superclass has `Component` as its implicit superclass; writing `Component` as an explicit supertype
-is an error rather than a no-op.
-
-Superclass declarations may appear in any order, so a class may name a superclass declared later in
-the file, or in another file entirely: `Player` extends `Actor`, which lives in `system.pets`. What
-they may not do is form a cycle: a self-extending `CLASS Tile : Tile`, or a mutual
-`CLASS Tile : CityTile` / `CLASS CityTile : Tile`, both fail to load. Dependency cycles are a
-different matter and are permitted (section 5).
-
-Every class also has a short name, or id, such as `CT` for `CityTile`, `TR` for `TerraformRating`,
-`O2` for `OxygenStep`, and `SPT` for `SpaceTag`. Anywhere a class name is looked up, either spelling
-works.
-
-## 2. Components and worlds
-
-A component is the basic unit of a world. It has several types. Exactly one is concrete and is
-called its concrete type; the others are the proper supertypes of that concrete type. A single heat
-cube belonging to Player 2 is a `Heat<Player2>`, and therefore also a `StandardResource<Player2>`, a
-`Resource<Player2>`, an `Owned<Player2>`, and a `Component`.
-
-A component has no identity and no state beyond its concrete type. Several components may have the
-same concrete type, but those components are indistinguishable: your twenty starting
-`TerraformRating<Player1>` components differ from Player 2's twenty only by type, and not from each
-other at all. The components in a world therefore form a multiset.
-
-A component and its concrete type can sometimes be treated interchangeably, but only where
-multiplicity is not relevant.
-
-## 3. The class table
-
-Every type belongs to one **class table**: a frozen, closed set of mutually compatible classes.
-Types and classes from two different tables are never comparable, and every operation that would
-mix them — subtyping, `glb`, `lub`, constraint matching — fails immediately rather than answering.
-
-A table is built by loading classes from a ruleset and then freezing it. Loading a class as
-**active** also activates every class name its declaration mentions anywhere, in any position — or
-tries to: an authority-known name the ruleset has no active declaration for loads as **phantom**
-rather than failing the load unless the name is a structural dependency bound. An unknown name is
-always an error. A custom implementation's `requiredClassNames` are activation edges too. The one
-exception is the argument of a
-`Class<...>` metric: counting a class literal does not force the counted class to be active, which
-is what lets rules ask about optional vocabulary. The argument must still be authority-known when
-the mentioning declaration loads. Freezing then sweeps up every remaining declaration the
-authority knows about and installs it as phantom.
-
-So each name falls into exactly one of three buckets:
+An individual plant cube can therefore have the type:
 
 ```text
-active    a class in this table, with components, effects, defaults, and subtypes
-phantom   authority-known, but inactive in this table
-unknown   not in the authority at all
+Plant<Player2>
 ```
 
-This is how a game's vocabulary gets fixed at setup. A two-player game on the Tharsis map without
-Venus Next activates `Player1` and `Player2` but leaves `Player3` phantom; it leaves `SoloMode`,
-`SoloOpponent`, `VenusStep`, and `VenusTag` phantom as well.
+The argument is a **dependency**. It makes an existence claim:
 
-An unknown name is an error in every context — as a type, as a dependency bound, or inside a
-metric. In particular, counting an unknown class literal is an error rather than zero, and the
-declaration that mentions it should fail to load rather than failing later, when the expression is
-first resolved.
+> A component of type `Plant<Player2>` cannot exist in the component graph unless a component of
+> type `Player2` exists too.
 
-A phantom class is a valid type, and a type is phantom when its root class or any dependency bound
-is phantom. A refinement is deliberately not consulted: a requirement naming an inactive class is
-unsatisfiable rather than type-changing. Phantom types and their class literals count zero, and are
-otherwise inert:
+This is stronger than ordinary generic parameterization. The argument designates another vertex in
+the component graph, and the dependent component has an edge to it. Removing Player 2 therefore
+requires removing Player 2's plants first.
 
-- they have no components, effects, defaults, invariants, or enumerated concrete subtypes;
-- optional and as-many-as-possible changes to them are a quantity-zero no-op;
-- a mandatory change is dead, so a choice discards that branch, while an unavoidable dead change
-  fails;
-- they are excluded from automatic narrowing, and cannot fire as triggers.
+### 3.1 Declaring a dependency
 
-Counting-zero is what makes the vocabulary shrink gracefully. The Hellas milestone Diversifier is
-declared once, as
+The map provides the clearest declaration:
 
-```json5
-{ "id": "HM1", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
+```pets
+ABSTRACT CLASS Area
+ABSTRACT CLASS Tile<Area>
 ```
 
-which counts the distinct tag classes you have in play (section 11.4). Without Venus Next,
-`VenusTag` is phantom and simply contributes zero, so the same declaration correctly describes the
-milestone in a game where that tag does not exist.
+`Tile` introduces one dependency bounded by `Area`. Every tile depends on the area where it sits.
+Further dependencies would follow the first, separated by commas.
 
-An active class cannot have a phantom superclass or a phantom dependency bound; both are load
-errors, so a table containing one never freezes. Excluding a phantom type is fine, though, because
-a complement (section 10) constrains a bound without becoming the bound:
+One `Tile` type exists for each admissible narrowing of that bound: `Tile<Area>`, `Tile<MarsArea>`,
+`Tile<LandArea>`, `Tile<VolcanicArea>`, and `Tile<Tharsis_2_2>` are all valid. Bare `Tile` means
+`Tile<Area>`. In all of them, `Tile` is the **root class**. `Tile<Player1>` is invalid because
+`Player1` is not a subtype of `Area`.
+
+Dependency bounds are covariant. Because `VolcanicArea <: LandArea`, it follows that
+`Tile<VolcanicArea> <: Tile<LandArea>`. A type is concrete only when both its root class and every
+dependency bound are concrete. `Tile<MarsArea>` is abstract because both parts are abstract;
+`OceanTile<MarsArea>` still leaves an area to choose; `OceanTile<Tharsis_5_5>` is concrete.
+
+### 3.2 Dependencies in the component graph
+
+Dependencies make the multiset of components a directed graph. An edge runs from each dependent to
+its target. `Animal<Player1, Pets<Player1>>`, for example, describes an animal cube on Player 1's
+Pets card. The animal depends on the card, and the card depends on Player 1. The whole type is one
+coherent claim about three components, not a tuple of unrelated labels.
+
+An edge identifies its target by exact concrete type because components have no identity. Every
+concrete type admitted by a dependency bound must therefore have an applicable `MAX 1` or `=1`
+counting invariant. `Area` and `Player` each declare `HAS =1 This`, where `This` means the current
+exact type, while every card class gets a `HAS MAX 1` invariant. Without that guarantee,
+`Animal<Player1, Pets<Player1>>` could not say which copy of Pets holds the animal.
+
+This uniqueness requirement is a rule for valid game worlds, not a static type restriction. When
+building a game, the engine enumerates every concrete target admitted by the game's dependencies
+and checks for a counting invariant whose maximum is one. A non-counting class invariant is rejected
+by the same check.
+
+### 3.3 The same dependency belongs to every subtype
+
+```pets
+ABSTRACT CLASS Tile<Area>
+CLASS CityTile : Tile
+```
+
+Every `CityTile` is a `Tile`, and every `Tile` has an area dependency, so every `CityTile` has that
+same dependency. It is not copied or redeclared. For the real subtype `VolcanicArea`, covariance
+gives:
 
 ```text
-Owned<!SoloOpponent>    in a multiplayer game: not phantom; the bound is still Anyone
+CityTile<VolcanicArea> <: Tile<VolcanicArea>
 ```
 
-Only active classes are enumerated: the table's class and name listings skip phantoms, which is why
-playable-choice generation never offers them, and why the game can list exactly the milestones of
-the chosen map as available to claim, even though no `Milestone` component exists until one is.
+The bare supertype `Tile` means `Tile<Area>`, so `CLASS CityTile : Tile` and
+`CLASS CityTile : Tile<Area>` declare the same resolved supertype.
+
+### 3.4 Narrowing an inherited dependency
+
+Greenery tiles can be placed on Mars but not on remote areas created by cards such as Phobos Space
+Haven. The declaration states that rule directly:
+
+```pets
+CLASS GreeneryTile : Tile<MarsArea>
+```
+
+There is no special narrowing syntax or hidden inheritance step. The declaration simply names
+`Tile<MarsArea>` as a supertype of `GreeneryTile`. Since dependency bounds are covariant, satisfying
+that declared supertype narrows the existing area dependency from `Area` to `MarsArea`:
+
+```text
+GreeneryTile<VolcanicArea> <: Tile<VolcanicArea> <: Tile<MarsArea>
+```
+
+A further subtype could narrow an abstract bound again. An unrefined concrete bound cannot be
+narrowed further by nominal subtyping or dependency narrowing.
+
+### 3.5 Introducing another dependency
+
+A resource cube on a card needs both an owner and the particular card that holds it. `Cardbound`
+adds that second relationship while retaining the owner relationship supplied by `Owned`:
+
+```pets
+ABSTRACT CLASS Owned<Anyone>
+ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
+```
+
+`Cardbound` therefore has an inherited owner dependency, narrowed from `Anyone` to `Owner`, followed
+by its newly declared `CardFront<Owner>` dependency. A microbe cube on Player 1's Ants card is
+written `Microbe<Player1, Ants<Player1>>`, with inherited dependencies before newly declared ones.
+
+### 3.6 Writing dependency bounds
+
+The declarations below are enough to illustrate argument matching:
+
+```pets
+ABSTRACT CLASS Area
+ABSTRACT CLASS MarsArea : Area
+ABSTRACT CLASS RemoteArea : Area
+ABSTRACT CLASS LandArea : MarsArea
+CLASS Tharsis_2_3 : LandArea
+
+ABSTRACT CLASS Tile<Area>
+CLASS OceanTile : Tile<MarsArea>, GlobalParameter
+ABSTRACT CLASS Adjacency<Tile, Tile>
+```
+
+A written argument is intersected with the dependency bound it matches:
+
+```text
+OceanTile<Area>         resolves to    OceanTile<MarsArea>
+OceanTile<Tharsis_5_5>  resolves to    OceanTile<Tharsis_5_5>, which is concrete
+OceanTile<RemoteArea>   error: RemoteArea and MarsArea have no common subtype
+```
+
+Arguments match dependencies greedily from left to right. Each takes the first remaining
+dependency with which it has a non-empty intersection. Order among unambiguous arguments therefore
+does not matter: `GreeneryTile<Player1, Tharsis_2_3>` and
+`GreeneryTile<Tharsis_2_3, Player1>` resolve alike. Order matters when bounds are alike:
+
+```text
+Adjacency                    resolves to    Adjacency<Tile, Tile>
+Adjacency<CityTile>          resolves to    Adjacency<CityTile, Tile>
+Adjacency<Tile, CityTile>    resolves to    Adjacency<Tile, CityTile>
+```
+
+An argument matching no remaining dependency is an error:
+
+```text
+OceanTile<Tharsis_5_5, Tharsis_5_6>    error: only one dependency remains
+Tharsis_2_3<Player1>                    error: an area has no dependency
+```
+
+Every type has a **full form**, which states every bound, and a **minimal form**, which omits bounds
+equal to the root class's own bounds except where retaining such a placeholder is necessary to make
+greedy argument matching round-trip:
+
+```text
+full                          minimal
+Tile<Area>                    Tile
+OceanTile<MarsArea>           OceanTile
+Adjacency<CityTile, Tile>     Adjacency<CityTile>
+Adjacency<Tile, CityTile>     Adjacency<Tile, CityTile>
+```
+
+Types print in minimal form, and resolving that form yields the same type except where a
+complement's unwritten domain makes even the full form lossy (section 7).
 
 ## 4. Class literals
 
-For every authority-known class `Foo`, the type `Class<Foo>` exists. The contents of the angle
-brackets are a single class name, never a full type expression:
+Dependencies create a problem for production tracks. A steel-production component must exist even
+when its owner has no steel cubes. `Production<Steel>` would say the opposite: because `Steel` would
+be a dependency, the production component could exist only while a steel component existed.
 
-```text
-Class<Steel>            valid
-Class<Class>            valid
-Class                   valid; means Class<Component>
-Class<Steel<Player1>>   invalid: the argument is not a bare class name
-Class<Steel, Player1>   invalid: there is only one slot
-Class<Class<Steel>>     invalid: same reason as Class<Steel<Player1>>
+The game needs to name the *kind* of resource without depending on an instance of it. That motivates
+a new type form, the **class literal**:
+
+```pets
+CLASS Production<Class<StandardResource>> {
+  ProductionPhase: StandardResource
+}
 ```
 
-The class named in the angle brackets is not a dependency. A dependency would require a component
-with type `Foo` to exist; a class literal instead requires the class named `Foo` to exist. That is
-the whole point: `Class<Steel>` is available on turn one, when nobody has a steel cube.
+`Class<Steel>` names the class `Steel`. It does not depend on a `Steel` component, so it exists on
+turn one when nobody owns a steel cube. Production can therefore be written
+`Production<Class<Steel>>`.
 
-Like other angle-bracketed types, class literals are covariant:
+The angle brackets of a class literal contain one bare class name. These forms are valid:
 
 ```text
-Foo <: Bar  implies  Class<Foo> <: Class<Bar>
+Class<Steel>
+Class<Class>
+Class                    means Class<Component>
 ```
 
-A class literal is concrete exactly when the named class is concrete — its dependencies are
-irrelevant, because a class literal is not parameterized by them. This is the one place where "is
-`Foo` concrete?" has a different answer for the class than for the type of the same name:
+These forms are rejected:
+
+```text
+Class<Steel<Player1>>    the argument is not a bare class name
+Class<Steel, Player1>    there is only one slot
+Class<Class<Steel>>      the argument is not a bare class name
+```
+
+Class literals are covariant just as their named classes are:
+
+```text
+Steel <: StandardResource
+Class<Steel> <: Class<StandardResource>
+```
+
+A class literal is concrete exactly when the named class is concrete. Dependencies of that class
+are irrelevant because the literal is not parameterized by them. This is the one place where the
+class and the type with the same name can differ in concreteness:
 
 ```pets
 ABSTRACT CLASS Area
@@ -273,302 +339,187 @@ Class<CityTile>         concrete: CityTile is a concrete class
 Class<Tile>             abstract: Tile is an abstract class
 ```
 
-If `Foo` is concrete, exactly one component of type `Class<Foo>` exists in every world in which
-`Foo` is active. If `Foo` is abstract, `Class<Foo>` is abstract and cannot have its own
-corresponding components. Counting it nevertheless counts the class-literal components of all
-concrete subclasses of `Foo`, by the usual subtype-counting rule. Thus a world always contains
-exactly six components matching `Class<StandardResource>` — one each for megacredits, steel,
-titanium, plants, energy, and heat — and none for the abstract `StandardResource` itself.
+Exactly one `Class<CityTile>` component exists in a game whose vocabulary includes `CityTile`.
+Abstract `Class<Tile>` has no exact component, but counting it includes the class-literal components
+of every concrete tile class. Likewise `Class<StandardResource>` counts six: megacredits, steel,
+titanium, plants, energy, and heat.
 
-If the authority does not know `Bar`, neither `Bar` nor `Class<Bar>` is a valid type in any
-context. If it knows `Bar` but this table does not activate it, `Class<Bar>` is a phantom type that
-counts zero.
+## 5. Default bounds
 
-## 5. Dependencies
+The physical game often leaves an obvious choice unstated. A resource icon printed on one of your
+cards means your resource; an ocean icon means an available ocean area. Pets preserves those
+omissions with `DEFAULT` declarations rather than forcing every rule to spell out context that the
+icon grammar already supplies.
 
 ```pets
-ABSTRACT CLASS Tile<Area>
+DEFAULT Owned<Owner>                       // all uses
+DEFAULT +OceanTile<WaterArea>              // gains
+DEFAULT -Owed<Class<Megacredit>>.          // removals
 ```
 
-`Tile` introduces a dependency whose upper bound is `Area`; further dependencies would follow it,
-comma-separated. Any Pets type may serve as a bound — concrete or abstract, carrying dependencies of
-its own or a refinement, even a class literal.
+A default supplies dependency bounds that an author omits. It changes what a written expression
+means without changing which resolved types exist or how they relate. The first declaration makes an
+unqualified owned component refer to the current owner. The second turns an instruction to gain an
+`OceanTile` into a choice among water areas. The third supplies the currency for a payment.
 
-One type exists for each admissible subtype of the bound: `Tile<Area>`, `Tile<MarsArea>`,
-`Tile<Tharsis_2_2>`, and so on. In each, the type's class — also called its **root class** — is
-`Tile`. Bare `Tile` is valid and means `Tile<Area>`, while `Tile<Player1>` is invalid, since
-`Player1` is not a subtype of `Area`.
+`Owner` here is contextual. Within a rule belonging to an owned component, it becomes that
+component's exact owner: on Player 1's card, `Owned<Owner>` becomes `Owned<Player1>`. Where no
+owning component supplies the context, `Owner` remains the ordinary abstract class.
 
-Dependencies are covariant by design: from `LandArea <: MarsArea` it follows that
-`Tile<LandArea> <: Tile<MarsArea>`. Such a type is concrete exactly when its class and every one of
-its bounds is concrete, so `Tile<MarsArea>` is abstract twice over, `OceanTile<MarsArea>` is still
-abstract (which area?), and `OceanTile<Tharsis_5_5>` is concrete.
+All-use, gain-only, and remove-only defaults are gathered independently. Gain and removal defaults
+also carry an intensity (`!`, `?`, or `.`). For one dependency and one kind, only declarations
+on the nearest supertypes survive; a declaration on a proper supertype is superseded by one on a
+narrower type. Bounds from incomparable surviving supertypes must have one most general common
+narrowing, which is used. Conflicting intensities from those supertypes are an error.
 
-Each dependency has a **key**: the class that first declared it, plus its 0-based position in that
-class's own dependency list. The one above is keyed `Tile_0`; the owner dependency that
-`ABSTRACT CLASS Owned<Anyone>` introduces is keyed `Owned_0`. Keys, not positions within a written
-expression, identify dependencies, and a subclass that narrows an inherited dependency reuses its
-key (section 6). Class literals are the exception to one-key-per-declaration: every literal slot uses
-`Class_0`, because `Class` is the only class with such a slot and no other class may declare one.
-That is why production is spelled
+A literal `Owner` written in a default is deliberately preserved until the expression is used.
+Normalizing it immediately to a narrower class bound would leave nothing for the owning component's
+context to replace.
+
+## 6. Refinement types
+
+CrediCor gives a discount when its owner plays a card costing at least 20 megacredits. A
+`CardFront` component has no cost field for the rule to inspect: components have only types. The
+game instead represents printed cost with a component-graph query and selects qualifying cards
+with:
+
+```text
+CardFront(HAS 20 CardCost)
+```
+
+This is a **refinement type**. The unrefined `CardFront` says what kind of component may qualify;
+the `HAS` requirement says what the component graph must report about a candidate.
+
+More generally, adding `(HAS requirement)` to an unrefined type produces an abstract subtype of
+that type. The base need not itself be abstract. Refining a concrete type creates a proper abstract
+subtype without introducing a class or an exact component.
+
+Real refinements express many rules that would otherwise need fields or special-purpose code:
+
+```text
+CardFront(HAS 20 CardCost)                       CrediCor: a card costing 20 or more
+CardFront(HAS CardRequirement)                   Tactician: a card with a printed requirement
+LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)   an area where a city may be placed
+MarsArea(HAS 8 MarsRow)                          Polar Explorer: either polar row
+MarsArea(HAS MapBonus<Class<Steel>>
+         OR MapBonus<Class<Titanium>>)           Mining Guild: an area with either mining bonus
+```
+
+### 6.1 Testing a candidate
+
+Because the candidate has no fields, testing a refinement substitutes the candidate into the
+requirement and then asks the component graph whether that requirement holds.
+
+The city-placement refinement appears in the default for gaining a city tile:
 
 ```pets
-CLASS Production<Class<StandardResource>> : AutoLoad {
-  ProductionPhase: StandardResource
+CLASS CityTile {
+  DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
 }
 ```
 
-rather than by giving `Production` a class-literal dependency of its own.
-
-A **dependency path** is a list of keys addressing one bound inside a nested type. In the real
-declaration
+Testing `Tharsis_2_3` offers that candidate as an additional argument to every type expression in
+the requirement. `Neighbor` has a tile dependency followed by an area dependency:
 
 ```pets
-CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR]
+CLASS Neighbor<Tile<MarsArea>, MarsArea>
 ```
 
-the inner `MarsArea` sits at `Neighbor_0.Tile_0` and the outer one at `Neighbor_1`. Paths are how
-the positions sharing one type variable are tracked and rewritten (section 13).
+The existing `CityTile<Anyone>` argument matches the tile dependency. The candidate area cannot
+match that slot, so it matches the remaining area dependency. The graph is asked whether it
+satisfies:
 
-Dependencies also form a graph, with components as vertices and dependencies as directed edges from
-dependent to target, each labeled by its key; ordinary directed-graph terminology applies. A target
-must exist for as long as its dependent does, and is designated by its exact concrete type, having
-no separate identity. Because same-typed components are indistinguishable, every concrete type
-admitted by a bound must have an applicable `MAX 1` or `=1` invariant — declared on the target class
-or supplied by a stronger aggregate bound. When the bound is abstract, this holds for every concrete
-type it admits. The canon satisfies this deliberately: `Area` declares `HAS =1 This`, `Player`
-declares `HAS =1 This`, and every card class is generated with `HAS MAX 1 ThatCard`. Without that
-guarantee, `Animal<Player1, Pets<Player1>>` could not say *which* copy of Pets the cube is sitting
-on, because there would be more than one.
+```text
+MAX 0 Neighbor<CityTile<Anyone>, Tharsis_2_3>
+```
 
-This is a rule about worlds, not about types, and the type system does not enforce it: a table
-violating it loads and freezes without complaint. The engine checks it once, when a game is built,
-by enumerating every concrete type the bounds of every *active* class admit and requiring each to
-have at least one applicable counting invariant whose maximum is 1. A class invariant that is not a
-counting requirement is rejected at the same moment.
+That reads "no city belonging to anyone is adjacent to this area," which is the actual placement
+rule.
 
-Unlike superclass cycles, dependency cycles between classes are legal, and the canon has one:
+If an expression has no dependency position that can accept the candidate, the test fails.
+`LandArea(HAS 8 BuildingTag)`, for example, selects nothing: a building tag depends on an owner and
+a card front, neither of which can accept an area.
+
+Satisfaction therefore has two parts. The candidate must narrow the unrefined type, and the graph
+must satisfy the substituted requirement. A concrete type that satisfies a refinement is not thereby
+a static subtype of the refinement; state-aware consumers perform the satisfaction test separately.
+
+### 6.2 Static relationships
+
+A refinement is always a subtype of its unrefined type. Narrowing the base while retaining exactly
+the same requirement also narrows the refinement:
+
+```text
+CardFront(HAS 20 CardCost) <: Component
+ActiveCard(HAS 20 CardCost) <: CardFront(HAS 20 CardCost)
+```
+
+Different requirements do not establish static subtyping, even when one logically implies another.
+In particular, `CardFront(HAS 20 CardCost)` is not a static subtype of
+`CardFront(HAS 10 CardCost)`.
+
+Testing an unrefined candidate against a refined wider type asks the component graph whether the
+candidate satisfies the requirement. A context-free check raises if structural matching cannot
+already reject the candidate.
+
+Intersecting a refined and an unrefined type retains the refinement. Intersecting two refinements
+conjoins their requirements only when both are strict or both are forgiving. Otherwise no greatest
+lower bound exists: making the result strict would discard forgiveness, while making it forgiving
+could discard a strict requirement.
+
+An upper bound retains a refinement only when both operands carry that exact refinement. If only
+one side is refined, or their refinements differ, their common upper bound is unrefined.
+
+### 6.3 Forgiving refinements
+
+The greenery placement rule normally requires an empty area adjacent to one of your tiles. On a
+player's first placement, however, there may be no owned tile to satisfy that rule. Pets writes the
+exception with `HAS?`:
 
 ```pets
-ABSTRACT CLASS Area {
-  HAS =1 This
-  HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
+CLASS GreeneryTile : Tile<MarsArea> {
+  DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>, MAX 0 Tile)>
 }
-
-ABSTRACT CLASS Tile<Area>
 ```
 
-An `Area` constrains the `Tile` that sits on it, and a `Tile` depends on an `Area`. Such a table
-loads fine. What it costs is finiteness: operations that enumerate concrete types (section 12)
-terminate only when the table's dependency closure is finite.
-
-## 6. A dependency belongs to all subtypes
-
-```pets
-ABSTRACT CLASS Tile<Area>
-CLASS CityTile : Tile
-```
-
-We do not say that `CityTile` "inherits" the `<Area>` dependency, because in Pets there is no
-separate inheritance mechanism or choice involved: every `CityTile` is a `Tile`, and every `Tile`
-has that dependency, so every `CityTile` has it too. It is the same dependency, with the same key
-`Tile_0`, not a copy, redeclaration, or override. For every `T <: Area`:
+A candidate satisfies a forgiving refinement when it satisfies the ordinary requirement, or when no
+candidate satisfies that ordinary refinement anywhere:
 
 ```text
-CityTile<T> <: Tile<T>
+requirement OR MAX 0 unrefined-type(HAS requirement)
 ```
 
-An inherited `This` specialization remains bound to the current subclass, and the canon leans on
-this to express one of the game's fiddlier rules — that a resource cube can only go on a card that
-collects *that kind* of resource:
+The second arm is the escape clause. Here `MAX 0 Tile` sits inside the forgiving refinement so
+occupancy participates in the escape test. If every area adjacent to one of your tiles is already
+occupied, the combined rule has no candidate and placement may fall back to any empty land area.
 
-```pets
-ABSTRACT CLASS ResourceCard<Class<CardResource>>
+### 6.4 Refining class literals
 
-ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>>
+Diversifier counts the distinct kinds of tags its owner has, not the total number of tag components:
+
+```json5
+{ "id": "HM1", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
 ```
 
-`CLASS Animal : CardResource` therefore has the bound `ResourceCard<Class<Animal>>`, and
-`CLASS Microbe : CardResource` has `ResourceCard<Class<Microbe>>`, from that one declaration. Since
-the Pets card is generated as `CLASS Pets : ActiveCard, ResourceCard<Class<Animal>>` and Ants as
-`CLASS Ants : ActiveCard, ResourceCard<Class<Microbe>>`, the type `Animal<Pets>` resolves and
-`Animal<Ants>` is a type error.
+A refinement on a class literal tests the class represented by each candidate literal. When
+`Class<SpaceTag>` is tested against `Class<Tag>(HAS Tag<Player2>)`, the `Tag` in the requirement
+becomes `SpaceTag`. The candidate qualifies exactly when the graph contains
+`SpaceTag<Player2>`.
 
-An explicitly written class literal is a fixed literal and remains unchanged in subclasses: had
-`CardResource` been written as `Cardbound<ResourceCard<Class<CardResource>>>`, every subclass would
-share the one bound instead of specializing it, and textual equality after resolving `This` does not
-erase that distinction. This holds at any depth, and independently per position. No canon class
-needs the deepest form, so here it is with invented names:
+This represented-class binding is why expressions inside a class-literal refinement are left alone
+when the candidate literal itself has no ordinary dependency position for them. The class-token
+components remain unowned; the requirement asks about instances of the represented class. Diversity
+Support uses the same mechanism for resource kinds:
 
-```pets
-ABSTRACT CLASS Pair<Class<Left>, Class<Right>>
-ABSTRACT CLASS Wrapper<Pair<Class<Left>, Class<Right>>>
-ABSTRACT CLASS Mixed : Left, Right, Wrapper<Pair<Class<This>, Class<Mixed>>>
-CLASS MixedLeaf : Mixed
+```json5
+"requirement": "9 Class<Resource>(HAS Resource<Owner>)",
 ```
 
-```text
-MixedLeaf      resolves to      MixedLeaf<Pair<Class<MixedLeaf>, Class<Mixed>>>
-```
+## 7. Complement bounds
 
-Since `Tile` and `Tile<Area>` are the same type, either gives `CityTile` the same resolved
-supertype. Their authored spellings remain distinct for the repetition matching of section 13.
-
-## 7. Narrowing a dependency bound
-
-```pets
-CLASS GreeneryTile[GT] : Tile<MarsArea>
-```
-
-Every `GreeneryTile` is a `Tile`, so it has the same dependency that `Tile` introduced. The
-declaration narrows that dependency's upper bound from `Area` to `MarsArea`; it does not introduce,
-copy, or override a dependency. This is the type system carrying a real rule: greenery tiles go on
-Mars, never on a `RemoteArea` — of which the canon has several, each brought into being by the card
-that needs it, such as the `CLASS Area021 : RemoteArea` that comes with Phobos Space Haven. For
-every `T <: MarsArea`:
-
-```text
-GreeneryTile<T> <: Tile<T>
-```
-
-If the narrowed bound is abstract, a subclass may narrow it again. The owner dependency introduced
-by `Owned<Anyone>` is narrowed to `Owner` by `Cardbound` and to `Player` by `Card`, and since
-`Player` is still abstract, a subclass of either could narrow it further. If the bound is an
-unrefined concrete type, it cannot be narrowed further by nominal subtyping or dependency narrowing.
-
-When a class has several supertypes that each narrow the same inherited dependency, the class's own
-bound is the greatest lower bound of theirs (section 12). `CardResource` is exactly this case:
-
-```pets
-ABSTRACT CLASS Owned<Anyone> {
-  ABSTRACT CLASS Resource[RES]
-}
-
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
-
-ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>>
-```
-
-`Resource` leaves `Owned_0` at `Anyone`, while `Cardbound` narrows it to `Owner`, so a
-`CardResource` gets `glb(Anyone, Owner)`, which is `Owner`. That is deliberate: card resources must
-be ownable by the non-player `SoloOpponent`, but not by anything wider. If that bound did not
-exist, the class could not be loaded.
-
-## 8. Introducing another dependency
-
-```pets
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
-```
-
-`Cardbound` has two dependencies: the same dependency required by being an `Owned`, keyed `Owned_0`
-and narrowed to `Owner`, and the new dependency introduced by `Cardbound`, keyed `Cardbound_0` and
-bounded by `CardFront`. The keys determine canonical declaration order — inherited dependencies
-first, in supertype order, then newly declared ones — so a microbe cube on Ants writes out as
-`Microbe<Player1, Ants<Player1>>`, owner first.
-
-Dependencies and supertypes are each written as comma-separated lists. Section 9 gives the rules
-that match written bounds to dependency keys.
-
-## 9. Writing dependency bounds
-
-```pets
-ABSTRACT CLASS Area
-ABSTRACT CLASS MarsArea[MA] : Area
-ABSTRACT CLASS RemoteArea[RA] : Area
-ABSTRACT CLASS LandArea[LA] : MarsArea
-CLASS Tharsis_2_3 : LandArea                 // generated from the map data
-
-ABSTRACT CLASS Tile<Area>
-CLASS OceanTile[OT] : Tile<MarsArea>, GlobalParameter
-ABSTRACT CLASS Adjacency<Tile, Tile>
-```
-
-A written argument does not have to be narrower than the current bound. Each argument is
-*intersected* with the bound it matches, and the result is the intersection:
-
-```text
-OceanTile<Area>         resolves to    OceanTile<MarsArea>
-OceanTile<Tharsis_5_5>  resolves to    OceanTile<Tharsis_5_5>, which is concrete
-OceanTile<RemoteArea>   error: RemoteArea and MarsArea have no common subtype
-```
-
-Arguments are matched to dependencies greedily, left to right: each argument takes the first
-dependency, in canonical order, that it has a non-empty intersection with and that no earlier
-argument already took. Order among unambiguous arguments therefore does not matter — a greenery tile
-may be written `GreeneryTile<Player1, Tharsis_2_3>` or `GreeneryTile<Tharsis_2_3, Player1>` — but
-among same-bounded dependencies it does. `Adjacency` has two dependencies both bounded by `Tile`:
-
-```text
-Adjacency                    resolves to    Adjacency<Tile, Tile>
-Adjacency<CityTile>          resolves to    Adjacency<CityTile, Tile>
-Adjacency<Tile, CityTile>    resolves to    Adjacency<Tile, CityTile>
-```
-
-An argument that matches no remaining dependency is an error, which covers both supplying too many
-arguments and supplying any at all to a class with no dependencies:
-
-```text
-OceanTile<Tharsis_5_5, Tharsis_5_6>    error: only one dependency to match
-Generation<Player1>                    error: Generation has no dependencies
-```
-
-Every type therefore has two written forms. The **full form** states every bound explicitly; the
-**minimal form** omits bounds that equal the root class's own bounds, except where retaining such a
-placeholder is necessary to make greedy argument matching round-trip:
-
-```text
-full                          minimal
-Tile<Area>                    Tile
-OceanTile<MarsArea>           OceanTile
-Adjacency<CityTile, Tile>     Adjacency<CityTile>
-Adjacency<Tile, CityTile>     Adjacency<Tile, CityTile>
-```
-
-The minimal form is what types print as, and re-resolving it yields the same type except where a
-complement's unwritten domain makes even the full form lossy (section 15.9).
-
-### 9.1 Default bounds
-
-A `DEFAULT` declaration supplies bounds for the arguments an author *omits*. It is a rule about
-expressions, not a rule about types: it changes what a written `CityTile` means, and never changes
-which types exist or how they relate.
-
-```pets
-DEFAULT Owned<Owner>                                                // all usages
-DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>   // gains only
-DEFAULT -Owed<Class<Megacredit>>.                                   // removals only
-```
-
-The three kinds — all-usages, gain-only, remove-only — are gathered independently, and the gain and
-remove kinds additionally carry an intensity (`!`, `?`, `.`). A default of a given kind for a given
-dependency key is inherited from the *nearest* superclasses that declare one: any declarer that is a
-proper superclass of another declarer drops out, and whatever survives is combined by `glb` for
-bounds. Intensities are not combined; two surviving incomparable superclasses declaring different
-intensities is an error.
-
-One special case matters, because it interacts with contextual `Owner` (section 13.1). Writing
-`Owner` in a default's arguments keeps the literal `Owner` bound rather than normalizing it to the
-class's own narrower bound for that key, so that the contextual binding still has something to
-replace when a component is created.
-
-## 10. Complement bounds
-
-A written argument may be complemented with `!`, which excludes one narrower type from a bound
-without replacing it. This is how the game says "your opponents":
-
-```pets
-ABSTRACT CLASS Anyone[ANY] {
-  ABSTRACT CLASS Owner {
-    ABSTRACT CLASS Player : Actor {
-      CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
-    }
-  }
-}
-ABSTRACT CLASS Owned<Anyone>
-```
-
-Toll Station reads "increase your MC production 1 step for each space tag your *opponents* have",
-and is declared:
+Toll Station increases megacredit production once for each space tag owned by an opponent. A normal
+bound can narrow `Owner` to one player, but the card needs every owner *except* one. Prefixing an
+argument with `!` expresses that exclusion:
 
 ```json5
 // Toll Station
@@ -576,236 +527,89 @@ and is declared:
   "immediate": "PROD[1 / SpaceTag<!Owner>]" },
 ```
 
-Inside a card's effects, `Owner` stands for whoever owns the card, so on Player 1's copy this
-becomes `SpaceTag<!Player1>`: every space tag whose owner is not Player 1. Philares uses the same
-device to mean "next to someone else's tile":
+On Player 1's card the contextual `Owner` becomes `Player1`, so the metric counts
+`SpaceTag<!Player1>`: space tags belonging to anyone other than Player 1. Philares uses the same
+form for a tile belonging to someone else:
 
 ```json5
 "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
 ```
 
-and Viron, which lets you use a card action a second time, uses it to mean "any action card other
-than Viron itself":
-
-```json5
-"actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>" ],
-```
-
-A complement has a **domain** — the bound it constrains, which is `Owner` for `SpaceTag` and
-`Anyone` for `OwnedTile`, since owned tiles may belong to the non-player `SoloOpponent` — and an
-**excluded type**, which must be a subtype of that domain. `Owned<!CityTile>` is an error because
-`CityTile` does not narrow `Anyone`. Excluding the whole domain (`Owned<!Anyone>`) is accepted and
-simply admits nothing.
-
-A complemented type is always abstract, even when only one concrete type survives, and enumeration
-of its concrete subtypes filters the excluded ones out:
-
-```text
-SpaceTag<!Player1>      in a two-player game: concrete subtypes are Player 2's space tags
-```
-
-A complement never stands alone. `!Player1` has no type of its own and cannot be resolved as one; a
-complement is only meaningful against a domain. Where the engine needs to test a candidate against
-a complement outside a type expression, it supplies the domain explicitly, and the test is: the
-candidate narrows the domain, and does not narrow the excluded type.
-
-Two complemented bounds combine only when they exclude the very same type:
-
-```text
-Owned<!Player1> glb Card<!Player1>      Card<!Player1>
-Owned<!Player1> glb Owned<!Player2>     no common subtype
-```
-
-Within a class signature a complemented bound can occupy a type variable's positions like any other
-bound, and narrowing is applied before exclusion, so a complement that excludes something the
-variable has already ruled out simply disappears (section 13.3):
-
-```text
-Cardbound<Player1, !CardFront<Player2>>    resolves to    Cardbound<Player1>
-```
-
-In every other scope the opposite holds: an expression written with `!` neither introduces a
-variable nor refers to one, so two occurrences of `OwnedTile<!Owner>` in one effect are two
-independent choices.
-
-A complement's domain is not written out. Both written forms of a complemented bound show only the
-`!`-marked exclusion, so when a `glb` or a type variable has narrowed the domain below what the
-printed root class implies, that narrowing is lost on re-resolution; section 15 records this.
-
-Finally, as noted in section 3, excluding a phantom type does not make the containing type phantom;
-only the domain counts.
-
-## 11. Refinement types
-
-For a non-refinement type `T` and requirement `R`, `T(HAS R)` is a refinement type: `T` is its
-unrefined type and `R` is its refinement. The refinement type selects the components of `T` that
-satisfy `R`, and is always abstract and always a subtype of `T`.
-
-This is how the game's placement rules and conditional effects are written. A few real ones:
-
-```text
-CardFront(HAS 20 CardCost)                       CrediCor: a card costing 20 or more
-CardFront(HAS CardRequirement)                   Tactician: a card with a printed requirement
-LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)   where a city may be placed
-MarsArea(HAS 8 MarsRow)                          Polar Explorer: row 8 or 9, the polar rows
-MarsArea(HAS MapBonus<Class<Steel>>
-         OR MapBonus<Class<Titanium>>)           Mining Guild: an area with a steel or titanium bonus
-```
-
-`T` itself need not be abstract. Refining a concrete type creates a proper abstract subtype of it
-without violating the finality of concrete classes: no subclass is introduced, and the refinement
-type has no exact components of its own.
-
-### 11.1 Testing a candidate
-
-Components have no features beyond their concrete type, so a refinement that could only inspect the
-candidate would be useless. Instead the candidate is substituted into `R`, which may then ask
-anything of the world. Substitution follows the bound-matching rules of section 9: every type
-expression in `R` is offered the candidate as a written argument.
-
-Take the city-placement rule, which is declared as the default way to gain a `CityTile`:
-
-```pets
-CLASS CityTile[CT] {
-  DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-}
-```
-
-Testing the candidate area `Tharsis_2_3` offers it to `Neighbor<CityTile<Anyone>>`. Recall
-`CLASS Neighbor<Tile<MarsArea>, MarsArea>`: greedy matching gives the written `CityTile<Anyone>` the
-`Neighbor_0` slot and the appended candidate `Neighbor_1` — which is where it would have landed
-regardless, since an area has no intersection with `Tile<MarsArea>`. The requirement asked of the
-world is therefore
-
-```text
-MAX 0 Neighbor<CityTile<Anyone>, Tharsis_2_3>
-```
-
-"no city, belonging to anyone, is adjacent to this area" — the actual rule, arrived at by ordinary
-argument matching.
-
-An expression with no room for the candidate fails the whole test, so `LandArea(HAS 8 BuildingTag)`
-is satisfied by nothing: a building tag's dependencies are an `Owner` and a `CardFront`, and an area
-is neither. Within a class literal's refinement, unmatched expressions are left alone instead — that
-is what makes the represented-type reference of section 11.4 work.
-
-Satisfaction is therefore a world-dependent narrowing operation in two steps: the candidate must be
-a subtype of `T`, and the world must satisfy the substituted `R`. This lets a refinement type be
-counted, or narrowed to a concrete choice, without asserting a static relationship that the type
-system cannot establish by itself.
-
-### 11.2 Static rules
-
-- The subtypes of `T(HAS R)` are the types `S(HAS R)` for `S <: T`. The refinement itself may not
-  vary: `CardFront(HAS 20 CardCost)` is not a subtype of `CardFront(HAS 10 CardCost)`, even though
-  the former requirement implies the latter.
-- Concrete types that satisfy `R` are *not* subtypes of `T(HAS R)`; satisfaction is decided outside
-  the static type system.
-- A narrower type carrying the exact same refinement is decided statically. A different refinement
-  is statically unrelated. Testing an unrefined candidate against a refined wider type asks the
-  world whether the candidate satisfies the requirement; a context-free check raises if structural
-  matching cannot already reject it.
-- Intersection preserves refinements: a greatest lower bound conjoins two refinements, or keeps the
-  only one present. It conjoins them only when they agree about forgiveness (section 11.3), since
-  `HAS R1` and `HAS? R2` have no common conjunction — `HAS? (R1 AND R2)` would let the escape
-  clause discard the strict `R1`, and `HAS (R1 AND R2)` would discard the escape clause. Like any
-  other pair of types with nothing below them, they simply have no greatest lower bound.
-- An upper bound retains a refinement only when both operands carry that exact refinement. If only
-  one side is refined, or the refinements differ, their common upper bound is unrefined.
-
-### 11.3 Forgiving refinements
-
-A candidate satisfies `T(HAS? R)` when it satisfies the ordinary `T(HAS R)`, or when the world
-contains no component satisfying `T(HAS R)` at all. That is, it tests
-
-```text
-R  OR  MAX 0 T(HAS R)
-```
-
-The second arm is its escape clause; it does not change the static rules above. The greenery
-placement rule needs exactly this, since "adjacent to one of your own tiles" has to give way when
-you own no tiles at all:
-
-```pets
-CLASS GreeneryTile[GT] : Tile<MarsArea> {
-  // HAS? specifies a requirement with an "escape clause": the requirement is upheld as long as
-  // there is at least one component that satisfies it. If none do, it's dropped.
-  DEFAULT +GreeneryTile<LandArea(HAS? Neighbor<OwnedTile>, MAX 0 Tile)>
-}
-```
-
-Note that `MAX 0 Tile` — no tile is there already — sits *inside* the forgiving refinement rather
-than beside it. Areas are limited to one tile anyway, but including it here means the escape clause
-considers occupancy too: the rule that gets dropped is "adjacent to your tile *and* empty", so a
-player whose only adjacent areas are full may place anywhere empty.
-
-### 11.4 The represented-type reference
-
-A class literal's `HAS` requirement refers back to the class it represents. When testing candidate
-`Class<S>` against `Class<T>(HAS R)`, occurrences rooted at `T` within `R` are narrowed to `S`. Thus
-`Class<SpaceTag>` satisfies `Class<Tag>(HAS Tag<Player2>)` exactly when the world contains
-`SpaceTag<Player2>`, and counting that metric yields the number of distinct tag classes Player 2
-has. That is precisely what the Diversifier milestone needs:
-
-```json5
-{ "id": "HM1", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
-```
-
-and Diversity Support asks the same question about resource types:
-
-```json5
-"requirement": "9 Class<Resource>(HAS Resource<Owner>)",
-```
-
-The class-token components themselves remain unowned; the requirement is tested against instances of
-the represented component type. Ordinary dependency constraints, including complements, remain
-available — Aridor's "a tag you don't already have", which ignores event cards, is authored as
+Aridor combines an exclusion with a refined class literal to mean a non-event tag the owner does
+not already have:
 
 ```json5
 "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1]" ],
 ```
 
-(Aridor is on the not-yet-working list for an unrelated reason: it needs refined class-metric
-triggers.)
+A complement has a **domain** and an **excluded type**. The domain comes from the dependency being
+constrained. It is `Owner` for `SpaceTag`, but `Anyone` for `OwnedTile` because the
+non-player `SoloOpponent` may own tiles. The exclusion must be a subtype of that domain, so
+`Owned<!CityTile>` is an error. Excluding the entire domain, as in `Owned<!Anyone>`, is valid and
+admits nothing.
 
-## 12. Closed-world type operations
+A complement never stands alone: `!Player1` is meaningful only against a dependency's domain.
+When testing a candidate, Pets checks that it narrows the domain and does not narrow the excluded
+type. A complemented type remains abstract even when only one concrete choice survives. In a
+two-player game, for example, the only concrete owner choice admitted by
+`SpaceTag<!Player1>` is Player 2.
 
-A frozen class table makes the following operations decidable in ways that an open world could not.
-All of them are confined to one table; see section 3.
-
-**Enumeration.** For any type `T`, Pets can list
-
-```text
-concreteSubtypes(T) = { U | U is concrete and U <: T }
-```
-
-by choosing every concrete root class below `T`'s root and every admissible combination of concrete
-bounds, as constrained by any complement or type variable. The result may be large, but is finite
-whenever the table's dependency closure is. A game engine uses it to *generate* legal choices rather
-than merely validate one already made: an instruction that says `OceanTile` picks up the class's
-`DEFAULT +OceanTile<WaterArea>`, and enumerating that yields one concrete type per water area on the
-map — the placements to offer. A refinement is dropped rather than applied: by section 11.2 a
-refinement type has no concrete subtypes, so a state-aware consumer enumerates the unrefined type
-and then filters with the separate refinement test.
-
-**Automatic narrowing** takes the case where enumeration would yield exactly one type, and is
-strict: the root class must have exactly one concrete subclass *and* every dependency must itself
-have exactly one concrete narrowing.
+Two complemented bounds have a common narrowing only when they exclude the same type:
 
 ```text
-TerraformRating         solo game: Player has one concrete subclass, so this is
-                        automatically TerraformRating<Player1>
-TerraformRating         four-player game: four narrowings, so somebody must choose
-OceanTile<WaterArea>    twelve narrowings on Tharsis, so the player chooses
+Owned<!Player1> with Card<!Player1>      narrows to Card<!Player1>
+Owned<!Player1> with Owned<!Player2>     has no common subtype
 ```
 
-Unlike enumeration, it hands back a single answer with nothing left for a consumer to filter, so it
-cannot afford to ignore anything the type says. A complement bound narrows to whatever single
-concrete type survives its exclusion, and a refinement — on the type or on any of its bounds — is
-tested against the candidate, which makes automatic narrowing state-dependent wherever a
-refinement is present. A candidate the refinement rejects is not a narrowing, and the result is
-always concrete or absent. A refinement does not turn several structurally possible root classes
-into an automatic choice; structural uniqueness is checked first.
+The written form records the exclusion but not an independently narrowed domain. If another
+constraint narrows that domain below the root class's normal bound, printing and resolving the type
+again loses the extra narrowing.
+
+## 8. Class tables
+
+An instruction to place an `OceanTile` must offer exactly the legal areas on the selected map. It
+must not offer a Hellas area during a Tharsis game, a third player in a two-player game, or a Venus
+global parameter when Venus Next is absent. Generating choices therefore requires a fixed vocabulary
+for this particular game.
+
+Every type belongs to one **class table**: a frozen, closed set of mutually compatible classes.
+Types from different tables are never comparable. Type operations and constraint matching fail
+rather than mix them.
+
+A table is built by loading the declarations supplied by a ruleset and then freezing it. Once
+frozen, its classes and subtype relationships cannot change. A class name the table cannot resolve
+is an error in every context: as a type, a dependency bound, or part of a metric.
+
+## 9. Closed-world type operations
+
+Once the class table is frozen, Pets can answer questions that would be undecidable against an
+open-ended supply of future classes.
+
+### 9.1 Enumeration and automatic narrowing
+
+For an abstract type, **enumeration** lists every concrete subtype present in the table. To enumerate
+`OceanTile<WaterArea>`, Pets combines every concrete root class below `OceanTile` with every
+admissible concrete water-area bound. The result is one type per water area on the selected map,
+which is exactly the placement choice the player must see.
+
+Complements filter excluded choices. A refinement is handled separately: enumeration starts from
+its unrefined type, then a state-aware consumer filters the concrete candidates by testing the
+refinement against the component graph.
+
+**Automatic narrowing** is the special case where exactly one concrete candidate exists. It is
+strict: the root must have exactly one concrete subtype, and each dependency must have exactly one
+concrete narrowing.
+
+```text
+TerraformRating         solo game: narrows automatically to TerraformRating<Player1>
+TerraformRating         four-player game: four choices, so a player must be chosen
+OceanTile<WaterArea>    Tharsis: several water areas, so an area must be chosen
+```
+
+Automatic narrowing cannot discard information for a later consumer to check. Complements must
+leave one candidate, and refinements on the type or any dependency bound must accept it. A
+refinement does not turn several structurally possible root classes into an automatic choice;
+structural uniqueness is checked first. The result is concrete or absent.
 
 `Type.allConcreteSubtypes()` ranges across every concrete root class below the receiver's root.
 `Type.concreteSubtypesSameClass()` and `Class.concreteTypes()` instead enumerate only types whose
@@ -813,19 +617,19 @@ root class is exactly the receiver or that class. Whole-table enumeration, subcl
 and every operation built on them require the class loader to have been frozen; calling them while
 the table can still grow fails rather than capturing an incomplete snapshot.
 
-**Greatest lower bound** keeps its ordinary order-theoretic meaning, but need not exist. Two types
-with no common subtype simply have none, and every operation built on `glb` — matching a written
-bound, intersecting two constraints, combining narrowed supertypes — reports that as an error rather
-than inventing an intersection type:
+### 9.2 Greatest lower bounds
+
+Argument matching, overlapping constraints, and multiple direct supertypes all need an
+intersection. Pets calls the most general type below both inputs their **greatest lower bound** or
+`glb`. It need not exist:
 
 ```text
 OceanTile<Tharsis_5_5> glb OceanTile<Tharsis_5_6>       none
 ```
 
-Between classes the bound is a nominal class or nothing; Pets never manufactures a structural
-intersection type. A class qualifies as the intersection of its direct superclasses when no other
-class in the table subtypes all of them without also subtyping it, and `glb` looks for the unique
-such class listing both operands among its direct superclasses. `OwnedTile` is the canon's example:
+Pets does not manufacture structural intersection types. Between classes, it searches the table for
+one nominal class that is below both inputs and above every other common subtype. `OwnedTile` is
+the canon's example:
 
 ```pets
 ABSTRACT CLASS Tile<Area> {
@@ -833,76 +637,85 @@ ABSTRACT CLASS Tile<Area> {
 }
 ```
 
-`OwnedTile` subtypes both `Owned` and `Tile`, and every class that subtypes both also subtypes
-`OwnedTile`, so it is their greatest lower bound. This doubles as a modeling check: the Landlord
-award is declared `{ "id": "MA1", "metric": "OwnedTile" }`, so a tile class that is both an `Owned`
-and a `Tile` but forgets to extend `OwnedTile` would silently stop counting for Landlord. Commercial
-District's `CLASS CdTile : SpecialTile` gets it right by extending `SpecialTile`, which is already
-an `OwnedTile`.
+`OwnedTile` is below both `Owned` and `Tile`, and every class below both is also below
+`OwnedTile`, so it is their greatest lower bound. This is also a modeling check. The Landlord award
+counts `OwnedTile`; a tile class declared separately as both `Owned` and `Tile` without
+subtyping `OwnedTile` would silently not count.
 
-**Upper bound (`lub`)**, in contrast, always returns a common upper bound — `Component` if nothing
-closer does. With multiple inheritance a mathematical least upper bound need not exist: there may be
-several incomparable minimal common upper bounds, and the implementation picks one by a heuristic.
-Multiple inheritance is ordinary here — `OceanTile` is both a `Tile` and a `GlobalParameter` — which
-is why the distinction matters.
+When several direct supertypes narrow the same dependency, their bounds are combined with this same
+operation. The class is invalid if those constraints have no unique greatest lower bound.
+
+### 9.3 Upper bounds
+
+The **upper bound** operation, `lub`, returns a common supertype, using `Component` when nothing
+closer exists. Multiple nominal supertypes mean a mathematical least upper bound may not be unique.
+For example, `OceanTile` is both `Tile<MarsArea>` and `GlobalParameter`; there can be several
+incomparable minimal common supertypes, so the implementation selects one by a heuristic.
 
 At dependency level, `lub` lifts the same operation through ordinary type bounds. A complement is
 kept only when the other bound already satisfies it, or when both complements exclude the exact
 same type; otherwise the result falls back to the complement's unexcluded domain.
 
-## 13. Implicit type variables
+## 10. Implicit type variables
 
-Sections 13 and 14 intentionally range beyond the type system into effects, instructions, and task
-splitting so that one mechanism has a coherent end-to-end meaning.
-
-An abstract type is a choice not yet made. In certain **choice-producing** positions, an authored
-expression that resolves to an abstract type introduces an implicit **type variable** whose upper
-bound is the type denoted by that expression. Within that variable's scope there are **eligible**
-positions where an exact repetition of the same authored expression indicates the variable rather
-than opening a new choice. Narrowing the variable narrows every one of its occurrences to the same
-type.
-
-This adds no new kind of choice. A lone abstract expression in a choice-producing position was
-always a choice bounded by that expression; a variable is that same choice, made referrable for the
-length of a scope. The reference is the new part. Pets has no separate syntax for naming type
-variables, so it says "the same one" by writing the expression again.
-
-That the game already reads repetition this way can be checked against the printed cards. The icon
-grammar has one glyph for "a standard resource, unspecified", and nothing that marks one wildcard as
-distinct from another: no subscript, no prime, no "a different one". Manutech uses that glyph twice,
-inside a production box on the trigger side and alone on the result side:
+Manutech gives its owner one resource whenever that resource's production rises. The printed card
+uses the same unspecified-resource icon in the production box and in the result. Pets preserves that
+repetition:
 
 ```json5
 // Manutech
 "effects": [ "PROD[StandardResource]: StandardResource" ],
 ```
 
-Nobody reads that as two unrelated resources, and it is hard to see what the icons *could* do to say
-that they were. Where the grammar wants a wildcard constrained it spends notation on a qualifier
-instead, and when it has no qualifier to spend, the card stops being expressible at all. Robinson
-Industries wants "your lowest production" — a wildcard the world narrows rather than the player —
-and the printed card has to fall back on words, while the canon has to fall back out of Pets
-entirely:
+Nobody reads the two icons as unrelated resource choices. In a **choice-producing** position, an
+authored abstract expression introduces an implicit **type variable** bounded by that expression.
+Repeating the same authored expression in a related position refers to the same variable. Narrowing
+one occurrence then narrows all of them to the same concrete type.
 
-```json5
-// Robinson Industries
-"actions": [ "4 -> GainLowestProduction" ],
-"components": [ "CLASS GainLowestProduction : Owned, Custom" ],
+This adds no new kind of choice. A lone `StandardResource` was already a choice among resource
+types; repetition merely makes that choice referable for the duration of a rule. Pets has no syntax
+for naming the variable because the game's icon grammar has none. Robinson Industries demonstrates
+the boundary: its printed card falls back to words for "your lowest production," while Pets uses a
+named custom operation.
+
+### 10.1 Dependency keys and paths
+
+Repetition matching sometimes needs to distinguish two identical-looking dependency positions.
+`Adjacency<Tile, Tile>`, for example, relates two independently chosen tiles. Pets identifies a
+dependency by a **key** made from the class that first declared it and its zero-based position in
+that class's own dependency list.
+
+```text
+Tile<Area>                              area dependency: Tile_0
+Owned<Anyone>                           owner dependency: Owned_0
+Adjacency<Tile, Tile>                   tile dependencies: Adjacency_0, Adjacency_1
 ```
 
-So the grammar spends real effort on narrowing a wildcard and none at all on re-opening one.
-Repetition is not available to mean "another one", which leaves it free to mean "the same one". Pets
-is not inventing a coupling rule here; it is declining to break one the game already relies on. That
-is what justifies the rule's real cost — that meaning comes to depend on authored spelling.
+Every subtype retains the same key for the same dependency. Narrowing `GreeneryTile` from
+`Tile<Area>` to `Tile<MarsArea>` changes the bound but not the key `Tile_0`. In canonical
+argument order, inherited dependencies come first in direct-supertype order, followed by newly
+declared dependencies.
 
-A repetition is matched on the authored expression tree, before defaults or other preprocessing
-insert expressions, and never on resolved types. Two occurrences are the same expression when their
-parsed trees are structurally equal, once external source translation has produced canonical class
-names and each explicitly written bound has been associated with its dependency key. Whitespace,
-redundant parentheses, and the order of unambiguous bounds are therefore all irrelevant, while every
-other authored difference matters: omitted bounds stay omitted, and refinements and complements are
-not rewritten merely because they are logically equivalent. No pair below shares a variable, even
-where later resolution or context makes its two members equal:
+A **dependency path** follows keys into a nested type. In:
+
+```pets
+CLASS Neighbor<Tile<MarsArea>, MarsArea>
+```
+
+the `MarsArea` inside `Tile` is at `Neighbor_0.Tile_0`; the separate outer `MarsArea` is at
+`Neighbor_1`. Paths let a variable narrow one nested occurrence without confusing it with an
+identically spelled occurrence elsewhere. Every class-literal slot uses `Class_0`: `Class` is
+the sole class that declares that special slot, and no ordinary class can declare another.
+
+### 10.2 Matching authored expressions
+
+Variables are found in the authored expression tree, before defaults or other preprocessing insert
+anything. Two occurrences match when their parsed trees are structurally equal after names are
+canonicalized and each written argument is associated with its dependency key. Whitespace,
+redundant parentheses, and the order of unambiguous arguments do not matter. Omitted bounds,
+refinements, and complements remain authored differences.
+
+These pairs do not match, even when resolution or context later makes their members equal:
 
 ```pets
 Tile                  Tile<Area>
@@ -910,38 +723,32 @@ OceanTile             OceanTile<MarsArea>
 Owner                 Anyone
 ```
 
-Keeping matching this literal makes a variable something one can find by reading the source, and
-stops defaults or normalization from silently coupling independent choices. The represented-type
-reference of section 11.4 is a separate binding mechanism rather than repetition matching: within
-the `HAS` requirement of `Class<T>`, an occurrence rooted at `T` refers to the represented class even
-when it carries dependency arguments, as in `Class<Tag>(HAS Tag<Owner>)`.
+This literal rule keeps shared choices visible in the source and prevents defaults from coupling
+otherwise independent choices. The represented-class binding in a refined class literal is a
+separate mechanism: `Class<Tag>(HAS Tag<Owner>)` binds the `Tag` in the requirement to the class
+represented by the candidate literal, not to a variable inferred from repetition.
 
-Among expressions that do match, these rules decide which positions belong to one variable:
+Among matching expressions:
 
-- Only an expression whose resolved type is abstract introduces one; a concrete expression denotes
-  no choice.
-- Within a scope (section 13.2), all eligible maximal occurrences of the same expression belong to
-  one variable.
-- A smaller repeated expression nested inside every occurrence of a larger one introduces no
-  variable of its own: repeating `CardFront(HAS BioTag)` gives a single variable bounded by that
-  whole expression rather than an independent `BioTag` choice. Where the smaller expression also
-  occurs on its own, the nested occurrences belong to its variable too.
-- A variable introduced by a supertype is the same variable in its subclasses. Coincidentally
-  matching text elsewhere does not join it.
+- Only an expression resolving to an abstract type can introduce a variable.
+- Within one scope, eligible maximal occurrences of that expression belong to one variable.
+- A smaller expression nested inside every occurrence of a larger repeated expression does not
+  introduce a second variable. Repeating `CardFront(HAS BioTag)` chooses one refined card front,
+  not both a card front and an independent bio tag.
+- A variable introduced by a direct supertype remains the same variable in its subtypes.
+  Coincidentally matching source elsewhere does not join it.
 
-### 13.1 Contextual bindings
+### 10.3 Contextual bindings
 
-**`This`.** `This` is closely related but is not a variable inferred from repetition. It is a
-reserved, explicitly named contextual binding belonging to a class declaration. One occurrence is
-enough to refer to it, and every `This` occurrence in that class's signature or body refers to the
-same binding. `This` occurrences are therefore excluded from repetition matching; repetition adds
-no second constraint.
+Two reserved names bind from context rather than repetition.
 
-In an abstract class, `This` remains late-bound as the declaration applies to subclasses. For a
-component whose exact concrete type is `C<Args>`, an ordinary `This` occurrence binds to `C<Args>`,
-while `Class<This>` binds to `Class<C>` because a class literal contains a class name rather than a
-type with dependencies. Both appear together in the event-card rule that moves a played event to
-your played-events pile:
+**`This`.** One occurrence is enough to refer to the exact type supplied by the current class
+declaration. In an abstract class, it remains late-bound for each concrete subtype. For an exact
+component type such as `Pets<Player1>`, ordinary `This` becomes that full type, while
+`Class<This>` becomes `Class<Pets>` because a class literal represents a class without its
+dependencies.
+
+Event cards use both forms when they move from play to the played-events pile:
 
 ```pets
 ABSTRACT CLASS EventCard {
@@ -949,267 +756,274 @@ ABSTRACT CLASS EventCard {
 }
 ```
 
-For a specific event card owned by Player 1, the two ordinary `This` occurrences become that full
-concrete type while `Class<This>` becomes just the card's class literal, so the pile records which
-card was played without depending on a card that no longer exists. An explicitly authored
-`Class<EventCard>` would remain `Class<EventCard>` in every subclass; it does not acquire `This`
-semantics merely because it temporarily resolves to the same class literal.
+The two ordinary occurrences identify the exact card component being transmuted. The class literal
+records which card was played without depending on the removed component. An explicitly authored
+`Class<EventCard>` would remain fixed; it would not specialize merely because it happened to
+resolve like `Class<This>` at some point.
 
-The trigger forms `This:` and `-This:` are self-event selectors, not ordinary type subscriptions.
-They respond only to the occurrences of the effect-bearing concrete type gained or removed by the
-current change. A change of `N` copies scales the triggered instruction by `N`; other copies already
-present do not multiply it. Thus these two hypothetical effects would not be equivalent inside
-`CLASS TerraformRating`, where a player holds twenty-odd components at once:
+`This` also specializes inside inherited dependency bounds. The canon uses that to ensure a card
+resource sits only on a card that collects that resource kind:
+
+```pets
+ABSTRACT CLASS ResourceCard<Class<CardResource>>
+ABSTRACT CLASS CardResource : Resource, Cardbound<ResourceCard<Class<This>>>
+```
+
+For `Animal`, the card bound becomes `ResourceCard<Class<Animal>>`; for `Microbe`, it becomes
+`ResourceCard<Class<Microbe>>`. Pets collects animals and Ants collects microbes, so
+`Animal<Pets>` resolves while `Animal<Ants>` is a type error. A literal
+`Class<CardResource>` would not specialize in the subtype.
+
+The trigger forms `This:` and `-This:` are self-event selectors. They respond only to copies of
+the effect-bearing exact type added or removed by the current change. A change of several copies
+scales the instruction by that number; other copies already in the graph do not multiply it. Inside
+`TerraformRating`, these hypothetical effects therefore differ:
 
 ```pets
 This: VictoryPoint
 TerraformRating: VictoryPoint
 ```
 
-The first fires for the terraform-rating steps gained right now. Signature-level `This` paths remain
-distinct from implicit variables: a variable is a choice waiting to be narrowed, while the enclosing
-concrete class supplies `This`.
+The first fires for terraform-rating steps gained now. The second is an ordinary subscription to
+matching terraform-rating changes.
 
 **`Owner`.** Within an effect belonging to a concrete owned component, `Owner` refers to that
-component's exact owner. If a card belongs to `Player1`, for example, its inherited effect
-`This: VictoryPoint<Owner>` becomes `This: VictoryPoint<Player1>`. One occurrence is enough, and the
-binding applies independently of repetition-created variables. In class signatures and other
-context-free type expressions, `Owner` remains the ordinary abstract class and can participate in
-the rules below like any other expression. Effects without an owning component may leave it abstract
-until execution supplies a contextual player; the engine rules for that fallback are recorded in
-[Engine](ENGINE.md).
+component's exact owner. On Player 1's card, `This: VictoryPoint<Owner>` becomes
+`This: VictoryPoint<Player1>`. In context-free expressions, `Owner` remains the ordinary abstract
+class and may introduce or refer to a repeated choice. Effects with no owning component may remain
+abstract until execution supplies a contextual player; [Engine](ENGINE.md) defines that fallback.
 
-### 13.2 Scopes
+`This` and contextual `Owner` are excluded from repetition inference when context has already
+bound them. They are supplied values, while an implicit variable is a choice waiting to be narrowed.
 
-Implicit variables can span only the following related source regions:
+### 10.4 Variable scopes
 
-- **Within a class signature.** Two explicitly written bounds belong to one variable when they are
-  the same expression *and* bind the same dependency key. This is how the canon says that a tag, or
-  a resource cube, belongs to whoever owns the card it sits on:
+A repeated expression shares a variable only across related source regions.
 
-  ```pets
-  // Repeating Owner makes the Cardbound's owner and the CardFront's owner one variable.
-  ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
-  ```
+**Within a class signature.** Two written bounds share a variable when the expressions match and
+bind the same dependency key. This says that a tag or resource cube belongs to whoever owns its
+card:
 
-  There is one `Owner` choice here: both occurrences bind `Owned_0`, the nested one through
-  `CardFront` and the other through the supertype. Identical spellings binding different keys stay
-  separate.
+```pets
+ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
+```
 
-  Binding the same key is the only rule this scope adds. Which occurrences are eligible, and which
-  of several nested ones a variable covers, follow the same rules as everywhere else: whole authored
-  expressions, maximal ones preferred, abstract ones only. `Cardbound` happens to repeat a bare
-  class name, but in a signature repeating a bound that carries arguments, the variable is that
-  whole bound, not the names inside it. When a subclass introduces a variable sharing a position
-  with one it inherits, the two merge into a single variable over the union of their positions.
-  Section 15 records that matching here is narrower than this today.
-- **From a class signature to its effects.** A variable introduced in the dependency signature
-  extends to the same expression in each of that class's effects, so narrowing the component through
-  that dependency narrows its effects the same way. Playing a card relies on it:
+Both `Owner` occurrences bind `Owned_0`, one through the nested `CardFront` and one through the
+declared supertype. They are one owner choice. Matching text bound to different dependency keys stays
+independent. A repeated bound carrying arguments is matched as a whole expression, not merely by
+names nested inside it. If a subtype adds a variable sharing a position with an inherited variable,
+the positions merge into one variable.
 
-  ```pets
-  CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned, Signal {
-    This:: CheckCardRequirement<Class<CardFront>>
-    This:: HandleCardCost<Class<CardFront>>
-  }
-  ```
+**From a class signature to its effects.** A variable introduced in the signature extends to
+matching occurrences in that class's effects:
 
-  Choosing which card to play narrows `Class<CardFront>` once, and the requirement check and the
-  cost calculation are both narrowed to that same card.
+```pets
+CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned, Signal {
+  This:: CheckCardRequirement<Class<CardFront>>
+  This:: HandleCardCost<Class<CardFront>>
+}
+```
 
-  Like the other scopes, this one narrows only at the occurrences the variable covers, and a
-  disagreement among them is an error rather than a silent choice. Section 15 records that today it
-  is done by class-name substitution instead.
-- **From a trigger to its instruction.** A match that narrows a trigger expression applies the same
-  narrowing to every occurrence of it in the instruction. Awards are scored this way, by an effect
-  on `Player`:
+Choosing a card front once narrows both its requirement check and cost calculation to that card.
 
-  ```pets
-  MeasureAward<Award>:: TallyAward<This, Award>
-  ```
+**From a trigger to its instruction.** A trigger match narrows matching occurrences in the
+instruction. Award scoring relies on this rule:
 
-  Whichever award is being measured is the one tallied. This is the behavior historically called
-  *trigger specialization*; under this terminology the trigger match narrows the variable and the
-  instruction holds another of its occurrences.
-- **Within one action, `THEN`, or atomic instruction.** The cost and result of an action, the stages
-  of one `THEN`, and distinct operand roles of one atomic instruction are all related regions. A
-  transmutation deliberately excludes its complete source and destination expressions — those are
-  independent choices — but matching proper subexpressions inside them can share a variable. Compare
-  two real cards. Kaguya Tech turns one of your greeneries into a city, on the same hex:
+```pets
+MeasureAward<Award>:: TallyAward<This, Award>
+```
 
-  ```json5
-  // Repeated LandArea occurrences must specialize to the same concrete area.
-  "immediate": "PROD[2], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>",
-  ```
+The award being measured is the award tallied.
 
-  Market Manipulation raises one colony's trade track and lowers another's, and must *not* couple
-  them:
+**Across regions of one action, `THEN`, or atomic instruction.** Costs and results, stages of one
+`THEN`, and different operand roles of one atomic instruction are related regions. Kaguya Tech
+turns one greenery into a city on the same area:
 
-  ```json5
-  "immediate": "ColonyProduction FROM ColonyProduction",
-  ```
+```json5
+"immediate": "PROD[2], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>",
+```
 
-Outside a class signature, a scope is a set of *regions* — trigger and instruction, cost and result,
-the stages of a `THEN`, the two operands of a transmutation — and a repetition refers back only when
-its occurrences lie in at least two different ones. Three choice-producing occurrences inside a
-single `THEN` stage, or inside the trigger alone, therefore introduce three separate variables:
-three writings of the same type and nothing more.
+The repeated `LandArea` is one area choice. Complete source and destination expressions of a
+transmutation are deliberately independent, so Market Manipulation may raise one colony track and
+lower another:
 
-Two exclusions cut across every scope. First, the root occurrence of each entry in a class's own
-dependency declaration *declares* a dependency — a keyed variable of its own — so it always
-introduces a fresh one and never refers back. The two `Tile` dependencies of `Adjacency<Tile, Tile>`
-therefore stay independent — adjacency relates two tiles on *different* areas — as do the top-level
-and nested `MarsArea` occurrences in `Neighbor<Tile<MarsArea>, MarsArea>`, where the whole point is
-that the tile is on one area and the neighbor is another. Second, a position inside a requirement or
-refinement is eligible but not choice-producing: testing two facts does not assert that one witness
-satisfies both, so requirement-only repetition introduces nothing. Such an occurrence may still
-refer to a variable introduced by a matching occurrence outside requirements — with one further
-restriction, that a *counted* expression is not an occurrence at all. The `T` of `2 T`, `MAX 0 T`,
-or an award's metric neither introduces a variable nor refers to one, wherever it appears; only the
-expressions nested inside it can.
+```json5
+"immediate": "ColonyProduction FROM ColonyProduction",
+```
 
-Nested occurrences in sibling branches of one `<...>` list are meant to be independent as well, but
-today they share a variable: a hypothetical `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` would couple
-its two `MarsArea` occurrences because both bind `Tile_0`, and any class written with two identical
-class literal bounds would couple its two because every class literal slot binds `Class_0`. See
-section 15.
+Outside a class signature, repetition refers back only when matching occurrences lie in at least two
+regions. Three copies of one abstract expression within a single `THEN` stage remain three choices.
+Comma-separated instructions and alternative `OR` arms are also independent, although a variable
+introduced by an enclosing region may have occurrences inside them.
 
-Comma-separated instructions and alternative `OR` arms are not in scope for one another. A variable
-introduced by an enclosing class, effect, action, or `THEN` may still have occurrences inside those
-instructions or arms, and is applied before they separate.
+Several exclusions preserve intended independence:
 
-### 13.3 Narrowing a variable
+- Each root expression in a class's own dependency declaration introduces a fresh keyed dependency.
+  The two `Tile` roots of `Adjacency<Tile, Tile>` are independent, as are the nested and outer
+  `MarsArea` roots in `Neighbor<Tile<MarsArea>, MarsArea>`.
+- Sibling branches of one angle-bracket list are independent.
+- A requirement position may refer to a variable introduced outside the requirement, but repetition
+  found only within requirements introduces none. Testing two facts does not claim one witness for
+  both.
+- A counted expression — the resource in `2 StandardResource`, for example — neither introduces nor
+  refers to a variable. Expressions nested inside it remain eligible.
+- Outside class signatures, an expression written with a complement neither introduces nor refers
+  to a variable. Two writings of `OwnedTile<!Owner>` are therefore independent choices.
 
-A type variable begins at the upper bound denoted by its source expression. A proposed narrowing
-supplies one subtype of that bound and substitutes it at every occurrence of the variable. The
-containing expressions are then resolved and validated. The narrowing is rejected if any occurrence
-cannot accept it or if different occurrences would require different types.
+Within a class signature, a complemented bound may occupy a variable's positions. Narrowing applies
+to the shared domain before the exclusion; an exclusion already ruled out by the shared narrowing
+then disappears.
 
-Within a class signature, this is enforced whenever a type is formed. Every position of one variable
-is intersected with every other, and the result is written back to all of them; because a position
-may belong to a variable whose other positions are nested inside it, the process repeats until it
-reaches a fixed point. Narrowing any one occurrence therefore narrows the rest automatically, and
-disagreement is an error rather than a silent choice:
+### 10.5 Narrowing a variable
+
+A type variable begins at the upper bound denoted by its source expression. A proposed subtype is
+substituted at every occurrence, and every containing expression is resolved again. Narrowing fails
+if an occurrence cannot accept the proposed type or if the occurrences disagree.
+
+A class signature enforces this whenever a type is formed. Intersections propagate through all
+positions of one variable until no bound changes. The tag hierarchy provides a real example:
 
 ```pets
 ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
   ABSTRACT CLASS Tag : Atomized {
-    CLASS SpaceTag[SPT]
+    CLASS SpaceTag
   }
 }
 ```
 
 ```text
 SpaceTag<Player1, CardFront>            same type as SpaceTag<CardFront<Player1>>
-SpaceTag<Player1, CardFront<Player2>>   error: the variable's occurrences disagree
+SpaceTag<Player1, CardFront<Player2>>   error: the owner occurrences disagree
 ```
 
-Variables survive inheritance, and enumeration respects them. There is no such thing as Player 1's
-space tag on Player 2's card, so enumerating `SpaceTag` in a two-player game yields one concrete
-type per (owner, card-they-own) pair rather than one per (owner, any card) pair:
+Variables survive through subtyping, and enumeration respects them. A two-player game admits space
+tags only in matching owner/card pairs:
 
 ```text
 SpaceTag<Player1, SpaceElevator<Player1>>
 SpaceTag<Player2, SpaceElevator<Player2>>
-...one such pair per player, per card front, never crossed
+...one pair per player and card front, never crossed
 ```
 
-Outside a class signature, a variable remains unbound while more than one concrete binding is
-possible. A composite instruction must not be split across a boundary crossed by an unbound
-variable — Kaguya Tech's `CityTile<LandArea> FROM GreeneryTile<LandArea>` cannot be executed as two
-independent halves, or the city could land on a different hex than the greenery it replaced. Once
-earlier work or an enclosing binding fixes the variable, its value is substituted into all later
-occurrences; ordinary task splitting may then continue. This rule couples only the shared choice,
-not the execution of otherwise sequential stages.
+Outside a class signature, a variable remains open while several concrete bindings are possible. A
+composite instruction cannot split across a boundary crossed by an open variable:
+`CityTile<LandArea> FROM GreeneryTile<LandArea>` must choose the area before its source and
+destination can separate. Once earlier work fixes that area, Pets substitutes it at every later
+occurrence and ordinary task splitting can continue.
 
-## 14. Scalar variables
+## 11. Optional vocabulary and phantom classes
 
-`X` is the one kind of variable Pets spells out. In a choice-producing count position, an authored
-`X` introduces a **scalar variable** denoting one positive integer. Eligible repetitions in the
-scopes of section 13 refer to that same variable, and a coefficient such as `3X` denotes three times
-its value. Sell Patents — discard any number of cards, gain that many megacredits — is the pure case:
+The closed-table model is sufficient until rules shared across optional expansions enter the
+picture. Diversifier, for example, is declared once to count eight distinct tag classes:
 
 ```json5
-{ "id": "SELL", "action": "X ProjectCard -> X" },
+{ "id": "HM1", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
 ```
 
-Energy Market shows a coefficient, since each energy costs two megacredits:
+The Venus Next expansion adds `VenusTag`. A game without that expansion must neither count the tag
+nor require a different Diversifier declaration. At the same time, `Class<Tag>` must keep ranging
+over all tag classes that this particular game includes.
 
-```json5
-"actions": [ "2X -> X Energy", "PROD[Energy] -> 8" ],
+Pets handles that distinction by giving each ruleset an **authority**: the full catalog of class
+declarations it is allowed to load. A class known to the authority but not active in the current
+game is installed in the frozen table as **phantom**. Names therefore have three states:
+
+```text
+active    installed in this table for this game
+phantom   known to the authority but inactive in this table
+unknown   not known to the authority
 ```
 
-and a floater-spending discount shows one on a payment:
+In a two-player base game, `Player3`, `SoloMode`, `SoloOpponent`, `VenusStep`, and `VenusTag` are
+phantom. An unknown name remains an error in every context, including inside a class literal.
 
-```json5
-"PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed.) OR Ok"
+A type is phantom when its root class or any dependency bound is phantom. A refinement mentioning a
+phantom class is instead an unsatisfiable requirement; it does not turn the refined type phantom.
+Phantom types and their class literals count zero and are otherwise inert:
+
+- They have no components, effects, defaults, invariants, or enumerated concrete subtypes.
+- Optional and as-many-as-possible changes to them are quantity-zero no-ops.
+- A mandatory change is dead. A choice discards that branch; an unavoidable dead change fails.
+- They are never inferred as the only legal choice and cannot fire as triggers.
+
+Thus `VenusTag` contributes zero to Diversifier without requiring a second milestone declaration.
+
+An active class cannot have a phantom direct supertype or phantom dependency bound. Either makes the
+table invalid. A complement excluding a phantom type is not itself phantom, because its active
+domain remains the dependency bound:
+
+```text
+Owned<!SoloOpponent>    in a multiplayer game: active; the bound is still Anyone
 ```
 
-The scopes and splitting rules of section 13 apply unchanged, and nobody reads `X ProjectCard -> X`
-as two unrelated numbers either: section 13 is that same convention applied to a position holding a
-type rather than a count. A lone `X` in a count position is still a scalar variable; it simply has no
-other occurrences. The `X` modifier on a trigger such as `X This:: Accept<Class<Resource>>` instead
-retains its ordinary trigger meaning and introduces no scalar variable. Variable identity follows
-the authored occurrences and scopes, not traversal-order pairing.
+Only active classes appear in class and name listings or generated choices. This is also why the
+game lists exactly the milestones belonging to its selected map even though an unclaimed milestone
+has no ordinary `Milestone` component.
 
-## 15. Known divergences
+Loading a declaration as active normally activates every class name it mentions. A structural
+dependency bound must resolve to an active class, while another authority-known inactive name loads
+as phantom. A custom implementation's `requiredClassNames` are activation edges too. A class name
+used only as the represented class of a `Class<...>` metric is the exception: counting it does not
+by itself make that class active, but the name must still be authority-known when the mentioning
+declaration loads. When the table freezes, every remaining authority-known declaration is installed
+as phantom.
+
+## 12. Known divergences
 
 Each item below is current implementation behavior that this walkthrough would otherwise describe
 differently. They are recorded here rather than smoothed over.
 
-### 15.1 Sibling nested bounds share a variable
+### 12.1 Sibling nested bounds share a variable
 
-Section 13.2's same-key rule is applied to nested occurrences in sibling branches of one `<...>`
-list, so a declaration like `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` couples choices that were
-meant to stay independent. With class literals the coupling is easy to miss, since all class
-literal slots share the key `Class_0`: had `PlayCard<Class<CardBack>, Class<CardFront>>` instead
-been written with the same literal twice, those two slots would share one variable. The intent is
-that only a class's *own* repeated writing of a bound at distinct positions of the same inherited
-dependency should share one.
+The same-key rule for class signatures is applied to nested occurrences in sibling branches of one
+`<...>` list, so a declaration like `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` couples choices
+that were meant to stay independent. With class literals the coupling is easy to miss, since all
+class literal slots share the key `Class_0`: had
+`PlayCard<Class<CardBack>, Class<CardFront>>` instead been written with the same literal twice,
+those two slots would share one variable. The intent is that only a class's own repeated writing of
+a bound at distinct positions of the same inherited dependency should share one.
 
-### 15.3 Complement narrowing accepts wider abstract candidates
+### 12.2 Complement narrowing accepts wider abstract candidates
 
 The test is "narrows the domain and does not narrow the excluded type", so `SpaceTag` — whose owner
 is still the abstract `Owner` — counts as narrowing `SpaceTag<!Player1>` even though it admits
 `SpaceTag<Player1>`. The rule behaves as intended for concrete candidates.
 
-### 15.6 Class signatures match only bare class names
+### 12.3 Class signatures match only bare class names
 
-Section 13.2 says a signature adds only the same-key requirement to the shared matching rules; in
-fact it uses a separate mechanism in which only a bare class name is an occurrence. A repeated bound
-carrying arguments, a refinement, or a `!` never becomes a variable as a unit, so matching reaches
-past it to the names inside. In the invented
-`ABSTRACT CLASS Thing<Holder<Card<Owner>>> : Keeper<Card<Owner>>`, the two `Card<Owner>` bounds
-should be one choice; instead only their two `Owner`s are coupled, leaving the two cards free to
-differ. Abstractness is not consulted either, though a variable over concrete positions has no
-effect. Section 15.1 is the other half of this: one shared matching mechanism would fix both.
+The intended class-signature rule adds only the same-key requirement to the shared matching rules;
+in fact it uses a separate mechanism in which only a bare class name is an occurrence. A repeated
+bound carrying arguments, a refinement, or a `!` never becomes a variable as a unit, so matching
+reaches past it to the names inside. Two repeated `Card<Owner>` bounds should represent one choice;
+instead only their nested `Owner` occurrences are coupled, leaving the card choices free to differ.
+Abstractness is not consulted either, though a variable over concrete positions has no effect.
+Section 12.1 is the other half of this: one shared matching mechanism would fix both.
 
-### 15.7 Signature-to-effect narrowing is class-name substitution, not a variable
+### 12.4 Signature-to-effect narrowing is class-name substitution, not a variable
 
-Section 13.2's second bullet describes one variable spanning signature and effects; what runs is a
-substitution built by comparing every bound of the class's own type — nested bounds included — with
-the component's, and rewriting every occurrence of each differing class name anywhere in the
-effects, arguments and requirements alike. It therefore rewrites expressions the author never
-wrote alike, and when one name would map to two different replacements it drops that substitution
-silently instead of reporting the disagreement a class signature would report.
+The intended rule makes one variable span a signature and its effects; what runs is a substitution
+built by comparing every bound of the class's own type — nested bounds included — with the
+component's, and rewriting every occurrence of each differing class name anywhere in the effects,
+arguments, and requirements alike. It therefore rewrites expressions the author never wrote alike,
+and when one name would map to two different replacements it drops that substitution silently
+instead of reporting the disagreement a class signature would report.
 
-### 15.9 A complement's domain is not written out
+### 12.5 A complement's domain is not written out
 
 Both written forms of a complemented bound show only the exclusion, so a domain narrowed by `glb`
 or by a type variable below what the printed root class implies is lost when the printed form is
-re-resolved. This affects the full form too, and it is one of several signs that a complement is not
-really the simple thing section 10 presents it as.
+resolved again. This affects the full form too.
 
-### 15.13 A nested complement does not block repetition matching
+### 12.6 A nested complement does not block repetition matching
 
-Section 10 says an expression written with `!` neither introduces nor refers to an implicit
-variable outside a class signature. The matcher checks only whether the candidate expression itself
-is complemented, so the root `OwnedTile<!Owner>` remains eligible even though its argument is
-complemented. Repeating that complete expression across regions therefore shares a variable today.
+An expression written with `!` should neither introduce nor refer to an implicit variable outside a
+class signature. The matcher checks only whether the candidate expression itself is complemented,
+so the root `OwnedTile<!Owner>` remains eligible even though its argument is complemented. Repeating
+that complete expression across regions therefore shares a variable today.
 
-### 15.14 Matching does not canonicalize argument order
+### 12.7 Matching does not canonicalize argument order
 
-Section 13 matches authored expressions after associating their explicitly written bounds with
+The intended matcher compares expressions after associating their explicitly written bounds with
 dependency keys, so two unambiguous argument orders are meant to match. Today the matcher compares
 raw expression trees, whose argument lists remain ordered: `GreeneryTile<Player1, LandArea>` and
 `GreeneryTile<LandArea, Player1>` therefore introduce separate variables.
