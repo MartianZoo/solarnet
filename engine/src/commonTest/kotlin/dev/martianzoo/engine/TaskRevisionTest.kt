@@ -56,11 +56,13 @@ class TaskRevisionTest {
 
   @Test
   fun `a normal case of narrowing works normally`() {
-    initiate("2 Plant?")
+    val originalId = initiate("2 Plant?").single()
 
     writer.reviseTask("2 Plant?", "Plant!")
     history().shouldHaveSize(2)
     tasksAsText().shouldContainExactlyInAnyOrder("Plant<Player1>!")
+    tasks.ids().shouldContainExactly(originalId)
+    originalId.ordinal shouldBe (history().single { it is TaskAddedEvent }).ordinal
   }
 
   @Test

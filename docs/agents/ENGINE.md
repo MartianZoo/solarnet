@@ -116,13 +116,23 @@ the engine's mutation and bookkeeping operations remain internal.
 
 Each task has:
 
-- `id` — a monotonically increasing `TaskId`
+- `id` — a `TaskId` wrapping the numeric ordinal of its original `TaskAddedEvent`, stable through edits
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
 - `assignee` — whose pending work contains the task and whose scoped gameplay may narrow it
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
 - `whyPending` — diagnostic string set when autoexec can't resolve a task
+
+Triggered work is represented as `PendingTask` until it is actually admitted to a queue, so work
+handled inline never receives a task id. A split instruction and a `THEN` tail create new tasks and
+therefore receive the ordinals of their own add events.
+
+The script module separately assigns letter selection handles only when it presents tasks to a user
+or offers task completions. A handle remains attached while its task is pending. Once no
+lettered task remains pending, the next requested handle starts again at `A`; tasks completed by
+autoexec before presentation consume no letters. Label assignments are checkpointed with the event
+timeline so rollback restores both prior handles and tasks that had not yet received a handle.
 
 Task assignment and queue membership are the same fact: an assignee's scoped view contains that
 assignee's tasks. This remains true if the physical implementation is one collection with filtered
@@ -185,7 +195,7 @@ as much as possible without actually changing anything:
 - `NoOp` does nothing
 - `Per`, `Gated`, `Or` -- these would cause an error as the instruction was never prepared.
 
-The return value of `execute` is a list of `Task` objects produced by queued effects.
+The return value of `execute` is a list of `PendingTask` objects produced by queued effects.
 
 ---
 
@@ -325,7 +335,7 @@ resulting state changes and receives their `ChangeEvent.actor` attribution. An i
 `BY` explicitly overrides that performer without changing who owns or may narrow the task.
 Trigger-level `BY` independently matches the Actor on the triggering `ChangeEvent`.
 
-For automatic effects the temporary Task still carries routing metadata in its `assignee` field,
+For automatic effects the temporary `PendingTask` still carries routing metadata in its `assignee` field,
 but execution remains inline through the triggering Actor's `Instructor` and `Changer`, so
 resulting change events retain the triggering Actor.
 

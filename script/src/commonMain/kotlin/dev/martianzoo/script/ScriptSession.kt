@@ -6,6 +6,7 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
@@ -66,6 +67,7 @@ public class ScriptSession(
   internal lateinit var setup: OptionCodeTranslation.Setup
 
   internal var mode: ScriptMode = GREEN
+  private val taskLabels = TaskLabels()
 
   private fun newGame(
       setup: OptionCodeTranslation.Setup,
@@ -81,6 +83,7 @@ public class ScriptSession(
     this.setup = setup
     game = candidateGame
     gameplay = candidateGameplay
+    taskLabels.clear()
     if (purple) mode = PURPLE
   }
 
@@ -171,16 +174,7 @@ public class ScriptSession(
     val newTasks: Set<TaskId> = result.tasksSpawned
     val taskLines =
         if (newTasks.any()) {
-          listOf("New tasks pending:") +
-              game.tasks
-                  .extract {
-                    if (it.id in newTasks) {
-                      it.toStringWithoutCause(queueAssignee = it.assignee)
-                    } else {
-                      null
-                    }
-                  }
-                  .filterNotNull()
+          listOf("New tasks pending:") + taskLines(newTasks)
         } else {
           emptyList()
         }
@@ -191,6 +185,31 @@ public class ScriptSession(
     } else {
       changes + taskLines
     }
+  }
+
+  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Pair<String, Task>> {
+    val allTasks = game.tasks.extract { it }
+    val selectedTasks = if (ids == null) allTasks else allTasks.filter { it.id in ids }
+    val existingIds = allTasks.mapTo(mutableSetOf()) { it.id }
+    val labels =
+        taskLabels.labelsFor(
+            existingIds,
+            selectedTasks.map { it.id },
+            game.timeline.checkpoint().ordinal,
+        )
+    return selectedTasks.map { task -> labels.getValue(task.id) to task }
+  }
+
+  internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
+      selectableTasks(ids).map { (label, task) ->
+        task.toStringWithoutCause(queueAssignee = task.assignee, displayId = label)
+      }
+
+  internal fun resolveTaskLabel(label: String): TaskId? =
+      taskLabels.resolve(game.tasks.ids(), label, game.timeline.checkpoint().ordinal)
+
+  internal fun restoreTaskLabelsAfterRollback(rollbackOrdinal: Int) {
+    taskLabels.restoreAfterRollback(game.tasks.ids(), rollbackOrdinal)
   }
 
   internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {

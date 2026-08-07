@@ -1,6 +1,5 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
@@ -34,12 +33,12 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
   override fun withArgs(args: String): List<String> {
     val split = Regex("\\s+").split(args, 2)
     val first = split.firstOrNull() ?: throw UsageException()
-    if (!first.matches(Regex("[A-Z]{1,2}"))) {
+    val id = repl.resolveTaskLabel(first)
+    if (id == null) {
       return repl.describeExecutionResults(repl.gameplay.tryTask(args))
     }
 
-    val id = TaskId(first.uppercase())
-    if (id !in repl.game.tasks) throw UsageException("valid ids are ${repl.game.tasks.ids()}")
+    check(id in repl.game.tasks)
     val rest: String? =
         if (split.size > 1 && split[1].isNotEmpty()) {
           split[1]
@@ -51,11 +50,11 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
         when (rest) {
           "drop" -> {
             repl.access().dropTask(id)
-            return listOf("Task $id deleted")
+            return listOf("Task $first deleted")
           }
           "prepare" -> {
             repl.gameplay.prepareTask(id)
-            return repl.game.tasks.extract { "$it" }
+            return repl.taskLines()
           }
           null -> repl.gameplay.tryTask(id)
           else ->

@@ -72,6 +72,51 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
+  fun keepsLabelsThroughEditsAndRestartsWhenNoLabeledTaskRemainsPending() {
+    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    taskLayer.addTasks("2 Plant?")
+    assertTrue(repl.command("tasks").single().startsWith("A "))
+    assertTrue(repl.command("task A prepare").single().startsWith("A* "))
+
+    taskLayer.addTasks("3 Heat?")
+    repl.command("mode yellow")
+    repl.command("task A drop")
+
+    val remaining = repl.command("tasks").single()
+    assertTrue(remaining.startsWith("A "), remaining)
+    assertTrue("3 Heat<Owner>?" in remaining, remaining)
+  }
+
+  @Test
+  fun treatsAnUnassignedUppercaseTokenAsAnInstruction() {
+    (repl.gameplay.godMode() as TaskLayer).addTasks("StandardAction?")
+    assertEquals(listOf(null), repl.game.tasks.extract { it.whyPending })
+
+    val output = repl.command("task SAA")
+
+    assertEquals(listOf("um, nothing happened"), output)
+    assertEquals(listOf("abstract"), repl.game.tasks.extract { it.whyPending })
+  }
+
+  @Test
+  fun restoresLabelsOfTasksRestoredByRollback() {
+    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    taskLayer.addTasks("2 Plant?")
+    assertTrue(repl.command("tasks").single().startsWith("A "))
+
+    taskLayer.addTasks("3 Heat?")
+    repl.command("mode yellow")
+    val checkpoint = repl.game.timeline.checkpoint()
+    repl.command("task A drop")
+    assertTrue(repl.command("tasks").single().startsWith("A "))
+    repl.command("rollback $checkpoint")
+
+    val restored = repl.command("tasks")
+    assertTrue(restored[0].startsWith("A "), "$restored")
+    assertTrue(restored[1].startsWith("B "), "$restored")
+  }
+
+  @Test
   fun delegatesAsCommandCompletion() {
     assertContainsAll(values("as P"), "Player1", "P1")
     assertTrue("mode" in values("as P1 mo"))

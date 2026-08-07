@@ -23,6 +23,10 @@ public sealed class GameEvent {
 
   public data class TaskAddedEvent(override val ordinal: Int, override val task: Task) :
       TaskEvent() {
+    init {
+      require(task.id.ordinal == ordinal)
+    }
+
     override fun toString(): String = taskToString()
   }
 

@@ -16,7 +16,7 @@ import dev.martianzoo.util.toSetStrict
  * represented by an [Actor]. Normally, a state should never be observed in which administrative
  * tasks remain, as the engine should always be able to take care of them itself before returning.
  *
- * It is possible to retrieve the [Task] corresponding to a [TaskId] but this is generally
+ * It is possible to retrieve the [Task] corresponding to a task id but this is generally
  * discouraged and the API doesn't make it easy.
  */
 public class TaskQueue
@@ -73,8 +73,12 @@ internal constructor(
     return taskQueues.addTasks(instruction, inferredAssignee, cause)
   }
 
-  internal fun addTasks(task: Task): List<TaskAddedEvent> {
-    validateAssignee(task)
+  internal fun addTasks(task: PendingTask): List<TaskAddedEvent> {
+    if (assignee != null && task.assignee != assignee) {
+      throw TaskException(
+          "$assignee's queue can't contain pending work assigned to ${task.assignee}: $task"
+      )
+    }
     return taskQueues.addTasks(task)
   }
 

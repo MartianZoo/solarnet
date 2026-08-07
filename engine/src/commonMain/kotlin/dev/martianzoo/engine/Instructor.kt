@@ -17,7 +17,6 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Task
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -50,14 +49,14 @@ internal class Instructor(
     private val defaultActor: Actor? = null,
 ) {
 
-  internal fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
+  internal fun execute(instruction: Instruction, cause: Cause?): List<PendingTask> = buildList {
     doExecute(instruction, cause, this, checkNotNull(defaultActor))
   }
 
   private fun doExecute(
       instruction: Instruction,
       cause: Cause?,
-      deferred: MutableList<Task>,
+      deferred: MutableList<PendingTask>,
       actor: Actor,
   ) {
     when (val prepped = prepare(instruction)) { // idempotent?
@@ -73,7 +72,7 @@ internal class Instructor(
   private fun executeChange(
       instruction: Change,
       cause: Cause?,
-      deferred: MutableList<Task>,
+      deferred: MutableList<PendingTask>,
       actor: Actor,
   ) {
     val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)

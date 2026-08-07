@@ -10,7 +10,6 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Task
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName
@@ -82,10 +81,13 @@ internal class Effector(
     return effects.getOrPut(component) { component.effects(transformers).map(::liveEffect) }
   }
 
-  internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
+  internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<PendingTask> =
       fireSelfEffects(triggerEvent, automatic) + fireOtherEffects(triggerEvent, automatic)
 
-  private fun fireSelfEffects(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
+  private fun fireSelfEffects(
+      triggerEvent: ChangeEvent,
+      automatic: Boolean? = null,
+  ): List<PendingTask> =
       listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
           .map(reader::resolve)
           .map(Type::toComponent)
@@ -93,7 +95,10 @@ internal class Effector(
           .filter { automatic == null || it.automatic == automatic }
           .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
 
-  private fun fireOtherEffects(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<Task> =
+  private fun fireOtherEffects(
+      triggerEvent: ChangeEvent,
+      automatic: Boolean? = null,
+  ): List<PendingTask> =
       candidatesFor(triggerEvent, automatic).mapNotNull { (fx, ct) ->
         fx.onChangeToOther(triggerEvent, reader)?.times(ct)
       }
@@ -144,7 +149,11 @@ internal class Effector(
     fun onChangeToOther(triggerEvent: ChangeEvent, reader: GameReader) =
         onChange(triggerEvent, reader, isSelf = false)
 
-    private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
+    private fun onChange(
+        triggerEvent: ChangeEvent,
+        reader: GameReader,
+        isSelf: Boolean,
+    ): PendingTask? {
       // An owned effect belongs to the Player owning the component that carries it. This must win
       // over every other identity here: when Player1 places beside Player2's Philares tile, Player2
       // owns the effect and therefore chooses the standard resource. Using the changed tile's Owner
@@ -170,14 +179,14 @@ internal class Effector(
       val hit =
           subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
-      return Task.noid(assignee, automatic, hit.specialize(instruction), cause = cause)
+      return PendingTask(assignee, hit.specialize(instruction), cause)
     }
 
     /**
      * The compatibility rule for choosing the assignee of work produced by an effect. Authored `BY`
      * independently tests the Actor recorded on the triggering event.
      *
-     * Automatic effects are represented temporarily as Tasks but execute inline through the
+     * Automatic effects are represented temporarily as PendingTasks but execute inline through the
      * triggering Actor's Instructor and Changer, so their resulting ChangeEvents retain that Actor.
      */
     private fun assigneeForTriggeredWork(

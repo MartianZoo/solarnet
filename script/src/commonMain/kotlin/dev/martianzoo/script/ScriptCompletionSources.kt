@@ -62,8 +62,8 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun taskIds(): List<ScriptCompletion> =
-      repl.game.tasks.extract {
-        ScriptCompletion(it.id.toString(), "tasks", it.instruction.toString())
+      repl.selectableTasks().map { (label, task) ->
+        ScriptCompletion(label, "tasks", task.instruction.toString())
       }
 
   fun optionSuggestions(): List<ScriptCompletion> {

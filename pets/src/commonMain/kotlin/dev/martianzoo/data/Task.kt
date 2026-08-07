@@ -20,10 +20,7 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 
 public data class Task(
-    /**
-     * Identifies this task within a game at a particular point in time. These do get reused (for
-     * user convenience) but of course no two have the same id at the same time.
-     */
+    /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,
 
     /** Whose pending-work queue contains this task and whose scoped gameplay may revise it. */
@@ -130,8 +127,11 @@ public data class Task(
     whyPending?.let { append(" ($it)") }
   }
 
-  public fun toStringWithoutCause(queueAssignee: Actor? = null): String = buildString {
-    append(id)
+  public fun toStringWithoutCause(queueAssignee: Actor? = null): String =
+      toStringWithoutCause(queueAssignee, id.toString())
+
+  public fun toStringWithoutCause(queueAssignee: Actor?, displayId: String): String = buildString {
+    append(displayId)
     append(if (next) "* " else "  ")
     if (queueAssignee == null) {
       appendAssigneeLabel()
@@ -188,41 +188,18 @@ public data class Task(
         task
       }
     }
-
-    public fun noid(
-        assignee: Actor,
-        automatic: Boolean,
-        hit: Instruction,
-        cause: Cause,
-    ): Task =
-        Task(
-            id = TaskId("ZZ"),
-            assignee = assignee,
-            next = automatic,
-            instructionIn = hit,
-            cause = cause,
-        )
   }
 
-  public data class TaskId(val s: String) : Comparable<TaskId> {
+  /** A task's stable internal identity, wrapping the ordinal of its add event. */
+  public data class TaskId(val ordinal: Int) : Comparable<TaskId> {
     init {
-      require(s.length in 1..2) { s }
-      require(s.all { it in 'A'..'Z' })
+      require(ordinal >= 0)
     }
 
-    override fun compareTo(other: TaskId): Int = s.padStart(2).compareTo(other.s.padStart(2))
+    public fun next(): TaskId = TaskId(ordinal + 1)
 
-    override fun toString(): String = s
+    override fun compareTo(other: TaskId): Int = ordinal.compareTo(other.ordinal)
 
-    public fun next(): TaskId {
-      val news =
-          when {
-            s == "Z" -> "AA"
-            s.length == 1 -> "${s[0] + 1}"
-            s[1] == 'Z' -> "${s[0] + 1}A"
-            else -> "${s[0]}${s[1] + 1}"
-          }
-      return TaskId(news)
-    }
+    override fun toString(): String = ordinal.toString()
   }
 }

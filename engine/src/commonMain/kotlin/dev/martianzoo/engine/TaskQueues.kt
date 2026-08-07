@@ -39,6 +39,10 @@ private constructor(
     private val classTable: ClassTable?,
     initialTasks: Collection<Task>,
 ) {
+  init {
+    require(initialTasks.all { it.id.ordinal < events.size })
+  }
+
   internal constructor(
       events: EventLog,
       classTable: ClassTable? = null,
@@ -64,20 +68,19 @@ private constructor(
 
   internal fun getAllTaskData(): List<Task> = taskSet.toList()
 
-  private fun nextAvailableId() =
-      if (taskSet.none()) TaskId("A") else taskSet.maxOf { it.id }.next()
-
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
-  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.assignee, task.cause)
+  internal fun addTasks(task: PendingTask) =
+      addTasks(split(task.instruction), task.assignee, task.cause)
 
   internal fun addTasks(
       instruction: InstructionGroup,
       assignee: Actor,
       cause: Cause?,
   ): List<TaskAddedEvent> {
-    val newTasks = Task.newTasks(nextAvailableId(), assignee, instruction, cause, isAbstract)
+    val newTasks = Task.newTasks(TaskId(events.size), assignee, instruction, cause, isAbstract)
     return newTasks.map {
+      require(it.id.ordinal == events.size)
       val task = addToTaskSet(it)
       events.taskAdded(task)
     }
@@ -115,7 +118,6 @@ private constructor(
   // DIRECT MUTATORS
 
   private fun addToTaskSet(task: Task): Task {
-    require(task.id != TaskId("ZZ"))
     require(taskSet.none { it.id == task.id })
 
     // What an amazing sorted set implementation

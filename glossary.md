@@ -98,7 +98,7 @@
 - **System:** Engine-only machinery. It extends Hidden, cannot be created by a Player, and an
   unowned System occurrence does not implicitly restrict effect matching by its Actor.
 - **Task:** A unit of pending work containing an instruction, assignment, cause, and lifecycle metadata. It represents not only what *must* be done but what *may* be done.
-- **Task queue:** An assignee's unordered set of pending tasks; stable ID iteration only makes arbitrary choices reproducible.
+- **Task queue:** An assignee's unordered set of pending tasks; stable `TaskId` iteration only makes arbitrary choices reproducible.
 - **Task result:** The change events and newly spawned task IDs returned by a successful operation.
 - **Temporary:** A component type that must not remain after an operation's task queue drains.
 - **This:** A built-in, class-scoped contextual binding that remains late-bound as a declaration applies to subclasses and is fixed from the exact concrete component; in an effect trigger it instead denotes that component's own gain or removal event.

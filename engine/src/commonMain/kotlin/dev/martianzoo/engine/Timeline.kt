@@ -21,7 +21,7 @@ public interface Timeline {
    */
   public fun atomic(block: () -> Unit): TaskResult
 
-  public data class Checkpoint(internal val ordinal: Int) {
+  public data class Checkpoint(public val ordinal: Int) {
     init {
       require(ordinal >= 0)
     }
