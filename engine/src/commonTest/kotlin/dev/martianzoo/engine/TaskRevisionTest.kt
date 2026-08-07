@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 
 class TaskRevisionTest {
-  private val game = Engine.newGame(canonicalPremise(), TEST_CLASS_SYNONYMS)
+  private val game = Engine.newGame(canonicalPremise(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
 
   // Kinda gross
   private val tasks: TaskQueue = game.tasks

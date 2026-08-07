@@ -44,7 +44,7 @@ internal class PrepareTest {
   }
 
   private fun preprocessAndPrepare(unprepared: String): Instruction {
-    return instructor.prepare(preprocess(parse(unprepared)))
+    return instructor.prepare(preprocess(game.vocabulary.canonicalize(parse(unprepared))))
   }
 
   private fun checkPrepare(unprepared: String, expected: String?) {

@@ -3,7 +3,6 @@ package dev.martianzoo.types
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.pets.ClassSynonyms
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -19,18 +18,13 @@ import kotlin.test.Test
 
 internal class ClassTest {
   @Test
-  fun clientClassSynonymsAreOptIn() {
+  fun classLoadingDoesNotAcceptClientInputSynonyms() {
     val classes = parseClasses("CLASS Foo").toSetStrict()
     val ruleset =
         object : TfmRuleset.Empty() {
           override val explicitClassDeclarations = classes
         }
 
-    ClassLoader(ruleset, ClassSynonyms.of("F" to "Foo"))
-        .apply { load(cn("F")) }
-        .freeze()
-        .getClass(cn("F"))
-        .className shouldBe cn("Foo")
     shouldThrow<PetException> { ClassLoader(ruleset).load(cn("F")) }
   }
 

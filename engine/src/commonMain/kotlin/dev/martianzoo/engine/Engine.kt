@@ -6,7 +6,7 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.AutoExecMode.SAFE
-import dev.martianzoo.pets.ClassSynonyms
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.types.ClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
@@ -15,9 +15,10 @@ public object Engine {
   /** Creates a game at its committed pre-setup baseline, ready to be given to a workflow. */
   public fun newGame(
       premise: GamePremise,
-      classSynonyms: ClassSynonyms = ClassSynonyms.NONE,
+      locale: String = Vocabulary.ENGLISH,
+      inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
   ): World {
-    return newWorld(premise, classSynonyms)
+    return newWorld(premise, locale, inputOnlySynonyms)
   }
 
   /**
@@ -27,39 +28,50 @@ public object Engine {
   public fun newGame(
       setupWorld: World,
       assemble: (GameReader) -> GamePremise,
-      classSynonyms: ClassSynonyms = setupWorld.classSynonyms,
+      locale: String = setupWorld.vocabulary.locale,
+      inputOnlySynonyms: Iterable<Pair<String, String>> =
+          setupWorld.vocabulary.inputOnlySynonyms.map { (synonym, canonical) ->
+            synonym.toString() to canonical.toString()
+          },
   ): World {
     if (!setupWorld.isIdle()) throw TaskException("a completed setup world must be idle")
     setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
     if (!setupWorld.isIdle()) throw TaskException("setup validation did not leave the world idle")
-    return newGame(assemble(setupWorld.reader), classSynonyms)
+    return newGame(assemble(setupWorld.reader), locale, inputOnlySynonyms)
   }
 
   /** Creates a standalone setup world and resolves its choice-free initialization tasks. */
   public fun newSetupWorld(
       premise: GamePremise,
-      classSynonyms: ClassSynonyms = ClassSynonyms.NONE,
+      locale: String = Vocabulary.ENGLISH,
+      inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
   ): World =
-      newWorld(premise, classSynonyms).also {
+      newWorld(premise, locale, inputOnlySynonyms).also {
         with(it.gameplay(ENGINE)) {
           autoExecMode = SAFE
           autoExecNow()
         }
       }
 
-  private fun newWorld(premise: GamePremise, classSynonyms: ClassSynonyms): WholeWorld =
-      Wiring(premise, classSynonyms).createWorld()
+  private fun newWorld(
+      premise: GamePremise,
+      locale: String,
+      inputOnlySynonyms: Iterable<Pair<String, String>>,
+  ): WholeWorld = Wiring(premise, locale, inputOnlySynonyms).createWorld()
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
   internal class Wiring(
       private val premise: GamePremise,
-      private val classSynonyms: ClassSynonyms,
+      locale: String,
+      inputOnlySynonyms: Iterable<Pair<String, String>>,
   ) {
     init {
       require(ENGINE in premise.actors) { "Game premise must include $ENGINE as an actor" }
     }
 
-    private val classTable: ClassTable = ClassTable.forPremise(premise, classSynonyms)
+    private val vocabulary: Vocabulary =
+        Vocabulary.create(premise.ruleset, locale, inputOnlySynonyms)
+    private val classTable: ClassTable = ClassTable.forPremise(premise)
     private val transformers: Transformers = Transformers(classTable)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
@@ -102,7 +114,7 @@ public object Engine {
             timeline,
             reader,
             classTable,
-            classSynonyms,
+            vocabulary,
             gameplayByActor,
         )
 
@@ -126,6 +138,7 @@ public object Engine {
               tasks,
               classTable,
               transformers,
+              vocabulary,
               atomicOperationBoundary,
           )
       return gameplay

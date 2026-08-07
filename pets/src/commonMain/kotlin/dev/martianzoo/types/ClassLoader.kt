@@ -8,7 +8,6 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Ruleset
-import dev.martianzoo.pets.ClassSynonyms
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -27,17 +26,7 @@ public constructor(
      * found here.
      */
     internal val ruleset: Ruleset,
-    private val classSynonyms: ClassSynonyms = ClassSynonyms.NONE,
 ) : ClassTable() {
-  init {
-    val declaredNames =
-        ruleset.knownClassDeclarations.values.flatMap { listOf(it.className, it.shortName) }.toSet()
-    val conflicts = classSynonyms.mappings.keys.intersect(declaredNames)
-    require(conflicts.isEmpty()) {
-      "Class synonyms conflict with declared names or ids: $conflicts"
-    }
-  }
-
   private val cache = mutableMapOf<Expression, Type>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
@@ -56,10 +45,8 @@ public constructor(
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
 
   override fun findClass(name: ClassName): Class? {
-    val canonicalName = classSynonyms.canonicalName(name)
-    return if (canonicalName in loadedClasses) {
-      loadedClasses[canonicalName]
-          ?: throw PetException("Class-loading cycle involving $canonicalName")
+    return if (name in loadedClasses) {
+      loadedClasses[name] ?: throw PetException("Class-loading cycle involving $name")
     } else {
       null
     }
@@ -93,8 +80,8 @@ public constructor(
   // LOADING
 
   /**
-   * Returns the class whose [Class.className], programmatic [Class.shortName], or configured
-   * synonym is [name], loading it first if necessary.
+   * Returns the class whose [Class.className] or programmatic [Class.shortName] is [name], loading
+   * it first if necessary.
    */
   public fun load(name: ClassName): Class {
     if (!frozen) loadAll(listOf(name))
@@ -109,7 +96,7 @@ public constructor(
 
   private val queue = ArrayDeque<ClassName>()
 
-  /** Equivalent to calling [load] on every class name, id, or configured synonym in [names]. */
+  /** Equivalent to calling [load] on every class name or id in [names]. */
   private fun loadAll(names: Collection<ClassName>) {
     queue += names
     while (queue.isNotEmpty()) {
@@ -118,20 +105,16 @@ public constructor(
   }
 
   internal fun loadRelated(next: ClassName, active: Boolean): Class {
-    val canonicalName = classSynonyms.canonicalName(next)
-    if (canonicalName in loadedClasses) {
-      val loaded =
-          loadedClasses[canonicalName]
-              ?: throw PetException("Class-loading cycle involving $canonicalName")
+    if (next in loadedClasses) {
+      val loaded = loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
       if (active && loaded.phantom) {
         throw PetException("Class $next was already loaded as inactive")
       }
       return loaded
     }
-    val activeDeclaration = activeDeclaration(canonicalName)
+    val activeDeclaration = activeDeclaration(next)
     val declaration =
-        if (active) activeDeclaration ?: knownDeclaration(canonicalName)
-        else knownDeclaration(canonicalName)
+        if (active) activeDeclaration ?: knownDeclaration(next) else knownDeclaration(next)
     val phantom = !active || activeDeclaration == null
     if (!phantom) validateDependencyBounds(declaration)
     return construct(declaration, phantom).also {
@@ -199,8 +182,7 @@ public constructor(
       if (frozen) {
         getClass(idOrName)
       } else {
-        val canonicalName = classSynonyms.canonicalName(idOrName)
-        loadedClasses[canonicalName] ?: loadRelated(canonicalName, active = true)
+        loadedClasses[idOrName] ?: loadRelated(idOrName, active = true)
       }
 
   // All classes are created here (aside from Component and Class, at top).
@@ -249,9 +231,7 @@ public constructor(
       declarations: Map<ClassName, ClassDeclaration>,
       name: ClassName,
   ): ClassDeclaration? {
-    val canonicalName = classSynonyms.canonicalName(name)
-    return declarations[canonicalName]
-        ?: declarations.values.singleOrNull { it.shortName == canonicalName }
+    return declarations[name] ?: declarations.values.singleOrNull { it.shortName == name }
   }
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {

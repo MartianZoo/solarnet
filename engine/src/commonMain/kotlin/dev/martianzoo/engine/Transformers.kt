@@ -12,6 +12,7 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -44,6 +45,12 @@ public class Transformers(public val classTable: ClassTable) {
 
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
   private val resourceClassNames by lazy { Prod.findResourceClassNames(classTable) }
+
+  /** Rewrites session-localized input names to their canonical engine names. */
+  public fun canonicalize(vocabulary: Vocabulary): PetTransformer =
+      object : PetTransformer() {
+        override fun <P : PetNode> transform(node: P): P = vocabulary.canonicalize(node)
+      }
 
   /** Effects inherited by [klass], processed as far as possible without a concrete component. */
   internal fun classEffects(klass: Class): List<Effect> {

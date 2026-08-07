@@ -22,7 +22,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
 
   override fun withArgs(args: String): List<String> {
     val cardText = args.substringBefore(',').trim()
-    val cardName = cn(cardText)
+    val cardName = repl.game.vocabulary.canonicalName(cn(cardText))
     val kind = repl.game.reader.tfmRuleset.card(cardName).deck!!.className
     val payment = args.substringAfter(',', missingDelimiterValue = "").trim()
     val result =
@@ -34,7 +34,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
           if (choosingStandardAction) {
             TaskCommand(repl).withArgs("UseAction1<PlayCardSA>")
           }
-          TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardText>>")
+          TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardName>>")
           if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
         }
     return repl.describeExecutionResults(result)

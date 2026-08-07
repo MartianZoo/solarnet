@@ -15,7 +15,7 @@ private constructor(
     public val locale: String,
     private val displayNames: Map<ClassName, String>,
     private val petsNames: Map<ClassName, ClassName>,
-    public val inputOnlySynonyms: ClassSynonyms,
+    public val inputOnlySynonyms: Map<ClassName, ClassName>,
     private val inputNames: Map<ClassName, ClassName>,
 ) {
   /** Resolves a localized Pets name or input-only synonym to its stable canonical name. */
@@ -97,7 +97,7 @@ private constructor(
     public fun create(
         ruleset: Ruleset,
         locale: String = ENGLISH,
-        inputOnlySynonyms: ClassSynonyms = ClassSynonyms.NONE,
+        inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
     ): Vocabulary =
         create(
             canonicalNames = ruleset.allClassNames,
@@ -113,8 +113,18 @@ private constructor(
         displayNamesByLanguage: Map<String, Map<ClassName, String>>,
         derivedPetsNameClassNames: Set<ClassName> = canonicalNames,
         locale: String = ENGLISH,
-        inputOnlySynonyms: ClassSynonyms = ClassSynonyms.NONE,
+        inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
     ): Vocabulary {
+      val normalizedInputOnlySynonymPairs = inputOnlySynonyms.map { (synonym, canonical) ->
+        cn(synonym) to cn(canonical)
+      }
+      require(
+          normalizedInputOnlySynonymPairs.map { it.first }.distinct().size ==
+              normalizedInputOnlySynonymPairs.size
+      ) {
+        "Duplicate class synonym"
+      }
+      val normalizedInputOnlySynonyms = normalizedInputOnlySynonymPairs.toMap()
       val normalizedLocale = locale.replace('_', '-').lowercase()
       val normalizedLanguages = displayNamesByLanguage.mapKeys { (language) ->
         language.replace('_', '-').lowercase()
@@ -170,7 +180,7 @@ private constructor(
       effectivePetsNames.forEach { (canonical, petsName) ->
         register(petsName, canonical, "localized Pets name")
       }
-      inputOnlySynonyms.mappings
+      normalizedInputOnlySynonyms
           .filterValues { it in canonicalNames }
           .forEach { (synonym, canonical) ->
             register(synonym, canonical, "input-only synonym")
@@ -180,7 +190,7 @@ private constructor(
           normalizedLocale,
           effectiveDisplayNames,
           effectivePetsNames,
-          inputOnlySynonyms,
+          normalizedInputOnlySynonyms,
           inputOwners.filter { (input, canonical) -> input != canonical },
       )
     }

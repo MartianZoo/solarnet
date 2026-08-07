@@ -402,13 +402,14 @@ remained untouched, not merely whether it currently has the same number of event
 Before any instruction string reaches the engine, `ApiTranslation` runs it through a chain of
 `PetTransformer` passes (assembled once per player scope):
 
-1. **`useFullNames()`** — resolves client-configured class synonyms and structured-definition ids to canonical class names
-2. **`atomizer()`** — expands `3 Heat` (where Heat is `Atomized`) into `Multi(Heat, Heat, Heat)`,
+1. **`canonicalize(vocabulary)`** — resolves localized Pets names and client-configured input-only synonyms to canonical class names
+2. **`useFullNames()`** — resolves transitional structured-definition ids to canonical class names
+3. **`atomizer()`** — expands `3 Heat` (where Heat is `Atomized`) into `Multi(Heat, Heat, Heat)`,
    so that each unit triggers effects individually
-3. **`insertDefaults()`** — fills in omitted dependency arguments using the class's declared
+4. **`insertDefaults()`** — fills in omitted dependency arguments using the class's declared
    defaults (e.g., a bare `Plant` inside Player1's instruction becomes `Plant<Player1>`)
-4. **`replaceOwnerWith(player)`** — replaces the `Owner` placeholder with the actual acting player
-5. **`Prod.deprodify()`** — unwraps `PROD[...]` notation into actual production-component instructions
+5. **`replaceOwnerWith(player)`** — replaces the `Owner` placeholder with the actual acting player
+6. **`Prod.deprodify()`** — unwraps `PROD[...]` notation into actual production-component instructions
 
 This pipeline runs on every instruction string before it reaches `Implementations` or
 `Instructor`. Instructions already in Pets AST form (from inside the engine) skip the string
@@ -531,7 +532,8 @@ This design means:
 ## Wiring it all together
 
 `Engine.newGame()` delegates construction to `Engine.Wiring`, the engine's manual dependency-injection
-composition root. Game-level objects (`ClassTable`, `Effector`, `EventLog`, `ComponentGraph`, etc.)
+composition root. Each world owns a locale-specific `Vocabulary`; configured input-only synonyms
+are canonicalized there before type resolution and are not part of the `ClassTable`. Game-level objects (`ClassTable`, `Effector`, `EventLog`, `ComponentGraph`, etc.)
 are shared across all players. Each configured Actor gets its own
 `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` (the `Gameplay` implementation).
 The Engine Actor also supplies the `Initializer` used during bootstrap.

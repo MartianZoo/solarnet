@@ -130,7 +130,7 @@ class EllieGameTest : AbstractFullGameTest() {
   @Test
   fun earlyGameWithNoPrelude() {
     val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
-    val game = Engine.newGame(setup, TEST_CLASS_SYNONYMS)
+    val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 

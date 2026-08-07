@@ -8,7 +8,6 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.ClassSynonyms
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
@@ -29,10 +28,12 @@ import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
-    Engine.newGame(premise, TEST_CLASS_SYNONYMS).apply { TfmWorkflow.Manual(this).setupPhase() }
+    Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
+      TfmWorkflow.Manual(this).setupPhase()
+    }
 
-internal val TEST_CLASS_SYNONYMS: ClassSynonyms =
-    ClassSynonyms.of(
+internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
+    listOf(
         "P1" to "Player1",
         "P2" to "Player2",
         "P3" to "Player3",
@@ -85,7 +86,7 @@ internal fun canonicalPremise(
               Canon.GameOptions(options, excludedOptions),
               colonyTiles,
           ),
-          TEST_CLASS_SYNONYMS,
+          inputOnlySynonyms = TEST_CLASS_SYNONYMS,
       )
   setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
   val base = Canon.assemble(setupWorld.reader)
@@ -138,6 +139,7 @@ object TestHelpers {
     val preprocessor =
         with(Transformers(game.classTable)) {
           chain(
+              canonicalize(game.vocabulary),
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
               Prod.deprodify(classTable),

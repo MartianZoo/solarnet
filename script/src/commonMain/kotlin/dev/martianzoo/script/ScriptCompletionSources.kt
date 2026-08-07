@@ -97,7 +97,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   private fun classShortName(name: String): String? =
-      repl.game.classSynonyms.mappings.entries
+      repl.game.vocabulary.inputOnlySynonyms.entries
           .singleOrNull { it.value.toString() == name }
           ?.key
           ?.toString()

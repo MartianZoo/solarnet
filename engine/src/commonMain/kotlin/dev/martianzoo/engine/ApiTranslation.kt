@@ -13,6 +13,7 @@ import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
@@ -36,6 +37,7 @@ internal class ApiTranslation(
     private val tasks: TaskQueue,
     classTable: ClassTable,
     xers: Transformers,
+    vocabulary: Vocabulary,
     private val atomicOperationBoundary: AtomicOperationBoundary,
 ) : GodMode { // so it really implements all gameplay layers
 
@@ -74,6 +76,7 @@ internal class ApiTranslation(
 
   private val preprocessor =
       chain(
+          xers.canonicalize(vocabulary),
           xers.useFullNames(),
           xers.atomizer(),
           xers.insertDefaults(),

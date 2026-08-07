@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.pets.ClassSynonyms
-
-internal val TFM_SCRIPT_CLASS_SYNONYMS: ClassSynonyms =
-    ClassSynonyms.of(
+internal val TFM_SCRIPT_CLASS_SYNONYMS: List<Pair<String, String>> =
+    listOf(
         "P1" to "Player1",
         "P2" to "Player2",
         "P3" to "Player3",

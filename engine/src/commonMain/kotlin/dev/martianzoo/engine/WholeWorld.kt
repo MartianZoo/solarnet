@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor
-import dev.martianzoo.pets.ClassSynonyms
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.types.ClassTable
 
 /** The live, complete implementation of a [World]. */
@@ -14,7 +14,7 @@ internal constructor(
     override val timeline: Timeline,
     override val reader: GameReader,
     override val classTable: ClassTable,
-    override val classSynonyms: ClassSynonyms,
+    override val vocabulary: Vocabulary,
     private val gameplayByActor: Map<Actor, Gameplay>,
 ) : World {
   /** The exact event-backed state revision, including changes later rolled back. */

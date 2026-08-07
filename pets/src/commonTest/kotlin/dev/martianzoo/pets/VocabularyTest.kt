@@ -80,7 +80,12 @@ internal class VocabularyTest {
   @Test
   fun duplicateInputSynonymsAreRejected() {
     shouldThrow<IllegalArgumentException> {
-      ClassSynonyms.of(listOf("T" to "Titanium", "T" to "Temperature"))
+      Vocabulary.create(
+          setOf(cn("Titanium"), cn("Temperature")),
+          emptyMap(),
+          derivedPetsNameClassNames = emptySet(),
+          inputOnlySynonyms = listOf("T" to "Titanium", "T" to "Temperature"),
+      )
     }
   }
 
@@ -91,7 +96,7 @@ internal class VocabularyTest {
             setOf(cn("Titanium"), cn("TerraformRating")),
             emptyMap(),
             derivedPetsNameClassNames = emptySet(),
-            inputOnlySynonyms = ClassSynonyms.of("T" to "Titanium", "TR" to "TerraformRating"),
+            inputOnlySynonyms = listOf("T" to "Titanium", "TR" to "TerraformRating"),
         )
 
     vocabulary.canonicalName(cn("T")) shouldBe cn("Titanium")

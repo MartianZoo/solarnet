@@ -268,7 +268,7 @@ public class ScriptSession(
 
   internal fun player(name: String): Player {
     // In case a configured synonym or definition id was used
-    val type: Type = game.reader.resolve(cn(name).expression)
+    val type: Type = gameplay.resolve(name)
     return Player(type.className)
   }
 }
@@ -281,7 +281,7 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
               Canon.GameOptions(setup.options, setup.excludedOptions),
               setup.selectedColonies,
           ),
-          TFM_SCRIPT_CLASS_SYNONYMS,
+          inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
       )
   return Engine.newGame(setupWorld, Canon::assemble)
 }

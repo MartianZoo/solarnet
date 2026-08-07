@@ -204,6 +204,6 @@ internal class SetupWorldTest {
   ): World =
       Engine.newSetupWorld(
           Canon.setupWorldDefinition(players, options, selectedColonies),
-          TEST_CLASS_SYNONYMS,
+          inputOnlySynonyms = TEST_CLASS_SYNONYMS,
       )
 }

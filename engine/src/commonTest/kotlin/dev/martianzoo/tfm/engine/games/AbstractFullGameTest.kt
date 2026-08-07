@@ -22,7 +22,7 @@ abstract class AbstractFullGameTest : TfmTest() {
 
   @BeforeTest
   open fun commonSetup() {
-    game = Engine.newGame(setup(), TEST_CLASS_SYNONYMS)
+    game = Engine.newGame(setup(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     p1 = game.tfm(PLAYER1)
     if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
   }
