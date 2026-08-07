@@ -16,6 +16,8 @@ className         := upperCamelRE
 
 Type expressions are the heart of the PETS language. There are two kinds.
 
+Class declarations contain only their canonical UpperCamelCase name; the language has no short-name declaration syntax. An engine client can separately configure class synonyms for interactive input.
+
 ### Dependency-bearing type expression
 
 This can be as simple as `Player1` or as complex as `CityTile<Player2, MarsArea(HAS MAX 0 CityTile<Anyone>)>`. First

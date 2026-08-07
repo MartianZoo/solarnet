@@ -356,7 +356,7 @@ one operation are either fully committed or fully reversed.
 Before any instruction string reaches the engine, `ApiTranslation` runs it through a chain of
 `PetTransformer` passes (assembled once per player scope):
 
-1. **`useFullNames()`** — resolves short class aliases to canonical class names
+1. **`useFullNames()`** — resolves client-configured class synonyms and structured-definition ids to canonical class names
 2. **`atomizer()`** — expands `3 Heat` (where Heat is `Atomized`) into `Multi(Heat, Heat, Heat)`,
    so that each unit triggers effects individually
 3. **`insertDefaults()`** — fills in omitted dependency arguments using the class's declared

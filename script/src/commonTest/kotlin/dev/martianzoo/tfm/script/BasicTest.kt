@@ -21,7 +21,7 @@ internal fun setUpGame(
 
 internal class BasicTest {
   @Test
-  fun shortNames() {
+  fun configuredClassSynonyms() {
     val game = setUpGame()
     val session = game.tfm(PLAYER2).godMode()
 

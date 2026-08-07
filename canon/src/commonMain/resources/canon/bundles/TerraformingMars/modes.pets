@@ -40,7 +40,7 @@ CLASS SoloGenerationsLeft
 CLASS SoloVictoryCheck : Signal, System
 
 "The passive owner of the removable neutral stock in solo mode"
-CLASS SoloOpponent[OPP] : Owner {
+CLASS SoloOpponent : Owner {
   HAS MAX 1 This
   This: 99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
   This: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]

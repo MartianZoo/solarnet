@@ -39,7 +39,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   This: TerraformRating                                // transformed to `This BY Owner: TR<Owner>`
 
   "Represents 2 degrees C of temperature increase"
-  CLASS TemperatureStep[TEMP] {
+  CLASS TemperatureStep {
     HAS MAX 19 This
 
     This IF =3 This: PROD[Heat]
@@ -49,7 +49,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   }
 
   "Represents a 1% increase in oxygen level"
-  CLASS OxygenStep[O2] {
+  CLASS OxygenStep {
     HAS MAX 14 This
 
     This IF =8 This: TemperatureStep

@@ -68,7 +68,7 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       val ForcedPrecipitation = "ForcedPrecipitation"
       playProject("AsteroidCard", 2, titanium = 4) { doTask("-2 Plant<SoloOpponent>") }
-          .expect("TEMP, TR")
+          .expect("TemperatureStep, TR")
       playProject("PeroxidePower", 3, steel = 2)
       playProject(ForcedPrecipitation, 8)
       cardAction1(ForcedPrecipitation).expect("-2, Floater")
@@ -115,7 +115,7 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       stdAction("ConvertHeatSA").expect("-8 Resource, TR")
       cardAction1(SubCrustMeasurements).expect("ProjectCard")
-      cardAction2(RegolithEaters).expect("O2, TR")
+      cardAction2(RegolithEaters).expect("OxygenStep, TR")
       playProject("FueledGenerators", 1)
       playProject("EnergyTapping", 3) { doTask("PROD[-E<SoloOpponent>]") }
           .expect("PROD[E<P1>, -E<SoloOpponent>]")
@@ -222,7 +222,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(AiCentral)
       cardAction1(SubCrustMeasurements)
       cardAction2(ForcedPrecipitation)
-      stdAction("ConvertPlantsSA") { doTask("GT<Hellas_6_6>") }
+      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_6_6>") }
 
       val WaterSplittingPlant = "WaterSplittingPlant"
       playProject(WaterSplittingPlant, 5, steel = 3)
@@ -234,7 +234,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(EquatorialMagnetizer)
       playProject("ImportedGhg", 4)
       playProject("NitrogenRichAsteroid", 7, titanium = 7)
-      stdProject("GreenerySP") { doTask("GT<Hellas_7_7>") }
+      stdProject("GreenerySP") { doTask("GreeneryTile<Hellas_7_7>") }
       cardAction1(RegolithEaters)
 
       pass()

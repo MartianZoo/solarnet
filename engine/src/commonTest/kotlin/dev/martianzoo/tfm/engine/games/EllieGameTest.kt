@@ -5,6 +5,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -129,7 +130,7 @@ class EllieGameTest : AbstractFullGameTest() {
   @Test
   fun earlyGameWithNoPrelude() {
     val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
-    val game = Engine.newGame(setup)
+    val game = Engine.newGame(setup, TEST_CLASS_SYNONYMS)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 

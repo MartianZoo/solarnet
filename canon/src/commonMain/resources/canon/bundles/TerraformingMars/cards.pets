@@ -2,14 +2,14 @@
 ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed as cards are played
 
   "A generic card in your hand"
-  ABSTRACT CLASS CardBack[CB] {
+  ABSTRACT CLASS CardBack {
     CLASS CorporationCard                       // once a card is played and becomes a CardFront,
     CLASS ProjectCard                           // nothing in the game ever cares what kind of a
                                                 // CardBack it used to be... well, that USED to be
   }                                             // true until "Double Down" in Dec 2022
 
   "A card in play: face-up on the table"
-  ABSTRACT CLASS CardFront[CF] {                // specific CardFronts come from `cards.json5`
+  ABSTRACT CLASS CardFront {                    // specific CardFronts come from `cards.json5`
     "A blue *project* card"
     ABSTRACT CLASS ActiveCard
 
@@ -26,7 +26,7 @@ ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed a
   }
 
   "A card in your played-events pile"
-  CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be Class<EventCard>, all thanks to PharmU
+  CLASS PlayedEvent<Class<CardFront>> {         // Can't be Class<EventCard>, all thanks to PharmU
     End: GetEventVps<Class<CardFront>>
   }
 }
@@ -59,16 +59,16 @@ ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
   ABSTRACT CLASS Tag : Atomized {
     HAS MAX 2 This
 
-    CLASS BuildingTag[BUT], SpaceTag[SPT], CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
+    CLASS BuildingTag, SpaceTag, CityTag, PowerTag, ScienceTag
 
-    ABSTRACT CLASS BioTag { CLASS PlantTag[PLT], MicrobeTag[MIT], AnimalTag[ANT] }
+    ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }
 
-    ABSTRACT CLASS PlanetTag { CLASS EarthTag[EAT], JovianTag[JOT] }
+    ABSTRACT CLASS PlanetTag { CLASS EarthTag, JovianTag }
   }
 
   // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.
   "A resource cube living on some particular card, such as `Animal<Pets>`"
-  ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>> {
+  ABSTRACT CLASS CardResource : Resource, Cardbound<ResourceCard<Class<This>>> {
     DEFAULT +CardResource.
   }
 }

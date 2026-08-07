@@ -211,19 +211,6 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
-    val shortName = RESOURCE_SHORT_NAMES[type]
-    val shortNameClause = shortName?.let { "[$it]" }.orEmpty()
-    parseOneLinerClass("CLASS $type$shortNameClause : CardResource")
-  }
-
-  private companion object {
-    val RESOURCE_SHORT_NAMES =
-        mapOf(
-            cn("Animal") to cn("ANI"),
-            cn("Microbe") to cn("MIC"),
-            cn("Science") to cn("SCI"),
-            cn("Floater") to cn("FLO"),
-            cn("Asteroid") to cn("AST"),
-        )
+    parseOneLinerClass("CLASS $type : CardResource")
   }
 }

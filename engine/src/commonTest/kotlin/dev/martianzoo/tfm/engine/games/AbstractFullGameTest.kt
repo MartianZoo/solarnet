@@ -5,6 +5,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -21,7 +22,7 @@ abstract class AbstractFullGameTest : TfmTest() {
 
   @BeforeTest
   open fun commonSetup() {
-    game = Engine.newGame(setup())
+    game = Engine.newGame(setup(), TEST_CLASS_SYNONYMS)
     p1 = game.tfm(PLAYER1)
     if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
   }
@@ -53,34 +54,6 @@ abstract class AbstractFullGameTest : TfmTest() {
     assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront OR PlayedEvent")
     assertActions(actions)
     assertVps(vp)
-  }
-
-  protected fun TfmGameplay.assertTags(
-      but: Int = 0,
-      spt: Int = 0,
-      sct: Int = 0,
-      pot: Int = 0,
-      eat: Int = 0,
-      jot: Int = 0,
-      vet: Int = 0,
-      plt: Int = 0,
-      mit: Int = 0,
-      ant: Int = 0,
-      cit: Int = 0,
-  ) {
-    assertCounts(
-        but to "BuildingTag",
-        spt to "SpaceTag",
-        sct to "ScienceTag",
-        pot to "PowerTag",
-        eat to "EarthTag",
-        jot to "JovianTag",
-        plt to "PlantTag",
-        mit to "MicrobeTag",
-        ant to "AnimalTag",
-        cit to "CityTag",
-        vet to "VenusTag",
-    )
   }
 
   protected fun TfmGameplay.assertDashRight(
@@ -143,4 +116,32 @@ abstract class AbstractFullGameTest : TfmTest() {
   private fun TfmGameplay.assertActions(expected: Int) {
     count("ActionCard") - count("ActionUsedMarker") shouldBe expected
   }
+}
+
+internal fun TfmGameplay.assertTags(
+    but: Int = 0,
+    spt: Int = 0,
+    sct: Int = 0,
+    pot: Int = 0,
+    eat: Int = 0,
+    jot: Int = 0,
+    vet: Int = 0,
+    plt: Int = 0,
+    mit: Int = 0,
+    ant: Int = 0,
+    cit: Int = 0,
+) {
+  assertCounts(
+      but to "BuildingTag",
+      spt to "SpaceTag",
+      sct to "ScienceTag",
+      pot to "PowerTag",
+      eat to "EarthTag",
+      jot to "JovianTag",
+      plt to "PlantTag",
+      mit to "MicrobeTag",
+      ant to "AnimalTag",
+      cit to "CityTag",
+      vet to "VenusTag",
+  )
 }

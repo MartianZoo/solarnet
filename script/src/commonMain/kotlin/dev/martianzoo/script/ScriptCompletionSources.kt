@@ -21,10 +21,13 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
 
   fun classNames(): List<ScriptCompletion> =
       repl.game.classTable.allClasses().flatMap {
-        setOf(
-            ScriptCompletion(it.className.toString(), "classes", it.docstring),
-            ScriptCompletion(it.shortName.toString(), "classes", it.className.toString()),
-        )
+        listOfNotNull(
+                ScriptCompletion(it.className.toString(), "classes", it.docstring),
+                classShortName(it.className.toString())?.let { shortName ->
+                  ScriptCompletion(shortName, "classes", it.className.toString())
+                },
+            )
+            .distinct()
       }
 
   fun paymentWords(): List<ScriptCompletion> {
@@ -33,9 +36,11 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
         .allClasses()
         .filter { it.className.toString() in standards }
         .flatMap {
-          listOf(
+          listOfNotNull(
               ScriptCompletion(it.className.toString(), "resources"),
-              ScriptCompletion(it.shortName.toString(), "resources", it.className.toString()),
+              classShortName(it.className.toString())?.let { shortName ->
+                ScriptCompletion(shortName, "resources", it.className.toString())
+              },
           )
         }
   }
@@ -71,7 +76,6 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       classNames() +
           playerNames() +
           syntaxWords(
-              "ANY",
               "Anyone",
               "Class",
               "FROM",
@@ -93,11 +97,15 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   private fun classShortName(name: String): String? =
-      repl.game.classTable
-          .allClasses()
-          .firstOrNull { it.className.toString() == name }
-          ?.shortName
+      repl.game.classSynonyms.mappings.entries
+          .singleOrNull { it.value.toString() == name }
+          ?.key
           ?.toString()
+          ?: repl.game.classTable
+              .allClasses()
+              .firstOrNull { it.className.toString() == name && it.shortName != it.className }
+              ?.shortName
+              ?.toString()
 
   private fun String.removeSuffixIfPresent(suffix: String): String? =
       if (endsWith(suffix) && length > suffix.length) removeSuffix(suffix) else null

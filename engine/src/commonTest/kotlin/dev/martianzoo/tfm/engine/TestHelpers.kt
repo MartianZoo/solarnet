@@ -8,6 +8,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ClassSynonyms
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
@@ -28,7 +29,24 @@ import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
-    Engine.newGame(premise).apply { TfmWorkflow.Manual(this).setupPhase() }
+    Engine.newGame(premise, TEST_CLASS_SYNONYMS).apply { TfmWorkflow.Manual(this).setupPhase() }
+
+internal val TEST_CLASS_SYNONYMS: ClassSynonyms =
+    ClassSynonyms.of(
+        "P1" to "Player1",
+        "P2" to "Player2",
+        "P3" to "Player3",
+        "P4" to "Player4",
+        "P5" to "Player5",
+        "M" to "Megacredit",
+        "S" to "Steel",
+        "T" to "Titanium",
+        "P" to "Plant",
+        "E" to "Energy",
+        "H" to "Heat",
+        "TR" to "TerraformRating",
+        "VP" to "VictoryPoint",
+    )
 
 internal fun setUpGame(
     vararg selectedOptions: OptionSelection,
@@ -66,7 +84,8 @@ internal fun canonicalPremise(
               players,
               Canon.GameOptions(options, excludedOptions),
               colonyTiles,
-          )
+          ),
+          TEST_CLASS_SYNONYMS,
       )
   setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
   val base = Canon.assemble(setupWorld.reader)

@@ -726,7 +726,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.declineSecondAction()
 
     // Player1 used Convert Heat standard action
-    p1.stdAction("ConvertHeatSA").expect("-8H, TEMP, TR")
+    p1.stdAction("ConvertHeatSA").expect("-8H, TemperatureStep, TR")
     // Player1 played Stratospheric Birds
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
     p1.playProject("StratosphericBirds", 12).expect("-Floater<DeuteriumExport>")
@@ -824,7 +824,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's plants amount increased by 2
     // Player2 gained 2 plants from Arctic Algae
     p1.playProject("MoholeLake", 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
-        .expect("7 Plant, TEMP, 2 TR<P1>, -7")
+        .expect("7 Plant, TemperatureStep, 2 TR<P1>, -7")
     // Player1 claimed Terraformer milestone
     p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer") }.expect("-8")
 

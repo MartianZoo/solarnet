@@ -43,6 +43,7 @@ internal class ScriptCompletionEngineTest {
   fun completesPetsClassNamesInsideExpressions() {
     assertContainsAll(values("exec PROD[Pla"), "PROD[Plant", "PROD[PlantTag")
     assertTrue("Class<ProjectCard" in values("count Class<Pro"))
+    assertContainsAll(values("tfm_pay M"), "M", "Megacredit")
   }
 
   @Test

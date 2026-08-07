@@ -43,6 +43,7 @@ import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.script.TFM_SCRIPT_CLASS_SYNONYMS
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
 import dev.martianzoo.tfm.script.TfmColor.HEAT
@@ -247,7 +248,7 @@ public class ScriptSession(
   }
 
   internal fun player(name: String): Player {
-    // In case a shortname was used
+    // In case a configured synonym or definition id was used
     val type: Type = game.reader.resolve(cn(name).expression)
     return Player(type.className)
   }
@@ -260,7 +261,8 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
               setup.players,
               Canon.GameOptions(setup.options, setup.excludedOptions),
               setup.selectedColonies,
-          )
+          ),
+          TFM_SCRIPT_CLASS_SYNONYMS,
       )
   return Engine.newGame(setupWorld, Canon::assemble)
 }
