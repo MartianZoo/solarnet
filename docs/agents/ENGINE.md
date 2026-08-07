@@ -128,6 +128,19 @@ Triggered work is represented as `PendingTask` until it is actually admitted to 
 handled inline never receives a task id. A split instruction and a `THEN` tail create new tasks and
 therefore receive the ordinals of their own add events.
 
+For nonautomatic effects, `Effector` currently assigns a `PendingTask` first to the Player owning
+the effect-bearing component, otherwise to the Player owning the changed component, and otherwise
+to the triggering Actor. Contextual `Owner` specialization is calculated separately. This broad
+compatibility policy is observable behavior: it gives Player2 Philares's resource choice when
+Player1 creates the adjacency, distributes Enceladus card-resource choices to colony owners, and
+helps the generated per-Player Splice watchers give each tag owner their choice. These cases are
+covered by integration tests and are not known gameplay failures.
+
+Instruction-side `BY` does not change this assignment. It is only a performer override. World
+Government Terraforming therefore works because the StartToken Owner is already the task assignee
+while `BY Engine` attributes the selected increase to Engine. Icy Impactors uses the same separation
+between the Player choosing a task and the Actor performing its ocean placement.
+
 The script module separately assigns letter selection handles only when it presents tasks to a user
 or offers task completions. A handle remains attached while its task is pending. Once no
 lettered task remains pending, the next requested handle starts again at `A`; tasks completed by
@@ -136,7 +149,15 @@ timeline so rollback restores both prior handles and tasks that had not yet rece
 
 Task assignment and queue membership are the same fact: an assignee's scoped view contains that
 assignee's tasks. This remains true if the physical implementation is one collection with filtered
-views. Do not introduce another queue-control identity.
+views. Do not introduce another identity field on every task merely to model temporary workflow
+control.
+
+There is currently no queue-suspension graph or parent/child control-scope state. A globally
+prepared task locks out preparation of every competing task, which protects isolated cross-Actor
+choices but does not describe a complete delegated turn. `TfmWorkflow.Auto` instead starts each
+Player operation directly and waits for whole-world idleness. Native workflow will need an explicit
+control-scope completion mechanism before it can retain an Engine continuation while Player work
+remains active; see [IDENTITY.md](IDENTITY.md) and [WORKFLOW.md](WORKFLOW.md).
 
 Tasks are fundamentally a **unit of assignee choice**, in two ways. First, the assignee gets to
 choose which of their tasks to prepare (a very interesting feature of this particular game's rules).

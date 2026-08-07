@@ -1,121 +1,85 @@
-# Linkages
+# Type Variable Follow-ups
 
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
-## Goal
+## Scope
 
-Make authored equality constraints coherent across Pets: linked type or scalar occurrences narrow
-together, independent choices remain independent, and task splitting preserves unresolved links.
+The evergreen type-variable model lives in
+[TYPES.md](TYPES.md#10-implicit-type-variables). This plan records only the work still needed to
+make class signatures, signature-to-effect propagation, argument canonicalization, and complements
+conform to that model.
 
-Keep `This` as a distinct contextual binding rather than forcing every related mechanism into one
-public abstraction.
+The general runtime already preserves authored type variables through effects, actions, task
+revision and splitting, atomic transmutation, and incremental `THEN` execution. The working cards
+and rules using those paths are regression constraints, not unfinished linkage work. In particular,
+Splice works through its generated `Splicer<Player>` components; replacing those is optional data
+cleanup involving task assignment, not a prerequisite for completing type variables.
 
-The language rules are in
-[the type-system walkthrough](TYPES.md#13-implicit-type-variables). This plan
-records the design rationale and implementation boundaries.
+## Remaining divergences
 
-## Findings
+The precise current behaviors are cataloged in
+[TYPES.md](TYPES.md#12-known-divergences). The type-variable project owns these parts:
 
-The intended concept already appears in several implementations that do not share a model:
+1. **Sibling dependency branches link accidentally.** Nested occurrences in separate arguments of
+   one `<...>` list can share a variable, including distinct class-literal slots that all use the
+   `Class_0` key. Those branches must remain independent.
+2. **Class signatures recognize only bare class names.** A repeated authored bound carrying
+   arguments, a refinement, or a complement should link as one maximal expression when abstract.
+   The current signature-specific mechanism instead reaches inside it.
+3. **Signature-to-effect propagation substitutes class names globally.** It can rewrite expressions
+   the source did not link, and it silently skips a name that maps to conflicting replacements.
+   Propagation should target exact authored occurrence paths and reject disagreement.
+4. **Equivalent authored argument orders do not match.** Explicit arguments must be associated with
+   dependency keys before repetition matching so unambiguous reorderings share a variable.
+5. **Complements interact inconsistently with recognition.** A root complement is excluded from
+   ordinary matching, but an expression containing a nested complement can still link. Class
+   signatures also need complemented bounds to participate only according to the final complement
+   model.
 
-- class loading groups repeated simple bounds for the same dependency key;
-- class loading separately records dependency paths containing `This` so that subclassing
-  does not turn a late-bound placeholder into a fixed class literal;
-- component-effect and linked trigger narrowing substitute by class name, with an agreement
-  check when several occurrences are found;
-- component effects replace `This` from their exact concrete component, while the special
-  self triggers `This:` and `-This:` use changed-count rather than active-effect multiplicity;
-- `THEN` keeps every `X` together and validates scalar values by traversal-order pairing;
-- task creation splits an ordinary `THEN`, which loses repeated type choices that have not
-  yet been narrowed.
+Complement narrowing and preservation have defects beyond type-variable recognition. Do not solve
+them incidentally here. Settle the complement domain/difference-type model described in `TYPES.md`
+and `TODO.md` before finalizing complemented variable behavior.
 
-These mechanisms explain the current successes, but none records why two occurrences are
-the same choice. Matching after type resolution would be too broad. Defaults already make
-`Tile` equal to `Tile<Area>`, for example, while those spellings need not express the same
-choice. Parser-inserted bare-resource notation creates similar false candidates.
+## Implementation direction
 
-The proposed direction is therefore source-based recognition: compare parsed authored
-trees after expanding aliases and assigning explicitly written bounds to their dependency
-keys, but before defaults and preprocessing. Preserve omission and the
-authored refinement/complement tree. Prefer maximal repeated expressions, so a linked
-composite does not also manufacture linkages for all of its descendants.
+1. Extract or extend one authored-expression recognizer shared by runtime scopes and class
+   signatures. Give each scope explicit region rules rather than inferring scope from dependency
+   keys alone.
+2. Canonicalize explicitly written dependency arguments by key before comparing authored trees.
+   Preserve omission, refinements, complements, and source structure introduced before defaults or
+   lowering.
+3. Make class-signature recognition select maximal repeated abstract expressions. Keep separately
+   declared dependency roots and sibling argument branches independent; preserve the intended link
+   only when a class repeats a bound at distinct positions of the same inherited dependency.
+4. Retain the recognized occurrence paths from a class signature into its effects. Narrow only
+   those paths when a concrete component specializes the class, resolving every containing
+   expression and reporting inconsistent bindings.
+5. Remove the old bare-name signature matcher and broad signature-to-effect substitution only after
+   behavioral parity is established.
+6. Integrate complemented expressions after the complement model is settled, then remove any
+   temporary exclusions or special cases made obsolete by that model.
 
-## Canon audit
+## Regression constraints
 
-The audit covered every class declaration loaded by `Canon`, working card and engine tests,
-dormant card source, `TODO.md`, and the relevant GitHub issues.
+Preserve all existing behavior while replacing the older mechanisms:
 
-| Result under the proposed rules | Canon cases |
-| --- | --- |
-| Preserved | `Cardbound`, `Trade`, and `Cathedral` class-signature links; dependency-to-effect narrowing including `Production`, `PlayCard`, `PlayedEvent`, `PaymentMechanic`, `Colony`, and `DelayedColonyTile`; linked trigger narrowing including Manutech, Viral Enhancers, colony trading, Splice, Trade Envoys, and Trading Colony; every working-canon `X` linkage |
-| Newly recognized in loaded canon | Kaguya Tech's nested `LandArea`; the use-card action's `ActionCard`; behavior-neutral repetitions on Mining Rights and Sponsored Academies |
-| Newly recognized in canon | Flooding's `Anyone` and Utopia Invest's `StandardResource` |
-| Contextual rather than repetition-created | late-bound `Class<This>` in `CardResource`; self-bound invariants such as `HAS MAX 1 This`; the many card-resource effects such as `Microbe<This>` and `Floater<This>`; `This:` and `-This:` self triggers |
-| Intentionally not recognized | the separately declared dependencies of `Adjacency<Tile, Tile>` and `Neighbor<Tile<MarsArea>, MarsArea>`; sibling dependency branches such as `Pair<Class<Component>, Class<Component>>`; the two complete operands of Market Manipulation's `ColonyProduction FROM ColonyProduction`; comma siblings; `OR` siblings; repetitions created only by defaults or preprocessing |
-| Needs clearer source | Each solo setup pair intends the placed city, not the greenery's area, to be reused. Spell the later reference as `CityTile<LandArea>` so the maximal repeated expression says exactly that; the current bare `CityTile` should not become linked merely because its default is `LandArea` |
+- class-signature cases including `Cardbound`, `Trade`, and `Cathedral`;
+- signature-to-effect specialization for `Production`, `PlayCard`, `PlayedEvent`,
+  `PaymentMechanic`, `Colony`, and `DelayedColonyTile`;
+- runtime trigger cases including Manutech, Viral Enhancers, colony trading, Splice, Trade Envoys,
+  and Trading Colony;
+- action, transmutation, and incremental `THEN` linkage behavior, including Flooding, Utopia
+  Invest, Kaguya Tech, Cyberia, and the use-card action; and
+- independent choices in `Adjacency`, sibling dependency branches, Market Manipulation, comma
+  siblings, and `OR` arms.
 
-The working scalar cases are Carbon Nanosystems (two effects), Dirigibles, Energy Market,
-Martian Lumber Corp, Power Infrastructure, Psychrophiles, Sell Patents, Sulphur-Eating
-Bacteria, and Titan Shuttles: ten effect/action occurrences across nine definitions.
+Add focused negative tests for each remaining divergence before removing its old implementation.
+Tests should assert observable narrowing and execution behavior rather than internal occurrence
+tables.
 
-Regression tests now assert the corrected Kaguya Tech, solo setup, and use-card action
-outcomes: disagreement is rejected and linked tails are narrowed.
+## Completion condition
 
-This audit finds no intended existing linkage that the source rule must discard. It does
-identify behaviors currently obtained from broad class-name substitution rather than a
-real linkage; parity tests must distinguish those from defaults, contextual `Owner`/`This`
-binding, and other non-linkage transformations before the heuristic is removed.
-
-The primary issue trail is [#12](https://github.com/MartianZoo/solarnet/issues/12) for
-`THEN`, [#37](https://github.com/MartianZoo/solarnet/issues/37) for class signatures, and
-[#29](https://github.com/MartianZoo/solarnet/issues/29) for incremental `THEN` execution.
-
-## Runtime model
-
-The AST retains only the authored type expressions needed after lowering. At a narrowing boundary,
-the runtime rediscovers their exact occurrence paths and applies one choice to the whole group.
-Repeated `X`, class dependency equality, and `This` paths remain focused mechanisms rather than
-variants of a public generic model. `Owner` substitution is also separate.
-
-The class loader's `selfBindings` paths remain separate from repeated-expression detection.
-Likewise, the special self trigger remains an event selector rather than an ordinary expression
-match.
-
-Narrowing should constrain the linkage once, substitute the result into every occurrence,
-and validate every containing expression. Conflicting constraints fail as one operation.
-No behavior should depend on AST traversal order.
-
-A task boundary is splittable exactly when no unresolved linkage crosses it. If executing
-or choosing the head fixes a crossing linkage, rewrite the tail with that value before
-splitting. Linkages already fixed while binding a component effect or matching a
-trigger do not keep later instructions artificially joined.
-
-Do not add explicit linkage syntax initially. If later canon needs two differently
-structured expressions to share only part of a choice, add a named binding construct
-rather than broadening recognition to semantic type equality.
-
-Effects freeze linked source expressions before transformation and specialize only those exact
-expressions. Actions preserve the same information across cost/result lowering. Atomic
-transmutations and `THEN` progression enforce their crossing links directly. Flooding and Utopia
-Invest are enabled, and Cyberia uses the first copy choice to specialize its later stages.
-
-## Boundaries
-
-- Linkages come from authored source equality, never equality introduced by defaults or lowering.
-- Recognition is maximal, except that a nested expression remains linked when it also occurs
-  outside the maximal expression.
-- Comma and `OR` siblings stay independent. `THEN`, action cost/result, effect trigger/result, and
-  the two sides of an atomic transmutation are linkage boundaries.
-- Trigger specialization is exact to the declared linked expressions; contextual `Owner`
-  substitution is applied separately.
-- If canon eventually needs differently structured expressions to share only part of a choice,
-  add explicit named binding syntax instead of broadening implicit recognition.
-
-The essential tests are behavioral: linked choices must reject disagreement, independent
-choices must still diverge, and a `THEN` must split as soon as every crossing linkage is
-fixed. Market Manipulation, `Adjacency`, and ordinary incremental `THEN` execution are the
-negative regression cases.
-
-For `This`, integration tests should prove that a supertype's `Class<This>` follows the
-concrete subclass, an explicit class literal stays fixed, and a self trigger scales with
-the changed count but not with pre-existing component multiplicity.
+This plan is complete when class signatures use the shared authored-expression model, effects
+specialize only the exact variables declared by their signatures, unambiguous argument order is
+canonicalized, complemented variables follow the settled complement semantics, and the known
+divergences relevant to type variables have been removed from `TYPES.md`.

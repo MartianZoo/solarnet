@@ -11,6 +11,20 @@ know which expansions insert phases.
 
 This file is authoritative for phase ordering and terminal behavior.
 
+## Current status
+
+`TfmWorkflow.Auto` currently implements the complete coarse game loop in Kotlin. It starts a
+Player's turn operation directly and suspends its coroutine while the **whole world** is not idle:
+any task or temporary component keeps it waiting. This is sufficient for the current game and is
+covered by workflow, card, and whole-game tests. World Government Terraforming, Philares, Splice,
+Icy Impactors, and Enceladus are working behaviors; none is waiting on native workflow or a new
+delegation mechanism.
+
+The native workflow vocabulary, compiled precedence graph, and control-scope mechanism below are
+not implemented. They are an architectural replacement for the Kotlin phase sequencer, not a fix
+for those cards. See [IDENTITY.md](IDENTITY.md) for the exact current distinction between task
+assignment, instruction-side performer overrides, and the remaining control-until-drain problem.
+
 ## Correct phase requirements
 
 The coarse workflow is:
@@ -104,11 +118,16 @@ Phases or subphases may be game components because they represent the game's cur
 rules context. Pending work, readiness, and waiting belong to Tasks and should not be duplicated as
 components merely to tell the engine that something remains to be done.
 
-When Engine gives a Player a turn, this is control-until-drain rather than the one-instruction
-`BY` operation described in [IDENTITY.md](IDENTITY.md). Engine keeps its
-continuation task in its suspended queue; consequences of the Player's work remain in the Player's
-queue; and Engine resumes only after that queue drains and any nested delegation has returned. The
-workflow must therefore not depend on Engine's queue becoming physically empty.
+When a future native workflow gives a Player a turn, it needs control-until-drain semantics.
+Instruction-side `BY` cannot express this: it changes only who performs an instruction, without
+changing the task assignee or creating a control scope. The intended result is that Engine retains
+a temporarily nonactionable continuation, consequences of the Player's work remain within the
+Player's turn scope, and Engine resumes after that scope and any nested cross-owner choice drain.
+The native workflow must therefore not use whole-world idleness as its completion condition.
+
+Queue suspension is only one candidate representation. The required semantics may instead be
+implemented with execution frames or explicit continuations; current task queues have no
+suspension relationship.
 
 ## Proposed Pets shape
 
@@ -212,11 +231,10 @@ CLASS SolarPhase {
 ```
 
 `StepComplete` does not itself solve player iteration. Action turns, Prelude plays, and final
-greenery still require the control-until-drain operation described in `IDENTITY.md`.
-Those rules should create ordinary turn work and delegate its control to a Player; once that
-Player's control scope drains, Engine's suspended phase continuation resumes. The runner must use
-that control-scope completion, not whole-world queue emptiness, as the condition for emitting
-`StepComplete`.
+greenery still require the proposed control-until-drain operation described in `IDENTITY.md`.
+Those rules should create ordinary turn work and establish a Player control scope; once that scope
+drains, Engine's continuation resumes. The runner must use that completion, not whole-world queue
+emptiness, as the condition for emitting `StepComplete`.
 
 ## Implementation direction
 
@@ -227,7 +245,8 @@ that control-scope completion, not whole-world queue emptiness, as the condition
    requirement-selected branch, and termination.
 3. Move the coarse Terraforming Mars phase graph into Pets, including expansion-owned precedence
    constraints and the multiplayer/solo terminal branches.
-4. Implement control-until-drain and express corporation, Prelude, action, and final-greenery turns
-   as component behavior.
+4. Define and implement control-until-drain for native Player turns, preserving the existing
+   cross-owner card tests rather than rewriting those cards as prerequisites. Then express
+   corporation, Prelude, action, and final-greenery turns as component behavior.
 5. Migrate callers to the generic runner and ordinary manual instructions, then delete both
    `TfmWorkflow.Auto` and `TfmWorkflow.Manual`.
