@@ -1,106 +1,105 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Timeline.Checkpoint
 
 /**
  * A complete record of everything that happened in a particular game (in progress or finished),
- * optionally continuing a captured prefix held by [startingSequence]. A complete world could be
+ * optionally continuing a captured prefix held by [prefixSource]. A complete world could be
  * reconstructed by replaying these events.
  *
- * Events appended later to [startingSequence] are not part of this log. The captured events must
- * not be rolled back while this log exists.
+ * Events appended later to [prefixSource] are not part of this log. The captured events must not be
+ * rolled back while this log exists.
+ *
+ * [record] and [rollBackTo] are the single boundary between live state and its history. Callers
+ * supply the corresponding state mutation, which succeeds before the history and [revision] advance
+ * together.
  */
-public class EventLog internal constructor(private val startingSequence: EventLog? = null) {
-  private val startingSize = startingSequence?.entriesSince(Checkpoint(0))?.size ?: 0
-  private val startingSetupSize = startingSequence?.entriesSinceSetup()?.size ?: 0
+public class EventLog internal constructor(private val prefixSource: EventLog? = null) {
+  private val prefixSize: Int = prefixSource?.size ?: 0
   private val events: MutableList<GameEvent> = mutableListOf()
 
   internal val size: Int
-    get() = startingSize + events.size
+    get() = prefixSize + events.size
 
-  internal val firstLocalOrdinal: Int = startingSize
+  /** The ordinal required for the next event recorded in this history. */
+  internal val nextOrdinal: Int
+    get() = size
 
-  private var start: Checkpoint? = startingSequence?.let {
-    Checkpoint(startingSize - startingSetupSize)
+  internal val firstLocalOrdinal: Int = prefixSize
+
+  internal var revision: WorldRevision = WorldRevision.INITIAL
+    private set
+
+  private var setupStart: Checkpoint? = prefixSource?.let { checkNotNull(it.setupStart) }
+
+  /**
+   * Applies [applyToState], then appends [entry] and advances the world's revision. If the state
+   * update fails, history and revision remain unchanged.
+   */
+  internal fun <E : GameEvent> record(entry: E, applyToState: () -> Unit): E {
+    require(entry.ordinal == nextOrdinal) {
+      "expected event ordinal $nextOrdinal, got ${entry.ordinal}"
+    }
+    applyToState()
+    events += entry
+    revision = revision.next()
+    return entry
   }
 
-  internal fun eventsToRollBack(ordinal: Int): List<GameEvent> {
-    require(ordinal >= firstLocalOrdinal)
-    return events.subList(ordinal - startingSize, events.size).toList()
-  }
-
-  internal fun removeEventsFrom(ordinal: Int) {
-    require(ordinal >= firstLocalOrdinal)
-    events.subList(ordinal - startingSize, events.size).clear()
+  /** Reverses local events back to [ordinal], advancing the revision after each reversal. */
+  internal fun rollBackTo(ordinal: Int, reverseInState: (GameEvent) -> Unit) {
+    require(ordinal >= firstLocalOrdinal) { "can't roll back into captured history at $ordinal" }
+    require(ordinal <= size) { "can't roll back past the end of history at $ordinal" }
+    while (size > ordinal) {
+      val entry = events.last()
+      reverseInState(entry)
+      events.removeAt(events.lastIndex)
+      revision = revision.next()
+    }
   }
 
   /** Returns all change events since engine initialization concluded, including game setup. */
   public fun changesSinceSetup(): List<ChangeEvent> =
       entriesSinceSetup().filterIsInstance<ChangeEvent>()
 
-  internal fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(start))
+  internal fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
 
   /** Returns all change events since [checkpoint]. */
   internal fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
-  /** Returns the ids of all tasks created since [checkpoint] that still exist. */
-  internal fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> = buildSet {
-    entriesSince(checkpoint).forEach {
-      when (it) {
-        is TaskAddedEvent -> add(it.task.id)
-        is TaskRemovedEvent -> remove(it.task.id)
-        else -> {}
-      }
-    }
-  }
-
   public fun entriesSince(checkpoint: Checkpoint): List<GameEvent> {
     require(checkpoint.ordinal <= size)
-    if (checkpoint.ordinal >= startingSize) {
-      return events.subList(checkpoint.ordinal - startingSize, events.size).toList()
+    if (checkpoint.ordinal >= prefixSize) {
+      return events.subList(checkpoint.ordinal - prefixSize, events.size).toList()
     }
 
     val startingEntries =
-        checkNotNull(startingSequence)
-            .entriesSince(checkpoint)
-            .take(startingSize - checkpoint.ordinal)
+        checkNotNull(prefixSource).entriesSince(checkpoint).take(prefixSize - checkpoint.ordinal)
     return startingEntries + events
   }
 
-  internal fun activitySince(checkpoint: Checkpoint): TaskResult =
-      TaskResult(changesSince(checkpoint), newTasksSince(checkpoint))
-
-  private fun <E : GameEvent> addEntry(entry: E): E {
-    require(entry.ordinal == size)
-    events += entry
-    return entry
+  internal fun activitySince(checkpoint: Checkpoint): TaskResult {
+    val changes = mutableListOf<ChangeEvent>()
+    val newTasks = mutableSetOf<TaskId>()
+    for (entry in entriesSince(checkpoint)) {
+      when (entry) {
+        is ChangeEvent -> changes += entry
+        is TaskAddedEvent -> newTasks += entry.task.id
+        is TaskRemovedEvent -> newTasks -= entry.task.id
+        else -> {}
+      }
+    }
+    return TaskResult(changes, newTasks)
   }
 
-  internal fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?): ChangeEvent =
-      addEntry(ChangeEvent(size, actor, change, cause))
-
-  internal fun taskAdded(task: Task): TaskAddedEvent = addEntry(TaskAddedEvent(size, task))
-
-  internal fun taskRemoved(task: Task): TaskRemovedEvent = addEntry(TaskRemovedEvent(size, task))
-
-  internal fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
-    require(oldTask.id == newTask.id)
-    return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
-  }
-
-  internal fun setStartPoint() {
-    start = Checkpoint(size)
+  internal fun markSetupStart() {
+    setupStart = Checkpoint(size)
   }
 }

@@ -81,25 +81,34 @@ private constructor(
     val newTasks = Task.newTasks(TaskId(events.size), assignee, instruction, cause, isAbstract)
     return newTasks.map {
       require(it.id.ordinal == events.size)
-      val task = addToTaskSet(it)
-      events.taskAdded(task)
+      apply(TaskAddedEvent(events.nextOrdinal, it))
     }
   }
 
   internal fun removeTask(id: TaskId): TaskRemovedEvent {
     val task = getTaskData(id)
-    removeFromTaskSet(task)
-    return events.taskRemoved(task)
+    return apply(TaskRemovedEvent(events.nextOrdinal, task))
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
     val id = newTask.id
     val oldTask = getTaskData(id)
     if (newTask == oldTask) return null
-    removeFromTaskSet(oldTask)
-    addToTaskSet(newTask)
-    return events.taskReplaced(oldTask, newTask)
+    return apply(TaskEditedEvent(events.nextOrdinal, oldTask = oldTask, task = newTask))
   }
+
+  /** Applies and records one task event. This is also the task-history replay boundary. */
+  internal fun <E : TaskEvent> apply(entry: E): E =
+      events.record(entry) {
+        when (entry) {
+          is TaskAddedEvent -> addToTaskSet(entry.task)
+          is TaskRemovedEvent -> removeFromTaskSet(entry.task)
+          is TaskEditedEvent -> {
+            removeFromTaskSet(entry.oldTask)
+            addToTaskSet(entry.task)
+          }
+        }
+      }
 
   // This method can get away without the normalizations/integrity-checks/whatever because it is
   // operating at a purely mechanical level, just undoing changes that were already made.
@@ -117,14 +126,13 @@ private constructor(
 
   // DIRECT MUTATORS
 
-  private fun addToTaskSet(task: Task): Task {
+  private fun addToTaskSet(task: Task) {
     require(taskSet.none { it.id == task.id })
 
-    // What an amazing sorted set implementation
+    // Task ids define a stable diagnostic order, though queue order has no gameplay meaning.
     val all: Set<Task> = taskSet + task
     taskSet.clear()
     taskSet += all.sortedBy { it.id }
-    return task
   }
 
   private fun removeFromTaskSet(task: Task) {

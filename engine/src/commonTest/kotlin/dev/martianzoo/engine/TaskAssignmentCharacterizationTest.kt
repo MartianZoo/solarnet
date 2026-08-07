@@ -123,7 +123,7 @@ class TaskAssignmentCharacterizationTest {
         )
     queues[PLAYER2].addTasks(pending)
 
-    events.setStartPoint()
+    events.markSetupStart()
     val copied = queues.copy(EventLog(events))
     copied[PLAYER2].addTasks(pending).single().task.id shouldBe TaskId(1)
     queues[PLAYER2].ids().shouldContainExactly(TaskId(0))

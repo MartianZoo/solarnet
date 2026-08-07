@@ -60,7 +60,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer.
 - [#59: `-This` intensity](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
-- Give component and task mutations a single event-application boundary so primary state, derived indexes, and event history cannot be updated independently.
 - Explain or remove `Initializer`'s synthetic mandatory intensity.
 - Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
 - Document the `BuyCard`/payment protocol and verify delayed 3 M€ payment cannot be exploited.
