@@ -5,6 +5,17 @@ import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.pets.ast.ClassName
 
 public interface Ruleset {
+  /**
+   * ASCII natural-language display names keyed first by language tag and then by canonical class
+   * name.
+   */
+  public val displayNamesByLanguage: Map<String, Map<ClassName, String>>
+    get() = emptyMap()
+
+  /** Classes whose localized Pets names must be derived from their natural display names. */
+  public val derivedPetsNameClassNames: Set<ClassName>
+    get() = emptySet()
+
   public val allClassDeclarations: Map<ClassName, ClassDeclaration>
 
   /**
