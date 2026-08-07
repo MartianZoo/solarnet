@@ -65,7 +65,7 @@ problem.
 through `Player5`, publishes exactly those five constants, and constructs lists from that fixed
 set.
 
-This limitation propagates into effect ownership and engine scope creation, so a game with
+This limitation propagates into effect ownership and per-Actor gameplay creation, so a game with
 different player identities cannot use the generic abstraction as-is.
 
 ### P1: Terraforming Mars's `PROD[...]` extension is automatically installed by generic machinery

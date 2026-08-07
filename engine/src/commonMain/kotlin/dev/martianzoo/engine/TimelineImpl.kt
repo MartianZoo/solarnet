@@ -5,7 +5,6 @@ import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.TaskEvent
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Engine.Updater
 import dev.martianzoo.engine.Timeline.Checkpoint
 
 /**
@@ -14,14 +13,14 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  */
 internal class TimelineImpl(
     private val reader: GameReader,
-    private val updater: Updater,
-    private val events: WritableEventLog,
+    private val components: ComponentGraph,
+    private val events: EventLog,
     private val tasks: TaskQueues,
 ) : Timeline {
 
   override fun checkpoint() = Checkpoint(events.size)
 
-  private var commitFloor = Checkpoint(events.firstWritableOrdinal)
+  private var commitFloor = Checkpoint(events.firstLocalOrdinal)
 
   override fun commit() {
     commitFloor = checkpoint()
@@ -40,7 +39,7 @@ internal class TimelineImpl(
         is TaskEvent -> tasks.reverse(entry)
         is ChangeEvent ->
             with(entry.change) {
-              updater.update(
+              components.update(
                   count = count,
                   gaining = removing?.toComponent(reader),
                   removing = gaining?.toComponent(reader),

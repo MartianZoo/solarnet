@@ -13,12 +13,13 @@ import dev.martianzoo.types.ClassTable
  * [EventLog], and a [TaskQueue]. These types embody the present, past, and future of the world
  * (respectively).
  *
- * These three views are read-only, but are always up-to-date (i.e., they are not immutable).
- * Modifying a world is done through [gameplay].
+ * These are live objects rather than read-only/writable interface pairs. Their engine-internal
+ * mutation operations live on the same types, while [gameplay] remains the public coordinated route
+ * for complete world operations.
  *
- * The component graph can be queried programmatically, but a [GameReader] is also provided which
- * can answer queries expressed as a Pets [Metric] or [Requirement]. Setup worlds and game worlds
- * are specialized uses of the same machinery.
+ * A [GameReader] provides the public component queries, including queries expressed as a Pets
+ * [Metric] or [Requirement]. Setup worlds and game worlds are specialized uses of the same
+ * machinery.
  */
 public interface World {
   /** The current component graph. */

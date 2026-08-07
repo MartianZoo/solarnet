@@ -28,7 +28,7 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal class Implementations(
-    private val tasks: WritableTaskQueue,
+    private val tasks: TaskQueue,
     taskQueues: TaskQueues,
     private val reader: GameReader,
     private val timeline: Timeline,
@@ -177,7 +177,7 @@ internal class Implementations(
   private fun explainAnyTask(taskId: TaskId, reason: String) =
       explainTask(queueForAnyTask(taskId), taskId, reason)
 
-  private fun explainTask(queue: WritableTaskQueue, taskId: TaskId, reason: String) {
+  private fun explainTask(queue: TaskQueue, taskId: TaskId, reason: String) {
     queue.editTask(queue.getTaskData(taskId).copy(whyPending = reason))
   }
 
@@ -185,7 +185,7 @@ internal class Implementations(
    * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
    * automatically enqueued.
    */
-  private fun handleTask(queue: WritableTaskQueue, task: Task) {
+  private fun handleTask(queue: TaskQueue, task: Task) {
     task.then?.let {
       queue.queueFor(task.assignee).addTasks(split(it), task.cause)
     }
@@ -296,14 +296,14 @@ internal class Implementations(
     }
   }
 
-  private fun doPrepare(queue: WritableTaskQueue, task: Task): TaskId? {
+  private fun doPrepare(queue: TaskQueue, task: Task): TaskId? {
     dontCutTheLine(task.id)
     val replacement = instructor.prepare(task.instruction)
     replace1WithN(queue, task.copy(instructionIn = replacement, next = true))
     return queue.preparedTask()
   }
 
-  private fun replace1WithN(queue: WritableTaskQueue, replacement: Task) {
+  private fun replace1WithN(queue: TaskQueue, replacement: Task) {
     val split = split(replacement.instruction)
     if (split.size == 1) {
       val one = split.instructions[0]
@@ -325,7 +325,7 @@ internal class Implementations(
     doTask(tasks, taskId)
   }
 
-  private fun doTask(queue: WritableTaskQueue, taskId: TaskId) {
+  private fun doTask(queue: TaskQueue, taskId: TaskId) {
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
@@ -449,7 +449,7 @@ internal class Implementations(
     }
   }
 
-  private fun queueForAnyTask(taskId: TaskId): WritableTaskQueue =
+  private fun queueForAnyTask(taskId: TaskId): TaskQueue =
       tasks.queueFor(allTasks.getTaskData(taskId).assignee)
 
   private fun execute(instruction: String, fakeCause: Cause? = null): Unit =

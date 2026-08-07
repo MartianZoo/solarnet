@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.engine.Component
 import dev.martianzoo.engine.ComponentGraph
 import dev.martianzoo.engine.Limiter
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
@@ -13,9 +11,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.ClassLoader
-import dev.martianzoo.types.Type
-import dev.martianzoo.util.HashMultiset
-import dev.martianzoo.util.Multiset
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.Int.Companion.MAX_VALUE
@@ -27,7 +22,7 @@ internal class CanonInvariantsTest {
 
   @Test
   fun introspect() {
-    val limiter = Limiter(table, EmptyComponentGraph)
+    val limiter = Limiter(table, ComponentGraph.empty(table))
 
     fun checkTypeLimits(s: String, vararg pairs: Pair<String, IntRange>) {
       val c = table.resolve(parse<Expression>(s))
@@ -68,7 +63,7 @@ internal class CanonInvariantsTest {
 
   @Test
   fun testLookup() {
-    val limiter = Limiter(table, EmptyComponentGraph)
+    val limiter = Limiter(table, ComponentGraph.empty(table))
 
     fun restrictions(a: String) = limiter.rangeRestrictionsByClass[table.getClass(cn(a))]
 
@@ -99,17 +94,5 @@ internal class CanonInvariantsTest {
     checkUnbound("Pass", THIS.expression, 0..1)
     checkUnbound("VenusTag", THIS.expression, 0..2)
     checkUnbound("ColonyProduction", THIS.expression, range = 0..6)
-  }
-
-  private object EmptyComponentGraph : ComponentGraph {
-    override fun contains(component: Component) = false
-
-    override fun countComponent(component: Component) = 0
-
-    override fun count(parentType: Type, info: TypeInfo) = 0
-
-    override fun containsAny(parentType: Type, info: TypeInfo) = false
-
-    override fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> = HashMultiset()
   }
 }

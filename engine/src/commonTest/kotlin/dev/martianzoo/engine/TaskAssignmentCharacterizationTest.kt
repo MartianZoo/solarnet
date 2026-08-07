@@ -92,7 +92,7 @@ class TaskAssignmentCharacterizationTest {
 
   @Test
   fun unidentifiedTaskReceivesAnIdWhenInsertedIntoItsAssigneesQueue() {
-    val events = WritableEventLog()
+    val events = EventLog()
     val queues = TaskQueues(events)
     val cause = Cause(te("TerraformingMars"), triggerEvent = 0)
     val unidentified =
@@ -116,7 +116,7 @@ class TaskAssignmentCharacterizationTest {
 
   @Test
   fun copiedQueuesRetainTasksAndThenDiverge() {
-    val queues = TaskQueues(WritableEventLog())
+    val queues = TaskQueues(EventLog())
     val task =
         Task.noid(
             assignee = PLAYER2,
@@ -126,7 +126,7 @@ class TaskAssignmentCharacterizationTest {
         )
     queues[PLAYER2].addTasks(task)
 
-    val copied = queues.copy(WritableEventLog())
+    val copied = queues.copy(EventLog())
     copied[PLAYER2].addTasks(task).single().task.id shouldBe TaskId("B")
     queues[PLAYER2].ids().shouldContainExactly(TaskId("A"))
     copied[PLAYER2].ids().shouldContainExactly(TaskId("A"), TaskId("B"))

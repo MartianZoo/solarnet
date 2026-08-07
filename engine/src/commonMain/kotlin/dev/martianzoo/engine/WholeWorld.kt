@@ -13,15 +13,8 @@ internal constructor(
     override val timeline: Timeline,
     override val reader: GameReader,
     override val classTable: ClassTable,
+    private val gameplayByActor: Map<Actor, Gameplay>,
 ) : World {
-
-  private lateinit var gameplayByActor: Map<Actor, Gameplay>
-
-  internal fun initializeGameplay(gameplayByActor: Map<Actor, Gameplay>) {
-    check(!this::gameplayByActor.isInitialized)
-    this.gameplayByActor = gameplayByActor
-  }
-
   override fun gameplay(actor: Actor): Gameplay = gameplayByActor[actor]!!
 
   override var onAtomicComplete: () -> Unit = {}
