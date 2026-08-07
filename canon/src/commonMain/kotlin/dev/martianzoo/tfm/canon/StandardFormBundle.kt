@@ -45,13 +45,16 @@ public class StandardFormBundle(
   }
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    val gameplayDeclarations =
-        resourceFilenames
-            .filter { it.endsWith(PETS_EXTENSION) && it != SETUP_FILENAME }
-            .sorted()
-            .flatMap { parseClasses(read(it)) }
-            .toSetStrict()
-    gameplayDeclarations + selectedColonyDeclarations
+    petsClassDeclarations + selectedColonyDeclarations
+  }
+
+  /** Declarations parsed directly from this bundle's gameplay `.pets` resources. */
+  public val petsClassDeclarations: Set<ClassDeclaration> by lazy {
+    resourceFilenames
+        .filter { it.endsWith(PETS_EXTENSION) && it != SETUP_FILENAME }
+        .sorted()
+        .flatMap { parseClasses(read(it)) }
+        .toSetStrict()
   }
 
   /** Setup-world declarations contributed separately from this bundle's gameplay rules. */

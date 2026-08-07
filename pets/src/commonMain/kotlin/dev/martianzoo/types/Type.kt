@@ -105,6 +105,17 @@ public data class Type(
     dependencies.minus(rootClass.dependencies)
   }
 
+  /**
+   * Projects this type onto [superclass], retaining the resolved dependency bounds carried by this
+   * type. This is the type-level counterpart of walking [Class.directSuperclasses].
+   */
+  public fun asSupertype(superclass: Class): Type {
+    require(rootClass.isSubtypeOf(superclass)) {
+      "${rootClass.className} is not a subclass of ${superclass.className}"
+    }
+    return superclass.withAllDependencies(dependencies)
+  }
+
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**

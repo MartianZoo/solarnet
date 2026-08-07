@@ -5,7 +5,8 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.util.toSetStrict
 
 /** Pets runtime declarations that are available to every ruleset. */
-internal val systemClassDeclarations: Set<ClassDeclaration> by lazy {
+/** Class declarations parsed directly from the Pets runtime's `system.pets` resource. */
+public val systemClassDeclarations: Set<ClassDeclaration> by lazy {
   parseClasses(readPetsResource("system.pets")).toSetStrict()
 }
 
