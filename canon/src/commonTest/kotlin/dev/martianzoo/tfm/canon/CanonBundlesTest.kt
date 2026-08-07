@@ -266,6 +266,25 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun standardFormBundleLoadsLanguageFiles() {
+    val bundle =
+        StandardFormBundle(
+            name = "LocalizedBundle",
+            resourceDirectory = "localized",
+            resourceFilenames = setOf("classes.pets", "language/en.json5"),
+            resourceReader = { filename ->
+              when (filename) {
+                "localized/classes.pets" -> "CLASS Example"
+                "localized/language/en.json5" -> """{ Example: "Example name" }"""
+                else -> error("Unexpected resource: $filename")
+              }
+            },
+        )
+
+    bundle.displayNamesByLanguage shouldBe mapOf("en" to mapOf(cn("Example") to "Example name"))
+  }
+
+  @Test
   fun resolvingRulesetDoesNotReadUnselectedBundleResources() {
     var unselectedReads = 0
     val selected =

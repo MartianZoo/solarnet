@@ -69,6 +69,12 @@ public abstract class TfmRuleset : Ruleset {
       private val allKnown: TfmRuleset,
       private val setupRequirementMet: ((Requirement) -> Boolean)?,
   ) : Composite(selected) {
+    override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
+      super.displayNamesByLanguage.mapValues { (_, names) ->
+        names.filterKeys { it in allClassNames }
+      }
+    }
+
     override val knownClassDeclarations: Map<ClassName, ClassDeclaration>
       get() = allKnown.knownClassDeclarations
 
@@ -311,6 +317,22 @@ public abstract class TfmRuleset : Ruleset {
     public val rulesets: List<TfmRuleset> = rulesets.toList()
 
     final override val bundles: List<Bundle> = rulesets.flatMap { it.bundles }
+
+    override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
+      val combined = mutableMapOf<String, MutableMap<ClassName, String>>()
+      rulesets.forEach { ruleset ->
+        ruleset.displayNamesByLanguage.forEach { (language, names) ->
+          val languageNames = combined.getOrPut(language, ::linkedMapOf)
+          names.forEach { (className, displayName) ->
+            val previous = languageNames.put(className, displayName)
+            require(previous == null || previous == displayName) {
+              "Conflicting $language display names for $className: $previous and $displayName"
+            }
+          }
+        }
+      }
+      combined
+    }
 
     override val knownClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
       val declarations = rulesets.flatMap { it.knownClassDeclarations.values }.toSet()

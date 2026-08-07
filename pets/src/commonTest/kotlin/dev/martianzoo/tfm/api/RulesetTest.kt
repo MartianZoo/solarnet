@@ -89,6 +89,38 @@ internal class RulesetTest {
   }
 
   @Test
+  fun compositionAndResolutionPreserveOnlyApplicableDisplayNames() {
+    val first =
+        object : TfmRuleset.Empty() {
+          override val explicitClassDeclarations =
+              setOf(parseOneLinerClass("CLASS First : AutoLoad"))
+          override val displayNamesByLanguage = mapOf("en" to mapOf(cn("First") to "First name"))
+        }
+    val second =
+        object : Bundle(cn("SecondBundle")) {
+          override val explicitClassDeclarations =
+              setOf(parseOneLinerClass("CLASS Second : AutoLoad"))
+          override val displayNamesByLanguage = mapOf("en" to mapOf(cn("Second") to "Second name"))
+        }
+
+    val resolved = TfmRuleset.compose(first, second).resolve(emptySet())
+
+    resolved.displayNamesByLanguage shouldBe mapOf("en" to mapOf(cn("First") to "First name"))
+  }
+
+  @Test
+  fun compositionRejectsConflictingDisplayNames() {
+    fun named(displayName: String) =
+        object : TfmRuleset.Empty() {
+          override val displayNamesByLanguage = mapOf("en" to mapOf(cn("Shared") to displayName))
+        }
+
+    shouldThrow<IllegalArgumentException> {
+      TfmRuleset.compose(named("First"), named("Second")).displayNamesByLanguage
+    }
+  }
+
+  @Test
   fun resolvingCompositionKeepsSelectedBundlesAndNonBundleContributions() {
     val base = bundle("TerraformingMars", declaration = "CLASS BaseContent : AutoLoad")
     val venus = bundle("VenusNextExpansion", declaration = "CLASS VenusContent : AutoLoad")

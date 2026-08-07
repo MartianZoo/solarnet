@@ -5,11 +5,7 @@ internal object CanonResources {
 
   fun filenames(directory: String): Set<String> {
     val prefix = directory.trimEnd('/') + "/"
-    return resourcePaths
-        .filter { it.startsWith(prefix) }
-        .map { it.removePrefix(prefix) }
-        .filter { '/' !in it }
-        .toSet()
+    return resourcePaths.filter { it.startsWith(prefix) }.map { it.removePrefix(prefix) }.toSet()
   }
 
   private val resourcePaths: Set<String> by lazy {

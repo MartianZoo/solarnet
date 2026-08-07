@@ -13,6 +13,10 @@ import kotlinx.serialization.json.Json
 
 public object JsonReader {
 
+  /** Reads one bundle language file keyed by canonical class name. */
+  public fun readDisplayNames(json5: String): Map<dev.martianzoo.pets.ast.ClassName, String> =
+      fromJson5<Map<String, String>>(json5).mapKeys { (className) -> cn(className) }
+
   // AWARDS
 
   public fun readAwards(json5: String): List<AwardDefinition> =

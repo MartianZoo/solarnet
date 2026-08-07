@@ -54,6 +54,16 @@ public class StandardFormBundle(
     gameplayDeclarations + selectedColonyDeclarations
   }
 
+  override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
+    resourceFilenames
+        .mapNotNull { filename ->
+          LANGUAGE_FILENAME.matchEntire(filename)?.groupValues?.get(1)?.let { language ->
+            language to JsonReader.readDisplayNames(read(filename))
+          }
+        }
+        .toMap()
+  }
+
   /** Setup-world declarations contributed separately from this bundle's gameplay rules. */
   override val setupClassDeclarations: Set<ClassDeclaration> by lazy {
     val sourceDeclarations =
@@ -105,6 +115,7 @@ public class StandardFormBundle(
 
   private fun isExpected(filename: String): Boolean =
       filename.endsWith(PETS_EXTENSION) ||
+          LANGUAGE_FILENAME.matches(filename) ||
           filename in KNOWN_JSON_FILENAMES ||
           filename.endsWith("-$MAPS_FILENAME")
 
@@ -119,6 +130,7 @@ public class StandardFormBundle(
     public const val AWARDS_FILENAME: String = "awards.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val PETS_EXTENSION = ".pets"
+    private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
     private val KNOWN_JSON_FILENAMES =
         setOf(
             ACTIONS_FILENAME,
