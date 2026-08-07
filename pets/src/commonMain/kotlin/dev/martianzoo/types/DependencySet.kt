@@ -252,14 +252,30 @@ public class DependencySet private constructor(private val deps: Set<Dependency>
     }
   }
 
-  internal fun singleConcreteSubtype(): DependencySet? {
-    return if (isForClassType(deps)) {
-      val abs: Class = getClassForClassType(deps)
-      val conc = abs.allSubclasses().singleOrNull { !it.abstract }
-      conc?.let { depsForClassType(it) }
-    } else {
-      map { it.singleConcreteSubtype() ?: return null }
+  internal fun singleConcreteSubtype(info: TypeInfo): DependencySet? {
+    if (isForClassType(deps)) {
+      val abstractClass = getClassForClassType(deps)
+      val concreteClass = abstractClass.allSubclasses().singleOrNull { !it.abstract }
+      return concreteClass?.let { depsForClassType(it) }
     }
+
+    return of(
+        deps.map { dependency ->
+          when (dependency) {
+            is TypeDependency ->
+                dependency.boundType.singleConcreteSubtype(info)?.let {
+                  dependency.copy(boundType = it)
+                }
+            is ComplementDependency ->
+                dependency.domainType
+                    .allConcreteSubtypes()
+                    .filter { dependency.matches(it, info) }
+                    .map { TypeDependency(dependency.key, it) }
+                    .singleOrNull()
+            else -> error("unexpected dependency: $dependency")
+          } ?: return null
+        }
+    )
   }
 
   override fun equals(other: Any?): Boolean = other is DependencySet && deps == other.deps

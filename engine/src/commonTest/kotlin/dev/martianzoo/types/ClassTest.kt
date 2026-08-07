@@ -152,9 +152,18 @@ internal class ClassTest {
     val ruleset =
         TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
 
-    shouldThrow<PetException> {
-      ClassLoader(ruleset).apply { load(cn("Active")) }.freeze().getClass(cn("Active")).dependencies
-    }
+    shouldThrow<PetException> { ClassLoader(ruleset).load(cn("Active")) }
+  }
+
+  @Test
+  fun `class metrics do not activate the represented class`() {
+    val activeBundle = bundle("ActiveBundle", "CLASS Querying { HAS MAX 0 Class<Inactive> }")
+    val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
+    val ruleset =
+        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
+    val table = ClassLoader(ruleset).apply { load(cn("Querying")) }.freeze()
+
+    table.getClass(cn("Inactive")).phantom shouldBe true
   }
 
   @Test
@@ -419,7 +428,6 @@ internal class ClassTest {
             "CLASS Foo<Class<Component>>",
             "CLASS Querying { HAS MAX 0 Class<AnyWordHere> }",
         )
-    val loader = loadTypes(*declarations)
     val loaderWithOptionalClass =
         loadTypes(
             *declarations,
@@ -429,10 +437,8 @@ internal class ClassTest {
 
     known.abstract shouldBe false
     known.allConcreteSubtypes().toList().single() shouldBe known
-    assertFails { loader.resolve(te("Class<AnyWordHere>")) }
-    assertFails { loader.resolve(te("Foo<Class<AnyWordHere>>")) }
+    shouldThrow<PetException> { loadTypes(*declarations) }
     loaderWithOptionalClass.resolve(te("Foo<Class<AnyWordHere>>")).abstract shouldBe false
-    assertFails { loader.resolve(te("AnyWordHere")) }
   }
 }
 

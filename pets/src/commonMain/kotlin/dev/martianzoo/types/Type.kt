@@ -67,7 +67,12 @@ public data class Type(
     requireSameClassTable(that)
     val glbClass = (rootClass glb that.rootClass) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
-    val glbRefin = Refinement.join(this.refinement, that.refinement)
+    val glbRefin =
+        when {
+          refinement == null -> that.refinement
+          that.refinement == null -> refinement
+          else -> Refinement.join(refinement, that.refinement) ?: return null
+        }
     return glbClass.withAllDependencies(glbDeps).refine(glbRefin)
   }
 
@@ -78,23 +83,24 @@ public data class Type(
     val unrefined: Type =
         (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
 
-    return if (refinement != null && that.refinement == null) {
-      unrefined.refine(refinement)
-    } else if (that.refinement != null && refinement == null) {
-      unrefined.refine(that.refinement)
-    } else {
-      unrefined
-    }
+    return unrefined.refine(refinement.takeIf { it == that.refinement })
   }
 
   internal fun specialize(specs: List<Expression>): Type =
       rootClass.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
 
   public fun refine(newRef: Refinement?): Type =
-      copy(refinement = Refinement.join(refinement, newRef))
+      copy(
+          refinement =
+              when {
+                refinement == null -> newRef
+                newRef == null -> refinement
+                else -> requireNotNull(Refinement.join(refinement, newRef))
+              }
+      )
 
   override val expression: Expression by lazy {
-    toExpressionUsingSpecs(narrowedDependencies.expressions())
+    toExpressionUsingSpecs(minimalDependencyExpressions())
   }
 
   override val expressionFull: Expression by lazy {
@@ -103,6 +109,45 @@ public data class Type(
 
   public val narrowedDependencies: DependencySet by lazy {
     dependencies.minus(rootClass.dependencies)
+  }
+
+  private fun minimalDependencyExpressions(): List<Expression> {
+    val narrowed = narrowedDependencies
+    if (narrowed.keys.isEmpty()) return emptyList()
+
+    val candidates = dependencies.expressions()
+    val keys = dependencies.keys.toList()
+    val requiredIndices = keys.indices.filter { keys[it] in narrowed.keys }
+    val optionalIndices = keys.indices.filterNot(requiredIndices::contains)
+
+    fun expressionsAt(indices: Collection<Int>) = indices.sorted().map(candidates::get)
+
+    fun resolvesToThis(indices: Collection<Int>): Boolean = runCatching {
+      rootClass.specialize(expressionsAt(indices)).dependencies == dependencies
+    }
+        .getOrDefault(false)
+
+    if (resolvesToThis(requiredIndices)) return expressionsAt(requiredIndices)
+
+    for (extraCount in 1..optionalIndices.size) {
+      fun find(start: Int, selected: List<Int>): List<Expression>? {
+        if (selected.size == extraCount) {
+          val indices = requiredIndices + selected
+          return expressionsAt(indices).takeIf { resolvesToThis(indices) }
+        }
+        val remaining = extraCount - selected.size
+        for (index in start..optionalIndices.size - remaining) {
+          find(index + 1, selected + optionalIndices[index])?.let {
+            return it
+          }
+        }
+        return null
+      }
+      find(0, emptyList())?.let {
+        return it
+      }
+    }
+    return candidates
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
@@ -122,11 +167,16 @@ public data class Type(
     }
   }
 
-  public fun singleConcreteSubtype(): Type? {
+  /**
+   * Returns the sole structural concrete narrowing, if one exists and satisfies this type's
+   * state-dependent constraints according to [info].
+   */
+  public fun singleConcreteSubtype(info: TypeInfo): Type? {
     val klass = concreteSubclasses(rootClass).singleOrNull() ?: return null
-    val abstractType = this glb klass.baseType
-    val deps = abstractType!!.dependencies.singleConcreteSubtype() ?: return null
-    return abstractType.rootClass.withAllDependencies(deps)
+    val intersection = this glb klass.baseType ?: return null
+    val deps = intersection.dependencies.singleConcreteSubtype(info) ?: return null
+    val candidate = intersection.rootClass.withAllDependencies(deps)
+    return candidate.takeIf { !it.abstract && it.narrows(this, info) }
   }
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
@@ -140,9 +190,13 @@ public data class Type(
   override fun ensureNarrows(that: Type, info: TypeInfo) {
     requireSameClassTable(that)
     rootClass.ensureNarrows(that.rootClass, info)
+
+    if (that.refinement != null && refinement != null && refinement != that.refinement) {
+      throw NarrowingException("$this does not have refinement ${that.refinement}")
+    }
     dependencies.ensureNarrows(that.dependencies, info)
 
-    if (that.refinement != null) {
+    if (that.refinement != null && refinement == null) {
       val requirement =
           try {
             formRequirement(expressionFull, that.expressionFull)
@@ -160,9 +214,11 @@ public data class Type(
   public fun narrows(that: Type, info: TypeInfo): Boolean {
     requireSameClassTable(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
+    if (that.refinement != null && refinement != null && refinement != that.refinement) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
     that.refinement ?: return true
+    if (refinement != null) return true
     val requirement =
         try {
           formRequirement(expressionFull, that.expressionFull)

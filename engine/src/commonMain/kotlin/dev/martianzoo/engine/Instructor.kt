@@ -287,7 +287,7 @@ internal class Instructor(
       // TODO this needs to not happen (or be intercepted) if the instruction is non-mandatory!
       if (missing.any()) throw DependencyException(missing)
 
-      g = g.singleConcreteSubtype() ?: g
+      g = g.singleConcreteSubtype(reader) ?: g
     }
 
     if (r?.abstract == true) {

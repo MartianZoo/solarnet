@@ -80,12 +80,11 @@ public data class Expression(
     override fun toString(): String = if (forgiving) "HAS? $requirement" else "HAS $requirement"
 
     internal companion object {
-      internal fun join(ref1: Refinement?, ref2: Refinement?): Refinement? {
-        val refs = listOfNotNull(ref1, ref2)
-        if (refs.size < 2) return refs.singleOrNull()
+      internal fun join(ref1: Refinement, ref2: Refinement): Refinement? {
+        if (ref1.forgiving != ref2.forgiving) return null
         return Refinement(
-            Requirement.join(ref1!!.requirement, ref2!!.requirement)!!,
-            ref1.forgiving || ref2.forgiving,
+            Requirement.join(ref1.requirement, ref2.requirement)!!,
+            ref1.forgiving,
         )
       }
     }

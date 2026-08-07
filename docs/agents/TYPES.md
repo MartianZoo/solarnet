@@ -173,11 +173,14 @@ mix them — subtyping, `glb`, `lub`, constraint matching — fails immediately 
 
 A table is built by loading classes from a ruleset and then freezing it. Loading a class as
 **active** also activates every class name its declaration mentions anywhere, in any position — or
-tries to: a mentioned name the ruleset has no active declaration for loads as **phantom** rather
-than failing the load. The one exception is the argument of a `Class<...>` metric: counting a class
-literal does not force the counted class to be active, which is what lets rules ask about optional
-vocabulary. Freezing then sweeps up every remaining declaration the authority knows about and
-installs it as phantom. Section 15 records that this exception is not implemented as stated.
+tries to: an authority-known name the ruleset has no active declaration for loads as **phantom**
+rather than failing the load unless the name is a structural dependency bound. An unknown name is
+always an error. A custom implementation's `requiredClassNames` are activation edges too. The one
+exception is the argument of a
+`Class<...>` metric: counting a class literal does not force the counted class to be active, which
+is what lets rules ask about optional vocabulary. The argument must still be authority-known when
+the mentioning declaration loads. Freezing then sweeps up every remaining declaration the
+authority knows about and installs it as phantom.
 
 So each name falls into exactly one of three buckets:
 
@@ -219,9 +222,8 @@ which counts the distinct tag classes you have in play (section 11.4). Without V
 milestone in a game where that tag does not exist.
 
 An active class cannot have a phantom superclass or a phantom dependency bound; both are load
-errors, so a table containing one never freezes. (Section 15 records that the dependency case is
-detected late.) Excluding a phantom type is fine, though, because a complement (section 10)
-constrains a bound without becoming the bound:
+errors, so a table containing one never freezes. Excluding a phantom type is fine, though, because
+a complement (section 10) constrains a bound without becoming the bound:
 
 ```text
 Owned<!SoloOpponent>    in a multiplayer game: not phantom; the bound is still Anyone
@@ -511,18 +513,19 @@ Generation<Player1>                    error: Generation has no dependencies
 ```
 
 Every type therefore has two written forms. The **full form** states every bound explicitly; the
-**minimal form** omits each bound that equals the root class's own bound for that dependency:
+**minimal form** omits bounds that equal the root class's own bounds, except where retaining such a
+placeholder is necessary to make greedy argument matching round-trip:
 
 ```text
 full                          minimal
 Tile<Area>                    Tile
 OceanTile<MarsArea>           OceanTile
 Adjacency<CityTile, Tile>     Adjacency<CityTile>
+Adjacency<Tile, CityTile>     Adjacency<Tile, CityTile>
 ```
 
-The minimal form is what types print as, and re-resolving it normally yields the same type. It is
-lossy in exactly one situation — several same-bounded dependencies where the narrowed one is not
-the first — and section 15 records that.
+The minimal form is what types print as, and re-resolving it yields the same type except where a
+complement's unwritten domain makes even the full form lossy (section 15.9).
 
 ### 9.1 Default bounds
 
@@ -698,13 +701,17 @@ system cannot establish by itself.
   the former requirement implies the latter.
 - Concrete types that satisfy `R` are *not* subtypes of `T(HAS R)`; satisfaction is decided outside
   the static type system.
-- Any subtype check whose wider side is refined demands a world, and raises when asked without one —
-  even when both sides carry the same refinement (section 15).
+- A narrower type carrying the exact same refinement is decided statically. A different refinement
+  is statically unrelated. Testing an unrefined candidate against a refined wider type asks the
+  world whether the candidate satisfies the requirement; a context-free check raises if structural
+  matching cannot already reject it.
 - Intersection preserves refinements: a greatest lower bound conjoins two refinements, or keeps the
   only one present. It conjoins them only when they agree about forgiveness (section 11.3), since
   `HAS R1` and `HAS? R2` have no common conjunction — `HAS? (R1 AND R2)` would let the escape
   clause discard the strict `R1`, and `HAS (R1 AND R2)` would discard the escape clause. Like any
   other pair of types with nothing below them, they simply have no greatest lower bound.
+- An upper bound retains a refinement only when both operands carry that exact refinement. If only
+  one side is refined, or the refinements differ, their common upper bound is unrefined.
 
 ### 11.3 Forgiving refinements
 
@@ -795,9 +802,16 @@ OceanTile<WaterArea>    twelve narrowings on Tharsis, so the player chooses
 Unlike enumeration, it hands back a single answer with nothing left for a consumer to filter, so it
 cannot afford to ignore anything the type says. A complement bound narrows to whatever single
 concrete type survives its exclusion, and a refinement — on the type or on any of its bounds — is
-carried into the result rather than dropped, which makes automatic narrowing state-dependent
-wherever a refinement is present. A candidate the refinement rejects is not a narrowing, and the
-result is always concrete or absent. Section 15 records that neither of these holds today.
+tested against the candidate, which makes automatic narrowing state-dependent wherever a
+refinement is present. A candidate the refinement rejects is not a narrowing, and the result is
+always concrete or absent. A refinement does not turn several structurally possible root classes
+into an automatic choice; structural uniqueness is checked first.
+
+`Type.allConcreteSubtypes()` ranges across every concrete root class below the receiver's root.
+`Type.concreteSubtypesSameClass()` and `Class.concreteTypes()` instead enumerate only types whose
+root class is exactly the receiver or that class. Whole-table enumeration, subclass enumeration,
+and every operation built on them require the class loader to have been frozen; calling them while
+the table can still grow fails rather than capturing an incomplete snapshot.
 
 **Greatest lower bound** keeps its ordinary order-theoretic meaning, but need not exist. Two types
 with no common subtype simply have none, and every operation built on `glb` — matching a written
@@ -831,6 +845,10 @@ closer does. With multiple inheritance a mathematical least upper bound need not
 several incomparable minimal common upper bounds, and the implementation picks one by a heuristic.
 Multiple inheritance is ordinary here — `OceanTile` is both a `Tile` and a `GlobalParameter` — which
 is why the distinction matters.
+
+At dependency level, `lub` lifts the same operation through ordinary type bounds. A complement is
+kept only when the other bound already satisfies it, or when both complements exclude the exact
+same type; otherwise the result falls back to the complement's unexcluded domain.
 
 ## 13. Implicit type variables
 
@@ -1139,81 +1157,59 @@ the authored occurrences and scopes, not traversal-order pairing.
 Each item below is current implementation behavior that this walkthrough would otherwise describe
 differently. They are recorded here rather than smoothed over.
 
-1. **Sibling nested bounds share a variable.** Section 13.2's same-key rule is applied to nested
-   occurrences in sibling branches of one `<...>` list, so a declaration like
-   `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` couples choices that were meant to stay independent.
-   With class literals the coupling is easy to miss, since all class literal slots share the key
-   `Class_0`: had `PlayCard<Class<CardBack>, Class<CardFront>>` instead been written with the same
-   literal twice, those two slots would share one variable. The intent is that only a class's *own*
-   repeated writing of a bound at distinct positions of the same inherited dependency should share
-   one.
-2. **`lub` is not an upper bound when exactly one side is refined.**
-   `CardFront(HAS 20 CardCost) lub CardFront` yields `CardFront(HAS 20 CardCost)`, which `CardFront`
-   does not narrow. Only the greatest lower bound handles refinements correctly.
-3. **Complement narrowing accepts wider abstract candidates.** The test is "narrows the domain and
-   does not narrow the excluded type", so `SpaceTag` — whose owner is still the abstract `Owner` —
-   counts as narrowing `SpaceTag<!Player1>` even though it admits `SpaceTag<Player1>`. The rule
-   behaves as intended for concrete candidates.
-4. **A refined wider side always demands a world.** Section 11.2's static rules are not implemented
-   at all. A check against a refined wider side ignores whatever refinement the narrower side
-   carries, substitutes the narrower type into the wider refinement, and asks the world. So even
-   `CardFront(HAS 20 CardCost) <: CardFront(HAS 20 CardCost)` consults the world and raises when
-   asked without one; and with a world present,
-   `CardFront(HAS 20 CardCost) <: CardFront(HAS 10 CardCost)` answers whatever that world says
-   rather than the flat no section 11.2 calls for.
-5. **The minimal form is lossy for same-bounded dependencies.** `Adjacency<Tile, CityTile>` prints
-   as `Adjacency<CityTile>`, which greedy matching re-resolves to `Adjacency<CityTile, Tile>`.
-   Minimal forms of types whose narrowed dependency is not the first of several same-bounded ones
-   should not be treated as round-trippable.
-6. **Class signatures match only bare class names.** Section 13.2 says a signature adds only the
-   same-key requirement to the shared matching rules; in fact it uses a separate mechanism in
-   which only a bare class name is an occurrence. A repeated bound carrying arguments, a refinement,
-   or a `!` never becomes a variable as a unit, so matching reaches past it to the names inside. In
-   the invented `ABSTRACT CLASS Thing<Holder<Card<Owner>>> : Keeper<Card<Owner>>`, the two
-   `Card<Owner>` bounds should be one choice; instead only their two `Owner`s are coupled, leaving
-   the two cards free to differ. Abstractness is not consulted either, though a variable over
-   concrete positions has no effect. Item 1 is the other half of this: one shared matching
-   mechanism would fix both.
-7. **Signature-to-effect narrowing is class-name substitution, not a variable.** Section 13.2's
-   second bullet describes one variable spanning signature and effects; what runs is a substitution
-   built by comparing every bound of the class's own type — nested bounds included — with the
-   component's, and rewriting every occurrence of each differing class name anywhere in the effects,
-   arguments and requirements alike. It therefore rewrites expressions the author never wrote alike,
-   and when one name would map to two
-   different replacements it drops that substitution silently instead of reporting the disagreement
-   a class signature would report.
-8. **Automatic narrowing drops refinements and ignores complements.** `Type.singleConcreteSubtype`
-   discards the type's own refinement and any refinement on a bound, and leaves a complement bound
-   untouched. So it can hand back an abstract type, or a concrete type that the discarded refinement
-   would have excluded — a city placed on an area whose `HAS MAX 0 Neighbor<CityTile<Anyone>>` was
-   never tested, if that area were the map's only candidate. It also raises a raw
-   `NullPointerException` when the type's bounds are incompatible with those of the single concrete
-   subclass, instead of reporting no such subtype.
-9. **A complement's domain is not written out.** Both written forms of a complemented bound show
-   only the exclusion, so a domain narrowed by `glb` or by a type variable below what the printed
-   root class implies is lost when the printed form is re-resolved. Unlike item 5 this affects the
-   full form too, and it is one of several signs that a complement is not really the simple thing
-   section 10 presents it as.
-10. **Conjoining refinements spreads forgiveness.** `Refinement.join` ORs the `HAS?` flag, so
-    `T(HAS R1) glb T(HAS? R2)` yields `T(HAS? R1 AND R2)`, whose escape clause can now discard the
-    strict `R1`. Section 11.2 calls for no greatest lower bound in that case.
-11. **Counting a class literal activates the counted class.** Section 3 says it does not. The
-    activation sweep does skip a `Class<...>` metric argument, but only when the ruleset has no
-    active declaration for it — and that case already loads as a phantom by the ordinary path, so
-    the exception changes nothing for optional vocabulary. What it does change is that a metric may
-    name a class the authority has never heard of: the mentioning declaration loads without
-    complaint, and the error section 3 promises arrives only when that metric is evaluated.
-12. **A phantom dependency bound fails late.** Section 3 calls it a load error, but the check lives
-    inside the lazily computed dependency set — laziness that dependency cycles (section 5) depend
-    on. Such a table builds and freezes successfully and throws only when something first asks the
-    offending class for its dependencies.
-13. **A nested complement does not block repetition matching.** Section 10 says an expression
-    written with `!` neither introduces nor refers to an implicit variable outside a class
-    signature. The matcher checks only whether the candidate expression itself is complemented, so
-    the root `OwnedTile<!Owner>` remains eligible even though its argument is complemented. Repeating
-    that complete expression across regions therefore shares a variable today.
-14. **Matching does not canonicalize argument order.** Section 13 matches authored expressions after
-    associating their explicitly written bounds with dependency keys, so two unambiguous argument
-    orders are meant to match. Today the matcher compares raw expression trees, whose argument lists
-    remain ordered: `GreeneryTile<Player1, LandArea>` and `GreeneryTile<LandArea, Player1>` therefore
-    introduce separate variables.
+### 15.1 Sibling nested bounds share a variable
+
+Section 13.2's same-key rule is applied to nested occurrences in sibling branches of one `<...>`
+list, so a declaration like `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` couples choices that were
+meant to stay independent. With class literals the coupling is easy to miss, since all class
+literal slots share the key `Class_0`: had `PlayCard<Class<CardBack>, Class<CardFront>>` instead
+been written with the same literal twice, those two slots would share one variable. The intent is
+that only a class's *own* repeated writing of a bound at distinct positions of the same inherited
+dependency should share one.
+
+### 15.3 Complement narrowing accepts wider abstract candidates
+
+The test is "narrows the domain and does not narrow the excluded type", so `SpaceTag` — whose owner
+is still the abstract `Owner` — counts as narrowing `SpaceTag<!Player1>` even though it admits
+`SpaceTag<Player1>`. The rule behaves as intended for concrete candidates.
+
+### 15.6 Class signatures match only bare class names
+
+Section 13.2 says a signature adds only the same-key requirement to the shared matching rules; in
+fact it uses a separate mechanism in which only a bare class name is an occurrence. A repeated bound
+carrying arguments, a refinement, or a `!` never becomes a variable as a unit, so matching reaches
+past it to the names inside. In the invented
+`ABSTRACT CLASS Thing<Holder<Card<Owner>>> : Keeper<Card<Owner>>`, the two `Card<Owner>` bounds
+should be one choice; instead only their two `Owner`s are coupled, leaving the two cards free to
+differ. Abstractness is not consulted either, though a variable over concrete positions has no
+effect. Section 15.1 is the other half of this: one shared matching mechanism would fix both.
+
+### 15.7 Signature-to-effect narrowing is class-name substitution, not a variable
+
+Section 13.2's second bullet describes one variable spanning signature and effects; what runs is a
+substitution built by comparing every bound of the class's own type — nested bounds included — with
+the component's, and rewriting every occurrence of each differing class name anywhere in the
+effects, arguments and requirements alike. It therefore rewrites expressions the author never
+wrote alike, and when one name would map to two different replacements it drops that substitution
+silently instead of reporting the disagreement a class signature would report.
+
+### 15.9 A complement's domain is not written out
+
+Both written forms of a complemented bound show only the exclusion, so a domain narrowed by `glb`
+or by a type variable below what the printed root class implies is lost when the printed form is
+re-resolved. This affects the full form too, and it is one of several signs that a complement is not
+really the simple thing section 10 presents it as.
+
+### 15.13 A nested complement does not block repetition matching
+
+Section 10 says an expression written with `!` neither introduces nor refers to an implicit
+variable outside a class signature. The matcher checks only whether the candidate expression itself
+is complemented, so the root `OwnedTile<!Owner>` remains eligible even though its argument is
+complemented. Repeating that complete expression across regions therefore shares a variable today.
+
+### 15.14 Matching does not canonicalize argument order
+
+Section 13 matches authored expressions after associating their explicitly written bounds with
+dependency keys, so two unambiguous argument orders are meant to match. Today the matcher compares
+raw expression trees, whose argument lists remain ordered: `GreeneryTile<Player1, LandArea>` and
+`GreeneryTile<LandArea, Player1>` therefore introduce separate variables.

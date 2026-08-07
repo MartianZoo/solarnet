@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Transformers
@@ -8,6 +9,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -204,6 +206,27 @@ internal class TypeTest {
     // check...("Complex2<Bar1(HAS Qux2)>(HAS Foo1)", "Complex1<Bar1(HAS Qux2)>(HAS Foo1)")
   }
 
+  @Test
+  fun refinementsParticipateInStaticHierarchyOperations() {
+    val plain = type("Foo1")
+    val narrower = type("Foo2(HAS Complex1)")
+    val refined = type("Foo1(HAS Complex1)")
+    val other = type("Foo1(HAS Complex2)")
+
+    (plain lub refined) shouldBe plain
+    (refined lub plain) shouldBe plain
+    (narrower lub refined) shouldBe refined
+    (refined lub refined) shouldBe refined
+    (refined lub other) shouldBe plain
+
+    refined.isSubtypeOf(refined) shouldBe true
+    narrower.isSubtypeOf(refined) shouldBe true
+    other.isSubtypeOf(refined) shouldBe false
+    shouldThrow<IllegalStateException> { plain.isSubtypeOf(refined) }
+
+    (type("Foo1(HAS Complex1)") glb type("Foo1(HAS? Complex1)")) shouldBe null
+  }
+
   private fun type(s: String) = table.resolve(te(s))
 
   @Test
@@ -335,10 +358,75 @@ internal class TypeTest {
     checkMinimal("TwoSame<Foo3, Foo2>", "TwoSame<Foo3>")
     checkMinimal("TwoSame<Foo3, Foo3>")
 
-    // Get these working too
-    // checkMinimal("TwoSame<Foo1, Foo3>", "TwoSame<Foo2, Foo3>")
-    // checkMinimal("TwoSame<Foo2, Foo3>")
+    checkMinimal("TwoSame<Foo1, Foo3>", "TwoSame<Foo2, Foo3>")
+    checkMinimal("TwoSame<Foo2, Foo3>")
   }
+
+  @Test
+  fun automaticNarrowingHonorsConstraints() {
+    val narrowingTable =
+        loadTypes(
+            """
+            ABSTRACT CLASS Place { CLASS OnlyPlace }
+            CLASS Marker<Place>
+            CLASS Holder<Place>
+            """
+                .trimIndent()
+        )
+    val hasMarker = narrowingTable.resolve(te("Holder<Place(HAS Marker)>"))
+    val markedPlace = narrowingTable.resolve(te("Place(HAS Marker)"))
+    val met = typeInfo(has = true)
+    val unmet = typeInfo(has = false)
+
+    markedPlace.singleConcreteSubtype(met) shouldBe narrowingTable.resolve(te("OnlyPlace"))
+    markedPlace.singleConcreteSubtype(unmet) shouldBe null
+    hasMarker.singleConcreteSubtype(met) shouldBe narrowingTable.resolve(te("Holder<OnlyPlace>"))
+    hasMarker.singleConcreteSubtype(unmet) shouldBe null
+
+    val multipleTable =
+        loadTypes(
+            """
+            ABSTRACT CLASS Place { CLASS FirstPlace, SecondPlace }
+            CLASS Marker<Place>
+            """
+                .trimIndent()
+        )
+    val onlyFirstIsMarked = typeInfo { "FirstPlace" in it.toString() }
+    multipleTable.resolve(te("Place(HAS Marker)")).singleConcreteSubtype(onlyFirstIsMarked) shouldBe
+        null
+
+    val complementTable =
+        loadTypes(
+            """
+            ABSTRACT CLASS Owner { CLASS Player1, Player2 }
+            CLASS Owned<Owner>
+            """
+                .trimIndent()
+        )
+    complementTable.resolve(te("Owned<!Player1>")).singleConcreteSubtype(met) shouldBe
+        complementTable.resolve(te("Owned<Player2>"))
+
+    val incompatibleTable =
+        loadTypes(
+            """
+            ABSTRACT CLASS Choice { CLASS Left, Right }
+            ABSTRACT CLASS General<Choice> { CLASS Specific : General<Left> }
+            """
+                .trimIndent()
+        )
+    incompatibleTable.resolve(te("General<Right>")).singleConcreteSubtype(met) shouldBe null
+  }
+
+  private fun typeInfo(has: Boolean): TypeInfo = typeInfo { has }
+
+  private fun typeInfo(has: (Requirement) -> Boolean): TypeInfo =
+      object : TypeInfo {
+        override fun isAbstract(e: Expression): Boolean = error("unused")
+
+        override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
+
+        override fun has(requirement: Requirement): Boolean = has(requirement)
+      }
 
   private fun findSubstitutions(type: Type): Map<ClassName, Expression> =
       Transformers(type.classTable)

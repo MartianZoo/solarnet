@@ -115,10 +115,27 @@ public constructor(
     val declaration =
         if (active) activeDeclaration ?: knownDeclaration(next) else knownDeclaration(next)
     val phantom = !active || activeDeclaration == null
+    if (!phantom) validateDependencyBounds(declaration)
     return construct(declaration, phantom).also {
       if (phantom) return@also
       queue.addAll(activationEdges(declaration) - loadedClasses.keys - THIS)
     }
+  }
+
+  private fun validateDependencyBounds(declaration: ClassDeclaration) {
+    fun validate(expression: Expression) {
+      if (expression.complement) return
+      if (expression.className != THIS && activeDeclaration(expression.className) == null) {
+        knownDeclaration(expression.className)
+        throw PetException(
+            "${declaration.className} has inactive dependency type ${expression.className}"
+        )
+      }
+      expression.arguments.forEach(::validate)
+    }
+
+    declaration.dependencies.forEach(::validate)
+    declaration.supertypes.forEach { supertype -> supertype.arguments.forEach(::validate) }
   }
 
   /**
@@ -134,7 +151,11 @@ public constructor(
           it is Count && it.expression.className == CLASS -> {
             add(CLASS)
             val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
-            argument?.let { expression -> knownClassName(expression.className)?.let(::add) }
+            argument?.let { expression ->
+              if (knownClassName(expression.className) == null) {
+                throw Exceptions.classNotFound(expression.className)
+              }
+            }
             it.expression.refinement?.let(::collectRelated)
             false
           }
@@ -154,7 +175,7 @@ public constructor(
 
   private fun knownClassName(name: ClassName): ClassName? =
       activeDeclaration(name)?.className
-          ?: ruleset.allClassDeclarations.values.singleOrNull { it.shortName == name }?.className
+          ?: declarationIn(ruleset.knownClassDeclarations, name)?.className
 
   private fun loadSingle(idOrName: ClassName): Class =
       if (frozen) {
