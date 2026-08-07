@@ -92,7 +92,7 @@ internal class ScriptCompletionEngineTest {
     (repl.gameplay.godMode() as TaskLayer).addTasks("StandardAction?")
     assertEquals(listOf(null), repl.game.tasks.extract { it.whyPending })
 
-    val output = repl.command("task SAA")
+    val output = repl.command("task PlayCardSA")
 
     assertEquals(listOf("um, nothing happened"), output)
     assertEquals(listOf("abstract"), repl.game.tasks.extract { it.whyPending })

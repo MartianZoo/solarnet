@@ -2,58 +2,58 @@
   "actions": [
 
     // Play card from hand
-    { "id": "SAA", "action": "-> PlayCard<Class<ProjectCard>>" },
+    { "id": "PlayCardSA", "action": "-> PlayCard<Class<ProjectCard>>" },
 
     // Use standard project
-    { "id": "SAB", "action": "-> UseAction<StandardProject>" },
+    { "id": "UseStandardProjectSA", "action": "-> UseAction<StandardProject>" },
 
     // Claim milestone
-    { "id": "SAC", "action": "8 -> Milestone", "setupRequirement": "MAX 0 SoloMode" },
+    { "id": "ClaimMilestoneSA", "action": "8 -> Milestone", "setupRequirement": "MAX 0 SoloMode" },
 
     // Fund award
     {
-      "id": "SAD",
+      "id": "FundAwardSA",
       "action": "(=0 Award: 8) OR (=1 Award: 14) OR (=2 Award: 20) -> Award",
       "setupRequirement": "MAX 0 SoloMode"
     },
 
     // Use card action
     {
-      "id": "SAE",
+      "id": "UseCardActionSA",
       "action": "-> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard>"
     },
 
     // Convert plants
-    { "id": "SAF", "action": "8 Plant -> GreeneryTile" },
+    { "id": "ConvertPlantsSA", "action": "8 Plant -> GreeneryTile" },
 
     // Convert heat
-    { "id": "SAG", "action": "8 Heat -> TemperatureStep" },
+    { "id": "ConvertHeatSA", "action": "8 Heat -> TemperatureStep" },
 
     // Sell patents - yes, it's technically a project, but that makes things annoying
-    { "id": "SELL", "action": "X ProjectCard -> X" },
+    { "id": "SellPatents", "action": "X ProjectCard -> X" },
 
     // Mandatory first action; it's always here but you can't take it if you have 0 Mandate
-    { "id": "MAND", "action": "-> Mandate: MandateSignal" }
+    { "id": "HandleMandates", "action": "-> Mandate: MandateSignal" }
   ],
 
   "projects": [
 
     // Power Plant
-    { "id": "SP11", "action": "11 -> PROD[Energy]" },
+    { "id": "PowerPlantSP", "action": "11 -> PROD[Energy]" },
 
     // Asteroid
-    { "id": "SP14", "action": "14 -> TemperatureStep" },
+    { "id": "AsteroidSP", "action": "14 -> TemperatureStep" },
 
     // Buffer Gas (TR 63 solo variant)
-    { "id": "SP16", "action": "16 -> TerraformRating", "setupRequirement": "Tr63SoloVariant" },
+    { "id": "BufferGasSP", "action": "16 -> TerraformRating", "setupRequirement": "Tr63SoloVariant" },
 
     // Aquifer
-    { "id": "SP18", "action": "18 -> OceanTile" },
+    { "id": "AquiferSP", "action": "18 -> OceanTile" },
 
     // Greenery
-    { "id": "SP23", "action": "23 -> GreeneryTile" },
+    { "id": "GreenerySP", "action": "23 -> GreeneryTile" },
 
     // City
-    { "id": "SP25", "action": "25 -> PROD[1], CityTile" },
+    { "id": "CitySP", "action": "25 -> PROD[1], CityTile" },
   ],
 }

@@ -44,7 +44,7 @@ Ordinary draws do not automatically require a second definition. The suffix is r
 | Astra Mechanica | `X51F` |
 | Public Plans | `X77F` |
 
-There are 21 implemented follow-mode card IDs. Sell Patents remains `SELL`; its generic operation may work in both modes once card backs are atomized.
+There are 21 implemented follow-mode card IDs. Sell Patents is a standard action named `SellPatents`, not an ID-bearing card definition; its generic operation may work in both modes once card backs are atomized.
 
 ## Physical authentication
 

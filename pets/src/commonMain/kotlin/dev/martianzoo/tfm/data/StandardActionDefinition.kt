@@ -7,12 +7,11 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_ACTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_PROJECT
 
 public data class StandardActionDefinition(
-    override val shortName: ClassName,
+    override val className: ClassName,
     val project: Boolean,
     val actions: List<String>,
     private val setupRequirementText: String? = null,
@@ -21,7 +20,7 @@ public data class StandardActionDefinition(
     require(setupRequirementText?.isNotBlank() != false)
   }
 
-  override val className: ClassName = englishHack(shortName.toString())
+  override val shortName: ClassName by ::className
 
   override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
 
