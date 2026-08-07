@@ -47,14 +47,14 @@ internal constructor(
   public fun isEmpty(): Boolean = ids().none()
 
   /** Returns all task ids whose task data matches the given predicate. */
-  internal fun matching(predicate: (Task) -> Boolean): Set<TaskId> =
+  public fun matching(predicate: (Task) -> Boolean): Set<TaskId> =
       filtered().filter(predicate).toSetStrict { it.id }
 
   /** Returns the results of executing a function against every task in the queue. */
   public fun <T> extract(extractor: (Task) -> T): List<T> = filtered().map(extractor)
 
   /** Returns the id of the task marked with [Task.next] if there is one. */
-  internal fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
+  public fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
 
   /** Returns true if no queue has any tasks. */
   internal fun areAllQueuesEmpty(): Boolean = taskQueues.getAllTaskData().none()
