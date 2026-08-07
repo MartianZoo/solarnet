@@ -14,7 +14,7 @@ internal class MilestoneDefinitionTest {
               "groups": [{
                 "setupRequirement": "DemoMapOption",
                 "milestones": [
-                  { "id": "MM1", "requirement": "35 TerraformRating" },
+                  { "id": "BM1", "requirement": "35 TerraformRating" },
                 ],
                 "groups": [{
                   "setupRequirement": "VenusNextExpansion",
@@ -24,7 +24,7 @@ internal class MilestoneDefinitionTest {
                 "setupRequirement": "UtopiaPlanitiaMapOption",
                 "milestones": [
                 {
-                  "id": "UM2",
+                  "id": "UM1",
                   "setupRequirement": "ColoniesExpansion",
                   "requirement": "3 Colony",
                 },
@@ -34,11 +34,11 @@ internal class MilestoneDefinitionTest {
             """
         )
 
-    milestones.single { it.shortName == cn("MM1") }.setupRequirement.toString() shouldBe
+    milestones.single { it.shortName == cn("BM1") }.setupRequirement.toString() shouldBe
         "DemoMapOption"
     milestones.single { it.shortName == cn("VM1") }.setupRequirement.toString() shouldBe
         "DemoMapOption, VenusNextExpansion"
-    milestones.single { it.shortName == cn("UM2") }.setupRequirement.toString() shouldBe
+    milestones.single { it.shortName == cn("UM1") }.setupRequirement.toString() shouldBe
         "UtopiaPlanitiaMapOption, ColoniesExpansion"
   }
 }

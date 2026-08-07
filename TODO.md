@@ -6,6 +6,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Soon
 
+- Give colony tiles language-neutral IDs so Pluto's already-documented follow-mode variant can be `...F` without turning its English name into an identifier.
 - Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game fixtures.
 - Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game fixture to decline one action early.
 - Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game fixture's mandatory `!` override.
@@ -67,6 +68,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Resolve Floyd Continuum's printed `007` collision with Martian Rails and decide whether the Dutch Open card belongs in canonical scope before replacing its provisional `XM1` identifier.
+- Enforce global uniqueness for canonical identifiers during canon loading or in CI, across all object kinds.
 - Separate `Instructor`'s preparation-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `PrepareTest`.
 - Canonicalize unambiguous authored dependency arguments by key before implicit-variable matching, so equivalent argument orders share a variable as intended (`docs/agents/TYPES.md` §15.14).

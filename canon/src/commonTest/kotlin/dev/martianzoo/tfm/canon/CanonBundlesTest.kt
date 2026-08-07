@@ -21,8 +21,8 @@ internal class CanonBundlesTest {
 
     val hellas = Canon.resolve(bundles, setupReader(cn("HellasMapOption")))
     hellas.marsMapDefinitions.single().className shouldBe cn("Hellas")
-    hellas.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe true
-    hellas.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe false
+    hellas.milestoneDefinitions.any { it.shortName == cn("HM0") } shouldBe true
+    hellas.milestoneDefinitions.any { it.shortName == cn("HM5") } shouldBe false
     (cn("Diversifier") in hellas.allClassNames) shouldBe true
     (cn("Specialist") in hellas.allClassNames) shouldBe false
     (cn("Cultivator") in hellas.allClassNames) shouldBe true
@@ -30,8 +30,8 @@ internal class CanonBundlesTest {
 
     val elysium = Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
     elysium.marsMapDefinitions.single().className shouldBe cn("Elysium")
-    elysium.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe true
-    elysium.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe false
+    elysium.milestoneDefinitions.any { it.shortName == cn("HM5") } shouldBe true
+    elysium.milestoneDefinitions.any { it.shortName == cn("HM0") } shouldBe false
     (cn("Specialist") in elysium.allClassNames) shouldBe true
     (cn("Diversifier") in elysium.allClassNames) shouldBe false
     (cn("Celebrity") in elysium.allClassNames) shouldBe true
@@ -44,14 +44,14 @@ internal class CanonBundlesTest {
 
     val utopia = Canon.resolve(bundles, setupReader(cn("UtopiaPlanitiaMapOption")))
     utopia.marsMapDefinitions.single().className shouldBe cn("UtopiaPlanitia")
-    utopia.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe true
-    utopia.milestoneDefinitions.any { it.shortName == cn("UM2") } shouldBe false
-    utopia.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe false
+    utopia.milestoneDefinitions.any { it.shortName == cn("UM0") } shouldBe true
+    utopia.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe false
+    utopia.milestoneDefinitions.any { it.shortName == cn("UM7") } shouldBe false
 
     val cimmeria = Canon.resolve(bundles, setupReader(cn("TerraCimmeriaMapOption")))
     cimmeria.marsMapDefinitions.single().className shouldBe cn("TerraCimmeria")
-    cimmeria.milestoneDefinitions.any { it.shortName == cn("IM2") } shouldBe true
-    cimmeria.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe false
+    cimmeria.milestoneDefinitions.any { it.shortName == cn("UM7") } shouldBe true
+    cimmeria.milestoneDefinitions.any { it.shortName == cn("UM0") } shouldBe false
   }
 
   @Test

@@ -29,7 +29,7 @@
     // Convert heat
     { "id": "SAG", "action": "8 Heat -> TemperatureStep" },
 
-    // Sell patents[F] - yes, it's technically a project, but that makes things annoying
+    // Sell patents - yes, it's technically a project, but that makes things annoying
     { "id": "SELL", "action": "X ProjectCard -> X" },
 
     // Mandatory first action; it's always here but you can't take it if you have 0 Mandate

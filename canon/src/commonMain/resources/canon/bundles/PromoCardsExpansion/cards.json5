@@ -62,19 +62,19 @@
 
     // Philares
     {
-      "id": "XC6",
+      "id": "XC06",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "47, MandateXC6",
+      "immediate": "47, MandateXC06",
       "effects": [
         "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
       ],
-      "components": [ "CLASS MandateXC6 : Mandate { -> GreeneryTile }" ],
+      "components": [ "CLASS MandateXC06 : Mandate { -> GreeneryTile }" ],
     },
 
     // Recyclon
     {
-      "id": "XC2",
+      "id": "XC02",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "resourceType": "Microbe",
@@ -97,23 +97,23 @@
       ],
     },
 
-    // Splice Tactical Genomics
+    // Splice Tactical Genomics[F]
     {
-      "id": "XC3",
+      "id": "XC03F",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "resourceType": "Microbe",
-      "immediate": "44, MandateXC3",
+      "immediate": "44, MandateXC03F",
       "effects": [ "MicrobeTag<Anyone>: 2 Megacredit<Owner>" ],
       "components": [
-        "CLASS MandateXC3 : Mandate { -> ProjectCard }",
-        "CLASS Splicer : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF CXC3<Anyone>: 2 OR Microbe<CardFront> }"
+        "CLASS MandateXC03F : Mandate { -> ProjectCard }",
+        "CLASS Splicer : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF CXC03F<Anyone>: 2 OR Microbe<CardFront> }"
       ],
     },
 
     // Factorum[F]
     {
-      "id": "XC4F",
+      "id": "XC04F",
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "37, PROD[Steel]",
@@ -125,7 +125,7 @@
 
     // AstroDrill
     {
-      "id": "XC7",
+      "id": "XC07",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "resourceType": "Asteroid",
@@ -138,7 +138,7 @@
 
     // Pharmacy Union[F]
     {
-      "id": "XC8F",
+      "id": "XC08F",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "MicrobeTag" ],
       "resourceType": "Disease",
@@ -348,9 +348,9 @@
       "effects": [ "CardFront(HAS 20 CardCost): PROD[1]" ],
     },
 
-    // Asteroid Deflection System
+    // Asteroid Deflection System[F]
     {
-      "id": "X14",
+      "id": "X14F",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 13,
@@ -684,9 +684,9 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Astra Mechanica
+    // Astra Mechanica[F]
     {
-      "id": "X51",
+      "id": "X51F",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 7,
@@ -957,9 +957,9 @@
       ],
     },
 
-    // Public Plans
+    // Public Plans[F]
     {
-      "id": "X77",
+      "id": "X77F",
       "deck": "PROJECT",
       // The player chooses how many cards to reveal and gains that much, up to seven.
       "projectKind": "EVENT",
@@ -991,7 +991,7 @@
 
     // Tycho Magnetics
     {
-      "id": "XC9", // The app marks XC02 as a placeholder to rename.
+      "id": "XC09", // The app marks XC02 as a placeholder to rename.
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "ScienceTag" ],
       "immediate": "42, PROD[Energy]",

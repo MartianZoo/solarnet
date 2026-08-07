@@ -18,7 +18,7 @@ public class ClassName private constructor(private val asString: String) :
     /** Returns the [ClassName] for the given string. */
     public fun cn(name: String): ClassName = ClassName(name)
 
-    private const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,4})\\b"
+    private const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,5})\\b"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
 
     public fun parser(): com.github.h0tk3y.betterParse.parser.Parser<ClassName> = Parsing.className
