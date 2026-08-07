@@ -20,11 +20,3 @@ kotlin {
     }
   }
 }
-
-dokka {
-  dokkaSourceSets {
-    named("commonMain") {
-      samples.from("src/commonMain/kotlin/dev/martianzoo/tfm/pets/samples.kt")
-    }
-  }
-}

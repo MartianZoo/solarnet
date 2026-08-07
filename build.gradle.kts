@@ -1,5 +1,3 @@
-import com.diffplug.gradle.spotless.SpotlessExtension
-import com.diffplug.spotless.kotlin.KtfmtStep.TrailingCommaManagementStrategy.ONLY_ADD
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
@@ -11,67 +9,34 @@ plugins {
   alias(libs.plugins.dokka)
 }
 
-val pinnedYarnResolutions =
-    mapOf(
-        "serialize-javascript" to "7.0.3",
-        "fast-uri" to "3.1.4",
-    )
+val pinnedYarnResolutions = mapOf("serialize-javascript" to "7.0.3", "fast-uri" to "3.1.4")
 
-rootProject.plugins.withType<YarnPlugin> {
-  val yarn = rootProject.the<YarnRootExtension>()
-  rootProject.the<YarnRootEnvSpec>().version.set("1.22.22")
-  pinnedYarnResolutions.forEach(yarn::resolution)
+plugins.withType<YarnPlugin> {
+  the<YarnRootEnvSpec>().version.set("1.22.22")
+  pinnedYarnResolutions.forEach(the<YarnRootExtension>()::resolution)
 
   // Kotlin 2.2.21 does not track Yarn resolutions as inputs to this generated file. Without this,
   // a stale build/js/package.json can omit new resolutions and repeatedly fight the lockfile.
-  rootProject.tasks.named("rootPackageJson") {
-    inputs.property("pinnedYarnResolutions", pinnedYarnResolutions)
-  }
+  tasks.named("rootPackageJson") { inputs.property("pinnedYarnResolutions", pinnedYarnResolutions) }
 }
 
-configure<SpotlessExtension> {
+// ktfmt's default (Meta) style is exactly this project's style: 100 columns, 2-space block indent,
+// 4-space continuation indent, and trailing commas added but never removed.
+spotless {
   kotlin {
     target("*/src/**/*.kt")
-    ktfmt("0.64").googleStyle().configure {
-      it.setMaxWidth(100)
-      it.setBlockIndent(2)
-      it.setContinuationIndent(4)
-      it.setTrailingCommaManagementStrategy(ONLY_ADD)
-    }
+    ktfmt(libs.versions.ktfmt.get())
   }
   kotlinGradle {
-    target(
-        "*.gradle.kts",
-        "*/build.gradle.kts",
-        "build-logic/src/main/kotlin/*.gradle.kts",
-    )
-    ktfmt("0.64").googleStyle().configure {
-      it.setMaxWidth(100)
-      it.setBlockIndent(2)
-      it.setContinuationIndent(4)
-      it.setTrailingCommaManagementStrategy(ONLY_ADD)
-    }
+    target("*.gradle.kts", "*/*.gradle.kts", "build-logic/src/main/kotlin/*.gradle.kts")
+    ktfmt(libs.versions.ktfmt.get())
   }
 }
-
-tasks.register("test") {
-  description = "Runs all repository JVM test suites."
-  dependsOn(
-      ":canon:jvmTest",
-      ":engine:jvmTest",
-      ":pets:jvmTest",
-      ":script:jvmTest",
-      ":repl:test",
-      ":tools:test",
-  )
-}
-
-tasks.named("check") { dependsOn("test") }
 
 dokka {
   moduleName.set("Solarnet")
   dokkaPublications.html {
-    outputDirectory.set(rootProject.file("docs/api"))
+    outputDirectory.set(file("docs/api"))
     includes.from("docs/packages.md")
   }
 }

@@ -1,16 +1,4 @@
-plugins {
-  id("solarnet.kmp-jvm-js")
-}
-
-val includeSlowTests = providers.gradleProperty("includeSlowTests").orNull?.toBoolean() == true
-
-val requestedTaskNames = gradle.startParameter.taskNames
-val slowTestsExplicitlyRequested = requestedTaskNames.any {
-  it == "jsBrowserTest" ||
-      it.endsWith(":jsBrowserTest") ||
-      it == "allTestsIncludingSlow" ||
-      it.endsWith(":allTestsIncludingSlow")
-}
+plugins { id("solarnet.kmp-jvm-js") }
 
 kotlin {
   sourceSets {
@@ -30,21 +18,17 @@ kotlin {
   }
 }
 
-tasks.named("jsBrowserTest") {
-  enabled = includeSlowTests || slowTestsExplicitlyRequested
-}
+// The engine's browser suite is slow, so a routine build skips it. It runs when `includeSlowTests`
+// is set, or when it is named on the command line either directly or through the task below.
+val slowTestTaskNames = setOf("jsBrowserTest", "allTestsIncludingSlow")
+val runSlowTests =
+    providers.gradleProperty("includeSlowTests").orNull?.toBoolean() == true ||
+        gradle.startParameter.taskNames.any { it.substringAfterLast(':') in slowTestTaskNames }
+
+tasks.named("jsBrowserTest") { enabled = runSlowTests }
 
 tasks.register("allTestsIncludingSlow") {
-  group = "verification"
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Runs all engine tests, including slow browser tests."
-  dependsOn("allTests")
-  dependsOn("jsBrowserTest")
-}
-
-dokka {
-  dokkaSourceSets {
-    named("commonMain") {
-      samples.from("src/commonMain/kotlin/dev/martianzoo/tfm/engine/samples.kt")
-    }
-  }
+  dependsOn("allTests", "jsBrowserTest")
 }
