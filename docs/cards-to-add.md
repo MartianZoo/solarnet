@@ -12,8 +12,8 @@ We have 456 cards working. We don't have anything from the Prelude 2 expansion.
 | P40  | Research Coordination      | prelude   | wildtag          |
 | CC1  | Aridor                     | colonies  | aridor           |
 | CC5  | Stormcraft Incorporated    | colonies  | payment          |
-| XC1  | Arcadian Communities       | promo     | occupants        |
-| XC5  | Mons Insurance             | promo     | actorbinding     |
+| XC01 | Arcadian Communities       | promo     | occupants        |
+| XC05 | Mons Insurance             | promo     | actorbinding     |
 | XC10 | Kuiper Cooperative         | promo     | payresource      |
 | X06  | Law Suit                   | promo     | actorbinding     |
 | X46  | Supercapacitors            | promo     | breaksgamerule   |

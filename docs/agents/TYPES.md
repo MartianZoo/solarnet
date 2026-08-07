@@ -498,7 +498,7 @@ occupied, the combined rule has no candidate and placement may fall back to any 
 Diversifier counts the distinct kinds of tags its owner has, not the total number of tag components:
 
 ```json5
-{ "id": "HM1", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
+{ "id": "HM0", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
 ```
 
 A refinement on a class literal tests the class represented by each candidate literal. When
@@ -917,7 +917,7 @@ The closed-table model is sufficient until rules shared across optional expansio
 picture. Diversifier, for example, is declared once to count eight distinct tag classes:
 
 ```json5
-{ "id": "HM1", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
+{ "id": "HM0", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
 ```
 
 The Venus Next expansion adds `VenusTag`. A game without that expansion must neither count the tag

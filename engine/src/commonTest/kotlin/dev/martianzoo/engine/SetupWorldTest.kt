@@ -143,8 +143,8 @@ internal class SetupWorldTest {
     game.gameplay(ENGINE).count("GameModule") shouldBe 6
     game.gameplay(ENGINE).count("ElysiumMapOption") shouldBe 1
     game.gameplay(ENGINE).count("Elysium") shouldBe 1
-    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("EM2") } shouldBe true
-    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("HM1") } shouldBe false
+    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("HM5") } shouldBe true
+    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("HM0") } shouldBe false
     game.reader.tfmRuleset.cardDefinitions.any { it.className == cn("DoubleDown") } shouldBe true
     game.gameplay(ENGINE).count("PromoCardPack") shouldBe 1
     game.gameplay(ENGINE).count("Player") shouldBe 2

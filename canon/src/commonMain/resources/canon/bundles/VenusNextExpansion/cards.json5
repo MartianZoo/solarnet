@@ -3,7 +3,7 @@
 
     // Aphrodite
     {
-      "id": "V01",
+      "id": "VC1",
       "deck": "CORPORATION",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "PROD[Plant], 47",
@@ -12,38 +12,38 @@
 
     // Celestic[F]
     {
-      "id": "V02F",
+      "id": "VC2F",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
       "resourceType": "Floater",
-      "immediate": "42, MandateV02F",
+      "immediate": "42, MandateVC2F",
       "actions": [ "-> Floater" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
-      "components": [ "CLASS MandateV02F : Mandate { -> 2 ProjectCard }" ],
+      "components": [ "CLASS MandateVC2F : Mandate { -> 2 ProjectCard }" ],
     },
 
     // Manutech
     {
-      "id": "V03",
+      "id": "VC3",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel], 35",
       "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
-    // Morning Star Inc.
+    // Morning Star Inc.[F]
     {
-      "id": "V04",
+      "id": "VC4F",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
-      "immediate": "50, MandateV04",
+      "immediate": "50, MandateVC4F",
       "effects": [ "PlayCard: -2 Required<Class<VenusStep>>." ],
-      "components": [ "CLASS MandateV04 : Mandate { -> 3 ProjectCard }" ],
+      "components": [ "CLASS MandateVC4F : Mandate { -> 3 ProjectCard }" ],
     },
 
     // Viron
     {
-      "id": "V05",
+      "id": "VC5",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": "48",
