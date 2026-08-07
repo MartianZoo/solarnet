@@ -1,20 +1,11 @@
-import org.gradle.api.DefaultTask
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+plugins { id("solarnet.kmp-jvm-js") }
 
-plugins {
-  id("solarnet.kmp-jvm-js")
-}
-
-val canonResourceDirectory = layout.projectDirectory.dir("src/commonMain/resources/canon")
-val generatedCanonResources = layout.buildDirectory.dir("generated/canonResourceIndex")
-
+// Canon reads its data files by name at runtime, which the JS target cannot enumerate on its own,
+// so ship a generated index of them alongside the data itself.
 abstract class GenerateResourceIndex : DefaultTask() {
   @get:InputDirectory abstract val resourceDirectory: DirectoryProperty
-  @get:OutputFile abstract val indexFile: RegularFileProperty
+
+  @get:OutputDirectory abstract val outputDirectory: DirectoryProperty
 
   @TaskAction
   fun generate() {
@@ -26,7 +17,7 @@ abstract class GenerateResourceIndex : DefaultTask() {
             .map { it.relativeTo(directory).invariantSeparatorsPath }
             .sorted()
             .toList()
-    val output = indexFile.get().asFile
+    val output = outputDirectory.get().file("canon/resource-index.txt").asFile
     output.parentFile.mkdirs()
     output.writeText(paths.joinToString(separator = "\n", postfix = "\n"))
   }
@@ -34,34 +25,18 @@ abstract class GenerateResourceIndex : DefaultTask() {
 
 val generateCanonResourceIndex by
     tasks.registering(GenerateResourceIndex::class) {
-      resourceDirectory.set(canonResourceDirectory)
-      indexFile.set(generatedCanonResources.map { it.file("canon/resource-index.txt") })
+      resourceDirectory.set(layout.projectDirectory.dir("src/commonMain/resources/canon"))
+      outputDirectory.set(layout.buildDirectory.dir("generated/canonResourceIndex"))
     }
 
 kotlin {
   sourceSets {
     commonMain {
-      resources.srcDir(generatedCanonResources)
-      dependencies {
-        implementation(project(":pets"))
-      }
+      // Registering the task itself as a source directory is what makes every `processResources`
+      // task depend on it.
+      resources.srcDir(generateCanonResourceIndex)
+      dependencies { implementation(project(":pets")) }
     }
-    commonTest {
-      dependencies { implementation(libs.kotest.assertions.core) }
-    }
-  }
-}
-
-tasks
-    .matching { it.name.endsWith("ProcessResources") }
-    .configureEach {
-      dependsOn(generateCanonResourceIndex)
-    }
-
-dokka {
-  dokkaSourceSets {
-    named("commonMain") {
-      samples.from("src/commonMain/kotlin/dev/martianzoo/tfm/canon/samples.kt")
-    }
+    commonTest { dependencies { implementation(libs.kotest.assertions.core) } }
   }
 }

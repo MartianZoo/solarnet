@@ -1,11 +1,11 @@
-import dev.detekt.gradle.extensions.DetektExtension
 import java.net.URI
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-import org.jetbrains.dokka.gradle.DokkaExtension
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -14,9 +14,29 @@ plugins {
   id("org.jetbrains.dokka")
 }
 
-extensions.configure<DetektExtension> {
+detekt {
   buildUponDefaultConfig = true
   config.setFrom(rootProject.file("detekt.yml"))
+}
+
+plugins.withType<KotlinBasePlugin>().configureEach {
+  // Every Kotlin module here uses strict explicit API mode, so accidental API growth shows up
+  // in review.
+  extensions.configure<KotlinProjectExtension> { explicitApi() }
+
+  val kotlinVersion = getKotlinPluginVersion()
+  configurations
+      .matching { it.name != "detekt" }
+      .configureEach {
+        resolutionStrategy.eachDependency {
+          if (requested.group == "org.jetbrains.kotlin") {
+            useVersion(kotlinVersion)
+            because(
+                "Kotlin/JS compilation requires libraries compiled for the project Kotlin version"
+            )
+          }
+        }
+      }
 }
 
 tasks.withType<KotlinCompilationTask<*>>().configureEach {
@@ -41,28 +61,7 @@ tasks.withType<KotlinJvmCompile>().configureEach {
 
 tasks.withType<JavaCompile>().configureEach { options.release.set(17) }
 
-val kotlinVersion =
-    extensions
-        .getByType<VersionCatalogsExtension>()
-        .named("libs")
-        .findVersion("kotlin")
-        .get()
-        .requiredVersion
-
-configurations
-    .matching { it.name != "detekt" }
-    .configureEach {
-      resolutionStrategy.eachDependency {
-        if (requested.group == "org.jetbrains.kotlin") {
-          useVersion(kotlinVersion)
-          because(
-              "Kotlin/JS compilation requires libraries compiled for the project Kotlin version"
-          )
-        }
-      }
-    }
-
-extensions.configure<DokkaExtension> {
+dokka {
   dokkaPublications.configureEach { suppressInheritedMembers.set(true) }
   dokkaSourceSets.configureEach {
     documentedVisibilities.set(setOf(VisibilityModifier.Public, VisibilityModifier.Protected))

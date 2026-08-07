@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.api.tasks.testing.Test
 
 plugins {
   id("solarnet.jvm")
@@ -11,32 +10,26 @@ dependencies {
   implementation(project(":script"))
   implementation(libs.jline)
 
-  testImplementation(platform(libs.junit.bom))
-  testImplementation(libs.junit.jupiter.api)
-  testRuntimeOnly(libs.junit.jupiter.engine)
-  testRuntimeOnly(libs.junit.platform.launcher)
   testImplementation(libs.truth)
 }
 
-tasks {
-  named<ShadowJar>("shadowJar") {
-    mergeServiceFiles()
-    manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.repl.JlineReplKt")) }
-  }
+val shadowJar = tasks.named<ShadowJar>("shadowJar")
 
-  test {
-    filter { excludeTestsMatching("dev.martianzoo.repl.JlineReplSmokeTest") }
-  }
+shadowJar.configure {
+  mergeServiceFiles()
+  manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.repl.JlineReplKt")) }
+}
 
-  register<Test>("realTerminalSmokeTest") {
-    description = "Runs the REPL smoke test in a real terminal session using Expect."
-    group = "verification"
-    dependsOn(shadowJar)
-    testClassesDirs = sourceSets.test.get().output.classesDirs
-    classpath = sourceSets.test.get().runtimeClasspath
-    useJUnitPlatform()
-    filter { includeTestsMatching("dev.martianzoo.repl.JlineReplSmokeTest") }
-    systemProperty("repl.shadowJar", named<ShadowJar>("shadowJar").get().archiveFile.get().asFile)
-    systemProperty("repl.smokeScript", file("src/test/expect/repl-smoke.exp"))
-  }
+// The smoke test needs a real terminal, so it is excluded from `test` and gets its own task.
+tasks.test { filter { excludeTestsMatching("dev.martianzoo.repl.JlineReplSmokeTest") } }
+
+tasks.register<Test>("realTerminalSmokeTest") {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs the REPL smoke test in a real terminal session using Expect."
+  dependsOn(shadowJar)
+  testClassesDirs = sourceSets.test.get().output.classesDirs
+  classpath = sourceSets.test.get().runtimeClasspath
+  filter { includeTestsMatching("dev.martianzoo.repl.JlineReplSmokeTest") }
+  systemProperty("repl.shadowJar", shadowJar.get().archiveFile.get().asFile)
+  systemProperty("repl.smokeScript", file("src/test/expect/repl-smoke.exp"))
 }
