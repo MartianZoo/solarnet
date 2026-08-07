@@ -73,7 +73,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
       TERRAFORMING MARS
         tfm_board           -> displays an extremely bad looking player board
         tfm_map             -> displays an extremely bad looking Mars board
-        tfm_play <card>     -> plays a Terraforming Mars card (shortcut)
+        tfm_play <card>,... -> plays a card, with optional inline tfm_pay arguments
         tfm_pay <amt> <res> -> pays some amount of MC/Steel/etc for something (shortcut)
         tfm_sample          -> executes one of the hardcoded sample games
       """

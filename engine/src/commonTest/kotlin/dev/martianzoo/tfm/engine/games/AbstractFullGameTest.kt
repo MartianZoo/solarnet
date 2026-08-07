@@ -35,6 +35,8 @@ abstract class AbstractFullGameTest : TfmTest() {
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
   }
 
+  // Script-local counterparts live in
+  // script/src/commonTest/kotlin/dev/martianzoo/tfm/script/StinaScriptTest.kt.
   protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertProds(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
   }

@@ -37,6 +37,7 @@ internal class ScriptCompletionEngineTest {
     repl.command("newgame BRMVPX 2")
 
     assertContainsAll(values("tfm_play Man"), "Mangrove", "Manutech")
+    assertContainsAll(values("tfm_play Manutech, T"), "Titanium", "T")
   }
 
   @Test
