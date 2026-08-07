@@ -9,7 +9,14 @@ import kotlin.test.BeforeTest
 
 abstract class ColoniesCardTest : CardTest() {
   private val colonyTiles: Set<ClassName> =
-      setOf("Luna", "Io", "Triton", "Europa", /*delayed*/ "Titan").toSetStrict(::cn)
+      setOf(
+              "Luna",
+              "Io",
+              "Triton",
+              "Europa", /*delayed*/
+              "Titan",
+          )
+          .toSetStrict(::cn)
 
   @BeforeTest
   fun initializeGame() {

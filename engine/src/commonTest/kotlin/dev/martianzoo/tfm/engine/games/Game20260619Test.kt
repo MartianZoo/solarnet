@@ -297,7 +297,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB played Power Plant
     // KB gained 1 energy production
     // KB ended turn
-    KB.playProject("PowerPlantCard", 4)
+    KB.playProject("PowerPlant", 4)
     KB.declineSecondAction()
 
     // ER played Pets

@@ -67,7 +67,7 @@ ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
   }
 
   // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.
-  "A resource cube living on some particular card, such as `Animal<Pets>`"
+  "A resource cube living on some particular card, such as `Animal<Card172>`"
   ABSTRACT CLASS CardResource : Resource, Cardbound<ResourceCard<Class<This>>> {
     DEFAULT +CardResource.
   }

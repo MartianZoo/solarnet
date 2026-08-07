@@ -93,7 +93,7 @@
       "actions": [ "-> Animal<This> OR Microbe" ],
       "effects": [ "CityTile<Anyone>: Animal<This>" ],
       "components": [
-        "CLASS VerminWatcher : Owned<Player> { HAS =1 This; End IF 10 Animal<Anyone, Vermin<Anyone>>: -VictoryPoint / CityTile<Owner> }"
+        "CLASS CardX75Watcher : Owned<Player> { HAS =1 This; End IF 10 Animal<Anyone, CardX75<Anyone>>: -VictoryPoint / CityTile<Owner> }"
       ],
     },
 
@@ -104,10 +104,10 @@
       "tags": [ "MicrobeTag" ],
       "resourceType": "Microbe",
       "immediate": "44, MandateXC03F",
-      "effects": [ "MicrobeTag<Anyone>: 2 Megacredit<Owner>" ],
+      "effects": [ "MicrobeTag<Anyone>: 2" ],
       "components": [
         "CLASS MandateXC03F : Mandate { -> ProjectCard }",
-        "CLASS Splicer : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF CXC03F<Anyone>: 2 OR Microbe<CardFront> }"
+        "CLASS CardXC03FWatcher : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF CardXC03F<Anyone>: Microbe<CardFront> OR 2 }"
       ],
     },
 
@@ -715,9 +715,9 @@
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 16,
-      "immediate": "PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CyberiaFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaFirstChoice)> THEN -CyberiaFirstChoice",
+      "immediate": "PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CardX53FirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CardX53FirstChoice)> THEN -CardX53FirstChoice",
       "components": [
-        "CLASS CyberiaFirstChoice : Cardbound, Temporary"
+        "CLASS CardX53FirstChoice : Cardbound, Temporary"
       ],
     },
 

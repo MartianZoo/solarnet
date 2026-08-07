@@ -9,7 +9,7 @@ class ThorgateTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
-    p1.playCorp("Thorgate", 10)
+    p1.playCorp("ThorGate", 10)
     p1.manual("-10")
     engine.phase("Action")
   }

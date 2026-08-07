@@ -40,7 +40,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Generation 1
       // Player1 played CrediCor
       // Player1 kept 7 project cards
-      playCorp("Credicor", 7).expect("36")
+      playCorp("CrediCor", 7).expect("36")
 
       // You discarded Miranda
       // Player1 played Society Support
@@ -274,7 +274,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed Deimos Down tile at 51
       // Player1 gained 1 plant
       // Player1 gained 4 M€ from 2 ocean(s)
-      playProject("DeimosDownPromo", 23, titanium = 2) {
+      playProject("DeimosDown", 23, titanium = 2) {
             doTask("Ok")
             doTask("DdTile<Tharsis_7_8>")
           }

@@ -1,7 +1,9 @@
 package dev.martianzoo.tools
 
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
@@ -37,9 +39,11 @@ internal class SoloPlacementCalculator(
     tiles.clear()
     require(cards.size == 4) { "exactly four cards are required" }
     cards.forEach {
-      require(it.deck == PROJECT) { "${it.className} is not a project card" }
+      require(it.deck == PROJECT) {
+        "${soloPlacementVocabulary.displayName(it.className)} is not a project card"
+      }
       require(mode != PlacementMode.COMPATIBILITY || it.cost > 0) {
-        "${it.className} has cost 0, which compatibility mode rejects"
+        "${soloPlacementVocabulary.displayName(it.className)} has cost 0, which compatibility mode rejects"
       }
     }
 
@@ -92,7 +96,8 @@ internal class SoloPlacementCalculator(
   private fun placeCity(card: CardDefinition, candidates: List<AreaDefinition>): AreaDefinition {
     val index = index(card.cost)
     require(index < candidates.size) {
-      "${card.className} costs ${card.cost}, but only ${candidates.size} legal city areas remain"
+      "${soloPlacementVocabulary.displayName(card.className)} costs ${card.cost}, " +
+          "but only ${candidates.size} legal city areas remain"
     }
     return candidates[index].also { tiles[it] = SoloTile.CITY }
   }
@@ -139,9 +144,9 @@ internal fun calculateSoloPlacements(arguments: List<String>): List<Placement> {
   require(namesInOrder.size == 5) {
     "usage: solo-placement [--compatibility] MAP CARD1 CARD2 CARD3 CARD4"
   }
-  val names = namesInOrder.map(::cn)
-  val map = Canon.marsMap(names.first())
-  val cards = names.drop(1).map(Canon::card)
+  val names = namesInOrder.map(::cn).map(soloPlacementVocabulary::canonicalName)
+  val map = soloPlacementRuleset.marsMap(names.first())
+  val cards = names.drop(1).map(soloPlacementRuleset::card)
   val mode = if (compatibility) PlacementMode.COMPATIBILITY else PlacementMode.STANDARD
   return SoloPlacementCalculator(map, mode).calculate(cards)
 }
@@ -151,18 +156,29 @@ internal fun formatPlacements(placements: List<Placement>): String {
   return buildString {
     appendLine("Cards (draw order):")
     drawOrder.forEachIndexed { index, placement ->
-      appendLine("${index + 1}. ${placement.card.className}: ${placement.card.cost}")
+      appendLine(
+          "${index + 1}. ${soloPlacementVocabulary.displayName(placement.card.className)}: " +
+              placement.card.cost
+      )
     }
     appendLine("Placements:")
     placements.forEach { placement ->
       val label = placement.tile.name.lowercase().replaceFirstChar(Char::uppercase)
       appendLine(
           "$label ${placement.ordinal}: ${placement.area.className} " +
-              "(${placement.card.className}, ${placement.card.cost})"
+              "(${soloPlacementVocabulary.displayName(placement.card.className)}, ${placement.card.cost})"
       )
     }
   }
       .trimEnd()
+}
+
+private val soloPlacementRuleset: TfmRuleset by lazy {
+  Canon.resolve(Canon.bundles.mapTo(linkedSetOf()) { it.bundleName })
+}
+
+private val soloPlacementVocabulary: Vocabulary by lazy {
+  Vocabulary.create(soloPlacementRuleset)
 }
 
 public fun main(args: Array<String>) {

@@ -12,9 +12,6 @@ public interface Definition : HasClassName {
   /** The class name this definition will be known as; see [ClassDeclaration.className]. */
   override val className: ClassName
 
-  /** A shorter name, to be supplied as [ClassDeclaration.shortName]. */
-  public val shortName: ClassName
-
   /** Setup-world condition that must hold for this definition to be active. */
   public val setupRequirement: Requirement?
     get() = null

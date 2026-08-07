@@ -12,6 +12,7 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -84,7 +85,7 @@ internal fun canonicalPremise(
           Canon.setupWorldDefinition(
               players,
               Canon.GameOptions(options, excludedOptions),
-              colonyTiles,
+              colonyTiles.mapTo(linkedSetOf(), TEST_ENGLISH_VOCABULARY::canonicalName),
           ),
           inputOnlySynonyms = TEST_CLASS_SYNONYMS,
       )
@@ -119,8 +120,11 @@ private val MAP_OPTIONS =
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     val count = Canon.requiredColonyTileCount(players)
-    val selected = included.mapTo(linkedSetOf(), ::cn)
-    TEST_COLONY_TILES.map(::cn).filterNotTo(selected) { it in selected }
+    val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
+    TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
+        .filterNotTo(selected) {
+          it in selected
+        }
     return selected.take(count).toSet()
   }
 
@@ -188,3 +192,6 @@ object TestHelpers {
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")
 }
+
+private val TEST_ENGLISH_VOCABULARY =
+    Vocabulary.create(Canon.resolve(setOf(cn("TerraformingMars"), cn("ColoniesExpansion"))))

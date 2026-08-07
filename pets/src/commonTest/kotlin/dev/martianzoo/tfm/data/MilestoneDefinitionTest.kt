@@ -34,11 +34,11 @@ internal class MilestoneDefinitionTest {
             """
         )
 
-    milestones.single { it.shortName == cn("BM1") }.setupRequirement.toString() shouldBe
+    milestones.single { it.className == cn("MilestoneBM1") }.setupRequirement.toString() shouldBe
         "DemoMapOption"
-    milestones.single { it.shortName == cn("VM1") }.setupRequirement.toString() shouldBe
+    milestones.single { it.className == cn("MilestoneVM1") }.setupRequirement.toString() shouldBe
         "DemoMapOption, VenusNextExpansion"
-    milestones.single { it.shortName == cn("UM1") }.setupRequirement.toString() shouldBe
+    milestones.single { it.className == cn("MilestoneUM1") }.setupRequirement.toString() shouldBe
         "UtopiaPlanitiaMapOption, ColoniesExpansion"
   }
 }

@@ -47,9 +47,9 @@ internal class CanonInvariantsTest {
     checkComponentLimit("TemperatureStep", 0..19)
     checkComponentLimit("VenusStep", 0..15)
 
-    checkComponentLimit("ActionUsedMarker<Player1, Ants<Player1>>", 0..1)
+    checkComponentLimit("ActionUsedMarker<Player1, Card035<Player1>>", 0..1)
     checkComponentLimit("MandateB08<Player1>", 0..1)
-    checkComponentLimit("PowerTag<Player1, Ants<Player1>>", 0..2)
+    checkComponentLimit("PowerTag<Player1, Card035<Player1>>", 0..2)
     checkComponentLimit("Accept<Player1, Class<Steel>>", 0..1)
     checkComponentLimit("Pass<Player1>", 0..1)
 
@@ -82,14 +82,14 @@ internal class CanonInvariantsTest {
       restrictions(constrainedType)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
     }
 
-    checkSimple("Ants", range = 0..1)
+    checkSimple("Card035", range = 0..1)
     checkSimple("OceanTile", range = 0..9)
     checkSimple("ActionPhase", "Phase", range = 1..1)
     checkSimple("Tharsis_5_5", range = 1..1)
     checkSimple("GreeneryTile", "Tile<Tharsis_5_5>", range = 0..1)
 
-    checkSimple("FlownTradeFleet", "FlownTradeFleet<Luna>", range = 0..1)
-    checkSimple("Colony", "Colony<Luna>", range = 0..3)
+    checkSimple("FlownTradeFleet", "FlownTradeFleet<ColonyTile01>", range = 0..1)
+    checkSimple("Colony", "Colony<ColonyTile01>", range = 0..3)
 
     checkUnbound("Pass", THIS.expression, 0..1)
     checkUnbound("VenusTag", THIS.expression, 0..2)

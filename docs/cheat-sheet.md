@@ -4,7 +4,7 @@ Type `help` for a list; `help command-name` for more.
 
 ## class names
 
-Most "things" in the game are called just what you think: `Plant`, `TerraformRating`, `VictoryPoint`, `EarthCatapult`. A client may configure shorter synonyms such as `P`, `TR`, and `VP`; structured definitions can also have ids such as `C070`. Tiles end in `-Tile`, like `CityTile`. Global parameters end in `-Step`, like `TemperatureStep` counts how many times the temp has been raised (from zero to 19).
+Most "things" in the game are called just what you think: `Plant`, `TerraformRating`, and `VictoryPoint`. Cards and other structured content have stable internal names such as `Card070`, but the REPL accepts and displays their localized names, such as `EarthCatapult`. A client may also accept input-only synonyms such as `P`, `TR`, and `VP`; those abbreviations are not emitted. Tiles end in `-Tile`, like `CityTile`. Global parameters end in `-Step`, like `TemperatureStep` counts how many times the temp has been raised (from zero to 19).
 
 `CardBack` and `CardFront` are two different things! The first turns into the second when you play it (which might then turn into a `PlayedEvent`). Card backs of the same type, like `PreludeCard`, are indistinguishable; the card doesn't take on its unique identity until it's played.
 

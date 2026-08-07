@@ -64,7 +64,6 @@ internal class ClassDeclarationTest {
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
 
-    decl.shortName shouldBe foo
     decl.className shouldBe foo
     decl.abstract shouldBe true
     decl.dependencies.shouldContainExactlyInAnyOrder(dep)

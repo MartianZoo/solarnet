@@ -28,8 +28,9 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun completesPlayersByFullAndShortName() {
-    assertContainsAll(values("become P"), "Player1", "P1", "Player2", "P2")
+  fun completesPlayersWithoutEmittingInputOnlySynonyms() {
+    assertContainsAll(values("become P"), "Player1", "Player2")
+    assertFalse(values("become P").any { it == "P1" || it == "P2" })
   }
 
   @Test
@@ -37,14 +38,14 @@ internal class ScriptCompletionEngineTest {
     repl.command("newgame BRMVPX 2")
 
     assertContainsAll(values("tfm_play Man"), "Mangrove", "Manutech")
-    assertContainsAll(values("tfm_play Manutech, T"), "Titanium", "T")
+    assertEquals(listOf("Titanium"), values("tfm_play Manutech, T"))
   }
 
   @Test
   fun completesPetsClassNamesInsideExpressions() {
     assertContainsAll(values("exec PROD[Pla"), "PROD[Plant", "PROD[PlantTag")
     assertTrue("Class<ProjectCard" in values("count Class<Pro"))
-    assertContainsAll(values("tfm_pay M"), "M", "Megacredit")
+    assertEquals(listOf("Megacredit"), values("tfm_pay M"))
   }
 
   @Test
@@ -118,7 +119,8 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   fun delegatesAsCommandCompletion() {
-    assertContainsAll(values("as P"), "Player1", "P1")
+    assertContainsAll(values("as P"), "Player1")
+    assertFalse("P1" in values("as P"))
     assertTrue("mode" in values("as P1 mo"))
     assertEquals(listOf("blue"), values("as P1 mode b"))
   }

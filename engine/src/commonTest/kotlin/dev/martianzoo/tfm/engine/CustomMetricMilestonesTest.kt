@@ -48,7 +48,7 @@ internal class CustomMetricMilestonesTest {
     val p1 = game.tfm(PLAYER1)
     p1.godMode()
         .manual(
-            "Ecoline, Thorgate, Phobolog, InventorsGuild, EarthOffice, " +
+            "Ecoline, ThorGate, Phobolog, InventorsGuild, EarthOffice, " +
                 "IoMiningIndustries, Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
         )
     game

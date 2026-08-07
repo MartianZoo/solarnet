@@ -114,7 +114,7 @@ class TransformersTest {
   @Test
   fun `invalid atomic change after trigger specialization becomes Die`() {
     val general = CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)"))
-    val specific = CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>"))
+    val specific = CanonClassesTest.table.resolve(parse<Expression>("Card158<Player1>"))
     val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
 
     transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
@@ -126,13 +126,11 @@ class TransformersTest {
     val general =
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
-        CanonClassesTest.table.resolve(
-            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
-        )
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, Card131<Player1>>"))
     val instruction = parse<Instruction>("Microbe<CardFront<Player1>>")
 
     transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
-        "Microbe<Decomposers<Player1>>"
+        "Microbe<Card131<Player1>>"
   }
 
   @Test
@@ -140,9 +138,7 @@ class TransformersTest {
     val general =
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
-        CanonClassesTest.table.resolve(
-            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
-        )
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, Card131<Player1>>"))
     val instruction =
         parse<Instruction>("Microbe<CardFront<Player1>> OR Microbe<CardFront<Player2>>")
 
@@ -153,6 +149,6 @@ class TransformersTest {
             setOf(parse("CardFront<Player1>")),
         )
         .transform(instruction)
-        .toString() shouldBe "Microbe<Decomposers<Player1>> OR Microbe<CardFront<Player2>>"
+        .toString() shouldBe "Microbe<Card131<Player1>> OR Microbe<CardFront<Player2>>"
   }
 }

@@ -12,6 +12,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.Access.BlueMode
@@ -57,9 +58,9 @@ import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 import dev.martianzoo.types.Type
-import dev.martianzoo.util.toStrings
 
 public class ScriptSession(
+    private val locale: String = Vocabulary.ENGLISH,
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
@@ -73,7 +74,7 @@ public class ScriptSession(
       setup: OptionCodeTranslation.Setup,
       purple: Boolean = false,
   ) {
-    val candidateGame = createGame(setup)
+    val candidateGame = createGame(setup, locale)
     val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
       TfmWorkflow.Auto(candidateGame).launch()
@@ -169,7 +170,12 @@ public class ScriptSession(
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes = result.changes.filterNot { isHidden(it, game.reader) }.toStrings()
+    val changes =
+        result.changes
+            .filterNot { isHidden(it, game.reader) }
+            .map { event ->
+              game.vocabulary.renderPets(event)
+            }
 
     val newTasks: Set<TaskId> = result.tasksSpawned
     val taskLines =
@@ -202,7 +208,7 @@ public class ScriptSession(
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
       selectableTasks(ids).map { (label, task) ->
-        task.toStringWithoutCause(queueAssignee = task.assignee, displayId = label)
+        game.vocabulary.renderPets(task, queueAssignee = task.assignee, displayId = label)
       }
 
   internal fun resolveTaskLabel(label: String): TaskId? =
@@ -271,9 +277,23 @@ public class ScriptSession(
     val type: Type = gameplay.resolve(name)
     return Player(type.className)
   }
+
+  internal fun canonicalColonyName(name: String): ClassName =
+      colonyInputVocabulary.canonicalName(cn(name))
+
+  private val colonyInputVocabulary: Vocabulary by lazy {
+    Vocabulary.create(
+        Canon.resolve(setOf(cn("TerraformingMars"), cn("ColoniesExpansion"))),
+        locale,
+        TFM_SCRIPT_CLASS_SYNONYMS,
+    )
+  }
 }
 
-internal fun createGame(setup: OptionCodeTranslation.Setup): World {
+internal fun createGame(
+    setup: OptionCodeTranslation.Setup,
+    locale: String = Vocabulary.ENGLISH,
+): World {
   val setupWorld =
       Engine.newSetupWorld(
           Canon.setupWorldDefinition(
@@ -281,6 +301,7 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
               Canon.GameOptions(setup.options, setup.excludedOptions),
               setup.selectedColonies,
           ),
+          locale,
           inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
       )
   return Engine.newGame(setupWorld, Canon::assemble)

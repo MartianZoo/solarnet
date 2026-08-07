@@ -5,6 +5,7 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.tfmRuleset
@@ -27,8 +28,8 @@ internal class SetupWorldTest {
     reader.count("TharsisMapOption") shouldBe 1
     reader.count("MultiplayerMode") shouldBe 1
     reader.count("Player") shouldBe 2
-    setupWorld.classTable.allClassNamesAndIds.shouldNotContain(cn("TerraformRating"))
-    setupWorld.classTable.allClassNamesAndIds.shouldNotContain(cn("Owner"))
+    setupWorld.classTable.allClassNames.shouldNotContain(cn("TerraformRating"))
+    setupWorld.classTable.allClassNames.shouldNotContain(cn("Owner"))
     setupWorld.isIdle() shouldBe true
   }
 
@@ -48,7 +49,7 @@ internal class SetupWorldTest {
 
     setupWorld.count("Player") shouldBe 5
     setupWorld.count("GameOption") shouldBe 9
-    setupWorld.count("TitanSelected") shouldBe 1
+    setupWorld.count("ColonyTile10Selected") shouldBe 1
   }
 
   @Test
@@ -75,7 +76,7 @@ internal class SetupWorldTest {
 
     val game = Engine.newGame(setupWorld, Canon::assemble)
     game.gameplay(ENGINE).count("CorporateEraExpansion") shouldBe 0
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Exclude"))
+    game.classTable.allClassNames.shouldNotContain(cn("Exclude"))
   }
 
   @Test
@@ -139,13 +140,15 @@ internal class SetupWorldTest {
 
     game.reader.tfmRuleset.marsMapDefinitions.single().className shouldBe cn("Elysium")
     game.gameplay(ENGINE).count("TerraformingMars") shouldBe 1
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("GameOption"))
+    game.classTable.allClassNames.shouldNotContain(cn("GameOption"))
     game.gameplay(ENGINE).count("GameModule") shouldBe 6
     game.gameplay(ENGINE).count("ElysiumMapOption") shouldBe 1
     game.gameplay(ENGINE).count("Elysium") shouldBe 1
-    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("HM5") } shouldBe true
-    game.reader.tfmRuleset.milestoneDefinitions.any { it.shortName == cn("HM0") } shouldBe false
-    game.reader.tfmRuleset.cardDefinitions.any { it.className == cn("DoubleDown") } shouldBe true
+    game.reader.tfmRuleset.milestoneDefinitions.any { it.className == cn("MilestoneHM5") } shouldBe
+        true
+    game.reader.tfmRuleset.milestoneDefinitions.any { it.className == cn("MilestoneHM0") } shouldBe
+        false
+    game.reader.tfmRuleset.cardDefinitions.any { it.className == cn("CardX40") } shouldBe true
     game.gameplay(ENGINE).count("PromoCardPack") shouldBe 1
     game.gameplay(ENGINE).count("Player") shouldBe 2
   }
@@ -153,7 +156,7 @@ internal class SetupWorldTest {
   @Test
   fun setupWorldWithPendingWorkCannotCreateARealGame() {
     val setupWorld = newSetupWorld()
-    setupWorld.gameplay(ENGINE).godMode().addTasks("TitanSelected")
+    setupWorld.gameplay(ENGINE).godMode().addTasks("ColonyTile10Selected")
 
     shouldThrow<TaskException> { Engine.newGame(setupWorld, Canon::assemble) }
   }
@@ -173,7 +176,7 @@ internal class SetupWorldTest {
     game.gameplay(ENGINE).count("Player") shouldBe 1
     game.gameplay(ENGINE).count("SelectedColonyTile") shouldBe 3
     setupWorld.gameplay(ENGINE).count("SelectedColonyTile") shouldBe 3
-    setupWorld.gameplay(ENGINE).count("PlutoSelected") shouldBe 1
+    setupWorld.gameplay(ENGINE).count("ColonyTile09FSelected") shouldBe 1
   }
 
   @Test
@@ -203,7 +206,16 @@ internal class SetupWorldTest {
       selectedColonies: Set<ClassName> = emptySet(),
   ): World =
       Engine.newSetupWorld(
-          Canon.setupWorldDefinition(players, options, selectedColonies),
+          Canon.setupWorldDefinition(
+              players,
+              options,
+              selectedColonies.mapTo(linkedSetOf(), COLONY_VOCABULARY::canonicalName),
+          ),
           inputOnlySynonyms = TEST_CLASS_SYNONYMS,
       )
+
+  private companion object {
+    val COLONY_VOCABULARY =
+        Vocabulary.create(Canon.resolve(setOf(cn("TerraformingMars"), cn("ColoniesExpansion"))))
+  }
 }

@@ -4,6 +4,7 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.TypeDescription
 import dev.martianzoo.pets.HasExpression.Companion.expressions
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
@@ -11,7 +12,6 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.types.Type
-import dev.martianzoo.util.iff
 import dev.martianzoo.util.random
 
 internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("desc") {
@@ -45,40 +45,42 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
           val expression: Expression = repl.gameplay.parse(args)
           expression to repl.gameplay.resolve(args)
         }
-    return listOf(TypeToText.describe(expression, type))
+    return listOf(TypeToText.describe(expression, type, repl.game.vocabulary))
   }
 
   object TypeToText {
     /** A detailed multi-line description of a type. */
-    internal fun describe(expression: Expression, type: Type): String {
+    internal fun describe(expression: Expression, type: Type, vocabulary: Vocabulary): String {
 
       val desc = TypeDescription(type)
 
       val long = type.className
-      val short = desc.classShortName
-      val classDisplay = "$long" + "[$short]".iff(short != long)
+      val altName = vocabulary.petsName(long)
 
       val subs = desc.subclassNames - long
       val subclassesDisplay =
           when (subs.size) {
             0 -> "(none)"
-            in 1..7 -> subs.joinToString()
-            else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
+            in 1..7 -> subs.joinToString { vocabulary.petsName(it).toString() }
+            else ->
+                subs.take(6).joinToString { vocabulary.petsName(it).toString() } +
+                    " (${subs.size - 6} others)"
           }
 
       val classStuff =
           """
-          Class `$classDisplay`:
+          Class `$long`:
+            alt name:    $altName
             docstring:   ${desc.docstring}
             subclasses:  $subclassesDisplay
-            subclasses:  ${desc.superclassNames}
-            invariants:  ${desc.classInvariants.joinToString().ifEmpty { "(none)" }}
-            base type:   ${desc.baseType.expressionFull}
+            superclasses: ${desc.superclassNames.joinToString { vocabulary.petsName(it).toString() }}
+            invariants:  ${desc.classInvariants.joinToString { vocabulary.renderPets(it) }.ifEmpty { "(none)" }}
+            base type:   ${vocabulary.renderPets(desc.baseType.expressionFull)}
             cmpt types:  ${desc.concreteTypesForThisClassCount}
             raw fx:      ${desc.rawClassEffects.joinToString("""
-                         """)}
+                         """) { vocabulary.renderPets(it) }}
             class fx:    ${desc.classEffects.joinToString("""
-                         """)}
+                         """) { vocabulary.renderPets(it) }}
 
 
         """
@@ -86,12 +88,12 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
 
       val typeStuff =
           """
-          Expression `$expression`:
-            std. form:   ${type.expression}
-            long form:   ${type.expressionFull}
-            supertypes:  ${desc.supertypes.joinToString { "${it.expressionFull}" }}
+          Expression `${vocabulary.renderPets(expression)}`:
+            std. form:   ${vocabulary.renderPets(type.expression)}
+            long form:   ${vocabulary.renderPets(type.expressionFull)}
+            supertypes:  ${desc.supertypes.joinToString { vocabulary.renderPets(it.expressionFull) }}
             cmpt types:  ${desc.componentTypesCount}
-            subs:        ${desc.substitutions}
+            subs:        ${desc.substitutions.entries.joinToString(prefix = "{", postfix = "}") { (key, value) -> "${vocabulary.petsName(key)}=${vocabulary.renderPets(value)}" }}
         """
               .trimIndent()
 
@@ -102,9 +104,9 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
             """
 
 
-            Component `${type.expressionFull}`:
+            Component `${vocabulary.renderPets(type.expressionFull)}`:
               effects:     ${desc.componentEffects.joinToString("""
-                           """)}
+                           """) { vocabulary.renderPets(it) }}
           """
                 .trimIndent()
           }

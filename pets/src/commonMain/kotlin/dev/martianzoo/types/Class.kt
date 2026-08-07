@@ -63,9 +63,6 @@ internal constructor(
     }
   }
 
-  /** A programmatic identity such as card id `"C070"`; is often the same as [className]. */
-  public val shortName: ClassName by declaration::shortName
-
   /** A textual explanation for this class. */
   public val docstring: String? by declaration::docstring
 

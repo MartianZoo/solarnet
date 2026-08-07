@@ -402,8 +402,8 @@ remained untouched, not merely whether it currently has the same number of event
 Before any instruction string reaches the engine, `ApiTranslation` runs it through a chain of
 `PetTransformer` passes (assembled once per player scope):
 
-1. **`canonicalize(vocabulary)`** — resolves localized Pets names and client-configured input-only synonyms to canonical class names
-2. **`useFullNames()`** — resolves transitional structured-definition ids to canonical class names
+1. **Session vocabulary canonicalization** — resolves localized Pets names and configured input-only synonyms to the sole canonical class names
+2. **`useFullNames()`** — resolves and validates those canonical names against the class table
 3. **`atomizer()`** — expands `3 Heat` (where Heat is `Atomized`) into `Multi(Heat, Heat, Heat)`,
    so that each unit triggers effects individually
 4. **`insertDefaults()`** — fills in omitted dependency arguments using the class's declared

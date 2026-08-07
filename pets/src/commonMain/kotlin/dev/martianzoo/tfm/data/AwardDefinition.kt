@@ -9,7 +9,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.AWARD
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -27,13 +26,11 @@ public data class AwardDefinition(
     require(setupRequirementText?.isNotBlank() != false)
   }
 
-  @Transient override val shortName: ClassName = cn(id)
-
   @Transient override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
 
   @Transient public val metric: Metric = parse(metricText)
 
-  @Transient override val className: ClassName = englishHack(id)
+  @Transient override val className: ClassName = cn("Award$id")
 
   internal fun withSetupRequirement(setupRequirement: String): AwardDefinition {
     return copy(
@@ -45,7 +42,6 @@ public data class AwardDefinition(
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
         className,
-        shortName,
         kind = CONCRETE,
         supertypes = setOf(AWARD.expression),
         effects =

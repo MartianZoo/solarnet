@@ -132,7 +132,7 @@
       "deck": "PRELUDE",
       "immediate": "PROD[Plant], CardP10Effect, PlayCard THEN -99 Required<Class<GlobalParameter>>.",
       "components": [
-        "CLASS CardP10Effect : Owned, Temporary { CardFront: PlantTag<EcologyExperts>, MicrobeTag<EcologyExperts>, -This! }"
+        "CLASS CardP10Effect : Owned, Temporary { CardFront: PlantTag<CardP10>, MicrobeTag<CardP10>, -This! }"
       ],
     },
 

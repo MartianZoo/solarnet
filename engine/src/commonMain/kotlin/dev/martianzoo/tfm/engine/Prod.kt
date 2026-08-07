@@ -23,7 +23,7 @@ public object Prod {
     val standardResource = classTable.findActiveClass(STANDARD_RESOURCE) ?: return emptySet()
     if (!classTable.isActive(PRODUCTION)) return emptySet()
     return standardResource.allSubclasses().flatMapTo(mutableSetOf()) {
-      setOf(it.className, it.shortName)
+      setOf(it.className)
     }
   }
 

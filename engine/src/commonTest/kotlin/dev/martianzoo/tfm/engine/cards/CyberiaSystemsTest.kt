@@ -21,7 +21,7 @@ class CyberiaSystemsTest : CardTest() {
           doTask("CopyProductionBox<IndustrialMicrobes>")
         }
         .expect("PROD[3 Steel, Energy]")
-    p1.count("CyberiaFirstChoice") shouldBe 0
+    p1.count("CardX53FirstChoice") shouldBe 0
   }
 
   @Test

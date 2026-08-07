@@ -22,7 +22,7 @@ internal object PromoCardsExpansion {
       if (card.deck != PRELUDE) {
         throw NarrowingException("Card ${card.className} is not a prelude card")
       }
-      if (card.className == cn("DoubleDown")) {
+      if (card.className == cn("CardX40")) {
         throw NarrowingException("Cute, but Double Down can't copy itself")
       }
       return card.immediate ?: NoOp

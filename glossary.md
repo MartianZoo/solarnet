@@ -85,8 +85,9 @@
 - **Requirement:** A Pets predicate evaluated against a world, used for queries, gates, invariants, and refinements.
 - **Rollback:** Reversing events after a checkpoint to restore an earlier state.
 - **Root type:** The class named at the head of a type expression, before its written dependency bounds.
-- **Class synonym:** A client-configured alternate spelling such as `TR` for `TerraformRating`; it is not part of a Pets class declaration.
-- **Short name:** A programmatic identity for a structured definition, such as the card id `C070`; it is not declared in `.pets` source.
+- **Canonical class name:** A class's sole stable engine identity. Structured content uses language-neutral names such as `Card070` and `MilestoneHM6`.
+- **Class synonym:** A client-configured input-only spelling such as `TR` for `TerraformRating`; it is never used in output or stored state.
+- **Vocabulary:** A session's locale-specific mapping between canonical class names, natural display names, parseable Pets names, and input-only synonyms.
 - **Hidden:** An implementation component normally omitted from user-facing output. This is a
   presentation classification, not an Actor or ownership rule.
 - **Signal:** A hidden temporary component that immediately removes itself after triggering its effects.

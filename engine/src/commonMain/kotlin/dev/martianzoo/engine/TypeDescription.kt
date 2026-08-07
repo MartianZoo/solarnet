@@ -14,8 +14,6 @@ public class TypeDescription public constructor(type: Type) {
   private val rootClass: Class by type::rootClass
   private val transformers = Transformers(type.classTable)
 
-  public val classShortName: ClassName by rootClass::shortName
-
   public val docstring: String? by rootClass::docstring
 
   public val superclassNames: Set<ClassName> = rootClass.allSuperclasses().classNames()

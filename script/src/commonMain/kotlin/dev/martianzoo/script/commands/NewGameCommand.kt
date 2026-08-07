@@ -1,6 +1,5 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -41,7 +40,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val optionCodes = parts.getOrNull(0) ?: throw UsageException()
       val playerCount = parts.getOrNull(1)?.toInt() ?: throw UsageException()
       val colonyNames = parts.drop(2).let { if (purple) it.dropLast(1) else it }
-      val selectedColonies = colonyNames.map(::cn).toSetStrict()
+      val selectedColonies = colonyNames.map(repl::canonicalColonyName).toSetStrict()
 
       repl.newGame(optionCodes, playerCount, selectedColonies, purple)
       val effectiveOptionCodes = repl.setup.optionCodes

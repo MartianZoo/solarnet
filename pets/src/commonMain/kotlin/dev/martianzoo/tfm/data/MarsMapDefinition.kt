@@ -21,11 +21,9 @@ public data class MarsMapDefinition(
     val areas: Grid<AreaDefinition>,
     override val setupRequirement: Requirement? = null,
 ) : Definition {
-  override val shortName: ClassName by ::className
   override val asClassDeclaration: ClassDeclaration =
       ClassDeclaration(
           className = className,
-          shortName = shortName,
           kind = CONCRETE,
           supertypes = setOf(MARS_MAP.expression),
       )
@@ -66,7 +64,6 @@ public data class MarsMapDefinition(
     override val asClassDeclaration: ClassDeclaration by lazy {
       ClassDeclaration(
           className = className,
-          shortName = shortName,
           kind = CONCRETE,
           supertypes = setOf(kind.expression),
           effects = toEffects(bonus),
@@ -74,7 +71,6 @@ public data class MarsMapDefinition(
     }
 
     override val className: ClassName = cn("${mapName}_${row}_$column")
-    override val shortName: ClassName by ::className
   }
 
   private companion object {

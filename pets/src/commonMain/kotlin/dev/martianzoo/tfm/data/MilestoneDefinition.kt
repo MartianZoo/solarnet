@@ -8,7 +8,6 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.MILESTONE
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -28,18 +27,15 @@ public data class MilestoneDefinition(
     require(setupRequirementText?.isNotBlank() != false)
   }
 
-  @Transient override val shortName: ClassName = cn(id)
-
   @Transient override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
 
   @Transient val requirement: Requirement = parse(requirementText)
 
-  @Transient override val className: ClassName = englishHack(id)
+  @Transient override val className: ClassName = cn("Milestone$id")
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
         className,
-        shortName,
         kind = CONCRETE,
         supertypes = setOf(MILESTONE.expression),
         effects = listOf(parse("This:: ($requirementText: $OK)")),

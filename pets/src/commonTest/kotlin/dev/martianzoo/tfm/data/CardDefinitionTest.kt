@@ -31,7 +31,7 @@ internal class CardDefinitionTest {
   @Test
   fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
-    birds.shortName shouldBe cn("C072")
+    birds.className shouldBe cn("Card072")
     birds.deck shouldBe PROJECT
     birds.tags.toStrings().shouldContainExactlyInAnyOrder("AnimalTag")
     birds.immediate!!.toString() shouldBe "PROD[-2 Plant<Anyone>]"

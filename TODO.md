@@ -68,7 +68,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Remove `Definition.shortName` and its class-loader alias namespace once every definition category uses stable canonical class names; standard actions already set the transitional short name equal to the canonical name.
 - Resolve Floyd Continuum's printed `007` collision with Martian Rails and decide whether the Dutch Open card belongs in canonical scope before replacing its provisional `XM1` identifier.
 - Enforce global uniqueness for canonical identifiers during canon loading or in CI, across all object kinds.
 - Separate `Instructor`'s preparation-only capability from execution so `Changer`, `Effector`, and

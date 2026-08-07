@@ -18,7 +18,7 @@ import kotlin.test.Test
 
 internal class ClassTest {
   @Test
-  fun classLoadingDoesNotAcceptClientInputSynonyms() {
+  fun classLoadingUsesCanonicalNamesOnly() {
     val classes = parseClasses("CLASS Foo").toSetStrict()
     val ruleset =
         object : TfmRuleset.Empty() {

@@ -54,7 +54,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
     p1.playProject("SpecialDesign", 4)
     p1.playProject("Farming", 16)
 
-    p1.assertCounts(1 to "Farming", 0 to "SpecialDesignEffect", 0 to "Required")
+    p1.assertCounts(1 to "Farming", 0 to "Card206Effect", 0 to "Required")
     shouldThrow<RequirementException> { p1.playProject("Birds", 10) }
   }
 

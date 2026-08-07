@@ -15,7 +15,7 @@ class CustomMetricCardsTest : CardTest() {
   fun `with Credicor, buys an expensive card and standard project`() {
     newGame()
     engine.phase("Action")
-    p1.manual("40, 2 ProjectCard, Credicor")
+    p1.manual("40, 2 ProjectCard, CrediCor")
     p1.playProject("EarthCatapult", 23).expect("-19")
     p1.stdProject("CitySP") { doTask("CityTile<Tharsis_2_1>") }.expect("-21")
   }
@@ -127,7 +127,7 @@ class CustomMetricCardsTest : CardTest() {
     newGame(PromoCardPack)
     // These have to be played: tags depend on their cards.
     requireP2().manual("EarthOffice, InventorsGuild, 9 Plant, 7 Steel, 5 Heat")
-    p1.manual("Ecoline, Thorgate, Phobolog, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard")
+    p1.manual("Ecoline, ThorGate, Phobolog, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard")
     p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 3
     p1.manual("InterplanetaryTrade").expect("PROD[3]")
   }
@@ -135,11 +135,11 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `event card tags can be excluded from distinct tag types`() {
     newGame()
-    requireP2().manual("Ecoline, Thorgate, Phobolog, 9 Plant, 7 Steel, 5 Heat")
+    requireP2().manual("Ecoline, ThorGate, Phobolog, 9 Plant, 7 Steel, 5 Heat")
     p1.godMode()
         .also { it.autoExecMode = NONE }
         .beginManual(
-            "EarthCatapult, AsteroidCard, Comet, Mine, InventorsGuild, " +
+            "EarthCatapult, Asteroid, Comet, Mine, InventorsGuild, " +
                 "8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
         )
 
@@ -199,7 +199,7 @@ class CustomMetricCardsTest : CardTest() {
         )
     p1.manual(
         "6 Megacredit, 5 ProjectCard, 4 Steel, 3 Titanium, 2 Plant, 2 Energy, 2 Heat, " +
-            "Ecoline, Thorgate, Phobolog, Pets, Decomposers, " +
+            "Ecoline, ThorGate, Phobolog, Pets, Decomposers, " +
             "Extremophiles, Tardigrades, Animal<Pets>, Microbe<Decomposers>, " +
             "2 Microbe<Extremophiles>, 3 Microbe<Tardigrades>"
     )

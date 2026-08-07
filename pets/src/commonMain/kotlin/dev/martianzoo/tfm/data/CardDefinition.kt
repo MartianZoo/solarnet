@@ -21,7 +21,6 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.ACTION_CARD
 import dev.martianzoo.tfm.data.TfmClasses.ACTIVE_CARD
 import dev.martianzoo.tfm.data.TfmClasses.AUTOMATED_CARD
@@ -48,9 +47,7 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val id: String by data::id
 
-  override val shortName: ClassName = cn("C$id")
-
-  override val className: ClassName = englishHack(id)
+  override val className: ClassName = cn("Card$id")
 
   /**
    * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
@@ -150,7 +147,6 @@ public class CardDefinition(data: CardData) : Definition {
 
     ClassDeclaration(
         className = className,
-        shortName = shortName,
         kind = CONCRETE,
         supertypes = supertypes,
         effects = allEffects,

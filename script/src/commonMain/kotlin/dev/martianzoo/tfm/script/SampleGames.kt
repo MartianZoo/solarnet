@@ -208,7 +208,7 @@ internal object SampleGames {
 
     p1.cardAction1("DevelopmentCenter")
     p1.cardAction1("InventorsGuild") { doTask("BuyCard") }
-    p2.playProject("DeimosDownPromo", 9, titanium = 5) {
+    p2.playProject("DeimosDown", 9, titanium = 5) {
       p2.doTask("OceanTile<Tharsis_6_7>")
       p2.doTask("DdTile<Tharsis_2_5>")
       p2.doTask("-4 Plant<P1>")

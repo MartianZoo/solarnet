@@ -79,10 +79,10 @@ internal class CanonClassesTest {
         .shouldContainExactly(PLAYER1, PLAYER2)
     premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
     val game = Engine.newGame(premise)
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloOpponent"))
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
+    game.classTable.allClassNames.shouldNotContain(cn("SoloMode"))
+    game.classTable.allClassNames.shouldNotContain(cn("SoloOpponent"))
+    game.classTable.allClassNames.shouldNotContain(cn("PreludeCard"))
+    game.classTable.allClassNames.shouldNotContain(cn("PreludePhase"))
   }
 
   @Test
@@ -124,7 +124,7 @@ internal class CanonClassesTest {
     val premise = canonicalPremise(players = 1)
     premise.actors.shouldContainExactly(PLAYER1, ENGINE)
     val game = setUpGame(premise)
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("Player2"))
+    game.classTable.allClassNames.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("StandardSoloVariant"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1

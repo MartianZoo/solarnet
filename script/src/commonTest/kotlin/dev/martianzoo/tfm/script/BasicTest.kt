@@ -21,13 +21,13 @@ internal fun setUpGame(
 
 internal class BasicTest {
   @Test
-  fun configuredClassSynonyms() {
+  fun configuredInputOnlySynonyms() {
     val game = setUpGame()
     val session = game.tfm(PLAYER2).godMode()
 
     session.manual("PROD[5, 4 E]")
     session.manual("ProjectCard")
-    session.manual("C138")
+    session.manual("Card138")
     session.manual("PROD[-2 E, 2 S, T]")
 
     assertEquals(0, session.count("PROD[E]"))

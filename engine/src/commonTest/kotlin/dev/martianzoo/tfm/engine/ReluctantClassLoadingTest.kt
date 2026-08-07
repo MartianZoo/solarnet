@@ -64,10 +64,8 @@ internal class ReluctantClassLoadingTest {
   @Test
   fun `Colonies classes stay unloaded without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
-    matchingClasses("colon(y|ie)", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA)
-        .shouldContainExactlyInAnyOrder(cn("GanymedeColony"))
-    matchingClasses("trade", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA)
-        .shouldContainExactlyInAnyOrder(cn("InterplanetaryTrade"), cn("Trader"))
+    matchingClasses("colon(y|ie)", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA).shouldBeEmpty()
+    matchingClasses("trade", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA).shouldBeEmpty()
   }
 
   @Test
@@ -206,6 +204,6 @@ internal class ReluctantClassLoadingTest {
           )
           .classTable
     }
-    val classNames by lazy { classTable.allClassNamesAndIds }
+    val classNames by lazy { classTable.allClassNames }
   }
 }

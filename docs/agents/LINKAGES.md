@@ -12,7 +12,7 @@ conform to that model.
 The general runtime already preserves authored type variables through effects, actions, task
 revision and splitting, atomic transmutation, and incremental `THEN` execution. The working cards
 and rules using those paths are regression constraints, not unfinished linkage work. In particular,
-Splice works through its generated `Splicer<Player>` components; replacing those is optional data
+Splice works through its generated `CardXC03FWatcher<Player>` components; replacing those is optional data
 cleanup involving task assignment, not a prerequisite for completing type variables.
 
 ## Remaining divergences

@@ -26,7 +26,7 @@ internal class RulesetCompositionTest {
 
     val game = setUpGame(canonicalPremise(ruleset = ruleset))
 
-    game.classTable.allClassNamesAndIds.shouldContain(cn("CompositionProbe"))
+    game.classTable.allClassNames.shouldContain(cn("CompositionProbe"))
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
   }
 

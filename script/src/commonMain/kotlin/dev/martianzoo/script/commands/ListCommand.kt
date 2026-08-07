@@ -28,7 +28,7 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
     val parentType: Type = repl.gameplay.resolve(args)
 
     // TODO When applicable include an explicit `<Anyone>` for clarity's sake
-    val displayType = parentType.expression
+    val displayType = repl.game.vocabulary.renderPets(parentType.expression)
 
     val totalCount = repl.game.reader.count(Count(parentType.expressionFull))
     if (totalCount == 0) return listOf("0 $displayType")
@@ -58,7 +58,7 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
 
     val x = listing.entries.sortedByDescending { (_, ct) -> ct }
 
-    output += x.map { (e, ct) -> "  $ct $e" }
+    output += x.map { (e, ct) -> "  $ct ${repl.game.vocabulary.renderPets(e.expression)}" }
     return output
   }
 }

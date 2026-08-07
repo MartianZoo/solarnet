@@ -546,7 +546,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 played Power Plant
     // Player2's energy production increased by 1
-    p2.playProject("PowerPlantCard", 2, steel = 1)
+    p2.playProject("PowerPlant", 2, steel = 1)
     // Player2 used Aquifer Pumping action
     p2.cardAction1("AquiferPumping") {
       p2.pay(8)
@@ -912,7 +912,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 played Deimos Down:promo
     // Player2's steel amount increased by 4
-    p2.playProject("DeimosDownPromo", 9, titanium = 5) {
+    p2.playProject("DeimosDown", 9, titanium = 5) {
       // Player2 placed ocean tile on row 6 position 6
       // Player2's plants amount increased by 1
       p2.doTask("OceanTile<Tharsis_6_7>")
@@ -1353,7 +1353,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Magnetic Field Generators:promo
     // Player2's plants production increased by 2
     // Player2's energy production decreased by 4
-    p2.playProject("MagneticFieldGeneratorsPromo", 5, steel = 5) {
+    p2.playProject("MagneticFieldGenerators", 5, steel = 5) {
           // Player2 placed Magnetic Field Generators tile on row 6 position 5
           doTask("MfgTile<Tharsis_6_6>")
           // Player2's plants amount increased by 1

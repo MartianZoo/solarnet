@@ -69,7 +69,7 @@ mechanism to produce the tested result. `PhilaresTest` is the primary regression
 ### Splice
 
 Splice is modeled with two cooperating effects. The corporation's ordinary effect pays its Owner,
-while one generated `Splicer<Player>` component per Player gives the owner of each gained Microbe
+while one generated `CardXC03FWatcher<Player>` component per Player gives the owner of each gained Microbe
 tag the choice between money and a Microbe on the exact tagged card. Tests cover both recipients,
 multiple tags, both choices, correct card binding, and rejection of a different card.
 

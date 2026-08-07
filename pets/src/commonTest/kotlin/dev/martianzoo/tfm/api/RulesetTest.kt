@@ -43,7 +43,7 @@ internal class RulesetTest {
               )
         }
 
-    ruleset.classDeclaration(cn("IndustrialCenter")).abstract shouldBe false
+    ruleset.classDeclaration(cn("Card123")).abstract shouldBe false
     ruleset.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
   }
 
@@ -149,9 +149,9 @@ internal class RulesetTest {
     val resolved = source.resolve(setOf(cn("TerraformingMars"), cn("PromoCardsExpansion")))
 
     resolved.cardDefinitions.map { it.id }.shouldContainExactly("X31")
-    resolved.classDeclaration(cn("DeimosDownPromo")) shouldBe replacement.asClassDeclaration
+    resolved.classDeclaration(cn("CardX31")) shouldBe replacement.asClassDeclaration
     resolved.classDeclarationBundles.keys shouldBe resolved.allClassNames
-    (cn("DeimosDown") in resolved.classDeclarationBundles) shouldBe false
+    (cn("Card039") in resolved.classDeclarationBundles) shouldBe false
   }
 
   @Test

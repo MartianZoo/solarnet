@@ -10,8 +10,7 @@ import dev.martianzoo.pets.ast.Instruction
 import kotlinx.serialization.Serializable
 
 public class ColonyTileDefinition(data: ColonyTileData) : Definition {
-  override val className: ClassName = cn(data.name)
-  override val shortName: ClassName = cn(data.name)
+  override val className: ClassName = cn(data.id)
 
   internal val placementBonus: Instruction = parse(data.placementBonus)
   internal val colonyBonus: Instruction = parse(data.colonyBonus)
@@ -22,7 +21,7 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
     with(data) {
       Parsing.parseClasses(
               """
-            CLASS $name : ColonyTile {
+            CLASS $id : ColonyTile {
               Colony<This>: $placementBonus
               GiveColonyBonus<This>: $colonyBonus
 
@@ -43,7 +42,7 @@ public class ColonyTileDefinition(data: ColonyTileData) : Definition {
 
   @Serializable
   public data class ColonyTileData(
-      val name: String,
+      val id: String,
       val placementBonus: String,
       val colonyBonus: String,
       val tradeIncome: List<String>,

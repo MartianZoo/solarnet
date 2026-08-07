@@ -22,18 +22,8 @@ import dev.martianzoo.pets.ast.Requirement
  * `dev.martianzoo.types`.
  */
 public data class ClassDeclaration(
-    /**
-     * The primary name for the class, as an upper camel case word. Class declarations having the
-     * same [className] or [shortName] can't be used together in the same game.
-     */
+    /** The stable engine-facing name for the class. No other name is part of the declaration. */
     override val className: ClassName,
-
-    /**
-     * A programmatically supplied short name for the class, usually a structured definition id.
-     * Pets class declaration syntax does not assign short names. All [className]s and [shortName]s
-     * loaded for a game share the same single namespace.
-     */
-    public val shortName: ClassName = className,
 
     /** Is this class declared to be `ABSTRACT`, `CUSTOM`, or regular? */
     public val kind: ClassKind,
@@ -139,7 +129,6 @@ public data class ClassDeclaration(
   public val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
         className +
-        shortName +
         supertypes +
         dependencies +
         invariants +

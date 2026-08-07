@@ -79,10 +79,7 @@ public constructor(
 
   // LOADING
 
-  /**
-   * Returns the class whose [Class.className] or programmatic [Class.shortName] is [name], loading
-   * it first if necessary.
-   */
+  /** Returns the class whose stable [Class.className] is [name], loading it first if necessary. */
   public fun load(name: ClassName): Class {
     if (!frozen) loadAll(listOf(name))
     return getClass(name)
@@ -96,7 +93,7 @@ public constructor(
 
   private val queue = ArrayDeque<ClassName>()
 
-  /** Equivalent to calling [load] on every class name or id in [names]. */
+  /** Equivalent to calling [load] on every canonical class name in [names]. */
   private fun loadAll(names: Collection<ClassName>) {
     queue += names
     while (queue.isNotEmpty()) {
@@ -193,7 +190,6 @@ public constructor(
 
     fun store(c: Class?) {
       loadedClasses[decl.className] = c
-      loadedClasses[decl.shortName] = c
     }
     store(null) // to detect reentrancy
     return Class(decl, this, phantom).also(::store)
@@ -212,7 +208,7 @@ public constructor(
     return this
   }
 
-  public override val allClassNamesAndIds: Set<ClassName> by lazy {
+  public override val allClassNames: Set<ClassName> by lazy {
     require(frozen)
     loadedClasses.filterValues { it?.phantom == false }.keys
   }
@@ -231,7 +227,7 @@ public constructor(
       declarations: Map<ClassName, ClassDeclaration>,
       name: ClassName,
   ): ClassDeclaration? {
-    return declarations[name] ?: declarations.values.singleOrNull { it.shortName == name }
+    return declarations[name]
   }
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {

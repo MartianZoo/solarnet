@@ -152,7 +152,7 @@ internal class FinalGreeneryPhaseTest {
     p1.pass()
     p2.pass()
 
-    game.classTable.allClassNamesAndIds.shouldNotContain(cn("SoloGenerationsLeft"))
+    game.classTable.allClassNames.shouldNotContain(cn("SoloGenerationsLeft"))
     engine.count("ResearchPhase") shouldBe 1
     engine.count("FinalGreeneryPhase") shouldBe 0
     workflow.shutdown()

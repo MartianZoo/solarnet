@@ -20,8 +20,6 @@ public data class StandardActionDefinition(
     require(setupRequirementText?.isNotBlank() != false)
   }
 
-  override val shortName: ClassName by ::className
-
   override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
@@ -29,7 +27,6 @@ public data class StandardActionDefinition(
     // TODO can share some of this across Definitions?
     ClassDeclaration(
         className = className,
-        shortName = shortName,
         kind = CONCRETE,
         supertypes = setOf(kind.expression),
         effects = actionListToEffects(actions.map(::parse)),

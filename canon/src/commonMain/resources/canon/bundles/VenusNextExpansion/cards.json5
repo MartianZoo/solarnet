@@ -47,7 +47,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": "48",
-      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>" ],
+      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!CardVC5>)>" ],
     },
 
     // Aerial Mappers

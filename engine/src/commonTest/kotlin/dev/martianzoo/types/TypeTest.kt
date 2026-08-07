@@ -447,10 +447,10 @@ internal class TypeTest {
 
   @Test
   fun subs2() {
-    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))
+    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<Card109>>"))
     findSubstitutions(pprod) shouldBe
         mapOf(
-            cn("CardFront") to cn("MediaGroup").expression,
+            cn("CardFront") to cn("Card109").expression,
             OWNER to PLAYER1.expression,
         )
   }

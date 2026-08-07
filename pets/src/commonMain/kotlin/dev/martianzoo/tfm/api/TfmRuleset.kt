@@ -27,6 +27,14 @@ import dev.martianzoo.util.associateByStrict
  */
 public abstract class TfmRuleset : Ruleset {
 
+  final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
+    (cardDefinitions + milestoneDefinitions + awardDefinitions + colonyTileDefinitions).mapTo(
+        linkedSetOf()
+    ) {
+      it.className
+    }
+  }
+
   /** Bundle contributions contained anywhere in this ruleset composition. */
   public open val bundles: List<Bundle> = emptyList()
 

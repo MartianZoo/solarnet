@@ -21,21 +21,21 @@ internal class CanonBundlesTest {
 
     val hellas = Canon.resolve(bundles, setupReader(cn("HellasMapOption")))
     hellas.marsMapDefinitions.single().className shouldBe cn("Hellas")
-    hellas.milestoneDefinitions.any { it.shortName == cn("HM0") } shouldBe true
-    hellas.milestoneDefinitions.any { it.shortName == cn("HM5") } shouldBe false
-    (cn("Diversifier") in hellas.allClassNames) shouldBe true
-    (cn("Specialist") in hellas.allClassNames) shouldBe false
-    (cn("Cultivator") in hellas.allClassNames) shouldBe true
-    (cn("Celebrity") in hellas.allClassNames) shouldBe false
+    hellas.milestoneDefinitions.any { it.className == cn("MilestoneHM0") } shouldBe true
+    hellas.milestoneDefinitions.any { it.className == cn("MilestoneHM5") } shouldBe false
+    (cn("MilestoneHM0") in hellas.allClassNames) shouldBe true
+    (cn("MilestoneHM5") in hellas.allClassNames) shouldBe false
+    (cn("AwardHA0") in hellas.allClassNames) shouldBe true
+    (cn("AwardHA5") in hellas.allClassNames) shouldBe false
 
     val elysium = Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
     elysium.marsMapDefinitions.single().className shouldBe cn("Elysium")
-    elysium.milestoneDefinitions.any { it.shortName == cn("HM5") } shouldBe true
-    elysium.milestoneDefinitions.any { it.shortName == cn("HM0") } shouldBe false
-    (cn("Specialist") in elysium.allClassNames) shouldBe true
-    (cn("Diversifier") in elysium.allClassNames) shouldBe false
-    (cn("Celebrity") in elysium.allClassNames) shouldBe true
-    (cn("Cultivator") in elysium.allClassNames) shouldBe false
+    elysium.milestoneDefinitions.any { it.className == cn("MilestoneHM5") } shouldBe true
+    elysium.milestoneDefinitions.any { it.className == cn("MilestoneHM0") } shouldBe false
+    (cn("MilestoneHM5") in elysium.allClassNames) shouldBe true
+    (cn("MilestoneHM0") in elysium.allClassNames) shouldBe false
+    (cn("AwardHA5") in elysium.allClassNames) shouldBe true
+    (cn("AwardHA0") in elysium.allClassNames) shouldBe false
   }
 
   @Test
@@ -44,14 +44,14 @@ internal class CanonBundlesTest {
 
     val utopia = Canon.resolve(bundles, setupReader(cn("UtopiaPlanitiaMapOption")))
     utopia.marsMapDefinitions.single().className shouldBe cn("UtopiaPlanitia")
-    utopia.milestoneDefinitions.any { it.shortName == cn("UM0") } shouldBe true
-    utopia.milestoneDefinitions.any { it.shortName == cn("UM1") } shouldBe false
-    utopia.milestoneDefinitions.any { it.shortName == cn("UM7") } shouldBe false
+    utopia.milestoneDefinitions.any { it.className == cn("MilestoneUM0") } shouldBe true
+    utopia.milestoneDefinitions.any { it.className == cn("MilestoneUM1") } shouldBe false
+    utopia.milestoneDefinitions.any { it.className == cn("MilestoneUM6") } shouldBe false
 
     val cimmeria = Canon.resolve(bundles, setupReader(cn("TerraCimmeriaMapOption")))
     cimmeria.marsMapDefinitions.single().className shouldBe cn("TerraCimmeria")
-    cimmeria.milestoneDefinitions.any { it.shortName == cn("UM7") } shouldBe true
-    cimmeria.milestoneDefinitions.any { it.shortName == cn("UM0") } shouldBe false
+    cimmeria.milestoneDefinitions.any { it.className == cn("MilestoneUM6") } shouldBe true
+    cimmeria.milestoneDefinitions.any { it.className == cn("MilestoneUM0") } shouldBe false
   }
 
   @Test
@@ -59,14 +59,14 @@ internal class CanonBundlesTest {
     val utopia = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
 
     Canon.resolve(utopia, setupReader(cn("UtopiaPlanitiaMapOption"))).milestoneDefinitions.any {
-      it.className == cn("Pioneer")
+      it.className == cn("MilestoneUM1")
     } shouldBe false
     Canon.resolve(
             utopia + cn("ColoniesExpansion"),
             setupReader(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion")),
         )
         .milestoneDefinitions
-        .map { it.className } shouldContain cn("Pioneer")
+        .map { it.className } shouldContain cn("MilestoneUM1")
   }
 
   @Test
@@ -91,10 +91,11 @@ internal class CanonBundlesTest {
   fun venusAddsHoverlordToTheMapsFiveMilestones() {
     val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
 
-    Canon.resolve(base).milestoneDefinitions.any { it.className == cn("Hoverlord") } shouldBe false
+    Canon.resolve(base).milestoneDefinitions.any { it.className == cn("MilestoneVM1") } shouldBe
+        false
     Canon.resolve(base + cn("VenusNextExpansion")).milestoneDefinitions.map {
       it.className
-    } shouldContain cn("Hoverlord")
+    } shouldContain cn("MilestoneVM1")
   }
 
   @Test
@@ -104,7 +105,7 @@ internal class CanonBundlesTest {
     Canon.resolve(terraCimmeria, setupReader(cn("TerraCimmeriaMapOption")))
         .milestoneDefinitions
         .any {
-          it.className == cn("Planetologist")
+          it.className == cn("MilestoneUM5")
         } shouldBe false
     Canon.resolve(
             terraCimmeria + cn("VenusNextExpansion"),
@@ -113,7 +114,7 @@ internal class CanonBundlesTest {
         .milestoneDefinitions
         .map {
           it.className
-        } shouldContain cn("Planetologist")
+        } shouldContain cn("MilestoneUM5")
   }
 
   @Test
@@ -122,15 +123,15 @@ internal class CanonBundlesTest {
 
     Canon.resolve(base).awardDefinitions.map { it.className }.toSet() shouldBe
         setOf(
-            cn("Landlord"),
-            cn("Banker"),
-            cn("Scientist"),
-            cn("Thermalist"),
-            cn("Miner"),
+            cn("AwardBA1"),
+            cn("AwardBA2"),
+            cn("AwardBA3"),
+            cn("AwardBA4"),
+            cn("AwardBA5"),
         )
     Canon.resolve(base + cn("VenusNextExpansion")).awardDefinitions.map {
       it.className
-    } shouldContain cn("Venuphile")
+    } shouldContain cn("AwardVA1")
   }
 
   @Test
@@ -144,11 +145,11 @@ internal class CanonBundlesTest {
         }
         .toSet() shouldBe
         setOf(
-            cn("Cultivator"),
-            cn("Magnate"),
-            cn("SpaceBaron"),
-            cn("Excentric"),
-            cn("Contractor"),
+            cn("AwardHA0"),
+            cn("AwardHA1"),
+            cn("AwardHA2"),
+            cn("AwardHA3"),
+            cn("AwardHA4"),
         )
     Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
         .awardDefinitions
@@ -157,11 +158,11 @@ internal class CanonBundlesTest {
         }
         .toSet() shouldBe
         setOf(
-            cn("Celebrity"),
-            cn("Industrialist"),
-            cn("DesertSettler"),
-            cn("EstateDealer"),
-            cn("Benefactor"),
+            cn("AwardHA5"),
+            cn("AwardHA6"),
+            cn("AwardHA7"),
+            cn("AwardHA8"),
+            cn("AwardHA9"),
         )
   }
 
@@ -197,7 +198,7 @@ internal class CanonBundlesTest {
     val promos = setOf(cn("TerraformingMars"), cn("PromoCardsExpansion"))
 
     Canon.resolve(promos, setupReader()).cardDefinitions.any {
-      it.className == cn("DoubleDown")
+      it.className == cn("CardX40")
     } shouldBe false
     Canon.resolve(
             promos + cn("PreludeExpansion"),
@@ -206,17 +207,17 @@ internal class CanonBundlesTest {
         .cardDefinitions
         .map {
           it.className
-        } shouldContain cn("DoubleDown")
+        } shouldContain cn("CardX40")
   }
 
   @Test
   fun promosReplaceThreeBaseGameCards() {
-    val originals = setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
+    val originals = setOf(cn("Card039"), cn("Card136"), cn("Card165"))
     val replacements =
         setOf(
-            cn("DeimosDownPromo"),
-            cn("GreatDamPromo"),
-            cn("MagneticFieldGeneratorsPromo"),
+            cn("CardX31"),
+            cn("CardX32"),
+            cn("CardX33"),
         )
     val relevantCards = originals + replacements
 

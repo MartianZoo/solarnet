@@ -20,11 +20,11 @@ internal class CanonEffectsTest {
     val loader = ClassLoader(Canon)
     loader.load(OK)
     loader.load(cn(name))
-    return classEffectsOf(name, loader.freeze())
+    return classEffectsOf(cn(name), loader.freeze())
   }
 
-  private fun classEffectsOf(name: String, classTable: ClassTable) =
-      Transformers(classTable).classEffects(classTable.getClass(cn(name))).toStrings()
+  private fun classEffectsOf(name: dev.martianzoo.pets.ast.ClassName, classTable: ClassTable) =
+      Transformers(classTable).classEffects(classTable.getClass(name)).toStrings()
 
   @Test
   fun compiledByOwnerEffectsHaveResolvableOwnerBindings() {
@@ -50,7 +50,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun sabotage() {
-    classEffectsOf("Sabotage")
+    classEffectsOf("Card121")
         .shouldContainExactlyInAnyOrder(
             "This: PlayedEvent<Owner, Class<This>> FROM This!",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
@@ -59,7 +59,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun terraformer() {
-    classEffectsOf("Terraformer")
+    classEffectsOf("MilestoneBM1")
         .shouldContainExactlyInAnyOrder(
             "This:: (35 TerraformRating<Owner>: Ok)",
             "End: 5 VictoryPoint<Owner>!",
@@ -68,7 +68,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun gyropolis() {
-    classEffectsOf("Gyropolis")
+    classEffectsOf("Card230")
         .shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!," +
@@ -89,7 +89,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun venusian() {
-    classEffectsOf("VenusianAnimals")
+    classEffectsOf("Card259")
         .shouldContainExactlyInAnyOrder(
             "This:: VenusTag<Owner, This>!, ScienceTag<Owner, This>!, AnimalTag<Owner, This>!",
             "ScienceTag<Owner>: Animal<Owner, This>.",
@@ -107,7 +107,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun teractor() {
-    classEffectsOf("Teractor")
+    classEffectsOf("CardB12")
         .shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!",
             "This: 60 Megacredit<Owner>!",
@@ -117,7 +117,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun immigrantCity() {
-    classEffectsOf("ImmigrantCity")
+    classEffectsOf("Card200")
         .shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
@@ -128,7 +128,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun titanAirScrapping() {
-    classEffectsOf("TitanAirScrapping")
+    classEffectsOf("CardC43")
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
             "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
@@ -139,7 +139,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun amc() {
-    classEffectsOf("AsteroidMiningConsortium")
+    classEffectsOf("Card002")
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
@@ -149,7 +149,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun pets() {
-    classEffectsOf("Pets")
+    classEffectsOf("Card172")
         .shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!, AnimalTag<Owner, This>!",
             "This: Animal<Owner, This>.",

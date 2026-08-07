@@ -43,17 +43,17 @@ public abstract class ClassTable {
   /** Every active class in this table; phantom classes are deliberately not enumerated. */
   public abstract fun allClasses(): Set<Class>
 
-  /** Every active class's full names and programmatic ids; phantom names are excluded. */
-  public abstract val allClassNamesAndIds: Set<ClassName>
+  /** Every active class's stable names; phantom names are excluded. */
+  public abstract val allClassNames: Set<ClassName>
 
-  /** Returns the active or phantom [Class] having this name or id. */
+  /** Returns the active or phantom [Class] having this canonical name. */
   public abstract fun findClass(name: ClassName): Class?
 
-  /** Returns the [Class] having this name or id, or throws. */
+  /** Returns the [Class] having this canonical name, or throws. */
   public fun getClass(name: ClassName): Class =
       findClass(name) ?: throw Exceptions.classNotFound(name)
 
-  /** Returns the active [Class] having this name or id; null if unknown or phantom. */
+  /** Returns the active [Class] having this canonical name; null if unknown or phantom. */
   public fun findActiveClass(name: ClassName): Class? = findClass(name)?.takeUnless(Class::phantom)
 
   /** Whether [name] names a class that is active in this table (not unknown, not phantom). */

@@ -20,7 +20,15 @@ import kotlin.test.Test
 /** Comment lines are quotes directly from the rulebook. */
 internal class ColoniesBasicRulesTest : TfmTest() {
   private val normal =
-      listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io").toSetStrict(::cn)
+      listOf(
+              "Luna",
+              "Ceres",
+              "Triton",
+              "Ganymede",
+              "Callisto",
+              "Io",
+          )
+          .toSetStrict(::cn)
   private val premise =
       canonicalPremise(
           ColoniesExpansion,

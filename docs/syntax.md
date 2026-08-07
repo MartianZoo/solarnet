@@ -16,7 +16,7 @@ className         := upperCamelRE
 
 Type expressions are the heart of the PETS language. There are two kinds.
 
-Class declarations contain only their canonical UpperCamelCase name; the language has no short-name declaration syntax. An engine client can separately configure class synonyms for interactive input.
+Class declarations contain only their canonical name; names use ASCII UpperCamelCase, with digits and underscores allowed after the first letter. A session vocabulary can accept localized Pets names and separately configured input-only synonyms, while engine state and rules use canonical names.
 
 ### Dependency-bearing type expression
 

@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
@@ -16,6 +17,14 @@ internal class ScriptSessionTest {
 
   private fun normalizeEventOrdinals(line: String) =
       line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
+
+  @Test
+  fun descIncludesCanonicalAndAlternateClassNames() {
+    val description = ScriptSession().command("desc Birds").single()
+
+    assertContains(description, "Class `Card072`:")
+    assertContains(description, "alt name:    Birds")
+  }
 
   @Test
   fun `as Engine temporarily selects the Engine actor`() {
@@ -346,7 +355,11 @@ internal class ScriptSessionTest {
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
     val board =
-        PlayerBoardToText(TfmGameplay(repl.game, repl.gameplay.actor, repl.gameplay), false).board()
+        PlayerBoardToText(
+                TfmGameplay(repl.game, repl.gameplay.actor, repl.gameplay),
+                false,
+            )
+            .board()
     assertEquals(
         listOf(
             "  Player1   TR: 20   Tiles: 0",

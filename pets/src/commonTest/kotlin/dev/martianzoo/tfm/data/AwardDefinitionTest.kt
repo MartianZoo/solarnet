@@ -26,8 +26,9 @@ internal class AwardDefinitionTest {
             """
         )
 
-    awards.single { it.shortName == cn("HA1") }.setupRequirement.toString() shouldBe "DemoMapOption"
-    awards.single { it.shortName == cn("HA2") }.setupRequirement.toString() shouldBe
+    awards.single { it.className == cn("AwardHA1") }.setupRequirement.toString() shouldBe
+        "DemoMapOption"
+    awards.single { it.className == cn("AwardHA2") }.setupRequirement.toString() shouldBe
         "DemoMapOption, VenusNextExpansion"
   }
 }

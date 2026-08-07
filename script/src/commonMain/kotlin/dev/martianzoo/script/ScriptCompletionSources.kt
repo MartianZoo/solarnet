@@ -12,22 +12,16 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
     val players = Player.players(repl.setup.players)
     val eligiblePlayers = if (includeEngine) players + ENGINE else players
-    val full = eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
-    val short = eligiblePlayers.mapNotNull { player ->
-      classShortName(player.toString())?.let { ScriptCompletion(it, "players", player.toString()) }
-    }
-    return full + short
+    return eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
   }
 
   fun classNames(): List<ScriptCompletion> =
-      repl.game.classTable.allClasses().flatMap {
-        listOfNotNull(
-                ScriptCompletion(it.className.toString(), "classes", it.docstring),
-                classShortName(it.className.toString())?.let { shortName ->
-                  ScriptCompletion(shortName, "classes", it.className.toString())
-                },
-            )
-            .distinct()
+      repl.game.classTable.allClasses().map {
+        ScriptCompletion(
+            repl.game.vocabulary.petsName(it.className).toString(),
+            "classes",
+            it.docstring,
+        )
       }
 
   fun paymentWords(): List<ScriptCompletion> {
@@ -35,19 +29,18 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
     return repl.game.classTable
         .allClasses()
         .filter { it.className.toString() in standards }
-        .flatMap {
-          listOfNotNull(
-              ScriptCompletion(it.className.toString(), "resources"),
-              classShortName(it.className.toString())?.let { shortName ->
-                ScriptCompletion(shortName, "resources", it.className.toString())
-              },
-          )
+        .map {
+          ScriptCompletion(repl.game.vocabulary.petsName(it.className).toString(), "resources")
         }
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
       repl.game.reader.tfmRuleset.allDefinitions.filterIsInstance<CardDefinition>().map {
-        ScriptCompletion(it.className.toString(), "cards", it.deck?.name?.lowercase())
+        ScriptCompletion(
+            repl.game.vocabulary.petsName(it.className).toString(),
+            "cards",
+            it.deck?.name?.lowercase(),
+        )
       }
 
   fun phaseNames(): List<ScriptCompletion> =
@@ -63,7 +56,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
 
   fun taskIds(): List<ScriptCompletion> =
       repl.selectableTasks().map { (label, task) ->
-        ScriptCompletion(label, "tasks", task.instruction.toString())
+        ScriptCompletion(label, "tasks", repl.game.vocabulary.renderPets(task.instruction))
       }
 
   fun optionSuggestions(): List<ScriptCompletion> {
@@ -95,17 +88,6 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   private fun syntaxWords(vararg words: String): List<ScriptCompletion> = words.map {
     ScriptCompletion(it, "Pets syntax")
   }
-
-  private fun classShortName(name: String): String? =
-      repl.game.vocabulary.inputOnlySynonyms.entries
-          .singleOrNull { it.value.toString() == name }
-          ?.key
-          ?.toString()
-          ?: repl.game.classTable
-              .allClasses()
-              .firstOrNull { it.className.toString() == name && it.shortName != it.className }
-              ?.shortName
-              ?.toString()
 
   private fun String.removeSuffixIfPresent(suffix: String): String? =
       if (endsWith(suffix) && length > suffix.length) removeSuffix(suffix) else null
