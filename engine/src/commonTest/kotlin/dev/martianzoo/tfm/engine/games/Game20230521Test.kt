@@ -13,6 +13,12 @@ import kotlin.test.Test
 
 class Game20230521Test : AbstractFullGameTest() {
 
+  fun completedGame(): World {
+    commonSetup()
+    game20230521()
+    return game
+  }
+
   override fun setup() =
       canonicalPremise(
           VenusNextExpansion,

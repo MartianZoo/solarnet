@@ -87,6 +87,27 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  fun quotedPetsInstructionConfiguresSetupWorld() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf(
+            "New 2-player game created with setup: " +
+                "Exclude<Class<CorporateEraExpansion>>, Exclude<Class<WorldGovernmentOption>>, " +
+                "2 Player, TerraformingMars, TharsisMapOption, VenusNextExpansion, MultiplayerMode",
+            "Purple mode: workflow active",
+        ),
+        repl.command(
+            "newgame \"Exclude<Class<CorporateEraExpansion>>, " +
+                "Exclude<Class<WorldGovernmentOption>>, 2 Player, TerraformingMars, " +
+                "TharsisMapOption, VenusNextExpansion, MultiplayerMode\" purple"
+        ),
+    )
+    assertEquals(listOf("0 WorldGovernmentOption"), repl.command("count WorldGovernmentOption"))
+    assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
+  }
+
+  @Test
   fun listCountsCustomMetrics() {
     val repl = ScriptSession()
     repl.command("newgame BH 2")

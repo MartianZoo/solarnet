@@ -8,7 +8,8 @@ import dev.martianzoo.script.ScriptSession.UsageException
 import dev.martianzoo.util.toSetStrict
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
-  override val usage = "newgame <options> <player count> [colony tiles...] [purple]"
+  override val usage =
+      "newgame (<options> <player count> [colony tiles...] | \"<setup instruction>\") [purple]"
   override val help =
       """
         Erases your current game and starts a new one. You can't undo that (but you can get your
@@ -20,6 +21,8 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         the solo starting state.
 
         When using Colonies, list the selected colony tile names after the player count.
+        Instead of the legacy option-code form, a quoted Pets instruction may configure the
+        canonical setup world directly.
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
       """
@@ -37,6 +40,17 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
     try {
       val parts = args.trim().split(Regex("\\s+"))
       val purple = parts.lastOrNull() == "purple"
+      val withoutPurple =
+          args.trim().let { if (purple) it.removeSuffix("purple").trimEnd() else it }
+      if (withoutPurple.startsWith('"')) {
+        if (!withoutPurple.endsWith('"') || withoutPurple.length < 2) throw UsageException()
+        val setupInstruction = withoutPurple.substring(1, withoutPurple.lastIndex)
+        repl.newGame(setupInstruction, purple)
+        return listOf(
+            "New ${repl.setup.players}-player game created with setup: $setupInstruction"
+        ) + (if (purple) listOf("Purple mode: workflow active") else emptyList())
+      }
+
       val optionCodes = parts.getOrNull(0) ?: throw UsageException()
       val playerCount = parts.getOrNull(1)?.toInt() ?: throw UsageException()
       val colonyNames = parts.drop(2).let { if (purple) it.dropLast(1) else it }

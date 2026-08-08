@@ -46,8 +46,10 @@ internal object OptionCodeTranslation {
     return common + generated
   }
 
-  private val optionsByCode =
-      linkedSetOf("B", "R", "M", "H", "E", "I", "U", "V", "P", "C", "T", "X")
+  fun optionCodes(options: Set<Option>): String =
+      optionByCode.entries
+          .filter { it.value in options }
+          .joinToString(separator = "") { (code) -> code }
 
   private val mapOptions =
       linkedMapOf(
@@ -67,4 +69,14 @@ internal object OptionCodeTranslation {
           "T" to Option.TurmoilCardPack,
           "X" to Option.PromoCardPack,
       )
+
+  private val optionsByCode =
+      linkedSetOf("B", "R", "M", "H", "E", "I", "U", "V", "P", "C", "T", "X")
+
+  private val optionByCode = optionsByCode.associateWith { code ->
+    when (code) {
+      "B" -> Option.TerraformingMars
+      else -> mapOptions[code] ?: positiveOptions.getValue(code)
+    }
+  }
 }

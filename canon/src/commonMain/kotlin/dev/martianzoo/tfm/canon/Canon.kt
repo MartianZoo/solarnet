@@ -122,6 +122,15 @@ public object Canon :
     }
   }
 
+  /** An unconfigured canonical setup world, ready to receive a Pets setup instruction. */
+  public fun emptySetupWorldDefinition(): GamePremise =
+      GamePremise(
+          CanonSetupRuleset,
+          CanonSetupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className },
+          listOf(ENGINE),
+          emptyList(),
+      )
+
   /** Definition used to construct an independent canonical setup world. */
   public fun setupWorldDefinition(
       players: Int,

@@ -26,7 +26,9 @@ public fun main(args: Array<String>) {
   println("Bye")
 }
 
-internal fun newScriptSession(): ScriptSession = ScriptSession { listOf(RunScriptCommand(it)) }
+internal fun newScriptSession(): ScriptSession = ScriptSession {
+  listOf(RunScriptCommand(it), SaveGameCommand(it))
+}
 
 internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
   private val replCommands: Map<String, ScriptCommand> =
