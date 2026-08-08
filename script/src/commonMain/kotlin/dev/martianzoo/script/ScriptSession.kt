@@ -28,6 +28,7 @@ import dev.martianzoo.script.ScriptSession.ScriptMode.YELLOW
 import dev.martianzoo.script.commands.AsCommand
 import dev.martianzoo.script.commands.AutoCommand
 import dev.martianzoo.script.commands.BecomeCommand
+import dev.martianzoo.script.commands.CommentCommand
 import dev.martianzoo.script.commands.CountCommand
 import dev.martianzoo.script.commands.DescCommand
 import dev.martianzoo.script.commands.ExecCommand
@@ -137,6 +138,7 @@ public class ScriptSession(
               AsCommand(this),
               AutoCommand(this),
               BecomeCommand(this),
+              CommentCommand(this),
               TfmBoardCommand(this),
               CountCommand(this),
               DescCommand(this),

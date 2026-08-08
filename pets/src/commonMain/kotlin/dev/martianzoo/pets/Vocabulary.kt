@@ -45,21 +45,24 @@ private constructor(
   }
 
   /** Renders one event for a Pets-oriented event log. */
-  public fun renderPets(event: GameEvent): String =
-      when (event) {
-        is GameEvent.TaskAddedEvent -> renderTaskEvent(event, "+")
-        is GameEvent.TaskRemovedEvent -> "${event.ordinal}: -Task${event.task.id}"
-        is GameEvent.TaskEditedEvent -> renderTaskEvent(event, "+") + " FROM Task${event.task.id}"
-        is ChangeEvent ->
-            buildString {
-              append("${event.ordinal}: ${renderPets(event.change)} BY ${event.actor}")
-              append(
-                  event.cause?.let {
-                    " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}"
-                  } ?: " (manual)"
-              )
-            }
-      }
+  public fun renderPets(event: GameEvent): String {
+    val eventText =
+        when (event) {
+          is GameEvent.TaskAddedEvent -> renderTaskEvent(event, "+")
+          is GameEvent.TaskRemovedEvent -> "${event.ordinal}: -Task${event.task.id}"
+          is GameEvent.TaskEditedEvent -> renderTaskEvent(event, "+") + " FROM Task${event.task.id}"
+          is ChangeEvent ->
+              buildString {
+                append("${event.ordinal}: ${renderPets(event.change)} BY ${event.actor}")
+                append(
+                    event.cause?.let {
+                      " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}"
+                    } ?: " (manual)"
+                )
+              }
+        }
+    return eventText + (event.comment?.let { " // $it" } ?: "")
+  }
 
   /** Renders one pending task using localized Pets-compatible class names. */
   public fun renderPets(

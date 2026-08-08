@@ -43,6 +43,22 @@ internal class EventLogPrefixTest {
     events.revision shouldBe revision
   }
 
+  @Test
+  fun revisesCommentsWithoutAdvancingHistoryOrRevision() {
+    val parent = EventLog()
+    recordGain(parent, "Energy")
+    parent.markSetupStart()
+    val child = EventLog(parent)
+    val revision = child.revision
+
+    child.reviseComment(0, "starting resource")
+
+    child.entriesSince(Checkpoint(0)).single().comment shouldBe "starting resource"
+    parent.entriesSince(Checkpoint(0)).single().comment shouldBe "starting resource"
+    child.size shouldBe 1
+    child.revision shouldBe revision
+  }
+
   private fun recordGain(events: EventLog, type: String) {
     events.record(gainEvent(events, type)) {}
   }

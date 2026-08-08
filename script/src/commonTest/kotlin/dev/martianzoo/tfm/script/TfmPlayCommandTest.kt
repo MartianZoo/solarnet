@@ -1,8 +1,11 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.data.GameEvent.TaskEvent
+import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.script.ScriptSession
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class TfmPlayCommandTest {
   @Test
@@ -39,10 +42,15 @@ internal class TfmPlayCommandTest {
     repl.command("phase Action")
     repl.command("turn")
 
-    repl.command("tfm_play OlympusConference, 2 Steel, 6")
+    repl.command("tfm_play OlympusConference, 2 Steel, 6 \"steel-funded science\"")
 
     assertEquals(1, repl.gameplay.count("OlympusConference<P1>"))
     assertEquals(0, repl.gameplay.count("Steel<P1>"))
     assertEquals(0, repl.gameplay.count("Owed<P1>"))
+    val commentedEvent =
+        repl.game.events.entriesSince(Checkpoint(0)).filterIsInstance<TaskEvent>().single {
+          it.comment == "steel-funded science"
+        }
+    assertTrue(commentedEvent.task.instruction.toString().startsWith("PlayCard<"))
   }
 }

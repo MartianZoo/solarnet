@@ -5,6 +5,9 @@ import dev.martianzoo.util.pre
 
 public sealed class GameEvent {
   public abstract val ordinal: Int
+  public abstract val comment: String?
+
+  protected fun String.withComment(): String = this + (comment?.let { " // $it" } ?: "")
 
   public sealed class TaskEvent : GameEvent() {
     public abstract val task: Task
@@ -21,30 +24,37 @@ public sealed class GameEvent {
     }
   }
 
-  public data class TaskAddedEvent(override val ordinal: Int, override val task: Task) :
-      TaskEvent() {
+  public data class TaskAddedEvent(
+      override val ordinal: Int,
+      override val task: Task,
+      override val comment: String? = null,
+  ) : TaskEvent() {
     init {
       require(task.id.ordinal == ordinal)
     }
 
-    override fun toString(): String = taskToString()
+    override fun toString(): String = taskToString().withComment()
   }
 
-  public data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) :
-      TaskEvent() {
-    override fun toString(): String = "$ordinal: -Task${task.id}"
+  public data class TaskRemovedEvent(
+      override val ordinal: Int,
+      override val task: Task,
+      override val comment: String? = null,
+  ) : TaskEvent() {
+    override fun toString(): String = "$ordinal: -Task${task.id}".withComment()
   }
 
   public data class TaskEditedEvent(
       override val ordinal: Int,
       val oldTask: Task,
       override val task: Task,
+      override val comment: String? = null,
   ) : TaskEvent() {
     init {
       require(task.id == oldTask.id)
     }
 
-    override fun toString(): String = taskToString() + " FROM Task${task.id}"
+    override fun toString(): String = (taskToString() + " FROM Task${task.id}").withComment()
   }
 
   /** All interesting information about a state change that happened in a game. */
@@ -54,6 +64,7 @@ public sealed class GameEvent {
       val actor: Actor,
       val change: StateChange,
       val cause: Cause?,
+      override val comment: String? = null,
   ) : GameEvent() {
     init {
       require(ordinal >= 0)
@@ -64,6 +75,7 @@ public sealed class GameEvent {
       append("$ordinal: $change BY $actor")
       append(" ${cause ?: "(manual)"}")
     }
+        .withComment()
 
     /** The part of a `ChangeEvent` that describes only what actually changed. */
     public data class StateChange(

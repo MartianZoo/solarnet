@@ -47,6 +47,38 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  fun commentsCanBeRevisedAndClearedFromTheEventLog() {
+    val repl = ScriptSession()
+    val eventId = repl.game.timeline.checkpoint().ordinal - 1
+
+    val commented = repl.command("comment $eventId \"setup finished\"").single()
+
+    assertTrue(commented.endsWith("// setup finished"))
+    assertTrue(repl.command("log full").single { it.startsWith("$eventId:") }.endsWith(commented))
+    assertEquals(
+        listOf("Usage: comment <event-id> \"<message>\""),
+        repl.command("comment $eventId"),
+    )
+    assertEquals(
+        listOf("Usage: comment <event-id> \"<message>\""),
+        repl.command("comment $eventId not quoted"),
+    )
+    assertTrue(!repl.command("comment $eventId \"\"").single().contains("//"))
+  }
+
+  @Test
+  fun taskCommentsAnnotateTheSelectedTasksLifecycleEvent() {
+    val repl = ScriptSession()
+    repl.command("become Player1")
+    repl.command("exec Plant OR Heat")
+
+    repl.command("task Plant \"picked plants\"")
+
+    val commented = repl.command("log full").single { it.endsWith("// picked plants") }
+    assertTrue(commented.contains("-Task"))
+  }
+
+  @Test
   fun optionCodesRequireBaseAndDoNotAcceptSolo() {
     val repl = ScriptSession()
 
