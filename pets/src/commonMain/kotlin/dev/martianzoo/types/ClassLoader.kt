@@ -197,6 +197,19 @@ public constructor(
 
   private var frozen: Boolean = false
 
+  private var properSubclassesByClass: Map<Class, Set<Class>>? = null
+  private var directSubclassesByClass: Map<Class, Set<Class>>? = null
+
+  internal fun properSubclassesOf(klass: Class): Set<Class> {
+    require(frozen)
+    return checkNotNull(properSubclassesByClass)[klass] ?: emptySet()
+  }
+
+  internal fun directSubclassesOf(klass: Class): Set<Class> {
+    require(frozen)
+    return checkNotNull(directSubclassesByClass)[klass] ?: emptySet()
+  }
+
   public fun freeze(): ClassTable {
     require(!frozen)
     ruleset.knownClassDeclarations.values
@@ -204,6 +217,50 @@ public constructor(
         .forEach { declaration ->
           if (declaration.className !in loadedClasses) construct(declaration, phantom = true)
         }
+
+    val knownClasses = loadedClasses.values.map { checkNotNull(it) }
+    val bitBearingSuperclasses = knownClasses.flatMap(Class::directSuperclasses).distinct()
+
+    val knownProperSubclasses = mutableMapOf<Class, MutableSet<Class>>()
+    knownClasses.forEach { subclass ->
+      subclass.allSuperclasses().forEach { superclass ->
+        if (superclass !== subclass) {
+          knownProperSubclasses.getOrPut(superclass, ::linkedSetOf).add(subclass)
+        }
+      }
+    }
+    val superclassBits =
+        bitBearingSuperclasses
+            .sortedWith(
+                compareBy<Class>(Class::phantom)
+                    .thenByDescending { knownProperSubclasses[it]?.size ?: 0 }
+                    .thenBy(Class::className)
+            )
+            .withIndex()
+            .associate { (index, klass) -> klass to index }
+    knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
+
+    val activeProperSubclasses = mutableMapOf<Class, Set<Class>>()
+    knownProperSubclasses.forEach { (superclass, subclasses) ->
+      if (!superclass.phantom) {
+        val activeSubclasses = subclasses.filterNotTo(linkedSetOf(), Class::phantom)
+        if (activeSubclasses.isNotEmpty()) {
+          activeProperSubclasses[superclass] = activeSubclasses.toSet()
+        }
+      }
+    }
+    properSubclassesByClass = activeProperSubclasses
+
+    val activeDirectSubclasses = mutableMapOf<Class, MutableSet<Class>>()
+    knownClasses.filterNot(Class::phantom).forEach { subclass ->
+      subclass.directSuperclasses.forEach { superclass ->
+        activeDirectSubclasses.getOrPut(superclass, ::linkedSetOf).add(subclass)
+      }
+    }
+    directSubclassesByClass = activeDirectSubclasses.mapValues { (_, subclasses) ->
+      subclasses.toSet()
+    }
+
     frozen = true
     return this
   }

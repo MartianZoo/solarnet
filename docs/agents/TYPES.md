@@ -580,6 +580,18 @@ A table is built by loading the declarations supplied by a ruleset and then free
 frozen, its classes and subtype relationships cannot change. A class name the table cannot resolve
 is an error in every context: as a type, a dependency bound, or part of a metric.
 
+Freezing also compiles nominal subclass tests. Only classes that actually have proper subclasses
+receive bit positions; the declaration rules guarantee that all of them are abstract. Every known
+class, including an inactive phantom, then stores its abstract-superclass set in an immutable,
+arbitrary-width bit mask. A frozen subclass test is an identity check followed by one bit lookup;
+concrete and childless abstract targets therefore require no bit at all. While the table is still
+loading, the same operation falls back to the resolved superclass set.
+
+Freezing also builds sparse reverse indexes for proper and direct active subclasses. Proper
+subclass sets exclude the indexed class itself, so leaf classes share an empty stored result;
+`Class.allSubclasses()` adds an active receiver back to preserve its inclusive public contract.
+Inactive phantoms participate in subtype masks but are absent from subclass enumeration.
+
 ## 9. Closed-world type operations
 
 Once the class table is frozen, Pets can answer questions that would be undecidable against an
