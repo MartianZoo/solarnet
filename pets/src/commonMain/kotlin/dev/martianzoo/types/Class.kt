@@ -72,7 +72,28 @@ internal constructor(
 
   override fun isSubtypeOf(that: Class): Boolean {
     requireSameClassTable(that)
-    return that in allSuperclasses()
+    val bits = abstractSupertypeBits ?: return that in allSuperclasses()
+    if (this === that) return true
+    return that.superclassBit >= 0 && bits.hasBit(that.superclassBit)
+  }
+
+  private var superclassBit: Int = -1
+  private var abstractSupertypeBits: BigInt? = null
+
+  /** Compiles the hierarchy after the complete authority-known class table has been loaded. */
+  internal fun initializeSubclassBits(superclassBits: Map<Class, Int>) {
+    if (abstractSupertypeBits != null) return
+
+    directSuperclasses.forEach { it.initializeSubclassBits(superclassBits) }
+    val ownBit = superclassBits[this]
+    check(ownBit == null || abstract)
+    superclassBit = ownBit ?: -1
+
+    var bits = ownBit?.let(BigInt::bit) ?: BigInt.ZERO
+    directSuperclasses.forEach { superclass ->
+      bits = bits or checkNotNull(superclass.abstractSupertypeBits)
+    }
+    abstractSupertypeBits = bits
   }
 
   override fun glb(that: Class): Class? =
@@ -132,14 +153,13 @@ internal constructor(
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
   private val allSubclasses: Set<Class> by lazy {
-    loader.allClasses().filter { this in it.allSuperclasses() }.toSet()
+    if (phantom) emptySet() else loader.properSubclassesOf(this) + this
   }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   public fun allSubclasses(): Set<Class> = allSubclasses
 
-  public fun directSubclasses(): Set<Class> =
-      loader.allClasses().filter { this in it.directSuperclasses }.toSet()
+  public fun directSubclasses(): Set<Class> = loader.directSubclassesOf(this)
 
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];

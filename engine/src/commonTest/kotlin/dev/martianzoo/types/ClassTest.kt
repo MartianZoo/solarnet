@@ -110,12 +110,26 @@ internal class ClassTest {
   @Test
   fun `authority-known inactive classes resolve as phantoms but are not enumerated`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active")
-    val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
+    val inactiveBundle =
+        bundle(
+            "InactiveBundle",
+            """
+            ABSTRACT CLASS InactiveBase
+            CLASS Inactive : InactiveBase
+            """,
+        )
     val ruleset =
         TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
     val table = ClassLoader(ruleset).apply { load(cn("Active")) }.freeze()
 
-    table.getClass(cn("Inactive")).phantom shouldBe true
+    val inactive = table.getClass(cn("Inactive"))
+    val inactiveBase = table.getClass(cn("InactiveBase"))
+    inactive.phantom shouldBe true
+    inactiveBase.phantom shouldBe true
+    inactive.isSubtypeOf(inactiveBase) shouldBe true
+    inactiveBase.isSubtypeOf(inactive) shouldBe false
+    inactive.allSubclasses() shouldBe emptySet()
+    inactiveBase.allSubclasses() shouldBe emptySet()
     table.resolve(te("Inactive")).phantom shouldBe true
     table.resolve(te("Class<Inactive>")).phantom shouldBe true
     table.resolve(te("Inactive")).allConcreteSubtypes().toList() shouldBe emptyList()
@@ -190,12 +204,43 @@ internal class ClassTest {
   @Test
   fun subclass() {
     val loader = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar : Foo")
+    val component = loader.componentClass
+    val foo = loader.getClass(cn("Foo"))
     val bar = loader.getClass(cn("Bar"))
     bar.directSuperclasses.classNames().shouldContainExactlyInAnyOrder(cn("Foo"))
     bar.allSuperclasses()
         .classNames()
         .shouldContainExactlyInAnyOrder(COMPONENT, cn("Foo"), cn("Bar"))
+    component.directSubclasses().contains(foo) shouldBe true
+    component.allSubclasses().containsAll(setOf(component, foo, bar)) shouldBe true
+    foo.directSubclasses() shouldBe setOf(bar)
+    foo.allSubclasses() shouldBe setOf(foo, bar)
+    bar.directSubclasses() shouldBe emptySet()
+    bar.allSubclasses() shouldBe setOf(bar)
     bar.dependencies.keys.shouldBeEmpty()
+  }
+
+  @Test
+  fun `frozen subclass masks cross machine-word boundaries`() {
+    val levels =
+        (0 until 70).map { index ->
+          if (index == 0) "ABSTRACT CLASS Level0"
+          else "ABSTRACT CLASS Level$index : Level${index - 1}"
+        }
+    val declarations =
+        levels +
+            listOf("CLASS Leaf : Level69", "CLASS Unrelated", "ABSTRACT CLASS ChildlessAbstract")
+    val loader = loadTypes(*declarations.toTypedArray())
+    val leaf = loader.getClass(cn("Leaf"))
+    val childlessAbstract = loader.getClass(cn("ChildlessAbstract"))
+
+    leaf.isSubtypeOf(leaf) shouldBe true
+    listOf(0, 63, 64, 69).forEach { index ->
+      leaf.isSubtypeOf(loader.getClass(cn("Level$index"))) shouldBe true
+    }
+    leaf.isSubtypeOf(loader.getClass(cn("Unrelated"))) shouldBe false
+    childlessAbstract.isSubtypeOf(childlessAbstract) shouldBe true
+    leaf.isSubtypeOf(childlessAbstract) shouldBe false
   }
 
   @Test
