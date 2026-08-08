@@ -1,7 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.CustomCodeException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.GamePremise
@@ -19,6 +17,7 @@ internal class GameReaderImpl(
     private val classTable: ClassTable,
     private val components: ComponentGraph,
     internal val transformers: Transformers,
+    private val customClasses: CustomClassRuntime,
     private val premise: GamePremise,
 ) : GameReader {
   override val ruleset = premise.ruleset
@@ -71,24 +70,7 @@ internal class GameReaderImpl(
     if (type.phantom) return 0
     if (!type.rootClass.declaration.custom) return components.count(type, this)
 
-    val implementation =
-        ruleset.customMetric(type.className)
-            ?: throw CustomCodeException(
-                "Custom class `${type.className}` has no metric implementation"
-            )
-    if (type.abstract)
-        throw AbstractException("custom metric type is abstract: ${type.expressionFull}")
-
-    val count =
-        try {
-          implementation.count(this, type)
-        } catch (e: RuntimeException) {
-          throw CustomCodeException("Custom metric failed for ${type.expressionFull}", e)
-        }
-    if (count < 0) {
-      throw CustomCodeException("Custom metric `${type.expressionFull}` returned $count")
-    }
-    return count
+    return customClasses.count(type, this)
   }
 
   override fun count(type: Type) = components.count(type, this)

@@ -38,7 +38,8 @@ public class TypeDescription public constructor(type: Type) {
   public val componentTypesCount: Int = type.allConcreteSubtypes().take(100).count()
 
   public val componentEffects: List<Effect> =
-      if (type.abstract) emptyList() else type.toComponent().effects(transformers)
+      if (type.abstract) emptyList()
+      else LiveEffect.compile(type.toComponent(), transformers).map(LiveEffect::effect)
 
   private fun descendingBySubclassCount(classes: Iterable<Class>): Set<ClassName> =
       classes

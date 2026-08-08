@@ -47,6 +47,8 @@ internal class Instructor(
     private val effector: Effector?,
     private val classTable: ClassTable,
     private val defaultActor: Actor? = null,
+    private val customClasses: CustomClassRuntime =
+        CustomClassRuntime(reader.ruleset, Transformers(classTable)),
 ) {
 
   internal fun execute(instruction: Instruction, cause: Cause?): List<PendingTask> = buildList {
@@ -222,7 +224,8 @@ internal class Instructor(
       if (r != null) {
         throw ExpressionException("custom class instructions can only be pure gains: $change")
       }
-      val translated = Prod.deprodify(classTable).transform(gaining!!.prepareCustom(reader))
+      val translated =
+          Prod.deprodify(classTable).transform(customClasses.prepare(gaining!!, reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.engine.Component
+import dev.martianzoo.engine.LiveEffect
 import dev.martianzoo.engine.Transformers
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -36,14 +37,20 @@ internal class DependencyLinkTest {
   fun `linked specialization also specializes effects`() {
     val component = Component(table.resolve(te("InheritedLink<Player1, Card>")))
 
-    component.effects(transformers).map(Any::toString).shouldContainExactly("This: Token<Player1>!")
+    LiveEffect.compile(component, transformers)
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Token<Player1>!")
   }
 
   @Test
   fun `an unlinked nested owner does not capture contextual Owner in effects`() {
     val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")))
 
-    component.effects(transformers).map(Any::toString).shouldContainExactly("This: Token<Player1>!")
+    LiveEffect.compile(component, transformers)
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Token<Player1>!")
   }
 
   @Test

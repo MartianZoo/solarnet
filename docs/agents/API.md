@@ -187,6 +187,25 @@ method must trigger auto-exec, but each method's command boundary must be intent
 The first extraction can preserve the current whole-game auto-exec behavior. Actor-local auto-exec
 and workflow handoff are separate semantic changes and should not be smuggled into an API cleanup.
 
+## Implementation Responsibility Boundaries
+
+The flat `Gameplay` API is one caller-facing workhorse, not a requirement that one implementation
+class contain every policy. `ApiTranslation` should become only the string/value adapter for that
+surface. The command pipeline owns atomicity, auto-exec coordination, result collection, and
+completion notification. The current generically named `Implementations` class should disappear or
+become a plainly named facade over focused task lifecycle, task-selection/auto-exec, operation
+completion, and raw-change collaborators; Terraforming Mars turn signaling does not belong in any
+of those generic services.
+
+`ScriptSession` should retain interactive session state and command dispatch. Terraforming Mars
+game construction, command catalog contributions, and vocabulary belong in an injected application
+profile, while task labels and result rendering remain presentation collaborators rather than
+additional session responsibilities.
+
+As described below, `TfmGameplay` is transitional. Its player actions, workflow/phase controls,
+test-fixture conveniences, and read-model calculations should become purpose-specific clients of
+the flat engine instead of surviving as one wrapper.
+
 ## The Later Client API
 
 The future API should wrap the workhorse instead of forcing the workhorse itself to impersonate a

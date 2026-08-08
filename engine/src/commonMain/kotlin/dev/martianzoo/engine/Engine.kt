@@ -73,6 +73,7 @@ public object Engine {
         Vocabulary.create(premise.ruleset, locale, inputOnlySynonyms)
     private val classTable: ClassTable = ClassTable.forPremise(premise)
     private val transformers: Transformers = Transformers(classTable)
+    private val customClasses = CustomClassRuntime(premise.ruleset, transformers)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
@@ -82,7 +83,7 @@ public object Engine {
     private val events = EventLog()
     private val taskQueues = TaskQueues(events, classTable)
     private val reader: GameReaderImpl =
-        GameReaderImpl(classTable, components, transformers, premise)
+        GameReaderImpl(classTable, components, transformers, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues)
     private val limiter = Limiter(classTable, components)
     private val atomicOperationBoundary: AtomicOperationBoundary =
@@ -93,7 +94,15 @@ public object Engine {
         premise.actors.associateWith { Changer(reader, components, events, it) }
     private val instructorByActor: Map<Actor, Instructor> =
         premise.actors.associateWith {
-          Instructor(reader, limiter, changerByActor.getValue(it), effector, classTable, it)
+          Instructor(
+              reader,
+              limiter,
+              changerByActor.getValue(it),
+              effector,
+              classTable,
+              it,
+              customClasses,
+          )
         }
     private val gameplayByActor: Map<Actor, Gameplay> =
         premise.actors.associateWith(::createGameplay)

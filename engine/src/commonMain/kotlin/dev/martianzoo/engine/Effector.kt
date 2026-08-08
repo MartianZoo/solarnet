@@ -1,44 +1,17 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.ACTOR
-import dev.martianzoo.api.SystemClasses.ANYONE
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.SystemClasses.SYSTEM
-import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Player
-import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Effect.Trigger
-import dev.martianzoo.pets.ast.Effect.Trigger.BasicTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
-import dev.martianzoo.pets.ast.Effect.Trigger.Or
-import dev.martianzoo.pets.ast.Effect.Trigger.Transform
-import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.pets.ast.Effect.Trigger.WhenRemove
-import dev.martianzoo.pets.ast.Effect.Trigger.WrappingTrigger
-import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
 
+/** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(
     private val transformers: Transformers,
     readerProvider: () -> GameReader,
 ) {
   private val reader: GameReader by lazy(readerProvider)
-  private val registry = mutableMapOf<RegistryKey, HashMultiset<LiveEffect>>()
+  private val registry = mutableMapOf<LiveEffect.RegistryKey, HashMultiset<LiveEffect>>()
   private val registryOrder = mutableMapOf<LiveEffect, Long>()
   private var nextRegistryOrder = 0L
 
@@ -61,25 +34,8 @@ internal class Effector(
         if (bucket.isEmpty()) registry.remove(key)
       }
 
-  private fun liveEffects(component: Component): List<LiveEffect> {
-    fun liveEffect(fx: Effect): LiveEffect {
-      // Lowering can consume the trigger-side occurrence (for example PROD), so prefer the frozen
-      // authored origins even when they can no longer be rediscovered from the transformed tree.
-      val linkedSources = fx.linkedTypeSources
-      val subscription = Subscription.from(fx.trigger, component, linkedSources)
-      val triggerClass =
-          subscription.classToCheck?.let(transformers.classTable::getClass)?.className
-      return LiveEffect(
-          subscription,
-          fx.automatic,
-          fx.instruction,
-          component,
-          triggerClass,
-      )
-    }
-
-    return effects.getOrPut(component) { component.effects(transformers).map(::liveEffect) }
-  }
+  private fun liveEffects(component: Component): List<LiveEffect> =
+      effects.getOrPut(component) { LiveEffect.compile(component, transformers) }
 
   internal fun fire(triggerEvent: ChangeEvent, automatic: Boolean? = null): List<PendingTask> =
       fireSelfEffects(triggerEvent, automatic) + fireOtherEffects(triggerEvent, automatic)
@@ -99,8 +55,8 @@ internal class Effector(
       triggerEvent: ChangeEvent,
       automatic: Boolean? = null,
   ): List<PendingTask> =
-      candidatesFor(triggerEvent, automatic).mapNotNull { (fx, ct) ->
-        fx.onChangeToOther(triggerEvent, reader)?.times(ct)
+      candidatesFor(triggerEvent, automatic).mapNotNull { (effect, count) ->
+        effect.onChangeToOther(triggerEvent, reader)?.times(count)
       }
 
   private fun candidatesFor(
@@ -117,9 +73,9 @@ internal class Effector(
     // subscription matcher is still authoritative for every selected candidate.
     val candidates = HashMultiset<LiveEffect>()
     automaticValues.forEach { mode ->
-      registry[RegistryKey(mode, null)]?.let(candidates::addAll)
+      registry[LiveEffect.RegistryKey(mode, null)]?.let(candidates::addAll)
       changedClasses.forEach { changedClass ->
-        registry[RegistryKey(mode, changedClass)]?.let(candidates::addAll)
+        registry[LiveEffect.RegistryKey(mode, changedClass)]?.let(candidates::addAll)
       }
     }
     // Effects can be selected through different superclass buckets. Preserve the old registry's
@@ -127,324 +83,5 @@ internal class Effector(
     return candidates.entries
         .sortedBy { (effect, _) -> checkNotNull(registryOrder[effect]) }
         .map { (effect, count) -> effect to count }
-  }
-
-  private data class RegistryKey(
-      val automatic: Boolean,
-      val triggerClass: ClassName?,
-  )
-
-  private data class LiveEffect(
-      private val subscription: Subscription,
-      internal val automatic: Boolean,
-      private val instruction: Instruction,
-      private val context: Component,
-      private val triggerClass: ClassName?,
-  ) {
-    val registryKey = RegistryKey(automatic, triggerClass)
-
-    fun onChangeToSelf(triggerEvent: ChangeEvent, reader: GameReader) =
-        onChange(triggerEvent, reader, isSelf = true)
-
-    fun onChangeToOther(triggerEvent: ChangeEvent, reader: GameReader) =
-        onChange(triggerEvent, reader, isSelf = false)
-
-    private fun onChange(
-        triggerEvent: ChangeEvent,
-        reader: GameReader,
-        isSelf: Boolean,
-    ): PendingTask? {
-      // An owned effect belongs to the Player owning the component that carries it. This must win
-      // over every other identity here: when Player1 places beside Player2's Philares tile, Player2
-      // owns the effect and therefore chooses the standard resource. Using the changed tile's Owner
-      // instead would incorrectly give that choice to Player1. This is intentionally Player-only:
-      // no accepted SoloOpponent rule gives a passive Owner triggered choices or pending work.
-      val effectOwner = context.playerOwner
-
-      // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
-      // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
-      // gameplay scope that happens to execute the effect. A passive Owner is ignored here because
-      // ownership alone must not give SoloOpponent task or gameplay authority.
-      val changedComponentPlayer = changedComponentPlayer(triggerEvent, reader)
-
-      // If neither the effect nor the changed component supplies ownership, a Player Actor is the
-      // last legitimate source for contextual `Owner`. Engine is deliberately excluded: it is an
-      // Actor but not an Owner, so treating it as one would manufacture invalid owned components.
-      val contextualOwner = effectOwner ?: changedComponentPlayer ?: (triggerEvent.actor as? Player)
-
-      // Assignment is a separate compatibility rule. Keeping this call separate from
-      // contextualOwner prevents the assignee from silently becoming the Actor used by authored
-      // `BY`, while preserving today's Philares behavior in which its Owner receives the task.
-      val assignee = assigneeForTriggeredWork(triggerEvent, effectOwner, changedComponentPlayer)
-      val hit =
-          subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
-      val cause = Cause(context.expression, triggerEvent.ordinal)
-      return PendingTask(assignee, hit.specialize(instruction), cause)
-    }
-
-    /**
-     * The compatibility rule for choosing the assignee of work produced by an effect. Authored `BY`
-     * independently tests the Actor recorded on the triggering event.
-     *
-     * Automatic effects are represented temporarily as PendingTasks but execute inline through the
-     * triggering Actor's Instructor and Changer, so their resulting ChangeEvents retain that Actor.
-     */
-    private fun assigneeForTriggeredWork(
-        triggerEvent: ChangeEvent,
-        effectOwner: Player?,
-        changedComponentPlayer: Player?,
-    ): Actor = effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
-
-    private fun changedComponentPlayer(triggerEvent: ChangeEvent, reader: GameReader): Player? {
-      val expression = triggerEvent.change.gaining ?: triggerEvent.change.removing ?: return null
-      return reader.resolve(expression).toComponent().playerOwner
-    }
-  }
-
-  private sealed class Subscription {
-    companion object {
-      fun from(
-          trigger: Trigger,
-          context: Component,
-          linkedSources: Set<Expression>,
-          implicitOwner: Player? = context.playerOwner,
-      ): Subscription {
-        return when (trigger) {
-          is Or -> AnyOf(trigger.triggers.map { from(it, context, linkedSources, implicitOwner) })
-          is BasicTrigger -> {
-            when (trigger) {
-              is WhenGain -> Self(context, matchOnGain = true)
-              is WhenRemove -> Self(context, matchOnGain = false)
-              is OnGainOf ->
-                  Regular(
-                      trigger.expression,
-                      matchOnGain = true,
-                      implicitOwner = implicitOwner,
-                      linkedSources = linkedSources,
-                  )
-              is OnRemoveOf ->
-                  Regular(
-                      trigger.expression,
-                      matchOnGain = false,
-                      implicitOwner = implicitOwner,
-                      linkedSources = linkedSources,
-                  )
-            }
-          }
-          is WrappingTrigger -> {
-            val inner =
-                from(
-                    trigger.inner,
-                    context,
-                    linkedSources,
-                    implicitOwner = if (trigger is ByTrigger) null else implicitOwner,
-                )
-            when (trigger) {
-              is ByTrigger -> Personal(inner, trigger.by)
-              is IfTrigger -> Conditional(inner, trigger.condition)
-              is XTrigger -> Unscaled(inner)
-              is Transform -> error("should have been transformed by now: $trigger")
-            }
-          }
-        }
-      }
-    }
-
-    /**
-     * [contextualOwner] is the Player used to bind contextual `Owner` placeholders in a triggered
-     * instruction. It is not generalized to every Pets Owner: this path produces executable or
-     * choice-bearing work, and no passive-Owner rule for that work has been defined.
-     */
-    abstract fun checkForHit(
-        currentEvent: ChangeEvent,
-        contextualOwner: Player?,
-        isSelf: Boolean,
-        reader: GameReader,
-    ): Hit?
-
-    internal abstract val classToCheck: ClassName?
-
-    private data class AnyOf(val alternatives: List<Subscription>) : Subscription() {
-      override fun checkForHit(
-          currentEvent: ChangeEvent,
-          contextualOwner: Player?,
-          isSelf: Boolean,
-          reader: GameReader,
-      ): Hit? {
-        alternatives.forEach { alternative ->
-          alternative.checkForHit(currentEvent, contextualOwner, isSelf, reader)?.let {
-            return it
-          }
-        }
-        return null
-      }
-
-      override val classToCheck = null
-    }
-
-    private data class Regular(
-        val match: Expression,
-        val matchOnGain: Boolean,
-        val implicitOwner: Player?,
-        val linkedSources: Set<Expression>,
-    ) : Subscription() {
-      override fun checkForHit(
-          currentEvent: ChangeEvent,
-          contextualOwner: Player?,
-          isSelf: Boolean,
-          reader: GameReader,
-      ): Hit? {
-        reader as GameReaderImpl
-        if (isSelf) return null
-        val change = currentEvent.change
-        val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
-        // Will be refinement-aware (#48)
-        val changeType = reader.resolve(expr)
-        val matchType = reader.resolve(match)
-        val triggerIsOwnedOrSystem =
-            matchType.rootClass.allSuperclasses().any {
-              it.className == OWNED || it.className == SYSTEM
-            }
-        if (
-            !triggerIsOwnedOrSystem && implicitOwner != null && currentEvent.actor != implicitOwner
-        ) {
-          return null
-        }
-        return if (changeType.narrows(matchType, reader)) {
-          // TODO: Replace this compatibility binding with an explicit Pets representation for
-          // contextual Owner.
-          // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
-          // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
-          // role as a contextual variable without treating that Owner as the executing Actor.
-          val ownerSubstitution =
-              if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null
-          val subber =
-              reader.transformers.checkedLinkageSubstituter(
-                  matchType,
-                  changeType,
-                  linkedSources,
-                  ownerSubstitution,
-              )
-          Hit(listOf(subber), change.count)
-        } else {
-          null
-        }
-      }
-
-      override val classToCheck = match.className
-    }
-
-    private data class Self(val context: Component, val matchOnGain: Boolean) : Subscription() {
-      override fun checkForHit(
-          currentEvent: ChangeEvent,
-          contextualOwner: Player?,
-          isSelf: Boolean,
-          reader: GameReader,
-      ): Hit? {
-
-        if (!isSelf) return null
-        val change = currentEvent.change
-        val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
-
-        return if (expr == context.expressionFull) {
-          Hit(emptyList(), currentEvent.change.count)
-        } else {
-          null
-        }
-      }
-
-      override val classToCheck = null
-    }
-
-    private data class Personal(
-        val inner: Subscription,
-        val selector: Expression,
-    ) : Subscription() {
-      override fun checkForHit(
-          currentEvent: ChangeEvent,
-          contextualOwner: Player?,
-          isSelf: Boolean,
-          reader: GameReader,
-      ): Hit? {
-        var hit = inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
-
-        // BY describes the Actor that performed the triggering change, recorded on the event.
-        val actor = currentEvent.actor
-        var specializedSelector = hit.specialize(selector)
-
-        // On an unowned effect, an otherwise-unbound positive Owner means the performing Player.
-        // Apply that established contextual rule before evaluating the selector as an Actor type.
-        if (specializedSelector == OWNER.expression) {
-          val owner = actor as? Player ?: return null
-          hit = hit.then(replaceOwnerWith(owner))
-          specializedSelector = hit.specialize(selector)
-        }
-        val by = specializedSelector.className
-
-        // Anyone is the icon-grammar spelling for an unrestricted trigger; unlike the other
-        // selectors, its class hierarchy is about ownership rather than the Actor domain.
-        if (by == ANYONE && !specializedSelector.complement) return hit
-
-        reader as GameReaderImpl
-        val actorType = reader.resolve(actor.expression)
-        val actorDomain = reader.resolve(ACTOR.expression)
-        if (!reader.matchesConstraint(actorType, specializedSelector, actorDomain)) return null
-
-        return hit
-      }
-
-      override val classToCheck = inner.classToCheck
-    }
-
-    private data class Conditional(val inner: Subscription, val condition: Requirement) :
-        Subscription() {
-      override fun checkForHit(
-          currentEvent: ChangeEvent,
-          contextualOwner: Player?,
-          isSelf: Boolean,
-          reader: GameReader,
-      ): Hit? {
-        val wouldHit =
-            inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
-        return if (reader.has(wouldHit.specialize(condition))) wouldHit else null
-      }
-
-      override val classToCheck = inner.classToCheck
-    }
-
-    private data class Unscaled(val inner: Subscription) : Subscription() {
-      override fun checkForHit(
-          currentEvent: ChangeEvent,
-          contextualOwner: Player?,
-          isSelf: Boolean,
-          reader: GameReader,
-      ): Hit? {
-        // just fake it like only one happened
-        return inner.checkForHit(
-            currentEvent.copy(change = currentEvent.change.copy(count = 1)),
-            contextualOwner,
-            isSelf,
-            reader,
-        )
-      }
-
-      override val classToCheck = inner.classToCheck
-    }
-  }
-
-  private data class Hit(
-      private val transformers: List<PetTransformer>,
-      private val count: Int,
-  ) {
-    fun specialize(instruction: Instruction): Instruction = specializeNode(instruction) * count
-
-    fun specialize(expression: Expression): Expression = specializeNode(expression)
-
-    fun specialize(requirement: Requirement): Requirement = specializeNode(requirement)
-
-    fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
-
-    private fun <P : PetNode> specializeNode(node: P): P =
-        transformers.fold(node) { current, transformer -> transformer.transform(current) }
   }
 }

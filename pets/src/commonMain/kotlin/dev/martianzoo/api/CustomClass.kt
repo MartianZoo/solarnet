@@ -1,9 +1,5 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.CustomCodeException
-import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -65,34 +61,4 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
       type2: Type,
       type3: Type,
   ): Instruction = throw NotImplementedError()
-
-  public fun prepare(game: GameReader, type: Type): Instruction {
-    if (type.abstract) throw AbstractException("")
-    val args = type.expressionFull.arguments.map { game.resolve(it) }
-    val missing = args.filter { game.countComponent(it) == 0 }
-    if (missing.any()) throw DependencyException(missing)
-
-    return try {
-      when (args.size) {
-        0 -> translate(game)
-        1 -> translate(game, args[0])
-        2 -> translate(game, args[0], args[1])
-        3 -> translate(game, args[0], args[1], args[2])
-        4 -> translate(game, args[0], args[1], args[2], args[3])
-        else ->
-            throw ExpressionException(
-                "Custom instruction types with ${args.size} dependencies are not supported: " +
-                    type.expressionFull
-            )
-      }
-    } catch (e: NotImplementedError) {
-      throw ExpressionException(
-          "Custom type ${type.expressionFull} has no instruction behavior for " +
-              "${args.size} dependencies",
-          e,
-      )
-    } catch (e: RuntimeException) {
-      throw CustomCodeException("Custom instruction failed for ${type.expressionFull}", e)
-    }
-  }
 }

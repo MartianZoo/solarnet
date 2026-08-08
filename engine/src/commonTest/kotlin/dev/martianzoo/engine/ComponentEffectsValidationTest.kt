@@ -28,8 +28,8 @@ class ComponentEffectsValidationTest {
   fun `valid specialized component effect is retained`() {
     val component = Component(table.resolve(te("Holder<Good>")))
 
-    component
-        .effects(transformers)
+    LiveEffect.compile(component, transformers)
+        .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Good! OR Wrapper<Good>!")
   }
@@ -38,14 +38,17 @@ class ComponentEffectsValidationTest {
   fun `invalid atomic branch after component specialization becomes Die`() {
     val component = Component(table.resolve(te("Holder<Bad>")))
 
-    component.effects(transformers).map(Any::toString).shouldContainExactly("This: Good! OR Die!")
+    LiveEffect.compile(component, transformers)
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Good! OR Die!")
   }
 
   @Test
   fun `invalid specialized component trigger fails validation`() {
     val component = Component(table.resolve(te("BrokenHolder<Bad>")))
 
-    shouldThrow<ExpressionException> { component.effects(transformers) }
+    shouldThrow<ExpressionException> { LiveEffect.compile(component, transformers) }
   }
 
   @Test

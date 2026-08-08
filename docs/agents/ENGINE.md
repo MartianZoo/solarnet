@@ -214,7 +214,8 @@ as much as possible without actually changing anything:
   specifially get pruned out
 - `Change` is "auto-narrowed": abstract types are resolved to concrete where there's only
   one valid choice; limits are checked (see Limiter below); AMAP intensity is resolved
-- Custom types delegate to their `CustomClass.prepare()` to produce a replacement instruction
+- Custom types delegate through `CustomClassRuntime`, which validates their concrete dependencies,
+  invokes the matching `CustomClass.translate()` overload, and lowers the returned instruction
 
 ### 2. Execute
 
@@ -236,7 +237,8 @@ The return value of `execute` is a list of `PendingTask` objects produced by que
 `GameReader.count(Metric)` evaluates metric ASTs used by requirements, `/` instructions, awards,
 and the REPL `count` command. An ordinary `Metric.Count` delegates to the component graph. If the
 resolved expression's root is a `Custom` class with a `CustomMetric` implementation, the reader
-instead asks that implementation for its non-negative virtual count.
+delegates to `CustomClassRuntime`, which validates the query, invokes that implementation, and
+requires a non-negative virtual count.
 
 `Metric.Or` evaluates the multiset union of ordinary component-count alternatives. For each exact
 component type it keeps the greatest matching multiplicity, so overlapping alternatives do not
@@ -344,12 +346,13 @@ other copies already exist. For other triggers (`OnGainOf<X>`/`OnRemoveOf<X>`), 
 all registered live effects against each new change event, so their live multiplicity does
 matter.
 
-Creating a component effect applies the same checked narrowing to its instruction: an invalid
-atomic consequence becomes `Die`, allowing an enclosing `OR` to discard it. Every remaining type
-is then validated; an invalid trigger, gate, or other expression is a class-modeling error and fails
-with the component and bound effect in the error message. The deliberate exception is an effect
-declared by a supertype and applied to a passive, non-Player Owner when that effect requires
-Player-bound output; that inapplicable effect is omitted.
+`LiveEffect.compile` creates live effects by applying the same checked narrowing to
+each inherited effect's instruction: an invalid atomic consequence becomes `Die`, allowing an
+enclosing `OR` to discard it. Every remaining type is then validated; an invalid trigger, gate, or
+other expression is a class-modeling error and fails with the component and bound effect in the
+error message. The deliberate exception is an effect declared by a supertype and applied to a
+passive, non-Player Owner when that effect requires Player-bound output; that inapplicable effect is
+omitted.
 
 When a concrete change narrows an abstract trigger, the same narrowing is applied to the exact
 source expressions linked across that trigger and its instruction. Other occurrences of the same
