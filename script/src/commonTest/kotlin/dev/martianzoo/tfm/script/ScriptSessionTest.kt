@@ -256,8 +256,9 @@ internal class ScriptSessionTest {
         A* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
         0000: +NewPartner<Player1> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<NewPartner>> BECAUSE 0000
         0000: +Production<Player1, Class<Megacredit>> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
-        0000: +PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
+        0000: +2 PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
         0000: +Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
+        0000: -PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
 
         New tasks pending:
         A* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)

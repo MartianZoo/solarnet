@@ -104,39 +104,31 @@ public class Transformers(public val classTable: ClassTable) {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 
     return object : PetTransformer() {
-      var ourMulti: Multi? = null
-
       override fun <P : PetNode> transform(node: P): P {
-        if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
-          val flattened =
-              node.instructions.flatMap {
-                if (it == ourMulti) {
-                  ourMulti!!.instructions
-                } else {
-                  listOf(it)
-                }
-              }
-          @Suppress("UNCHECKED_CAST")
-          return Multi.create(flattened) as P
-        }
-        if (node !is Gain) return transformChildren(node)
-        val scex = node.scaledEx
-        val sc = scex.scalar
-
-        if (
-            sc !is ActualScalar ||
-                sc.value == 1 ||
-                THIS in scex.expression ||
-                !classTable.resolve(scex.expression).rootClass.isSubtypeOf(atomized)
-        ) {
+        if (node is Gain) {
+          val scex = node.scaledEx
+          val sc = scex.scalar
+          if (
+              sc is ActualScalar &&
+                  sc.value > 1 &&
+                  classTable.findClass(scex.expression.className)?.isSubtypeOf(atomized) == true
+          ) {
+            val one = gain(scaledEx(scex.expression, ActualScalar(1)), node.intensity) as Gain
+            @Suppress("UNCHECKED_CAST")
+            return Multi.create(List(sc.value) { one }) as P
+          }
           return node
         }
 
-        val one = gain(scaledEx(scex.expression, ActualScalar(1)), node.intensity) as Gain
-        ourMulti = Multi.create((1..sc.value).map { one }) as Multi
+        val transformed = transformChildren(node)
+        if (transformed !is Multi) return transformed
+        val flattened =
+            transformed.instructions.flatMap { instruction ->
+              if (instruction is Multi) instruction.instructions else listOf(instruction)
+            }
 
-        @Suppress("UNCHECKED_CAST") // not technically safe...
-        return ourMulti as P
+        @Suppress("UNCHECKED_CAST")
+        return Multi.create(flattened) as P
       }
     }
   }

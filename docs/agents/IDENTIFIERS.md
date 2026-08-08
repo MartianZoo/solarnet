@@ -37,14 +37,13 @@ Ordinary draws do not automatically require a second definition. The suffix is r
 
 | Corrected implementation | ID |
 | --- | --- |
-| Valley Trust | `PC4F` |
 | Morning Star Inc. | `VC4F` |
 | Splice Tactical Genomics | `XC03F` |
 | Asteroid Deflection System | `X14F` |
 | Astra Mechanica | `X51F` |
 | Public Plans | `X77F` |
 
-There are 21 implemented follow-mode card IDs. Sell Patents is a standard action named `SellPatents`, not an ID-bearing card definition; its generic operation may work in both modes once card backs are atomized.
+There are 17 implemented follow-mode card IDs. Sell Patents is a standard action named `SellPatents`, not an ID-bearing card definition; its generic operation may work in both modes once card backs are atomized.
 
 ## Physical authentication
 
@@ -108,7 +107,7 @@ These identifiers are project-assigned rather than printed. Reserved entries pre
 | Prelude | Cheung Shing Mars | PC1 |
 | Prelude | Point Luna | PC2 |
 | Prelude | Robinson Industries | PC3 |
-| Prelude | Valley Trust | PC4F |
+| Prelude | Valley Trust | PC4 |
 | Prelude | Vitor | PC5 |
 | Colonies | Aridor | CC1 |
 | Colonies | Arklight | CC2 |

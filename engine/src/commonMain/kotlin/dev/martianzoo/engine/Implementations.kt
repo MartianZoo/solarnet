@@ -24,6 +24,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
@@ -215,13 +216,15 @@ internal class Implementations(
     }
 
     if (revised == task.instruction) return
-    val linkedThen = bindFirstStageOrNull(task.instruction, revised)
-    if (linkedThen == null) revised.ensureNarrows(task.instruction, reader)
+    val directlyNarrows = revised.narrows(task.instruction, reader)
+    val selectedThen =
+        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, revised)
+    if (selectedThen == null) revised.ensureNarrows(task.instruction, reader)
 
     // A selected group must split before its children are prepared against successive worlds.
     val replacement = if (task.next && revised !is Multi) instructor.prepare(revised) else revised
     val continuation =
-        linkedThen?.let { Then.create(it.instructions.drop(1) + listOfNotNull(task.then)) }
+        selectedThen?.let { Then.create(it.instructions.drop(1) + listOfNotNull(task.then)) }
             ?: task.then
     replace1WithN(
         tasks,
@@ -364,20 +367,30 @@ internal class Implementations(
   }
 
   private fun narrowsTask(revised: Instruction, existing: Instruction): Boolean =
-      revised.narrows(existing, reader) || bindFirstStageOrNull(existing, revised) != null
+      revised.narrows(existing, reader) || selectFirstStageOrNull(existing, revised) != null
 
-  private fun bindFirstStageOrNull(instruction: Instruction, revised: Instruction): Then? {
-    val then = instruction as? Then ?: return null
+  private fun selectFirstStageOrNull(instruction: Instruction, revised: Instruction): Then? {
     if (revised is Then) return null
-    return try {
-      then.bindFirstStage(
-          revised,
-          reader,
-          loweredRemovalBinding(then.instructions.first(), revised),
-      )
-    } catch (_: NarrowingException) {
-      null
-    }
+    val candidates: List<Pair<Then, Boolean>> =
+        when (instruction) {
+          is Then -> listOf(instruction to false)
+          is Or -> instruction.instructions.filterIsInstance<Then>().map { it to true }
+          else -> emptyList()
+        }
+    return candidates
+        .mapNotNull { (then, selectedFromOr) ->
+          try {
+            val loweredBinding = loweredRemovalBinding(then.instructions.first(), revised)
+            if (selectedFromOr) {
+              then.selectFirstStage(revised, reader, loweredBinding)
+            } else {
+              then.bindFirstStage(revised, reader, loweredBinding)
+            }
+          } catch (_: NarrowingException) {
+            null
+          }
+        }
+        .singleOrNull()
   }
 
   private fun loweredRemovalBinding(wide: Instruction, narrow: Instruction): PetTransformer? {

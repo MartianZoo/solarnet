@@ -48,7 +48,9 @@ internal object SampleGames {
     engine.nextGeneration(2, 2)
 
     p2.cardAction2("Factorum")
-    p2.playProject("MarsUniversity", 6, steel = 1)
+    p2.playProject("MarsUniversity", 6, steel = 1) {
+      doTask("-ProjectCard")
+    }
     p1.cardAction1("InventorsGuild") { doFirstTask("BuyCard") }
     p1.playProject("EarthOffice", 1)
     p2.cardAction2("RotatorImpacts")
@@ -68,7 +70,9 @@ internal object SampleGames {
     p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doFirstTask("Ok") }
     p1.playProject("CorporateStronghold", 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
     p1.playProject("OptimalAerobraking", 7)
-    p2.playProject("TransNeptuneProbe", 0, titanium = 2)
+    p2.playProject("TransNeptuneProbe", 0, titanium = 2) {
+      doTask("-ProjectCard")
+    }
     p2.cardAction1("RotatorImpacts") { p2.pay(6) }
     p1.cardAction2("DeuteriumExport")
     p1.playProject("ImportedGhg", 4)
@@ -84,7 +88,9 @@ internal object SampleGames {
       p2.pay(8)
       doTask("OceanTile<Tharsis_2_6>")
     }
-    p2.playProject("SearchForLife", 3)
+    p2.playProject("SearchForLife", 3) {
+      doTask("-ProjectCard")
+    }
     p1.cardAction1("DeuteriumExport")
     p1.playProject("TectonicStressPower", 12, steel = 3)
     p2.cardAction2("RotatorImpacts")
@@ -159,7 +165,9 @@ internal object SampleGames {
     p1.stdAction("ClaimMilestoneSA") { doTask("Builder") }
     p1.cardAction1("DevelopmentCenter")
     p2.playProject("EarthCatapult", 23)
-    p2.playProject("InventionContest", 0)
+    p2.playProject("InventionContest", 0) {
+      doTask("-ProjectCard")
+    }
     p1.cardAction1("InventorsGuild") { doTask("Ok") }
     p1.playProject("QuantumExtractor", 13)
     p2.playProject("BioPrintingFacility", 1, steel = 2)
@@ -178,8 +186,12 @@ internal object SampleGames {
     if (gens-- == 0) return game
     engine.nextGeneration(2, 2)
 
-    p2.playProject("AdvancedAlloys", 7)
-    p2.playProject("AiCentral", 13, steel = 2)
+    p2.playProject("AdvancedAlloys", 7) {
+      doTask("-ProjectCard")
+    }
+    p2.playProject("AiCentral", 13, steel = 2) {
+      doTask("-ProjectCard")
+    }
     p1.playProject("ExtractorBalloons", 21)
     p1.cardAction1("DevelopmentCenter")
     p2.cardAction1("AiCentral")
@@ -239,7 +251,10 @@ internal object SampleGames {
     p1.cardAction1("MoholeLake") { doTask("Animal<StratosphericBirds>") }
     p1.cardAction1("StratosphericBirds")
     p2.cardAction2("Factorum")
-    p2.playProject("NaturalPreserve", 1, steel = 2) { doTask("NpTile<Tharsis_3_1>") }
+    p2.playProject("NaturalPreserve", 1, steel = 2) {
+      doTask("-ProjectCard")
+      doTask("NpTile<Tharsis_3_1>")
+    }
     p1.sellPatents(3)
     p1.playProject("WaterToVenus", 4, titanium = 1)
     p2.sellPatents(2)

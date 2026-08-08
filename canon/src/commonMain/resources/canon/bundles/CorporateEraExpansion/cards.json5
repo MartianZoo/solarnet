@@ -251,15 +251,15 @@
       "effects": [ "Pay<Class<Steel>> OR Pay<Class<Titanium>>:: -Owed" ],
     },
 
-    // Mars University[F]
+    // Mars University
     {
-      "id": "073F",
+      "id": "073",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: Ok", // pointless in Follow Mode
+        "ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok",
         "End: VictoryPoint"
       ],
     },
