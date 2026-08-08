@@ -5,7 +5,7 @@ Here's an overview of the component classes that (currently) make up the core of
 * [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
 * [modes.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/modes.pets)
 * [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
-* * [maps-tiles.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/maps-tiles.pets)
+* [maps-tiles.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/maps-tiles.pets)
 
 ## Communal / non-player-owned
 

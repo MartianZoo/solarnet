@@ -8,9 +8,10 @@ in `cards.json5`.
 ```
 typeExpression    := dependentTypeExpr | classLiteral
 dependentTypeExpr := className [dependencyBounds] [hasRefinement]
-dependencyBounds  := '<' typeExpression (',' typeExpression)* '>'
-hasRefinement     := '(HAS' requirement ')'
-classLiteral      := 'Class' '<' className '>'
+dependencyBounds  := '<' dependencyBound (',' dependencyBound)* '>'
+dependencyBound   := ['!'] typeExpression
+hasRefinement     := '(' ('HAS' | 'HAS?') requirement ')'
+classLiteral      := 'Class' '<' className '>' [hasRefinement]
 className         := upperCamelRE
 ```
 
@@ -24,7 +25,7 @@ This can be as simple as `Player1` or as complex as `CityTile<Player2, MarsArea(
 comes a class name, then an optional list of one or more dependency bounds inside angle brackets, and finally an optional
 requirement. Of course, each listed bound is an entire type expression itself.
 
-These expressions are a way of identifying a type, and types are explained in the [type system] article.
+These expressions are a way of identifying a type, and types are explained in the [type system](type-system.md) article.
 
 A leading `!` can be used inside a dependency bound to mean "anything within this dependency's bound except the named type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not Player1. Complement type expressions are dependency constraints and have no standalone type.
 

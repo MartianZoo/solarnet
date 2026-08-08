@@ -27,7 +27,7 @@
 
 * If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Advanced Alloys actually save me that game?" fairly easily. For now that last part requires writing code. The other catch is that you would have to ban the expansions and individual cards from your game that Solarnet doesn't support yet.
 
-* It works! See the Issues tab for exceptions. I have just about 400 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
+* It works! See the Issues tab for exceptions. I have over 450 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
 
 * It's **not polished enough** for anyone to "just use". 2026 update: unless you are into agentic stuff like Codex or Claude Code; they figure it out quite easily.
 

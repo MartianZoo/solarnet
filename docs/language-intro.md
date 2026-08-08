@@ -6,7 +6,7 @@ When I started playing *Terraforming Mars*, I loved many things about the game, 
 
 I realized that a suitable specification language *could* exist -- and if it did, then both the iconographic depiction and a reasonable pass at the textual explanation on each card (etc.) could be *derived* from it. Moreover, an actual running game engine would in theory not need to be *programmed* how to handle each card individually; it could simply read the specification and know what to do.
 
-Then I discovered that I was already hard at work on it! For example, the many hours I sunk into [Terraforming Mars: The Spreadsheet] were an effort to "regularize" the cards and create a uniform way of looking at them that adhered to a few rules.
+Then I discovered that I was already hard at work on it! For example, the many hours I sunk into Terraforming Mars: The Spreadsheet were an effort to "regularize" the cards and create a uniform way of looking at them that adhered to a few rules.
 
 Now (December 2022) I've been working on it for over two years. It's been my main pursuit outside of work. Some of the effort has been writing actual computer programs to *test* that the language is suitable in the ways I want it to be. But most of it has been simply grappling with the *design* of the thing -- so far it's been a generous fountain of absolutely wicked design puzzles!
 
@@ -14,7 +14,7 @@ Now (December 2022) I've been working on it for over two years. It's been my mai
 
 The topic of this language is queries and manipulations of a world. For Terraforming Mars, a world represents the state of a game in progress, so we'd better start by understanding what that means.
 
-I have a [long answer] to that, but the short version is: it's everything you need to know about a game-in-progress in order to fully reconstruct a *functionally equivalent* game-in-progress at another time or place. It's like a photograph of the game, but also needs to include invisible state like whose turn it is.
+I have a long answer to that, but the short version is: it's everything you need to know about a game-in-progress in order to fully reconstruct a *functionally equivalent* game-in-progress at another time or place. It's like a photograph of the game, but also needs to include invisible state like whose turn it is.
 
 PETS's conception of a *Terraforming Mars* world goes like this:
 
