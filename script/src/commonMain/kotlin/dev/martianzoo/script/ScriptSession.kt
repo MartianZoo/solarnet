@@ -64,6 +64,11 @@ public class ScriptSession(
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
+
+  /** The live world currently controlled by this session. */
+  public val world: World
+    get() = game
+
   internal lateinit var gameplay: TurnLayer
   internal lateinit var setup: OptionCodeTranslation.Setup
 
@@ -96,6 +101,24 @@ public class ScriptSession(
       purple: Boolean = false,
   ) {
     newGame(OptionCodeTranslation.setup(optionCodes, players, selectedColonies), purple)
+  }
+
+  internal fun newGame(
+      setupInstruction: String,
+      purple: Boolean = false,
+  ) {
+    val (candidateSetup, candidateGame) = createGame(setupInstruction, locale)
+    val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer
+    if (purple) {
+      TfmWorkflow.Auto(candidateGame).launch()
+    } else {
+      TfmWorkflow.Manual(candidateGame).setupPhase()
+    }
+    setup = candidateSetup
+    game = candidateGame
+    gameplay = candidateGameplay
+    taskLabels.clear()
+    if (purple) mode = PURPLE
   }
 
   init {
@@ -305,6 +328,37 @@ internal fun createGame(
           inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
       )
   return Engine.newGame(setupWorld, Canon::assemble)
+}
+
+private fun createGame(
+    setupInstruction: String,
+    locale: String = Vocabulary.ENGLISH,
+): Pair<OptionCodeTranslation.Setup, World> {
+  val setupWorld =
+      Engine.newSetupWorld(
+          Canon.emptySetupWorldDefinition(),
+          locale,
+          inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
+      )
+  setupWorld.gameplay(ENGINE).godMode().manual(setupInstruction)
+  setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
+
+  val options =
+      setupWorld.reader.getComponents("GameOption").mapNotNullTo(linkedSetOf()) { type ->
+        Canon.Option.entries.singleOrNull { it.className == type.className }
+      }
+  val players = setupWorld.reader.getComponents("Player").size
+  val selectedColonies =
+      setupWorld.reader.getComponents("SelectedColonyTile").mapTo(linkedSetOf()) { it.className }
+  val setup =
+      OptionCodeTranslation.Setup(
+          OptionCodeTranslation.optionCodes(options),
+          players,
+          options,
+          emptySet(),
+          selectedColonies,
+      )
+  return setup to Engine.newGame(setupWorld, Canon::assemble)
 }
 
 public val welcome: String =

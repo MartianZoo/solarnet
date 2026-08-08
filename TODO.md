@@ -67,6 +67,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Define the `script` command's relative-path policy and correct its help text, which currently
+  promises paths relative to the repository while `File(args)` actually uses the process working
+  directory.
 - Resolve Floyd Continuum's printed `007` collision with Martian Rails and decide whether the Dutch Open card belongs in canonical scope before replacing its provisional `XM1` identifier.
 - Enforce global uniqueness for canonical identifiers during canon loading or in CI, across all object kinds.
 - Separate `Instructor`'s preparation-only capability from execution so `Changer`, `Effector`, and
