@@ -123,6 +123,17 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `narrowing to the first stage selects a THEN arm of an OR`() {
+    initiate("(-ProjectCard THEN ProjectCard) OR Ok")
+
+    writer.reviseTask("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
+
+    val discard = tasks.extract { it }.single()
+    discard.instruction.toString() shouldBe "-ProjectCard<Player1>!"
+    discard.then.toString() shouldBe "ProjectCard<Player1>!"
+  }
+
+  @Test
   fun `changing a grouped instruction is a narrowing failure`() {
     initiate("TR: (Plant, Heat)")
 

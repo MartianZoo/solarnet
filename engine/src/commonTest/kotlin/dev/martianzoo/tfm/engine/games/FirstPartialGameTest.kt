@@ -93,8 +93,13 @@ class FirstPartialGameTest {
       p2.cardAction1("ElectroCatapult")
       p2.playProject("SpaceHotels", 7, titanium = 1)
 
-      p2.playProject("MarsUniversity", 6)
-      p2.playProject("ArtificialPhotosynthesis", 10) { doTask("PROD[2 Energy]") }
+      p2.playProject("MarsUniversity", 6) {
+        doTask("-ProjectCard")
+      }
+      p2.playProject("ArtificialPhotosynthesis", 10) {
+        doTask("PROD[2 Energy]")
+        doTask("Ok")
+      }
 
       p2.playProject("BribedCommittee", 5)
 
@@ -110,7 +115,7 @@ class FirstPartialGameTest {
       p1.playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
       p1.playProject("IoMiningIndustries", 1, titanium = 13)
 
-      p2.playProject("TransNeptuneProbe", 1, titanium = 1)
+      p2.playProject("TransNeptuneProbe", 1, titanium = 1) { doTask("Ok") }
       p2.playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
 
       p1.sellPatents(1)

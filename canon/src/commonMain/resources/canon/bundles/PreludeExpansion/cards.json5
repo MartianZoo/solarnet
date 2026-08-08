@@ -28,15 +28,15 @@
       "components": [ "CLASS GainLowestProduction : Owned, Custom" ],
     },
 
-    // Valley Trust[F]
+    // Valley Trust
     {
-      "id": "PC4F",
+      "id": "PC4",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "37, MandatePC4F",
+      "immediate": "37, MandatePC4",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
       "components": [
-        "CLASS MandatePC4F : Mandate { -> PreludeCard THEN PlayCard<Class<PreludeCard>> }"
+        "CLASS MandatePC4 : Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }"
       ],
     },
 

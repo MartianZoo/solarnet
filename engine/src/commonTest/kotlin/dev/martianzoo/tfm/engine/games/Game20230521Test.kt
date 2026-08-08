@@ -153,11 +153,13 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 drew Gyropolis
     p2.cardAction2("Factorum")
     // Player2 played Mars University
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Physics Complex
-    // Player2 drew 1 card(s)
-    // You drew Virus
-    p2.playProject("MarsUniversity", 6, steel = 1)
+    p2.playProject("MarsUniversity", 6, steel = 1) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Physics Complex
+      // Player2 drew 1 card(s)
+      // You drew Virus
+      doTask("-ProjectCard")
+    }
 
     // Player1 used Inventors' Guild action
     p1.cardAction1("InventorsGuild") {
@@ -253,11 +255,13 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.playProject("OptimalAerobraking", 7)
 
     // Player2 played Trans-Neptune Probe
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Virus
-    // Player2 drew 1 card(s)
-    // You drew Local Heat Trapping
-    p2.playProject("TransNeptuneProbe", 0, titanium = 2)
+    p2.playProject("TransNeptuneProbe", 0, titanium = 2) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Virus
+      // Player2 drew 1 card(s)
+      // You drew Local Heat Trapping
+      doTask("-ProjectCard")
+    }
     // Player2 used Rotator Impacts action
     p2.cardAction1("RotatorImpacts") {
       p2.pay(6)
@@ -334,11 +338,13 @@ class Game20230521Test : AbstractFullGameTest() {
       doTask("OceanTile<Tharsis_2_6>")
     }
     // Player2 played Search For Life
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Jovian Embassy
-    // Player2 drew 1 card(s)
-    // You drew Local Shading
-    p2.playProject("SearchForLife", 3)
+    p2.playProject("SearchForLife", 3) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Jovian Embassy
+      // Player2 drew 1 card(s)
+      // You drew Local Shading
+      doTask("-ProjectCard")
+    }
 
     // Player1 used Deuterium Export action
     p1.cardAction1("DeuteriumExport")
@@ -667,13 +673,16 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Earth Catapult
     p2.playProject("EarthCatapult", 23)
     // Player2 played Invention Contest
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Gyropolis
-    // Player2 drew 1 card(s)
-    // You drew Titanium Mine
     // Player2 drew 1 card(s)
     // You drew Aerial Mappers
-    p2.playProject("InventionContest", 0).expect("1 Card, 1 PlayedEvent") // no hand or table cards
+    p2.playProject("InventionContest", 0) {
+          // Player2 is using their Mars University effect to draw a card by discarding a card.
+          // You discarded Gyropolis
+          // Player2 drew 1 card(s)
+          // You drew Titanium Mine
+          doTask("-ProjectCard")
+        }
+        .expect("1 Card, 1 PlayedEvent") // no hand or table cards
 
     // Player1 used Inventors' Guild action
     p1.cardAction1("InventorsGuild") {
@@ -767,18 +776,23 @@ class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
 
     // Player2 played Advanced Alloys
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Medical Lab
-    // Player2 drew 1 card(s)
-    // You drew Aerosport Tournament
-    p2.playProject("AdvancedAlloys", 7).expect("-1 ProjectCard")
+    p2.playProject("AdvancedAlloys", 7) {
+          // Player2 is using their Mars University effect to draw a card by discarding a card.
+          // You discarded Medical Lab
+          // Player2 drew 1 card(s)
+          // You drew Aerosport Tournament
+          doTask("-ProjectCard")
+        }
+        .expect("-1 ProjectCard")
     // Player2 played AI Central
     // Player2's energy production decreased by 1
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Aerosport Tournament
-    // Player2 drew 1 card(s)
-    // You drew Ishtar Mining
-    p2.playProject("AiCentral", 13, steel = 2)
+    p2.playProject("AiCentral", 13, steel = 2) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Aerosport Tournament
+      // Player2 drew 1 card(s)
+      // You drew Ishtar Mining
+      doTask("-ProjectCard")
+    }
 
     // Player1 played Extractor Balloons
     p1.playProject("ExtractorBalloons", 21).expect("-21")
@@ -1020,11 +1034,12 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.cardAction2("Factorum").expect("Card")
     // Player2 played Natural Preserve
     // Player2's megacredits production increased by 1
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Herbivores
-    // Player2 drew 1 card(s)
-    // You drew Thermophiles
     p2.playProject("NaturalPreserve", 1, steel = 2) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Herbivores
+      // Player2 drew 1 card(s)
+      // You drew Thermophiles
+      doTask("-ProjectCard")
       // Player2 placed Natural Preserve tile on row 3 position 1
       // Player2 drew 1 card(s)
       // You drew Black Polar Dust
@@ -1380,11 +1395,13 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Atalanta Planitia Lab
     // Player2 drew 2 card(s)
     // You drew House Printing and Robot Pollinators
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Cloud Seeding
-    // Player2 drew 1 card(s)
-    // You drew Corroder Suits
-    p2.playProject("AtalantaPlanitiaLab", 8)
+    p2.playProject("AtalantaPlanitiaLab", 8) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Cloud Seeding
+      // Player2 drew 1 card(s)
+      // You drew Corroder Suits
+      doTask("-ProjectCard")
+    }
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents
     p2.sellPatents(3)

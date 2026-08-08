@@ -473,6 +473,20 @@ public sealed class Instruction : PetElement() {
         proposed: Instruction,
         info: TypeInfo,
         loweredBinding: PetTransformer? = null,
+    ): Then = replaceFirstStage(proposed, info, loweredBinding, requireBinding = true)
+
+    /** Selects and narrows the first stage, including when no cross-stage type is specialized. */
+    public fun selectFirstStage(
+        proposed: Instruction,
+        info: TypeInfo,
+        loweredBinding: PetTransformer? = null,
+    ): Then = replaceFirstStage(proposed, info, loweredBinding, requireBinding = false)
+
+    private fun replaceFirstStage(
+        proposed: Instruction,
+        info: TypeInfo,
+        loweredBinding: PetTransformer?,
+        requireBinding: Boolean,
     ): Then {
       proposed.ensureNarrows(instructions.first(), info)
       val partial = withInstructions(listOf(proposed) + instructions.drop(1))
@@ -494,10 +508,9 @@ public sealed class Instruction : PetElement() {
           )
       val specialized =
           bindTypeLinksFrom(partial, info, PetTransformer.chain(loweredBinding, authoredBinding))
-      if (specialized == this) {
+      if (requireBinding && specialized == this) {
         throw NarrowingException("The first stage does not bind this THEN's type linkage")
       }
-
       return specialized.withInstructions(listOf(proposed) + specialized.instructions.drop(1))
     }
 

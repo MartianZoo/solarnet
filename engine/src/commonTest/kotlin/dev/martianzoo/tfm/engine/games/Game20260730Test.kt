@@ -384,11 +384,13 @@ class Game20260730Test : AbstractSoloTest() {
       // You drew Outdoor Sports
       cardAction1("DevelopmentCenter")
       // Player1 played Mars University
-      // Player1 is using their Mars University effect to draw a card by discarding a card.
-      // Player1 discarded Outdoor Sports
-      // Player1 drew 1 card(s)
-      // You drew Comet
-      playProject("MarsUniversity", 5, steel = 1)
+      playProject("MarsUniversity", 5, steel = 1) {
+        // Player1 is using their Mars University effect to draw a card by discarding a card.
+        // Player1 discarded Outdoor Sports
+        // Player1 drew 1 card(s)
+        // You drew Comet
+        doTask("-ProjectCard")
+      }
       // Player1 spent 8 M€ to trade with Triton
       // Player1 gained 4 titanium
       stdAction("TradeSA", 1) { doTask("Trade<Triton>") }
@@ -436,11 +438,13 @@ class Game20260730Test : AbstractSoloTest() {
           .expect("PROD[4, -2 E]")
       // Player1 played Medical Lab
       // Player1 gained 6 M€ production
-      // Player1 is using their Mars University effect to draw a card by discarding a card.
-      // Player1 discarded Predators
-      // Player1 drew 1 card(s)
-      // You drew Asteroid Rights
-      playProject("MedicalLab", 1, steel = 4)
+      playProject("MedicalLab", 1, steel = 4) {
+        // Player1 is using their Mars University effect to draw a card by discarding a card.
+        // Player1 discarded Predators
+        // Player1 drew 1 card(s)
+        // You drew Asteroid Rights
+        doTask("-ProjectCard")
+      }
       // Player1 played Asteroid Rights
       // Player1 added 2 Asteroid(s) to Asteroid Rights
       playProject("AsteroidRights", 10)
@@ -471,11 +475,13 @@ class Game20260730Test : AbstractSoloTest() {
       // You drew Search For Life
       cardAction1("DevelopmentCenter")
       // Player1 played Search For Life
-      // Player1 is using their Mars University effect to draw a card by discarding a card.
-      // Player1 discarded Space Hotels
-      // Player1 drew 1 card(s)
-      // You drew Air-Scrapping Expedition
-      playProject("SearchForLife", 3)
+      playProject("SearchForLife", 3) {
+        // Player1 is using their Mars University effect to draw a card by discarding a card.
+        // Player1 discarded Space Hotels
+        // Player1 drew 1 card(s)
+        // You drew Air-Scrapping Expedition
+        doTask("-ProjectCard")
+      }
       // Player1 used Asteroid Rights action
       // Player1 removed 1 Asteroid from Asteroid Rights to gain 2 titanium
       cardAction2("AsteroidRights") { doTask("2 Titanium") }
@@ -578,15 +584,18 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 played Research
       // Player1 drew 2 card(s)
       // You drew Shuttles,Atmoscoop
-      // Player1 is using their Mars University effect to draw a card by discarding a card.
-      // Player1 discarded Trees
-      // Player1 drew 1 card(s)
-      // You drew Ganymede Colony
-      // Player1 is using their Mars University effect to draw a card by discarding a card.
-      // Player1 discarded Trans-Neptune Probe
-      // Player1 drew 1 card(s)
-      // You drew Hi-Tech Lab
-      playProject("Research", 11)
+      playProject("Research", 11) {
+        // Player1 is using their Mars University effect to draw a card by discarding a card.
+        // Player1 discarded Trees
+        // Player1 drew 1 card(s)
+        // You drew Ganymede Colony
+        doFirstTask("-ProjectCard")
+        // Player1 is using their Mars University effect to draw a card by discarding a card.
+        // Player1 discarded Trans-Neptune Probe
+        // Player1 drew 1 card(s)
+        // You drew Hi-Tech Lab
+        doFirstTask("-ProjectCard")
+      }
       // Player1 used Convert Heat standard action
       // Player1 placed ocean tile at 34
       // Player1 gained 2 plants
@@ -634,12 +643,15 @@ class Game20260730Test : AbstractSoloTest() {
         doTask("2 Floater<TitanShuttles>")
       }
       // Player1 played Floater Prototypes
-      // Player1 is using their Mars University effect to draw a card by discarding a card.
-      // Player1 discarded Air-Scrapping Expedition
-      // Player1 drew 1 card(s)
-      // You drew Asteroid
-      // Player1 added 2 Floater(s) to Titan Shuttles
-      playProject("FloaterPrototypes", 2) { doTask("2 Floater<TitanShuttles>") }
+      playProject("FloaterPrototypes", 2) {
+        // Player1 is using their Mars University effect to draw a card by discarding a card.
+        // Player1 discarded Air-Scrapping Expedition
+        // Player1 drew 1 card(s)
+        // You drew Asteroid
+        doTask("-ProjectCard")
+        // Player1 added 2 Floater(s) to Titan Shuttles
+        doTask("2 Floater<TitanShuttles>")
+      }
       // Player1 used Titan Shuttles action
       // Player1 removed 11 resource(s) from Player1's Titan Shuttles
       // Player1 removed 11 floaters to gain 11 titanium
@@ -668,11 +680,13 @@ class Game20260730Test : AbstractSoloTest() {
       // You drew Project Inspection
       playProject("TerraformingGanymede", 15, titanium = 4).expect("8 TR")
       // Player1 played Hi-Tech Lab
-      // Player1 is using their Mars University effect to draw a card by discarding a card.
-      // Player1 discarded Dust Seals
-      // Player1 drew 1 card(s)
-      // You drew Windmills
-      playProject("HiTechLab", 5, steel = 4)
+      playProject("HiTechLab", 5, steel = 4) {
+        // Player1 is using their Mars University effect to draw a card by discarding a card.
+        // Player1 discarded Dust Seals
+        // Player1 drew 1 card(s)
+        // You drew Windmills
+        doTask("-ProjectCard")
+      }
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
       cardAction1("ElectroCatapult")

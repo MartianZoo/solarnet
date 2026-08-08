@@ -174,20 +174,20 @@
       "components": [ "CLASS CopyPrelude : Cardbound, Custom" ],
     },
 
-    // Merger[F]
+    // Merger
     {
-      "id": "X41F",
+      "id": "X41",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
-      "immediate": "CorporationCard THEN PlayCard<Class<CorporationCard>>, -42",
+      "immediate": "4 CorporationCard THEN -3 CorporationCard THEN PlayCard<Class<CorporationCard>>, -42",
     },
 
-    // New Partner[F]
+    // New Partner
     {
-      "id": "X42F",
+      "id": "X42",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], PreludeCard, PlayCard<Class<PreludeCard>>",
+      "immediate": "PROD[1], 2 PreludeCard THEN -PreludeCard THEN PlayCard<Class<PreludeCard>>",
     },
 
     // Head Start
