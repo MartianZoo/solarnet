@@ -1,10 +1,9 @@
 # Cards to add
 
-We have 456 cards working. We don't have anything from the Prelude 2 expansion.
+We have 457 cards working. We don't have anything from the Prelude 2 expansion.
 
 | id   | card name                  | expansion | blocker          |
 |------|----------------------------|-----------|------------------|
-| 008  | Capital                    | base      | concrete         |
 | B00  | Beginner Corporation       | base      | none?            |
 | B03  | Helion                     | base      | payment          |
 | 066  | Land Claim                 | corpera   | occupants        |
