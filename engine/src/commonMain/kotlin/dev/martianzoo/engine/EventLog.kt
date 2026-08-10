@@ -68,8 +68,7 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
   public fun changesSinceSetup(): List<ChangeEvent> =
       entriesSinceSetup().filterIsInstance<ChangeEvent>()
 
-  /** Returns every state and task event since engine initialization concluded. */
-  public fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
+  internal fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
 
   /** Returns all change events since [checkpoint]. */
   internal fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
@@ -84,26 +83,6 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
     val startingEntries =
         checkNotNull(prefixSource).entriesSince(checkpoint).take(prefixSize - checkpoint.ordinal)
     return startingEntries + events
-  }
-
-  /** Replaces the free-form comment on event [ordinal], without changing replayable game state. */
-  public fun reviseComment(ordinal: Int, comment: String?): GameEvent {
-    require(ordinal in 0 until size) { "no event with ordinal $ordinal" }
-    if (ordinal < prefixSize) {
-      return checkNotNull(prefixSource).reviseComment(ordinal, comment)
-    }
-
-    val index = ordinal - prefixSize
-    val entry = events[index]
-    val revised =
-        when (entry) {
-          is ChangeEvent -> entry.copy(comment = comment)
-          is TaskAddedEvent -> entry.copy(comment = comment)
-          is TaskRemovedEvent -> entry.copy(comment = comment)
-          is GameEvent.TaskEditedEvent -> entry.copy(comment = comment)
-        }
-    events[index] = revised
-    return revised
   }
 
   internal fun activitySince(checkpoint: Checkpoint): TaskResult {

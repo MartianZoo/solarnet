@@ -28,7 +28,6 @@ import dev.martianzoo.script.ScriptSession.ScriptMode.YELLOW
 import dev.martianzoo.script.commands.AsCommand
 import dev.martianzoo.script.commands.AutoCommand
 import dev.martianzoo.script.commands.BecomeCommand
-import dev.martianzoo.script.commands.CommentCommand
 import dev.martianzoo.script.commands.CountCommand
 import dev.martianzoo.script.commands.DescCommand
 import dev.martianzoo.script.commands.ExecCommand
@@ -67,10 +66,6 @@ public class ScriptSession(
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
-
-  /** The live world currently controlled by this session. */
-  public val world: World
-    get() = game
 
   internal lateinit var gameplay: TurnLayer
   internal lateinit var setup: OptionCodeTranslation.Setup
@@ -164,7 +159,6 @@ public class ScriptSession(
               AsCommand(this),
               AutoCommand(this),
               BecomeCommand(this),
-              CommentCommand(this),
               TfmBoardCommand(this),
               CountCommand(this),
               DescCommand(this),

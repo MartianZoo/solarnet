@@ -43,10 +43,6 @@ build. Dependency and plugin versions are declared in `gradle/libs.versions.toml
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.
 
-The engine publishes its compiled JVM test classes through the internal `jvmTestArtifacts`
-configuration. The REPL's long-game replay integration test consumes that artifact so it can run
-the existing engine fixture without copying the scenario into another module.
-
 All Kotlin modules use strict explicit API mode. Declarations that form a module's public API must
 spell out `public` and their public types; declarations used only within one module should be
 `internal` or `private`. This makes accidental API growth and signature changes visible in review.

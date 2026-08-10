@@ -1,21 +1,15 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.data.GameEvent.ChangeEvent
-import dev.martianzoo.data.GameEvent.TaskEvent
-import dev.martianzoo.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.script.splitTrailingQuotedComment
 
 internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("task") {
-  override val usage = "task <id> [<Instruction> | drop] [\"<comment>\"]"
+  override val usage = "task <id> [<Instruction> | drop]"
   override val help =
       """
         To carry out a task exactly as it is, just type `task A` where `A` is the id of that task
@@ -24,8 +18,7 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
         instruction, as long as your revision is a more specific form of the instruction. For
         example, if the queued task is `-3 StandardResource<Anyone>?` you can revise it to
         `-2 Plant<Player1>`. If you leave out the id (like `A`) it will expect your revision to
-        match only one existing task. An optional final double-quoted argument adds a comment to
-        the task's resulting change event when possible, or otherwise its task-lifecycle event.
+        match only one existing task.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
@@ -38,15 +31,6 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
       }
 
   override fun withArgs(args: String): List<String> {
-    val (taskArgs, comment) = splitTrailingQuotedComment(args)
-    val checkpoint = repl.game.timeline.checkpoint()
-    val existingTaskIds = repl.game.tasks.ids()
-    val output = executeTask(taskArgs)
-    if (comment != null) annotateTaskEvent(checkpoint, existingTaskIds, comment)
-    return output
-  }
-
-  private fun executeTask(args: String): List<String> {
     val split = Regex("\\s+").split(args, 2)
     val first = split.firstOrNull() ?: throw UsageException()
     val id = repl.resolveTaskLabel(first)
@@ -84,25 +68,5 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
           }
         }
     return repl.describeExecutionResults(result)
-  }
-
-  private fun annotateTaskEvent(
-      checkpoint: Checkpoint,
-      existingTaskIds: Set<TaskId>,
-      comment: String,
-  ) {
-    val entries = repl.game.events.entriesSince(checkpoint)
-    val taskEvents = entries.filterIsInstance<TaskEvent>()
-    val targetId = taskEvents.firstOrNull { it.task.id in existingTaskIds }?.task?.id
-    val taskEvent = targetId?.let { id -> taskEvents.lastOrNull { it.task.id == id } }
-    checkNotNull(taskEvent) { "task command created no event to comment" }
-    val targetEvent =
-        if (taskEvent is TaskRemovedEvent) {
-          entries.filterIsInstance<ChangeEvent>().firstOrNull { it.ordinal > taskEvent.ordinal }
-              ?: taskEvent
-        } else {
-          taskEvent
-        }
-    repl.game.events.reviseComment(targetEvent.ordinal, comment)
   }
 }

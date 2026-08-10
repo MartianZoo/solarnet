@@ -109,13 +109,7 @@ back while the suffix exists.
 
 Change events render the performing Actor with `BY` and the effect-bearing causal component with
 `VIA`, followed by the causal event ordinal: `+OxygenStep BY Player2 VIA GreeneryTile<...> BECAUSE
-448`. Every event also has an optional free-form comment. Revising a comment replaces that event
-value in the mutable log without advancing the timeline checkpoint or changing replayable game
-state; the REPL exposes this as `comment <event-id> "<message>"`, with an empty quoted message
-clearing the comment. The `task` command also accepts an optional final quoted message and attaches
-it to the first change following the selected task's removal when there is one, falling back to the
-selected task's lifecycle event. `tfm_play` accepts the same final argument and passes it
-specifically to its PlayCard task execution.
+448`.
 
 ---
 

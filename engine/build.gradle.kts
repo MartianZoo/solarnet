@@ -31,15 +31,3 @@ tasks.register("allTestsIncludingSlow") {
   description = "Runs all engine tests, including slow browser tests."
   dependsOn("allTests", "jsBrowserTest")
 }
-
-val jvmTestJar by
-    tasks.registering(Jar::class) {
-      archiveClassifier.set("jvm-tests")
-      from(kotlin.targets.getByName("jvm").compilations.getByName("test").output.allOutputs)
-    }
-
-configurations.create("jvmTestArtifacts") {
-  isCanBeConsumed = true
-  isCanBeResolved = false
-  outgoing.artifact(jvmTestJar)
-}
