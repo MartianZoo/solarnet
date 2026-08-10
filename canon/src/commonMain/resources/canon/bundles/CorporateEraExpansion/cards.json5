@@ -1,17 +1,6 @@
 {
   "cards": [
 
-    // Mining Area
-    {
-      "id": "064",
-      "deck": "PROJECT",
-      "projectKind": "AUTOMATED",
-      "cost": 4,
-      "tags": [ "BuildingTag" ],
-      "immediate": "MiningAreaTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningAreaTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningAreaTile, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS MiningAreaTile : SpecialTile" ],
-    },
-
     // Saturn Systems
     {
       "id": "B11",
@@ -193,6 +182,17 @@
       "projectKind": "EVENT",
       "cost": 5,
       "immediate": "5 Steel",
+    },
+
+    // Mining Area
+    {
+      "id": "064",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 4,
+      "tags": [ "BuildingTag" ],
+      "immediate": "MiningAreaTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningAreaTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningAreaTile, MapBonus<Class<Titanium>>): Titanium)]",
+      "components": [ "CLASS MiningAreaTile : SpecialTile" ],
     },
 
     // Building Industries
