@@ -1,31 +1,25 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class VironTest : CardTest() {
   @Test
-  fun `can repeat the same action on a card`() {
-    val p1 = newPlayer()
-
+  fun `after using Atmo Collectors, uses it again through Viron`() {
+    initializeGame()
     p1.cardAction1("AtmoCollectors")
-
     p1.cardAction1("Viron") { doTask("UseAction1<AtmoCollectors>") }.expect("Floater")
-
     p1.assertOneActionMarkerOnEachCard()
   }
 
   @Test
-  fun `can choose a different action on the same card`() {
-    val p1 = newPlayer()
+  fun `after using Atmo Collectors, chooses its other action through Viron`() {
+    initializeGame()
 
     p1.cardAction1("AtmoCollectors")
 
@@ -39,10 +33,9 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `cannot choose Viron itself`() {
-    val p1 = newPlayer()
+  fun `after using another card, tries to choose Viron through itself`() {
+    initializeGame()
     p1.cardAction1("AtmoCollectors")
-
     p1.cardAction1("Viron") {
       shouldThrow<NarrowingException> { doTask("UseAction1<Viron>") }
       abort()
@@ -50,9 +43,9 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `cannot choose a card whose action has not been used`() {
-    val p1 = newPlayer()
-    p1.sneak("ExtractorBalloons")
+  fun `with an unused action card, tries to choose it through Viron`() {
+    initializeGame()
+    p1.manual("ExtractorBalloons")
     p1.cardAction1("AtmoCollectors")
 
     p1.cardAction1("Viron") {
@@ -62,13 +55,16 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `cannot choose another player's used card`() {
-    val game = newGame(Canon.fromOptionCodes("BMVC", 2, testColonyTiles(2)))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    p1.phase("Action")
-    p1.sneak("Viron, ExtractorBalloons")
-    p2.sneak("AtmoCollectors, 2 Floater<AtmoCollectors>")
+  fun `after p2 uses a card, p1 tries to choose it through Viron`() {
+    newGame(
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    val p2 = requireP2()
+    engine.phase("Action")
+    p1.manual("Viron, ExtractorBalloons")
+    p2.manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
     p1.cardAction1("ExtractorBalloons")
     p2.cardAction1("AtmoCollectors")
 
@@ -80,12 +76,14 @@ class VironTest : CardTest() {
     p2.assertCounts(1 to "ActionUsedMarker<AtmoCollectors>")
   }
 
-  private fun newPlayer(): TfmGameplay {
-    val game = newGame(Canon.fromOptionCodes("BMVC", 2, testColonyTiles(2)))
-    return game.tfm(PLAYER1).also {
-      it.phase("Action")
-      it.sneak("Viron, AtmoCollectors, 2 Floater<AtmoCollectors>")
-    }
+  private fun initializeGame() {
+    newGame(
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    engine.phase("Action")
+    p1.manual("Viron, AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
   }
 
   private fun TfmGameplay.assertOneActionMarkerOnEachCard() {

@@ -22,32 +22,23 @@ import dev.martianzoo.pets.ast.Requirement
  * `dev.martianzoo.types`.
  */
 public data class ClassDeclaration(
-    /**
-     * The primary name for the class, as an upper camel case word. Class declarations having the
-     * same [className] or [shortName] can't be used together in the same game.
-     */
+    /** The stable engine-facing name for the class. No other name is part of the declaration. */
     override val className: ClassName,
-
-    /**
-     * A short name for the class (1-4 characters, all upper case letters or digits). All
-     * [className]s and [shortName]s loaded for a game share the same single namespace.
-     */
-    public val shortName: ClassName = className,
 
     /** Is this class declared to be `ABSTRACT`, `CUSTOM`, or regular? */
     public val kind: ClassKind,
 
     /** Any "new" dependencies being declared by this class (not inherited from a supertype). */
-    public val dependencies: List<Expression> = listOf(),
+    public val dependencies: List<Expression> = emptyList(),
 
     /** This class's listed direct supertypes, as they were expressed in the source. */
-    public val supertypes: Set<Expression> = setOf(),
+    public val supertypes: Set<Expression> = emptySet(),
 
     /** Any class invariants declared with `HAS` in the class body. */
-    public val invariants: Set<Requirement> = setOf(),
+    public val invariants: Set<Requirement> = emptySet(),
 
     /** The class's effects, in declaration order. Duplicate effects are preserved. */
-    public val effects: List<Effect> = listOf(),
+    public val effects: List<Effect> = emptyList(),
 
     /** The merged contents of any `DEFAULT` clauses in the class body. */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
@@ -56,9 +47,9 @@ public data class ClassDeclaration(
      * Any additional Pets elements belonging to this class that aren't given for the previous
      * arguments.
      */
-    internal val extraNodes: Set<PetNode> = setOf(),
+    internal val extraNodes: Set<PetNode> = emptySet(),
 ) : HasClassName {
-  val custom = CUSTOM.expression in supertypes
+  public val custom: Boolean = CUSTOM.expression in supertypes
 
   init {
     fun hasRefinement(it: Expression) = it.descendantsOfType<Requirement>().any()
@@ -71,12 +62,12 @@ public data class ClassDeclaration(
     }
   }
 
-  enum class ClassKind {
+  public enum class ClassKind {
     CONCRETE,
     ABSTRACT,
   }
 
-  public val abstract = kind == ABSTRACT
+  public val abstract: Boolean = kind == ABSTRACT
 
   public data class DefaultsDeclaration(
       val universal: OneDefault = OneDefault(),
@@ -84,23 +75,26 @@ public data class ClassDeclaration(
       val removeOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
-    data class OneDefault(val specs: List<Expression> = listOf(), val intensity: Intensity? = null)
+    public data class OneDefault(
+        val specs: List<Expression> = emptyList(),
+        val intensity: Intensity? = null,
+    )
 
-    enum class DefaultKind {
+    internal enum class DefaultKind {
       ALL_USAGES,
       GAIN_ONLY,
       REMOVE_ONLY,
     }
 
-    fun default(kind: DefaultKind) =
+    internal fun default(kind: DefaultKind) =
         when (kind) {
           ALL_USAGES -> universal
           GAIN_ONLY -> gainOnly
           REMOVE_ONLY -> removeOnly
         }
 
-    companion object {
-      fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+    internal companion object {
+      internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         return DefaultsDeclaration(
             universal = merge(defs.map { it.universal }),
             gainOnly = merge(defs.map { it.gainOnly }),
@@ -110,7 +104,7 @@ public data class ClassDeclaration(
       }
 
       private fun merge(ones: Collection<OneDefault>): OneDefault {
-        val deps = ones.map { it.specs }.firstOrNull { it.any() } ?: listOf()
+        val deps = ones.map { it.specs }.firstOrNull { it.isNotEmpty() }.orEmpty()
         val intensity = ones.firstNotNullOfOrNull { it.intensity }
         return OneDefault(deps, intensity)
       }
@@ -120,10 +114,21 @@ public data class ClassDeclaration(
         listOf(universal, gainOnly, removeOnly).flatMap { it.specs }.toSet()
   }
 
+  /**
+   * This declaration stripped of the rules it contributes by itself (its invariants, effects, and
+   * defaults), leaving only its name, hierarchy, and dependencies. This is the form a phantom class
+   * is loaded from, since an inactive class contributes no rules.
+   */
+  public fun withoutDeclaredBehavior(): ClassDeclaration =
+      copy(
+          invariants = emptySet(),
+          effects = emptyList(),
+          defaultsDeclaration = DefaultsDeclaration(),
+      )
+
   public val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
         className +
-        shortName +
         supertypes +
         dependencies +
         invariants +

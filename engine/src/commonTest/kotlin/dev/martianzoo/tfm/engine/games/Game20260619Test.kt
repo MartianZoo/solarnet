@@ -1,16 +1,26 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.canon.exclude
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.canonicalPremise
 import kotlin.test.Test
 
 class Game20260619Test : AbstractFullGameTest() {
 
-  override fun setup() = Canon.fromOptionCodes("BRMVPXT", 2)
+  override fun setup() =
+      canonicalPremise(
+          VenusNextExpansion,
+          PreludeExpansion,
+          PromoCardPack,
+          TurmoilCardPack,
+          exclude(WorldGovernmentOption),
+          players = 2,
+      )
 
   @Test
   fun gameThroughGeneration5() {
-    val workflow = TfmWorkflow.Auto(game, setup()).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
 
     // Game id: peae6273d6b33
     // First player this generation is ER
@@ -97,7 +107,6 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER gained 2 plants
     ER.playProject("SubterraneanReservoir", 11) { doTask("OceanTile<Tharsis_4_8>") }
         .expect("TR, 2 Plant")
-    ER.declineSecondAction()
 
     // ER passed
     ER.pass()
@@ -254,7 +263,6 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Permafrost Extraction
     ER.playProject("ImportedGhg", 4)
-    ER.declineSecondAction()
 
     // ER passed
     ER.pass()
@@ -289,7 +297,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB played Power Plant
     // KB gained 1 energy production
     // KB ended turn
-    KB.playProject("PowerPlantCard", 4)
+    KB.playProject("PowerPlant", 4)
     KB.declineSecondAction()
 
     // ER played Pets

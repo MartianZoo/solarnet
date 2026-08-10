@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 internal class MarsMapDefinitionTest {
 
-  val demoMapJson =
+  private val demoMapJson =
       """
         {
           "legend": {
@@ -18,10 +18,11 @@ internal class MarsMapDefinitionTest {
           },
           "maps": [{
             "name": "Demo",
+            "setupRequirement": "DemoMap",
             "rows": [
-              [ "VS", "L" ],
+              [ " V S ", "L" ],
               [ "V2P", "WPP", "WPC" ],
-              [ "", "LSS", "LC" ],
+              [ "   ", "LSS", "LC" ],
             ]
           }]
         }"""
@@ -30,7 +31,11 @@ internal class MarsMapDefinitionTest {
   fun testDemoMapFromJson() {
     val map: MarsMapDefinition = JsonReader.readMaps(demoMapJson).single()
     map.className shouldBe cn("Demo")
+    map.setupRequirement.toString() shouldBe "DemoMap"
     map.asClassDeclaration.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("MarsMap"))
     map.areas.shouldHaveSize(7)
+    map.areas[1, 1]!!.code shouldBe "VS"
+    map.areas[1, 1]!!.bonusText shouldBe "Steel"
+    map.areas[1, 1]!!.className shouldBe cn("Demo_1_1")
   }
 }

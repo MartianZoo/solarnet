@@ -10,14 +10,18 @@ import dev.martianzoo.api.Exceptions.abstractInstruction
 import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.Exceptions.requirementNotMet
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SystemClasses.ACTOR
+import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.DIE
+import dev.martianzoo.data.Actor
+import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.data.Task
+import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Change.Companion.change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
@@ -28,10 +32,11 @@ import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.Type
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
@@ -40,24 +45,38 @@ internal class Instructor(
     private val limiter: Limiter,
     private val changer: Changer?,
     private val effector: Effector?,
-    private val classes: MClassTable,
+    private val classTable: ClassTable,
+    private val defaultActor: Actor? = null,
+    private val customClasses: CustomClassRuntime =
+        CustomClassRuntime(reader.ruleset, Transformers(classTable)),
 ) {
 
-  internal fun execute(instruction: Instruction, cause: Cause?): List<Task> = buildList {
-    doExecute(instruction, cause, this)
+  internal fun execute(instruction: Instruction, cause: Cause?): List<PendingTask> = buildList {
+    doExecute(instruction, cause, this, checkNotNull(defaultActor))
   }
 
-  private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>) {
+  private fun doExecute(
+      instruction: Instruction,
+      cause: Cause?,
+      deferred: MutableList<PendingTask>,
+      actor: Actor,
+  ) {
     when (val prepped = prepare(instruction)) { // idempotent?
-      is Change -> executeChange(prepped, cause, deferred)
-      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred) }
+      is Change -> executeChange(prepped, cause, deferred, actor)
+      is By -> doExecute(prepped.inner, cause, deferred, actorFor(prepped))
+      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred, actor) }
       is Or -> throw orWithoutChoice(prepped)
       is NoOp -> {}
       else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
     }
   }
 
-  private fun executeChange(instruction: Change, cause: Cause?, deferred: MutableList<Task>) {
+  private fun executeChange(
+      instruction: Change,
+      cause: Cause?,
+      deferred: MutableList<PendingTask>,
+      actor: Actor,
+  ) {
     val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
     if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
 
@@ -72,11 +91,12 @@ internal class Instructor(
               removing = removing,
               cause = cause,
               orRemoveOneDependent = true,
+              actor = actor,
           )
 
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
-        split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
+        split(task.instruction).forEach { doExecute(it, task.cause, deferred, actor) }
       }
       deferred += effector.fire(result, automatic = false)
       if (done) break
@@ -84,9 +104,9 @@ internal class Instructor(
   }
 
   /**
-   * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
-   * state itself). The returned instruction *must* be executed against this very same game state
-   * (i.e., must be the next one executed. The returned instruction might still be abstract.
+   * Returns a narrowed form of [unprepared] based on the current world (but does not change the
+   * world itself). The returned instruction *must* be executed against this very same world (i.e.,
+   * must be the next one executed. The returned instruction might still be abstract.
    *
    * Preparing iterates to a fixed point. Examples of preparing:
    * * Replaces inert instructions with `Ok`
@@ -103,43 +123,96 @@ internal class Instructor(
     return when (unprepared) {
       is NoOp -> NoOp
       is Change -> prepareChange(unprepared)
+      is By -> By.create(doPrepare(unprepared.inner), canonicalActorExpression(unprepared))
       is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
       is Gated -> {
-        if (reader.has(unprepared.gate)) {
-          doPrepare(unprepared.inner)
-        } else if (unprepared.mandatory) {
-          throw requirementNotMet(unprepared.gate)
-        } else {
-          NoOp
-        }
+        if (!reader.has(unprepared.gate)) throw requirementNotMet(unprepared.gate)
+        doPrepare(unprepared.inner)
       }
       is Or -> prepareOr(unprepared)
       is Then ->
-          Then.create(
+          unprepared.withInstructions(
               listOf(doPrepare(unprepared.instructions.first())) + unprepared.instructions.drop(1)
           )
-      is Multi -> error("")
-      is Transform -> error("should have been transformed already: $unprepared")
+      is Multi -> throw abstractInstruction(unprepared)
+      is Transform -> throw ExpressionException("unhandled instruction transform: $unprepared")
     }
   }
 
+  private fun canonicalActorExpression(instruction: By): Expression {
+    val type = reader.resolve(instruction.actor)
+    if (!type.rootClass.isSubtypeOf(classTable.getClass(ACTOR))) {
+      throw ExpressionException("BY requires an Actor, not ${instruction.actor}")
+    }
+    if (type.abstract) {
+      throw ExpressionException("BY requires one concrete Actor, not ${instruction.actor}")
+    }
+    return type.expression
+  }
+
+  private fun actorFor(instruction: By): Actor {
+    val type = reader.resolve(canonicalActorExpression(instruction))
+    if (reader.countComponent(type) != 1) {
+      throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
+    }
+    return when {
+      type.className == ENGINE.className -> ENGINE
+      Player.isValid(type.className) -> Player(type.className)
+      else -> throw ExpressionException("unsupported Actor: ${type.expression}")
+    }
+  }
+
+  // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.
   private fun prepareChange(change: Change): Instruction {
     // can't prepare at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
     val intens = change.intensity ?: error("missing intensity: $change")
 
-    val (g: MType?, r: MType?) =
+    val (g: Type?, r: Type?) =
         try {
           autoNarrowTypes(change.gaining, change.removing)
         } catch (e: DependencyException) {
           if (intens == AMAP && change.gaining != null && change.removing == null) return NoOp
           throw e
         }
+    if (
+        change is Transmute &&
+            !Change.change(g?.expression, r?.expression, count, intens).narrows(change, reader)
+    ) {
+      // Independent auto-narrowing must not choose conflicting values for one atomic linkage.
+      return change
+    }
+    if (listOfNotNull(g, r).any(Type::phantom)) {
+      if (intens != MANDATORY) return NoOp
+      throw DeadEndException(
+          "mandatory change uses inactive type: " +
+              listOfNotNull(g, r).filter(Type::phantom).joinToString()
+      )
+    }
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
+    val atomized = classTable.findClass(ATOMIZED)
+    if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
+      throw ExpressionException(
+          "Can't transmute $count components into atomized type ${g.expression}; " +
+              "split it into one-component transmutations"
+      )
+    }
+
     if (listOfNotNull(g, r).any { it.abstract }) {
+      if (
+          intens == AMAP &&
+              g?.abstract == true &&
+              r == null &&
+              limiter.findAbstractGainLimit(g) == 0
+      ) {
+        return NoOp
+      }
+      if (intens == AMAP && g == null && r?.abstract == true && !reader.containsAny(r)) {
+        return NoOp
+      }
       // Still abstract, don't check limits yet
-      return change(count, g?.expression, r?.expression, intens)
+      return Change.change(g?.expression, r?.expression, count, intens)
     }
 
     if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
@@ -147,9 +220,12 @@ internal class Instructor(
     val gaining = g?.toComponent()
     val removing = r?.toComponent()
 
-    if (g?.root?.custom != null) {
-      require(r == null) { "custom class instructions can only be pure gains" }
-      val translated = Prod.deprodify(classes).transform(gaining!!.prepareCustom(reader))
+    if (g?.rootClass?.declaration?.custom == true) {
+      if (r != null) {
+        throw ExpressionException("custom class instructions can only be pure gains: $change")
+      }
+      val translated =
+          Prod.deprodify(classTable).transform(customClasses.prepare(gaining!!, reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }
 
@@ -170,7 +246,12 @@ internal class Instructor(
       throw LimitsException("Can't $mesg: max possible is $adjusted")
     }
 
-    return change(adjusted, g?.expression, r?.expression, if (intens == AMAP) MANDATORY else intens)
+    return Change.change(
+        g?.expression,
+        r?.expression,
+        adjusted,
+        if (intens == AMAP) MANDATORY else intens,
+    )
   }
 
   private fun prepareOr(unprepared: Or): Instruction {
@@ -180,20 +261,26 @@ internal class Instructor(
             if (it is Multi) it else doPrepare(it)
           } catch (e: NotNowException) {
             e
+          } catch (e: DeadEndException) {
+            e
           }
         }
     val good = options.filterIsInstance<Instruction>()
     return if (good.any()) {
       Or.create(good)
+    } else if (options.any { it is DeadEndException }) {
+      throw DeadEndException("every choice reaches an inactive type: $options")
     } else {
       throw NotNowException("all options impossible: $options")
     }
   }
 
   // Still spending 25% of solo game time in this method
-  private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
-    var g = gaining?.let { reader.resolve(it) as MType }
-    var r = removing?.let { reader.resolve(it) as MType }
+  private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<Type?, Type?> {
+    var g = gaining?.let(reader::resolve)
+    var r = removing?.let(reader::resolve)
+
+    if (listOfNotNull(g, r).any(Type::phantom)) return g to r
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
@@ -202,12 +289,15 @@ internal class Instructor(
       // TODO this needs to not happen (or be intercepted) if the instruction is non-mandatory!
       if (missing.any()) throw DependencyException(missing)
 
-      g = g.singleConcreteSubtype() ?: g
+      g = g.singleConcreteSubtype(reader) ?: g
     }
 
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
-      r = reader.getComponents(r).singleOrNull()?.let { classes.resolve(it.expression) } ?: r
+      r =
+          reader.getComponents(r).elements.singleOrNull()?.let {
+            classTable.resolve(it.expression)
+          } ?: r
     }
     return g to r
   }

@@ -1,27 +1,20 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
 class PolyphemosTest : CardTest() {
 
   @Test
-  fun polyphemos() {
-    val game = newGame("BRMC", 2, testColonyTiles(2))
-    with(game.tfm(PLAYER1)) {
-      playCorp("Polyphemos", 7)
-
-      phase("Action")
-      assertCounts(7 to "ProjectCard", 15 to "M")
-
-      playProject("InventorsGuild", 9)
-      assertCounts(6 to "ProjectCard", 6 to "M")
-
-      cardAction1("InventorsGuild") { doTask("BuyCard") }
-      assertCounts(7 to "ProjectCard", 1 to "M")
-    }
+  fun `with Polyphemos, buys a card from Inventors Guild`() {
+    newGame(
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.playCorp("Polyphemos", 7)
+    engine.phase("Action")
+    p1.playProject("InventorsGuild", 9)
+    p1.cardAction1("InventorsGuild") { doTask("BuyCard") }.expect("ProjectCard, -5")
   }
 }

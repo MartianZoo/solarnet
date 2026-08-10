@@ -3,7 +3,7 @@
 - **Abstract task:** A task that is not fully specified so cannot be executed until it has been narrowed. Could be because it gains/removes a type that is abstract, or has a quantifier that isn't `!`, or includes an `OR`, etc.
 - **Abstract type:** A type that is not fully specified so cannot be gained/removed, but can still be counted and queried. (Antonym: Concrete type.)
 - **Action:** (1) A Pets element with an optional cost and an instruction, written with `->`; usually belongs to a card or a StandardAction. (2) What a player gets 1 or 2 of on their turn: lasts until their task queue is empty.
-- **Active effect:** The effect of an existing component which has been registered with the `Effector` and is ready to be triggered.
+- **Live effect:** The effect of an existing component which has been registered with the `Effector` and is ready to be triggered.
 - **Actor:** The entity whose gameplay context executes an instruction and is credited with its resulting state changes.
 - **Engine:** The non-player Actor that performs administrative operations.
 - **AMAP:** The `.` intensity meaning “as much as possible”; preparation fixes the possible amount and makes it mandatory.
@@ -13,7 +13,9 @@
 - **Ruleset:** The lazy composition of the raw class declarations, definitions, and custom
   instruction implementations from exactly the bundles needed for one game setup.
 - **Autoexec:** A convenience feature that prepares and executes pending work when its policy permits.
-- **AutoLoad:** A marker that makes a class load even when no selected content refers to it.
+- **AutoLoad:** A marker that makes a class load even when no selected content refers to it. Reserve
+  it for classes needed by host-driven operations, bootstrap discovery, or transforms that run
+  after the class table freezes.
 - **Automatic effect:** An effect written with `::`; its triggered instruction executes inline instead of becoming a queued task. (Antonym: queued effect.)
 - **Barrier:** A temporary component that must be removed before blocked work can continue.
 - **Bundle:** One raw grouping of ruleset data. Loading a bundle makes its content available but has
@@ -26,79 +28,92 @@
 - **Checkpoint:** An event-log position to which the timeline may roll back.
 - **Class:** A named declaration that defines a family of Pets types, including its hierarchy, dependencies, and behavior.
 - **Class declaration:** The parsed, inert description of a class before the type system loads it.
-- **Class effect:** A loaded effect template after class-level transformations but before specialization for a concrete component.
+- **Class effect:** A loaded effect template after class-level transformations but before being bound to a concrete component.
 - **Class literal:** A type such as `Class<Steel>` that represents a class itself rather than depending on a Steel component.
-- **Class table:** The frozen set of loaded classes and resolved types available to one game setup.
 - **Complement type expression:** An expression like `!Player1` that excludes that type when constraining a dependency; it has no standalone type.
 - **Component:** One immutable occurrence of a concrete type; components have no identity or fields beyond their type.
-- **Component effect:** A class effect specialized for one concrete component, with dependencies and contextual placeholders substituted where possible.
+- **Component effect:** A class effect bound to one concrete component, with dependencies and contextual placeholders substituted where possible.
 - **Component expression:** A Pets expression used to describe the type of components to select, count, gain, or remove.
-- **Component graph:** The game state's multiset of components, with their dependency relationships kept valid.
-- **Concrete task:** A task whose instruction is fully specified, though it still must be prepared against current game state before execution.
-- **Concrete type:** A fully specified type whose components can exist in game state. (Antonym: abstract type.)
+- **Component graph:** The directed graph whose vertices are components and whose edges are their dependencies; the world separately records component multiplicity.
+- **Concrete task:** A task whose instruction is fully specified, though it still must be prepared against the current world before execution.
+- **Concrete type:** A fully specified type whose components can exist in a world. (Antonym: abstract type.)
 - **Custom instruction:** A Pets instruction with a Kotlin implementation that calculates what instruction to replace itself with.
 - **Custom metric:** A metric whose `Custom` root class has a Kotlin implementation that supplies a virtual component count without adding anything to the component graph.
-- **Default:** A class-supplied specialization or intensity inserted when an expression omits it.
+- **Default:** A class-supplied dependency bound or intensity inserted when an expression omits it.
 - **Definition:** Structured data for a card, map area, or similar item that is converted into a
   class declaration. Definitions have stable same-kind identities, bundle provenance, and optional
   load requirements and replacement targets.
-- **Dependency:** A type relationship requiring each component to refer to a specific component of another type, which always must exist while this component does.
+- **Dependency:** A directed relationship from one component to another component that must exist while the dependent does; a class declaration introduces such a relationship and its original upper bound for all components of that class.
+- **Dependency bound:** The type currently permitted as the target of one dependency; narrowing a type narrows one or more such bounds.
+- **Dependency key:** The stable identity of one dependency, consisting only of its declaring class and declaration ordinal.
 - **Die:** An instruction to gain `Die`; it cannot enter a task queue, so the enclosing operation fails and rolls back.
 - **Effect:** A trigger plus instruction, and whether it is automatic or not, attached to a class or component.
-- **Engine module:** The module that executes Pets instructions, maintains game state, and fires effects.
+- **Engine module:** The module that executes Pets instructions, maintains a world, and fires effects.
 - **Event log:** The ordered history of state changes and task lifecycle events.
 - **Expression:** A Pets AST representation of a type; distinct expressions can resolve to the same type.
-- **Follow mode:** Using Solarnet to reproduce or accompany a game whose concrete setup choices and
-  actions are supplied by a client or another authoritative source. The engine follows those facts;
-  it does not choose random content such as maps, milestones, or colony tiles.
-- **Game:** The aggregate object exposing a game's components, tasks, events, timeline, reader, setup, and loaded classes.
-- **Game option:** An exact semantic choice for a game, such as using SoloMode, the Prelude rules, or
-  a particular map. Canon translates options into the raw bundles needed to provide them.
-- **Game setup:** The complete, immutable, non-random configuration for one game: its exact options
-  and the ruleset already assembled to provide them.
-- **Game state:** The current component multiset and pending tasks.
-- **Gameplay:** The Actor-scoped API through which game state is queried and changed.
+- **Follow mode:** Using Solarnet as a state-transition calculator for a game described by a client.
+  The client supplies each concrete setup choice, draw, reveal, discard, and action; Solarnet accepts
+  those inputs as the history to process and calculates the resulting game state. It neither owns
+  hidden information nor checks whether the supplied history matches a separate physical or online
+  game. A definition whose implementation specifically depends on this model has an identifier
+  ending in `F`; that definition is complete for follow mode, while a future real-play mode that
+  owns decks, hands, and randomness would use a different definition.
+- **Game option:** An editable setup-world expression of user intent. Positive options may add
+  defaults through effects, while explicit exclusions mask those defaults before they fire.
+- **Game module:** An affirmative, immutable rules component in a playable world. The complete set
+  records the fully resolved rules shared by every equivalent game created from a premise.
+- **Game premise:** The complete, immutable facts from which equivalent games can be created: the
+  ruleset, loaded class roots, Actors, and initial components.
+- **Gameplay:** The Actor-scoped API through which a world is queried and changed.
 - **Immediate instruction:** A card's instruction carried out when the card is played, stored as `CardDefinition.immediate`.
-- **Instruction:** A Pets specification of steps that may alter game state.
+- **Instruction:** A Pets specification of steps that may alter a world.
 - **Intensity:** The policy on a change instruction: mandatory (`!`), optional (`?`), or AMAP (`.`). Sometimes called "quantifier".
 - **Invariant:** A class-declared requirement that the engine preserves while changing component counts.
+- **Linkage:** A source-declared equality constraint requiring several type or scalar occurrences to narrow together as one choice.
 - **Loaded class:** The runtime form of a class declaration used by the engine's type system.
-- **Metric:** A Pets expression that computes a non-negative integer from game state.
-- **Narrowing:** Replacing an abstract type or task/instruction with a valid, more specific one. When finally narrowed to a *concrete* task it can be executed.
-- **No-op:** The `Ok` instruction, which always succeeds without changing game state.
+- **Metric:** A Pets expression that computes a non-negative integer from a world.
+- **Narrowing:** Replacing a type, dependency bound, task, or instruction with a valid, more specific one. When finally narrowed to a *concrete* task it can be executed.
+- **No-op:** The `Ok` instruction, which always succeeds without changing the world.
 - **Owned:** The root class for components whose type carries an ownership dependency.
-- **Owner:** An entity that may own components. Components expose their concrete Owner as a resolved Pets type; Kotlin runtime identities implement `Owner` only when code needs that entity to participate directly, which currently means Players. `Owner` in Pets is also a contextual placeholder specialized before use.
+- **Owner:** An entity that may own components. Components expose their concrete Owner as a resolved Pets type; Kotlin runtime identities implement `Owner` only when code needs that entity to participate directly, which currently means Players. `Owner` in Pets is also a contextual placeholder bound before use.
 - **Pets:** Solarnet's specification language for component types, rules, and game-state changes.
 - **Player:** A seated participant that is both an Owner and an Actor.
-- **Prepared task:** A task simplified against current game state and therefore required to finish next; it may still need further narrowing.
+- **Prepared task:** A task simplified against the current world and therefore required to finish next; it may still need further narrowing.
+- **Performer:** The Actor credited with an instruction's state changes; normally the gameplay Actor, but an instruction-level `BY` can override it without changing the task's assignee.
 - **Preprocessing:** The transformer pipeline that resolves aliases, atomization, defaults, contextual ownership, and production notation.
 - **Production box:** Terraforming Mars-specific `PROD[...]` notation that preprocessing rewrites into production-component operations.
 - **Queued effect:** An effect written with `:`; its triggered instruction becomes a task instead of executing inline. (Antonym: automatic effect.)
 - **Refinement:** A `HAS` requirement attached to a type expression to restrict which matching components qualify.
+- **Refinement type:** The type denoted by a type expression carrying a refinement.
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
-- **Requirement:** A Pets predicate evaluated against game state, used for queries, gates, invariants, and refinements.
+- **Requirement:** A Pets predicate evaluated against a world, used for queries, gates, invariants, and refinements.
 - **Rollback:** Reversing events after a checkpoint to restore an earlier state.
-- **Root type:** The class named at the head of a generic type expression, before its specializations.
-- **Short name:** A compact class alias such as `TR`, sharing a namespace with full class names.
+- **Root type:** The class named at the head of a type expression, before its written dependency bounds.
+- **Canonical class name:** A class's sole stable engine identity. Structured content uses language-neutral names such as `Card070` and `MilestoneHM6`.
+- **Class synonym:** A client-configured input-only spelling such as `TR` for `TerraformRating`; it is never used in output or stored state.
+- **Vocabulary:** A session's locale-specific mapping between canonical class names, natural display names, parseable Pets names, and input-only synonyms.
 - **Hidden:** An implementation component normally omitted from user-facing output. This is a
   presentation classification, not an Actor or ownership rule.
 - **Signal:** A hidden temporary component that immediately removes itself after triggering its effects.
 - **Singleton type:** A concrete type for which one component is created automatically during initialization.
-- **Opponent:** The passive Owner created by SoloMode; it is not a Player or Actor and receives no tasks or turns.
+- **SoloOpponent:** The passive Owner created by SoloMode; it is not a Player or Actor and receives no tasks or turns.
+- **Represented-type linkage:** Inside a refined class literal such as `Class<Tag>(HAS Tag<Player1>)`, the class argument links to matching root-class occurrences in the requirement, so candidate `Class<SpaceTag>` tests for `SpaceTag<Player1>` without treating the class token itself as owned.
 - **Source effect:** An effect as authored in `.pets` or JSON data, before engine transformations.
-- **Specialization:** A type expression inside `<...>` that narrows one of a class's dependencies; specializations need not follow dependency declaration order.
 - **State change:** An exact component gain, removal, or transmutation that happened in a game.
 - **System:** Engine-only machinery. It extends Hidden, cannot be created by a Player, and an
   unowned System occurrence does not implicitly restrict effect matching by its Actor.
 - **Task:** A unit of pending work containing an instruction, assignment, cause, and lifecycle metadata. It represents not only what *must* be done but what *may* be done.
-- **Task queue:** An assignee's unordered set of pending tasks; stable ID iteration only makes arbitrary choices reproducible.
+- **Task queue:** An assignee's unordered set of pending tasks; stable `TaskId` iteration only makes arbitrary choices reproducible.
 - **Task result:** The change events and newly spawned task IDs returned by a successful operation.
 - **Temporary:** A component type that must not remain after an operation's task queue drains.
-- **Timeline:** The service coordinating checkpoints, rollback, commits, and atomic operations across game state.
+- **This:** A built-in, class-scoped contextual binding that remains late-bound as a declaration applies to subclasses and is fixed from the exact concrete component; in an effect trigger it instead denotes that component's own gain or removal event.
+- **Timeline:** The service coordinating checkpoints, rollback, commits, and atomic operations across a world.
 - **Transformer:** A pass that rewrites Pets AST nodes before loading, preparing, or executing them.
 - **Transmutation:** One atomic state change that removes copies of one component type and gains the same number of another.
 - **Trigger:** The part of an effect that selects the gains or removals to which it responds.
-- **Triggered instruction:** The instruction produced when an active effect matches one change event.
+- **Triggered instruction:** The instruction produced when a live effect matches one change event.
 - **Type:** The resolved identity of a component kind, independent of the expression used to write it.
-- **Type expression:** Pets syntax naming a type through a class, optional specializations, and an optional refinement.
+- **Type expression:** Pets syntax naming a type through a class, optional written dependency bounds, and an optional refinement.
+- **Class table:** The frozen set of mutually compatible loaded classes and resolved types available to one game setup.
 - **Workflow:** The higher-level driver that orchestrates game phases and waits for task queues to drain.
+- **World:** A live Pets component system exposing its components, tasks, events, timeline, reader, loaded classes, and Actor-scoped gameplay.

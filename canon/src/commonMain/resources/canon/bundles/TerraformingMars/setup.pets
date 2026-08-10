@@ -1,0 +1,51 @@
+"An editable statement of user intent while configuring a game"
+ABSTRACT CLASS GameOption : System {
+  HAS MAX 1 This
+}
+
+"An explicit user request suppressing a default option in the setup world"
+CLASS Exclude<Class<GameOption>> : System { HAS MAX 1 This }
+
+"Selects the base game and its usual Corporate Era default"
+CLASS TerraformingMars : GameOption {
+  This IF MAX 0 Exclude<Class<CorporateEraExpansion>>:: CorporateEraExpansion
+}
+
+"One participant seated for the game being configured"
+CLASS Player { HAS MAX 5 This }
+
+"The map option selected for the setup world"
+ABSTRACT CLASS MarsMapOption : GameOption { HAS MAX 1 MarsMapOption }
+
+"The player-count mode selected for the game"
+ABSTRACT CLASS Mode : GameOption { HAS MAX 1 Mode }
+
+"Solo play with a neutral opponent and a fixed generation limit"
+CLASS SoloMode : Mode {
+  This IF MAX 0 SoloVariant, MAX 0 Exclude<Class<StandardSoloVariant>>:: StandardSoloVariant
+}
+
+"A game with at least two players"
+CLASS MultiplayerMode : Mode
+
+"The selected solo objective"
+ABSTRACT CLASS SoloVariant : GameOption {
+  HAS MAX 1 SoloVariant
+
+  "The solo rules used by the original game"
+  CLASS StandardSoloVariant
+
+  "The solo variant whose objective is reaching 63 terraform rating"
+  CLASS Tr63SoloVariant
+}
+
+"Checks whether the current selections describe one complete game"
+CLASS ValidateSetup : Signal {
+  This IF MAX 0 Player: Die
+  This IF MAX 0 TerraformingMars: Die
+  This IF MAX 0 MarsMapOption: Die
+  This IF =1 Player, MAX 0 SoloMode: Die
+  This IF 2 Player, MAX 0 MultiplayerMode: Die
+  This IF =1 Player, MAX 0 SoloVariant: Die
+  This IF 2 Player, 1 SoloVariant: Die
+}

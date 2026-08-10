@@ -33,7 +33,6 @@ internal class TfmSampleCommand(private val repl: ScriptSession) : ScriptCommand
     if (id != "A") throw UsageException("unknown id: $id")
 
     repl.game = SampleGames.sampleGame(gens.toInt())
-    repl.setup = repl.game.setup
     repl.gameplay = repl.game.gameplay(ENGINE) as TurnLayer // default autoexec mode
     return listOf("Okay, did that.")
   }

@@ -1,129 +1,42 @@
-import com.diffplug.gradle.spotless.SpotlessExtension
-import com.diffplug.spotless.kotlin.KtfmtStep.TrailingCommaManagementStrategy.ONLY_ADD
-import io.gitlab.arturbosch.detekt.extensions.DetektExtension
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-import org.jetbrains.dokka.gradle.DokkaExtension
-import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
 plugins {
-  id("io.gitlab.arturbosch.detekt") version "1.23.8" apply false
-  id("com.diffplug.spotless") version "8.8.0"
-  id("org.jetbrains.kotlin.jvm") version "2.2.21"
-  id("org.jetbrains.kotlin.multiplatform") version "2.2.21" apply false
-  id("org.jetbrains.kotlin.plugin.serialization") version "2.2.21" apply false
-  id("org.jetbrains.dokka") version "2.2.0"
+  alias(libs.plugins.spotless)
+  alias(libs.plugins.kotlin.multiplatform) apply false
+  alias(libs.plugins.kotlin.serialization) apply false
+  alias(libs.plugins.dokka)
 }
 
-repositories { mavenCentral() }
+val pinnedYarnResolutions = mapOf("serialize-javascript" to "7.0.3", "fast-uri" to "3.1.4")
 
-configure<SpotlessExtension> {
+plugins.withType<YarnPlugin> {
+  the<YarnRootEnvSpec>().version.set("1.22.22")
+  pinnedYarnResolutions.forEach(the<YarnRootExtension>()::resolution)
+
+  // Kotlin 2.2.21 does not track Yarn resolutions as inputs to this generated file. Without this,
+  // a stale build/js/package.json can omit new resolutions and repeatedly fight the lockfile.
+  tasks.named("rootPackageJson") { inputs.property("pinnedYarnResolutions", pinnedYarnResolutions) }
+}
+
+// ktfmt's default (Meta) style is exactly this project's style: 100 columns, 2-space block indent,
+// 4-space continuation indent, and trailing commas added but never removed.
+spotless {
   kotlin {
-    target(subprojects.map { it.fileTree("src") { include("**/*.kt") } })
-    ktfmt("0.64").googleStyle().configure {
-      it.setMaxWidth(100)
-      it.setBlockIndent(2)
-      it.setContinuationIndent(4)
-      it.setTrailingCommaManagementStrategy(ONLY_ADD)
-    }
+    target("*/src/**/*.kt")
+    ktfmt(libs.versions.ktfmt.get())
   }
   kotlinGradle {
-    target(
-        files(
-            "build.gradle.kts",
-            "settings.gradle.kts",
-            subprojects.map { it.file("build.gradle.kts") },
-        )
-    )
-    ktfmt("0.64").googleStyle().configure {
-      it.setMaxWidth(100)
-      it.setBlockIndent(2)
-      it.setContinuationIndent(4)
-      it.setTrailingCommaManagementStrategy(ONLY_ADD)
-    }
+    target("*.gradle.kts", "*/*.gradle.kts", "build-logic/src/main/kotlin/*.gradle.kts")
+    ktfmt(libs.versions.ktfmt.get())
   }
 }
-
-subprojects {
-  apply(plugin = "io.gitlab.arturbosch.detekt")
-
-  extensions.configure<DetektExtension> {
-    buildUponDefaultConfig = true
-    config.setFrom(rootProject.file("detekt.yml"))
-  }
-
-  repositories {
-    mavenCentral()
-    maven { url = uri("https://jitpack.io") }
-  }
-
-  tasks.withType<KotlinCompilationTask<*>>().configureEach {
-    compilerOptions.allWarningsAsErrors.set(true)
-    compilerOptions.freeCompilerArgs.addAll(
-        "-Wextra",
-        "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
-        "-Xwarning-level=RETURN_VALUE_NOT_USED:disabled",
-    )
-  }
-
-  configurations
-      .matching { it.name != "detekt" }
-      .configureEach {
-        resolutionStrategy.eachDependency {
-          if (requested.group == "org.jetbrains.kotlin") {
-            useVersion("2.2.21")
-            because(
-                "Kotlin/JS compilation requires libraries compiled for the project Kotlin version"
-            )
-          }
-        }
-      }
-
-  apply(plugin = "org.jetbrains.dokka")
-
-  extensions.configure<DokkaExtension> {
-    dokkaPublications.configureEach {
-      suppressInheritedMembers.set(true)
-    }
-    dokkaSourceSets.configureEach {
-      documentedVisibilities.set(setOf(VisibilityModifier.Public, VisibilityModifier.Protected))
-      jdkVersion.set(21)
-      skipEmptyPackages.set(true)
-    }
-  }
-
-  pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
-    extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
-      jvmToolchain(21)
-    }
-  }
-
-  tasks.withType<Test> {
-    useJUnitPlatform()
-    testLogging {
-      exceptionFormat = FULL
-      showExceptions = true
-      showStackTraces = true
-    }
-  }
-}
-
-tasks
-    .matching { it.name == "rootPackageJson" }
-    .configureEach {
-      dependsOn(
-          ":canon:copyCanonResourcesForKarma",
-          ":engine:copyCanonResourcesForKarma",
-          ":pets:copyCanonResourcesForKarma",
-          ":script:copyCanonResourcesForKarma",
-          ":script:copyPetsResourcesForKarma",
-      )
-    }
 
 dokka {
   moduleName.set("Solarnet")
   dokkaPublications.html {
-    outputDirectory.set(rootProject.file("docs/api"))
+    outputDirectory.set(file("docs/api"))
     includes.from("docs/packages.md")
   }
 }

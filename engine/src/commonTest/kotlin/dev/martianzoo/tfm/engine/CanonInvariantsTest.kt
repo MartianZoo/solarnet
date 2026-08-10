@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.engine.Effector
+import dev.martianzoo.engine.ComponentGraph
 import dev.martianzoo.engine.Limiter
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
 import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
-import dev.martianzoo.engine.WritableComponentGraph
+import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.ClassLoader
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.Int.Companion.MAX_VALUE
@@ -18,12 +18,11 @@ import kotlin.test.Test
 
 internal class CanonInvariantsTest {
 
-  private val table = MClassLoader(Canon).loadEverything() as MClassLoader
+  private val table = ClassLoader(Canon).loadEverything()
 
   @Test
   fun introspect() {
-    val effector = Effector(null)
-    val limiter = Limiter(table, WritableComponentGraph(effector))
+    val limiter = Limiter(table, ComponentGraph.empty(table))
 
     fun checkTypeLimits(s: String, vararg pairs: Pair<String, IntRange>) {
       val c = table.resolve(parse<Expression>(s))
@@ -31,7 +30,7 @@ internal class CanonInvariantsTest {
           limiter
               .applicableRangeRestrictions(c.toComponent())
               .filter { it.range != 0..MAX_VALUE }
-              .map { it.mtype.expression.toString() to it.range }
+              .map { it.type.expression.toString() to it.range }
       actual.shouldContainExactlyInAnyOrder(*pairs)
     }
     fun checkComponentLimit(s: String, range: IntRange) = checkTypeLimits(s, s to range)
@@ -48,19 +47,23 @@ internal class CanonInvariantsTest {
     checkComponentLimit("TemperatureStep", 0..19)
     checkComponentLimit("VenusStep", 0..15)
 
-    checkComponentLimit("ActionUsedMarker<Player1, Ants<Player1>>", 0..1)
+    checkComponentLimit("ActionUsedMarker<Player1, Card035<Player1>>", 0..1)
     checkComponentLimit("MandateB08<Player1>", 0..1)
-    checkComponentLimit("PowerTag<Player1, Ants<Player1>>", 0..2)
+    checkComponentLimit("PowerTag<Player1, Card035<Player1>>", 0..2)
     checkComponentLimit("Accept<Player1, Class<Steel>>", 0..1)
     checkComponentLimit("Pass<Player1>", 0..1)
 
     checkTypeLimits("SetupPhase", "Phase" to 1..1)
-    checkTypeLimits("OceanTile<Tharsis_5_5>", "OceanTile" to 0..9, "Tile<Tharsis_5_5>" to 0..1)
+    checkTypeLimits(
+        "OceanTile<Tharsis_5_5>",
+        "OceanTile" to 0..9,
+        "Tile<Tharsis_5_5>" to 0..1,
+    )
   }
 
   @Test
   fun testLookup() {
-    val limiter = Limiter(table, WritableComponentGraph(Effector(null)))
+    val limiter = Limiter(table, ComponentGraph.empty(table))
 
     fun restrictions(a: String) = limiter.rangeRestrictionsByClass[table.getClass(cn(a))]
 
@@ -79,24 +82,17 @@ internal class CanonInvariantsTest {
       restrictions(constrainedType)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
     }
 
-    checkSimple("Ants", range = 0..1)
+    checkSimple("Card035", range = 0..1)
     checkSimple("OceanTile", range = 0..9)
     checkSimple("ActionPhase", "Phase", range = 1..1)
     checkSimple("Tharsis_5_5", range = 1..1)
     checkSimple("GreeneryTile", "Tile<Tharsis_5_5>", range = 0..1)
 
-    checkSimple("Trade", "Trade<Luna>", range = 0..1)
-    checkSimple("Colony", "Colony<Luna>", range = 0..3)
-    checkSimple("TradeFleetA", range = 0..1)
+    checkSimple("FlownTradeFleet", "FlownTradeFleet<ColonyTile01>", range = 0..1)
+    checkSimple("Colony", "Colony<ColonyTile01>", range = 0..3)
 
     checkUnbound("Pass", THIS.expression, 0..1)
     checkUnbound("VenusTag", THIS.expression, 0..2)
     checkUnbound("ColonyProduction", THIS.expression, range = 0..6)
-    checkUnbound(
-        constrainedType = "Trade",
-        declaringType = "TradeFleetA",
-        expr = parse<Expression>("Trade<This>"),
-        range = 0..1,
-    )
   }
 }

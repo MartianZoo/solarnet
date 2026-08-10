@@ -1,64 +1,52 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class PsychrophilesTest : CardTest() {
-  init {
-    newGame("BRMP", 2)
-  }
-
-  val Psychrophiles = "Psychrophiles"
-
   @BeforeTest
-  fun setUp() {
-    with(player1) {
-      phase("Action")
-      sneak("100, 5 ProjectCard")
-    }
-  }
-
-  fun setupWithCard() {
-    with(player1) {
-      playProject(Psychrophiles, 2)
-      cardAction1(Psychrophiles).expect("Microbe<Psychrophiles>")
-      sneak("4 Microbe<Psychrophiles>").expect("4 Microbe<Psychrophiles>")
-    }
+  fun initializeGame() {
+    newGame(PreludeExpansion)
+    engine.phase("Action")
+    p1.manual("10, ProjectCard")
   }
 
   @Test
-  fun spendNone() {
-    setupWithCard()
-    with(player1) {
-      playProject("AdaptedLichen", 9) { doTask("Ok") }.expect("AdaptedLichen")
-    }
+  fun `without microbes, plays a plant-tag card using Psychrophiles`() {
+    p1.manual("Psychrophiles")
+    p1.playProject("AdaptedLichen", 9) { doTask("Ok") }.expect("AdaptedLichen")
   }
 
   @Test
-  fun spendOne() {
-    setupWithCard()
-    with(player1) {
-      playProject("AdaptedLichen", 7) { doTask("-Microbe<Psychrophiles>! THEN -2 Owed.") }
-          .expect("-Microbe<Psychrophiles>, AdaptedLichen")
-    }
+  fun `with Psychrophiles, uses its action`() {
+    p1.manual("Psychrophiles")
+    p1.cardAction1("Psychrophiles").expect("Microbe<Psychrophiles>")
   }
 
   @Test
-  fun overspend() {
-    setupWithCard()
-    with(player1) {
-      playProject("AdaptedLichen", 0) {
-            doTask("-5 Microbe<Psychrophiles>! THEN -10 Owed.")
-          }
-          .expect("-5 Microbe<Psychrophiles>, AdaptedLichen")
-    }
+  fun `with a microbe, plays a plant-tag card using Psychrophiles`() {
+    p1.manual("Psychrophiles, Microbe<Psychrophiles>")
+    p1.playProject("AdaptedLichen", 7) {
+          doTask("-Microbe<Psychrophiles>! THEN -2 Owed.")
+        }
+        .expect("-Microbe<Psychrophiles>, AdaptedLichen")
   }
 
   @Test
-  fun tooWarm() {
-    player1.sneak("6 TemperatureStep")
-    shouldThrow<RequirementException> { player1.playProject(Psychrophiles, 2) }
+  fun `with five microbes, plays a nine-cost card using Psychrophiles`() {
+    p1.manual("Psychrophiles, 5 Microbe<Psychrophiles>")
+    p1.playProject("AdaptedLichen", 0) {
+          doTask("-5 Microbe<Psychrophiles>! THEN -10 Owed.")
+        }
+        .expect("-5 Microbe<Psychrophiles>, AdaptedLichen")
+  }
+
+  @Test
+  fun `above its temperature limit, tries to play Psychrophiles`() {
+    p1.manual("6 TemperatureStep")
+    shouldThrow<RequirementException> { p1.playProject("Psychrophiles", 2) }
   }
 }

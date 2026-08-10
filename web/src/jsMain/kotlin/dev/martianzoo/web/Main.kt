@@ -48,6 +48,8 @@ internal class BrowserHistory {
     val stored = window.localStorage.getItem(HISTORY_KEY) ?: return mutableListOf()
     return try {
       JSON.parse<Array<String>>(stored).toMutableList()
+      // TODO: Validate the decoded value and narrow this catch once Kotlin/JS exposes a useful
+      // JSON parse exception type.
     } catch (_: Throwable) {
       mutableListOf()
     }

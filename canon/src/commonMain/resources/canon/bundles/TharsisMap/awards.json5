@@ -1,14 +1,15 @@
 {
+  "setupRequirement": "TharsisMapOption",
   "awards": [
     // Landlord
-    { "id": "MA1", "metric": "OwnedTile" },
+    { "id": "BA1", "metric": "OwnedTile" },
     // Banker
-    { "id": "MA2", "metric": "PROD[1]" },
+    { "id": "BA2", "metric": "PROD[Megacredit]" },
     // Scientist
-    { "id": "MA3", "metric": "ScienceTag" },
+    { "id": "BA3", "metric": "ScienceTag" },
     // Thermalist
-    { "id": "MA4", "metric": "Heat" },
+    { "id": "BA4", "metric": "Heat" },
     // Miner
-    { "id": "MA5", "metric": "Steel + Titanium" },
+    { "id": "BA5", "metric": "Steel OR Titanium" },
   ]
 }

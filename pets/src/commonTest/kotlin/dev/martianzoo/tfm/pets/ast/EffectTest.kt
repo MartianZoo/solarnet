@@ -3,6 +3,9 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.Or
 import dev.martianzoo.tfm.pets.testSampleStrings
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -11,7 +14,7 @@ import kotlin.test.assertFailsWith
 // Most testing is done by AutomatedTest
 internal class EffectTest {
 
-  val inputs =
+  private val inputs =
       """
       Ooh: 1
       Xyz: -1
@@ -47,7 +50,7 @@ internal class EffectTest {
       Eep: (1 THEN 1) OR (-Qux, 1, -5 Foo, 1)
       Qux:: Bar FROM Bar / Bar<Qux>, -5 Qux?
       -Ooh: Ooh, (5 Abc<Foo>, 1: -1), 5 Foo!, 1
-      Foo: PROD[5. OR (=1 Megacredit: (-1 OR 1))]
+      Foo: PROD[5. OR (=1 Megacredit: -1 OR 1)]
       Xyz<Xyz>: Xyz FROM Abc / Xyz<Xyz<Bar>, Bar>
       PROD[Abc]: Ooh OR (1 THEN Foo.), -11, Foo, Ooh
       -Ooh<Foo<Ahh>>(HAS 1 OR (1 OR Foo)): Bar, -5 Ooh
@@ -70,9 +73,8 @@ internal class EffectTest {
 
   @Test
   fun nodeCount() {
-    val eff: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
-    // ef, og, te, cn, te, cn, pr, or, tr, sc, fr, te, cn, te, cn, ga, ste, te, cn
-    eff.descendantCount() shouldBe 19
+    val effect: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
+    effect.descendantCount() shouldBe 20
   }
 
   @Test
@@ -82,5 +84,47 @@ internal class EffectTest {
     assertFailsWith<PetSyntaxException> { parse<Effect>("PROD[Class<Foo>]: Bar") }
 
     parse<Effect>("PlayCard<Class<Foo>>: Bar").toString() shouldBe "PlayCard<Class<Foo>>: Bar"
+  }
+
+  @Test
+  fun bySelectorsAreExpressions() {
+    parse<Effect>("Foo BY !Owner: Bar").toString() shouldBe "Foo BY !Owner: Bar"
+    parse<Effect>("Foo BY !Player2: Bar").toString() shouldBe "Foo BY !Player2: Bar"
+  }
+
+  @Test
+  fun triggerAlternativesNeedNoParentheses() {
+    parse<Effect>("Foo OR -Bar BY Anyone:: Qux").toString() shouldBe "Foo OR -Bar BY Anyone:: Qux"
+  }
+
+  @Test
+  fun orBindsMoreTightlyThanByAndIf() {
+    val trigger = parse<Effect>("Foo OR -Bar BY Anyone IF Qux: Eep").trigger as IfTrigger
+
+    ((trigger.inner as ByTrigger).inner is Or) shouldBe true
+    trigger.toString() shouldBe "Foo OR -Bar BY Anyone IF Qux"
+  }
+
+  @Test
+  fun groupingAllowsBranchSpecificQualifiers() {
+    parse<Effect>("(Foo BY Player IF Qux) OR (-Bar BY Anyone IF Abc): Eep").toString() shouldBe
+        "(Foo BY Player IF Qux) OR (-Bar BY Anyone IF Abc): Eep"
+  }
+
+  @Test
+  fun groupingAllowsQualifiersAtDifferentLevels() {
+    parse<Effect>("(Foo IF Qux) OR Bar BY Anyone IF Abc: Eep").toString() shouldBe
+        "(Foo IF Qux) OR Bar BY Anyone IF Abc: Eep"
+  }
+
+  @Test
+  fun triggerAlternativesCannotMixSelfAndSubscriptions() {
+    assertFailsWith<PetSyntaxException> { parse<Effect>("This OR Foo: Qux") }
+  }
+
+  @Test
+  fun conditionalTriggerRequirementsNeedNoParentheses() {
+    parse<Effect>("This IF =3 This OR =5 This: PROD[Heat]").toString() shouldBe
+        "This IF =3 This OR =5 This: PROD[Heat]"
   }
 }

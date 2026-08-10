@@ -9,7 +9,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmRuleset
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -121,9 +121,45 @@ class ByTriggerCharacterizationTest {
     }
   }
 
-  private fun newGame(): Game {
-    val options = Canon.options("BM", 2)
-    return Engine.newGame(GameSetup(ProbeRuleset.resolve(Canon.bundleNames(options)), options))
+  @Test
+  fun byNotOwnerUsesTheActorTypeDomain() {
+    val game = newGame()
+    val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
+    owner.sneak("OpponentByProbe<Player1>!")
+
+    owner.manual("ActorTriggerSignal!")
+    engine.beginManual("ActorTriggerSignal!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
+    }
+    owner.doTask("Heat<Player1>!")
+
+    other.beginManual("ActorTriggerSignal!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
+    }
+  }
+
+  @Test
+  fun orTriggerMatchesItsRemovalAlternative() {
+    val game = newGame()
+    val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
+    val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    owner.sneak("OpponentByProbe<Player1>!, ActorTriggerSignal!")
+
+    other.beginManual("-ActorTriggerSignal!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
+    }
+  }
+
+  private fun newGame(): World {
+    return Engine.newGame(canonicalPremise(ruleset = ProbeRuleset))
   }
 }
 
@@ -153,6 +189,11 @@ private object ProbeDeclarations : TfmRuleset.Empty() {
               CLASS OwnedTriggerProbe : Owned, AutoLoad {
                 OwnedActorTrigger<Anyone>: Plant<Owner>
               }
+
+              CLASS OpponentByProbe : Owned, AutoLoad {
+                ActorTriggerSignal OR -ActorTriggerSignal BY !Owner: Heat<Owner>
+              }
+
               """
                   .trimIndent()
           )

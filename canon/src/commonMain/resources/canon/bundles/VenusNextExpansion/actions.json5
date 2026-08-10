@@ -5,6 +5,6 @@
   "projects": [
 
     // Air-Scrapping
-    { "id": "SP15", "action": "15 -> VenusStep" },
+    { "id": "AirScrappingSP", "action": "15 -> VenusStep" },
   ],
 }

@@ -1,7 +1,13 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.api.TfmRuleset
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -10,6 +16,60 @@ import kotlin.test.Test
 
 internal class CanonBundlesTest {
   @Test
+  fun hellasAndElysiumAreSeparateOptionsFromOneBundle() {
+    val bundles = setOf(cn("TerraformingMars"), cn("HellasElysiumExpansion"))
+
+    val hellas = Canon.resolve(bundles, setupReader(cn("HellasMapOption")))
+    hellas.marsMapDefinitions.single().className shouldBe cn("Hellas")
+    hellas.milestoneDefinitions.any { it.className == cn("MilestoneHM0") } shouldBe true
+    hellas.milestoneDefinitions.any { it.className == cn("MilestoneHM5") } shouldBe false
+    (cn("MilestoneHM0") in hellas.allClassNames) shouldBe true
+    (cn("MilestoneHM5") in hellas.allClassNames) shouldBe false
+    (cn("AwardHA0") in hellas.allClassNames) shouldBe true
+    (cn("AwardHA5") in hellas.allClassNames) shouldBe false
+
+    val elysium = Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
+    elysium.marsMapDefinitions.single().className shouldBe cn("Elysium")
+    elysium.milestoneDefinitions.any { it.className == cn("MilestoneHM5") } shouldBe true
+    elysium.milestoneDefinitions.any { it.className == cn("MilestoneHM0") } shouldBe false
+    (cn("MilestoneHM5") in elysium.allClassNames) shouldBe true
+    (cn("MilestoneHM0") in elysium.allClassNames) shouldBe false
+    (cn("AwardHA5") in elysium.allClassNames) shouldBe true
+    (cn("AwardHA0") in elysium.allClassNames) shouldBe false
+  }
+
+  @Test
+  fun utopiaAndCimmeriaAreSeparateOptionsFromOneBundle() {
+    val bundles = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
+
+    val utopia = Canon.resolve(bundles, setupReader(cn("UtopiaPlanitiaMapOption")))
+    utopia.marsMapDefinitions.single().className shouldBe cn("UtopiaPlanitia")
+    utopia.milestoneDefinitions.any { it.className == cn("MilestoneUM0") } shouldBe true
+    utopia.milestoneDefinitions.any { it.className == cn("MilestoneUM1") } shouldBe false
+    utopia.milestoneDefinitions.any { it.className == cn("MilestoneUM6") } shouldBe false
+
+    val cimmeria = Canon.resolve(bundles, setupReader(cn("TerraCimmeriaMapOption")))
+    cimmeria.marsMapDefinitions.single().className shouldBe cn("TerraCimmeria")
+    cimmeria.milestoneDefinitions.any { it.className == cn("MilestoneUM6") } shouldBe true
+    cimmeria.milestoneDefinitions.any { it.className == cn("MilestoneUM0") } shouldBe false
+  }
+
+  @Test
+  fun pioneerRequiresColonies() {
+    val utopia = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
+
+    Canon.resolve(utopia, setupReader(cn("UtopiaPlanitiaMapOption"))).milestoneDefinitions.any {
+      it.className == cn("MilestoneUM1")
+    } shouldBe false
+    Canon.resolve(
+            utopia + cn("ColoniesExpansion"),
+            setupReader(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion")),
+        )
+        .milestoneDefinitions
+        .map { it.className } shouldContain cn("MilestoneUM1")
+  }
+
+  @Test
   fun systemDeclarationsBelongToPetsRatherThanACanonBundle() {
     Canon.classDeclarationBundles.getValue(COMPONENT).shouldBeEmpty()
   }
@@ -17,7 +77,9 @@ internal class CanonBundlesTest {
   @Test
   fun resolvedRulesetIncludesSelectedBundlesCustomImplementations() {
     val coreCustomClasses =
-        Canon.resolve(setOf(cn("TerraformingMars"))).customClasses.map { it.className.toString() }
+        Canon.resolve(setOf(cn("TerraformingMars"))).customClasses.map {
+          it.className.toString()
+        }
 
     coreCustomClasses.contains("GainLowestProduction") shouldBe false
     Canon.resolve(setOf(cn("TerraformingMars"), cn("PreludeExpansion"))).customClasses.map {
@@ -29,11 +91,79 @@ internal class CanonBundlesTest {
   fun venusAddsHoverlordToTheMapsFiveMilestones() {
     val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
 
-    Canon.resolve(base).milestoneDefinitions.map { it.className }.contains(cn("Hoverlord")) shouldBe
+    Canon.resolve(base).milestoneDefinitions.any { it.className == cn("MilestoneVM1") } shouldBe
         false
     Canon.resolve(base + cn("VenusNextExpansion")).milestoneDefinitions.map {
       it.className
-    } shouldContain cn("Hoverlord")
+    } shouldContain cn("MilestoneVM1")
+  }
+
+  @Test
+  fun planetologistRequiresVenusNext() {
+    val terraCimmeria = setOf(cn("TerraformingMars"), cn("UtopiaCimmeriaExpansion"))
+
+    Canon.resolve(terraCimmeria, setupReader(cn("TerraCimmeriaMapOption")))
+        .milestoneDefinitions
+        .any {
+          it.className == cn("MilestoneUM5")
+        } shouldBe false
+    Canon.resolve(
+            terraCimmeria + cn("VenusNextExpansion"),
+            setupReader(cn("TerraCimmeriaMapOption"), cn("VenusNextExpansion")),
+        )
+        .milestoneDefinitions
+        .map {
+          it.className
+        } shouldContain cn("MilestoneUM5")
+  }
+
+  @Test
+  fun awardsComeFromTheSelectedMapAndExpansions() {
+    val base = setOf(cn("TerraformingMars"), cn("TharsisMap"))
+
+    Canon.resolve(base).awardDefinitions.map { it.className }.toSet() shouldBe
+        setOf(
+            cn("AwardBA1"),
+            cn("AwardBA2"),
+            cn("AwardBA3"),
+            cn("AwardBA4"),
+            cn("AwardBA5"),
+        )
+    Canon.resolve(base + cn("VenusNextExpansion")).awardDefinitions.map {
+      it.className
+    } shouldContain cn("AwardVA1")
+  }
+
+  @Test
+  fun hellasAndElysiumAwardsFollowTheSelectedMapOption() {
+    val bundles = setOf(cn("TerraformingMars"), cn("HellasElysiumExpansion"))
+
+    Canon.resolve(bundles, setupReader(cn("HellasMapOption")))
+        .awardDefinitions
+        .map {
+          it.className
+        }
+        .toSet() shouldBe
+        setOf(
+            cn("AwardHA0"),
+            cn("AwardHA1"),
+            cn("AwardHA2"),
+            cn("AwardHA3"),
+            cn("AwardHA4"),
+        )
+    Canon.resolve(bundles, setupReader(cn("ElysiumMapOption")))
+        .awardDefinitions
+        .map {
+          it.className
+        }
+        .toSet() shouldBe
+        setOf(
+            cn("AwardHA5"),
+            cn("AwardHA6"),
+            cn("AwardHA7"),
+            cn("AwardHA8"),
+            cn("AwardHA9"),
+        )
   }
 
   @Test
@@ -43,7 +173,11 @@ internal class CanonBundlesTest {
         mapOf(
             cn("VenusNextExpansion") to setOf(cn("VenusStep"), cn("VenusTag")),
             cn("PreludeExpansion") to
-                setOf(cn("PreludeCard"), cn("PreludePhase"), cn("PreludeSetup")),
+                setOf(
+                    cn("PreludeCard"),
+                    cn("PreludePhase"),
+                    cn("PreludeSetup"),
+                ),
         )
 
     val baseRuleset = Canon.resolve(base)
@@ -61,13 +195,55 @@ internal class CanonBundlesTest {
 
   @Test
   fun doubleDownRequiresBothPromosAndPrelude() {
-    val promos = setOf(cn("TerraformingMars"), cn("PromoCardsBundle"))
+    val promos = setOf(cn("TerraformingMars"), cn("PromoCardsExpansion"))
 
-    Canon.resolve(promos).cardDefinitions.map { it.className }.contains(cn("DoubleDown")) shouldBe
-        false
-    Canon.resolve(promos + cn("PreludeExpansion")).cardDefinitions.map {
-      it.className
-    } shouldContain cn("DoubleDown")
+    Canon.resolve(promos, setupReader()).cardDefinitions.any {
+      it.className == cn("CardX40")
+    } shouldBe false
+    Canon.resolve(
+            promos + cn("PreludeExpansion"),
+            setupReader(cn("PreludeExpansion")),
+        )
+        .cardDefinitions
+        .map {
+          it.className
+        } shouldContain cn("CardX40")
+  }
+
+  @Test
+  fun promosReplaceThreeBaseGameCards() {
+    val originals = setOf(cn("Card039"), cn("Card136"), cn("Card165"))
+    val replacements =
+        setOf(
+            cn("CardX31"),
+            cn("CardX32"),
+            cn("CardX33"),
+        )
+    val relevantCards = originals + replacements
+
+    val withoutPromos =
+        Canon.resolve(
+                setOf(cn("TerraformingMars"), cn("TharsisMap")),
+                setupReader(cn("TharsisMapOption")),
+            )
+            .cardDefinitions
+            .mapTo(mutableSetOf()) {
+              it.className
+            }
+    val withPromos =
+        Canon.resolve(
+                setOf(
+                    cn("TerraformingMars"),
+                    cn("TharsisMap"),
+                    cn("PromoCardsExpansion"),
+                ),
+                setupReader(cn("TharsisMapOption"), cn("PromoCardPack")),
+            )
+            .cardDefinitions
+            .mapTo(mutableSetOf()) { it.className }
+
+    withoutPromos.intersect(relevantCards) shouldBe originals
+    withPromos.intersect(relevantCards) shouldBe replacements
   }
 
   @Test
@@ -81,14 +257,32 @@ internal class CanonBundlesTest {
   fun standardFormBundleWithoutPetsDoesNotSynthesizeAComponent() {
     val bundle =
         StandardFormBundle(
-            name = "TharsisMap",
-            areaShortNamePrefix = "M",
+            name = "MapProvider",
             resourceDirectory = "bundles/TharsisMap",
             resourceFilenames = setOf(StandardFormBundle.MAPS_FILENAME),
         )
 
-    (cn("TharsisMap") in bundle.allClassNames) shouldBe false
+    (cn("MapProvider") in bundle.allClassNames) shouldBe false
     bundle.marsMapDefinitions.single().className shouldBe cn("Tharsis")
+  }
+
+  @Test
+  fun standardFormBundleLoadsLanguageFiles() {
+    val bundle =
+        StandardFormBundle(
+            name = "LocalizedBundle",
+            resourceDirectory = "localized",
+            resourceFilenames = setOf("classes.pets", "language/en.json5"),
+            resourceReader = { filename ->
+              when (filename) {
+                "localized/classes.pets" -> "CLASS Example"
+                "localized/language/en.json5" -> """{ Example: "Example name" }"""
+                else -> error("Unexpected resource: $filename")
+              }
+            },
+        )
+
+    bundle.displayNamesByLanguage shouldBe mapOf("en" to mapOf(cn("Example") to "Example name"))
   }
 
   @Test
@@ -115,5 +309,23 @@ internal class CanonBundlesTest {
     TfmRuleset.compose(selected, unselected).resolve(setOf(cn("SelectedBundle"))).allClassNames
 
     unselectedReads shouldBe 0
+  }
+
+  private fun setupReader(vararg enabledOptions: ClassName): TypeInfo =
+      ExactOptionsState(enabledOptions.toSet())
+
+  private class ExactOptionsState(private val enabledOptions: Set<ClassName>) : TypeInfo {
+    override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
+
+    private fun count(metric: Metric): Int {
+      require(metric is Count && metric.expression.simple) { "unsupported test metric: $metric" }
+      return if (metric.expression.className in enabledOptions) 1 else 0
+    }
+
+    override fun isAbstract(e: Expression): Boolean = unused()
+
+    override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = unused()
+
+    private fun unused(): Nothing = error("not needed by setup-requirement tests")
   }
 }

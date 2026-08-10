@@ -1,22 +1,32 @@
 package dev.martianzoo.analysis
 
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.EventLog
-import dev.martianzoo.engine.Game
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.types.Type
 
-public class Summarizer constructor(val events: EventLog, val reader: GameReader) {
-  constructor(game: Game) : this(game.events, game.reader)
+public class Summarizer
+internal constructor(
+    internal val events: EventLog,
+    internal val reader: GameReader,
+    private val vocabulary: Vocabulary,
+) {
+  public constructor(game: World) : this(game.events, game.reader, game.vocabulary)
 
-  fun net(byType: String, ofType: String): Int = net(parse<Expression>(byType), parse(ofType))
+  public fun net(byType: String, ofType: String): Int =
+      net(
+          vocabulary.canonicalize(parse<Expression>(byType)),
+          vocabulary.canonicalize(parse(ofType)),
+      )
 
-  fun net(byType: Expression, ofType: Expression): Int =
+  private fun net(byType: Expression, ofType: Expression): Int =
       net(reader.resolve(byType), reader.resolve(ofType))
 
-  fun net(byType: Type, ofType: Type): Int {
+  private fun net(byType: Type, ofType: Type): Int {
     val changes: List<StateChange> =
         events
             .changesSinceSetup()
@@ -31,7 +41,9 @@ public class Summarizer constructor(val events: EventLog, val reader: GameReader
     return pluses - minuses
   }
 
-  fun allTypesEver(): List<Expression> {
+  private fun Type.narrows(supertype: Type): Boolean = narrows(supertype, reader)
+
+  internal fun allTypesEver(): List<Expression> {
     return events
         .changesSinceSetup()
         .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }

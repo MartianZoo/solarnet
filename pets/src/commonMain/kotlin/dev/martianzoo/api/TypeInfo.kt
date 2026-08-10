@@ -3,18 +3,23 @@ package dev.martianzoo.api
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
 
-interface TypeInfo {
-  fun isAbstract(e: Expression): Boolean
+/** The world-aware operations needed while resolving and narrowing Pets types. */
+public interface TypeInfo {
+  public fun isAbstract(e: Expression): Boolean
 
-  fun ensureNarrows(wide: Expression, narrow: Expression)
+  public fun ensureNarrows(wide: Expression, narrow: Expression)
 
-  fun has(requirement: Requirement): Boolean
+  public fun has(requirement: Requirement): Boolean
 
-  object StubTypeInfo : TypeInfo {
-    override fun isAbstract(e: Expression) = error("")
+  /** A context-free sentinel that fails if an operation needs a world. */
+  public object NoGameState : TypeInfo {
+    private fun missing(): Nothing =
+        error("This type operation requires a world; use a GameReader as its TypeInfo")
 
-    override fun ensureNarrows(wide: Expression, narrow: Expression) = error("")
+    override fun isAbstract(e: Expression): Boolean = missing()
 
-    override fun has(requirement: Requirement) = error("")
+    override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = missing()
+
+    override fun has(requirement: Requirement): Boolean = missing()
   }
 }

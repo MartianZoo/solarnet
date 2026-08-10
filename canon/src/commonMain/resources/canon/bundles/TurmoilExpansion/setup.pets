@@ -1,0 +1,2 @@
+"Card pack containing Turmoil project cards without the expansion's political rules"
+CLASS TurmoilCardPack : GameOption

@@ -14,7 +14,9 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.ast.withLinkedTypeSources
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -38,7 +40,8 @@ public abstract class PetTransformer protected constructor() {
         InSeriesTransformer(transformers.filterNotNull())
 
     /** Vararg form of [chain]. */
-    public fun chain(vararg transformers: PetTransformer?) = chain(transformers.toList())
+    public fun chain(vararg transformers: PetTransformer?): PetTransformer =
+        chain(transformers.toList())
 
     private open class InSeriesTransformer(val transformers: List<PetTransformer>) :
         PetTransformer() {
@@ -78,21 +81,21 @@ public abstract class PetTransformer protected constructor() {
             is ClassName -> this
             is Refinement -> Refinement(x(requirement), forgiving)
             is Expression -> Expression(x(className), x(arguments), x(refinement), complement)
-            is ScaledExpression -> ScaledExpression(x(scalar), x(expression))
+            is ScaledExpression -> scaledEx(x(expression), x(scalar))
             is Scalar -> this
             is Metric ->
                 when (this) {
                   is Metric.Count -> Metric.Count(x(expression))
-                  is Metric.Scaled -> Metric.Scaled(unit, x(inner))
+                  is Metric.Scaled -> Metric.scaled(x(inner), unit)
                   is Metric.Max -> Metric.Max(x(inner), maximum)
-                  is Metric.Plus -> Metric.Plus(x(metrics))
+                  is Metric.Or -> Metric.Or(x(metrics))
                   is Metric.Transform -> Metric.Transform(x(inner), transformKind)
                 }
             is Requirement ->
                 when (this) {
-                  is Requirement.Min -> Requirement.Min(x(scaledEx))
-                  is Requirement.Max -> Requirement.Max(x(scaledEx))
-                  is Requirement.Exact -> Requirement.Exact(x(scaledEx))
+                  is Requirement.Min -> Requirement.Min(target, x(metric))
+                  is Requirement.Max -> Requirement.Max(target, x(metric))
+                  is Requirement.Exact -> Requirement.Exact(target, x(metric))
                   is Requirement.Or -> Requirement.Or(x(requirements))
                   is Requirement.And -> Requirement.And(x(requirements))
                   is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
@@ -104,24 +107,21 @@ public abstract class PetTransformer protected constructor() {
                   is Instruction.Remove -> Instruction.Remove(x(scaledEx), intensity)
                   is Instruction.Transmute -> Instruction.Transmute(x(fromEx), x(scalar), intensity)
                   is Instruction.Per -> Instruction.Per(x(inner), x(metric))
-                  is Instruction.Gated -> Instruction.Gated(x(gate), x(inner), mandatory)
-                  is Instruction.Then -> Instruction.Then(x(instructions))
+                  is Instruction.By -> Instruction.By.create(x(inner), x(actor))
+                  is Instruction.Gated -> Instruction.Gated(x(gate), x(inner))
+                  is Instruction.Then ->
+                      withInstructions(x(instructions)).withLinkedTypeSources(x(linkedTypeSources))
                   is Instruction.Or -> Instruction.Or(x(instructions))
                   is Instruction.Multi -> Instruction.Multi(x(instructions))
                   is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
                 }
-            is FromExpression ->
-                when (this) {
-                  is FromExpression.SimpleFrom ->
-                      FromExpression.SimpleFrom(x(toExpression), x(fromExpression))
-                  is FromExpression.ComplexFrom ->
-                      FromExpression.ComplexFrom(x(className), x(arguments), x(refinement))
-                  is FromExpression.ExpressionAsFrom ->
-                      FromExpression.ExpressionAsFrom(x(expression))
-                }
-            is Effect -> Effect(x(trigger), x(instruction), automatic)
+            is FromExpression -> FromExpression(x(toExpression), x(fromExpression))
+            is Effect ->
+                copy(trigger = x(trigger), instruction = x(instruction))
+                    .withLinkedTypeSources(x(linkedTypeSources))
             is Trigger ->
                 when (this) {
+                  is Trigger.Or -> Trigger.Or(x(triggers))
                   is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(expression))
                   is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(expression))
                   is Trigger.ByTrigger -> Trigger.ByTrigger(x(inner), x(by))
@@ -135,6 +135,7 @@ public abstract class PetTransformer protected constructor() {
             is Cost ->
                 when (this) {
                   is Cost.Spend -> Cost.Spend(x(scaledEx))
+                  is Cost.Gated -> Cost.Gated(x(gate), x(cost))
                   is Cost.Per -> Cost.Per(x(cost), x(metric))
                   is Cost.Or -> Cost.Or(x(costs))
                   is Cost.Multi -> Cost.Multi(x(costs))

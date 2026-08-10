@@ -1,48 +1,23 @@
 {
   "cards": [
 
-    // Aridor (both its distinct-new-tag effect and setup colony tile still need support)
+    // Aridor (its distinct-new-tag effect needs refined class-metric triggers)
     {
       "id": "CC1",
       "deck": "CORPORATION",
-      "immediate": "40",
-      "effects": [ "DoMandate<This>: NewColonyTile" ]
+      "immediate": "40, MandateCC1",
+      "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1]" ],
+      "components": [
+        "CLASS MandateCC1 : Mandate { -> AddColonyTile<Class<ColonyTile>> }"
+      ],
     },
 
     // Stormcraft Incorporated
     {
       "id": "CC5",
       "deck": "CORPORATION",
-      "tags": [ "JovianTag" ]
+      "tags": [ "JovianTag" ],
     },
 
-    // Productive Outpost
-    {
-      "id": "C30",
-      "immediate": "PayOnlyMyColonyBonuses",
-      "deck": "PROJECT",
-      "cost": 0,
-      "projectKind": "AUTOMATED"
-    },
-
-    // Trade Envoys
-    {
-      "id": "C46",
-      "deck": "PROJECT",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // too late!
-      "cost": 6,
-      "projectKind": "ACTIVE"
-    },
-
-    // Trading Colony
-    {
-      "id": "C47",
-      "deck": "PROJECT",
-      "tags": [ "SpaceTag" ],
-      "immediate": "Colony",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // too late!
-      "cost": 18,
-      "projectKind": "ACTIVE"
-    }
   ],
 }

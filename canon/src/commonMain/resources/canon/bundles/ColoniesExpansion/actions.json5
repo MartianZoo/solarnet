@@ -3,7 +3,7 @@
 
     // Trade
     {
-      "id": "SAH",
+      "id": "TradeSA",
       "actions": [
         "9 -> Trade",
         "3 Energy -> Trade",
@@ -15,6 +15,6 @@
   "projects": [
 
     // Build Colony
-    { "id": "SP17", "action": "17 -> Colony" },
+    { "id": "BuildColonySP", "action": "17 -> Colony" },
   ],
 }

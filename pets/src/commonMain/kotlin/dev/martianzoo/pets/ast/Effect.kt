@@ -4,6 +4,7 @@ import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
@@ -11,50 +12,87 @@ import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
+import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
 /**
- * A triggered effect, like `CityTile: 2`. Any existing component in a game state can have some
- * number of these, which are all active until the component is removed.
+ * A triggered effect, like `CityTile: 2`. Any existing component in a world can have some number of
+ * these, which are all active until the component is removed.
  */
 public data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
     val automatic: Boolean = false,
 ) : PetElement() {
+  public val linkedTypeSources: Set<Expression>
+    get() = recordedLinkedTypeSources
 
-  override val kind = Effect::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = Effect::class
 
-  override fun visitChildren(visitor: Visitor) = visitor.visit(trigger, instruction)
+  override fun visitChildren(visitor: Visitor): Unit = visitor.visit(trigger, instruction)
 
-  override fun toString() =
+  override fun toString(): String =
       "$trigger:${":".iff(automatic)} " +
           if (instruction is Gated) "($instruction)" else "$instruction"
 
   /** The left-hand side of a triggered effect; the kind of event being subscribed to. */
-  sealed class Trigger : PetNode() {
-    override val kind = Trigger::class
+  public sealed class Trigger : PetNode() {
+    override val kind: kotlin.reflect.KClass<out PetNode> = Trigger::class
 
-    sealed class BasicTrigger : Trigger()
+    /**
+     * An unmodified gain-or-removal selector: either a self event or a subscription to a component
+     * type. Basic triggers are the operands accepted by scalar and transform wrappers. They do not
+     * themselves include `OR`, `IF`, or `BY`.
+     */
+    public sealed class BasicTrigger : Trigger()
 
-    object WhenGain : BasicTrigger() {
-      override fun visitChildren(visitor: Visitor) = Unit
+    /**
+     * A gain or removal of the concrete component carrying this effect, spelled `This` or `-This`.
+     * This is not a subscription to that component's type: changing N copies scales this effect's
+     * instruction by N once, regardless of how many other copies of the component already exist.
+     */
+    public sealed class SelfTrigger : BasicTrigger()
 
-      override fun toString() = "This"
+    /**
+     * A subscription to gains or removals matching an authored component expression. Each active
+     * copy of the effect-bearing component owns this subscription, so its multiplicity affects how
+     * many times a matching change triggers the effect.
+     */
+    public sealed class SubscribedTrigger : BasicTrigger()
+
+    public data class Or(val triggers: List<Trigger>) : Trigger() {
+      init {
+        require(triggers.size >= 2)
+        if (triggers.map { it.selfMode() }.distinct().size != 1) {
+          throw PetSyntaxException("OR trigger cannot mix This with subscribed triggers")
+        }
+      }
+
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(triggers)
+
+      override fun toString(): String = triggers.joinToString(" OR ") { groupPartIfNeeded(it) }
+
+      override fun precedence(): Int = 30
     }
 
-    object WhenRemove : BasicTrigger() {
-      override fun visitChildren(visitor: Visitor) = Unit
+    public object WhenGain : SelfTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = Unit
 
-      override fun toString() = "-This"
+      override fun toString(): String = "This"
+    }
+
+    public object WhenRemove : SelfTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = Unit
+
+      override fun toString(): String = "-This"
     }
 
     @ConsistentCopyVisibility
-    data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
-      companion object {
-        fun create(expression: Expression): BasicTrigger {
+    public data class OnGainOf private constructor(val expression: Expression) :
+        SubscribedTrigger() {
+      internal companion object {
+        internal fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
           }
@@ -70,15 +108,16 @@ public data class Effect(
         require(expression != THIS.expression)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
-      override fun toString() = "$expression"
+      override fun toString(): String = "$expression"
     }
 
     @ConsistentCopyVisibility
-    data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
-      companion object {
-        fun create(expression: Expression): BasicTrigger {
+    public data class OnRemoveOf private constructor(val expression: Expression) :
+        SubscribedTrigger() {
+      internal companion object {
+        internal fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
           }
@@ -94,40 +133,39 @@ public data class Effect(
         require(expression != THIS.expression)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
-      override fun toString() = "-$expression"
+      override fun toString(): String = "-$expression"
     }
 
-    sealed class WrappingTrigger : Trigger() {
-      abstract val inner: Trigger
+    public sealed class WrappingTrigger : Trigger() {
+      public abstract val inner: Trigger
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
     }
 
-    data class ByTrigger(override val inner: Trigger, val by: ClassName) : WrappingTrigger() {
-      init {
-        if (inner is ByTrigger) throw PetSyntaxException("by the by")
-      }
-
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
-
-      override fun toString() = "$inner BY $by"
-    }
-
-    data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
+    public data class ByTrigger(override val inner: Trigger, val by: Expression) :
         WrappingTrigger() {
-      init {
-        if (inner is ByTrigger) throw PetSyntaxException("if the by")
-        if (inner is IfTrigger) throw PetSyntaxException("if the if")
-      }
+      public constructor(inner: Trigger, by: ClassName) : this(inner, by.expression)
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, by)
 
-      override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
+      override fun toString(): String = "${groupPartIfNeeded(inner)} BY $by"
+
+      override fun precedence(): Int = 20
     }
 
-    data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
+    public data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
+        WrappingTrigger() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, condition)
+
+      override fun toString(): String =
+          "${groupPartIfNeeded(inner)} IF ${groupPartIfNeeded(condition)}"
+
+      override fun precedence(): Int = 10
+    }
+
+    public data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
       override fun toString(): String {
         return when (inner) {
           is OnGainOf,
@@ -138,9 +176,9 @@ public data class Effect(
       }
     }
 
-    data class Transform(override val inner: Trigger, override val transformKind: String) :
+    public data class Transform(override val inner: Trigger, override val transformKind: String) :
         WrappingTrigger(), TransformNode<Trigger> {
-      override fun toString() = "$transformKind[$inner]"
+      override fun toString(): String = "$transformKind[$inner]"
 
       init {
         if (inner !is OnGainOf && inner !is OnRemoveOf && inner !is XTrigger) {
@@ -148,8 +186,16 @@ public data class Effect(
         }
       }
 
-      override fun extract() = inner
+      override fun extract(): Trigger = inner
     }
+
+    private fun selfMode(): Boolean =
+        when (this) {
+          is SelfTrigger -> true
+          is SubscribedTrigger -> false
+          is Or -> triggers.first().selfMode()
+          is WrappingTrigger -> inner.selfMode()
+        }
 
     internal companion object : PetTokenizer() {
       fun parser(): Parser<Trigger> {
@@ -170,17 +216,23 @@ public data class Effect(
 
           val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
           val transform = transform(atom) map { (node, name) -> Transform(node, name) }
-          val ifClause: Parser<Requirement> = skip(_if) and Requirement.atomParser()
-          val byClause: Parser<ClassName> = skip(_by) and classFullName
+          val unmodified = transform or atom
+          val primary = unmodified or group(parser())
+          val alternatives =
+              separatedTerms(primary, _or) map { if (it.size == 1) it.first() else Or(it) }
+          val byClause: Parser<Expression> = skip(_by) and Expression.parser()
+          val byTrigger =
+              alternatives and
+                  optional(byClause) map
+                  { (inner, by) ->
+                    if (by == null) inner else ByTrigger(inner, by)
+                  }
+          val ifClause: Parser<Requirement> = skip(_if) and Requirement.parser()
 
-          (transform or atom) and
-              optional(ifClause) and
-              optional(byClause) map
-              { (inTrigger, `if`, by) ->
-                var trig = inTrigger
-                if (`if` != null) trig = IfTrigger(trig, `if`)
-                if (by != null) trig = ByTrigger(trig, by)
-                trig
+          byTrigger and
+              optional(ifClause) map
+              { (inner, condition) ->
+                if (condition == null) inner else IfTrigger(inner, condition)
               }
         }
       }
@@ -195,7 +247,13 @@ public data class Effect(
           colons and
           maybeGroup(Instruction.parser()) map
           { (trig, immed, instr) ->
-            Effect(trigger = trig, automatic = immed, instruction = instr)
+            val effect =
+                Effect(
+                    trigger = trig,
+                    automatic = immed,
+                    instruction = instr,
+                )
+            effect.withLinkedTypeSources(TypeLinking.sourcesAcrossRegions(effect))
           }
     }
   }

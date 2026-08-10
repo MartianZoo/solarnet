@@ -12,9 +12,6 @@ import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
-import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
-import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Metric
@@ -27,7 +24,6 @@ import dev.martianzoo.tfm.data.TfmClasses.PROD
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
-import kotlin.random.Random
 import kotlin.reflect.KClass
 
 internal class PetGenerator(scaling: (Int) -> Double) :
@@ -42,21 +38,26 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register(Expression::class) {
         Expression(recurse(), listOfSize(choose(specSizes)), refinement())
       }
-      register { scaledEx(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.of(), 3 to recurse())) }
+      register {
+        scaledEx(
+            choose(1 to MEGACREDIT.of(), 3 to recurse<Expression>()),
+            choose(0, 1, 1, 1, 5, 11),
+        )
+      }
 
       val metricTypes =
           multiset(
               7 to Metric.Count::class,
               5 to Metric.Scaled::class,
               3 to Metric.Max::class,
-              2 to Metric.Plus::class,
+              2 to Metric.Or::class,
               3 to Metric.Transform::class,
           )
       register(Metric::class) { recurse(choose(metricTypes)) }
       register { Metric.Count(recurse()) }
-      register { Metric.Scaled(choose(2, 2, 3), recurse()) }
+      register { Metric.Scaled(recurse(), choose(2, 2, 3)) }
       register { Metric.Max(inner = recurse(), maximum = choose(5, 11)) }
-      register { Metric.Plus(listOfSize(choose(2, 2, 2, 3, 4))) }
+      register { Metric.Or(listOfSize(choose(2, 2, 2, 3, 4))) }
       register { Metric.Transform(recurse(), PROD) }
 
       val requirementTypes =
@@ -84,6 +85,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               9 to Instruction.Gain::class,
               4 to Instruction.Remove::class,
               3 to Instruction.Per::class,
+              1 to Instruction.By::class,
               2 to Instruction.Gated::class,
               2 to Instruction.Transmute::class,
               1 to Instruction.Then::class,
@@ -96,7 +98,8 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Gain(recurse(), intensity()) }
       register { Instruction.Remove(recurse(), intensity()) }
       register { Instruction.Per(recurse(), recurse()) }
-      register { Instruction.Gated(recurse(), recurse(), choose(true, true, true, false)) }
+      register { Instruction.By(recurse(), recurse()) }
+      register { Instruction.Gated(recurse(), recurse()) }
       register { Instruction.Transmute(recurse(), recurse<ScaledExpression>().scalar, intensity()) }
       register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(listOfSize(choose(2, 2, 2, 2, 3))) }
@@ -104,43 +107,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Transform(recurse(), PROD) }
 
       register(FromExpression::class) {
-        val one: Expression = recurse()
-        val two: Expression = recurse()
-
-        fun getTypes(expression: Expression): List<Expression> =
-            expression.arguments.flatMap(::getTypes) + expression
-
-        val oneTypes = getTypes(one)
-        val twoTypes = getTypes(two)
-
-        val inject: Expression
-        val into: Expression
-        val target: Expression
-
-        if (oneTypes.size <= twoTypes.size) {
-          inject = one
-          into = two
-          target = twoTypes.random()
-        } else {
-          inject = two
-          into = one
-          target = oneTypes.random()
-        }
-
-        val b = Random.Default.nextBoolean()
-
-        fun convert(expression: Expression): FromExpression {
-          if (expression == target) {
-            return SimpleFrom(if (b) inject else target, if (b) target else inject)
-          }
-          val args = expression.arguments.map(::convert)
-          return if (args.all { it is ExpressionAsFrom }) {
-            ExpressionAsFrom(expression)
-          } else {
-            ComplexFrom(expression.className, args, expression.refinement?.requirement)
-          }
-        }
-        convert(into)
+        FromExpression(recurse(), recurse())
       }
 
       val basicTriggerTypes =
@@ -155,6 +122,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               9 to Trigger.BasicTrigger::class,
               3 to Trigger.ByTrigger::class,
               2 to Trigger.IfTrigger::class,
+              1 to Trigger.Or::class,
               2 to Trigger.XTrigger::class,
               1 to Trigger.Transform::class,
           )
@@ -166,6 +134,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Trigger.OnRemoveOf.create(recurse()) as Trigger.OnRemoveOf }
       register { Trigger.ByTrigger(recurse(), choose(1 to OWNER, 1 to PLAYER2.className)) }
       register { Trigger.IfTrigger(recurse(), recurse()) }
+      register { Trigger.Or(List(choose(2, 2, 3)) { recurse<Trigger>() }) }
       register { Trigger.XTrigger(recurse()) }
       register { Trigger.Transform(recurse(), PROD) }
 

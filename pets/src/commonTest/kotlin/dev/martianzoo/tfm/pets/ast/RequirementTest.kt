@@ -14,7 +14,7 @@ import kotlin.test.Test
 // Most testing is done by AutomatedTest
 internal class RequirementTest {
 
-  val inputs =
+  private val inputs =
       """
       5
       11
@@ -83,25 +83,25 @@ internal class RequirementTest {
     testSampleStrings<Requirement>(inputs)
   }
 
-  val fooEx = cn("Foo").expression
+  private val fooEx = cn("Foo").expression
 
   @Test
   fun simpleSourceToApi() {
-    parse<Requirement>("Foo") shouldBe Min(scaledEx(1, fooEx))
-    parse<Requirement>("3 Foo") shouldBe Min(scaledEx(3, fooEx))
-    parse<Requirement>("MAX 3 Foo") shouldBe Max(scaledEx(3, fooEx))
+    parse<Requirement>("Foo") shouldBe Min(scaledEx(fooEx, 1))
+    parse<Requirement>("3 Foo") shouldBe Min(scaledEx(fooEx, 3))
+    parse<Requirement>("MAX 3 Foo") shouldBe Max(scaledEx(fooEx, 3))
   }
 
   @Test
   fun simpleApiToSource() {
-    Min(scaledEx(1, fooEx)).toString() shouldBe "Foo"
-    Min(scaledEx(3, fooEx)).toString() shouldBe "3 Foo"
-    Min(scaledEx(value = 3)).toString() shouldBe "3"
-    Min(scaledEx(value = 3, cn("Megacredit").expression)).toString() shouldBe "3"
-    Max(scaledEx(0, fooEx)).toString() shouldBe "MAX 0 Foo"
-    Max(scaledEx(1, fooEx)).toString() shouldBe "MAX 1 Foo"
-    Max(scaledEx(3, fooEx)).toString() shouldBe "MAX 3 Foo"
-    Max(scaledEx(value = 3)).toString() shouldBe "MAX 3 Megacredit"
+    Min(scaledEx(fooEx, 1)).toString() shouldBe "Foo"
+    Min(scaledEx(fooEx, 3)).toString() shouldBe "3 Foo"
+    Min(scaledEx(count = 3)).toString() shouldBe "3"
+    Min(scaledEx(cn("Megacredit").expression, count = 3)).toString() shouldBe "3"
+    Max(scaledEx(fooEx, 0)).toString() shouldBe "MAX 0 Foo"
+    Max(scaledEx(fooEx, 1)).toString() shouldBe "MAX 1 Foo"
+    Max(scaledEx(fooEx, 3)).toString() shouldBe "MAX 3 Foo"
+    Max(scaledEx(count = 3)).toString() shouldBe "MAX 3 Megacredit"
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -118,6 +118,10 @@ internal class RequirementTest {
     testRoundTrip("MAX 0 Plant")
     testRoundTrip("MAX 1 Plant")
     testRoundTrip("MAX 3 Plant")
+    testRoundTrip("15 (ActiveCard OR AutomatedCard)")
+    testRoundTrip("MAX 4 (OwnedTile OR CityTile)")
+    testRoundTrip("6 PROD[Steel OR Titanium]")
+    testRoundTrip("=6 (PROD[Steel OR Titanium])", "=6 PROD[Steel OR Titanium]")
     testRoundTrip("CityTile<LandArea>, GreeneryTile<WaterArea>")
     testRoundTrip("PlantTag, MicrobeTag OR AnimalTag")
     testRoundTrip("(PlantTag, MicrobeTag) OR AnimalTag")

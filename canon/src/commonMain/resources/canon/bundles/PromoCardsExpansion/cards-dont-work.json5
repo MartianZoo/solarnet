@@ -1,0 +1,31 @@
+{
+  "cards": [
+
+    // Self-Replicating Robots
+    {
+      "id": "210",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "2 ScienceTag",
+      "cost": 7,
+      "actions": [
+        "-> StageReplicatedProject<This, Class<CardFront>(HAS BuildingTag)> OR StageReplicatedProject<This, Class<CardFront>(HAS SpaceTag)>",
+        "-> ReplicateStagedProject<This, Class<CardFront>>"
+      ],
+    },
+
+    // Supercapacitors
+    {
+      "id": "X46",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "PowerTag", "BuildingTag"],
+      "immediate": "PROD[1], -Entropy",
+      "effects": [
+        "ProductionPhase: X Heat FROM Energy?"
+      ],
+    },
+
+  ],
+}

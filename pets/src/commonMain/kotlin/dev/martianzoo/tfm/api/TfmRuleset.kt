@@ -5,12 +5,15 @@ import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.systemClassDeclarations
+import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition
@@ -24,17 +27,39 @@ import dev.martianzoo.util.associateByStrict
  */
 public abstract class TfmRuleset : Ruleset {
 
+  final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
+    (cardDefinitions + milestoneDefinitions + awardDefinitions + colonyTileDefinitions).mapTo(
+        linkedSetOf()
+    ) {
+      it.className
+    }
+  }
+
   /** Bundle contributions contained anywhere in this ruleset composition. */
   public open val bundles: List<Bundle> = emptyList()
 
-  /** Returns a ruleset containing only the selected bundles and non-bundle contributions. */
+  /**
+   * Returns a ruleset containing the selected bundles without evaluating setup requirements.
+   * Intended for authority/catalog inspection; playable games should supply a setup world.
+   */
   public fun resolve(selectedBundles: Set<ClassName>): TfmRuleset {
+    return resolveInternal(selectedBundles, null)
+  }
+
+  /** Returns selected bundle content whose setup requirements hold in [setupState]. */
+  public fun resolve(selectedBundles: Set<ClassName>, setupState: TypeInfo): TfmRuleset =
+      resolveInternal(selectedBundles, setupState::has)
+
+  private fun resolveInternal(
+      selectedBundles: Set<ClassName>,
+      setupRequirementMet: ((Requirement) -> Boolean)?,
+  ): TfmRuleset {
     val available = bundles.map { it.bundleName }.toSet()
     require(available.containsAll(selectedBundles)) {
       "unknown bundles: ${selectedBundles - available}; available bundles: $available"
     }
     val selected = selectedContribution(selectedBundles) ?: Empty()
-    return Resolved(selected, this)
+    return Resolved(selected, this, setupRequirementMet)
   }
 
   private fun selectedContribution(selectedBundles: Set<ClassName>): TfmRuleset? =
@@ -50,8 +75,16 @@ public abstract class TfmRuleset : Ruleset {
   private class Resolved(
       private val selected: TfmRuleset,
       private val allKnown: TfmRuleset,
+      private val setupRequirementMet: ((Requirement) -> Boolean)?,
   ) : Composite(selected) {
-    private val presentBundles = bundles.map { it.bundleName }.toSet()
+    override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
+      super.displayNamesByLanguage.mapValues { (_, names) ->
+        names.filterKeys { it in allClassNames }
+      }
+    }
+
+    override val knownClassDeclarations: Map<ClassName, ClassDeclaration>
+      get() = allKnown.knownClassDeclarations
 
     override val cardDefinitions: Set<CardDefinition> by lazy {
       applicable(
@@ -59,7 +92,6 @@ public abstract class TfmRuleset : Ruleset {
           allKnown = allKnown.cardDefinitions,
           id = CardDefinition::id,
           replaces = CardDefinition::replaces,
-          requiredBundles = CardDefinition::requiredBundles,
       )
     }
 
@@ -69,8 +101,19 @@ public abstract class TfmRuleset : Ruleset {
           allKnown = allKnown.milestoneDefinitions,
           id = MilestoneDefinition::id,
           replaces = MilestoneDefinition::replaces,
-          requiredBundles = MilestoneDefinition::requiredBundleNames,
       )
+    }
+
+    override val awardDefinitions: Set<AwardDefinition> by lazy {
+      super.awardDefinitions.filterTo(linkedSetOf(), ::setupRequirementHolds)
+    }
+
+    override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
+      super.standardActionDefinitions.filterTo(linkedSetOf(), ::setupRequirementHolds)
+    }
+
+    override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
+      super.marsMapDefinitions.filterTo(linkedSetOf(), ::setupRequirementHolds)
     }
 
     override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
@@ -93,12 +136,11 @@ public abstract class TfmRuleset : Ruleset {
       allClassNames.associateWith { contributions[it].orEmpty() }
     }
 
-    private fun <D> applicable(
+    private fun <D : Definition> applicable(
         selected: Set<D>,
         allKnown: Set<D>,
         id: (D) -> String,
         replaces: (D) -> String?,
-        requiredBundles: (D) -> Set<ClassName>,
     ): Set<D> {
       val knownById = allKnown.associateByStrict(id)
       allKnown.forEach { definition ->
@@ -108,7 +150,7 @@ public abstract class TfmRuleset : Ruleset {
       }
       checkReplacementCycles(knownById, id, replaces)
 
-      val applicable = selected.filter { presentBundles.containsAll(requiredBundles(it)) }
+      val applicable = selected.filter(::setupRequirementHolds)
       applicable
           .mapNotNull { replacement -> replaces(replacement)?.let { it to replacement } }
           .groupBy({ it.first }, { it.second })
@@ -127,6 +169,16 @@ public abstract class TfmRuleset : Ruleset {
       }
       return applicable.filterTo(linkedSetOf()) { id(it) !in removedIds }
     }
+
+    /**
+     * The one place a [Definition.setupRequirement] is consulted. A definition with no requirement
+     * is always applicable, as is any definition when no setup world was supplied.
+     */
+    private fun setupRequirementHolds(definition: Definition): Boolean =
+        definition.setupRequirement?.let(::requirementHolds) != false
+
+    private fun requirementHolds(requirement: Requirement): Boolean =
+        setupRequirementMet?.invoke(requirement) ?: true
 
     private fun <D> checkReplacementCycles(
         knownById: Map<String, D>,
@@ -192,6 +244,7 @@ public abstract class TfmRuleset : Ruleset {
   override val allDefinitions: Set<Definition> by lazy {
     setOf<Definition>() +
         cardDefinitions +
+        awardDefinitions +
         milestoneDefinitions +
         colonyTileDefinitions +
         standardActionDefinitions +
@@ -226,6 +279,12 @@ public abstract class TfmRuleset : Ruleset {
 
   public abstract val milestoneDefinitions: Set<MilestoneDefinition>
 
+  public fun award(name: ClassName): AwardDefinition = awardDefinitions.first {
+    it.className == name
+  }
+
+  public abstract val awardDefinitions: Set<AwardDefinition>
+
   public fun colonyTile(name: ClassName): ColonyTileDefinition = colonyTileDefinitions.first {
     it.className == name
   }
@@ -246,13 +305,14 @@ public abstract class TfmRuleset : Ruleset {
 
   /** A ruleset providing no game-specific content; intended for tests. */
   public open class Empty : TfmRuleset() {
-    override val explicitClassDeclarations = emptySet<ClassDeclaration>()
-    override val cardDefinitions = emptySet<CardDefinition>()
-    override val marsMapDefinitions = emptySet<MarsMapDefinition>()
-    override val milestoneDefinitions = emptySet<MilestoneDefinition>()
-    override val colonyTileDefinitions = emptySet<ColonyTileDefinition>()
-    override val standardActionDefinitions = emptySet<StandardActionDefinition>()
-    override val customClasses = emptySet<CustomClass>()
+    override val explicitClassDeclarations: Set<ClassDeclaration> = emptySet()
+    override val cardDefinitions: Set<CardDefinition> = emptySet()
+    override val marsMapDefinitions: Set<MarsMapDefinition> = emptySet()
+    override val milestoneDefinitions: Set<MilestoneDefinition> = emptySet()
+    override val awardDefinitions: Set<AwardDefinition> = emptySet()
+    override val colonyTileDefinitions: Set<ColonyTileDefinition> = emptySet()
+    override val standardActionDefinitions: Set<StandardActionDefinition> = emptySet()
+    override val customClasses: Set<CustomClass> = emptySet()
   }
 
   public companion object {
@@ -265,6 +325,31 @@ public abstract class TfmRuleset : Ruleset {
     public val rulesets: List<TfmRuleset> = rulesets.toList()
 
     final override val bundles: List<Bundle> = rulesets.flatMap { it.bundles }
+
+    override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
+      val combined = mutableMapOf<String, MutableMap<ClassName, String>>()
+      rulesets.forEach { ruleset ->
+        ruleset.displayNamesByLanguage.forEach { (language, names) ->
+          val languageNames = combined.getOrPut(language, ::linkedMapOf)
+          names.forEach { (className, displayName) ->
+            val previous = languageNames.put(className, displayName)
+            require(previous == null || previous == displayName) {
+              "Conflicting $language display names for $className: $previous and $displayName"
+            }
+          }
+        }
+      }
+      combined
+    }
+
+    override val knownClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
+      val declarations = rulesets.flatMap { it.knownClassDeclarations.values }.toSet()
+      try {
+        declarations.associateByStrict { it.className }
+      } catch (e: IllegalArgumentException) {
+        throw PetException("Multiple known class declarations must be identical: ${e.message}")
+      }
+    }
 
     override val classDeclarationBundles: Map<ClassName, Set<ClassName>> by lazy {
       rulesets
@@ -287,6 +372,10 @@ public abstract class TfmRuleset : Ruleset {
 
     override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
       rulesets.flatMap { it.milestoneDefinitions }.toSet()
+    }
+
+    override val awardDefinitions: Set<AwardDefinition> by lazy {
+      rulesets.flatMap { it.awardDefinitions }.toSet()
     }
 
     override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {

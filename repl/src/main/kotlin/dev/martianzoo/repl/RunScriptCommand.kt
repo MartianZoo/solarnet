@@ -12,8 +12,7 @@ internal class RunScriptCommand(private val session: ScriptSession) : ScriptComm
       """
         Reads from the given filename (expressed relative to the solarnet/ directory) and executes
         every command in it, as if you had typed it directly at the prompt, until reaching the
-        line "stop" or the end of file. You probably don't want to put "exit" in that file.
-        TODO: detect and reject "exit" within script files (it shuts down the server in server mode)
+        line "stop" or the end of file. Script files may not contain an `exit` command.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
@@ -21,10 +20,15 @@ internal class RunScriptCommand(private val session: ScriptSession) : ScriptComm
 
   override fun completionPrefix(parsedWord: String): String = parsedWord
 
-  override fun withArgs(args: String) =
-      File(args)
-          .readLines()
-          .takeWhile { it.trim() != "stop" }
-          .filter { it.isNotEmpty() }
-          .flatMap { listOf(">>> $it") + session.command(it) + "" }
+  override fun withArgs(args: String): List<String> {
+    val file = File(args)
+    val lines = file.readLines().takeWhile { it.trim() != "stop" }
+    lines.forEachIndexed { index, line ->
+      val command = line.substringBefore("//").trim()
+      if (command.equals("exit", ignoreCase = true)) {
+        return listOf("${file.path}:${index + 1}: `exit` is not allowed in script files")
+      }
+    }
+    return lines.filter { it.isNotEmpty() }.flatMap { listOf(">>> $it") + session.command(it) + "" }
+  }
 }

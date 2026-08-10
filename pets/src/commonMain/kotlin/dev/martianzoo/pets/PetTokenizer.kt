@@ -27,7 +27,6 @@ internal abstract class PetTokenizer {
 
   internal val _arrow = literal("->", "arrow")
   internal val _doubleColon = literal("::", "doubleColon")
-  internal val _questionColon = literal("?:", "questionColon")
 
   // I simply don't want to name all of these and would rather look them up by the char itself
   private val characters = "!@^+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
@@ -47,8 +46,8 @@ internal abstract class PetTokenizer {
   internal val _default = literal("DEFAULT")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
-  internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
-  internal val _allCapsWordRE = regex(Regex("""([A-Z][A-Z0-9]{0,4})\b"""), "ALLCAPS")
+  internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z_][A-Za-z0-9_]*\b"""), "UpperCamel")
+  internal val _allCapsWordRE = regex(Regex("""([A-Z][A-Z0-9]{0,5})\b"""), "ALLCAPS")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
 
   internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
@@ -59,7 +58,7 @@ internal abstract class PetTokenizer {
       )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
-      optional(parser) map { it ?: listOf() }
+      optional(parser) map { it.orEmpty() }
 
   internal fun isPresent(parser: Parser<*>) = optional(parser) map { it != null }
 
@@ -86,8 +85,9 @@ internal abstract class PetTokenizer {
   internal object TokenCache {
     private val ignoreList =
         listOf<Token>(
-            regexToken("backslash-newline", "\\\\\n", true), // ignore these
-            regexToken("spaces", " +", true),
+            regexToken("backslash-newline", "\\\\\r?\n", true), // ignore these
+            regexToken("horizontal-whitespace", "[ \\t\\r]+", true),
+            regexToken("line-comment", "//[^\\r\\n]*", true),
         )
 
     private val map = mutableMapOf<Pair<String, Boolean>, Token>()

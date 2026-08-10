@@ -1,19 +1,21 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
 class StartTokenTest {
   @Test
   fun startsWithPlayer1AndPassesLeftEachGeneration() {
-    val engine = setUpGame("BRM", 3).tfm(ENGINE)
+    val engine = setUpGame(players = 3).tfm(ENGINE)
 
     engine.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
 
@@ -30,42 +32,41 @@ class StartTokenTest {
 
   @Test
   fun staysWithPlayer1InAnActualOnePlayerSetup() {
-    val game = setUpGame("BRMS", 1)
+    val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.godMode().manual("Generation")
 
     engine.assertCounts(1 to "StartToken<Player1>")
   }
 
   @Test
-  fun passLeftMovesAllOccurrencesAndPreservesAnotherDependency() {
-    val engine = setUpGame("BRMC", 3, TestHelpers.testColonyTiles(3, "Luna")).tfm(ENGINE)
+  fun `solo setup links each greenery to its own city`() {
+    val engine = setUpGame(players = 1).tfm(ENGINE)
 
-    engine.godMode().sneak("2 Colony<Luna, Player1>")
-    engine.godMode().manual("PassLeft<Colony<Luna, Player1>>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_5_8, SoloOpponent>")
 
-    engine.assertCounts(
-        0 to "Colony<Luna, Player1>",
-        2 to "Colony<Luna, Player2>",
-        0 to "Colony<Player1>",
-        2 to "Colony<Player2>",
-    )
+    // This area neighbors the first city, but not the selected second city.
+    shouldThrow<NarrowingException> {
+      engine.doTask("GreeneryTile<Tharsis_3_1, SoloOpponent>")
+    }
   }
 
   @Test
   fun autoWorkflowReadsTheTokenOwner() {
-    val setup = Canon.fromOptionCodes("BRHX", 2)
+    val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    val workflow = TfmWorkflow.Auto(game, setup).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
 
     p1.playCorp("InterplanetaryCinematics", 7)
     engine.godMode().sneak("StartToken<Player2> FROM StartToken<Player1>")

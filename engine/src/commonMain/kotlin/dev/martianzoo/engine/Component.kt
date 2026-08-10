@@ -5,121 +5,65 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
-import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.types.Class
 import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.MClass
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 
-/** An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. */
-public class Component internal constructor(private val mtype: MType) : HasExpression by mtype {
+/** An *instance* of some concrete [Type]; a [ComponentGraph] is a multiset of these. */
+public class Component internal constructor(public val type: Type) : HasExpression by type {
   init {
-    if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
+    if (type.abstract) throw Exceptions.abstractComponent(type)
+    if (type.phantom) throw ExpressionException("inactive type has no components: $type")
   }
 
-  internal val type by ::mtype
-
-  internal val isCustom: Boolean = mtype.root.custom != null
+  internal val isCustom: Boolean = type.rootClass.declaration.custom
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
    * [ComponentGraph] unless *all* of the returned components do. Note that a class type like
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
-   * to [MClass.dependencies].
+   * to [Class.dependencies].
    */
   public val dependencyComponents: List<Component> =
-      mtype.typeDependencies.map { it.boundType.toComponent() }
+      type.typeDependencies.map { it.boundType.toComponent() }
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type? =
-      if (hasType(mtype.loader.resolve(OWNER.expression))) {
-        mtype
+      if (type.classTable.isActive(OWNER) && hasType(type.classTable.resolve(OWNER.expression))) {
+        type
       } else {
-        mtype.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
+        type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
       }
 
   /** This component's owner when that owner is a seated Player. */
   internal val playerOwner: Player? =
       owner?.className?.let { if (Player.isValid(it)) Player(it) else null }
 
-  internal val effects: List<Effect> by lazy {
-    val transformers = Transformers(mtype.loader)
-    val ownerBinding = owner?.let(::replaceOwnerWith)
-    val thisBinding = replaceThisExpressionsWith(expression)
+  /** Context-free check; throws if [supertype] has a state-dependent refinement. */
+  public fun hasType(supertype: Type): Boolean = type.isSubtypeOf(supertype)
 
-    if (owner == null || playerOwner != null) {
-      val checkedBinding =
-          transformers.checkedSubstituter(
-              mtype.root.defaultType,
-              mtype,
-              ownerBinding,
-              thisBinding,
-          )
-      mtype.root.classEffects.map { effect ->
-        val bound = checkedBinding.transform(effect)
-        try {
-          mtype.loader.checkAllTypes(bound)
-          bound
-        } catch (e: ExpressionException) {
-          throw ExpressionException(
-              "invalid component effect for ${mtype.expressionFull}: $bound",
-              e,
-          )
-        }
-      }
-    } else {
-      val uncheckedBinding =
-          chain(transformers.substituter(mtype.root.defaultType, mtype), ownerBinding, thisBinding)
-      mtype.root.classEffects.mapNotNull { effect ->
-        val bound = uncheckedBinding.transform(effect)
-        try {
-          mtype.loader.checkAllTypes(bound)
-          bound
-        } catch (e: ExpressionException) {
-          // An Owner-only component can inherit an effect whose output is Player-bound. The source
-          // effect is valid, but it does not apply to that Owner; for example, Opponent's starting
-          // tiles do not score VictoryPoint<Player> components.
-          val sourceEffect =
-              replaceThisExpressionsWith(mtype.root.className.expression).transform(effect)
-          mtype.loader.checkAllTypes(sourceEffect)
-          null
-        }
-      }
-    }
-  }
+  /** State-aware check for types that may have refinements. */
+  public fun hasType(supertype: Type, info: TypeInfo): Boolean = type.narrows(supertype, info)
 
-  public fun hasType(supertype: Type, info: TypeInfo? = null) =
-      info?.let { mtype.narrows(supertype, it) } ?: mtype.narrows(supertype)
+  override fun equals(other: Any?): Boolean = other is Component && other.type == type
 
-  private val customOutputTransformer =
-      with(Transformers(mtype.loader)) {
-        chain(atomizer(), insertDefaults(), owner?.let(::replaceOwnerWith))
-      }
+  override fun hashCode(): Int = type.hashCode()
 
-  public fun prepareCustom(reader: GameReader): Instruction {
-    val implementation = requireNotNull(mtype.root.custom)
-    val translated = implementation.prepare(reader, mtype)
-    return customOutputTransformer.transform(translated)
-  }
-
-  override fun equals(other: Any?) = other is Component && other.mtype == mtype
-
-  override fun hashCode() = mtype.hashCode()
-
-  override fun toString() = "$mtype"
+  override fun toString(): String = "$type"
 
   public companion object {
-    public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)
+    public fun Expression.toComponent(game: GameReader): Component = Component(game.resolve(this))
 
-    public fun HasExpression.toComponent(game: GameReader) =
+    public fun HasExpression.toComponent(game: GameReader): Component =
         this as? Component ?: expression.toComponent(game)
   }
+}
+
+public fun Type.toComponent(): Component {
+  if (abstract) throw Exceptions.abstractComponent(this)
+  return Component(this)
 }

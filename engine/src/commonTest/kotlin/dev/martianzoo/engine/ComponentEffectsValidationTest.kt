@@ -1,11 +1,12 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.types.MType
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.types.loader
 import dev.martianzoo.types.te
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
 import kotlin.test.Test
 
 class ComponentEffectsValidationTest {
@@ -21,25 +22,48 @@ class ComponentEffectsValidationTest {
           CLASS BrokenHolder<Target> { Wrapper<Target>: Good }
           """
       )
+  private val transformers = Transformers(table)
 
   @Test
   fun `valid specialized component effect is retained`() {
-    val component = Component(table.resolve(te("Holder<Good>")) as MType)
+    val component = Component(table.resolve(te("Holder<Good>")))
 
-    component.effects.map(Any::toString).shouldContainExactly("This: Good! OR Wrapper<Good>!")
+    LiveEffect.compile(component, transformers)
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Good! OR Wrapper<Good>!")
   }
 
   @Test
   fun `invalid atomic branch after component specialization becomes Die`() {
-    val component = Component(table.resolve(te("Holder<Bad>")) as MType)
+    val component = Component(table.resolve(te("Holder<Bad>")))
 
-    component.effects.map(Any::toString).shouldContainExactly("This: Good! OR Die!")
+    LiveEffect.compile(component, transformers)
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("This: Good! OR Die!")
   }
 
   @Test
   fun `invalid specialized component trigger fails validation`() {
-    val component = Component(table.resolve(te("BrokenHolder<Bad>")) as MType)
+    val component = Component(table.resolve(te("BrokenHolder<Bad>")))
 
-    shouldThrow<ExpressionException> { component.effects }
+    shouldThrow<ExpressionException> { LiveEffect.compile(component, transformers) }
+  }
+
+  @Test
+  fun `class effects reject a class from another class table`() {
+    val otherUniverse = loader("CLASS Holder")
+
+    shouldThrow<IllegalArgumentException> {
+      transformers.classEffects(otherUniverse.getClass(cn("Holder")))
+    }
+  }
+
+  @Test
+  fun `components do not require an Owner class in their type universe`() {
+    val ownerlessTable = loader("CLASS Token")
+
+    Component(ownerlessTable.resolve(te("Token"))).owner.shouldBeNull()
   }
 }

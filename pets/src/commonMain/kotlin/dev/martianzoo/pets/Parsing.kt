@@ -1,16 +1,9 @@
 package dev.martianzoo.pets
 
 import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
-import com.github.h0tk3y.betterParse.parser.AlternativesFailure
-import com.github.h0tk3y.betterParse.parser.ErrorResult
-import com.github.h0tk3y.betterParse.parser.MismatchedToken
 import com.github.h0tk3y.betterParse.parser.ParseException
-import com.github.h0tk3y.betterParse.parser.ParseResult
-import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.api.Exceptions.PetSyntaxException
@@ -39,13 +32,12 @@ public object Parsing {
    * examples can be reviewed in `global.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
-    val stripped = lineCommentRegex.replace(declarationsSource, "\n")
-    val topLevelGroup = Declarations.topLevelGroup
-    val tokens = TokenCache.tokenize(stripped)
-    return parseRepeated(topLevelGroup, tokens).flatten()
+    return parse(
+        Declarations.declarationFile,
+        declarationsSource,
+        expectedTypeDesc = "Pets class declarations",
+    )
   }
-
-  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
 
   /**
    * Parses a *single-line* class declaration. If it has a body with multiple elements, they are
@@ -68,13 +60,11 @@ public object Parsing {
     val matches: TokenMatchesSequence = TokenCache.tokenize(elementSource)
     require(expectedType != PetNode::class) { "missing type info" }
 
-    // TODO: merge this with myThrow somehow
     val pet = group.parse(expectedType, elementSource, matches)
     check(expectedType.isInstance(pet)) {
       "Expected ${expectedType.simpleName}, got ${pet.kind.simpleName}"
     }
-    @Suppress("UNCHECKED_CAST")
-    return pet as P
+    return pet
   }
 
   internal fun <T> parse(
@@ -101,6 +91,8 @@ public object Parsing {
               .trimIndent(),
           e,
       )
+    } catch (e: RuntimeException) {
+      throw PetSyntaxException("Invalid Pets syntax: $source", e)
     }
   }
 
@@ -123,35 +115,6 @@ public object Parsing {
         .expectedTokens
   }
 
-  private fun <T> parseRepeated(listParser: Parser<T>, tokens: TokenMatchesSequence): List<T> {
-    fun isEOF(result: ParseResult<*>?): Boolean =
-        if (result is AlternativesFailure) {
-          result.errors.any(::isEOF)
-        } else {
-          result is UnexpectedEof
-        }
-
-    var index = 0
-    val parsed = mutableListOf<T>()
-    while (true) {
-      when (val result = listParser.tryParse(tokens, index)) {
-        is Parsed -> {
-          parsed += result.value
-          require(result.nextPosition != index) { index }
-          index = result.nextPosition
-        }
-        is ErrorResult -> {
-          when {
-            result is UnexpectedEof -> break
-            result is AlternativesFailure && result.errors.any(::isEOF) -> break
-            else -> myThrow(result)
-          }
-        }
-      }
-    }
-    return parsed
-  }
-
   private val parserGroup by lazy {
     val pgb = ParserGroup.Builder<PetNode>()
     pgb.publish(Action.parser())
@@ -166,45 +129,5 @@ public object Parsing {
     pgb.publish(Trigger.parser())
 
     pgb.finish()
-  }
-
-  // TODO consolidate with other version of this
-  @Suppress("TooGenericExceptionThrown")
-  private fun myThrow(result: ErrorResult) {
-    val message = StringBuilder()
-    val locations = mutableMapOf<Pair<Int, Int>, Int>()
-    val inputs = mutableListOf<String>()
-    fun visit(result: ErrorResult) {
-      when (result) {
-        is AlternativesFailure -> result.errors.forEach(::visit)
-        is MismatchedToken -> {
-          val match: TokenMatch = result.found
-          val loc = match.row to match.column
-          val thisLoc = locations.getOrPut(loc) { locations.size }
-          inputs.add(match.input.toString())
-          val found = match.text.replace("\n", "\\n")
-          val expected = result.expected.name?.replace("\n", "\\n")
-          message.append(
-              "$thisLoc: at ${match.row}:${match.column}," +
-                  " looking for $expected, but found $found\n"
-          )
-        }
-        else -> message.append(result.toString())
-      }
-    }
-
-    visit(result)
-
-    message.append("\nNow, here is the input:\n")
-    inputs.last().split("\n").forEachIndexed { lineNum, line ->
-      message.append("$line\n")
-      (1..100).forEach { columnNum ->
-        val loc = (lineNum + 1) to columnNum
-        message.append(if (loc in locations) "${locations[loc]}" else " ")
-      }
-      message.append("\n")
-    }
-
-    throw RuntimeException(message.toString())
   }
 }

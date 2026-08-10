@@ -1,0 +1,60 @@
+// Solo mode
+
+"Exactly one player-count rules module active in a playable game"
+ABSTRACT CLASS Mode : GameModule { HAS MAX 1 Mode }
+
+"Solo play with a neutral opponent and a fixed generation limit"
+CLASS SoloMode : Mode {
+  SetupPhase:: GenerationSetup THEN BeginGame
+  GenerationSetup: 14 SoloGenerationsLeft
+  Generation: -SoloGenerationsLeft.
+  -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
+  SetupPhase: SoloOpponent, -6 TerraformRating<Player1>
+  EndPhase: End THEN FinalScore
+}
+
+"The original solo victory objective: complete every required global parameter"
+CLASS StandardSoloVariant : GameModule {
+  SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
+}
+
+"The solo objective is 63 terraform rating instead of completed global parameters"
+CLASS Tr63SoloVariant : GameModule {
+  SetupPhase: Tr63SoloObjective
+  SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
+}
+
+"Lets selected variants initialize solo state immediately before generation 1 begins"
+CLASS GenerationSetup : Signal, System
+
+"Records that a selected expansion extends the ordinary solo victory objective"
+CLASS SoloVictoryRequirement { HAS MAX 1 This }
+
+"Records that the selected solo objective is 63 terraform rating"
+CLASS Tr63SoloObjective { HAS MAX 1 This }
+
+"The number of generations remaining in a solo game"
+CLASS SoloGenerationsLeft
+
+"Checks whether the solo player satisfied the configured victory objective"
+CLASS SoloVictoryCheck : Signal, System
+
+"The passive owner of the removable neutral stock in solo mode"
+CLASS SoloOpponent : Owner {
+  HAS MAX 1 This
+  This: 99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
+  This: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]
+  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea>>)>
+  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea>>)>
+}
+
+// Multiplayer mode
+
+"Multiplayer rules, including the end condition that deliberately excludes Venus"
+CLASS MultiplayerMode : Mode {
+  GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
+  EndPhase: End THEN FinalScore
+  FinalScore: MultiplayerVictoryCheck
+}
+
+CLASS MultiplayerVictoryCheck : Custom

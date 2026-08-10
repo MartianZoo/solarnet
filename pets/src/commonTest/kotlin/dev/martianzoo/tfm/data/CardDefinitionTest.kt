@@ -14,7 +14,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CardDefinitionTest {
-  val birds =
+  private val birds =
       CardData(
           id = "072",
           deck = "PROJECT",
@@ -31,7 +31,7 @@ internal class CardDefinitionTest {
   @Test
   fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
-    birds.shortName shouldBe cn("C072")
+    birds.className shouldBe cn("Card072")
     birds.deck shouldBe PROJECT
     birds.tags.toStrings().shouldContainExactlyInAnyOrder("AnimalTag")
     birds.immediate!!.toString() shouldBe "PROD[-2 Plant<Anyone>]"
@@ -70,13 +70,13 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun requiredBundlesAreCommaSeparatedAndAllRetained() {
+  fun setupRequirementIsParsedAsPets() {
     val json =
         """
           {
             "cards": [{
               "id": "X40",
-              "requiredBundles": "PreludeExpansion, VenusNextExpansion",
+              "setupRequirement": "PreludeExpansion, VenusNextExpansion",
               "deck": "PRELUDE",
               "immediate": "Plant"
             }]
@@ -85,7 +85,7 @@ internal class CardDefinitionTest {
 
     val card = CardDefinition(JsonReader.readCards(json).single())
 
-    card.requiredBundles shouldBe setOf(cn("PreludeExpansion"), cn("VenusNextExpansion"))
+    card.setupRequirement.toString() shouldBe "PreludeExpansion, VenusNextExpansion"
   }
 
   // Just so we don't have to keep repeating the "x" part
@@ -94,7 +94,7 @@ internal class CardDefinitionTest {
   @Test
   fun emptyStrings() {
     assertFails { CardData("") }
-    assertFails { card.copy(requiredBundles = "") }
+    assertFails { card.copy(setupRequirement = "") }
     assertFails { card.copy(replaces = "") }
     assertFails { card.copy(resourceType = "") }
     assertFails { card.copy(requirement = "") }

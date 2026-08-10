@@ -1,32 +1,27 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.LimitsException
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class SponsoredAcademiesTest : CardTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newGame(VenusNextExpansion)
+    engine.phase("Action")
+    engine.manual("9 Megacredit<Player1>, ProjectCard<Player1>, ProjectCard<Player2>")
+  }
+
   @Test
-  fun sponsoredAcademies() {
-    val game = newGame("BRMV", 2)
+  fun `with two cards in hand, plays Sponsored Academies`() {
+    p1.manual("ProjectCard")
+    p1.playProject("SponsoredAcademies", 9).expect("ProjectCard<Player1>, ProjectCard<Player2>")
+  }
 
-    game.tfm(ENGINE).phase("Action")
-    engine.sneak("100 Megacredit<P1>, 5 ProjectCard<P1>, 100 Megacredit<P2>, ProjectCard<P2>")
-
-    with(game.tfm(PLAYER2)) {
-      shouldThrow<LimitsException> { playProject("SponsoredAcademies", 9) }
-
-      sneak("ProjectCard")
-
-      assertCounts(2 to "ProjectCard")
-      assertCounts(5 to "ProjectCard<P1>")
-
-      playProject("SponsoredAcademies", 9)
-      assertCounts(3 to "ProjectCard") // played 1, discarded 1, drew 3
-      assertCounts(6 to "ProjectCard<P1>")
-    }
+  @Test
+  fun `with one card in hand, tries to play Sponsored Academies`() {
+    shouldThrow<LimitsException> { p1.playProject("SponsoredAcademies", 9) }
   }
 }

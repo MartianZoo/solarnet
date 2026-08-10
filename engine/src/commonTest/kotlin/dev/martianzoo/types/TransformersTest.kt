@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -44,12 +45,25 @@ class TransformersTest {
     )
     checkApplyDefaults(
         "GreeneryTile",
-        "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>), Owner>!",
+        "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>, MAX 0 Tile), Owner>!",
+    )
+
+    checkApplyDefaults(
+        "Heat FROM Owed!",
+        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
+    )
+    checkApplyDefaults(
+        "Heat FROM Owed.",
+        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>.",
+    )
+    checkApplyDefaults(
+        "Heat FROM Owed",
+        "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
   }
 
   private companion object {
-    val transformers = (CanonClassesTest.table as MClassLoader).transformers
+    val transformers = Transformers(CanonClassesTest.table)
   }
 
   private fun checkApplyDefaults(
@@ -57,23 +71,26 @@ class TransformersTest {
       expected: String,
       context: Expression = THIS.expression,
   ) {
-    val node: Instruction = parse(original)
-    val xfd = transformers.insertDefaults(context).transform(node)
-    xfd.toString() shouldBe expected
+    applyDefaults(original, context).toString() shouldBe expected
   }
+
+  private fun applyDefaults(
+      original: String,
+      context: Expression = THIS.expression,
+  ): Instruction = transformers.insertDefaults(context).transform(parse(original))
 
   @Test
   fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
-    val ep: Effect = Prod.deprodify(transformers.classes).transform(e)
+    val ep: Effect = Prod.deprodify(transformers.classTable).transform(e)
     ep.toString() shouldBe s
   }
 
   @Test
   fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)
+    val deprodden: Effect = Prod.deprodify(setOf(cn("Plant"))).transform(prodden)
     deprodden.toString() shouldBe "This: Production<Class<Plant>> / PlantTag"
   }
 
@@ -81,28 +98,57 @@ class TransformersTest {
   fun testDeprodify_lessSimple() {
     val prodden: Effect =
         parse(
-            "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
-                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
+            "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz> FROM " +
+                "Foo<Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
         )
     val expected: Effect =
         parse(
             "Production<Class<Plant>>:" +
-                " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
+                " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz> FROM Foo<Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
         )
-    val deprodden: Effect = Prod.deprodify(transformers.classes).transform(prodden)
+    val deprodden: Effect = Prod.deprodify(transformers.classTable).transform(prodden)
     deprodden shouldBe expected
   }
 
   @Test
   fun `invalid atomic change after trigger specialization becomes Die`() {
-    val general =
-        CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)")) as MType
-    val specific =
-        CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>")) as MType
+    val general = CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)"))
+    val specific = CanonClassesTest.table.resolve(parse<Expression>("Card158<Player1>"))
     val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
 
     transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
         "Plant OR Die!"
+  }
+
+  @Test
+  fun `nested abstract dependency specializes to the concrete changed component`() {
+    val general =
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
+    val specific =
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, Card131<Player1>>"))
+    val instruction = parse<Instruction>("Microbe<CardFront<Player1>>")
+
+    transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
+        "Microbe<Card131<Player1>>"
+  }
+
+  @Test
+  fun `linkage specialization leaves an unlinked occurrence of the same class independent`() {
+    val general =
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
+    val specific =
+        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, Card131<Player1>>"))
+    val instruction =
+        parse<Instruction>("Microbe<CardFront<Player1>> OR Microbe<CardFront<Player2>>")
+
+    transformers
+        .checkedLinkageSubstituter(
+            general,
+            specific,
+            setOf(parse("CardFront<Player1>")),
+        )
+        .transform(instruction)
+        .toString() shouldBe "Microbe<Card131<Player1>> OR Microbe<CardFront<Player2>>"
   }
 }

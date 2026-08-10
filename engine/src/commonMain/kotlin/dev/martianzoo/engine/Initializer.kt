@@ -1,27 +1,33 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Type
+import dev.martianzoo.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Class
+import dev.martianzoo.types.ClassTable
+import dev.martianzoo.types.Type
 
 internal class Initializer(
     private val gameplay: Gameplay,
     private val instructor: Instructor,
     private val tasks: TaskQueues,
-    private val classes: MClassTable,
+    private val classTable: ClassTable,
     private val timeline: TimelineImpl,
+    private val premise: GamePremise,
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
     val engineEvent = execute("$ENGINE", cause = null).changes.first()
     val engineCause = Cause(ENGINE.expression, engineEvent.ordinal)
     createSingletons(engineCause)
+    premise.initialComponents.forEach { component ->
+      if (gameplay.count(component) == 0) execute(component, engineCause)
+    }
     timeline.initializationFinished()
     timeline.commit()
   }
@@ -37,12 +43,12 @@ internal class Initializer(
    */
   private fun createSingletons(cause: Cause) {
     val remaining =
-        classes
+        classTable
             .allClasses()
-            .filter { it.isSingletonType() }
+            .filter(Class::isSingletonType)
             .flatMap { it.baseType.concreteSubtypesSameClass() }
             .toMutableList()
-    val missingByType = mutableMapOf<MType, Collection<Type>>()
+    val missingByType = mutableMapOf<Type, Collection<Type>>()
 
     while (remaining.isNotEmpty()) {
       var progress = false
@@ -64,7 +70,9 @@ internal class Initializer(
               val missing = missingByType.getValue(type).joinToString { "${it.expressionFull}" }
               "  ${type.expressionFull} requires $missing"
             }
-        error("Could not create singleton components; dependencies remain missing:\n$diagnostic")
+        throw invalidPetDefinition(
+            "Could not create singleton components; dependencies remain missing:\n$diagnostic"
+        )
       }
     }
   }

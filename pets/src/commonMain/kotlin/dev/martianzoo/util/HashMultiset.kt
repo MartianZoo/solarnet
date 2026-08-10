@@ -5,18 +5,19 @@ import kotlin.math.min
 
 public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf()) :
     MutableMultiset<E> {
-  companion object {
-    fun <E> of(elements: Iterable<E>) = HashMultiset<E>().also { it.addAll(elements) }
+  public companion object {
+    public fun <E> of(elements: Iterable<E>): HashMultiset<E> =
+        HashMultiset<E>().also { it.addAll(elements) }
   }
 
-  override val size
+  override val size: Int
     get() = map.values.sum()
 
-  override fun contains(element: E) = element in map
+  override fun contains(element: E): Boolean = element in map
 
-  override fun containsAll(elements: Collection<E>) = map.keys.containsAll(elements)
+  override fun containsAll(elements: Collection<E>): Boolean = map.keys.containsAll(elements)
 
-  override fun isEmpty() = map.isEmpty()
+  override fun isEmpty(): Boolean = map.isEmpty()
 
   override fun iterator(): MutableIterator<E> {
     val iter = map.asSequence().flatMap { (e, ct) -> List(ct) { e } }.iterator()
@@ -30,11 +31,11 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
     return true
   }
 
-  override val elements by map::keys
+  override val elements: Set<E> by map::keys
 
   override val entries: Set<Entry<E, Int>> by map::entries
 
-  override fun count(element: E) = map[element] ?: 0
+  override fun count(element: E): Int = map[element] ?: 0
 
   override fun setCount(element: E, newCount: Int): Int /*old count*/ {
     require(newCount >= 0) { "tried to set count of $element to $newCount" }
@@ -60,12 +61,12 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
     } else {
       elements.forEach(::add)
     }
-    return elements.any()
+    return elements.isNotEmpty()
   }
 
-  override fun clear() = map.clear()
+  override fun clear(): Unit = map.clear()
 
-  override fun remove(element: E) = tryRemove(element, 1) == 1
+  override fun remove(element: E): Boolean = tryRemove(element, 1) == 1
 
   override fun mustRemove(element: E, occurrences: Int): Int /* new count */ {
     require(occurrences >= 0)
@@ -81,7 +82,7 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
     return countToRemove
   }
 
-  override fun removeAll(elements: Collection<E>) =
+  override fun removeAll(elements: Collection<E>): Boolean =
       map.keys.removeAll(
           if (elements is MutableMultiset<E>) {
             elements.elements
@@ -90,7 +91,7 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
           }
       )
 
-  override fun retainAll(elements: Collection<E>) =
+  override fun retainAll(elements: Collection<E>): Boolean =
       map.keys.retainAll(
           if (elements is MutableMultiset<E>) {
             elements.elements

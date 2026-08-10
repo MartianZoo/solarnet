@@ -1,22 +1,11 @@
-import java.net.URI
-import org.gradle.api.DefaultTask
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+plugins { id("solarnet.kmp-jvm-js") }
 
-plugins {
-  id("org.jetbrains.kotlin.multiplatform")
-  id("org.jetbrains.dokka")
-}
-
-val canonResourceDirectory = layout.projectDirectory.dir("src/commonMain/resources/canon")
-val generatedCanonResources = layout.buildDirectory.dir("generated/canonResourceIndex")
-
+// Canon reads its data files by name at runtime, which the JS target cannot enumerate on its own,
+// so ship a generated index of them alongside the data itself.
 abstract class GenerateResourceIndex : DefaultTask() {
   @get:InputDirectory abstract val resourceDirectory: DirectoryProperty
-  @get:OutputFile abstract val indexFile: RegularFileProperty
+
+  @get:OutputDirectory abstract val outputDirectory: DirectoryProperty
 
   @TaskAction
   fun generate() {
@@ -28,7 +17,7 @@ abstract class GenerateResourceIndex : DefaultTask() {
             .map { it.relativeTo(directory).invariantSeparatorsPath }
             .sorted()
             .toList()
-    val output = indexFile.get().asFile
+    val output = outputDirectory.get().file("canon/resource-index.txt").asFile
     output.parentFile.mkdirs()
     output.writeText(paths.joinToString(separator = "\n", postfix = "\n"))
   }
@@ -36,68 +25,18 @@ abstract class GenerateResourceIndex : DefaultTask() {
 
 val generateCanonResourceIndex by
     tasks.registering(GenerateResourceIndex::class) {
-      resourceDirectory.set(canonResourceDirectory)
-      indexFile.set(generatedCanonResources.map { it.file("canon/resource-index.txt") })
-    }
-
-val copyCanonResourcesForKarma by
-    tasks.registering(Copy::class) {
-      dependsOn("jsProcessResources")
-      from(layout.buildDirectory.dir("processedResources/js/main"))
-      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-canon-test"))
-    }
-
-val copyPetsResourcesForKarma by
-    tasks.registering(Copy::class) {
-      dependsOn(":pets:jsProcessResources")
-      from(project(":pets").layout.buildDirectory.dir("processedResources/js/main/pets"))
-      into(rootProject.layout.buildDirectory.dir("js/packages/solarnet-canon-test/pets"))
+      resourceDirectory.set(layout.projectDirectory.dir("src/commonMain/resources/canon"))
+      outputDirectory.set(layout.buildDirectory.dir("generated/canonResourceIndex"))
     }
 
 kotlin {
-  jvm()
-  js(IR) {
-    browser()
-  }
-
   sourceSets {
     commonMain {
-      resources.srcDir(generatedCanonResources)
-      dependencies {
-        implementation(project(":pets"))
-      }
+      // Registering the task itself as a source directory is what makes every `processResources`
+      // task depend on it.
+      resources.srcDir(generateCanonResourceIndex)
+      dependencies { implementation(project(":pets")) }
     }
-    commonTest {
-      dependencies {
-        implementation(kotlin("test"))
-        implementation("io.kotest:kotest-assertions-core:6.1.11")
-      }
-    }
-  }
-}
-
-tasks.named("jsBrowserTest") {
-  dependsOn(copyCanonResourcesForKarma)
-  dependsOn(copyPetsResourcesForKarma)
-}
-
-tasks
-    .matching { it.name.endsWith("ProcessResources") }
-    .configureEach {
-      dependsOn(generateCanonResourceIndex)
-    }
-
-dokka {
-  dokkaSourceSets {
-    configureEach {
-      sourceLink {
-        localDirectory.set(file("src"))
-        remoteUrl.set(URI("https://github.com/MartianZoo/solarnet/tree/main/canon/src"))
-        remoteLineSuffix.set("#L")
-      }
-    }
-    named("commonMain") {
-      samples.from("src/commonMain/kotlin/dev/martianzoo/tfm/canon/samples.kt")
-    }
+    commonTest { dependencies { implementation(libs.kotest.assertions.core) } }
   }
 }

@@ -6,11 +6,11 @@ For now, I'll have to address this to the reader who is already familiar with th
 
 ## Components
 
-A game state consists entirely of a multiset of **component** instances (plus task queues, which we can ignore for now). Each of these components has a concrete **type**. In fact, components are distinguishable by their *type alone*; there are no attributes/properties/fields in the language. Accordingly, component instances are always immutable.
+A world consists entirely of a multiset of **component** instances (plus task queues, which we can ignore for now). Each of these components has a concrete **type**. In fact, components are distinguishable by their *type alone*; there are no attributes/properties/fields in the language. Accordingly, component instances are always immutable.
 
 For example, when the game begins there are 20 instances of `TerraformRating<Player1>`, 20 of `TerraformRating<Player2>`, etc. The first 20 are indistinguishable from each other, and only their type distinguishes them from the latter 20. I'll try to use the term "component" consistently to mean a *single* instance, a.k.a a single occurrence of a component type (e.g., there were 40 components discussed in our example).
 
-A game state is mutable. There are only two operations: adding or removing N identical copies of a component. (Technically there are atomic transmutations as well, but these aren't that different from a remove-and-add.) Being a multiset, or "just a bag of things", you can never have a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (megacredit production). This headache is worth suffering, though, because other than that adopting the multiset concept makes a large number of bugs impossible.
+A world is mutable. There are only two operations: adding or removing N identical copies of a component. (Technically there are atomic transmutations as well, but these aren't that different from a remove-and-add.) Being a multiset, or "just a bag of things", you can never have a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (megacredit production). This headache is worth suffering, though, because other than that adopting the multiset concept makes a large number of bugs impossible.
 
 Note that components are never "out of play"; a tile that's not yet on the board simply doesn't exist, and when you pay for a card the resources just vanish. (The "transmuting" just alluded to is fairly rare; mostly "steal" cards, and energy becoming heat during a production phase.)
 
@@ -18,13 +18,13 @@ Note that components are never "out of play"; a tile that's not yet on the board
 
 As expected, we *declare* named classes (like `Player1`, `Animal`, or `EcologicalZone`) each class *defines* a type (by the same name), and then these types can be assembled into more complex types (like `Animal<Player1, EcologicalZone<Player1>>`).
 
-A class is abstract or concrete. It can have any number of superclasses, which might also be abstract or concrete, without restriction (concrete extending concrete is very rare: only `CapitalTile` does it).
+A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
-All classes are loaded and frozen before a game begins. So, for example, for any class we always know the complete set of its subclasses. Only the types that *might* be needed in that game are loaded. For example, without the Venus expansion there will be no such type as `VenusStep` or `VenusTag`. This also explains, for example, how we can tell which 5 milestones are available to be claimed, even though no instance of `Milestone` exists in the game state until we claim one; we just look at what classes have been loaded. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
+The class table is frozen before a game begins. Its active classes are the types that *might* be needed in that game, and for any active class we know the complete set of its active subclasses. Names belonging to inactive expansions can also survive as phantom types, whose counts are zero. This explains, for example, how we can tell which 5 milestones are available to be claimed, even though no instance of `Milestone` exists in the world until we claim one; we just look at what classes are active. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
 
-## Generic types / dependencies
+## Types and dependencies
 
-Pets types are generic types. We have `Energy<Player2>` and `CityTile<VolcanicArea>` etc. The first class named is the "root type", then comes a list of "specializations" (similar to "type arguments", but we'll get to the differences).
+Pets types can carry dependencies. We have `Energy<Player2>` and `CityTile<VolcanicArea>` etc. The first class named is the "root type", then comes a list of dependency bounds.
 
 These types express not just an arbitrary parameterization, but a *dependency*. An instance of `Energy` cannot exist without one *specific* instance of `Player` to depend on. A `CityTile` can't exist without both a `Player` and an `Area` to depend on. A component can't be removed without dealing with its dependents somehow (for example, to remove `PharmacyUnion<Player2>` from play, all the `Disease<PharmacyUnion>` components must already be gone, and the two `MicrobeTag<PharmacyUnion>` components need to be removed automatically with the card).
 
@@ -48,11 +48,11 @@ We can see that:
 * `LandArea` is a subclass of `Area`, but is still abstract
 * `Tharsis_5_6` is one specific (concrete) subclass of `LandArea`
 * Any instance of `Tile` will depend on an instance of `Area`
-* `OceanTile` automatically inherits that dependency
-* `GreeneryTile` automatically inherits the `Player` dependency from `Owned`, and...
-* ... also inherits the `Area` dependency from `Tile`, which it *narrows* to `MarsArea` (since greenery tiles on Phobos Space Haven are not a thing)
+* Every `OceanTile` is a `Tile`, so it necessarily has that dependency
+* Every `GreeneryTile` is `Owned`, so it necessarily has the `Player` dependency, and...
+* ... every `GreeneryTile` is also a `Tile`, with the `Area` bound narrowed to `MarsArea` (since greenery tiles on Phobos Space Haven are not a thing)
 
-These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing), or more commonly just `GreeneryTile<Player1>`. We can always omit a dependency when it would be the same as that dependency's upper bound.
+These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing; `Area` is automatically intersected with the dependency's upper bound), or more commonly just `GreeneryTile<Player1>`. We can always omit a written dependency bound when it would be the same as that dependency's upper bound.
 
 ### Variance
 
@@ -68,7 +68,7 @@ This can be slightly confusing. The *class* `OceanTile` is a concrete class. Yet
 
 (Aside: a Pets instruction like `3 Animal<CardFront>` is valid even though the `Animal<CardFront>` type is abstract. It simply cannot be *executed* in that form. It must be narrowed to a concrete type first, such as `3 Animal<Player3, Predators<Player3>>`. There is no way to break it up into, say, `2 Animal<Predators>, 1 Animal<Fish>`. Conveniently, this simple constraint makes the game rules work correctly in a variety of ways. If a card says `-6 Plant<Anyone>?`, can you remove 4 from one player and 2 from another? No, you can't. There are a few automatic "narrowing" steps, but for the most part an abstract type left in an instruction allows the player to choose how they want to narrow it. For example, in `CityTile<VolcanicArea>`, the player can narrow it to `CityTile<Tharsis_2_2>`. Since that is concrete, however, they cannot choose to *further* narrow it to `CapitalTile<Tharsis_2_2>`. Okay, enough digression.)
 
-### Effects and specialization
+### Effects and narrowing
 
 Consider this example (it's a bit fictional; I'll show how production is really implemented lower down):
 
@@ -78,13 +78,11 @@ CLASS PlantProduction<Player> {
 }
 ```
 
-Inside a class declaration, lines of the form `<trigger>: <instruction>` are effects. They express that component's behaviors. The authored line is a **source effect**; see the [glossary](../glossary.md) for the names of the representations it passes through.
-
-Effects retain their declaration order, and identical effects may be declared more than once; each occurrence registers and fires independently.
+Inside a class declaration, lines of the form `<trigger>: <instruction>` are effects. They express that component's behaviors.
 
 The type `PlantProduction<Player>` is abstract, meaning that no component of that exact type can exist. That's because, even though `PlantProduction` is concrete, `Player` is not, and *all* types seen must be concrete for the whole type to be.
 
-But `PlantProduction<Player4>` is concrete, and one of those can exist. And (here's the important part) narrowing `Player` to `Player4` in the type expression *also* narrows it in the same way for any effects belonging to the class. Thus the class effect `ProductionPhase: Plant<Player>` becomes the component effect `ProductionPhase: Plant<Player4>`. If that component exists, the engine registers an active effect from it. (And a good thing, because `Plant<Player>` is abstract and during the production phase there is no active player who would be able to choose how to narrow it!)
+But `PlantProduction<Player4>` is concrete, and one of those can exist. And (here's the important part) narrowing `Player` to `Player4` in the type expression *also* narrows it in the same way for any effects belonging to the class. So the class effect `ProductionPhase: Plant<Player>` becomes the component effect `ProductionPhase: Plant<Player4>`. (And a good thing, because `Plant<Player>` is abstract and during the production phase there is no active player who would be able to choose how to narrow it!)
 
 One possible way to think of this is that `PlantProduction<Player>` both specifies `Player` as the upper bound for that dependency, *and* names a "type variable" `Player` as well, and the effect is actually naming that *type variable* rather than the `Player` type itself. This may be a convoluted way to look at it, though.
 
@@ -100,17 +98,13 @@ For example, `Area` is a singleton abstract class. It has 61 concrete subclasses
 
 ### Class types
 
-The `Class` class is predefined. It accepts one "type argument" or "specialization", but works differently from all other generic types:
+The `Class` class is predefined. `Class<Foo>` contains one class name, not a dependency bound:
 
 * This is *not* a "dependency"; `Class<Steel>` can exist even though no `Steel` instance exists yet to be depended on.
 * Only a single class name can go inside the angle brackets. `Class<Steel>` works but `Class<Steel<Player2>>` does not.
 * Even though the type `Steel` is abstract, and the type `AnythingElse<Steel>` would also be abstract, `Class<Steel>` is considered concrete! After all, it's as concrete as it *can* be.
 
-`Class` is a singleton class. If you ask a game state to count the instances of the type `Class<StandardResource>` you will get the answer `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get 7, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract, and so cannot exist as a component.)
-
-`Class<AnyWordHere>` is not a valid type when `AnyWordHere` is not a loaded class. There is one metric-only exception: counting that expression produces zero instead of a class-not-found error. This lets one bundle query whether another bundle supplied a class without depending on that bundle. It remains invalid in instructions and dependency specializations. Also, no `Class` type, valid or otherwise, is legal as a trigger.
-
-An open question is whether the differences outlined here are enough to justify using a different syntax -- for example instead of `Class<Steel>` we could use `Steel.CLASS` or `{Steel}` or something else. Currently I think there are probably enough similarities to make it worth keeping as-is, but I'm not sure.
+`Class` is a singleton class. If you ask a world to count the instances of the type `Class<StandardResource>` you will get the answer `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get 7, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract, and so cannot exist as a component.)
 
 #### What's that good for?
 
@@ -122,4 +116,11 @@ CLASS Production<Class<StandardResource>> : Owned {
 }
 ```
 
-`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because then anytime you had no `Energy` resources you would be unable to have any `Production<Energy>` either! (Remember, these aren't *just* generic types; they express real live dependencies.) But with this trick a game state can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first type specializes the class effect shown above into the component effect `ProductionPhase: Steel<Player2>`.
+`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because then anytime you had no `Energy` resources you would be unable to have any `Production<Energy>` either! (The angle-bracket expressions describe real dependencies, not arbitrary parameterization.) But with this trick a world can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first type binds the class effect shown above, yielding `ProductionPhase: Steel<Player2>`.
+
+## TODO
+
+* Explain the full phantom-type rules, including where phantom types are and aren't legal.
+* Document dependency-target uniqueness and linked dependencies.
+* Cover effect declaration order, duplicate effects, and the full inherited meaning of `This`.
+* Incorporate the useful parts of the [agent-written type-system specification](agents/TYPES.md).

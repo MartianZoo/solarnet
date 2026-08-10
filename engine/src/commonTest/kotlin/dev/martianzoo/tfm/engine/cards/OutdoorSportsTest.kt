@@ -1,26 +1,29 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class OutdoorSportsTest : CardTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newGame(PromoCardPack)
+    engine.phase("Action")
+    p1.manual("8, ProjectCard")
+  }
+
   @Test
-  fun `requires any city to be adjacent to an ocean`() {
-    val game = newGame(Canon.fromOptionCodes("BMX", 2))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-
-    p1.phase("Action")
-    p1.manual("100, 5 ProjectCard, CityTile<Player2, Tharsis_1_3>, OceanTile<Tharsis_1_5>")
-
-    shouldThrow<RequirementException> { p1.playProject("OutdoorSports", 8) }
-
-    p2.manual("OceanTile<Tharsis_1_2>")
+  fun `with a p2 city beside an ocean, plays Outdoor Sports`() {
+    requireP2().manual("CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
     p1.playProject("OutdoorSports", 8).expect("PROD[2 Megacredit]")
+  }
+
+  @Test
+  fun `without city-ocean adjacency, tries to play Outdoor Sports`() {
+    requireP2().manual("CityTile<Tharsis_1_3>")
+    p1.manual("OceanTile<Tharsis_1_5>")
+    shouldThrow<RequirementException> { p1.playProject("OutdoorSports", 8) }
   }
 }

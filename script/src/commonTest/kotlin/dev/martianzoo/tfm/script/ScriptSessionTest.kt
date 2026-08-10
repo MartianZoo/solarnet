@@ -1,17 +1,19 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.tfm.canon.Canon.Option.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 internal class ScriptSessionTest {
   private val eventOrdinalRegex = Regex("^\\d+(?=:)")
   private val causeOrdinalRegex = Regex("(?<=BECAUSE )\\d+")
-  private val letterRegex = Regex("^[A-Z]\\b")
 
   private fun normalizeEventOrdinals(line: String) =
       line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
@@ -65,11 +67,150 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  fun ansiColorsCanBeEnabledByTheHost() {
+    val repl = ScriptSession(useAnsiColors = true)
+
+    assertTrue(repl.prompt().contains("\u001B["))
+    assertTrue(repl.command("tfm_board P1").any { it.contains("\u001B[") })
+    assertTrue(repl.command("tfm_map").any { it.contains("\u001B[") })
+  }
+
+  @Test
+  fun descIncludesCanonicalAndAlternateClassNames() {
+    val description = ScriptSession().command("desc Birds").single()
+
+    assertContains(description, "Class `Card072`:")
+    assertContains(description, "alt name:    Birds")
+  }
+
+  @Test
+  fun `as Engine temporarily selects the Engine actor`() {
+    val repl = ScriptSession()
+    repl.command("newgame BM 2")
+    repl.command("become Player1")
+
+    assertEquals(listOf("1 Phase"), repl.command("as Engine count Phase"))
+    assertEquals("Player1", repl.gameplay.actor.toString())
+  }
+
+  @Test
+  fun optionCodesSelectCanonicalOptionsDirectly() {
+    val repl = ScriptSession()
+
+    assertTrue(CorporateEraExpansion !in repl.setup.options)
+    repl.command("newgame BRM 2")
+    assertTrue(CorporateEraExpansion in repl.setup.options)
+    assertEquals(listOf("1 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
+  }
+
+  @Test
+  fun optionCodesRequireBaseAndDoNotAcceptSolo() {
+    val repl = ScriptSession()
+
+    assertTrue(repl.command("newgame M 2").any { it.contains("include B") })
+    assertTrue(repl.command("newgame BSM 1").any { it.contains("supported option codes") })
+  }
+
+  @Test
+  fun quotedPetsInstructionConfiguresSetupWorld() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf(
+            "New 2-player game created with setup: " +
+                "Exclude<Class<CorporateEraExpansion>>, Exclude<Class<WorldGovernmentOption>>, " +
+                "2 Player, TerraformingMars, TharsisMapOption, VenusNextExpansion, MultiplayerMode",
+            "Purple mode: workflow active",
+        ),
+        repl.command(
+            "newgame \"Exclude<Class<CorporateEraExpansion>>, " +
+                "Exclude<Class<WorldGovernmentOption>>, 2 Player, TerraformingMars, " +
+                "TharsisMapOption, VenusNextExpansion, MultiplayerMode\" purple"
+        ),
+    )
+    assertEquals(listOf("0 WorldGovernmentOption"), repl.command("count WorldGovernmentOption"))
+    assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
+  }
+
+  @Test
+  fun listCountsCustomMetrics() {
+    val repl = ScriptSession()
+    repl.command("newgame BH 2")
+
+    assertEquals(
+        listOf("8 MarsRow<Hellas_8_4>:", "  8 MarsRow<Hellas_8_4>"),
+        repl.command("list MarsRow<Hellas_8_4>"),
+    )
+  }
+
+  @Test
+  fun failedNewGameLeavesTheCurrentGameUntouched() {
+    val repl = ScriptSession()
+    val originalGame = repl.game
+    val originalSetup = repl.setup
+    val originalPrompt = repl.promptPlain()
+
+    assertTrue(repl.command("newgame BU 6").first().contains("between 1 and 5"))
+
+    assertSame(originalGame, repl.game)
+    assertSame(originalSetup, repl.setup)
+    assertEquals(originalPrompt, repl.promptPlain())
+  }
+
+  @Test
+  fun newGameCollectsColonySelectionBeforeCreatingTheGame() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf("New 2-player game created with options: BRMCX"),
+        repl.command("newgame BRMCX 2 Ceres Io Titan Luna Pluto"),
+    )
+    assertEquals(5, repl.setup.selectedColonies.size)
+    assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
+    assertEquals(listOf("1 Io"), repl.command("count Io"))
+    assertEquals(
+        listOf("1 DelayedColonyTile<Class<Titan>>"),
+        repl.command("count DelayedColonyTile<Class<Titan>>"),
+    )
+    repl.command("phase Corporation")
+  }
+
+  @Test
+  fun purpleModeUsesColoniesSelectedBeforeGameplaySetup() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf(
+            "New 1-player game created with options: BRMC",
+            "Purple mode: workflow active",
+        ),
+        repl.command("newgame BRMC 1 Ceres Io Titan purple"),
+    )
+    repl.command("task -6 TerraformRating<Player1>")
+    assertEquals(
+        2,
+        repl.game.tasks.extract { it.instruction.toString() }.count { it.startsWith("CityTile") },
+    )
+    repl.command("task CityTile<Tharsis_2_4, SoloOpponent>")
+    repl.command("task GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    repl.command("task CityTile<Tharsis_8_7, SoloOpponent>")
+    repl.command("task GreeneryTile<Tharsis_8_6, SoloOpponent>")
+
+    assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
+    assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
+    assertEquals(listOf("1 Io"), repl.command("count Io"))
+    assertEquals(
+        listOf("1 DelayedColonyTile<Class<Titan>>"),
+        repl.command("count DelayedColonyTile<Class<Titan>>"),
+    )
+  }
+
+  @Test
   fun testBasicRunthrough() {
     val repl = ScriptSession()
 
     fun command(c: String, expected: String) {
-      val results = repl.command(c).map { normalizeEventOrdinals(it).replace(letterRegex, "Z") }
+      val results = repl.command(c).map(::normalizeEventOrdinals)
       assertEquals(expected.split("\n"), results)
     }
 
@@ -98,7 +239,7 @@ internal class ScriptSessionTest {
         "turn",
         """
         New tasks pending:
-        Z* [queue: Player2, assignee: Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
+        A* [queue: Player2, assignee: Player2] UseAction<Player2, StandardAction>! OR Pass<Player2>! (abstract)
         """
             .trimIndent(),
     )
@@ -165,8 +306,8 @@ internal class ScriptSessionTest {
         0000: +Photosynthesis BY Engine VIA TerraformingMars BECAUSE 0000
         Hi, Player1
         New tasks pending:
-        Z  [queue: Player1, assignee: Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
-        Z  [queue: Player1, assignee: Player1] 10 BuyCard<Player1>? (abstract)
+        A  [queue: Player1, assignee: Player1] PlayCard<Player1, Class<CorporationCard>>! (abstract)
+        B  [queue: Player1, assignee: Player1] 10 BuyCard<Player1>? (abstract)
         0000: +Manutech<Player1> FROM CorporationCard<Player1> BY Player1 VIA PlayCard<Player1, Class<CorporationCard>, Class<Manutech>> BECAUSE 0000
         0000: +BuildingTag<Player1, Manutech<Player1>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +Production<Player1, Class<Steel>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
@@ -176,8 +317,8 @@ internal class ScriptSessionTest {
         0000: +5 ProjectCard<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
         Hi, Player2
         New tasks pending:
-        Z  [queue: Player2, assignee: Player2] PlayCard<Player2, Class<CorporationCard>>! (abstract)
-        Z  [queue: Player2, assignee: Player2] 10 BuyCard<Player2>? (abstract)
+        A  [queue: Player2, assignee: Player2] PlayCard<Player2, Class<CorporationCard>>! (abstract)
+        B  [queue: Player2, assignee: Player2] 10 BuyCard<Player2>? (abstract)
         0000: +Factorum<Player2> FROM CorporationCard<Player2> BY Player2 VIA PlayCard<Player2, Class<CorporationCard>, Class<Factorum>> BECAUSE 0000
         0000: +PowerTag<Player2, Factorum<Player2>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
         0000: +BuildingTag<Player2, Factorum<Player2>> BY Player2 VIA Factorum<Player2> BECAUSE 0000
@@ -190,20 +331,21 @@ internal class ScriptSessionTest {
         0000: +2 PreludeCard<Player2> BY Engine VIA PreludeSetup<Player2> BECAUSE 0000
         Hi, Player1
         New tasks pending:
-        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
+        A* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
         0000: +NewPartner<Player1> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<NewPartner>> BECAUSE 0000
         0000: +Production<Player1, Class<Megacredit>> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
-        0000: +PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
+        0000: +2 PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
         0000: +Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
+        0000: -PreludeCard<Player1> BY Player1 VIA NewPartner<Player1> BECAUSE 0000
 
         New tasks pending:
-        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)
+        A* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! (abstract)
         0000: +UnmiContractor<Player1> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<UnmiContractor>> BECAUSE 0000
         0000: +EarthTag<Player1, UnmiContractor<Player1>> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
         0000: +3 TerraformRating<Player1> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
         0000: +ProjectCard<Player1> BY Player1 VIA UnmiContractor<Player1> BECAUSE 0000
         New tasks pending:
-        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
+        A* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)
         0000: +AlliedBank<Player1> FROM PreludeCard<Player1> BY Player1 VIA PlayCard<Player1, Class<PreludeCard>, Class<AlliedBank>> BECAUSE 0000
         0000: +EarthTag<Player1, AlliedBank<Player1>> BY Player1 VIA AlliedBank<Player1> BECAUSE 0000
         0000: +4 Production<Player1, Class<Megacredit>> BY Player1 VIA AlliedBank<Player1> BECAUSE 0000
@@ -211,12 +353,12 @@ internal class ScriptSessionTest {
         0000: +4 Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         Hi, Player2
         New tasks pending:
-        Z* [queue: Player2, assignee: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
+        A* [queue: Player2, assignee: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
         0000: +AcquiredSpaceAgency<Player2> FROM PreludeCard<Player2> BY Player2 VIA PlayCard<Player2, Class<PreludeCard>, Class<AcquiredSpaceAgency>> BECAUSE 0000
         0000: +6 Titanium<Player2> BY Player2 VIA AcquiredSpaceAgency<Player2> BECAUSE 0000
         0000: +2 ProjectCard<Player2> BY Player2 VIA AcquiredSpaceAgency<Player2> BECAUSE 0000
         New tasks pending:
-        Z* [queue: Player2, assignee: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
+        A* [queue: Player2, assignee: Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) (abstract)
         0000: +IoResearchOutpost<Player2> FROM PreludeCard<Player2> BY Player2 VIA PlayCard<Player2, Class<PreludeCard>, Class<IoResearchOutpost>> BECAUSE 0000
         0000: +ScienceTag<Player2, IoResearchOutpost<Player2>> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
         0000: +JovianTag<Player2, IoResearchOutpost<Player2>> BY Player2 VIA IoResearchOutpost<Player2> BECAUSE 0000
@@ -225,12 +367,12 @@ internal class ScriptSessionTest {
         0000: +ActionPhase FROM PreludePhase BY Engine (manual)
         Hi, Player1
         New tasks pending:
-        Z* [queue: Player1, assignee: Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! (abstract)
+        A* [queue: Player1, assignee: Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! (abstract)
         New tasks pending:
-        Z* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<ProjectCard>>! (abstract)
+        A* [queue: Player1, assignee: Player1] PlayCard<Player1, Class<ProjectCard>>! (abstract)
         New tasks pending:
-        Z* [queue: Player1, assignee: Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
-        Z  [queue: Player1, assignee: Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>!
+        A* [queue: Player1, assignee: Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? (abstract)
+        B  [queue: Player1, assignee: Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>!
         0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> BY Player1 VIA Accept<Player1, Class<Megacredit>> BECAUSE 0000
         0000: +InventorsGuild<Player1> FROM ProjectCard<Player1> BY Player1 VIA PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
         0000: +ScienceTag<Player1, InventorsGuild<Player1>> BY Player1 VIA InventorsGuild<Player1> BECAUSE 0000
@@ -241,10 +383,7 @@ internal class ScriptSessionTest {
     // TODO The "MAX 0 Barrier" one should have said "(currently impossible)"
     // also why is there a random blank line up there??
 
-    val output =
-        commands.flatMap(repl::command).map {
-          normalizeEventOrdinals(it).replace(letterRegex, "Z")
-        }
+    val output = commands.flatMap(repl::command).map(::normalizeEventOrdinals)
     assertEquals(expectedOutput, output)
   }
 
@@ -295,7 +434,11 @@ internal class ScriptSessionTest {
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
     val board =
-        PlayerBoardToText(TfmGameplay(repl.game, repl.gameplay.actor, repl.gameplay), false).board()
+        PlayerBoardToText(
+                TfmGameplay(repl.game, repl.gameplay.actor, repl.gameplay),
+                false,
+            )
+            .board()
     assertEquals(
         listOf(
             "  Player1   TR: 20   Tiles: 0",
@@ -315,8 +458,13 @@ internal class ScriptSessionTest {
   fun testMap() {
     val repl = ScriptSession()
     repl.command("become Player1")
-    repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>")
-    repl.command("as Player2 exec GT<M45>, CT<M66>, MaTile<M99>")
+    repl.command(
+        "exec OceanTile<Tharsis_2_6>, OceanTile<Tharsis_5_5>, OceanTile<Tharsis_5_6>, " +
+            "CityTile<Tharsis_4_6>, GreeneryTile<Tharsis_5_7>"
+    )
+    repl.command(
+        "as Player2 exec GreeneryTile<Tharsis_4_5>, CityTile<Tharsis_6_6>, " + "MaTile<Tharsis_9_9>"
+    )
     assertTrue(repl.command("tasks").isEmpty())
     assertEquals(8, repl.gameplay.count("Tile"))
 

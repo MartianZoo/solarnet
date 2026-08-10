@@ -3,454 +3,465 @@
 
     // Aphrodite
     {
-      "id": "V01",
+      "id": "VC1",
       "deck": "CORPORATION",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "PROD[Plant], 47",
-      "effects": [ "VenusStep BY Anyone: 2" ]
+      "effects": [ "VenusStep BY Anyone: 2" ],
     },
 
     // Celestic[F]
     {
-      "id": "V02F",
+      "id": "VC2F",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
-      "immediate": "42, MandateV02F",
+      "resourceType": "Floater",
+      "immediate": "42, MandateVC2F",
       "actions": [ "-> Floater" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
-      "components": [ "CLASS MandateV02F : Mandate { -> 2 ProjectCard }" ],
-      "resourceType": "Floater",
+      "components": [ "CLASS MandateVC2F : Mandate { -> 2 ProjectCard }" ],
     },
 
     // Manutech
     {
-      "id": "V03",
+      "id": "VC3",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel], 35",
-      "effects": [ "PROD[StandardResource]: StandardResource" ]
+      "effects": [ "PROD[StandardResource]: StandardResource" ],
+    },
+
+    // Morning Star Inc.[F]
+    {
+      "id": "VC4F",
+      "deck": "CORPORATION",
+      "tags": [ "VenusTag" ],
+      "immediate": "50, MandateVC4F",
+      "effects": [ "PlayCard: -2 Required<Class<VenusStep>>." ],
+      "components": [ "CLASS MandateVC4F : Mandate { -> 3 ProjectCard }" ],
     },
 
     // Viron
     {
-      "id": "V05",
+      "id": "VC5",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": "48",
-      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>" ]
+      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!CardVC5>)>" ],
     },
 
     // Aerial Mappers
     {
       "id": "213",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 11,
       "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
       "actions": [
         "-> Floater",
         "Floater<This> -> ProjectCard"
       ],
       "effects": [ "End: VictoryPoint" ],
-      "resourceType": "Floater",
-      "cost": 11,
-      "projectKind": "ACTIVE"
     },
 
     // Aerosport Tournament
     {
       "id": "214",
       "deck": "PROJECT",
-      "immediate": "1 / CityTile<Anyone>",
-      "effects": [ "End: VictoryPoint" ],
+      "projectKind": "EVENT",
       "requirement": "5 Floater",
       "cost": 7,
-      "projectKind": "EVENT"
+      "immediate": "1 / CityTile<Anyone>",
+      "effects": [ "End: VictoryPoint" ],
     },
 
     // Air-Scrapping Expedition
     {
       "id": "215",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 13,
       "tags": [ "VenusTag" ],
       "immediate": "VenusStep, 3 Floater<CardFront(HAS VenusTag)>",
-      "cost": 13,
-      "projectKind": "EVENT"
     },
 
     // Atalanta Planitia Lab
     {
       "id": "216",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "3 ScienceTag",
+      "cost": 10,
       "tags": [ "VenusTag", "ScienceTag" ],
       "immediate": "2 ProjectCard",
       "effects": [ "End: 2 VictoryPoint" ],
-      "requirement": "3 ScienceTag",
-      "cost": 10,
-      "projectKind": "AUTOMATED"
     },
 
     // Atmoscoop
     {
       "id": "217",
       "deck": "PROJECT",
-      "tags": [ "JovianTag", "SpaceTag" ],
-      // Temporarily sequential pending #63: a Multi OR arm cannot be narrowed.
-      "immediate": "(TemperatureStep THEN TemperatureStep) OR (VenusStep THEN VenusStep), 2 Floater",
-      "effects": [ "End: VictoryPoint" ],
+      "projectKind": "AUTOMATED",
       "requirement": "3 ScienceTag",
       "cost": 22,
-      "projectKind": "AUTOMATED"
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": "2 TemperatureStep OR 2 VenusStep, 2 Floater",
+      "effects": [ "End: VictoryPoint" ],
     },
 
     // Comet For Venus
     {
       "id": "218",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 11,
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?",
-      "cost": 11,
-      "projectKind": "EVENT"
     },
 
     // Corroder Suits
     {
       "id": "219",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 8,
       "tags": [ "VenusTag" ],
       "immediate": "PROD[2], CardResource<CardFront(HAS VenusTag)>",
-      "cost": 8,
-      "projectKind": "AUTOMATED"
     },
 
     // Dawn City
     {
       "id": "220",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "4 ScienceTag",
+      "cost": 15,
       "tags": [ "SpaceTag", "CityTag" ],
       "immediate": "PROD[-Energy, Titanium], CityTile<Area220>",
       "effects": [ "End: 3 VictoryPoint" ],
       "components": [ "CLASS Area220 : RemoteArea" ],
-      "requirement": "4 ScienceTag",
-      "cost": 15,
-      "projectKind": "AUTOMATED"
     },
 
     // Deuterium Export
     {
       "id": "221",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 11,
       "tags": [ "VenusTag", "PowerTag", "SpaceTag" ],
+      "resourceType": "Floater",
       "actions": [
         "-> Floater<This>",
         "Floater<This> -> PROD[Energy]"
       ],
-      "resourceType": "Floater",
-      "cost": 11,
-      "projectKind": "ACTIVE"
     },
 
     // Dirigibles
     {
       "id": "222",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 11,
       "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
       "actions": [ "-> Floater" ],
       "effects": [
         "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed.) OR Ok"
       ],
-      "resourceType": "Floater",
-      "cost": 11,
-      "projectKind": "ACTIVE"
     },
 
     // Extractor Balloons
     {
       "id": "223",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 21,
       "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
       "immediate": "3 Floater<This>",
       "actions": [
         "-> Floater<This>",
         "2 Floater<This> -> VenusStep"
       ],
-      "resourceType": "Floater",
-      "cost": 21,
-      "projectKind": "ACTIVE"
     },
 
     // Extremophiles
     {
       "id": "224",
       "deck": "PROJECT",
-      "tags": [ "VenusTag", "MicrobeTag" ],
-      "actions": [ "-> Microbe" ],
-      "effects": [ "End: VictoryPoint / 3 Microbe<This>" ],
-      "resourceType": "Microbe",
+      "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",
       "cost": 3,
-      "projectKind": "ACTIVE"
+      "tags": [ "VenusTag", "MicrobeTag" ],
+      "resourceType": "Microbe",
+      "actions": [ "-> Microbe" ],
+      "effects": [ "End: VictoryPoint / 3 Microbe<This>" ],
     },
 
     // Floating Habs
     {
       "id": "225",
       "deck": "PROJECT",
-      "tags": [ "VenusTag" ],
-      "actions": [ "2 -> Floater" ],
-      "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
-      "resourceType": "Floater",
+      "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",
       "cost": 5,
-      "projectKind": "ACTIVE"
+      "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
+      "actions": [ "2 -> Floater" ],
+      "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
     },
 
     // Forced Precipitation
     {
       "id": "226",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 8,
       "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
       "actions": [
         "2 -> Floater<This>",
         "2 Floater<This> -> VenusStep"
       ],
-      "resourceType": "Floater",
-      "cost": 8,
-      "projectKind": "ACTIVE"
     },
 
     // Freyja Biodomes
     {
       "id": "227",
       "deck": "PROJECT",
-      "tags": [ "VenusTag", "PlantTag" ],
-      "immediate": "PROD[-Energy, 2], 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
-      "effects": [ "End: VictoryPoint" ],
+      "projectKind": "AUTOMATED",
       "requirement": "5 VenusStep",
       "cost": 14,
-      "projectKind": "AUTOMATED"
+      "tags": [ "VenusTag", "PlantTag" ],
+      "immediate": "PROD[-Energy, 2], 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
+      "effects": [ "End: 2 VictoryPoint" ],
     },
 
     // GHG Import From Venus
     {
       "id": "228",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 23,
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "VenusStep, PROD[3 Heat]",
-      "cost": 23,
-      "projectKind": "EVENT"
     },
 
     // Giant Solar Shade
     {
       "id": "229",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 27,
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "3 VenusStep",
-      "cost": 27,
-      "projectKind": "AUTOMATED"
     },
 
     // Gyropolis
     {
       "id": "230",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 20,
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "CityTile, PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag]",
-      "cost": 20,
-      "projectKind": "AUTOMATED"
     },
 
     // Hydrogen To Venus
     {
       "id": "231",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 11,
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag",
-      "cost": 11,
-      "projectKind": "EVENT"
     },
 
     // Io Sulphur Research
     {
       "id": "232",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 17,
       "tags": [ "ScienceTag", "JovianTag" ],
       "immediate": "ProjectCard OR (3 VenusTag: 3 ProjectCard)",
       "effects": [ "End: 2 VictoryPoint" ],
-      "cost": 17,
-      "projectKind": "AUTOMATED"
     },
 
     // Ishtar Mining
     {
       "id": "233",
       "deck": "PROJECT",
-      "tags": [ "VenusTag" ],
-      "immediate": "PROD[Titanium]",
+      "projectKind": "AUTOMATED",
       "requirement": "4 VenusStep",
       "cost": 5,
-      "projectKind": "AUTOMATED"
+      "tags": [ "VenusTag" ],
+      "immediate": "PROD[Titanium]",
     },
 
     // Jet Stream Microscrappers
     {
       "id": "234",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 12,
       "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
       "actions": [
         "Titanium -> 2 Floater<This>",
         "2 Floater<This> -> VenusStep"
       ],
-      "resourceType": "Floater",
-      "cost": 12,
-      "projectKind": "ACTIVE"
     },
 
     // Local Shading
     {
       "id": "235",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
       "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
       "actions": [
         "-> Floater<This>",
         "Floater<This> -> PROD[1]"
       ],
-      "resourceType": "Floater",
-      "cost": 4,
-      "projectKind": "ACTIVE"
     },
 
     // Luna Metropolis
     {
       "id": "236",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 21,
       "tags": [ "SpaceTag", "EarthTag", "CityTag" ],
       "immediate": "PROD[1 / EarthTag], CityTile<Area236>",
       "effects": [ "End: 2 VictoryPoint" ],
       "components": [ "CLASS Area236 : RemoteArea" ],
-      "cost": 21,
-      "projectKind": "AUTOMATED"
     },
 
     // Luxury Foods
     {
       "id": "237",
       "deck": "PROJECT",
-      "effects": [ "End: 2 VictoryPoint" ],
+      "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 8,
-      "projectKind": "AUTOMATED"
+      "effects": [ "End: 2 VictoryPoint" ],
     },
 
     // Maxwell Base
     {
       "id": "238",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "6 VenusStep",
+      "cost": 18,
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": "PROD[-Energy], CityTile<Area238>",
       "actions": [ "-> CardResource<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: 3 VictoryPoint" ],
       "components": [ "CLASS Area238 : RemoteArea" ],
-      "requirement": "6 VenusStep",
-      "cost": 18,
-      "projectKind": "ACTIVE"
     },
 
     // Mining Quota
     {
       "id": "239",
       "deck": "PROJECT",
-      "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2 Steel]",
+      "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 5,
-      "projectKind": "AUTOMATED"
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[2 Steel]",
     },
 
     // Neutralizer Factory
     {
       "id": "240",
       "deck": "PROJECT",
-      "tags": [ "VenusTag" ],
-      "immediate": "VenusStep",
+      "projectKind": "AUTOMATED",
       "requirement": "5 VenusStep",
       "cost": 7,
-      "projectKind": "AUTOMATED"
+      "tags": [ "VenusTag" ],
+      "immediate": "VenusStep",
     },
 
     // Omnicourt
     {
       "id": "241",
       "deck": "PROJECT",
-      "tags": [ "BuildingTag" ],
-      "immediate": "2 TerraformRating",
+      "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 11,
-      "projectKind": "AUTOMATED"
+      "tags": [ "BuildingTag" ],
+      "immediate": "2 TerraformRating",
     },
 
     // Orbital Reflectors
     {
       "id": "242",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 26,
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "2 VenusStep, PROD[2 Heat]",
-      "cost": 26,
-      "projectKind": "AUTOMATED"
     },
 
     // Rotator Impacts
     {
       "id": "243",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "MAX 7 VenusStep",
+      "cost": 6,
       "tags": [ "SpaceTag" ],
+      "resourceType": "Asteroid",
       "actions": [
         // 6[Titanium] -> Asteroid<This>
         "-> 6 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
-      "resourceType": "Asteroid",
-      "requirement": "MAX 7 VenusStep",
-      "cost": 6,
-      "projectKind": "ACTIVE"
     },
 
     // Sister Planet Support
     {
       "id": "244",
       "deck": "PROJECT",
-      "tags": [ "VenusTag", "EarthTag" ],
-      "immediate": "PROD[3]",
+      "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag",
       "cost": 7,
-      "projectKind": "AUTOMATED"
+      "tags": [ "VenusTag", "EarthTag" ],
+      "immediate": "PROD[3]",
     },
 
     // Solarnet
     {
       "id": "245",
       "deck": "PROJECT",
-      "immediate": "2 ProjectCard",
-      "effects": [ "End: VictoryPoint" ],
+      "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 7,
-      "projectKind": "AUTOMATED"
+      "immediate": "2 ProjectCard",
+      "effects": [ "End: VictoryPoint" ],
     },
 
     // Spin-Inducing Asteroid
     {
       "id": "246",
       "deck": "PROJECT",
-      "tags": [ "SpaceTag" ],
-      "immediate": "2 VenusStep",
+      "projectKind": "EVENT",
       "requirement": "MAX 5 VenusStep",
       "cost": 16,
-      "projectKind": "EVENT"
+      "tags": [ "SpaceTag" ],
+      "immediate": "2 VenusStep",
     },
 
     // Sponsored Academies
     {
       "id": "247",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 9,
       "tags": [ "ScienceTag", "EarthTag" ],
       "immediate": "-ProjectCard THEN (2 ProjectCard, AllDraw)",
       "effects": [ "End: VictoryPoint" ],
@@ -458,183 +469,181 @@
         "CLASS AllDraw : Signal",
         "CLASS Card247Watcher : Owned<Player> { HAS =1 This; AllDraw BY Anyone: ProjectCard }"
       ],
-      "cost": 9,
-      "projectKind": "AUTOMATED",
     },
 
     // Stratopolis
     {
       "id": "248",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "2 ScienceTag",
+      "cost": 22,
       "tags": [ "VenusTag", "CityTag" ],
+      "resourceType": "Floater",
       "immediate": "PROD[2], CityTile<Area248>",
       "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
       "components": [ "CLASS Area248 : RemoteArea" ],
-      "resourceType": "Floater",
-      "requirement": "2 ScienceTag",
-      "cost": 22,
-      "projectKind": "ACTIVE"
     },
 
     // Stratospheric Birds
     {
       "id": "249",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "6 VenusStep",
+      "cost": 12,
       "tags": [ "VenusTag", "AnimalTag" ],
+      "resourceType": "Animal",
       "immediate": "-Floater",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
-      "resourceType": "Animal",
-      "requirement": "6 VenusStep",
-      "cost": 12,
-      "projectKind": "ACTIVE"
     },
 
     // Sulphur Exports
     {
       "id": "250",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 21,
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "VenusStep, PROD[1 / VenusTag]",
-      "cost": 21,
-      "projectKind": "AUTOMATED"
     },
 
     // Sulphur-Eating Bacteria
     {
       "id": "251",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "3 VenusStep",
+      "cost": 6,
       "tags": [ "VenusTag", "MicrobeTag" ],
+      "resourceType": "Microbe",
       "actions": [
         "-> Microbe<This>",
         "X Microbe<This> -> 3X"
       ],
-      "resourceType": "Microbe",
-      "requirement": "3 VenusStep",
-      "cost": 6,
-      "projectKind": "ACTIVE"
     },
 
     // Terraforming Contract
     {
       "id": "252",
       "deck": "PROJECT",
-      "tags": [ "EarthTag" ],
-      "immediate": "PROD[4]",
+      "projectKind": "AUTOMATED",
       "requirement": "25 TerraformRating",
       "cost": 8,
-      "projectKind": "AUTOMATED"
+      "tags": [ "EarthTag" ],
+      "immediate": "PROD[4]",
     },
 
     // Thermophiles
     {
       "id": "253",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "3 VenusStep",
+      "cost": 9,
       "tags": [ "VenusTag", "MicrobeTag" ],
+      "resourceType": "Microbe",
       "actions": [
         "-> Microbe<CardFront(HAS VenusTag)>",
         "2 Microbe<This> -> VenusStep"
       ],
-      "resourceType": "Microbe",
-      "requirement": "3 VenusStep",
-      "cost": 9,
-      "projectKind": "ACTIVE"
     },
 
     // Water To Venus
     {
       "id": "254",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 9,
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep",
-      "cost": 9,
-      "projectKind": "EVENT"
     },
 
     // Venus Governor
     {
       "id": "255",
       "deck": "PROJECT",
-      "tags": [ "VenusTag", "VenusTag" ],
-      "immediate": "PROD[2]",
+      "projectKind": "AUTOMATED",
       "requirement": "2 VenusTag",
       "cost": 4,
-      "projectKind": "AUTOMATED"
+      "tags": [ "VenusTag", "VenusTag" ],
+      "immediate": "PROD[2]",
     },
 
     // Venus Magnetizer
     {
       "id": "256",
       "deck": "PROJECT",
-      "tags": [ "VenusTag" ],
-      "actions": [ "PROD[Energy] -> VenusStep" ],
+      "projectKind": "ACTIVE",
       "requirement": "5 VenusStep",
       "cost": 7,
-      "projectKind": "ACTIVE"
+      "tags": [ "VenusTag" ],
+      "actions": [ "PROD[Energy] -> VenusStep" ],
     },
 
     // Venus Soils
     {
       "id": "257",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 20,
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "VenusStep, PROD[Plant], 2 Microbe",
-      "cost": 20,
-      "projectKind": "AUTOMATED"
     },
 
     // Venus Waystation
     {
       "id": "258",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 9,
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
         "PlayTag<Class<VenusTag>>:: -2 Owed",
         "End: VictoryPoint"
       ],
-      "cost": 9,
-      "projectKind": "ACTIVE"
     },
 
     // Venusian Animals
     {
       "id": "259",
       "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "9 VenusStep",
+      "cost": 15,
       "tags": [ "VenusTag", "ScienceTag", "AnimalTag" ],
+      "resourceType": "Animal",
       "effects": [
         "ScienceTag: Animal<This>",
         "End: VictoryPoint / Animal<This>"
       ],
-      "resourceType": "Animal",
-      "requirement": "9 VenusStep",
-      "cost": 15,
-      "projectKind": "ACTIVE"
     },
 
     // Venusian Insects
     {
       "id": "260",
       "deck": "PROJECT",
-      "tags": [ "VenusTag", "MicrobeTag" ],
-      "actions": [ "-> Microbe<This>" ],
-      "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
-      "resourceType": "Microbe",
+      "projectKind": "ACTIVE",
       "requirement": "6 VenusStep",
       "cost": 5,
-      "projectKind": "ACTIVE"
+      "tags": [ "VenusTag", "MicrobeTag" ],
+      "resourceType": "Microbe",
+      "actions": [ "-> Microbe<This>" ],
+      "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
     },
 
     // Venusian Plants
     {
       "id": "261",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "requirement": "8 VenusStep",
+      "cost": 13,
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "VenusStep, Microbe<CardFront(HAS VenusTag)> OR Animal<CardFront(HAS VenusTag)>",
       "effects": [ "End: VictoryPoint" ],
-      "requirement": "8 VenusStep",
-      "cost": 13,
-      "projectKind": "AUTOMATED"
     },
   ],
 }

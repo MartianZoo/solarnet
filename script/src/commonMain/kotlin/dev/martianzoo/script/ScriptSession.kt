@@ -3,15 +3,18 @@ package dev.martianzoo.script
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.HIDDEN
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
-import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.engine.World
+import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
@@ -43,10 +46,10 @@ import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.script.TFM_SCRIPT_CLASS_SYNONYMS
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
 import dev.martianzoo.tfm.script.TfmColor.HEAT
@@ -58,51 +61,74 @@ import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
-import dev.martianzoo.types.MType
-import dev.martianzoo.util.random
-import dev.martianzoo.util.toStrings
+import dev.martianzoo.types.Type
 
+/** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(
+    private val locale: String = Vocabulary.ENGLISH,
+    internal val useAnsiColors: Boolean = false,
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
-  internal lateinit var setup: GameSetup
-  internal lateinit var game: Game // TODO maybe remove and just have reader/events/...?
+  internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
+
   internal lateinit var gameplay: TurnLayer
+  internal lateinit var setup: OptionCodeTranslation.Setup
 
   internal var mode: ScriptMode = GREEN
+  private val taskLabels = TaskLabels()
 
-  internal fun newGame(setup: GameSetup, purple: Boolean = false) {
-    this.setup = setup
-    game = Engine.newGame(setup)
-    gameplay = game.gameplay(ENGINE) as TurnLayer // default autoexec mode
+  private fun newGame(
+      setup: OptionCodeTranslation.Setup,
+      purple: Boolean = false,
+  ) {
+    val candidateGame = createGame(setup, locale)
+    val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
-      mode = PURPLE
-      TfmWorkflow.Auto(game, setup).launch()
+      TfmWorkflow.Auto(candidateGame).launch()
     } else {
-      TfmWorkflow.Manual(game, setup).setupPhase()
+      TfmWorkflow.Manual(candidateGame).setupPhase()
     }
+    this.setup = setup
+    game = candidateGame
+    gameplay = candidateGameplay
+    taskLabels.clear()
+    if (purple) mode = PURPLE
   }
 
-  /** Adapts the REPL's option-code syntax, including its temporary random-colony convenience. */
-  internal fun newGame(optionCodes: String, players: Int, purple: Boolean = false) {
-    val effectiveCodes = if (players == 1 && 'S' !in optionCodes) optionCodes + "S" else optionCodes
-    var options = Canon.options(effectiveCodes, players)
-    if (cn("ColoniesExpansion") in options) {
-      val ruleset = Canon.resolve(Canon.bundleNames(options))
-      val colonyCount = if (players <= 2) players + 3 else players + 2
-      options =
-          options.copy(
-              colonyTiles = random(ruleset.colonyTileDefinitions.classNames(), colonyCount)
-          )
+  /** Adapts the REPL's option-code syntax to an instruction executed in a setup world. */
+  internal fun newGame(
+      optionCodes: String,
+      players: Int,
+      selectedColonies: Set<ClassName> = emptySet(),
+      purple: Boolean = false,
+  ) {
+    newGame(OptionCodeTranslation.setup(optionCodes, players, selectedColonies), purple)
+  }
+
+  internal fun newGame(
+      setupInstruction: String,
+      purple: Boolean = false,
+  ) {
+    val (candidateSetup, candidateGame) = createGame(setupInstruction, locale)
+    val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer
+    if (purple) {
+      TfmWorkflow.Auto(candidateGame).launch()
+    } else {
+      TfmWorkflow.Manual(candidateGame).setupPhase()
     }
-    newGame(Canon.gameSetup(options), purple)
+    setup = candidateSetup
+    game = candidateGame
+    gameplay = candidateGameplay
+    taskLabels.clear()
+    if (purple) mode = PURPLE
   }
 
   init {
-    newGame(Canon.SIMPLE_GAME)
+    newGame("BM", 2)
   }
 
-  public fun prompt() = mode.color.foreground(promptPlain())
+  public fun prompt(): String =
+      if (useAnsiColors) mode.color.foreground(promptPlain()) else promptPlain()
 
   /** Returns the current player-board values for a host UI without exposing mutable game state. */
   public fun playerSnapshot(playerName: String = "Player1"): PlayerSnapshot {
@@ -168,7 +194,11 @@ public class ScriptSession(
             narrows("SpecialTile") -> "special"
             else -> "special"
           }
-      val owner = tile.expressionFull.arguments.toStrings().firstOrNull(Player::isValid)
+      val owner =
+          tile.expressionFull.arguments
+              .firstOrNull { Player.isValid(it.className) }
+              ?.className
+              ?.toString()
       return kind to owner
     }
 
@@ -205,10 +235,9 @@ public class ScriptSession(
 
   internal fun promptPlain(): String =
       with(gameplay) {
-        val optionCodes = Canon.optionCodes(setup.options)
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
-        "$optionCodes $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
+        "${setup.optionCodes} $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -270,23 +299,19 @@ public class ScriptSession(
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes = result.changes.filterNot { isHidden(it, game.reader) }.toStrings()
+    val changes =
+        result.changes
+            .filterNot { isHidden(it, game.reader) }
+            .map { event ->
+              game.vocabulary.renderPets(event)
+            }
 
     val newTasks: Set<TaskId> = result.tasksSpawned
     val taskLines =
         if (newTasks.any()) {
-          listOf("New tasks pending:") +
-              game.tasks
-                  .extract {
-                    if (it.id in newTasks) {
-                      it.toStringWithoutCause(queueAssignee = it.assignee)
-                    } else {
-                      null
-                    }
-                  }
-                  .filterNotNull()
+          listOf("New tasks pending:") + taskLines(newTasks)
         } else {
-          listOf()
+          emptyList()
         }
     return if (changes.none() && taskLines.none()) {
       listOf("um, nothing happened")
@@ -297,6 +322,31 @@ public class ScriptSession(
     }
   }
 
+  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Pair<String, Task>> {
+    val allTasks = game.tasks.extract { it }
+    val selectedTasks = if (ids == null) allTasks else allTasks.filter { it.id in ids }
+    val existingIds = allTasks.mapTo(mutableSetOf()) { it.id }
+    val labels =
+        taskLabels.labelsFor(
+            existingIds,
+            selectedTasks.map { it.id },
+            game.timeline.checkpoint().ordinal,
+        )
+    return selectedTasks.map { task -> labels.getValue(task.id) to task }
+  }
+
+  internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
+      selectableTasks(ids).map { (label, task) ->
+        game.vocabulary.renderPets(task, queueAssignee = task.assignee, displayId = label)
+      }
+
+  internal fun resolveTaskLabel(label: String): TaskId? =
+      taskLabels.resolve(game.tasks.ids(), label, game.timeline.checkpoint().ordinal)
+
+  internal fun restoreTaskLabelsAfterRollback(rollbackOrdinal: Int) {
+    taskLabels.restoreAfterRollback(game.tasks.ids(), rollbackOrdinal)
+  }
+
   internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {
     val g = event.change.gaining
     val r = event.change.removing
@@ -304,14 +354,15 @@ public class ScriptSession(
     val changedTypes = listOfNotNull(g, r).map(game::resolve)
     val hidden = game.resolve(HIDDEN.expression)
     val phase = game.resolve(cn("Phase").expression)
-    return changedTypes.all { it.narrows(hidden) } && changedTypes.none { it.narrows(phase) }
+    return changedTypes.all { it.isSubtypeOf(hidden) } &&
+        changedTypes.none { it.isSubtypeOf(phase) }
   }
 
   public fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")
     val groups = inputRegex.matchEntire(stripped)?.groupValues
     return if (groups == null) {
-      listOf()
+      emptyList()
     } else {
       val (_, commandName, arguments) = groups
       val args = arguments.trim().ifEmpty { null }
@@ -345,14 +396,78 @@ public class ScriptSession(
     PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),
   }
 
+  internal fun actor(name: String): Actor {
+    if (name == ENGINE.toString()) return ENGINE
+    return player(name)
+  }
+
   internal fun player(name: String): Player {
-    // In case a shortname was used
-    val type: MType = game.reader.resolve(cn(name).expression) as MType
+    // In case a configured synonym or definition id was used
+    val type: Type = gameplay.resolve(name)
     return Player(type.className)
+  }
+
+  internal fun canonicalColonyName(name: String): ClassName =
+      colonyInputVocabulary.canonicalName(cn(name))
+
+  private val colonyInputVocabulary: Vocabulary by lazy {
+    Vocabulary.create(
+        Canon.resolve(setOf(cn("TerraformingMars"), cn("ColoniesExpansion"))),
+        locale,
+        TFM_SCRIPT_CLASS_SYNONYMS,
+    )
   }
 }
 
-public val welcome =
+internal fun createGame(
+    setup: OptionCodeTranslation.Setup,
+    locale: String = Vocabulary.ENGLISH,
+): World {
+  val setupWorld =
+      Engine.newSetupWorld(
+          Canon.setupWorldDefinition(
+              setup.players,
+              Canon.GameOptions(setup.options, setup.excludedOptions),
+              setup.selectedColonies,
+          ),
+          locale,
+          inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
+      )
+  return Engine.newGame(setupWorld, Canon::assemble)
+}
+
+private fun createGame(
+    setupInstruction: String,
+    locale: String = Vocabulary.ENGLISH,
+): Pair<OptionCodeTranslation.Setup, World> {
+  val setupWorld =
+      Engine.newSetupWorld(
+          Canon.emptySetupWorldDefinition(),
+          locale,
+          inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
+      )
+  setupWorld.gameplay(ENGINE).godMode().manual(setupInstruction)
+  setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
+
+  val options =
+      setupWorld.reader.getComponents("GameOption").mapNotNullTo(linkedSetOf()) { type ->
+        Canon.Option.entries.singleOrNull { it.className == type.className }
+      }
+  val players = setupWorld.reader.getComponents("Player").size
+  val selectedColonies =
+      setupWorld.reader.getComponents("SelectedColonyTile").mapTo(linkedSetOf()) { it.className }
+  val setup =
+      OptionCodeTranslation.Setup(
+          OptionCodeTranslation.optionCodes(options),
+          players,
+          options,
+          emptySet(),
+          selectedColonies,
+      )
+  return setup to Engine.newGame(setupWorld, Canon::assemble)
+}
+
+public val welcome: String =
     """
     Welcome to REgo PLastics. Type `help` or `help <command>` for help.
     Warning: this is a bare-bones tool that is not trying to be easy to use... at all

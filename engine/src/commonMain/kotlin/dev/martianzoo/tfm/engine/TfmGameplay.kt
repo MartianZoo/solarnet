@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.Actor
@@ -7,9 +9,9 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
@@ -20,19 +22,20 @@ import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
  * *Terraforming Mars*.
  */
 public class TfmGameplay(
-    private val game: Game,
+    private val game: World,
     override val actor: Actor,
     internal val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
 ) : TurnLayer by gameplay {
 
-  val reader: GameReader by game::reader
+  public val reader: GameReader by game::reader
 
-  fun asActor(actor: Actor) = TfmGameplay(game, actor)
+  internal fun asActor(actor: Actor) = TfmGameplay(game, actor)
 
-  fun asPlayer(player: Player) = asActor(player)
+  public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
-  fun nextGeneration(vararg cardsBought: Int) {
+  public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
+    asActor(ENGINE).godMode().manual("Generation")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(Player.players(5))) {
         asPlayer(player).doTask(if (cards > 0) "$cards BuyCard" else "Ok")
@@ -41,7 +44,7 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
+  public fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return turn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
@@ -49,25 +52,25 @@ public class TfmGameplay(
     }
   }
 
-  fun pass(): TaskResult = turn { doTask("Pass") }
+  public fun pass(): TaskResult = turn { doTask("Pass") }
 
-  fun declineSecondAction(): TaskResult = doFirstTask("Ok")
+  public fun declineSecondAction(): TaskResult = doFirstTask("Ok")
 
-  fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
+  public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
     return turn {
       doTask("UseAction$which<$stdAction>")
       body()
     }
   }
 
-  fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
+  public fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseStandardProjectSA") {
       doTask("UseAction1<$stdProject>")
       body()
     }
   }
 
-  fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
+  public fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
     return turn {
       doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
       body()
@@ -76,10 +79,10 @@ public class TfmGameplay(
 
   // In the method after this, all the cost parameters are optional,
   // but you've gotta provide ONE of them.
-  fun playProject(unused1: String, unused2: BodyLambda = {}): Nothing =
+  public fun playProject(unused1: String, unused2: BodyLambda = {}): Nothing =
       error("you must specify some cost")
 
-  fun playProject(
+  public fun playProject(
       cardName: String,
       megacredits: Int = 0,
       steel: Int = 0,
@@ -98,7 +101,7 @@ public class TfmGameplay(
     }
   }
 
-  fun pay(
+  public fun pay(
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
@@ -116,7 +119,9 @@ public class TfmGameplay(
 
       // MC really should be equal to owed, but if it's less we might be legitimately testing how
       // the engine responds. We know it doesn't respond usefully to an overage so we check that.
-      require(megacredits <= owed) { "Overpaying $megacredits MC when only $owed is owed" }
+      if (megacredits > owed) {
+        throw LimitsException("Overpaying $megacredits MC when only $owed is owed")
+      }
       pay(megacredits, "Megacredit")
 
       // Take care of other Accepts we didn't need
@@ -127,41 +132,45 @@ public class TfmGameplay(
     }
   }
 
-  fun cardAction1(cardName: String, body: BodyLambda = {}) = cardAction(1, cardName, body)
+  public fun cardAction1(cardName: String, body: BodyLambda = {}): TaskResult =
+      cardAction(1, cardName, body)
 
-  fun cardAction2(cardName: String, body: BodyLambda = {}) = cardAction(2, cardName, body)
+  public fun cardAction2(cardName: String, body: BodyLambda = {}): TaskResult =
+      cardAction(2, cardName, body)
 
   private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseCardActionSA") {
+      doTask("ActionUsedMarker<$cardName>")
       doTask("$USE_ACTION$which<$cardName>")
-      doTask("ActionUsedMarker<$cardName>") // will become automatic?
       body()
     }
   }
 
-  fun sellPatents(count: Int) =
+  public fun sellPatents(count: Int): TaskResult =
       stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
 
-  fun phase(phase: String, body: BodyLambda = {}) {
-    require(count("Phase") == 1) {
-      "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
+  public fun phase(phase: String, body: BodyLambda = {}) {
+    if (count("Phase") != 1) {
+      throw NotNowException(
+          "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
+      )
     }
     asActor(ENGINE).godMode().manual("${phase}Phase FROM Phase", body)
   }
 
-  fun production(): Map<ClassName, Int> =
+  internal fun production(): Map<ClassName, Int> =
       standardResourceNames(reader).associateWith { production(it) }
 
-  fun production(kind: ClassName) =
+  public fun production(kind: ClassName): Int =
       count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
 
-  fun oxygenPercent(): Int = count("OxygenStep")
+  public fun oxygenPercent(): Int = count("OxygenStep")
 
-  fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
+  public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
 
-  fun venusPercent(): Int = count("VenusStep") * 2
+  public fun venusPercent(): Int = count("VenusStep") * 2
 
-  companion object {
-    fun Game.tfm(actor: Actor) = TfmGameplay(this, actor)
+  public companion object {
+    public fun World.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
   }
 }

@@ -1,20 +1,62 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.types.te
 import dev.martianzoo.util.toStrings
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SimpleAddsRemovesTest {
   @Test
+  fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
+    val game = Engine.newGame(canonicalPremise())
+    val p2 = game.tfm(PLAYER2).godMode()
+
+    p2.manual("StandardResource") { doTask("Plant") }
+
+    p2.count("Plant<Player2>") shouldBe 1
+  }
+
+  @Test
+  fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
+    val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2).godMode()
+
+    shouldThrow<LimitsException> { p2.manual("-Plant") }
+  }
+
+  @Test
+  fun manualPreservesTasksThatWereAlreadyPending() {
+    val game = Engine.newGame(canonicalPremise())
+    val p2 = game.tfm(PLAYER2).godMode()
+    val pendingTask = p2.addTasks("StandardResource").single()
+
+    p2.manual("Heat")
+
+    p2.count("Heat") shouldBe 1
+    (pendingTask in game.tasks) shouldBe true
+  }
+
+  @Test
+  fun manualRejectsAPreparedTask() {
+    val game = Engine.newGame(canonicalPremise())
+    val p2 = game.tfm(PLAYER2).godMode()
+    val pendingTask = p2.addTasks("StandardResource").single()
+    p2.prepareTask(pendingTask)
+
+    shouldThrow<TaskException> { p2.manual("Heat") }
+  }
+
+  @Test
   fun basicByApi() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(canonicalPremise())
 
     val checkpoint = game.timeline.checkpoint()
 
@@ -40,7 +82,7 @@ internal class SimpleAddsRemovesTest {
     eng.count("StandardResource<Player1>") shouldBe 10
     eng.count("Steel") shouldBe 3
 
-    p2.manual("2 Heat<Player2 FROM Player1>!")
+    p2.manual("2 Heat<Player2> FROM Heat<Player1>!")
     eng.has("=3 Heat<Player2>") shouldBe true
     eng.has("=5 Heat<Player1>") shouldBe true
 
@@ -65,7 +107,7 @@ internal class SimpleAddsRemovesTest {
         )
   }
 
-  fun strip(strings: Iterable<String>): List<String> {
+  private fun strip(strings: Iterable<String>): List<String> {
     return strings.map { endRegex.replace(startRegex.replace(it, ""), "") }
   }
 

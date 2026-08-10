@@ -8,7 +8,8 @@ import kotlin.test.Test
 
 class MarketManipulationTest : ColoniesCardTest() {
   @Test
-  fun `a normal case`() {
+  fun `with movable tracks, plays Market Manipulation`() {
+    p1.manual("ProjectCard, Megacredit")
     p1.playProject("MarketManipulation", 1) {
           doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
         }
@@ -16,8 +17,9 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `you can't lower a track if it's already at the bottom`() {
-    engine.sneak("-ColonyProduction<Triton>")
+  fun `with a track at the bottom, tries to lower it`() {
+    p1.manual("ProjectCard, Megacredit")
+    engine.manual("-ColonyProduction<Triton>")
     p1.playProject("MarketManipulation", 1) {
       shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
@@ -27,8 +29,9 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `you can't raise a track if it's already at the top`() {
-    engine.sneak("5 ColonyProduction<Luna>")
+  fun `with a track at the top, tries to raise it`() {
+    p1.manual("ProjectCard, Megacredit")
+    engine.manual("5 ColonyProduction<Luna>")
     p1.playProject("MarketManipulation", 1) {
       shouldThrow<LimitsException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
@@ -38,7 +41,8 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `you can't raise and lower the same track`() {
+  fun `with one track selected twice, tries to play Market Manipulation`() {
+    p1.manual("ProjectCard, Megacredit")
     p1.playProject("MarketManipulation", 1) {
       shouldThrow<ExpressionException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Luna>")
@@ -48,11 +52,20 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `you can't interact with a colony tile that's not in play yet`() {
+  fun `with Titan delayed, tries to raise its track`() {
+    p1.manual("ProjectCard, Megacredit")
     p1.playProject("MarketManipulation", 1) {
       shouldThrow<NotNowException> {
         doTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>")
       }
+      abort()
+    }
+  }
+
+  @Test
+  fun `with Titan delayed, tries to lower its track`() {
+    p1.manual("ProjectCard, Megacredit")
+    p1.playProject("MarketManipulation", 1) {
       shouldThrow<NotNowException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>")
       }

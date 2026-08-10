@@ -11,12 +11,13 @@ import kotlin.math.absoluteValue
  * were added.
  */
 public data class TaskResult(
-    public val changes: List<ChangeEvent> = listOf(),
-    public val tasksSpawned: Set<TaskId> = setOf(),
+    public val changes: List<ChangeEvent> = emptyList(),
+    public val tasksSpawned: Set<TaskId> = emptySet(),
 ) {
   public fun net(): List<StateChange> {
     val map = mutableMapOf<Expression, Int>()
-    for (change in changes.map { it.change }) {
+    for (event in changes) {
+      val change = event.change
       change.gaining?.let {
         val count = map[it] ?: 0
         map[it] = count + change.count

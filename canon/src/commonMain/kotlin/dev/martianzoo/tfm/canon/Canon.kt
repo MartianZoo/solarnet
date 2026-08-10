@@ -1,114 +1,223 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.Player
+import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
-import dev.martianzoo.tfm.data.GameOptions
-import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.tfm.data.AwardDefinition
 
 /** Catalog of the official bundles and the game options they provide. */
 public object Canon :
     TfmRuleset.Composite(
-        StandardFormBundle("TerraformingMars", baseCustomClasses),
-        StandardFormBundle("CorporateEraExpansion", corporateEraCustomClasses),
-        StandardFormBundle("TharsisMap", areaShortNamePrefix = "M"),
-        StandardFormBundle("HellasMap", areaShortNamePrefix = "H"),
-        StandardFormBundle("ElysiumMap", areaShortNamePrefix = "E"),
-        StandardFormBundle("VenusNextExpansion"),
-        StandardFormBundle("PreludeExpansion", preludeCustomClasses),
-        StandardFormBundle("ColoniesExpansion", coloniesCustomClasses),
-        StandardFormBundle("TurmoilExpansion"),
-        StandardFormBundle("PromoCardsBundle", promoCardsCustomClasses),
+        StandardFormBundle(
+            "TerraformingMars",
+            baseCustomClasses,
+            setOf(
+                cn("TerraformingMars"),
+                cn("SoloMode"),
+                cn("MultiplayerMode"),
+                cn("StandardSoloVariant"),
+                cn("Tr63SoloVariant"),
+            ),
+        ),
+        StandardFormBundle(
+            "CorporateEraExpansion",
+            corporateEraCustomClasses,
+            setOf(cn("CorporateEraExpansion")),
+        ),
+        StandardFormBundle(
+            "TharsisMap",
+            gameOptionClassNames = setOf(cn("TharsisMapOption")),
+        ),
+        StandardFormBundle(
+            "HellasElysiumExpansion",
+            gameOptionClassNames = setOf(cn("HellasMapOption"), cn("ElysiumMapOption")),
+        ),
+        StandardFormBundle(
+            "UtopiaCimmeriaExpansion",
+            gameOptionClassNames =
+                setOf(cn("UtopiaPlanitiaMapOption"), cn("TerraCimmeriaMapOption")),
+        ),
+        StandardFormBundle(
+            "VenusNextExpansion",
+            gameOptionClassNames = setOf(cn("VenusNextExpansion"), cn("WorldGovernmentOption")),
+        ),
+        StandardFormBundle(
+            "PreludeExpansion",
+            preludeCustomClasses,
+            setOf(cn("PreludeExpansion")),
+        ),
+        StandardFormBundle(
+            "ColoniesExpansion",
+            coloniesCustomClasses,
+            setOf(cn("ColoniesExpansion")),
+        ),
+        StandardFormBundle(
+            "TurmoilExpansion",
+            gameOptionClassNames = setOf(cn("TurmoilCardPack")),
+        ),
+        StandardFormBundle(
+            "PromoCardsExpansion",
+            promoCardsCustomClasses,
+            setOf(cn("PromoCardPack")),
+        ),
     ) {
-  /** A minimal two-player game using the base game and Tharsis map. */
-  public val SIMPLE_GAME: GameSetup by lazy { gameSetup(options("BM", 2)) }
+  /** One positive or negative statement in a canonical game-options expression. */
+  public sealed interface OptionSelection
 
-  /** A minimal solo game using the base game, solo mode, and Tharsis map. */
-  public val SIMPLE_SOLO_GAME: GameSetup by lazy { gameSetup(options("BSM", 1)) }
+  /** A canonical game option, named identically to its Pets component class. */
+  public enum class Option : OptionSelection {
+    TerraformingMars,
+    SoloMode,
+    MultiplayerMode,
+    StandardSoloVariant,
+    Tr63SoloVariant,
+    CorporateEraExpansion,
+    TharsisMapOption,
+    HellasMapOption,
+    ElysiumMapOption,
+    UtopiaPlanitiaMapOption,
+    TerraCimmeriaMapOption,
+    VenusNextExpansion,
+    PreludeExpansion,
+    ColoniesExpansion,
+    TurmoilCardPack,
+    PromoCardPack,
+    WorldGovernmentOption,
+    // MandatoryVenusVariant,
+    // OfferBeginnerCorpsVariant,
+    ;
 
-  /** Creates exact game options from a client's one-letter option syntax. */
-  public fun options(
-      optionCodes: String,
-      players: Int,
-      colonyTiles: Set<ClassName> = emptySet(),
-  ): GameOptions {
-    val codes = optionCodes.asIterable().map(Char::toString).toSetStrict()
-    require(OPTIONS_BY_CODE.keys.containsAll(codes)) {
-      "supported option codes are: ${OPTIONS_BY_CODE.keys}"
+    public val className: ClassName = cn(name)
+
+    public companion object {
+      /** The options used when a caller does not make an explicit selection. */
+      public val DEFAULTS: Set<Option> = setOf(TerraformingMars, TharsisMapOption)
     }
-    return GameOptions(
-        players,
-        codes.mapTo(linkedSetOf()) { OPTIONS_BY_CODE.getValue(it) },
-        colonyTiles,
+  }
+
+  /** An explicit mask for defaults contributed by [option]. Prefer the [exclude] factory. */
+  public data class Exclude(public val option: Option) : OptionSelection
+
+  /** User intent: positive selections plus explicit masks for effect-contributed defaults. */
+  public data class GameOptions(
+      public val included: Set<Option> = Option.DEFAULTS,
+      public val excluded: Set<Option> = emptySet(),
+  ) {
+    public constructor(
+        selections: Iterable<OptionSelection>
+    ) : this(
+        included = selections.filterIsInstance<Option>().toSet(),
+        excluded = selections.filterIsInstance<Exclude>().mapTo(linkedSetOf(), Exclude::option),
+    )
+
+    init {
+      require(included.intersect(excluded).isEmpty()) {
+        "game options cannot be both included and excluded"
+      }
+    }
+  }
+
+  /** An unconfigured canonical setup world, ready to receive a Pets setup instruction. */
+  public fun emptySetupWorldDefinition(): GamePremise =
+      GamePremise(
+          CanonSetupRuleset,
+          CanonSetupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className },
+          listOf(ENGINE),
+          emptyList(),
+      )
+
+  /** Definition used to construct an independent canonical setup world. */
+  public fun setupWorldDefinition(
+      players: Int,
+      options: GameOptions = GameOptions(),
+      selectedColonies: Set<ClassName> = emptySet(),
+  ): GamePremise {
+    require(players in 1..5) { "player count must be between 1 and 5" }
+    val mode = if (players == 1) Option.SoloMode else Option.MultiplayerMode
+    val initialComponents = buildList {
+      add("$players Player")
+      options.excluded.mapTo(this) { "Exclude<Class<${it.className}>>" }
+      (options.included + mode).mapTo(this) { it.className.toString() }
+      selectedColonies.mapTo(this) { "${it}Selected" }
+    }
+    return GamePremise(
+        CanonSetupRuleset,
+        CanonSetupRuleset.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className },
+        listOf(ENGINE),
+        initialComponents,
     )
   }
 
-  /** Returns the bundle identities required to provide [options]. */
-  public fun bundleNames(options: GameOptions): Set<ClassName> =
-      options.enabled.mapTo(linkedSetOf()) { option ->
-        OPTION_BUNDLES[option] ?: throw IllegalArgumentException("unknown game option: $option")
-      }
-
-  /** Assembles the selected ruleset and fully specified setup for [options]. */
-  public fun gameSetup(options: GameOptions): GameSetup =
-      GameSetup(resolve(bundleNames(options)), options)
-
-  /** Creates a fully specified setup from one-letter option codes. */
-  public fun fromOptionCodes(
-      optionCodes: String,
+  /** Convenience for callers whose selections contain no explicit default masks. */
+  public fun setupWorldDefinition(
       players: Int,
-      colonyTiles: Set<ClassName> = emptySet(),
-  ): GameSetup = gameSetup(options(optionCodes, players, colonyTiles))
+      options: Set<Option>,
+      selectedColonies: Set<ClassName> = emptySet(),
+  ): GamePremise = setupWorldDefinition(players, GameOptions(options), selectedColonies)
 
-  /** Formats known options using the client's one-letter syntax. */
-  public fun optionCodes(options: GameOptions): String =
-      options.enabled.mapNotNull(OPTION_CODES::get).joinToString("")
+  /** Snapshots a validated canonical setup world for an independent playable game. */
+  public fun assemble(setupWorld: GameReader): GamePremise {
+    require(setupWorld.ruleset === CanonSetupRuleset) { "not a canonical setup world" }
+    val players = setupWorld.getComponents("Player").size
 
-  public val supportedOptionCodes: Set<String>
-    get() = OPTIONS_BY_CODE.keys
+    val enabledOptions =
+        setupWorld.getComponents("GameOption").elements.mapTo(linkedSetOf()) { it.className }
 
-  public val mapOptionCodes: Set<String> = setOf("E", "H", "M")
+    val bundleNames =
+        enabledOptions.mapTo(linkedSetOf(cn("TerraformingMars"))) { option ->
+          setupOptionBundles[option]
+              ?: throw IllegalArgumentException("unknown game option: $option")
+        }
+    val selectedRuleset = resolve(bundleNames, setupWorld)
+    val ruleset: TfmRuleset =
+        if (SOLO_MODE in enabledOptions) WithoutAwards(selectedRuleset) else selectedRuleset
+    val setupOptions = setupWorld.getComponents("GameOption").elements
+    val selectedColonies = setupWorld.getComponents("SelectedColonyTile").elements
+    val setupComponents = setupOptions + selectedColonies
+    val initialComponents = setupComponents.map { it.expression.toString() }
+    val componentRoots = setupComponents.mapTo(linkedSetOf()) { it.className }
+    val roots = componentRoots + ruleset.allDefinitions.classNames() + TERRAFORMING_MARS
+    return GamePremise(ruleset, roots, Player.players(players) + ENGINE, initialComponents)
+  }
+
+  /** Number of colony tiles required for a game having [players] seated players. */
+  public fun requiredColonyTileCount(players: Int): Int {
+    require(players in 1..5) { "player count must be between 1 and 5" }
+    return when (players) {
+      1 -> 3
+      2 -> 5
+      else -> players + 2
+    }
+  }
+
+  private val setupOptionBundles by lazy {
+    val result = buildMap {
+      bundles.forEach { bundle ->
+        bundle.gameOptionClassNames.forEach { option ->
+          require(put(option, bundle.bundleName) == null) {
+            "multiple setup bundles provide $option"
+          }
+        }
+      }
+    }
+    require(result.keys == Option.entries.mapTo(linkedSetOf()) { it.className }) {
+      "canonical option enum does not match the available setup options"
+    }
+    result
+  }
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val SOLO_MODE = cn("SoloMode")
-  private val CORPORATE_ERA = cn("CorporateEraExpansion")
-  private val THARSIS_MAP = cn("TharsisMap")
-  private val HELLAS_MAP = cn("HellasMap")
-  private val ELYSIUM_MAP = cn("ElysiumMap")
-  private val VENUS_NEXT = cn("VenusNextExpansion")
-  private val PRELUDE = cn("PreludeExpansion")
-  private val COLONIES = cn("ColoniesExpansion")
-  private val TURMOIL = cn("TurmoilExpansion")
-  private val PROMOS = cn("PromoCardsBundle")
 
-  private val OPTIONS_BY_CODE =
-      linkedMapOf(
-          "B" to TERRAFORMING_MARS,
-          "S" to SOLO_MODE,
-          "R" to CORPORATE_ERA,
-          "M" to THARSIS_MAP,
-          "H" to HELLAS_MAP,
-          "E" to ELYSIUM_MAP,
-          "V" to VENUS_NEXT,
-          "P" to PRELUDE,
-          "C" to COLONIES,
-          "T" to TURMOIL,
-          "X" to PROMOS,
-      )
-  private val OPTION_CODES = OPTIONS_BY_CODE.entries.associate { (code, option) -> option to code }
-  private val OPTION_BUNDLES =
-      mapOf(
-          TERRAFORMING_MARS to TERRAFORMING_MARS,
-          SOLO_MODE to TERRAFORMING_MARS,
-          CORPORATE_ERA to CORPORATE_ERA,
-          THARSIS_MAP to THARSIS_MAP,
-          HELLAS_MAP to HELLAS_MAP,
-          ELYSIUM_MAP to ELYSIUM_MAP,
-          VENUS_NEXT to VENUS_NEXT,
-          PRELUDE to PRELUDE,
-          COLONIES to COLONIES,
-          TURMOIL to TURMOIL,
-          PROMOS to PROMOS,
-      )
+  private class WithoutAwards(ruleset: TfmRuleset) : TfmRuleset.Composite(ruleset) {
+    override val awardDefinitions: Set<AwardDefinition> = emptySet()
+  }
 }
+
+/** Counteracts defaults for [option] in the same expression as positive options. */
+public fun exclude(option: Canon.Option): Canon.OptionSelection = Canon.Exclude(option)

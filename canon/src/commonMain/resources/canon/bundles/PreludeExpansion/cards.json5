@@ -7,7 +7,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[3], 44",
-      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed" ]
+      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed" ],
     },
 
     // Point Luna
@@ -16,7 +16,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[Titanium], 38",
-      "effects": [ "EarthTag: ProjectCard" ]
+      "effects": [ "EarthTag: ProjectCard" ],
     },
 
     // Robinson Industries
@@ -25,7 +25,7 @@
       "deck": "CORPORATION",
       "immediate": "47",
       "actions": [ "4 -> GainLowestProduction" ],
-      "components": [ "CLASS GainLowestProduction : Owned, Custom" ]
+      "components": [ "CLASS GainLowestProduction : Owned, Custom" ],
     },
 
     // Valley Trust
@@ -36,8 +36,23 @@
       "immediate": "37, MandatePC4",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
       "components": [
-        "CLASS MandatePC4 : Mandate { -> PreludeCard THEN PlayCard<Class<PreludeCard>> }"
-      ]
+        "CLASS MandatePC4 : Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }"
+      ],
+    },
+
+    // Vitor
+    {
+      "id": "PC5",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": "45, (Class<Award>: MandatePC5) OR Ok",
+      "effects": [
+        "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
+      ],
+      "components": [
+        "CLASS CitationsIgnoringRemoves<CardFront, Class<Component>> : Custom",
+        "CLASS MandatePC5 : Mandate { -> Award }",
+      ],
     },
 
     // Allied Bank
@@ -45,7 +60,7 @@
       "id": "P01",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[4], 3"
+      "immediate": "PROD[4], 3",
     },
 
     // Aquifer Turbines
@@ -53,7 +68,7 @@
       "id": "P02",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "OceanTile, PROD[2 Energy], -3"
+      "immediate": "OceanTile, PROD[2 Energy], -3",
     },
 
     // Biofuels
@@ -61,7 +76,7 @@
       "id": "P03",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag" ],
-      "immediate": "PROD[Energy, Plant], 2 Plant"
+      "immediate": "PROD[Energy, Plant], 2 Plant",
     },
 
     // Biolab
@@ -69,7 +84,7 @@
       "id": "P04",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
-      "immediate": "PROD[Plant], 3 ProjectCard"
+      "immediate": "PROD[Plant], 3 ProjectCard",
     },
 
     // Biosphere Support
@@ -77,7 +92,7 @@
       "id": "P05",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[-1, 2 Plant]"
+      "immediate": "PROD[-1, 2 Plant]",
     },
 
     // Business Empire
@@ -85,7 +100,7 @@
       "id": "P06",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[6], -6"
+      "immediate": "PROD[6], -6",
     },
 
     // Dome Farming
@@ -93,14 +108,14 @@
       "id": "P07",
       "deck": "PRELUDE",
       "tags": [ "PlantTag", "BuildingTag" ],
-      "immediate": "PROD[2, Plant]"
+      "immediate": "PROD[2, Plant]",
     },
 
     // Donation
     {
       "id": "P08",
       "deck": "PRELUDE",
-      "immediate": "21"
+      "immediate": "21",
     },
 
     // Early Settlement
@@ -108,14 +123,24 @@
       "id": "P09",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[Plant], CityTile"
+      "immediate": "PROD[Plant], CityTile",
+    },
+
+    // Ecology Experts
+    {
+      "id": "P10",
+      "deck": "PRELUDE",
+      "immediate": "PROD[Plant], CardP10Effect, PlayCard THEN -99 Required<Class<GlobalParameter>>.",
+      "components": [
+        "CLASS CardP10Effect : Owned, Temporary { CardFront: PlantTag<CardP10>, MicrobeTag<CardP10>, -This! }"
+      ],
     },
 
     // Excentric Sponsor
     {
       "id": "P11",
       "deck": "PRELUDE",
-      "immediate": "PlayCard THEN -25 Owed."
+      "immediate": "PlayCard THEN -25 Owed.",
     },
 
     // Experimental Forest[F]
@@ -123,7 +148,7 @@
       "id": "P12F",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "GreeneryTile, 2 ProjectCard"
+      "immediate": "GreeneryTile, 2 ProjectCard",
     },
 
     // Galilean Mining
@@ -131,21 +156,21 @@
       "id": "P13",
       "deck": "PRELUDE",
       "tags": [ "JovianTag" ],
-      "immediate": "PROD[2 Titanium], -5"
+      "immediate": "PROD[2 Titanium], -5",
     },
 
     // Great Aquifer
     {
       "id": "P14",
       "deck": "PRELUDE",
-      "immediate": "2 OceanTile"
+      "immediate": "2 OceanTile",
     },
 
     // Huge Asteroid
     {
       "id": "P15",
       "deck": "PRELUDE",
-      "immediate": "3 TemperatureStep, -5"
+      "immediate": "3 TemperatureStep, -5",
     },
 
     // Io Research Outpost
@@ -153,14 +178,14 @@
       "id": "P16",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag", "JovianTag" ],
-      "immediate": "PROD[Titanium], ProjectCard"
+      "immediate": "PROD[Titanium], ProjectCard",
     },
 
     // Loan
     {
       "id": "P17",
       "deck": "PRELUDE",
-      "immediate": "PROD[-2], 30"
+      "immediate": "PROD[-2], 30",
     },
 
     // Martian Industries
@@ -168,21 +193,21 @@
       "id": "P18",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[Energy, Steel], 6"
+      "immediate": "PROD[Energy, Steel], 6",
     },
 
     // Metal-Rich Asteroid
     {
       "id": "P19",
       "deck": "PRELUDE",
-      "immediate": "TemperatureStep, 4 Titanium, 4 Steel"
+      "immediate": "TemperatureStep, 4 Titanium, 4 Steel",
     },
 
     // Metals Company
     {
       "id": "P20",
       "deck": "PRELUDE",
-      "immediate": "PROD[1, Steel, Titanium]"
+      "immediate": "PROD[1, Steel, Titanium]",
     },
 
     // Mining Operations
@@ -190,7 +215,7 @@
       "id": "P21",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2 Steel], 4 Steel"
+      "immediate": "PROD[2 Steel], 4 Steel",
     },
 
     // Mohole
@@ -198,7 +223,7 @@
       "id": "P22",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[3 Heat], 3 Heat"
+      "immediate": "PROD[3 Heat], 3 Heat",
     },
 
     // Mohole Excavation
@@ -206,14 +231,14 @@
       "id": "P23",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[Steel, 2 Heat], 2 Heat"
+      "immediate": "PROD[Steel, 2 Heat], 2 Heat",
     },
 
     // Nitrogen Shipment
     {
       "id": "P24",
       "deck": "PRELUDE",
-      "immediate": "PROD[Plant], TerraformRating, 5"
+      "immediate": "PROD[Plant], TerraformRating, 5",
     },
 
     // Orbital Construction Yard
@@ -221,7 +246,7 @@
       "id": "P25",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[Titanium], 4 Titanium"
+      "immediate": "PROD[Titanium], 4 Titanium",
     },
 
     // Polar Industries
@@ -229,7 +254,7 @@
       "id": "P26",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2 Heat], OceanTile"
+      "immediate": "PROD[2 Heat], OceanTile",
     },
 
     // Power Generation
@@ -237,7 +262,7 @@
       "id": "P27",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "PROD[3 Energy]"
+      "immediate": "PROD[3 Energy]",
     },
 
     // Self-Sufficient Settlement
@@ -245,7 +270,7 @@
       "id": "P29",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[2], CityTile"
+      "immediate": "PROD[2], CityTile",
     },
 
     // Smelting Plant
@@ -253,14 +278,14 @@
       "id": "P30",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "2 OxygenStep, 5 Steel"
+      "immediate": "2 OxygenStep, 5 Steel",
     },
 
     // Society Support
     {
       "id": "P31",
       "deck": "PRELUDE",
-      "immediate": "PROD[-1, Plant, Energy, Heat]"
+      "immediate": "PROD[-1, Plant, Energy, Heat]",
     },
 
     // Supplier
@@ -268,14 +293,14 @@
       "id": "P32",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "PROD[2 Energy], 4 Steel"
+      "immediate": "PROD[2 Energy], 4 Steel",
     },
 
     // Supply Drop
     {
       "id": "P33",
       "deck": "PRELUDE",
-      "immediate": "3 Titanium, 8 Steel, 3 Plant"
+      "immediate": "3 Titanium, 8 Steel, 3 Plant",
     },
 
     // UNMI Contractor
@@ -283,84 +308,84 @@
       "id": "P34",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "3 TerraformRating, ProjectCard"
+      "immediate": "3 TerraformRating, ProjectCard",
     },
 
     // Acquired Space Agency[F]
     {
       "id": "P35F",
       "deck": "PRELUDE",
-      "immediate": "6 Titanium, 2 ProjectCard"
+      "immediate": "6 Titanium, 2 ProjectCard",
     },
 
     // House Printing
     {
       "id": "P36",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 10,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel]",
       "effects": [ "End: VictoryPoint" ],
-      "cost": 10,
-      "projectKind": "AUTOMATED"
     },
 
     // Lava Tube Settlement
     {
       "id": "P37",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 15,
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 2], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile)",
-      "cost": 15,
-      "projectKind": "AUTOMATED"
     },
 
     // Martian Survey
     {
       "id": "P38",
       "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "MAX 4 OxygenStep",
+      "cost": 9,
       "tags": [ "ScienceTag" ],
       "immediate": "2 ProjectCard",
       "effects": [ "End: VictoryPoint" ],
-      "requirement": "MAX 4 OxygenStep",
-      "cost": 9,
-      "projectKind": "EVENT"
     },
 
     // Psychrophiles
     {
       "id": "P39",
       "deck": "PROJECT",
-      "tags": [ "MicrobeTag" ],
+      "projectKind": "ACTIVE",
       "requirement": "MAX 5 TemperatureStep",
+      "cost": 2,
+      "tags": [ "MicrobeTag" ],
+      "resourceType": "Microbe",
       "actions": [ "-> Microbe<This>" ],
       "effects": [
         "PlayTag<Class<PlantTag>>: (-X Microbe<This>! THEN -2X Owed.) OR Ok"
       ],
-      "resourceType": "Microbe",
-      "cost": 2,
-      "projectKind": "ACTIVE"
     },
 
     // SF Memorial
     {
       "id": "P41",
       "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 7,
       "tags": [ "BuildingTag" ],
       "immediate": "ProjectCard",
       "effects": [ "End: VictoryPoint" ],
-      "cost": 7,
-      "projectKind": "AUTOMATED"
     },
 
     // Space Hotels
     {
       "id": "P42",
       "deck": "PROJECT",
-      "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "PROD[4]",
+      "projectKind": "AUTOMATED",
       "requirement": "2 EarthTag",
       "cost": 12,
-      "projectKind": "AUTOMATED"
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": "PROD[4]",
     },
   ],
 }

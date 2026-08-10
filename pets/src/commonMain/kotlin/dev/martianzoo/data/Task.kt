@@ -1,9 +1,12 @@
 package dev.martianzoo.data
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -17,16 +20,13 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 
 public data class Task(
-    /**
-     * Identifies this task within a game at a particular point in time. These do get reused (for
-     * user convenience) but of course no two have the same id at the same time.
-     */
+    /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,
 
     /** Whose pending-work queue contains this task and whose scoped gameplay may revise it. */
     val assignee: Actor,
 
-    /** If true, no game state may be modified until this task is completed. */
+    /** If true, the world may not be modified until this task is completed. */
     val next: Boolean = false,
 
     /**
@@ -49,7 +49,7 @@ public data class Task(
 ) {
 
   /** Normalized form of [instructionIn]. */
-  val instruction = normalizeForTask(instructionIn)
+  public val instruction: Instruction = normalizeForTask(instructionIn)
 
   /** Normalized form of [thenIn]. */
   val then: Instruction? by lazy { // should it be InstructionGroup?
@@ -65,12 +65,12 @@ public data class Task(
       "Die remained after task normalization: $instruction"
     }
     when (instruction) {
-      is Transform -> error("can't enqueue: $instruction")
+      is Transform -> throw ExpressionException("unhandled transform in task: $instruction")
       else -> {}
     }
   }
 
-  operator fun times(factor: Int): Task {
+  public operator fun times(factor: Int): Task {
     return copy(instructionIn = instruction * factor, thenIn = then?.times(factor))
   }
 
@@ -82,6 +82,14 @@ public data class Task(
           } else {
             throw DeadEndException("a Die instruction was reached")
           }
+      is By -> {
+        val inner = normalizeForTask(instruction.inner)
+        if (inner is Then) {
+          inner.withInstructions(inner.instructions.map { By.create(it, instruction.actor) })
+        } else {
+          By.create(inner, instruction.actor)
+        }
+      }
       is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Or -> {
@@ -98,16 +106,18 @@ public data class Task(
       }
       is Then -> {
         val parts = instruction.instructions
-        parts.firstOrNull { (it as? Gain)?.gaining?.className == DIE }
-            ?: Then.create(parts.map(::normalizeForTask))
+        if ((parts.first() as? Gain)?.gaining?.className == DIE) {
+          throw DeadEndException("a Die instruction was reached")
+        }
+        instruction.withInstructions(parts.map(::normalizeForTask))
       }
       is NoOp,
       is Multi -> split(instruction).asInstruction()
-      is Transform -> error("can't enqueue: $instruction")
+      is Transform -> throw ExpressionException("unhandled transform in task: $instruction")
     }
   }
 
-  override fun toString() = buildString {
+  override fun toString(): String = buildString {
     append(id)
     append(if (next) "* " else "  ")
     appendAssigneeLabel()
@@ -117,8 +127,11 @@ public data class Task(
     whyPending?.let { append(" ($it)") }
   }
 
-  fun toStringWithoutCause(queueAssignee: Actor? = null) = buildString {
-    append(id)
+  public fun toStringWithoutCause(queueAssignee: Actor? = null): String =
+      toStringWithoutCause(queueAssignee, id.toString())
+
+  public fun toStringWithoutCause(queueAssignee: Actor?, displayId: String): String = buildString {
+    append(displayId)
     append(if (next) "* " else "  ")
     if (queueAssignee == null) {
       appendAssigneeLabel()
@@ -136,23 +149,25 @@ public data class Task(
     append("] ")
   }
 
-  companion object {
+  public companion object {
     public fun newTasks(
         firstId: TaskId,
         assignee: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
+        isAbstract: ((Expression) -> Boolean)? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map { newTask(ids.next(), assignee, it, cause) }
+      return instruction.map { newTask(ids.next(), assignee, it, cause, isAbstract = isAbstract) }
     }
 
-    public fun newTask(
+    private fun newTask(
         id: TaskId,
         assignee: Actor,
         instruction: Instruction,
         cause: Cause?,
         automatic: Boolean = false,
+        isAbstract: ((Expression) -> Boolean)? = null,
     ): Task {
       val task =
           Task(
@@ -164,7 +179,7 @@ public data class Task(
           )
       val normal = task.instruction
 
-      return if (normal is Then && !normal.keepLinked()) {
+      return if (normal is Then && !normal.keepLinked(isAbstract)) {
         task.copy(
             instructionIn = normal.instructions.first(),
             thenIn = Then.create(normal.instructions.drop(1)),
@@ -173,41 +188,18 @@ public data class Task(
         task
       }
     }
-
-    fun noid(
-        assignee: Actor,
-        automatic: Boolean,
-        hit: Instruction,
-        cause: Cause,
-    ) =
-        Task(
-            id = TaskId("ZZ"),
-            assignee = assignee,
-            next = automatic,
-            instructionIn = hit,
-            cause = cause,
-        )
   }
 
-  data class TaskId(val s: String) : Comparable<TaskId> {
+  /** A task's stable internal identity, wrapping the ordinal of its add event. */
+  public data class TaskId(val ordinal: Int) : Comparable<TaskId> {
     init {
-      require(s.length in 1..2) { s }
-      require(s.all { it in 'A'..'Z' })
+      require(ordinal >= 0)
     }
 
-    override fun compareTo(other: TaskId) = s.padStart(2).compareTo(other.s.padStart(2))
+    public fun next(): TaskId = TaskId(ordinal + 1)
 
-    override fun toString() = s
+    override fun compareTo(other: TaskId): Int = ordinal.compareTo(other.ordinal)
 
-    fun next(): TaskId {
-      val news =
-          when {
-            s == "Z" -> "AA"
-            s.length == 1 -> "${s[0] + 1}"
-            s[1] == 'Z' -> "${s[0] + 1}A"
-            else -> "${s[0]}${s[1] + 1}"
-          }
-      return TaskId(news)
-    }
+    override fun toString(): String = ordinal.toString()
   }
 }

@@ -4,42 +4,95 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.DIE
+import dev.martianzoo.api.SystemClasses.OK
+import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
+import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
-import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.types.Class
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Defaults
 import dev.martianzoo.types.Defaults.DefaultSpec
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.DependencySet
-import dev.martianzoo.types.MClass
-import dev.martianzoo.types.MClassTable
-import dev.martianzoo.types.MType
+import dev.martianzoo.types.Type
 
-internal class Transformers(internal val classes: MClassTable) {
+public class Transformers(public val classTable: ClassTable) {
 
-  internal fun useFullNames() =
+  private val effectsByClass = mutableMapOf<Class, List<Effect>>()
+  private val resourceClassNames by lazy { Prod.findResourceClassNames(classTable) }
+
+  /** Rewrites session-localized input names to their canonical engine names. */
+  public fun canonicalize(vocabulary: Vocabulary): PetTransformer =
+      object : PetTransformer() {
+        override fun <P : PetNode> transform(node: P): P = vocabulary.canonicalize(node)
+      }
+
+  /** Effects inherited by [klass], processed as far as possible without a concrete component. */
+  internal fun classEffects(klass: Class): List<Effect> {
+    require(klass.classTable === classTable) { "$klass belongs to a different class table" }
+    return effectsByClass.getOrPut(klass) {
+      fun directClassEffects(source: Class) =
+          source.declaration.effects.map(attachToClassTransformer(source)::transform)
+
+      klass.allSuperclasses().flatMap(::directClassEffects)
+    }
+  }
+
+  private fun attachToClassTransformer(klass: Class): PetTransformer {
+    val context = klass.className.has(Min(scaledEx(OK, 1)))
+    return chain(
+        insertDefaults(context),
+        atomizer(),
+        Prod.deprodify(resourceClassNames),
+        fixEffectForUnownedContext(klass),
+    )
+  }
+
+  private fun fixEffectForUnownedContext(klass: Class): PetTransformer? {
+    if (klass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is Effect && OWNER in node.instruction && OWNER !in node.trigger) {
+          @Suppress("UNCHECKED_CAST")
+          node.copy(trigger = ByTrigger(node.trigger, OWNER)) as P
+        } else {
+          transformChildren(node)
+        }
+      }
+    }
+  }
+
+  public fun useFullNames(): PetTransformer =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
-          return if (node is Count && classes.isUnresolvedClassLiteral(node.expression)) {
-            node
-          } else if (node is ClassName) {
+          return if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
-            classes.resolve(node.expression).className as P
+            classTable.resolve(node.expression).className as P
           } else {
             transformChildren(node)
           }
@@ -48,47 +101,34 @@ internal class Transformers(internal val classes: MClassTable) {
 
   @Suppress("ComplexCondition") // TODO: fix that
   internal fun atomizer(): PetTransformer {
-    val atomized =
-        try {
-          classes.getClass(ATOMIZED)
-        } catch (_: ExpressionException) {
-          return noOp()
-        }
+    val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 
     return object : PetTransformer() {
-      var ourMulti: Multi? = null
-
       override fun <P : PetNode> transform(node: P): P {
-        if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
-          val flattened =
-              node.instructions.flatMap {
-                if (it == ourMulti) {
-                  ourMulti!!.instructions
-                } else {
-                  listOf(it)
-                }
-              }
-          @Suppress("UNCHECKED_CAST")
-          return Multi(flattened) as P
-        }
-        if (node !is Gain) return transformChildren(node)
-        val scex = node.scaledEx
-        val sc = scex.scalar
-
-        if (
-            sc !is ActualScalar ||
-                sc.value == 1 ||
-                THIS in scex.expression ||
-                !classes.resolve(scex.expression).root.isSubtypeOf(atomized)
-        ) {
+        if (node is Gain) {
+          val scex = node.scaledEx
+          val sc = scex.scalar
+          if (
+              sc is ActualScalar &&
+                  sc.value > 1 &&
+                  classTable.findClass(scex.expression.className)?.isSubtypeOf(atomized) == true
+          ) {
+            val one = gain(scaledEx(scex.expression, ActualScalar(1)), node.intensity) as Gain
+            @Suppress("UNCHECKED_CAST")
+            return Multi.create(List(sc.value) { one }) as P
+          }
           return node
         }
 
-        val one = gain(scex.copy(scalar = ActualScalar(1)), node.intensity) as Gain
-        ourMulti = Multi((1..sc.value).map { one })
+        val transformed = transformChildren(node)
+        if (transformed !is Multi) return transformed
+        val flattened =
+            transformed.instructions.flatMap { instruction ->
+              if (instruction is Multi) instruction.instructions else listOf(instruction)
+            }
 
-        @Suppress("UNCHECKED_CAST") // not technically safe...
-        return ourMulti as P
+        @Suppress("UNCHECKED_CAST")
+        return Multi.create(flattened) as P
       }
     }
   }
@@ -98,15 +138,21 @@ internal class Transformers(internal val classes: MClassTable) {
   internal fun insertDefaults(context: Expression) =
       chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
-  internal fun insertGainRemoveDefaults(context: Expression): PetTransformer {
+  private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         val result: PetNode =
             if (node is Change) {
               when (node) {
-                is Gain -> handleIt(node, node.gaining) { it.gainOnly }
-                is Remove -> handleIt(node, node.removing) { it.removeOnly }
-                is Transmute -> handleIt(node, node.gaining) { it.gainOnly }
+                is Gain ->
+                    handleIt(node, node.gaining, { it.gainOnly }) { fixed, intensity ->
+                      gain(scaledEx(fixed, node.count), intensity)
+                    }
+                is Remove ->
+                    handleIt(node, node.removing, { it.removeOnly }) { fixed, intensity ->
+                      remove(scaledEx(fixed, node.count), intensity)
+                    }
+                is Transmute -> handleTransmute(node)
               }
             } else {
               transformChildren(node)
@@ -115,59 +161,112 @@ internal class Transformers(internal val classes: MClassTable) {
         return result as P
       }
 
-      private fun <P : Change> handleIt(
-          node: P,
+      private fun handleIt(
+          node: Change,
           original: Expression,
           extractor: (Defaults) -> DefaultSpec,
-      ): P {
+          rebuild: (Expression, Instruction.Intensity?) -> Instruction,
+      ): Instruction {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val spec: DefaultSpec = extractor(classes.getClass(original.className).defaults)
+          val spec: DefaultSpec = extractor(classTable.getClass(original.className).defaults)
           val fixed =
               insertDefaultsIntoExpr(
                   original,
                   spec.dependencies,
                   context,
-                  classes,
+                  classTable,
               )
           val intensity = node.intensity ?: spec.intensity
-
-          val result: Change =
-              when (node) { // TODO it's weird that the shared method is doing this
-                is Gain -> gain(scaledEx(node.count, fixed), intensity) as Gain
-                is Remove -> Remove(scaledEx(node.count, fixed), intensity)
-                is Transmute -> {
-                  val fixedFrom =
-                      if (node.gaining == fixed) {
-                        node.fromEx // no change, so don't mess up the structure
-                      } else {
-                        SimpleFrom(fixed, node.removing)
-                      }
-                  Transmute(fixedFrom, node.count, intensity)
-                }
-              }
-
-          @Suppress("UNCHECKED_CAST")
-          result as P
+          rebuild(fixed, intensity)
         }
       }
+
+      private fun handleTransmute(node: Transmute): Transmute {
+        val gainDefault = defaultFor(node.gaining) { it.gainOnly }
+        val removeDefault = defaultFor(node.removing) { it.removeOnly }
+        val intensity =
+            node.intensity ?: intersectIntensities(gainDefault?.intensity, removeDefault?.intensity)
+
+        return Transmute(
+            FromExpression(
+                applyDefault(node.gaining, gainDefault, context),
+                applyDefault(node.removing, removeDefault, context),
+            ),
+            node.count,
+            intensity,
+        )
+      }
+
+      private fun defaultFor(
+          expression: Expression,
+          extractor: (Defaults) -> DefaultSpec,
+      ): DefaultSpec? =
+          if (leaveItAlone(expression)) null
+          else extractor(classTable.getClass(expression.className).defaults)
+
+      private fun applyDefault(
+          expression: Expression,
+          default: DefaultSpec?,
+          context: Expression,
+      ): Expression =
+          if (default == null) expression
+          else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
+
+      private fun intersectIntensities(
+          gainIntensity: Instruction.Intensity?,
+          removeIntensity: Instruction.Intensity?,
+      ): Instruction.Intensity? =
+          when {
+            gainIntensity == null -> removeIntensity
+            removeIntensity == null -> gainIntensity
+            gainIntensity == Instruction.Intensity.MANDATORY ||
+                removeIntensity == Instruction.Intensity.MANDATORY ->
+                Instruction.Intensity.MANDATORY
+            gainIntensity == Instruction.Intensity.AMAP ||
+                removeIntensity == Instruction.Intensity.AMAP -> Instruction.Intensity.AMAP
+            else -> Instruction.Intensity.OPTIONAL
+          }
     }
   }
 
-  internal fun insertExpressionDefaults(context: Expression): PetTransformer {
+  public fun insertExpressionDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
+        if (node.hasDeferredOwnerComplement()) return node
 
-        val defaultDeps = classes.getClass(node.className).defaults.allUsages.dependencies
-        val result = insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, classes)
+        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
+        val result =
+            insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, classTable)
         @Suppress("UNCHECKED_CAST")
         return result as P
       }
     }
   }
+
+  internal fun insertDeferredComplementDefaults(context: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        if (node !is Expression) return transformChildren(node)
+        if (!node.hasComplement()) return node
+
+        val transformed = transformChildren(node)
+        val defaultDeps = classTable.getClass(node.className).defaults.allUsages.dependencies
+        val result = insertDefaultsIntoExpr(transformed, defaultDeps, context, classTable)
+        @Suppress("UNCHECKED_CAST")
+        return result as P
+      }
+    }
+  }
+
+  private fun Expression.hasDeferredOwnerComplement(): Boolean =
+      (complement && className == OWNER) || arguments.any { it.hasDeferredOwnerComplement() }
+
+  private fun Expression.hasComplement(): Boolean =
+      complement || arguments.any { it.hasComplement() }
 
   private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
 
@@ -176,19 +275,22 @@ internal class Transformers(internal val classes: MClassTable) {
       original: Expression,
       defaultDeps: DependencySet,
       contextCpt: Expression,
-      table: MClassTable,
+      classTable: ClassTable,
   ): Expression {
 
-    val mclass: MClass = table.getClass(original.className)
+    val klass: Class = classTable.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transform(original)
-    val match: DependencySet = mclass.dependencies.matchPartial(dethissed.arguments)
+    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =
         defaultDeps.typeDependencies().associate { it.key to it.expression }
+    val inferred = klass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
-        mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
+        klass.dependencies.keys.mapNotNull {
+          preferred[it] ?: fallbacks[it]?.takeUnless { _ -> it in inferred }
+        }
 
     return original.copy(arguments = newArgs).also {
       require(it.className == original.className)
@@ -197,7 +299,7 @@ internal class Transformers(internal val classes: MClassTable) {
     }
   }
 
-  internal fun substituter(general: MType, specific: MType): PetTransformer {
+  internal fun substituter(general: Type, specific: Type): PetTransformer {
     val gendeps = general.dependencies
     val specdeps = specific.dependencies
     val subs = findSubstitutions(gendeps, specdeps)
@@ -225,19 +327,47 @@ internal class Transformers(internal val classes: MClassTable) {
   }
 
   /**
-   * Specializes linked type names and turns any atomic change made invalid by that specialization
-   * into `Die`. This lets enclosing choices discard an impossible specialized branch.
+   * Specializes linked type names and normalizes atomic changes made invalid by that
+   * specialization. Optional phantom changes become `Ok`; dead changes become `Die` so enclosing
+   * choices can discard them.
    */
   internal fun checkedSubstituter(
-      general: MType,
-      specific: MType,
+      general: Type,
+      specific: Type,
       vararg afterSubstitution: PetTransformer?,
   ): PetTransformer {
+    return chain(
+        listOf(substituter(specializationSubstitutions(general, specific))) +
+            afterSubstitution +
+            invalidChangesToDie()
+    )
+  }
+
+  /** Applies trigger narrowing only to the source expressions declared by linkages. */
+  internal fun checkedLinkageSubstituter(
+      general: Type,
+      specific: Type,
+      linkedSources: Set<Expression>,
+      vararg afterSubstitution: PetTransformer?,
+  ): PetTransformer {
+    val substitutions = specializationSubstitutions(general, specific)
+    val broad = substituter(substitutions)
+    val linkedReplacements = linkedSources.mapNotNull { source ->
+      val replacement = broad.transform(source)
+      if (replacement == source) null else PetNode.replacer(source, replacement)
+    }
+    return chain(linkedReplacements + afterSubstitution + invalidChangesToDie())
+  }
+
+  private fun specializationSubstitutions(
+      general: Type,
+      specific: Type,
+  ): Map<ClassName, Expression> {
     val subs = findSubstitutions(general.dependencies, specific.dependencies).toMutableMap()
-    if (general.root.abstract && specific.root != general.root) {
+    if (general.rootClass.abstract && specific.rootClass != general.rootClass) {
       subs[general.className] = specific.className.expression
     }
-    return chain(listOf(substituter(subs)) + afterSubstitution + invalidChangesToDie())
+    return subs
   }
 
   private fun invalidChangesToDie(): PetTransformer {
@@ -247,11 +377,22 @@ internal class Transformers(internal val classes: MClassTable) {
         if (specialized !is Change) return specialized
 
         try {
-          specialized.gaining?.let(classes::resolve)
-          specialized.removing?.let(classes::resolve)
+          val types =
+              listOfNotNull(
+                  specialized.gaining?.let(classTable::resolve),
+                  specialized.removing?.let(classTable::resolve),
+              )
+          if (types.any(Type::phantom)) {
+            @Suppress("UNCHECKED_CAST")
+            return if (specialized.intensity == MANDATORY) {
+              gain(DIE) as P
+            } else {
+              NoOp as P
+            }
+          }
         } catch (_: ExpressionException) {
           @Suppress("UNCHECKED_CAST")
-          return gain(scaledEx(expression = DIE.expression)) as P
+          return gain(DIE) as P
         }
         return specialized
       }
@@ -267,11 +408,18 @@ internal class Transformers(internal val classes: MClassTable) {
         .mapNotNull {
           val replaced = gendeps.at(it).expression
           val replacement = specdeps.at(it).expression
-          if (replaced.simple && replacement != replaced) {
-            replaced.className to replacement
-          } else {
-            null
+          when {
+            classTable.getClass(replaced.className).abstract &&
+                replaced.className != replacement.className ->
+                replaced.className to replacement.className.expression
+            replaced.simple && replacement != replaced -> replaced.className to replacement
+            else -> null
           }
+        }
+        // A name can occur in independent slots; only agreement makes it one binding.
+        .groupBy({ it.first }, { it.second })
+        .mapNotNull { (name, replacements) ->
+          replacements.distinct().singleOrNull()?.let { name to it }
         }
         .toMap()
   }

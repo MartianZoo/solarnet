@@ -8,66 +8,98 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
+import kotlin.math.min
 
 /**
- * A way of computing a non-negative integer based on a game state. Metrics appear after a slash in
+ * A way of computing a non-negative integer based on a world. Metrics appear after a slash in
  * instructions, and also belong to `Award`s.
  */
-sealed class Metric : PetElement() {
-  override val kind = Metric::class
+public sealed class Metric : PetElement() {
+  public companion object {
+    /** Returns [inner] scaled by [unit], omitting the meaningless wrapper when [unit] is one. */
+    public fun scaled(inner: Metric, unit: Int): Metric {
+      if (unit < 1) throw PetSyntaxException("metric can't be zero")
+      return if (unit == 1) inner else Scaled(inner, unit)
+    }
 
-  data class Count(val expression: Expression) : Metric() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+    internal fun parser(): Parser<Metric> = Parsers.parser()
 
-    override fun toString() = "$expression"
-
-    override fun precedence() = 12
+    internal fun atomParser(): Parser<Metric> = Parsers.atomParser()
   }
 
-  data class Scaled(val unit: Int, val inner: Metric) : Metric() {
+  override val kind: kotlin.reflect.KClass<out PetNode> = Metric::class
+
+  /**
+   * Evaluates this metric using [count] for component counts and [countUnion] for the
+   * multiset-union semantics of an [Or].
+   *
+   * The callbacks supply the world-dependent operations; scaling and maximum behavior are intrinsic
+   * to the metric syntax tree.
+   */
+  public fun evaluate(count: (Count) -> Int, countUnion: (Or) -> Int): Int =
+      when (this) {
+        is Count -> count(this)
+        is Scaled -> inner.evaluate(count, countUnion) / unit
+        is Max -> min(inner.evaluate(count, countUnion), maximum)
+        is Or -> countUnion(this)
+        is Transform -> throw ExpressionException("unhandled metric transform: $this")
+      }
+
+  public data class Count(val expression: Expression) : Metric() {
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
+
+    override fun toString(): String = "$expression"
+
+    override fun precedence(): Int = 12
+  }
+
+  /** Counts one unit for each complete group of [unit] counted by [inner]. */
+  @ConsistentCopyVisibility
+  public data class Scaled internal constructor(val inner: Metric, val unit: Int) : Metric() {
     init {
       if (unit < 1) throw PetSyntaxException("metric can't be zero")
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
 
-    override fun toString() = if (unit == 1) "$inner" else "$unit ${groupPartIfNeeded(inner)}"
+    override fun toString(): String = "$unit ${groupPartIfNeeded(inner)}"
 
-    override fun precedence() = 11
+    override fun precedence(): Int = 11
   }
 
-  data class Max(val inner: Metric, val maximum: Int) : Metric() {
+  public data class Max(val inner: Metric, val maximum: Int) : Metric() {
     init {
       if (inner is Max) throw PetSyntaxException("what are you even doing")
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
 
-    override fun toString() = "${groupPartIfNeeded(inner)} MAX $maximum"
+    override fun toString(): String = "${groupPartIfNeeded(inner)} MAX $maximum"
 
-    override fun precedence() = 10
+    override fun precedence(): Int = 10
   }
 
-  data class Plus(val metrics: List<Metric>) : Metric() {
+  @ConsistentCopyVisibility
+  public data class Or internal constructor(val metrics: List<Metric>) : Metric() {
     init {
-      if (metrics.any { it is Plus }) {
-        // how did we get around this problem for other things??
-        throw PetSyntaxException("Having a plus inside a plus causes problems...")
+      if (metrics.any { it is Or }) {
+        throw PetSyntaxException("Nested metric OR must be flattened")
       }
     }
 
-    companion object {
-      fun create(metrics: List<Metric>): Metric? {
+    public companion object {
+      public fun create(metrics: List<Metric>): Metric? {
         return when (metrics.size) {
           0 -> null
           1 -> metrics.single()
-          else -> Plus(metrics.flatMap { if (it is Plus) it.metrics else listOf(it) })
+          else -> Or(metrics.flatMap { if (it is Or) it.metrics else listOf(it) }.toList())
         }
       }
 
-      fun create(first: Metric, vararg rest: Metric) =
+      internal fun create(first: Metric, vararg rest: Metric) =
           if (rest.none()) first else create(listOf(first) + rest)
     }
 
@@ -75,24 +107,36 @@ sealed class Metric : PetElement() {
       require(metrics.size > 1)
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(metrics)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(metrics)
 
-    override fun toString() = metrics.joinToString(" + ")
+    override fun toString(): String = metrics.joinToString(" OR ") { groupPartIfNeeded(it) }
 
-    override fun precedence() = 9
+    override fun precedence(): Int = 4
   }
 
-  data class Transform(val inner: Metric, override val transformKind: String) :
+  public data class Transform(val inner: Metric, override val transformKind: String) :
       Metric(), TransformNode<Metric> {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
 
-    override fun toString() = "$transformKind[$inner]"
+    override fun toString(): String = "$transformKind[$inner]"
 
-    override fun extract() = inner
+    override fun extract(): Metric = inner
   }
 
-  internal companion object : PetTokenizer() {
+  private object Parsers : PetTokenizer() {
     fun parser(): Parser<Metric> {
+      return parser {
+        val atom = atomParser()
+        atom and
+            zeroOrMore(skip(_or) and atom) map
+            { (met, addon) ->
+              if (addon.any()) Or.create(listOf(met) + addon)!! else met
+            }
+      }
+    }
+
+    /** A metric suitable for being nested directly after `/` in an instruction or cost. */
+    fun atomParser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map Metric::Count
 
@@ -102,7 +146,11 @@ sealed class Metric : PetElement() {
         val atom: Parser<Metric> = transform or count or group(parser())
 
         val scaled: Parser<Metric> =
-            optional(rawScalar) and atom map { (scal, met) -> scal?.let { Scaled(it, met) } ?: met }
+            optional(rawScalar) and
+                atom map
+                { (scal, met) ->
+                  scal?.let { scaled(met, it) } ?: met
+                }
 
         val max: Parser<Metric> =
             scaled and
@@ -111,13 +159,7 @@ sealed class Metric : PetElement() {
                   limit?.let { Max(met, it) } ?: met
                 }
 
-        val result =
-            max and
-                zeroOrMore(skipChar('+') and max) map
-                { (met, addon) ->
-                  if (addon.any()) Plus(listOf(met) + addon) else met
-                }
-        result
+        max
       }
     }
   }

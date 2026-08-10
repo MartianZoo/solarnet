@@ -7,7 +7,6 @@ import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import kotlin.jvm.JvmName
 
 /**
  * A camel-case word used as a class name. Not validated except for its general pattern. Create one
@@ -17,12 +16,12 @@ public class ClassName private constructor(private val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
   public companion object {
     /** Returns the [ClassName] for the given string. */
-    public fun cn(name: String) = ClassName(name)
+    public fun cn(name: String): ClassName = ClassName(name)
 
-    private const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,4})\\b"
+    private const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,5})\\b"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
 
-    public fun parser() = Parsing.className
+    public fun parser(): com.github.h0tk3y.betterParse.parser.Parser<ClassName> = Parsing.className
   }
 
   init {
@@ -30,25 +29,16 @@ public class ClassName private constructor(private val asString: String) :
   }
 
   /**
-   * Returns the expression having this class name as its [Expression.className], and [arguments] as
-   * its [Expression.arguments] (in order).
+   * Returns the expression having this class name as its [Expression.className], extracting
+   * [HasExpression.expression] from each argument (not [HasExpression.expressionFull]).
    */
-  public fun of(arguments: List<Expression>): Expression = expression.appendArguments(arguments)
+  public fun of(arguments: List<HasExpression>): Expression =
+      expression.appendArguments(arguments.expressions())
 
   /** Vararg form of [of]. */
-  public fun of(vararg arguments: Expression): Expression = of(arguments.toList())
+  public fun of(vararg arguments: HasExpression): Expression = of(arguments.toList())
 
-  /**
-   * Variant of [of] that extracts [HasExpression.expression] from each argument (note: not
-   * [HasExpression.expressionFull]).
-   */
-  @JvmName("addArgsFromClassNames")
-  public fun of(haveArguments: List<HasExpression>): Expression = of(haveArguments.expressions())
-
-  /** Vararg form of [of]. */
-  public fun of(vararg haveArguments: HasExpression): Expression = of(haveArguments.toList())
-
-  public fun of() = expression
+  public fun of(): Expression = expression
 
   /**
    * Returns the expression having this class name as its [Expression.className], no arguments, and
@@ -56,26 +46,26 @@ public class ClassName private constructor(private val asString: String) :
    * example, if `bt` is the requirement `2 BuildingTag`, then `cn("CardFront").has(bt)` is the
    * expression `CardFront(HAS 2 BuildingTag)`.
    */
-  fun has(refinement: Requirement?, forgiving: Boolean = false) =
+  public fun has(refinement: Requirement?, forgiving: Boolean = false): Expression =
       expression.has(refinement, forgiving)
 
   /** For the class name `Foo`, returns the expression `Class<Foo>`. */
   public fun classExpression(): Expression = CLASS.of(this)
 
-  override val kind = ClassName::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = ClassName::class
 
-  override fun visitChildren(visitor: Visitor) = Unit
+  override fun visitChildren(visitor: Visitor): Unit = Unit
 
   override val expression: Expression = Expression(this)
   override val expressionFull: Expression by ::expression
 
-  override fun equals(other: Any?) = other is ClassName && other.asString == asString
+  override fun equals(other: Any?): Boolean = other is ClassName && other.asString == asString
 
-  override fun hashCode() = asString.hashCode() xor 1994079235
+  override fun hashCode(): Int = asString.hashCode() xor 1994079235
 
-  override fun toString() = asString
+  override fun toString(): String = asString
 
-  override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
+  override fun compareTo(other: ClassName): Int = asString.compareTo(other.asString)
 
   internal object Parsing : PetTokenizer() {
     val classShortName = _allCapsWordRE map { cn(it.text) }

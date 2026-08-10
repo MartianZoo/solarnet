@@ -29,6 +29,21 @@ internal class ScriptPathCompletionTest {
   }
 
   @Test
+  fun rejectsExitCommandInScriptFile() {
+    val script = Files.createTempFile("solarnet-script", ".rego")
+    try {
+      script
+          .toFile()
+          .writeText("// exit is harmless in a comment\ncount Steel\n  ExIt // stop here\n")
+
+      assertThat(newScriptSession().command("script $script"))
+          .containsExactly("$script:3: `exit` is not allowed in script files")
+    } finally {
+      script.toFile().delete()
+    }
+  }
+
+  @Test
   fun completesScriptPaths() {
     val tempDir = Files.createTempDirectory("solarnet-script-completion")
     try {

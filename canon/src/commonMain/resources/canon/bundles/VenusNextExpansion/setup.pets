@@ -1,0 +1,9 @@
+"Expansion introducing the Venus track (global parameter), Venus tags, Floater resources, etc."
+CLASS VenusNextExpansion : GameOption {
+  This IF MAX 0 Exclude<Class<WorldGovernmentOption>>:: WorldGovernmentOption
+}
+
+"Enables World Government Terraforming, the usual Venus Next default"
+CLASS WorldGovernmentOption : GameOption {
+  ValidateSetup IF MAX 0 VenusNextExpansion: Die
+}

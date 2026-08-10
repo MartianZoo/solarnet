@@ -1,39 +1,59 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class ViralEnhancersTest : CardTest() {
+  @Test
+  fun `when Viral Enhancers enters play, adds a plant`() {
+    newGame()
+    p1.manual("ViralEnhancers").expect("Plant")
+  }
 
   @Test
-  fun `resource must go on the bio tag card that triggered the effect`() {
-    val game = newGame("BRM", 2)
-    val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(PLAYER1)
+  fun `with Viral Enhancers, adds a bio-tag card choosing a plant`() {
+    newGame()
+    p1.manual("ViralEnhancers")
+    p1.manual("IndustrialMicrobes").expect("Plant")
+  }
 
-    p1.sneak("100, 4 ProjectCard")
-    engine.phase("Action")
-    p1.playProject("ViralEnhancers", 9).expect("Plant")
-    p1.playProject("IndustrialMicrobes", 12).expect("Plant")
-    p1.playProject("NitriteReducingBacteria", 11) { doTask("Microbe<NitriteReducingBacteria>") }
+  @Test
+  fun `with Viral Enhancers, reacts once to each bio tag on a card`() {
+    newGame()
+    p1.manual("ViralEnhancers")
+
+    p1.manual("AdvancedEcosystems").expect("3 Plant")
+  }
+
+  @Test
+  fun `with Viral Enhancers, adds a microbe card choosing a microbe`() {
+    newGame()
+    p1.manual("ViralEnhancers")
+    p1.manual("NitriteReducingBacteria") { doTask("Microbe<NitriteReducingBacteria>") }
         .expect("4 Microbe")
+  }
 
-    p1.playProject("RegolithEaters", 13) {
-      doTask("Plant")
-      abort()
-    }
-    p1.playProject("RegolithEaters", 13) {
-      doTask("Microbe<RegolithEaters>")
-      abort()
-    }
-
-    p1.playProject("RegolithEaters", 13) {
+  @Test
+  fun `with Viral Enhancers, tries to add a microbe to another card`() {
+    initializeExistingMicrobeCard()
+    p1.manual("RegolithEaters") {
       shouldThrow<NarrowingException> { doTask("Microbe<NitriteReducingBacteria>") }
-      doTask("Microbe<RegolithEaters>")
+      abort()
     }
+  }
+
+  @Test
+  fun `with Viral Enhancers, adds a microbe to the entering card`() {
+    initializeExistingMicrobeCard()
+    p1.manual("RegolithEaters") { doTask("Microbe<RegolithEaters>") }
+        .expect("Microbe<RegolithEaters>")
+  }
+
+  private fun initializeExistingMicrobeCard() {
+    newGame()
+    p1.manual("ViralEnhancers")
+    p1.manual("NitriteReducingBacteria") { doTask("Plant") }
   }
 }

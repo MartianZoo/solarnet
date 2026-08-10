@@ -1,10 +1,12 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -13,7 +15,7 @@ import kotlin.test.assertFailsWith
 class EffectActorCharacterizationTest {
   @Test
   fun playersCannotCreateSystemComponents() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
     assertFailsWith<DeadEndException> { player.manual("Generation") }
@@ -23,8 +25,22 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
+  fun noActorCanRemoveGameModules() {
+    val game = Engine.newGame(canonicalPremise())
+    val player = game.gameplay(PLAYER1).godMode()
+
+    assertFailsWith<LimitsException> { player.manual("-TharsisMapOption") }
+    player.count("TharsisMapOption") shouldBe 1
+
+    assertFailsWith<LimitsException> {
+      game.gameplay(ENGINE).godMode().manual("-TharsisMapOption")
+    }
+    player.count("TharsisMapOption") shouldBe 1
+  }
+
+  @Test
   fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerAReward() {
-    val game = Engine.newGame(Canon.fromOptionCodes("BE", 2))
+    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, players = 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
@@ -40,7 +56,7 @@ class EffectActorCharacterizationTest {
 
   @Test
   fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
 
@@ -57,7 +73,7 @@ class EffectActorCharacterizationTest {
 
   @Test
   fun byOwnerEffectDoesNotTreatEngineAsAnOwner() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(canonicalPremise())
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val terraformRatingBefore = engine.count("TerraformRating")
 

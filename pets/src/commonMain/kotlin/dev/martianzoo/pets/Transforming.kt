@@ -12,12 +12,11 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.NoOp
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 
 /**
  * Various functions for transforming Pets syntax trees. Many more interesting transformers require
- * a class table, and therefore are found in the `engine` module (`MClassTable.transformers`).
+ * a class table, and therefore are found in the `engine` module's `Transformers` class.
  */
 public object Transforming {
   /**
@@ -50,24 +49,9 @@ public object Transforming {
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }
-    val instruction = actionToInstruction(action)
+    val instruction = action.toInstruction()
     val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").of(THIS))
     return Effect(trigger, instruction, automatic = false)
-  }
-
-  private fun actionToInstruction(action: Action): Instruction {
-    val lhs = action.cost?.toInstruction()
-    val rhs = action.instruction
-
-    if (lhs == null) return rhs
-
-    // Nested THENs are just silly
-    val allInstructions =
-        when (rhs) {
-          is Then -> listOf(lhs) + rhs.instructions
-          else -> listOf(lhs, rhs)
-        }
-    return Then(allInstructions)
   }
 
   internal fun actionListToEffects(actions: Collection<Action>): List<Effect> =

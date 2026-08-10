@@ -17,7 +17,6 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.commandNames() + context.classNames()
 
-  @Suppress("TooGenericExceptionCaught") // TODO think about
   override fun withArgs(args: String): List<String> {
     val arg = args.trim()
     return when (arg.lowercase()) {
@@ -26,12 +25,19 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         if (helpCommand != null) {
           helpCommand.help.trimIndent().split("\n")
         } else {
-          return try {
-            val docstring = repl.game.classes.getClass(cn(arg)).docstring
-            listOf("Class `$arg`: \"$docstring\"", "Type `desc $arg` for super gory details.")
-          } catch (_: Exception) {
-            listOf("¯\\_(ツ)_/¯ Type `help` for help")
-          }
+          val className =
+              try {
+                cn(arg)
+              } catch (_: IllegalArgumentException) {
+                null
+              }
+          val klass = className?.let(repl.game.classTable::findClass)
+          if (klass == null) listOf("¯\\_(ツ)_/¯ Type `help` for help")
+          else
+              listOf(
+                  "Class `$arg`: \"${klass.docstring}\"",
+                  "Type `desc $arg` for super gory details.",
+              )
         }
       }
     }
@@ -48,9 +54,9 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         as <player> <cmd>   -> temporarily changes default player to run a single command
         script <filename>   -> reads a file and performs REPL commands as if typed
       QUERYING
-        has <requirement>   -> evaluates a requirement (true/false) in the current game state
-        count <metric>      -> counts something in the game state, like `count Tag<Player2>`
-        list <expression>   -> lists all instances of some type in the current game state
+        has <requirement>   -> evaluates a requirement (true/false) in the current world
+        count <metric>      -> counts something in the world, like `count Tag<Player2>`
+        list <expression>   -> lists all instances of some type in the current world
       EXECUTION
         exec <instruction>  -> initiates an arbitrary instruction if current mode allows it
         tasks               -> shows your current to-do list
@@ -67,7 +73,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
       TERRAFORMING MARS
         tfm_board           -> displays an extremely bad looking player board
         tfm_map             -> displays an extremely bad looking Mars board
-        tfm_play <card>     -> plays a Terraforming Mars card (shortcut)
+        tfm_play <card>,... -> plays a card, with optional inline tfm_pay arguments
         tfm_pay <amt> <res> -> pays some amount of MC/Steel/etc for something (shortcut)
         tfm_sample          -> executes one of the hardcoded sample games
       """

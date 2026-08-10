@@ -3,12 +3,21 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
-"A catch-all for arbitrary global effects that don't seem to belong anywhere else"
-CLASS TerraformingMars : System {
-  HAS =1 This, =1 MarsMap
+"An immutable fact in the fully resolved configuration of a playable game"
+ABSTRACT CLASS GameConfiguration : System {
+  -This:: Die!
+}
 
-  SetupPhase:: GenerationSetup THEN Generation THEN StartToken<Player1>
+"An affirmative module of rules active in a playable game"
+ABSTRACT CLASS GameModule : GameConfiguration { HAS =1 This }
+
+"The base Terraforming Mars rules"
+CLASS TerraformingMars : GameModule {
+  HAS =1 MarsMap
+
+  SetupPhase IF 2 Player:: BeginGame
   CorporationPhase: Photosynthesis
+
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed
@@ -30,30 +39,39 @@ ABSTRACT CLASS GlobalParameter : Atomized {
   This: TerraformRating                                // transformed to `This BY Owner: TR<Owner>`
 
   "Represents 2 degrees C of temperature increase"
-  CLASS TemperatureStep[TEMP] {
+  CLASS TemperatureStep {
     HAS MAX 19 This
+
     This IF =3 This: PROD[Heat]
     This IF =5 This: PROD[Heat]
     This IF =15 This: OceanTile
+    This IF =19 This: GpComplete<Class<TemperatureStep>>
   }
 
   "Represents a 1% increase in oxygen level"
-  CLASS OxygenStep[O2] {
+  CLASS OxygenStep {
     HAS MAX 14 This
+
     This IF =8 This: TemperatureStep
+    This IF =14 This: GpComplete<Class<OxygenStep>>
   }
 
   // OceanTile is in maps-tiles.pets
 }
 
-"Tells what generation we're in; mostly matters in solo games"
-CLASS Generation : System { This:: -GenerationsLeft. }
+"Records that a particular global parameter track has reached its maximum"
+CLASS GpComplete<Class<GlobalParameter>> { HAS MAX 1 This }
 
-"Lets selected variants initialize state immediately before generation 1 begins"
-CLASS GenerationSetup : Signal, System
+"Records that the current generation will be the last one played"
+CLASS LastCall { HAS MAX 1 This }
 
-"The number of generations remaining in a solo game"
-CLASS GenerationsLeft
+"Tells what generation we're in"
+CLASS Generation : System
+
+"Starts generation one after mode-specific setup is complete"
+CLASS BeginGame : Signal, System {
+  This:: Generation THEN StartToken<Player1>
+}
 
 "Supertype for anything that automatically disappears between generations"
 ABSTRACT CLASS Generational { Generation:: -This. }
@@ -66,21 +84,21 @@ ABSTRACT CLASS Phase : AutoLoad, System {
   CLASS CorporationPhase {
     NewTurn: PlayCard<Class<CorporationCard>>, 10 BuyCard?
   }
-  CLASS ResearchPhase { This:: Generation }
+  CLASS ResearchPhase
   CLASS ActionPhase {
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
   }
-  CLASS ProductionPhase {
-    This: Production2Phase FROM This
-  }
-  "An unfortunate implementation detail seemingly forced by Supercapacitors :-("
-  CLASS Production2Phase
+  CLASS ProductionPhase
+  CLASS SolarPhase
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction1<ConvertPlantsSA>?
   }
-  CLASS EndPhase { This:: End }
+  CLASS EndPhase
 }
 
-"This Signal causes components to pay out victory points, after which the game terminates"
+"This Signal causes components to pay out victory points"
 CLASS End : Signal, System
+
+"Signals that the final score is available"
+CLASS FinalScore : Signal, System

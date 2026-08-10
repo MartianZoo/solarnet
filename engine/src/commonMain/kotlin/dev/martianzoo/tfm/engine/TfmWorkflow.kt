@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
-import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
-import dev.martianzoo.tfm.data.GameSetup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -31,29 +31,34 @@ public object TfmWorkflow {
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via
    * [OperationLayer.turn] when no task is already pending, so no explicit turn-granting is needed.
    */
-  public class Manual(private val game: Game, private val setup: GameSetup) {
+  public class Manual(private val game: World) {
 
     internal val engineOps: OperationLayer = game.gameplay(ENGINE) as OperationLayer
 
     /**
      * Starts fully effectful game setup; unlike later phases, setup has no prior Phase to remove.
      */
-    public fun setupPhase() = engineOps.beginManual("SetupPhase")
+    public fun setupPhase(): TaskResult = engineOps.beginManual("SetupPhase")
 
-    public fun corporationPhase() = engineOps.manual("CorporationPhase FROM Phase")
+    public fun corporationPhase(): TaskResult = engineOps.manual("CorporationPhase FROM Phase")
 
-    public fun preludePhase() = engineOps.manual("PreludePhase FROM Phase")
+    public fun preludePhase(): TaskResult = engineOps.manual("PreludePhase FROM Phase")
 
-    public fun actionPhase() = engineOps.manual("ActionPhase FROM Phase")
+    public fun actionPhase(): TaskResult = engineOps.manual("ActionPhase FROM Phase")
 
-    public fun productionPhase() = engineOps.manual("ProductionPhase FROM Phase")
+    public fun productionPhase(): TaskResult = engineOps.manual("ProductionPhase FROM Phase")
 
-    public fun finalGreeneryPhase() = engineOps.manual("FinalGreeneryPhase FROM Phase")
+    /** Enters the universal Solar phase. */
+    public fun solarPhase(): TaskResult = engineOps.beginManual("SolarPhase FROM Phase")
 
-    public fun researchPhase(body: BodyLambda = {}) =
+    public fun generation(): TaskResult = engineOps.beginManual("Generation")
+
+    public fun finalGreeneryPhase(): TaskResult = engineOps.manual("FinalGreeneryPhase FROM Phase")
+
+    public fun researchPhase(body: BodyLambda = {}): TaskResult =
         engineOps.manual("ResearchPhase FROM Phase", body)
 
-    public fun endPhase() = engineOps.manual("EndPhase FROM Phase")
+    public fun endPhase(): TaskResult = engineOps.manual("EndPhase FROM Phase")
   }
 
   /**
@@ -66,14 +71,14 @@ public object TfmWorkflow {
    * already waiting, so signals fired during automatic engine-owned phases are dropped rather than
    * queued, preventing spurious wakeups.
    */
-  public class Auto(private val game: Game, private val setup: GameSetup) {
+  public class Auto(private val game: World) {
 
-    private val m = Manual(game, setup)
+    private val m = Manual(game)
     private val engineOps: OperationLayer
       get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
-    private val players: List<Player> = setup.players()
+    private val players: List<Player> = Player.players(game.reader.getComponents("Player").size)
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all tasks drain. Only
@@ -87,7 +92,7 @@ public object TfmWorkflow {
     private val workflowScope = CoroutineScope(lifecycleJob + Dispatchers.Unconfined)
     private var workflowJob: Job? = null
 
-    internal val isRunning: Boolean
+    public val isRunning: Boolean
       get() = workflowJob?.isActive == true
 
     /**
@@ -98,7 +103,7 @@ public object TfmWorkflow {
     private var shutdownCheckpoint: Timeline.Checkpoint? = null
 
     init {
-      game.onAtomicComplete = { if (game.tasks.isEmpty()) resumeSignal.trySend(Unit) }
+      game.onAtomicComplete = { if (game.isIdle()) resumeSignal.trySend(Unit) }
     }
 
     /**
@@ -136,20 +141,22 @@ public object TfmWorkflow {
     }
 
     /** Orchestrates the complete game from its committed pre-setup baseline to finish. */
-    public suspend fun runGame() {
+    private suspend fun runGame() {
       m.setupPhase()
       awaitTasksDrained()
       corporationPhase()
-      if (cn("PreludeExpansion") in setup.options) preludePhase()
-      actionPhase()
-      while (!gameIsOver()) {
-        productionPhase()
-        // TODO: worldGovernmentPhase()
-
-        researchPhase()
+      if (hasComponent("PreludeExpansion")) preludePhase()
+      while (true) {
+        if (engineOps.count("Generation") > 1) researchPhase()
         actionPhase()
+        productionPhase()
+        if (!solarPhase()) break
+        generation()
       }
-      productionPhase()
+      if (hasComponent("SoloMode")) {
+        engineOps.manual("SoloVictoryCheck")
+        if (!engineOps.has("Victory<Player1>")) return
+      }
       finalGreeneryPhase()
       m.endPhase()
     }
@@ -170,6 +177,18 @@ public object TfmWorkflow {
 
     private suspend fun productionPhase() {
       engineOps.beginManual("ProductionPhase FROM Phase")
+      letPlayerFinish()
+    }
+
+    private suspend fun solarPhase(): Boolean {
+      m.solarPhase()
+      if (engineOps.has("LastCall")) return false
+      letPlayerFinish()
+      return true
+    }
+
+    private suspend fun generation() {
+      m.generation()
       letPlayerFinish()
     }
 
@@ -199,7 +218,7 @@ public object TfmWorkflow {
         if (hasPassed(player)) {
           active.removeFirst()
         } else {
-          grantSecondActionTo(player)
+          if (active.size > 1) grantSecondActionTo(player)
           active.addLast(active.removeFirst())
         }
       }
@@ -212,36 +231,30 @@ public object TfmWorkflow {
       return players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
     }
 
-    private fun gameIsOver() =
-        if (cn("SoloMode") in setup.options) {
-          engineOps.has("MAX 0 GenerationsLeft")
-        } else {
-          engineOps.has("=19 TemperatureStep") &&
-              engineOps.has("=14 OxygenStep") &&
-              engineOps.has("=9 OceanTile")
-        }
-
     private fun opsFor(player: Player) = game.gameplay(player) as OperationLayer
 
     private fun hasPassed(player: Player) = opsFor(player).has("Pass")
 
+    private fun hasComponent(className: String): Boolean =
+        game.classTable.isActive(cn(className)) && game.reader.getComponents(className).isNotEmpty()
+
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()
       opsFor(player).beginManual("NewTurn!")
-      if (!game.tasks.isEmpty()) resumeSignal.receive()
+      if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
     }
 
     private suspend fun grantSecondActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()
       opsFor(player).beginManual("SecondAction")
-      if (!game.tasks.isEmpty()) resumeSignal.receive()
+      if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
     }
 
     private suspend fun awaitTasksDrained() {
       game.timeline.commit()
-      if (!game.tasks.isEmpty()) resumeSignal.receive()
+      if (!game.isIdle()) resumeSignal.receive()
     }
 
     private suspend fun letPlayerFinish() = awaitTasksDrained()

@@ -1,35 +1,30 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Game
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.engine.TestHelpers
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
-abstract class AbstractFullGameTest {
-  protected lateinit var game: Game
-  protected lateinit var engine: TfmGameplay
+abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
 
-  protected abstract fun setup(): GameSetup
+  protected abstract fun setup(): GamePremise
 
   @BeforeTest
   open fun commonSetup() {
-    game = Engine.newGame(setup())
-    engine = game.tfm(ENGINE)
+    game = Engine.newGame(setup(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     p1 = game.tfm(PLAYER1)
-    if (PLAYER2 in game.setup.players()) p2 = game.tfm(PLAYER2)
+    if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
   }
 
   fun copyThis() {
@@ -41,9 +36,8 @@ abstract class AbstractFullGameTest {
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
   }
 
-  protected fun TaskResult.expect(string: String) =
-      TestHelpers.assertNetChanges(this, game, engine, string)
-
+  // Script-local counterparts live in
+  // script/src/commonTest/kotlin/dev/martianzoo/tfm/script/StinaScriptTest.kt.
   protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertProds(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
   }
@@ -59,39 +53,9 @@ abstract class AbstractFullGameTest {
       tr: Int,
       hand: Int,
   ) {
-    assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront + PlayedEvent")
+    assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront OR PlayedEvent")
     assertActions(actions)
     assertVps(vp)
-  }
-
-  protected fun TfmGameplay.assertTags(
-      but: Int = 0,
-      spt: Int = 0,
-      sct: Int = 0,
-      pot: Int = 0,
-      eat: Int = 0,
-      jot: Int = 0,
-      vet: Int = 0,
-      plt: Int = 0,
-      mit: Int = 0,
-      ant: Int = 0,
-      cit: Int = 0,
-  ) {
-    assertCounts(
-        but to "BuildingTag",
-        spt to "SpaceTag",
-        sct to "ScienceTag",
-        pot to "PowerTag",
-        eat to "EarthTag",
-        jot to "JovianTag",
-        plt to "PlantTag",
-        mit to "MicrobeTag",
-        ant to "AnimalTag",
-        cit to "CityTag",
-    )
-    if (cn("VenusTag") in game.classes.allClassNamesAndIds) {
-      assertCounts(vet to "VenusTag")
-    }
   }
 
   protected fun TfmGameplay.assertDashRight(
@@ -105,7 +69,12 @@ abstract class AbstractFullGameTest {
         tagless to "CardFront(HAS MAX 0 Tag)",
         cities to "CityTile",
     )
-    if (cn("ColoniesExpansion") in setup().options) assertCounts(colonies to "Colony")
+    if (
+        game.classTable.findClass(cn("ColoniesExpansion"))?.phantom == false &&
+            game.reader.getComponents("ColoniesExpansion").isNotEmpty()
+    ) {
+      assertCounts(colonies to "Colony")
+    }
   }
 
   protected fun assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int = -1) {
@@ -118,7 +87,7 @@ abstract class AbstractFullGameTest {
     }
   }
 
-  protected fun TfmGameplay.assertVps(expected: Int) {
+  private fun TfmGameplay.assertVps(expected: Int) {
     val onAtomicComplete = game.onAtomicComplete
     val checkpoint = game.timeline.checkpoint()
     game.onAtomicComplete = {}
@@ -138,15 +107,43 @@ abstract class AbstractFullGameTest {
   // Pending choices describe future play, so the scoring snapshot must neither execute nor count
   // them. Privileged removal is safe here because the enclosing checkpoint restores every task.
   private fun dropPendingTasksForScoring() {
-    while (!game.tasks.isEmpty()) {
-      val taskId = game.tasks.ids().first()
-      val assignee =
-          game.tasks.extract { it.id to it.assignee }.single { it.first == taskId }.second
-      game.gameplay(assignee).godMode().dropTask(taskId)
-    }
+    game.tasks
+        .extract { it.assignee }
+        .toSet()
+        .forEach {
+          game.gameplay(it).godMode().dropTasks()
+        }
   }
 
-  protected fun TfmGameplay.assertActions(expected: Int) {
+  private fun TfmGameplay.assertActions(expected: Int) {
     count("ActionCard") - count("ActionUsedMarker") shouldBe expected
   }
+}
+
+internal fun TfmGameplay.assertTags(
+    but: Int = 0,
+    spt: Int = 0,
+    sct: Int = 0,
+    pot: Int = 0,
+    eat: Int = 0,
+    jot: Int = 0,
+    vet: Int = 0,
+    plt: Int = 0,
+    mit: Int = 0,
+    ant: Int = 0,
+    cit: Int = 0,
+) {
+  assertCounts(
+      but to "BuildingTag",
+      spt to "SpaceTag",
+      sct to "ScienceTag",
+      pot to "PowerTag",
+      eat to "EarthTag",
+      jot to "JovianTag",
+      plt to "PlantTag",
+      mit to "MicrobeTag",
+      ant to "AnimalTag",
+      cit to "CityTag",
+      vet to "VenusTag",
+  )
 }

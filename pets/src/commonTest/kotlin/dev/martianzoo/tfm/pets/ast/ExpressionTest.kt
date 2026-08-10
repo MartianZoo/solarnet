@@ -34,8 +34,11 @@ internal class ExpressionTest {
     testRoundTrip("Foo(HAS Bar)")
     testRoundTrip("Foo(HAS MAX 0 Bar)")
     testRoundTrip("Foo<Bar>(HAS Baz, 2 Qux)")
+    testRoundTrip("Foo(HAS? Bar, MAX 0 Baz)")
+    testRoundTrip("Class<Foo>(HAS Foo<Bar>)")
     testRoundTrip("!Foo")
     testRoundTrip("Foo<!Bar>")
+    testRoundTrip("A_foo")
   }
 
   @Test
@@ -46,7 +49,12 @@ internal class ExpressionTest {
   @Test
   fun complexSourceToApi() {
     val parsed = te(" Red< Blue  < This,Teal> , Gold > ")
-    parsed shouldBe cn("Red").of(cn("Blue").of(cn("This"), cn("Teal")), cn("Gold").expression)
+    parsed shouldBe
+        cn("Red")
+            .of(
+                cn("Blue").of(cn("This"), cn("Teal")),
+                cn("Gold").expression,
+            )
   }
 
   @Test
@@ -56,7 +64,11 @@ internal class ExpressionTest {
             .of(
                 cn("Bb").expression,
                 cn("Cc").of(cn("Dd")),
-                cn("Ee").of(cn("Ff").of(cn("Gg"), cn("Hh")), cn("Me").expression),
+                cn("Ee")
+                    .of(
+                        cn("Ff").of(cn("Gg"), cn("Hh")),
+                        cn("Me").expression,
+                    ),
                 cn("Jj").expression,
             )
     expr.toString() shouldBe "Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>"

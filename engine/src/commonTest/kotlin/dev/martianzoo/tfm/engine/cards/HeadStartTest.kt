@@ -1,26 +1,20 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 
 class HeadStartTest : CardTest() {
-  init {
-    newGame("BMPTX", 2)
-  }
-
   @Test
-  fun `decline both actions`() {
-    with(game.tfm(PLAYER1)) {
-      phase("Prelude")
-      sneak("4, 10 ProjectCard, PreludeCard")
-      playPrelude("HeadStart") {
-        assertCounts(2 to "Steel", 24 to "M")
+  fun `with Head Start, declines both actions`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    engine.phase("Prelude")
+    p1.manual("4, 10 ProjectCard, PreludeCard")
+    p1.playPrelude("HeadStart") {
+      p1.assertCounts(2 to "Steel", 24 to "Megacredit")
 
-        doFirstTask("Ok")
-        doFirstTask("Ok")
-      }
+      doFirstTask("Ok")
+      doFirstTask("Ok")
     }
   }
 }

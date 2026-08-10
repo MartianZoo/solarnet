@@ -13,12 +13,15 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.HasClassName.Companion.classNames
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.ClassLoader
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.te
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -31,7 +34,7 @@ import kotlin.test.assertFailsWith
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
   companion object {
-    val table = MClassLoader(Canon).loadEverything()
+    val table = ClassLoader(Canon).loadEverything()
   }
 
   @Test
@@ -44,7 +47,7 @@ internal class CanonClassesTest {
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = table.allClasses().filter { it.abstract && it.directSubclasses().size == 1 }
-    anomalies.classNames().shouldContainExactlyInAnyOrder(ANYONE, cn("NoctisArea"), cn("Barrier"))
+    anomalies.classNames().shouldContainExactlyInAnyOrder(ANYONE, cn("NoctisArea"))
   }
 
   @Test
@@ -58,24 +61,57 @@ internal class CanonClassesTest {
     engine
         .allSuperclasses()
         .classNames()
-        .shouldContainExactlyInAnyOrder(COMPONENT, HIDDEN, ACTOR, cn("System"), cn("Engine"))
+        .shouldContainExactlyInAnyOrder(
+            COMPONENT,
+            HIDDEN,
+            ACTOR,
+            cn("System"),
+            cn("Engine"),
+        )
     (actor glb owner) shouldBe player
   }
 
   @Test
   fun setupSeparatesPlayersFromActors() {
-    Canon.SIMPLE_GAME.players().shouldContainExactly(PLAYER1, PLAYER2)
-    Canon.SIMPLE_GAME.actors().shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("SoloMode"))
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("Opponent"))
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("PreludeCard"))
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("PreludePhase"))
+    val premise = canonicalPremise()
+    premise.actors
+        .filterIsInstance<dev.martianzoo.data.Player>()
+        .shouldContainExactly(PLAYER1, PLAYER2)
+    premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ENGINE)
+    val game = Engine.newGame(premise)
+    game.classTable.allClassNames.shouldNotContain(cn("SoloMode"))
+    game.classTable.allClassNames.shouldNotContain(cn("SoloOpponent"))
+    game.classTable.allClassNames.shouldNotContain(cn("PreludeCard"))
+    game.classTable.allClassNames.shouldNotContain(cn("PreludePhase"))
+  }
+
+  @Test
+  fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
+    val maps = Canon.Option.entries.filter { it.name.endsWith("MapOption") }
+
+    maps.forEach { map ->
+      val game =
+          Engine.newGame(
+              canonicalPremise(
+                  map,
+                  VenusNextExpansion,
+                  ColoniesExpansion,
+                  players = 2,
+                  colonyTiles = testColonyTiles(2),
+              )
+          )
+      val gameplay = game.tfm(PLAYER1)
+
+      withClue(map.name) {
+        gameplay.count("Class<Milestone>") shouldBe 6
+        gameplay.count("Class<Award>") shouldBe 6
+      }
+    }
   }
 
   @Test
   fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
-    val game = setUpGame(Canon.fromOptionCodes("BMP", 2))
+    val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
 
     game.tfm(PLAYER1).phase("Prelude")
 
@@ -85,47 +121,36 @@ internal class CanonClassesTest {
 
   @Test
   fun soloSetupUsesPetsOnlyOpponent() {
-    val game = setUpGame(Canon.SIMPLE_SOLO_GAME)
-    game.setup.players().shouldContainExactly(PLAYER1)
-    game.setup.actors().shouldContainExactly(PLAYER1, ENGINE)
-    game.classes.allClassNamesAndIds.shouldNotContain(cn("Player2"))
+    val premise = canonicalPremise(players = 1)
+    premise.actors.shouldContainExactly(PLAYER1, ENGINE)
+    val game = setUpGame(premise)
+    game.classTable.allClassNames.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
-    game.reader.count(game.reader.resolve(te("Opponent"))) shouldBe 1
+    game.reader.count(game.reader.resolve(te("StandardSoloVariant"))) shouldBe 1
+    game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<Opponent>") shouldBe 99
-      game.gameplay(PLAYER1).count("PROD[$it<Opponent>]") shouldBe 99
+      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 99
+      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 99
     }
 
     val engine = game.gameplay(ENGINE) as GodMode
     game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
-    engine.doFirstTask("CityTile<Tharsis_4_1, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_5_1, Opponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, Opponent>")
-    engine.doTask("GreeneryTile<Tharsis_2_3, Opponent>")
+    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.manual("OceanTile<Tharsis_1_2>")
-    game.gameplay(PLAYER1).count("CityTile<Opponent>") shouldBe 2
-    game.gameplay(PLAYER1).count("GreeneryTile<Opponent>") shouldBe 2
+    game.gameplay(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
+    game.gameplay(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<Opponent>") shouldBe 99
+      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 99
       game.gameplay(PLAYER1).count("$it<Player1>") shouldBe 0
     }
 
     engine.manual("End")
     game.gameplay(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
-  }
-
-  @Test
-  fun concreteExtendingConcrete() {
-    val map = mutableListOf<Pair<ClassName, ClassName>>()
-    table
-        .allClasses()
-        .filterNot { it.abstract }
-        .forEach { sup ->
-          (sup.allSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }
-        }
-    map.shouldBeEmpty()
   }
 
   @Test
@@ -152,7 +177,7 @@ internal class CanonClassesTest {
 
   @Test
   fun component() {
-    val loader = MClassLoader(Canon)
+    val loader = ClassLoader(Canon)
 
     with(loader.componentClass) {
       abstract shouldBe true
@@ -184,11 +209,11 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = MClassLoader(Canon.fromOptionCodes("BRM", 2))
+    val table = ClassTable.forPremise(canonicalPremise(players = 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
-      val mtype = table.resolve(te(expr))
-      mtype.allConcreteSubtypes().toList().shouldHaveSize(size)
+      val type = table.resolve(te(expr))
+      type.allConcreteSubtypes().toList().shouldHaveSize(size)
     }
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)
@@ -213,12 +238,14 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun unknownClassLiteralCountsZeroAndCannotBeChanged() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+  fun phantomClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
+    val game = Engine.newGame(canonicalPremise())
     val gameplay = game.gameplay(PLAYER1) as GodMode
-    val withVenus = Engine.newGame(Canon.fromOptionCodes("BMV", 2)).gameplay(PLAYER1) as GodMode
+    val withVenus =
+        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).gameplay(PLAYER1)
+            as GodMode
 
-    gameplay.count("Class<AnyWordHere>") shouldBe 0
+    assertFailsWith<ExpressionException> { gameplay.count("Class<AnyWordHere>") }
     gameplay.count("Class<VenusStep>") shouldBe 0
     withVenus.count("Class<VenusStep>") shouldBe 1
     assertFailsWith<ExpressionException> { gameplay.count("AnyWordHere") }

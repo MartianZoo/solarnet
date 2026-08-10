@@ -12,6 +12,5 @@ internal class TasksCommand(private val repl: ScriptSession) : ScriptCommand("ta
       """
   override val isReadOnly = true
 
-  override fun noArgs() =
-      repl.game.tasks.extract { it.toStringWithoutCause(queueAssignee = it.assignee) }
+  override fun noArgs() = repl.taskLines()
 }

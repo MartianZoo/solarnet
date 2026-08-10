@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 
 internal abstract class RandomGenerator<B : Any>(
     private val registry: Registry<B>,
-    val scaling: (Int) -> Double,
+    private val scaling: (Int) -> Double,
 ) {
   abstract class Registry<B : Any> {
     private val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
@@ -36,8 +36,13 @@ internal abstract class RandomGenerator<B : Any>(
   inline fun <reified N : B> makeRandomNode() = makeRandomNode(N::class)
 
   open fun <N : B> makeRandomNode(type: KClass<N>): N {
+    check(depth == null)
     depth = 0
-    return recurse(type).also { depth = null }
+    return try {
+      recurse(type)
+    } finally {
+      depth = null
+    }
   }
 
   inline fun <reified N : B> recurse() = recurse(N::class)
@@ -45,12 +50,13 @@ internal abstract class RandomGenerator<B : Any>(
   fun <N : B> recurse(type: KClass<N>): N {
     val d = depth!!
     depth = d + 1
-    if (depth!! > 32) error("")
-    while (true) {
-      val x = registry.invoke(type, this) ?: continue
-      depth = depth!! - 1
-      require(depth == d)
-      return x
+    try {
+      check(depth!! <= 32)
+      while (true) {
+        return registry.invoke(type, this) ?: continue
+      }
+    } finally {
+      depth = d
     }
   }
 

@@ -5,19 +5,24 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.util.toSetStrict
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
-  override val usage = "newgame <options> <player count> [purple]"
+  override val usage =
+      "newgame (<options> <player count> [colony tiles...] | \"<setup instruction>\") [purple]"
   override val help =
       """
         Erases your current game and starts a new one. You can't undo that (but you can get your
         command history out of ~/.rego_session and replay it.) For <options>, jam some letters
-        together: B=Base, R=coRpoRate eRa, M=Tharsis, H=Hellas, X=Promos, and the rest are what
-        you'd think. The player count can be from 1 to 5. A count of 1 applies the solo starting
-        state. In purple mode the solo generation limit is automatic, but world-government
-        terraforming and victory checking remain manual.
+        together: B=base game (required), R=coRpoRate eRa, M=Tharsis, H=Hellas,
+        I=Terra Cimmeria, U=Utopia Planitia,
+        X=Promos, and the rest
+        are what you'd think. The base game is always included. The player count can be from 1 to 5. A count of 1 applies
+        the solo starting state.
 
+        When using Colonies, list the selected colony tile names after the player count.
+        Instead of the legacy option-code form, a quoted Pets instruction may configure the
+        canonical setup world directly.
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
       """
@@ -34,18 +39,28 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
   override fun withArgs(args: String): List<String> {
     try {
       val parts = args.trim().split(Regex("\\s+"))
-      val purple = parts.getOrNull(2) == "purple"
+      val purple = parts.lastOrNull() == "purple"
+      val withoutPurple =
+          args.trim().let { if (purple) it.removeSuffix("purple").trimEnd() else it }
+      if (withoutPurple.startsWith('"')) {
+        if (!withoutPurple.endsWith('"') || withoutPurple.length < 2) throw UsageException()
+        val setupInstruction = withoutPurple.substring(1, withoutPurple.lastIndex)
+        repl.newGame(setupInstruction, purple)
+        return listOf(
+            "New ${repl.setup.players}-player game created with setup: $setupInstruction"
+        ) + (if (purple) listOf("Purple mode: workflow active") else emptyList())
+      }
+
       val optionCodes = parts.getOrNull(0) ?: throw UsageException()
       val playerCount = parts.getOrNull(1)?.toInt() ?: throw UsageException()
+      val colonyNames = parts.drop(2).let { if (purple) it.dropLast(1) else it }
+      val selectedColonies = colonyNames.map(repl::canonicalColonyName).toSetStrict()
 
-      repl.newGame(optionCodes, playerCount, purple)
-      val effectiveOptionCodes = Canon.optionCodes(repl.setup.options)
+      repl.newGame(optionCodes, playerCount, selectedColonies, purple)
+      val effectiveOptionCodes = repl.setup.optionCodes
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
-          (if (purple) listOf("Purple mode: workflow active") else listOf()) +
-          (if (playerCount == 1)
-              listOf("NOTE: Solo world-government terraforming and victory checking remain manual.")
-          else listOf())
+          (if (purple) listOf("Purple mode: workflow active") else emptyList())
     } catch (e: RuntimeException) {
       throw UsageException(e.message)
     }

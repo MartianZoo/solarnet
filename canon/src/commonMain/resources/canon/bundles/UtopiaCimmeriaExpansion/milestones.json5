@@ -1,0 +1,38 @@
+{
+  "groups": [
+    {
+      "setupRequirement": "UtopiaPlanitiaMapOption",
+      "milestones": [
+        // Manager
+        { "id": "UM0", "requirement": "3 SpecialTile" },
+        // Pioneer
+        { "id": "UM1", "setupRequirement": "ColoniesExpansion", "requirement": "3 Colony" },
+        // Trader
+        { "id": "UM2", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
+        // Metallurgist
+        { "id": "UM3", "requirement": "6 PROD[Steel OR Titanium]" },
+        // Researcher
+        { "id": "UM4", "requirement": "4 ScienceTag" },
+      ],
+    },
+    {
+      "setupRequirement": "TerraCimmeriaMapOption",
+      "milestones": [
+        // Planetologist
+        {
+          "id": "UM5",
+          "requirement": "2 EarthTag, 2 VenusTag, 2 JovianTag",
+          "setupRequirement": "VenusNextExpansion",
+        },
+        // Architect
+        { "id": "UM6", "requirement": "3 CityTag" },
+        // Coastguard
+        { "id": "UM7", "requirement": "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
+        // Forester
+        { "id": "UM8", "requirement": "PROD[3 Plant]" },
+        // Fundraiser
+        { "id": "UM9", "requirement": "PROD[12 Megacredit]" },
+      ],
+    },
+  ],
+}

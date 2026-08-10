@@ -1,0 +1,36 @@
+package dev.martianzoo.tfm.engine.cards
+
+import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
+
+class PolderTechDutchTest : CardTest() {
+  @Test
+  fun `initial action places adjacent ocean and greenery without an existing owned tile`() {
+    newGame(PromoCardPack)
+    p1.playCorp("PolderTechDutch", 0)
+    engine.phase("Action")
+
+    p1.stdAction("HandleMandates") {
+          doTask("OceanTile<Tharsis_1_4>")
+          shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_1_5>") }
+          shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_2_1>") }
+          doTask("GreeneryTile<Tharsis_1_3>")
+        }
+        .expect("-Mandate, OceanTile, GreeneryTile, OxygenStep, Energy, Plant")
+
+    p1.assertCounts(1 to "Energy", 1 to "Plant")
+  }
+
+  @Test
+  fun `later ocean and greenery placements grant their resources`() {
+    newGame(PromoCardPack)
+    p1.manual("PolderTechDutch")
+    p1.manual("-MandateXC11")
+
+    p1.manual("OceanTile<Tharsis_1_2>").expect("Energy")
+    p1.manual("GreeneryTile<Tharsis_1_3>").expect("Plant")
+  }
+}

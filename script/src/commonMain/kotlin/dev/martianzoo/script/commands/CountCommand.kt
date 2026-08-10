@@ -23,6 +23,6 @@ internal class CountCommand(private val repl: ScriptSession) : ScriptCommand("co
   override fun withArgs(args: String): List<String> {
     val metric: Metric = repl.gameplay.parse(args)
     val count = repl.gameplay.count(args)
-    return listOf("$count $metric")
+    return listOf("$count ${repl.game.vocabulary.renderPets(metric)}")
   }
 }

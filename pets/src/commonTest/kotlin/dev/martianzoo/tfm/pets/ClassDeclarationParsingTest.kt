@@ -1,25 +1,61 @@
 package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 internal class ClassDeclarationParsingTest {
+  @Test
+  fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar, Bar") }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }")
+    }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo @ CLASS Bar") }
+  }
+
   @Test
   fun simpleOneLiners() {
     parseClasses("CLASS Foo") // minimal
     parseClasses("ABSTRACT CLASS Foo") // abstract
     parseClasses("CLASS Foo<Bar>") // with spec
-    parseClasses("CLASS Foo[FOO]") // with shortname
     parseClasses("CLASS Foo : Bar") // with supertype
     parseClasses("CLASS Foo { HAS 1 }") // with same-line body
     parseClasses(" CLASS Foo") // with space first
     parseClasses("\nCLASS Foo") // with newline first
     parseClasses("CLASS Foo ") // with space after
     parseClasses("CLASS Foo\n") // with newline after
+  }
+
+  @Test
+  fun declarationShortNamesAreNotPetsSyntax() {
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo[FOO]") }
+  }
+
+  @Test
+  fun ordinaryWhitespaceLineEndingsAndFinalComments() {
+    parseClasses("CLASS\tFoo\r\nCLASS\tBar // final comment") shouldHaveSize 2
+  }
+
+  @Test
+  fun incompleteFinalDeclarationIsRejected() {
+    listOf(
+            "CLASS Foo\nABSTRACT",
+            "CLASS Foo\nCLASS",
+            "CLASS Foo\nCLASS Bar<",
+            "CLASS Foo\nCLASS Bar {",
+            "CLASS Foo\nCLASS Bar { HAS",
+            "CLASS Foo\n\"Bar docs\"",
+        )
+        .forEach { source ->
+          assertFailsWith<PetSyntaxException>(source) { parseClasses(source) }
+        }
   }
 
   @Test

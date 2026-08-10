@@ -31,7 +31,6 @@ import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
-import dev.martianzoo.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
@@ -58,10 +57,9 @@ internal object ClassParsing : PetTokenizer() {
     val signature: Parser<Signature> =
         classFullName and
             dependencies and
-            optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
             supertypeList map
-            { (name, deps, short, supes) ->
-              Signature(name, short, deps, supes)
+            { (name, deps, supes) ->
+              Signature(name, deps, supes)
             }
 
     // This should only be included in the bodiless case
@@ -126,8 +124,7 @@ internal object ClassParsing : PetTokenizer() {
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
 
-    private val docstring: Parser<String> =
-        _docString map { it.text.substring(1, it.text.length - 1) }
+    private val docstring: Parser<String> = _docString map { it.text.removeSurrounding("\"") }
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
@@ -144,6 +141,9 @@ internal object ClassParsing : PetTokenizer() {
 
     // a declaration group that could've been nested but is *NOT*
     val topLevelGroup: Parser<List<ClassDeclaration>> = nestableGroup map { it.finishAll() }
+
+    val declarationFile: Parser<List<ClassDeclaration>> =
+        zeroOrMore(topLevelGroup) and skip(nls) map { it.flatten() }
 
     // For CardDefinition
 
@@ -168,13 +168,11 @@ internal object ClassParsing : PetTokenizer() {
       HasClassName by asDeclaration {
     constructor(
         className: ClassName,
-        shortName: ClassName?,
         dependencies: List<Expression>,
         supertypes: List<Expression>,
     ) : this(
         ClassDeclaration(
             className = className,
-            shortName = shortName ?: className,
             kind = ABSTRACT, // needs to be overwritten!
             dependencies = dependencies,
             supertypes = supertypes.toSetStrict(),
@@ -201,7 +199,7 @@ internal object ClassParsing : PetTokenizer() {
   }
 
   internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
-    constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
+    constructor(list: List<BodyElement> = emptyList()) : this(KClassMultimap(list))
 
     override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
         NestableDeclGroup(kind, firstSignature, this)

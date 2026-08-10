@@ -3,13 +3,13 @@
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to the source code as you read:
 
 * [global.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/global.pets)
+* [modes.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/modes.pets)
 * [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/player.pets)
-* [venus.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/VenusNextExpansion/venus.pets)
-* [prelude.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/PreludeExpansion/prelude.pets)
+* [maps-tiles.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/commonMain/resources/canon/bundles/TerraformingMars/maps-tiles.pets)
 
 ## Communal / non-player-owned
 
-First, `Component` is the root of the class hierarchy; *every* instance of anything in a game state is always a `Component`.
+First, `Component` is the root of the class hierarchy; *every* instance of anything in a world is always a `Component`.
 
 ### Global parameters
 
@@ -17,13 +17,13 @@ The abstract class `GlobalParameter` has three concrete subclasses in the base g
 
 You can pretty easily guess why the `TemperatureStep` class declaration includes the line `HAS MAX 19 This`. Nineteen temperature steps up from the starting point gets you to 8 degrees Celsius and there can never be any more than that.
 
-These classes contain effects for track bonuses, but they look a little strange; for example `OxygenStep` says `This: (=8 This: TemperatureStep) OR Ok`. There's a lot going on here. First, the effect triggers every single time oxygen is raised (and we have to ensure, through some unknown means, that it is always raised one step at a time). Each time, one of the two instructions separated by `OR` will be carried out. But the left one is only possible when the requirement `=8 OxygenStep` is met. Every other time the right side will *have* to be chosen, and `Ok` is the general-purpose "do nothing" command in PETS. (Actually it's just a component type like any other, having the effect `This:: -This` so it can never actually be created.) Note that if `OR Ok` were not present then oxygen raises would be impossible, as you'd be left with a dead-end unexecutable instruction on your queue.
+These classes contain effects for track bonuses; for example `OxygenStep` says `This IF =8 This: TemperatureStep`. The effect is considered every single time oxygen is raised, and triggers only when oxygen reaches 8%.
 
 The definition of the GlobalParameter class includes the line `+This.`. Any gain/remove instruction in PETS can be followed by an "intensity": either `!` meaning "mandatory", `?` meaning "optional", or `.` meaning "to the extent possible". The `Component` class sets a default gain intensity of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of GlobalParameter instances default to "if possible". If one can't be added due to hitting the maximum limit, the instruction will still be executable and simply do nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
 
 ### Maps
 
-One `MarsMap` instance will exist, such as `Hellas`, but it doesn't do much. The interesting part is the areas. Every area is its own component instance; these are singleton classes so one of each is automatically created before the game begins.
+One `MarsMap` instance will exist, such as `HellasMap`, but it doesn't do much. The interesting part is the areas. Every area is its own component instance; these are singleton classes so one of each is automatically created before the game begins.
 
 The created areas have names like `Hellas_1_1`, `Hellas_1_2`, etc. The coordinate system is easy to understand if you try the `map` command in the command-line REPL tool (`./rego`).
 
@@ -45,26 +45,21 @@ As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the 
 
 Any component that makes actions available for possible selection extends the supertype `HasActions`; these includes the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
 
-The first two are singleton types: each concrete subtype such as `Aquifer` automatically has an instance created before the game starts. Therefore if the user signals `UseAction<Aquifer>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue.
+The first two are singleton types: each concrete subtype in the selected ruleset, such as `Aquifer`, automatically has an instance created before the game starts. Therefore if the user signals `UseAction<Aquifer>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue.
 
 ### Phases
 
-Once the workflow starts setup, exactly one Phase instance exists: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. A newly created engine is briefly at a committed pre-setup baseline with no Phase; the workflow owns creating `SetupPhase`. After the final `ProductionPhase`, `FinalGreeneryPhase` lets players convert remaining plants into greeneries before scoring. A phase called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!). When the final phase `Shutdown` is created, the game is thereby concluded and no more state changes can happen.
+Once setup begins, exactly one Phase instance exists at all times: `SetupPhase`, `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, etc. A signal called `End` triggers victory point payouts (it has such a short name because it has to be written on MANY cards!).
 
 ## Player stuff
 
-Concrete classes called Player1, Player2, etc. will exist. The player owning the unique
-`StartToken` is the start player; it begins with Player1 and passes one seat left when each later
-`Generation` is created. In solo mode, setup creates 14 `GenerationsLeft` components and every
-`Generation` removes one; Prelude removes two additional counters during generation 1, giving a
-Prelude solo game 12 generations. Mapping player classes to players' names is considered a UI-level
-task.
+Concrete classes called Player1, Player2, etc. will exist. The player owning the unique `StartToken` is the start player.
+
+The abstract class these all subclass is `Player`, which is both an `Owner` and an `Actor`. `Anyone` is still useful because it reads better in the icon-grammar spelling `CityTile<Anyone>: PROD[1]`. A solo opponent can be an `Owner` without being a `Player`.
 
 ### Owned
 
-The `Owned` abstract type is extremely important. Every concrete instance of an `Owned` subtype
-must identify its owner. Subtypes may narrow the kind of Owner where a game rule requires it. Many
-component types have `Owned` as a direct or indirect supertype.
+The `Owned` abstract type is extremely important. It has a dependency onto `Owner` (which `Player1` etc. all extend), meaning that every concrete instance of any `Owned` subclass must always know which owner it belongs to. Many, many component types have `Owned` as a direct or indirect supertype.
 
 A simple example of an owned component type is `VictoryPoint`.
 
@@ -79,7 +74,7 @@ CLASS TerraformRating {
 
 When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 megacredit for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
 
-As much as possible the ownership dependency should behave like any other component dependency.
+The `Owned-Owner` dependency is a regular component dependency just like any other in the game.
 
 ### OwnedTile
 
@@ -112,16 +107,20 @@ We discussed the `Phase` types above. As much as possible, these types do nothin
 
 ### Cards
 
-It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; its subtypes simply distinguish the generic card backs consumed when different kinds of cards are played. (Remember these things have no attributes either.)
+It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; the base game has the two subtypes `ProjectCard` and `CorporationCard`, and Prelude adds `PreludeCard`. That's about it. (Remember these things have no attributes either.)
 
-The base game's `CardBack` subtypes are `ProjectCard` and `CorporationCard`; the Prelude expansion adds `PreludeCard`. The most important thing to understand about cards is that the engine supports only "follow-along mode" or "magic cards mode". This means it neither knows nor cares what cards you have in your hand. It doesn't shuffle a deck or deal random cards to anyone. During this phase of this project's evolution, it's assumed that you're actually *playing* a game IRL or on another app and just logging the moves here for testing purposes. So if you tell it that next you played `EarthCatapult`, it will believe you, and subtract one generic `ProjectCard` from your hand. I don't expect the engine to support shuffle-and-deal mode for quite a long time.
+The most important thing to understand about cards is that the engine supports only "follow mode". A client supplies the concrete history to process, including draws, reveals, discards, and plays, and the engine calculates the resulting state. It neither owns hidden information nor tries to authenticate that history against a separate physical or online game. Thus, if the client says that `EarthCatapult` was played, the engine applies that play and subtracts one generic `ProjectCard` from the hand. Definitions with an `F`-suffixed identifier are specifically complete for this mode; a future real-play mode that owns the deck and hands would use different definitions for those cards.
 
 Even with this simplification, the whole play-a-card process is a bit complex to go into here and now.
 
 Cards can have three types of things "on" them, which all share the superclass `Cardbound`. These are `Tag`s, `CardResource`s, and `ActionUsedMarker`s. What these all have in common is that the `CardFront` must exist before they can, and if the `CardFront` ever went away they would have to as well. This is, of course, just how dependencies work in PETS.
 
-`Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`, and we want to make a rule somehow that these two owners are always the same. We don't have that yet, so the system sees `Animal<Predators, Player2>` as abstract, and expects to see `Animal<Predators<Player2>, Player2>` to mean the concrete type. That's quite unfortunate and I hope to solve it soonish...
+`Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`. Its declaration repeats the `Owner` bound in both places, making the two owners always the same. Thus `Animal<Player2, Predators>` and `Animal<Predators<Player2>>` mean the same concrete type, while specifying different owners is invalid.
 
 ### PaymentMechanic
 
 A few types are busily doing weird stuff behind the scenes to let you pay for stuff properly: `Owed`, `Accept`, `Pay`, `PlayCard`, and `PlayTag`. The best way to understand what these are for is to see how they are used on cards in `cards.json5`.
+
+## TODO
+
+* Explain how setup-world choices become immutable game modules.

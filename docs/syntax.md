@@ -6,37 +6,36 @@ in `cards.json5`.
 ## Type expressions
 
 ```
-typeExpression  := genericTypeExpr | classLiteral
-genericTypeExpr := ['!'] className [specializations] [refinement]
-specializations := '<' typeExpression (',' typeExpression)* '>'
-refinement      := '(HAS' requirement ')'
-classLiteral    := className '.CLASS'
-className       := upperCamelRE
+typeExpression    := dependentTypeExpr | classLiteral
+dependentTypeExpr := className [dependencyBounds] [hasRefinement]
+dependencyBounds  := '<' dependencyBound (',' dependencyBound)* '>'
+dependencyBound   := ['!'] typeExpression
+hasRefinement     := '(' ('HAS' | 'HAS?') requirement ')'
+classLiteral      := 'Class' '<' className '>' [hasRefinement]
+className         := upperCamelRE
 ```
 
 Type expressions are the heart of the PETS language. There are two kinds.
 
-### Generic type expression
+Class declarations contain only their canonical name; names use ASCII UpperCamelCase, with digits and underscores allowed after the first letter. A session vocabulary can accept localized Pets names and separately configured input-only synonyms, while engine state and rules use canonical names.
+
+### Dependency-bearing type expression
 
 This can be as simple as `Player1` or as complex as `CityTile<Player2, MarsArea(HAS MAX 0 CityTile<Anyone>)>`. First
-comes a class name, then an optional list of one or more specializations inside angle brackets, and finally an optional
-requirement. Of course, each listed specialization is an entire type expression itself.
+comes a class name, then an optional list of one or more dependency bounds inside angle brackets, and finally an optional
+requirement. Of course, each listed bound is an entire type expression itself.
 
-These expressions are a way of identifying a type, and types are explained in the [type system] article.
+These expressions are a way of identifying a type, and types are explained in the [type system](type-system.md) article.
 
-A leading `!` can be used inside a specialization to mean "anything in this dependency's domain
-except this type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not
-Player1. Complement type expressions are dependency constraints and have no standalone type.
+A leading `!` can be used inside a dependency bound to mean "anything within this dependency's bound except the named type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not Player1. Complement type expressions are dependency constraints and have no standalone type.
 
 ### Class literal
 
-For any class name `Foo`, you can write the class literal `Class<Foo>`. An instace of `Foo.class` is created upon
+For any loaded class name `Foo`, you can write the class literal `Class<Foo>`. An instance of `Class<Foo>` is created upon
 initialization of the type system if and only if `Foo` is a concrete class. So, for example, an instance
-for `Class<StandardResource>` is not created; however if you `count StandardResource.class` you will get the answer `6`,
+for `Class<StandardResource>` is not created; however if you `count Class<StandardResource>` you will get the answer `6`,
 because it is counting all the subtypes. That is, class literals have the same subtype relationships as their
 corresponding classes do.
-
-`Class<AnyWordHere>` is not a valid type unless `AnyWordHere` names a loaded class. As a metric only, however, it is valid and counts as zero when that class is absent. This allows one bundle to query whether another bundle supplied a class without requiring that bundle. The expression remains invalid in instructions and dependency specializations, and all `Class` types are prohibited as triggers.
 
 ### Quantified expressions
 
@@ -51,19 +50,16 @@ the type is missing, it defaults to `Megacredit`. At least one must be used.
 
 ### Metrics
 
-A metric computes a non-negative integer. A type expression used as a metric normally counts matching components in
-the component graph; the REPL command `count Foo` evaluates exactly this kind of metric. A class extending `Custom`
-can instead have Kotlin metric behavior, in which case the implementation supplies the count even though no component
-of that class ever exists. For example, `MarsRow<Hellas_8_4>` evaluates to `8`.
+```
+metric       := maxMetric ('OR' maxMetric)*
+maxMetric    := scaledMetric ['MAX' scalar]
+scaledMetric := [scalar] metricAtom
+metricAtom   := typeExpression | transform | '(' metric ')'
+transform    := allCapsWord '[' metric ']'
+```
 
-Custom metric types are specialized inside refinements in the usual way. Thus
-`OwnedTile<MarsArea(HAS 8 MarsRow)>` counts owned tiles in rows 8 and 9. Custom metrics can also appear after `/`, in
-milestone requirements, and anywhere else an ordinary metric can appear.
-
-Other canonical examples include `CardCost<EarthCatapult>`, `DistinctTagType<Player1>`, and refinements
-such as `CardFront(HAS 20 CardCost)` or
-`MarsArea(HAS MapBonus<Class<Steel>> OR MapBonus<Class<Titanium>>)`. These are metric evaluations; none
-of the named virtual-property classes has components in the graph.
+A metric computes a non-negative integer. A type expression counts matching components; a scalar counts complete groups
+of that size. `OR` counts the union of its alternatives, without double-counting a component that matches more than one.
 
 ## Requirements
 
@@ -71,16 +67,17 @@ of the named virtual-property classes has components in the graph.
 requirement := orReqt (',' orReqt)*
 orReqt      := atomReqt ('OR' atomReqt)*
 atomReqt    := minReqt | maxReqt | exactReqt | prodReqt | groupedReqt
-minReqt     := scalarAndType
-maxReqt     := 'MAX' scalarAndType
-exactReqt   := '=' scalarAndType
+countedReqt := scalarAndType | scalar metricAtom
+minReqt     := countedReqt
+maxReqt     := 'MAX' countedReqt
+exactReqt   := '=' countedReqt
 prodReqt    := 'PROD[' requirement ']'
 groupedReqt := '(' requirement ')'
 ```
 
-A requirement expresses a condition that can be checked against a game state to determine a `true` or `false` value. Of
+A requirement expresses a condition that can be checked against a world to determine a `true` or `false` value. Of
 course, these are familiar from cards; many control whether the card can be played (`MAX 4 OxygenStep`), and in a few
-cases gate an instruction on the card (like in Nitro-Rich Asteroid, `PROD[Plant OR 3 PlantTag: 4 Plant]`).
+cases gate an instruction on the card (like in Nitro-Rich Asteroid, `PROD[Plant OR (3 PlantTag: 4 Plant)]`).
 
 The requirement `a, b, c` will be true if all three of given requirements are true. The comma is the lowest-precedence
 operator.
@@ -91,36 +88,34 @@ higher precedence than the comma, so `a, b OR c` means that `a` must be true, an
 ### Instructions
 
 ```
-instruction := thenInst (',' thenInst)*
-thenInst    := orInst ('THEN' orInst)*
-orInst      := gatedInst ('OR' gatedInst)*
-gatedInst   := [atomReqt ':'] (groupedInst | prodInst | customInst)
-prodInst    := perInst | ('PROD[' instruction ']')
-customInst  := '@' lowerCamelRE '(' [arguments] ')'
-arguments   := typeExpression (',' typeExpression)*
-perInst     := perableInst ['/' scalarAndType]
-perableInst := gainInst | removeInst | fromInst | ('(' fromInst ')')
-gainInst    := scalarAndType [intensity]
-removeInst  := '-' scalarAndType [intensity]
-fromInst    := [scalar] from [intensity]
-from        := simpleFrom | complexFrom
-simpleFrom  := genericTypeExpr 'FROM' genericTypeExpr
-complexFrom := className '<' fromArgs '>' [refinement]
-fromArgs    := (typeExpression ',')* from (',' typeExpression)*
-groupedInst := '(' instruction ')'
+instruction  := thenInst (',' thenInst)*
+thenInst     := gatedInst ('THEN' gatedInst)*
+gatedInst    := [atomReqt ':'] orInst
+orInst       := atomInst ('OR' atomInst)*
+atomInst     := baseAtomInst ['BY' typeExpression]
+baseAtomInst := groupedInst | prodInst | customInst
+prodInst     := perInst | ('PROD[' instruction ']')
+customInst   := '@' lowerCamelRE '(' [arguments] ')'
+arguments    := typeExpression (',' typeExpression)*
+perInst      := perableInst ['/' scalarAndType]
+perableInst  := gainInst | removeInst | fromInst | ('(' fromInst ')')
+gainInst     := scalarAndType [intensity]
+removeInst   := '-' scalarAndType [intensity]
+fromInst     := [scalar] dependentTypeExpr 'FROM' dependentTypeExpr [intensity]
+groupedInst  := '(' instruction ')'
 ```
 
 Instructions are the meat of the language, as you can see. The elementary instructions are to gain some amount of a
 component (`4 Plant<Player2>`), remove some amount of a component (`-8 Heat<Player1>`), or even transmute some amount of
-one component directly into another (`3 Megacredit<Player4 FROM Player2>`).
+one component directly into another (`3 Megacredit<Player4> FROM Megacredit<Player2>`).
 
 Commas separate multiple independent instructions. The comma has the lowest precedence of all instruction operators.
 Within each comma-separated section, you might find instructions separated by `THEN`; this is similar to the comma, but
-the player can't choose the order the tasks will be carried out (even once we support choosing that order!). Next, `OR`
-separates instructions which the player can choose between.
+the player can't choose the order the tasks will be carried out (even once we support choosing that order!).
 
-Continuing in precedence order: an instruction can be preceded by a requirement and a colon (':'), as seen within the
-parentheses in the example `PROD[Plant OR (3 PlantTag: 4 Plant)]`. Note that because `4 Plant` is a mandatory
+An instruction can then be preceded by a requirement and a colon (`:`). `OR`, which separates instructions the player
+can choose between, binds more tightly than the gate: `3 PlantTag: Plant OR 4 Plant` gates both alternatives. To gate
+only one alternative, surround it with parentheses, as in `PROD[Plant OR (3 PlantTag: 4 Plant)]`. Note that because `4 Plant` is a mandatory
 instruction, `3 PlantTag: 4 Plant` is as well; if there was not another option separated by `OR` then this entire
 instruction would be unexecutable by a player with only 2 plant tags.
 
@@ -160,26 +155,25 @@ that gets translated to `UseAction2<ElectroCatapult>: -Plant THEN 7`).
 ### Effects
 
 ```
-effect      := trigger (':' | '::') instruction
-trigger     := (prodTrigger | atomTrigger) ['IF' requirement] ['BY' className]
-prodTrigger := 'PROD[' atomTrigger ']'
-atomTrigger := onGain | onRemove
-onGain      := genericTypeExpr
-onRemove    := '-' genericTypeExpr
+effect         := trigger (':' | '::') instruction
+trigger        := ifTrigger
+ifTrigger      := byTrigger ['IF' requirement]
+byTrigger      := orTrigger ['BY' typeExpression]
+orTrigger      := triggerPrimary ('OR' triggerPrimary)*
+triggerPrimary := rawTrigger | '(' trigger ')'
+rawTrigger     := prodTrigger | atomTrigger
+prodTrigger    := 'PROD[' atomTrigger ']'
+atomTrigger    := onGain | onRemove
+onGain         := dependentTypeExpr
+onRemove       := '-' dependentTypeExpr
 ```
 
 An effect consists of a trigger, either one or two colons, then an instruction. The trigger is essentially just a type
 optionally preceded by a minus sign. For each instance of that type that is gained (or, with minus sign, removed), the
 instruction will be carried out.
 
-`BY` restricts the Actor recorded on the triggering state change. Following the published card
-grammar, an effect carried by an `Owned` component responds only to its Owner when its trigger
-component is unowned. Write `BY Anyone` explicitly for the red-outline, “anyone” form. Triggers on
-owned components already identify their Owner and need no Actor restriction.
+Triggers can be joined with `OR` and restricted with `BY` or `IF`.
 
-An unowned component extending `System` represents engine-only machinery. A Player cannot create
-one, and its occurrence is not attributed to a particular Player for trigger matching, so every
-matching effect responds unless it has an explicit `BY` restriction. `Hidden` is the independent
-presentation concept: hidden components are normally omitted from user-facing output. `System`
-extends `Hidden`, but other implementation details such as player-created `Signal`s may be hidden
-without being system operations.
+## TODO
+
+* Document complement bounds, `HAS?`, and refinements on class literals.

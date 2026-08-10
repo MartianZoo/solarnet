@@ -1,9 +1,8 @@
 package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
@@ -13,6 +12,7 @@ import dev.martianzoo.tfm.script.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.script.TfmColor.GREENERY_TILE
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.SPECIAL_TILE
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
@@ -24,7 +24,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
       """
   override val isReadOnly = true
 
-  override fun noArgs() = MapToText(repl.game.reader, useColors = false).map()
+  override fun noArgs() = MapToText(repl.game.reader, repl.useAnsiColors).map()
 
   internal class MapToText(private val game: GameReader, private val useColors: Boolean = true) {
     // my terminal app tries to show characters with H:W of 11:5
@@ -74,7 +74,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
     private class CenteringAppender(val sb: StringBuilder) {
       var weird: Boolean = false
 
-      fun append(s: String) = sb.append(s)!!
+      fun append(s: String) = sb.append(s)
 
       fun appendHalfSpaces(n: Int) {
         append(" ".repeat(n / 2))
@@ -110,10 +110,10 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
     private fun describeEmpty(area: AreaDefinition): Pair<String, TfmColor> {
       val color =
           when (area.kind) {
-            ClassName.cn("LandArea") -> TfmColor.LAND_AREA
-            ClassName.cn("WaterArea") -> TfmColor.WATER_AREA
-            ClassName.cn("VolcanicArea") -> TfmColor.VOLCANIC_AREA
-            ClassName.cn("NoctisArea") -> TfmColor.NOCTIS_AREA
+            cn("LandArea") -> TfmColor.LAND_AREA
+            cn("WaterArea") -> TfmColor.WATER_AREA
+            cn("VolcanicArea") -> TfmColor.VOLCANIC_AREA
+            cn("NoctisArea") -> TfmColor.NOCTIS_AREA
             else -> error("unrecognized: ${area.kind}")
           }
       return area.code to color
@@ -122,8 +122,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
     private fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
     private fun describe(tile: Type): Pair<String, TfmColor> {
-      fun isIt(tile: Type, kind: String) =
-          tile.narrows(game.resolve(ClassName.cn(kind).expression), game)
+      fun isIt(tile: Type, kind: String) = tile.narrows(game.resolve(cn(kind).expression), game)
 
       val kind: Pair<String, TfmColor> =
           when {

@@ -21,7 +21,6 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.ACTION_CARD
 import dev.martianzoo.tfm.data.TfmClasses.ACTIVE_CARD
 import dev.martianzoo.tfm.data.TfmClasses.AUTOMATED_CARD
@@ -48,9 +47,7 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val id: String by data::id
 
-  override val shortName: ClassName = cn("C$id")
-
-  override val className: ClassName = englishHack(id)
+  override val className: ClassName = cn("Card$id")
 
   /**
    * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
@@ -65,8 +62,8 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val replaces: String? by data::replaces
 
-  /** Bundles that must all be selected for this card to be included. */
-  public val requiredBundles: Set<ClassName> = parseBundleNames(data.requiredBundles)
+  /** Setup-world condition that must hold for this card to be included. */
+  override val setupRequirement: Requirement? = data.setupRequirement?.let(::parse)
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
 
@@ -130,9 +127,8 @@ public class CardDefinition(data: CardData) : Definition {
   public val extraClasses: List<ClassDeclaration> =
       data.components.map(::parseOneLinerClass) + listOfNotNull(resourceClassDeclaration())
 
-  override val asClassDeclaration by lazy {
-    val createTags =
-        Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
+  override val asClassDeclaration: ClassDeclaration by lazy {
+    val createTags = Multi.create(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
 
     val automaticFx: List<Effect> = listOfNotNull(immediateToEffect(createTags, true))
 
@@ -151,25 +147,24 @@ public class CardDefinition(data: CardData) : Definition {
 
     ClassDeclaration(
         className = className,
-        shortName = shortName,
         kind = CONCRETE,
         supertypes = supertypes,
         effects = allEffects,
-        invariants = setOf(Max(scaledEx(1, className.expression))),
+        invariants = setOf(Max(scaledEx(className.expression, 1))),
         extraNodes =
             setOfNotNull(requirement, deck?.className) + extraClasses.flatMap { it.allNodes },
     )
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */
-  enum class Deck(val className: ClassName) {
+  public enum class Deck(public val className: ClassName) {
     PROJECT(PROJECT_CARD),
     PRELUDE(PRELUDE_CARD),
     CORPORATION(CORPORATION_CARD),
   }
 
   /** A kind (color) of project; see [CardDefinition.ProjectInfo.kind]. */
-  enum class ProjectKind(val className: ClassName) {
+  public enum class ProjectKind(internal val className: ClassName) {
     EVENT(EVENT_CARD),
     AUTOMATED(AUTOMATED_CARD),
     ACTIVE(ACTIVE_CARD),
@@ -181,29 +176,29 @@ public class CardDefinition(data: CardData) : Definition {
       val id: String,
       val deck: String? = null,
       val replaces: String? = null,
-      val requiredBundles: String? = null,
-      val tags: List<String> = listOf(),
+      val setupRequirement: String? = null,
+      val tags: List<String> = emptyList(),
       val immediate: String? = null,
-      val actions: List<String> = listOf(),
-      val effects: List<String> = listOf(),
+      val actions: List<String> = emptyList(),
+      val effects: List<String> = emptyList(),
       val resourceType: String? = null,
-      val components: Set<String> = setOf(),
+      val components: Set<String> = emptySet(),
       val requirement: String? = null,
       val cost: Int = 0,
       val projectKind: String? = null,
   ) {
     init {
       require(id.isNotEmpty())
-      require(replaces?.isNotEmpty() ?: true)
-      require(requiredBundles?.isNotBlank() != false)
-      require(resourceType?.isNotEmpty() ?: true)
-      require(requirement?.isNotEmpty() ?: true)
+      require(replaces?.isNotEmpty() != false)
+      require(setupRequirement?.isNotBlank() != false)
+      require(resourceType?.isNotEmpty() != false)
+      require(requirement?.isNotEmpty() != false)
       require(cost >= 0)
 
       if (deck == "PROJECT") {
         require(projectKind != null)
       } else {
-        if (deck == "PRELUDE") immediate!!
+        if (deck == "PRELUDE") require(immediate != null) { "Prelude $id has no immediate effect" }
         require(projectKind == null) { "not a project: $id" }
         require(requirement == null) { "can't have requirement: $id" }
         require(cost == 0) { "can't have nonzero cost: $id" }
@@ -212,19 +207,6 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
-    val shortName = RESOURCE_SHORT_NAMES[type]
-    val shortNameClause = shortName?.let { "[$it]" }.orEmpty()
-    parseOneLinerClass("CLASS $type$shortNameClause : CardResource")
-  }
-
-  private companion object {
-    val RESOURCE_SHORT_NAMES =
-        mapOf(
-            cn("Animal") to cn("ANI"),
-            cn("Microbe") to cn("MIC"),
-            cn("Science") to cn("SCI"),
-            cn("Floater") to cn("FLO"),
-            cn("Asteroid") to cn("AST"),
-        )
+    parseOneLinerClass("CLASS $type : CardResource")
   }
 }

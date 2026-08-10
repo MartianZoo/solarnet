@@ -6,20 +6,21 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Type
 
 public object Exceptions {
 
   // FACTORIES
 
-  fun classNotFound(className: ClassName) =
+  internal fun classNotFound(className: ClassName) =
       ExpressionException(
           "No class with name or id `$className` in current game (check bundles, check spelling)",
       )
 
-  fun badExpression(specExpression: Expression, deps: String) =
+  internal fun badExpression(specExpression: Expression, deps: String) =
       ExpressionException("can't match `$specExpression` to any of: `$deps`")
 
-  fun abstractComponent(type: Type, change: Change? = null) =
+  public fun abstractComponent(type: Type, change: Change? = null): AbstractException =
       AbstractException(
           buildString {
             append("${type.expression} is abstract")
@@ -27,23 +28,33 @@ public object Exceptions {
           },
       )
 
-  fun abstractInstruction(instr: Instruction) = AbstractException("instruction is abstract: $instr")
+  public fun abstractInstruction(instr: Instruction): AbstractException =
+      AbstractException("instruction is abstract: $instr")
 
-  fun orWithoutChoice(orInstruction: Or) = AbstractException("choice required in: `$orInstruction`")
+  public fun orWithoutChoice(orInstruction: Or): AbstractException =
+      AbstractException("choice required in: `$orInstruction`")
 
-  fun requirementNotMet(reqt: Requirement, message: String? = null) =
+  public fun requirementNotMet(reqt: Requirement, message: String? = null): RequirementException =
       RequirementException("requirement not met: `$reqt` / $message")
 
-  fun refinementNotMet(reqt: Requirement) = NarrowingException("requirement not met: `$reqt`")
+  internal fun refinementNotMet(reqt: Requirement) =
+      NarrowingException("requirement not met: `$reqt`")
+
+  public fun invalidPetDefinition(message: String, cause: Throwable? = null): PetException =
+      PetException(message, cause)
 
   // TOP-LEVEL EXCEPTIONS
 
-  /** A problem with Pets... stuff. */
+  /** A problem in authored Pets source or in the definitions assembled from it. */
   public open class PetException internal constructor(message: String, cause: Throwable? = null) :
       Exception(message, cause)
 
   /** Something is not a valid narrowing of something else. */
   public class NarrowingException(message: String, cause: Throwable? = null) :
+      Exception(message, cause)
+
+  /** A custom Kotlin implementation failed while evaluating otherwise valid Pets input. */
+  public class CustomCodeException(message: String, cause: Throwable? = null) :
       Exception(message, cause)
 
   public open class RecoverableException(message: String) : Exception(message)
@@ -52,7 +63,7 @@ public object Exceptions {
 
   public open class DeadEndException(message: String, cause: Throwable? = null) :
       Exception(message, cause) {
-    constructor(cause: Throwable) : this(cause.message ?: "", cause)
+    public constructor(cause: Throwable) : this(cause.message ?: "", cause)
   }
 
   /**
@@ -62,8 +73,8 @@ public object Exceptions {
   public class AbstractException(message: String) : RecoverableException(message)
 
   /**
-   * Someone tried to do something that can't work against *this* game state, but could potentially
-   * work later as far as we know.
+   * Someone tried to do something that can't work against *this* world, but could potentially work
+   * later as far as we know.
    */
   public open class NotNowException(message: String) : RecoverableException(message)
 
@@ -72,7 +83,7 @@ public object Exceptions {
   public class PetSyntaxException(message: String, cause: Throwable? = null) :
       PetException(message, cause)
 
-  public class ExistingDependentsException(val dependents: Collection<Type>) :
+  public class ExistingDependentsException(public val dependents: Collection<Type>) :
       NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" }}")
 
   /** A string does not represent a valid expression. */
@@ -82,7 +93,7 @@ public object Exceptions {
   /** Something needed a requirement to be met and it was not. */
   public class RequirementException internal constructor(message: String) : NotNowException(message)
 
-  public class DependencyException(val dependencies: Collection<Type>) :
+  public class DependencyException(public val dependencies: Collection<Type>) :
       NotNowException(
           "Missing dependencies: ${dependencies.joinToString { "${it.expressionFull}" } }"
       )

@@ -5,7 +5,6 @@ import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.TaskEvent
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Engine.Updater
 import dev.martianzoo.engine.Timeline.Checkpoint
 
 /**
@@ -14,14 +13,14 @@ import dev.martianzoo.engine.Timeline.Checkpoint
  */
 internal class TimelineImpl(
     private val reader: GameReader,
-    private val updater: Updater,
-    private val events: WritableEventLog,
+    private val components: ComponentGraph,
+    private val events: EventLog,
     private val tasks: TaskQueues,
 ) : Timeline {
 
   override fun checkpoint() = Checkpoint(events.size)
 
-  private var commitFloor = Checkpoint(0)
+  private var commitFloor = Checkpoint(events.firstLocalOrdinal)
 
   override fun commit() {
     commitFloor = checkpoint()
@@ -33,15 +32,12 @@ internal class TimelineImpl(
       "Cannot roll back to $ordinal; committed through ${commitFloor.ordinal}"
     }
     require(ordinal <= events.size)
-    if (ordinal == events.size) return
-
-    val subList = events.eventsToRollBack(ordinal)
-    for (entry in subList.asReversed()) {
+    events.rollBackTo(ordinal) { entry ->
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)
         is ChangeEvent ->
             with(entry.change) {
-              updater.update(
+              components.applyChange(
                   count = count,
                   gaining = removing?.toComponent(reader),
                   removing = gaining?.toComponent(reader),
@@ -49,7 +45,6 @@ internal class TimelineImpl(
             }
       }
     }
-    subList.clear()
   }
 
   internal class AbortOperationException : Exception()
@@ -68,5 +63,5 @@ internal class TimelineImpl(
     return events.activitySince(checkpoint)
   }
 
-  internal fun initializationFinished() = events.setStartPoint()
+  internal fun initializationFinished() = events.markSetupStart()
 }

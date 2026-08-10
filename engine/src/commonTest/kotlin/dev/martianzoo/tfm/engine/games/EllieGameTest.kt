@@ -4,19 +4,27 @@ import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class EllieGameTest : AbstractFullGameTest() {
-  override fun setup() = Canon.fromOptionCodes("BRHXP", 2)
+  override fun setup() =
+      canonicalPremise(
+          HellasMapOption,
+          PromoCardPack,
+          PreludeExpansion,
+          players = 2,
+      )
 
   @Test
   fun ellieGame() {
-    val workflow = TfmWorkflow.Auto(game, setup()).launch()
+    val workflow = TfmWorkflow.Auto(game).launch()
     workflow.isRunning shouldBe true
 
     p1.playCorp("InterplanetaryCinematics", 7)
@@ -65,7 +73,6 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
 
     p1.playProject("MicroMills", 1)
-    p1.declineSecondAction()
 
     p1.pass()
 
@@ -122,12 +129,12 @@ class EllieGameTest : AbstractFullGameTest() {
 
   @Test
   fun earlyGameWithNoPrelude() {
-    val setup = Canon.fromOptionCodes("BRHX", 2)
-    val game = Engine.newGame(setup)
+    val setup = canonicalPremise(HellasMapOption, PromoCardPack, players = 2)
+    val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    TfmWorkflow.Auto(game, setup).launch()
+    TfmWorkflow.Auto(game).launch()
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)

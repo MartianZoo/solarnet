@@ -2,13 +2,13 @@
 
 ## Fast facts
 
-* Solarnet is a work-in-progress game engine for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*. It is unimpressive in some ways but actually really cool in other ways.
+* Solarnet is a work-in-progress **game engine** for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)*. There are a few really cool things about it.
 
-* It's not really made for *playing* the game; for that see the excellent and unrelated [open-source app](http://github.com/terraforming-mars/terraforming-mars). You can however log games to it and get statistics (but, your games can only use the ~400 cards we support so far).
+* If you just want to *play* the game, there's an *excellent* [open-source app](http://github.com/terraforming-mars/terraforming-mars) for doing that. Solarnet is unrelated to that (but very grateful for it).
 
-* It's a standalone library. Its only job is to *know the rules of the game* -- which means "who can do what when, and what happens if they do?" It covers the "pure logic part" of the game. You can set up game situations and see what happens ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/commonTest/kotlin/dev/martianzoo/tfm/engine/cards/ExcentricSponsorTest.kt)).
+* It's "just" a standalone library. Its only job is to *know the rules of the game*: "who can do what when, and what happens if they do?" It covers the "pure logic part" of the game. You can use it to set up game situations and see what happens ([example](https://github.com/MartianZoo/solarnet/blob/main/engine/src/commonTest/kotlin/dev/martianzoo/tfm/engine/cards/ExcentricSponsorTest.kt)).
 
-* The unique behavior of a card, milestone, map area, colony tile, etc. is written in a language called Pets. These strings are ALL the game engine needs to know about a card (etc.) in order to play it correctly. Some examples:
+* The unique behavior of each card, milestone, map area, colony tile, etc. is written in a bespoke language called Pets. These strings are ALL the game engine needs to know about a card (etc.) in order to play it correctly. Some examples:
 
 | Class             | Example Pets syntax                                         |
 |-------------------|-------------------------------------------------------------|
@@ -18,45 +18,30 @@
 | `Insulation`      | `This: PROD[X Megacredit FROM Heat]`                        |
 | `EarthCatapult`   | `PlayCard: -2 Owed<Megacredit>`                             |
 | `CitySP`          | `25 -> CityTile, PROD[1]`                                   |
-| `TerraformRating` | `ProductionPhase: 1`; `End: VictoryPoint`                   |
+| `TerraformRating` | `ProductionPhase: 1`, `End: VictoryPoint`                   |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 
 * This means you can add your own fan cards to it pretty easily and without actual "programming" -- so long as the cards don't introduce entirely new game mechanics.
 
 * It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([very long example that plays through an entire game](https://github.com/MartianZoo/solarnet/blob/main/engine/src/commonTest/kotlin/dev/martianzoo/tfm/engine/games/Game20230521Test.kt)).
 
-* If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Advanced Alloys actually save me that game?" fairly easily. (But so far this requires writing actual code.)
+* If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Advanced Alloys actually save me that game?" fairly easily. For now that last part requires writing code. The other catch is that you would have to ban the expansions and individual cards from your game that Solarnet doesn't support yet.
 
-* It works! See the Issues tab for exceptions. I have just about 400 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
+* It works! See the Issues tab for exceptions. I have over 450 cards working -- all [except these ones](https://github.com/MartianZoo/solarnet/blob/main/docs/cards-to-add.md).
 
-* It's **not polished enough** for anyone to "just use". If you're not in a "roll up your sleeves, dig in, ask questions" mode, you *will* find it frustrating. Sorry!
-
-## Overly defensive statement about AI
-
-If this makes you write off my whole project as "vibe-coded", fine, that's your right. I think it would be inaccurate, but that's just me.
-
-I worked alone (and hard) on this project for 3 years starting in mid-2020. It was incredibly difficult, partly because I am not built for working alone. My entire dream was always to get it to a point that just one other human being on the planet would be interested in working on it together. I am pretty sure I sunk *multiple* thousands of hours into it, keeping myself going with that dream, and basically... it failed.
-
-By mid-2023 I had gone as far as I could go. I had a working engine and I was *personally* very proud of it, but the public reaction was [disappointing](https://boardgamegeek.com/thread/3143416/article/42861629#42861629), and no collaborators materialized. I couldn't justify putting more time into it. I get that people needed it to be more than it was before they'd get interested, but I was tapped out.
-
-I spent the next 3 years feeling pretty sad about it, honestly. Then starting in mid-2026 OpenAI Codex and Claude Code have completely reinvigorated my interest in this project, and my ability to move it forward. The design of everything is still mine, but it is very good at implementation and finding issues and well, a lot of things. 
-
-It is not the "collaboration" I wanted -- seriously, people, stop personifying these tools -- but now I feel more optimistic that this project will become something of interest to other real humans. If it doesn't, at least I am back to having fun with it again.
+* It's **not polished enough** for anyone to "just use". 2026 update: unless you are into agentic stuff like Codex or Claude Code; they figure it out quite easily.
 
 ## Play around with it?
 
-You totally can, but note: you will have a MUCH better time if you jump on the [discord](https://discord.gg/8tX5g4Yx3T) and ask lots of questions. Almost no one but me has tried to do much with it yet. It won't be self-explanatory (sorry).
-
-It is *supposed* to be as simple to get going as:
+`JAVA_HOME` needs to point to a JDK installation at version 17 or newer.  Then it is *supposed* to be as simple as this:
 
 ```
 git clone https://github.com/MartianZoo/solarnet.git
 cd solarnet
 ./rego
-help
 ```
 
-Solarnet's preferred JDK is 21; the repo includes `.java-version` for tools that honor it.
+... and then type `help`.
 
 To use the browser version of REgo PLastics instead, run:
 
@@ -69,13 +54,11 @@ stored in that browser, while refreshing the page starts a new game. The right t
 shows a player dashboard tracking player 1's resources, production, Terraform Rating, cards,
 victory points, and tags, with a live Mars map below it.
 
+You can also start a small REPL server with `./regoserve` and issue repl commands to it from the normal command line (`./rc 'repl command here'`).
+
 But in these early days, you're unlikely to get far on your own. I want to improve that, but the best chance for that to happen is if YOU give things a try and tell me how it goes! Again, please do join the discord.
 
 ## Learning more
-
-### Join the discord
-
-There is a discord that I'd be happy to start regenerating invites for but there's nothing happening there currently.
 
 ### Videos
 
@@ -85,7 +68,6 @@ None of this is polished or anything.
 * [First overview and REPL demo](https://www.youtube.com/watch?v=btCLcFLvV2I). This also assumes some familiarity with the game, and also includes a demo, but it also has some introductory slides that explain a few things better. The demo part is somewhat outdated.
 * [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90). A presentation I gave April 2023 for an audience of more hardcore software people. Tried to make it a little more understandable for those who aren't experts in the game already.
 * [Watch as I "log" a real game](https://youtu.be/se8svQH-GOE) (I explain a bunch of stuff, but it's long; watch on high-speed). 
-* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me add a brand new card (Supercapacitors) to Solarnet in about a half hour.
 
 ### Docs
 
@@ -96,6 +78,7 @@ I haven't written too much yet. There are too many things I could write down nex
 * Overview of [component types](docs/component-types.md) -- not a bad place to start
 * Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md) (incomplete)
+* [Testing and verification](docs/agents/TESTING.md)
 * The growing project [glossary](glossary.md)
 * API docs -- see below
 
@@ -109,11 +92,13 @@ Just breeze past all the things that don't make sense. Some of it will!
 
 ### Poke around in the implementation?
 
-If you can generate the docs (clone, `./gradlew dokkaGenerateHtml`, then look at
-`docs/api/index.html`) that would be the ideal way to start. The generated site includes the API
-documentation for every Solarnet module.
+If you can generate the docs (clone, `./gradlew dokkaGenerateHtml`, then look at `docs/api/index.html`) that would be the ideal way to start. The generated site includes the API documentation for every Solarnet module.
 
-I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thing usable from Java, JavaScript, and some other environments as well. Getting those working might not be trivial (?) but at least won't require a port.
+I wrote it in [Kotlin](https://kotlinlang.org), which should make the whole thing usable from Java, JavaScript, and some other environments as well.
+
+### Join the discord
+
+There is a discord that I'd be happy to start regenerating invites for but there's nothing happening there currently.
 
 ## Who are you
 

@@ -5,7 +5,6 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.Type
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
@@ -13,39 +12,37 @@ import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.OperationBody
-import dev.martianzoo.engine.Gameplay.OperationLayer
-import dev.martianzoo.engine.Gameplay.TaskLayer
-import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.types.Type
 import dev.martianzoo.util.Multiset
 import kotlin.reflect.KClass
 
 /**
- * All modifications to a game state (not counting rollbacks) are done via this interface.
+ * All modifications to a world (not counting rollbacks) are done via this interface.
  *
- * It should not be possible to break the game state through this interface, except by calling
- * [godMode] which will then let you do whatever the heck you want. Or, the instance returned by
- * [godMode] could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods
- * you don't need; see those interfaces for more explanation.
+ * It should not be possible to break the world through this interface, except by calling [godMode]
+ * which will then let you do whatever the heck you want. Or, the instance returned by [godMode]
+ * could be cast to [TurnLayer], [OperationLayer], [TaskLayer] in order to hide methods you don't
+ * need; see those interfaces for more explanation.
  */
 public interface Gameplay {
 
   // READ OPERATIONS
 
-  val actor: Actor
+  public val actor: Actor
 
-  fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
+  public fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
 
-  fun has(requirement: String): Boolean
+  public fun has(requirement: String): Boolean
 
-  fun count(metric: String): Int
+  public fun count(metric: String): Int
 
-  fun list(type: String): Multiset<Expression>
+  public fun list(type: String): Multiset<Expression>
 
-  fun resolve(expression: String): Type
+  public fun resolve(expression: String): Type
 
   // Purple mode (and below)
 
@@ -59,14 +56,20 @@ public interface Gameplay {
    * @throws [TaskException] if there is no task by this id assigned to this gameplay's Actor
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
-  fun reviseTask(taskId: TaskId, revised: String): TaskResult
-
-  /** Tells whether [prepareTask] will complete normallly. */
-  fun canPrepareTask(taskId: TaskId): Boolean
+  public fun reviseTask(taskId: TaskId, revised: String): TaskResult
 
   /**
-   * Sets a task's [Task.next] bit, and simplifies its instruction according to the current game
-   * state. It will be impossible to change the game state except by executing this task.
+   * Revises the single task whose current instruction is [current]. This avoids depending on its
+   * generated [TaskId] when the instruction itself identifies the task.
+   */
+  public fun reviseTask(current: String, revised: String): TaskResult
+
+  /** Tells whether [prepareTask] will complete normallly. */
+  public fun canPrepareTask(taskId: TaskId): Boolean
+
+  /**
+   * Sets a task's [Task.next] bit, and simplifies its instruction according to the current world.
+   * It will be impossible to change the world except by executing this task.
    *
    * If the prepared task is concrete, but would fail to execute, that exception is thrown now
    * instead of preparing the task.
@@ -81,13 +84,19 @@ public interface Gameplay {
    *   first be narrowed until it splits into tasks that can be prepared individually
    * @throws [NotNowException] if the prepared task would throw this exception on execution
    */
-  fun prepareTask(taskId: TaskId): TaskId?
+  public fun prepareTask(taskId: TaskId): TaskId?
+
+  /**
+   * Prepares the single task whose current instruction is [instruction]. Equivalent tasks that
+   * differ only by id are interchangeable.
+   */
+  public fun prepareTask(instruction: String): TaskId?
 
   /**
    * Brittle convenience that selects by the task set's non-semantic iteration order. Prefer an
    * explicit task id unless the caller has established that only one task can apply.
    */
-  fun doFirstTask(revised: String? = null): TaskResult
+  public fun doFirstTask(revised: String? = null): TaskResult
 
   /**
    * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes
@@ -99,69 +108,72 @@ public interface Gameplay {
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be prepared
    */
-  fun doTask(taskId: TaskId): TaskResult
+  public fun doTask(taskId: TaskId): TaskResult
 
-  fun doTask(revised: String): TaskResult
+  public fun doTask(revised: String): TaskResult
 
-  fun tryTask(taskId: TaskId): TaskResult
+  public fun tryTask(taskId: TaskId): TaskResult
 
-  fun tryTask(revised: String): TaskResult
+  public fun tryTask(revised: String): TaskResult
 
-  fun tryPreparedTask(): TaskResult
+  public fun tryPreparedTask(): TaskResult
 
-  fun autoExecNow(): TaskResult
+  public fun autoExecNow(): TaskResult
 
-  var autoExecMode: AutoExecMode
+  public var autoExecMode: AutoExecMode
 
-  fun godMode(): GodMode
+  public fun godMode(): GodMode
 
   // Blue mode
 
-  interface TurnLayer : Gameplay {
-    fun startTurn(): TaskResult
+  public interface TurnLayer : Gameplay {
+    public fun startTurn(): TaskResult
 
-    fun turn(body: BodyLambda = {}): TaskResult
+    public fun turn(body: BodyLambda = {}): TaskResult
   }
 
   // Green mode
 
-  interface OperationLayer : TurnLayer {
-    fun manual(initialInstruction: String, body: BodyLambda = {}): TaskResult
+  public interface OperationLayer : TurnLayer {
+    public fun manual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
-    fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
+    public fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
-    fun continueManual(body: BodyLambda = {}): TaskResult
+    public fun continueManual(body: BodyLambda = {}): TaskResult
 
-    fun finish(body: BodyLambda = {}): TaskResult
+    public fun finish(body: BodyLambda = {}): TaskResult
   }
 
-  interface OperationBody {
-    val tasks: TaskQueue
-    val reader: GameReader
+  public interface OperationBody {
+    public val tasks: TaskQueue
+    public val reader: GameReader
 
-    fun doFirstTask(revised: String)
+    public fun doFirstTask(revised: String)
 
-    fun doTask(revised: String)
+    public fun doTask(revised: String)
 
-    fun tryTask(revised: String)
+    public fun tryTask(revised: String)
 
-    fun autoExecNow()
+    public fun autoExecNow()
 
-    fun abort(): Nothing = throw AbortOperationException()
+    public fun abort(): Nothing = throw AbortOperationException()
   }
 
   // Yellow
   public interface TaskLayer : OperationLayer {
     /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
-    fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
+    public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
     /** Removes a task for any reason or no reason at all. */
-    fun dropTask(taskId: TaskId): TaskRemovedEvent
+    public fun dropTask(taskId: TaskId): TaskRemovedEvent
+
+    /** Removes every task assigned to this gameplay's Actor. */
+    public fun dropTasks(): List<TaskRemovedEvent>
   }
 
   // Red
   public interface GodMode : TaskLayer {
-    fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
+    public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
   }
 
   public companion object {
@@ -170,4 +182,4 @@ public interface Gameplay {
   }
 }
 
-internal typealias BodyLambda = OperationBody.() -> Unit
+public typealias BodyLambda = OperationBody.() -> Unit

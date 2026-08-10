@@ -4,10 +4,12 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
@@ -15,13 +17,19 @@ class FirstPartialGameTest {
   @Test
   fun fourWholeGenerations() {
     repeat(1) {
-      val setup = Canon.fromOptionCodes("BREPT", 2)
-      val game = Engine.newGame(setup)
+      val setup =
+          canonicalPremise(
+              ElysiumMapOption,
+              PreludeExpansion,
+              TurmoilCardPack,
+              players = 2,
+          )
+      val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
       val eng = game.tfm(ENGINE)
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
 
-      val workflow = TfmWorkflow.Auto(game, setup).launch()
+      val workflow = TfmWorkflow.Auto(game).launch()
 
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
@@ -36,7 +44,7 @@ class FirstPartialGameTest {
       p1.playProject("AsteroidMining", 30)
       p1.declineSecondAction()
 
-      p2.playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<E37>") }
+      p2.playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<Elysium_3_7>") }
       p2.playProject("SpaceElevator", 1, steel = 13)
 
       p1.pass()
@@ -45,7 +53,6 @@ class FirstPartialGameTest {
       p2.playProject("InventionContest", 2)
 
       p2.playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
-      p2.declineSecondAction()
 
       p2.pass()
 
@@ -86,11 +93,15 @@ class FirstPartialGameTest {
       p2.cardAction1("ElectroCatapult")
       p2.playProject("SpaceHotels", 7, titanium = 1)
 
-      p2.playProject("MarsUniversity", 6)
-      p2.playProject("ArtificialPhotosynthesis", 10) { doTask("PROD[2 Energy]") }
+      p2.playProject("MarsUniversity", 6) {
+        doTask("-ProjectCard")
+      }
+      p2.playProject("ArtificialPhotosynthesis", 10) {
+        doTask("PROD[2 Energy]")
+        doTask("Ok")
+      }
 
       p2.playProject("BribedCommittee", 5)
-      p2.declineSecondAction()
 
       p2.pass()
 
@@ -101,20 +112,20 @@ class FirstPartialGameTest {
       p2.cardAction1("ElectroCatapult")
       p2.cardAction1("SpaceElevator")
 
-      p1.playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<E56>") }
+      p1.playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
       p1.playProject("IoMiningIndustries", 1, titanium = 13)
 
-      p2.playProject("TransNeptuneProbe", 1, titanium = 1)
+      p2.playProject("TransNeptuneProbe", 1, titanium = 1) { doTask("Ok") }
       p2.playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
 
       p1.sellPatents(1)
       p1.declineSecondAction()
 
       p2.playProject("SolarPower", 1, steel = 4)
-      p2.stdProject("CitySP") { doTask("CityTile<E65>") }
+      p2.stdProject("CitySP") { doTask("CityTile<Elysium_6_5>") }
 
       workflow.shutdown()
-      TfmWorkflow.Manual(game, setup).productionPhase()
+      TfmWorkflow.Manual(game).productionPhase()
 
       eng.assertCounts(4 to "Generation")
       eng.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
@@ -128,8 +139,7 @@ class FirstPartialGameTest {
         assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
         assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
-        assertCounts(5 to "BUT", 2 to "SPT", 2 to "SCT", 0 to "POT", 1 to "EAT")
-        assertCounts(3 to "JOT", 0 to "PLT", 0 to "MIT", 0 to "ANT", 1 to "CIT")
+        assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
 
         assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
       }
@@ -143,8 +153,7 @@ class FirstPartialGameTest {
         assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
         assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
-        assertCounts(9 to "BUT", 3 to "SPT", 4 to "SCT", 2 to "POT", 3 to "EAT")
-        assertCounts(0 to "JOT", 0 to "PLT", 1 to "MIT", 0 to "ANT", 0 to "CIT")
+        assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)
 
         assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
       }

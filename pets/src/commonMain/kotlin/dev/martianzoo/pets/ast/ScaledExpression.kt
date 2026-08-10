@@ -18,63 +18,62 @@ import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.util.Reifiable
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */
-data class ScaledExpression(
-    val scalar: Scalar,
+@ConsistentCopyVisibility
+public data class ScaledExpression
+internal constructor(
     val expression: Expression = MEGACREDIT.of(),
+    val scalar: Scalar,
 ) : PetNode() {
   public companion object {
-    public fun scaledEx(scalar: Scalar, expression: Expression? = null) =
-        ScaledExpression(scalar, expression ?: MEGACREDIT.of())
+    /** Returns [expression] scaled by [scalar], defaulting the expression to `Megacredit`. */
+    public fun scaledEx(expression: HasExpression? = null, scalar: Scalar): ScaledExpression =
+        ScaledExpression(expression?.expression ?: MEGACREDIT.of(), scalar)
 
-    public fun scaledEx(value: Int? = null, expression: Expression? = null) =
-        scaledEx(ActualScalar(value ?: 1), expression)
-
-    public fun scaledEx(scalar: Scalar, hasEx: HasExpression) = scaledEx(scalar, hasEx.expression)
-
-    public fun scaledEx(value: Int? = null, hasEx: HasExpression) =
-        scaledEx(value, hasEx.expression)
+    /** Returns [expression] scaled by [count], defaulting to one `Megacredit`. */
+    public fun scaledEx(expression: HasExpression? = null, count: Int = 1): ScaledExpression =
+        scaledEx(expression, ActualScalar(count))
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
 
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
   }
 
-  override fun visitChildren(visitor: Visitor) = visitor.visit(scalar, expression)
+  override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scalar, expression)
 
-  override fun toString() = toString(forceScalar = false, forceExpression = false)
+  override fun toString(): String = toString(forceScalar = false, forceExpression = false)
 
-  fun toFullString() = toString(forceScalar = true, forceExpression = true)
+  internal fun toFullString() = toString(forceScalar = true, forceExpression = true)
 
-  operator fun times(multiple: Int) = copy(scalar = scalar * multiple)
+  internal operator fun times(multiple: Int) = copy(scalar = scalar * multiple)
 
-  fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
+  internal fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
       when {
         !forceExpression && expression == MEGACREDIT.of() -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
         else -> "$scalar $expression"
       }
 
-  override val kind = ScaledExpression::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = ScaledExpression::class
 
-  sealed class Scalar : PetNode(), Reifiable<Scalar> {
-    override val kind = Scalar::class
+  public sealed class Scalar : PetNode(), Reifiable<Scalar> {
+    override val kind: kotlin.reflect.KClass<out PetNode> = Scalar::class
 
-    override fun visitChildren(visitor: Visitor) = Unit
+    override fun visitChildren(visitor: Visitor): Unit = Unit
 
-    abstract operator fun times(multiple: Int): Scalar
+    internal abstract operator fun times(multiple: Int): Scalar
 
-    companion object {
-      fun checkNonzero(s: Scalar) {
+    internal companion object {
+      internal fun checkNonzero(s: Scalar) {
         if (s == ActualScalar(0)) throw PetSyntaxException("Can't do zero")
       }
     }
 
-    data class ActualScalar(val value: Int) : Scalar() {
+    public data class ActualScalar(val value: Int) : Scalar() {
       init {
         require(value >= 0)
       }
 
-      override val abstract = false
+      override val abstract: Boolean = false
 
       override fun times(multiple: Int) = copy(value = value * multiple)
 
@@ -87,10 +86,10 @@ data class ScaledExpression(
         }
       }
 
-      override fun toString() = "$value"
+      override fun toString(): String = "$value"
     }
 
-    data class XScalar(val multiple: Int) : Scalar() {
+    internal data class XScalar(val multiple: Int) : Scalar() {
       init {
         require(multiple > 0)
       }
@@ -122,7 +121,7 @@ data class ScaledExpression(
         scalarAndOptionalEx or
             optionalScalarAndEx map
             { (scalar, expr) ->
-              scaledEx(scalar ?: ActualScalar(1), expr)
+              scaledEx(expr, scalar ?: ActualScalar(1))
             }
       }
     }

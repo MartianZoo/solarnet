@@ -2,9 +2,15 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import io.kotest.assertions.throwables.shouldThrow
@@ -37,7 +43,7 @@ internal class RulesetTest {
               )
         }
 
-    ruleset.classDeclaration(cn("IndustrialCenter")).abstract shouldBe false
+    ruleset.classDeclaration(cn("Card123")).abstract shouldBe false
     ruleset.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
   }
 
@@ -83,6 +89,38 @@ internal class RulesetTest {
   }
 
   @Test
+  fun compositionAndResolutionPreserveOnlyApplicableDisplayNames() {
+    val first =
+        object : TfmRuleset.Empty() {
+          override val explicitClassDeclarations =
+              setOf(parseOneLinerClass("CLASS First : AutoLoad"))
+          override val displayNamesByLanguage = mapOf("en" to mapOf(cn("First") to "First name"))
+        }
+    val second =
+        object : Bundle(cn("SecondBundle")) {
+          override val explicitClassDeclarations =
+              setOf(parseOneLinerClass("CLASS Second : AutoLoad"))
+          override val displayNamesByLanguage = mapOf("en" to mapOf(cn("Second") to "Second name"))
+        }
+
+    val resolved = TfmRuleset.compose(first, second).resolve(emptySet())
+
+    resolved.displayNamesByLanguage shouldBe mapOf("en" to mapOf(cn("First") to "First name"))
+  }
+
+  @Test
+  fun compositionRejectsConflictingDisplayNames() {
+    fun named(displayName: String) =
+        object : TfmRuleset.Empty() {
+          override val displayNamesByLanguage = mapOf("en" to mapOf(cn("Shared") to displayName))
+        }
+
+    shouldThrow<IllegalArgumentException> {
+      TfmRuleset.compose(named("First"), named("Second")).displayNamesByLanguage
+    }
+  }
+
+  @Test
   fun resolvingCompositionKeepsSelectedBundlesAndNonBundleContributions() {
     val base = bundle("TerraformingMars", declaration = "CLASS BaseContent : AutoLoad")
     val venus = bundle("VenusNextExpansion", declaration = "CLASS VenusContent : AutoLoad")
@@ -94,6 +132,8 @@ internal class RulesetTest {
     resolved.allClassNames.containsAll(setOf(cn("BaseContent"), cn("ExtensionContent"))) shouldBe
         true
     (cn("VenusContent") in resolved.allClassNames) shouldBe false
+    (cn("VenusContent") in resolved.knownClassDeclarations) shouldBe true
+    (cn("VenusContent") in TfmRuleset.Composite(resolved).knownClassDeclarations) shouldBe true
   }
 
   @Test
@@ -103,43 +143,50 @@ internal class RulesetTest {
     val source =
         TfmRuleset.compose(
             cardBundle("TerraformingMars", original),
-            cardBundle("PromoCardsBundle", replacement),
+            cardBundle("PromoCardsExpansion", replacement),
         )
 
-    val resolved = source.resolve(setOf(cn("TerraformingMars"), cn("PromoCardsBundle")))
+    val resolved = source.resolve(setOf(cn("TerraformingMars"), cn("PromoCardsExpansion")))
 
     resolved.cardDefinitions.map { it.id }.shouldContainExactly("X31")
-    resolved.classDeclaration(cn("DeimosDownPromo")) shouldBe replacement.asClassDeclaration
+    resolved.classDeclaration(cn("CardX31")) shouldBe replacement.asClassDeclaration
     resolved.classDeclarationBundles.keys shouldBe resolved.allClassNames
-    (cn("DeimosDown") in resolved.classDeclarationBundles) shouldBe false
+    (cn("Card039") in resolved.classDeclarationBundles) shouldBe false
   }
 
   @Test
-  fun everyRequiredBundleMustBeSelected() {
+  fun everySetupRequirementMustBeMet() {
     val card =
         CardDefinition(
-            CardData(id = "X40", requiredBundles = "PreludeExpansion, VenusNextExpansion")
+            CardData(id = "X40", setupRequirement = "PreludeExpansion, VenusNextExpansion")
         )
     val source =
         TfmRuleset.compose(
-            cardBundle("PromoCardsBundle", card),
+            cardBundle("PromoCardsExpansion", card),
             bundle("PreludeExpansion", "CLASS PreludeExpansion"),
             bundle("VenusNextExpansion", "CLASS VenusNextExpansion"),
         )
 
-    val withoutVenus = source.resolve(setOf(cn("PromoCardsBundle"), cn("PreludeExpansion")))
+    val selectedBundles =
+        setOf(
+            cn("PromoCardsExpansion"),
+            cn("PreludeExpansion"),
+            cn("VenusNextExpansion"),
+        )
+    val withoutVenus = source.resolve(selectedBundles, setupReader(cn("PreludeExpansion")))
     withoutVenus.cardDefinitions.shouldHaveSize(0)
     withoutVenus.classDeclarationBundles.keys shouldBe withoutVenus.allClassNames
     (card.className in withoutVenus.classDeclarationBundles) shouldBe false
 
     val withVenus =
         source.resolve(
-            setOf(cn("PromoCardsBundle"), cn("PreludeExpansion"), cn("VenusNextExpansion"))
+            selectedBundles,
+            setupReader(cn("PreludeExpansion"), cn("VenusNextExpansion")),
         )
     withVenus.cardDefinitions.shouldContainExactly(card)
     withVenus.classDeclarationBundles
         .getValue(card.className)
-        .shouldContainExactly(cn("PromoCardsBundle"))
+        .shouldContainExactly(cn("PromoCardsExpansion"))
   }
 
   private fun ruleset(vararg declarations: ClassDeclaration): TfmRuleset =
@@ -162,4 +209,22 @@ internal class RulesetTest {
       object : Bundle(cn(name)) {
         override val cardDefinitions = cards.toSet()
       }
+
+  private fun setupReader(vararg enabledOptions: ClassName): TypeInfo =
+      ExactOptionsState(enabledOptions.toSet())
+
+  private class ExactOptionsState(private val enabledOptions: Set<ClassName>) : TypeInfo {
+    override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
+
+    private fun count(metric: Metric): Int {
+      require(metric is Count && metric.expression.simple) { "unsupported test metric: $metric" }
+      return if (metric.expression.className in enabledOptions) 1 else 0
+    }
+
+    override fun isAbstract(e: Expression): Boolean = unused()
+
+    override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = unused()
+
+    private fun unused(): Nothing = error("not needed by setup-requirement tests")
+  }
 }

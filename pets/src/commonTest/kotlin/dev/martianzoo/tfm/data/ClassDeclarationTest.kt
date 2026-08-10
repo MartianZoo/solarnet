@@ -58,13 +58,12 @@ internal class ClassDeclarationTest {
     val dep = cn("Bar").expression
     val sup = te("Baz<Qux>")
 
-    val inv: Requirement = Requirement.Exact(scaledEx(1, THIS.expression))
+    val inv: Requirement = Requirement.Exact(scaledEx(THIS.expression, 1))
     val eff: Effect = parse<Effect>("This: DoStuff")
     val act = actionToEffect(parse("Steel -> 5"), 1)
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
 
-    decl.shortName shouldBe foo
     decl.className shouldBe foo
     decl.abstract shouldBe true
     decl.dependencies.shouldContainExactlyInAnyOrder(dep)

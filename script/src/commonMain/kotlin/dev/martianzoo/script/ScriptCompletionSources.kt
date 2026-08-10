@@ -1,7 +1,8 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.data.Player
+import dev.martianzoo.tfm.api.tfmRuleset
 import dev.martianzoo.tfm.data.CardDefinition
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {
@@ -9,39 +10,37 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       repl.commands.values.map { ScriptCompletion(it.name, "commands", it.usage) }
 
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
-    val players = repl.setup.players()
+    val players = Player.players(repl.setup.players)
     val eligiblePlayers = if (includeEngine) players + ENGINE else players
-    val full = eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
-    val short = eligiblePlayers.mapNotNull { player ->
-      classShortName(player.toString())?.let { ScriptCompletion(it, "players", player.toString()) }
-    }
-    return full + short
+    return eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
   }
 
   fun classNames(): List<ScriptCompletion> =
-      repl.game.classes.allClasses().flatMap {
-        setOf(
-            ScriptCompletion(it.className.toString(), "classes", it.docstring),
-            ScriptCompletion(it.shortName.toString(), "classes", it.className.toString()),
+      repl.game.classTable.allClasses().map {
+        ScriptCompletion(
+            repl.game.vocabulary.petsName(it.className).toString(),
+            "classes",
+            it.docstring,
         )
       }
 
   fun paymentWords(): List<ScriptCompletion> {
     val standards = setOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
-    return repl.game.classes
+    return repl.game.classTable
         .allClasses()
         .filter { it.className.toString() in standards }
-        .flatMap {
-          listOf(
-              ScriptCompletion(it.className.toString(), "resources"),
-              ScriptCompletion(it.shortName.toString(), "resources", it.className.toString()),
-          )
+        .map {
+          ScriptCompletion(repl.game.vocabulary.petsName(it.className).toString(), "resources")
         }
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
-      repl.setup.allDefinitions().filterIsInstance<CardDefinition>().map {
-        ScriptCompletion(it.className.toString(), "cards", it.deck?.name?.lowercase())
+      repl.game.reader.tfmRuleset.allDefinitions.filterIsInstance<CardDefinition>().map {
+        ScriptCompletion(
+            repl.game.vocabulary.petsName(it.className).toString(),
+            "cards",
+            it.deck?.name?.lowercase(),
+        )
       }
 
   fun phaseNames(): List<ScriptCompletion> =
@@ -56,25 +55,20 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       }
 
   fun taskIds(): List<ScriptCompletion> =
-      repl.game.tasks.extract {
-        ScriptCompletion(it.id.toString(), "tasks", it.instruction.toString())
+      repl.selectableTasks().map { (label, task) ->
+        ScriptCompletion(label, "tasks", repl.game.vocabulary.renderPets(task.instruction))
       }
 
   fun optionSuggestions(): List<ScriptCompletion> {
-    val options = Canon.supportedOptionCodes
-    val maps = Canon.mapOptionCodes
-    val nonMaps = options - maps
-    val common =
-        listOf("BM", "BRM", "BRMVX", "BRMVPX", "BRMVPXT", Canon.optionCodes(repl.setup.options))
-    val generated = maps.flatMap { map -> nonMaps.map { "$it$map" } }
-    return (common + generated).map { ScriptCompletion(it, "option codes") }
+    return OptionCodeTranslation.suggestions(repl.setup).map {
+      ScriptCompletion(it, "option codes")
+    }
   }
 
   fun broadPetsCandidates(): List<ScriptCompletion> =
       classNames() +
           playerNames() +
           syntaxWords(
-              "ANY",
               "Anyone",
               "Class",
               "FROM",
@@ -94,13 +88,6 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   private fun syntaxWords(vararg words: String): List<ScriptCompletion> = words.map {
     ScriptCompletion(it, "Pets syntax")
   }
-
-  private fun classShortName(name: String): String? =
-      repl.game.classes
-          .allClasses()
-          .firstOrNull { it.className.toString() == name }
-          ?.shortName
-          ?.toString()
 
   private fun String.removeSuffixIfPresent(suffix: String): String? =
       if (endsWith(suffix) && length > suffix.length) removeSuffix(suffix) else null

@@ -1,8 +1,6 @@
-"The Prelude expansion"
-CLASS PreludeExpansion : System {
-  HAS =1 This
-
-  Generation IF =1 Generation:: -2 GenerationsLeft.
+"Expansion giving each player two prelude cards to accelerate the opening game"
+CLASS PreludeExpansion : GameModule {
+  Generation IF =1 Generation: -2 SoloGenerationsLeft.
 }
 
 CLASS PreludeCard : CardBack

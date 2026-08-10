@@ -1,37 +1,30 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class NoctisCityTest : CardTest() {
   @Test
-  fun `uses an ordinary land area on a map without Noctis`() {
-    val game = newGame(Canon.fromOptionCodes("BRH", 2))
-    with(game.tfm(PLAYER1)) {
-      sneak("PROD[Energy]")
-
-      godMode()
-          .manual("NoctisCity") {
-            doTask("CityTile<Hellas_1_3>")
-          }
-          .expect("PROD[3 Megacredit, -Energy]")
-    }
+  fun `on Hellas, plays Noctis City`() {
+    newGame(HellasMapOption)
+    p1.manual("PROD[Energy]")
+    p1.manual("NoctisCity") {
+          doTask("CityTile<Hellas_1_3>")
+        }
+        .expect("PROD[3 Megacredit, -Energy]")
   }
 
   @Test
-  fun `the same coordinate is not eligible on Tharsis`() {
-    val game = newGame(Canon.SIMPLE_GAME)
-    val p1 = game.tfm(PLAYER1)
-    p1.sneak("PROD[Energy]")
+  fun `on Tharsis, tries to place Noctis City off Noctis`() {
+    newGame()
+    p1.manual("PROD[Energy]")
 
     // Without this, the sole NoctisArea is selected before the operation body can try a bad space.
-    val manual = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    manual.manual("NoctisCity") {
+    p1.autoExecMode = NONE
+    p1.manual("NoctisCity") {
       shouldThrow<TaskException> { doTask("CityTile<Tharsis_1_3>") }
       doTask("CityTile<Tharsis_5_3>")
       doTask("PROD[-Energy]")

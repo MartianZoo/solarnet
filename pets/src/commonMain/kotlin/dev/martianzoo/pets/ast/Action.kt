@@ -10,10 +10,12 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.TypeLinking
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
-import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
@@ -27,32 +29,59 @@ import dev.martianzoo.util.suf
  * `UseAction1<ElectroCatapult>: (-Steel OR -Plant) THEN 7`.
  */
 public data class Action(val cost: Cost?, val instruction: Instruction) : PetElement() {
-  override val kind = Action::class
+  override val kind: kotlin.reflect.KClass<out PetNode> = Action::class
 
-  override fun toString() = "${cost.suf(' ')}-> $instruction"
+  override fun toString(): String = "${cost.suf(' ')}-> $instruction"
 
-  override fun visitChildren(visitor: Visitor) = visitor.visit(cost, instruction)
+  override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost, instruction)
 
-  sealed class Cost : PetNode() {
-    override val kind = Cost::class
+  /** Converts this action into the instruction performed when the action is used. */
+  internal fun toInstruction(): Instruction {
+    val lhs = cost?.toInstruction() ?: return instruction
+    val allInstructions =
+        when (instruction) {
+          is Then -> listOf(lhs) + instruction.instructions
+          else -> listOf(lhs, instruction)
+        }
+    val actionSources = TypeLinking.sourcesAcrossRegions(this)
+    val resultSources = (instruction as? Then)?.linkedTypeSources.orEmpty()
+    return Then(allInstructions).withLinkedTypeSources(actionSources + resultSources)
+  }
 
-    abstract fun toInstruction(): Instruction
+  public sealed class Cost : PetNode() {
+    override val kind: kotlin.reflect.KClass<out PetNode> = Cost::class
 
-    data class Spend(val scaledEx: ScaledExpression) : Cost() {
-      override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    internal abstract fun toInstruction(): Instruction
 
-      override fun toString() = scaledEx.toString()
+    public data class Spend(val scaledEx: ScaledExpression) : Cost() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scaledEx)
+
+      override fun toString(): String = scaledEx.toString()
 
       init {
         checkNonzero(scaledEx.scalar)
       }
 
       // I believe Ants/Predators are the reasons for MANDATORY here
-      override fun toInstruction() = Remove(scaledEx)
+      override fun toInstruction() = remove(scaledEx)
+    }
+
+    public data class Gated(val gate: Requirement, val cost: Cost) : Cost() {
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(gate, cost)
+
+      override fun toString(): String = "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(cost)}"
+
+      override fun precedence(): Int = 4
+
+      override fun safeToNestIn(container: PetNode): Boolean =
+          super.safeToNestIn(container) && container !is Or
+
+      override fun toInstruction(): Instruction =
+          Instruction.Gated.create(gate, cost.toInstruction())
     }
 
     // can't do non-prod per prod yet
-    data class Per(val cost: Cost, val metric: Metric) : Cost() {
+    internal data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
         when (cost) {
           is Or,
@@ -64,15 +93,15 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost, metric)
 
-      override fun toString() = "$cost / $metric"
+      override fun toString() = "$cost / ${groupPartIfNeeded(metric)}"
 
       override fun precedence() = 5
 
       override fun toInstruction() = Per(cost.toInstruction(), metric)
     }
 
-    data class Or(var costs: Set<Cost>) : Cost() {
-      constructor(vararg costs: Cost) : this(costs.toSet())
+    internal data class Or(var costs: Set<Cost>) : Cost() {
+      internal constructor(vararg costs: Cost) : this(costs.toSet())
 
       init {
         require(costs.size >= 2)
@@ -87,8 +116,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toInstruction() = Or(costs.map { it.toInstruction() })
     }
 
-    data class Multi(var costs: List<Cost>) : Cost() {
-      constructor(vararg costs: Cost) : this(costs.toList())
+    internal data class Multi(var costs: List<Cost>) : Cost() {
+      internal constructor(vararg costs: Cost) : this(costs.toList())
 
       init {
         require(costs.size >= 2)
@@ -103,7 +132,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toInstruction() = Multi(costs.map { it.toInstruction() })
     }
 
-    data class Transform(val cost: Cost, override val transformKind: String) :
+    internal data class Transform(val cost: Cost, override val transformKind: String) :
         Cost(), TransformNode<Cost> {
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost)
 
@@ -119,11 +148,11 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
         return parser {
           val spend = ScaledExpression.parser() map Cost::Spend
           val transform = transform(parser()) map { (node, tname) -> Transform(node, tname) }
-          val atomCost = transform or spend
+          val atomCost = transform or spend or group(parser())
 
           val perCost =
               atomCost and
-                  optional(skipChar('/') and Metric.parser()) map
+                  optional(skipChar('/') and Metric.atomParser()) map
                   { (cost, met) ->
                     if (met == null) cost else Per(cost, met)
                   }
@@ -135,7 +164,14 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
                     if (set.size == 1) set.first() else Or(set)
                   }
 
-          commaSeparated(orCost or group(parser())) map
+          val gatedCost =
+              optional(Requirement.atomParser() and skipChar(':')) and
+                  orCost map
+                  { (gate, cost) ->
+                    if (gate == null) cost else Gated(gate, cost)
+                  }
+
+          commaSeparated(gatedCost) map
               {
                 if (it.size == 1) it.first() else Multi(it)
               }

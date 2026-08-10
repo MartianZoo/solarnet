@@ -19,11 +19,11 @@ ABSTRACT CLASS HasActions {
 }
 
 "A Signal a player sends to indicate an action they want to perform"
-ABSTRACT CLASS UseAction<HasActions> [UA] : Owned, Signal {
+ABSTRACT CLASS UseAction<HasActions> : Owned, Signal {
   This: MAX 0 Mandate: Ok                       // Should always be doable at least by end
 
   "A component can offer up to three actions; the digit (1, 2, 3) indicates which one"
-  CLASS UseAction1[UA1], UseAction2[UA2], UseAction3[UA3]
+  CLASS UseAction1, UseAction2, UseAction3
 }
 
 "Indicates that an action card has already been used this generation"
@@ -32,7 +32,7 @@ CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 ABSTRACT CLASS Mandate: Owned, HasActions {
   HAS MAX 1 This
 
-  MandateSignal:: UseAction1<This>
+  MandateSignal: UseAction1<This>
   MandateSignal: -This!
 }
 

@@ -1,21 +1,31 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.engine.Game
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.engine.World
+import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.canon.exclude
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class Game20230521Test : AbstractFullGameTest() {
 
-  override fun setup() = Canon.fromOptionCodes("BRMVPXT", 2)
+  override fun setup() =
+      canonicalPremise(
+          VenusNextExpansion,
+          PreludeExpansion,
+          PromoCardPack,
+          TurmoilCardPack,
+          exclude(WorldGovernmentOption),
+          players = 2,
+      )
 
   @Test
   fun game20230521() {
-    TfmWorkflow.Auto(game, setup()).launch()
+    TfmWorkflow.Auto(game).launch()
 
     // Good luck Player1!
     // Good luck Player2!
@@ -143,11 +153,13 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 drew Gyropolis
     p2.cardAction2("Factorum")
     // Player2 played Mars University
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Physics Complex
-    // Player2 drew 1 card(s)
-    // You drew Virus
-    p2.playProject("MarsUniversity", 6, steel = 1)
+    p2.playProject("MarsUniversity", 6, steel = 1) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Physics Complex
+      // Player2 drew 1 card(s)
+      // You drew Virus
+      doTask("-ProjectCard")
+    }
 
     // Player1 used Inventors' Guild action
     p1.cardAction1("InventorsGuild") {
@@ -243,11 +255,13 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.playProject("OptimalAerobraking", 7)
 
     // Player2 played Trans-Neptune Probe
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Virus
-    // Player2 drew 1 card(s)
-    // You drew Local Heat Trapping
-    p2.playProject("TransNeptuneProbe", 0, titanium = 2)
+    p2.playProject("TransNeptuneProbe", 0, titanium = 2) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Virus
+      // Player2 drew 1 card(s)
+      // You drew Local Heat Trapping
+      doTask("-ProjectCard")
+    }
     // Player2 used Rotator Impacts action
     p2.cardAction1("RotatorImpacts") {
       p2.pay(6)
@@ -324,11 +338,13 @@ class Game20230521Test : AbstractFullGameTest() {
       doTask("OceanTile<Tharsis_2_6>")
     }
     // Player2 played Search For Life
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Jovian Embassy
-    // Player2 drew 1 card(s)
-    // You drew Local Shading
-    p2.playProject("SearchForLife", 3)
+    p2.playProject("SearchForLife", 3) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Jovian Embassy
+      // Player2 drew 1 card(s)
+      // You drew Local Shading
+      doTask("-ProjectCard")
+    }
 
     // Player1 used Deuterium Export action
     p1.cardAction1("DeuteriumExport")
@@ -536,7 +552,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 played Power Plant
     // Player2's energy production increased by 1
-    p2.playProject("PowerPlantCard", 2, steel = 1)
+    p2.playProject("PowerPlant", 2, steel = 1)
     // Player2 used Aquifer Pumping action
     p2.cardAction1("AquiferPumping") {
       p2.pay(8)
@@ -657,13 +673,16 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Earth Catapult
     p2.playProject("EarthCatapult", 23)
     // Player2 played Invention Contest
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Gyropolis
-    // Player2 drew 1 card(s)
-    // You drew Titanium Mine
     // Player2 drew 1 card(s)
     // You drew Aerial Mappers
-    p2.playProject("InventionContest", 0).expect("1 Card, 1 PlayedEvent") // no hand or table cards
+    p2.playProject("InventionContest", 0) {
+          // Player2 is using their Mars University effect to draw a card by discarding a card.
+          // You discarded Gyropolis
+          // Player2 drew 1 card(s)
+          // You drew Titanium Mine
+          doTask("-ProjectCard")
+        }
+        .expect("1 Card, 1 PlayedEvent") // no hand or table cards
 
     // Player1 used Inventors' Guild action
     p1.cardAction1("InventorsGuild") {
@@ -716,7 +735,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.declineSecondAction()
 
     // Player1 used Convert Heat standard action
-    p1.stdAction("ConvertHeatSA").expect("-8H, TEMP, TR")
+    p1.stdAction("ConvertHeatSA").expect("-8H, TemperatureStep, TR")
     // Player1 played Stratospheric Birds
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
     p1.playProject("StratosphericBirds", 12).expect("-Floater<DeuteriumExport>")
@@ -726,7 +745,6 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Stratospheric Birds action
     p1.cardAction1("StratosphericBirds").expect("Animal<StratosphericBirds>")
-    p1.declineSecondAction()
     // Player1 passed
     p1.pass()
 
@@ -758,18 +776,23 @@ class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
 
     // Player2 played Advanced Alloys
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Medical Lab
-    // Player2 drew 1 card(s)
-    // You drew Aerosport Tournament
-    p2.playProject("AdvancedAlloys", 7).expect("-1 ProjectCard")
+    p2.playProject("AdvancedAlloys", 7) {
+          // Player2 is using their Mars University effect to draw a card by discarding a card.
+          // You discarded Medical Lab
+          // Player2 drew 1 card(s)
+          // You drew Aerosport Tournament
+          doTask("-ProjectCard")
+        }
+        .expect("-1 ProjectCard")
     // Player2 played AI Central
     // Player2's energy production decreased by 1
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Aerosport Tournament
-    // Player2 drew 1 card(s)
-    // You drew Ishtar Mining
-    p2.playProject("AiCentral", 13, steel = 2)
+    p2.playProject("AiCentral", 13, steel = 2) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Aerosport Tournament
+      // Player2 drew 1 card(s)
+      // You drew Ishtar Mining
+      doTask("-ProjectCard")
+    }
 
     // Player1 played Extractor Balloons
     p1.playProject("ExtractorBalloons", 21).expect("-21")
@@ -815,7 +838,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's plants amount increased by 2
     // Player2 gained 2 plants from Arctic Algae
     p1.playProject("MoholeLake", 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
-        .expect("7 Plant, TEMP, 2 TR<P1>, -7")
+        .expect("7 Plant, TemperatureStep, 2 TR<P1>, -7")
     // Player1 claimed Terraformer milestone
     p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer") }.expect("-8")
 
@@ -903,7 +926,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 played Deimos Down:promo
     // Player2's steel amount increased by 4
-    p2.playProject("DeimosDownPromo", 9, titanium = 5) {
+    p2.playProject("DeimosDown", 9, titanium = 5) {
       // Player2 placed ocean tile on row 6 position 6
       // Player2's plants amount increased by 1
       p2.doTask("OceanTile<Tharsis_6_7>")
@@ -1011,11 +1034,12 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.cardAction2("Factorum").expect("Card")
     // Player2 played Natural Preserve
     // Player2's megacredits production increased by 1
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Herbivores
-    // Player2 drew 1 card(s)
-    // You drew Thermophiles
     p2.playProject("NaturalPreserve", 1, steel = 2) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Herbivores
+      // Player2 drew 1 card(s)
+      // You drew Thermophiles
+      doTask("-ProjectCard")
       // Player2 placed Natural Preserve tile on row 3 position 1
       // Player2 drew 1 card(s)
       // You drew Black Polar Dust
@@ -1045,8 +1069,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's plants amount increased by 1
     p1.playProject("Trees", 13)
     // Player1 funded Banker award
-    p1.godMode().sneak("-8, 5 VP") // faking it for now, fix when awards work
-    p1.declineSecondAction()
+    p1.stdAction("FundAwardSA") { doTask("Banker") }
 
     // Player2 used Search For Life action
     p2.cardAction1("SearchForLife") {
@@ -1064,7 +1087,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.pass()
 
     // Player1 funded Venuphile award
-    p1.godMode().sneak("-14, 5 VP")
+    p1.stdAction("FundAwardSA") { doTask("Venuphile") }
     // Player1 passed
     p1.pass()
 
@@ -1099,7 +1122,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Hired Raiders
     p2.playProject("HiredRaiders", 0) {
       // Player1's steel amount decreased by 2 stolen by Player2
-      doTask("2 Steel<P2 FROM P1>")
+      doTask("2 Steel<P2> FROM Steel<P1>")
     }
     // Player2 used Convert Heat standard action
     p2.stdAction("ConvertHeatSA")
@@ -1151,7 +1174,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Atmoscoop
     // Player2 added 2 floater(s) to Aerial Mappers
     p2.playProject("Atmoscoop", 5, titanium = 3) {
-      doTask("VenusStep! THEN VenusStep")
+      doTask("2 VenusStep")
       doTask("2 Floater<AerialMappers>")
     }
 
@@ -1238,7 +1261,6 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Search For Life action
     // Player2 revealed and discarded Geothermal Power
     p2.cardAction1("SearchForLife") { doTask("Ok") }
-    p2.declineSecondAction()
     // Player2 passed
     p2.pass()
     // Generation 11
@@ -1346,7 +1368,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Magnetic Field Generators:promo
     // Player2's plants production increased by 2
     // Player2's energy production decreased by 4
-    p2.playProject("MagneticFieldGeneratorsPromo", 5, steel = 5) {
+    p2.playProject("MagneticFieldGenerators", 5, steel = 5) {
           // Player2 placed Magnetic Field Generators tile on row 6 position 5
           doTask("MfgTile<Tharsis_6_6>")
           // Player2's plants amount increased by 1
@@ -1373,11 +1395,13 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Atalanta Planitia Lab
     // Player2 drew 2 card(s)
     // You drew House Printing and Robot Pollinators
-    // Player2 is using their Mars University effect to draw a card by discarding a card.
-    // You discarded Cloud Seeding
-    // Player2 drew 1 card(s)
-    // You drew Corroder Suits
-    p2.playProject("AtalantaPlanitiaLab", 8)
+    p2.playProject("AtalantaPlanitiaLab", 8) {
+      // Player2 is using their Mars University effect to draw a card by discarding a card.
+      // You discarded Cloud Seeding
+      // Player2 drew 1 card(s)
+      // You drew Corroder Suits
+      doTask("-ProjectCard")
+    }
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents
     p2.sellPatents(3)
@@ -1389,10 +1413,6 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 4 animal(s) to Stratospheric Birds
     p1.playProject("LargeConvoy", 28, titanium = 1) {
-          // The oceans are already capped, but this task currently does not self-refine to `Ok`.
-          val cappedOcean =
-              tasks.matching { "${it.instruction}" == "OceanTile<WaterArea>." }.single()
-          p1.godMode().dropTask(cappedOcean)
           doTask("4 Animal<StratosphericBirds>")
         }
         .expect("ProjectCard, 3 Heat, 4 Animal")
@@ -1425,7 +1445,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 placed greenery tile on row 9 position 4
     p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_9_8>") }
     // Player1 funded Thermalist award
-    p1.godMode().sneak("-20, 5 VP")
+    p1.stdAction("FundAwardSA") { doTask("Thermalist") }
     // Player1 used Convert Plants standard action
     p1.stdAction("ConvertPlantsSA") {
           // Player1 placed greenery tile on row 4 position 4
@@ -1433,7 +1453,6 @@ class Game20230521Test : AbstractFullGameTest() {
           // Player1's plants amount increased by 1
         }
         .expect("-7 Plant")
-    p1.declineSecondAction()
     // Player2 used Sell Patents standard project
     // Player2 sold 3 patents
     p2.sellPatents(3)
@@ -1497,7 +1516,7 @@ class Game20230521Test : AbstractFullGameTest() {
     summ.net("TR<P2>", "Megacredit<P1>") shouldBe 0
   }
 
-  private fun checkSummaryAfterGen4(game: Game) {
+  private fun checkSummaryAfterGen4(game: World) {
     val summer = Summarizer(game)
 
     // AA's effect has triggered once, plus the immediate plant

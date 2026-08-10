@@ -6,7 +6,6 @@ import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.util.toStrings
 
 internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log") {
   override val usage = "log [full]"
@@ -26,11 +25,11 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
       repl.game.events
           .changesSinceSetup()
           .filterNot { repl.isHidden(it, repl.game.reader) }
-          .toStrings()
+          .map(repl.game.vocabulary::renderPets)
 
   override fun withArgs(args: String): List<String> {
     if (args == "full") {
-      return repl.game.events.entriesSince(Checkpoint(0)).toStrings()
+      return repl.game.events.entriesSince(Checkpoint(0)).map(repl.game.vocabulary::renderPets)
     } else {
       throw UsageException()
     }

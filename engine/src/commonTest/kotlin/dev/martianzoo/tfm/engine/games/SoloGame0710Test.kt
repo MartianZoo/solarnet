@@ -1,17 +1,28 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SoloGame0710Test : AbstractSoloTest() {
-  override fun setup(): GameSetup {
-    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"), cn("Miranda"))
-    return Canon.fromOptionCodes("BRMVPSCTX", 1, colonyTiles)
+  override fun setup(): GamePremise {
+    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
+    // Miranda was removed because solo Colonies uses only three selected tiles.
+    return canonicalPremise(
+        VenusNextExpansion,
+        PreludeExpansion,
+        ColoniesExpansion,
+        TurmoilCardPack,
+        PromoCardPack,
+        Tr63SoloVariant,
+        players = 1,
+        colonyTiles = colonyTiles,
+    )
   }
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"
@@ -22,8 +33,6 @@ class SoloGame0710Test : AbstractSoloTest() {
   fun soloGame0710() {
     with(me) {
       playCorp("PharmacyUnion", 10).expect("16, 11 ProjectCard")
-
-      phase("Prelude")
 
       playPrelude("Merger") {
         // playCorp("Manutech", 0) - TODO this really should work
@@ -41,7 +50,6 @@ class SoloGame0710Test : AbstractSoloTest() {
         playProject("OlympusConference", 4, steel = 3).expect("Science")
       }
 
-      phase("Action")
       playProject("StandardTechnology", 6) { doTask("ProjectCard FROM Science<OlympusConference>") }
       playProject("AdvancedAlloys", 9) {
         doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
@@ -79,7 +87,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       nextRound("VenusStep", 1)
 
       playProject("EnergySaving", 15)
-      stdAction("TradeSA", 2) { doTask("Trade<Callisto, TradeFleetA>") }.expect("4 E")
+      stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }.expect("4 E")
 
       nextRound("OceanTile<Tharsis_5_5>", 1)
 
@@ -93,14 +101,14 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
       stdProject("BuildColonySP") { doTask("Colony<Luna>") }
-      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }.expect("-3 E, 15")
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15")
       playProject("GiantSolarShade", 27).expect("Card")
       playProject("GeothermalPower", 2, steel = 3)
 
       nextRound("VenusStep", 2)
 
       stdAction("ConvertHeatSA").expect("PROD[Heat]")
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede, TradeFleetA>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_6_3>") }.expect("-6 Plant, TR")
 
       playProject("MineralDeposit", 5)
@@ -128,10 +136,10 @@ class SoloGame0710Test : AbstractSoloTest() {
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
-      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
 
       playProject("GiantIceAsteroid", 18, titanium = 4) {
-        doTask("-6 Plant<Opponent>")
+        doTask("-6 Plant<SoloOpponent>")
         doFirstTask("OceanTile<Tharsis_5_4>")
         doFirstTask("OceanTile<Tharsis_5_6>")
       }
@@ -158,14 +166,14 @@ class SoloGame0710Test : AbstractSoloTest() {
       }
       stdProject("AirScrappingSP").expect("-12")
       cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede, TradeFleetA>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       sellPatents(3)
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_7>") }
       playProject("PermafrostExtraction", 7) { doTask("OceanTile<Tharsis_9_9>") }
 
       nextRound("OxygenStep", 2)
 
-      playProject("MiningExpedition", 11) { doTask("-2 Plant<Opponent>") }
+      playProject("MiningExpedition", 11) { doTask("-2 Plant<SoloOpponent>") }
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
       playProject("StripMine", 12, steel = 4)
@@ -173,7 +181,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       val SubZeroSaltFish = "SubZeroSaltFish"
       playProject(SubZeroSaltFish, 4) {
-        doTask("PROD[-Plant<Opponent>]")
+        doTask("PROD[-Plant<SoloOpponent>]")
         doTask("Animal<$SubZeroSaltFish>") // Viral Enhancers
       }
       cardAction1(SubZeroSaltFish).expect("Animal")
@@ -194,7 +202,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       val RefugeeCamps = "RefugeeCamps"
       playProject(RefugeeCamps, 9)
       cardAction1(RefugeeCamps)
-      stdAction("TradeSA", 2) { doTask("Trade<Callisto, TradeFleetA>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }
 
       nextRound("VenusStep", 4)
 
@@ -210,7 +218,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       cardAction1(RefugeeCamps)
       playProject("IceCapMelting", 4) { doTask("OceanTile<Tharsis_1_4>") }
 
-      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
       playProject("TransNeptuneProbe", 3) { doTask("ProjectCard FROM Science<OlympusConference>") }
       stdProject("CitySP") { doTask("CityTile<Tharsis_6_5>") }
       playProject("UrbanizedArea", steel = 3) { doTask("CityTile<Tharsis_7_5>") }
@@ -243,22 +251,18 @@ class SoloGame0710Test : AbstractSoloTest() {
       playProject("MagneticFieldDome", 1, steel = 1)
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_9_6>") }
       playProject("InterstellarColonyShip", 1, titanium = 5)
-      stdAction("TradeSA", 2) { doTask("Trade<Luna, TradeFleetA>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
       stdProject("CitySP") { doTask("CityTile<Tharsis_9_5>") }
-      playProject("SpacePort", 3, steel = 6) {
-        doTask("CityTile<Tharsis_6_2>")
-        doTask("TradeFleetB")
-      }
+      playProject("SpacePort", 3, steel = 6) { doTask("CityTile<Tharsis_6_2>") }
       sellPatents(1)
-      stdAction("TradeSA", 2) { doTask("Trade<Ganymede, TradeFleetB>") }
+      stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_7_6>") }
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_3>") }
       stdProject("AirScrappingSP")
 
       pass()
-      engine.phase("Production")
-      engine.phase("End")
-
+      has("Victory") shouldBe true
+      doFirstTask("Ok")
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")

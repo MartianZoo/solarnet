@@ -6,6 +6,8 @@ Basic interfaces that everything else needs to share.
 
 ### <a href="pets/dev.martianzoo.data/index.html">dev.martianzoo.data</a>
 
+Basic data types shared by the engine and game-specific code.
+
 ### <a href="pets/dev.martianzoo.pets/index.html">dev.martianzoo.pets</a>
 
 The Pets language. Parsers for elements and class declarations, the objects it parses those into, utilities for transforming those objects, and so on.
@@ -14,11 +16,17 @@ The Pets language. Parsers for elements and class declarations, the objects it p
 
 Pets element types, like Requirement, Action, Instruction, Expression, and so on. The abstract syntax tree the Pets language is parsed to.
 
-### <a href="pets/dev.martianzoo.tfm.api/index.html">dev.martianzoo.tfm.api</a>
-
 ### <a href="pets/dev.martianzoo.tfm.data/index.html">dev.martianzoo.tfm.data</a>
 
 Data types for cards, milestones, maps, etc., and support for parsing these from JSON.
+
+### <a href="pets/dev.martianzoo.tfm.api/index.html">dev.martianzoo.tfm.api</a>
+
+Terraforming Mars-specific interfaces and ruleset types.
+
+### <a href="pets/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
+
+The Pets type system.
 
 ### <a href="pets/dev.martianzoo.util/index.html">dev.martianzoo.util</a>
 
@@ -32,36 +40,38 @@ Contains the data and custom instructions for officially published cards, maps, 
 
 ## module ENGINE
 
-### <a href="engine/dev.martianzoo.analysis/index.html">dev.martianzoo.analysis</a>
-
-### <a href="engine/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
-
-The Pets type system.
-
 ### <a href="engine/dev.martianzoo.engine/index.html">dev.martianzoo.engine</a>
 
-The engine knows how to modify a game state by actually executing card instructions, etc.
+The engine knows how to modify a world by actually executing card instructions, etc.
 
 ### <a href="engine/dev.martianzoo.tfm.engine/index.html">dev.martianzoo.tfm.engine</a>
 
-## module Script
+Terraforming Mars-specific gameplay and workflow code.
+
+### <a href="engine/dev.martianzoo.analysis/index.html">dev.martianzoo.analysis</a>
+
+Getting summary statistics from a played game.
+
+## module SCRIPT
 
 ### <a href="script/dev.martianzoo.script/index.html">dev.martianzoo.script</a>
 
-The Kotlin Multiplatform plain-text command/session layer for driving the engine. Its command,
-completion, and Terraforming Mars behavior runs on JVM and JavaScript. Host applications can add
-commands explicitly without changing the shared session's behavior by compilation target.
+The command and session layer shared by the REPL applications.
 
 ## module REPL
 
 ### <a href="repl/dev.martianzoo.repl/index.html">dev.martianzoo.repl</a>
 
-The JVM REgo PLastics application: its interactive JLine UI, filesystem script support, TCP server,
-and executable entry point.
+REgo PLastics, an extremely bad command-line UI to the engine.
 
 ## module WEB
 
 ### <a href="web/dev.martianzoo.web/index.html">dev.martianzoo.web</a>
 
-The browser-hosted REgo PLastics application. It adapts the shared Script session and completion
-engine to a browser terminal, with browser-local command history and no server-side game process.
+An early rough browser version of REgo PLastics.
+
+## module TOOLS
+
+### dev.martianzoo.tools
+
+Standalone command-line tools built from Solarnet's data.

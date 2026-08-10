@@ -12,7 +12,12 @@ internal class ActionTest {
     testRoundTrip<Action>("-> Ok")
   }
 
-  val inputs =
+  @Test
+  fun requirementGatedCosts() {
+    testRoundTrip<Action>("(=0 Award: 8) OR (=1 Award: 14) OR (=2 Award: 20) -> Award")
+  }
+
+  private val inputs =
       """
       -> 11
       -> Bar
@@ -54,7 +59,7 @@ internal class ActionTest {
       11 Foo / 11 Eep -> -Bar, 1, Ahh FROM Ahh?, 1 / Bar
       1 / Megacredit OR PROD[11 / Megacredit] -> 1. OR -Xyz
       PROD[Eep] -> Ooh<Foo<Abc>>., Abc., 11 Bar<Qux, Bar>, 1
-      Qux<Qux> -> 1 OR -1. OR (Foo<Qux>: ((1 OR -Foo) OR Foo))
+      Qux<Qux> -> 1 OR -1. OR (Foo<Qux>: 1 OR -Foo OR Foo)
       """
           .trimIndent()
 

@@ -2,8 +2,12 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
+import dev.martianzoo.api.Exceptions.abstractInstruction
+import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.TEMPORARY
 import dev.martianzoo.data.Actor
@@ -15,13 +19,17 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
+import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal class Implementations(
-    private val tasks: WritableTaskQueue,
+    private val tasks: TaskQueue,
     taskQueues: TaskQueues,
     private val reader: GameReader,
     private val timeline: Timeline,
@@ -37,12 +45,15 @@ internal class Implementations(
   // CHANGES LAYER
 
   internal fun sneak(changes: Instruction, cause: Cause? = null) {
-    split(changes).map {
-      val count = (it as Change).count as ActualScalar
+    split(changes).forEach {
+      if (it is Instruction.Or) throw orWithoutChoice(it)
+      val change =
+          it as? Change ?: throw ExpressionException("sneak accepts only direct changes, not: $it")
+      val count = change.count as? ActualScalar ?: throw abstractInstruction(change)
       changer.change(
           count.value,
-          it.gaining?.toComponent(reader),
-          it.removing?.toComponent(reader),
+          change.gaining?.toComponent(reader),
+          change.removing?.toComponent(reader),
           cause,
           orRemoveOneDependent = false,
       )
@@ -58,12 +69,17 @@ internal class Implementations(
 
   internal fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
+  internal fun dropTasks(): List<TaskRemovedEvent> = tasks.ids().map(tasks::removeTask)
+
   // OPERATIONS LAYER
 
   internal fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
-    tasks.requireAllQueuesEmpty()
-    addTasks(initialInstruction).forEach(::doTask)
-    complete(autoExec, body)
+    val preexistingTasks = allTasks.ids()
+    allTasks.preparedTask()?.let {
+      throw TaskException("can't start a manual operation while task $it is prepared")
+    }
+    addTasks(initialInstruction).forEach(::doInitialTask)
+    complete(autoExec, preexistingTasks, body)
   }
 
   internal fun beginManual(
@@ -72,8 +88,16 @@ internal class Implementations(
       body: () -> Unit,
   ) {
     tasks.requireAllQueuesEmpty()
-    addTasks(initialInstruction).forEach(::doTask)
+    addTasks(initialInstruction).forEach(::doInitialTask)
     continueManual(autoExec, body)
+  }
+
+  private fun doInitialTask(taskId: TaskId) {
+    try {
+      doTask(taskId)
+    } catch (_: AbstractException) {
+      explainTask(taskId, "abstract")
+    }
   }
 
   internal fun continueManual(autoExec: AutoExecMode, body: () -> Unit) {
@@ -82,10 +106,22 @@ internal class Implementations(
     autoExecNow(autoExec)
   }
 
-  internal fun complete(autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun complete(
+      autoExec: AutoExecMode,
+      allowedPendingTasks: Set<TaskId> = emptySet(),
+      body: () -> Unit,
+  ) {
     continueManual(autoExec, body)
-    tasks.requireAllQueuesEmpty()
-    require(reader.has(parse("MAX 0 $TEMPORARY")))
+    val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
+    if (pending.isNotEmpty()) {
+      if (pending.any { it.whyPending == "abstract" }) {
+        throw AbstractException("pending abstract tasks:\n${pending.joinToString("\n")}")
+      }
+      throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
+    }
+    if (!reader.has(parse("MAX 0 $TEMPORARY"))) {
+      throw DeadEndException("temporary components remained after the operation")
+    }
   }
 
   internal fun autoExecNow(mode: AutoExecMode) {
@@ -142,7 +178,7 @@ internal class Implementations(
   private fun explainAnyTask(taskId: TaskId, reason: String) =
       explainTask(queueForAnyTask(taskId), taskId, reason)
 
-  private fun explainTask(queue: WritableTaskQueue, taskId: TaskId, reason: String) {
+  private fun explainTask(queue: TaskQueue, taskId: TaskId, reason: String) {
     queue.editTask(queue.getTaskData(taskId).copy(whyPending = reason))
   }
 
@@ -150,7 +186,7 @@ internal class Implementations(
    * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
    * automatically enqueued.
    */
-  private fun handleTask(queue: WritableTaskQueue, task: Task) {
+  private fun handleTask(queue: TaskQueue, task: Task) {
     task.then?.let {
       queue.queueFor(task.assignee).addTasks(split(it), task.cause)
     }
@@ -179,11 +215,25 @@ internal class Implementations(
       throw TaskException("$actor can't revise a task assigned to ${task.assignee}")
     }
 
-    if (revised != task.instruction) {
-      revised.ensureNarrows(task.instruction, reader)
-      val replacement = if (task.next) instructor.prepare(revised) else revised
-      replace1WithN(tasks, tasks.getTaskData(taskId).copy(instructionIn = replacement))
-    }
+    if (revised == task.instruction) return
+    val directlyNarrows = revised.narrows(task.instruction, reader)
+    val selectedThen =
+        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, revised)
+    if (selectedThen == null) revised.ensureNarrows(task.instruction, reader)
+
+    // A selected group must split before its children are prepared against successive worlds.
+    val replacement = if (task.next && revised !is Multi) instructor.prepare(revised) else revised
+    val continuation =
+        selectedThen?.let { Then.create(it.instructions.drop(1) + listOfNotNull(task.then)) }
+            ?: task.then
+    replace1WithN(
+        tasks,
+        task.copy(instructionIn = replacement, thenIn = continuation),
+    )
+  }
+
+  internal fun reviseTask(current: Instruction, revised: Instruction) {
+    reviseTask(taskWithInstruction(current), revised)
   }
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
@@ -201,6 +251,9 @@ internal class Implementations(
 
   internal fun prepareTask(taskId: TaskId): TaskId? =
       doPrepare(tasks, tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
+
+  internal fun prepareTask(instruction: Instruction): TaskId? =
+      prepareTask(taskWithInstruction(instruction))
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   private fun canPrepareAnyTask(taskId: TaskId): Boolean {
@@ -246,14 +299,14 @@ internal class Implementations(
     }
   }
 
-  private fun doPrepare(queue: WritableTaskQueue, task: Task): TaskId? {
+  private fun doPrepare(queue: TaskQueue, task: Task): TaskId? {
     dontCutTheLine(task.id)
     val replacement = instructor.prepare(task.instruction)
     replace1WithN(queue, task.copy(instructionIn = replacement, next = true))
     return queue.preparedTask()
   }
 
-  private fun replace1WithN(queue: WritableTaskQueue, replacement: Task) {
+  private fun replace1WithN(queue: TaskQueue, replacement: Task) {
     val split = split(replacement.instruction)
     if (split.size == 1) {
       val one = split.instructions[0]
@@ -275,7 +328,7 @@ internal class Implementations(
     doTask(tasks, taskId)
   }
 
-  private fun doTask(queue: WritableTaskQueue, taskId: TaskId) {
+  private fun doTask(queue: TaskQueue, taskId: TaskId) {
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
@@ -301,16 +354,61 @@ internal class Implementations(
 
     fun weCanReviseIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
-      if (revised.narrows(taskData.instruction, reader)) return true
+      val instruction = taskData.instruction
+      if (narrowsTask(revised, instruction)) return true
       return try {
-        revised.narrows(instructor.prepare(taskData.instruction), reader)
+        narrowsTask(revised, instructor.prepare(instruction))
       } catch (_: NotNowException) {
         false
       }
     }
 
-    return tasks.matching(::weCanReviseIt).singleOrNull()
-        ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+    return uniqueMatchingTask(tasks.extract { it }.filter(::weCanReviseIt))
+  }
+
+  private fun narrowsTask(revised: Instruction, existing: Instruction): Boolean =
+      revised.narrows(existing, reader) || selectFirstStageOrNull(existing, revised) != null
+
+  private fun selectFirstStageOrNull(instruction: Instruction, revised: Instruction): Then? {
+    if (revised is Then) return null
+    val candidates: List<Pair<Then, Boolean>> =
+        when (instruction) {
+          is Then -> listOf(instruction to false)
+          is Or -> instruction.instructions.filterIsInstance<Then>().map { it to true }
+          else -> emptyList()
+        }
+    return candidates
+        .mapNotNull { (then, selectedFromOr) ->
+          try {
+            val loweredBinding = loweredRemovalBinding(then.instructions.first(), revised)
+            if (selectedFromOr) {
+              then.selectFirstStage(revised, reader, loweredBinding)
+            } else {
+              then.bindFirstStage(revised, reader, loweredBinding)
+            }
+          } catch (_: NarrowingException) {
+            null
+          }
+        }
+        .singleOrNull()
+  }
+
+  private fun loweredRemovalBinding(wide: Instruction, narrow: Instruction): PetTransformer? {
+    val general = (wide as? Change)?.removing ?: return null
+    val specific = (narrow as? Change)?.removing ?: return null
+    val transformers = (reader as GameReaderImpl).transformers
+    return transformers.checkedSubstituter(reader.resolve(general), reader.resolve(specific))
+  }
+
+  private fun taskWithInstruction(instruction: Instruction): TaskId =
+      uniqueMatchingTask(tasks.extract { it }.filter { it.instruction == instruction })
+
+  private fun uniqueMatchingTask(matches: List<Task>): TaskId {
+    val first =
+        matches.firstOrNull()
+            ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+    if (matches.map { it.copy(id = first.id) }.distinct().size == 1) return first.id
+    throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
   }
 
   internal fun tryTask(id: TaskId) {
@@ -364,7 +462,7 @@ internal class Implementations(
     }
   }
 
-  private fun queueForAnyTask(taskId: TaskId): WritableTaskQueue =
+  private fun queueForAnyTask(taskId: TaskId): TaskQueue =
       tasks.queueFor(allTasks.getTaskData(taskId).assignee)
 
   private fun execute(instruction: String, fakeCause: Cause? = null): Unit =

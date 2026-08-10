@@ -7,51 +7,52 @@ private constructor(
 ) {
   private val sources = ScriptCompletionSources(repl)
 
-  constructor(
+  internal constructor(
       repl: ScriptSession,
       args: String,
   ) : this(repl, ScriptCompletionArgs(args))
 
-  val args: String = parsedArgs.text
-  val words: List<String> = parsedArgs.words
-  val argIndex: Int = parsedArgs.argIndex
-  val currentWord: String = parsedArgs.currentWord
-  val firstWord: String = parsedArgs.firstWord
-  val restAfterFirstWord: String = parsedArgs.restAfterFirstWord
-  val hasRestAfterFirstWord: Boolean = parsedArgs.hasRestAfterFirstWord
+  internal val args: String = parsedArgs.text
+  internal val words: List<String> = parsedArgs.words
+  internal val argIndex: Int = parsedArgs.argIndex
+  public val currentWord: String = parsedArgs.currentWord
+  internal val firstWord: String = parsedArgs.firstWord
+  internal val restAfterFirstWord: String = parsedArgs.restAfterFirstWord
+  internal val hasRestAfterFirstWord: Boolean = parsedArgs.hasRestAfterFirstWord
 
-  fun commandArguments(command: String, args: String): List<ScriptCompletion> {
+  internal fun commandArguments(command: String, args: String): List<ScriptCompletion> {
     return repl.commands[command.lowercase()]
         ?.completions(copy(ScriptCompletionArgs(args)))
         .orEmpty()
   }
 
-  fun droppingLeadingWords(count: Int): ScriptCompletionContext {
+  internal fun droppingLeadingWords(count: Int): ScriptCompletionContext {
     return copy(parsedArgs.droppingLeadingWords(count))
   }
 
-  fun commandNames(): List<ScriptCompletion> = sources.commandNames()
+  internal fun commandNames(): List<ScriptCompletion> = sources.commandNames()
 
-  fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> =
+  internal fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> =
       sources.playerNames(includeEngine)
 
-  fun classNames(): List<ScriptCompletion> = sources.classNames()
+  internal fun classNames(): List<ScriptCompletion> = sources.classNames()
 
-  fun paymentWords(): List<ScriptCompletion> = sources.paymentWords()
+  internal fun paymentWords(): List<ScriptCompletion> = sources.paymentWords()
 
-  fun playableCardNames(): List<ScriptCompletion> = sources.playableCardNames()
+  internal fun playableCardNames(): List<ScriptCompletion> = sources.playableCardNames()
 
-  fun phaseNames(): List<ScriptCompletion> = sources.phaseNames()
+  internal fun phaseNames(): List<ScriptCompletion> = sources.phaseNames()
 
-  fun checkpointIds(): List<ScriptCompletion> = sources.checkpointIds()
+  internal fun checkpointIds(): List<ScriptCompletion> = sources.checkpointIds()
 
-  fun taskIds(): List<ScriptCompletion> = sources.taskIds()
+  internal fun taskIds(): List<ScriptCompletion> = sources.taskIds()
 
-  fun optionSuggestions(): List<ScriptCompletion> = sources.optionSuggestions()
+  internal fun optionSuggestions(): List<ScriptCompletion> = sources.optionSuggestions()
 
-  fun completions(vararg values: String, group: String): List<ScriptCompletion> = values.map {
-    ScriptCompletion(it, group)
-  }
+  internal fun completions(vararg values: String, group: String): List<ScriptCompletion> =
+      values.map {
+        ScriptCompletion(it, group)
+      }
 
   internal fun petsWords(root: PetsCompletionRoot): List<ScriptCompletion> {
     val prefix = fragment(parsedArgs.currentWord)
@@ -66,20 +67,20 @@ private constructor(
 
   private fun copy(args: ScriptCompletionArgs) = ScriptCompletionContext(repl, args)
 
-  companion object {
-    fun fragment(word: String): String {
+  internal companion object {
+    internal fun fragment(word: String): String {
       val start = word.indexOfLast { !it.isLetterOrDigit() && it != '_' } + 1
       return word.drop(start)
     }
 
-    fun replaceFragment(word: String, value: String): String =
+    internal fun replaceFragment(word: String, value: String): String =
         word.dropLast(fragment(word).length) + value
   }
 }
 
 internal data class ScriptCompletionArgs(val text: String) {
   val words: List<String> =
-      text.trimStart().let { if (it.isEmpty()) listOf() else it.split(WHITESPACE) }
+      text.trimStart().let { if (it.isEmpty()) emptyList() else it.split(WHITESPACE) }
   val argIndex: Int =
       if (text.endsWithWhitespace()) words.size else words.lastIndex.coerceAtLeast(0)
   val currentWord: String = text.substringAfterLastWhitespace()

@@ -6,9 +6,9 @@ import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
+import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -19,8 +19,7 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 
 class TaskRevisionTest {
-  private val A = TaskId("A")
-  private val game = Engine.newGame(Canon.SIMPLE_GAME)
+  private val game = Engine.newGame(canonicalPremise(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
 
   // Kinda gross
   private val tasks: TaskQueue = game.tasks
@@ -39,11 +38,9 @@ class TaskRevisionTest {
 
   @Test
   fun `initiating an abstract task works as expected`() {
-    val task = initiate("2 Plant?").single()
+    initiate("2 Plant?")
 
-    task shouldBe A
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
-    tasks.ids().shouldContainExactlyInAnyOrder(A)
     history().shouldHaveSize(1)
   }
 
@@ -52,25 +49,27 @@ class TaskRevisionTest {
     initiate("2 Plant?")
     val before = game.timeline.checkpoint()
 
-    writer.reviseTask(A, "2 Plant?")
-    tasks.ids().shouldContainExactlyInAnyOrder(A)
+    writer.reviseTask("2 Plant?", "2 Plant?")
+    tasksAsText().shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
     events.entriesSince(before).shouldBeEmpty()
   }
 
   @Test
   fun `a normal case of narrowing works normally`() {
-    initiate("2 Plant?")
+    val originalId = initiate("2 Plant?").single()
 
-    writer.reviseTask(A, "Plant!")
+    writer.reviseTask("2 Plant?", "Plant!")
     history().shouldHaveSize(2)
     tasksAsText().shouldContainExactlyInAnyOrder("Plant<Player1>!")
+    tasks.ids().shouldContainExactly(originalId)
+    originalId.ordinal shouldBe (history().single { it is TaskAddedEvent }).ordinal
   }
 
   @Test
   fun `an invalid narrowing fails, atomically`() {
     initiate("2 Plant?")
     history().shouldHaveSize(1)
-    shouldThrow<NarrowingException> { writer.reviseTask(A, "3 Plant!") }
+    shouldThrow<NarrowingException> { writer.reviseTask("2 Plant?", "3 Plant!") }
     history().shouldHaveSize(1)
   }
 
@@ -78,10 +77,10 @@ class TaskRevisionTest {
   fun `repeated narrowing`() {
     initiate("3 StandardResource?")
 
-    writer.reviseTask(A, "2 StandardResource?")
-    writer.reviseTask(A, "2 Plant?")
-    writer.reviseTask(A, "Plant?")
-    writer.reviseTask(A, "Plant!")
+    writer.reviseTask("3 StandardResource?", "2 StandardResource?")
+    writer.reviseTask("2 StandardResource?", "2 Plant?")
+    writer.reviseTask("2 Plant?", "Plant?")
+    writer.reviseTask("Plant?", "Plant!")
 
     tasksAsText().shouldContainExactlyInAnyOrder("Plant<Player1>!")
   }
@@ -91,7 +90,7 @@ class TaskRevisionTest {
     initiate("5 Plant OR 4 Heat")
     tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>! OR 4 Heat<Player1>!")
 
-    writer.reviseTask(A, "5 Plant")
+    writer.reviseTask("5 Plant OR 4 Heat", "5 Plant")
     history().shouldHaveSize(2)
     tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>!")
   }
@@ -100,7 +99,7 @@ class TaskRevisionTest {
   fun `narrowing an OR can enqueue multiple instructions`() {
     initiate("5 Plant OR (4 Heat, 2 Energy)")
 
-    writer.reviseTask(A, "4 Heat, 2 Energy")
+    writer.reviseTask("5 Plant OR (4 Heat, 2 Energy)", "4 Heat, 2 Energy")
 
     assertHistoryTypes(
         TaskAddedEvent::class, // full one
@@ -112,10 +111,42 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `narrowing an OR can narrow each instruction in a grouped arm`() {
+    initiate("5 Plant OR (4 StandardResource, 2 StandardResource)")
+
+    writer.reviseTask(
+        "5 Plant OR (4 StandardResource, 2 StandardResource)",
+        "4 Heat, 2 Energy",
+    )
+
+    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
+  }
+
+  @Test
+  fun `narrowing to the first stage selects a THEN arm of an OR`() {
+    initiate("(-ProjectCard THEN ProjectCard) OR Ok")
+
+    writer.reviseTask("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
+
+    val discard = tasks.extract { it }.single()
+    discard.instruction.toString() shouldBe "-ProjectCard<Player1>!"
+    discard.then.toString() shouldBe "ProjectCard<Player1>!"
+  }
+
+  @Test
+  fun `changing a grouped instruction is a narrowing failure`() {
+    initiate("TR: (Plant, Heat)")
+
+    shouldThrow<NarrowingException> {
+      writer.reviseTask("TR: (Plant, Heat)", "TR: (Plant, Steel)")
+    }
+  }
+
+  @Test
   fun `narrowing to Ok automatically handles the task`() {
     initiate("2 Plant?")
 
-    writer.reviseTask(A, "Ok")
+    writer.reviseTask("2 Plant?", "Ok")
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
     tasks.isEmpty() shouldBe true
   }
@@ -124,50 +155,77 @@ class TaskRevisionTest {
   fun `narrowing to something impossible is not prevented`() {
     initiate("-30 TerraformRating?")
 
-    writer.reviseTask(A, "-21 TerraformRating!")
+    writer.reviseTask("-30 TerraformRating?", "-21 TerraformRating!")
 
     history().shouldHaveSize(2)
     tasksAsText().shouldContainExactlyInAnyOrder("-21 TerraformRating<Player1>!")
 
     // Not the point of this test class, but incidentally, we're at a dead end
-    shouldThrow<LimitsException> { writer.prepareTask(A) }
-    shouldThrow<LimitsException> { writer.doTask(A) }
+    shouldThrow<LimitsException> { writer.prepareTask("-21 TerraformRating!") }
+    shouldThrow<LimitsException> { writer.doTask("-21 TerraformRating!") }
     shouldThrow<LimitsException> { game.gameplay(PLAYER1).autoExecNow() }
   }
 
   @Test
   fun `narrowing to NoOp enqueues the THEN instructions`() {
-    val task = initiate("Plant? THEN (Steel, Heat)").single()
+    initiate("Plant? THEN (Steel, Heat)")
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("Plant<Player1>?")
     tasks.extract { "${it.then}" }.shouldContainExactlyInAnyOrder("Steel<Player1>!, Heat<Player1>!")
 
-    writer.reviseTask(task, "Ok")
+    writer.reviseTask("Plant?", "Ok")
     tasksAsText().shouldContainExactly("Steel<Player1>!", "Heat<Player1>!")
     tasks.matching { it.then != null }.none() shouldBe true
   }
 
   @Test
   fun `a chain of 4 THEN clauses has the head sliced off one by one`() {
-    val id = initiate("Plant? THEN Steel? THEN Heat? THEN Energy").single()
+    initiate("Plant? THEN Steel? THEN Heat? THEN Energy")
 
-    writer.reviseTask(id, "Ok")
+    writer.reviseTask("Plant?", "Ok")
 
     val task1 = tasks.extract { it }.single()
     task1.instruction.toString() shouldBe "Steel<Player1>?"
     task1.then.toString() shouldBe "Heat<Player1>? THEN Energy<Player1>!"
 
-    writer.reviseTask(task1.id, "Ok")
+    writer.reviseTask("Steel?", "Ok")
     val task2 = tasks.extract { it }.single()
     task2.instruction.toString() shouldBe "Heat<Player1>?"
     task2.then.toString() shouldBe "Energy<Player1>!"
 
-    writer.reviseTask(task2.id, "Ok")
+    writer.reviseTask("Heat?", "Ok")
     val task3 = tasks.extract { it }.single()
     task3.instruction.toString() shouldBe "Energy<Player1>!"
     task3.then shouldBe null
   }
 
-  fun initiate(ins: String) = writer.godMode().addTasks(ins)
+  @Test
+  fun `a lone X does not keep otherwise independent THEN stages together`() {
+    initiate("Plant? THEN X StandardResource?")
+
+    val task = tasks.extract { it }.single()
+    task.instruction.toString() shouldBe "Plant<Player1>?"
+    task.then.toString() shouldBe "X StandardResource<Player1>?"
+  }
+
+  @Test
+  fun `executing a THEN head creates independent abstract tail tasks`() {
+    initiate("Plant! THEN (Steel?, Heat?)")
+
+    writer.doTask("Plant!")
+
+    tasksAsText().shouldContainExactlyInAnyOrder("Steel<Player1>?", "Heat<Player1>?")
+    tasks.matching { it.then != null }.shouldBeEmpty()
+
+    writer.reviseTask("Heat?", "Heat!")
+    writer.doTask("Heat!")
+
+    writer.reviseTask("Steel?", "Steel!")
+    writer.doTask("Steel!")
+
+    tasks.isEmpty() shouldBe true
+  }
+
+  private fun initiate(ins: String) = writer.godMode().addTasks(ins)
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 

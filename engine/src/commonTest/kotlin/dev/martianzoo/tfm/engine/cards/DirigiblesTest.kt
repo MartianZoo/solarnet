@@ -1,17 +1,15 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.canon.Canon.Option.*
 import kotlin.test.Test
 
 class DirigiblesTest : CardTest() {
   @Test
-  fun floatersPayThreeEachForAVenusCard() {
-    val game = newGame("BMV", 2)
-    val p1 = game.tfm(PLAYER1)
+  fun `with two floaters, pays for a Venus card using Dirigibles`() {
+    newGame(VenusNextExpansion)
 
-    p1.phase("Action")
-    p1.sneak("5 ProjectCard, Dirigibles, 2 Floater<Dirigibles>, 20")
+    engine.phase("Action")
+    p1.manual("ProjectCard, Dirigibles, 2 Floater<Dirigibles>, 5")
 
     p1.playProject("AerialMappers", 5) {
           doTask("-2 Floater<Dirigibles>! THEN -6 Owed.")

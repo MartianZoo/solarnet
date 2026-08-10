@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
@@ -9,13 +10,13 @@ import dev.martianzoo.data.GameEvent.TaskEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.engine.Engine.TaskListener
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.InstructionGroup
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.types.ClassTable
 
 /**
- * ... With any change to the task queue, a set of normalizations is *always* applied. Here, the
+ * With any change to the task queue, a set of normalizations is *always* applied. Here, the
  * notation `a >> b` is used for a task whose [Task.instruction] is `a` and whose [Task.then] is
  * `b`.
  * * Removing task `a >> b` first creates task `b >> null`
@@ -32,58 +33,82 @@ import dev.martianzoo.util.toSetStrict
  * * New tasks created have the same assignee and cause as the original. Prepared tasks cannot be
  *   split
  */
-internal class TaskQueues(private val events: TaskListener) {
-  private val taskSet: MutableSet<Task> = mutableSetOf()
+internal class TaskQueues
+private constructor(
+    private val events: EventLog,
+    private val classTable: ClassTable?,
+    initialTasks: Collection<Task>,
+) {
+  init {
+    require(initialTasks.all { it.id.ordinal < events.size })
+  }
 
-  internal fun all(): WritableTaskQueue = WritableTaskQueue(this, assignee = null) { true }
+  internal constructor(
+      events: EventLog,
+      classTable: ClassTable? = null,
+  ) : this(events, classTable, emptyList())
 
-  internal operator fun get(assignee: Actor): WritableTaskQueue =
-      WritableTaskQueue(this, assignee = assignee) { it.assignee == assignee }
+  private val taskSet: MutableSet<Task> = initialTasks.toMutableSet()
+  private val isAbstract: ((Expression) -> Boolean)? = classTable?.let { table ->
+    { expression -> table.resolve(expression).abstract }
+  }
+
+  /** Copies current tasks without recording their existing additions in [events]. */
+  internal fun copy(events: EventLog) = TaskQueues(events, classTable, taskSet)
+
+  internal fun all(): TaskQueue = TaskQueue(this, assignee = null) { true }
+
+  internal operator fun get(assignee: Actor): TaskQueue =
+      TaskQueue(this, assignee = assignee) { it.assignee == assignee }
 
   // READ-ONLY OPERATIONS NEEDED BY MUTATORS
 
-  internal operator fun contains(id: TaskId) = taskSet.any { it.id == id }
-
-  internal fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
-
   internal fun getTaskData(id: TaskId) =
-      taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
+      taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
 
   internal fun getAllTaskData(): List<Task> = taskSet.toList()
 
-  private fun nextAvailableId() =
-      if (taskSet.none()) TaskId("A") else taskSet.maxOf { it.id }.next()
-
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
-  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.assignee, task.cause)
+  internal fun addTasks(task: PendingTask) =
+      addTasks(split(task.instruction), task.assignee, task.cause)
 
   internal fun addTasks(
       instruction: InstructionGroup,
       assignee: Actor,
       cause: Cause?,
   ): List<TaskAddedEvent> {
-    val newTasks = Task.newTasks(nextAvailableId(), assignee, instruction, cause)
+    val newTasks = Task.newTasks(TaskId(events.size), assignee, instruction, cause, isAbstract)
     return newTasks.map {
-      val task = addToTaskSet(it)
-      events.taskAdded(task)
+      require(it.id.ordinal == events.size)
+      apply(TaskAddedEvent(events.nextOrdinal, it))
     }
   }
 
   internal fun removeTask(id: TaskId): TaskRemovedEvent {
     val task = getTaskData(id)
-    removeFromTaskSet(task)
-    return events.taskRemoved(task)
+    return apply(TaskRemovedEvent(events.nextOrdinal, task))
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
     val id = newTask.id
     val oldTask = getTaskData(id)
     if (newTask == oldTask) return null
-    removeFromTaskSet(oldTask)
-    addToTaskSet(newTask)
-    return events.taskReplaced(oldTask, newTask)
+    return apply(TaskEditedEvent(events.nextOrdinal, oldTask = oldTask, task = newTask))
   }
+
+  /** Applies and records one task event. This is also the task-history replay boundary. */
+  internal fun <E : TaskEvent> apply(entry: E): E =
+      events.record(entry) {
+        when (entry) {
+          is TaskAddedEvent -> addToTaskSet(entry.task)
+          is TaskRemovedEvent -> removeFromTaskSet(entry.task)
+          is TaskEditedEvent -> {
+            removeFromTaskSet(entry.oldTask)
+            addToTaskSet(entry.task)
+          }
+        }
+      }
 
   // This method can get away without the normalizations/integrity-checks/whatever because it is
   // operating at a purely mechanical level, just undoing changes that were already made.
@@ -101,15 +126,13 @@ internal class TaskQueues(private val events: TaskListener) {
 
   // DIRECT MUTATORS
 
-  private fun addToTaskSet(task: Task): Task {
-    require(task.id != TaskId("ZZ"))
+  private fun addToTaskSet(task: Task) {
     require(taskSet.none { it.id == task.id })
 
-    // What an amazing sorted set implementation
+    // Task ids define a stable diagnostic order, though queue order has no gameplay meaning.
     val all: Set<Task> = taskSet + task
     taskSet.clear()
     taskSet += all.sortedBy { it.id }
-    return task
   }
 
   private fun removeFromTaskSet(task: Task) {
@@ -117,66 +140,4 @@ internal class TaskQueues(private val events: TaskListener) {
   }
 
   override fun toString() = taskSet.joinToString("\n")
-}
-
-internal class WritableTaskQueue(
-    private val taskQueues: TaskQueues,
-    private val assignee: Actor?,
-    private val predicate: (Task) -> Boolean,
-) : TaskQueue {
-  private fun filtered() = taskQueues.getAllTaskData().filter(predicate)
-
-  private fun validateAssignee(task: Task) {
-    if (assignee != null && task.assignee != assignee) {
-      error("$assignee's queue can't contain a task assigned to ${task.assignee}: $task")
-    }
-  }
-
-  override fun ids() = filtered().toSetStrict { it.id }
-
-  override fun contains(id: TaskId) = filtered().any { it.id == id }
-
-  override fun areAllQueuesEmpty(): Boolean = taskQueues.getAllTaskData().none()
-
-  override fun requireAllQueuesEmpty() {
-    val allTasks = taskQueues.getAllTaskData()
-    require(allTasks.none()) { allTasks.joinToString("\n") }
-  }
-
-  override fun matching(predicate: (Task) -> Boolean) =
-      filtered().filter(predicate).toSetStrict { it.id }
-
-  override fun <T> extract(extractor: (Task) -> T) = filtered().map(extractor)
-
-  override fun preparedTask(): TaskId? = filtered().firstOrNull { it.next }?.id
-
-  fun addTasks(
-      instruction: InstructionGroup,
-      cause: Cause?,
-  ): List<TaskAddedEvent> {
-    val inferredAssignee = assignee ?: error("global queue view can't infer a task assignee")
-    return taskQueues.addTasks(instruction, inferredAssignee, cause)
-  }
-
-  fun addTasks(task: Task): List<TaskAddedEvent> {
-    validateAssignee(task)
-    return taskQueues.addTasks(task)
-  }
-
-  fun removeTask(id: TaskId): TaskRemovedEvent {
-    validateAssignee(getTaskData(id))
-    return taskQueues.removeTask(id)
-  }
-
-  fun editTask(newTask: Task): TaskEditedEvent? {
-    validateAssignee(newTask)
-    validateAssignee(getTaskData(newTask.id))
-    return taskQueues.editTask(newTask)
-  }
-
-  fun getTaskData(id: TaskId): Task = taskQueues.getTaskData(id).also(::validateAssignee)
-
-  fun queueFor(assignee: Actor): WritableTaskQueue = taskQueues[assignee]
-
-  override fun toString() = filtered().joinToString("\n")
 }

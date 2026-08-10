@@ -1,50 +1,51 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class RoboticWorkforceTest : CardTest() {
+  @Test
+  fun `with Strip Mine in play, adds Robotic Workforce`() {
+    newGame()
+    p1.manual("PROD[4 Energy], StripMine")
+    p1.assertProds(2 to "Steel", 1 to "Titanium", 2 to "Energy")
+    p1.manual("RoboticWorkforce") { doTask("CopyProductionBox<StripMine>") }
+    p1.assertProds(4 to "Steel", 2 to "Titanium", 0 to "Energy")
+  }
 
   @Test
-  fun roboticWorkforce() {
-    val game = newBareGame(Canon.fromOptionCodes("BRMP", 2))
-
-    with(game.tfm(PLAYER1)) {
-      manual("4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
-      checkProduction(0, 3, 1, 0, 5, 0)
-
-      game.tfm(PLAYER2).manual("ProjectCard, Mine")
-
-      manual("RoboticWorkforce") {
-        checkProduction(0, 3, 1, 0, 5, 0)
-
-        tasks.extract { it.whyPending }.shouldContainExactlyInAnyOrder("abstract")
-
-        // This card has no building tag so it won't work
-        shouldThrow<NarrowingException> { doTask("CopyProductionBox<MassConverter>") }
-
-        // This card is someone else's (see what I did there)
-        shouldThrow<NarrowingException> { doTask("CopyProductionBox<Mine<Player2>>") }
-
-        // Obviously pretending it's mine is no help
-        shouldThrow<NarrowingException> { doTask("CopyProductionBox<Mine>") }
-
-        shouldThrow<NarrowingException> { doTask("CopyProductionBox<Mine<Player1>>") }
-
-        doTask("CopyProductionBox<StripMine>")
-      }
-      this.checkProduction(0, 5, 2, 0, 3, 0) // make annoying idea warning go away
+  fun `with a non-building card, tries to copy it using Robotic Workforce`() {
+    newGame()
+    p1.manual("PROD[Energy], Mine, MassConverter")
+    p1.manual("RoboticWorkforce") {
+      shouldThrow<NarrowingException> { doTask("CopyProductionBox<MassConverter>") }
+      abort()
     }
   }
 
-  private fun TfmGameplay.checkProduction(vararg exp: Int) =
-      production().values shouldBe exp.toList()
+  @Test
+  fun `with a p2 building card, tries to copy it using Robotic Workforce`() {
+    newGame()
+    val p2 = requireP2()
+    p1.manual("IndustrialMicrobes")
+    p2.manual("Mine")
+
+    p1.manual("RoboticWorkforce") {
+      shouldThrow<NarrowingException> { doTask("CopyProductionBox<Mine<Player2>>") }
+      abort()
+    }
+  }
+
+  @Test
+  fun `without owning Mine, tries to copy it using Robotic Workforce`() {
+    newGame()
+    p1.manual("IndustrialMicrobes")
+    p1.manual("RoboticWorkforce") {
+      shouldThrow<NarrowingException> { doTask("CopyProductionBox<Mine>") }
+      abort()
+    }
+  }
 }
