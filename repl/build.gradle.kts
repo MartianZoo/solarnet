@@ -8,13 +8,9 @@ plugins {
 
 dependencies {
   implementation(project(":script"))
-  implementation(project(":engine"))
   implementation(libs.jline)
 
   testImplementation(libs.truth)
-  testImplementation(libs.kotest.assertions.core)
-  testImplementation(project(":pets"))
-  testImplementation(project(path = ":engine", configuration = "jvmTestArtifacts"))
 }
 
 val shadowJar = tasks.named<ShadowJar>("shadowJar")

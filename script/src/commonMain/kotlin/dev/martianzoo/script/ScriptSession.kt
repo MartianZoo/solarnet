@@ -68,10 +68,6 @@ public class ScriptSession(
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
 
-  /** The live world currently controlled by this session. */
-  public val world: World
-    get() = game
-
   internal lateinit var gameplay: TurnLayer
   internal lateinit var setup: OptionCodeTranslation.Setup
 

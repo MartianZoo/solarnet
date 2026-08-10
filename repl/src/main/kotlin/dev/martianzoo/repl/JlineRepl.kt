@@ -27,9 +27,7 @@ public fun main(args: Array<String>) {
 }
 
 internal fun newScriptSession(useAnsiColors: Boolean = false): ScriptSession =
-    ScriptSession(useAnsiColors = useAnsiColors) {
-      listOf(RunScriptCommand(it), SaveGameCommand(it))
-    }
+    ScriptSession(useAnsiColors = useAnsiColors) { listOf(RunScriptCommand(it)) }
 
 internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
   private val replCommands: Map<String, ScriptCommand> =

@@ -53,7 +53,6 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         become <player>     -> changes the default player for queries & executions
         as <player> <cmd>   -> temporarily changes default player to run a single command
         script <filename>   -> reads a file and performs REPL commands as if typed
-        save <filename>     -> writes the current game as a replayable REPL script
       QUERYING
         has <requirement>   -> evaluates a requirement (true/false) in the current world
         count <metric>      -> counts something in the world, like `count Tag<Player2>`

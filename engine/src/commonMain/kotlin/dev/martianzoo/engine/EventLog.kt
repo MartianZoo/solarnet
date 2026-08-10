@@ -68,8 +68,7 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
   public fun changesSinceSetup(): List<ChangeEvent> =
       entriesSinceSetup().filterIsInstance<ChangeEvent>()
 
-  /** Returns every state and task event since engine initialization concluded. */
-  public fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
+  internal fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
 
   /** Returns all change events since [checkpoint]. */
   internal fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
