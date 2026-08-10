@@ -70,6 +70,8 @@ public class EventLog internal constructor(private val prefixSource: EventLog? =
 
   internal fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
 
+  internal fun entryAt(ordinal: Int): GameEvent = entriesSince(Checkpoint(ordinal)).first()
+
   /** Returns all change events since [checkpoint]. */
   internal fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()

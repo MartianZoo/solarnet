@@ -21,8 +21,8 @@ class ArcticAlgaeTest : CardTest() {
     engine.phase("Action")
 
     p1.playProject("GiantIceAsteroid", 36) {
-      doFirstTask("OceanTile<Tharsis_1_2>")
-      doFirstTask("OceanTile<Tharsis_1_4>")
+      doTask("OceanTile<Tharsis_1_2>")
+      doTask("OceanTile<Tharsis_1_4>")
       doTask("-6 Plant<Player2>")
     }
 

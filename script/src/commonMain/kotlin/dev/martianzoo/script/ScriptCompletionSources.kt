@@ -54,11 +54,6 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
         ScriptCompletion(it.toString(), "checkpoints")
       }
 
-  fun taskIds(): List<ScriptCompletion> =
-      repl.selectableTasks().map { (label, task) ->
-        ScriptCompletion(label, "tasks", repl.game.vocabulary.renderPets(task.instruction))
-      }
-
   fun optionSuggestions(): List<ScriptCompletion> {
     return OptionCodeTranslation.suggestions(repl.setup).map {
       ScriptCompletion(it, "option codes")

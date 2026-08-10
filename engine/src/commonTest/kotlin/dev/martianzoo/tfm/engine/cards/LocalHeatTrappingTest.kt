@@ -17,7 +17,7 @@ class LocalHeatTrappingTest : CardTest() {
   fun `with enough heat, chooses plants from Local Heat Trapping`() {
     p1.manual("6 Heat, Pets")
     p1.manual("LocalHeatTrapping") {
-          doFirstTask("4 Plant")
+          doTask("4 Plant")
         }
         .expect("-5 Heat, 4 Plant")
   }
@@ -25,14 +25,14 @@ class LocalHeatTrappingTest : CardTest() {
   @Test
   fun `with Pets in play, chooses animals from Local Heat Trapping`() {
     p1.manual("6 Heat, Pets")
-    p1.manual("LocalHeatTrapping") { doFirstTask("2 Animal<Pets>") }.expect("-5 Heat, 2 Animal")
+    p1.manual("LocalHeatTrapping") { doTask("2 Animal<Pets>") }.expect("-5 Heat, 2 Animal")
   }
 
   @Test
   fun `with Pets in play, tries an abstract animal choice from Local Heat Trapping`() {
     p1.manual("6 Heat, Pets")
     p1.manual("LocalHeatTrapping") {
-      shouldThrow<AbstractException> { doFirstTask("2 Animal") }
+      shouldThrow<AbstractException> { doTask("2 Animal") }
       abort()
     }
   }
@@ -41,7 +41,7 @@ class LocalHeatTrappingTest : CardTest() {
   fun `without Fish in play, tries to add animals to it from Local Heat Trapping`() {
     p1.manual("6 Heat, Pets")
     p1.manual("LocalHeatTrapping") {
-      shouldThrow<DependencyException> { doFirstTask("2 Animal<Fish>") }
+      shouldThrow<DependencyException> { doTask("2 Animal<Fish>") }
       abort()
     }
   }

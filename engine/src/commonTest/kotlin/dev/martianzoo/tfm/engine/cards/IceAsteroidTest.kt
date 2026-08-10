@@ -23,7 +23,7 @@ class IceAsteroidTest : CardTest() {
             pending.toSet() shouldBe setOf("OceanTile<WaterArea>.")
           }
 
-      doFirstTask("OceanTile<$ninthArea>")
+      doTask("OceanTile<$ninthArea>")
 
       game.tasks.isEmpty() shouldBe true
     }

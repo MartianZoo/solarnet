@@ -126,10 +126,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 2
     // Player1 bought 2 card(s)
     // You drew Investment Loan and Deuterium Export
-    p1.doFirstTask("2 BuyCard")
+    p1.doTask("2 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Mars University and Steelworks
-    p2.doFirstTask("2 BuyCard")
+    p2.doTask("2 BuyCard")
 
     with(p1) {
       assertProds(5 to "M", 3 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
@@ -165,7 +165,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.cardAction1("InventorsGuild") {
       // Player1 bought 1 card(s)
       // You drew Development Center
-      doFirstTask("BuyCard")
+      doTask("BuyCard")
     }
     // Player1 played Earth Office
     p1.playProject("EarthOffice", 1)
@@ -203,10 +203,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 3
     // Player1 bought 2 card(s)
     // You drew Spin-Inducing Asteroid and Imported GHG
-    p1.doFirstTask("2 BuyCard")
+    p1.doTask("2 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Asteroid and Trans-Neptune Probe
-    p2.doFirstTask("2 BuyCard")
+    p2.doTask("2 BuyCard")
 
     with(p1) {
       assertProds(4 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 0 to "H")
@@ -234,7 +234,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.cardAction1("InventorsGuild") {
       // Player1 bought 0 card(s)
       // You drew no cards
-      doFirstTask("Ok")
+      doTask("Ok")
     }
 
     // Player2 used Factorum action
@@ -242,7 +242,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.cardAction1("Factorum").expect("PROD[E<P2>]")
     // Player2 played Asteroid
     // Player2's titanium amount increased by 2
-    p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doFirstTask("Ok") }
+    p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doTask("Ok") }
 
     // Player1 played Corporate Stronghold
     // Player1's megacredits production increased by 3
@@ -288,10 +288,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 4
     // Player1 bought 1 card(s)
     // You drew Tectonic Stress Power
-    p1.doFirstTask("1 BuyCard")
+    p1.doTask("1 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Search For Life and Greenhouses
-    p2.doFirstTask("2 BuyCard")
+    p2.doTask("2 BuyCard")
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
@@ -388,10 +388,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 5
     // Player1 bought 3 card(s)
     // You drew Small Asteroid, Fueled Generators and Domed Crater
-    p1.doFirstTask("3 BuyCard")
+    p1.doTask("3 BuyCard")
     // Player2 bought 3 card(s)
     // You drew Power Supply Consortium, Directed Impactors and Power Plant
-    p2.doFirstTask("3 BuyCard")
+    p2.doTask("3 BuyCard")
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 4 to "E", 2 to "H")
@@ -503,10 +503,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 6
     // Player1 bought 4 card(s)
     // You drew Sister Planet Support, Miranda Resort, Solarnet and Dusk Laser Mining
-    p1.doFirstTask("4 BuyCard")
+    p1.doTask("4 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Bio Printing Facility and Earth Catapult
-    p2.doFirstTask("2 BuyCard")
+    p2.doTask("2 BuyCard")
 
     with(p1) {
       assertProds(9 to "M", 3 to "S", 0 to "T", 0 to "P", 5 to "E", 3 to "H")
@@ -640,10 +640,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 7
     // Player1 bought 3 card(s)
     // You drew Stratospheric Birds, Media Archives and Trees
-    p1.doFirstTask("3 BuyCard")
+    p1.doTask("3 BuyCard")
     // Player2 bought 1 card(s)
     // You drew Invention Contest
-    p2.doFirstTask("1 BuyCard")
+    p2.doTask("1 BuyCard")
 
     with(p1) {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 4 to "E", 3 to "H")
@@ -751,10 +751,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 8
     // Player1 bought 2 card(s)
     // You drew Sulphur Exports and Mohole Lake
-    p1.doFirstTask("2 BuyCard")
+    p1.doTask("2 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Advanced Alloys and Natural Preserve
-    p2.doFirstTask("2 BuyCard")
+    p2.doTask("2 BuyCard")
 
     with(p1) {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
@@ -889,10 +889,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 9
     // Player1 bought 3 card(s)
     // You drew Rego Plastics, SF Memorial and Water to Venus
-    p1.doFirstTask("3 BuyCard")
+    p1.doTask("3 BuyCard")
     // Player2 bought 2 card(s)
     // You drew Atalanta Planitia Lab and Mining Expedition
-    p2.doFirstTask("2 BuyCard")
+    p2.doTask("2 BuyCard")
 
     with(p1) {
       assertProds(27 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
@@ -1094,10 +1094,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 10
     // Player1 bought 2 card(s)
     // You drew Nitrogen-Rich Asteroid and Lava Tube Settlement
-    p1.doFirstTask("2 BuyCard")
+    p1.doTask("2 BuyCard")
     // Player2 bought 3 card(s)
     // You drew Mercurian Alloys, Hired Raiders and Nuclear Power
-    p2.doFirstTask("3 BuyCard")
+    p2.doTask("3 BuyCard")
 
     with(p1) {
       assertProds(28 to "M", 5 to "S", 1 to "T", 4 to "P", 9 to "E", 3 to "H")
@@ -1268,8 +1268,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // You drew Business Network and Gene Repair
     // Player2 bought 1 card(s)
     // You drew Towing A Comet
-    p1.doFirstTask("2 BuyCard")
-    p2.doFirstTask("BuyCard")
+    p1.doTask("2 BuyCard")
+    p2.doTask("BuyCard")
     // Player1 played Imported Nitrogen
     // Player1's plants amount increased by 4
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
@@ -1480,11 +1480,11 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 placed greenery tile on row 6 position 4
     p1.doTask("GreeneryTile<Tharsis_6_5>")
     // Player1's plants amount increased by 1
-    p1.doFirstTask("Ok")
+    p1.doTask("Ok")
     p2.doTask("UseAction1<ConvertPlantsSA>")
     // Player2 placed greenery tile on row 8 position 5
     p2.doTask("GreeneryTile<Tharsis_8_8>")
-    p2.doFirstTask("Ok")
+    p2.doTask("Ok")
     // This game id was gf386a4cd5de1
 
     val summ = Summarizer(game)

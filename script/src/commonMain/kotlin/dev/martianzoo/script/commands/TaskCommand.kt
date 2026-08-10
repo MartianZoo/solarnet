@@ -1,70 +1,65 @@
 package dev.martianzoo.script.commands
 
+import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.ScriptSession.UsageException
 
 internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("task") {
-  override val usage = "task <id> [<Instruction> | drop]"
+  override val usage = "task [<number>] <Instruction> | task <prepare | drop>"
   override val help =
       """
-        To carry out a task exactly as it is, just type `task A` where `A` is the id of that task
-        in your `tasks` list. But usually a task gets put on that list because its instruction
-        was not fully specified. So, after `task A` you can write a revised version of that
-        instruction, as long as your revision is a more specific form of the instruction. For
-        example, if the queued task is `-3 StandardResource<Anyone>?` you can revise it to
-        `-2 Plant<Player1>`. If you leave out the id (like `A`) it will expect your revision to
-        match only one existing task.
+        Carry out the pending task matched by an instruction, narrowing it when needed. For
+        example, `task -2 Plant<Player1>` can resolve a queued
+        `-3 StandardResource<Anyone>?`. The instruction must match only one pending task, though
+        identical tasks are interchangeable and a prepared task always wins. In the rare
+        ambiguous case, prefix the instruction with its current 1-based position in `tasks`, such
+        as `task 2 Ok`. Task numbers are temporary positions, not ids. `task prepare` and `task
+        drop` are available only when exactly one task is pending.
       """
 
-  override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
-      when (context.argIndex) {
-        0 -> context.taskIds() + context.petsWords(PetsCompletionRoot.INSTRUCTION)
-        1 ->
-            context.completions("drop", "prepare", group = "task actions") +
-                context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
-        else -> context.droppingLeadingWords(1).petsWords(PetsCompletionRoot.INSTRUCTION)
-      }
+  override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> {
+    val numbered = context.firstWord.toIntOrNull() != null && context.hasRestAfterFirstWord
+    val instructionContext = if (numbered) context.droppingLeadingWords(1) else context
+    val actions =
+        if (context.argIndex == 0) {
+          context.completions("drop", "prepare", group = "task actions")
+        } else {
+          emptyList()
+        }
+    return actions + instructionContext.petsWords(PetsCompletionRoot.INSTRUCTION)
+  }
 
   override fun withArgs(args: String): List<String> {
-    val split = Regex("\\s+").split(args, 2)
-    val first = split.firstOrNull() ?: throw UsageException()
-    val id = repl.resolveTaskLabel(first)
-    if (id == null) {
-      return repl.describeExecutionResults(repl.gameplay.tryTask(args))
-    }
-
-    check(id in repl.game.tasks)
-    val rest: String? =
-        if (split.size > 1 && split[1].isNotEmpty()) {
-          split[1]
-        } else {
-          null
-        }
-
+    val numbered = Regex("^([1-9]\\d*)\\s+(.+)$").matchEntire(args)
+    val taskNumber = numbered?.groupValues?.get(1)?.toInt()
+    val request = numbered?.groupValues?.get(2) ?: args
     val result: TaskResult =
-        when (rest) {
+        when (args) {
           "drop" -> {
-            repl.access().dropTask(id)
-            return listOf("Task $first deleted")
+            repl.access().dropTask(repl.onlyTask().id)
+            return listOf("Task deleted")
           }
           "prepare" -> {
-            repl.gameplay.prepareTask(id)
+            repl.gameplay.prepareTask(repl.onlyTask().id)
             return repl.taskLines()
           }
-          null -> repl.gameplay.tryTask(id)
           else -> {
-            val revised =
-                repl.game.timeline.atomic {
-                  repl.gameplay.reviseTask(id, rest)
-                  if (id in repl.game.tasks) repl.gameplay.tryTask(id)
-                }
-            if (repl.game.isIdle()) repl.game.onAtomicComplete()
-            revised
+            if (taskNumber == null) {
+              repl.gameplay.tryTask(request)
+            } else {
+              try {
+                repl.gameplay.tryTask(args)
+              } catch (_: TaskException) {
+                repl.gameplay.tryTask(request, taskNumber)
+              } catch (_: NarrowingException) {
+                repl.gameplay.tryTask(request, taskNumber)
+              }
+            }
           }
         }
     return repl.describeExecutionResults(result)

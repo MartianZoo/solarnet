@@ -40,17 +40,16 @@ class SoloGame0710Test : AbstractSoloTest() {
       }
 
       playPrelude("HeadStart") {
-        /*
-         * Decline one of the actions, because the convenience API expects to see an empty queue
-         * after each action. The game model does handle it fine, but it's annoying to interact with
-         * and there's no real harm done in this case. Still... TODO.
-         */
-        doFirstTask("Ok")
+        doTask("UseAction1<PlayCardSA>")
+        doTask("PlayCard<Class<ProjectCard>, Class<OlympusConference>>")
+        pay(4, steel = 3)
 
-        playProject("OlympusConference", 4, steel = 3).expect("Science")
+        doTask("UseAction1<PlayCardSA>")
+        doTask("PlayCard<Class<ProjectCard>, Class<StandardTechnology>>")
+        pay(6)
+        doTask("ProjectCard FROM Science<OlympusConference>")
       }
 
-      playProject("StandardTechnology", 6) { doTask("ProjectCard FROM Science<OlympusConference>") }
       playProject("AdvancedAlloys", 9) {
         doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
       }
@@ -140,8 +139,8 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       playProject("GiantIceAsteroid", 18, titanium = 4) {
         doTask("-6 Plant<SoloOpponent>")
-        doFirstTask("OceanTile<Tharsis_5_4>")
-        doFirstTask("OceanTile<Tharsis_5_6>")
+        doTask("OceanTile<Tharsis_5_4>")
+        doTask("OceanTile<Tharsis_5_6>")
       }
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_6_4>") }
       playProject("MagneticShield", 22)
@@ -262,7 +261,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       pass()
       has("Victory") shouldBe true
-      doFirstTask("Ok")
+      doTask("Ok")
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")
@@ -272,7 +271,8 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertCounts(121 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
-      sum.net("ActionPhase", "UseAction<P1>") shouldBe 93 // note UI says 106
+      // Head Start's two actions occur during Prelude; the source UI says 106.
+      sum.net("ActionPhase", "UseAction<P1>") shouldBe 92
     }
   }
 }

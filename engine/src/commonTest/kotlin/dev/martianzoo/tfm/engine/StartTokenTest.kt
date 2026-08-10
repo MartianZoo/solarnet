@@ -35,9 +35,9 @@ class StartTokenTest {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.godMode().manual("Generation")
 
@@ -48,9 +48,9 @@ class StartTokenTest {
   fun `solo setup links each greenery to its own city`() {
     val engine = setUpGame(players = 1).tfm(ENGINE)
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_5_8, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
 
     // This area neighbors the first city, but not the selected second city.
     shouldThrow<NarrowingException> {

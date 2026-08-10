@@ -24,7 +24,7 @@ class BugsTest : CardTest() {
 
     p1.playPrelude("HeadStart") {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
-      doFirstTask("UseAction1<UseStandardProjectSA>")
+      doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<ConvertHeatSA>")
       doTask("UseAction1<AquiferSP>")
       doTask("OceanTile<Tharsis_5_5>")
@@ -45,8 +45,8 @@ class BugsTest : CardTest() {
 
     p1.playPrelude("ExcentricSponsor") {
       p1.playProject("GiantIceAsteroid", 11) {
-        doFirstTask("OceanTile<Tharsis_1_2>")
-        doFirstTask("OceanTile<Tharsis_1_4>")
+        doTask("OceanTile<Tharsis_1_2>")
+        doTask("OceanTile<Tharsis_1_4>")
         doTask("Ok")
       }
     }

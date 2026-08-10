@@ -199,7 +199,7 @@ of those generic services.
 
 `ScriptSession` should retain interactive session state and command dispatch. Terraforming Mars
 game construction, command catalog contributions, and vocabulary belong in an injected application
-profile, while task labels and result rendering remain presentation collaborators rather than
+profile, while task-list and result rendering remain presentation collaborators rather than
 additional session responsibilities.
 
 As described below, `TfmGameplay` is transitional. Its player actions, workflow/phase controls,

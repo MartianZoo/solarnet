@@ -117,8 +117,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Business Contacts,Lagrange Observatory,Solar Wind Power
     // KB bought 2 card(s)
     // You bought Magnetic Field Generators,Power Supply Consortium
-    ER.doFirstTask("3 BuyCard")
-    KB.doFirstTask("2 BuyCard")
+    ER.doTask("3 BuyCard")
+    KB.doTask("2 BuyCard")
 
     with(ER) {
       assertProduction(m = 3, s = 0, t = 1, p = 2, e = 0, h = 3)
@@ -186,8 +186,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Soil Factory,Kelp Farming
     // ER bought 2 card(s)
     // You bought Natural Preserve,Nuclear Zone
-    ER.doFirstTask("2 BuyCard")
-    KB.doFirstTask("2 BuyCard")
+    ER.doTask("2 BuyCard")
+    KB.doTask("2 BuyCard")
 
     with(ER) {
       assertProduction(m = 3, s = 0, t = 1, p = 2, e = 0, h = 3)
@@ -273,8 +273,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Regolith Eaters,Power Plant
     // ER bought 2 card(s)
     // You bought Industrial Center,Miranda Resort
-    ER.doFirstTask("2 BuyCard")
-    KB.doFirstTask("2 BuyCard")
+    ER.doTask("2 BuyCard")
+    KB.doTask("2 BuyCard")
 
     with(ER) {
       assertProduction(m = 5, s = 0, t = 1, p = 2, e = 0, h = 5)

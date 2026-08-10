@@ -107,9 +107,9 @@ internal class SoloGenerationCountdownTest {
   }
 
   private fun finishNeutralSetup(engine: TfmGameplay) {
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
   }
 }

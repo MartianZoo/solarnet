@@ -136,9 +136,9 @@ internal class CanonClassesTest {
 
     val engine = game.gameplay(ENGINE) as GodMode
     game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.manual("OceanTile<Tharsis_1_2>")
     game.gameplay(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2

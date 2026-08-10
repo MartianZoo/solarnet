@@ -14,10 +14,10 @@ class MarsUniversityTest : CardTest() {
     manual
         .manual("Research") {
           doTask("2 ProjectCard")
-          doFirstTask("-ProjectCard")
-          doFirstTask("-ProjectCard")
-          doFirstTask("ProjectCard")
-          doFirstTask("ProjectCard")
+          doTask("-ProjectCard")
+          doTask("-ProjectCard")
+          doTask("ProjectCard")
+          doTask("ProjectCard")
         }
         .expect("2 ScienceTag, 2 ProjectCard")
   }
@@ -31,10 +31,10 @@ class MarsUniversityTest : CardTest() {
     manual
         .manual("Research") {
           doTask("2 ProjectCard")
-          doFirstTask("-ProjectCard")
+          doTask("-ProjectCard")
           doTask("ProjectCard")
-          doFirstTask("-ProjectCard")
-          doFirstTask("ProjectCard")
+          doTask("-ProjectCard")
+          doTask("ProjectCard")
         }
         .expect("2 ScienceTag, 2 ProjectCard")
   }

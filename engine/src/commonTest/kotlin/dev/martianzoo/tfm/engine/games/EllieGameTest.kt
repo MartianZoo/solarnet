@@ -53,8 +53,8 @@ class EllieGameTest : AbstractFullGameTest() {
     p2.pass()
 
     // Generation 2 (P2 first)
-    p1.doFirstTask("1 BuyCard")
-    p2.doFirstTask("3 BuyCard")
+    p1.doTask("1 BuyCard")
+    p2.doTask("3 BuyCard")
 
     p2.sellPatents(1)
     p2.playProject("VestaShipyard", 15) // 1 VP<P2>
@@ -77,8 +77,8 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.pass()
 
     // Generation 3 (P1 first)
-    p1.doFirstTask("3 BuyCard")
-    p2.doFirstTask("1 BuyCard")
+    p1.doTask("3 BuyCard")
+    p2.doTask("1 BuyCard")
 
     p1.cardAction1("DevelopmentCenter")
     p1.playProject("ImmigrantCity", 1, steel = 5) {

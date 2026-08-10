@@ -51,7 +51,7 @@ internal object SampleGames {
     p2.playProject("MarsUniversity", 6, steel = 1) {
       doTask("-ProjectCard")
     }
-    p1.cardAction1("InventorsGuild") { doFirstTask("BuyCard") }
+    p1.cardAction1("InventorsGuild") { doTask("BuyCard") }
     p1.playProject("EarthOffice", 1)
     p2.cardAction2("RotatorImpacts")
     p1.playProject("DevelopmentCenter", 1, steel = 5)
@@ -65,9 +65,9 @@ internal object SampleGames {
     engine.nextGeneration(2, 2)
 
     p1.cardAction1("DevelopmentCenter")
-    p1.cardAction1("InventorsGuild") { doFirstTask("Ok") }
+    p1.cardAction1("InventorsGuild") { doTask("Ok") }
     p2.cardAction1("Factorum")
-    p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doFirstTask("Ok") }
+    p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doTask("Ok") }
     p1.playProject("CorporateStronghold", 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
     p1.playProject("OptimalAerobraking", 7)
     p2.playProject("TransNeptuneProbe", 0, titanium = 2) {

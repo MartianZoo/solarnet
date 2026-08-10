@@ -37,8 +37,8 @@ class CardXC3Test : CardTest() {
     p2.manual("-MicrobeTag<GhgProducingBacteria>").expect("-MicrobeTag")
 
     p2.manual("2 MicrobeTag<GhgProducingBacteria>") {
-          doFirstTask("2 Megacredit")
-          doFirstTask("Microbe<GhgProducingBacteria>!")
+          doTask("2 Megacredit")
+          doTask("Microbe<GhgProducingBacteria>!")
         }
         .expect("2 MicrobeTag, 6 Megacredit, Microbe<GhgProducingBacteria>")
   }

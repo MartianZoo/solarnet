@@ -116,9 +116,10 @@ Change events render the performing Actor with `BY` and the effect-bearing causa
 ## The Task Queue
 
 The internal task queue manager is `TaskQueues`, which owns the set of `Task` objects and all task
-mutation. Task order has no game meaning: stable `TaskId` iteration only makes arbitrary API and
-auto-exec choices reproducible. Public readers and gameplay operation bodies see scoped `TaskQueue`
-objects.
+mutation. Task order has no game meaning: stable `TaskId` iteration makes auto-exec choices
+reproducible and defines the temporary 1-based positions clients may use to disambiguate otherwise
+ambiguous task instructions. Those positions are never stable ids. Public readers and gameplay
+operation bodies see scoped `TaskQueue` objects.
 Those views may be scoped; for example, gameplay for an assignee exposes only that assignee's tasks,
 while `World.tasks` remains a global view for diagnostics and workflow checks. Query and mutation
 operations live on the same `TaskQueue` type; mutations still delegate to `TaskQueues`, which owns
@@ -152,11 +153,9 @@ Government Terraforming therefore works because the StartToken Owner is already 
 while `BY Engine` attributes the selected increase to Engine. Icy Impactors uses the same separation
 between the Player choosing a task and the Actor performing its ocean placement.
 
-The script module separately assigns letter selection handles only when it presents tasks to a user
-or offers task completions. A handle remains attached while its task is pending. Once no
-lettered task remains pending, the next requested handle starts again at `A`; tasks completed by
-autoexec before presentation consume no letters. Label assignments are checkpointed with the event
-timeline so rollback restores both prior handles and tasks that had not yet received a handle.
+The script lists only the current Actor's tasks and omits internal task ids. Ordinary task commands
+select by instruction. A temporary 1-based queue position is accepted only to disambiguate an
+instruction, while `prepare` and `drop` require exactly one pending task.
 
 Task assignment and queue membership are the same fact: an assignee's scoped view contains that
 assignee's tasks. This remains true if the physical implementation is one collection with filtered
@@ -475,9 +474,9 @@ Gameplay         ← query-only + task revision/preparation + doTask
 ```
 
 - **Normal callers** use `Gameplay` directly — they can revise abstract tasks, prepare them, and
-  execute them, selecting by either generated task id or current instruction. Selecting by current
-  instruction also accepts multiple tasks that are otherwise identical, since those tasks are
-  interchangeable.
+  execute them by current instruction. A prepared task always wins; otherwise an omitted task
+  number requires one matching task, with visibly identical tasks treated as interchangeable. The
+  optional 1-based task number refers only to the current order of the Actor's scoped queue.
 - **`OperationLayer`** is for structured operations: `manual()` adds the instruction as tasks and
   runs those new tasks to completion (including autoexec), while preserving tasks that were already
   pending but unprepared. A prepared task remains a global lock and prevents `manual()` from

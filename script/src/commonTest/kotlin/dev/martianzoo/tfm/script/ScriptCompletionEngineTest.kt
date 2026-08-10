@@ -62,30 +62,53 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun completesTaskIdsAndTaskRevisions() {
+  fun completesTaskInstructionsAndSingletonTaskActions() {
     (repl.gameplay.godMode() as TaskLayer).addTasks("2 Plant?")
     (repl.gameplay.godMode() as TaskLayer).addTasks("3 Heat?")
 
-    assertContainsAll(values("task "), "A", "B")
-    assertEquals("2 Plant<Owner>?", candidates("task ").single { it.value == "A" }.description)
-    assertTrue("prepare" in values("task A pr"))
-    assertContainsAll(values("task A Play"), "PlayCard", "Player1")
+    assertFalse(values("task ").any { it == "A" || it == "B" })
+    assertContainsAll(values("task Pl"), "Plant", "PlantTag")
+    assertTrue("prepare" in values("task pr"))
+    assertContainsAll(values("task 1 Play"), "PlayCard", "Player1")
   }
 
   @Test
-  fun keepsLabelsThroughEditsAndRestartsWhenNoLabeledTaskRemainsPending() {
+  fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
     taskLayer.addTasks("2 Plant?")
-    assertTrue(repl.command("tasks").single().startsWith("A "))
-    assertTrue(repl.command("task A prepare").single().startsWith("A* "))
+    assertTrue(repl.command("tasks").single().startsWith("[Engine] "))
+    assertTrue(repl.command("task prepare").single().startsWith("* [Engine] "))
 
-    taskLayer.addTasks("3 Heat?")
     repl.command("mode yellow")
-    repl.command("task A drop")
+    repl.command("task drop")
+    taskLayer.addTasks("3 Heat?")
 
     val remaining = repl.command("tasks").single()
-    assertTrue(remaining.startsWith("A "), remaining)
+    assertTrue(remaining.startsWith("[Engine] "), remaining)
     assertTrue("3 Heat<Owner>?" in remaining, remaining)
+  }
+
+  @Test
+  fun prepareAndDropRejectMultipleTasks() {
+    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    taskLayer.addTasks("2 Plant?")
+    taskLayer.addTasks("3 Heat?")
+    repl.command("mode yellow")
+
+    assertEquals(
+        listOf(
+            "this requires exactly one pending task",
+            "Usage: task [<number>] <Instruction> | task <prepare | drop>",
+        ),
+        repl.command("task prepare"),
+    )
+    assertEquals(
+        listOf(
+            "this requires exactly one pending task",
+            "Usage: task [<number>] <Instruction> | task <prepare | drop>",
+        ),
+        repl.command("task drop"),
+    )
   }
 
   @Test
@@ -100,21 +123,31 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun restoresLabelsOfTasksRestoredByRollback() {
+  fun disambiguatesAnInstructionWithItsCurrentTaskPosition() {
     val taskLayer = repl.gameplay.godMode() as TaskLayer
-    taskLayer.addTasks("2 Plant?")
-    assertTrue(repl.command("tasks").single().startsWith("A "))
+    taskLayer.addTasks("Plant? OR Ok")
+    taskLayer.addTasks("Heat? OR Ok")
 
-    taskLayer.addTasks("3 Heat?")
-    repl.command("mode yellow")
+    repl.command("task 2 Ok")
+
+    assertEquals(
+        listOf("Plant<Owner>? OR Ok"),
+        repl.game.tasks.extract { it.instruction.toString() },
+    )
+  }
+
+  @Test
+  fun taskPositionsAreDerivedAgainAfterRollback() {
+    val taskLayer = repl.gameplay.godMode() as TaskLayer
+    taskLayer.addTasks("Plant? OR Ok")
+    taskLayer.addTasks("Heat? OR Ok")
     val checkpoint = repl.game.timeline.checkpoint()
-    repl.command("task A drop")
-    assertTrue(repl.command("tasks").single().startsWith("A "))
+    repl.command("task 2 Ok")
+    assertTrue("Plant<Owner>?" in repl.command("tasks").single())
     repl.command("rollback $checkpoint")
 
-    val restored = repl.command("tasks")
-    assertTrue(restored[0].startsWith("A "), "$restored")
-    assertTrue(restored[1].startsWith("B "), "$restored")
+    repl.command("task 2 Ok")
+    assertTrue("Plant<Owner>?" in repl.command("tasks").single())
   }
 
   @Test

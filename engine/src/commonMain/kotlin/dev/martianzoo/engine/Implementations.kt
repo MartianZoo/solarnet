@@ -317,13 +317,6 @@ internal class Implementations(
     }
   }
 
-  internal fun doFirstTask(revised: Instruction? = null) {
-    val id = tasks.ids().min()
-    prepareTask(id)
-    if (id in tasks && revised != null) reviseTask(id, revised)
-    if (id in tasks) doTask(id)
-  }
-
   internal fun doTask(taskId: TaskId) {
     doTask(tasks, taskId)
   }
@@ -340,16 +333,22 @@ internal class Implementations(
     doTask(queueForAnyTask(taskId), taskId)
   }
 
-  internal fun doTask(revised: Instruction) {
-    val id = matchingTask(revised)
+  internal fun doTask(revised: Instruction, taskNumber: Int? = null) {
+    val id = matchingTask(revised, taskNumber)
     prepareTask(id)
     if (id in tasks) reviseTask(id, revised)
     if (id in tasks) doTask(id)
   }
 
-  private fun matchingTask(revised: Instruction): TaskId {
+  private fun matchingTask(revised: Instruction, taskNumber: Int? = null): TaskId {
     tasks.preparedTask()?.let {
       return it
+    }
+
+    if (taskNumber != null) {
+      if (taskNumber < 1) throw TaskException("task number must be at least 1")
+      return tasks.ids().elementAtOrNull(taskNumber - 1)
+          ?: throw TaskException("there is no task $taskNumber; tasks are:\n$tasks")
     }
 
     fun weCanReviseIt(taskData: Task): Boolean {
@@ -407,7 +406,10 @@ internal class Implementations(
     val first =
         matches.firstOrNull()
             ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
-    if (matches.map { it.copy(id = first.id) }.distinct().size == 1) return first.id
+    // Origin metadata does not distinguish choices that otherwise present and behave identically.
+    if (matches.map { it.copy(id = first.id, cause = first.cause) }.distinct().size == 1) {
+      return first.id
+    }
     throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
   }
 
@@ -424,10 +426,10 @@ internal class Implementations(
     }
   }
 
-  internal fun tryTask(revised: Instruction) {
-    val id = matchingTask(revised)
+  internal fun tryTask(revised: Instruction, taskNumber: Int? = null) {
+    val id = matchingTask(revised, taskNumber)
     try {
-      doTask(revised)
+      doTask(revised, taskNumber)
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {

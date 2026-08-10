@@ -67,7 +67,7 @@ class EffectActorCharacterizationTest {
       p1.count("TerraformRating") shouldBe terraformRatingBefore
     }
 
-    p1.doFirstTask()
+    p1.doTask("TerraformRating!")
     p1.count("TerraformRating") shouldBe terraformRatingBefore + 1
   }
 

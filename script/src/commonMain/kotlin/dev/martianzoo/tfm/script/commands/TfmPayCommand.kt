@@ -55,7 +55,10 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
         .matching { it.cause?.context?.className == cn("Accept") }
         .forEach {
           repl.gameplay.reviseTask(it, "Ok")
-          if (it in repl.game.tasks) repl.gameplay.tryTask(it)
+          if (it in repl.game.tasks) {
+            val taskNumber = repl.selectableTasks().indexOfFirst { task -> task.id == it } + 1
+            repl.gameplay.tryTask("Ok", taskNumber)
+          }
         }
   }
 

@@ -57,8 +57,8 @@ class FirstPartialGameTest {
       p2.pass()
 
       // Generation 2 (P2 first)
-      p1.doFirstTask("4 BuyCard")
-      p2.doFirstTask("1 BuyCard")
+      p1.doTask("4 BuyCard")
+      p2.doTask("1 BuyCard")
 
       p2.cardAction1("SpaceElevator")
       p2.playProject("EarthCatapult", 23)
@@ -79,8 +79,8 @@ class FirstPartialGameTest {
       p2.pass()
 
       // Generation 3 (P1 first)
-      p1.doFirstTask("3 BuyCard")
-      p2.doFirstTask("2 BuyCard")
+      p1.doTask("3 BuyCard")
+      p2.doTask("2 BuyCard")
 
       p1.playProject("Mine", 2, steel = 1)
       p1.declineSecondAction()
@@ -106,8 +106,8 @@ class FirstPartialGameTest {
       p2.pass()
 
       // Generation 4 (P2 first)
-      p1.doFirstTask("3 BuyCard")
-      p2.doFirstTask("2 BuyCard")
+      p1.doTask("3 BuyCard")
+      p2.doTask("2 BuyCard")
 
       p2.cardAction1("ElectroCatapult")
       p2.cardAction1("SpaceElevator")

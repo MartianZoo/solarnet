@@ -2,11 +2,14 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.Task
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
@@ -54,7 +57,23 @@ public class TfmGameplay(
 
   public fun pass(): TaskResult = turn { doTask("Pass") }
 
-  public fun declineSecondAction(): TaskResult = doFirstTask("Ok")
+  public fun declineSecondAction(): TaskResult {
+    val actorTasks = game.tasks.extract { it }.filter { it.assignee == actor }
+    val secondAction =
+        actorTasks
+            .withIndex()
+            .filter { (_, task) -> task.isActionPhaseSecondAction() }
+            .singleOrNull()
+            ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
+    return doTask("Ok", secondAction.index + 1)
+  }
+
+  private fun Task.isActionPhaseSecondAction(): Boolean {
+    val origin = cause ?: return false
+    if (origin.context.className != cn("ActionPhase")) return false
+    val trigger = game.events.entryAt(origin.triggerEvent) as? ChangeEvent
+    return trigger?.change?.gaining?.className == cn("SecondAction")
+  }
 
   public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
     return turn {
@@ -91,7 +110,7 @@ public class TfmGameplay(
   ): TaskResult {
     return turn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
-        doFirstTask("UseAction1<PlayCardSA>") // "first" because HeadStart
+        doTask("UseAction1<PlayCardSA>")
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 

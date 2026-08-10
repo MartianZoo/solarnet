@@ -127,17 +127,10 @@ public data class Task(
     whyPending?.let { append(" ($it)") }
   }
 
-  public fun toStringWithoutCause(queueAssignee: Actor? = null): String =
-      toStringWithoutCause(queueAssignee, id.toString())
-
-  public fun toStringWithoutCause(queueAssignee: Actor?, displayId: String): String = buildString {
+  public fun toStringWithoutCause(displayId: String = id.toString()): String = buildString {
     append(displayId)
     append(if (next) "* " else "  ")
-    if (queueAssignee == null) {
-      appendAssigneeLabel()
-    } else {
-      append("[queue: $queueAssignee, assignee: $assignee] ")
-    }
+    appendAssigneeLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
     whyPending?.let { append(" ($it)") }

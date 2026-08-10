@@ -59,9 +59,9 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp("Ecoline", 0)
     engine.godMode().sneak("-13 SoloGenerationsLeft, LastCall")
@@ -86,9 +86,9 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp("Ecoline", 0)
     engine
@@ -115,9 +115,9 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     p1.playCorp("Ecoline", 0)
     engine

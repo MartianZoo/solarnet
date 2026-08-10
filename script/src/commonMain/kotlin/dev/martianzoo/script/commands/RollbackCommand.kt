@@ -24,7 +24,6 @@ internal class RollbackCommand(private val repl: ScriptSession) : ScriptCommand(
   override fun withArgs(args: String): List<String> {
     val rollbackOrdinal = args.toInt()
     repl.game.timeline.rollBack(Checkpoint(rollbackOrdinal))
-    repl.restoreTaskLabelsAfterRollback(rollbackOrdinal)
     return listOf("Rollback done")
   }
 }

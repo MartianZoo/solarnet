@@ -45,8 +45,6 @@ private constructor(
 
   internal fun checkpointIds(): List<ScriptCompletion> = sources.checkpointIds()
 
-  internal fun taskIds(): List<ScriptCompletion> = sources.taskIds()
-
   internal fun optionSuggestions(): List<ScriptCompletion> = sources.optionSuggestions()
 
   internal fun completions(vararg values: String, group: String): List<ScriptCompletion> =

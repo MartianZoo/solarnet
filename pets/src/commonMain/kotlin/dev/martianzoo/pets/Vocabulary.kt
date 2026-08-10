@@ -64,16 +64,11 @@ private constructor(
   /** Renders one pending task using localized Pets-compatible class names. */
   public fun renderPets(
       task: Task,
-      queueAssignee: dev.martianzoo.data.Actor? = null,
-      displayId: String = task.id.toString(),
+      displayId: String? = task.id.toString(),
   ): String = buildString {
-    append(displayId)
-    append(if (task.next) "* " else "  ")
-    if (queueAssignee == null) {
-      append("[${task.assignee}] ")
-    } else {
-      append("[queue: $queueAssignee, assignee: ${task.assignee}] ")
-    }
+    if (displayId != null) append(displayId)
+    append(if (task.next) "* " else if (displayId != null) "  " else "")
+    append("[${task.assignee}] ")
     append(renderPets(task.instruction))
     task.then?.let { append(" (THEN ${renderPets(it)})") }
     task.whyPending?.let { append(" ($it)") }

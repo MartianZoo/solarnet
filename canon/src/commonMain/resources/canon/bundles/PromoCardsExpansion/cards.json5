@@ -146,7 +146,7 @@
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
-      "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>?, UseAction<StandardAction>?",
+      "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
     // Anti-desertification Techniques

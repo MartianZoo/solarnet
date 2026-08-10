@@ -63,10 +63,10 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Great Aquifer
       playPrelude("GreatAquifer") {
         // me placed ocean tile on row 3 position 6
-        doFirstTask("OceanTile<Elysium_3_6>")
+        doTask("OceanTile<Elysium_3_6>")
         // me placed ocean tile on row 4 position 7
         // me's plants amount increased by 1
-        doFirstTask("OceanTile<Elysium_4_7>")
+        doTask("OceanTile<Elysium_4_7>")
       }
 
       // me used United Nations Mars Initiative action
@@ -582,7 +582,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me placed greenery tile on row 8 position 5
       // me's steel amount increased by 2
       doTask("GreeneryTile<Elysium_8_8>")
-      doFirstTask("Ok")
+      doTask("Ok")
       // This game id was gf33a06d07a1c
       // herokuapp results image: https://tinyurl.com/39xerd7w
 

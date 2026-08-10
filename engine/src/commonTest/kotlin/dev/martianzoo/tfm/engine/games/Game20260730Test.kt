@@ -589,12 +589,12 @@ class Game20260730Test : AbstractSoloTest() {
         // Player1 discarded Trees
         // Player1 drew 1 card(s)
         // You drew Ganymede Colony
-        doFirstTask("-ProjectCard")
+        doTask("-ProjectCard")
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Trans-Neptune Probe
         // Player1 drew 1 card(s)
         // You drew Hi-Tech Lab
-        doFirstTask("-ProjectCard")
+        doTask("-ProjectCard")
       }
       // Player1 used Convert Heat standard action
       // Player1 placed ocean tile at 34
@@ -753,7 +753,7 @@ class Game20260730Test : AbstractSoloTest() {
       pass()
       has("Victory") shouldBe true
       // Final greenery placement
-      doFirstTask("Ok")
+      doTask("Ok")
       // This game id was gafda6ee74f34
 
       assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)

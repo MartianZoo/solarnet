@@ -71,7 +71,6 @@ public class ScriptSession(
   internal lateinit var setup: OptionCodeTranslation.Setup
 
   internal var mode: ScriptMode = GREEN
-  private val taskLabels = TaskLabels()
 
   private fun newGame(
       setup: OptionCodeTranslation.Setup,
@@ -87,7 +86,6 @@ public class ScriptSession(
     this.setup = setup
     game = candidateGame
     gameplay = candidateGameplay
-    taskLabels.clear()
     if (purple) mode = PURPLE
   }
 
@@ -115,7 +113,6 @@ public class ScriptSession(
     setup = candidateSetup
     game = candidateGame
     gameplay = candidateGameplay
-    taskLabels.clear()
     if (purple) mode = PURPLE
   }
 
@@ -199,10 +196,10 @@ public class ScriptSession(
               game.vocabulary.renderPets(event)
             }
 
-    val newTasks: Set<TaskId> = result.tasksSpawned
+    val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
-        if (newTasks.any()) {
-          listOf("New tasks pending:") + taskLines(newTasks)
+        if (newTaskLines.any()) {
+          listOf("New tasks pending:") + newTaskLines
         } else {
           emptyList()
         }
@@ -215,30 +212,19 @@ public class ScriptSession(
     }
   }
 
-  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Pair<String, Task>> {
-    val allTasks = game.tasks.extract { it }
-    val selectedTasks = if (ids == null) allTasks else allTasks.filter { it.id in ids }
-    val existingIds = allTasks.mapTo(mutableSetOf()) { it.id }
-    val labels =
-        taskLabels.labelsFor(
-            existingIds,
-            selectedTasks.map { it.id },
-            game.timeline.checkpoint().ordinal,
-        )
-    return selectedTasks.map { task -> labels.getValue(task.id) to task }
-  }
+  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
+      game.tasks
+          .extract { it }
+          .filter {
+            it.assignee == gameplay.actor && (ids == null || it.id in ids)
+          }
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
-      selectableTasks(ids).map { (label, task) ->
-        game.vocabulary.renderPets(task, queueAssignee = task.assignee, displayId = label)
-      }
+      selectableTasks(ids).map { task -> game.vocabulary.renderPets(task, displayId = null) }
 
-  internal fun resolveTaskLabel(label: String): TaskId? =
-      taskLabels.resolve(game.tasks.ids(), label, game.timeline.checkpoint().ordinal)
-
-  internal fun restoreTaskLabelsAfterRollback(rollbackOrdinal: Int) {
-    taskLabels.restoreAfterRollback(game.tasks.ids(), rollbackOrdinal)
-  }
+  internal fun onlyTask(): Task =
+      selectableTasks().singleOrNull()
+          ?: throw UsageException("this requires exactly one pending task")
 
   internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {
     val g = event.change.gaining

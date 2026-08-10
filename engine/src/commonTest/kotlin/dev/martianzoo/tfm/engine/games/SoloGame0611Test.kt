@@ -271,7 +271,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       assertCounts(4 to "Plant")
       assertCounts(12 to "Tile") // checking for the heck of it
 
-      doFirstTask("Ok")
+      doTask("Ok")
       assertCounts(78 to "VP") // wow that was not good
     }
   }
