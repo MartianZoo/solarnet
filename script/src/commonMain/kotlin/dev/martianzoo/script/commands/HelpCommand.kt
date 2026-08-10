@@ -67,7 +67,6 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         mode <mode>         -> changes repl modes (more power vs. more game integrity)
       HISTORY
         log [full]          -> shows events that have happened in the current game
-        comment <id> "text" -> replaces an event's free-form comment
         rollback <id>       -> returns the game to an earlier state, forgetting everything since
       METADATA
         desc <expression>   -> describes a type like `Microbe<Ants>` in great detail

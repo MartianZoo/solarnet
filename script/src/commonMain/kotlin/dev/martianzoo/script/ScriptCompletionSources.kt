@@ -54,11 +54,6 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
         ScriptCompletion(it.toString(), "checkpoints")
       }
 
-  fun eventIds(): List<ScriptCompletion> =
-      (0 until repl.game.timeline.checkpoint().ordinal).map {
-        ScriptCompletion(it.toString(), "events")
-      }
-
   fun taskIds(): List<ScriptCompletion> =
       repl.selectableTasks().map { (label, task) ->
         ScriptCompletion(label, "tasks", repl.game.vocabulary.renderPets(task.instruction))
