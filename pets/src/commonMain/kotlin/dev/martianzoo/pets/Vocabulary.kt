@@ -61,7 +61,7 @@ private constructor(
                 )
               }
         }
-    return eventText + (event.comment?.let { " // $it" } ?: "")
+    return eventText + (event.comment?.let { " \"$it\"" } ?: "")
   }
 
   /** Renders one pending task using localized Pets-compatible class names. */

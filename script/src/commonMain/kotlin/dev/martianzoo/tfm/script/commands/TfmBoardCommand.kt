@@ -27,10 +27,10 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.playerNames(includeEngine = false)
 
-  override fun noArgs(): List<String> = PlayerBoardToText(tfm(), useColors = false).board()
+  override fun noArgs(): List<String> = PlayerBoardToText(tfm(), repl.useAnsiColors).board()
 
   override fun withArgs(args: String) =
-      PlayerBoardToText(tfm().asPlayer(repl.player(args)), useColors = false).board()
+      PlayerBoardToText(tfm().asPlayer(repl.player(args)), repl.useAnsiColors).board()
 
   internal class PlayerBoardToText(
       private val tfm: TfmGameplay,

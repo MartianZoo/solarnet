@@ -60,8 +60,10 @@ import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 import dev.martianzoo.types.Type
 
+/** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(
     private val locale: String = Vocabulary.ENGLISH,
+    internal val useAnsiColors: Boolean = false,
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
@@ -126,7 +128,8 @@ public class ScriptSession(
     newGame("BM", 2)
   }
 
-  public fun prompt(): String = mode.color.foreground(promptPlain())
+  public fun prompt(): String =
+      if (useAnsiColors) mode.color.foreground(promptPlain()) else promptPlain()
 
   internal fun promptPlain(): String =
       with(gameplay) {

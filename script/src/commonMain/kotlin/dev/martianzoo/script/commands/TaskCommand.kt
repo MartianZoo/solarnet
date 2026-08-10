@@ -1,6 +1,8 @@
 package dev.martianzoo.script.commands
 
+import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.TaskEvent
+import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Timeline.Checkpoint
@@ -23,7 +25,7 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
         example, if the queued task is `-3 StandardResource<Anyone>?` you can revise it to
         `-2 Plant<Player1>`. If you leave out the id (like `A`) it will expect your revision to
         match only one existing task. An optional final double-quoted argument adds a comment to
-        the task's event-log entry.
+        the task's resulting change event when possible, or otherwise its task-lifecycle event.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
@@ -89,10 +91,18 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
       existingTaskIds: Set<TaskId>,
       comment: String,
   ) {
-    val taskEvents = repl.game.events.entriesSince(checkpoint).filterIsInstance<TaskEvent>()
+    val entries = repl.game.events.entriesSince(checkpoint)
+    val taskEvents = entries.filterIsInstance<TaskEvent>()
     val targetId = taskEvents.firstOrNull { it.task.id in existingTaskIds }?.task?.id
-    val targetEvent = targetId?.let { id -> taskEvents.lastOrNull { it.task.id == id } }
-    checkNotNull(targetEvent) { "task command created no event to comment" }
+    val taskEvent = targetId?.let { id -> taskEvents.lastOrNull { it.task.id == id } }
+    checkNotNull(taskEvent) { "task command created no event to comment" }
+    val targetEvent =
+        if (taskEvent is TaskRemovedEvent) {
+          entries.filterIsInstance<ChangeEvent>().firstOrNull { it.ordinal > taskEvent.ordinal }
+              ?: taskEvent
+        } else {
+          taskEvent
+        }
     repl.game.events.reviseComment(targetEvent.ordinal, comment)
   }
 }

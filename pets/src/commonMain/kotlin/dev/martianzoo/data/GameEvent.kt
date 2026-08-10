@@ -7,7 +7,7 @@ public sealed class GameEvent {
   public abstract val ordinal: Int
   public abstract val comment: String?
 
-  protected fun String.withComment(): String = this + (comment?.let { " // $it" } ?: "")
+  protected fun String.withComment(): String = this + (comment?.let { " \"$it\"" } ?: "")
 
   public sealed class TaskEvent : GameEvent() {
     public abstract val task: Task
