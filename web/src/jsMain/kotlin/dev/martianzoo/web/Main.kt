@@ -110,7 +110,6 @@ public fun main() {
 
     setValue("player-name", snapshot.playerName.replace("Player", "Player "))
     setValue("phase", snapshot.phase ?: "No phase")
-    setValue("victory-points", snapshot.victoryPoints)
     setValue("terraform-rating", snapshot.terraformRating)
     setValue("cards", snapshot.cards)
     snapshot.resources.forEach { resource ->
@@ -122,6 +121,13 @@ public fun main() {
       )
     }
     snapshot.tags.forEach { tag -> setValue("${tag.name}-tag", tag.count) }
+    document.querySelector("[data-tag='venus']")?.let { venusTag ->
+      if (snapshot.tags.any { it.name == "venus" }) {
+        venusTag.removeAttribute("hidden")
+      } else {
+        venusTag.setAttribute("hidden", "")
+      }
+    }
   }
 
   fun renderMap() {
@@ -147,14 +153,14 @@ public fun main() {
 
         if (area.kind == "volcanic") {
           append(
-              "<path class='volcano-marker' d='M ${centerX - 20},${centerY + 22} " +
-                  "L ${centerX - 7},${centerY - 4} L $centerX,${centerY + 5} " +
-                  "L ${centerX + 10},${centerY - 8} L ${centerX + 23},${centerY + 22} Z'/>",
+              "<path class='volcano-marker' d='M ${centerX - 17.2},${centerY + 29.6} " +
+                  "L ${centerX - 6.8},${centerY + 8.8} L ${centerX - 1.2},${centerY + 16} " +
+                  "L ${centerX + 6.8},${centerY + 5.6} L ${centerX + 17.2},${centerY + 29.6} Z'/>",
           )
           append(
-              "<path class='volcano-smoke' d='M ${centerX - 3},${centerY - 12} " +
-                  "C ${centerX - 10},${centerY - 23} ${centerX + 7},${centerY - 25} " +
-                  "${centerX + 1},${centerY - 37}'/>",
+              "<path class='volcano-smoke' d='M ${centerX - 2.4},${centerY + 2.4} " +
+                  "C ${centerX - 8},${centerY - 6.4} ${centerX + 5.6},${centerY - 8} " +
+                  "${centerX + 0.8},${centerY - 17.6}'/>",
           )
         }
 
@@ -165,6 +171,8 @@ public fun main() {
 
         if (area.tile == null) {
           val iconSize = 25.0
+          val bonusX = centerX - 45.7
+          val bonusY = centerY - 23.0
           val bonusAssets =
               area.bonuses.mapNotNull { bonus ->
                 when (bonus) {
@@ -176,23 +184,21 @@ public fun main() {
                   else -> null
                 }
               }
-          val totalWidth = bonusAssets.size * iconSize
           bonusAssets.forEachIndexed { index, asset ->
-            val x = centerX - totalWidth / 2 + index * iconSize
-            val y = centerY - 25.0
+            val x = bonusX + index * iconSize
             append(
                 "<image class='bonus-icon' href='assets/resources/$asset.png' " +
-                    "x='$x' y='$y' width='$iconSize' height='$iconSize'/>",
+                    "x='$x' y='$bonusY' width='$iconSize' height='$iconSize'/>",
             )
           }
           if ("O" in area.bonuses && "-" in area.bonuses) {
             append(
                 "<image class='bonus-icon' href='assets/tiles/ocean.png' " +
-                    "x='${centerX - 17.5}' y='${centerY - 12}' width='21' height='24'/>",
+                    "x='$bonusX' y='$bonusY' width='21' height='24'/>",
             )
             append(
                 "<image class='bonus-icon' href='assets/map/hellas-ocean-cost.png' " +
-                    "x='${centerX + 5.5}' y='${centerY - 12}' width='12' height='12'/>",
+                    "x='${bonusX + 23}' y='$bonusY' width='12' height='12'/>",
             )
           }
         } else {

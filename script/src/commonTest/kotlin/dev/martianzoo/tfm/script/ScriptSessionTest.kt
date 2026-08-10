@@ -30,12 +30,15 @@ internal class ScriptSessionTest {
     assertEquals(20, snapshot.terraformRating)
     assertEquals(7, snapshot.resources.single { it.name == "Steel" }.stock)
     assertEquals(2, snapshot.resources.single { it.name == "Steel" }.production)
-    assertEquals(0, snapshot.tags.single { it.name == "venus" }.count)
+    assertTrue(snapshot.tags.none { it.name == "venus" })
 
     repl.command("tfm_sample A 0")
     val sampleSnapshot = repl.playerSnapshot()
     assertEquals(1, sampleSnapshot.tags.single { it.name == "building" }.count)
     assertEquals(2, sampleSnapshot.tags.single { it.name == "earth" }.count)
+
+    repl.command("newgame BMV 2")
+    assertEquals(0, repl.playerSnapshot().tags.single { it.name == "venus" }.count)
   }
 
   @Test

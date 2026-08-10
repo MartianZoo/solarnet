@@ -108,9 +108,9 @@ body {
 }
 
 .resource-icon {
-  width: 40px;
+  width: 36px;
   max-width: 100%;
-  height: 40px;
+  height: 36px;
 }
 
 .stock,
@@ -164,23 +164,10 @@ body {
   font-size: 14px;
 }
 
-.text-icon,
 .stat-icon {
   box-sizing: border-box;
   width: 27px;
   height: 26px;
-}
-
-.text-icon {
-  padding-top: 6px;
-  border: 1px solid #18213b;
-  border-radius: 4px;
-  background: linear-gradient(#d79e35, #9a681b);
-  color: #0c0b08;
-  font-size: 12px;
-  font-weight: 900;
-  text-align: center;
-  text-shadow: none;
 }
 
 .tr-icon { background-image: url("assets/resources/tr.png"); }
@@ -254,20 +241,20 @@ body {
 .map-space {
   fill: rgba(255, 255, 255, 0.025);
   stroke: rgba(225, 231, 239, 0.82);
-  stroke-width: 1.1;
+  stroke-width: 1.32;
   vector-effect: non-scaling-stroke;
 }
 
 .map-space.water {
   fill: rgba(73, 185, 240, 0.13);
   stroke: #5bc8f5;
-  stroke-width: 1.6;
+  stroke-width: 1.92;
 }
 
 .map-space.noctis {
   fill: rgba(255, 201, 59, 0.13);
   stroke: #ffd557;
-  stroke-width: 1.6;
+  stroke-width: 1.92;
 }
 
 .volcano-marker {

@@ -173,7 +173,10 @@ public class ScriptSession(
                   production = tfm.production(cn(it)),
               )
             },
-        tags = tagTypes.map { (name, type) -> PlayerTagSnapshot(name, countIfLoaded(type)) },
+        tags =
+            tagTypes
+                .filterValues { type -> countIfLoaded("Class<$type>") > 0 }
+                .map { (name, type) -> PlayerTagSnapshot(name, countIfLoaded(type)) },
     )
   }
 
