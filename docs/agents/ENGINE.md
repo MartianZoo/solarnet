@@ -404,6 +404,45 @@ A checkpoint is an event ordinal and may be reached again after rollback. `World
 advances on both forward and reverse event application; it identifies whether the live world has
 remained untouched, not merely whether it currently has the same number of events.
 
+### Recoverable dead ends are part of execution
+
+Task selection is speculative until the enclosing operation finishes. Narrowing a task or executing
+one pending step proves only that the selected step is locally acceptable in the current world. It
+does not promise that every task produced later by that choice can also be completed. A player may
+therefore choose a branch, target, amount, or task order that eventually leaves no way to finish.
+That is a normal dead end, not a committed rules violation.
+
+When the engine recognizes the impossibility immediately, it should throw `DeadEndException`.
+Sometimes it recognizes it only after more tasks or effects have appeared, or the queue simply
+reaches a state from which no pending task can complete. In either case the attempted operation is
+not a legal result. The caller must return to the checkpoint for the encompassing choice and try a
+different route. Public atomic operations perform this rollback automatically when the failure is
+raised; longer interactive sequences retain the checkpoint needed to abandon the attempted route.
+No resulting game state is accepted merely because some prefix of the route executed successfully.
+
+Protected Habitats is the model example. Its effect is:
+
+```
+-Plant<Owner> OR -Animal<Owner> OR -Microbe<Owner> BY !Owner:: Die
+```
+
+An opponent's attack may initially offer a broad resource-removal instruction and let the attacker
+narrow it to a plant, animal, or microbe owned by the protected player. That target choice reaches
+`Die`; `ProtectedHabitatsTest` expects `DeadEndException`, and the atomic attempt rolls back. The
+attacker must instead choose an unprotected target or another legal branch of the attack. The
+temporary ability to select the protected resource never becomes permission to remove it.
+
+Earlier detection is still desirable because it gives better choice enumeration and a clearer
+error. In particular, preparation should throw `DeadEndException` whenever it can cheaply prove
+that every continuation fails. This is an ergonomics and search-quality improvement, not required
+for rules correctness. Pets definitions may deliberately rely on later failure and rollback when
+encoding every exclusion into the earlier choice would be more complex. We would rather use this
+property more often than duplicate defensive target filtering throughout card data.
+
+Consequently, a rules audit should report a task-path problem only when an illegal route can finish
+and commit, or when no route can produce an outcome that the rules allow. Merely being able to enter
+a recoverable dead end does not qualify.
+
 ---
 
 ## Preprocessing: The Transformers Pipeline

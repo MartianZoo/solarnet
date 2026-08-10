@@ -51,9 +51,13 @@
 - **Engine module:** The module that executes Pets instructions, maintains a world, and fires effects.
 - **Event log:** The ordered history of state changes and task lifecycle events.
 - **Expression:** A Pets AST representation of a type; distinct expressions can resolve to the same type.
-- **Follow mode:** Using Solarnet to reproduce or accompany a game whose concrete setup choices and
-  actions are supplied by a client or another authoritative source. The engine follows those facts;
-  it does not choose random content such as maps, milestones, or colony tiles.
+- **Follow mode:** Using Solarnet as a state-transition calculator for a game described by a client.
+  The client supplies each concrete setup choice, draw, reveal, discard, and action; Solarnet accepts
+  those inputs as the history to process and calculates the resulting game state. It neither owns
+  hidden information nor checks whether the supplied history matches a separate physical or online
+  game. A definition whose implementation specifically depends on this model has an identifier
+  ending in `F`; that definition is complete for follow mode, while a future real-play mode that
+  owns decks, hands, and randomness would use a different definition.
 - **Game option:** An editable setup-world expression of user intent. Positive options may add
   defaults through effects, while explicit exclusions mask those defaults before they fire.
 - **Game module:** An affirmative, immutable rules component in a playable world. The complete set

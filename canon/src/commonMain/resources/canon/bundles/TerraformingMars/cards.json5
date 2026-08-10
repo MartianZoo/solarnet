@@ -137,7 +137,7 @@
       "cost": 3,
       "tags": [ "ScienceTag" ],
       "resourceType": "Science",
-      "actions": [ "1 -> Science<This>?" ], // honor system
+      "actions": [ "1 -> Science<This>?" ], // follow mode: the client supplies the reveal outcome
       "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
     },
 

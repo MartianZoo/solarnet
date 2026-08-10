@@ -31,9 +31,9 @@ The milestone kind letter is `M`; the award kind letter is `A`. The future Amazo
 
 ## Follow-mode suffix
 
-`F` identifies a follow-mode-specific definition whose card-specific behavior relies on an external game record or human handling. It remains part of the Solarnet identifier but is removed when comparing against a printed card ID.
+`F` identifies a definition that is specifically complete for follow mode. The client supplies facts such as which card was revealed, selected, discarded, or drawn, and the definition calculates the resulting state without trying to authenticate those facts against another game. This is not an honor system or a rules discrepancy: the supplied history is the input. A future real-play mode that owns decks, hands, hidden information, and randomness would use a different, non-`F` definition for the same printed item. The suffix remains part of the Solarnet identifier but is removed when comparing against the printed card ID.
 
-Ordinary draws do not automatically require a second definition. The suffix is reserved for material whose own rule is intentionally incomplete or different until distinct card backs and their locations are modeled.
+Ordinary draws do not automatically require a second definition. The suffix is reserved for material whose state transition must be expressed differently when Solarnet, rather than the client, owns distinct card backs and their locations.
 
 | Corrected implementation | ID |
 | --- | --- |
