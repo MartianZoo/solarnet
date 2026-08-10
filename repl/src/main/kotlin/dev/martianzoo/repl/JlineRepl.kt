@@ -20,15 +20,16 @@ public fun main(args: Array<String>) {
     return
   }
 
-  val session = newScriptSession()
+  val session = newScriptSession(useAnsiColors = true)
   val repl = JlineRepl(session)
   repl.loop()
   println("Bye")
 }
 
-internal fun newScriptSession(): ScriptSession = ScriptSession {
-  listOf(RunScriptCommand(it), SaveGameCommand(it))
-}
+internal fun newScriptSession(useAnsiColors: Boolean = false): ScriptSession =
+    ScriptSession(useAnsiColors = useAnsiColors) {
+      listOf(RunScriptCommand(it), SaveGameCommand(it))
+    }
 
 internal class JlineRepl(private val session: ScriptSession) : ReplTerminal {
   private val replCommands: Map<String, ScriptCommand> =

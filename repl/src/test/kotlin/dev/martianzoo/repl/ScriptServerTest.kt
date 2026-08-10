@@ -52,6 +52,7 @@ internal class ScriptServerTest {
     val result = send("status")
     assertThat(result).hasSize(1)
     assertThat(result.single()).endsWith("> ")
+    assertThat(result.single()).doesNotContain("\u001B[")
   }
 
   @Test

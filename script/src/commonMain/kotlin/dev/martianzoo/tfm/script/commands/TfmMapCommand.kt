@@ -24,7 +24,7 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
       """
   override val isReadOnly = true
 
-  override fun noArgs() = MapToText(repl.game.reader, useColors = false).map()
+  override fun noArgs() = MapToText(repl.game.reader, repl.useAnsiColors).map()
 
   internal class MapToText(private val game: GameReader, private val useColors: Boolean = true) {
     // my terminal app tries to show characters with H:W of 11:5

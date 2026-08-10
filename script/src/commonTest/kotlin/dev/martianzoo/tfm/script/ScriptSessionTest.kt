@@ -19,6 +19,15 @@ internal class ScriptSessionTest {
       line.replace(eventOrdinalRegex, "0000").replace(causeOrdinalRegex, "0000")
 
   @Test
+  fun ansiColorsCanBeEnabledByTheHost() {
+    val repl = ScriptSession(useAnsiColors = true)
+
+    assertTrue(repl.prompt().contains("\u001B["))
+    assertTrue(repl.command("tfm_board P1").any { it.contains("\u001B[") })
+    assertTrue(repl.command("tfm_map").any { it.contains("\u001B[") })
+  }
+
+  @Test
   fun descIncludesCanonicalAndAlternateClassNames() {
     val description = ScriptSession().command("desc Birds").single()
 
@@ -53,7 +62,7 @@ internal class ScriptSessionTest {
 
     val commented = repl.command("comment $eventId \"setup finished\"").single()
 
-    assertTrue(commented.endsWith("// setup finished"))
+    assertTrue(commented.endsWith("\"setup finished\""))
     assertTrue(repl.command("log full").single { it.startsWith("$eventId:") }.endsWith(commented))
     assertEquals(
         listOf("Usage: comment <event-id> \"<message>\""),
@@ -63,18 +72,30 @@ internal class ScriptSessionTest {
         listOf("Usage: comment <event-id> \"<message>\""),
         repl.command("comment $eventId not quoted"),
     )
-    assertTrue(!repl.command("comment $eventId \"\"").single().contains("//"))
+    assertTrue(!repl.command("comment $eventId \"\"").single().contains("\"setup finished\""))
   }
 
   @Test
-  fun taskCommentsAnnotateTheSelectedTasksLifecycleEvent() {
+  fun taskCommentsPreferAChangeFollowingTheSelectedTasksRemoval() {
+    val repl = ScriptSession()
+    repl.command("become Player1")
+    repl.command("exec (Plant OR Energy) THEN Heat")
+
+    repl.command("task Plant \"picked plants\"")
+
+    val commented = repl.command("log full").single { it.endsWith("\"picked plants\"") }
+    assertTrue(commented.contains("+Heat<Player1>"))
+  }
+
+  @Test
+  fun taskCommentsFallBackToTheRemovalWhenNoChangeFollowsIt() {
     val repl = ScriptSession()
     repl.command("become Player1")
     repl.command("exec Plant OR Heat")
 
     repl.command("task Plant \"picked plants\"")
 
-    val commented = repl.command("log full").single { it.endsWith("// picked plants") }
+    val commented = repl.command("log full").single { it.endsWith("\"picked plants\"") }
     assertTrue(commented.contains("-Task"))
   }
 

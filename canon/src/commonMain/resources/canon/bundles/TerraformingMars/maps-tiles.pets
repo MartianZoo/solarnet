@@ -64,7 +64,7 @@ ABSTRACT CLASS Tile<Area> {
 }
 
 "Adding a Tile automatically creates one of these per adjacent area"
-CLASS Neighbor<Tile<MarsArea>, MarsArea>
+CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden
 
 "When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created"
 ABSTRACT CLASS Adjacency<Tile, Tile> {
