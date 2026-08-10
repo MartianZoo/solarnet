@@ -361,6 +361,15 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
+    // Productive Outpost
+    {
+      "id": "C30",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 0,
+      "immediate": "GiveColonyBonuses",
+    },
+
     // Quantum Communications
     {
       "id": "C31",
@@ -485,6 +494,17 @@
       "effects": [ "End: VictoryPoint / 2 Colony<Anyone>" ],
     },
 
+    // Spin-Off Department
+    {
+      "id": "C41",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 10,
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[2]",
+      "effects": [ "CardFront(HAS 20 CardCost): ProjectCard" ],
+    },
+
     // Sub-Zero Salt Fish
     {
       "id": "C42",
@@ -588,26 +608,6 @@
         "PlayTag<Class<SpaceTag>>:: -4 Owed",
         "End: 2 VictoryPoint"
       ],
-    },
-
-    // Spin-Off Department
-    {
-      "id": "C41",
-      "deck": "PROJECT",
-      "projectKind": "ACTIVE",
-      "cost": 10,
-      "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2]",
-      "effects": [ "CardFront(HAS 20 CardCost): ProjectCard" ],
-    },
-
-    // Productive Outpost
-    {
-      "id": "C30",
-      "deck": "PROJECT",
-      "projectKind": "AUTOMATED",
-      "cost": 0,
-      "immediate": "GiveColonyBonuses",
     },
   ],
 }

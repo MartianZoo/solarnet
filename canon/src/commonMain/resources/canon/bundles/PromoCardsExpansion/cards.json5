@@ -1,77 +1,6 @@
 {
   "cards": [
 
-    // PolderTECH Dutch
-    {
-      "id": "XC11",
-      "deck": "CORPORATION",
-      "tags": [ "EarthTag" ],
-      "immediate": "35, MandateXC11",
-      "effects": [
-        "OceanTile: Energy",
-        "GreeneryTile: Plant",
-      ],
-      "components": [
-        "CLASS MandateXC11 : Mandate { -> OceanTile THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
-      ],
-    },
-
-    // Floyd Continuum
-    {
-      "id": "XM1",
-      "deck": "PROJECT",
-      "projectKind": "ACTIVE",
-      "cost": 4,
-      "tags": [ "ScienceTag" ],
-      "actions": [ "-> 3 / GpComplete" ]
-    },
-
-    // Interplanetary Trade
-    {
-      "id": "X05",
-      "deck": "PROJECT",
-      "projectKind": "AUTOMATED",
-      "cost": 27,
-      "tags": [ "SpaceTag" ],
-      "immediate": "PROD[1 / Class<Tag>(HAS Tag<Owner>)]",
-      "effects": [ "End: VictoryPoint" ],
-    },
-
-    // Cutting Edge Technology
-    {
-      "id": "X18",
-      "deck": "PROJECT",
-      "projectKind": "ACTIVE",
-      "cost": 12,
-      "tags": [ "ScienceTag" ],
-      "effects": [
-        "PlayCard<Class<CardFront>(HAS ClassCardRequirement)>:: -2 Owed",
-        "End: VictoryPoint"
-      ],
-    },
-
-    // Diversity Support
-    {
-      "id": "X20",
-      "deck": "PROJECT",
-      "projectKind": "EVENT",
-      "requirement": "9 Class<Resource>(HAS Resource<Owner>)",
-      "cost": 1,
-      "immediate": "TerraformRating",
-    },
-
-    // Philares
-    {
-      "id": "XC06",
-      "deck": "CORPORATION",
-      "tags": [ "BuildingTag" ],
-      "immediate": "47, MandateXC06",
-      "effects": [
-        "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
-      ],
-      "components": [ "CLASS MandateXC06 : Mandate { -> GreeneryTile }" ],
-    },
-
     // Recyclon
     {
       "id": "XC02",
@@ -80,21 +9,6 @@
       "resourceType": "Microbe",
       "immediate": "38, PROD[Steel]",
       "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
-    },
-
-    // Vermin
-    {
-      "id": "X75",
-      "deck": "PROJECT",
-      "projectKind": "ACTIVE",
-      "cost": 8,
-      "tags": [ "MicrobeTag", "AnimalTag" ],
-      "resourceType": "Animal",
-      "actions": [ "-> Animal<This> OR Microbe" ],
-      "effects": [ "CityTile<Anyone>: Animal<This>" ],
-      "components": [
-        "CLASS CardX75Watcher : Owned<Player> { HAS =1 This; End IF 10 Animal<Anyone, CardX75<Anyone>>: -VictoryPoint / CityTile<Owner> }"
-      ],
     },
 
     // Splice Tactical Genomics[F]
@@ -121,6 +35,18 @@
         "-> MAX 0 Energy: PROD[Energy]",
         "3 -> ProjectCard"
       ],
+    },
+
+    // Philares
+    {
+      "id": "XC06",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "47, MandateXC06",
+      "effects": [
+        "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
+      ],
+      "components": [ "CLASS MandateXC06 : Mandate { -> GreeneryTile }" ],
     },
 
     // AstroDrill
@@ -153,6 +79,30 @@
         // ideally: `ScienceTag: TR FROM Disease ELSE (PlayedEvent<Class<This>> FROM This, 3 TR)?`
         "ScienceTag IF Disease: TerraformRating FROM Disease<This>",
         "ScienceTag IF MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok"
+      ],
+    },
+
+    // Tycho Magnetics
+    {
+      "id": "XC09", // The app marks XC02 as a placeholder to rename.
+      "deck": "CORPORATION",
+      "tags": [ "PowerTag", "ScienceTag" ],
+      "immediate": "42, PROD[Energy]",
+      "actions": [ "X Energy -> ProjectCard" ],
+    },
+
+    // PolderTECH Dutch
+    {
+      "id": "XC11",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": "35, MandateXC11",
+      "effects": [
+        "OceanTile: Energy",
+        "GreeneryTile: Plant",
+      ],
+      "components": [
+        "CLASS MandateXC11 : Mandate { -> OceanTile THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
       ],
     },
 
@@ -197,6 +147,43 @@
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
       "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>?, UseAction<StandardAction>?",
+    },
+
+    // Anti-desertification Techniques
+    {
+      "id": "X49",
+      "setupRequirement": "PreludeExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "3, PROD[Plant, Steel]",
+    },
+
+    // Giant Solar Collector
+    {
+      "id": "X55",
+      "setupRequirement": "PreludeExpansion, VenusNextExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "PowerTag", "SpaceTag" ],
+      "immediate": "PROD[2 Energy], VenusStep",
+    },
+
+    // Strategic Base Planning
+    {
+      "id": "X65",
+      "setupRequirement": "PreludeExpansion, ColoniesExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
+      "immediate": "-3, CityTile, Colony",
+    },
+
+    // Albedo Plants
+    {
+      "id": "X78",
+      "setupRequirement": "PreludeExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "PlantTag" ],
+      "immediate": "PROD[Plant], Plant",
+      "effects": [ "PlantTag: 3 Heat" ],
     },
 
     // Small Asteroid
@@ -274,6 +261,17 @@
       "cost": 17,
       "tags": [ "ScienceTag", "BuildingTag" ],
       "actions": [ "X Energy -> ProjectCard" ],
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    // Interplanetary Trade
+    {
+      "id": "X05",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 27,
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[1 / Class<Tag>(HAS Tag<Owner>)]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -405,6 +403,19 @@
       ],
     },
 
+    // Cutting Edge Technology
+    {
+      "id": "X18",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 12,
+      "tags": [ "ScienceTag" ],
+      "effects": [
+        "PlayCard<Class<CardFront>(HAS ClassCardRequirement)>:: -2 Owed",
+        "End: VictoryPoint"
+      ],
+    },
+
     // Directed Impactors
     {
       "id": "X19",
@@ -417,6 +428,16 @@
         "-> 6 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid",
         "Asteroid<This> -> TemperatureStep"
       ],
+    },
+
+    // Diversity Support
+    {
+      "id": "X20",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "9 Class<Resource>(HAS Resource<Owner>)",
+      "cost": 1,
+      "immediate": "TerraformRating",
     },
 
     // Field-Capped City
@@ -663,15 +684,6 @@
       "actions": [ "3 Heat -> 4 OR 2 Plant" ],
     },
 
-    // Anti-desertification Techniques
-    {
-      "id": "X49",
-      "setupRequirement": "PreludeExpansion",
-      "deck": "PRELUDE",
-      "tags": [ "MicrobeTag", "PlantTag" ],
-      "immediate": "3, PROD[Plant, Steel]",
-    },
-
     // Aqueduct Systems
     {
       "id": "X50",
@@ -719,15 +731,6 @@
       "components": [
         "CLASS CardX53FirstChoice : Cardbound, Temporary"
       ],
-    },
-
-    // Giant Solar Collector
-    {
-      "id": "X55",
-      "setupRequirement": "PreludeExpansion, VenusNextExpansion",
-      "deck": "PRELUDE",
-      "tags": [ "PowerTag", "SpaceTag" ],
-      "immediate": "PROD[2 Energy], VenusStep",
     },
 
     // Hermetic Order of Mars
@@ -826,15 +829,6 @@
       // The city owner owns the Cathedral and therefore receives its pay-2-to-draw offer. The
       // Mission owner still receives the endgame VP through the effect above.
       "components": [ "CLASS Cathedral<CityTile<Owner>> : Owned<Owner> { HAS MAX 1 This; This: (-2 THEN ProjectCard) OR Ok }" ],
-    },
-
-    // Strategic Base Planning
-    {
-      "id": "X65",
-      "setupRequirement": "PreludeExpansion, ColoniesExpansion",
-      "deck": "PRELUDE",
-      "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
-      "immediate": "-3, CityTile, Colony",
     },
 
     // Teslaract
@@ -942,6 +936,21 @@
       "immediate": "PROD[Energy], 1 / BuildingTag",
     },
 
+    // Vermin
+    {
+      "id": "X75",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 8,
+      "tags": [ "MicrobeTag", "AnimalTag" ],
+      "resourceType": "Animal",
+      "actions": [ "-> Animal<This> OR Microbe" ],
+      "effects": [ "CityTile<Anyone>: Animal<This>" ],
+      "components": [
+        "CLASS CardX75Watcher : Owned<Player> { HAS =1 This; End IF 10 Animal<Anyone, CardX75<Anyone>>: -VictoryPoint / CityTile<Owner> }"
+      ],
+    },
+
     // Weather Balloons
     {
       "id": "X76", // The app's current metadata says 033, which conflicts with Regolith Eaters.
@@ -968,16 +977,6 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Albedo Plants
-    {
-      "id": "X78",
-      "setupRequirement": "PreludeExpansion",
-      "deck": "PRELUDE",
-      "tags": [ "PlantTag" ],
-      "immediate": "PROD[Plant], Plant",
-      "effects": [ "PlantTag: 3 Heat" ],
-    },
-
     // Sterling Vents
     {
       "id": "X79",
@@ -989,13 +988,14 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Tycho Magnetics
+    // Floyd Continuum
     {
-      "id": "XC09", // The app marks XC02 as a placeholder to rename.
-      "deck": "CORPORATION",
-      "tags": [ "PowerTag", "ScienceTag" ],
-      "immediate": "42, PROD[Energy]",
-      "actions": [ "X Energy -> ProjectCard" ],
+      "id": "XM1",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "ScienceTag" ],
+      "actions": [ "-> 3 / GpComplete" ]
     }
   ],
 }

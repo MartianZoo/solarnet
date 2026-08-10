@@ -645,6 +645,17 @@
       "immediate": "OxygenStep, -2 Plant<Anyone>?, 2 Steel",
     },
 
+    // Mining Rights
+    {
+      "id": "067",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 9,
+      "tags": [ "BuildingTag" ],
+      "immediate": "MiningRightsTile THEN PROD[(LandArea(HAS MiningRightsTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRightsTile, MapBonus<Class<Titanium>>): Titanium)]",
+      "components": [ "CLASS MiningRightsTile : SpecialTile" ],
+    },
+
     // Birds
     {
       "id": "072",
@@ -1621,17 +1632,6 @@
       "components": [
         "CLASS Card206Effect : Owned, Generational { PlayCard: -This!; PlayCard: -2 Required<Class<GlobalParameter>>. }"
       ],
-    },
-
-    // Mining Rights
-    {
-      "id": "067",
-      "deck": "PROJECT",
-      "projectKind": "AUTOMATED",
-      "cost": 9,
-      "tags": [ "BuildingTag" ],
-      "immediate": "MiningRightsTile THEN PROD[(LandArea(HAS MiningRightsTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRightsTile, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS MiningRightsTile : SpecialTile" ],
     },
   ],
 }
