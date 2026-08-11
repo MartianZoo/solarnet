@@ -4,7 +4,7 @@
       "setupRequirement": "UtopiaPlanitiaMapOption",
       "awards": [
         // Suburbian
-        { "id": "UA0", "metric": "OwnedTile(HAS MAX 4 Neighbor<OwnedTile>)" },
+        { "id": "UA0", "metric": "OwnedTile(HAS MAX 5 Neighbor)" },
         // Investor
         { "id": "UA1", "metric": "EarthTag" },
         // Botanist
@@ -21,7 +21,7 @@
         // Electrician
         { "id": "UA5", "metric": "PowerTag" },
         // Founder
-        { "id": "UA6", "metric": "Adjacency<OwnedTile, SpecialTile>" },
+        { "id": "UA6", "metric": "OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>" },
         // Mogul
         { "id": "UA7", "metric": "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" },
         // Zoologist

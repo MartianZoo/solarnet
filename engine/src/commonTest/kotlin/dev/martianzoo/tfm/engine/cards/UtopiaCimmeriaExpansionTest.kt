@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -47,47 +47,27 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Suburbian counts tiles having at most four neighboring Mars areas`() {
+  fun `Suburbian counts tiles not fully surrounded by neighboring Mars areas`() {
     newGame(UtopiaPlanitiaMapOption)
-    val marsAreas = Canon.marsMap(cn("UtopiaPlanitia")).areas.filterNotNull()
-    p1.manual(marsAreas.joinToString { "CityTile<${it.className}>" })
+    p1.manual("CityTile<UtopiaPlanitia_5_5>")
+    val otherPlayer = requireP2()
+    otherPlayer.manual("CityTile<UtopiaPlanitia_1_1>")
+    p1.manual("Suburbian, TallyAward<Suburbian>")
+    otherPlayer.manual("TallyAward<Suburbian>")
 
-    val expectedBorder =
-        setOf(
-            "UtopiaPlanitia_1_1",
-            "UtopiaPlanitia_1_2",
-            "UtopiaPlanitia_1_3",
-            "UtopiaPlanitia_1_4",
-            "UtopiaPlanitia_1_5",
-            "UtopiaPlanitia_2_1",
-            "UtopiaPlanitia_2_6",
-            "UtopiaPlanitia_3_1",
-            "UtopiaPlanitia_3_7",
-            "UtopiaPlanitia_4_1",
-            "UtopiaPlanitia_4_8",
-            "UtopiaPlanitia_5_1",
-            "UtopiaPlanitia_5_9",
-            "UtopiaPlanitia_6_2",
-            "UtopiaPlanitia_6_9",
-            "UtopiaPlanitia_7_3",
-            "UtopiaPlanitia_7_9",
-            "UtopiaPlanitia_8_4",
-            "UtopiaPlanitia_8_9",
-            "UtopiaPlanitia_9_5",
-            "UtopiaPlanitia_9_6",
-            "UtopiaPlanitia_9_7",
-            "UtopiaPlanitia_9_8",
-            "UtopiaPlanitia_9_9",
-        )
-    val actualBorder =
-        marsAreas
-            .filter {
-              p1.count("OwnedTile<${it.className}>(HAS MAX 4 Neighbor<OwnedTile>)") == 1
-            }
-            .mapTo(linkedSetOf()) { it.className.toString() }
+    p1.count("AwardTally<Player1, Suburbian>") shouldBe 0
+    otherPlayer.count("AwardTally<Player2, Suburbian>") shouldBe 1
+  }
 
-    actualBorder shouldBe expectedBorder
-    p1.count("OwnedTile(HAS MAX 4 Neighbor<OwnedTile>)") shouldBe expectedBorder.size
+  @Test
+  fun `Founder counts an owned tile once when it neighbors multiple special tiles`() {
+    newGame(TerraCimmeriaMapOption)
+    p1.manual(
+        "CityTile<TerraCimmeria_3_3>, MiningRightsTile<TerraCimmeria_3_2>, " +
+            "NpTile<TerraCimmeria_3_4>"
+    )
+
+    p1.count("OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>") shouldBe 1
   }
 
   @Test
@@ -105,5 +85,16 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
     p1.count("Class<CardResource>(HAS CardResource<Player1>)") shouldBe 3
     p1.manual("Metallurgist")
     p1.count("Metallurgist") shouldBe 1
+  }
+
+  @Test
+  fun `Fundraiser requires printed megacredit production of twelve`() {
+    newGame(TerraCimmeriaMapOption)
+    p1.manual("PROD[11 Megacredit]")
+
+    shouldThrow<RequirementException> { p1.manual("Fundraiser") }
+
+    p1.manual("PROD[Megacredit], Fundraiser")
+    p1.count("Fundraiser") shouldBe 1
   }
 }
