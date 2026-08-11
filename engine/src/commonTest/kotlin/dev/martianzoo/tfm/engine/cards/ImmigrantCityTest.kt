@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import kotlin.test.Test
 
 class ImmigrantCityTest : CardTest() {
-  // FAQ: "place the city, gain 1 M€ production, then lose 2 M€ production thereafter"
+  // At -4 M€ production, the reduction is unavailable until the city trigger raises production.
   @Test
   fun `at the production floor, adds Immigrant City to Manutech`() {
     newGame(VenusNextExpansion)

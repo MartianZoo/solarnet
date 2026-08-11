@@ -50,8 +50,11 @@ CLASS Colony<ColonyTile> : Owned<Player> {
 
 "Initiates a Trade operation by moving one of the player's fleets to the colony tile"
 CLASS Trade<ColonyTile> : Owned, Signal {
-  This: FlownTradeFleet<ColonyTile> FROM ReserveTradeFleet
+  This: MAX 0 TradeBarrier: FlownTradeFleet<ColonyTile> FROM ReserveTradeFleet
 }
+
+"Blocks fleet movement until one trade-track decision has been handled"
+CLASS TradeBarrier : Barrier
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
 CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }

@@ -571,7 +571,10 @@
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 6,
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ],
+      "effects": [
+        "Trade<ColonyTile>:: TradeBarrier",
+        "Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier",
+      ],
     },
 
     // Trading Colony
@@ -582,7 +585,10 @@
       "cost": 18,
       "tags": [ "SpaceTag" ],
       "immediate": "Colony",
-      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ],
+      "effects": [
+        "Trade<ColonyTile>:: TradeBarrier",
+        "Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier",
+      ],
     },
 
     // Urban Decomposers
