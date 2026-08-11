@@ -31,7 +31,7 @@
         // Forester
         { "id": "UM8", "requirement": "PROD[3 Plant]" },
         // Fundraiser
-        { "id": "UM9", "requirement": "PROD[12 Megacredit]" },
+        { "id": "UM9", "requirement": "PROD[17 Megacredit]" },
       ],
     },
   ],
