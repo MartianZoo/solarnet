@@ -30,6 +30,10 @@ as choosing milestones randomly, convenient defaults, and explicit exclusions. O
 effects may expand one selection into defaults; exclusions mask those effects. Before assembly,
 all policies are resolved into exact selections.
 
+Setup rules may also select hidden `GameplayClassRoot` markers. The assembler copies their names
+only into the playable premise's class roots, not its initial components. This lets an option
+declaratively activate supporting class families that are not themselves game modules.
+
 **GameModules** are the affirmative, immutable rule components produced by that resolution. Along
 with exact selected content and actors, they fully specify the equivalent games that could be used
 at every table of a duplicate-style tournament. A module adds behavior by being present; disabling
@@ -122,9 +126,10 @@ changes may remain explicit until the language has a convincing model for them.
 ## Game assembly and class reachability
 
 The GameAssembler begins with roots supplied by the resolved setup world: game modules,
-selected definitions, actors, explicitly selected vocabulary, and shared runtime classes. It then
-follows **activation edges** from those roots. Structural needs such as supertypes and dependency
-signatures are activation edges; a behavioral mention is not automatically one.
+`GameplayClassRoot` selections, selected definitions, actors, explicitly selected vocabulary, and
+shared runtime classes. It then follows **activation edges** from those roots. Structural needs such
+as supertypes and dependency signatures are activation edges; a behavioral mention is not
+automatically one.
 
 This gives class references a crucial property: a reference may use content already selected for
 the game, but it cannot select that content. Mentioning `Colony` in an instruction must not activate

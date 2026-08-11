@@ -7,6 +7,7 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.data.Ruleset
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -192,7 +193,49 @@ public constructor(
       loadedClasses[decl.className] = c
     }
     store(null) // to detect reentrancy
-    return Class(decl, this, phantom).also(::store)
+    try {
+      val klass = Class(decl, this, phantom)
+      if (!phantom) validateCustomInheritance(klass)
+      store(klass)
+      return klass
+    } catch (e: Throwable) {
+      loadedClasses.remove(decl.className)
+      throw e
+    }
+  }
+
+  private fun validateCustomInheritance(klass: Class) {
+    if (!klass.declaration.custom) return
+
+    val inheritedEffects = klass.properSuperclasses().filter { it.declaration.effects.isNotEmpty() }
+    val inheritedInvariants =
+        klass.properSuperclasses().filter { it.declaration.invariants.isNotEmpty() }
+    fun hasInstructionIntensity(defaults: DefaultsDeclaration): Boolean =
+        defaults.universal.intensity != null ||
+            defaults.gainOnly.intensity != null ||
+            defaults.removeOnly.intensity != null
+
+    val inheritedDefaults =
+        klass.properSuperclasses().filter {
+          it.className != COMPONENT && hasInstructionIntensity(it.declaration.defaultsDeclaration)
+        }
+    val problems = buildList {
+      if (inheritedEffects.isNotEmpty()) {
+        add("effects from " + inheritedEffects.joinToString { "${it.className}" })
+      }
+      if (inheritedInvariants.isNotEmpty()) {
+        add("invariants from " + inheritedInvariants.joinToString { "${it.className}" })
+      }
+      if (inheritedDefaults.isNotEmpty()) {
+        add("instruction defaults from " + inheritedDefaults.joinToString { "${it.className}" })
+      }
+    }
+    if (problems.isNotEmpty()) {
+      throw PetException(
+          "${klass.className} cannot inherit Pets behavior as a Custom class: " +
+              problems.joinToString()
+      )
+    }
   }
 
   private var frozen: Boolean = false

@@ -81,6 +81,8 @@ internal class CanonClassesTest {
     val game = Engine.newGame(premise)
     game.classTable.allClassNames.shouldNotContain(cn("SoloMode"))
     game.classTable.allClassNames.shouldNotContain(cn("SoloOpponent"))
+    game.classTable.allClassNames.shouldNotContain(cn("FakeResourceGiver"))
+    game.classTable.allClassNames.shouldNotContain(cn("FakeResourceHolder"))
     game.classTable.allClassNames.shouldNotContain(cn("PreludeCard"))
     game.classTable.allClassNames.shouldNotContain(cn("PreludePhase"))
   }
@@ -130,9 +132,20 @@ internal class CanonClassesTest {
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
     game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 99
-      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 99
+      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 11
+      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 11
     }
+    game.gameplay(PLAYER1).count("FakeResourceGiver<SoloOpponent>") shouldBe
+        game.gameplay(PLAYER1).count("Class<StandardResource>")
+    game.gameplay(PLAYER1).count("FakeResourceHolder<SoloOpponent>") shouldBe
+        game.gameplay(PLAYER1).count("Class<CardResource>")
+    game.gameplay(PLAYER1).count("FakeResourceHolder<SoloOpponent, Class<Animal>>") shouldBe 1
+    game
+        .gameplay(PLAYER1)
+        .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 11
+    val fakeHolder = game.classTable.getClass(cn("FakeResourceHolder"))
+    fakeHolder.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
+    fakeHolder.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
 
     val engine = game.gameplay(ENGINE) as GodMode
     game.tasks.extract { it.assignee } shouldBe listOf(ENGINE, ENGINE)
@@ -143,10 +156,22 @@ internal class CanonClassesTest {
     engine.manual("OceanTile<Tharsis_1_2>")
     game.gameplay(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
     game.gameplay(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
+
+    val player = game.gameplay(PLAYER1).godMode()
+    player.manual("-5 Plant<SoloOpponent>")
+    player.manual("PROD[-5 Plant<SoloOpponent>]")
+    player.manual("5 Plant<SoloOpponent>")
+    player.manual("PROD[5 Plant<SoloOpponent>]")
+    player.manual("-5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
+    player.manual("5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 99
+      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 11
+      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 11
       game.gameplay(PLAYER1).count("$it<Player1>") shouldBe 0
     }
+    game
+        .gameplay(PLAYER1)
+        .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 11
 
     engine.manual("End")
     game.gameplay(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
@@ -173,6 +198,14 @@ internal class CanonClassesTest {
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
     cardFront glb hasActions shouldBe actionCard
     actionCard.isIntersectionType() shouldBe true
+  }
+
+  @Test
+  fun cardboundComponentsRequirePlayerOwners() {
+    table.resolve(te("ResourceHolder<SoloOpponent, Class<Animal>>"))
+    assertFailsWith<ExpressionException> {
+      table.resolve(te("Cardbound<SoloOpponent, Predators<Player1>>"))
+    }
   }
 
   @Test

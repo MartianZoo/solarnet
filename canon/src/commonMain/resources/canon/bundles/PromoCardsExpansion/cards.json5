@@ -121,7 +121,7 @@
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
-      "components": [ "CLASS CopyPrelude : Cardbound, Custom" ],
+      "components": [ "CLASS CopyPrelude<CardFront<Player>> : Owned<Player>, Custom" ],
     },
 
     // Merger

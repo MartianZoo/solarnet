@@ -3,6 +3,14 @@ ABSTRACT CLASS GameOption : System {
   HAS MAX 1 This
 }
 
+"Selects a supporting class that must be active in the playable game"
+ABSTRACT CLASS GameplayClassRoot : System {
+  HAS MAX 1 This
+
+  CLASS FakeResourceGiver
+  CLASS FakeResourceHolder
+}
+
 "An explicit user request suppressing a default option in the setup world"
 CLASS Exclude<Class<GameOption>> : System { HAS MAX 1 This }
 
@@ -23,6 +31,7 @@ ABSTRACT CLASS Mode : GameOption { HAS MAX 1 Mode }
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
   This IF MAX 0 SoloVariant, MAX 0 Exclude<Class<StandardSoloVariant>>:: StandardSoloVariant
+  This:: FakeResourceGiver, FakeResourceHolder
 }
 
 "A game with at least two players"

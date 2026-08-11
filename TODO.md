@@ -77,6 +77,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Make class-literal parameters specialize inherited generic effects through a subclass, so solo
+  resource helpers can share replenishment behavior without a holder/resource dependency cycle.
 - Define the `script` command's relative-path policy and correct its help text, which currently
   promises paths relative to the repository while `File(args)` actually uses the process working
   directory.

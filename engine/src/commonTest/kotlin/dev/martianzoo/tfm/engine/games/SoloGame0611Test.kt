@@ -117,8 +117,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements).expect("ProjectCard")
       cardAction2(RegolithEaters).expect("OxygenStep, TR")
       playProject("FueledGenerators", 1)
-      playProject("EnergyTapping", 3) { doTask("PROD[-E<SoloOpponent>]") }
-          .expect("PROD[E<P1>, -E<SoloOpponent>]")
+      playProject("EnergyTapping", 3) { doTask("PROD[-E<SoloOpponent>]") }.expect("PROD[E<P1>]")
       playProject("MagneticShield", 9, titanium = 5).expect("4 TR")
       cardAction1(ForcedPrecipitation)
 

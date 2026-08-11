@@ -108,6 +108,31 @@ internal class ClassTest {
   }
 
   @Test
+  fun `custom classes cannot inherit Pets behavior and failed validation is not cached`() {
+    listOf(
+            "ABSTRACT CLASS BehavioralParent { Trigger: Result }\nCLASS Trigger, Result",
+            "ABSTRACT CLASS BehavioralParent { HAS MAX 1 This }",
+            "ABSTRACT CLASS BehavioralParent { DEFAULT +BehavioralParent. }",
+        )
+        .forEach { parentDeclaration ->
+          val declarations =
+              parseClasses("$parentDeclaration\nCLASS CustomChild : BehavioralParent, Custom")
+                  .toSetStrict()
+          val ruleset =
+              object : TfmRuleset.Empty() {
+                override val explicitClassDeclarations = declarations
+                override val customClasses = setOf(object : CustomClass(cn("CustomChild")) {})
+              }
+
+          val loader = ClassLoader(ruleset)
+          repeat(2) {
+            shouldThrow<PetException> { loader.load(cn("CustomChild")) }
+            loader.findClass(cn("CustomChild")) shouldBe null
+          }
+        }
+  }
+
+  @Test
   fun `authority-known inactive classes resolve as phantoms but are not enumerated`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active")
     val inactiveBundle =

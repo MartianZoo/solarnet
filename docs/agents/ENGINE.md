@@ -26,6 +26,10 @@ defaults. For example, `TerraformingMars` adds Corporate Era and `VenusNextExpan
 `MultiplayerMode` from player count. SoloMode defaults to `StandardSoloVariant` unless another
 `SoloVariant`, such as `Tr63SoloVariant`, is selected.
 
+Setup-world `GameplayClassRoot` markers activate supporting gameplay classes without becoming
+playable components themselves. Solo mode uses them for its neutral standard-resource and
+card-resource providers.
+
 Setup-world `GameOption` components are editable. Same-named gameplay declarations replace them
 during assembly and inherit immutable `GameModule`, so the playable world contains only the fully
 resolved, affirmative rules active at every equivalent table. Exclusion components are never
@@ -59,6 +63,11 @@ add, remove, and count -- this is what makes rollback-and-replay so trivial!
 invariant at the graph boundary. A custom metric may report a virtual count for a type, but that
 value does not add components, affect the total `Component` count, fire effects, satisfy
 dependencies, or appear in component enumeration.
+
+A `Custom` declaration may use ordinary supertypes to express dependencies and ownership, including
+their dependency defaults, but the class loader rejects inherited Pets effects, invariants, or
+non-framework instruction-intensity defaults. Runtime translation must remain the only source of
+behavior for a custom class.
 
 Generally an multiset isn't a "graph", but in our case, component instances themselves carry
 references to their dependency components, which the component graph ensures are always present and
@@ -327,8 +336,12 @@ Each effect has a `Trigger` which is one of:
 These can be wrapped:
 - `ByTrigger` — only fires if the Actor recorded on the `ChangeEvent` matches its `BY` selector
 - `IfTrigger` — only fires if some condition is currently met
-- `XTrigger` — triggers that can match multiple times at once (e.g. Manutech, if raising production
-  5 steps, get 5 resources, without processing those as individual state changes)
+- `XTrigger` — treats any positive matching change count as one occurrence, so `X Signal: Reward`
+  produces one reward even when five signals arrive together
+
+Ordinary gain and removal triggers scale their instruction by the matching change count. Manutech's
+`PROD[StandardResource]: StandardResource`, for example, produces five resources when production
+rises five steps in one change. `XTrigger` is the explicit opt-out from that scaling.
 
 An effect belonging to an `Owned` component responds only to its Owner when it subscribes to an
 unowned component and has no authored `BY`. This is the Pets form of the published game's ordinary
