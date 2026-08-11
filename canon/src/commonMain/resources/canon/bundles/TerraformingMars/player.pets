@@ -40,7 +40,7 @@ ABSTRACT CLASS Owned<Anyone> {
   ABSTRACT CLASS Resource {
     ABSTRACT CLASS StandardResource {
       CLASS Megacredit, Steel, Titanium, Plant
-      CLASS Energy { ProductionPhase: Heat FROM This }
+      CLASS Energy { ProductionPhase:: Heat FROM This }
       CLASS Heat
     }
 

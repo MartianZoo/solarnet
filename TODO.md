@@ -15,6 +15,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Soon
 
+- Use [`docs/agents/SEQUENCING.md`](docs/agents/SEQUENCING.md) to audit and normalize real A-before-B rules; next settle the action-marker/Viron tension and the mixed automatic/queued phase triggers, and keep the verdict buckets current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and descendant-completion semantics.
+- Implement Pluto's individual colony bonus as mandatory draw-then-discard, preserving the order without making the discard an independently available task; test an initially empty hand and observation of intermediate hand state.
+- Confirm whether each Mars University discard-to-draw activation is indivisible, then replace the two-discards-first characterization if the official rule permits ordering only whole effects.
 - Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game fixtures.
 - Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game fixture to decline one action early.
 - Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game fixture's mandatory `!` override.
@@ -39,6 +42,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Medium Soon
 
+- Add a diagnostic engine/test mode that chooses otherwise executable tasks in reverse or reproducibly randomized order, then run the suites under it to expose accidental queue-order dependencies.
 - Reduce the remaining custom Pets instructions only where behavior can become hand-authored Pets; start with the candidates and constraints in [`docs/agents/REDUCE_CUSTOM.md`](docs/agents/REDUCE_CUSTOM.md).
 - Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return and colony-track advancement from Production into its Solar subphase after the game-end check.
 - Consolidate exception cleanup ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain boundaries, narrow `Instruction.narrows`, and start unavailable-operation coverage with Predators lacking a target.

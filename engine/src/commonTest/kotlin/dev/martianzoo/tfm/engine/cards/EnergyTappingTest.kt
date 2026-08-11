@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import kotlin.test.Test
 
 class EnergyTappingTest : CardTest() {
-  // FAQ: "raise your own energy production and then reduce it again"
+  // With no other energy-production target, the increase makes the decrease executable.
   @Test
   fun `with Manutech, adds Energy Tapping`() {
     newGame(VenusNextExpansion)
