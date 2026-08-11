@@ -549,9 +549,9 @@ location.
 Existing queries and rules over `PlayedEvent<Class<CardFront>>` migrate to located backs at
 `Events`. Do not retain a mirrored `PlayedEvent` component merely to avoid changing those rules.
 
-## Follow-mode and `F` definitions
+## Follow-mode and `F` definitions (aspirational design)
 
-Real-card mode is an affirmative game module and must be fixed at assembly time. It is not a flag
+Real-card mode is an affirmative Module and must be fixed in the premise. It is not a flag
 consulted by every draw while a game runs. Follow mode and real-card mode are mutually exclusive.
 
 The `F` suffix continues to identify the follow-mode definition whose client supplies a reveal,

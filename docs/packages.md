@@ -22,7 +22,8 @@ Data types for cards, milestones, maps, etc., and support for parsing these from
 
 ### <a href="pets/dev.martianzoo.tfm.api/index.html">dev.martianzoo.tfm.api</a>
 
-Terraforming Mars-specific interfaces and ruleset types.
+Terraforming Mars-specific definitions and, in the aspirational API, the `TfmAuthority` catalog
+interface.
 
 ### <a href="pets/dev.martianzoo.types/index.html">dev.martianzoo.types</a>
 

@@ -10,33 +10,33 @@ This module's job is to represent a world, execute instructions, and trigger eff
 
 ## Overview: The Holy Trinity of a World
 
+> **Aspirational configuration model:** The Authority, Module, `GameConfig`, and revised
+> `GamePremise` APIs described in the opening overview are a target design, not the current engine.
+
 The common live abstraction is `World`: a Pets component graph together with its tasks, event
 history, timeline, class table, and Actor-scoped mutation API. `GamePremise` is the immutable,
-reusable input—ruleset, class roots, Actors, and initial components—from which equivalent playable
-worlds can be created.
+reusable input containing one Authority, the selected Modules, signed individual class inclusions
+and exclusions, and the exact concrete non-singleton types to instantiate once. Actors and the
+active/phantom class projection derive from those facts.
 
-`Engine.newSetupWorld` creates an independent world for collecting setup components. Once it is
-idle, `Engine.newGame(setupWorld, assemble)` gains the setup ruleset's `ValidateSetup` signal,
-snapshots the world as a `GamePremise`, then constructs a separate playable world. Canon supplies
-its own setup ruleset, initial components, validation effects, and assembler. Callers construct a
-canonical setup premise with a player count, signed `Canon.GameOptions`, and optionally selected
-colony class names. Included options express user intent; exclusions mask effect-contributed
-defaults. For example, `TerraformingMars` adds Corporate Era and `VenusNextExpansion` adds
-`WorldGovernmentOption` unless explicitly excluded. Canon also derives `SoloMode` or
-`MultiplayerMode` from player count. SoloMode defaults to `StandardSoloVariant` unless another
-`SoloVariant`, such as `Tr63SoloVariant`, is selected.
+`GameConfig` is the raw input: comma-or-newline-separated canonical class names, optionally
+prefixed with `-`. It is not Pets syntax and never becomes a temporary World. Authority-backed
+resolution validates names, applies declarative implications and defaults, and returns an exact
+`GamePremise`. Provider bundles are internal provenance and loading details, not premise inputs;
+a Module may select a whole content category from a named bundle.
+`Engine.newGame(premise)` constructs the playable world directly and evaluates the Authority's
+premise-selected declarative validity requirements against the resulting active class table.
 
-Setup-world `GameOption` components are editable. Same-named gameplay declarations replace them
-during assembly and inherit immutable `GameModule`, so the playable world contains only the fully
-resolved, affirmative rules active at every equivalent table. Exclusion components are never
-copied. Pets validation requires the base game, exactly one map, a mode consistent with player
-count, and a solo variant exactly when SoloMode is active.
+For example, Authority data says that `TerraformingMars` defaults Corporate Era and
+`VenusNextExpansion` defaults `WorldGovernmentOption` unless those classes are explicitly
+excluded. It also says that solo mode defaults to `StandardSoloVariant` unless
+`Tr63SoloVariant` is selected, and derives the player-count mode from the selected player names.
 
-The `ClassTable` of active classes and authority-known inactive phantom classes is immutable. APIs
+The `ClassTable` is one per-game projection of the Authority's universal, uniquely named class
+catalog. Active classes carry behavior; authority-known inactive classes are phantom. APIs
 that enumerate playable classes exclude phantoms, while type resolution accepts them with zero
-count. `GameReader.ruleset` is the selected ruleset from the premise. Terraforming Mars-specific
-clients can use
-`GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
+count. `GameReader.authority` exposes the complete Authority, and `GameReader.tfmAuthority` exposes
+its typed Terraforming Mars registries.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
 
@@ -249,7 +249,7 @@ The engine rejects unsupported abstract queries before invoking the implementati
 not need to repeat that validation. Custom metrics may still decide how absent components and
 refinements affect their answers.
 
-A ruleset registers custom classes by capability. One Kotlin object may supply both instruction
+An Authority registers custom classes by capability. One Kotlin object may supply both instruction
 and metric implementations, or two objects with the same Pets class name may supply the
 capabilities separately. By default, each implementation's Pets class name is its Kotlin class's
 simple name.

@@ -20,16 +20,16 @@ separate problem.
 
 ### `ColoniesSetup`
 
-Replace the monolithic setup translation with ordinary, composable setup signals:
+In the aspirational premise design, the premise initializes each exact selected colony type and the
+generated `FooSelected` class family is removed. `ColoniesSetup` would then retain only the player
+loop that creates reserve trade fleets. Replace that remaining translation with ordinary,
+composable setup signals:
 
 - the base player rules can emit `PlayerSetup<This>` once for every player;
-- the live `ColoniesExpansion` module can respond to each `PlayerSetup<Player>` by creating that
-  player's `ReserveTradeFleet`;
-- colony selection can use a generic component such as
-  `SelectedColonyTile<Class<ColonyTile>>`, whose setup effect requests that exact tile.
+- the live `ColoniesExpansion` Module can respond to each `PlayerSetup<Player>` by creating that
+  player's `ReserveTradeFleet`.
 
-This removes both the runtime loops and the generated `FooSelected` class family. `AddColonyTile`
-may remain custom because it still interprets colony-definition metadata.
+`AddColonyTile` may remain custom because it still interprets colony-definition metadata.
 
 ### `PassLeft`
 

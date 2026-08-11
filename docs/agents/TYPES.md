@@ -576,9 +576,10 @@ Every type belongs to one **class table**: a frozen, closed set of mutually comp
 Types from different tables are never comparable. Type operations and constraint matching fail
 rather than mix them.
 
-A table is built by loading the declarations supplied by a ruleset and then freezing it. Once
-frozen, its classes and subtype relationships cannot change. A class name the table cannot resolve
-is an error in every context: as a type, a dependency bound, or part of a metric.
+In the aspirational Authority model, a table would be built by filtering the declarations supplied
+by one Authority and then freezing it. Once frozen, its classes and subtype relationships cannot
+change. A class name the table cannot resolve is an error in every context: as a type, a dependency
+bound, or part of a metric.
 
 Freezing also compiles nominal subclass tests. Only classes that actually have proper subclasses
 receive bit positions; the declaration rules guarantee that all of them are abstract. Every known
@@ -936,9 +937,10 @@ The Venus Next expansion adds `VenusTag`. A game without that expansion must nei
 nor require a different Diversifier declaration. At the same time, `Class<Tag>` must keep ranging
 over all tag classes that this particular game includes.
 
-Pets handles that distinction by giving each ruleset an **authority**: the full catalog of class
-declarations it is allowed to load. A class known to the authority but not active in the current
-game is installed in the frozen table as **phantom**. Names therefore have three states:
+The aspirational Authority model handles that distinction by giving each game exactly one
+**Authority**: the full, uniquely named catalog of class declarations it is allowed to load. A
+class known to the Authority but not active in the current game would be installed in the frozen
+table as **phantom**. Names therefore have three states in that target model:
 
 ```text
 active    installed in this table for this game

@@ -45,7 +45,7 @@ As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the 
 
 Any component that makes actions available for possible selection extends the supertype `HasActions`; these includes the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
 
-The first two are singleton types: each concrete subtype in the selected ruleset, such as `Aquifer`, automatically has an instance created before the game starts. Therefore if the user signals `UseAction<Aquifer>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue.
+Under the aspirational premise model, the first two are singleton types: each active concrete subtype in the game's class table, such as `Aquifer`, would automatically have an instance created before the game starts. Therefore if the user signals `UseAction<Aquifer>` it will be able to respond, bill the user 18 money and put an `OceanTile` instruction on the user's task queue.
 
 ### Phases
 
@@ -123,4 +123,4 @@ A few types are busily doing weird stuff behind the scenes to let you pay for st
 
 ## TODO
 
-* Explain how setup-world choices become immutable game modules.
+* Once the aspirational premise model exists, explain how premise choices become immutable Module components.

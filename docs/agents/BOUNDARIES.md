@@ -2,6 +2,9 @@
 
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
+> **Status note:** References below to Authority data, premise resolution, Modules, and the revised
+> `GamePremise` describe the desired boundary, not the current implementation.
+
 This audit reviews whether an unrelated board game with suitable mechanics could reuse all
 Solarnet code outside `dev.martianzoo.tfm` while using none of the code inside
 `dev.martianzoo.tfm`.
@@ -89,7 +92,7 @@ install its own syntax transforms.
 
 `script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt` hard-wires:
 
-1. Canon's setup ruleset, defaults, and assembler.
+1. Canon's Authority data, premise defaults, and resolver.
 2. Terraforming Mars setup instructions.
 3. `TfmWorkflow`.
 4. Terraforming Mars commands and board/map views.
@@ -142,24 +145,26 @@ These are the Pets runtime prelude, not Terraforming Mars canon. The resource is
 independently of canonical bundles, and Terraforming Mars canon extends it with `global.pets`,
 `player.pets`, and the rest.
 
-### P1: `TfmRuleset` contains the missing reusable base implementation of `Ruleset`
+### P1: `TfmAuthority` conflates a generic Authority with Terraforming Mars registries
 
-`pets/src/commonMain/kotlin/dev/martianzoo/tfm/api/TfmRuleset.kt` mixes two categories:
+`pets/src/commonMain/kotlin/dev/martianzoo/tfm/api/TfmAuthority.kt` mixes two categories:
 
 1. Generic behavior: declaration aggregation, duplicate detection, validation of `Component` and
    `Class`, definition-to-declaration conversion, name indexes, custom-class lookup, and an empty
-   test ruleset.
+   test provider.
 2. Terraforming Mars registries: cards, milestones, colony tiles, standard actions, and Mars maps.
 
-The generic half should be something like `AbstractRuleset` or `DefinitionRuleset`. `TfmRuleset`
-can extend it and contribute its game-specific definition collections and indexes.
+The generic half belongs in an `Authority` implementation. `TfmAuthority` can extend that API and
+contribute its game-specific definition collections, premise resolution, and indexes. Games retain
+the complete Authority while their class tables project its catalog.
 
-### Resolved: generic construction no longer depends on `GameSetup`
+### Aspirational: generic construction no longer depends on `GameSetup`
 
 The live component/task/event/timeline machinery is the generic `World`. Construction accepts a
-generic `GamePremise` containing a ruleset, class roots, Actors, and initial components, and
-`GameReader` no longer exposes a Terraforming Mars setup object. Canon assembles a generic premise
-from a validated, editable setup world; there is no parallel static game-options input.
+generic `GamePremise`, and `GameReader` no longer exposes a Terraforming Mars setup object. The
+premise contains one Authority, Module selections, signed individual class selections, and exact
+one-per-type non-singleton initialization selections; Actors and the class-table projection derive
+from those facts. Configuration is not represented by a live World.
 
 ### P1: The reusable asynchronous workflow driver is buried inside `TfmWorkflow.Auto`
 
@@ -189,10 +194,10 @@ in the otherwise properly Terraforming-Mars-specific script commands.
 ## Module-by-module result
 
 1. **`pets`** has the most fundamental boundary problem: megacredit semantics and fixed player
-   identities are generic, while the reusable ruleset implementation remains under `tfm`.
+   identities are generic, while the reusable Authority implementation remains under `tfm`.
 2. **`engine`** is mostly genuinely generic. Its misplaced logic is concentrated in initialization,
    turn/action protocols, and automatic installation of `Prod`.
-3. **`canon`** is correctly Terraforming-Mars-specific except for the `System` ruleset, which is
+3. **`canon`** is correctly Terraforming-Mars-specific except for the `System` prelude, which is
    really the generic runtime prelude.
 4. **`script`** has a good generic command framework, but its central session, setup command,
    completion sources, and phase handling are the Terraforming Mars/REgo application.
@@ -201,8 +206,9 @@ in the otherwise properly Terraforming-Mars-specific script commands.
 
 ## Suggested extraction order
 
-1. Move the `System` ruleset into a generic runtime prelude and make its loading explicit.
-2. Introduce generic setup and ruleset implementations, retaining Terraforming Mars subclasses.
+1. Move the `System` declarations into a generic runtime prelude and make their loading explicit.
+2. Introduce generic Authority and premise-resolution implementations, retaining a Terraforming
+   Mars Authority subtype for its typed registries.
 3. Replace generic initializer special cases with game-supplied initialization roots and hooks.
 4. Decide whether turn/action signaling is a generic protocol or a Terraforming Mars layer, then
    colocate both its code and declarations.

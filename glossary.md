@@ -1,5 +1,8 @@
 # Glossary
 
+> **Status note:** Entries explicitly marked *aspirational* name the proposed Authority/premise
+> architecture and do not describe the current implementation.
+
 - **Abstract task:** A task that is not fully specified so cannot be executed until it has been narrowed. Could be because it gains/removes a type that is abstract, or has a quantifier that isn't `!`, or includes an `OR`, etc.
 - **Abstract type:** A type that is not fully specified so cannot be gained/removed, but can still be counted and queried. (Antonym: Concrete type.)
 - **Action:** (1) A Pets element with an optional cost and an instruction, written with `->`; usually belongs to a card or a StandardAction. (2) What a player gets 1 or 2 of on their turn: lasts until their task queue is empty.
@@ -10,18 +13,21 @@
 - **Anyone:** The generic Pets type used in ownership expressions to say “I don't care who.”
 - **Assignee:** The Actor whose task queue this task is in; they get to choose when to prepare the task.
 - **Atomize:** Some instructions like `3 TemperatureStep` have to be split into individual one-by-one instructions so each is handled separately; others like `3 Plant` do not.
-- **Ruleset:** The lazy composition of the raw class declarations, definitions, and custom
-  instruction implementations from exactly the bundles needed for one game setup.
+- **Authority (aspirational):** The one coherent, mostly declarative source of every class declaration,
+  definition, vocabulary entry, and exceptional custom implementation available for a game. A
+  game selects exactly one Authority; published and versioned rebalanced Terraforming Mars are
+  different Authorities.
 - **Autoexec:** A convenience feature that prepares and executes pending work when its policy permits.
 - **AutoLoad:** A marker that makes a class load even when no selected content refers to it. Reserve
   it for classes needed by host-driven operations, bootstrap discovery, or transforms that run
   after the class table freezes.
 - **Automatic effect:** An effect written with `::`; its triggered instruction executes inline instead of becoming a queued task. (Antonym: queued effect.)
 - **Barrier:** A temporary component that must be removed before blocked work can continue.
-- **Bundle:** One raw grouping of ruleset data. Loading a bundle makes its content available but has
-  no gameplay meaning by itself; game options determine which rules and content are active.
-- **Canon:** The catalog that knows how to locate official bundles and which bundles provide each
-  canonical game option.
+- **Bundle (aspirational):** An internal grouping of Authority data for file ownership, provenance, distribution,
+  and lazy loading. It is never an independent premise input, though a Module can select a whole
+  content category from a named bundle.
+- **Canon (aspirational):** The Authority for published Terraforming Mars, composed from
+  official-data bundles.
 - **Cause:** The effect-bearing component and triggering event recorded to explain a non-manual task or state change.
 - **Change:** An instruction that gains, removes, or transmutes components.
 - **Change event:** A state change in the game history, with its ordinal, Actor, and optional cause.
@@ -41,8 +47,8 @@
 - **Custom metric:** A metric whose `Custom` root class has a Kotlin implementation that supplies a virtual component count without adding anything to the component graph.
 - **Default:** A class-supplied dependency bound or intensity inserted when an expression omits it.
 - **Definition:** Structured data for a card, map area, or similar item that is converted into a
-  class declaration. Definitions have stable same-kind identities, bundle provenance, and optional
-  load requirements and replacement targets.
+  class declaration. In the aspirational premise model, definitions have stable same-kind
+  identities, optional configuration conditions, and replacement targets.
 - **Dependency:** A directed relationship from one component to another component that must exist while the dependent does; a class declaration introduces such a relationship and its original upper bound for all components of that class.
 - **Dependency bound:** The type currently permitted as the target of one dependency; narrowing a type narrows one or more such bounds.
 - **Dependency key:** The stable identity of one dependency, consisting only of its declaring class and declaration ordinal.
@@ -58,12 +64,14 @@
   game. A definition whose implementation specifically depends on this model has an identifier
   ending in `F`; that definition is complete for follow mode, while a future real-play mode that
   owns decks, hands, and randomness would use a different definition.
-- **Game option:** An editable setup-world expression of user intent. Positive options may add
-  defaults through effects, while explicit exclusions mask those defaults before they fire.
-- **Game module:** An affirmative, immutable rules component in a playable world. The complete set
-  records the fully resolved rules shared by every equivalent game created from a premise.
-- **Game premise:** The complete, immutable facts from which equivalent games can be created: the
-  ruleset, loaded class roots, Actors, and initial components.
+- **Game config (aspirational):** An unresolved, signed expression of user intent from which defaults, selection
+  policies, and validation produce an exact GamePremise.
+- **Module (aspirational):** An affirmative, immutable singleton component carrying one part of a realized game's
+  ambient behavior. The exact Module set records the game's general behavior choices.
+- **Game premise (aspirational):** The complete immutable facts from which equivalent games can be created:
+  exactly one Authority, the Module classes that will exist, signed inclusion or
+  exclusion of other individual classes, and the non-singleton classes initialized with one
+  instance each.
 - **Gameplay:** The Actor-scoped API through which a world is queried and changed.
 - **Immediate instruction:** A card's instruction carried out when the card is played, stored as `CardDefinition.immediate`.
 - **Instruction:** A Pets specification of steps that may alter a world.

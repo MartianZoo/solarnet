@@ -215,9 +215,10 @@ Names used by `WorkflowPrecedence` are **weak class references**: a constraint p
 when its span and both endpoint phase classes were independently activated by the selected rules.
 Reading the constraint must never activate an absent endpoint. This differs intentionally from an
 ordinary component dependency, whose existence asserts that its dependency exists. Workflow
-topology is ruleset metadata, not additional game-world state; the declarations may use ordinary
-Pets class syntax, but the runner should compile them from the selected ruleset rather than create
-their instances in the world.
+topology would, in the aspirational Authority model, be Authority data filtered by the premise
+rather than additional game-world state; the declarations may use ordinary Pets class syntax, but
+the runner should compile them from the active premise classes rather than create their instances
+in the world.
 
 Dynamic decisions remain ordinary component effects. For example, completion of `SolarPhase` may
 transmute directly to `FinalGreeneryPhase` when the game-end requirement is true. Such an explicit
@@ -239,7 +240,7 @@ emptiness, as the condition for emitting `StepComplete`.
 ## Implementation direction
 
 1. Add the generic workflow vocabulary and compile weak, span-scoped precedence declarations from
-   the selected ruleset without activating their referenced phase classes.
+   the premise's Authority and active classes without activating their referenced phase classes.
 2. Build a generic runner by extracting the lifecycle, checkpoint, cancellation, and wakeup
    mechanics from `TfmWorkflow.Auto`. Prove it with a synthetic linear span, an inserted phase, a
    requirement-selected branch, and termination.

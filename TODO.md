@@ -48,8 +48,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Rewrite removals as payments, covering standard projects and Kuiper Cooperative, Stormcraft, Water Import from Europa, and similar mechanics.
 - Rethink task selection holistically; queue order has no domain meaning, so require an id or explicit match unless exactly one task applies.
 - Rethink autoexec as a coherent project: distinguish expected domain failures from defects and simplify `autoExecNext`.
-- Finish separating Canon selectors/providers from selected rulesets; never read an unselected bundle's payload.
-- Separate Canon's catalog from setup-world construction and playable-game assembly, and split TfmRuleset's generic declaration aggregation/validation from Terraforming Mars registries and bundle-selection policy.
+- Separate Authority data from premise resolution, and split `TfmAuthority`'s generic declaration aggregation/validation into `Authority` from the Terraforming Mars registries in `TfmAuthority`.
 - Extract shared `Definition`-to-`ClassDeclaration` assembly without hiding category-specific behavior.
 - Follow `docs/agents/API.md`: simplify the existing engine into a flat, trusted workhorse by removing gameplay power layers and `godMode()`, keeping integrity-preserving mutation internal, and enforcing REPL color modes locally in `script`; design the restrictive client API separately. Then replace rollback speculation with disposable game-state forks that overlay components and live effects, copy the small task queues, and extend event history from a captured prefix.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `canon`, and `script` APIs.
