@@ -102,12 +102,14 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
       val decisions =
           tasks.matching { it.instruction.toString().startsWith("ColonyProduction<") }.toList()
       p1.reviseTask(decisions[0], "ColonyProduction<Luna>")
-      if (decisions[0] in tasks) p1.doTask(decisions[0])
+      if (decisions[0] in tasks) {
+        p1.doTask("ColonyProduction<Luna>", tasks.ids().indexOf(decisions[0]) + 1)
+      }
       shouldThrow<NarrowingException> {
         doTask("FlownTradeFleet<Luna> FROM ReserveTradeFleet")
       }
       p1.reviseTask(decisions[1], "Ok")
-      if (decisions[1] in tasks) p1.doTask(decisions[1])
+      if (decisions[1] in tasks) p1.doTask("Ok", tasks.ids().indexOf(decisions[1]) + 1)
     }
 
     p1.assertCounts(
