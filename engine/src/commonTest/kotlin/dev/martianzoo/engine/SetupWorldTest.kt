@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -58,6 +59,16 @@ internal class SetupWorldTest {
 
     setupWorld.manual("-CorporateEraExpansion")
     setupWorld.count("CorporateEraExpansion") shouldBe 0
+  }
+
+  @Test
+  fun soloSetupSelectsItsSupportingGameplayClasses() {
+    val setupWorld = newSetupWorld(players = 1)
+
+    setupWorld.gameplay(ENGINE).count("GameplayClassRoot") shouldBe 2
+    val premise = Canon.assemble(setupWorld.reader)
+    premise.rootClassNames.shouldContain(cn("FakeResourceGiver"))
+    premise.rootClassNames.shouldContain(cn("FakeResourceHolder"))
   }
 
   @Test

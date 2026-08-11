@@ -9,7 +9,7 @@ CLASS SoloMode : Mode {
   GenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
   -SoloGenerationsLeft IF MAX 0 SoloGenerationsLeft: LastCall
-  SetupPhase: SoloOpponent, -6 TerraformRating<Player1>
+  SetupPhase: -6 TerraformRating<Player1>
   EndPhase: End THEN FinalScore
 }
 
@@ -41,11 +41,34 @@ CLASS SoloVictoryCheck : Signal, System
 
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner {
+  HAS =1 This
+  SetupPhase: SoloStartingPlacement
+}
+
+"Creates the two independent city-and-greenery placement tasks in solo setup"
+CLASS SoloStartingPlacement : Signal, System {
   HAS MAX 1 This
-  This: 99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat
-  This: PROD[99, 99 Steel, 99 Titanium, 99 Plant, 99 Energy, 99 Heat]
-  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea>>)>
-  This: CityTile<LandArea> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea>>)>
+  This: CityTile<LandArea, SoloOpponent> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea, SoloOpponent>>), SoloOpponent>
+  This: CityTile<LandArea, SoloOpponent> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<LandArea, SoloOpponent>>), SoloOpponent>
+}
+
+"Creates the neutral solo stock of each standard resource and its production"
+CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
+  HAS =1 This
+  SetupPhase: 11 StandardResource
+  SetupPhase: PROD[11 StandardResource]
+  -StandardResource BY Player: StandardResource BY Engine
+  StandardResource BY Player: -StandardResource BY Engine
+  PROD[-StandardResource] BY Player: PROD[StandardResource] BY Engine
+  PROD[StandardResource] BY Player: PROD[-StandardResource] BY Engine
+}
+
+"A neutral solo-mode holder for each kind of removable card resource"
+CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent> {
+  HAS =1 This
+  SetupPhase: 11 CardResource<This>
+  -CardResource<This> BY Player: CardResource<This> BY Engine
+  CardResource<This> BY Player: -CardResource<This> BY Engine
 }
 
 // Multiplayer mode

@@ -181,7 +181,13 @@ public object Canon :
     val setupComponents = setupOptions + selectedColonies
     val initialComponents = setupComponents.map { it.expression.toString() }
     val componentRoots = setupComponents.mapTo(linkedSetOf()) { it.className }
-    val roots = componentRoots + ruleset.allDefinitions.classNames() + TERRAFORMING_MARS
+    val gameplayClassRoots =
+        setupWorld.getComponents("GameplayClassRoot").elements.mapTo(linkedSetOf()) { it.className }
+    val roots =
+        componentRoots +
+            gameplayClassRoots +
+            ruleset.allDefinitions.classNames() +
+            TERRAFORMING_MARS
     return GamePremise(ruleset, roots, Player.players(players) + ENGINE, initialComponents)
   }
 

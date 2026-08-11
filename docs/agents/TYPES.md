@@ -212,17 +212,34 @@ narrowed further by nominal subtyping or dependency narrowing.
 
 ### 3.5 Introducing another dependency
 
-A resource cube on a card needs both an owner and the particular card that holds it. `Cardbound`
-adds that second relationship while retaining the owner relationship supplied by `Owned`:
+A component on a card needs both an owner and the particular card that holds it. `Cardbound` adds
+that second relationship while retaining the owner relationship supplied by `Owned`:
 
 ```pets
 ABSTRACT CLASS Owned<Anyone>
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
+ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
 ```
 
-`Cardbound` therefore has an inherited owner dependency, narrowed from `Anyone` to `Owner`, followed
-by its newly declared `CardFront<Owner>` dependency. A microbe cube on Player 1's Ants card is
-written `Microbe<Player1, Ants<Player1>>`, with inherited dependencies before newly declared ones.
+`Cardbound` therefore has an inherited owner dependency, narrowed from `Anyone` to `Player`, followed
+by its newly declared `CardFront<Player>` dependency. A tag on Player 1's Ants card is written
+`MicrobeTag<Player1, Ants<Player1>>`, with inherited dependencies before newly declared ones.
+
+Card resources similarly declare a `ResourceHolder<Class<CardResource>, Owner>` dependency. A
+`ResourceCard` is a `ResourceHolder` as well as a `CardFront`; solo mode also provides non-card
+holders owned by `SoloOpponent`. This keeps the holder's owner linked to the resource's owner
+without making neutral holders into cards.
+
+```pets
+ABSTRACT CLASS Owned<Anyone> {
+  ABSTRACT CLASS Resource {
+    ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>>
+  }
+}
+CLASS Animal : CardResource<ResourceHolder<Class<Animal>>>
+```
+
+The concrete resource declaration narrows its holder to the matching resource type. Pets collects
+animals and Ants collects microbes, so `Animal<Pets>` resolves while `Animal<Ants>` is a type error.
 
 ### 3.6 Writing dependency bounds
 
@@ -774,19 +791,6 @@ records which card was played without depending on the removed component. An exp
 `Class<EventCard>` would remain fixed; it would not specialize merely because it happened to
 resolve like `Class<This>` at some point.
 
-`This` also specializes inside inherited dependency bounds. The canon uses that to ensure a card
-resource sits only on a card that collects that resource kind:
-
-```pets
-ABSTRACT CLASS ResourceCard<Class<CardResource>>
-ABSTRACT CLASS CardResource : Resource, Cardbound<ResourceCard<Class<This>>>
-```
-
-For `Animal`, the card bound becomes `ResourceCard<Class<Animal>>`; for `Microbe`, it becomes
-`ResourceCard<Class<Microbe>>`. Pets collects animals and Ants collects microbes, so
-`Animal<Pets>` resolves while `Animal<Ants>` is a type error. A literal
-`Class<CardResource>` would not specialize in the subtype.
-
 The trigger forms `This:` and `-This:` are self-event selectors. They respond only to copies of
 the effect-bearing exact type added or removed by the current change. A change of several copies
 scales the instruction by that number; other copies already in the graph do not multiply it. Inside
@@ -814,14 +818,14 @@ bound them. They are supplied values, while an implicit variable is a choice wai
 A repeated expression shares a variable only across related source regions.
 
 **Within a class signature.** Two written bounds share a variable when the expressions match and
-bind the same dependency key. This says that a tag or resource cube belongs to whoever owns its
+bind the same dependency key. This says that a cardbound component belongs to whoever owns its
 card:
 
 ```pets
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
+ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
 ```
 
-Both `Owner` occurrences bind `Owned_0`, one through the nested `CardFront` and one through the
+Both `Player` occurrences bind `Owned_0`, one through the nested `CardFront` and one through the
 declared supertype. They are one owner choice. Matching text bound to different dependency keys stays
 independent. A repeated bound carrying arguments is matched as a whole expression, not merely by
 names nested inside it. If a subtype adds a variable sharing a position with an inherited variable,
@@ -897,7 +901,7 @@ A class signature enforces this whenever a type is formed. Intersections propaga
 positions of one variable until no bound changes. The tag hierarchy provides a real example:
 
 ```pets
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
+ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player> {
   ABSTRACT CLASS Tag : Atomized {
     CLASS SpaceTag
   }

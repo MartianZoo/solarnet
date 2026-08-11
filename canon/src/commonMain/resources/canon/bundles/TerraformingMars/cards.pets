@@ -22,7 +22,7 @@ ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed a
     }
 
     "A CardFront that can collect resources"
-    ABSTRACT CLASS ResourceCard<Class<CardResource>>
+    ABSTRACT CLASS ResourceCard : ResourceHolder
   }
 
   "A card in your played-events pile"
@@ -49,13 +49,12 @@ CLASS MapBonus<Class<Resource>, MarsArea> : Custom
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
 CLASS GetEventVps<Class<CardFront>> : Owned, Custom // need Owned?
 
-"Anything that 'lives on' a card / couldn't exist without the card"
-// Owner is used rather than Player because SoloOpponent must eventually supply removable card resources
-// without itself becoming a Player. The CardFront dependency still prevents that today; it needs a
-// neutral resource-host model.
-// Repeating Owner links the Cardbound's owner to the CardFront's owner.
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
+"Anything that can hold a particular kind of card resource"
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
 
+"Anything that 'lives on' a card / couldn't exist without the card"
+// Repeating Player links the Cardbound's owner to the CardFront's owner.
+ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player> {
   ABSTRACT CLASS Tag : Atomized {
     HAS MAX 2 This
 
@@ -65,12 +64,6 @@ ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
 
     ABSTRACT CLASS PlanetTag { CLASS EarthTag, JovianTag }
   }
-
-  // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.
-  "A resource cube living on some particular card, such as `Animal<Card172>`"
-  ABSTRACT CLASS CardResource : Resource, Cardbound<ResourceCard<Class<This>>> {
-    DEFAULT +CardResource.
-  }
 }
 
 "Cards like Indentured Workers leave this in play until the next card-play"
@@ -79,4 +72,4 @@ ABSTRACT CLASS NextCardEffect : Owned, Generational {
 }
 
 "Copies the single immediate production box on a chosen card"
-CLASS CopyProductionBox : Cardbound, Custom
+CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom

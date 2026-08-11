@@ -207,6 +207,6 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
-    parseOneLinerClass("CLASS $type : CardResource")
+    parseOneLinerClass("CLASS $type : CardResource<ResourceHolder<Class<$type>>>")
   }
 }
