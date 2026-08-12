@@ -7,7 +7,7 @@ Solarnet's goals in descending order:
 1. Correctness -- I want it to *eventually* implement the game rules with absolute fidelity. It's doing pretty well so far.
 2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and adding cards is not the priority at the moment (I have over 450 working already).
 3. Simplicity -- I'm trying to keep the Pets language (and the engine itself) as simple and elegant as I can. This will be a constant push-and-pull, though.
-4. Composability -- I'm writing this as series of libraries that other TfM-related projects could theoretically use for other purposes. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a world), "repl" (the command-line interface), and "canon" (a data set containing the officially published cards and other components). At some point I plan to cleave off all the actually-TfM-specific parts of it into another separate module.
+4. Composability -- I'm writing this as series of libraries that other TfM-related projects could theoretically use for other purposes. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a Game World), "repl" (the command-line interface), and "canon" (a data set containing the officially published cards and other components). At some point I plan to cleave off all the actually-TfM-specific parts of it into another separate module.
 
 Please notice **what is not on this list**!
 

@@ -9,7 +9,7 @@ Here's an overview of the component classes that (currently) make up the core of
 
 ## Communal / non-player-owned
 
-First, `Component` is the root of the class hierarchy; *every* instance of anything in a world is always a `Component`.
+First, `Component` is the root of the Class hierarchy; *every* instance of anything in a Game World is always a `Component`.
 
 ### Global parameters
 
@@ -19,7 +19,7 @@ You can pretty easily guess why the `TemperatureStep` class declaration includes
 
 These classes contain effects for track bonuses; for example `OxygenStep` says `This IF =8 This: TemperatureStep`. The effect is considered every single time oxygen is raised, and triggers only when oxygen reaches 8%.
 
-The definition of the GlobalParameter class includes the line `+This.`. Any gain/remove instruction in PETS can be followed by an "intensity": either `!` meaning "mandatory", `?` meaning "optional", or `.` meaning "to the extent possible". The `Component` class sets a default gain intensity of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of GlobalParameter instances default to "if possible". If one can't be added due to hitting the maximum limit, the instruction will still be executable and simply do nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
+The definition of the `GlobalParameter` Class includes the line `+This.`. Any gain/remove Instruction in PETS can be followed by a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `.` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". If one can't be added due to hitting the maximum Limit, the Instruction will still be executable and simply do nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
 
 ### Maps
 

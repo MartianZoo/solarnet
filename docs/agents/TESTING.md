@@ -65,7 +65,7 @@ setup, or every incidental resource movement. Use a zero scalar, such as `0 Plan
 `PROD[0 Energy]`, to assert that a particular type did not change.
 
 Cover meaningful boundaries, negative cases, non-targets, and option combinations rather than only
-the happy path. A filtering or linkage test should include several tempting components that must not
+the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
 
 `BugsTest` is different: its passing tests characterize known incorrect behavior, and their names

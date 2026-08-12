@@ -33,7 +33,7 @@ should remain the default until the state, chance, and observation boundaries be
 5. Use a deterministic, timeline-tracked chance source. A mutable `Random` instance outside the
    event history is unacceptable: rollback, replay, forks, and duplicated-seed evaluation must
    reproduce the same choice.
-6. A player reader is a projection of the master world, not the reader used by the rules engine.
+6. A Player reader is a projection of the authoritative Game World, not the reader used by the rules engine.
    It maps secret or not-yet-committed card identities to an abstract face bound before answering
    queries. Even a player's own newly drawn card stays sealed while the player can still roll back
    past its draw. Scrubbing only `getComponents()` would still allow exact `count()` queries to
@@ -223,7 +223,7 @@ surface:
 - it recognizes only a pure gain or removal of a card-back kind whose location was omitted and
   filled by the ordinary contextual default;
 - it preserves the authored face constraint on both sides as one linked choice;
-- it does not select a face, consult the deck, or mutate the world;
+- it does not select a face, consult the deck, or mutate the Game World;
 - it never rewrites an already explicit `FROM` instruction; and
 - an explicit pure gain/removal of a physical back is rejected during ordinary real-card play,
   except at the controlled setup boundary.
@@ -253,7 +253,7 @@ mode-selected declarations before proceeding; do not accumulate exclusions throu
 ## Selecting the card from a deck
 
 An expanded draw remains abstract because several exact source components match. That is a choice,
-but not the player's choice. Chance is a narrowing authority:
+but not the Player's choice. Chance, rather than the Task's Assignee, selects this narrowing:
 
 1. Query the master component graph for exact source components satisfying the whole source type.
 2. Apply the operation's physical search rule: next shuffled card, first matching card with the
@@ -365,7 +365,7 @@ move chance resolution into a timeline-recorded preparation operation. It must n
 event from deep inside an otherwise read-only `Instructor.prepare()` call. This transaction detail
 must be prototyped before implementing card data.
 
-The seed, chance position, and secret decision events belong to the trusted world. A player-facing
+The seed, chance position, and secret decision Events belong to the trusted Game World. A Player-facing
 reader must not expose enough information to reconstruct future cards. Duplicated-seed evaluation
 can still supply the same secret seed to several environments.
 
@@ -380,7 +380,7 @@ that decision sealed until commitment.
 
 The rules engine, workflow, setup assembler, and chance selector require the exact master reader.
 Never run them against a scrubbed reader. The later client boundary may expose another
-`GameReader`-shaped projection scoped to a viewer, but it is a read model over the master world.
+`GameReader`-shaped projection scoped to a viewer, but it is a read model over the authoritative Game World.
 
 ### Base visibility after commitment
 
@@ -445,7 +445,7 @@ Some workflows need a choice based on newly revealed cards. Such a task cannot e
 options while its reveal remains reversible. Treat it as a **commit-and-reveal barrier**:
 
 1. complete and validate every deterministic pre-reveal choice which must remain undoable;
-2. perform the chance move in the trusted world while its identity is still sealed;
+2. perform the chance move in the trusted Game World while its identity is still sealed;
 3. commit through the chance outcome;
 4. publish the newly visible cards; and
 5. only then offer the card-dependent choice, whose own later work may be speculative from the new
@@ -690,7 +690,7 @@ These are deliberately unresolved because code or supported rules must answer th
 - final names for the two draft locations;
 - whether one global `Revealed` location is sufficient once real reveal workflows are tested;
 - the exact transaction shape for a chance decision made while preparing a task;
-- the exact relationship among the world's rollback floor, private fork floors, and per-session
+- the exact relationship among the Game World's rollback floor, private fork floors, and per-session
   published knowledge horizons;
 - which real `F` counterparts search-and-shuffle versus reveal-and-discard;
 - whether any selected supported rule requires persistent deck order; and
