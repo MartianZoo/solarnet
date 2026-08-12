@@ -17,6 +17,20 @@ Do not propose any more than slight correctness updates to the human-authored do
    Mocha still requests 6.x; the latter preserves Kotlin/JS's safer default of not running package
    lifecycle scripts.
 
+## Test Fixture Reconciliations
+
+- Never call `sneak` directly in a game fixture. Use the fixture's `mistake` helper for an
+  evidence-backed player error that requires a direct state adjustment.
+- Place `mistake` as late in the timeline as the sourced assertions allow, and precede it with a
+  comment saying which later step requires the adjustment.
+- Never hide a manual or other raw state reconciliation inside the body of an unrelated
+  action, card play, turn, or phase merely because that body provides an executable context. Keep
+  the adjustment as a standalone timeline statement at the evidence-supported boundary. If a
+  prepared task prevents that, use an explicit fixture-level mechanism or fix the helper/API; do
+  not make the unrelated action appear to have caused the adjustment.
+- A missing consequence may be handled inside an action body only when it is genuinely caused by
+  that exact action, and the comment must name that causal relationship.
+
 ## When Changing Public APIs
 
 1. When changing APIs there is no need to preserve the old API for compatibility, as the project has no known clients.

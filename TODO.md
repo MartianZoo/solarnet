@@ -80,6 +80,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Delete or replace `ReluctantClassLoadingTest`'s exact cumulative card-count assertion; it is a
+  pure content change detector and currently requires manual updates whenever a card is added.
 - Make class-literal parameters specialize inherited generic effects through a subclass, so solo
   resource helpers can share replenishment behavior without a holder/resource dependency cycle.
 - Define the `script` command's relative-path policy and correct its help text, which currently

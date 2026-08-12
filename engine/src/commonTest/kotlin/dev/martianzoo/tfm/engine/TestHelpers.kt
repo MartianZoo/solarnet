@@ -187,7 +187,7 @@ object TestHelpers {
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
   private const val ZERO_SCALAR_SENTINEL = 987_654_321
-  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|])")
+  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|\\])")
 
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")
