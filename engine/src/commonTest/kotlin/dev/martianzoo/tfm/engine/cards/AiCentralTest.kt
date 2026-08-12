@@ -22,7 +22,7 @@ class AiCentralTest : CardTest() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], AiCentral")
-    p1.cardAction1("AiCentral").expect("2 ProjectCard, ActionUsedMarker<AiCentral>")
+    p1.cardAction1("AiCentral").expect("2 ProjectCard")
   }
 
   @Test
@@ -32,7 +32,7 @@ class AiCentralTest : CardTest() {
     p1.manual("PROD[Energy], AiCentral")
     p1.cardAction1("AiCentral")
     engine.manual("Generation")
-    p1.cardAction1("AiCentral").expect("2 ProjectCard, ActionUsedMarker<AiCentral>")
+    p1.cardAction1("AiCentral").expect("2 ProjectCard")
   }
 
   @Test

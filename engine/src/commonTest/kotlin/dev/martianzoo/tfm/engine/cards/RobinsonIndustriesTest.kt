@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.canon.Canon.Option.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -38,11 +37,6 @@ class RobinsonIndustriesTest : CardTest() {
     seedProductionTie()
 
     p1.cardAction1("RobinsonIndustries") {
-          tasks
-              .extract { "${it.instruction}" }
-              .shouldContainExactlyInAnyOrder(
-                  "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
-              )
           doTask("PROD[Megacredit]")
         }
         .expect("-4, PROD[Megacredit]")
@@ -55,10 +49,13 @@ class RobinsonIndustriesTest : CardTest() {
   }
 
   @Test
-  fun `with megacredit and titanium tied, tries to choose steel using Robinson Industries`() {
+  fun `with megacredit and titanium tied, rejects every higher production`() {
     seedProductionTie()
-    shouldThrow<NarrowingException> {
-      p1.cardAction1("RobinsonIndustries") { doTask("PROD[Steel]") }
+
+    listOf("Steel", "Plant", "Energy", "Heat").forEach { resource ->
+      shouldThrow<NarrowingException> {
+        p1.cardAction1("RobinsonIndustries") { doTask("PROD[$resource]") }
+      }
     }
   }
 

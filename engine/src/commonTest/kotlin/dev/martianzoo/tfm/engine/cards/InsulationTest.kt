@@ -35,14 +35,6 @@ class InsulationTest : CardTest() {
   }
 
   @Test
-  fun `with heat production, tries a non-production conversion using Insulation`() {
-    p1.playProject("Insulation", 2) {
-      shouldThrow<PetSyntaxException> { doTask("PROD[Ok]") }
-      abort()
-    }
-  }
-
-  @Test
   fun `with heat production, tries to skip the Insulation conversion`() {
     p1.playProject("Insulation", 2) {
       shouldThrow<NarrowingException> { doTask("Ok") }

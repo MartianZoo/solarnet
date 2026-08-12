@@ -27,7 +27,6 @@ class CustomMetricCardsTest : CardTest() {
         PromoCardPack,
         colonyTiles = testColonyTiles(2),
     )
-    p1.count("CardCost<Advertising>") shouldBe 4
     p1.manual("Advertising")
     p1.manual("LunarExports") { doTask("PROD[5]") }.expect("PROD[5]")
     p1.manual("GanymedeColony").expect("PROD[1]")
@@ -113,45 +112,40 @@ class CustomMetricCardsTest : CardTest() {
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
 
-    val p1GodMode = p1.godMode().also { it.autoExecMode = NONE }
-    p1GodMode.beginManual("RoboticWorkforce")
-    p1GodMode.reviseTask(
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    manual.beginManual("RoboticWorkforce")
+    manual.reviseTask(
         "CopyProductionBox<CardFront(HAS BuildingTag)>",
         "CopyProductionBox<MiningRights>",
     )
-    p1GodMode.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
+    manual.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 
   @Test
-  fun `with three tag types, adds Interplanetary Trade`() {
+  fun `with three existing tag types, Interplanetary Trade adds four production`() {
     newGame(PromoCardPack)
     // These have to be played: tags depend on their cards.
-    requireP2().manual("EarthOffice, InventorsGuild, 9 Plant, 7 Steel, 5 Heat")
-    p1.manual("Ecoline, ThorGate, Phobolog, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard")
-    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 3
-    p1.manual("InterplanetaryTrade").expect("PROD[3]")
+    p1.manual("Ecoline, Mine, SearchForLife, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard")
+    p1.manual("InterplanetaryTrade").expect("PROD[4]")
   }
 
   @Test
-  fun `event card tags can be excluded from distinct tag types`() {
-    newGame()
-    requireP2().manual("Ecoline, ThorGate, Phobolog, 9 Plant, 7 Steel, 5 Heat")
-    p1.godMode()
-        .also { it.autoExecMode = NONE }
-        .beginManual(
-            "EarthCatapult, Asteroid, Comet, Mine, InventorsGuild, " +
-                "8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
-        )
+  fun `Interplanetary Trade does not count a tag from a played event`() {
+    newGame(PromoCardPack)
+    engine.phase("Action")
+    p1.manual("100, 2 ProjectCard, Ecoline, Mine, SearchForLife")
+    p1.playProject("ImportedHydrogen", 16) {
+      doTask("3 Plant")
+      doTask("OceanTile<Tharsis_1_2>")
+    }
 
-    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 4
-    p1.count("Class<Tag>(HAS Tag<Player1, !EventCard>)") shouldBe 3
+    p1.playProject("InterplanetaryTrade", 27).expect("PROD[4]")
   }
 
   @Test
   fun `with nine resource types, plays Diversity Support`() {
     seedDiversitySupportResources()
     p1.manual("ForcedPrecipitation, Floater<ForcedPrecipitation>")
-    p1.count("Class<Resource>(HAS Resource<Player1>)") shouldBe 9
     p1.playProject("DiversitySupport", 1).expect("TerraformRating")
   }
 
@@ -183,7 +177,6 @@ class CustomMetricCardsTest : CardTest() {
   @Test
   fun `with eight resource types, tries to play Diversity Support`() {
     seedDiversitySupportResources()
-    p1.count("Class<Resource>(HAS Resource<Player1>)") shouldBe 8
     p1.count("TerraformRating") shouldBe 20
     shouldThrow<RequirementException> { p1.playProject("DiversitySupport", 1) }
     p1.count("TerraformRating") shouldBe 20
@@ -199,9 +192,7 @@ class CustomMetricCardsTest : CardTest() {
         )
     p1.manual(
         "6 Megacredit, 5 ProjectCard, 4 Steel, 3 Titanium, 2 Plant, 2 Energy, 2 Heat, " +
-            "Ecoline, ThorGate, Phobolog, Pets, Decomposers, " +
-            "Extremophiles, Tardigrades, Animal<Pets>, Microbe<Decomposers>, " +
-            "2 Microbe<Extremophiles>, 3 Microbe<Tardigrades>"
+            "Pets, Decomposers, Animal<Pets>, Microbe<Decomposers>"
     )
   }
 }

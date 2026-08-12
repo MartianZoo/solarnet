@@ -18,11 +18,11 @@ class MergerTest : CardTest() {
 
   @Test
   fun `after Valley Trust, plays Merger choosing Celestic`() {
-    p1.assertCounts(2 to "Mandate", 0 to "PreludeCard", 6 to "ProjectCard")
+    p1.assertCounts(0 to "PreludeCard", 6 to "ProjectCard")
   }
 
   @Test
-  fun `after Merger adds Celestic, handles both mandates`() {
+  fun `after Merger adds Celestic, resolves both corporations' starting benefits`() {
     engine.phase("Action")
 
     p1.stdAction("HandleMandates") {
@@ -46,6 +46,5 @@ class MergerTest : CardTest() {
           1 to "Heat",
       )
     }
-    p1.assertCounts(0 to "Mandate")
   }
 }

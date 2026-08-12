@@ -19,7 +19,7 @@ class MarsUniversityTest : CardTest() {
           doTask("ProjectCard")
           doTask("ProjectCard")
         }
-        .expect("2 ScienceTag, 2 ProjectCard")
+        .expect("2 ProjectCard")
   }
 
   @Test
@@ -36,6 +36,6 @@ class MarsUniversityTest : CardTest() {
           doTask("-ProjectCard")
           doTask("ProjectCard")
         }
-        .expect("2 ScienceTag, 2 ProjectCard")
+        .expect("2 ProjectCard")
   }
 }

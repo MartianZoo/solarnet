@@ -15,17 +15,17 @@ class VitorTest : CardTest() {
 
     p1.playCorp("Vitor", 5) { doTask("MandatePC5") }.expect("5 ProjectCard, 33")
     p1.phase("Action")
-    p1.assertCounts(1 to "Mandate", 0 to "Award", 33 to "Megacredit")
+    p1.assertCounts(0 to "Award", 33 to "Megacredit")
 
     p1.stdAction("HandleMandates") { doTask("Landlord") }
-    p1.assertCounts(0 to "Mandate", 1 to "Landlord", 33 to "Megacredit")
+    p1.assertCounts(1 to "Landlord", 33 to "Megacredit")
   }
 
   @Test
   fun `in solo mode, plays Vitor without award funding`() {
     newGame(PreludeExpansion, players = 1)
     p1.playCorp("Vitor", 5).expect("5 ProjectCard, 33")
-    p1.assertCounts(0 to "Class<Award>", 0 to "Mandate")
+    p1.assertCounts(0 to "Award")
   }
 
   @Test

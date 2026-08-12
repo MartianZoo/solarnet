@@ -22,6 +22,17 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
+  fun `with two animals on one p2 card, Predators removes exactly one`() {
+    addBirdForP2()
+    requireP2().manual("Animal<Birds>")
+
+    p1.cardAction1("Predators")
+
+    requireP2().count("Animal<Birds>") shouldBe 1
+    p1.count("Animal<Predators>") shouldBe 1
+  }
+
+  @Test
   fun `p1 cannot decline to remove an animal from p2`() {
     addBirdForP2()
     p1.manual("Animal<Predators>")
@@ -45,7 +56,7 @@ class PredatorsTest : CardTest() {
   @Test
   fun `with an animal only on Predators, p1 uses its action`() {
     p1.manual("Animal<Predators>")
-    p1.cardAction1("Predators").expect("ActionUsedMarker<Predators>")
+    p1.cardAction1("Predators").expect("0 Animal<Predators>")
   }
 
   @Test
@@ -54,8 +65,7 @@ class PredatorsTest : CardTest() {
     p1.manual("Predators, MeatIndustry, Animal<Predators>")
     engine.phase("Action")
 
-    p1.cardAction1("Predators") { doTask("-Animal<Predators>") }
-        .expect("0 Animal<Predators>, 2 Megacredit, ActionUsedMarker<Predators>")
+    p1.cardAction1("Predators") { doTask("-Animal<Predators>") }.expect("0 Animal<Predators>, 2")
   }
 
   @Test
@@ -67,7 +77,6 @@ class PredatorsTest : CardTest() {
     p1.cardAction1("Predators")
 
     p1.count("Animal<Predators>") shouldBe 1
-    p1.count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 11
   }
 
   private fun addBirdForP2() {

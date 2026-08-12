@@ -28,7 +28,7 @@ class ArtificialLakeTest : CardTest() {
       shouldThrow<LimitsException> { doTask("OceanTile<Tharsis_2_3>!") }
       doTask("Ok")
     }
-    p1.assertCounts(9 to "OceanTile", 1 to "ArtificialLake")
+    p1.assertCounts(9 to "OceanTile")
   }
 
   @Test

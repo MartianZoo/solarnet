@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -37,26 +38,33 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Incorporator counts inexpensive active and automated projects only`() {
-    newGame(UtopiaPlanitiaMapOption, PreludeExpansion)
-    p1.manual("Ecoline, Donation, SearchForLife, Mine, PlayedEvent<Class<InventionContest>>")
+  fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
+    newGame(UtopiaPlanitiaMapOption)
+    val p2 = requireP2()
+    p1.manual("8, Ecoline, EarthCatapult, Asteroid")
+    p2.manual("Mine")
+    engine.phase("Action")
 
-    p1.count("CardFront") shouldBe 4
-    p1.count("PlayedEvent") shouldBe 1
-    p1.count("ActiveCard(HAS MAX 10 CardCost) OR AutomatedCard(HAS MAX 10 CardCost)") shouldBe 2
+    p1.stdAction("FundAwardSA") { doTask("Incorporator") }
+    engine.phase("End")
+
+    p1.assertCounts(22 to "VictoryPoint")
+    p2.assertCounts(25 to "VictoryPoint")
   }
 
   @Test
-  fun `Suburbian counts tiles not fully surrounded by neighboring Mars areas`() {
+  fun `Suburbian rewards a tile on the map edge over an interior tile`() {
     newGame(UtopiaPlanitiaMapOption)
-    p1.manual("CityTile<UtopiaPlanitia_5_5>")
-    val otherPlayer = requireP2()
-    otherPlayer.manual("CityTile<UtopiaPlanitia_1_1>")
-    p1.manual("Suburbian, TallyAward<Suburbian>")
-    otherPlayer.manual("TallyAward<Suburbian>")
+    val p2 = requireP2()
+    p1.manual("8, CityTile<UtopiaPlanitia_1_1>")
+    p2.manual("CityTile<UtopiaPlanitia_5_5>")
+    engine.phase("Action")
 
-    p1.count("AwardTally<Player1, Suburbian>") shouldBe 0
-    otherPlayer.count("AwardTally<Player2, Suburbian>") shouldBe 1
+    p1.stdAction("FundAwardSA") { doTask("Suburbian") }
+    engine.phase("End")
+
+    p1.assertCounts(25 to "VictoryPoint")
+    p2.assertCounts(20 to "VictoryPoint")
   }
 
   @Test
@@ -71,20 +79,18 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Utopia milestone metrics count combined metal production and card resource types`() {
+  fun `claims Metallurgist for combined metal production and Trader for three resource types`() {
     newGame(UtopiaPlanitiaMapOption)
-    val otherPlayer = requireP2()
     p1.manual(
-        "PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, Predators, " +
-            "Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"
+        "16, PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, " +
+            "Predators, Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"
     )
-    otherPlayer.manual("PROD[10 Steel]")
+    engine.phase("Action")
 
-    p1.count("PROD[Steel OR Titanium]") shouldBe 6
-    otherPlayer.count("PROD[Steel OR Titanium]") shouldBe 10
-    p1.count("Class<CardResource>(HAS CardResource<Player1>)") shouldBe 3
-    p1.manual("Metallurgist")
-    p1.count("Metallurgist") shouldBe 1
+    p1.stdAction("ClaimMilestoneSA") { doTask("Metallurgist") }.expect("-8, Milestone")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Trader") }.expect("-8, Milestone")
+
+    p1.assertCounts(2 to "Milestone")
   }
 
   @Test

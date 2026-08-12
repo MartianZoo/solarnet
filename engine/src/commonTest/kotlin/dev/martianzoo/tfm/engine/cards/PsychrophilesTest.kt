@@ -17,7 +17,7 @@ class PsychrophilesTest : CardTest() {
   @Test
   fun `without microbes, plays a plant-tag card using Psychrophiles`() {
     p1.manual("Psychrophiles")
-    p1.playProject("AdaptedLichen", 9) { doTask("Ok") }.expect("AdaptedLichen")
+    p1.playProject("AdaptedLichen", 9) { doTask("Ok") }.expect("PROD[Plant]")
   }
 
   @Test
@@ -32,7 +32,7 @@ class PsychrophilesTest : CardTest() {
     p1.playProject("AdaptedLichen", 7) {
           doTask("-Microbe<Psychrophiles>! THEN -2 Owed.")
         }
-        .expect("-Microbe<Psychrophiles>, AdaptedLichen")
+        .expect("-Microbe<Psychrophiles>, PROD[Plant]")
   }
 
   @Test
@@ -41,7 +41,7 @@ class PsychrophilesTest : CardTest() {
     p1.playProject("AdaptedLichen", 0) {
           doTask("-5 Microbe<Psychrophiles>! THEN -10 Owed.")
         }
-        .expect("-5 Microbe<Psychrophiles>, AdaptedLichen")
+        .expect("-5 Microbe<Psychrophiles>, PROD[Plant]")
   }
 
   @Test

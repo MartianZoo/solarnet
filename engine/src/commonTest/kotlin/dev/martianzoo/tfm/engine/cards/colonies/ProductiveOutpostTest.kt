@@ -10,8 +10,8 @@ class ProductiveOutpostTest : ColoniesCardTest() {
 
   @Test
   fun `pays each bonus for colonies the player owns`() {
-    p1.manual("2 Colony<Luna>, Colony<Io>")
+    p1.manual("Colony<Luna>, Colony<Io>, Colony<Triton>")
 
-    p1.manual("ProductiveOutpost").expect("4 Megacredit, 2 Heat")
+    p1.manual("ProductiveOutpost").expect("2, 2 Heat, Titanium")
   }
 }
