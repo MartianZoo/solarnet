@@ -154,9 +154,9 @@ An author-local “automatic `THEN`” could be useful for choice-free bookkeepi
 chosen stage, and might also shorten a few hidden-marker creation/cleanup sequences. Its semantics
 must not be confused with “after all consequences of A”: that stronger operation is what Head Start
 and event cleanup need. A simple inline tail would also not by itself remove Viron's complement,
-because Viron's queued target is prepared against the later world in which the marker already
+because Viron's queued target is prepared against the later Game World in which the marker already
 exists. The feature is therefore not yet justified as one general sequencing primitive; investigate
-trigger-time linkage/frozen choice, forced continuation, and descendant-completion as separate
+Trigger-time Type-variable binding/frozen choice, forced continuation, and descendant-completion as separate
 semantics before adding syntax.
 
 ## Audit by verdict
@@ -188,7 +188,7 @@ semantics before adding syntax.
 ### These require no authored sequencing rule
 
 - Mining Rights and Mining Area cannot produce from their unique tile before that tile exists.
-  `THEN` still gives useful linkage and presentation, but legality already supplies the order.
+  `THEN` still gives useful Type-variable binding and presentation, but legality already supplies the order.
 - Immigrant City's city, production reductions, and ordinary `CityTile` production reaction join
   the pool. At -4 M€ production, the reduction is naturally illegal until the city reaction supplies
   1 production; otherwise the player may choose either order.
@@ -254,7 +254,7 @@ semantics before adding syntax.
   University activation may itself be split around another remains under audit.
 
 Natural unavailability is preferable to an explicit ordering construct when it exactly matches the
-rules. It keeps the task pool honest: A happens first only in worlds where B cannot yet be done.
+rules. It keeps the Task pool honest: A happens first only in Game Worlds where B cannot yet be done.
 
 ## Procedural and phase precedence
 

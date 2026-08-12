@@ -9,15 +9,15 @@
 
 An **Authority** is one coherent source of everything Solarnet may know about a game. It provides:
 
-- every Pets class declaration in its namespace;
-- structured definitions such as cards, milestones, awards, maps, standard actions, and colony tiles;
+- every directly authored Rule-Class Declaration in its namespace;
+- structured Definitions that generate Content-Class Declarations, such as cards, milestones, awards, maps, standard actions, and colony tiles;
 - vocabulary and other descriptive metadata;
 - declarative premise defaults and validity rules;
 - the exceptional custom metric and instruction implementations that cannot be expressed as data.
 
 An Authority is almost entirely a data provider, even though much of that data describes behavior. Custom Kotlin implementations are the deliberate exception, not a reason for the Authority to make live game decisions.
 
-Published Terraforming Mars is one Authority. A versioned rebalance or a variant with changed fundamental behavior is another. Authorities may reuse a canonical class name because their namespaces never mix.
+Published Terraforming Mars is one Authority. A versioned rebalance or a variant with changed fundamental behavior is another. Authorities may reuse a Class Name because their namespaces never mix.
 
 Almost every operation uses exactly one Authority. An Authority may be assembled internally from several providers, but callers and playable games still see one Authority. Provider composition is an implementation detail that must resolve duplicate ownership before exposing the namespace.
 
@@ -25,11 +25,11 @@ The reusable API exposes `Authority`. `TfmAuthority` extends it with typed regis
 
 ## One universal class catalog
 
-Within one Authority, every canonical class name has exactly one declaration and one meaning. Identical declarations from separate providers do not coalesce: duplicate ownership is an error. A replacement has its own class name, and the replaced definition remains known but can be inactive. The published Deimos Down definitions are therefore `Card039` and `CardX31`.
+Within one Authority, every Class Name has exactly one Declaration and one meaning. Identical Declarations from separate providers do not coalesce: duplicate ownership is an error. A replacement has its own Class Name, and the replaced Definition remains known but can be inactive. The published Deimos Down Definitions are therefore `Card039` and `CardX31`.
 
-The complete Authority catalog must load and validate together. Each playable game receives a projection of that catalog: selected classes are active and every other Authority-known class is present as a behaviorless phantom. No game projection obtains declarations or behavior from another provider.
+The complete Authority catalog must load and validate together. Each playable game receives a projection of that catalog: selected Classes are active and every other Authority-known Class is present as a behaviorless phantom. Rule Class versus Content Class records declaration provenance only; Class Loading erases that distinction. No game projection obtains Declarations or behavior from another provider.
 
-The universal catalog is a schema, not a playable world. It is not instantiated because doing so would create mutually exclusive maps, modes, and alternative singleton components together.
+The universal catalog is a schema, not a playable Game World. It is not instantiated because doing so would create mutually exclusive maps, modes, and alternative Singleton Components together.
 
 ## Module
 
@@ -39,7 +39,7 @@ Each Module declares the classes it activates or deactivates. The Authority stor
 
 ## GamePremise
 
-A `GamePremise` is the complete immutable input needed to construct equivalent playable worlds. It contains only:
+A `GamePremise` is the complete immutable input needed to construct equivalent playable Game Worlds. It contains only:
 
 1. one Authority;
 2. the selected Module class names;
@@ -61,7 +61,7 @@ Bundle provenance normally has no semantic effect. The one deliberate selection 
 ## Required invariants
 
 - A game and almost every related operation use exactly one Authority.
-- Every canonical class name has one provider within an Authority, even when duplicate declarations would be identical.
+- Every Class Name has one provider within an Authority, even when duplicate Declarations would be identical.
 - The complete Authority class catalog loads and validates together.
 - Every game table is a projection of that catalog, with inactive known classes represented as phantoms.
 - A premise contains only the Authority, Modules, signed individual class selections, and exact initial concrete non-singleton types.

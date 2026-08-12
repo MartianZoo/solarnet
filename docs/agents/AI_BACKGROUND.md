@@ -472,7 +472,7 @@ may or may not already know how valuable its consequences are.
 
 ### Build an explicit player observation boundary
 
-The live `World`, event log, and trusted engine APIs can contain facts a player must not see. The
+The live Game World, Event Log, and trusted engine APIs can contain facts a Player must not see. The
 learning interface needs a deterministic, player-relative observation builder. It should expose:
 
 * public state and the acting player's private state;

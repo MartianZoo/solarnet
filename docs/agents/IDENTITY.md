@@ -20,7 +20,7 @@ redesigned.
   and execute it. Assignment and performance are intentionally separate.
 - Trigger-side `BY` filters the Actor recorded on the triggering change.
 - Instruction-side `BY` is a **performer override**. `A BY Player2` performs `A` as Player2 without
-  changing the enclosing task's assignee or transferring narrowing authority.
+  changing the enclosing Task's Assignee or transferring its choices.
 - Resolving an owned component effect binds contextual `Owner` from the component carrying the
   effect. A later performer override does not rebind already-specialized owned types.
 
@@ -103,15 +103,15 @@ global lock is enough to protect isolated cross-player choices such as Icy Impac
 not represent why one Actor temporarily has control or when a larger delegated scope is complete.
 
 The current Kotlin `TfmWorkflow.Auto` does not need such a model. It directly starts a Player's
-turn operation and waits until the whole world is idle. A future native Pets workflow cannot leave
+turn operation and waits until the whole Game World is idle. A future native Pets Workflow cannot leave
 an Engine continuation as an ordinary pending task and then wait for global idleness: that
-continuation itself would keep the world non-idle. Native workflow therefore needs a way to say:
+continuation itself would keep the Game World non-idle. Native Workflow therefore needs a way to say:
 
 1. Engine retains a continuation that is temporarily not actionable;
 2. a Player controls all work produced within one turn scope;
 3. nested cross-owner choices may temporarily block that Player without completing the turn; and
 4. Engine resumes when that particular Player scope drains, not merely when an arbitrary queue or
-   the whole world happens to be empty.
+   the whole Game World happens to be empty.
 
 Call this **control-until-drain** for now. Queue suspension with explicit parent/child relationships
 is one possible implementation, not a settled requirement. An execution-frame or continuation

@@ -4,6 +4,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Document the slight, intentional differences between `Canon` and the published Terraforming Mars rules.
+- Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
+- Make Modules enumerate the AutoLoad Classes they require instead of activating every AutoLoad Class known to the Authority.
+- Audit `system.pets` and retain only the System Types the generic engine genuinely requires.
+- Determine whether Gated Instructions are a special form of `THEN` rather than a separate construct.
+- Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.
+
 ### Making Solarnet AI-player-ready
 
 - Move beyond follow-along mode by modeling shuffled decks, deals, draws, and actual private hands.
@@ -24,7 +31,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game fixture can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
 - Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game fixture no longer needs an 8 M€ reconciliation injection.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
-- Model the solo setup choice that selects four colony tiles and removes one before assembling the playable world.
+- Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
 - Decide how a trigger binds its Actor into an instruction. Mons Insurance must bind both attacker and victim into its payout; `BY !Owner` supplies only the inequality test.
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
@@ -35,9 +42,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Restore colors to the interactive REPL while keeping ordinary noninteractive output plain.
 - Stop nested bounds in sibling branches of one `<...>` list from linking, so a declaration like `Adjacency<Tile<MarsArea>, Tile<MarsArea>>`, or one repeating the same class literal in two slots, resolves with differing arguments; only a class's own repeated writing of a bound at distinct positions of the same inherited dependency should link, and the shared `Class_0` key makes the class-literal case easy to miss (`docs/agents/TYPES.md` §12.1).
 - Tighten complement narrowing so a candidate whose relevant dependency is still abstract is rejected; `SpaceTag` counts as narrowing `SpaceTag<!Player1>` today even though it admits `SpaceTag<Player1>` (`docs/agents/TYPES.md` §12.2).
-- Give class signatures the same linkage recognition every other scope uses, so a repeated bound carrying arguments, a refinement, or a `!` links as a unit rather than only its innermost bare class names, and so only abstract occurrences link; the same shared mechanism should subsume the sibling-branch fix above (`docs/agents/TYPES.md` §12.3, §12.1).
-- Replace signature-to-effect class-name substitution with real linkage recognition, so effects narrow only at the expressions a linkage names, and a name mapping to two replacements reports a disagreement instead of being silently skipped (`docs/agents/TYPES.md` §12.4).
-- Rethink complement types properly rather than patching them. Treating `!X` as a bound-plus-exclusion that is "simpler than a difference type" does not hold up: the domain is dropped from both written forms so a `glb`- or linkage-narrowed complement does not survive re-resolution (§12.5); narrowing accepts candidates whose relevant dependency is still abstract (§12.2); two complements combine only on exact excluded-type equality; `Owned<!Anyone>` resolves but `Owned<Anyone, !Anyone>` has no glb; `ComplementDependency.ensureNarrows` throws `ClassCastException` when the other side is also a complement; a root-marked complement cannot be a linkage source outside a class signature, while a composite expression containing a nested complement still can (§12.6). Decide whether these are genuine difference types before fixing them one at a time.
+- Give Class headers the same Type-variable recognition every other scope uses, so a repeated bound carrying arguments, a Refinement, or a `!` binds as a unit rather than only its innermost bare Class Names, and so only abstract occurrences bind; the same shared mechanism should subsume the sibling-branch fix above (`docs/agents/TYPES.md` §12.3, §12.1).
+- Replace Class-header-to-Effect Class-name substitution with real Type-variable recognition, so Effects narrow only at the Expressions a variable names, and one name mapping to two replacements reports a disagreement instead of being silently skipped (`docs/agents/TYPES.md` §12.4).
+- Rethink Complement Types properly rather than patching them. Treating `!X` as a bound-plus-exclusion that is "simpler than a difference type" does not hold up: the domain is dropped from both written forms so a `glb`- or Type-variable-narrowed Complement does not survive re-resolution (§12.5); narrowing accepts candidates whose relevant Dependency is still abstract (§12.2); two Complements combine only on exact excluded-Type equality; `Owned<!Anyone>` resolves but `Owned<Anyone, !Anyone>` has no `glb`; `ComplementDependency.ensureNarrows` throws `ClassCastException` when the other side is also a Complement; a root-marked Complement cannot be a Type-variable source outside a Class header, while a composite Expression containing a nested Complement still can (§12.6). Decide whether these are genuine difference Types before fixing them one at a time.
 - Consider modeling multiplicity in the type system itself. The rule that every concrete type a dependency bound admits must have an applicable `MAX 1` or `=1` invariant is what makes a dependency edge designate one component (`docs/agents/TYPES.md` §5), yet the type system never checks it; `Limiter` does, once, at game construction, over active classes only. A type system that knew about multiplicity could reject such a table at load and could express `Atomized` and the `HAS =1 This` idiom directly.
 
 ### Medium Soon
@@ -69,11 +76,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
-- After `OverlayWorld`, revisit task preparation so a prepared task remains authoritative for its world revision instead of being repeatedly prepared, executed speculatively, rolled back, and prepared again.
+- After `OverlayWorld`, revisit Task preparation so a Prepared Task remains authoritative for its Game World revision instead of being repeatedly prepared, executed speculatively, rolled back, and prepared again.
 - [#61: Temporary cleanup](https://github.com/MartianZoo/solarnet/issues/61) — Enforce cleanup at an engine boundary, not only in the convenience layer.
-- [#59: `-This` intensity](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
+- [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
-- Explain or remove `Initializer`'s synthetic mandatory intensity.
+- Explain or remove `Initializer`'s synthetic mandatory Quantifier.
 - Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
 - Document the `BuyCard`/payment protocol and verify delayed 3 M€ payment cannot be exploited.
 - Move PET AST generation to Kotest property tests only if domain-aware shrinking improves failures.

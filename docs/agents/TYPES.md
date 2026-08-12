@@ -22,7 +22,7 @@ of several features that would otherwise look arbitrary.
 
 ### The component graph
 
-A game world is coordinated by a `Timeline` and includes a component graph, a task queue, and an
+A Game World is coordinated by a `Timeline` and includes a Component Graph, a Task Queue, and an
 event log. The type system is chiefly concerned with the **component graph**. Its vertices are
 **components**, and the graph contains a multiset of them.
 
@@ -167,7 +167,7 @@ counting invariant. `Area` and `Player` each declare `HAS =1 This`, where `This`
 exact type, while every card class gets a `HAS MAX 1` invariant. Without that guarantee,
 `Animal<Player1, Pets<Player1>>` could not say which copy of Pets holds the animal.
 
-This uniqueness requirement is a rule for valid game worlds, not a static type restriction. When
+This uniqueness requirement is a rule for valid Game Worlds, not a static Type restriction. When
 building a game, the engine enumerates every concrete target admitted by the game's dependencies
 and checks for a counting invariant whose maximum is one. A non-counting class invariant is rejected
 by the same check.
@@ -384,10 +384,10 @@ component's exact owner: on Player 1's card, `Owned<Owner>` becomes `Owned<Playe
 owning component supplies the context, `Owner` remains the ordinary abstract class.
 
 All-use, gain-only, and remove-only defaults are gathered independently. Gain and removal defaults
-also carry an intensity (`!`, `?`, or `.`). For one dependency and one kind, only declarations
+also carry a Quantifier (`!`, `?`, or `.`). For one Dependency and one kind, only Declarations
 on the nearest supertypes survive; a declaration on a proper supertype is superseded by one on a
 narrower type. Bounds from incomparable surviving supertypes must have one most general common
-narrowing, which is used. Conflicting intensities from those supertypes are an error.
+narrowing, which is used. Conflicting Quantifiers from those supertypes are an error.
 
 A literal `Owner` written in a default is deliberately preserved until the expression is used.
 Normalizing it immediately to a narrower class bound would leave nothing for the owning component's
@@ -817,7 +817,7 @@ bound them. They are supplied values, while an implicit variable is a choice wai
 
 A repeated expression shares a variable only across related source regions.
 
-**Within a class signature.** Two written bounds share a variable when the expressions match and
+**Within a Class header.** Two written bounds share a variable when the Expressions match and
 bind the same dependency key. This says that a cardbound component belongs to whoever owns its
 card:
 
@@ -831,7 +831,7 @@ independent. A repeated bound carrying arguments is matched as a whole expressio
 names nested inside it. If a subtype adds a variable sharing a position with an inherited variable,
 the positions merge into one variable.
 
-**From a class signature to its effects.** A variable introduced in the signature extends to
+**From a Class header to its Effects.** A variable introduced in the header extends to
 matching occurrences in that class's effects:
 
 ```pets
@@ -868,7 +868,7 @@ lower another:
 "immediate": "ColonyProduction FROM ColonyProduction",
 ```
 
-Outside a class signature, repetition refers back only when matching occurrences lie in at least two
+Outside a Class header, repetition refers back only when matching occurrences lie in at least two
 regions. Three copies of one abstract expression within a single `THEN` stage remain three choices.
 Comma-separated instructions and alternative `OR` arms are also independent, although a variable
 introduced by an enclosing region may have occurrences inside them.
@@ -884,10 +884,10 @@ Several exclusions preserve intended independence:
   both.
 - A counted expression — the resource in `2 StandardResource`, for example — neither introduces nor
   refers to a variable. Expressions nested inside it remain eligible.
-- Outside class signatures, an expression written with a complement neither introduces nor refers
+- Outside Class headers, an Expression written with a Complement neither introduces nor refers
   to a variable. Two writings of `OwnedTile<!Owner>` are therefore independent choices.
 
-Within a class signature, a complemented bound may occupy a variable's positions. Narrowing applies
+Within a Class header, a complemented bound may occupy a variable's positions. Narrowing applies
 to the shared domain before the exclusion; an exclusion already ruled out by the shared narrowing
 then disappears.
 
@@ -897,7 +897,7 @@ A type variable begins at the upper bound denoted by its source expression. A pr
 substituted at every occurrence, and every containing expression is resolved again. Narrowing fails
 if an occurrence cannot accept the proposed type or if the occurrences disagree.
 
-A class signature enforces this whenever a type is formed. Intersections propagate through all
+A Class header enforces this whenever a Type is formed. Intersections propagate through all
 positions of one variable until no bound changes. The tag hierarchy provides a real example:
 
 ```pets
@@ -922,7 +922,7 @@ SpaceTag<Player2, SpaceElevator<Player2>>
 ...one pair per player and card front, never crossed
 ```
 
-Outside a class signature, a variable remains open while several concrete bindings are possible. A
+Outside a Class header, a variable remains open while several concrete bindings are possible. A
 composite instruction cannot split across a boundary crossed by an open variable:
 `CityTile<LandArea> FROM GreeneryTile<LandArea>` must choose the area before its source and
 destination can separate. Once earlier work fixes that area, Pets substitutes it at every later
@@ -993,7 +993,7 @@ differently. They are recorded here rather than smoothed over.
 
 ### 12.1 Sibling nested bounds share a variable
 
-The same-key rule for class signatures is applied to nested occurrences in sibling branches of one
+The same-key rule for Class headers is applied to nested occurrences in sibling branches of one
 `<...>` list, so a declaration like `Adjacency<Tile<MarsArea>, Tile<MarsArea>>` couples choices
 that were meant to stay independent. With class literals the coupling is easy to miss, since all
 class literal slots share the key `Class_0`: had
@@ -1007,24 +1007,24 @@ The test is "narrows the domain and does not narrow the excluded type", so `Spac
 is still the abstract `Owner` — counts as narrowing `SpaceTag<!Player1>` even though it admits
 `SpaceTag<Player1>`. The rule behaves as intended for concrete candidates.
 
-### 12.3 Class signatures match only bare class names
+### 12.3 Class headers match only bare Class Names
 
-The intended class-signature rule adds only the same-key requirement to the shared matching rules;
-in fact it uses a separate mechanism in which only a bare class name is an occurrence. A repeated
+The intended Class-header rule adds only the same-key Requirement to the shared matching rules;
+in fact it uses a separate mechanism in which only a bare Class Name is an occurrence. A repeated
 bound carrying arguments, a refinement, or a `!` never becomes a variable as a unit, so matching
 reaches past it to the names inside. Two repeated `Card<Owner>` bounds should represent one choice;
 instead only their nested `Owner` occurrences are coupled, leaving the card choices free to differ.
 Abstractness is not consulted either, though a variable over concrete positions has no effect.
 Section 12.1 is the other half of this: one shared matching mechanism would fix both.
 
-### 12.4 Signature-to-effect narrowing is class-name substitution, not a variable
+### 12.4 Class-header-to-Effect narrowing is Class-Name substitution, not a variable
 
-The intended rule makes one variable span a signature and its effects; what runs is a substitution
+The intended rule makes one variable span a Class header and its Effects; what runs is a substitution
 built by comparing every bound of the class's own type — nested bounds included — with the
 component's, and rewriting every occurrence of each differing class name anywhere in the effects,
 arguments, and requirements alike. It therefore rewrites expressions the author never wrote alike,
 and when one name would map to two different replacements it drops that substitution silently
-instead of reporting the disagreement a class signature would report.
+instead of reporting the disagreement a Class header would report.
 
 ### 12.5 A complement's domain is not written out
 
@@ -1035,7 +1035,7 @@ resolved again. This affects the full form too.
 ### 12.6 A nested complement does not block repetition matching
 
 An expression written with `!` should neither introduce nor refer to an implicit variable outside a
-class signature. The matcher checks only whether the candidate expression itself is complemented,
+Class header. The matcher checks only whether the candidate Expression itself is complemented,
 so the root `OwnedTile<!Owner>` remains eligible even though its argument is complemented. Repeating
 that complete expression across regions therefore shares a variable today.
 

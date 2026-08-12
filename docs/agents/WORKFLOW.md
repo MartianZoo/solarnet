@@ -14,7 +14,7 @@ This file is authoritative for phase ordering and terminal behavior.
 ## Current status
 
 `TfmWorkflow.Auto` currently implements the complete coarse game loop in Kotlin. It starts a
-Player's turn operation directly and suspends its coroutine while the **whole world** is not idle:
+Player's turn operation directly and suspends its coroutine while the **whole Game World** is not idle:
 any task or temporary component keeps it waiting. This is sufficient for the current game and is
 covered by workflow, card, and whole-game tests. World Government Terraforming, Philares, Splice,
 Icy Impactors, and Enceladus are working behaviors; none is waiting on native workflow or a new
@@ -123,7 +123,7 @@ Instruction-side `BY` cannot express this: it changes only who performs an instr
 changing the task assignee or creating a control scope. The intended result is that Engine retains
 a temporarily nonactionable continuation, consequences of the Player's work remain within the
 Player's turn scope, and Engine resumes after that scope and any nested cross-owner choice drain.
-The native workflow must therefore not use whole-world idleness as its completion condition.
+The native Workflow must therefore not use whole-world idleness as its completion condition.
 
 Queue suspension is only one candidate representation. The required semantics may instead be
 implemented with execution frames or explicit continuations; current task queues have no
@@ -216,9 +216,9 @@ when its span and both endpoint phase classes were independently activated by th
 Reading the constraint must never activate an absent endpoint. This differs intentionally from an
 ordinary component dependency, whose existence asserts that its dependency exists. Workflow
 topology would, in the aspirational Authority model, be Authority data filtered by the premise
-rather than additional game-world state; the declarations may use ordinary Pets class syntax, but
+rather than additional Game World state; the Declarations may use ordinary Pets Class syntax, but
 the runner should compile them from the active premise classes rather than create their instances
-in the world.
+in the Game World.
 
 Dynamic decisions remain ordinary component effects. For example, completion of `SolarPhase` may
 transmute directly to `FinalGreeneryPhase` when the game-end requirement is true. Such an explicit

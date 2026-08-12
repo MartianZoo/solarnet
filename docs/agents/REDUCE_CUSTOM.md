@@ -35,7 +35,7 @@ composable setup signals:
 
 Represent realized seat topology explicitly with components such as `LeftOf<From, To>`. A live
 relation can subscribe to `PassLeft<StartToken<From>>` and transmute the matching token to
-`StartToken<To>` using ordinary trigger-to-instruction linkage.
+`StartToken<To>` using ordinary Trigger-to-Instruction Type-variable binding.
 
 The one- through five-player topologies are small and stable enough to author as Pets setup rules.
 This is preferable to teaching Pets numeric player-name arithmetic. It is worthwhile only if the

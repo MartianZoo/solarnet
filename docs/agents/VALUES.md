@@ -22,7 +22,7 @@ But there is a *lot* more that is important to us than just that.
 
 ## 3. Keep Pets and the domain model central
 
-- Pets syntax should be compact, composable, internally consistent, and sensible to a normal reader. Prefer general precedence and linkage rules that remove redundant parentheses, repeated owners, and bespoke syntax.
+- Pets syntax should be compact, composable, internally consistent, and sensible to a normal reader. Prefer general precedence and Type-variable rules that remove redundant parentheses, repeated Owners, and bespoke syntax.
 - In the aspirational model, an Authority, including Canon, is principally a coherent data provider. Selection, filtering, and game-state decisions belong outside its data APIs; custom metrics and instructions are the narrow exception.
 - Load only vocabulary a game needs. Merely mentioning an expansion-gated type in a safe context should not drag the expansion's machinery into the game.
 - Favor the aspirational model's affirmative, composable Modules: active components add the ambient behavior of the realized game rather than a growing web of negations and special exclusions.

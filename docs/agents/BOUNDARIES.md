@@ -160,11 +160,11 @@ the complete Authority while their class tables project its catalog.
 
 ### Aspirational: generic construction no longer depends on `GameSetup`
 
-The live component/task/event/timeline machinery is the generic `World`. Construction accepts a
+The live Component/Task/Event/Timeline machinery is the generic Game World represented by `World`. Construction accepts a
 generic `GamePremise`, and `GameReader` no longer exposes a Terraforming Mars setup object. The
 premise contains one Authority, Module selections, signed individual class selections, and exact
 one-per-type non-singleton initialization selections; Actors and the class-table projection derive
-from those facts. Configuration is not represented by a live World.
+from those facts. Configuration is not represented by a live Game World.
 
 ### P1: The reusable asynchronous workflow driver is buried inside `TfmWorkflow.Auto`
 
