@@ -152,7 +152,7 @@ internal class SetupWorldTest {
     game.reader.tfmRuleset.marsMapDefinitions.single().className shouldBe cn("Elysium")
     game.gameplay(ENGINE).count("TerraformingMars") shouldBe 1
     game.classTable.allClassNames.shouldNotContain(cn("GameOption"))
-    game.gameplay(ENGINE).count("GameModule") shouldBe 6
+    game.gameplay(ENGINE).count("Module") shouldBe 6
     game.gameplay(ENGINE).count("ElysiumMapOption") shouldBe 1
     game.gameplay(ENGINE).count("Elysium") shouldBe 1
     game.reader.tfmRuleset.milestoneDefinitions.any { it.className == cn("MilestoneHM5") } shouldBe

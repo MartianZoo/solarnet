@@ -1,7 +1,7 @@
 // Solo mode
 
-"Exactly one player-count rules module active in a playable game"
-ABSTRACT CLASS Mode : GameModule { HAS MAX 1 Mode }
+"Exactly one player-count Module active in a playable game"
+ABSTRACT CLASS Mode : Module { HAS MAX 1 Mode }
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
@@ -13,13 +13,16 @@ CLASS SoloMode : Mode {
   EndPhase: End THEN FinalScore
 }
 
+"Exactly one solo objective Module active in a solo game"
+ABSTRACT CLASS SoloVariant : Module { HAS MAX 1 SoloVariant }
+
 "The original solo victory objective: complete every required global parameter"
-CLASS StandardSoloVariant : GameModule {
+CLASS StandardSoloVariant : SoloVariant {
   SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
 }
 
 "The solo objective is 63 terraform rating instead of completed global parameters"
-CLASS Tr63SoloVariant : GameModule {
+CLASS Tr63SoloVariant : SoloVariant {
   SetupPhase: Tr63SoloObjective
   SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
 }

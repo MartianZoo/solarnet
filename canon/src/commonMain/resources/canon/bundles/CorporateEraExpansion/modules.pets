@@ -1,2 +1,2 @@
 "Uses the full project deck and asymmetric starting production"
-CLASS CorporateEraExpansion : GameModule
+CLASS CorporateEraExpansion : Module

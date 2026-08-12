@@ -3,7 +3,7 @@
 //
 
 "Expansion adding colony tiles, player colonies, and trade fleets"
-CLASS ColoniesExpansion : GameModule {
+CLASS ColoniesExpansion : Module {
   SetupPhase: ColoniesSetup
   SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
 }

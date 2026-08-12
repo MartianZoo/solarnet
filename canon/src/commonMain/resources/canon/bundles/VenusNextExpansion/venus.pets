@@ -6,7 +6,7 @@ CLASS VenusStep : GlobalParameter {
   This IF =8 This: TerraformRating
 }
 
-CLASS VenusNextExpansion : GameModule {
+CLASS VenusNextExpansion : Module {
   SetupPhase: SoloVictoryRequirement
   SoloVictoryCheck IF MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
   SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
@@ -16,7 +16,7 @@ CLASS VenusNextExpansion : GameModule {
 CLASS VenusSolarPhase : Phase
 
 "Adds World Government Terraforming to the solar phase"
-CLASS WorldGovernmentOption : GameModule {
+CLASS WorldGovernmentOption : Module {
   // A Venus game has four global parameters, so MAX 3 means at least one is still incomplete.
   VenusSolarPhase IF MAX 3 GpComplete:: WorldGovernmentTerraforming
 }

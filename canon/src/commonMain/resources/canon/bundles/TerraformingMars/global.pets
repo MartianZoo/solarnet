@@ -8,11 +8,11 @@ ABSTRACT CLASS GameConfiguration : System {
   -This:: Die!
 }
 
-"An affirmative module of rules active in a playable game"
-ABSTRACT CLASS GameModule : GameConfiguration { HAS =1 This }
+"An affirmative, immutable Module active in a playable game"
+ABSTRACT CLASS Module : GameConfiguration { HAS =1 This }
 
 "The base Terraforming Mars rules"
-CLASS TerraformingMars : GameModule {
+CLASS TerraformingMars : Module {
   HAS =1 MarsMap
 
   SetupPhase IF 2 Player:: BeginGame

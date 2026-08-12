@@ -25,7 +25,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun noActorCanRemoveGameModules() {
+  fun noActorCanRemoveModules() {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 

@@ -1,2 +1,2 @@
 "Adds the Turmoil project cards without the expansion's political rules"
-CLASS TurmoilCardPack : GameModule
+CLASS TurmoilCardPack : Module
