@@ -10,9 +10,14 @@ class CapitalTest : CardTest() {
   @Test
   fun `places a regular city and scores its adjacent oceans`() {
     newGame()
-    p1.manual("PROD[2 Energy], OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>")
+    p1.manual(
+        "26 Megacredit, ProjectCard, PROD[2 Energy], " +
+            "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
+    )
+    engine.manual("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
+    engine.phase("Action")
 
-    p1.manual("Capital") {
+    p1.playProject("Capital", 26) {
       doTask("CityTile<Tharsis_3_3>")
     }
 
