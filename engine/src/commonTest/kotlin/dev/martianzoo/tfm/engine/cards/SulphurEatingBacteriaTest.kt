@@ -75,6 +75,22 @@ class SulphurEatingBacteriaTest : CardTest() {
     assertInvalidPayment<NarrowingException>("2 Microbe<SulphurEatingBacteria> THEN -6")
   }
 
+  @Test
+  fun `can convert one microbe into three megacredits`() {
+    p1.cardAction2("SulphurEatingBacteria") {
+          doTask("-Microbe<SulphurEatingBacteria> THEN 3")
+        }
+        .expect("-Microbe, 3")
+  }
+
+  @Test
+  fun `can convert all four microbes into twelve megacredits`() {
+    p1.cardAction2("SulphurEatingBacteria") {
+          doTask("-4 Microbe<SulphurEatingBacteria> THEN 12")
+        }
+        .expect("-4 Microbe, 12")
+  }
+
   private inline fun <reified T : Throwable> assertInvalidPayment(instruction: String) {
     p1.cardAction2("SulphurEatingBacteria") {
       shouldThrow<T> { doTask(instruction) }

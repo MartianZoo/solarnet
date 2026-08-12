@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
-import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
-import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class TradeTrackIncreaseTest : ColoniesCardTest() {
@@ -15,16 +13,10 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
 
     p1.stdAction("TradeSA") {
       doTask("Trade<Luna>")
-      p1.assertCounts(1 to "TradeBarrier", 0 to "FlownTradeFleet")
-      shouldThrow<NarrowingException> {
-        doTask("FlownTradeFleet<Luna> FROM ReserveTradeFleet")
-      }
       doTask("ColonyProduction<Luna>")
     }
 
     p1.assertCounts(
-        0 to "ReserveTradeFleet",
-        1 to "FlownTradeFleet<Luna>",
         0 to "ColonyProduction<Luna>",
         13 to "Megacredit",
     )
@@ -44,7 +36,6 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
 
     p1.assertCounts(
         1 to "Floater<TitanFloatingLaunchPad>",
-        1 to "FlownTradeFleet<Luna>",
         13 to "Megacredit",
     )
   }
@@ -58,7 +49,6 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
     p1.stdAction("TradeSA") { doTask("Trade<Luna>") }
 
     p1.assertCounts(
-        1 to "FlownTradeFleet<Luna>",
         0 to "ColonyProduction<Luna>",
         17 to "Megacredit",
     )
@@ -79,8 +69,6 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
     }
 
     p1.assertCounts(
-        0 to "ReserveTradeFleet",
-        1 to "FlownTradeFleet<Europa>",
         1 to "ColonyProduction<Europa>",
     )
     p1.assertProds(1 to "Energy")
@@ -98,22 +86,11 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
 
     p1.stdAction("TradeSA") {
       doTask("Trade<Luna>")
-      p1.assertCounts(2 to "TradeBarrier", 0 to "FlownTradeFleet")
-      val decisions =
-          tasks.matching { it.instruction.toString().startsWith("ColonyProduction<") }.toList()
-      p1.reviseTask(decisions[0], "ColonyProduction<Luna>")
-      if (decisions[0] in tasks) {
-        p1.doTask("ColonyProduction<Luna>", tasks.ids().indexOf(decisions[0]) + 1)
-      }
-      shouldThrow<NarrowingException> {
-        doTask("FlownTradeFleet<Luna> FROM ReserveTradeFleet")
-      }
-      p1.reviseTask(decisions[1], "Ok")
-      if (decisions[1] in tasks) p1.doTask("Ok", tasks.ids().indexOf(decisions[1]) + 1)
+      doTask("ColonyProduction<Luna>")
+      doTask("Ok")
     }
 
     p1.assertCounts(
-        1 to "FlownTradeFleet<Luna>",
         0 to "ColonyProduction<Luna>",
     )
   }

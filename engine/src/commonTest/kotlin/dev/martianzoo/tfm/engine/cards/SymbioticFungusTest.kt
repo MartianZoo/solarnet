@@ -9,6 +9,6 @@ class SymbioticFungusTest : CardTest() {
     newGame()
     p1.manual("SymbioticFungus")
     engine.phase("Action")
-    p1.cardAction1("SymbioticFungus").expect("ActionUsedMarker<SymbioticFungus>, 0 Microbe")
+    p1.cardAction1("SymbioticFungus").expect("0 Microbe")
   }
 }

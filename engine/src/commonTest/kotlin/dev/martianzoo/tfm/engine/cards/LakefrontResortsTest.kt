@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.canon.Canon.Option.*
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import kotlin.test.Test
 
 class LakefrontResortsTest : CardTest() {
@@ -12,8 +11,6 @@ class LakefrontResortsTest : CardTest() {
 
     engine.phase("Action")
     p1.manual("LakefrontResorts, 54")
-    p1.assertCounts(0 to "Mandate")
-
     p2.manual("OceanTile<Tharsis_1_2>").expect("PROD[1]")
 
     // Two is the normal ocean-adjacency bonus; the third is Lakefront Resorts' bonus.

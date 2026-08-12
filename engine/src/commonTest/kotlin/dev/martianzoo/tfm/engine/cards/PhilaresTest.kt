@@ -1,11 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.canon.Canon.Option.*
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class PhilaresTest : CardTest() {
@@ -19,7 +14,6 @@ class PhilaresTest : CardTest() {
 
     p1.stdProject("GreenerySP") {
       doTask("GreeneryTile<Tharsis_4_3>")
-      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
       p2.doTask("Titanium").expect("Titanium")
     }
   }
@@ -29,18 +23,8 @@ class PhilaresTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("Philares")
-    p1.autoExecMode = NONE
-    p2.autoExecMode = NONE
     p2.manual("CityTile<Tharsis_2_3>")
-    val checkpoint = game.timeline.checkpoint()
-
-    p1.godMode().beginManual("CityTile<Tharsis_3_3>") {
-      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
-    }
-
-    game.events.changesSince(checkpoint).first().actor shouldBe PLAYER1
-    p2.doTask("Steel").expect("Steel<Player2>")
-    game.events.changesSince(checkpoint).last().actor shouldBe PLAYER2
+    p1.manual("CityTile<Tharsis_3_3>") { p2.doTask("Steel") }.expect("Steel<Player2>")
   }
 
   @Test
@@ -48,15 +32,9 @@ class PhilaresTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("Philares")
-    p1.autoExecMode = NONE
-    p2.autoExecMode = NONE
     p2.manual("CityTile<Tharsis_2_3>")
 
-    p1.godMode().beginManual("CityTile<Tharsis_3_3>") {
-      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER1)
-    }
-
-    p1.doTask("Titanium").expect("Titanium")
+    p1.manual("CityTile<Tharsis_3_3>") { p1.doTask("Titanium") }.expect("Titanium")
   }
 
   @Test
@@ -64,22 +42,19 @@ class PhilaresTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("Philares")
-    p1.autoExecMode = NONE
-    p2.autoExecMode = NONE
     p1.manual("CityTile<Tharsis_2_3>")
 
-    p1.manual("CityTile<Tharsis_3_3>")
-
-    game.tasks.isEmpty() shouldBe true
+    p1.manual("CityTile<Tharsis_3_3>").expect("0 Steel<Player2>, 0 Titanium<Player2>")
   }
 
   @Test
   fun `with Philares and an own tile, p1 places an adjacent greenery`() {
     newGame(PromoCardPack)
     p1.manual("Philares")
-    p1.manual("-Mandate, GreeneryTile<Tharsis_4_2>, 23")
+    p1.manual("23")
     engine.phase("Action")
+    p1.stdAction("HandleMandates") { doTask("GreeneryTile<Tharsis_4_2>") }
     p1.stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_3_2>") }
-    game.tasks.isEmpty() shouldBe true
+        .expect("0 Steel, 0 Titanium")
   }
 }

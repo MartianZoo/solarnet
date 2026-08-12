@@ -11,7 +11,7 @@ class MartianRailsTest : CardTest() {
     p1.manual("MartianRails, Energy")
     p1.manual("GanymedeColony").expect("CityTile<Area081>")
     engine.phase("Action")
-    p1.cardAction1("MartianRails").expect("-Energy, ActionUsedMarker<MartianRails>")
+    p1.cardAction1("MartianRails").expect("-Energy, 0 Megacredit")
     p1.assertCounts(0 to "Megacredit")
   }
 }

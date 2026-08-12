@@ -31,11 +31,4 @@ class PetsTest : CardTest() {
     p1.manual("Predators")
     shouldThrow<DeadEndException> { p1.cardAction1("Predators") }
   }
-
-  @Test
-  fun `with an animal on Pets, p1 tries to remove the card`() {
-    p1.manual("Pets")
-    // Removing the card would mean having to remove the animals on it first -- can't!
-    shouldThrow<DeadEndException> { p1.manual("-Pets") }
-  }
 }

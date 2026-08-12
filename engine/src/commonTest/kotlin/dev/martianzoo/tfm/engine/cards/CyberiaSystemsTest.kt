@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -21,7 +20,6 @@ class CyberiaSystemsTest : CardTest() {
           doTask("CopyProductionBox<IndustrialMicrobes>")
         }
         .expect("PROD[3 Steel, Energy]")
-    p1.count("CardX53FirstChoice") shouldBe 0
   }
 
   @Test

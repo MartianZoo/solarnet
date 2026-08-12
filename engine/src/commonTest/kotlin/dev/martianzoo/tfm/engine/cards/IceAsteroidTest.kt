@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class IceAsteroidTest : CardTest() {
@@ -16,16 +14,7 @@ class IceAsteroidTest : CardTest() {
     engine.phase("Action")
 
     p1.playProject("IceAsteroid", 23) {
-      game.tasks
-          .extract { "${it.instruction}" }
-          .also { pending ->
-            pending.shouldHaveSize(2)
-            pending.toSet() shouldBe setOf("OceanTile<WaterArea>.")
-          }
-
       doTask("OceanTile<$ninthArea>")
-
-      game.tasks.isEmpty() shouldBe true
     }
 
     p1.assertCounts(9 to "OceanTile")

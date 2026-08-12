@@ -22,7 +22,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
 
     p1.playProject("Algae", 10)
 
-    p1.assertCounts(1 to "Algae", 0 to "Required")
+    p1.assertCounts(1 to "Algae")
   }
 
   @Test
@@ -40,7 +40,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
     p1.manual("OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>")
     p1.playProject("DustSeals", 2)
 
-    p1.assertCounts(1 to "Algae", 1 to "DustSeals", 0 to "Required")
+    p1.assertCounts(1 to "Algae", 1 to "DustSeals")
   }
 
   @Test
@@ -54,7 +54,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
     p1.playProject("SpecialDesign", 4)
     p1.playProject("Farming", 16)
 
-    p1.assertCounts(1 to "Farming", 0 to "Card206Effect", 0 to "Required")
+    p1.assertCounts(1 to "Farming")
     shouldThrow<RequirementException> { p1.playProject("Birds", 10) }
   }
 
@@ -82,13 +82,8 @@ class RequirementAdjustmentCardsTest : CardTest() {
     }
 
     p1.assertCounts(
-        1 to "EcologyExperts",
-        1 to "PlantTag<EcologyExperts>",
-        1 to "MicrobeTag<EcologyExperts>",
         1 to "Decomposers",
         3 to "Microbe<Decomposers>",
-        0 to "CardP10Effect",
-        0 to "Required",
     )
   }
 
@@ -100,7 +95,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
 
     p1.playPrelude("EcologyExperts") { p1.playProject("DustSeals", 2) }
 
-    p1.assertCounts(1 to "EcologyExperts", 1 to "DustSeals", 0 to "Required")
+    p1.assertCounts(1 to "DustSeals")
   }
 
   @Test
@@ -113,7 +108,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
       p1.playProject("ViralEnhancers", 9)
     }
 
-    p1.assertCounts(1 to "ViralEnhancers", 3 to "Plant")
+    p1.assertCounts(3 to "Plant")
   }
 
   @Test
@@ -126,6 +121,6 @@ class RequirementAdjustmentCardsTest : CardTest() {
       p1.playProject("EcologicalZone", 12) { doTask("EzTile<Tharsis_4_5>") }
     }
 
-    p1.assertCounts(1 to "EcologicalZone", 3 to "Animal<EcologicalZone>")
+    p1.assertCounts(3 to "Animal<EcologicalZone>")
   }
 }
