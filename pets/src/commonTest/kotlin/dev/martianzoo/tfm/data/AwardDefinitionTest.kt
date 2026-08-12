@@ -27,8 +27,8 @@ internal class AwardDefinitionTest {
         )
 
     awards.single { it.className == cn("AwardHA1") }.setupRequirement.toString() shouldBe
-        "DemoMapOption"
+        "MAX 0 SoloMode, DemoMapOption"
     awards.single { it.className == cn("AwardHA2") }.setupRequirement.toString() shouldBe
-        "DemoMapOption, VenusNextExpansion"
+        "MAX 0 SoloMode, DemoMapOption, VenusNextExpansion"
   }
 }

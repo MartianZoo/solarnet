@@ -8,7 +8,6 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmRuleset
-import dev.martianzoo.tfm.data.AwardDefinition
 
 /** Catalog of the official bundles and the game options they provide. */
 public object Canon :
@@ -173,9 +172,7 @@ public object Canon :
           setupOptionBundles[option]
               ?: throw IllegalArgumentException("unknown game option: $option")
         }
-    val selectedRuleset = resolve(bundleNames, setupWorld)
-    val ruleset: TfmRuleset =
-        if (SOLO_MODE in enabledOptions) WithoutAwards(selectedRuleset) else selectedRuleset
+    val ruleset: TfmRuleset = resolve(bundleNames, setupWorld)
     val setupOptions = setupWorld.getComponents("GameOption").elements
     val selectedColonies = setupWorld.getComponents("SelectedColonyTile").elements
     val setupComponents = setupOptions + selectedColonies
@@ -218,11 +215,6 @@ public object Canon :
   }
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
-  private val SOLO_MODE = cn("SoloMode")
-
-  private class WithoutAwards(ruleset: TfmRuleset) : TfmRuleset.Composite(ruleset) {
-    override val awardDefinitions: Set<AwardDefinition> = emptySet()
-  }
 }
 
 /** Counteracts defaults for [option] in the same expression as positive options. */

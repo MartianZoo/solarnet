@@ -26,7 +26,9 @@ public data class AwardDefinition(
     require(setupRequirementText?.isNotBlank() != false)
   }
 
-  @Transient override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
+  @Transient
+  override val setupRequirement: Requirement =
+      parse(listOf(MULTIPLAYER_ONLY, setupRequirementText).filterNotNull().joinToString())
 
   @Transient public val metric: Metric = parse(metricText)
 
@@ -50,5 +52,9 @@ public data class AwardDefinition(
                 parse<Effect>("EndPhase: AssignAwardPlaces<This>"),
             ),
     )
+  }
+
+  private companion object {
+    private const val MULTIPLAYER_ONLY = "MAX 0 SoloMode"
   }
 }
