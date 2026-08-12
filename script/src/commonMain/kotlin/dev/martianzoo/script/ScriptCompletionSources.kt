@@ -43,6 +43,17 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
         )
       }
 
+  fun actionCardNames(): List<ScriptCompletion> =
+      repl.game.reader.tfmRuleset.allDefinitions
+          .filterIsInstance<CardDefinition>()
+          .filter { it.actions.isNotEmpty() }
+          .map {
+            ScriptCompletion(
+                repl.game.vocabulary.petsName(it.className).toString(),
+                "action cards",
+            )
+          }
+
   fun phaseNames(): List<ScriptCompletion> =
       classNames()
           .mapNotNull { it.value.removeSuffixIfPresent("Phase") }

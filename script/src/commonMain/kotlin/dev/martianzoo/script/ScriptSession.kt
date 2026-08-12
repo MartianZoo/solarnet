@@ -52,6 +52,7 @@ import dev.martianzoo.tfm.script.TfmColor.HEAT
 import dev.martianzoo.tfm.script.TfmColor.MEGACREDIT
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.PLANT
+import dev.martianzoo.tfm.script.commands.TfmActionCommand
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import dev.martianzoo.tfm.script.commands.TfmPayCommand
@@ -173,6 +174,7 @@ public class ScriptSession(
               TaskCommand(this),
               TasksCommand(this),
               TurnCommand(this),
+              TfmActionCommand(this),
               TfmPayCommand(this),
               TfmPlayCommand(this),
               TfmSampleCommand(this),

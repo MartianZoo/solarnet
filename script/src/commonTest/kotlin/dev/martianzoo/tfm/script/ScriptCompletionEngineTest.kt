@@ -39,6 +39,9 @@ internal class ScriptCompletionEngineTest {
 
     assertContainsAll(values("tfm_play Man"), "Mangrove", "Manutech")
     assertEquals(listOf("Titanium"), values("tfm_play Manutech, T"))
+    assertEquals(listOf("AiCentral"), values("tfm_action Ai"))
+    assertEquals(listOf("1", "2", "3"), values("tfm_action AiCentral "))
+    assertEquals(listOf("Titanium"), values("tfm_action RotatorImpacts 1, T"))
   }
 
   @Test

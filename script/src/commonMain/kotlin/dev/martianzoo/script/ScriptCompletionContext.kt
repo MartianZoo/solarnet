@@ -41,6 +41,8 @@ private constructor(
 
   internal fun playableCardNames(): List<ScriptCompletion> = sources.playableCardNames()
 
+  internal fun actionCardNames(): List<ScriptCompletion> = sources.actionCardNames()
+
   internal fun phaseNames(): List<ScriptCompletion> = sources.phaseNames()
 
   internal fun checkpointIds(): List<ScriptCompletion> = sources.checkpointIds()

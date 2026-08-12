@@ -71,6 +71,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
       METADATA
         desc <expression>   -> describes a type like `Microbe<Ants>` in great detail
       TERRAFORMING MARS
+        tfm_action <card> N -> uses action N on a card already in play
         tfm_board           -> displays an extremely bad looking player board
         tfm_map             -> displays an extremely bad looking Mars board
         tfm_play <card>,... -> plays a card, with optional inline tfm_pay arguments
