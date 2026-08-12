@@ -89,6 +89,15 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Prefer supplied logs, images, and local map data over investigating another application's
   implementation. Work around unsupported engine behavior narrowly and record real follow-ups in
   `TODO.md`.
+- Never call `sneak` directly in a game fixture. Use the fixture's `mistake` helper for an
+  evidence-backed player error that requires a direct state adjustment. Place it as late in the
+  timeline as the sourced assertions allow, with a comment saying which later step requires it.
+  If auto-exec has already prepared the next task, the helper rolls that preparation back and
+  repeats it after the adjustment so state-dependent instructions are recalculated.
+  Keep unexplained state reconciliations as standalone timeline statements.
+  Never place a manual or other raw adjustment inside an unrelated action body to evade a prepared-task or
+  operation-boundary restriction; use an explicit fixture mechanism or fix the helper/API instead.
+  Nest a missing consequence only when the enclosing action genuinely caused it.
 
 ## Multiplatform tests
 

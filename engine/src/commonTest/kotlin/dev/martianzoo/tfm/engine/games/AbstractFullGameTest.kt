@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.engine.games
 
+import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
@@ -44,6 +46,43 @@ abstract class AbstractFullGameTest : TfmTest() {
 
   protected fun TfmGameplay.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertCounts(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
+  }
+
+  /** Reproduces an evidenced player mistake without leaving a task prepared against stale state. */
+  protected fun TfmGameplay.mistake(adjustment: String) {
+    val preparedId = game.tasks.preparedTask()
+    if (preparedId != null) {
+      val preparedTask = game.tasks.getTaskData(preparedId)
+      var expectedTask = preparedTask
+      val unpreparedTask =
+          game.events
+              .entriesSince(Checkpoint(0))
+              .asReversed()
+              .asSequence()
+              .map { event ->
+                check(event is TaskEditedEvent && event.task == expectedTask) {
+                  "unexpected event after preparation of task $preparedId: $event"
+                }
+                if (!event.oldTask.next && event.task.next) return@map event.oldTask
+
+                check(event.task == event.oldTask.copy(whyPending = event.task.whyPending)) {
+                  "unexpected edit after preparation of task $preparedId: $event"
+                }
+                expectedTask = event.oldTask
+                null
+              }
+              .firstNotNullOf { it }
+
+      game.tasks.editTask(unpreparedTask)
+    }
+
+    godMode().sneak(adjustment)
+
+    if (preparedId != null) {
+      val task = game.tasks.getTaskData(preparedId)
+      checkNotNull(game.gameplay(task.assignee).prepareTask(preparedId))
+      game.gameplay(task.assignee).autoExecNow()
+    }
   }
 
   protected fun TfmGameplay.assertDashMiddle(

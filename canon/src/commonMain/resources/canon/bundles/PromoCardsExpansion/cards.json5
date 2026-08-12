@@ -37,6 +37,16 @@
       ],
     },
 
+    // Fake Mons Insurance[F]
+    {
+      "id": "XC05F",
+      "deck": "CORPORATION",
+      "immediate": "48, PROD[4]",
+      "components": [
+        "CLASS FakeMonsInsuranceWatcher : Owned<Player> { HAS =1 This; CardXC05F<!Owner>: PROD[-2] BY Owner }",
+      ],
+    },
+
     // Philares
     {
       "id": "XC06",
