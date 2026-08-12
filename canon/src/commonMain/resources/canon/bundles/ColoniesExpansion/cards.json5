@@ -18,7 +18,7 @@
     {
       "id": "CC3",
       "deck": "CORPORATION",
-      "immediate": "50, PROD[5], 5 Titanium",
+      "immediate": "50, 5 Titanium, PROD[5]",
       "effects" : [ "BuyCard: -2" ],
     },
 
@@ -479,7 +479,7 @@
       "requirement": "Colony",
       "cost": 22,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], CityTile, ReserveTradeFleet",
+      "immediate": "ReserveTradeFleet, CityTile, PROD[-Energy, 4]",
     },
 
     // Space Port Colony
@@ -596,7 +596,7 @@
       "id": "C48",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
-      "requirement": "Colony, CityTile",
+      "requirement": "CityTile, Colony",
       "cost": 6,
       "tags": [ "MicrobeTag" ],
       "immediate": "PROD[Plant], 2 Microbe",

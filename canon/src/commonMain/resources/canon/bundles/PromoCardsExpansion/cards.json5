@@ -447,7 +447,7 @@
       "projectKind": "AUTOMATED",
       "cost": 29,
       "tags": [ "PowerTag", "CityTag", "BuildingTag" ],
-      "immediate": "PROD[2, Energy], CityTile, 3 Plant",
+      "immediate": "PROD[2, Energy], 3 Plant, CityTile",
     },
 
     // Imported Nutrients
@@ -509,7 +509,8 @@
       "projectKind": "ACTIVE",
       "cost": 31,
       "tags": [ "BuildingTag" ],
-      "immediate": "3 Plant, TemperatureStep, OceanTile",
+      // Following text order instead of icon order on published cards.
+      "immediate": "OceanTile, TemperatureStep, 3 Plant",
       "actions": [ "-> Microbe OR Animal" ],
     },
 
@@ -554,7 +555,7 @@
       "projectKind": "EVENT",
       "cost": 31,
       "tags": [ "SpaceTag" ],
-      "immediate": "3 TemperatureStep, 4 Steel, -6 Plant<Anyone>?, DdTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>",
+      "immediate": "3 TemperatureStep, DdTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?",
       "components": [ "CLASS DdTile : SpecialTile" ],
     },
 
@@ -595,7 +596,7 @@
       "immediate": "2 Asteroid<This>",
       "actions": [
         "1 -> Asteroid",
-        "Asteroid<This> -> 2 Titanium OR PROD[1]"
+        "Asteroid<This> -> PROD[1] OR 2 Titanium"
       ],
     },
 

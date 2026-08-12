@@ -6,7 +6,7 @@
       "id": "B11",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
-      "immediate": "PROD[Titanium], 42",
+      "immediate": "42, PROD[Titanium]",
       "effects": [ "JovianTag<Anyone>: PROD[1]" ],
     },
 
@@ -248,7 +248,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "effects": [ "Pay<Class<Steel>> OR Pay<Class<Titanium>>:: -Owed" ],
+      "effects": [ "Pay<Class<Titanium>> OR Pay<Class<Steel>>:: -Owed" ],
     },
 
     // Mars University

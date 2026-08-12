@@ -71,10 +71,10 @@ internal class CanonEffectsTest {
     classEffectsOf("Card230")
         .shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
-            "This: CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!," +
-                " PROD[-2 Energy<Owner>!," +
+            "This: PROD[-2 Energy<Owner>!," +
                 " Megacredit<Owner>! / VenusTag<Owner>," +
-                " Megacredit<Owner>! / EarthTag<Owner>]",
+                " Megacredit<Owner>! / EarthTag<Owner>]," +
+                " CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
         )
   }
 
