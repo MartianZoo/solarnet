@@ -29,7 +29,8 @@ public object TfmWorkflow {
    * resulting player actions before calling the next phase method.
    *
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via
-   * [OperationLayer.turn] when no task is already pending, so no explicit turn-granting is needed.
+   * [OperationLayer.inTurn] when no task is already pending, so no explicit turn-granting is
+   * needed.
    */
   public class Manual(private val game: World) {
 

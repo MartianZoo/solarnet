@@ -76,6 +76,13 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 
 Whole-game tests are high-value integration evidence. When translating a supplied game log:
 
+- In multiplayer action phases, express each player's actions as `player.turn { ... }`. A normal
+  turn block contains up to two actions and automatically declines an unused second action. Once
+  every other player has passed, keep the remaining player's actions through `pass()` in one turn
+  block; workflow-provided `NewTurn` tasks let that block continue across the remaining nominal
+  turns.
+- Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
+  immediately play another Prelude or project inside one of those plays.
 - Preserve supplied log lines as comments near the test actions that translate them. Assert
   selective checkpoints, summaries, and final facts rather than mechanically asserting every log
   entry.

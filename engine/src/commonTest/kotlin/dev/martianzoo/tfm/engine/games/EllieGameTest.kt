@@ -30,60 +30,69 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    p1.playPrelude("UnmiContractor") // 3 TR<P1>
-    p1.playPrelude("CorporateArchives")
-    p2.playPrelude("BiosphereSupport")
-    p2.playPrelude("SocietySupport")
+    p1.turn {
+      playPrelude("UnmiContractor") // 3 TR<P1>
+      playPrelude("CorporateArchives")
+    }
+    p2.turn {
+      playPrelude("BiosphereSupport")
+      playPrelude("SocietySupport")
+    }
 
     // Generation 1 (P1 first)
 
-    p1.playProject("MediaGroup", 6)
-    p1.playProject("Sabotage", 1) { doTask("-7 M<P2>") }
-
-    p2.playProject("Research", 11) // 1 VP<P2>, 2 TR<P2>
-    p2.playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<P2>
-
-    p1.pass()
-
-    p2.playProject("SearchForLife", 3) {
-      doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<P2>
+    p1.turn {
+      playProject("MediaGroup", 6)
+      playProject("Sabotage", 1) { doTask("-7 M<P2>") }
     }
-    p2.cardAction1("SearchForLife") { doTask("Ok") } // no microbe
-
+    p2.turn {
+      playProject("Research", 11) // 1 VP<P2>, 2 TR<P2>
+      playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<P2>
+    }
+    p1.pass()
+    p2.turn {
+      playProject("SearchForLife", 3) {
+        doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<P2>
+      }
+      cardAction1("SearchForLife") { doTask("Ok") } // no microbe
+    }
     p2.pass()
 
     // Generation 2 (P2 first)
     p1.doTask("1 BuyCard")
     p2.doTask("3 BuyCard")
 
-    p2.sellPatents(1)
-    p2.playProject("VestaShipyard", 15) // 1 VP<P2>
-
-    p1.playProject("EarthCatapult", 23) // 2 VP<P1>
-    p1.playProject("OlympusConference", steel = 4) // 1 VP<P1>
-
+    p2.turn {
+      sellPatents(1)
+      playProject("VestaShipyard", 15) // 1 VP<P2>
+    }
+    p1.turn {
+      playProject("EarthCatapult", 23) // 2 VP<P1>
+      playProject("OlympusConference", steel = 4) // 1 VP<P1>
+    }
     p2.pass()
 
-    p1.playProject("DevelopmentCenter", 1, steel = 4) {
-      doTask("ProjectCard FROM Science<OlympusConference>")
+    p1.turn {
+      playProject("DevelopmentCenter", 1, steel = 4) {
+        doTask("ProjectCard FROM Science<OlympusConference>")
+      }
+      playProject("GeothermalPower", 1, steel = 4)
+      playProject("MirandaResort", 10) // 1 VP<P1>
+      playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
+      playProject("MicroMills", 1)
     }
-    p1.playProject("GeothermalPower", 1, steel = 4)
-
-    p1.playProject("MirandaResort", 10) // 1 VP<P1>
-    p1.playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
-
-    p1.playProject("MicroMills", 1)
-
     p1.pass()
 
     // Generation 3 (P1 first)
     p1.doTask("3 BuyCard")
     p2.doTask("1 BuyCard")
 
-    p1.cardAction1("DevelopmentCenter")
-    p1.playProject("ImmigrantCity", 1, steel = 5) {
-      doTask("CityTile<Hellas_9_7>")
-      doTask("OceanTile<Hellas_5_6>") // 1 TR<P1>
+    p1.turn {
+      cardAction1("DevelopmentCenter")
+      playProject("ImmigrantCity", 1, steel = 5) {
+        doTask("CityTile<Hellas_9_7>")
+        doTask("OceanTile<Hellas_5_6>") // 1 TR<P1>
+      }
     }
     workflow.shutdown()
     workflow.isRunning shouldBe false
@@ -139,9 +148,13 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    p1.playProject("MediaGroup", 6)
-    p1.playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
+    p1.turn {
+      playProject("MediaGroup", 6)
+      playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
+    }
 
-    p2.playProject("Research", 11)
+    p2.turn {
+      playProject("Research", 11)
+    }
   }
 }

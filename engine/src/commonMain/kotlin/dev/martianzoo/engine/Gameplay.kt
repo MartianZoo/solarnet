@@ -122,7 +122,7 @@ public interface Gameplay {
   public interface TurnLayer : Gameplay {
     public fun startTurn(): TaskResult
 
-    public fun turn(body: BodyLambda = {}): TaskResult
+    public fun inTurn(body: BodyLambda = {}): TaskResult
   }
 
   // Green mode

@@ -143,7 +143,7 @@ internal class ApiTranslation(
 
   override fun startTurn() = atomic { impl.startTurn() }
 
-  override fun turn(body: BodyLambda): TaskResult {
+  override fun inTurn(body: BodyLambda): TaskResult {
     return if (tasks.isEmpty()) {
       manual("NewTurn", body)
     } else {

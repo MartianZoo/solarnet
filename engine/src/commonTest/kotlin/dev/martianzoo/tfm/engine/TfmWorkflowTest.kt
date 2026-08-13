@@ -12,6 +12,25 @@ import kotlin.test.Test
 
 class TfmWorkflowTest {
   @Test
+  fun turnDeclinesAnUnusedSecondAction() {
+    val game = Engine.newGame(canonicalPremise(HellasMapOption, PromoCardPack, players = 2))
+    val engine = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val workflow = TfmWorkflow.Auto(game).launch()
+
+    p1.playCorp("InterplanetaryCinematics", 7)
+    p2.playCorp("PharmacyUnion", 5)
+
+    p1.turn { sellPatents(1) }
+    p2.pass()
+    p1.pass()
+
+    engine.assertCounts(2 to "Generation", 1 to "ResearchPhase")
+    workflow.shutdown()
+  }
+
+  @Test
   fun soleRemainingPlayerDoesNotReceiveSecondActions() {
     val game = Engine.newGame(canonicalPremise(HellasMapOption, PromoCardPack, players = 2))
     val engine = game.tfm(ENGINE)
@@ -23,8 +42,11 @@ class TfmWorkflowTest {
     p2.playCorp("PharmacyUnion", 5)
 
     p1.pass()
-    p2.sellPatents(1)
-    p2.pass()
+    p2.turn {
+      sellPatents(1)
+      sellPatents(1)
+      pass()
+    }
 
     engine.assertCounts(2 to "Generation", 1 to "ResearchPhase")
     workflow.shutdown()

@@ -16,6 +16,8 @@ Do not propose any more than slight correctness updates to the human-authored do
    flag" warning are expected for now. The former comes from the deliberate 7.x security pin while
    Mocha still requests 6.x; the latter preserves Kotlin/JS's safer default of not running package
    lifecycle scripts.
+3. Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted
+   without asking for separate approval.
 
 ## Test Fixture Reconciliations
 
