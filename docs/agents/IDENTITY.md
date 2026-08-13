@@ -1,137 +1,108 @@
-# Identity, Task Assignment, and Control Scopes
+# Context and identity
 
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
-## Purpose
+## Status
 
-Record the identity distinctions the engine implements today, the cross-owner behaviors already
-protected by tests, and the narrower control-scope problem that remains for native workflow. The
-working cards described here are regression constraints, not evidence that task delegation must be
-redesigned.
+This document separates the committed engine from a proposed identity model. The section
+**Current committed implementation** is descriptive. Sections labeled **Target** are aspirational:
+they record intended semantics and must not be read as behavior already provided by the committed
+code.
 
-## Current identity model
+## Pets nuggets need context
 
-- **Actor** is who performs an instruction and is recorded on resulting change events.
-- **Owner** says whose components they are. Changing another Owner's components does not make that
-  Owner the Actor.
-- **Player** is both an Actor and an Owner. **Engine** is an Actor but not an Owner.
-  **SoloOpponent** is an Owner but not an Actor.
-- **Assignee** says whose task view contains a task and whose scoped gameplay may revise, prepare,
-  and execute it. Assignment and performance are intentionally separate.
-- Trigger-side `BY` filters the Actor recorded on the triggering change.
-- Instruction-side `BY` is a **performer override**. `A BY Player2` performs `A` as Player2 without
-  changing the enclosing Task's Assignee or transferring its choices.
-- Resolving an owned component effect binds contextual `Owner` from the component carrying the
-  effect. A later performer override does not rebind already-specialized owned types.
+A Pets value is a nugget of behavior specification:
 
-Mons Insurance, Crash Site Cleanup, Protected Habitats, and Helion all depend on the difference
-between the Actor causing a change and the Owner affected by it. The current model preserves that
-difference in event attribution and trigger matching.
+- an **Instruction** says what to do;
+- an **Effect** says what to do in response to a trigger;
+- a **Requirement** says what must be true; and
+- a **Metric** says how to count.
 
-## Current triggered-task assignment
+The Pets text alone is often incomplete. Interpreting or executing it requires context.
 
-`Effector` currently chooses the assignee for nonautomatic triggered work in this order:
+## Current context component and target context owner
 
-1. the Player owning the component whose effect fired;
-2. otherwise the Player owning the changed component;
-3. otherwise the Actor of the triggering change.
+The **context component** is the concrete component whose declaration supplied the Pets nugget. A
+live Effect inherited by a particular card, tile, or other component has that component as its
+context component. We sometimes speak loosely of its concrete Type as the component.
 
-Contextual `Owner` is calculated separately, although it currently uses the same first two sources
-before falling back to a triggering Player. Keeping these calculations separate is important:
-authored trigger-side `BY`, instruction-side performer overrides, contextual ownership, and task
-assignment are different facts.
+In the target model, if the context component is owned, its owner is the **context owner**. An
+instruction entered through a Player-scoped REPL or API context likewise has that Player as its
+context owner, even though it did not come from a component. Engine-scoped work may have no context
+owner. The committed engine does not yet preserve this identity independently through queued work.
 
-This assignment rule is deliberately labeled a compatibility policy in `Effector`. It is broad,
-but it is also established behavior on which current rules and tests rely. Do not replace it merely
-because a more explicit model seems attractive. First identify a rule whose required behavior it
-cannot express, protect that behavior, and preserve the cases below.
+Contextual specialization happens before a `LiveEffect` exists. For example, a bare `Plant` in an
+ownerless class effect remains abstract or is represented as `Plant<Owner>` so that inheritance by
+a concrete owned component can bind it. The target Types in an eventual Instruction are therefore
+already settled independently of task routing and Actor attribution.
 
-Automatic effects are executed inline by the Instructor handling the triggering change rather than
-being exposed as selectable tasks. Whole-game autoexec has another current caveat: the Actor of
-the gameplay context invoking autoexec performs a selected task even when that task has a different
-assignee.
+## Actor: current meaning and target default
 
-## Proven cross-owner behavior
+The principal meaning of **Actor** is the entity credited with acting. Each `ChangeEvent` records
+the Actor that performed its gain, removal, or transmutation. Trigger-side `BY` inspects only that
+recorded Actor.
 
-These behaviors work today and have focused integration coverage.
+In the target model, an instruction's Actor defaults to its context owner. Instruction-side `BY`
+explicitly overrides that default. If there is no context owner, the surrounding execution Actor
+is the fallback.
 
-### Philares
+The proposed default binds when work is produced: a pending or queued task remembers its **future
+Actor**. Later execution by a different gameplay context must not steal the attribution. An
+explicit `BY` inside the Instruction remains authoritative. The committed `Task` has no such field;
+the gameplay context that executes queued work currently supplies its default Actor.
 
-When Player1 creates the qualifying adjacency beside Player2's Philares tile, the effect-bearing
-component is owned by Player2. The compatibility assignment policy puts the abstract standard-
-resource task in Player2's queue. Player2 chooses and performs that gain, while the initiating tile
-placement remains attributed to Player1. Tests also cover same-owner adjacency and nonqualifying
-adjacency.
+## Target: a task has three relevant identities
 
-Philares does not currently use instruction-side `BY` and does not require a queue-suspension
-mechanism to produce the tested result. `PhilaresTest` is the primary regression suite.
+These identities may all differ:
 
-### Splice
+- **Controller/task owner** chooses which pending instruction proceeds next in the surrounding
+  operation.
+- **Narrower/decider** resolves the abstract choices inside that instruction.
+- **Future Actor** is recorded on resulting changes unless instruction-side `BY` overrides it.
 
-Splice is modeled with two cooperating effects. The corporation's ordinary effect pays its Owner,
-while one generated `CardXC03FWatcher<Player>` component per Player gives the owner of each gained Microbe
-tag the choice between money and a Microbe on the exact tagged card. Tests cover both recipients,
-multiple tags, both choices, correct card binding, and rejection of a different card.
+The committed `assignee` field conflates queue membership with narrowing authority and stores no
+future Actor. The target model has the controller retain an abstract parent task. Preparing it
+discovers whether a different narrower is required; if so, preparation creates a child choice task
+in the narrower's queue, suspends the parent, and resumes it after the child becomes concrete.
 
-Linked trigger specialization works in this representation. A more direct single-effect spelling
-could be a worthwhile data simplification someday, but it would also need an explicit way for the
-trigger-bound Player to become the task assignee. Instruction-side `BY` cannot do that: it changes
-only the performer. The generated watcher is therefore a working representation, not a known
-behavioral defect. `CardXC3Test` covers the representation through the card-facing API.
+## Target examples
 
-### World Government Terraforming and Icy Impactors
+The following table describes desired identity assignments. It is not a table of current queue
+routing or event attribution.
 
-These rules demonstrate the existing separation between choice and performance. The StartToken
-Owner receives WGT's `GlobalParameter! BY Engine` task and chooses the parameter, but Engine is the
-performer. Icy Impactors similarly lets the StartToken Owner choose an ocean performed by the card
-owner. Tests protect assignee, performer attribution, Actor-sensitive effects, completed-parameter
-rejection, option handling, and the prepared-task lock during the cross-player choice.
-`WorldGovernmentTerraformingTest` and `NewPromoCardsTest` contain the focused scenarios.
+| Case | Controller/task owner | Narrower | Future Actor |
+| --- | --- | --- | --- |
+| **Philares** | The Player placing the adjacent tile | The Philares owner chooses `StandardResource` | The Philares owner, from the effect's context owner |
+| **Enceladus resource colonies** | The active trader orders trade income and every colony bonus | Each colony owner chooses the card receiving their `Microbe` | Each bonus's context owner; this is independent of the trader's ordering choice |
+| **Icy Impactors** | The card owner controls the action | The StartToken owner chooses the ocean location | The card owner, because the instruction explicitly says `BY` that Player |
+| **World Government Terraforming** | Engine controls the solar workflow | The StartToken owner chooses the global parameter | Engine, because the instruction explicitly says `BY Engine` |
+| **Homeostasis Bureau** | The surrounding operation's controller | None; the payout is concrete | The card's context owner; the unqualified trigger also defaults to matching that owner's prior change |
+| **Pharmacy Union** | The operation that produced the Microbe tag | None; `-4` is concrete | The Pharmacy Union owner, from context—not from a redundant `BY Owner` |
+| **Steal** | The attacker | The attacker makes any choices | The attacker. The victim owns the changed resource but is “not doing anything”; this is why Helion cannot use stolen heat as money and why Actor-sensitive protection and compensation rules work. |
 
-### Enceladus
+`!Owner` in Philares is a complement Type bound meaning an owner other than `Owner`. It is unrelated
+to either form of `BY` and unrelated to postfix instruction `!`.
 
-Colony-tile effects, colony ownership, and the current assignment policy already distribute the
-placement and trade card-resource choices to the correct colony owners. The integration test has
-different Players choose Microbe cards for their respective Enceladus benefits and verifies the
-resulting counts. This scenario lives in `ColoniesBasicRulesTest`.
+## Current committed implementation
 
-## What is not implemented
+Committed tasks store one `assignee`. A scoped queue gives that assignee both queue membership and
+revision rights. When a gameplay context executes a task, that context supplies the default Actor
+for resulting changes; whole-game auto-execution can therefore attribute work to its caller rather
+than the task's assignee. Instruction-side `BY` can override that Actor.
 
-There is no general queue-suspension or parent/child control-scope model. `TaskQueues` stores tasks
-by assignee, and one globally prepared task prevents any competing task from being prepared. That
-global lock is enough to protect isolated cross-player choices such as Icy Impactors, but it does
-not represent why one Actor temporarily has control or when a larger delegated scope is complete.
+For nonautomatic triggered work, `LiveEffect` currently chooses the assignee from the effect's
+Player owner, otherwise the changed component's Player owner, otherwise the triggering Actor.
+Automatic effects execute inline through the triggering Actor's `Instructor`. There is no stored
+future Actor and no independent controller or narrower.
 
-The current Kotlin `TfmWorkflow.Auto` does not need such a model. It directly starts a Player's
-turn operation and waits until the whole Game World is idle. A future native Pets Workflow cannot leave
-an Engine continuation as an ordinary pending task and then wait for global idleness: that
-continuation itself would keep the Game World non-idle. Native Workflow therefore needs a way to say:
+Contextual specialization of owned Types happens before the live effect fires, and trigger-side
+`BY` inspects the Actor on the triggering event. These committed behaviors should survive the
+identity redesign. Philares and Enceladus demonstrate why the current assignment model is not the
+final semantic model.
 
-1. Engine retains a continuation that is temporarily not actionable;
-2. a Player controls all work produced within one turn scope;
-3. nested cross-owner choices may temporarily block that Player without completing the turn; and
-4. Engine resumes when that particular Player scope drains, not merely when an arbitrary queue or
-   the whole Game World happens to be empty.
+## Next step
 
-Call this **control-until-drain** for now. Queue suspension with explicit parent/child relationships
-is one possible implementation, not a settled requirement. An execution-frame or continuation
-model may express the same semantics more directly.
-
-## Remaining work
-
-1. Define native workflow's control-scope completion semantics with a small synthetic workflow
-   example before choosing its Pets syntax or storage model.
-2. Decide whether control scopes are represented by queue suspension, execution frames, explicit
-   continuations, or another mechanism. Preserve rollback, nested choices, and prepared-task
-   authority.
-3. Add behavioral tests for the native Engine-to-Player handoff and nested return path. Keep all
-   existing Philares, Splice, WGT, Icy Impactors, and Enceladus tests unchanged as regressions.
-4. Separately decide how a trigger binds its Actor into an instruction when the rule needs both the
-   attacker and victim, as Mons Insurance does. Trigger-side `BY !Owner` is only a predicate; it
-   does not itself make the matching Actor available as an output binding.
-5. Revisit the broad effect-assignment policy only if a concrete rule or native control-scope test
-   demonstrates that effect ownership and choice authority must diverge. Rover Construction is a
-   useful characterization candidate because its concrete payout needs no choice from the card
-   owner.
-6. Treat a direct single-effect Splice declaration as optional cleanup after assignment from a
-   trigger binding is supported, not as a prerequisite for correct gameplay.
+First add and characterize stored future-Actor attribution. Then characterize preparation-time
+handoff with a synthetic parent/child task and implement it for Philares without changing `BY` or
+future-Actor attribution. Preserve the target Enceladus behavior in which the active Player orders
+two other Players' bonuses while those Players narrow their own instructions.
