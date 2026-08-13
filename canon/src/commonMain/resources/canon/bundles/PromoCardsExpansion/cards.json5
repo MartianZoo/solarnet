@@ -367,7 +367,7 @@
       "immediate": "PROD[-Energy]",
       "actions": [ "-> Asteroid<This>?" ], // follow mode: the client supplies the reveal outcome
       "effects": [
-        "-Plant<Owner> BY !Owner:: Die",
+        "-Plant BY !Owner:: Die",
         "End: VictoryPoint / Asteroid<This>"
       ],
     },

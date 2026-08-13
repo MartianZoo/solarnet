@@ -429,7 +429,7 @@ No resulting game state is accepted merely because some prefix of the route exec
 Protected Habitats is the model example. Its effect is:
 
 ```
--Plant<Owner> OR -Animal<Owner> OR -Microbe<Owner> BY !Owner:: Die
+-Plant OR -Animal OR -Microbe BY !Owner:: Die
 ```
 
 An opponent's attack may initially offer a broad resource-removal instruction and let the attacker
