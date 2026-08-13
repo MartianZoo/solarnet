@@ -123,7 +123,7 @@ These identifiers are project-assigned rather than printed. Reserved entries pre
 | Promo | Recyclon | XC02 |
 | Promo | Splice Tactical Genomics | XC03F |
 | Promo | Factorum | XC04F |
-| Promo | Mons Insurance | XC05 (reserved) |
+| Promo | Mons Insurance | XC05 |
 | Promo | Philares | XC06 |
 | Promo | AstroDrill | XC07 |
 | Promo | Pharmacy Union | XC08F |

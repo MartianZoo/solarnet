@@ -140,6 +140,7 @@ Each task has:
 - `id` — a `TaskId` wrapping the numeric ordinal of its original `TaskAddedEvent`, stable through edits
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
 - `assignee` — whose pending work contains the task and whose scoped gameplay may narrow it
+- `actor` — who performs resulting state changes unless instruction-side `BY` overrides it
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
@@ -157,6 +158,10 @@ Player1 creates the adjacency, distributes Enceladus card-resource choices to co
 helps the generated per-Player Splice watchers give each tag owner their choice. These cases are
 covered by integration tests and are not known gameplay failures.
 
+Task assignment is independent of Actor attribution. Triggered work records the effect's context
+owner as its Actor when one exists, otherwise the triggering Actor. That Actor survives queueing,
+splitting, `THEN` continuation, revision, preparation, and execution by another gameplay context.
+
 Instruction-side `BY` does not change this assignment. It is only a Performer override. World
 Government Terraforming therefore works because the StartToken Owner is already the Task Assignee
 while `BY Engine` attributes the selected increase to Engine. Icy Impactors uses the same separation
@@ -168,8 +173,8 @@ instruction, while `prepare` and `drop` require exactly one pending task.
 
 Task assignment and queue membership are the same fact: an assignee's scoped view contains that
 assignee's tasks. This remains true if the physical implementation is one collection with filtered
-views. Do not introduce another identity field on every task merely to model temporary workflow
-control.
+views. The separate `actor` field is execution attribution, not another form of queue ownership or
+temporary workflow control.
 
 There is currently no queue-suspension graph or parent/child control-scope state. A globally
 prepared task locks out preparation of every competing task, which protects isolated cross-Actor
@@ -221,7 +226,9 @@ as much as possible without actually changing anything:
 - `Or`: each option within gets recursively prepared; those that would throw `NotNowException`
   specifially get pruned out
 - `Change` is "auto-narrowed": abstract types are resolved to concrete where there's only
-  one valid choice; Limits are checked (see Limiter below); the AMAP Quantifier is resolved
+  one valid choice; Limits are checked (see Limiter below); the AMAP Quantifier is resolved.
+  A non-mandatory transfer whose source and destination narrow to the same component becomes
+  `NoOp`; the same reflexive transfer remains invalid when mandatory.
 - Custom types delegate through `CustomClassRuntime`, which validates their concrete dependencies,
   invokes the matching `CustomClass.translate()` overload, and lowers the returned instruction
 
@@ -377,14 +384,12 @@ When a live effect fires, if the effect is **automatic** (double-colon in Pets s
 queue.
 
 The `Task.assignee` field records whose queue contains deferred work and whose scoped gameplay may
-narrow it. When a gameplay context executes the task, that context's Actor normally performs the
-resulting state changes and receives their `ChangeEvent.actor` attribution. An instruction-level
-`BY` explicitly overrides that performer without changing who owns or may narrow the task.
-Trigger-level `BY` independently matches the Actor on the triggering `ChangeEvent`.
+narrow it. `Task.actor` records the Actor for resulting state changes. An instruction-level `BY`
+explicitly overrides that Actor without changing who owns or may narrow the task. Trigger-level
+`BY` independently matches the Actor on the triggering `ChangeEvent`.
 
-For automatic effects the temporary `PendingTask` still carries routing metadata in its `assignee` field,
-but execution remains inline through the triggering Actor's `Instructor` and `Changer`, so
-resulting change events retain the triggering Actor.
+Automatic effects use the same rule without admitting the temporary `PendingTask` to a queue: its
+context owner is the Actor when present, otherwise the triggering Actor remains the fallback.
 
 ---
 
@@ -520,11 +525,11 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
   iteration order; keep going until the queue is empty or stuck (default mode)
 
 `autoExecNow` runs in a loop calling `autoExecNext` until it returns false. It scans pending tasks
-across the whole game and uses the assignee only to select the queue containing the task. The Actor
-of the gameplay context calling `autoExecNow` performs and receives credit for the resulting state
-changes, even when the task has another assignee. Tasks that fail are annotated with `whyPending`.
-When only one option exists, it is executed. When multiple options exist, `SAFE` stops while `FIRST`
-uses their stable iteration order to make an arbitrary choice.
+across the whole game and uses the assignee only to select the queue containing the task. Execution
+uses the task's stored Actor even when another gameplay context drives auto-execution. Tasks that
+fail are annotated with `whyPending`. When only one option exists, it is executed. When multiple
+options exist, `SAFE` stops while `FIRST` uses their stable iteration order to make an arbitrary
+choice.
 
 ---
 

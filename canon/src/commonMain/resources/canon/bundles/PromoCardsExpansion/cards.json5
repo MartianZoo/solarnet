@@ -37,13 +37,17 @@
       ],
     },
 
-    // Fake Mons Insurance[F]
+    // Mons Insurance
     {
-      "id": "XC05F",
+      "id": "XC05",
       "deck": "CORPORATION",
       "immediate": "48, PROD[4]",
+      "effects": [
+        "-X Resource<Anyone> BY !Anyone: 3 Megacredit<Anyone> FROM Megacredit.",
+        "-X Production<Anyone> BY !Anyone: 3 Megacredit<Anyone> FROM Megacredit.",
+      ],
       "components": [
-        "CLASS FakeMonsInsuranceWatcher : Owned<Player> { HAS =1 This; CardXC05F<!Owner>: PROD[-2] BY Owner }",
+        "CLASS MonsInsuranceWatcher : Owned<Player> { HAS =1 This; CardXC05<Anyone> IF MAX 0 CardXC05<Owner>: PROD[-2] BY Owner }",
       ],
     },
 

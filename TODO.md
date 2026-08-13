@@ -33,7 +33,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
-- Decide how a trigger binds its Actor into an instruction. Mons Insurance must bind both attacker and victim into its payout; `BY !Owner` supplies only the inequality test.
 - Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - During preparation, allow a satisfied gate with an inner `Ok` to reduce to `Ok`; context-free narrowing must preserve the gate.
 - Unify `OR` semantics and construction across AST families: reject duplicate authored arms; let programmatic factories deduplicate in first-occurrence order; preserve significant trigger order; and reconcile `Metric.Or` syntax with execution ([#63](https://github.com/MartianZoo/solarnet/issues/63)).

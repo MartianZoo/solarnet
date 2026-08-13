@@ -188,7 +188,7 @@ internal class Implementations(
    */
   private fun handleTask(queue: TaskQueue, task: Task) {
     task.then?.let {
-      queue.queueFor(task.assignee).addTasks(split(it), task.cause)
+      queue.queueFor(task.assignee).addTasks(split(it), task.cause, task.actor)
     }
     queue.removeTask(task.id)
   }
@@ -312,7 +312,7 @@ internal class Implementations(
       val one = split.instructions[0]
       queue.editTask(replacement.copy(instructionIn = one))
     } else {
-      queue.queueFor(replacement.assignee).addTasks(split, replacement.cause)
+      queue.queueFor(replacement.assignee).addTasks(split, replacement.cause, replacement.actor)
       handleTask(queue, queue.getTaskData(replacement.id))
     }
   }
@@ -324,7 +324,8 @@ internal class Implementations(
   private fun doTask(queue: TaskQueue, taskId: TaskId) {
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
-    val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
+    val newTasks =
+        instructor.execute(preparedTask.instruction, preparedTask.cause, preparedTask.actor)
     newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
     handleTask(queue, queue.getTaskData(taskId))
   }

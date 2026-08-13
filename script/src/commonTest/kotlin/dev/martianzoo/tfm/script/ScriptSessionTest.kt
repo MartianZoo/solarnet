@@ -253,8 +253,8 @@ internal class ScriptSessionTest {
         Mode BLUE: Turn integrity: must perform a valid game turn for this phase
         Autoexec mode is: SAFE
         0000: +CorporationPhase FROM SetupPhase BY Engine (manual)
-        0000: +CorporationCard<Player1> BY Engine VIA Player1 BECAUSE 0000
-        0000: +CorporationCard<Player2> BY Engine VIA Player2 BECAUSE 0000
+        0000: +CorporationCard<Player1> BY Player1 VIA Player1 BECAUSE 0000
+        0000: +CorporationCard<Player2> BY Player2 VIA Player2 BECAUSE 0000
         0000: +Photosynthesis BY Engine VIA TerraformingMars BECAUSE 0000
         Hi, Player1
         New tasks pending:
@@ -279,8 +279,8 @@ internal class ScriptSessionTest {
         0000: -12 Megacredit<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
         0000: +4 ProjectCard<Player2> BY Player2 VIA BuyCard<Player2> BECAUSE 0000
         0000: +PreludePhase FROM CorporationPhase BY Engine (manual)
-        0000: +2 PreludeCard<Player1> BY Engine VIA PreludeSetup<Player1> BECAUSE 0000
-        0000: +2 PreludeCard<Player2> BY Engine VIA PreludeSetup<Player2> BECAUSE 0000
+        0000: +2 PreludeCard<Player1> BY Player1 VIA PreludeSetup<Player1> BECAUSE 0000
+        0000: +2 PreludeCard<Player2> BY Player2 VIA PreludeSetup<Player2> BECAUSE 0000
         Hi, Player1
         New tasks pending:
         * [Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) (abstract)

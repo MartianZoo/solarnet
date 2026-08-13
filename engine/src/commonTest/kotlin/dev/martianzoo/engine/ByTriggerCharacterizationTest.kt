@@ -122,7 +122,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byNotOwnerUsesTheActorTypeDomain() {
+  fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
     val game = newGame()
     val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -130,12 +130,8 @@ class ByTriggerCharacterizationTest {
     owner.sneak("OpponentByProbe<Player1>!")
 
     owner.manual("ActorTriggerSignal!")
-    engine.beginManual("ActorTriggerSignal!") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
-    }
-    owner.doTask("Heat<Player1>!")
+    engine.manual("ActorTriggerSignal!")
+    game.tasks.isEmpty() shouldBe true
 
     other.beginManual("ActorTriggerSignal!") {
       game.tasks

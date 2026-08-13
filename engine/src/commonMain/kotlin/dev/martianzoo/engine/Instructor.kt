@@ -51,8 +51,12 @@ internal class Instructor(
         CustomClassRuntime(reader.ruleset, Transformers(classTable)),
 ) {
 
-  internal fun execute(instruction: Instruction, cause: Cause?): List<PendingTask> = buildList {
-    doExecute(instruction, cause, this, checkNotNull(defaultActor))
+  internal fun execute(
+      instruction: Instruction,
+      cause: Cause?,
+      actor: Actor = checkNotNull(defaultActor),
+  ): List<PendingTask> = buildList {
+    doExecute(instruction, cause, this, actor)
   }
 
   private fun doExecute(
@@ -96,7 +100,7 @@ internal class Instructor(
 
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
-        split(task.instruction).forEach { doExecute(it, task.cause, deferred, actor) }
+        split(task.instruction).forEach { doExecute(it, task.cause, deferred, task.actor) }
       }
       deferred += effector.fire(result, automatic = false)
       if (done) break
@@ -215,6 +219,7 @@ internal class Instructor(
       return Change.change(g?.expression, r?.expression, count, intens)
     }
 
+    if (g == r && intens != MANDATORY) return NoOp
     if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
 
     val gaining = g?.toComponent()
