@@ -8,12 +8,29 @@ import kotlin.test.Test
 
 internal class GameConfigTest {
   @Test
-  fun parsesCommaAndNewlineSeparatedSignedClassNames() {
-    val config = GameConfig("Player1, TerraformingMars\n-WorldGovernmentOption")
+  fun flexiblyParsesCommasSpacesNewlinesAndBlankLines() {
+    val config =
+        GameConfig(
+            """
+            Player1, Player2
+            TerraformingMars, TharsisMapOption
 
-    config.includedClassNames.shouldContainExactly(cn("Player1"), cn("TerraformingMars"))
+            VenusNextExpansion, -WorldGovernmentOption
+            """
+                .trimIndent()
+        )
+
+    config.includedClassNames.shouldContainExactly(
+        cn("Player1"),
+        cn("Player2"),
+        cn("TerraformingMars"),
+        cn("TharsisMapOption"),
+        cn("VenusNextExpansion"),
+    )
     config.excludedClassNames.shouldContainExactly(cn("WorldGovernmentOption"))
-    config.toString() shouldBe "Player1, TerraformingMars, -WorldGovernmentOption"
+    config.toString() shouldBe
+        "Player1, Player2, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
+            "-WorldGovernmentOption"
   }
 
   @Test

@@ -76,6 +76,10 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 
 Whole-game tests are high-value integration evidence. When translating a supplied game log:
 
+- Before editing a dated whole-game fixture, explicitly inspect its matching
+  `_local/GameYYYYMMDD/` directory and read any `implementation-plan.md` there before acting. The
+  repository's `_local` path may be a symlink, which `rg --files` does not traverse, so a general
+  file search is not evidence that the fixture's local sources are absent.
 - In multiplayer action phases, express each player's actions as `player.turn { ... }`. A normal
   turn block contains up to two actions and automatically declines an unused second action. Once
   every other player has passed, keep the remaining player's actions through `pass()` in one turn

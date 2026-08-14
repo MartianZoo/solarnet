@@ -3,7 +3,7 @@ package dev.martianzoo.data
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
-/** Raw user intent expressed as positive and negative canonical class names. */
+/** Raw user intent expressed as positive and negative class-name spellings. */
 public data class GameConfig(
     public val includedClassNames: Set<ClassName>,
     public val excludedClassNames: Set<ClassName> = emptySet(),

@@ -60,12 +60,32 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun individualCardExclusionIsNotAConfigurationFeature() {
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(
-          GameConfig("Player1, Player2, TerraformingMars, TharsisMapOption, -Card001")
-      )
-    }
+  fun individualClassExclusionOverridesAModule() {
+    val premise =
+        Canon.gamePremise(
+            GameConfig("Player1, Player2, TerraformingMars, TharsisMapOption, -Card001")
+        )
+
+    Engine.newGame(premise).classTable.isActive(cn("Card001")) shouldBe false
+  }
+
+  @Test
+  fun namedGoalConfigurationSelectsExactMilestoneAndAwardPools() {
+    val premise =
+        Canon.gamePremise(
+            GameConfig(
+                "Player1, Player2, TerraformingMars, HellasMapOption, " +
+                    "MilestonesAwardsExpansion, Coastguard, Landshaper, Botanist, Founder"
+            )
+        )
+    val table = Engine.newGame(premise).classTable
+
+    table.isActive(cn("MilestoneUM7")) shouldBe true
+    table.isActive(cn("MilestoneMM15")) shouldBe true
+    table.isActive(cn("MilestoneHM0")) shouldBe false
+    table.isActive(cn("AwardUA2")) shouldBe true
+    table.isActive(cn("AwardUA6")) shouldBe true
+    table.isActive(cn("AwardHA0")) shouldBe false
   }
 
   @Test

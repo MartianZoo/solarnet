@@ -50,7 +50,7 @@ Actors derive from positively selected player classes plus the administrative En
 
 Availability and initial existence are separate. With Colonies active, all eligible colony-tile classes are active so later effects can select them, while setup creates only the chosen starting tile components. An eligible but initially unchosen tile has count zero.
 
-`GameConfig` is the unresolved expression of user intent. Its included and excluded class-name sets have no ordering semantics. Defaults, implications, selection policies, and validation convert it into a `GamePremise`. The Terraforming Mars resolver currently accepts Modules, players, and initial colony tiles. It deliberately does not support adding or excluding individual cards.
+`GameConfig` is the unresolved expression of user intent. Its included and excluded class-name sets have no ordering semantics. Defaults, implications, selection policies, and validation convert it into a `GamePremise`. The Terraforming Mars resolver accepts Modules and signed individual classes. Unambiguous English Pets names for structured definitions are accepted alongside canonical names. Mentioning any milestones or awards selects the exact named pool for that category; selected colony tiles additionally become initial components.
 
 ## Bundles
 

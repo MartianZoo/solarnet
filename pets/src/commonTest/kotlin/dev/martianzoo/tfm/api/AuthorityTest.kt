@@ -232,7 +232,7 @@ internal class AuthorityTest {
   }
 
   @Test
-  fun individualCardConfigurationIsNotSupported() {
+  fun individualCardConfigurationIsSupported() {
     val source =
         TfmAuthority.compose(
             bundle(
@@ -242,7 +242,9 @@ internal class AuthorityTest {
             cardBundle("Cards", CardDefinition(CardData(id = "123"))),
         )
 
-    shouldThrow<IllegalArgumentException> { source.gamePremise(GameConfig("Card123")) }
+    val premise = source.gamePremise(GameConfig("Card123"))
+
+    ClassTable.forPremise(premise).isActive(cn("Card123")) shouldBe true
   }
 
   private fun authority(vararg declarations: ClassDeclaration): TfmAuthority =

@@ -11,7 +11,7 @@ import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.Player
+import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Requirement
@@ -37,14 +37,20 @@ public open class TfmAuthority : Authority {
   /** Organizational bundles from which this Authority is assembled. */
   public open val bundles: List<Bundle> = emptyList()
 
-  /** Resolves user-facing Module and setup selections into an exact game premise. */
+  /**
+   * Resolves user-facing Module and setup selections into an exact game premise.
+   *
+   * Structured definitions may use unambiguous English Pets names. Naming any milestones or awards
+   * selects the exact configured pool for that category.
+   */
   public fun gamePremise(config: GameConfig): GamePremise {
-    val mentioned = config.includedClassNames + config.excludedClassNames
-    require(mentioned.all { it in allClassNames }) {
-      "unknown configuration classes: ${mentioned - allClassNames}"
+    val explicitlyIncluded = resolveConfigurationNames(config.includedClassNames)
+    val explicitlyExcluded = resolveConfigurationNames(config.excludedClassNames)
+    require(explicitlyIncluded.intersect(explicitlyExcluded).isEmpty()) {
+      "a game configuration cannot include and exclude the same class"
     }
 
-    val included = config.includedClassNames.toMutableSet()
+    val included = explicitlyIncluded.toMutableSet()
     val implications = bundles.flatMap { it.metadata.configurationImplications }
     var changed: Boolean
     do {
@@ -52,23 +58,32 @@ public open class TfmAuthority : Authority {
       implications
           .filter { it.appliesTo(included) }
           .forEach { implication ->
-            changed = included.addAll(implication.included - config.excludedClassNames) || changed
+            changed = included.addAll(implication.included - explicitlyExcluded) || changed
           }
     } while (changed)
 
     val moduleNames = included.filterTo(linkedSetOf()) { it in modules }
     val colonyNames = colonyTileDefinitions.mapTo(hashSetOf(), Definition::className)
     val individualNames = included - moduleNames
-    val unsupported = individualNames.filterNot { Player.isValid(it) || it in colonyNames }
-    require(unsupported.isEmpty()) {
-      "configuration supports Modules, players, and initial colony tiles; unsupported: $unsupported"
-    }
-    require(config.excludedClassNames.all { it in modules }) {
-      "only Modules can be excluded from a game configuration"
-    }
     validateSelectedReplacements(moduleNames, included)
 
-    val classSelections = individualNames.mapTo(linkedSetOf()) { ClassSelection(it) }
+    val individualSelections = linkedMapOf<ClassName, Boolean>()
+    individualNames.forEach { individualSelections[it] = true }
+    (explicitlyExcluded - modules.keys).forEach { individualSelections[it] = false }
+    addExactDefinitionSelections(
+        individualSelections,
+        milestoneDefinitions,
+        explicitlyIncluded,
+    )
+    addExactDefinitionSelections(
+        individualSelections,
+        awardDefinitions,
+        explicitlyIncluded,
+    )
+    val classSelections =
+        individualSelections.mapTo(linkedSetOf()) { (className, included) ->
+          ClassSelection(className, included)
+        }
     val initialTypes =
         individualNames
             .filter { it in colonyNames }
@@ -81,6 +96,33 @@ public open class TfmAuthority : Authority {
               }
             }
     return GamePremise(this, moduleNames, classSelections, initialTypes)
+  }
+
+  private fun resolveConfigurationNames(names: Set<ClassName>): Set<ClassName> =
+      names.mapTo(linkedSetOf()) { configuredName ->
+        if (configuredName in allClassNames) return@mapTo configuredName
+        val matches = derivedPetsNameClassNames.filter { canonicalName ->
+          displayNamesByLanguage["en"]?.get(canonicalName)?.let(::petsClassName) == configuredName
+        }
+        require(matches.size == 1) {
+          if (matches.isEmpty()) {
+            "unknown configuration class: $configuredName"
+          } else {
+            "ambiguous configuration class $configuredName: $matches"
+          }
+        }
+        matches.single()
+      }
+
+  private fun addExactDefinitionSelections(
+      selections: MutableMap<ClassName, Boolean>,
+      definitions: Set<Definition>,
+      explicitlyIncluded: Set<ClassName>,
+  ) {
+    val definitionNames = definitions.mapTo(linkedSetOf(), Definition::className)
+    val selectedNames = explicitlyIncluded intersect definitionNames
+    if (selectedNames.isEmpty()) return
+    definitionNames.forEach { selections[it] = it in selectedNames }
   }
 
   // CLASS DECLARATIONS

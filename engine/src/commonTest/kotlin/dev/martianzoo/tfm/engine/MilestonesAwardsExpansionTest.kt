@@ -34,6 +34,13 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.count("OwnedTile<Tharsis_2_2>") shouldBe 1
     p1.count("TileInLargestGroup") shouldBe 3
     p2.count("TileInLargestGroup") shouldBe 2
+
+    p1.manual("8 M")
+    engine.phase("Action")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Landshaper") }
+
+    p1.count("Landshaper") shouldBe 1
+    p1.count("OwnedTile") shouldBe 4
   }
 
   @Test

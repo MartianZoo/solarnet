@@ -89,6 +89,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
   Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
   Politician rules.
+- Make `TaskResult.expect()` preserve the initiating player's context so unqualified owned
+  components assert that player's net change instead of aggregating changes across all players.
+- Implement Law Suit's conditional free play and resource transfer so the 2026-08-09 whole-game
+  fixture can play the card instead of reconciling its effects manually.
 - Delete or replace `ReluctantClassLoadingTest`'s exact cumulative card-count assertion; it is a
   pure content change detector and currently requires manual updates whenever a card is added.
 - Make class-literal parameters specialize inherited generic effects through a subclass, so solo

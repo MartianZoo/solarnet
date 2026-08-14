@@ -48,6 +48,18 @@ abstract class AbstractFullGameTest : TfmTest() {
     assertCounts(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
   }
 
+  protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: String) {
+    val expectedUnusedActionCards = cardNames.map { resolve(it).className }.toSet()
+    val unusedActionCards =
+        reader
+            .getComponents(resolve("ActionCard"))
+            .elements
+            .filter { count("ActionUsedMarker<${it.className}>") == 0 }
+            .map { it.className }
+            .toSet()
+    unusedActionCards shouldBe expectedUnusedActionCards
+  }
+
   /** Reproduces an evidenced player mistake without leaving a task prepared against stale state. */
   protected fun TfmGameplay.mistake(adjustment: String) {
     val preparedId = game.tasks.preparedTask()
