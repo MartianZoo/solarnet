@@ -26,11 +26,14 @@ internal object OptionCodeTranslation {
     }
     require("B" in codes) { "include B for the base game" }
     val selectedMaps = codes.intersect(mapOptions.keys)
-    require(selectedMaps.size == 1) { "select exactly one map: ${mapOptions.keys}" }
+    require(selectedMaps.size <= 1) { "select at most one map: ${mapOptions.keys}" }
 
     val options = buildSet {
       add(TERRAFORMING_MARS)
-      add(mapOptions.getValue(selectedMaps.single()))
+      add(
+          selectedMaps.singleOrNull()?.let(mapOptions::getValue)
+              ?: THARSIS_MAP_OPTION
+      )
       codes.mapNotNullTo(this) { positiveOptions[it] }
     }
     val excludedOptions = if (CORPORATE_ERA in options) emptySet() else setOf(CORPORATE_ERA)
@@ -39,7 +42,7 @@ internal object OptionCodeTranslation {
 
   fun suggestions(currentOptionCodes: String): List<String> {
     val nonMaps = optionsByCode - mapOptions.keys - "B"
-    val common = listOf("BM", "BRM", "BRMVX", "BRMVPX", "BRMVPXT", currentOptionCodes)
+    val common = listOf("B", "BR", "BRVX", "BRVPX", "BRVPXT", currentOptionCodes)
     val generated = mapOptions.keys.flatMap { map -> nonMaps.map { "B$it$map" } }
     return common + generated
   }
@@ -54,10 +57,10 @@ internal object OptionCodeTranslation {
 
   private val TERRAFORMING_MARS = cn("TerraformingMars")
   private val CORPORATE_ERA = cn("CorporateEraExpansion")
+  private val THARSIS_MAP_OPTION = cn("TharsisMapOption")
 
   private val mapOptions =
       linkedMapOf(
-          "M" to cn("TharsisMapOption"),
           "H" to cn("HellasMapOption"),
           "E" to cn("ElysiumMapOption"),
           "I" to cn("TerraCimmeriaMapOption"),
@@ -74,8 +77,7 @@ internal object OptionCodeTranslation {
           "X" to cn("PromoCardPack"),
       )
 
-  private val optionsByCode =
-      linkedSetOf("B", "R", "M", "H", "E", "I", "U", "V", "P", "C", "T", "X")
+  private val optionsByCode = linkedSetOf("B", "R", "H", "E", "I", "U", "V", "P", "C", "T", "X")
 
   private val optionByCode = optionsByCode.associateWith { code ->
     when (code) {

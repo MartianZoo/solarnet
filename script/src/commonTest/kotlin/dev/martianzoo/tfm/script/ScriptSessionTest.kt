@@ -37,7 +37,7 @@ internal class ScriptSessionTest {
   @Test
   fun `as Engine temporarily selects the Engine actor`() {
     val repl = ScriptSession()
-    repl.command("newgame BM 2")
+    repl.command("newgame B 2")
     repl.command("become Player1")
 
     assertEquals(listOf("1 Phase"), repl.command("as Engine count Phase"))
@@ -49,7 +49,7 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
 
     assertEquals(listOf("0 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
-    repl.command("newgame BRM 2")
+    repl.command("newgame BR 2")
     assertEquals(listOf("1 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
   }
 
@@ -57,8 +57,8 @@ internal class ScriptSessionTest {
   fun optionCodesRequireBaseAndDoNotAcceptSolo() {
     val repl = ScriptSession()
 
-    assertTrue(repl.command("newgame M 2").any { it.contains("include B") })
-    assertTrue(repl.command("newgame BSM 1").any { it.contains("supported option codes") })
+    assertTrue(repl.command("newgame R 2").any { it.contains("include B") })
+    assertTrue(repl.command("newgame BS 1").any { it.contains("supported option codes") })
   }
 
   @Test
@@ -113,8 +113,8 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
 
     assertEquals(
-        listOf("New 2-player game created with options: BRMCX"),
-        repl.command("newgame BRMCX 2 Ceres Io Titan Luna Pluto"),
+        listOf("New 2-player game created with options: BRCX"),
+        repl.command("newgame BRCX 2 Ceres Io Titan Luna Pluto"),
     )
     assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
     assertEquals(listOf("1 Io"), repl.command("count Io"))
@@ -133,10 +133,10 @@ internal class ScriptSessionTest {
 
     assertEquals(
         listOf(
-            "New 1-player game created with options: BRMC",
+            "New 1-player game created with options: BRC",
             "Purple mode: workflow active",
         ),
-        repl.command("newgame BRMC 1 Ceres Io Titan purple"),
+        repl.command("newgame BRC 1 Ceres Io Titan purple"),
     )
     repl.command("task -6 TerraformRating<Player1>")
     assertEquals(
@@ -166,7 +166,7 @@ internal class ScriptSessionTest {
       assertEquals(expected.split("\n"), results)
     }
 
-    command("newgame BRMPX 3", "New 3-player game created with options: BRMPX")
+    command("newgame BRPX 3", "New 3-player game created with options: BRPX")
     command("tfm_sample A 3", "Okay, did that.")
     command(
         "tfm_board P1",
@@ -223,7 +223,7 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
     val commands =
         """
-        newgame BRMVPX 2; mode blue; auto safe; phase Corporation
+        newgame BRVPX 2; mode blue; auto safe; phase Corporation
 
         become P1; turn; tfm_play Manutech; task 5 BuyCard
         become P2; turn; tfm_play Factorum; task 4 BuyCard
@@ -249,7 +249,7 @@ internal class ScriptSessionTest {
 
     val expectedOutput =
         """
-        New 2-player game created with options: BRMVPX
+        New 2-player game created with options: BRVPX
         Mode BLUE: Turn integrity: must perform a valid game turn for this phase
         Autoexec mode is: SAFE
         0000: +CorporationPhase FROM SetupPhase BY Engine (manual)

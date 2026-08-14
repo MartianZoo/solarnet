@@ -135,7 +135,7 @@ public class ScriptSession(
   }
 
   init {
-    newGame("BM", 2)
+    newGame("B", 2)
   }
 
   public fun prompt(): String =

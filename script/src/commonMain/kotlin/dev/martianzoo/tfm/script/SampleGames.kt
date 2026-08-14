@@ -13,7 +13,7 @@ internal object SampleGames {
   internal fun sampleGame(generations: Int): World {
     var gens = generations
 
-    val setup = OptionCodeTranslation.setup("BRMVPXT", 2)
+    val setup = OptionCodeTranslation.setup("BRVPXT", 2)
     val game = createGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)

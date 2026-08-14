@@ -52,8 +52,8 @@ send -- "help flurble\n"
 expect "Type `help` for help"
 expect -re {> }
 
-send -- "newgame BRMPX 2\n"
-expect "New 2-player game created with options: BRMPX"
+send -- "newgame BRPX 2\n"
+expect "New 2-player game created with options: BRPX"
 expect -re {> }
 
 send -- "tfm_sample Z 1\n"
