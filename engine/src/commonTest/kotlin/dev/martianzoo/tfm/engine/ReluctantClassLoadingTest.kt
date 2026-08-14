@@ -16,6 +16,7 @@ import kotlin.test.Test
 internal class ReluctantClassLoadingTest {
   // Deliberate expansion-specific omissions
 
+  // Stop deleting this test when cards are added; update the expected totals instead.
   @Test
   fun `card totals characterize progressively selected expansions`() {
     val selected = linkedSetOf(TerraformingMars)

@@ -273,6 +273,8 @@ private constructor(
 
     abstract val classToCheck: ClassName?
 
+    abstract fun transform(transformer: PetTransformer): Subscription
+
     private data class AnyOf(val alternatives: List<Subscription>) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
@@ -289,6 +291,9 @@ private constructor(
       }
 
       override val classToCheck = null
+
+      override fun transform(transformer: PetTransformer): Subscription =
+          copy(alternatives = alternatives.map { it.transform(transformer) })
     }
 
     private data class Regular(
@@ -341,6 +346,12 @@ private constructor(
       }
 
       override val classToCheck = match.className
+
+      override fun transform(transformer: PetTransformer): Subscription =
+          copy(
+              match = transformer.transform(match),
+              linkedSources = linkedSources.mapTo(mutableSetOf(), transformer::transform),
+          )
     }
 
     private data class Self(val context: Component, val matchOnGain: Boolean) : Subscription() {
@@ -362,6 +373,8 @@ private constructor(
       }
 
       override val classToCheck = null
+
+      override fun transform(transformer: PetTransformer): Subscription = this
     }
 
     private data class Personal(
@@ -374,10 +387,31 @@ private constructor(
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
+        reader as GameReaderImpl
+        val actor = currentEvent.actor
+        val actorType = reader.resolve(actor.expression)
+
+        // A positive abstract Actor selector is also a trigger-local type variable. Bind it before
+        // matching the inner trigger so `Resource<!Player> BY Player` means a resource belonging
+        // to someone other than the concrete Player who performed this event, and so the same
+        // Player can be retained in the triggered instruction.
+        if (!selector.complement && selector.simple && selector.className != ANYONE) {
+          val selectorType = reader.resolve(selector)
+          val actorClass = selectorType.classTable.getClass(ACTOR)
+          if (selectorType.rootClass.abstract && selectorType.rootClass.isSubtypeOf(actorClass)) {
+            val actorDomain = reader.resolve(ACTOR.expression)
+            if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
+            val binding = reader.transformers.checkedSubstituter(selectorType, actorType)
+            val hit =
+                inner.transform(binding).checkForHit(currentEvent, contextualOwner, isSelf, reader)
+                    ?: return null
+            return hit.before(binding)
+          }
+        }
+
         var hit = inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
 
         // BY describes the Actor that performed the triggering change, recorded on the event.
-        val actor = currentEvent.actor
         fun specializeSelector(): Expression {
           if (!selector.complement) return hit.specialize(selector)
 
@@ -402,9 +436,6 @@ private constructor(
         // Anyone is the icon-grammar spelling for an unrestricted trigger; unlike the other
         // selectors, its class hierarchy is about ownership rather than the Actor domain.
         if (by == ANYONE && !specializedSelector.complement) return hit
-
-        reader as GameReaderImpl
-        val actorType = reader.resolve(actor.expression)
 
         if (specializedSelector.complement) {
           val excludedType = reader.resolve(specializedSelector.copy(complement = false))
@@ -438,6 +469,9 @@ private constructor(
       }
 
       override val classToCheck = inner.classToCheck
+
+      override fun transform(transformer: PetTransformer): Subscription =
+          copy(inner = inner.transform(transformer), selector = transformer.transform(selector))
     }
 
     private data class Conditional(val inner: Subscription, val condition: Requirement) :
@@ -454,6 +488,12 @@ private constructor(
       }
 
       override val classToCheck = inner.classToCheck
+
+      override fun transform(transformer: PetTransformer): Subscription =
+          copy(
+              inner = inner.transform(transformer),
+              condition = transformer.transform(condition),
+          )
     }
 
     private data class Unscaled(val inner: Subscription) : Subscription() {
@@ -473,6 +513,9 @@ private constructor(
       }
 
       override val classToCheck = inner.classToCheck
+
+      override fun transform(transformer: PetTransformer): Subscription =
+          copy(inner = inner.transform(transformer))
     }
   }
 
@@ -487,6 +530,9 @@ private constructor(
     fun specialize(requirement: Requirement): Requirement = specializeNode(requirement)
 
     fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
+
+    fun before(transformer: PetTransformer) =
+        copy(transformers = listOf(transformer) + transformers)
 
     private fun <P : PetNode> specializeNode(node: P): P =
         transformers.fold(node) { current, transformer -> transformer.transform(current) }

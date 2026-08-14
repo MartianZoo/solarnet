@@ -52,6 +52,22 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
+  fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
+    val game = newGame()
+    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
+
+    p2.beginManual("-OwnedActorTrigger<Player1>!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactlyInAnyOrder(
+              PLAYER1 to "Steel<Player2>!",
+              PLAYER1 to "Heat<Player1>!",
+          )
+    }
+  }
+
+  @Test
   fun byPlayerRejectsEngine() {
     val game = newGame()
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
@@ -171,6 +187,10 @@ private object ProbeDeclarations : TfmAuthority() {
               CLASS ActorTriggerProbe : AutoLoad {
                 ActorTriggerSignal BY Anyone: Plant<Player1>
                 -ActorTriggerSignal BY Player: Steel<Player1>
+              }
+
+              CLASS ActorBindingProbe : AutoLoad {
+                -OwnedActorTrigger<!Player> BY Player: Steel<Player>, Heat<!Player>
               }
 
               CLASS RepeatedOwnerProbe : Owned, AutoLoad {

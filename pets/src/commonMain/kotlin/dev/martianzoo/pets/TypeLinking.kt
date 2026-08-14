@@ -85,8 +85,7 @@ internal object TypeLinking {
         occurrencesByExpression
             .filter { expression ->
               val (source, found) = expression
-              !source.complement &&
-                  source.className != THIS &&
+              source.className != THIS &&
                   isAbstract(source) &&
                   found.map(Occurrence::region).distinct().size >= 2 &&
                   !found.all(Occurrence::inRequirement)

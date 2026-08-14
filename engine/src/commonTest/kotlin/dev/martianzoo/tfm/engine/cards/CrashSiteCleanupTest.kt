@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -43,5 +45,20 @@ class CrashSiteCleanupTest : CardTest() {
     p1.manual("-Plant<Player2>")
     engine.manual("Generation")
     shouldThrow<RequirementException> { p1.playProject("CrashSiteCleanup", 4) }
+  }
+
+  @Test
+  fun `only the player who removed the plant qualifies`() {
+    newGame(PromoCardPack, players = 3)
+    val p3 = game.tfm(PLAYER3)
+    engine.phase("Action")
+    p1.manual("4, ProjectCard")
+    requireP2().manual("Plant")
+    p3.manual("4, ProjectCard")
+
+    p1.manual("-Plant<Player2>")
+
+    shouldThrow<RequirementException> { p3.playProject("CrashSiteCleanup", 4) }
+    p1.playProject("CrashSiteCleanup", 4) { doTask("2 Steel") }.expect("2 Steel")
   }
 }

@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.toStrings
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -42,9 +43,11 @@ internal class CanonEffectsTest {
         }
 
     compiledByOwnerEffects.isNotEmpty() shouldBe true
-    compiledByOwnerEffects.forEach { (_, effect) ->
-      (OWNER in effect.instruction) shouldBe true
-      (OWNER in replaceOwnerWith(PLAYER1).transform(effect.instruction)) shouldBe false
+    compiledByOwnerEffects.forEach { (className, effect) ->
+      withClue("$className: $effect") {
+        (OWNER in effect.instruction) shouldBe true
+        (OWNER in replaceOwnerWith(PLAYER1).transform(effect.instruction)) shouldBe false
+      }
     }
   }
 

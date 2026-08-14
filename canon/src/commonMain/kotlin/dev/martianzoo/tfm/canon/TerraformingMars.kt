@@ -11,6 +11,7 @@ import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost.Spend
 import dev.martianzoo.pets.ast.ClassName
@@ -214,10 +215,13 @@ internal object TerraformingMars {
 
     override fun translate(
         reader: GameReader,
-        ignoredOwner: Type,
+        owner: Type,
         cardClassType: Type,
     ): Instruction {
-      val requirement = cardFromClassType(cardClassType, reader).requirement ?: return NoOp
+      val requirement =
+          cardFromClassType(cardClassType, reader).requirement?.let {
+            replaceOwnerWith(Player(owner.className)).transform(it)
+          } ?: return NoOp
       if (requirement.canEvaluateDirectly() && reader.has(requirement)) return NoOp
 
       return requirement.globalParameterShortfall(reader)?.let { (parameter, count) ->

@@ -351,6 +351,12 @@ is separate: it controls whether an implementation component normally appears in
 output. `System` extends `Hidden`, while `Signal` is hidden without necessarily being engine-only.
 These rules affect subscription matching and do not rewrite the authored effect.
 
+A positive abstract Actor selector also binds the concrete Actor that matched it. Repeating that
+selector in the trigger or instruction reuses the concrete Actor; for example,
+`Resource<!Player> BY Player` means a resource owned by someone other than the Player who performed
+the removal. The complemented dependency still narrows to the concrete owner of the changed
+resource, including `SoloOpponent`.
+
 Pets spells the self triggers `This:` and `-This:`. They fire only for the occurrences of the
 effect-bearing concrete type changed by this event; they are not ordinary subscriptions to that
 type. Adding or removing `N` copies scales the instruction by `N` once, regardless of how many
@@ -424,7 +430,27 @@ different route. Public atomic operations perform this rollback automatically wh
 raised; longer interactive sequences retain the checkpoint needed to abandon the attempted route.
 No resulting game state is accepted merely because some prefix of the route executed successfully.
 
-Protected Habitats is the model example. Its effect is:
+The PromoCardPack normalizes hostile resource and production removals as durable generational records.
+`MyResourceWasRemoved<victim, Class<resource>, attacker>` records a removed resource, while
+`MyProductionWasDecreased<victim, Class<standard-resource>, attacker>` preserves which production
+was reduced. Each marker is an `Owned<Anyone>` component belonging to the victim. One generic
+promo-scoped system watcher creates each kind of record, once per attack occurrence. The owner bound is
+`Anyone`, so
+the same rules cover player-owned resources and the neutral solo stock. Crash Site Cleanup and Mons
+Insurance consume these records. Effects that must prevent a removal, such as
+Protected Habitats and Asteroid Deflection System, remain direct removal triggers.
+
+### Reject implementation-shaped Pets models
+
+Do not encode a compact game concept by proliferating parallel marker classes, one watcher per
+concrete resource, duplicated effect branches, or other machinery whose shape reflects an engine
+limitation rather than the rule being modeled. In particular, an attack abstraction must not need
+an `AttackKind` class hierarchy and separate watchers for megacredits, steel, titanium, plants,
+energy, heat, animals, microbes, and production. Stop and repair the generic Pets/type/trigger
+mechanism, or leave the card unimplemented with a clear blocker. Do not present such a workaround
+as a completed implementation.
+
+Protected Habitats is the model rollback example. Its effect is:
 
 ```
 -Plant OR -Animal OR -Microbe BY !Owner:: Die

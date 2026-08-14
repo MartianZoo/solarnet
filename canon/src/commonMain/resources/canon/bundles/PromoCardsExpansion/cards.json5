@@ -43,8 +43,7 @@
       "deck": "CORPORATION",
       "immediate": "48, PROD[4]",
       "effects": [
-        "-X Resource<Anyone> BY !Anyone: 3 Megacredit<Anyone> FROM Megacredit.",
-        "-X Production<Anyone> BY !Anyone: 3 Megacredit<Anyone> FROM Megacredit.",
+        "MyResourceWasRemoved<Anyone, Player> OR MyProductionWasDecreased<Anyone, Player>: 3 Megacredit<Anyone> FROM Megacredit.",
       ],
       "components": [
         "CLASS MonsInsuranceWatcher : Owned<Player> { HAS =1 This; CardXC05<Anyone> IF MAX 0 CardXC05<Owner>: PROD[-2] BY Owner }",
@@ -407,14 +406,10 @@
       "id": "X17",
       "deck": "PROJECT",
       "projectKind": "EVENT",
-      "requirement": "AttackHappened<Class<Plant>>",
+      "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Owner>",
       "cost": 4,
       "immediate": "Titanium OR 2 Steel",
       "effects": [ "End: VictoryPoint" ],
-      "components": [
-        "CLASS AttackHappened<Class<Resource>> : Generational, Hidden { HAS MAX 1 This }",
-        "CLASS AttackWatcher<Class<Resource>> : System { HAS =1 This; -X Resource<Owner> BY !Owner:: AttackHappened<Class<Resource>>. }"
-      ],
     },
 
     // Cutting Edge Technology
