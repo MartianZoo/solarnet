@@ -68,9 +68,10 @@ internal constructor(
   internal fun addTasks(
       instruction: InstructionGroup,
       cause: Cause?,
+      actor: Actor? = null,
   ): List<TaskAddedEvent> {
     val inferredAssignee = assignee ?: error("global queue view can't infer a task assignee")
-    return taskQueues.addTasks(instruction, inferredAssignee, cause)
+    return taskQueues.addTasks(instruction, inferredAssignee, cause, actor ?: inferredAssignee)
   }
 
   internal fun addTasks(task: PendingTask): List<TaskAddedEvent> {

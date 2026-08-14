@@ -612,7 +612,7 @@
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 5,
-      "effects": [ "-Plant<Owner> OR -Animal<Owner> OR -Microbe<Owner> BY !Owner:: Die" ],
+      "effects": [ "-Plant OR -Animal OR -Microbe BY !Owner:: Die" ],
     },
 
     // Satellites

@@ -307,9 +307,13 @@ public class Transformers(public val classTable: ClassTable) {
     return substituter(subs)
   }
 
-  private fun substituter(subs: Map<ClassName, Expression>): PetTransformer {
+  private fun substituter(
+      subs: Map<ClassName, Expression>,
+      preserved: Set<Expression> = emptySet(),
+  ): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
+        if (node is Expression && node in preserved) return node
         if (node is Expression) {
           val replacement: Expression? = subs[node.className]
           if (replacement != null) {
@@ -338,6 +342,20 @@ public class Transformers(public val classTable: ClassTable) {
   ): PetTransformer {
     return chain(
         listOf(substituter(specializationSubstitutions(general, specific))) +
+            afterSubstitution +
+            invalidChangesToDie()
+    )
+  }
+
+  /** Specializes a component while leaving trigger-local linked expressions to the event match. */
+  internal fun checkedSubstituterPreserving(
+      general: Type,
+      specific: Type,
+      preserved: Set<Expression>,
+      vararg afterSubstitution: PetTransformer?,
+  ): PetTransformer {
+    return chain(
+        listOf(substituter(specializationSubstitutions(general, specific), preserved)) +
             afterSubstitution +
             invalidChangesToDie()
     )

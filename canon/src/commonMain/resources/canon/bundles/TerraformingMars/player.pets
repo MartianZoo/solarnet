@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone {
     ABSTRACT CLASS Player : Actor {
       HAS =1 This
 
-      This:: GrossHack<This>
+      This:: GrossHack<This> BY Engine
 
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard

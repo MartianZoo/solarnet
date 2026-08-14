@@ -6,6 +6,7 @@ import dev.martianzoo.api.SystemClasses.ACTOR
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.api.SystemClasses.SYSTEM
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.GameEvent.ChangeEvent
@@ -82,15 +83,20 @@ private constructor(
     val assignee = assigneeForTriggeredWork(triggerEvent, effectOwner, changedComponentPlayer)
     val hit = subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
-    return PendingTask(assignee, hit.specialize(effect.instruction), cause)
+    return PendingTask(
+        assignee = assignee,
+        actor = effectOwner ?: triggerEvent.actor,
+        instruction = hit.specialize(effect.instruction),
+        cause = cause,
+    )
   }
 
   /**
    * The compatibility rule for choosing the assignee of work produced by an effect. Authored `BY`
    * independently tests the Actor recorded on the triggering event.
    *
-   * Automatic effects are represented temporarily as PendingTasks but execute inline through the
-   * triggering Actor's Instructor and Changer, so their resulting ChangeEvents retain that Actor.
+   * Automatic effects are represented temporarily as PendingTasks but execute inline using the
+   * PendingTask's stored Actor, so an effect owner remains the Actor when one exists.
    */
   private fun assigneeForTriggeredWork(
       triggerEvent: ChangeEvent,
@@ -151,15 +157,20 @@ private constructor(
       val thisBinding = replaceThisExpressionsWith(component.expression)
 
       return if (component.owner == null || component.playerOwner != null) {
-        val checkedBinding =
-            transformers.checkedSubstituter(
-                component.type.rootClass.defaultType,
-                component.type,
-                ownerBinding,
-                thisBinding,
-                transformers.insertDeferredComplementDefaults(component.expression),
-            )
         transformers.classEffects(component.type.rootClass).map { effect ->
+          // Anyone repeated across a trigger and its result is local to that event, not the
+          // component's contextual Owner. Leave it for subscription matching to specialize.
+          val triggerBindings =
+              effect.linkedTypeSources.filterTo(mutableSetOf()) { it.className == ANYONE }
+          val checkedBinding =
+              transformers.checkedSubstituterPreserving(
+                  component.type.rootClass.defaultType,
+                  component.type,
+                  triggerBindings,
+                  ownerBinding,
+                  thisBinding,
+                  transformers.insertDeferredComplementDefaults(component.expression),
+              )
           val bound = checkedBinding.transform(effect)
           try {
             component.type.classTable.checkAllTypes(bound)
@@ -367,14 +378,24 @@ private constructor(
 
         // BY describes the Actor that performed the triggering change, recorded on the event.
         val actor = currentEvent.actor
-        var specializedSelector = hit.specialize(selector)
+        fun specializeSelector(): Expression {
+          if (!selector.complement) return hit.specialize(selector)
+
+          var excluded = hit.specialize(selector.copy(complement = false))
+          if (contextualOwner != null) {
+            excluded = replaceOwnerWith(contextualOwner).transform(excluded)
+          }
+          return excluded.copy(complement = true)
+        }
+
+        var specializedSelector = specializeSelector()
 
         // On an unowned effect, an otherwise-unbound positive Owner means the performing Player.
         // Apply that established contextual rule before evaluating the selector as an Actor type.
         if (specializedSelector == OWNER.expression) {
           val owner = actor as? Player ?: return null
           hit = hit.then(replaceOwnerWith(owner))
-          specializedSelector = hit.specialize(selector)
+          specializedSelector = specializeSelector()
         }
         val by = specializedSelector.className
 
@@ -384,6 +405,32 @@ private constructor(
 
         reader as GameReaderImpl
         val actorType = reader.resolve(actor.expression)
+
+        if (specializedSelector.complement) {
+          val excludedType = reader.resolve(specializedSelector.copy(complement = false))
+          val actorClass = excludedType.classTable.getClass(ACTOR)
+          val abstractActorSupertypes =
+              excludedType.rootClass.allSuperclasses().filter {
+                it.abstract && it.isSubtypeOf(actorClass)
+              }
+          val selectorDomain =
+              abstractActorSupertypes.singleOrNull { candidate ->
+                abstractActorSupertypes.none {
+                  it != candidate && it.isSubtypeOf(candidate)
+                }
+              }
+                  ?: run {
+                    // A passive Owner such as SoloOpponent is not an Actor. Its opposing Actors
+                    // are Players, not the administrative Engine.
+                    val ownerClass = excludedType.classTable.getClass(OWNER)
+                    if (!excludedType.rootClass.isSubtypeOf(ownerClass)) return null
+                    excludedType.classTable.getClass(PLAYER)
+                  }
+          if (!actorType.narrows(selectorDomain.defaultType, reader)) return null
+          if (actorType.narrows(excludedType, reader)) return null
+          return hit
+        }
+
         val actorDomain = reader.resolve(ACTOR.expression)
         if (!reader.matchesConstraint(actorType, specializedSelector, actorDomain)) return null
 
