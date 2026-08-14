@@ -493,6 +493,9 @@ public sealed class Instruction : PetElement() {
       val authoredBinding =
           PetTransformer.chain(
               linkedTypeSources.mapNotNull { source ->
+                if (loweredBinding != null && loweredBinding.transform(source) != source) {
+                  return@mapNotNull null
+                }
                 val bindings =
                     proposed
                         .descendantsOfType<Expression>()

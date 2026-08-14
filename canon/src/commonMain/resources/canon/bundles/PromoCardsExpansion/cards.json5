@@ -288,6 +288,16 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
+    // Law Suit
+    {
+      "id": "X06",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 2,
+      "immediate": "3 Megacredit FROM Megacredit<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): PlayedEvent<Player, Class<This>> FROM PlayedEvent<Class<This>>)",
+      "effects": [ "End: -VictoryPoint" ],
+    },
+
     // Mercurian Alloys
     {
       "id": "X07",

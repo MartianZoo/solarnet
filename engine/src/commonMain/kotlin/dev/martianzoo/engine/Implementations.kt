@@ -162,8 +162,14 @@ internal class Implementations(
         recoverable = true
         explainAnyTask(taskId, "abstract")
       } catch (_: NotNowException) {
-        // we're in trouble if ALL of these are NotNowExceptions
-        explainAnyTask(taskId, "currently impossible")
+        val task = queueForAnyTask(taskId).getTaskData(taskId)
+        if (task.instruction.isAbstract(reader)) {
+          recoverable = true
+          explainAnyTask(taskId, "abstract")
+        } else {
+          // we're in trouble if ALL of these are NotNowExceptions
+          explainAnyTask(taskId, "currently impossible")
+        }
       }
     }
     if (!recoverable) throw DeadEndException("")
@@ -313,7 +319,7 @@ internal class Implementations(
       queue.editTask(replacement.copy(instructionIn = one))
     } else {
       queue.queueFor(replacement.assignee).addTasks(split, replacement.cause, replacement.actor)
-      handleTask(queue, queue.getTaskData(replacement.id))
+      handleTask(queue, replacement)
     }
   }
 
@@ -336,8 +342,11 @@ internal class Implementations(
 
   internal fun doTask(revised: Instruction, taskNumber: Int? = null) {
     val id = matchingTask(revised, taskNumber)
-    prepareTask(id)
-    if (id in tasks) reviseTask(id, revised)
+    val selectsLinkedFirstStage =
+        selectFirstStageOrNull(tasks.getTaskData(id).instruction, revised) != null
+    if (selectsLinkedFirstStage) reviseTask(id, revised)
+    if (id in tasks) prepareTask(id)
+    if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, revised)
     if (id in tasks) doTask(id)
   }
 

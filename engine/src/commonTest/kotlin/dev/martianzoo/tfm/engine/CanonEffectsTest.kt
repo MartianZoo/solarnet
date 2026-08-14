@@ -55,7 +55,7 @@ internal class CanonEffectsTest {
   fun sabotage() {
     classEffectsOf("Card121")
         .shouldContainExactlyInAnyOrder(
-            "This: PlayedEvent<Owner, Class<This>> FROM This!",
+            "This: PlayedEvent<Owner, Class<This>> FROM This.",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
         )
   }

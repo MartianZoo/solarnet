@@ -174,7 +174,11 @@ internal class Instructor(
 
     val (g: Type?, r: Type?) =
         try {
-          autoNarrowTypes(change.gaining, change.removing)
+          autoNarrowTypes(
+              change.gaining,
+              change.removing,
+              preserveAbstractActor = intens == AMAP,
+          )
         } catch (e: DependencyException) {
           if (intens == AMAP && change.gaining != null && change.removing == null) return NoOp
           throw e
@@ -281,7 +285,11 @@ internal class Instructor(
   }
 
   // Still spending 25% of solo game time in this method
-  private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<Type?, Type?> {
+  private fun autoNarrowTypes(
+      gaining: Expression?,
+      removing: Expression?,
+      preserveAbstractActor: Boolean,
+  ): Pair<Type?, Type?> {
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
 
@@ -297,7 +305,15 @@ internal class Instructor(
       g = g.singleConcreteSubtype(reader) ?: g
     }
 
-    if (r?.abstract == true) {
+    val hasAbstractActorDependency =
+        r?.dependencies
+            ?.typeDependencies()
+            ?.any {
+              it.boundType.abstract &&
+                  it.boundType.rootClass.isSubtypeOf(classTable.getClass(ACTOR))
+            }
+            ?: false
+    if (r?.abstract == true && !(preserveAbstractActor && hasAbstractActorDependency)) {
       // Infer a type if there IS only one kind of component that has it
       r =
           reader.getComponents(r).elements.singleOrNull()?.let {

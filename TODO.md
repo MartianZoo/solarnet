@@ -91,10 +91,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   Politician rules.
 - Make `TaskResult.expect()` preserve the initiating player's context so unqualified owned
   components assert that player's net change instead of aggregating changes across all players.
-- Implement Law Suit's conditional free play and resource transfer so the 2026-08-09 whole-game
-  fixture can play the card instead of reconciling its effects manually.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
+- Delete or replace `ReluctantClassLoadingTest`'s exact cumulative card-count assertion; it is a
+  pure content change detector and currently requires manual updates whenever a card is added.
 - Make class-literal parameters specialize inherited generic effects through a subclass, so solo
   resource helpers can share replenishment behavior without a holder/resource dependency cycle.
 - Define the `script` command's relative-path policy and correct its help text, which currently

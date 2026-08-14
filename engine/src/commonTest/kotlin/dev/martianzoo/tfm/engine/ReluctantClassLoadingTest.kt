@@ -56,7 +56,7 @@ internal class ReluctantClassLoadingTest {
             PreludeExpansion to 272 + 45, // 47 minus Research Network/Coordination
             ColoniesExpansion to 317 + 52, // 54 minus Aridor and Stormcraft
             TurmoilCardPack to 369 + 4,
-            PromoCardPack to 373 + 85 - 1, // 85-card pack minus Arcadian Communities
+            PromoCardPack to 373 + 85,
         )
     )
   }

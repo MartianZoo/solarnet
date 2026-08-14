@@ -18,7 +18,7 @@ ABSTRACT CLASS Card : Owned<Player> {           // a quantity that stays fixed a
 
     "A red *project* card"
     ABSTRACT CLASS EventCard {
-      This: PlayedEvent<Class<This>> FROM This  // ideally this wouldn't happen until EOT
+      This: PlayedEvent<Class<This>> FROM This. // ideally this wouldn't happen until EOT
     }
 
     "A CardFront that can collect resources"

@@ -1,6 +1,6 @@
 # Cards to add
 
-We have 457 cards working. We don't have anything from the Prelude 2 expansion.
+We have 458 cards working. We don't have anything from the Prelude 2 expansion.
 
 | id   | card name                  | expansion | blocker          |
 |------|----------------------------|-----------|------------------|
@@ -13,7 +13,6 @@ We have 457 cards working. We don't have anything from the Prelude 2 expansion.
 | CC5  | Stormcraft Incorporated    | colonies  | payment          |
 | XC01 | Arcadian Communities       | promo     | occupants        |
 | XC10 | Kuiper Cooperative         | promo     | payresource      |
-| X06  | Law Suit                   | promo     | actorbinding     |
 | X46  | Supercapacitors            | promo     | breaksgamerule   |
 | X54  | Established Methods        | promo     | else             |
 | X59  | Mars Nomads                | promo     | occupants        |

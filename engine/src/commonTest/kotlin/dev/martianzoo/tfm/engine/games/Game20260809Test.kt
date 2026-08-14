@@ -1253,15 +1253,19 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I play Invention Contest for free and choose this card."
     // Dad's Earth Catapult discount reduces its printed 2-M€ cost to zero.
-    dad.turn { playProject("InventionContest", 0) }
-    // "For my second action, I play Lawsuit for free. You lowered my production this generation."
-    // "So you lose three money and I gain three money?"
-    // "My Mons doesn't activate for that. I would just pay myself."
-    // Law Suit is not implemented; preserve its evidenced resource transfer at this boundary.
-    dad.mistake("3 M<P2> FROM M<P1>, -ProjectCard")
+    dad.turn {
+      playProject("InventionContest", 0)
+
+      // "For my second action, I play Lawsuit for free. You lowered my production this generation."
+      // "So you lose three money and I gain three money?"
+      // "My Mons doesn't activate for that. I would just pay myself."
+      playProject("LawSuit", 0) {
+            doTask("3 Megacredit<Player2> FROM Megacredit<Player1>.")
+          }
+          .expect("3 M<P2>, -3 M<P1>")
+    }
     dad.assertCounts(26 to "M") // ledger entry 222
     ellie.assertCounts(7 to "M") // ledger entry 332
-    // Law Suit's unimplemented VP is reconciled after natural scoring.
 
     // "I add a Sub-Zero Salt Fish."
     ellie.turn { cardAction1("SubZeroSaltFish") }
@@ -1593,8 +1597,6 @@ class Game20260809Test : AbstractFullGameTest() {
     dad.doTask("Ok")
 
     // (9:02 pm) "Final scoring."
-    // Law Suit is not implemented, so preserve Ellie's evidenced card penalty after scoring.
-    ellie.mistake("-1 VP")
 
     val score = Summarizer(game)
 
@@ -1628,8 +1630,8 @@ class Game20260809Test : AbstractFullGameTest() {
     // "And four is 21, and 11 is 32. So I saved some face here. And then for these, 17 more."
     score.net("Card", "VP<P2>") shouldBe 49
 
-    // "Four, two, two, one. Ten."
-    score.net("Card", "VP<P1>") shouldBe 10
+    // "Four, two, two, one. Ten." Law Suit lowers Ellie's net card score to nine.
+    score.net("Card", "VP<P1>") shouldBe 9
 
     // "You only won by five points. 114[sic] to 109."
     // "I'm sorry for all the fucking whining I was doing."
