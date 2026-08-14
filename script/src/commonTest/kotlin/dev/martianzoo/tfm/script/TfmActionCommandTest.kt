@@ -19,7 +19,7 @@ internal class TfmActionCommandTest {
   @Test
   fun `tfm action continues a use card action already underway`() {
     val repl = ScriptSession()
-    repl.command("newgame BERP 2")
+    repl.command("newgame BRP 2")
     repl.command("become P1")
     repl.gameplay.godMode().manual("PROD[Energy], AiCentral")
     repl.command("auto none")
@@ -80,7 +80,7 @@ internal class TfmActionCommandTest {
 
   @Test
   fun `tfm action binds a multiplied variable direct removal cost`() {
-    val repl = actionGame("EnergyMarket, 6", "BERPX")
+    val repl = actionGame("EnergyMarket, 6", "BRPX")
 
     val output = repl.command("tfm_action EnergyMarket 1, 6")
 
@@ -127,7 +127,7 @@ internal class TfmActionCommandTest {
     assertTrue(repl.command("tfm_action AiCentral 4").single().startsWith("Usage:"))
   }
 
-  private fun actionGame(contents: String, options: String = "BERP"): ScriptSession {
+  private fun actionGame(contents: String, options: String = "BRP"): ScriptSession {
     val repl = ScriptSession()
     repl.command("newgame $options 2")
     repl.command("become P1")

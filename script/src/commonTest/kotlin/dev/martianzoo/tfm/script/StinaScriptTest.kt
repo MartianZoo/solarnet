@@ -16,7 +16,7 @@ internal class StinaScriptTest {
     val script =
         """
         // Stina's Saturn Systems solo game
-        newgame BERP 1 purple
+        newgame "Player1, TerraformingMars, CorporateEraExpansion, ElysiumMapOption, PreludeExpansion" purple
 
         // Neutral tiles for solo setup
         task CityTile<Elysium_5_6, SoloOpponent>

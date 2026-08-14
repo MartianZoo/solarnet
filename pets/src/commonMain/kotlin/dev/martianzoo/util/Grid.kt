@@ -49,6 +49,36 @@ public interface Grid<E> : Set<E> {
           this[r - 1, c - 1],
       )
 
+  /** Returns the size of the largest contiguous group in [cells], using hex adjacency. */
+  public fun largestContiguousGroupSize(
+      cells: Set<E>,
+      rowOf: (E) -> Int,
+      columnOf: (E) -> Int,
+  ): Int {
+    val remaining = cells.toMutableSet()
+    var largest = 0
+
+    while (remaining.isNotEmpty()) {
+      val first = remaining.first()
+      remaining.remove(first)
+      val pending = mutableListOf(first)
+      var size = 0
+
+      while (pending.isNotEmpty()) {
+        val cell = pending.removeLast()
+        size++
+
+        for (neighbor in hexNeighbors(rowOf(cell), columnOf(cell))) {
+          if (remaining.remove(neighbor)) pending.add(neighbor)
+        }
+      }
+
+      largest = maxOf(largest, size)
+    }
+
+    return largest
+  }
+
   public fun allNeighbors(r: Int, c: Int): List<E> =
       hexNeighbors(r, c) + listOfNotNull(this[r - 1, c + 1], this[r + 1, c - 1])
 

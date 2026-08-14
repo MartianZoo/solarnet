@@ -55,6 +55,19 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  fun milestonesAwardsModulePrivatelySelectsItsBundleContent() {
+    val base = table(cn("TharsisMapOption"))
+    val expanded = table(cn("TharsisMapOption"), cn("MilestonesAwardsExpansion"))
+
+    base.isActive(cn("MilestoneMM02")) shouldBe false
+    base.isActive(cn("MilestoneBM4")) shouldBe true
+    expanded.isActive(cn("MilestoneMM02")) shouldBe true
+    expanded.isActive(cn("MilestoneBM4")) shouldBe false
+    expanded.isActive(cn("AwardMA01")) shouldBe true
+    expanded.isActive(cn("AwardMA21")) shouldBe true
+  }
+
+  @Test
   fun promoModuleReplacesCardsWithoutRemovingEitherFromTheAuthority() {
     val relevant =
         setOf(

@@ -1,0 +1,90 @@
+{
+  // Reprinted goals retain the canonical definitions owned by their original map bundles. This
+  // file contains only new goals and revised goals with distinct implementations.
+  "milestones": [
+    // Briber needs a claim cost that differs for this milestone.
+    // { "id": "MM01", "requirement": "..." },
+
+    // Builder
+    { "id": "MM02", "replaces": "BM4", "requirement": "7 BuildingTag" },
+
+    // Engineer
+    { "id": "MM07", "requirement": "10 PROD[Energy OR Heat]" },
+
+    // Farmer
+    { "id": "MM08", "requirement": "5 (Animal OR Microbe)" },
+
+    // Geologist
+    {
+      "id": "MM13",
+      "requirement": "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))",
+    },
+
+    // Hydrologist needs player markers that track who placed each ocean.
+    // { "id": "MM14", "requirement": "..." },
+
+    // Landshaper
+    { "id": "MM15", "requirement": "CityTile, GreeneryTile, SpecialTile" },
+
+    // Legend
+    { "id": "MM16", "replaces": "HM9", "requirement": "4 PlayedEvent" },
+
+    // Lobbyist needs the unimplemented Turmoil delegate and party-leader rules.
+    // { "id": "MM17", "requirement": "..." },
+
+    // Merchant. ClaimMilestoneSA pays its 8 M€ before resolving the selected milestone, so the
+    // ordinary requirement observes the post-payment resources required by the tile.
+    {
+      "id": "MM19",
+      "requirement": "2 Megacredit, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat",
+    },
+
+    // Philantropist. This reuses Vitor's positive-VP citation metric. It is unclear whether the
+    // milestone is intended to count Vitor itself, which cites positive VP but does not score VP.
+    {
+      "id": "MM21",
+      "requirement": "5 CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>)",
+    },
+
+    // Pioneer
+    {
+      "id": "MM22",
+      "replaces": "UM1",
+      "requirement": "4 Colony",
+      "setupRequirement": "ColoniesExpansion",
+    },
+
+    // Producer. GrossHack contributes five synthetic M€ production components, so 21 models
+    // the printed combined production threshold of 16.
+    { "id": "MM25", "requirement": "21 PROD[StandardResource]" },
+
+    // Spacefarer
+    { "id": "MM28", "requirement": "4 SpaceTag" },
+
+    // Sponsor
+    { "id": "MM29", "requirement": "3 CardFront(HAS 20 CardCost)" },
+
+    // Tactician
+    {
+      "id": "MM30",
+      "replaces": "HM1",
+      "requirement": "4 CardFront(HAS CardRequirement)",
+    },
+
+    // Terraformer
+    { "id": "MM31", "replaces": "BM1", "requirement": "29 TerraformRating" },
+
+    // Terran
+    { "id": "MM32", "requirement": "5 EarthTag" },
+
+    // Thawer needs player markers that track who raised each temperature step.
+    // { "id": "MM33", "requirement": "..." },
+
+    // Tycoon
+    {
+      "id": "MM35",
+      "replaces": "HM8",
+      "requirement": "10 (ActiveCard OR AutomatedCard)",
+    },
+  ],
+}

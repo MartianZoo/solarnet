@@ -49,16 +49,21 @@ internal class ScriptSessionTest {
     val repl = ScriptSession()
 
     assertEquals(listOf("0 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
-    repl.command("newgame BR 2")
+    repl.command("newgame BRM 2")
     assertEquals(listOf("1 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
+    assertEquals(
+        listOf("1 MilestonesAwardsExpansion"),
+        repl.command("count MilestonesAwardsExpansion"),
+    )
+    assertEquals(listOf("1 Tharsis"), repl.command("count Tharsis"))
   }
 
   @Test
   fun optionCodesRequireBaseAndDoNotAcceptSolo() {
     val repl = ScriptSession()
 
-    assertTrue(repl.command("newgame R 2").any { it.contains("include B") })
-    assertTrue(repl.command("newgame BS 1").any { it.contains("supported option codes") })
+    assertTrue(repl.command("newgame M 2").any { it.contains("include B") })
+    assertTrue(repl.command("newgame BSEI 1").any { it.contains("supported option codes") })
   }
 
   @Test

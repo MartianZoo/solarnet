@@ -17,6 +17,7 @@ public object Canon :
         StandardFormBundle("HellasElysiumExpansion"),
         StandardFormBundle("UtopiaCimmeriaExpansion"),
         StandardFormBundle("VenusNextExpansion"),
+        milestonesAwardsExpansionBundle,
         StandardFormBundle(
             "PreludeExpansion",
             preludeCustomClasses,

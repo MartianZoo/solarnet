@@ -8,7 +8,10 @@ internal class TfmPlayCommandTest {
   @Test
   fun `tfm play works within the automatic solo workflow`() {
     val repl = ScriptSession()
-    repl.command("newgame BERP 1 purple")
+    repl.command(
+        "newgame \"Player1, TerraformingMars, CorporateEraExpansion, ElysiumMapOption, " +
+            "PreludeExpansion\" purple"
+    )
     repl.command("task CityTile<Elysium_5_6, SoloOpponent>")
     repl.command("task GreeneryTile<Elysium_5_5, SoloOpponent>")
     repl.command("task CityTile<Elysium_7_7, SoloOpponent>")
@@ -28,7 +31,7 @@ internal class TfmPlayCommandTest {
   @Test
   fun `tfm play selects the play card action and forwards inline payment`() {
     val repl = ScriptSession()
-    repl.command("newgame BERP 2")
+    repl.command("newgame BRP 2")
     repl.command("auto safe")
     repl.command("become P1")
     repl.command("phase Corporation")

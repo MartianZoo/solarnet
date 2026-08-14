@@ -25,13 +25,15 @@ internal object OptionCodeTranslation {
       "supported option codes are: $optionsByCode"
     }
     require("B" in codes) { "include B for the base game" }
-    val selectedMaps = codes.intersect(mapOptions.keys)
-    require(selectedMaps.size <= 1) { "select at most one map: ${mapOptions.keys}" }
+    val selectedMapBundles = codes.intersect(bundleDefaultMapOptions.keys)
+    require(selectedMapBundles.size <= 1) {
+      "select at most one map bundle: ${bundleDefaultMapOptions.keys}"
+    }
 
     val options = buildSet {
       add(TERRAFORMING_MARS)
       add(
-          selectedMaps.singleOrNull()?.let(mapOptions::getValue)
+          selectedMapBundles.singleOrNull()?.let(bundleDefaultMapOptions::getValue)
               ?: THARSIS_MAP_OPTION
       )
       codes.mapNotNullTo(this) { positiveOptions[it] }
@@ -41,9 +43,9 @@ internal object OptionCodeTranslation {
   }
 
   fun suggestions(currentOptionCodes: String): List<String> {
-    val nonMaps = optionsByCode - mapOptions.keys - "B"
+    val nonMaps = optionsByCode - bundleDefaultMapOptions.keys - "B"
     val common = listOf("B", "BR", "BRVX", "BRVPX", "BRVPXT", currentOptionCodes)
-    val generated = mapOptions.keys.flatMap { map -> nonMaps.map { "B$it$map" } }
+    val generated = bundleDefaultMapOptions.keys.flatMap { map -> nonMaps.map { "B$it$map" } }
     return common + generated
   }
 
@@ -59,17 +61,16 @@ internal object OptionCodeTranslation {
   private val CORPORATE_ERA = cn("CorporateEraExpansion")
   private val THARSIS_MAP_OPTION = cn("TharsisMapOption")
 
-  private val mapOptions =
+  private val bundleDefaultMapOptions =
       linkedMapOf(
           "H" to cn("HellasMapOption"),
-          "E" to cn("ElysiumMapOption"),
-          "I" to cn("TerraCimmeriaMapOption"),
           "U" to cn("UtopiaPlanitiaMapOption"),
       )
 
   private val positiveOptions =
       mapOf(
           "R" to CORPORATE_ERA,
+          "M" to cn("MilestonesAwardsExpansion"),
           "V" to cn("VenusNextExpansion"),
           "P" to cn("PreludeExpansion"),
           "C" to cn("ColoniesExpansion"),
@@ -77,12 +78,12 @@ internal object OptionCodeTranslation {
           "X" to cn("PromoCardPack"),
       )
 
-  private val optionsByCode = linkedSetOf("B", "R", "H", "E", "I", "U", "V", "P", "C", "T", "X")
+  private val optionsByCode = linkedSetOf("B", "R", "M", "H", "U", "V", "P", "C", "T", "X")
 
   private val optionByCode = optionsByCode.associateWith { code ->
     when (code) {
       "B" -> TERRAFORMING_MARS
-      else -> mapOptions[code] ?: positiveOptions.getValue(code)
+      else -> bundleDefaultMapOptions[code] ?: positiveOptions.getValue(code)
     }
   }
 }

@@ -176,13 +176,20 @@ internal fun formatPlacements(placements: List<Placement>): String {
 private val soloPlacementAuthority: TfmAuthority = Canon
 
 private val soloPlacementVocabulary: Vocabulary by lazy {
-  val replacedCards =
-      soloPlacementAuthority.cardDefinitions
-          .mapNotNull { it.replaces }
-          .mapTo(hashSetOf()) { cn("Card$it") }
+  val replacedClasses = buildSet {
+    soloPlacementAuthority.cardDefinitions.mapNotNullTo(this) {
+      it.replaces?.let { id -> cn("Card$id") }
+    }
+    soloPlacementAuthority.milestoneDefinitions.mapNotNullTo(this) {
+      it.replaces?.let { id -> cn("Milestone$id") }
+    }
+    soloPlacementAuthority.awardDefinitions.mapNotNullTo(this) {
+      it.replaces?.let { id -> cn("Award$id") }
+    }
+  }
   Vocabulary.create(
       soloPlacementAuthority,
-      activeClassNames = soloPlacementAuthority.allClassNames - replacedCards,
+      activeClassNames = soloPlacementAuthority.allClassNames - replacedClasses,
   )
 }
 

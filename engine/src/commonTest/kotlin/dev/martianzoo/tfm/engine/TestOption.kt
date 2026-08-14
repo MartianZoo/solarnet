@@ -16,6 +16,7 @@ public enum class TestOption : TestSelection {
   UtopiaPlanitiaMapOption,
   TerraCimmeriaMapOption,
   VenusNextExpansion,
+  MilestonesAwardsExpansion,
   PreludeExpansion,
   ColoniesExpansion,
   TurmoilCardPack,

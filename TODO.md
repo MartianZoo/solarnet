@@ -86,6 +86,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
+  Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
+  Politician rules.
 - Delete or replace `ReluctantClassLoadingTest`'s exact cumulative card-count assertion; it is a
   pure content change detector and currently requires manual updates whenever a card is added.
 - Make class-literal parameters specialize inherited generic effects through a subclass, so solo
