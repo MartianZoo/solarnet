@@ -306,13 +306,9 @@ internal class Instructor(
     }
 
     val hasAbstractActorDependency =
-        r?.dependencies
-            ?.typeDependencies()
-            ?.any {
-              it.boundType.abstract &&
-                  it.boundType.rootClass.isSubtypeOf(classTable.getClass(ACTOR))
-            }
-            ?: false
+        r?.dependencies?.typeDependencies()?.any {
+          it.boundType.abstract && it.boundType.rootClass.isSubtypeOf(classTable.getClass(ACTOR))
+        } ?: false
     if (r?.abstract == true && !(preserveAbstractActor && hasAbstractActorDependency)) {
       // Infer a type if there IS only one kind of component that has it
       r =
