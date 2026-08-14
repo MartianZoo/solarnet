@@ -17,6 +17,9 @@ Kotlin 2.2. Contributors do not need another JDK installed.
 - `./gradlew :engine:allTests` is the routine engine suite.
 - `./gradlew :engine:allTestsIncludingSlow` or
   `./gradlew :engine:allTests -PincludeSlowTests=true` includes the slow engine browser tests.
+- `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
+  part of the routine test or build lifecycle, though the normal build compiles the benchmark
+  sources.
 - `./gradlew :repl:realTerminalSmokeTest` runs the separate Expect-based real-terminal test.
 - `./gradlew spotlessApply` formats the source tree. CI runs `spotlessCheck`, and a normal build
   also reports formatting violations.

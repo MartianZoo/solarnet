@@ -58,6 +58,22 @@ Do not propose any more than slight correctness updates to the human-authored do
 - A missing consequence may be handled inside an action body only when it is genuinely caused by
   that exact action, and the comment must name that causal relationship.
 
+## Fixture DSL Design
+
+- Keep gameplay and fixture APIs generic. Never add a Kotlin function or DSL operation solely to
+  represent one card, corporation, prelude, or other individual game component.
+- Use existing gameplay helpers when their operation boundaries fit. Express component-specific
+  steps directly through the existing `OperationBody` primitives when they must remain in an outer
+  operation, including when a sibling task must stay pending.
+- Add a shared fixture helper only for a recurring, component-independent concept that materially
+  simplifies multiple call sites.
+
+## Terraforming Mars Rule Research
+
+- Only a post by Jacob Fryxelius is authoritative when investigating a rule question, period.
+- The Terraforming Mars FAQ PDF is useful because it links to those posts; its summaries and all
+  other secondary sources are not themselves authoritative.
+
 ## When Changing Public APIs
 
 1. When changing APIs there is no need to preserve the old API for compatibility, as the project has no known clients.

@@ -24,4 +24,19 @@ class HeadStartTest : CardTest() {
       p1.production(cn("Energy")) shouldBe 2
     }
   }
+
+  @Test
+  fun `Head Start must use its first granted action to resolve a mandate`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    p1.playCorp("ValleyTrust", 5)
+    engine.phase("Prelude")
+    p1.manual("10 ProjectCard, PreludeCard")
+
+    p1.playPrelude("HeadStart") {
+      doTask("UseAction1<HandleMandates>")
+      doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
+      doTask("UseAction1<UseStandardProjectSA>")
+      doTask("UseAction1<PowerPlantSP>")
+    }
+  }
 }

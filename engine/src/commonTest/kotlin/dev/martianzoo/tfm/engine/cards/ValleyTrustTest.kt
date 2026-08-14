@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.engine.TestOption.*
+import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 class ValleyTrustTest : CardTest() {
@@ -14,5 +16,14 @@ class ValleyTrustTest : CardTest() {
           p1.playPrelude("MartianIndustries")
         }
         .expect("PROD[Steel, Energy]")
+  }
+
+  @Test
+  fun `must resolve mandate before another standard action`() {
+    newGame(PreludeExpansion)
+    p1.playCorp("ValleyTrust", 5)
+    engine.phase("Action")
+
+    shouldThrow<AbstractException> { p1.stdAction("UseStandardProjectSA") }
   }
 }
