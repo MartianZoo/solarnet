@@ -165,7 +165,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Ellie gained 3 M€
           doTask("-7 M<Player1>")
         }
-        .expect("-4")
+        .expect("3 M")
 
     // Dad played Asteroid Rights
     // Dad added 2 Asteroid(s) to Asteroid Rights
@@ -196,7 +196,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Ellie gained 3 M€
           doTask("3 M<Player2> FROM M<Player3>")
         }
-        .expect("3")
+        .expect("6 M")
 
     // Dad played ArchaeBacteria
     // Dad gained 1 plant production
@@ -290,7 +290,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Dad gained 1 steel
           // Mom added 1 Disease to Hospitals
         }
-        .expect("PROD[3 M, -E], P, -S, Disease")
+        .expect("PROD[3 M, -E], P, -S, Disease<P1>")
     mom.assertCounts(7 to "P")
     // Dad claimed Diversifier milestone
     dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
@@ -604,7 +604,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Dad gained 1 steel
           // Mom added 1 Disease to Hospitals
         }
-        .expect("PROD[3 M, -E], -2 S, Disease")
+        .expect("PROD[3 M, -E], -2 S, Disease<P1>")
     // Dad used Ants action
     dad.cardAction1("Ants") {
           // Dad removed 1 resource(s) from Mom's Psychrophiles
@@ -655,7 +655,7 @@ class Game20260811Test : AbstractFullGameTest() {
     // Dad gained 2 M€ production
     // Dad lost 1 energy production
     // Dad stole 2 M€ production from Ellie
-    dad.playProject("Hackers", 3) { doTask("PROD[-2 M<Player2>]") }.expect("PROD[0 M, -E]")
+    dad.playProject("Hackers", 3) { doTask("PROD[-2 M<Player2>]") }.expect("PROD[2 M, -E]")
 
     // Mom used Convert Heat standard action
     mom.stdAction("ConvertHeatSA").expect("TR")
@@ -782,7 +782,7 @@ class Game20260811Test : AbstractFullGameTest() {
           doTask("-3 P<Player3>")
           // Ellie gained 3 M€
         }
-        .expect("0 T, 0 ProjectCard, -3")
+        .expect("0 T, -ProjectCard, ProjectCard<P3>, -3")
     // Dad used Asteroid:SP standard project
     dad.stdProject("AsteroidSP").expect("TR")
     // Dad used Convert Heat standard action
@@ -805,7 +805,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Mom added 4 Microbe(s) to Recyclon
           doTask("4 Microbe<Recyclon>")
         }
-        .expect("4 P, 0 ProjectCard")
+        .expect("4 P, -ProjectCard, ProjectCard<P3>")
     // Ellie used Convert Heat standard action
     ellie.stdAction("ConvertHeatSA")
     // Ellie used Convert Heat standard action
@@ -988,7 +988,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Ellie gained 4 M€ from 2 ocean(s)
           // Ellie gained 3 M€
         }
-        .expect("ProjectCard, TR, 0 M")
+        .expect("0 ProjectCard, ProjectCard<P3>, TR, 0 M")
     // Ellie played Vesta Shipyard
     // Ellie gained 1 titanium production
     ellie.playProject("VestaShipyard", 1, titanium = 4).expect("PROD[T]")
@@ -1052,7 +1052,7 @@ class Game20260811Test : AbstractFullGameTest() {
 
     // Mom played Energy Tapping
     // Mom stole 1 energy production from Dad
-    mom.playProject("EnergyTapping", 3) { doTask("PROD[-E<Player3>]") }.expect("PROD[0 E]")
+    mom.playProject("EnergyTapping", 3) { doTask("PROD[-E<Player3>]") }.expect("PROD[E]")
     // Mom passed
     mom.declineSecondAction()
     // (Ellie already passed early)
@@ -1119,7 +1119,7 @@ class Game20260811Test : AbstractFullGameTest() {
           doTask("CityTile<Hellas_7_7>")
           // Mom added 1 Disease to Hospitals
         }
-        .expect("Disease")
+        .expect("Disease<P1>")
     // Ellie played House Printing
     // Ellie gained 1 steel production
     ellie.playProject("HousePrinting", steel = 4).expect("PROD[S]")

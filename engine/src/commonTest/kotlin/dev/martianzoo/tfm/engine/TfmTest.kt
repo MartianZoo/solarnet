@@ -13,8 +13,7 @@ abstract class TfmTest {
   protected val engine: TfmGameplay
     get() = game.tfm(ENGINE)
 
-  protected fun TaskResult.expect(string: String) =
-      TestHelpers.assertNetChanges(this, game, engine, string)
+  protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
   protected fun TfmGameplay.buyCards(count: Int): TaskResult =
       doTask(if (count == 0) "Ok" else "$count BuyCard")

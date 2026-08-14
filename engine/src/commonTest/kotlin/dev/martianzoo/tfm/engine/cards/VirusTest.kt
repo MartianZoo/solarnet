@@ -29,7 +29,8 @@ class VirusTest : CardTest() {
 
   @Test
   fun `with animals on two cards, p1 removes from one using Virus`() {
-    p1.manual("Virus") { doTask("-Animal<Player2, Birds<Player2>>") }.expect("-Animal")
+    p1.manual("Virus") { doTask("-Animal<Player2, Birds<Player2>>") }
+        .expect("-Animal<P2, Birds<P2>>")
     requireP2().assertCounts(0 to "Animal<Birds>", 1 to "Animal<Fish>")
   }
 }

@@ -9,6 +9,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
+import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -137,9 +138,9 @@ object TestHelpers {
   fun assertNetChanges(
       result: TaskResult,
       game: World,
-      tfm: TfmGameplay,
       expectedAsInstructions: String,
   ) {
+    val inferredOwner = result.inferredExpectationOwner(game)
     val preprocessor =
         with(Transformers(game.classTable)) {
           chain(
@@ -147,7 +148,7 @@ object TestHelpers {
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
               Prod.deprodify(classTable),
-              (tfm.actor as? Player)?.let(::replaceOwnerWith),
+              inferredOwner?.let(::replaceOwnerWith),
           )
         }
 
@@ -169,13 +170,13 @@ object TestHelpers {
           }
         }
 
-    val types: List<Type> = expectedCountsToTypes.map { tfm.reader.resolve(it.second) }
+    val types: List<Type> = expectedCountsToTypes.map { game.reader.resolve(it.second) }
     val expectedCounts = expectedCountsToTypes.map { it.first }
 
     val actuals = MutableList(types.size) { 0 }
     for (change in result.net()) {
-      val g = change.gaining?.let(tfm.reader::resolve)
-      val r = change.removing?.let(tfm.reader::resolve)
+      val g = change.gaining?.let(game.reader::resolve)
+      val r = change.removing?.let(game.reader::resolve)
       for ((index, type) in types.withIndex()) {
         if (g?.isSubtypeOf(type) == true) actuals[index] += change.count
         if (r?.isSubtypeOf(type) == true) actuals[index] -= change.count
@@ -185,6 +186,20 @@ object TestHelpers {
   }
 
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
+
+  private fun TaskResult.inferredExpectationOwner(game: World): Player? {
+    // The first change normally retains the gameplay caller. An explicit `BY Engine` loses that
+    // signal, so fall back only when every owned change points to the same Player.
+    (changes.firstOrNull()?.actor as? Player)?.let {
+      return it
+    }
+
+    return changes
+        .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }
+        .mapNotNull { game.reader.resolve(it).toComponent().playerOwner }
+        .distinct()
+        .singleOrNull()
+  }
 
   private const val ZERO_SCALAR_SENTINEL = 987_654_321
   private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|\\])")

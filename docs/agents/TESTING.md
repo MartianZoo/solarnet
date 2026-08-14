@@ -65,9 +65,11 @@ name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting 
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 
 `CardTest` and the full-game fixtures provide `TaskResult.expect()`. Expectations are partial net
-deltas: name only changes that matter to the behavior under test. Do not restate costs, fixture
-setup, or every incidental resource movement. Use a zero scalar, such as `0 Plant` or
-`PROD[0 Energy]`, to assert that a particular type did not change.
+deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
+to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
+checking another Player or an intentionally cross-player total. Do not restate costs, fixture setup,
+or every incidental resource movement. Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to
+assert that a particular type did not change.
 
 Cover meaningful boundaries, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not

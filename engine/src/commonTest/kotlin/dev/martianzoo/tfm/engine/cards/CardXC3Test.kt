@@ -26,7 +26,7 @@ class CardXC3Test : CardTest() {
     val p2 = requireP2()
     p1.manual("SpliceTacticalGenomics") { doTask("2 Megacredit") }
 
-    p2.manual("Decomposers") { doTask("2 Megacredit") }.expect("4 Megacredit")
+    p2.manual("Decomposers") { doTask("2 Megacredit") }.expect("2 Megacredit<P1>, 2 Megacredit")
   }
 
   @Test
@@ -48,7 +48,7 @@ class CardXC3Test : CardTest() {
     p1.manual("SpliceTacticalGenomics") { doTask("2 Megacredit") }
 
     p2.manual("Decomposers") { doTask("Microbe<Decomposers>!") }
-        .expect("2 Megacredit, 2 Microbe<Decomposers>")
+        .expect("2 Megacredit<P1>, 2 Microbe<Decomposers>")
   }
 
   @Test
@@ -56,12 +56,12 @@ class CardXC3Test : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("SpliceTacticalGenomics") { doTask("2 Megacredit") }
-    p2.manual("RegolithEaters") { doTask("2 Megacredit") }.expect("4 Megacredit")
+    p2.manual("RegolithEaters") { doTask("2 Megacredit") }.expect("2 Megacredit<P1>, 2 Megacredit")
 
     p2.manual("Decomposers") {
           shouldThrow<NarrowingException> { doTask("Microbe<RegolithEaters>!") }
           doTask("Microbe<Decomposers>!")
         }
-        .expect("2 Megacredit, 2 Microbe<Decomposers>")
+        .expect("2 Megacredit<P1>, 2 Microbe<Decomposers>")
   }
 }

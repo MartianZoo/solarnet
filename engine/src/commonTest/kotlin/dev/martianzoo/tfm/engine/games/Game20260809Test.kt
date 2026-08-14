@@ -401,7 +401,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm gonna buzz buzz. Sponsorize some academies. That's nine to discard a card from hand."
     // "Draw three cards and you get one card."
     ellie.turn {
-      playProject("SponsoredAcademies", 9).expect("2 ProjectCard, ProjectCard<Player2>")
+      playProject("SponsoredAcademies", 9).expect("ProjectCard, ProjectCard<P2>")
       assertCounts(10 to "M") // ledger entry 100
     }
 

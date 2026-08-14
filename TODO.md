@@ -93,8 +93,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
   Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
   Politician rules.
-- Make `TaskResult.expect()` preserve the initiating player's context so unqualified owned
-  components assert that player's net change instead of aggregating changes across all players.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Delete or replace `ReluctantClassLoadingTest`'s exact cumulative card-count assertion; it is a

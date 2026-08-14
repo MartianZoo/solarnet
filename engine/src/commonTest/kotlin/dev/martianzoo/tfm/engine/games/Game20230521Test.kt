@@ -949,7 +949,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 gained 2 plants from Arctic Algae
     p1.turn {
       playProject("MoholeLake", 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
-          .expect("7 Plant, TemperatureStep, 2 TR<P1>, -7")
+          .expect("5 Plant, 2 Plant<P2>, TemperatureStep, 2 TR, -7")
       // Player1 claimed Terraformer milestone
       stdAction("ClaimMilestoneSA") { doTask("Terraformer") }.expect("-8")
     }

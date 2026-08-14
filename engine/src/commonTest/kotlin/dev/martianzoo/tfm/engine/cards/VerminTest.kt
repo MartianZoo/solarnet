@@ -11,7 +11,7 @@ class VerminTest : CardTest() {
     p1.manual("Vermin, Decomposers")
     engine.phase("Action")
 
-    requireP2().manual("CityTile<Tharsis_2_1>").expect("Animal<Vermin>")
+    requireP2().manual("CityTile<Tharsis_2_1>").expect("Animal<P1, Vermin<P1>>")
     p1.cardAction1("Vermin") { doTask("Animal<Vermin>!") }
     engine.manual("Generation")
     p1.cardAction1("Vermin") { doTask("Microbe<Decomposers>") }
