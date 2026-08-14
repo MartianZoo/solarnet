@@ -1,9 +1,14 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
+import dev.martianzoo.api.Exceptions.DeadEndException
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -106,7 +111,14 @@ class Game20260811Test : AbstractFullGameTest() {
     ellie.playProject("EarthCatapult", 23)
     // Ellie used Robinson Industries action
     // Ellie gained 1 heat production
-    ellie.cardAction1("RobinsonIndustries") { doTask("PROD[H]") }
+    ellie.cardAction1("RobinsonIndustries") {
+      // NOPE: gotta pick a lower one
+      shouldThrow<NarrowingException> { doTask("PROD[T]") }
+      doTask("PROD[H]")
+    }
+
+    // NOPE: can't choose any other first action
+    shouldThrow<RequirementException> { dad.playProject("Lichen", 7) }
 
     // Dad took the first action of Splice corporation
     // Discarded 14 cards Supermarkets,Asteroid Mining,Asteroid Mining Consortium,Ganymede
@@ -274,6 +286,10 @@ class Game20260811Test : AbstractFullGameTest() {
     // Ellie gained 4 heat production
     ellie.playProject("GhgFactories", 7, steel = 1).expect("PROD[-E, 4 H]")
 
+    // NOPE: almost there, not quite
+    shouldThrow<RequirementException> {
+      dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
+    }
     // Dad played Corporate Stronghold
     // Dad gained 3 M€ production
     // Dad lost 1 energy production
@@ -385,7 +401,12 @@ class Game20260811Test : AbstractFullGameTest() {
     // Dad played Heat Trappers
     // Dad gained 1 energy production
     // Ellie lost 2 heat production because of Dad
-    dad.playProject("HeatTrappers", 2, steel = 2) { doTask("PROD[-2 H<Player2>]") }
+    dad.playProject("HeatTrappers", 2, steel = 2) {
+          // NOPE: Mom had only 1 heat production, so Dad could not choose her instead.
+          shouldThrow<LimitsException> { doTask("PROD[-2 H<Player1>]") }
+          shouldThrow<NarrowingException> { doTask("PROD[-H<Player1>]") }
+          doTask("PROD[-2 H<Player2>]")
+        }
         .expect("PROD[E]")
     // Dad played Robotic Workforce
     dad.playProject("RoboticWorkforce", 9) {
@@ -473,6 +494,10 @@ class Game20260811Test : AbstractFullGameTest() {
     // You bought Anti-Gravity Technology,Hackers,Callisto Penal Mines
     dad.buyCards(3)
 
+    // NOPE: almost there, not quite
+    shouldThrow<RequirementException> {
+      ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon") }
+    }
     // Ellie played Hermetic Order of Mars
     // Ellie gained 2 M€ production
     // Ellie gained 6 M€
@@ -667,6 +692,10 @@ class Game20260811Test : AbstractFullGameTest() {
     // Ellie gained 1 plant production
     ellie.cardAction1("RobinsonIndustries") { doTask("PROD[P]") }
 
+    // NOPE: missed my chance and didn't even realize it!
+    shouldThrow<RequirementException> {
+      dad.playProject("DesignedMicroorganisms", 9)
+    }
     // Dad played Viral Enhancers
     // Dad gained 1 plant because of Viral Enhancers
     // Dad gained 2 M€ because of Splice
@@ -1190,6 +1219,8 @@ class Game20260811Test : AbstractFullGameTest() {
 
     // Dad used Ants action
     dad.cardAction1("Ants") {
+          // NOPE: Mom is protected now, so this was pointless?
+          shouldThrow<DeadEndException> { doTask("-Microbe<Player1, Psychrophiles<Player1>>") }
           // Dad removed 1 resource(s) from Dad's Ants
           doTask("-Microbe<Player3, Ants<Player3>>")
           // Dad added 1 Microbe to Ants
