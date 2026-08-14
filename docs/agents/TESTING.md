@@ -10,13 +10,15 @@ The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 t
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
 Kotlin 2.2. Contributors do not need another JDK installed.
 
-- `./gradlew build` is the normal repository-wide check. It runs the JVM tests and the routine
-  browser tests. The engine's slow browser suite is deliberately excluded.
+- `./gradlew build` is the normal repository-wide check. It runs every JVM test plus one
+  representative multi-generation engine game in Chrome as the browser smoke suite.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
-- `./gradlew :engine:allTests` is the routine engine suite.
-- `./gradlew :engine:allTestsIncludingSlow` or
-  `./gradlew :engine:allTests -PincludeSlowTests=true` includes the slow engine browser tests.
+- `./gradlew :engine:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
+- `./gradlew jsBrowserTest` runs every module's full browser suite.
+  `./gradlew build -PincludeBrowserTests=true` includes those suites in the normal repository-wide
+  check.
+- `./gradlew :engine:allTestsIncludingBrowser` runs every engine test on both the JVM and browser.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources.
