@@ -371,24 +371,23 @@ public class Transformers(public val classTable: ClassTable) {
     val substitutions = specializationSubstitutions(general, specific)
     val broad = substituter(substitutions)
     val dependencyPaths = general.dependencies.flatten().keys
-    val linkedReplacements =
-        linkedSources.mapNotNull { source ->
-          val broadReplacement = broad.transform(source)
-          val replacement =
-              if (broadReplacement != source) {
-                broadReplacement
-              } else {
-                dependencyPaths
-                    .filter { path ->
-                      val dependency = general.dependencies.at(path)
-                      dependency.expression == source || dependency.expressionFull == source
-                    }
-                    .map { specific.dependencies.at(it).expressionFull }
-                    .distinct()
-                    .singleOrNull() ?: source
-              }
-          if (replacement == source) null else PetNode.replacer(source, replacement)
-        }
+    val linkedReplacements = linkedSources.mapNotNull { source ->
+      val broadReplacement = broad.transform(source)
+      val replacement =
+          if (broadReplacement != source) {
+            broadReplacement
+          } else {
+            dependencyPaths
+                .filter { path ->
+                  val dependency = general.dependencies.at(path)
+                  dependency.expression == source || dependency.expressionFull == source
+                }
+                .map { specific.dependencies.at(it).expressionFull }
+                .distinct()
+                .singleOrNull() ?: source
+          }
+      if (replacement == source) null else PetNode.replacer(source, replacement)
+    }
     return chain(linkedReplacements + afterSubstitution + invalidChangesToDie())
   }
 
