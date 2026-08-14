@@ -86,6 +86,12 @@ After `ProductionPhase`, `SolarPhase` checks the multiplayer end condition. If i
 the workflow continues directly to `FinalGreeneryPhase` and then `EndPhase`; otherwise it
 continues through the applicable Solar subphases and into the next generation.
 
+During final greenery, each player receives the initial optional conversion turn in final-generation
+player order. A player who places a greenery receives another optional conversion turn after all of
+that placement's bonuses and triggered effects. After placing their last greenery, the player must
+explicitly choose `Ok`; only then does the workflow advance to the next player. This avoids both a
+fixed plant threshold and potentially expensive speculative execution.
+
 The Venus parameter is not part of the multiplayer end condition, even when Venus Next is in use.
 If a later Solar subphase completes the multiplayer end condition, the current Solar phase still
 finishes normally and the condition is detected at the next `SolarPhase` game-end check.

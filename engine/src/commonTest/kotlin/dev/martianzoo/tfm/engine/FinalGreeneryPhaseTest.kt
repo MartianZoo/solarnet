@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestOption.*
@@ -182,6 +183,162 @@ internal class FinalGreeneryPhaseTest {
 
     p1.count("Steel<Player1>") shouldBe 1
     engine.count("FinalGreeneryPhase") shouldBe 1
+    workflow.shutdown()
+  }
+
+  @Test
+  fun multiplayerFinalGreeneryAdvancesAfterAPlayerCanNoLongerConvert() {
+    val game = Engine.newGame(canonicalPremise(players = 3))
+    val engine = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val p3 = game.tfm(PLAYER3)
+    val workflow = TfmWorkflow.Auto(game).launch()
+
+    p1.playCorp("CrediCor", 0)
+    p2.playCorp("MiningGuild", 0)
+    p3.playCorp("InterplanetaryCinematics", 0)
+    p1.godMode().sneak("8 Plant")
+    p2.godMode().sneak("8 Plant")
+    p3.godMode().sneak("8 Plant")
+    engine
+        .godMode()
+        .sneak(
+            "LastCall, GpComplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+        )
+
+    p1.pass()
+    p2.pass()
+    p3.pass()
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    p1.doTask("GreeneryTile<Tharsis_3_5>")
+    p1.doTask("Ok")
+    p2.doTask("UseAction1<ConvertPlantsSA>")
+    p2.doTask("GreeneryTile<Tharsis_3_6>")
+    p2.doTask("Ok")
+    p3.doTask("UseAction1<ConvertPlantsSA>")
+    p3.doTask("GreeneryTile<Tharsis_3_7>")
+    p3.doTask("Ok")
+
+    p1.count("GreeneryTile<Player1>") shouldBe 1
+    p2.count("GreeneryTile<Player2>") shouldBe 1
+    p3.count("GreeneryTile<Player3>") shouldBe 1
+    workflow.shutdown()
+  }
+
+  @Test
+  fun tenPlantsCanBecomeTwoGreeneriesWithEcolinePolderTechAndTheElysiumBonus() {
+    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val engine = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val workflow = TfmWorkflow.Auto(game).launch()
+
+    p1.playCorp("CrediCor", 0)
+    p2.playCorp("MiningGuild", 0)
+    p1.godMode().sneak("Ecoline, PolderTechDutch, 10 Plant")
+    engine
+        .godMode()
+        .sneak(
+            "LastCall, GpComplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+        )
+
+    p1.pass()
+    p2.pass()
+    p1.count("Plant") shouldBe 10
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    // 10 + 1 from Ecoline - 8 + 1 from PolderTECH + the unique 3-plant bonus = 7.
+    p1.doTask("GreeneryTile<Elysium_5_6>")
+    p1.count("Plant") shouldBe 7
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    p1.doTask("GreeneryTile<Elysium_5_5>")
+    p1.doTask("Ok")
+
+    p1.count("GreeneryTile<Player1>") shouldBe 2
+    workflow.shutdown()
+  }
+
+  @Test
+  fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
+    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val engine = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val workflow = TfmWorkflow.Auto(game).launch()
+
+    p1.playCorp("CrediCor", 0)
+    p2.playCorp("MiningGuild", 0)
+    p1.godMode().sneak("GreeneryTile<Elysium_4_5>")
+    p2.godMode()
+        .sneak(
+            "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " + "GreeneryTile<Elysium_6_6>"
+        )
+    p1.godMode().sneak("Philares, 10 Plant")
+    engine
+        .godMode()
+        .sneak(
+            "LastCall, GpComplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+        )
+
+    p1.pass()
+    p2.pass()
+    p1.count("Plant") shouldBe 10
+    p1.count("GreeneryTile<Player1>") shouldBe 1
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    // 10 - 8 + the 3-plant bonus + one Philares plant per opponent adjacency = 8.
+    p1.doTask("GreeneryTile<Elysium_5_6>")
+    repeat(3) { p1.doTask("Plant") }
+    p1.count("Plant") shouldBe 8
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    p1.doTask("GreeneryTile<Elysium_6_7>")
+    repeat(2) { p1.doTask("Plant") }
+    p1.doTask("Ok")
+
+    p1.count("GreeneryTile<Player1>") shouldBe 3
+    workflow.shutdown()
+  }
+
+  @Test
+  fun sevenPlantsCanBecomeTwoGreeneriesInTheMostContrivedCanonicalCase() {
+    val game = Engine.newGame(canonicalPremise(ElysiumMapOption, PromoCardPack))
+    val engine = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val workflow = TfmWorkflow.Auto(game).launch()
+
+    p1.playCorp("CrediCor", 0)
+    p2.playCorp("MiningGuild", 0)
+    p1.godMode().sneak("GreeneryTile<Elysium_4_5>")
+    p2.godMode()
+        .sneak(
+            "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " +
+                "GreeneryTile<Elysium_6_6>, GreeneryTile<Elysium_6_7>"
+        )
+    p1.godMode().sneak("Ecoline, Philares, 7 Plant")
+    engine
+        .godMode()
+        .sneak(
+            "LastCall, GpComplete<Class<TemperatureStep>>, " +
+                "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
+        )
+
+    p1.pass()
+    p2.pass()
+    p1.count("Plant") shouldBe 7
+    p1.count("GreeneryTile<Player1>") shouldBe 1
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    // Ecoline makes 7 payable; the 3-plant bonus plus four Philares plants restores all 7.
+    p1.doTask("GreeneryTile<Elysium_5_6>")
+    repeat(4) { p1.doTask("Plant") }
+    p1.count("Plant") shouldBe 7
+    p1.doTask("UseAction1<ConvertPlantsSA>")
+    p1.doTask("GreeneryTile<Elysium_3_4>")
+    p1.doTask("Ok")
+
+    p1.count("GreeneryTile<Player1>") shouldBe 3
     workflow.shutdown()
   }
 

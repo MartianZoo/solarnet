@@ -55,6 +55,13 @@ public class TfmGameplay(
     }
   }
 
+  public fun playCorp(cardName: String, body: TfmGameplay.() -> Unit): TaskResult {
+    return inTurn {
+      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
+      this@TfmGameplay.body()
+    }
+  }
+
   public fun pass(): TaskResult = inTurn { doTask("Pass") }
 
   /**
@@ -181,6 +188,8 @@ public class TfmGameplay(
 
   public fun sellPatents(count: Int): TaskResult =
       stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }
+
+  public fun buyCards(count: Int): TaskResult = doTask(if (count == 0) "Ok" else "$count BuyCard")
 
   public fun phase(phase: String, body: BodyLambda = {}) {
     if (count("Phase") != 1) {

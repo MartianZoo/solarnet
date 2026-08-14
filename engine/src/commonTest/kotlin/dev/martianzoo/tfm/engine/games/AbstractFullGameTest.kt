@@ -4,6 +4,7 @@ import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -19,6 +20,7 @@ import kotlin.test.BeforeTest
 abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
+  protected lateinit var p3: TfmGameplay
 
   protected abstract fun setup(): GamePremise
 
@@ -27,6 +29,7 @@ abstract class AbstractFullGameTest : TfmTest() {
     game = Engine.newGame(setup(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     p1 = game.tfm(PLAYER1)
     if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
+    if (game.reader.getComponents("Player").size > 2) p3 = game.tfm(PLAYER3)
   }
 
   fun copyThis() {
@@ -61,7 +64,7 @@ abstract class AbstractFullGameTest : TfmTest() {
   }
 
   /** Reproduces an evidenced player mistake without leaving a task prepared against stale state. */
-  protected fun TfmGameplay.mistake(adjustment: String) {
+  protected fun TfmGameplay.exMachina(adjustment: String) {
     val preparedId = game.tasks.preparedTask()
     if (preparedId != null) {
       val preparedTask = game.tasks.getTaskData(preparedId)

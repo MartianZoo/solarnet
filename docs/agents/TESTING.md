@@ -90,8 +90,11 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Preserve supplied log lines as comments near the test actions that translate them. Assert
   selective checkpoints, summaries, and final facts rather than mechanically asserting every log
   entry.
-- Treat screenshot assertions as snapshots at a particular moment. If the screenshot was taken
-  before card buying but the assertion is after Research, adjust only money and hand counts.
+- Treat every supplied screenshot as an authoritative snapshot at its exact point in the timeline.
+  At a generation boundary, reproduce any research choices logged before that screenshot, then
+  reconcile every visible resource and production discrepancy before the first action. If the
+  screenshot was taken before purchases, reconcile before them. Write explicit relative `exMachina()`
+  deltas; do not set absolute values or let differences accumulate until a later screenshot.
 - Logs may not indicate how much steel/titanium/etc. was used toward a purchase. A reasonable
   default assumption to start with is that they probably spent as much of it as they could get full
   value for. Later events may reveal that your assumption needs to be revised.
@@ -100,9 +103,11 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Prefer supplied logs, images, and local map data over investigating another application's
   implementation. Work around unsupported engine behavior narrowly and record real follow-ups in
   `TODO.md`.
-- Never call `sneak` directly in a game fixture. Use the fixture's `mistake` helper for an
+- Never call `sneak` directly in a game fixture. Use the fixture's `exMachina` helper for an
   evidence-backed player error that requires a direct state adjustment. Place it as late in the
-  timeline as the sourced assertions allow, with a comment saying which later step requires it.
+  timeline as the sourced assertions allow, with a comment saying which later step requires it. Add
+  source-backed `.expect()` assertions for the mistake-prone types to preceding actions wherever
+  practical so the remaining unexplained gap is bounded as narrowly as possible.
   If auto-exec has already prepared the next task, the helper rolls that preparation back and
   repeats it after the adjustment so state-dependent instructions are recalculated.
   Keep unexplained state reconciliations as standalone timeline statements.

@@ -58,6 +58,35 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
+  fun customAwardMetricsAreCountedForEachPlayer() {
+    game = Engine.newGame(canonicalPremise(TerraCimmeriaMapOption, players = 3))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val p3 = game.tfm(PLAYER3)
+
+    p1.godMode().sneak("Forecaster, ArtificialLake")
+    p2.godMode().sneak("Birds, Algae")
+    p1.count("CardFront(HAS CardRequirement)") shouldBe 1
+    p2.count("CardFront(HAS CardRequirement)") shouldBe 2
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(
+        1 to "AwardTally<Player1, Forecaster>",
+        1 to "SecondPlace<Player1, Forecaster>",
+    )
+    p2.assertCounts(
+        2 to "AwardTally<Player2, Forecaster>",
+        1 to "FirstPlace<Player2, Forecaster>",
+    )
+    p3.assertCounts(
+        0 to "AwardTally<Player3, Forecaster>",
+        0 to "FirstPlace<Player3, Forecaster>",
+        0 to "SecondPlace<Player3, Forecaster>",
+    )
+  }
+
+  @Test
   fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
     game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.tfm(PLAYER1)

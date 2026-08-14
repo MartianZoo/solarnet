@@ -14,6 +14,22 @@ import kotlin.test.Test
 
 class NewPromoCardsTest : CardTest() {
   @Test
+  fun `Solar Logistics draws for space events played by its owner and either opponent`() {
+    newGame(PromoCardPack, players = 3)
+    val p2 = requireP2()
+    val p3 = game.tfm(PLAYER3)
+    p1.manual("SolarLogistics")
+
+    p1.manual("ImportedGhg")
+    p1.count("ProjectCard") shouldBe 1
+    p2.manual("TechnologyDemonstration")
+    p1.count("ProjectCard") shouldBe 2
+    p3.manual("InterstellarColonyShip")
+
+    p1.count("ProjectCard") shouldBe 3
+  }
+
+  @Test
   fun `Icy Impactors lets the first player choose an ocean placed by the card owner`() {
     newGame(PromoCardPack)
     val p2 = requireP2()

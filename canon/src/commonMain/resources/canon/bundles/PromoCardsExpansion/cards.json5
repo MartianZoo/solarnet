@@ -833,7 +833,7 @@
       "immediate": "2 Titanium",
       "effects": [
         "PlayTag<Class<EarthTag>>:: -2 Owed",
-        "EventCard<Anyone>(HAS SpaceTag): ProjectCard",
+        "EventCard<Anyone>(HAS SpaceTag<Anyone>): ProjectCard",
         "End: VictoryPoint"
       ],
     },

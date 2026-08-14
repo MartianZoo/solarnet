@@ -86,6 +86,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Implement Supercapacitors so the 2026-08-11 whole-game fixture can replace its direct production
+  and Recyclon-resource reconciliation with the actual card play.
 - Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and
   Thawer's player-attributed global-parameter steps, and the Turmoil-dependent Lobbyist and
   Politician rules.

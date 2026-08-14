@@ -46,9 +46,9 @@ Do not propose any more than slight correctness updates to the human-authored do
 
 ## Test Fixture Reconciliations
 
-- Never call `sneak` directly in a game fixture. Use the fixture's `mistake` helper for an
+- Never call `sneak` directly in a game fixture. Use the fixture's `exMachina` helper for an
   evidence-backed player error that requires a direct state adjustment.
-- Place `mistake` as late in the timeline as the sourced assertions allow, and precede it with a
+- Place `exMachina` as late in the timeline as the sourced assertions allow, and precede it with a
   comment saying which later step requires the adjustment.
 - Never hide a manual or other raw state reconciliation inside the body of an unrelated
   action, card play, turn, or phase merely because that body provides an executable context. Keep

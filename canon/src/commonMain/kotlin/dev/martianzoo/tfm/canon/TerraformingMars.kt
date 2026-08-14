@@ -316,11 +316,12 @@ internal object TerraformingMars {
   }
 
   private val AWARD_TALLY = cn("AwardTally")
+  private val CARD_REQUIREMENT = cn("CardRequirement")
   private val FIRST_PLACE = cn("FirstPlace")
   private val SECOND_PLACE = cn("SecondPlace")
 
   internal object TallyAward : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY)
+    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY, CARD_REQUIREMENT)
 
     override fun translate(reader: GameReader, owner: Type, awardType: Type): Instruction {
       val metric = reader.tfmAuthority.award(awardType.className).metric

@@ -597,7 +597,8 @@ The workflow enters final greenery and scoring only when that victory component 
 end scoring first measures awards and assigns their places,
 then `End` pays out ordinary and award victory points. Once `FinalScore` exists,
 `MultiplayerVictoryCheck` awards `Victory` to the highest final score with megacredits as the
-tiebreaker.
+tiebreaker. The custom-instruction runtime specializes each translated award metric to the player
+being tallied. Tallying also activates the custom card-requirement metric used by Forecaster.
 
 This design means:
 - The game flow reads naturally (setupPhase, corporationPhase, then preludePhase, then action loop,
