@@ -89,7 +89,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 1 card(s)
         // You drew Corporate Stronghold
-        doTask("BuyCard")
+        buyCards(1)
       }
     }
     // Player1 ended turn
@@ -136,10 +136,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 2
     // Player1 bought 2 card(s)
     // You drew Investment Loan and Deuterium Export
-    p1.doTask("2 BuyCard")
+    p1.buyCards(2)
     // Player2 bought 2 card(s)
     // You drew Mars University and Steelworks
-    p2.doTask("2 BuyCard")
+    p2.buyCards(2)
 
     with(p1) {
       assertProds(5 to "M", 3 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
@@ -178,7 +178,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 1 card(s)
         // You drew Development Center
-        doTask("BuyCard")
+        buyCards(1)
       }
       // Player1 played Earth Office
       playProject("EarthOffice", 1)
@@ -222,10 +222,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 3
     // Player1 bought 2 card(s)
     // You drew Spin-Inducing Asteroid and Imported GHG
-    p1.doTask("2 BuyCard")
+    p1.buyCards(2)
     // Player2 bought 2 card(s)
     // You drew Asteroid and Trans-Neptune Probe
-    p2.doTask("2 BuyCard")
+    p2.buyCards(2)
 
     with(p1) {
       assertProds(4 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 0 to "H")
@@ -254,7 +254,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 0 card(s)
         // You drew no cards
-        doTask("Ok")
+        buyCards(0)
       }
     }
 
@@ -317,10 +317,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 4
     // Player1 bought 1 card(s)
     // You drew Tectonic Stress Power
-    p1.doTask("1 BuyCard")
+    p1.buyCards(1)
     // Player2 bought 2 card(s)
     // You drew Search For Life and Greenhouses
-    p2.doTask("2 BuyCard")
+    p2.buyCards(2)
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
@@ -357,7 +357,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 1 card(s)
         // You drew Olympus Conference
-        doTask("BuyCard")
+        buyCards(1)
       }
     }
 
@@ -431,10 +431,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 5
     // Player1 bought 3 card(s)
     // You drew Small Asteroid, Fueled Generators and Domed Crater
-    p1.doTask("3 BuyCard")
+    p1.buyCards(3)
     // Player2 bought 3 card(s)
     // You drew Power Supply Consortium, Directed Impactors and Power Plant
-    p2.doTask("3 BuyCard")
+    p2.buyCards(3)
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 4 to "E", 2 to "H")
@@ -488,7 +488,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 0 card(s)
         // You drew no cards
-        doTask("Ok")
+        buyCards(0)
       }
     }
 
@@ -561,10 +561,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 6
     // Player1 bought 4 card(s)
     // You drew Sister Planet Support, Miranda Resort, Solarnet and Dusk Laser Mining
-    p1.doTask("4 BuyCard")
+    p1.buyCards(4)
     // Player2 bought 2 card(s)
     // You drew Bio Printing Facility and Earth Catapult
-    p2.doTask("2 BuyCard")
+    p2.buyCards(2)
 
     with(p1) {
       assertProds(9 to "M", 3 to "S", 0 to "T", 0 to "P", 5 to "E", 3 to "H")
@@ -608,7 +608,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 1 card(s)
         // You drew Mining Quota
-        doTask("BuyCard")
+        buyCards(1)
       }
     }
 
@@ -719,10 +719,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 7
     // Player1 bought 3 card(s)
     // You drew Stratospheric Birds, Media Archives and Trees
-    p1.doTask("3 BuyCard")
+    p1.buyCards(3)
     // Player2 bought 1 card(s)
     // You drew Invention Contest
-    p2.doTask("1 BuyCard")
+    p2.buyCards(1)
 
     with(p1) {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 4 to "E", 3 to "H")
@@ -772,7 +772,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 0 card(s)
         // You drew no cards
-        doTask("Ok")
+        buyCards(0)
       }
       // Player1 played Quantum Extractor
       // Player1's energy production increased by 4
@@ -851,10 +851,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 8
     // Player1 bought 2 card(s)
     // You drew Sulphur Exports and Mohole Lake
-    p1.doTask("2 BuyCard")
+    p1.buyCards(2)
     // Player2 bought 2 card(s)
     // You drew Advanced Alloys and Natural Preserve
-    p2.doTask("2 BuyCard")
+    p2.buyCards(2)
 
     with(p1) {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
@@ -972,7 +972,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 1 card(s)
         // You drew Imported Nitrogen
-        doTask("BuyCard")
+        buyCards(1)
       }
       // Player1 used Deuterium Export action
       cardAction1("DeuteriumExport").expect("Floater")
@@ -1010,10 +1010,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 9
     // Player1 bought 3 card(s)
     // You drew Rego Plastics, SF Memorial and Water to Venus
-    p1.doTask("3 BuyCard")
+    p1.buyCards(3)
     // Player2 bought 2 card(s)
     // You drew Atalanta Planitia Lab and Mining Expedition
-    p2.doTask("2 BuyCard")
+    p2.buyCards(2)
 
     with(p1) {
       assertProds(27 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
@@ -1043,7 +1043,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1("InventorsGuild") {
         // Player1 bought 1 card(s)
         // You drew Urbanized Area
-        doTask("BuyCard")
+        buyCards(1)
       }
     }
 
@@ -1250,10 +1250,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Generation 10
     // Player1 bought 2 card(s)
     // You drew Nitrogen-Rich Asteroid and Lava Tube Settlement
-    p1.doTask("2 BuyCard")
+    p1.buyCards(2)
     // Player2 bought 3 card(s)
     // You drew Mercurian Alloys, Hired Raiders and Nuclear Power
-    p2.doTask("3 BuyCard")
+    p2.buyCards(3)
 
     with(p1) {
       assertProds(28 to "M", 5 to "S", 1 to "T", 4 to "P", 9 to "E", 3 to "H")
@@ -1317,7 +1317,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
       // You drew no cards
-      cardAction1("InventorsGuild") { doTask("Ok") }
+      cardAction1("InventorsGuild") { buyCards(0) }
     }
     // Player2 played Mercurian Alloys
     p2.turn {
@@ -1460,8 +1460,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // You drew Business Network and Gene Repair
     // Player2 bought 1 card(s)
     // You drew Towing A Comet
-    p1.doTask("2 BuyCard")
-    p2.doTask("BuyCard")
+    p1.buyCards(2)
+    p2.buyCards(1)
     // Player1 played Imported Nitrogen
     // Player1's plants amount increased by 4
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
@@ -1495,7 +1495,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
       // You drew no cards
-      cardAction1("InventorsGuild") { doTask("Ok") }
+      cardAction1("InventorsGuild") { buyCards(0) }
     }
     // Player2 played Media Group
     p2.turn {
@@ -1533,7 +1533,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Business Network action
       // Player1 bought 1 card(s)
       // You drew Standard Technology
-      cardAction1("BusinessNetwork") { doTask("BuyCard") }
+      cardAction1("BusinessNetwork") { buyCards(1) }
     }
     // Player2 used City standard project
     // Player2 placed city tile on row 8 position 2

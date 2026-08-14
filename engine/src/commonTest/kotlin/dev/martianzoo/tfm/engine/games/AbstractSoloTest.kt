@@ -42,7 +42,7 @@ abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected fun nextRound(wgt: String, cardsBought: Int) {
     p1.pass()
     me.doTask("$wgt! BY Engine")
-    p1.doTask(if (cardsBought > 0) "$cardsBought BuyCard" else "Ok")
+    p1.buyCards(cardsBought)
   }
 
   /** Leaves the following workflow task unprepared while [body] makes a log correction. */

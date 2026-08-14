@@ -8,12 +8,13 @@ import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmTest
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
-class FirstPartialGameTest {
+class FirstPartialGameTest : TfmTest() {
   @Test
   fun fourWholeGenerations() {
     repeat(1) {
@@ -60,8 +61,8 @@ class FirstPartialGameTest {
       p2.pass()
 
       // Generation 2 (P2 first)
-      p1.doTask("4 BuyCard")
-      p2.doTask("1 BuyCard")
+      p1.buyCards(4)
+      p2.buyCards(1)
 
       p2.turn {
         cardAction1("SpaceElevator")
@@ -91,8 +92,8 @@ class FirstPartialGameTest {
       p2.pass()
 
       // Generation 3 (P1 first)
-      p1.doTask("3 BuyCard")
-      p2.doTask("2 BuyCard")
+      p1.buyCards(3)
+      p2.buyCards(2)
 
       p1.turn {
         playProject("Mine", 2, steel = 1)
@@ -123,8 +124,8 @@ class FirstPartialGameTest {
       }
 
       // Generation 4 (P2 first)
-      p1.doTask("3 BuyCard")
-      p2.doTask("2 BuyCard")
+      p1.buyCards(3)
+      p2.buyCards(2)
 
       p2.turn {
         cardAction1("ElectroCatapult")

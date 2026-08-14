@@ -59,8 +59,8 @@ class EllieGameTest : AbstractFullGameTest() {
     p2.pass()
 
     // Generation 2 (P2 first)
-    p1.doTask("1 BuyCard")
-    p2.doTask("3 BuyCard")
+    p1.buyCards(1)
+    p2.buyCards(3)
 
     p2.turn {
       sellPatents(1)
@@ -84,8 +84,8 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.pass()
 
     // Generation 3 (P1 first)
-    p1.doTask("3 BuyCard")
-    p2.doTask("1 BuyCard")
+    p1.buyCards(3)
+    p2.buyCards(1)
 
     p1.turn {
       cardAction1("DevelopmentCenter")

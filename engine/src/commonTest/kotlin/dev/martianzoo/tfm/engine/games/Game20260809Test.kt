@@ -174,10 +174,10 @@ class Game20260809Test : AbstractFullGameTest() {
     engine.assertCounts(3 to "Tile")
 
     // (11:39 am) "Wow, these all suck." "I'll buy two."
-    dad.doTask("2 BuyCard")
+    dad.buyCards(2)
 
     // "I'm going to discard two and buy two."
-    ellie.doTask("2 BuyCard")
+    ellie.buyCards(2)
 
     // "I'm going to release my inert gases. For fourteen. That gives me two TR."
     dad.turn { playProject("ReleaseOfInertGases", 14).expect("2 TR") }
@@ -232,10 +232,10 @@ class Game20260809Test : AbstractFullGameTest() {
     assertSidebar(gen = 3, temp = -30, oxygen = 1, oceans = 4)
 
     // (11:46 am) "I'm buying three cards and discarding one."
-    dad.doTask("3 BuyCard")
+    dad.buyCards(3)
 
     // "I buy one card and discard three."
-    ellie.doTask("1 BuyCard")
+    ellie.buyCards(1)
 
     ellie.turn {
       // "I feel like I can always start by Aquifer Pumping."
@@ -356,10 +356,10 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // 12:34 pm
     // "I'm discarding one card and buying three cards."
-    dad.doTask("3 BuyCard")
+    dad.buyCards(3)
 
     // "Same."
-    ellie.doTask("3 BuyCard")
+    ellie.buyCards(3)
     ellie.assertCounts(28 to "M") // ledger entry 85
 
     // "I'm going to use Venusian Insects to take a microbe on Venusian Insects and gain one money"
@@ -495,11 +495,11 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (12:48 pm) "Shit. It's ruining everything. I need them. I'm buying three cards."
     // "And discarding one."
-    ellie.doTask("3 BuyCard")
+    ellie.buyCards(3)
     ellie.assertCounts(33 to "M") // ledger entry 124
 
     // "I believe I did the same."
-    dad.doTask("3 BuyCard")
+    dad.buyCards(3)
 
     // "I will spend eight money to place the last ocean."
     ellie.turn {
@@ -619,10 +619,10 @@ class Game20260809Test : AbstractFullGameTest() {
     assertSidebar(gen = 6, temp = -24, oxygen = 6, oceans = 9)
 
     // (1:02 pm) "What a bunch of junk." "I'm keeping two cards."
-    ellie.doTask("2 BuyCard")
+    ellie.buyCards(2)
     // (1:04 pm) "I'm actually gonna not buy this card either."
     // "I'm gonna give myself my three money back again. I bought no cards this time."
-    dad.doTask("Ok")
+    dad.buyCards(0)
 
     // See board-13-04-48-corrected.png - verified
     dad.assertCounts(14 to "CardFront")
@@ -788,9 +788,9 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (6:21 pm) "We're now playing Generation 7."
     // "I'm buying three cards and discarding one."
-    ellie.doTask("3 BuyCard")
+    ellie.buyCards(3)
     // "I am... stupidly buying all of my cards. So, 12."
-    dad.doTask("4 BuyCard")
+    dad.buyCards(4)
 
     ellie.turn {
       // "I think I'm just gonna Standard Project City."
@@ -910,8 +910,8 @@ class Game20260809Test : AbstractFullGameTest() {
     assertSidebar(gen = 8, temp = -12, oxygen = 11, oceans = 9)
 
     // "I'll buy two cards and discard two cards. I'll do the same."
-    dad.doTask("2 BuyCard")
-    ellie.doTask("2 BuyCard")
+    dad.buyCards(2)
+    ellie.buyCards(2)
 
     // (6:37 pm) "God damn it. We play Penguins, which costs five."
     dad.turn {
@@ -1052,8 +1052,8 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (8:03 pm) "We draft. I'll buy one card and discard three."
     // The ledger records Ellie buying three cards and Dad buying none.
-    ellie.doTask("3 BuyCard")
-    dad.doTask("Ok")
+    ellie.buyCards(3)
+    dad.buyCards(0)
 
     // (8:05 pm) "I believe I start by paying three energy to trade with Luna. That's ten."
     ellie.turn {
@@ -1191,8 +1191,8 @@ class Game20260809Test : AbstractFullGameTest() {
     assertSidebar(gen = 10, temp = -4, oxygen = 14, oceans = 9)
 
     // "I'm buying two cards. I'm buying three cards."
-    ellie.doTask("2 BuyCard")
-    dad.doTask("3 BuyCard")
+    ellie.buyCards(2)
+    dad.buyCards(3)
 
     // (8:18 pm) "I'm going to use three energy to fly to Enceladus and take three microbes."
     // "My three microbes go onto Venusian Insects and give me three money."
@@ -1396,8 +1396,8 @@ class Game20260809Test : AbstractFullGameTest() {
     // (8:35 pm) "I think I'll buy dos cartas."
     // "I really should not buy all of these. 'Tis the struggle. What the fuck? I'll buy them all."
     // "I mean, what the hell? What the hay bale?"
-    ellie.doTask("2 BuyCard")
-    dad.doTask("4 BuyCard")
+    ellie.buyCards(2)
+    dad.buyCards(4)
     dad.assertCounts(43 to "M") // ledger entry 243
 
     // "I'm gonna heat boop twice. So we're at two temp."

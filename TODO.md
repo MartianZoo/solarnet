@@ -10,6 +10,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Audit `system.pets` and retain only the System Types the generic engine genuinely requires.
 - Determine whether Gated Instructions are a special form of `THEN` rather than a separate construct.
 - Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.
+- Move fixture-only action helpers such as `playCorp` and `playProject` out of production
+  `TfmGameplay`; remove or replace `SampleGames` and give benchmarks explicit harness utilities.
 
 ### Making Solarnet AI-player-ready
 

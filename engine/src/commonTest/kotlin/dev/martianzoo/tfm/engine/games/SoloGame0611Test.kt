@@ -52,7 +52,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("IndustrialMicrobes", 4).expect("PROD[S, E], MicrobeTag")
 
       pass()
-      doTask("2 BuyCard")
+      buyCards(2)
 
       assertProduction(m = 7, s = 1, t = 2, p = 1, e = 1, h = 0)
       assertResources(m = 22, s = 1, t = 2, p = 1, e = 1, h = 0)
@@ -64,7 +64,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("AcquiredCompany", 10).expect("EarthTag, PROD[3]")
 
       pass()
-      doTask("2 BuyCard")
+      buyCards(2)
 
       val ForcedPrecipitation = "ForcedPrecipitation"
       playProject("AsteroidCard", 2, titanium = 4) { doTask("-2 Plant<SoloOpponent>") }
@@ -75,7 +75,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("Solarnet", 7).expect("2 Card")
 
       pass()
-      doTask("1 BuyCard")
+      buyCards(1)
 
       assertProduction(m = 9, s = 1, t = 2, p = 1, e = 3, h = 0)
       assertResources(m = 29, s = 1, t = 4, p = 3, e = 3, h = 2)
@@ -93,7 +93,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements).expect("Card")
 
       pass()
-      doTask("2 BuyCard")
+      buyCards(2)
 
       cardAction1(SubCrustMeasurements).expect("Card")
       cardAction2(ForcedPrecipitation).expect("TR")
@@ -104,7 +104,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject("MagneticFieldDome", 3, steel = 1).expect("TR, PROD[P, -2 E], AutomatedCard")
 
       pass()
-      doTask("2 BuyCard")
+      buyCards(2)
 
       assertProduction(m = 9, s = 1, t = 2, p = 2, e = 1, h = 1)
       assertResources(m = 22, s = 1, t = 5, p = 6, e = 1, h = 9)
@@ -122,7 +122,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(ForcedPrecipitation)
 
       pass()
-      doTask("3 BuyCard")
+      buyCards(3)
 
       stdAction("ConvertPlantsSA") {
         doTask("GreeneryTile<Hellas_9_7>")
@@ -146,7 +146,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       // The player chose to convert only one of three energy with Supercapacitors.
       pass()
       godMode().sneak("2 Energy FROM Heat")
-      doTask("3 BuyCard")
+      buyCards(3)
 
       assertProduction(m = 14, s = 1, t = 2, p = 2, e = 3, h = 1)
       assertResources(m = 33, s = 1, t = 4, p = 2, e = 5, h = 5)
@@ -169,7 +169,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       // The player chose to convert none of five energy with Supercapacitors.
       pass()
       godMode().sneak("5 Energy FROM Heat")
-      doTask("2 BuyCard")
+      buyCards(2)
 
       val AiCentral = "AiCentral"
       stdAction("ConvertHeatSA")
@@ -191,7 +191,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       // The player chose to convert only two of five energy with Supercapacitors.
       pass()
       godMode().sneak("3 Energy FROM Heat")
-      doTask("Ok")
+      buyCards(0)
 
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
       assertResources(m = 56, s = 1, t = 6, p = 7, e = 6, h = 8)
@@ -215,7 +215,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       // The player chose to convert only three of six energy with Supercapacitors.
       pass()
       godMode().sneak("3 Energy FROM Heat")
-      doTask("3 BuyCard")
+      buyCards(3)
 
       stdAction("ConvertHeatSA")
       cardAction1(AiCentral)
@@ -237,7 +237,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(RegolithEaters)
 
       pass()
-      doTask("Ok")
+      buyCards(0)
 
       stdAction("ConvertHeatSA")
       cardAction1(AiCentral)
