@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import io.kotest.matchers.shouldBe
@@ -10,32 +9,27 @@ import kotlin.test.Test
 
 /** Game played Sun 2026-08-09 11:19 am. Quotes are transcript-derived and sometimes normalized. */
 class Game20260809Test : AbstractFullGameTest() {
-  override fun setup() = run {
-    // "This is a two-player game on the Hellas board."
-    // "Our colonies are Callisto, Luna, Triton, Miranda, and Enceladus."
-    // "We're using the Venus expansion. We're using promo cards. We're using the Prelude
-    // expansion."
-    // "Our milestones are Coast Guard, Landshaper, Mayor, Producer, Sponsor."
-    // "Our awards are Botanist, Founder, Landlord, Magnate, and Metropolist."
-    // "And also, we have the Hoverlord milestone and the Venophile award."
-    Canon.gamePremise(
-        GameConfig(
-            """
-            TerraformingMars
-            HellasMapOption
-            VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion 
-            PromoCardPack
+  // "This is a two-player game on the Hellas board."
+  // "Our colonies are Callisto, Luna, Triton, Miranda, and Enceladus."
+  // "We're using the Venus expansion. We're using promo cards. We're using the Prelude
+  // expansion."
+  // "Our milestones are Coast Guard, Landshaper, Mayor, Producer, Sponsor."
+  // "Our awards are Botanist, Founder, Landlord, Magnate, and Metropolist."
+  // "And also, we have the Hoverlord milestone and the Venophile award."
+  override val config =
+      GameConfig(
+          """
+          HellasMapOption
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion
+          PromoCardPack
 
-            Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord
-            Botanist, Founder, Landlord, Magnate, Metropolist, Venuphile
-            Callisto, Luna, Triton, Miranda, Enceladus
+          Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord
+          Botanist, Founder, Landlord, Magnate, Metropolist, Venuphile
+          Callisto, Luna, Triton, Miranda, Enceladus
 
-            Player1, Player2
-            """
-                .trimIndent()
-        )
-    )
-  }
+          Player1, Player2
+          """
+      )
 
   @Test
   fun game20260809() {

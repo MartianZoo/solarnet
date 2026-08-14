@@ -1,29 +1,22 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.*
-import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SoloGame0710Test : AbstractSoloTest() {
-  override fun setup(): GamePremise {
-    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
-    // Miranda was removed because solo Colonies uses only three selected tiles.
-    return canonicalPremise(
-        VenusNextExpansion,
-        PreludeExpansion,
-        ColoniesExpansion,
-        TurmoilCardPack,
-        PromoCardPack,
-        Tr63SoloVariant,
-        players = 1,
-        colonyTiles = colonyTiles,
-    )
-  }
+  // Miranda was removed because solo Colonies uses only three selected tiles.
+  override val config =
+      GameConfig(
+          """
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
+          Tr63SoloVariant
+          Callisto, Ganymede, Luna
+          Player1
+          """
+      )
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"
 

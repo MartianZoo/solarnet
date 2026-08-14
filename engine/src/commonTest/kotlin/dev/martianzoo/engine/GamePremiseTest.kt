@@ -4,6 +4,7 @@ import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -11,11 +12,7 @@ import kotlin.test.Test
 internal class GamePremiseTest {
   @Test
   fun rawConfigResolvesToAffirmativeClassNames() {
-    val config =
-        GameConfig(
-            "Player1, Player2, MultiplayerMode, TerraformingMars, TharsisMapOption, " +
-                "-CorporateEraExpansion"
-        )
+    val config = GameConfig("Player1, Player2, -CorporateEraExpansion")
 
     val premise = Canon.gamePremise(config)
 
@@ -27,44 +24,43 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun structuredConfigAppliesDefaults() {
-    val premise =
-        Canon.gamePremise(GameConfig("Player1, Player2, TerraformingMars, TharsisMapOption"))
+  fun configCookingAppliesDefaultsAndImplications() {
+    val premise = Canon.gamePremise(GameConfig("Player1, Player2, VenusNextExpansion"))
 
-    premise.modules.containsAll(
-        setOf(
-            cn("MultiplayerMode"),
-            cn("CorporateEraExpansion"),
+    premise.modules shouldContain cn("TerraformingMars")
+    premise.modules shouldContain cn("TharsisMapOption")
+    premise.modules shouldContain cn("MultiplayerMode")
+    premise.modules shouldContain cn("CorporateEraExpansion")
+    premise.modules shouldContain cn("WorldGovernmentOption")
+  }
+
+  @Test
+  fun explicitSelectionsAndExclusionsOverrideConfigCooking() {
+    val premise =
+        Canon.gamePremise(
+            GameConfig(
+                "Player1, Player2, HellasMapOption, VenusNextExpansion, -WorldGovernmentOption"
+            )
         )
-    ) shouldBe true
+
+    premise.modules shouldContain cn("HellasMapOption")
+    premise.modules.shouldNotContain(cn("TharsisMapOption"))
+    premise.modules.shouldNotContain(cn("WorldGovernmentOption"))
   }
 
   @Test
   fun invalidConfigurationFailsWhileBootstrappingAWorld() {
     shouldThrow<IllegalArgumentException> {
-      Engine.newGame(Canon.gamePremise(GameConfig("Player1, SoloMode, TerraformingMars")))
+      Engine.newGame(Canon.gamePremise(GameConfig("Player1, Player2, WorldGovernmentOption")))
     }
     shouldThrow<IllegalArgumentException> {
-      Engine.newGame(
-          Canon.gamePremise(
-              GameConfig(
-                  "Player1, Player2, MultiplayerMode, TerraformingMars, TharsisMapOption, " +
-                      "WorldGovernmentOption"
-              )
-          )
-      )
-    }
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(GameConfig("Player1, TerraformingMars, TharsisMapOption, TypoOption"))
+      Canon.gamePremise(GameConfig("Player1, TypoOption"))
     }
   }
 
   @Test
   fun individualClassExclusionOverridesAModule() {
-    val premise =
-        Canon.gamePremise(
-            GameConfig("Player1, Player2, TerraformingMars, TharsisMapOption, -Card001")
-        )
+    val premise = Canon.gamePremise(GameConfig("Player1, Player2, -Card001"))
 
     Engine.newGame(premise).classTable.isActive(cn("Card001")) shouldBe false
   }
@@ -74,8 +70,8 @@ internal class GamePremiseTest {
     val premise =
         Canon.gamePremise(
             GameConfig(
-                "Player1, Player2, TerraformingMars, HellasMapOption, " +
-                    "MilestonesAwardsExpansion, Coastguard, Landshaper, Botanist, Founder"
+                "Player1, Player2, HellasMapOption, MilestonesAwardsExpansion, " +
+                    "Coastguard, Landshaper, Botanist, Founder"
             )
         )
     val table = Engine.newGame(premise).classTable
@@ -91,7 +87,7 @@ internal class GamePremiseTest {
   @Test
   fun initialComponentTypesMustBeConcreteAndNonSingleton() {
     val premise =
-        Canon.gamePremise(GameConfig("Player1, Player2, TerraformingMars, TharsisMapOption"))
+        Canon.gamePremise(GameConfig("Player1, Player2"))
             .copy(initialComponentTypes = setOf(cn("Card").expression))
 
     shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }

@@ -3,7 +3,12 @@ package dev.martianzoo.data
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
-/** Raw user intent expressed as positive and negative class-name spellings. */
+/**
+ * Unresolved user intent expressed as positive and negative class-name spellings.
+ *
+ * An Authority applies defaults, implications, selection policies, and validation to cook this into
+ * a complete [GamePremise].
+ */
 public data class GameConfig(
     public val includedClassNames: Set<ClassName>,
     public val excludedClassNames: Set<ClassName> = emptySet(),

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import io.kotest.matchers.shouldBe
@@ -10,25 +9,20 @@ import kotlin.test.Test
 
 // Synthetic Proton Fragment - https://terraforming-mars.herokuapp.com/the-end?id=p9d6d3ff25b39
 class Game20260811Test : AbstractFullGameTest() {
-  override fun setup() = run {
-    // The archived metadata specifies Hellas, Corporate Era, Prelude, promo cards, three players,
-    // no Venus/Colonies/Turmoil, and the following full-random milestone and award pools.
-    Canon.gamePremise(
-        GameConfig(
-            """
-            TerraformingMars
-            HellasMapOption
-            PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
+  // The archived metadata specifies Hellas, Corporate Era, Prelude, promo cards, three players,
+  // no Venus/Colonies/Turmoil, and the following full-random milestone and award pools.
+  override val config =
+      GameConfig(
+          """
+          HellasMapOption
+          PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
 
-            Mayor, Diversifier, Trader, Sponsor, MilestoneMM35
-            Biologist, SpaceBaron, Forecaster, Botanist, Collector
+          Mayor, Diversifier, Trader, Sponsor, MilestoneMM35
+          Biologist, SpaceBaron, Forecaster, Botanist, Collector
 
-            Player1, Player2, Player3
-            """
-                .trimIndent()
-        )
-    )
-  }
+          Player1, Player2, Player3
+          """
+      )
 
   @Test
   fun game20260811() {

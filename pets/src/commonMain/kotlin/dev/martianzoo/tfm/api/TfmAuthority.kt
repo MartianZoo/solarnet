@@ -38,12 +38,13 @@ public open class TfmAuthority : Authority {
   public open val bundles: List<Bundle> = emptyList()
 
   /**
-   * Resolves user-facing Module and setup selections into an exact game premise.
+   * Cooks user-facing Module and setup selections into an exact game premise by applying Authority
+   * defaults, implications, and selection policies.
    *
    * Structured definitions may use unambiguous English Pets names. Naming any milestones or awards
    * selects the exact configured pool for that category.
    */
-  public fun gamePremise(config: GameConfig): GamePremise {
+  public open fun gamePremise(config: GameConfig): GamePremise {
     val explicitlyIncluded = resolveConfigurationNames(config.includedClassNames)
     val explicitlyExcluded = resolveConfigurationNames(config.excludedClassNames)
     require(explicitlyIncluded.intersect(explicitlyExcluded).isEmpty()) {

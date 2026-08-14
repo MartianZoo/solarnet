@@ -1,28 +1,22 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.*
-import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Thermal Matter Wave - https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
 class Game20260730Test : AbstractSoloTest() {
-  override fun setup(): GamePremise {
-    return canonicalPremise(
-        VenusNextExpansion,
-        PreludeExpansion,
-        ColoniesExpansion,
-        PromoCardPack,
-        Tr63SoloVariant,
-        players = 1,
-        colonyTiles = setOf(cn("Ceres"), cn("Io"), cn("Triton")),
-    )
-  }
+  override val config =
+      GameConfig(
+          """
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack, Tr63SoloVariant
+          Ceres, Io, Triton
+          Player1
+          """
+      )
 
   // Drew and discarded Mining Colony to place a 2
   // Drew and discarded Potatoes to place a 0

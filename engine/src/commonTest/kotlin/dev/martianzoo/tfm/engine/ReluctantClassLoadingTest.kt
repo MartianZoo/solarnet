@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
@@ -19,44 +20,40 @@ internal class ReluctantClassLoadingTest {
   // Stop deleting this test when cards are added; update the expected totals instead.
   @Test
   fun contentChangeDetectorTestThatIAmNotGoingToDeleteSoPleaseStopSuggestingIt() {
-    val selected = linkedSetOf(TerraformingMars)
-    val totals = linkedMapOf<TestOption, Int>()
-    for (option in
+    val corporateEra = cn("CorporateEraExpansion")
+    val colonies = cn("ColoniesExpansion")
+    val selected = linkedSetOf<ClassName>()
+    val totals = linkedMapOf<String, Int>()
+    for ((label, option) in
         listOf(
-            TharsisMapOption,
-            CorporateEraExpansion,
-            VenusNextExpansion,
-            PreludeExpansion,
-            ColoniesExpansion,
-            TurmoilCardPack,
-            PromoCardPack,
+            "Base" to null,
+            "CorporateEraExpansion" to corporateEra,
+            "VenusNextExpansion" to cn("VenusNextExpansion"),
+            "PreludeExpansion" to cn("PreludeExpansion"),
+            "ColoniesExpansion" to colonies,
+            "TurmoilCardPack" to cn("TurmoilCardPack"),
+            "PromoCardPack" to cn("PromoCardPack"),
         )) {
-      selected += option
-      val colonyTiles =
-          if (ColoniesExpansion in selected) TestHelpers.testColonyTiles(2) else emptySet()
-      totals[option] =
-          Engine.newGame(
-                  canonicalPremise(
-                      selected,
-                      colonyTiles = colonyTiles,
-                      excludedOptions =
-                          if (CorporateEraExpansion in selected) emptySet()
-                          else setOf(CorporateEraExpansion),
-                  )
-              )
-              .gameplay(ENGINE)
-              .count("Class<CardFront>")
+      option?.let(selected::add)
+      val colonyTiles = if (colonies in selected) TestHelpers.testColonyTiles(2) else emptySet()
+      val config =
+          GameConfig.create(
+              included = listOf(cn("Player1"), cn("Player2")) + selected + colonyTiles,
+              excluded = if (corporateEra in selected) emptySet() else setOf(corporateEra),
+          )
+      totals[label] =
+          Engine.newGame(Canon.gamePremise(config)).gameplay(ENGINE).count("Class<CardFront>")
     }
 
     totals.shouldContainExactly(
         mapOf(
-            TharsisMapOption to 146, // 148 minus BegCorp and Helion
-            CorporateEraExpansion to 146 + 72, // 73 minus Land Claim
-            VenusNextExpansion to 218 + 54,
-            PreludeExpansion to 272 + 45, // 47 minus Research Network/Coordination
-            ColoniesExpansion to 317 + 52, // 54 minus Aridor and Stormcraft
-            TurmoilCardPack to 369 + 4,
-            PromoCardPack to 373 + 85,
+            "Base" to 146, // 148 minus BegCorp and Helion
+            "CorporateEraExpansion" to 146 + 72, // 73 minus Land Claim
+            "VenusNextExpansion" to 218 + 54,
+            "PreludeExpansion" to 272 + 45, // 47 minus Research Network/Coordination
+            "ColoniesExpansion" to 317 + 52, // 54 minus Aridor and Stormcraft
+            "TurmoilCardPack" to 369 + 4,
+            "PromoCardPack" to 373 + 85,
         )
     )
   }
@@ -64,71 +61,71 @@ internal class ReluctantClassLoadingTest {
   @Test
   fun `Colonies classes stay unloaded without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
-    matchingClasses("colon(y|ie)", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA).shouldBeEmpty()
-    matchingClasses("trade", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA).shouldBeEmpty()
+    matchingClasses("colon(y|ie)", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
+    matchingClasses("trade", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
   }
 
   @Test
   fun `Corporate Era classes stay unloaded without Corporate Era`() {
-    assertNotLoaded("CopyProductionBox", Setup.WITHOUT_CORPORATE_ERA)
+    assertNotLoaded("CopyProductionBox", withoutCorporateEra)
   }
 
   @Test
   fun `Prelude classes stay unloaded without Prelude`() {
     // Promo has Prelude-gated cards, including one whose instruction names PreludeCard.
-    matchingClasses("prelude", Setup.PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA).shouldBeEmpty()
+    matchingClasses("prelude", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
   }
 
   @Test
   fun `Venus classes stay unloaded without Venus Next`() {
     // Promo names VenusStep; Terra Cimmeria names VenusTag. Both definitions are Venus-gated.
-    assertNotLoaded("VenusStep", Setup.PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA)
-    assertNotLoaded("VenusTag", Setup.PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA)
+    assertNotLoaded("VenusStep", promosCimmeriaWithoutCorporateEra)
+    assertNotLoaded("VenusTag", promosCimmeriaWithoutCorporateEra)
   }
 
   // Deliberate mode-specific omissions
 
   @Test
   fun `player classes follow the selected seats`() {
-    assertNotLoaded("Player2", Setup.BASE_SOLO)
-    assertNotLoaded("Player3", Setup.BASE_MULTIPLAYER)
+    assertNotLoaded("Player2", baseSolo)
+    assertNotLoaded("Player3", baseMultiplayer)
   }
 
   @Test
   fun `multiplayer standard actions stay unloaded in solo`() {
-    assertNotLoaded("ClaimMilestoneSA", Setup.BASE_SOLO)
-    assertNotLoaded("FundAwardSA", Setup.BASE_SOLO)
+    assertNotLoaded("ClaimMilestoneSA", baseSolo)
+    assertNotLoaded("FundAwardSA", baseSolo)
   }
 
   @Test
   fun `concrete award definitions and placement classes stay unloaded in solo`() {
-    Setup.BASE_SOLO.classTable
+    baseSolo.classTable
         .getClass(cn("Award"))
         .allSubclasses()
         .map { it.className }
         .shouldContainExactly(cn("Award"))
-    assertNotLoaded("FirstPlace", Setup.BASE_SOLO)
-    assertNotLoaded("SecondPlace", Setup.BASE_SOLO)
-    assertNotLoaded("AssignAwardPlaces", Setup.BASE_SOLO)
+    assertNotLoaded("FirstPlace", baseSolo)
+    assertNotLoaded("SecondPlace", baseSolo)
+    assertNotLoaded("AssignAwardPlaces", baseSolo)
   }
 
   @Test
   fun `MultiplayerVictoryCheck stays unloaded in solo`() =
-      assertNotLoaded("MultiplayerVictoryCheck", Setup.BASE_SOLO)
+      assertNotLoaded("MultiplayerVictoryCheck", baseSolo)
 
   // Mode and player-count boundaries
 
   @Test
   fun `GenerationSetup stays unloaded in multiplayer`() =
-      assertNotLoaded("GenerationSetup", Setup.BASE_MULTIPLAYER)
+      assertNotLoaded("GenerationSetup", baseMultiplayer)
 
   @Test
   fun `solo classes stay unloaded in multiplayer`() =
-      matchingClasses("solo", Setup.PRELUDE_VENUS_MULTIPLAYER).shouldBeEmpty()
+      matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
 
   @Test
   fun `abstract Award and its tallying machinery are incorrectly loaded in solo`() {
-    matchingClasses("award", Setup.BASE_SOLO)
+    matchingClasses("award", baseSolo)
         .shouldContainExactlyInAnyOrder(
             cn("Award"),
             cn("MeasureAward"),
@@ -139,67 +136,54 @@ internal class ReluctantClassLoadingTest {
 
   @Test
   fun `Vitor does not load concrete award classes in solo`() {
-    val setup = Setup.PRELUDE_SOLO
-    matchingClasses("award", setup)
+    val projection = preludeSolo
+    matchingClasses("award", projection)
         .shouldContainExactlyInAnyOrder(
             cn("MeasureAward"),
             cn("TallyAward"),
             cn("AwardTally"),
             cn("Award"),
         )
-    setup.classTable
+    projection.classTable
         .getClass(cn("Award"))
         .allSubclasses()
         .map { it.className }
         .shouldContainExactly(cn("Award"))
   }
 
-  private fun assertLoaded(className: String, setup: Setup) {
-    setup.classNames.shouldContain(cn(className))
+  private fun assertNotLoaded(className: String, projection: Projection) {
+    projection.classNames.shouldNotContain(cn(className))
   }
 
-  private fun assertNotLoaded(className: String, setup: Setup) {
-    setup.classNames.shouldNotContain(cn(className))
-  }
-
-  private fun matchingClasses(pattern: String, setup: Setup) =
-      setup.classTable
+  private fun matchingClasses(pattern: String, projection: Projection) =
+      projection.classTable
           .allClasses()
           .map { it.className }
           .filter { Regex(pattern, RegexOption.IGNORE_CASE).containsMatchIn(it.toString()) }
 
-  private enum class Setup(
-      private val options: Set<TestOption>,
-      private val players: Int = 2,
-      private val excludedOptions: Set<TestOption> = emptySet(),
-  ) {
-    BASE_MULTIPLAYER(TestOption.DEFAULTS),
-    BASE_SOLO(TestOption.DEFAULTS, 1),
-    PRELUDE_SOLO(TestOption.DEFAULTS + PreludeExpansion, players = 1),
-    WITHOUT_CORPORATE_ERA(
-        TestOption.DEFAULTS,
-        excludedOptions = setOf(CorporateEraExpansion),
-    ),
-    PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA(
-        setOf(TerraformingMars, PromoCardPack, UtopiaPlanitiaMapOption),
-        excludedOptions = setOf(CorporateEraExpansion),
-    ),
-    PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA(
-        setOf(TerraformingMars, PromoCardPack, TerraCimmeriaMapOption),
-        excludedOptions = setOf(CorporateEraExpansion),
-    ),
-    PRELUDE_VENUS_MULTIPLAYER(TestOption.DEFAULTS + setOf(PreludeExpansion, VenusNextExpansion));
-
+  private class Projection(private val config: GameConfig) {
     val classTable by lazy {
-      Engine.newGame(
-              canonicalPremise(
-                  options,
-                  players = players,
-                  excludedOptions = excludedOptions,
-              )
-          )
-          .classTable
+      Engine.newGame(Canon.gamePremise(config)).classTable
     }
     val classNames by lazy { classTable.allClassNames }
+  }
+
+  private companion object {
+    val baseMultiplayer = projection("Player1, Player2")
+    val baseSolo = projection("Player1")
+    val preludeSolo = projection("Player1, PreludeExpansion")
+    val withoutCorporateEra = projection("Player1, Player2, -CorporateEraExpansion")
+    val promosUtopiaWithoutCorporateEra =
+        projection(
+            "Player1, Player2, PromoCardPack, UtopiaPlanitiaMapOption, -CorporateEraExpansion"
+        )
+    val promosCimmeriaWithoutCorporateEra =
+        projection(
+            "Player1, Player2, PromoCardPack, TerraCimmeriaMapOption, -CorporateEraExpansion"
+        )
+    val preludeVenusMultiplayer =
+        projection("Player1, Player2, PreludeExpansion, VenusNextExpansion")
+
+    fun projection(config: String): Projection = Projection(GameConfig(config))
   }
 }

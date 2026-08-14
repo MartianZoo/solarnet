@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.engine.games
 
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.*
-import dev.martianzoo.tfm.engine.canonicalPremise
-import dev.martianzoo.tfm.engine.exclude
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -21,15 +19,14 @@ class SoloGame0611Test : AbstractSoloTest() {
 
   override fun greeneryAreas() = "Hellas_6_2" to "Hellas_9_5"
 
-  override fun setup() =
-      canonicalPremise(
-          HellasMapOption,
-          VenusNextExpansion,
-          PreludeExpansion,
-          PromoCardPack,
-          exclude(WorldGovernmentOption),
-          Tr63SoloVariant,
-          players = 1,
+  override val config =
+      GameConfig(
+          """
+          HellasMapOption
+          VenusNextExpansion, PreludeExpansion, PromoCardPack, Tr63SoloVariant
+          -WorldGovernmentOption
+          Player1
+          """
       )
 
   @Test

@@ -1,13 +1,14 @@
 package dev.martianzoo.tfm.engine.games
 
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
@@ -22,11 +23,11 @@ abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p2: TfmGameplay
   protected lateinit var p3: TfmGameplay
 
-  protected abstract fun setup(): GamePremise
+  protected abstract val config: GameConfig
 
   @BeforeTest
   open fun commonSetup() {
-    game = Engine.newGame(setup(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
+    game = Engine.newGame(Canon.gamePremise(config), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     p1 = game.tfm(PLAYER1)
     if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
     if (game.reader.getComponents("Player").size > 2) p3 = game.tfm(PLAYER3)

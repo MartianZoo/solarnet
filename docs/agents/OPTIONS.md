@@ -52,6 +52,10 @@ Availability and initial existence are separate. With Colonies active, all eligi
 
 `GameConfig` is the unresolved expression of user intent. Its included and excluded class-name sets have no ordering semantics. Defaults, implications, selection policies, and validation convert it into a `GamePremise`. The Terraforming Mars resolver accepts Modules and signed individual classes. Unambiguous English Pets names for structured definitions are accepted alongside canonical names. Mentioning any milestones or awards selects the exact named pool for that category; selected colony tiles additionally become initial components.
 
+Configuration defaults belong to the Authority's premise-resolution process, not to clients or
+test helpers. They are evaluated against explicit inclusions: naming a competing choice suppresses
+the corresponding default, and an explicit exclusion defeats both defaults and implications.
+
 ## Bundles
 
 A **Bundle** is an internal unit of file ownership, provenance, distribution, and loading. It may contribute declarations, structured definitions, premise metadata, and custom implementations. It is not selected directly by a game and never becomes a live component.

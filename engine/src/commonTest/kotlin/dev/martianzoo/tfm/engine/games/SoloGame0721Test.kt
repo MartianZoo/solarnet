@@ -1,32 +1,25 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TestOption.*
-import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SoloGame0721Test : AbstractSoloTest() {
-  override fun setup(): GamePremise {
-    val colonyTiles = setOf(cn("Ceres"), cn("Luna"), cn("Triton"))
-    // Enceladus was removed because solo Colonies uses only three selected tiles.
-    return canonicalPremise(
-        ElysiumMapOption,
-        VenusNextExpansion,
-        PreludeExpansion,
-        ColoniesExpansion,
-        TurmoilCardPack,
-        PromoCardPack,
-        Tr63SoloVariant,
-        players = 1,
-        colonyTiles = colonyTiles,
-    )
-  }
+  // Enceladus was removed because solo Colonies uses only three selected tiles.
+  override val config =
+      GameConfig(
+          """
+          ElysiumMapOption
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
+          Tr63SoloVariant
+          Ceres, Luna, Triton
+          Player1
+          """
+      )
 
   // Could at some point calculate these automatically from cards drawn
 

@@ -1,26 +1,14 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.engine.AutoExecMode
-import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.engine.canonicalPremise
 import kotlin.test.BeforeTest
 
 /** Follow-along solo fixtures driven by the engine-owned game workflow. */
 abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
   protected lateinit var workflow: TfmWorkflow.Auto
-
-  override fun setup() =
-      canonicalPremise(
-          HellasMapOption,
-          VenusNextExpansion,
-          PreludeExpansion,
-          PromoCardPack,
-          Tr63SoloVariant,
-          players = 1,
-      )
 
   protected abstract fun cityAreas(): Pair<String, String>
 

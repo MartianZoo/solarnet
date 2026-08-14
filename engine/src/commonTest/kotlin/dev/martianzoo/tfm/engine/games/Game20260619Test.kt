@@ -1,21 +1,18 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.engine.canonicalPremise
-import dev.martianzoo.tfm.engine.exclude
 import kotlin.test.Test
 
 class Game20260619Test : AbstractFullGameTest() {
 
-  override fun setup() =
-      canonicalPremise(
-          VenusNextExpansion,
-          PreludeExpansion,
-          PromoCardPack,
-          TurmoilCardPack,
-          exclude(WorldGovernmentOption),
-          players = 2,
+  override val config =
+      GameConfig(
+          """
+          VenusNextExpansion, PreludeExpansion, PromoCardPack, TurmoilCardPack
+          -WorldGovernmentOption
+          Player1, Player2
+          """
       )
 
   @Test

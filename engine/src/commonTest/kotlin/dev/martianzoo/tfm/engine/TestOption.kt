@@ -24,8 +24,4 @@ public enum class TestOption : TestSelection {
   WorldGovernmentOption;
 
   public val className: ClassName = cn(name)
-
-  companion object {
-    public val DEFAULTS: Set<TestOption> = setOf(TerraformingMars, TharsisMapOption)
-  }
 }
