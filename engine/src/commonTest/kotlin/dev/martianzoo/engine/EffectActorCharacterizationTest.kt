@@ -5,7 +5,7 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

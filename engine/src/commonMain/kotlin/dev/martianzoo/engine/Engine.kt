@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
-import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.ClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
@@ -17,47 +17,7 @@ public object Engine {
       premise: GamePremise,
       locale: String = Vocabulary.ENGLISH,
       inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
-  ): World {
-    return newWorld(premise, locale, inputOnlySynonyms)
-  }
-
-  /**
-   * Validates a quiescent [setupWorld], snapshots it through [assemble], and creates a playable
-   * game.
-   */
-  public fun newGame(
-      setupWorld: World,
-      assemble: (GameReader) -> GamePremise,
-      locale: String = setupWorld.vocabulary.locale,
-      inputOnlySynonyms: Iterable<Pair<String, String>> =
-          setupWorld.vocabulary.inputOnlySynonyms.map { (synonym, canonical) ->
-            synonym.toString() to canonical.toString()
-          },
-  ): World {
-    if (!setupWorld.isIdle()) throw TaskException("a completed setup world must be idle")
-    setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
-    if (!setupWorld.isIdle()) throw TaskException("setup validation did not leave the world idle")
-    return newGame(assemble(setupWorld.reader), locale, inputOnlySynonyms)
-  }
-
-  /** Creates a standalone setup world and resolves its choice-free initialization tasks. */
-  public fun newSetupWorld(
-      premise: GamePremise,
-      locale: String = Vocabulary.ENGLISH,
-      inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
-  ): World =
-      newWorld(premise, locale, inputOnlySynonyms).also {
-        with(it.gameplay(ENGINE)) {
-          autoExecMode = SAFE
-          autoExecNow()
-        }
-      }
-
-  private fun newWorld(
-      premise: GamePremise,
-      locale: String,
-      inputOnlySynonyms: Iterable<Pair<String, String>>,
-  ): WholeWorld = Wiring(premise, locale, inputOnlySynonyms).createWorld()
+  ): World = Wiring(premise, locale, inputOnlySynonyms).createWorld()
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
   internal class Wiring(
@@ -65,15 +25,16 @@ public object Engine {
       locale: String,
       inputOnlySynonyms: Iterable<Pair<String, String>>,
   ) {
-    init {
-      require(ENGINE in premise.actors) { "Game premise must include $ENGINE as an actor" }
-    }
-
+    private val classTable: ClassTable = ClassTable.forPremise(premise).also(::validatePremise)
     private val vocabulary: Vocabulary =
-        Vocabulary.create(premise.ruleset, locale, inputOnlySynonyms)
-    private val classTable: ClassTable = ClassTable.forPremise(premise)
+        Vocabulary.create(
+            premise.authority,
+            locale,
+            inputOnlySynonyms,
+            activeClassNames = classTable.allClassNames,
+        )
     private val transformers: Transformers = Transformers(classTable)
-    private val customClasses = CustomClassRuntime(premise.ruleset, transformers)
+    private val customClasses = CustomClassRuntime(premise.authority, transformers)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
@@ -132,25 +93,61 @@ public object Engine {
       return world
     }
 
+    private fun validatePremise(classTable: ClassTable) {
+      premise.initialComponentTypes.forEach { expression ->
+        val type = classTable.resolve(expression)
+        require(
+            !type.abstract &&
+                !type.phantom &&
+                !type.rootClass.declaration.custom &&
+                !type.rootClass.isSingletonType()
+        ) {
+          "initial component type must be concrete, active, instantiable, and non-singleton: $expression"
+        }
+      }
+
+      fun countActiveClasses(metric: Metric): Int {
+        require(metric is Count) { "bootstrap validation must count classes: $metric" }
+        require(metric.expression.simple) {
+          "bootstrap validation must count a simple class: $metric"
+        }
+        val type = classTable.findActiveClass(metric.expression.className)?.baseType ?: return 0
+        return classTable.allClasses().count { klass ->
+          !klass.abstract &&
+              klass.baseType.isSubtypeOf(type) &&
+              (klass.isSingletonType() ||
+                  premise.classSelections.any { selection ->
+                    selection.included && selection.className == klass.className
+                  })
+        }
+      }
+
+      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::countActiveClasses)
+
+      premise.authority.bootstrapValidations.forEach { alternatives ->
+        require(alternatives.any(::holds)) {
+          "game premise fails bootstrap validation: ${alternatives.joinToString(" OR ")}"
+        }
+      }
+    }
+
     private fun createGameplay(actor: Actor): Gameplay {
       val tasks = taskQueues[actor]
       val changer = changerByActor.getValue(actor)
       val instructor = instructorByActor.getValue(actor)
       val implementations =
           Implementations(tasks, taskQueues, reader, timeline, actor, instructor, changer)
-      val gameplay =
-          ApiTranslation(
-              actor,
-              reader,
-              timeline,
-              implementations,
-              tasks,
-              classTable,
-              transformers,
-              vocabulary,
-              atomicOperationBoundary,
-          )
-      return gameplay
+      return ApiTranslation(
+          actor,
+          reader,
+          timeline,
+          implementations,
+          tasks,
+          classTable,
+          transformers,
+          vocabulary,
+          atomicOperationBoundary,
+      )
     }
   }
 }

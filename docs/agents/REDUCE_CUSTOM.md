@@ -20,8 +20,8 @@ separate problem.
 
 ### `ColoniesSetup`
 
-In the aspirational premise design, the premise initializes each exact selected colony type and the
-generated `FooSelected` class family is removed. `ColoniesSetup` would then retain only the player
+The premise now initializes each exact selected colony type, and the generated `FooSelected` class
+family has been removed. `ColoniesSetup` retains only the player
 loop that creates reserve trade fleets. Replace that remaining translation with ordinary,
 composable setup signals:
 

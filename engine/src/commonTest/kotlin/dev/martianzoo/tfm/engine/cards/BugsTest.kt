@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 

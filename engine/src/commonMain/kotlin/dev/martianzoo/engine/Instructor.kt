@@ -48,7 +48,7 @@ internal class Instructor(
     private val classTable: ClassTable,
     private val defaultActor: Actor? = null,
     private val customClasses: CustomClassRuntime =
-        CustomClassRuntime(reader.ruleset, Transformers(classTable)),
+        CustomClassRuntime(reader.authority, Transformers(classTable)),
 ) {
 
   internal fun execute(

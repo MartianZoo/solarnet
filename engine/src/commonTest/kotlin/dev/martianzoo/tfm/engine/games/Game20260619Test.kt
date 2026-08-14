@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.tfm.canon.Canon.Option.*
-import dev.martianzoo.tfm.canon.exclude
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.tfm.engine.exclude
 import kotlin.test.Test
 
 class Game20260619Test : AbstractFullGameTest() {

@@ -9,7 +9,7 @@ import dev.martianzoo.util.toSetStrict
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
   override val usage =
-      "newgame (<options> <player count> [colony tiles...] | \"<setup instruction>\") [purple]"
+      "newgame (<options> <player count> [colony tiles...] | \"<game config>\") [purple]"
   override val help =
       """
         Erases your current game and starts a new one. You can't undo that (but you can get your
@@ -21,8 +21,9 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         the solo starting state.
 
         When using Colonies, list the selected colony tile names after the player count.
-        Instead of the legacy option-code form, a quoted Pets instruction may configure the
-        canonical setup world directly.
+        Instead of the legacy option-code form, quote a comma-separated list of canonical class
+        names. Prefix a name with `-` to exclude it. This configuration syntax resembles Pets names
+        but is not Pets syntax.
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
       """
@@ -44,11 +45,10 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
           args.trim().let { if (purple) it.removeSuffix("purple").trimEnd() else it }
       if (withoutPurple.startsWith('"')) {
         if (!withoutPurple.endsWith('"') || withoutPurple.length < 2) throw UsageException()
-        val setupInstruction = withoutPurple.substring(1, withoutPurple.lastIndex)
-        repl.newGame(setupInstruction, purple)
-        return listOf(
-            "New ${repl.setup.players}-player game created with setup: $setupInstruction"
-        ) + (if (purple) listOf("Purple mode: workflow active") else emptyList())
+        val configText = withoutPurple.substring(1, withoutPurple.lastIndex)
+        repl.newGame(configText, purple)
+        return listOf("New ${repl.playerCount}-player game created with config: $configText") +
+            (if (purple) listOf("Purple mode: workflow active") else emptyList())
       }
 
       val optionCodes = parts.getOrNull(0) ?: throw UsageException()
@@ -57,7 +57,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val selectedColonies = colonyNames.map(repl::canonicalColonyName).toSetStrict()
 
       repl.newGame(optionCodes, playerCount, selectedColonies, purple)
-      val effectiveOptionCodes = repl.setup.optionCodes
+      val effectiveOptionCodes = repl.optionCodes
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
           (if (purple) listOf("Purple mode: workflow active") else emptyList())

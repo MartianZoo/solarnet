@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest

@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

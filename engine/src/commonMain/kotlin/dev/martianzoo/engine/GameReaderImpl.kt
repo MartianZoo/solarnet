@@ -20,7 +20,7 @@ internal class GameReaderImpl(
     private val customClasses: CustomClassRuntime,
     private val premise: GamePremise,
 ) : GameReader {
-  override val ruleset = premise.ruleset
+  override val authority = premise.authority
 
   override fun resolve(expression: Expression) = classTable.resolve(expression)
 

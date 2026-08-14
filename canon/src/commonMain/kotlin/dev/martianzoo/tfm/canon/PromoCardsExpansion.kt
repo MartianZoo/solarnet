@@ -8,7 +8,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.NoOp
-import dev.martianzoo.tfm.api.tfmRuleset
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.types.Type
 
@@ -18,7 +18,7 @@ internal val promoCardsCustomClasses: Set<CustomClass> = setOf(PromoCardsExpansi
 internal object PromoCardsExpansion {
   internal object CopyPrelude : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-      val card = reader.tfmRuleset.card(cardType.className)
+      val card = reader.tfmAuthority.card(cardType.className)
       if (card.deck != PRELUDE) {
         throw NarrowingException("Card ${card.className} is not a prelude card")
       }

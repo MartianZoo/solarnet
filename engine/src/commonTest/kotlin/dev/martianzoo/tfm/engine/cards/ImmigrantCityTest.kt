@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TestOption.*
 import kotlin.test.Test
 
 class ImmigrantCityTest : CardTest() {

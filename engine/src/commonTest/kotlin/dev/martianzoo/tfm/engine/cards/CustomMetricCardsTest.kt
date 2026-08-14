@@ -4,8 +4,8 @@ import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

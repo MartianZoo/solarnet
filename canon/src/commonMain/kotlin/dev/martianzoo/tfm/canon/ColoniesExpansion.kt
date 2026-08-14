@@ -9,7 +9,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.api.tfmRuleset
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.types.Type
 
 internal val coloniesCustomClasses: Set<CustomClass> =
@@ -29,7 +29,7 @@ internal object ColoniesExpansion {
 
     override fun translate(reader: GameReader, tileClassType: Type): Instruction {
       val name = tileClassType.expression.arguments.single().className
-      val tile = reader.tfmRuleset.colonyTile(name)
+      val tile = reader.tfmAuthority.colonyTile(name)
       val resourceType = tile.resourceType
       return if (resourceType == null) {
         gain(name)
@@ -46,17 +46,13 @@ internal object ColoniesExpansion {
 
     override fun translate(reader: GameReader): Instruction {
       val fleetInstructions =
-          reader.getComponents("Player").map { player ->
-            gain(RESERVE_TRADE_FLEET.of(player.expression))
-          }
-      val colonyBySelectionClass =
-          reader.tfmRuleset.colonyTileDefinitions.associateBy { "${it.className}Selected" }
-      val tileInstructions =
-          reader.getComponents("SelectedColonyTile").map { selection ->
-            val colony = colonyBySelectionClass.getValue(selection.className.toString())
-            gain(ADD_COLONY_TILE.of(colony.className.classExpression()))
-          }
-      return Then.create(tileInstructions + fleetInstructions)
+          reader
+              .getComponents("Player")
+              .map { player ->
+                gain(RESERVE_TRADE_FLEET.of(player.expression))
+              }
+              .toList()
+      return Then.create(fleetInstructions)
     }
   }
 }

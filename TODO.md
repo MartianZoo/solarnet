@@ -6,7 +6,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Document the slight, intentional differences between `Canon` and the published Terraforming Mars rules.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
-- Make Modules enumerate the AutoLoad Classes they require instead of activating every AutoLoad Class known to the Authority.
+- Make Modules enumerate the AutoLoad Classes they require instead of implicitly activating every AutoLoad Class in their selected bundle content.
 - Audit `system.pets` and retain only the System Types the generic engine genuinely requires.
 - Determine whether Gated Instructions are a special form of `THEN` rather than a separate construct.
 - Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.

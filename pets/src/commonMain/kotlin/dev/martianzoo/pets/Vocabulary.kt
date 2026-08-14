@@ -1,9 +1,9 @@
 package dev.martianzoo.pets
 
+import dev.martianzoo.data.Authority
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.data.Ruleset
 import dev.martianzoo.data.Task
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -88,16 +88,18 @@ private constructor(
   public companion object {
     public const val ENGLISH: String = "en"
 
-    /** Builds one vocabulary from the names and language files in [ruleset]. */
+    /** Builds one vocabulary from the names and language files in [authority]. */
     public fun create(
-        ruleset: Ruleset,
+        authority: Authority,
         locale: String = ENGLISH,
         inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
+        activeClassNames: Set<ClassName>,
     ): Vocabulary =
         create(
-            canonicalNames = ruleset.allClassNames,
-            displayNamesByLanguage = ruleset.displayNamesByLanguage,
-            derivedPetsNameClassNames = ruleset.derivedPetsNameClassNames,
+            canonicalNames = authority.allClassNames,
+            displayNamesByLanguage = authority.displayNamesByLanguage,
+            derivedPetsNameClassNames =
+                authority.derivedPetsNameClassNames intersect activeClassNames,
             locale = locale,
             inputOnlySynonyms = inputOnlySynonyms,
         )

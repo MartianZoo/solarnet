@@ -4,10 +4,9 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
-import dev.martianzoo.tfm.canon.Canon.Option.VenusNextExpansion
-import dev.martianzoo.tfm.canon.Canon.Option.WorldGovernmentOption
-import dev.martianzoo.tfm.canon.exclude
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
+import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
+import dev.martianzoo.tfm.engine.TestOption.WorldGovernmentOption
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly

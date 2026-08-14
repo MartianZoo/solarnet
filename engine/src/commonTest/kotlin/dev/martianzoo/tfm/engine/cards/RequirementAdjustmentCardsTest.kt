@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.canon.Canon.Option.CorporateEraExpansion
-import dev.martianzoo.tfm.canon.Canon.Option.PreludeExpansion
-import dev.martianzoo.tfm.canon.Canon.Option.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
+import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 

@@ -4,7 +4,7 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test

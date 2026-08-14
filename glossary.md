@@ -12,15 +12,15 @@
 - **Assignee:** The Actor whose Task Queue contains a Task and whose scoped Gameplay may revise, prepare, and execute it. The Assignee chooses among that queue's Tasks and normally makes any optional narrowing; an Instruction-level `BY` may assign the resulting State Changes to a different Performer without changing the Assignee. This is why Philares and Enceladus can give a choice to an Effect's owner, while World Government Terraforming gives its Assignee a choice that Engine performs.
 - **Atomicity:** Indivisibility with respect to a stated boundary. One `FROM` is a single Transmutation State Change, so its removal and gain cannot be observed separately. A Timeline operation is failure-atomic: all of its events commit or all are rolled back. An Instruction, Task, or chain of Automatic Effects is not thereby one indivisible gameplay event; intermediate State Changes may fire Effects and be observed by them.
 - **Atomize:** To split one counted Instruction into one Instruction per unit so that each unit is handled and triggers Effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not.
-- **Authority (aspirational):** One coherent rule universe: the Class Declarations, Definitions, Vocabulary, premise rules, and exceptional Custom implementations available to a game. A game selects exactly one Authority. `Canon` is the Authority for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different Authority.
+- **Authority:** One coherent rule universe: the Class Declarations, Definitions, Vocabulary, premise rules, and exceptional Custom implementations available to a game. A game selects exactly one Authority. `Canon` is the Authority for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different Authority.
 - **Autoexec:** A convenience policy that prepares and executes pending work when permitted. It trades some opportunity to exercise choices manually for relief from repetitive play.
-- **AutoLoad:** A marker that makes a Class active even when selected content does not otherwise refer to it. `ClassTable.forPremise` activates every AutoLoad Declaration in the premise's resolved ruleset.
+- **AutoLoad:** A marker by which a Module's bundle-content selection recognizes Classes for activation even when its other selected content does not refer to them. It does not globally activate every AutoLoad Declaration known to the Authority.
 - **Automatic Effect:** An Effect written with `::`. Its Triggered Instruction executes inline instead of becoming a queued Task. Antonym: Queued Effect.
 - **Automatic Narrowing:** Narrowing performed by the engine because only one valid choice remains, rather than selected by the Assignee.
 - **Barrier:** A Temporary Component that must be removed before gated work can continue. A Barrier is a common modeling pattern in Pets declarations, not a distinct engine mechanism.
 - **Bootstrap:** Everything required to construct and initialize a new Game World before `SetupPhase` begins.
-- **Bundle (aspirational):** An internal grouping of Authority data for file ownership, provenance, distribution, and lazy loading. A Bundle is not itself a premise input, although a Module can select an entire content category from a named Bundle.
-- **Canon (aspirational):** The Authority implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data Bundles.
+- **Bundle:** An internal grouping of Authority data for file ownership, provenance, distribution, and loading. A Bundle is not itself a premise input, although a Module can select an entire content category from a named Bundle.
+- **Canon:** The Authority implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data Bundles.
 - **Card Back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card Backs and Card Fronts are distinct Types that transmute into each other; an Owner may know a Back's represented Front without making that Card Front exist in the Game World.
 - **Card Front:** See **Card Back** for the distinction.
 - **Cause:** Attribution attached to non-manual Tasks and copied to the resulting Change Events. It pairs the context Component Type whose Effect fired with the ordinal of the triggering Change Event. Those pointers explain the causal chain but do not uniquely identify which of several matching Effects fired, so a Cause is attribution rather than a complete derivation proof.
@@ -51,7 +51,7 @@
 - **Custom Metric:** A Pets Metric whose Kotlin implementation calculates a nonnegative integer from a Game World without adding virtual Components to its Component Graph.
 - **Dead End:** A Task Queue state from which the queue cannot drain normally. A `Die!` Task is one example. The engine detects some Dead Ends eagerly with `DeadEndException`; an enclosing operation must roll back any route that eventually dead-ends.
 - **Default:** A Class-supplied Dependency bound or Quantifier inserted when a Type Expression or Change Instruction omits it.
-- **Definition:** Structured data for a card, map area, or similar item that is converted into a Class Declaration. In the aspirational premise model, Definitions have stable same-kind identities, optional configuration conditions, and replacement targets.
+- **Definition:** Structured data for a card, map area, or similar item that is converted into a Class Declaration. Definitions have stable same-kind identities and may have configuration conditions or replacement targets.
 - **Dependency:** A directed existence relationship from one Component to another, encoded in the dependent Component's Type. A Game World cannot contain the dependent occurrence unless the exact target Component also exists.
 - **Dependency Bound:** The Type that constrains the valid targets of one Dependency at a particular point in a Class hierarchy. A subtype may narrow an inherited Bound, and the same Dependency Key identifies that relationship throughout the hierarchy.
 - **Dependency Key:** The internal stable identity of a Dependency: its declaring Class plus its declaration ordinal.
@@ -63,13 +63,13 @@
 - **Drain:** To become empty. A Task Queue draining can advance Workflow.
 - **Effect:** A Trigger, an Instruction, and the choice between automatic and queued dispatch, attached to a Class or specialized for a Component.
 - **Engine:** The non-Player Actor that performs administrative operations.
-- **Engine Module:** The Kotlin module that executes Pets Instructions, maintains Game Worlds, fires Effects, and coordinates Tasks and history. It is distinct from an aspirational gameplay Module.
+- **Engine Module:** The Kotlin module that executes Pets Instructions, maintains Game Worlds, fires Effects, and coordinates Tasks and history. It is distinct from a gameplay Module.
 - **Event Log:** The ordered history of State Changes and Task lifecycle events in a Game World.
 - **Expression:** A Pets source or AST representation of a Type. Distinct Expressions may resolve to the same Type, and one Expression may resolve differently in different Contexts.
 - **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A Definition whose implementation specifically depends on that trust model has an identifier ending in `F`.
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
-- **Game Config (aspirational):** An unresolved, signed expression of user intent from which defaults, selection policies, randomization, and validation produce one exact Game Premise.
-- **Game Premise (aspirational):** The complete immutable facts needed to create equivalent Game Worlds: one Authority, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
+- **Game Config:** An unresolved, signed expression of user intent from which defaults, implications, selection policies, and validation produce one exact Game Premise.
+- **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Authority, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
 - **Game Reader:** The read-only interface for querying a Game World.
 - **Game World:** The complete live state of a game: its Component Graph, Task Queues, Event Log, Timeline, Class Table, Vocabulary, and Actor-scoped Gameplay, together with the Authority and immutable premise behind them.
 - **Game World Revision:**
@@ -85,7 +85,7 @@
 - **Manual:** Initiated by a Solarnet client rather than caused by an Effect or Workflow. Resolving or narrowing an already pending Task is not a new manual action. With fully automatic Workflow, a game can contain no manual operations.
 - **Metric:** A Pets expression that computes a nonnegative integer from a Game World.
 - **Minimal Form:** The shortest canonical Type Expression that reliably resolves back to the same Type. It omits inherited Bounds that equal the root Class's defaults, retaining a Bound only when omission would make Dependency matching ambiguous.
-- **Module (aspirational):** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
+- **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **Multi-instruction:** An Instruction containing two or more comma-separated, unordered child Instructions. It is split into separate Tasks because one Task cannot contain a Multi-instruction.
 - **Multi-requirement:** A Requirement containing two or more child Requirements combined as logical “and.”
 - **Narrowing:** Replacing an Expression, Type, Instruction, or Task with a valid strictly more specific form. For Types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for choices such as Refinements, complements, and linked variables. An Abstract Task becomes executable only after it has narrowed to a Concrete Task.

@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.types.te
@@ -12,7 +12,7 @@ import kotlin.test.Test
 internal class ComponentGraphIndexTest {
   @Test
   fun componentInMultipleTopLevelBranchesIsCountedOnce() {
-    val game = Engine.newGame(canonicalPremise(ruleset = IndexProbeRuleset))
+    val game = Engine.newGame(canonicalPremise(authority = IndexProbeAuthority))
     val gameplay = game.gameplay(PLAYER1).godMode()
     val componentCount = gameplay.count("Component")
     val checkpoint = game.timeline.checkpoint()
@@ -33,9 +33,9 @@ internal class ComponentGraphIndexTest {
   }
 }
 
-private object IndexProbeRuleset : TfmRuleset.Composite(Canon, IndexProbeDeclarations)
+private object IndexProbeAuthority : TfmAuthority.Composite(Canon, IndexProbeDeclarations)
 
-private object IndexProbeDeclarations : TfmRuleset.Empty() {
+private object IndexProbeDeclarations : TfmAuthority() {
   override val explicitClassDeclarations =
       parseClasses(
               """

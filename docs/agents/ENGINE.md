@@ -10,9 +10,6 @@ This module's job is to represent a Game World, execute Instructions, and trigge
 
 ## Overview: The Holy Trinity of a Game World
 
-> **Aspirational configuration model:** The Authority, Module, `GameConfig`, and revised
-> `GamePremise` APIs described in the opening overview are a target design, not the current engine.
-
 The common live Game World abstraction is `World`: a Pets Component Graph together with its Tasks, Event
 history, timeline, class table, and Actor-scoped mutation API. `GamePremise` is the immutable,
 reusable input containing one Authority, the selected Modules, signed individual class inclusions
@@ -31,10 +28,6 @@ For example, Authority data says that `TerraformingMars` defaults Corporate Era 
 `VenusNextExpansion` defaults `WorldGovernmentOption` unless those classes are explicitly
 excluded. It also says that solo mode defaults to `StandardSoloVariant` unless
 `Tr63SoloVariant` is selected, and derives the player-count mode from the selected player names.
-
-In the current transitional setup Game World implementation, `GameplayClassRoot` markers activate
-supporting gameplay classes without becoming playable components themselves. Solo mode uses them
-for its neutral standard-resource and card-resource providers.
 
 The `ClassTable` is one per-game projection of the Authority's universal, uniquely named class
 catalog. Active classes carry behavior; authority-known inactive classes are phantom. APIs

@@ -3,8 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
@@ -20,7 +19,7 @@ internal class ReluctantClassLoadingTest {
   @Test
   fun `card totals characterize progressively selected expansions`() {
     val selected = linkedSetOf(TerraformingMars)
-    val totals = linkedMapOf<Canon.Option, Int>()
+    val totals = linkedMapOf<TestOption, Int>()
     for (option in
         listOf(
             TharsisMapOption,
@@ -86,17 +85,13 @@ internal class ReluctantClassLoadingTest {
     assertNotLoaded("VenusTag", Setup.PROMOS_CIMMERIA_WITHOUT_CORPORATE_ERA)
   }
 
-  // Deliberate setup- and mode-specific omissions
+  // Deliberate mode-specific omissions
 
   @Test
   fun `player classes follow the selected seats`() {
     assertNotLoaded("Player2", Setup.BASE_SOLO)
     assertNotLoaded("Player3", Setup.BASE_MULTIPLAYER)
   }
-
-  @Test
-  fun `setup-world classes stay unloaded in playable games`() =
-      assertNotLoaded("ValidateSetup", Setup.BASE_MULTIPLAYER)
 
   @Test
   fun `multiplayer standard actions stay unloaded in solo`() {
@@ -173,15 +168,15 @@ internal class ReluctantClassLoadingTest {
           .filter { Regex(pattern, RegexOption.IGNORE_CASE).containsMatchIn(it.toString()) }
 
   private enum class Setup(
-      private val options: Set<Canon.Option>,
+      private val options: Set<TestOption>,
       private val players: Int = 2,
-      private val excludedOptions: Set<Canon.Option> = emptySet(),
+      private val excludedOptions: Set<TestOption> = emptySet(),
   ) {
-    BASE_MULTIPLAYER(Canon.Option.DEFAULTS),
-    BASE_SOLO(Canon.Option.DEFAULTS, 1),
-    PRELUDE_SOLO(Canon.Option.DEFAULTS + PreludeExpansion, players = 1),
+    BASE_MULTIPLAYER(TestOption.DEFAULTS),
+    BASE_SOLO(TestOption.DEFAULTS, 1),
+    PRELUDE_SOLO(TestOption.DEFAULTS + PreludeExpansion, players = 1),
     WITHOUT_CORPORATE_ERA(
-        Canon.Option.DEFAULTS,
+        TestOption.DEFAULTS,
         excludedOptions = setOf(CorporateEraExpansion),
     ),
     PROMOS_UTOPIA_WITHOUT_CORPORATE_ERA(
@@ -192,7 +187,7 @@ internal class ReluctantClassLoadingTest {
         setOf(TerraformingMars, PromoCardPack, TerraCimmeriaMapOption),
         excludedOptions = setOf(CorporateEraExpansion),
     ),
-    PRELUDE_VENUS_MULTIPLAYER(Canon.Option.DEFAULTS + setOf(PreludeExpansion, VenusNextExpansion));
+    PRELUDE_VENUS_MULTIPLAYER(TestOption.DEFAULTS + setOf(PreludeExpansion, VenusNextExpansion));
 
     val classTable by lazy {
       Engine.newGame(

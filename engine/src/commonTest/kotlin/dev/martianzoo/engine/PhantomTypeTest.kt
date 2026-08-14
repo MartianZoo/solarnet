@@ -4,7 +4,7 @@ import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.assertions.throwables.shouldThrow
@@ -62,8 +62,8 @@ internal class PhantomTypeTest {
 
   @Test
   fun `optional phantom changes in component effects normalize to no-op`() {
-    val probeRuleset =
-        object : TfmRuleset.Empty() {
+    val probeAuthority =
+        object : TfmAuthority() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
@@ -78,7 +78,7 @@ internal class PhantomTypeTest {
                   )
                   .toSet()
         }
-    val premise = canonicalPremise(ruleset = TfmRuleset.Composite(Canon, probeRuleset))
+    val premise = canonicalPremise(authority = TfmAuthority.Composite(Canon, probeAuthority))
 
     val gameplay = Engine.newGame(premise).gameplay(ENGINE).godMode()
 

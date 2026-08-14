@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.canon.Canon.Option.TurmoilCardPack
+import dev.martianzoo.tfm.engine.TestOption.TurmoilCardPack
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 

@@ -17,12 +17,14 @@ import kotlinx.serialization.Transient
 @Serializable
 public data class AwardDefinition(
     val id: String,
+    val replaces: String? = null,
     @SerialName("metric") val metricText: String,
     @SerialName("setupRequirement") private val setupRequirementText: String? = null,
 ) : Definition {
 
   init {
     require(metricText.isNotEmpty())
+    require(replaces?.isNotEmpty() != false)
     require(setupRequirementText?.isNotBlank() != false)
   }
 

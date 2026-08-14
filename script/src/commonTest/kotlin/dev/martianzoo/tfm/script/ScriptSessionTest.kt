@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.tfm.canon.Canon.Option.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand.PlayerBoardToText
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
@@ -49,9 +48,8 @@ internal class ScriptSessionTest {
   fun optionCodesSelectCanonicalOptionsDirectly() {
     val repl = ScriptSession()
 
-    assertTrue(CorporateEraExpansion !in repl.setup.options)
+    assertEquals(listOf("0 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
     repl.command("newgame BRM 2")
-    assertTrue(CorporateEraExpansion in repl.setup.options)
     assertEquals(listOf("1 CorporateEraExpansion"), repl.command("count CorporateEraExpansion"))
   }
 
@@ -64,20 +62,19 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun quotedPetsInstructionConfiguresSetupWorld() {
+  fun quotedSignedClassNamesConfigureTheGame() {
     val repl = ScriptSession()
 
     assertEquals(
         listOf(
-            "New 2-player game created with setup: " +
-                "Exclude<Class<CorporateEraExpansion>>, Exclude<Class<WorldGovernmentOption>>, " +
-                "2 Player, TerraformingMars, TharsisMapOption, VenusNextExpansion, MultiplayerMode",
+            "New 2-player game created with config: " +
+                "Player1, Player2, MultiplayerMode, TerraformingMars, TharsisMapOption, " +
+                "VenusNextExpansion, -CorporateEraExpansion, -WorldGovernmentOption",
             "Purple mode: workflow active",
         ),
         repl.command(
-            "newgame \"Exclude<Class<CorporateEraExpansion>>, " +
-                "Exclude<Class<WorldGovernmentOption>>, 2 Player, TerraformingMars, " +
-                "TharsisMapOption, VenusNextExpansion, MultiplayerMode\" purple"
+            "newgame \"Player1, Player2, MultiplayerMode, TerraformingMars, TharsisMapOption, " +
+                "VenusNextExpansion, -CorporateEraExpansion, -WorldGovernmentOption\" purple"
         ),
     )
     assertEquals(listOf("0 WorldGovernmentOption"), repl.command("count WorldGovernmentOption"))
@@ -99,13 +96,15 @@ internal class ScriptSessionTest {
   fun failedNewGameLeavesTheCurrentGameUntouched() {
     val repl = ScriptSession()
     val originalGame = repl.game
-    val originalSetup = repl.setup
+    val originalOptionCodes = repl.optionCodes
+    val originalPlayerCount = repl.playerCount
     val originalPrompt = repl.promptPlain()
 
     assertTrue(repl.command("newgame BU 6").first().contains("between 1 and 5"))
 
     assertSame(originalGame, repl.game)
-    assertSame(originalSetup, repl.setup)
+    assertEquals(originalOptionCodes, repl.optionCodes)
+    assertEquals(originalPlayerCount, repl.playerCount)
     assertEquals(originalPrompt, repl.promptPlain())
   }
 
@@ -117,9 +116,10 @@ internal class ScriptSessionTest {
         listOf("New 2-player game created with options: BRMCX"),
         repl.command("newgame BRMCX 2 Ceres Io Titan Luna Pluto"),
     )
-    assertEquals(5, repl.setup.selectedColonies.size)
     assertEquals(listOf("1 Ceres"), repl.command("count Ceres"))
     assertEquals(listOf("1 Io"), repl.command("count Io"))
+    assertEquals(listOf("1 Luna"), repl.command("count Luna"))
+    assertEquals(listOf("1 Pluto"), repl.command("count Pluto"))
     assertEquals(
         listOf("1 DelayedColonyTile<Class<Titan>>"),
         repl.command("count DelayedColonyTile<Class<Titan>>"),

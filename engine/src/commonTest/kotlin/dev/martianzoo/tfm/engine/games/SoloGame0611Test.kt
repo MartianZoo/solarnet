@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.*
-import dev.martianzoo.tfm.canon.exclude
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.tfm.engine.exclude
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

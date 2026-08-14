@@ -3,7 +3,7 @@ package dev.martianzoo.tools
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
@@ -145,8 +145,8 @@ internal fun calculateSoloPlacements(arguments: List<String>): List<Placement> {
     "usage: solo-placement [--compatibility] MAP CARD1 CARD2 CARD3 CARD4"
   }
   val names = namesInOrder.map(::cn).map(soloPlacementVocabulary::canonicalName)
-  val map = soloPlacementRuleset.marsMap(names.first())
-  val cards = names.drop(1).map(soloPlacementRuleset::card)
+  val map = soloPlacementAuthority.marsMap(names.first())
+  val cards = names.drop(1).map(soloPlacementAuthority::card)
   val mode = if (compatibility) PlacementMode.COMPATIBILITY else PlacementMode.STANDARD
   return SoloPlacementCalculator(map, mode).calculate(cards)
 }
@@ -173,12 +173,17 @@ internal fun formatPlacements(placements: List<Placement>): String {
       .trimEnd()
 }
 
-private val soloPlacementRuleset: TfmRuleset by lazy {
-  Canon.resolve(Canon.bundles.mapTo(linkedSetOf()) { it.bundleName })
-}
+private val soloPlacementAuthority: TfmAuthority = Canon
 
 private val soloPlacementVocabulary: Vocabulary by lazy {
-  Vocabulary.create(soloPlacementRuleset)
+  val replacedCards =
+      soloPlacementAuthority.cardDefinitions
+          .mapNotNull { it.replaces }
+          .mapTo(hashSetOf()) { cn("Card$it") }
+  Vocabulary.create(
+      soloPlacementAuthority,
+      activeClassNames = soloPlacementAuthority.allClassNames - replacedCards,
+  )
 }
 
 public fun main(args: Array<String>) {

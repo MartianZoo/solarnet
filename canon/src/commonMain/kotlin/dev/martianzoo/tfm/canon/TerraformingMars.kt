@@ -40,7 +40,7 @@ import dev.martianzoo.pets.ast.Requirement.Transform as RequirementTransform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.tfmRuleset
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PROD
@@ -73,7 +73,7 @@ internal val baseCustomClasses: Set<CustomClass> =
 internal object TerraformingMars {
   internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-      val card: CardDefinition = reader.tfmRuleset.card(cardType.className)
+      val card: CardDefinition = reader.tfmAuthority.card(cardType.className)
       val immediate =
           card.immediate
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")
@@ -146,7 +146,7 @@ internal object TerraformingMars {
   internal object StandardProjectCost : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val projectName = type.expressionFull.arguments.single().className
-      val action = parse<Action>(game.tfmRuleset.action(projectName).actions.single())
+      val action = parse<Action>(game.tfmAuthority.action(projectName).actions.single())
       return ((action.cost as Spend).scaledEx.scalar as ActualScalar).value
     }
   }
@@ -319,7 +319,7 @@ internal object TerraformingMars {
     override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY)
 
     override fun translate(reader: GameReader, owner: Type, awardType: Type): Instruction {
-      val metric = reader.tfmRuleset.award(awardType.className).metric
+      val metric = reader.tfmAuthority.award(awardType.className).metric
       return parse("AwardTally<${owner.className}, ${awardType.className}> / ($metric)")
     }
   }
@@ -381,9 +381,9 @@ internal object TerraformingMars {
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
     require(cardClassType.className == CLASS)
     val cardName = cardClassType.expression.arguments.single().className
-    return reader.tfmRuleset.card(cardName)
+    return reader.tfmAuthority.card(cardName)
   }
 
   private fun card(type: HasClassName, reader: GameReader): CardDefinition =
-      reader.tfmRuleset.card(type.className)
+      reader.tfmAuthority.card(type.className)
 }

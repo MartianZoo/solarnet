@@ -3,11 +3,16 @@ package dev.martianzoo.types
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.data.BundleMetadata
+import dev.martianzoo.data.ClassSelection
+import dev.martianzoo.data.GameConfig
+import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.Bundle
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -20,22 +25,22 @@ internal class ClassTest {
   @Test
   fun classLoadingUsesCanonicalNamesOnly() {
     val classes = parseClasses("CLASS Foo").toSetStrict()
-    val ruleset =
-        object : TfmRuleset.Empty() {
+    val authority =
+        object : TfmAuthority() {
           override val explicitClassDeclarations = classes
         }
 
-    shouldThrow<PetException> { ClassLoader(ruleset).load(cn("F")) }
+    shouldThrow<PetException> { ClassLoader(authority).load(cn("F")) }
   }
 
   @Test
   fun `root classes reject unexpected custom implementations`() {
-    val ruleset =
-        object : TfmRuleset.Empty() {
+    val authority =
+        object : TfmAuthority() {
           override val customClasses = setOf(object : CustomClass(COMPONENT) {})
         }
 
-    shouldThrow<PetException> { ClassLoader(ruleset) }
+    shouldThrow<PetException> { ClassLoader(authority) }
   }
 
   @Test
@@ -61,11 +66,11 @@ internal class ClassTest {
   @Test
   fun classTableEnumerationRequiresFreezeWithoutCapturingAnEarlySnapshot() {
     val classes = parseClasses("CLASS Foo").toSetStrict()
-    val ruleset =
-        object : TfmRuleset.Empty() {
+    val authority =
+        object : TfmAuthority() {
           override val explicitClassDeclarations = classes
         }
-    val loader = ClassLoader(ruleset)
+    val loader = ClassLoader(authority)
 
     loader.findClass(cn("Foo")) shouldBe null
     shouldThrow<IllegalArgumentException> { loader.allClasses() }
@@ -94,16 +99,16 @@ internal class ClassTest {
         object : CustomClass(cn("DependencySource")) {
           override val requiredClassNames = setOf(cn("RuntimeDependency"))
         }
-    val ruleset =
-        object : TfmRuleset.Empty() {
+    val authority =
+        object : TfmAuthority() {
           override val explicitClassDeclarations = declarations
           override val customClasses = setOf(implementation)
         }
 
-    val inactive = ClassLoader(ruleset).freeze().getClass(cn("RuntimeDependency"))
+    val inactive = ClassLoader(authority).freeze().getClass(cn("RuntimeDependency"))
     inactive.phantom shouldBe true
 
-    val loaded = ClassLoader(ruleset).apply { load(cn("DependencySource")) }.freeze()
+    val loaded = ClassLoader(authority).apply { load(cn("DependencySource")) }.freeze()
     loaded.getClass(cn("RuntimeDependency")).phantom shouldBe false
   }
 
@@ -118,13 +123,13 @@ internal class ClassTest {
           val declarations =
               parseClasses("$parentDeclaration\nCLASS CustomChild : BehavioralParent, Custom")
                   .toSetStrict()
-          val ruleset =
-              object : TfmRuleset.Empty() {
+          val authority =
+              object : TfmAuthority() {
                 override val explicitClassDeclarations = declarations
                 override val customClasses = setOf(object : CustomClass(cn("CustomChild")) {})
               }
 
-          val loader = ClassLoader(ruleset)
+          val loader = ClassLoader(authority)
           repeat(2) {
             shouldThrow<PetException> { loader.load(cn("CustomChild")) }
             loader.findClass(cn("CustomChild")) shouldBe null
@@ -143,9 +148,8 @@ internal class ClassTest {
             CLASS Inactive : InactiveBase
             """,
         )
-    val ruleset =
-        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
-    val table = ClassLoader(ruleset).apply { load(cn("Active")) }.freeze()
+    val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
 
     val inactive = table.getClass(cn("Inactive"))
     val inactiveBase = table.getClass(cn("InactiveBase"))
@@ -171,8 +175,8 @@ internal class ClassTest {
             CLASS AvailableVocabulary
             """,
         )
-    val ruleset = TfmRuleset.compose(activeBundle).resolve(setOf(cn("ActiveBundle")))
-    val table = ClassLoader(ruleset).apply { load(cn("SelectedContent")) }.freeze()
+    val authority = TfmAuthority.compose(activeBundle)
+    val table = ClassLoader(authority).apply { load(cn("SelectedContent")) }.freeze()
 
     table.getClass(cn("AvailableVocabulary")).phantom shouldBe false
   }
@@ -188,42 +192,115 @@ internal class ClassTest {
             """,
         )
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive : Domain")
-    val ruleset =
-        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
-    val table = ClassLoader(ruleset).apply { load(cn("Holder")) }.freeze()
+    val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
+    val table = ClassLoader(authority).apply { load(cn("Holder")) }.freeze()
 
     table.resolve(te("Holder<!Inactive>")).phantom shouldBe false
   }
 
   @Test
-  fun `active classes cannot structurally depend on inactive classes`() {
+  fun `structural dependencies activate authority-known classes`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active<Inactive>")
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
-    val ruleset =
-        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
+    val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
 
-    shouldThrow<PetException> { ClassLoader(ruleset).load(cn("Active")) }
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Inactive")).phantom shouldBe false
+  }
+
+  @Test
+  fun `premise rejects a structurally activated unrequested Module`() {
+    val authority =
+        object : TfmAuthority() {
+          override val explicitClassDeclarations =
+              parseClasses(
+                      """
+                      ABSTRACT CLASS Module
+                      CLASS Requested<Other> : Module
+                      CLASS Other : Module
+                      """
+                          .trimIndent()
+                  )
+                  .toSetStrict()
+        }
+    val premise = GamePremise(authority, setOf(cn("Requested")), emptySet(), emptySet())
+
+    shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
+  }
+
+  @Test
+  fun `premise rejects structural reactivation of an excluded class`() {
+    val authority =
+        object : TfmAuthority() {
+          override val explicitClassDeclarations =
+              parseClasses("CLASS Active<Excluded>\nCLASS Excluded").toSetStrict()
+        }
+    val premise =
+        GamePremise(
+            authority,
+            emptySet(),
+            setOf(ClassSelection(cn("Active")), ClassSelection(cn("Excluded"), included = false)),
+            emptySet(),
+        )
+
+    shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
+  }
+
+  @Test
+  fun `premise rejects structural reactivation of a conditionally excluded class`() {
+    val authority =
+        object : Bundle(cn("ConditionalBundle")) {
+          override val explicitClassDeclarations =
+              parseClasses(
+                      """
+                      ABSTRACT CLASS Module
+                      CLASS Requested : Module
+                      CLASS Active<Conditional> : AutoLoad
+                      CLASS Conditional
+                      CLASS Flag
+                      """
+                          .trimIndent()
+                  )
+                  .toSetStrict()
+          override val metadata =
+              BundleMetadata(
+                  moduleClassSelections =
+                      mapOf(
+                          cn("Requested") to
+                              setOf(
+                                  ClassSelection(
+                                      cn("Conditional"),
+                                      requirement = parse("Flag"),
+                                  )
+                              )
+                      )
+              )
+        }
+    val premise = authority.gamePremise(GameConfig("Requested"))
+
+    shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
   }
 
   @Test
   fun `class metrics do not activate the represented class`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Querying { HAS MAX 0 Class<Inactive> }")
     val inactiveBundle = bundle("InactiveBundle", "CLASS Inactive")
-    val ruleset =
-        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
-    val table = ClassLoader(ruleset).apply { load(cn("Querying")) }.freeze()
+    val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
+    val table = ClassLoader(authority).apply { load(cn("Querying")) }.freeze()
 
     table.getClass(cn("Inactive")).phantom shouldBe true
   }
 
   @Test
-  fun `active classes cannot extend inactive classes`() {
+  fun `structural supertypes become active`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active : Inactive")
     val inactiveBundle = bundle("InactiveBundle", "ABSTRACT CLASS Inactive")
-    val ruleset =
-        TfmRuleset.compose(activeBundle, inactiveBundle).resolve(setOf(cn("ActiveBundle")))
+    val authority = TfmAuthority.compose(activeBundle, inactiveBundle)
 
-    shouldThrow<PetException> { ClassLoader(ruleset).load(cn("Active")) }
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Inactive")).phantom shouldBe false
   }
 
   @Test
@@ -530,11 +607,11 @@ private fun bundle(name: String, declarations: String): Bundle =
 
 internal fun loader(petsText: String): ClassTable {
   val classes = parseClasses(petsText).toSetStrict()
-  val ruleset =
-      object : TfmRuleset.Empty() {
+  val authority =
+      object : TfmAuthority() {
         override val explicitClassDeclarations = classes
       }
-  return ClassLoader(ruleset).loadEverything()
+  return ClassLoader(authority).loadEverything()
 }
 
 val regex = Regex("^(\\w+).*")

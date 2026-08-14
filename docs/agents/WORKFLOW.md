@@ -215,7 +215,7 @@ Names used by `WorkflowPrecedence` are **weak class references**: a constraint p
 when its span and both endpoint phase classes were independently activated by the selected rules.
 Reading the constraint must never activate an absent endpoint. This differs intentionally from an
 ordinary component dependency, whose existence asserts that its dependency exists. Workflow
-topology would, in the aspirational Authority model, be Authority data filtered by the premise
+With the current Authority model, that future workflow topology should be Authority data filtered by the premise
 rather than additional Game World state; the Declarations may use ordinary Pets Class syntax, but
 the runner should compile them from the active premise classes rather than create their instances
 in the Game World.

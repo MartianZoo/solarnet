@@ -15,8 +15,8 @@ import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
@@ -89,7 +89,7 @@ internal class CanonClassesTest {
 
   @Test
   fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
-    val maps = Canon.Option.entries.filter { it.name.endsWith("MapOption") }
+    val maps = TestOption.entries.filter { it.name.endsWith("MapOption") }
 
     maps.forEach { map ->
       val game =

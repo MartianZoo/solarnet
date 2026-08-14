@@ -12,9 +12,9 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.Type
 import io.kotest.assertions.throwables.shouldThrow
@@ -157,7 +157,7 @@ private object BrokenInstruction : CustomClass() {
   override fun translate(game: GameReader): Instruction = error("broken instruction")
 }
 
-private object CustomClassDeclarations : TfmRuleset.Empty() {
+private object CustomClassDeclarations : TfmAuthority() {
   override val explicitClassDeclarations =
       parseClasses(
               """
@@ -190,5 +190,5 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
 
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
-        ruleset = TfmRuleset.compose(Canon, CustomClassDeclarations),
+        authority = TfmAuthority.compose(Canon, CustomClassDeclarations),
     )

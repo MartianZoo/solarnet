@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.CorporateEraExpansion
+import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import kotlin.test.Test
 
 class MarsUniversityTest : CardTest() {

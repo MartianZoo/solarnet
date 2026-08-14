@@ -1,11 +1,9 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.SystemClasses.AUTO_LOAD
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GamePremise
-import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
@@ -17,20 +15,56 @@ public abstract class ClassTable {
   public companion object {
     /** Loads and freezes the classes activated by [premise]. */
     public fun forPremise(premise: GamePremise): ClassTable {
-      val ruleset = premise.ruleset
+      val initialClassNames =
+          premise.initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
+      val configurationNames: Set<ClassName> =
+          premise.modules +
+              premise.classSelections
+                  .filter(ClassSelection::included)
+                  .map(ClassSelection::className) +
+              initialClassNames
+      val moduleSelections = premise.modules.flatMap { premise.authority.modules.getValue(it) }
+      val (applicableModuleSelections, inapplicableModuleSelections) =
+          moduleSelections.partition { selection -> selection.appliesTo(configurationNames) }
+      val moduleIncluded =
+          applicableModuleSelections
+              .filter(ClassSelection::included)
+              .mapTo(linkedSetOf(), ClassSelection::className)
+      val conditionallyExcluded =
+          inapplicableModuleSelections
+              .filter(ClassSelection::included)
+              .mapTo(hashSetOf(), ClassSelection::className) - moduleIncluded
+      val moduleExcluded =
+          applicableModuleSelections
+              .filterNot(ClassSelection::included)
+              .mapTo(hashSetOf(), ClassSelection::className) + conditionallyExcluded
+      val selectedByModules = moduleIncluded - moduleExcluded
+      val explicitlyIncluded =
+          premise.classSelections
+              .filter(ClassSelection::included)
+              .mapTo(linkedSetOf(), ClassSelection::className)
+      val explicitlyExcluded =
+          premise.classSelections
+              .filterNot(ClassSelection::included)
+              .mapTo(linkedSetOf(), ClassSelection::className)
+      val excluded = (moduleExcluded - explicitlyIncluded) + explicitlyExcluded
+      val roots =
+          premise.modules +
+              ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
+              initialClassNames
 
-      fun isAutoLoad(declaration: ClassDeclaration): Boolean =
-          declaration.className == AUTO_LOAD ||
-              declaration.supertypes.any {
-                isAutoLoad(ruleset.classDeclaration(it.className))
-              }
-
-      val rootClassNames =
-          premise.actors.classNames() +
-              premise.rootClassNames +
-              ruleset.allClassDeclarations.filterValues(::isAutoLoad).keys
-
-      return ClassLoader(ruleset).apply { rootClassNames.forEach(::load) }.freeze()
+      val table = ClassLoader(premise.authority).apply { roots.forEach(::load) }.freeze()
+      val unexpectedModules =
+          premise.authority.modules.keys.filterTo(linkedSetOf()) { table.isActive(it) } -
+              premise.modules
+      require(unexpectedModules.isEmpty()) {
+        "structural activation selected unrequested Modules: $unexpectedModules"
+      }
+      val reactivated = excluded.filterTo(linkedSetOf(), table::isActive)
+      require(reactivated.isEmpty()) {
+        "structural activation conflicts with excluded classes: $reactivated"
+      }
+      return table
     }
   }
 

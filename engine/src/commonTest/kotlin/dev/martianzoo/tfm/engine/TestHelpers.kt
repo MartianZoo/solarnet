@@ -1,14 +1,14 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.ClassSelection
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -21,10 +21,8 @@ import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option
-import dev.martianzoo.tfm.canon.Canon.OptionSelection
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -51,75 +49,77 @@ internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
     )
 
 internal fun setUpGame(
-    vararg selectedOptions: OptionSelection,
+    vararg selectedOptions: TestSelection,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
 ): World =
     setUpGame(canonicalPremise(*selectedOptions, players = players, colonyTiles = colonyTiles))
 
 internal fun canonicalPremise(
-    vararg selectedOptions: OptionSelection,
+    vararg selectedOptions: TestSelection,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-    ruleset: TfmRuleset? = null,
-): GamePremise =
-    with(Canon.GameOptions(selectedOptions.asIterable())) {
-      canonicalPremise(
-          canonicalOptions(*included.toTypedArray()),
-          players,
-          colonyTiles,
-          ruleset,
-          excluded,
-      )
-    }
-
-internal fun canonicalPremise(
-    options: Set<Option>,
-    players: Int = 2,
-    colonyTiles: Set<ClassName> = emptySet(),
-    ruleset: TfmRuleset? = null,
-    excludedOptions: Set<Option> = emptySet(),
+    authority: TfmAuthority? = null,
 ): GamePremise {
-  val setupWorld =
-      Engine.newSetupWorld(
-          Canon.setupWorldDefinition(
-              players,
-              Canon.GameOptions(options, excludedOptions),
-              colonyTiles.mapTo(linkedSetOf(), TEST_ENGLISH_VOCABULARY::canonicalName),
-          ),
-          inputOnlySynonyms = TEST_CLASS_SYNONYMS,
-      )
-  setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
-  val base = Canon.assemble(setupWorld.reader)
-  if (ruleset == null) return base
-  val bundleNames = (base.ruleset as TfmRuleset).bundles.mapTo(linkedSetOf()) { it.bundleName }
-  val selectedRuleset = ruleset.resolve(bundleNames, setupWorld.reader)
-  return base.copy(
-      ruleset = selectedRuleset,
-      rootClassNames = base.rootClassNames + selectedRuleset.allDefinitions.classNames(),
+  val included = selectedOptions.filterIsInstance<TestOption>()
+  val excluded = selectedOptions.filterIsInstance<ExcludedTestOption>().map { it.option }.toSet()
+  return canonicalPremise(
+      canonicalOptions(*included.toTypedArray()),
+      players,
+      colonyTiles,
+      authority,
+      excluded,
   )
 }
 
-internal fun canonicalOptions(vararg selectedOptions: Option): Set<Option> {
+internal fun canonicalPremise(
+    options: Set<TestOption>,
+    players: Int = 2,
+    colonyTiles: Set<ClassName> = emptySet(),
+    authority: TfmAuthority? = null,
+    excludedOptions: Set<TestOption> = emptySet(),
+): GamePremise {
+  val playerNames = (1..players).map { cn("Player$it") }
+  val config =
+      GameConfig.create(
+          included =
+              playerNames +
+                  options.map(TestOption::className) +
+                  colonyTiles.map(TEST_ENGLISH_VOCABULARY::canonicalName),
+          excluded = excludedOptions.map(TestOption::className),
+      )
+  val base = Canon.gamePremise(config)
+  if (authority == null) return base
+  val extensionClassNames =
+      authority.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
+          Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
+  return base.copy(
+      authority = authority,
+      classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) },
+  )
+}
+
+internal fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
   val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }
   require(selectedMaps.size <= 1) { "select at most one map" }
   val defaults =
-      if (selectedMaps.isEmpty()) Canon.Option.DEFAULTS else Canon.Option.DEFAULTS - MAP_OPTIONS
+      if (selectedMaps.isEmpty()) TestOption.DEFAULTS else TestOption.DEFAULTS - MAP_OPTIONS
   return defaults + selectedOptions
 }
 
 private val MAP_OPTIONS =
     setOf(
-        Option.TharsisMapOption,
-        Option.HellasMapOption,
-        Option.ElysiumMapOption,
-        Option.UtopiaPlanitiaMapOption,
-        Option.TerraCimmeriaMapOption,
+        TestOption.TharsisMapOption,
+        TestOption.HellasMapOption,
+        TestOption.ElysiumMapOption,
+        TestOption.UtopiaPlanitiaMapOption,
+        TestOption.TerraCimmeriaMapOption,
     )
 
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
-    val count = Canon.requiredColonyTileCount(players)
+    require(players in 1..5)
+    val count = if (players == 1) 3 else if (players == 2) 5 else players + 2
     val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
     TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
         .filterNotTo(selected) {
@@ -194,4 +194,7 @@ object TestHelpers {
 }
 
 private val TEST_ENGLISH_VOCABULARY =
-    Vocabulary.create(Canon.resolve(setOf(cn("TerraformingMars"), cn("ColoniesExpansion"))))
+    Vocabulary.create(
+        Canon,
+        activeClassNames = Canon.colonyTileDefinitions.mapTo(linkedSetOf()) { it.className },
+    )

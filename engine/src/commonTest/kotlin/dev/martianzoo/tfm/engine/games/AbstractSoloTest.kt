@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.engine.AutoExecMode
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise

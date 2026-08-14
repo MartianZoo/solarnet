@@ -81,7 +81,7 @@ work, not to raise a strength claim beyond its original evaluation.
 
 For every important result the audit asked:
 
-* What exact ruleset—or, in the aspirational model, Authority—and content pool was implemented?
+* What exact Authority and content pool was implemented?
 * Was the evaluation against humans, agents, or the system's own checkpoints?
 * Was it head-to-head, statistically substantial, and free of privileged information at play time?
 * Did “generalization” mean new card identities, new combinations, new descriptions, new decks, new

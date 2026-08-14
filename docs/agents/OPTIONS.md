@@ -2,8 +2,8 @@
 
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
-> **Status:** This document defines an aspirational target model. It does not describe the current
-> implementation.
+> **Status:** This document describes the current Authority, Module, configuration, and premise
+> model.
 
 ## Authority
 
@@ -19,13 +19,13 @@ An Authority is almost entirely a data provider, even though much of that data d
 
 Published Terraforming Mars is one Authority. A versioned rebalance or a variant with changed fundamental behavior is another. Authorities may reuse a Class Name because their namespaces never mix.
 
-Almost every operation uses exactly one Authority. An Authority may be assembled internally from several providers, but callers and playable games still see one Authority. Provider composition is an implementation detail that must resolve duplicate ownership before exposing the namespace.
+Almost every operation uses exactly one Authority. An Authority may be assembled internally from several providers, but callers and playable games still see one Authority. Provider composition is an implementation detail. Identical Declarations may coalesce, but a Module must have exactly one bundle owner; ambiguous Module ownership is invalid.
 
 The reusable API exposes `Authority`. `TfmAuthority` extends it with typed registries for cards, milestones, awards, maps, standard actions, and colony tiles. Generic class loading and engine operation depend only on `Authority`.
 
 ## One universal class catalog
 
-Within one Authority, every Class Name has exactly one Declaration and one meaning. Identical Declarations from separate providers do not coalesce: duplicate ownership is an error. A replacement has its own Class Name, and the replaced Definition remains known but can be inactive. The published Deimos Down Definitions are therefore `Card039` and `CardX31`.
+Within one Authority, every Class Name has exactly one Declaration and one meaning. Identical Declarations from separate providers coalesce; differing Declarations for the same Class Name are an error. A replacement has its own Class Name, and the replaced Definition remains known but can be inactive. The published Deimos Down Definitions are therefore `Card039` and `CardX31`.
 
 The complete Authority catalog must load and validate together. Each playable game receives a projection of that catalog: selected Classes are active and every other Authority-known Class is present as a behaviorless phantom. Rule Class versus Content Class records declaration provenance only; Class Loading erases that distinction. No game projection obtains Declarations or behavior from another provider.
 
@@ -61,7 +61,7 @@ Bundle provenance normally has no semantic effect. The one deliberate selection 
 ## Required invariants
 
 - A game and almost every related operation use exactly one Authority.
-- Every Class Name has one provider within an Authority, even when duplicate Declarations would be identical.
+- Every Class Name has one meaning within an Authority; identical Declarations coalesce and differing Declarations are invalid.
 - The complete Authority class catalog loads and validates together.
 - Every game table is a projection of that catalog, with inactive known classes represented as phantoms.
 - A premise contains only the Authority, Modules, signed individual class selections, and exact initial concrete non-singleton types.

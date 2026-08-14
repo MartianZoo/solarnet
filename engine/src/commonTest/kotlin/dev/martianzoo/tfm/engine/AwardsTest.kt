@@ -7,10 +7,10 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.tfmRuleset
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -22,7 +22,9 @@ internal class AwardsTest : TfmTest() {
   fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = Engine.newGame(canonicalPremise(players = 1))
 
-    game.reader.tfmRuleset.awardDefinitions.shouldBeEmpty()
+    game.reader.tfmAuthority.awardDefinitions
+        .filter { game.classTable.isActive(it.className) }
+        .shouldBeEmpty()
     game.classTable.findClass(cn("ClaimMilestoneSA"))?.phantom shouldBe true
     game.classTable.findClass(cn("FundAwardSA"))?.phantom shouldBe true
     engine.assertCounts(

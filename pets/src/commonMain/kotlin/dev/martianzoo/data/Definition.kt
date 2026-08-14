@@ -12,7 +12,7 @@ public interface Definition : HasClassName {
   /** The class name this definition will be known as; see [ClassDeclaration.className]. */
   override val className: ClassName
 
-  /** Setup-world condition that must hold for this definition to be active. */
+  /** Configuration condition that must hold for this definition to be active. */
   public val setupRequirement: Requirement?
     get() = null
 

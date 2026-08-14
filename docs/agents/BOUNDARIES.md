@@ -93,7 +93,7 @@ install its own syntax transforms.
 `script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt` hard-wires:
 
 1. Canon's Authority data, premise defaults, and resolver.
-2. Terraforming Mars setup instructions.
+2. Terraforming Mars game-configuration syntax and premise resolution.
 3. `TfmWorkflow`.
 4. Terraforming Mars commands and board/map views.
 5. Terraforming Mars colors for generic access modes.
@@ -158,7 +158,7 @@ The generic half belongs in an `Authority` implementation. `TfmAuthority` can ex
 contribute its game-specific definition collections, premise resolution, and indexes. Games retain
 the complete Authority while their class tables project its catalog.
 
-### Aspirational: generic construction no longer depends on `GameSetup`
+### Resolved: generic construction no longer depends on a setup Game World
 
 The live Component/Task/Event/Timeline machinery is the generic Game World represented by `World`. Construction accepts a
 generic `GamePremise`, and `GameReader` no longer exposes a Terraforming Mars setup object. The

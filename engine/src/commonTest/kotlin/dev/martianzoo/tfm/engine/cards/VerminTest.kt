@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import kotlin.test.Test
 
 class VerminTest : CardTest() {

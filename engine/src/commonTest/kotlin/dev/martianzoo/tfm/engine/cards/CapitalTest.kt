@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.canon.Canon.Option.UtopiaPlanitiaMapOption
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.UtopiaPlanitiaMapOption
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
