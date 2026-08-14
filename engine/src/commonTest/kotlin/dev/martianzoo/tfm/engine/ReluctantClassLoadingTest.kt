@@ -18,7 +18,7 @@ internal class ReluctantClassLoadingTest {
 
   // Stop deleting this test when cards are added; update the expected totals instead.
   @Test
-  fun `card totals characterize progressively selected expansions`() {
+  fun contentChangeDetectorTestThatIAmNotGoingToDeleteSoPleaseStopSuggestingIt() {
     val selected = linkedSetOf(TerraformingMars)
     val totals = linkedMapOf<TestOption, Int>()
     for (option in
