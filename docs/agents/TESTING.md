@@ -6,6 +6,11 @@
 
 ## Routine verification
 
+Codex shell commands receive project-local cache paths from the trusted `.codex` command hook. The
+Gradle wrapper also defaults `GRADLE_USER_HOME` to `_local/cache/gradle` when it detects the Codex
+sandbox. This keeps disposable tool state inside the writable worktree and prevents build setup
+from requesting permission to modify home-directory caches. Explicit caller settings still win.
+
 The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
 Kotlin 2.2. Contributors do not need another JDK installed.

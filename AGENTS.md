@@ -9,6 +9,31 @@ You should freely *read* both kinds before editing code.
 You should autonomously maintain the documentation in docs/agents/ however you see fit.
 Do not propose any more than slight correctness updates to the human-authored docs; do not assume that any new information needs to be added there.
 
+## Other Worktrees Are Out Of Scope
+
+- Never discover, enumerate, resolve, inspect, read, write, or otherwise access any linked or
+  sibling worktree outside this project root. Do not inquire whether another worktree exists, where
+  it is located, whether it is clean, or what files it contains.
+- Do not run `git worktree list`, `git -C` against another worktree, filesystem searches for sibling
+  worktrees, or any helper or helper mode that accesses another worktree. Do not read worktree path
+  metadata from Git internals.
+- Treat names such as `work1` only as local branch refs. Their committed histories and tip commits
+  may be inspected and merged through the repository in this project root without locating or
+  accessing any working copy.
+- Merge and synchronization workflows operate only in this project root or in temporary storage
+  under `$TMPDIR`. They merge committed branch tips into `main`; they never inspect uncommitted work
+  elsewhere and never stage, commit, stash, discard, format, or otherwise alter it.
+- Never advance, reset, or otherwise update a source branch ref after merging it into `main`. The
+  branch may be checked out in an inaccessible working copy. Leave source refs and every associated
+  working copy exactly as they are.
+- A request to run `merge-all-work` means to perform its branch-merging purpose under these rules.
+  The helper must use a branch-only workflow from this project root and must leave source refs
+  unchanged.
+- The ignored `_local/advance-worktrees-to-main` helper is the sole exception. Run it only when the
+  user explicitly asks for that separate post-merge step. It may inspect registered `workN` working
+  copies and fast-forward only those that are clean and whose branch tips are already contained in
+  verified `origin/main`; it must leave dirty, missing, or divergent working copies unchanged.
+
 ## When Running Gradle Or Tests
 
 1. Follow the commands and suite boundaries in `docs/agents/TESTING.md`.
