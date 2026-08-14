@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.PreludeExpansion
-import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
-import dev.martianzoo.tfm.canon.Canon.Option.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
+import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
