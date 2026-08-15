@@ -144,7 +144,8 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
 
       val owner =
           tile.expressionFull.arguments.firstNotNullOfOrNull { expression ->
-            Player.fromType(game.resolve(expression))
+            val className = game.resolve(expression).className
+            players.singleOrNull { it.className == className }
           }
       val player = owner?.let { players.indexOf(it) + 1 }?.toString().orEmpty()
 

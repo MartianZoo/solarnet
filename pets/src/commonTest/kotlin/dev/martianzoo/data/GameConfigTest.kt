@@ -27,7 +27,7 @@ internal class GameConfigTest {
         cn("VenusNextExpansion"),
     )
     config.excludedClassNames.shouldContainExactly(cn("WorldGovernmentOption"))
-    config.playerClassNames.shouldContainExactly(cn("Player1"), cn("Player2"))
+    config.playerNames.shouldContainExactly(cn("Player1"), cn("Player2"))
     config.toString() shouldBe
         "TerraformingMars, TharsisMapOption, VenusNextExpansion, -WorldGovernmentOption"
   }
@@ -43,7 +43,7 @@ internal class GameConfigTest {
     val config = GameConfig("TerraformingMars", "Mom", "Ellie")
 
     config.includedClassNames.shouldContainExactly(cn("TerraformingMars"))
-    config.playerClassNames.shouldContainExactly(cn("Mom"), cn("Ellie"))
+    config.playerNames.shouldContainExactly(cn("Mom"), cn("Ellie"))
     config.toString() shouldBe "TerraformingMars"
   }
 

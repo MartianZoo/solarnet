@@ -15,24 +15,29 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 
 /**
- * All [Class] instances come from here. Uses an [Authority] to pull declarations as needed. Can be
- * [frozen], which prevents additional classes from being loaded, and enables features such as
+ * Builds a master [ClassTable] from an [Authority], or internally forms a projection from that
+ * master. Freezing prevents additional classes from being loaded and enables features such as
  * [Class.allSubclasses] to work.
  */
 public class ClassLoader
-public constructor(
-    /**
-     * The source of class declarations to use as needed; [loadEverything] will load every class
-     * found here.
-     */
+private constructor(
     internal val authority: Authority,
+    private val masterSource: ClassTable?,
 ) : ClassTable() {
+  /** Compiles the master table that an [Authority] implementation retains and exposes. */
+  public constructor(authority: Authority) : this(authority, null)
+
+  internal override val masterTable: ClassTable = masterSource ?: this
+
+  private val knownClassNames: Set<ClassName> =
+      masterSource?.allClassNames ?: authority.allClassNames
+
   private val cache = mutableMapOf<Expression, Type>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public override val componentClass: Class =
       Class(
-          validateCustomImplementation(authority.classDeclaration(COMPONENT)),
+          validateCustomImplementation(knownDeclaration(COMPONENT)),
           this,
           directSuperclasses = emptyList(),
       )
@@ -40,7 +45,7 @@ public constructor(
   /** The `Class` class, the other class that is required to exist. */
   public override val classClass: Class =
       Class(
-          validateCustomImplementation(authority.classDeclaration(CLASS)),
+          validateCustomImplementation(knownDeclaration(CLASS)),
           this,
           directSuperclasses = listOf(componentClass),
       )
@@ -91,7 +96,7 @@ public constructor(
 
   /** Loads every class known to this class loader's backing [Authority], and freezes. */
   public fun loadEverything(): ClassTable {
-    authority.allClassNames.forEach(::loadSingle)
+    knownClassNames.forEach(::loadSingle)
     return freeze()
   }
 
@@ -134,7 +139,7 @@ public constructor(
             add(CLASS)
             val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
             argument?.let { expression ->
-              if (expression.className !in authority.allClassDeclarations) {
+              if (expression.className !in knownClassNames) {
                 throw Exceptions.classNotFound(expression.className)
               }
             }
@@ -170,7 +175,7 @@ public constructor(
     store(null) // to detect reentrancy
     try {
       val klass = Class(decl, this, phantom)
-      if (!phantom) validateCustomInheritance(klass)
+      if (!phantom && masterSource == null) validateCustomInheritance(klass)
       store(klass)
       return klass
     } catch (e: Throwable) {
@@ -230,13 +235,11 @@ public constructor(
 
   public fun freeze(): ClassTable {
     require(!frozen)
-    authority.allClassDeclarations.values.forEach { declaration ->
-      if (declaration.className !in loadedClasses) construct(declaration, phantom = true)
+    knownClassNames.forEach { name ->
+      if (name !in loadedClasses) construct(knownDeclaration(name), phantom = true)
     }
 
     val knownClasses = loadedClasses.values.map { checkNotNull(it) }
-    val bitBearingSuperclasses = knownClasses.flatMap(Class::directSuperclasses).distinct()
-
     val knownProperSubclasses = mutableMapOf<Class, MutableSet<Class>>()
     knownClasses.forEach { subclass ->
       subclass.allSuperclasses().forEach { superclass ->
@@ -245,16 +248,22 @@ public constructor(
         }
       }
     }
-    val superclassBits =
-        bitBearingSuperclasses
-            .sortedWith(
-                compareBy<Class>(Class::phantom)
-                    .thenByDescending { knownProperSubclasses[it]?.size ?: 0 }
-                    .thenBy(Class::className)
-            )
-            .withIndex()
-            .associate { (index, klass) -> klass to index }
-    knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
+    if (masterSource == null) {
+      val bitBearingSuperclasses = knownClasses.flatMap(Class::directSuperclasses).distinct()
+      val superclassBits =
+          bitBearingSuperclasses
+              .sortedWith(
+                  compareByDescending<Class> { knownProperSubclasses[it]?.size ?: 0 }
+                      .thenBy(Class::className)
+              )
+              .withIndex()
+              .associate { (index, klass) -> klass to index }
+      knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
+    } else {
+      knownClasses.forEach { klass ->
+        klass.initializeSubclassBitsFrom(masterSource.getClass(klass.className))
+      }
+    }
 
     val activeProperSubclasses = mutableMapOf<Class, Set<Class>>()
     knownProperSubclasses.forEach { (superclass, subclasses) ->
@@ -289,9 +298,12 @@ public constructor(
   override fun toString(): String = "loader$id"
 
   private fun knownDeclaration(name: ClassName): ClassDeclaration =
-      authority.allClassDeclarations[name] ?: throw Exceptions.classNotFound(name)
+      masterSource?.getClass(name)?.declaration
+          ?: authority.allClassDeclarations[name]
+          ?: throw Exceptions.classNotFound(name)
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
+    if (masterSource != null) return decl
     if (decl.custom) {
       authority.customClass(decl.className)
     } else {
@@ -304,7 +316,15 @@ public constructor(
 
   private val id = nextId++
 
-  private companion object {
-    var nextId: Int = 0
+  internal companion object {
+    private var nextId: Int = 0
+
+    internal fun projection(authority: Authority): ClassLoader {
+      val masterTable = authority.classTable
+      require(masterTable.masterTable === masterTable) {
+        "Authority class table is not a master table"
+      }
+      return ClassLoader(authority, masterTable)
+    }
   }
 }

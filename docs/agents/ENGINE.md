@@ -13,11 +13,11 @@ This module's job is to represent a Game World, execute Instructions, and trigge
 The common live Game World abstraction is `World`: a Pets Component Graph together with its Tasks, Event
 history, timeline, class table, and Actor-scoped mutation API. `GamePremise` is the immutable,
 reusable input containing one Authority, the selected Modules, signed individual class inclusions
-and exclusions, and the exact concrete non-singleton types to instantiate once. Actors and the
-active/phantom class projection derive from those facts.
+and exclusions, seated player names, and the exact concrete non-singleton types to instantiate
+once. Actors and the active/phantom class projection derive from those facts.
 
 `GameConfig` is the raw input: a set parsed from comma-or-newline-separated Class Names, optionally
-prefixed with `-`, plus an ordered list of player class names. The configuration string is not Pets
+prefixed with `-`, plus an ordered list of user-facing player names. The configuration string is not Pets
 syntax and never becomes a temporary Game World. Authority-backed resolution validates names,
 applies declarative implications and defaults, and returns an exact `GamePremise`. Provider bundles
 are internal provenance and loading details, not premise inputs;
@@ -30,8 +30,10 @@ For example, Authority data says that `TerraformingMars` defaults Corporate Era 
 excluded. It also says that solo mode defaults to `StandardSoloVariant` unless
 `Tr63SoloVariant` is selected, and derives the player-count mode from the selected player names.
 
-The `ClassTable` is one per-game projection of the Authority's universal, uniquely named class
-catalog. Active classes carry behavior; authority-known inactive classes are phantom. APIs
+Each Authority owns one master `ClassTable` containing its universal, uniquely named class catalog.
+A game's `ClassTable` is a projection backed by that master: selected classes carry behavior,
+authority-known inactive classes are phantom, and occupied seats activate canonical `Player1`
+through `PlayerN`. Configured player names are vocabulary aliases rather than Class identities. APIs
 that enumerate playable classes exclude phantoms, while type resolution accepts them with zero
 count. `GameReader.authority` exposes the complete Authority, and `GameReader.tfmAuthority` exposes
 its typed Terraforming Mars registries.

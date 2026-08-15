@@ -10,7 +10,6 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.types.ClassLoader
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.Int.Companion.MAX_VALUE
@@ -18,7 +17,7 @@ import kotlin.test.Test
 
 internal class CanonInvariantsTest {
 
-  private val table = ClassLoader(Canon).loadEverything()
+  private val table = Canon.classTable
 
   @Test
   fun introspect() {

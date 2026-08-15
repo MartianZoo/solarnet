@@ -29,7 +29,6 @@ public class TfmGameplay(
     override val actor: Actor,
     internal val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
 ) : TurnLayer by gameplay {
-
   public val reader: GameReader by game::reader
 
   internal fun asActor(actor: Actor) = TfmGameplay(game, actor)

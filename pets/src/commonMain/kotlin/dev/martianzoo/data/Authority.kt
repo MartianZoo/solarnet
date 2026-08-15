@@ -4,9 +4,13 @@ import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.ClassTable
 
 /** One coherent catalog of everything the engine may know about a game. */
 public interface Authority {
+  /** The one fully compiled class universe from which playable projections are formed. */
+  public val classTable: ClassTable
+
   /** Declarative validity checks evaluated against a resolved game premise. */
   public val bootstrapValidations: List<Set<Requirement>>
     get() = emptyList()

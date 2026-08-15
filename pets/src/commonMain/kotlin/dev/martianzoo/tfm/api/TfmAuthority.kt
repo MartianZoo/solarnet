@@ -12,7 +12,6 @@ import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.classNameRenamer
 import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -25,10 +24,14 @@ import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
+import dev.martianzoo.types.ClassLoader
+import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.associateByStrict
 
 /** A Terraforming Mars Authority with typed registries for its structured definitions. */
 public open class TfmAuthority : Authority {
+  final override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
     (cardDefinitions + milestoneDefinitions + awardDefinitions + colonyTileDefinitions).mapTo(
         linkedSetOf(),
@@ -45,14 +48,14 @@ public open class TfmAuthority : Authority {
    *
    * Structured definitions may use unambiguous English Pets names. Naming any milestones or awards
    * selects the exact configured pool for that category. A playable Terraforming Mars Authority
-   * requires one to five player class names in seat order. New, otherwise unknown names are
-   * introduced as real player classes.
+   * requires one to five player names in seat order. These become vocabulary aliases for the
+   * canonical `Player1` through `Player5` classes.
    */
   public open fun gamePremise(config: GameConfig): GamePremise {
-    val configuredPlayerNames = config.playerClassNames
+    val configuredPlayerNames = config.playerNames
     if (PLAYER_CLASS in allClassNames) {
       require(configuredPlayerNames.size in 1..5) {
-        "a Terraforming Mars configuration must have 1 to 5 player class names"
+        "a Terraforming Mars configuration must have 1 to 5 player names"
       }
     }
     val canonicalPlayerNames = Player.players(configuredPlayerNames.size).map(Player::className)
@@ -94,9 +97,11 @@ public open class TfmAuthority : Authority {
         explicitlyIncluded,
     )
     val classSelections =
-        individualSelections.mapTo(linkedSetOf()) { (className, included) ->
-          ClassSelection(className, included)
-        }
+        individualSelections
+            .filterKeys { it !in canonicalPlayerNames }
+            .mapTo(linkedSetOf()) { (className, included) ->
+              ClassSelection(className, included)
+            }
     val initialTypes =
         individualNames
             .filter { it in colonyNames }
@@ -108,24 +113,12 @@ public open class TfmAuthority : Authority {
                 DELAYED_COLONY_TILE.of(className.classExpression(), resourceType.classExpression())
               }
             }
-    val aliases =
-        canonicalPlayerNames
-            .zip(configuredPlayerNames)
-            .filter { (canonical, configured) -> canonical != configured }
-            .toMap()
-    val rename = classNameRenamer(aliases)
     return GamePremise(
         this,
         moduleNames,
-        classSelections.mapTo(linkedSetOf()) { selection ->
-          selection.copy(
-              className = rename.transform(selection.className),
-              requirement = selection.requirement?.let(rename::transform),
-          )
-        },
-        initialTypes.mapTo(linkedSetOf(), rename::transform),
+        classSelections,
+        initialTypes,
         configuredPlayerNames,
-        aliases,
     )
   }
 
@@ -136,9 +129,8 @@ public open class TfmAuthority : Authority {
       }
 
   private fun resolveConfigurationName(configuredName: ClassName): ClassName? {
-    // PlayerN declarations are templates, not selectable configuration classes. Player names are
-    // supplied through GameConfig.playerClassNames instead.
-    if (Player.isDefaultClassName(configuredName)) return null
+    // Canonical PlayerN seat classes are activated only by the ordered player-name list.
+    if (Player.isValid(configuredName)) return null
     if (configuredName in allClassNames) return configuredName
     val matches = derivedPetsNameClassNames.filter { canonicalName ->
       displayNamesByLanguage["en"]?.get(canonicalName)?.let(::petsClassName) == configuredName

@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -21,8 +22,7 @@ internal class GamePremiseTest {
 
     val premise = Canon.gamePremise(config)
 
-    premise.classSelections.map { it.className }.toSet() shouldBe
-        setOf(cn("Player1"), cn("Player2"))
+    premise.classSelections shouldBe emptySet()
     premise.modules.containsAll(setOf(cn("MultiplayerMode"), cn("TerraformingMars"))) shouldBe true
     premise.modules.shouldNotContain(cn("CorporateEraExpansion"))
     Engine.newGame(premise).classTable.isActive(cn("CorporateEraExpansion")) shouldBe false
@@ -40,27 +40,30 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun configuredPlayerNamesBecomeRealRuntimeClassesAndActors() {
+  fun configuredPlayerNamesBecomeVocabularyAliasesForCanonicalPlayers() {
     val mom = cn("Mom")
     val ellie = cn("Ellie")
     val config = GameConfig("-CorporateEraExpansion", "Mom", "Ellie")
     GameConfig(config.toString(), "Mom", "Ellie") shouldBe config
     val premise = Canon.gamePremise(config)
 
-    premise.playerClassNames.shouldContainExactly(mom, ellie)
-    premise.classSelections
-        .map { it.className }
-        .filter { it == mom || it == ellie }
-        .shouldContainExactly(mom, ellie)
+    premise.playerNames.shouldContainExactly(mom, ellie)
+    premise.playerClassNames.shouldContainExactly(cn("Player1"), cn("Player2"))
+    premise.classSelections shouldBe emptySet()
 
     val game = Engine.newGame(premise)
-    game.actors.shouldContainExactly(Player(mom), Player(ellie), ENGINE)
-    game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(mom, ellie)
+    Canon.classTable.findClass(mom) shouldBe null
+    game.classTable.findClass(mom) shouldBe null
+    game.actors.shouldContainExactly(Player.PLAYER1, Player.PLAYER2, ENGINE)
+    game.vocabulary.canonicalName(mom) shouldBe cn("Player1")
+    game.vocabulary.petsName(cn("Player1")) shouldBe mom
+    game.reader.getComponents("Player").map { it.className }.toSet() shouldBe
+        setOf(cn("Player1"), cn("Player2"))
     TfmWorkflow.Manual(game).setupPhase()
-    game.gameplay(Player(mom)).count("TerraformRating") shouldBe 20
-    game.gameplay(Player(ellie)).count("TerraformRating") shouldBe 20
+    game.gameplay(Player.PLAYER1).count("TerraformRating<Mom>") shouldBe 20
+    game.gameplay(Player.PLAYER2).count("TerraformRating<Ellie>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
-        Player(mom)
+        Player.PLAYER1
   }
 
   @Test
@@ -96,6 +99,15 @@ internal class GamePremiseTest {
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("", "One", "Two", "Three", "Four", "Five", "Six"))
     }
+  }
+
+  @Test
+  fun unseatedCanonicalPlayerCannotBeActivatedAsAnOrdinaryClass() {
+    val premise =
+        Canon.gamePremise(GameConfig("", "Player1", "Player2"))
+            .copy(classSelections = setOf(ClassSelection(cn("Player3"), included = true)))
+
+    shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }
 
   @Test

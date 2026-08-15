@@ -941,10 +941,13 @@ The Venus Next expansion adds `VenusTag`. A game without that expansion must nei
 nor require a different Diversifier declaration. At the same time, `Class<Tag>` must keep ranging
 over all tag classes that this particular game includes.
 
-The Authority model handles that distinction by giving each game exactly one
-**Authority**: the full, uniquely named catalog of class declarations it is allowed to load. A
-class known to the Authority but not active in the current game is installed in the frozen table
-as **phantom**. Names therefore have three states:
+The Authority model handles that distinction by giving each Authority one master `ClassTable`: the
+fully compiled, uniquely named catalog of class declarations it is allowed to load. Each game table
+projects that master, reusing its compiled hierarchy layout. Projection-local `Class` and `Type`
+values are immutable copies rather than cross-table identities; this preserves the rule that values
+from different tables cannot be mixed. Every projected Class comes from the master and has the same
+canonical name and structural hierarchy. A class known to the Authority but not active in the
+current game is installed in the projection as **phantom**. Names therefore have three states:
 
 ```text
 active    installed in this table for this game

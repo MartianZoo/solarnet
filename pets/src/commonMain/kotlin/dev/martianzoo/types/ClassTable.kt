@@ -4,16 +4,17 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 
-/** One closed set of mutually compatible active and authority-known phantom [Class]es. */
+/** One master class universe or a playable active/phantom projection backed by one. */
 public abstract class ClassTable {
   public companion object {
-    /** Loads and freezes the classes activated by [premise]. */
+    /** Forms and freezes the playable projection selected by [premise]. */
     public fun forPremise(premise: GamePremise): ClassTable {
       val initialClassNames =
           premise.initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
@@ -22,9 +23,9 @@ public abstract class ClassTable {
               premise.classSelections
                   .filter(ClassSelection::included)
                   .map(ClassSelection::className) +
+              premise.playerClassNames +
               initialClassNames
-      val moduleSelections =
-          premise.modules.flatMap { premise.runtimeClassAuthority.modules.getValue(it) }
+      val moduleSelections = premise.modules.flatMap { premise.authority.modules.getValue(it) }
       val (applicableModuleSelections, inapplicableModuleSelections) =
           moduleSelections.partition { selection -> selection.appliesTo(configurationNames) }
       val moduleIncluded =
@@ -52,16 +53,21 @@ public abstract class ClassTable {
       val roots =
           premise.modules +
               ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
-              initialClassNames
+              initialClassNames +
+              premise.playerClassNames
 
-      val table =
-          ClassLoader(premise.runtimeClassAuthority).apply { roots.forEach(::load) }.freeze()
+      val table = ClassLoader.projection(premise.authority).apply { roots.forEach(::load) }.freeze()
       val unexpectedModules =
-          premise.runtimeClassAuthority.modules.keys.filterTo(linkedSetOf()) {
+          premise.authority.modules.keys.filterTo(linkedSetOf()) {
             table.isActive(it)
           } - premise.modules
       require(unexpectedModules.isEmpty()) {
         "structural activation selected unrequested Modules: $unexpectedModules"
+      }
+      val activePlayerClassNames =
+          Player.players(5).map(Player::className).filterTo(linkedSetOf(), table::isActive)
+      require(activePlayerClassNames == premise.playerClassNames.toSet()) {
+        "active Player classes do not match occupied seats: $activePlayerClassNames"
       }
       val reactivated = excluded.filterTo(linkedSetOf(), table::isActive)
       require(reactivated.isEmpty()) {
@@ -70,6 +76,9 @@ public abstract class ClassTable {
       return table
     }
   }
+
+  /** The Authority-scoped table whose compiled class universe backs this projection. */
+  internal abstract val masterTable: ClassTable
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public abstract val componentClass: Class

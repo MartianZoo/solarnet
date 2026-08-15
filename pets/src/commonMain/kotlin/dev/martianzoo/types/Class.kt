@@ -96,6 +96,19 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
+  /** Reuses hierarchy compilation from the corresponding class in an Authority master table. */
+  internal fun initializeSubclassBitsFrom(masterClass: Class) {
+    check(abstractSupertypeBits == null)
+    check(className == masterClass.className)
+    check(abstract == masterClass.abstract)
+    check(
+        directSuperclasses.map(Class::className) ==
+            masterClass.directSuperclasses.map(Class::className)
+    )
+    superclassBit = masterClass.superclassBit
+    abstractSupertypeBits = checkNotNull(masterClass.abstractSupertypeBits)
+  }
+
   override fun glb(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this

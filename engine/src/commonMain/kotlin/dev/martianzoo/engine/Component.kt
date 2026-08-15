@@ -40,7 +40,8 @@ public class Component internal constructor(public val type: Type) : HasExpressi
       }
 
   /** This component's owner when that owner is a seated Player. */
-  internal val playerOwner: Player? = owner?.let(Player::fromType)
+  internal val playerOwner: Player? =
+      owner?.className?.let { if (Player.isValid(it)) Player(it) else null }
 
   /** Context-free check; throws if [supertype] has a state-dependent refinement. */
   public fun hasType(supertype: Type): Boolean = type.isSubtypeOf(supertype)

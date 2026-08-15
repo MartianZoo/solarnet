@@ -15,7 +15,6 @@ internal constructor(
     override val reader: GameReader,
     override val classTable: ClassTable,
     override val vocabulary: Vocabulary,
-    override val actors: List<Actor>,
     private val gameplayByActor: Map<Actor, Gameplay>,
 ) : World {
   /** The exact event-backed state revision, including changes later rolled back. */

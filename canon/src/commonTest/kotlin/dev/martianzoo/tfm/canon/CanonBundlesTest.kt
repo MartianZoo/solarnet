@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -95,7 +94,31 @@ internal class CanonBundlesTest {
 
   @Test
   fun entireAuthorityCatalogLoadsTogether() {
-    ClassLoader(Canon).loadEverything().allClassNames shouldBe Canon.allClassNames
+    Canon.classTable.allClassNames shouldBe Canon.allClassNames
+    (Canon.classTable === Canon.classTable) shouldBe true
+  }
+
+  @Test
+  fun playableTablesProjectTheAuthorityMasterTable() {
+    val tharsis = table(cn("TharsisMapOption"))
+    val hellas = table(cn("HellasMapOption"))
+
+    (tharsis === hellas) shouldBe false
+    assertProjectionOfCanon(tharsis)
+    assertProjectionOfCanon(hellas)
+  }
+
+  private fun assertProjectionOfCanon(projection: ClassTable) {
+    val master = Canon.classTable
+    (projection.allClassNames - master.allClassNames) shouldBe emptySet()
+    master.allClassNames.forEach { name ->
+      val projectedClass = projection.getClass(name)
+      val masterClass = master.getClass(name)
+      projectedClass.className shouldBe masterClass.className
+      projectedClass.abstract shouldBe masterClass.abstract
+      projectedClass.directSuperclasses.map { it.className } shouldBe
+          masterClass.directSuperclasses.map { it.className }
+    }
   }
 
   @Test
@@ -138,7 +161,7 @@ internal class CanonBundlesTest {
         )
     return ClassTable.forPremise(
         Canon.gamePremise(
-            GameConfig.create(included, playerClassNames = listOf(cn("Player1"), cn("Player2")))
+            GameConfig.create(included, playerNames = listOf(cn("Player1"), cn("Player2")))
         )
     )
   }

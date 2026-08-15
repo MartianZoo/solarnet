@@ -2,7 +2,7 @@ package dev.martianzoo.benchmarks
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player.Companion.ME
+import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
@@ -43,7 +43,7 @@ public open class BusyPreludePhaseBenchmark {
                 )
             )
         )
-    me = game.tfm(ME)
+    me = game.tfm(PLAYER1)
     val engine = game.tfm(ENGINE)
     workflow = TfmWorkflow.Manual(game)
 

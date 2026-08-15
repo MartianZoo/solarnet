@@ -4,7 +4,6 @@ import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.pets.Vocabulary
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Requirement
@@ -28,13 +27,10 @@ public object Engine {
   ) {
     private val classTable: ClassTable = ClassTable.forPremise(premise).also(::validatePremise)
     private val vocabulary: Vocabulary =
-        Vocabulary.create(
-            premise.runtimeClassAuthority,
+        premise.createVocabulary(
+            classTable.allClassNames,
             locale,
-            inputOnlySynonyms.map { (synonym, target) ->
-              synonym to (premise.classNameAliases[cn(target)]?.toString() ?: target)
-            },
-            activeClassNames = classTable.allClassNames,
+            inputOnlySynonyms,
         )
     private val transformers: Transformers = Transformers(classTable)
     private val customClasses = CustomClassRuntime(premise.authority, transformers)
@@ -88,7 +84,6 @@ public object Engine {
             reader,
             classTable,
             vocabulary,
-            premise.actors,
             gameplayByActor,
         )
 
@@ -128,7 +123,7 @@ public object Engine {
 
       fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::countActiveClasses)
 
-      premise.runtimeClassAuthority.bootstrapValidations.forEach { alternatives ->
+      premise.authority.bootstrapValidations.forEach { alternatives ->
         require(alternatives.any(::holds)) {
           "game premise fails bootstrap validation: ${alternatives.joinToString(" OR ")}"
         }

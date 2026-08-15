@@ -29,7 +29,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun compiledByOwnerEffectsHaveResolvableOwnerBindings() {
-    val table = ClassLoader(Canon).loadEverything()
+    val table = Canon.classTable
     val transformers = Transformers(table)
     val compiledByOwnerEffects =
         table.allClasses().flatMap { mClass ->

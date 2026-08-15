@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.data.Player.Companion.ME
+import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptSession
@@ -104,7 +104,7 @@ internal class StinaScriptTest {
         .filter(String::isNotEmpty)
         .forEach(repl::command)
 
-    val p1 = repl.game.tfm(ME)
+    val p1 = repl.game.tfm(PLAYER1)
     p1.assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)
     p1.assertProduction(m = 2, s = 0, t = 1, p = 1, e = 9, h = 3)
     p1.assertCounts(

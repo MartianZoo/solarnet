@@ -62,13 +62,13 @@ foundational declarations into the generic kernel, or move `TurnLayer`, action-t
 translation, and these conventions under `tfm`. The current half-and-half placement is the
 problem.
 
-### Resolved: Runtime player identities are not tied to `Player1` through `Player5`
+### Resolved: Runtime player identities are canonical seats
 
-`GameConfig` keeps one to five concrete player class names in a separate seat-ordered list. Premise
-resolution substitutes those names throughout the runtime class catalog, and actor/owner recognition uses the actual
-`Player` type hierarchy rather than a spelling regex. The traditional constants remain convenient
-defaults, but workflows and clients discover the participating Actors from the world.
-Custom instructions use the same seat order through the game reader.
+`GameConfig` keeps one to five user-facing player names in a separate seat-ordered list. Premise
+resolution activates canonical `Player1` through `PlayerN` classes and Actors for those seats.
+Configured names are vocabulary aliases accepted in Pets input and used in Pets rendering; they do
+not create or rename Classes. Workflows and clients discover the participating canonical Actors
+from the world. Custom instructions use the same seat order through the game reader.
 
 ### P1: Terraforming Mars's `PROD[...]` extension is automatically installed by generic machinery
 

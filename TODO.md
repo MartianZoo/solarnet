@@ -95,7 +95,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
-- Delete or replace `ReluctantClassLoadingTest`'s exact cumulative card-count assertion; it is a
+- Delete or replace `ClassTableProjectionTest`'s exact cumulative card-count assertion; it is a
   pure content change detector and currently requires manual updates whenever a card is added.
 - Make class-literal parameters specialize inherited generic effects through a subclass, so solo
   resource helpers can share replenishment behavior without a holder/resource dependency cycle.

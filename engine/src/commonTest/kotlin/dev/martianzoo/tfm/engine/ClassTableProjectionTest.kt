@@ -13,8 +13,8 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldContainExactly
 import kotlin.test.Test
 
-/** Verifies reluctant class loading and characterizes known unwanted loading. */
-internal class ReluctantClassLoadingTest {
+/** Verifies which classes are active in game-specific class-table projections. */
+internal class ClassTableProjectionTest {
   // Deliberate expansion-specific omissions
 
   // Stop deleting this test when cards are added; update the expected totals instead.
@@ -40,7 +40,7 @@ internal class ReluctantClassLoadingTest {
           GameConfig.create(
               included = selected + colonyTiles,
               excluded = if (corporateEra in selected) emptySet() else setOf(corporateEra),
-              playerClassNames = listOf(cn("Player1"), cn("Player2")),
+              playerNames = listOf(cn("Player1"), cn("Player2")),
           )
       totals[label] =
           Engine.newGame(Canon.gamePremise(config)).gameplay(ENGINE).count("Class<CardFront>")

@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
  * Unresolved user intent expressed as positive and negative class-name spellings, plus concrete
- * player class names in seat order.
+ * user-facing player names in seat order.
  *
  * An Authority applies defaults, implications, selection policies, and validation to cook this into
  * a complete [GamePremise].
@@ -13,15 +13,15 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 public data class GameConfig(
     public val includedClassNames: Set<ClassName>,
     public val excludedClassNames: Set<ClassName> = emptySet(),
-    public val playerClassNames: List<ClassName> = emptyList(),
+    public val playerNames: List<ClassName> = emptyList(),
 ) {
   init {
-    require(playerClassNames.distinct().size == playerClassNames.size) {
-      "a game configuration cannot seat the same player class more than once"
+    require(playerNames.distinct().size == playerNames.size) {
+      "a game configuration cannot seat the same player name more than once"
     }
     require(
         includedClassNames.intersect(excludedClassNames).isEmpty() &&
-            playerClassNames.none { it in includedClassNames || it in excludedClassNames }
+            playerNames.none { it in includedClassNames || it in excludedClassNames }
     ) {
       "a game configuration cannot include and exclude the same class"
     }
@@ -29,13 +29,13 @@ public data class GameConfig(
 
   private constructor(
       parsed: Pair<Set<ClassName>, Set<ClassName>>,
-      playerClassNames: List<ClassName>,
-  ) : this(parsed.first, parsed.second, playerClassNames)
+      playerNames: List<ClassName>,
+  ) : this(parsed.first, parsed.second, playerNames)
 
   public constructor(
       source: String,
-      vararg playerClassNames: String,
-  ) : this(parse(source), playerClassNames.map(::cn))
+      vararg playerNames: String,
+  ) : this(parse(source), playerNames.map(::cn))
 
   override fun toString(): String =
       (includedClassNames.map { "$it" } + excludedClassNames.map { "-$it" }).joinToString()
@@ -45,10 +45,10 @@ public data class GameConfig(
     public fun create(
         included: Iterable<ClassName>,
         excluded: Iterable<ClassName> = emptyList(),
-        playerClassNames: Iterable<ClassName> = emptyList(),
+        playerNames: Iterable<ClassName> = emptyList(),
     ): GameConfig {
       val (includedNames, excludedNames) = toSets(included.toList(), excluded.toList())
-      return GameConfig(includedNames, excludedNames, playerClassNames.toList())
+      return GameConfig(includedNames, excludedNames, playerNames.toList())
     }
 
     private fun parse(source: String): Pair<Set<ClassName>, Set<ClassName>> {

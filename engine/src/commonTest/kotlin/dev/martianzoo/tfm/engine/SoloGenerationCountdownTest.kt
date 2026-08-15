@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.ME
+import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestOption.*
@@ -66,7 +66,7 @@ internal class SoloGenerationCountdownTest {
   fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
     val game = setUpGame(Tr63SoloVariant, players = 1)
     val engine = game.tfm(ENGINE)
-    val player = game.tfm(ME)
+    val player = game.tfm(PLAYER1)
     finishNeutralSetup(engine)
 
     player.count("Tr63SoloVariant") shouldBe 1
@@ -88,7 +88,7 @@ internal class SoloGenerationCountdownTest {
   fun tr63SoloWithVenusDoesNotWinFromCompletedGlobalParametersBelow63Tr() {
     val game = setUpGame(VenusNextExpansion, Tr63SoloVariant, players = 1)
     val engine = game.tfm(ENGINE)
-    val player = game.tfm(ME)
+    val player = game.tfm(PLAYER1)
     finishNeutralSetup(engine)
 
     player.count("StandardSoloVariant") shouldBe 0

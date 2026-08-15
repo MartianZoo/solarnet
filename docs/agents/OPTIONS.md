@@ -23,11 +23,11 @@ Almost every operation uses exactly one Authority. An Authority may be assembled
 
 The reusable API exposes `Authority`. `TfmAuthority` extends it with typed registries for cards, milestones, awards, maps, standard actions, and colony tiles. Generic class loading and engine operation depend only on `Authority`.
 
-## One universal class catalog
+## One master class table
 
 Within one Authority, every Class Name has exactly one Declaration and one meaning. Identical Declarations from separate providers coalesce; differing Declarations for the same Class Name are an error. A replacement has its own Class Name, and the replaced Definition remains known but can be inactive. The published Deimos Down Definitions are therefore `Card039` and `CardX31`.
 
-The complete Authority catalog must load and validate together. Each playable game receives a projection of that catalog: selected Classes are active and every other Authority-known Class is present as a behaviorless phantom. Rule Class versus Content Class records declaration provenance only; Class Loading erases that distinction. No game projection obtains Declarations or behavior from another provider.
+The complete Authority catalog loads and validates once as the Authority's master `ClassTable`. Each playable game receives a projection backed by that table: selected Classes are active and every other Authority-known Class is present as a behaviorless phantom. Projections reuse the master's compiled hierarchy rather than loading an independent class universe. Rule Class versus Content Class records declaration provenance only; Class Loading erases that distinction. No game projection obtains Declarations or behavior from another provider.
 
 The universal catalog is a schema, not a playable Game World. It is not instantiated because doing so would create mutually exclusive maps, modes, and alternative Singleton Components together.
 
@@ -43,14 +43,15 @@ A `GamePremise` is the complete immutable input needed to construct equivalent p
 
 1. one Authority;
 2. the selected Module class names;
-3. signed selections for other individual classes;
-4. exact concrete non-singleton types for which initialization creates one instance each.
+3. signed selections for other individual Authority classes;
+4. user-facing player names in seat order;
+5. exact concrete non-singleton types for which initialization creates one instance each.
 
-Actors derive from positively selected player classes plus the administrative Engine actor. Active and phantom classes derive from the Authority, Modules, and signed selections. Initial state is not an unrestricted list of Pets instructions.
+The projection activates `Player1` through `PlayerN` for the occupied seats; Players are not ordinary signed class selections. Those canonical names remain the runtime class and Actor identities. Configured player names are vocabulary aliases, accepted as input and used when rendering Pets, just like friendly names for cards. Active and phantom Authority classes derive from the Modules and signed selections. Initial state is not an unrestricted list of Pets instructions.
 
 Availability and initial existence are separate. With Colonies active, all eligible colony-tile classes are active so later effects can select them, while setup creates only the chosen starting tile components. An eligible but initially unchosen tile has count zero.
 
-`GameConfig` is the unresolved expression of user intent. Its included and excluded class-name sets have no ordering semantics, while player class names are a separate seat-ordered list. Defaults, implications, selection policies, and validation convert it into a `GamePremise`. The Terraforming Mars resolver requires one to five player names and accepts Modules and signed individual classes from the ordinary configuration. Unambiguous English Pets names for structured definitions are accepted alongside canonical names. Mentioning any milestones or awards selects the exact named pool for that category; selected colony tiles additionally become initial components.
+`GameConfig` is the unresolved expression of user intent. Its included and excluded class-name sets have no ordering semantics, while player names are a separate seat-ordered list. Defaults, implications, selection policies, and validation convert it into a `GamePremise`. The Terraforming Mars resolver requires one to five player names and accepts Modules and signed individual classes from the ordinary configuration. Unambiguous English Pets names for structured definitions are accepted alongside canonical names. Mentioning any milestones or awards selects the exact named pool for that category; selected colony tiles additionally become initial components.
 
 Configuration defaults belong to the Authority's premise-resolution process, not to clients or
 test helpers. They are evaluated against explicit inclusions: naming a competing choice suppresses
@@ -66,9 +67,9 @@ Bundle provenance normally has no semantic effect. The one deliberate selection 
 
 - A game and almost every related operation use exactly one Authority.
 - Every Class Name has one meaning within an Authority; identical Declarations coalesce and differing Declarations are invalid.
-- The complete Authority class catalog loads and validates together.
-- Every game table is a projection of that catalog, with inactive known classes represented as phantoms.
-- A premise contains only the Authority, Modules, signed individual class selections, and exact initial concrete non-singleton types.
+- Each Authority owns one complete, validated master class table.
+- Every game table is backed by that master, with inactive known classes represented as phantoms.
+- A premise contains only the Authority, Modules, signed individual class selections, seated player names, and exact initial concrete non-singleton types.
 - Bundles affect organization except for a Module's explicit bundle-wide category selections.
 - Eligible class availability and initial component existence are separate facts.
 - Structural activation cannot select an unrequested Module or defeat an exclusion.

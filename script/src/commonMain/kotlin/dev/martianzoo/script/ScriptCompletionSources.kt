@@ -12,7 +12,9 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
     val players = repl.game.actors.filterIsInstance<Player>()
     val eligiblePlayers = if (includeEngine) players + ENGINE else players
-    return eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
+    return eligiblePlayers.map {
+      ScriptCompletion(repl.game.vocabulary.petsName(it.className).toString(), "players")
+    }
   }
 
   fun classNames(): List<ScriptCompletion> =

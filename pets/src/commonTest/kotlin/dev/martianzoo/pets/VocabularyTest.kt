@@ -52,6 +52,21 @@ internal class VocabularyTest {
   }
 
   @Test
+  fun explicitPetsNamesAreAliasesForCanonicalClasses() {
+    val vocabulary =
+        Vocabulary.create(
+            setOf(cn("Player1")),
+            emptyMap(),
+            derivedPetsNameClassNames = emptySet(),
+            petsNameAliases = mapOf(cn("Player1") to cn("Mom")),
+        )
+
+    vocabulary.canonicalName(cn("Mom")) shouldBe cn("Player1")
+    vocabulary.displayName(cn("Player1")) shouldBe "Mom"
+    vocabulary.renderPets(parse<Expression>("Player1")) shouldBe "Mom"
+  }
+
+  @Test
   fun collisionsAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(

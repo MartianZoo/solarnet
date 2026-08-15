@@ -1,5 +1,6 @@
 package dev.martianzoo.pets
 
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Authority
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent
@@ -27,6 +28,9 @@ private constructor(
   /** Returns the localized identifier used when rendering Pets source. */
   public fun petsName(name: ClassName): ClassName = petsNames[name] ?: name
 
+  /** Returns the localized Pets name for [actor]. */
+  public fun petsName(actor: Actor): ClassName = petsName(actor.className)
+
   /** Rewrites every recognized input name in [node] to its stable canonical name. */
   public fun <P : PetNode> canonicalize(node: P): P = canonicalizer.transform(node)
 
@@ -52,7 +56,7 @@ private constructor(
         is GameEvent.TaskEditedEvent -> renderTaskEvent(event, "+") + " FROM Task${event.task.id}"
         is ChangeEvent ->
             buildString {
-              append("${event.ordinal}: ${renderPets(event.change)} BY ${event.actor}")
+              append("${event.ordinal}: ${renderPets(event.change)} BY ${petsName(event.actor)}")
               append(
                   event.cause?.let {
                     " VIA ${renderPets(it.context)} BECAUSE ${it.triggerEvent}"
@@ -68,7 +72,7 @@ private constructor(
   ): String = buildString {
     if (displayId != null) append(displayId)
     append(if (task.next) "* " else if (displayId != null) "  " else "")
-    append("[${task.assignee}] ")
+    append("[${petsName(task.assignee)}] ")
     append(renderPets(task.instruction))
     task.then?.let { append(" (THEN ${renderPets(it)})") }
     task.whyPending?.let { append(" ($it)") }
@@ -94,15 +98,23 @@ private constructor(
         locale: String = ENGLISH,
         inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
         activeClassNames: Set<ClassName>,
-    ): Vocabulary =
-        create(
-            canonicalNames = authority.allClassNames,
-            displayNamesByLanguage = authority.displayNamesByLanguage,
-            derivedPetsNameClassNames =
-                authority.derivedPetsNameClassNames intersect activeClassNames,
-            locale = locale,
-            inputOnlySynonyms = inputOnlySynonyms,
-        )
+        petsNameAliases: Map<ClassName, ClassName> = emptyMap(),
+    ): Vocabulary {
+      val canonicalByAlias =
+          petsNameAliases.entries.associate { (canonical, alias) -> alias to canonical }
+      return create(
+          canonicalNames = authority.allClassNames,
+          displayNamesByLanguage = authority.displayNamesByLanguage,
+          derivedPetsNameClassNames =
+              authority.derivedPetsNameClassNames intersect activeClassNames,
+          locale = locale,
+          inputOnlySynonyms =
+              inputOnlySynonyms.map { (synonym, target) ->
+                synonym to (canonicalByAlias[cn(target)] ?: cn(target)).toString()
+              },
+          petsNameAliases = petsNameAliases,
+      )
+    }
 
     /** Builds a vocabulary directly; useful for clients assembling their own class catalog. */
     public fun create(
@@ -111,6 +123,7 @@ private constructor(
         derivedPetsNameClassNames: Set<ClassName> = canonicalNames,
         locale: String = ENGLISH,
         inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
+        petsNameAliases: Map<ClassName, ClassName> = emptyMap(),
     ): Vocabulary {
       val normalizedInputOnlySynonymPairs = inputOnlySynonyms.map { (synonym, canonical) ->
         cn(synonym) to cn(canonical)
@@ -141,6 +154,12 @@ private constructor(
                 put(canonical, it)
               }
         }
+        petsNameAliases.forEach { (canonical, petsName) ->
+          require(canonical in canonicalNames) {
+            "Pets-name alias $petsName targets unknown class $canonical"
+          }
+          put(canonical, petsName.toString())
+        }
       }
       require(canonicalNames.containsAll(derivedPetsNameClassNames)) {
         "Pets-name derivation requested for unknown classes: ${derivedPetsNameClassNames - canonicalNames}"
@@ -149,10 +168,12 @@ private constructor(
       require(missingDisplayNames.isEmpty()) {
         "No localized or English display name for structured classes: $missingDisplayNames"
       }
-      val effectivePetsNames =
-          effectiveDisplayNames
-              .filterKeys { it in derivedPetsNameClassNames }
-              .mapValues { (_, displayName) -> petsClassName(displayName) }
+      val effectivePetsNames = buildMap {
+        effectiveDisplayNames
+            .filterKeys { it in derivedPetsNameClassNames }
+            .mapValuesTo(this) { (_, displayName) -> petsClassName(displayName) }
+        putAll(petsNameAliases)
+      }
 
       val inputOwners = mutableMapOf<ClassName, ClassName>()
       fun register(

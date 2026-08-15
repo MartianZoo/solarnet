@@ -24,6 +24,7 @@ import dev.martianzoo.types.ClassTable
 public interface World {
   /** Every Actor participating in this world, with seated Players in seat order. */
   public val actors: List<Actor>
+    get() = reader.actors
 
   /** The current component graph. */
   public val components: ComponentGraph

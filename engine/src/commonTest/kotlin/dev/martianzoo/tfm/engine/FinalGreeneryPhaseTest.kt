@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
@@ -58,7 +57,7 @@ internal class FinalGreeneryPhaseTest {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(ME)
+    val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -85,7 +84,7 @@ internal class FinalGreeneryPhaseTest {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(ME)
+    val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -114,7 +113,7 @@ internal class FinalGreeneryPhaseTest {
     val setup = canonicalPremise(VenusNextExpansion, players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(ME)
+    val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")

@@ -87,7 +87,7 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun shortPlayerNamesAreRealConfiguredClasses() {
+  fun shortPlayerNamesAliasCanonicalPlayerClasses() {
     val repl = ScriptSession()
 
     assertEquals(
@@ -95,7 +95,7 @@ internal class ScriptSessionTest {
         repl.command("newgame \"TerraformingMars\" P1 P2"),
     )
     assertEquals(listOf("Hi, P1"), repl.command("become P1"))
-    assertEquals("P1", repl.gameplay.actor.toString())
+    assertEquals("Player1", repl.gameplay.actor.toString())
     assertEquals(listOf("Hi, P2"), repl.command("become P2"))
   }
 

@@ -5,7 +5,6 @@ import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Transformers
@@ -82,8 +81,8 @@ internal fun canonicalPremise(
               options.map(TestOption::className) +
                   colonyTiles.map(TEST_ENGLISH_VOCABULARY::canonicalName),
           excluded = excludedOptions.map(TestOption::className),
-          playerClassNames =
-              if (players == 1) listOf(ME.className) else (1..players).map { cn("Player$it") },
+          playerNames =
+              if (players == 1) listOf(cn("Me")) else (1..players).map { cn("Player$it") },
       )
   val base = Canon.gamePremise(config)
   if (authority == null) return base

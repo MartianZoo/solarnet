@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -37,8 +36,8 @@ class Game20260809Test : AbstractFullGameTest() {
   @Test
   fun game20260809() {
     TfmWorkflow.Auto(game).launch()
-    val ellie = game.tfm(Player(cn("Ellie")))
-    val dad = game.tfm(Player(cn("Dad")))
+    val ellie = game.tfm(Player.PLAYER1)
+    val dad = game.tfm(Player.PLAYER2)
     // "Miranda and Enceladus are currently out of play."
     engine.assertCounts(3 to "ColonyTile", 2 to "DelayedColonyTile")
 

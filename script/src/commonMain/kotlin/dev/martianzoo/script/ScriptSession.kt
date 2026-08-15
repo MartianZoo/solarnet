@@ -7,7 +7,6 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
-import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
@@ -147,7 +146,7 @@ public class ScriptSession(
       with(gameplay) {
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
-        "$optionCodes $phase ${gameplay.actor}/$playerCount @$checkpoint> "
+        "$optionCodes $phase ${game.vocabulary.petsName(gameplay.actor)}/$playerCount @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -304,7 +303,8 @@ public class ScriptSession(
   internal fun player(name: String): Player {
     // In case a configured synonym or definition id was used
     val type: Type = gameplay.resolve(name)
-    return Player.fromType(type) ?: throw UsageException("not a participating Player: $name")
+    return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
+        ?: throw UsageException("not a participating Player: $name")
   }
 
   internal fun canonicalColonyName(name: String): ClassName =
@@ -328,8 +328,8 @@ internal fun createGame(
       GameConfig.create(
           included = setup.options + setup.selectedColonies,
           excluded = setup.excludedOptions,
-          playerClassNames =
-              if (setup.players == 1) listOf(ME.className)
+          playerNames =
+              if (setup.players == 1) listOf(cn("Me"))
               else (1..setup.players).map { cn("Player$it") },
       )
   return Engine.newGame(

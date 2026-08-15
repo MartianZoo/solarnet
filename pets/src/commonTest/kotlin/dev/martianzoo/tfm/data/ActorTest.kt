@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.Owner
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
@@ -13,9 +15,15 @@ import kotlin.test.Test
 internal class ActorTest {
   @Test
   fun actorOwnerAndPlayerRolesAreDistinct() {
+    val player: Actor = PLAYER1
     Player.players(2).shouldContainExactly(PLAYER1, PLAYER2)
-    Player(cn("Ellie")).className shouldBe cn("Ellie")
+    (player is Owner) shouldBe true
+    Player(cn("Player1")).className shouldBe cn("Player1")
+    Player.isValid(cn("Player5")) shouldBe true
+    Player.isValid("Player6") shouldBe false
+    assertFails { Player(cn("Ellie")) }
     (ENGINE is Player) shouldBe false
+    (ENGINE is Owner) shouldBe false
     assertFails { Player(cn("Engine")) }
   }
 }
