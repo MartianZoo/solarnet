@@ -25,7 +25,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ### Soon
 
 - Use [`docs/agents/SEQUENCING.md`](docs/agents/SEQUENCING.md) to audit and normalize real A-before-B rules; next settle the action-marker/Viron tension and the mixed automatic/queued phase triggers, and keep the verdict buckets current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and descendant-completion semantics.
-- Implement Pluto's individual colony bonus as mandatory draw-then-discard, preserving the order without making the discard an independently available task; test an initially empty hand and observation of intermediate hand state.
 - Confirm whether each Mars University discard-to-draw activation is indivisible, then replace the two-discards-first characterization if the official rule permits ordering only whole effects.
 - Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game fixtures.
 - Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game fixture to decline one action early.
@@ -35,12 +34,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
-- Audit callers of `GameReader.getComponents()` for queries that should count a `Metric` instead, so custom metrics are not silently omitted.
 - During preparation, allow a satisfied gate with an inner `Ok` to reduce to `Ok`; context-free narrowing must preserve the gate.
 - Unify `OR` semantics and construction across AST families: reject duplicate authored arms; let programmatic factories deduplicate in first-occurrence order; preserve significant trigger order; and reconcile `Metric.Or` syntax with execution ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
 - [#30: Task refinement](https://github.com/MartianZoo/solarnet/issues/30) — Narrow tasks without repeating the full instruction.
 - Determine whether gated preparation's loss of `<Anyone>` is harmless canonicalization or an invalid target; document or test the result.
-- Restore colors to the interactive REPL while keeping ordinary noninteractive output plain.
 - Stop nested bounds in sibling branches of one `<...>` list from linking, so a declaration like `Adjacency<Tile<MarsArea>, Tile<MarsArea>>`, or one repeating the same class literal in two slots, resolves with differing arguments; only a class's own repeated writing of a bound at distinct positions of the same inherited dependency should link, and the shared `Class_0` key makes the class-literal case easy to miss (`docs/agents/TYPES.md` §12.1).
 - Tighten complement narrowing so a candidate whose relevant dependency is still abstract is rejected; `SpaceTag` counts as narrowing `SpaceTag<!Player1>` today even though it admits `SpaceTag<Player1>` (`docs/agents/TYPES.md` §12.2).
 - Give Class headers the same Type-variable recognition every other scope uses, so a repeated bound carrying arguments, a Refinement, or a `!` binds as a unit rather than only its innermost bare Class Names, and so only abstract occurrences bind; the same shared mechanism should subsume the sibling-branch fix above (`docs/agents/TYPES.md` §12.3, §12.1).
