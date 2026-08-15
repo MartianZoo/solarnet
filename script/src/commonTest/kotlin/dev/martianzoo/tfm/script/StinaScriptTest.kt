@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.script.ScriptSession
@@ -16,7 +16,7 @@ internal class StinaScriptTest {
     val script =
         """
         // Stina's Saturn Systems solo game
-        newgame "TerraformingMars, CorporateEraExpansion, ElysiumMapOption, PreludeExpansion" Player1 purple
+        newgame "TerraformingMars, CorporateEraExpansion, ElysiumMapOption, PreludeExpansion" Me purple
 
         // Neutral tiles for solo setup
         task CityTile<Elysium_5_6, SoloOpponent>
@@ -24,7 +24,7 @@ internal class StinaScriptTest {
         task CityTile<Elysium_7_7, SoloOpponent>
         task GreeneryTile<Elysium_7_6, SoloOpponent>
 
-        become Player1
+        become Me
 
         tfm_play SaturnSystems
         task 10 BuyCard
@@ -43,7 +43,7 @@ internal class StinaScriptTest {
         tfm_play EarthCatapult, 12
 
         tfm_play HiredRaiders
-        task 2 Steel<Player1> FROM Steel<SoloOpponent>
+        task 2 Steel<Me> FROM Steel<SoloOpponent>
         task Ok
 
         tfm_play OlympusConference, 2 Steel, 1
@@ -104,7 +104,7 @@ internal class StinaScriptTest {
         .filter(String::isNotEmpty)
         .forEach(repl::command)
 
-    val p1 = repl.game.tfm(PLAYER1)
+    val p1 = repl.game.tfm(ME)
     p1.assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)
     p1.assertProduction(m = 2, s = 0, t = 1, p = 1, e = 9, h = 3)
     p1.assertCounts(

@@ -66,8 +66,9 @@ of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impo
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Authority-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMapOption`; the parser already trims each
-entry, so these literals do not need `trimIndent()`. The raw-configuration overload in `CardTest`
-uses the same resolution path.
+entry, so these literals do not need `trimIndent()`. Solo fixtures conventionally name their one
+player `Me` and use `Player.ME` in Kotlin. The raw-configuration overload in `CardTest` uses the same
+resolution path.
 
 `CardTest` and the full-game fixtures provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped

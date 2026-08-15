@@ -10,13 +10,13 @@ internal class TfmPlayCommandTest {
     val repl = ScriptSession()
     repl.command(
         "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMapOption, " +
-            "PreludeExpansion\" Player1 purple"
+            "PreludeExpansion\" Me purple"
     )
     repl.command("task CityTile<Elysium_5_6, SoloOpponent>")
     repl.command("task GreeneryTile<Elysium_5_5, SoloOpponent>")
     repl.command("task CityTile<Elysium_7_7, SoloOpponent>")
     repl.command("task GreeneryTile<Elysium_7_6, SoloOpponent>")
-    repl.command("become Player1")
+    repl.command("become Me")
     repl.command("tfm_play SaturnSystems")
     repl.command("task 10 BuyCard")
     repl.command("tfm_play Biolab")
@@ -25,7 +25,7 @@ internal class TfmPlayCommandTest {
     repl.command("tfm_play EarthOffice, 1")
 
     assertEquals(1, repl.gameplay.count("ActionPhase"))
-    assertEquals(1, repl.gameplay.count("EarthOffice<Player1>"))
+    assertEquals(1, repl.gameplay.count("EarthOffice<Me>"))
   }
 
   @Test

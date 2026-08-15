@@ -7,6 +7,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
@@ -327,7 +328,9 @@ internal fun createGame(
       GameConfig.create(
           included = setup.options + setup.selectedColonies,
           excluded = setup.excludedOptions,
-          playerClassNames = (1..setup.players).map { cn("Player$it") },
+          playerClassNames =
+              if (setup.players == 1) listOf(ME.className)
+              else (1..setup.players).map { cn("Player$it") },
       )
   return Engine.newGame(
       Canon.gamePremise(config),

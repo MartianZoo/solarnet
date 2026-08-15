@@ -2,7 +2,7 @@ package dev.martianzoo.benchmarks
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
@@ -39,11 +39,11 @@ public open class BusyPreludePhaseBenchmark {
                     "TerraformingMars, TharsisMapOption, PreludeExpansion, " +
                         "ColoniesExpansion, PromoCardPack, ColonyTile01, ColonyTile05, " +
                         "ColonyTile07",
-                    "Player1",
+                    "Me",
                 )
             )
         )
-    me = game.tfm(PLAYER1)
+    me = game.tfm(ME)
     val engine = game.tfm(ENGINE)
     workflow = TfmWorkflow.Manual(game)
 

@@ -31,6 +31,7 @@ public data class Player(override val className: ClassName) : Actor, Owner {
   public companion object {
     private val defaultRegex = Regex("^Player[1-5]$")
 
+    public val ME: Player = Player(cn("Me"))
     public val PLAYER1: Player = Player(player(1))
     public val PLAYER2: Player = Player(player(2))
     public val PLAYER3: Player = Player(player(3))

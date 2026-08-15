@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
@@ -57,7 +58,7 @@ internal class FinalGreeneryPhaseTest {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.tfm(ME)
     val workflow = TfmWorkflow.Auto(game).launch()
 
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -71,7 +72,7 @@ internal class FinalGreeneryPhaseTest {
 
     engine.count("FinalGreeneryPhase") shouldBe 0
     engine.count("EndPhase") shouldBe 0
-    engine.count("Victory<Player1>") shouldBe 0
+    engine.count("Victory<Me>") shouldBe 0
     engine.count("TemperatureStep") shouldBe 0
     engine.count("OxygenStep") shouldBe 0
     engine.count("OceanTile") shouldBe 0
@@ -84,7 +85,7 @@ internal class FinalGreeneryPhaseTest {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.tfm(ME)
     val workflow = TfmWorkflow.Auto(game).launch()
 
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -103,7 +104,7 @@ internal class FinalGreeneryPhaseTest {
 
     p1.pass()
 
-    engine.count("Victory<Player1>") shouldBe 1
+    engine.count("Victory<Me>") shouldBe 1
     engine.count("FinalGreeneryPhase") shouldBe 1
     workflow.shutdown()
   }
@@ -113,7 +114,7 @@ internal class FinalGreeneryPhaseTest {
     val setup = canonicalPremise(VenusNextExpansion, players = 1)
     val game = Engine.newGame(setup)
     val engine = game.tfm(ENGINE)
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.tfm(ME)
     val workflow = TfmWorkflow.Auto(game).launch()
 
     engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -134,7 +135,7 @@ internal class FinalGreeneryPhaseTest {
 
     engine.count("FinalGreeneryPhase") shouldBe 0
     engine.count("EndPhase") shouldBe 0
-    engine.count("Victory<Player1>") shouldBe 0
+    engine.count("Victory<Me>") shouldBe 0
     workflow.isRunning shouldBe false
     workflow.shutdown()
   }

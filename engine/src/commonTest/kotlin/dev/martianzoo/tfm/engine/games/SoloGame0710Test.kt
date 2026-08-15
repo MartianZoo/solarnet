@@ -15,7 +15,7 @@ class SoloGame0710Test : AbstractSoloTest() {
           Tr63SoloVariant
           Callisto, Ganymede, Luna
           """,
-          "Player1",
+          "Me",
       )
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"
@@ -258,14 +258,14 @@ class SoloGame0710Test : AbstractSoloTest() {
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")
-      sum.net("GreeneryTile", "VictoryPoint<Player1>") shouldBe 9
-      sum.net("CityTile", "VictoryPoint<Player1>") shouldBe 24
-      sum.net("Card", "VictoryPoint<Player1>") shouldBe 18
+      sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 9
+      sum.net("CityTile", "VictoryPoint<Me>") shouldBe 24
+      sum.net("Card", "VictoryPoint<Me>") shouldBe 18
       assertCounts(121 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
       // Head Start's two actions occur during Prelude; the source UI says 106.
-      sum.net("ActionPhase", "UseAction<Player1>") shouldBe 92
+      sum.net("ActionPhase", "UseAction<Me>") shouldBe 92
     }
   }
 }

@@ -26,7 +26,7 @@ class SoloGame0611Test : AbstractSoloTest() {
           VenusNextExpansion, PreludeExpansion, PromoCardPack, Tr63SoloVariant
           -WorldGovernmentOption
           """,
-          "Player1",
+          "Me",
       )
 
   @Test
@@ -114,8 +114,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements).expect("ProjectCard")
       cardAction2(RegolithEaters).expect("OxygenStep, TR")
       playProject("FueledGenerators", 1)
-      playProject("EnergyTapping", 3) { doTask("PROD[-E<SoloOpponent>]") }
-          .expect("PROD[E<Player1>]")
+      playProject("EnergyTapping", 3) { doTask("PROD[-E<SoloOpponent>]") }.expect("PROD[E<Me>]")
       playProject("MagneticShield", 9, titanium = 5).expect("4 TR")
       cardAction1(ForcedPrecipitation)
 

@@ -171,8 +171,8 @@ internal class ReluctantClassLoadingTest {
 
   private companion object {
     val baseMultiplayer = projection("", "Player1", "Player2")
-    val baseSolo = projection("", "Player1")
-    val preludeSolo = projection("PreludeExpansion", "Player1")
+    val baseSolo = projection("", "Me")
+    val preludeSolo = projection("PreludeExpansion", "Me")
     val withoutCorporateEra = projection("-CorporateEraExpansion", "Player1", "Player2")
     val promosUtopiaWithoutCorporateEra =
         projection(

@@ -31,7 +31,7 @@ class StartTokenTest {
   }
 
   @Test
-  fun staysWithPlayer1InAnActualOnePlayerSetup() {
+  fun staysWithMeInAnActualOnePlayerSetup() {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
 
@@ -41,7 +41,7 @@ class StartTokenTest {
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.godMode().manual("Generation")
 
-    engine.assertCounts(1 to "StartToken<Player1>")
+    engine.assertCounts(1 to "StartToken<Me>")
   }
 
   @Test

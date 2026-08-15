@@ -8,6 +8,7 @@ import dev.martianzoo.api.SystemClasses.HIDDEN
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.PLAYER
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
@@ -124,24 +125,24 @@ internal class CanonClassesTest {
   @Test
   fun soloSetupUsesPetsOnlyOpponent() {
     val premise = canonicalPremise(players = 1)
-    premise.actors.shouldContainExactly(PLAYER1, ENGINE)
+    premise.actors.shouldContainExactly(ME, ENGINE)
     val game = setUpGame(premise)
     game.classTable.allClassNames.shouldNotContain(cn("Player2"))
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("StandardSoloVariant"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
-    game.gameplay(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
+    game.gameplay(ME).count("TerraformRating<Me>") shouldBe 14
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 11
-      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 11
+      game.gameplay(ME).count("$it<SoloOpponent>") shouldBe 11
+      game.gameplay(ME).count("PROD[$it<SoloOpponent>]") shouldBe 11
     }
-    game.gameplay(PLAYER1).count("FakeResourceGiver<SoloOpponent>") shouldBe
-        game.gameplay(PLAYER1).count("Class<StandardResource>")
-    game.gameplay(PLAYER1).count("FakeResourceHolder<SoloOpponent>") shouldBe
-        game.gameplay(PLAYER1).count("Class<CardResource>")
-    game.gameplay(PLAYER1).count("FakeResourceHolder<SoloOpponent, Class<Animal>>") shouldBe 1
+    game.gameplay(ME).count("FakeResourceGiver<SoloOpponent>") shouldBe
+        game.gameplay(ME).count("Class<StandardResource>")
+    game.gameplay(ME).count("FakeResourceHolder<SoloOpponent>") shouldBe
+        game.gameplay(ME).count("Class<CardResource>")
+    game.gameplay(ME).count("FakeResourceHolder<SoloOpponent, Class<Animal>>") shouldBe 1
     game
-        .gameplay(PLAYER1)
+        .gameplay(ME)
         .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 11
     val fakeHolder = game.classTable.getClass(cn("FakeResourceHolder"))
     fakeHolder.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
@@ -154,10 +155,10 @@ internal class CanonClassesTest {
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.manual("OceanTile<Tharsis_1_2>")
-    game.gameplay(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
-    game.gameplay(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
+    game.gameplay(ME).count("CityTile<SoloOpponent>") shouldBe 2
+    game.gameplay(ME).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
-    val player = game.gameplay(PLAYER1).godMode()
+    val player = game.gameplay(ME).godMode()
     player.manual("-5 Plant<SoloOpponent>")
     player.manual("PROD[-5 Plant<SoloOpponent>]")
     player.manual("5 Plant<SoloOpponent>")
@@ -165,16 +166,16 @@ internal class CanonClassesTest {
     player.manual("-5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
     player.manual("5 Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>")
     listOf("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.gameplay(PLAYER1).count("$it<SoloOpponent>") shouldBe 11
-      game.gameplay(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 11
-      game.gameplay(PLAYER1).count("$it<Player1>") shouldBe 0
+      game.gameplay(ME).count("$it<SoloOpponent>") shouldBe 11
+      game.gameplay(ME).count("PROD[$it<SoloOpponent>]") shouldBe 11
+      game.gameplay(ME).count("$it<Me>") shouldBe 0
     }
     game
-        .gameplay(PLAYER1)
+        .gameplay(ME)
         .count("Animal<SoloOpponent, FakeResourceHolder<SoloOpponent, Class<Animal>>>") shouldBe 11
 
     engine.manual("End")
-    game.gameplay(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
+    game.gameplay(ME).count("VictoryPoint<Me>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }
 

@@ -171,10 +171,10 @@ class MonsInsuranceTest : CardTest() {
     p1.manual("MonsInsurance, ProjectCard")
 
     p1.playProject("HiredRaiders", 1) {
-          doTask("3 Megacredit<Player1> FROM Megacredit<SoloOpponent>")
+          doTask("3 Megacredit<Me> FROM Megacredit<SoloOpponent>")
         }
-        .expect("-1 Megacredit<Player1>")
-    p1.manual("PROD[-2 Plant<SoloOpponent>]").expect("-3 Megacredit<Player1>")
+        .expect("-1 Megacredit<Me>")
+    p1.manual("PROD[-2 Plant<SoloOpponent>]").expect("-3 Megacredit<Me>")
   }
 
   @Test

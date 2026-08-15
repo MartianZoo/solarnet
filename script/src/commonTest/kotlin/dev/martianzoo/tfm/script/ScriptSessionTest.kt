@@ -156,7 +156,7 @@ internal class ScriptSessionTest {
         ),
         repl.command("newgame BRC 1 Ceres Io Titan purple"),
     )
-    repl.command("task -6 TerraformRating<Player1>")
+    repl.command("task -6 TerraformRating<Me>")
     assertEquals(
         2,
         repl.game.tasks.extract { it.instruction.toString() }.count { it.startsWith("CityTile") },

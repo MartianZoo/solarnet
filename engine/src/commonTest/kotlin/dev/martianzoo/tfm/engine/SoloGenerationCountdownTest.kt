@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.ME
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestOption.*
@@ -66,7 +66,7 @@ internal class SoloGenerationCountdownTest {
   fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
     val game = setUpGame(Tr63SoloVariant, players = 1)
     val engine = game.tfm(ENGINE)
-    val player = game.tfm(PLAYER1)
+    val player = game.tfm(ME)
     finishNeutralSetup(engine)
 
     player.count("Tr63SoloVariant") shouldBe 1
@@ -75,20 +75,20 @@ internal class SoloGenerationCountdownTest {
 
     player.godMode().manual("16 Megacredit")
     player.godMode().manual("UseAction1<BufferGasSP>")
-    player.count("Megacredit<Player1>") shouldBe 0
-    player.count("TerraformRating<Player1>") shouldBe 15
+    player.count("Megacredit<Me>") shouldBe 0
+    player.count("TerraformRating<Me>") shouldBe 15
 
     player.godMode().manual("48 TerraformRating")
     engine.godMode().manual("SoloVictoryCheck")
 
-    player.count("Victory<Player1>") shouldBe 1
+    player.count("Victory<Me>") shouldBe 1
   }
 
   @Test
   fun tr63SoloWithVenusDoesNotWinFromCompletedGlobalParametersBelow63Tr() {
     val game = setUpGame(VenusNextExpansion, Tr63SoloVariant, players = 1)
     val engine = game.tfm(ENGINE)
-    val player = game.tfm(PLAYER1)
+    val player = game.tfm(ME)
     finishNeutralSetup(engine)
 
     player.count("StandardSoloVariant") shouldBe 0
@@ -102,8 +102,8 @@ internal class SoloGenerationCountdownTest {
                 "GpComplete<Class<VenusStep>>, SoloVictoryCheck"
         )
 
-    player.count("TerraformRating<Player1>") shouldBe 14
-    player.count("Victory<Player1>") shouldBe 0
+    player.count("TerraformRating<Me>") shouldBe 14
+    player.count("Victory<Me>") shouldBe 0
   }
 
   private fun finishNeutralSetup(engine: TfmGameplay) {
