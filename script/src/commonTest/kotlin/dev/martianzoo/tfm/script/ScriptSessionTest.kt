@@ -22,7 +22,7 @@ internal class ScriptSessionTest {
     val repl = ScriptSession(useAnsiColors = true)
 
     assertTrue(repl.prompt().contains("\u001B["))
-    assertTrue(repl.command("tfm_board P1").any { it.contains("\u001B[") })
+    assertTrue(repl.command("tfm_board Player1").any { it.contains("\u001B[") })
     assertTrue(repl.command("tfm_map").any { it.contains("\u001B[") })
   }
 
@@ -73,17 +73,30 @@ internal class ScriptSessionTest {
     assertEquals(
         listOf(
             "New 2-player game created with config: " +
-                "Player1, Player2, MultiplayerMode, TerraformingMars, TharsisMapOption, " +
-                "VenusNextExpansion, -CorporateEraExpansion, -WorldGovernmentOption",
+                "MultiplayerMode, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
+                "-CorporateEraExpansion, -WorldGovernmentOption; players: Player1, Player2",
             "Purple mode: workflow active",
         ),
         repl.command(
-            "newgame \"Player1, Player2, MultiplayerMode, TerraformingMars, TharsisMapOption, " +
-                "VenusNextExpansion, -CorporateEraExpansion, -WorldGovernmentOption\" purple"
+            "newgame \"MultiplayerMode, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
+                "-CorporateEraExpansion, -WorldGovernmentOption\" Player1 Player2 purple"
         ),
     )
     assertEquals(listOf("0 WorldGovernmentOption"), repl.command("count WorldGovernmentOption"))
     assertEquals(listOf("1 CorporationPhase"), repl.command("count CorporationPhase"))
+  }
+
+  @Test
+  fun shortPlayerNamesAreRealConfiguredClasses() {
+    val repl = ScriptSession()
+
+    assertEquals(
+        listOf("New 2-player game created with config: TerraformingMars; players: P1, P2"),
+        repl.command("newgame \"TerraformingMars\" P1 P2"),
+    )
+    assertEquals(listOf("Hi, P1"), repl.command("become P1"))
+    assertEquals("P1", repl.gameplay.actor.toString())
+    assertEquals(listOf("Hi, P2"), repl.command("become P2"))
   }
 
   @Test
@@ -174,7 +187,7 @@ internal class ScriptSessionTest {
     command("newgame BRPX 3", "New 3-player game created with options: BRPX")
     command("tfm_sample A 3", "Okay, did that.")
     command(
-        "tfm_board P1",
+        "tfm_board Player1",
         """
           Player1   TR: 23   Tiles: 1
         +---------+---------+---------+
@@ -188,7 +201,7 @@ internal class ScriptSessionTest {
             .trimIndent(),
     )
     command("count CityTile", "1 CityTile<Owner>")
-    command("become P2", "Hi, Player2")
+    command("become Player2", "Hi, Player2")
     command("count CityTile", "0 CityTile<Player2>")
     command("count Resource", "24 Resource<Player2>")
     command("mode blue", "Mode BLUE: Turn integrity: must perform a valid game turn for this phase")
@@ -230,22 +243,22 @@ internal class ScriptSessionTest {
         """
         newgame BRVPX 2; mode blue; auto safe; phase Corporation
 
-        become P1; turn; tfm_play Manutech; task 5 BuyCard
-        become P2; turn; tfm_play Factorum; task 4 BuyCard
+        become Player1; turn; tfm_play Manutech; task 5 BuyCard
+        become Player2; turn; tfm_play Factorum; task 4 BuyCard
 
         phase Prelude
 
-        become P1
+        become Player1
         turn; tfm_play NewPartner; tfm_play UnmiContractor
         turn; tfm_play AlliedBank
 
-        become P2
+        become Player2
         turn; tfm_play AcquiredSpaceAgency
         turn; tfm_play IoResearchOutpost
 
         phase Action
 
-        become P1
+        become Player1
         turn; task UseAction1<PlayCardSA>; tfm_play InventorsGuild; tfm_pay 9
         """
             .trimIndent()

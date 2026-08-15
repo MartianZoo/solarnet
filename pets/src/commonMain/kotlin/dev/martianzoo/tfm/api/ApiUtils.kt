@@ -25,10 +25,8 @@ public object ApiUtils {
 
   /** Returns [getOwner], requiring that the component is owned by a seated [Player]. */
   public fun getPlayerOwner(game: GameReader, component: Type): Player =
-      getOwner(game, component).className.let {
-        if (Player.isValid(it)) Player(it)
-        else error("component is not owned by a Player: $component")
-      }
+      Player.fromType(getOwner(game, component))
+          ?: error("component is not owned by a Player: $component")
 
   /**
    * Returns a map with six entries, giving [player]'s current production levels, adjusting

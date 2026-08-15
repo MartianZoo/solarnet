@@ -46,7 +46,7 @@ public object Canon :
     if (included.intersect(mapOptions).isEmpty() && tharsisMapOption !in excluded) {
       included += tharsisMapOption
     }
-    return GameConfig(included, excluded)
+    return config.copy(includedClassNames = included)
   }
 
   private val terraformingMars: ClassName = cn("TerraformingMars")

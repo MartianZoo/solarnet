@@ -21,8 +21,9 @@ class EllieGameTest : AbstractFullGameTest() {
           """
           HellasMapOption
           PromoCardPack, PreludeExpansion
-          Player1, Player2
-          """
+          """,
+          "Player1",
+          "Player2",
       )
 
   @Test
@@ -34,7 +35,7 @@ class EllieGameTest : AbstractFullGameTest() {
     p2.playCorp("PharmacyUnion", 5)
 
     p1.turn {
-      playPrelude("UnmiContractor") // 3 TR<P1>
+      playPrelude("UnmiContractor") // 3 TR<Player1>
       playPrelude("CorporateArchives")
     }
     p2.turn {
@@ -42,36 +43,36 @@ class EllieGameTest : AbstractFullGameTest() {
       playPrelude("SocietySupport")
     }
 
-    // Generation 1 (P1 first)
+    // Generation 1 (Player1 first)
 
     p1.turn {
       playProject("MediaGroup", 6)
-      playProject("Sabotage", 1) { doTask("-7 M<P2>") }
+      playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
     }
     p2.turn {
-      playProject("Research", 11) // 1 VP<P2>, 2 TR<P2>
-      playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<P2>
+      playProject("Research", 11) // 1 VP<Player2>, 2 TR<Player2>
+      playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<Player2>
     }
     p1.pass()
     p2.turn {
       playProject("SearchForLife", 3) {
-        doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<P2>
+        doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<Player2>
       }
       cardAction1("SearchForLife") { doTask("Ok") } // no microbe
     }
     p2.pass()
 
-    // Generation 2 (P2 first)
+    // Generation 2 (Player2 first)
     p1.buyCards(1)
     p2.buyCards(3)
 
     p2.turn {
       sellPatents(1)
-      playProject("VestaShipyard", 15) // 1 VP<P2>
+      playProject("VestaShipyard", 15) // 1 VP<Player2>
     }
     p1.turn {
-      playProject("EarthCatapult", 23) // 2 VP<P1>
-      playProject("OlympusConference", steel = 4) // 1 VP<P1>
+      playProject("EarthCatapult", 23) // 2 VP<Player1>
+      playProject("OlympusConference", steel = 4) // 1 VP<Player1>
     }
     p2.pass()
 
@@ -80,13 +81,13 @@ class EllieGameTest : AbstractFullGameTest() {
         doTask("ProjectCard FROM Science<OlympusConference>")
       }
       playProject("GeothermalPower", 1, steel = 4)
-      playProject("MirandaResort", 10) // 1 VP<P1>
-      playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
+      playProject("MirandaResort", 10) // 1 VP<Player1>
+      playProject("Hackers", 1) { doTask("PROD[-2 M<Player2>]") } // -1 VP<Player1>
       playProject("MicroMills", 1)
     }
     p1.pass()
 
-    // Generation 3 (P1 first)
+    // Generation 3 (Player1 first)
     p1.buyCards(3)
     p2.buyCards(1)
 
@@ -94,7 +95,7 @@ class EllieGameTest : AbstractFullGameTest() {
       cardAction1("DevelopmentCenter")
       playProject("ImmigrantCity", 1, steel = 5) {
         doTask("CityTile<Hellas_9_7>")
-        doTask("OceanTile<Hellas_5_6>") // 1 TR<P1>
+        doTask("OceanTile<Hellas_5_6>") // 1 TR<Player1>
       }
     }
     workflow.shutdown()
@@ -128,15 +129,15 @@ class EllieGameTest : AbstractFullGameTest() {
     sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
     sum.net("CityTile", "VictoryPoint") shouldBe 0
 
-    p1.assertCounts(24 to "TR<P1>")
-    p1.assertCounts(27 to "VP<P1>")
-    sum.net("Card", "VP<P1>") shouldBe 3
+    p1.assertCounts(24 to "TR<Player1>")
+    p1.assertCounts(27 to "VP<Player1>")
+    sum.net("Card", "VP<Player1>") shouldBe 3
 
-    p2.assertCounts(25 to "TR<P2>")
-    sum.net("PharmacyUnion", "TR<P2>") shouldBe 5
+    p2.assertCounts(25 to "TR<Player2>")
+    sum.net("PharmacyUnion", "TR<Player2>") shouldBe 5
 
     p2.assertCounts(28 to "VictoryPoint")
-    sum.net("Card", "VP<P2>") shouldBe 3
+    sum.net("Card", "VP<Player2>") shouldBe 3
   }
 
   @Test

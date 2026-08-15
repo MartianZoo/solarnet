@@ -20,7 +20,7 @@ internal class TfmActionCommandTest {
   fun `tfm action continues a use card action already underway`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
-    repl.command("become P1")
+    repl.command("become Player1")
     repl.gameplay.godMode().manual("PROD[Energy], AiCentral")
     repl.command("auto none")
     repl.gameplay.godMode().beginManual("UseAction1<UseCardActionSA>")
@@ -130,7 +130,7 @@ internal class TfmActionCommandTest {
   private fun actionGame(contents: String, options: String = "BRP"): ScriptSession {
     val repl = ScriptSession()
     repl.command("newgame $options 2")
-    repl.command("become P1")
+    repl.command("become Player1")
     repl.gameplay.godMode().manual(contents)
     repl.command("phase Action")
     repl.gameplay.godMode().beginManual("NewTurn")

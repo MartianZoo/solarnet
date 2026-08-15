@@ -17,8 +17,8 @@ class SoloGame0721Test : AbstractSoloTest() {
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
           Tr63SoloVariant
           Ceres, Luna, Triton
-          Player1
-          """
+          """,
+          "Player1",
       )
 
   // Could at some point calculate these automatically from cards drawn
@@ -589,14 +589,14 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       val sum = Summarizer(game)
       assertCounts(69 to "TerraformRating")
-      sum.net("GreeneryTile", "VictoryPoint<P1>") shouldBe 8
-      sum.net("CityTile", "VictoryPoint<P1>") shouldBe 13
-      sum.net("Card", "VictoryPoint<P1>") shouldBe 5
+      sum.net("GreeneryTile", "VictoryPoint<Player1>") shouldBe 8
+      sum.net("CityTile", "VictoryPoint<Player1>") shouldBe 13
+      sum.net("Card", "VictoryPoint<Player1>") shouldBe 5
       assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
       // it's really 99 but we faked Flooding. note herokuapp says 111.
-      sum.net("ActionPhase", "UseAction<P1>") shouldBe 98
+      sum.net("ActionPhase", "UseAction<Player1>") shouldBe 98
     }
   }
 }

@@ -11,8 +11,9 @@ class Game20260619Test : AbstractFullGameTest() {
           """
           VenusNextExpansion, PreludeExpansion, PromoCardPack, TurmoilCardPack
           -WorldGovernmentOption
-          Player1, Player2
-          """
+          """,
+          "Player1",
+          "Player2",
       )
 
   @Test
@@ -179,7 +180,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB stole 1 energy production from ER
     // KB ended turn
     KB.turn {
-      playProject("PowerSupplyConsortium", 5) { doTask("PROD[-E<P1>]") }
+      playProject("PowerSupplyConsortium", 5) { doTask("PROD[-E<Player1>]") }
     }
 
     // ER passed

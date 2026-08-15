@@ -17,7 +17,8 @@ class AsteroidDeflectionSystemTest : CardTest() {
     p1.playProject("AsteroidDeflectionSystem", 13).expect("PROD[-Energy]")
 
     shouldThrow<DeadEndException> { p2.manual("-Plant<Player1>") }
-    p2.manual("-Microbe<Player1, Tardigrades<Player1>>").expect("-Microbe<P1, Tardigrades<P1>>")
+    p2.manual("-Microbe<Player1, Tardigrades<Player1>>")
+        .expect("-Microbe<Player1, Tardigrades<Player1>>")
     p1.manual("-Plant<Player1>").expect("-Plant")
 
     p1.cardAction1("AsteroidDeflectionSystem") {

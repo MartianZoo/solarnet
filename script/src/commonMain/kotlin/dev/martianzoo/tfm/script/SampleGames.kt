@@ -104,7 +104,7 @@ internal object SampleGames {
     engine.nextGeneration(3, 3)
 
     p1.stdAction("ConvertHeatSA")
-    p1.playProject("SmallAsteroid", 10) { doTask("-2 Plant<P2>") }
+    p1.playProject("SmallAsteroid", 10) { doTask("-2 Plant<Player2>") }
     p2.cardAction2("Factorum")
     p2.playProject("DirectedImpactors", 2, titanium = 2)
     p1.cardAction1("DevelopmentCenter")
@@ -175,7 +175,7 @@ internal object SampleGames {
     p1.cardAction2("DeuteriumExport")
     p1.playProject("ProjectInspection", 0) { doTask("UseAction1<DevelopmentCenter>") }
     p2.cardAction1("Factorum")
-    p2.playProject("PowerSupplyConsortium", 3) { doTask("PROD[-E<P1>]") }
+    p2.playProject("PowerSupplyConsortium", 3) { doTask("PROD[-E<Player1>]") }
     p1.playProject("FloatingHabs", 5)
     p1.cardAction1("FloatingHabs") { doTask("Floater<DeuteriumExport>") }
     p2.playProject("TitaniumMine", 5)
@@ -223,7 +223,7 @@ internal object SampleGames {
     p2.playProject("DeimosDown", 9, titanium = 5) {
       p2.doTask("OceanTile<Tharsis_6_7>")
       p2.doTask("DdTile<Tharsis_2_5>")
-      p2.doTask("-4 Plant<P1>")
+      p2.doTask("-4 Plant<Player1>")
     }
     p2.cardAction1("AiCentral")
     p1.stdAction("ConvertHeatSA")

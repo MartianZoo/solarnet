@@ -9,7 +9,7 @@ class ArcticAlgaeTest : CardTest() {
     newGame()
     val p2 = requireP2()
     p2.manual("ArcticAlgae")
-    p1.manual("OceanTile<Tharsis_1_2>").expect("2 Plant<P2>")
+    p1.manual("OceanTile<Tharsis_1_2>").expect("2 Plant<Player2>")
   }
 
   @Test

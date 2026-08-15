@@ -23,7 +23,8 @@ public abstract class ClassTable {
                   .filter(ClassSelection::included)
                   .map(ClassSelection::className) +
               initialClassNames
-      val moduleSelections = premise.modules.flatMap { premise.authority.modules.getValue(it) }
+      val moduleSelections =
+          premise.modules.flatMap { premise.runtimeClassAuthority.modules.getValue(it) }
       val (applicableModuleSelections, inapplicableModuleSelections) =
           moduleSelections.partition { selection -> selection.appliesTo(configurationNames) }
       val moduleIncluded =
@@ -53,10 +54,12 @@ public abstract class ClassTable {
               ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
               initialClassNames
 
-      val table = ClassLoader(premise.authority).apply { roots.forEach(::load) }.freeze()
+      val table =
+          ClassLoader(premise.runtimeClassAuthority).apply { roots.forEach(::load) }.freeze()
       val unexpectedModules =
-          premise.authority.modules.keys.filterTo(linkedSetOf()) { table.isActive(it) } -
-              premise.modules
+          premise.runtimeClassAuthority.modules.keys.filterTo(linkedSetOf()) {
+            table.isActive(it)
+          } - premise.modules
       require(unexpectedModules.isEmpty()) {
         "structural activation selected unrequested Modules: $unexpectedModules"
       }

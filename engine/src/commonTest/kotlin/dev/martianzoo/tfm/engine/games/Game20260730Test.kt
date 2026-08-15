@@ -14,8 +14,8 @@ class Game20260730Test : AbstractSoloTest() {
           """
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack, Tr63SoloVariant
           Ceres, Io, Triton
-          Player1
-          """
+          """,
+          "Player1",
       )
 
   // Drew and discarded Mining Colony to place a 2
@@ -761,11 +761,12 @@ class Game20260730Test : AbstractSoloTest() {
 
       // Best current match for the app's reported action count: turns offered plus passes,
       // excluding the final-greenery offer.
-      (-sum.net("NewTurn", "NewTurn<P1>") + sum.net("ActionPhase", "Pass<P1>") - 1) shouldBe 168
+      (-sum.net("NewTurn", "NewTurn<Player1>") + sum.net("ActionPhase", "Pass<Player1>") -
+          1) shouldBe 168
 
       // Discounts earned
-      sum.net("AdvancedAlloys", "Owed<P1>") shouldBe -84
-      sum.net("Shuttles", "Owed<P1>") shouldBe -14
+      sum.net("AdvancedAlloys", "Owed<Player1>") shouldBe -84
+      sum.net("Shuttles", "Owed<Player1>") shouldBe -14
 
       // Resources and cards gained from active cards
       sum.net("CryoSleep", "Energy") shouldBe 2

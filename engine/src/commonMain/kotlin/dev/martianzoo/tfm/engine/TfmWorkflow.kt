@@ -79,7 +79,7 @@ public object TfmWorkflow {
       get() = m.engineOps
 
     /** Human players in seat order, excluding ENGINE. */
-    private val players: List<Player> = Player.players(game.reader.getComponents("Player").size)
+    private val players: List<Player> = game.actors.filterIsInstance<Player>()
 
     /**
      * RENDEZVOUS channel that signals the workflow coroutine to resume after all tasks drain. Only
@@ -156,7 +156,7 @@ public object TfmWorkflow {
       }
       if (hasComponent("SoloMode")) {
         engineOps.manual("SoloVictoryCheck")
-        if (!engineOps.has("Victory<Player1>")) return
+        if (!engineOps.has("Victory<${players.single()}>")) return
       }
       finalGreeneryPhase()
       m.endPhase()

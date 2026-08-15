@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.SPECIAL_TILE
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.toStrings
 
 internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tfm_map") {
   override val usage = "map"
@@ -24,9 +23,19 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
       """
   override val isReadOnly = true
 
-  override fun noArgs() = MapToText(repl.game.reader, repl.useAnsiColors).map()
+  override fun noArgs() =
+      MapToText(
+              repl.game.reader,
+              repl.game.actors.filterIsInstance<Player>(),
+              repl.useAnsiColors,
+          )
+          .map()
 
-  internal class MapToText(private val game: GameReader, private val useColors: Boolean = true) {
+  internal class MapToText(
+      private val game: GameReader,
+      private val players: List<Player>,
+      private val useColors: Boolean = true,
+  ) {
     // my terminal app tries to show characters with H:W of 11:5
     // for a near-perfect hex grid you want 13:15
     // divide and you get 33:13 and fortunately that's pretty close to 5:2 (8:3 would be yikes)
@@ -133,8 +142,11 @@ internal class TfmMapCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tf
             else -> error("unrecognized: $tile")
           }
 
-      val argStrings = tile.expressionFull.arguments.toStrings()
-      val player = argStrings.firstOrNull(Player::isValid)?.last() ?: ""
+      val owner =
+          tile.expressionFull.arguments.firstNotNullOfOrNull { expression ->
+            Player.fromType(game.resolve(expression))
+          }
+      val player = owner?.let { players.indexOf(it) + 1 }?.toString().orEmpty()
 
       return "[${kind.first}$player]" to kind.second
     }

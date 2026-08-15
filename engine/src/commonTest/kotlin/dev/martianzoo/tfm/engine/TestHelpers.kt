@@ -34,11 +34,6 @@ internal fun setUpGame(premise: GamePremise): World =
 
 internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
     listOf(
-        "P1" to "Player1",
-        "P2" to "Player2",
-        "P3" to "Player3",
-        "P4" to "Player4",
-        "P5" to "Player5",
         "M" to "Megacredit",
         "S" to "Steel",
         "T" to "Titanium",
@@ -80,14 +75,13 @@ internal fun canonicalPremise(
     authority: TfmAuthority? = null,
     excludedOptions: Set<TestOption> = emptySet(),
 ): GamePremise {
-  val playerNames = (1..players).map { cn("Player$it") }
   val config =
       GameConfig.create(
           included =
-              playerNames +
-                  options.map(TestOption::className) +
+              options.map(TestOption::className) +
                   colonyTiles.map(TEST_ENGLISH_VOCABULARY::canonicalName),
           excluded = excludedOptions.map(TestOption::className),
+          playerClassNames = (1..players).map { cn("Player$it") },
       )
   val base = Canon.gamePremise(config)
   if (authority == null) return base

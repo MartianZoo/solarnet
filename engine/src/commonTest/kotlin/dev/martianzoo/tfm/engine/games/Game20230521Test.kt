@@ -16,8 +16,9 @@ class Game20230521Test : AbstractFullGameTest() {
           """
           VenusNextExpansion, PreludeExpansion, PromoCardPack, TurmoilCardPack
           -WorldGovernmentOption
-          Player1, Player2
-          """
+          """,
+          "Player1",
+          "Player2",
       )
 
   @Test
@@ -185,7 +186,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 removed 1 resource(s) from Player2's Rotator Impacts
     // Player2 removed an asteroid resource to increase Venus scale 1 step
     p2.turn {
-      cardAction2("RotatorImpacts").expect("VenusStep, TR<P2>")
+      cardAction2("RotatorImpacts").expect("VenusStep, TR<Player2>")
     }
     // Player2 ended turn
 
@@ -258,7 +259,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Factorum action
     // Player2's energy production increased by 1
     p2.turn {
-      cardAction1("Factorum").expect("PROD[E<P2>]")
+      cardAction1("Factorum").expect("PROD[E<Player2>]")
       // Player2 played Asteroid
       // Player2's titanium amount increased by 2
       playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doTask("Ok") }
@@ -271,7 +272,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's plants amount increased by 1
     p1.turn {
       playProject("CorporateStronghold", 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
-          .expect("PROD[3, -E], -2, Plant<P1>")
+          .expect("PROD[3, -E], -2, Plant<Player1>")
       // Player1 played Optimal Aerobraking
       playProject("OptimalAerobraking", 7)
     }
@@ -302,7 +303,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1's heat amount increased by 3
       // Player1's megacredits amount increased by 3 by Optimal Aerobraking
       // Player1's heat amount increased by 3 by Optimal Aerobraking
-      playProject("ImportedGhg", 4).expect("7 Heat<P1>, PlayedEvent<P1>")
+      playProject("ImportedGhg", 4).expect("7 Heat<Player1>, PlayedEvent<Player1>")
     }
 
     // Player2 passed
@@ -462,9 +463,9 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1's heat amount increased by 3 by Optimal Aerobraking
       playProject("SmallAsteroid", 10) {
             // Player2's plants amount decreased by 2 by Player1
-            doTask("-2 Plant<P2>")
+            doTask("-2 Plant<Player2>")
           }
-          .expect("TemperatureStep, -2 Plant<P2>")
+          .expect("TemperatureStep, -2 Plant<Player2>")
     }
 
     // Player2 used Factorum action
@@ -640,7 +641,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 used Rotator Impacts action
       // Player2 removed 1 resource(s) from Player2's Rotator Impacts
       // Player2 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2("RotatorImpacts").expect("VenusStep, TR<P2>")
+      cardAction2("RotatorImpacts").expect("VenusStep, TR<Player2>")
     }
 
     // Player1 played Dusk Laser Mining
@@ -699,10 +700,10 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject("LagrangeObservatory", 6, titanium = 1) {
             doTask("ProjectCard FROM Science<OlympusConference>") // I don't have to choose the card
           }
-          .expect("ProjectCard<P1>") // -1 played, +1 from card itself, +1 from olympus
+          .expect("ProjectCard<Player1>") // -1 played, +1 from card itself, +1 from olympus
       // Player1 played Venus Governor
       // Player1's megacredits production increased by 2
-      playProject("VenusGovernor", 4).expect("2 VenusTag<P1>")
+      playProject("VenusGovernor", 4).expect("2 VenusTag<Player1>")
       // Player1 used Sell Patents standard project
       // Player1 sold 1 patents
       sellPatents(1)
@@ -804,7 +805,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 played Power Supply Consortium
       playProject("PowerSupplyConsortium", 3) {
         // Player1's energy production decreased by 1 stolen by Player2
-        doTask("PROD[-E<P1>]")
+        doTask("PROD[-E<Player1>]")
       }
     }
 
@@ -908,7 +909,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 drew 2 card(s)
     // You drew Beam From A Thorium Asteroid and Harvest
     p2.turn {
-      cardAction1("AiCentral").expect("2 Card<P2>")
+      cardAction1("AiCentral").expect("2 Card<Player2>")
       // Player2 used Directed Impactors action
       cardAction1("DirectedImpactors") {
         p2.pay(2, titanium = 1)
@@ -926,14 +927,14 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Extractor Balloons action
       // Player1 removed 2 resource(s) from Player1's Extractor Balloons
       // Player1 raised the Venus scale 1 step(s)
-      cardAction2("ExtractorBalloons").expect("2 TR<P1>")
+      cardAction2("ExtractorBalloons").expect("2 TR<Player1>")
     }
 
     // Player2 used Rotator Impacts action
     // Player2 removed 1 resource(s) from Player2's Rotator Impacts
     // Player2 removed an asteroid resource to increase Venus scale 1 step
     p2.turn {
-      cardAction2("RotatorImpacts").expect("-Asteroid, VenusStep, TR<P2>")
+      cardAction2("RotatorImpacts").expect("-Asteroid, VenusStep, TR<Player2>")
       // Player2 played Ishtar Mining
       // Player2's titanium production increased by 1
       playProject("IshtarMining", 3)
@@ -946,7 +947,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 gained 2 plants from Arctic Algae
     p1.turn {
       playProject("MoholeLake", 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
-          .expect("5 Plant, 2 Plant<P2>, TemperatureStep, 2 TR, -7")
+          .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TR, -7")
       // Player1 claimed Terraformer milestone
       stdAction("ClaimMilestoneSA") { doTask("Terraformer") }.expect("-8")
     }
@@ -1054,7 +1055,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2 placed Deimos Down tile on row 2 position 5
         p2.doTask("DdTile<Tharsis_2_5>")
         // Player1's plants amount decreased by 4 by Player2
-        p2.doTask("-4 Plant<P1>")
+        p2.doTask("-4 Plant<Player1>")
         // Player2 gained 2 plants from Arctic Algae
       }
       // Player2 used AI Central action
@@ -1276,7 +1277,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       playProject("HiredRaiders", 0) {
         // Player1's steel amount decreased by 2 stolen by Player2
-        doTask("2 Steel<P2> FROM Steel<P1>")
+        doTask("2 Steel<Player2> FROM Steel<Player1>")
       }
       // Player2 used Convert Heat standard action
       stdAction("ConvertHeatSA")
@@ -1423,7 +1424,7 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject("Bushes", 8)
       // Player2 played Energy Tapping
       // Player1's energy production decreased by 1 stolen by Player2
-      playProject("EnergyTapping", 1) { doTask("PROD[-Energy<P1>]") }
+      playProject("EnergyTapping", 1) { doTask("PROD[-Energy<Player1>]") }
     }
     // Player1 used Floating Habs action
     // Player1 added 1 floater(s) to Floating Habs
@@ -1441,7 +1442,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 played Biomass Combustors
       // Player2's energy production increased by 2
       // Player1's plants production decreased by 1 by Player2
-      playProject("BiomassCombustors", steel = 1) { doTask("PROD[-Plant<P1>]") }
+      playProject("BiomassCombustors", steel = 1) { doTask("PROD[-Plant<Player1>]") }
     }
     // Player1 passed
     p1.pass()
@@ -1500,7 +1501,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 played Mining Expedition
       // Player2's steel amount increased by 2
       // Player1's plants amount decreased by 2 by Player2
-      playProject("MiningExpedition", 10) { doTask("-2 Plant<P1>") }
+      playProject("MiningExpedition", 10) { doTask("-2 Plant<Player1>") }
     }
     // Player1 used Power Infrastructure action
     // Player1's megacredits amount increased by 5
@@ -1722,11 +1723,11 @@ class Game20230521Test : AbstractFullGameTest() {
 
     val summ = Summarizer(game)
     summ.net("Manutech", "Resource") shouldBe 104
-    summ.net("Production<P2>", "Resource<P2>") shouldBe 187
+    summ.net("Production<Player2>", "Resource<Player2>") shouldBe 187
 
     summ.net("EarthOffice", "Owed") shouldBe -24
-    summ.net("AdvancedAlloys<P2>", "Owed") shouldBe -31
-    summ.net("EarthCatapult<P2>", "Owed") shouldBe -55
+    summ.net("AdvancedAlloys<Player2>", "Owed") shouldBe -31
+    summ.net("EarthCatapult<Player2>", "Owed") shouldBe -55
     summ.net("QuantumExtractor", "Owed") shouldBe -10 // oof
 
     summ.net("AquiferPumping", "OceanTile") shouldBe 6
@@ -1736,17 +1737,17 @@ class Game20230521Test : AbstractFullGameTest() {
     summ.net("SearchForLife", "Science") shouldBe 0
 
     // This is just silly
-    summ.net("TR<P1>", "Megacredit<P1>") shouldBe 361
-    summ.net("TR<P1>", "Megacredit") shouldBe 361
-    summ.net("TR", "Megacredit<P1>") shouldBe 361
-    summ.net("TR<P2>", "Megacredit<P2>") shouldBe 356
-    summ.net("TR<P2>", "Megacredit") shouldBe 356
-    summ.net("TR", "Megacredit<P2>") shouldBe 356
+    summ.net("TR<Player1>", "Megacredit<Player1>") shouldBe 361
+    summ.net("TR<Player1>", "Megacredit") shouldBe 361
+    summ.net("TR", "Megacredit<Player1>") shouldBe 361
+    summ.net("TR<Player2>", "Megacredit<Player2>") shouldBe 356
+    summ.net("TR<Player2>", "Megacredit") shouldBe 356
+    summ.net("TR", "Megacredit<Player2>") shouldBe 356
 
     summ.net("TR", "Megacredit") shouldBe 717
 
-    summ.net("TR<P1>", "Megacredit<P2>") shouldBe 0
-    summ.net("TR<P2>", "Megacredit<P1>") shouldBe 0
+    summ.net("TR<Player1>", "Megacredit<Player2>") shouldBe 0
+    summ.net("TR<Player2>", "Megacredit<Player1>") shouldBe 0
   }
 
   private fun checkSummaryAfterGen4(game: World) {
@@ -1756,27 +1757,27 @@ class Game20230521Test : AbstractFullGameTest() {
     summer.net("ArcticAlgae", "Plant") shouldBe 3
 
     // Blue has done 16 card buys: 5 initial, 8 in research, and 3 from inventors guild
-    summer.net("BuyCard<P1>", "Card<P1>") shouldBe 16
+    summer.net("BuyCard<Player1>", "Card<Player1>") shouldBe 16
 
     // DeuteriumExport produced a net of 1 floaters (made, consumed, made)
     summer.net("DeuteriumExport", "Floater") shouldBe 1
     summer.net("DeuteriumExport", "Production<Class<Energy>>") shouldBe 1
 
     // EarthOffice has saved blue 6 money (InvestmentLoan, ImportedGhg)
-    summer.net("EarthOffice", "Owed<P1>") shouldBe -6
+    summer.net("EarthOffice", "Owed<Player1>") shouldBe -6
 
     // Manutech has delivered! 1 MC with NewPartner, 4 with AlliedBank, 3 with CorporateStronghold
     // ... plus of course 35 at game start
-    summer.net("Manutech", "Megacredit<P1>") shouldBe 43
+    summer.net("Manutech", "Megacredit<Player1>") shouldBe 43
 
     // Purple got 63 MC from TR (at production phases they had 20, 21, 22, and 24 TR)
-    summer.net("TerraformRating", "Megacredit<P2>") shouldBe 87
-    summer.net("TerraformRating<P2>", "Megacredit") shouldBe 87
-    summer.net("TerraformRating<P2>", "Megacredit<P2>") shouldBe 87
+    summer.net("TerraformRating", "Megacredit<Player2>") shouldBe 87
+    summer.net("TerraformRating<Player2>", "Megacredit") shouldBe 87
+    summer.net("TerraformRating<Player2>", "Megacredit<Player2>") shouldBe 87
     summer.net("TerraformRating", "Megacredit") shouldBe 183
 
     // Blue has raised temp 2 & venus 2, purple did temp & venus2 & ocean
-    summer.net("GlobalParameter", "TR<P1>") shouldBe 4
-    summer.net("GlobalParameter", "TR<P2>") shouldBe 4
+    summer.net("GlobalParameter", "TR<Player1>") shouldBe 4
+    summer.net("GlobalParameter", "TR<Player2>") shouldBe 4
   }
 }

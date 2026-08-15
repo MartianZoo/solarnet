@@ -133,11 +133,13 @@ internal class CanonBundlesTest {
   private fun table(vararg selectedModules: ClassName): ClassTable {
     val included =
         linkedSetOf(
-            cn("Player1"),
-            cn("Player2"),
-            cn("TerraformingMars"),
             *selectedModules,
+            cn("TerraformingMars"),
         )
-    return ClassTable.forPremise(Canon.gamePremise(GameConfig.create(included)))
+    return ClassTable.forPremise(
+        Canon.gamePremise(
+            GameConfig.create(included, playerClassNames = listOf(cn("Player1"), cn("Player2")))
+        )
+    )
   }
 }

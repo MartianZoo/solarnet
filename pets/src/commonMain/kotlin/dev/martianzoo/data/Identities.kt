@@ -5,6 +5,7 @@ import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.types.Type
 
 /** An identity that can initiate or continue game operations. */
 public sealed interface Actor : HasClassName, HasExpression {
@@ -14,21 +15,12 @@ public sealed interface Actor : HasClassName, HasExpression {
 }
 
 /** A runtime identity that can own game-state components. */
-internal sealed interface Owner : HasClassName, HasExpression {
-  public companion object {
-    /** Returns the supported runtime Owner represented by [className]. */
-    internal fun fromClassName(className: ClassName): Owner =
-        when {
-          Player.isValid(className) -> Player(className)
-          else -> error("not a supported Owner identity: $className")
-        }
-  }
-}
+internal sealed interface Owner : HasClassName, HasExpression
 
-/** One of the actual people or bots playing the game; both an [Actor] and an [Owner]. */
+/** One of the configured people or bots playing the game; both an [Actor] and an [Owner]. */
 public data class Player(override val className: ClassName) : Actor, Owner {
   init {
-    require(isValid(className.toString())) { className }
+    require(className != EngineActor.className) { className }
   }
 
   override val expression: Expression by lazy { className.expression }
@@ -37,7 +29,7 @@ public data class Player(override val className: ClassName) : Actor, Owner {
   override fun toString(): String = className.toString()
 
   public companion object {
-    internal val regex = Regex("^Player[1-5]$")
+    private val defaultRegex = Regex("^Player[1-5]$")
 
     public val PLAYER1: Player = Player(player(1))
     public val PLAYER2: Player = Player(player(2))
@@ -45,12 +37,22 @@ public data class Player(override val className: ClassName) : Actor, Owner {
     private val PLAYER4 = Player(player(4))
     private val PLAYER5 = Player(player(5))
 
+    /** Returns the traditional `Player1` through `Player5` identities used by canonical data. */
     public fun players(upTo: Int): List<Player> =
         listOf(PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5).subList(0, upTo)
 
-    public fun isValid(name: String): Boolean = name.matches(regex)
+    internal fun isDefaultClassName(name: ClassName): Boolean =
+        name.toString().matches(defaultRegex)
 
-    public fun isValid(name: ClassName): Boolean = isValid(name.toString())
+    /** Returns the concrete seated Player represented by [type], or null for another kind. */
+    public fun fromType(type: Type): Player? {
+      val playerClass = type.classTable.findActiveClass(cn("Player")) ?: return null
+      return if (!type.abstract && type.rootClass.isSubtypeOf(playerClass)) {
+        Player(type.className)
+      } else {
+        null
+      }
+    }
 
     private fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }
   }

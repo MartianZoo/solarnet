@@ -2,7 +2,10 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
+import dev.martianzoo.data.Player
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -26,16 +29,16 @@ class Game20260809Test : AbstractFullGameTest() {
           Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord
           Botanist, Founder, Landlord, Magnate, Metropolist, Venuphile
           Callisto, Luna, Triton, Miranda, Enceladus
-
-          Player1, Player2
-          """
+          """,
+          "Ellie",
+          "Dad",
       )
 
   @Test
   fun game20260809() {
     TfmWorkflow.Auto(game).launch()
-    val ellie = p1
-    val dad = p2
+    val ellie = game.tfm(Player(cn("Ellie")))
+    val dad = game.tfm(Player(cn("Dad")))
     // "Miranda and Enceladus are currently out of play."
     engine.assertCounts(3 to "ColonyTile", 2 to "DelayedColonyTile")
 
@@ -48,7 +51,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I call Mons Insurance again."
     // "Your money production goes up four." "And Dad's money production goes down two."
     // "You're buying six cards, which leaves you with 30 money."
-    ellie.playCorp("MonsInsurance", 6).expect("PROD[4 M<P1>, -2 M<P2>], 30")
+    ellie.playCorp("MonsInsurance", 6).expect("PROD[4 M<Ellie>, -2 M<Dad>], 30")
 
     // "On my turn, I play Morning Star Inc."
     // "I am purchasing four cards. So I receive 50 money."
@@ -144,7 +147,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "We produced, we did World Government, now it's time for the colony Solar phase."
     // "We increase the only two—only three colonies that exist so far."
     // "Dad gets the start marker."
-    dad.assertCounts(1 to "StartToken<Player2>")
+    dad.assertCounts(1 to "StartToken<Dad>")
 
     // -------------------------------------------------------------------------------------------
 
@@ -271,11 +274,11 @@ class Game20260809Test : AbstractFullGameTest() {
             // "I'll go on the rightmost space in the ring for 4 money."
             doTask("OceanTile<Hellas_5_8>")
             // "I'll remove yours. And I'll pay you three from Mons Insurance."
-            doTask("-3 Plant<Player2>")
+            doTask("-3 Plant<Dad>")
           }
           // "Thanks to Optimal Aerobraking, I gain three money and three heat."
           // "I gain one event card in my played-events pile."
-          .expect("TemperatureStep, -17 M<P1>, 3 M<P2>, 3 H, PlayedEvent, 2 TR")
+          .expect("TemperatureStep, -17 M<Ellie>, 3 M<Dad>, 3 H, PlayedEvent, 2 TR")
 
       assertCounts(14 to "M") // ledger entry 69
     }
@@ -395,7 +398,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm gonna buzz buzz. Sponsorize some academies. That's nine to discard a card from hand."
     // "Draw three cards and you get one card."
     ellie.turn {
-      playProject("SponsoredAcademies", 9).expect("ProjectCard, ProjectCard<P2>")
+      playProject("SponsoredAcademies", 9).expect("ProjectCard, ProjectCard<Dad>")
       assertCounts(10 to "M") // ledger entry 100
     }
 
@@ -586,11 +589,11 @@ class Game20260809Test : AbstractFullGameTest() {
             // "Because I'm Mons, I have to pay you, but I only have one. Sorry, that was
             // unintentional."
             assertCounts(1 to "M") // ledger entry 154
-            doTask("PROD[-Plant<Player2>]")
+            doTask("PROD[-Plant<Dad>]")
             dad.assertCounts(5 to "M") // ledger entry 92
             // "I increase my energy production two steps."
           }
-          .expect("-5 M<P1>, 1 M<P2>, PROD[2 E]")
+          .expect("-5 M<Ellie>, 1 M<Dad>, PROD[2 E]")
 
       pass()
     }
@@ -808,7 +811,7 @@ class Game20260809Test : AbstractFullGameTest() {
     dad.turn {
       playProject("BigAsteroid", 7, titanium = 6) {
             // "You lose four plants."
-            doTask("-4 Plant<Player1>")
+            doTask("-4 Plant<Ellie>")
           }
           .expect("-2 T, 2 TemperatureStep, 2 TR")
     }
@@ -962,7 +965,7 @@ class Game20260809Test : AbstractFullGameTest() {
     dad.turn {
       playProject("Birds", 8) {
         // "That lowers Ellie's plant production by two."
-        doTask("PROD[-2 Plant<Player1>]")
+        doTask("PROD[-2 Plant<Ellie>]")
       }
     }
 
@@ -1226,13 +1229,13 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to play my Sub-Zero Salt Fish." "Oh, I guess I lose a plant production."
     ellie.turn {
-      playProject("SubZeroSaltFish", 5) { doTask("PROD[-Plant<Player2>]") }
-          .expect("Animal<EcologicalZone>, -8 M<P1>, 3 M<P2>")
+      playProject("SubZeroSaltFish", 5) { doTask("PROD[-Plant<Dad>]") }
+          .expect("Animal<EcologicalZone>, -8 M<Ellie>, 3 M<Dad>")
       // "I add an animal to Ecological Zone."
     }
     // "Like that's gonna change much."
     // HACK: That exchange never mentions the Mons Insurance payment, which we omitted physically.
-    dad.exMachina("3 M<P1> FROM M<P2>")
+    dad.exMachina("3 M<Ellie> FROM M<Dad>")
     dad.assertCounts(31 to "M") // ledger entry 217
     ellie.assertCounts(31 to "M") // ledger entry 325
 
@@ -1276,9 +1279,9 @@ class Game20260809Test : AbstractFullGameTest() {
       // "So you lose three money and I gain three money?"
       // "My Mons doesn't activate for that. I would just pay myself."
       playProject("LawSuit", 0) {
-            doTask("3 Megacredit<Player2> FROM Megacredit<Player1>.")
+            doTask("3 Megacredit<Dad> FROM Megacredit<Ellie>.")
           }
-          .expect("3 M<P2>, -3 M<P1>")
+          .expect("3 M<Dad>, -3 M<Ellie>")
     }
     dad.assertCounts(26 to "M") // ledger entry 222
     ellie.assertCounts(7 to "M") // ledger entry 332
@@ -1633,32 +1636,32 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.assertCounts(52 to "TR")
 
     // "You get 15 points for milestones, which puts you at 67."
-    score.net("Milestone", "VP<P1>") shouldBe 15
+    score.net("Milestone", "VP<Ellie>") shouldBe 15
 
     // "I get Venophile and Magnate, so green gets ten, putting me on 52."
-    score.net("FirstPlace", "VP<P2>") shouldBe 10
+    score.net("FirstPlace", "VP<Dad>") shouldBe 10
 
     // "You get another five, putting you on 72."
-    score.net("FirstPlace", "VP<P1>") shouldBe 5
+    score.net("FirstPlace", "VP<Ellie>") shouldBe 5
 
     // "I think what I'm going to do is count my greeneries first. One, two, three, four."
     // "Four points from greeneries."
-    score.net("GreeneryTile", "VP<P2>") shouldBe 4
+    score.net("GreeneryTile", "VP<Dad>") shouldBe 4
 
     // "How many points from greeneries do you get? Twelve. 84."
-    score.net("GreeneryTile", "VP<P1>") shouldBe 12
+    score.net("GreeneryTile", "VP<Ellie>") shouldBe 12
 
     // "My one city is worth four points, putting me on 60."
-    score.net("CityTile", "VP<P2>") shouldBe 4
+    score.net("CityTile", "VP<Dad>") shouldBe 4
 
     // "Go ahead and do your cities. Twenty for your cities, putting you at 104."
-    score.net("CityTile", "VP<P1>") shouldBe 20
+    score.net("CityTile", "VP<Ellie>") shouldBe 20
 
     // "And four is 21, and 11 is 32. So I saved some face here. And then for these, 17 more."
-    score.net("Card", "VP<P2>") shouldBe 49
+    score.net("Card", "VP<Dad>") shouldBe 49
 
     // "Four, two, two, one. Ten." Law Suit lowers Ellie's net card score to nine.
-    score.net("Card", "VP<P1>") shouldBe 9
+    score.net("Card", "VP<Ellie>") shouldBe 9
 
     // "You only won by five points. 114[sic] to 109."
     // "I'm sorry for all the fucking whining I was doing."

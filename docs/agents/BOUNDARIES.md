@@ -62,14 +62,13 @@ foundational declarations into the generic kernel, or move `TurnLayer`, action-t
 translation, and these conventions under `tfm`. The current half-and-half placement is the
 problem.
 
-### P1: The nominally generic identity model is tied to Terraforming Mars
+### Resolved: Runtime player identities are not tied to `Player1` through `Player5`
 
-`pets/src/commonMain/kotlin/dev/martianzoo/data/Player.kt` accepts only `Engine` and `Player1`
-through `Player5`, publishes exactly those five constants, and constructs lists from that fixed
-set.
-
-This limitation propagates into effect ownership and per-Actor gameplay creation, so a game with
-different player identities cannot use the generic abstraction as-is.
+`GameConfig` keeps one to five concrete player class names in a separate seat-ordered list. Premise
+resolution substitutes those names throughout the runtime class catalog, and actor/owner recognition uses the actual
+`Player` type hierarchy rather than a spelling regex. The traditional constants remain convenient
+defaults, but workflows and clients discover the participating Actors from the world.
+Custom instructions use the same seat order through the game reader.
 
 ### P1: Terraforming Mars's `PROD[...]` extension is automatically installed by generic machinery
 

@@ -2,9 +2,7 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.Player.Companion.PLAYER3
+import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -28,9 +26,10 @@ abstract class AbstractFullGameTest : TfmTest() {
   @BeforeTest
   open fun commonSetup() {
     game = Engine.newGame(Canon.gamePremise(config), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
-    p1 = game.tfm(PLAYER1)
-    if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
-    if (game.reader.getComponents("Player").size > 2) p3 = game.tfm(PLAYER3)
+    val players = game.actors.filterIsInstance<Player>()
+    p1 = game.tfm(players[0])
+    if (players.size > 1) p2 = game.tfm(players[1])
+    if (players.size > 2) p3 = game.tfm(players[2])
   }
 
   fun copyThis() {

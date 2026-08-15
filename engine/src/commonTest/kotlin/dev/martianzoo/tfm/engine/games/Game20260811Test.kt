@@ -24,9 +24,10 @@ class Game20260811Test : AbstractFullGameTest() {
 
           Mayor, Diversifier, Trader, Sponsor, MilestoneMM35
           Biologist, SpaceBaron, Forecaster, Botanist, Collector
-
-          Player1, Player2, Player3
-          """
+          """,
+          "Player1",
+          "Player2",
+          "Player3",
       )
 
   @Test
@@ -300,7 +301,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Dad gained 1 steel
           // Mom added 1 Disease to Hospitals
         }
-        .expect("PROD[3 M, -E], P, -S, Disease<P1>")
+        .expect("PROD[3 M, -E], P, -S, Disease<Player1>")
     mom.assertCounts(7 to "P")
     // Dad claimed Diversifier milestone
     dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
@@ -623,7 +624,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Dad gained 1 steel
           // Mom added 1 Disease to Hospitals
         }
-        .expect("PROD[3 M, -E], -2 S, Disease<P1>")
+        .expect("PROD[3 M, -E], -2 S, Disease<Player1>")
     // Dad used Ants action
     dad.cardAction1("Ants") {
           // Dad removed 1 resource(s) from Mom's Psychrophiles
@@ -805,7 +806,7 @@ class Game20260811Test : AbstractFullGameTest() {
           doTask("-3 P<Player3>")
           // Ellie gained 3 M€
         }
-        .expect("0 T, -ProjectCard, ProjectCard<P3>, -3")
+        .expect("0 T, -ProjectCard, ProjectCard<Player3>, -3")
     // Dad used Asteroid:SP standard project
     dad.stdProject("AsteroidSP").expect("TR")
     // Dad used Convert Heat standard action
@@ -828,7 +829,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Mom added 4 Microbe(s) to Recyclon
           doTask("4 Microbe<Recyclon>")
         }
-        .expect("4 P, -ProjectCard, ProjectCard<P3>")
+        .expect("4 P, -ProjectCard, ProjectCard<Player3>")
     // Ellie used Convert Heat standard action
     ellie.stdAction("ConvertHeatSA")
     // Ellie used Convert Heat standard action
@@ -1011,7 +1012,7 @@ class Game20260811Test : AbstractFullGameTest() {
           // Ellie gained 4 M€ from 2 ocean(s)
           // Ellie gained 3 M€
         }
-        .expect("0 ProjectCard, ProjectCard<P3>, TR, 0 M")
+        .expect("0 ProjectCard, ProjectCard<Player3>, TR, 0 M")
     // Ellie played Vesta Shipyard
     // Ellie gained 1 titanium production
     ellie.playProject("VestaShipyard", 1, titanium = 4).expect("PROD[T]")
@@ -1142,7 +1143,7 @@ class Game20260811Test : AbstractFullGameTest() {
           doTask("CityTile<Hellas_7_7>")
           // Mom added 1 Disease to Hospitals
         }
-        .expect("Disease<P1>")
+        .expect("Disease<Player1>")
     // Ellie played House Printing
     // Ellie gained 1 steel production
     ellie.playProject("HousePrinting", steel = 4).expect("PROD[S]")
@@ -1300,29 +1301,29 @@ class Game20260811Test : AbstractFullGameTest() {
     ellie.assertCounts(1 to "FirstPlace<Player2>", 1 to "SecondPlace<Player2>")
     dad.assertCounts(1 to "FirstPlace<Player3>", 2 to "SecondPlace<Player3>")
 
-    score.net("Milestone", "VP<P1>") shouldBe 5
-    score.net("Milestone", "VP<P2>") shouldBe 5
-    score.net("Milestone", "VP<P3>") shouldBe 5
-    score.net("FirstPlace", "VP<P1>") shouldBe 5
-    score.net("SecondPlace", "VP<P1>") shouldBe 0
-    score.net("FirstPlace", "VP<P2>") shouldBe 5
-    score.net("SecondPlace", "VP<P2>") shouldBe 2
-    score.net("FirstPlace", "VP<P3>") shouldBe 5
-    score.net("SecondPlace", "VP<P3>") shouldBe 4
-    score.net("GreeneryTile", "VP<P1>") shouldBe 9
-    score.net("GreeneryTile", "VP<P2>") shouldBe 2
-    score.net("GreeneryTile", "VP<P3>") shouldBe 6
-    score.net("CityTile", "VP<P1>") shouldBe 9
-    score.net("CityTile", "VP<P2>") shouldBe 4
-    score.net("CityTile", "VP<P3>") shouldBe 8
-    score.net("Card", "VP<P1>") shouldBe 4
-    score.net("Card", "VP<P2>") shouldBe 12
-    score.net("Card", "VP<P3>") shouldBe 5
+    score.net("Milestone", "VP<Player1>") shouldBe 5
+    score.net("Milestone", "VP<Player2>") shouldBe 5
+    score.net("Milestone", "VP<Player3>") shouldBe 5
+    score.net("FirstPlace", "VP<Player1>") shouldBe 5
+    score.net("SecondPlace", "VP<Player1>") shouldBe 0
+    score.net("FirstPlace", "VP<Player2>") shouldBe 5
+    score.net("SecondPlace", "VP<Player2>") shouldBe 2
+    score.net("FirstPlace", "VP<Player3>") shouldBe 5
+    score.net("SecondPlace", "VP<Player3>") shouldBe 4
+    score.net("GreeneryTile", "VP<Player1>") shouldBe 9
+    score.net("GreeneryTile", "VP<Player2>") shouldBe 2
+    score.net("GreeneryTile", "VP<Player3>") shouldBe 6
+    score.net("CityTile", "VP<Player1>") shouldBe 9
+    score.net("CityTile", "VP<Player2>") shouldBe 4
+    score.net("CityTile", "VP<Player3>") shouldBe 8
+    score.net("Card", "VP<Player1>") shouldBe 4
+    score.net("Card", "VP<Player2>") shouldBe 12
+    score.net("Card", "VP<Player3>") shouldBe 5
 
-    score.net("EcologicalZone", "VP<P1>") shouldBe 3
-    score.net("IoMiningIndustries", "VP<P2>") shouldBe 4
-    score.net("SaturnSurfing", "VP<P2>") shouldBe 1
-    score.net("Ants", "VP<P3>") shouldBe 4
+    score.net("EcologicalZone", "VP<Player1>") shouldBe 3
+    score.net("IoMiningIndustries", "VP<Player2>") shouldBe 4
+    score.net("SaturnSurfing", "VP<Player2>") shouldBe 1
+    score.net("Ants", "VP<Player3>") shouldBe 4
 
     with(mom) {
       assertResources(m = 56, s = 5, t = 0, p = 6, e = 4, h = 13)

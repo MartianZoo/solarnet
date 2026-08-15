@@ -28,9 +28,16 @@ internal class ScriptCompletionEngineTest {
   }
 
   @Test
-  fun completesPlayersWithoutEmittingInputOnlySynonyms() {
+  fun completesParticipatingPlayers() {
     assertContainsAll(values("become P"), "Player1", "Player2")
-    assertFalse(values("become P").any { it == "P1" || it == "P2" })
+  }
+
+  @Test
+  fun completesConfiguredPlayerNames() {
+    repl.command("newgame \"TerraformingMars\" Mom Ellie")
+
+    assertContainsAll(values("become "), "Mom", "Ellie")
+    assertFalse(values("become ").any { it == "Player1" || it == "Player2" })
   }
 
   @Test
@@ -54,7 +61,7 @@ internal class ScriptCompletionEngineTest {
   @Test
   fun narrowsPetsCompletionsWithPetsParser() {
     assertContainsAll(values("exec Plant "), "FROM", "OR", "THEN")
-    assertFalse(values("exec Plant ").any { it == "Player1" || it == "P1" })
+    assertFalse("Player1" in values("exec Plant "))
 
     assertContainsAll(values("exec Plant OR "), "Plant", "PlantTag")
     assertContainsAll(values("exec Plant, "), "Plant", "PlantTag")
@@ -156,9 +163,8 @@ internal class ScriptCompletionEngineTest {
   @Test
   fun delegatesAsCommandCompletion() {
     assertContainsAll(values("as P"), "Player1")
-    assertFalse("P1" in values("as P"))
-    assertTrue("mode" in values("as P1 mo"))
-    assertEquals(listOf("blue"), values("as P1 mode b"))
+    assertTrue("mode" in values("as Player1 mo"))
+    assertEquals(listOf("blue"), values("as Player1 mode b"))
   }
 
   private fun values(line: String): List<String> = candidates(line).map { it.value }

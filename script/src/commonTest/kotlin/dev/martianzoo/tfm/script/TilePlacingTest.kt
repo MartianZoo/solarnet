@@ -61,14 +61,14 @@ class TilePlacingTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    // P1 has greenery next to south pole
+    // Player1 has greenery next to south pole
     p1.godMode().manual("4, GreeneryTile<Hellas_9_8>")
 
-    // P2 completely surrounds it except for south pole (Hellas_9_7)
+    // Player2 completely surrounds it except for south pole (Hellas_9_7)
     p2.godMode()
         .manual("GreeneryTile<Hellas_8_7>, GreeneryTile<Hellas_8_8>, GreeneryTile<Hellas_9_9>")
 
-    // P1 is 2 money short of what they need to place on the south pole
+    // Player1 is 2 money short of what they need to place on the south pole
     assertFailsWith<LimitsException> { // do we care which step fails?
       p1.godMode().manual("GreeneryTile") {
         doTask("GreeneryTile<Hellas_9_7>")
@@ -103,7 +103,7 @@ class TilePlacingTest {
       godMode().manual("666, CityTile<Tharsis_8_6>") // shown as [] in comment below
 
       // try to fool it by having an opponent tile at the XX below
-      godMode().manual("CityTile<P2, Tharsis_6_7>")
+      godMode().manual("CityTile<Player2, Tharsis_6_7>")
 
       // Use the standard project so that the placement rule is in effect
       stdProject("GreenerySP") {

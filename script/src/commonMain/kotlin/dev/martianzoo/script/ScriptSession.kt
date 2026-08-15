@@ -116,9 +116,10 @@ public class ScriptSession(
 
   internal fun newGame(
       configText: String,
+      playerNames: List<String>,
       purple: Boolean = false,
   ) {
-    val premise = Canon.gamePremise(GameConfig(configText))
+    val premise = Canon.gamePremise(GameConfig(configText, *playerNames.toTypedArray()))
     val options = OptionCodeTranslation.recognizedOptions(premise.modules)
     val candidateGame =
         Engine.newGame(
@@ -302,7 +303,7 @@ public class ScriptSession(
   internal fun player(name: String): Player {
     // In case a configured synonym or definition id was used
     val type: Type = gameplay.resolve(name)
-    return Player(type.className)
+    return Player.fromType(type) ?: throw UsageException("not a participating Player: $name")
   }
 
   internal fun canonicalColonyName(name: String): ClassName =
@@ -324,9 +325,9 @@ internal fun createGame(
 ): World {
   val config =
       GameConfig.create(
-          included =
-              (1..setup.players).map { cn("Player$it") } + setup.options + setup.selectedColonies,
+          included = setup.options + setup.selectedColonies,
           excluded = setup.excludedOptions,
+          playerClassNames = (1..setup.players).map { cn("Player$it") },
       )
   return Engine.newGame(
       Canon.gamePremise(config),

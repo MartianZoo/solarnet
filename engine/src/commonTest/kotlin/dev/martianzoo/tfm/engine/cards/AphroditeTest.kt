@@ -9,6 +9,6 @@ class AphroditeTest : CardTest() {
     newGame(VenusNextExpansion)
     val p2 = requireP2()
     p2.manual("Aphrodite")
-    p1.manual("VenusStep").expect("2 M<P2>")
+    p1.manual("VenusStep").expect("2 M<Player2>")
   }
 }

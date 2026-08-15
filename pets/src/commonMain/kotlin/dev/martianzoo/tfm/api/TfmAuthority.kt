@@ -11,6 +11,8 @@ import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.Player
+import dev.martianzoo.data.classNameRenamer
 import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -42,10 +44,20 @@ public open class TfmAuthority : Authority {
    * defaults, implications, and selection policies.
    *
    * Structured definitions may use unambiguous English Pets names. Naming any milestones or awards
-   * selects the exact configured pool for that category.
+   * selects the exact configured pool for that category. A playable Terraforming Mars Authority
+   * requires one to five player class names in seat order. New, otherwise unknown names are
+   * introduced as real player classes.
    */
   public open fun gamePremise(config: GameConfig): GamePremise {
-    val explicitlyIncluded = resolveConfigurationNames(config.includedClassNames)
+    val configuredPlayerNames = config.playerClassNames
+    if (PLAYER_CLASS in allClassNames) {
+      require(configuredPlayerNames.size in 1..5) {
+        "a Terraforming Mars configuration must have 1 to 5 player class names"
+      }
+    }
+    val canonicalPlayerNames = Player.players(configuredPlayerNames.size).map(Player::className)
+    val explicitlyIncluded =
+        resolveConfigurationNames(config.includedClassNames) + canonicalPlayerNames
     val explicitlyExcluded = resolveConfigurationNames(config.excludedClassNames)
     require(explicitlyIncluded.intersect(explicitlyExcluded).isEmpty()) {
       "a game configuration cannot include and exclude the same class"
@@ -96,24 +108,44 @@ public open class TfmAuthority : Authority {
                 DELAYED_COLONY_TILE.of(className.classExpression(), resourceType.classExpression())
               }
             }
-    return GamePremise(this, moduleNames, classSelections, initialTypes)
+    val aliases =
+        canonicalPlayerNames
+            .zip(configuredPlayerNames)
+            .filter { (canonical, configured) -> canonical != configured }
+            .toMap()
+    val rename = classNameRenamer(aliases)
+    return GamePremise(
+        this,
+        moduleNames,
+        classSelections.mapTo(linkedSetOf()) { selection ->
+          selection.copy(
+              className = rename.transform(selection.className),
+              requirement = selection.requirement?.let(rename::transform),
+          )
+        },
+        initialTypes.mapTo(linkedSetOf(), rename::transform),
+        configuredPlayerNames,
+        aliases,
+    )
   }
 
-  private fun resolveConfigurationNames(names: Set<ClassName>): Set<ClassName> =
+  private fun resolveConfigurationNames(names: Iterable<ClassName>): Set<ClassName> =
       names.mapTo(linkedSetOf()) { configuredName ->
-        if (configuredName in allClassNames) return@mapTo configuredName
-        val matches = derivedPetsNameClassNames.filter { canonicalName ->
-          displayNamesByLanguage["en"]?.get(canonicalName)?.let(::petsClassName) == configuredName
-        }
-        require(matches.size == 1) {
-          if (matches.isEmpty()) {
-            "unknown configuration class: $configuredName"
-          } else {
-            "ambiguous configuration class $configuredName: $matches"
-          }
-        }
-        matches.single()
+        resolveConfigurationName(configuredName)
+            ?: throw IllegalArgumentException("unknown configuration class: $configuredName")
       }
+
+  private fun resolveConfigurationName(configuredName: ClassName): ClassName? {
+    // PlayerN declarations are templates, not selectable configuration classes. Player names are
+    // supplied through GameConfig.playerClassNames instead.
+    if (Player.isDefaultClassName(configuredName)) return null
+    if (configuredName in allClassNames) return configuredName
+    val matches = derivedPetsNameClassNames.filter { canonicalName ->
+      displayNamesByLanguage["en"]?.get(canonicalName)?.let(::petsClassName) == configuredName
+    }
+    require(matches.size <= 1) { "ambiguous configuration class $configuredName: $matches" }
+    return matches.singleOrNull()
+  }
 
   private fun addExactDefinitionSelections(
       selections: MutableMap<ClassName, Boolean>,
@@ -383,6 +415,7 @@ public open class TfmAuthority : Authority {
     public fun compose(vararg authorities: TfmAuthority): TfmAuthority = Composite(*authorities)
 
     private val MODULE_CLASS = cn("Module")
+    private val PLAYER_CLASS = cn("Player")
     private val DELAYED_COLONY_TILE = cn("DelayedColonyTile")
 
     private fun <D> validateReplacements(

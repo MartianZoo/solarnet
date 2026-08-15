@@ -44,7 +44,7 @@ class FirstPartialGameTest : TfmTest() {
         playPrelude("UnmiContractor")
       }
 
-      // Generation 1 (P1 first)
+      // Generation 1 (Player1 first)
       p1.turn {
         playProject("AsteroidMining", 30)
       }
@@ -56,11 +56,11 @@ class FirstPartialGameTest : TfmTest() {
         playProject("SpaceElevator", 1, steel = 13)
         cardAction1("SpaceElevator")
         playProject("InventionContest", 2)
-        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
+        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<Player1>]") }
       }
       p2.pass()
 
-      // Generation 2 (P2 first)
+      // Generation 2 (Player2 first)
       p1.buyCards(4)
       p2.buyCards(1)
 
@@ -84,14 +84,14 @@ class FirstPartialGameTest : TfmTest() {
       }
 
       p2.turn {
-        playProject("EnergyTapping", 1) { doTask("PROD[-E<P1>]") }
+        playProject("EnergyTapping", 1) { doTask("PROD[-E<Player1>]") }
         playProject("BuildingIndustries", steel = 2)
       }
 
       p1.pass()
       p2.pass()
 
-      // Generation 3 (P1 first)
+      // Generation 3 (Player1 first)
       p1.buyCards(3)
       p2.buyCards(2)
 
@@ -123,7 +123,7 @@ class FirstPartialGameTest : TfmTest() {
         pass()
       }
 
-      // Generation 4 (P2 first)
+      // Generation 4 (Player2 first)
       p1.buyCards(3)
       p2.buyCards(2)
 
@@ -139,7 +139,7 @@ class FirstPartialGameTest : TfmTest() {
 
       p2.turn {
         playProject("TransNeptuneProbe", 1, titanium = 1) { doTask("Ok") }
-        playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
+        playProject("Hackers", 1) { doTask("PROD[-2 M<Player1>]") }
       }
 
       p1.turn {

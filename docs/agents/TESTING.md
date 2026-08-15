@@ -63,11 +63,11 @@ Keep scenarios minimal and legible. Card tests use the base game and two players
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
-
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
-indented multiline string. Authority-backed premise resolution adds `TerraformingMars` and, when
-no other map is named, `TharsisMapOption`; the parser already trims each entry, so these literals do
-not need `trimIndent()`. The raw-configuration overload in `CardTest` uses the same resolution path.
+indented multiline string followed by player-name varargs. Authority-backed premise resolution adds
+`TerraformingMars` and, when no other map is named, `TharsisMapOption`; the parser already trims each
+entry, so these literals do not need `trimIndent()`. The raw-configuration overload in `CardTest`
+uses the same resolution path.
 
 `CardTest` and the full-game fixtures provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped

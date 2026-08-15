@@ -38,8 +38,9 @@ internal class ReluctantClassLoadingTest {
       val colonyTiles = if (colonies in selected) TestHelpers.testColonyTiles(2) else emptySet()
       val config =
           GameConfig.create(
-              included = listOf(cn("Player1"), cn("Player2")) + selected + colonyTiles,
+              included = selected + colonyTiles,
               excluded = if (corporateEra in selected) emptySet() else setOf(corporateEra),
+              playerClassNames = listOf(cn("Player1"), cn("Player2")),
           )
       totals[label] =
           Engine.newGame(Canon.gamePremise(config)).gameplay(ENGINE).count("Class<CardFront>")
@@ -169,21 +170,26 @@ internal class ReluctantClassLoadingTest {
   }
 
   private companion object {
-    val baseMultiplayer = projection("Player1, Player2")
-    val baseSolo = projection("Player1")
-    val preludeSolo = projection("Player1, PreludeExpansion")
-    val withoutCorporateEra = projection("Player1, Player2, -CorporateEraExpansion")
+    val baseMultiplayer = projection("", "Player1", "Player2")
+    val baseSolo = projection("", "Player1")
+    val preludeSolo = projection("PreludeExpansion", "Player1")
+    val withoutCorporateEra = projection("-CorporateEraExpansion", "Player1", "Player2")
     val promosUtopiaWithoutCorporateEra =
         projection(
-            "Player1, Player2, PromoCardPack, UtopiaPlanitiaMapOption, -CorporateEraExpansion"
+            "PromoCardPack, UtopiaPlanitiaMapOption, -CorporateEraExpansion",
+            "Player1",
+            "Player2",
         )
     val promosCimmeriaWithoutCorporateEra =
         projection(
-            "Player1, Player2, PromoCardPack, TerraCimmeriaMapOption, -CorporateEraExpansion"
+            "PromoCardPack, TerraCimmeriaMapOption, -CorporateEraExpansion",
+            "Player1",
+            "Player2",
         )
     val preludeVenusMultiplayer =
-        projection("Player1, Player2, PreludeExpansion, VenusNextExpansion")
+        projection("PreludeExpansion, VenusNextExpansion", "Player1", "Player2")
 
-    fun projection(config: String): Projection = Projection(GameConfig(config))
+    fun projection(config: String, vararg playerNames: String): Projection =
+        Projection(GameConfig(config, *playerNames))
   }
 }

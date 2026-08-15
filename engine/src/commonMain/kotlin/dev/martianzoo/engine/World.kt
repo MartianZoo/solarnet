@@ -22,6 +22,9 @@ import dev.martianzoo.types.ClassTable
  * [Metric] or [Requirement].
  */
 public interface World {
+  /** Every Actor participating in this world, with seated Players in seat order. */
+  public val actors: List<Actor>
+
   /** The current component graph. */
   public val components: ComponentGraph
 

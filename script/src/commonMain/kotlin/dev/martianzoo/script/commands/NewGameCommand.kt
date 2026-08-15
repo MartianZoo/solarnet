@@ -9,7 +9,7 @@ import dev.martianzoo.util.toSetStrict
 
 internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("newgame") {
   override val usage =
-      "newgame (<options> <player count> [colony tiles...] | \"<game config>\") [purple]"
+      "newgame (<options> <player count> [colony tiles...] | \"<game config>\" <player names...>) [purple]"
   override val help =
       """
         Erases your current game and starts a new one. You can't undo that (but you can get your
@@ -23,8 +23,9 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
 
         When using Colonies, list the selected colony tile names after the player count.
         Instead of the legacy option-code form, quote a comma-separated list of canonical class
-        names. Prefix a name with `-` to exclude it. This configuration syntax resembles Pets names
-        but is not Pets syntax.
+        names and then list one to five player class names in seat order. Prefix a configuration
+        name with `-` to exclude it. Player names may be new names such as `Mom` or `Ellie`. The
+        quoted configuration resembles Pets names but is not Pets syntax.
         Add `purple` at the end to run in purple mode, where the engine controls the game flow
         automatically and you only need to respond to tasks.
       """
@@ -45,11 +46,18 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val withoutPurple =
           args.trim().let { if (purple) it.removeSuffix("purple").trimEnd() else it }
       if (withoutPurple.startsWith('"')) {
-        if (!withoutPurple.endsWith('"') || withoutPurple.length < 2) throw UsageException()
-        val configText = withoutPurple.substring(1, withoutPurple.lastIndex)
-        repl.newGame(configText, purple)
-        return listOf("New ${repl.playerCount}-player game created with config: $configText") +
-            (if (purple) listOf("Purple mode: workflow active") else emptyList())
+        val closingQuote = withoutPurple.indexOf('"', startIndex = 1)
+        if (closingQuote < 1) throw UsageException()
+        val configText = withoutPurple.substring(1, closingQuote)
+        val playerNames =
+            withoutPurple.substring(closingQuote + 1).trim().split(Regex("\\s+")).filter {
+              it.isNotEmpty()
+            }
+        repl.newGame(configText, playerNames, purple)
+        return listOf(
+            "New ${repl.playerCount}-player game created with config: $configText; " +
+                "players: ${playerNames.joinToString()}"
+        ) + (if (purple) listOf("Purple mode: workflow active") else emptyList())
       }
 
       val optionCodes = parts.getOrNull(0) ?: throw UsageException()

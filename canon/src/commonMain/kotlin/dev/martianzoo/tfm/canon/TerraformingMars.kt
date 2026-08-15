@@ -296,16 +296,17 @@ internal object TerraformingMars {
   internal object PassLeft : CustomClass() {
     override fun translate(reader: GameReader, component: Type): Instruction {
       val currentOwner: Player = getPlayerOwner(reader, component)
-      val current = currentOwner.toString().removePrefix("Player").toInt()
-      val playerCount: Int = reader.count(parse<Metric>("Player"))
-      if (playerCount == 1) return NoOp
+      val players = reader.actors.filterIsInstance<Player>()
+      if (players.size == 1) return NoOp
 
-      val next = current % playerCount + 1
+      val current = players.indexOf(currentOwner)
+      check(current >= 0) { "StartToken owner is not a seated Player: $currentOwner" }
+      val nextOwner = players[(current + 1) % players.size]
       val fromExpression = component.className.of(component.expressionFull.arguments)
       val toExpression =
           component.className.of(
               component.expressionFull.arguments.map {
-                if (it == currentOwner.expression) cn("Player$next").expression else it
+                if (it == currentOwner.expression) nextOwner.expression else it
               }
           )
       return Transmute(

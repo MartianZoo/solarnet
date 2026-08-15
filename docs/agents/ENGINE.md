@@ -16,10 +16,11 @@ reusable input containing one Authority, the selected Modules, signed individual
 and exclusions, and the exact concrete non-singleton types to instantiate once. Actors and the
 active/phantom class projection derive from those facts.
 
-`GameConfig` is the raw input: comma-or-newline-separated Class Names, optionally
-prefixed with `-`. It is not Pets syntax and never becomes a temporary Game World. Authority-backed
-resolution validates names, applies declarative implications and defaults, and returns an exact
-`GamePremise`. Provider bundles are internal provenance and loading details, not premise inputs;
+`GameConfig` is the raw input: a set parsed from comma-or-newline-separated Class Names, optionally
+prefixed with `-`, plus an ordered list of player class names. The configuration string is not Pets
+syntax and never becomes a temporary Game World. Authority-backed resolution validates names,
+applies declarative implications and defaults, and returns an exact `GamePremise`. Provider bundles
+are internal provenance and loading details, not premise inputs;
 a Module may select a whole content category from a named bundle.
 `Engine.newGame(premise)` constructs the playable Game World directly and evaluates the Authority's
 premise-selected declarative validity requirements against the resulting active class table.

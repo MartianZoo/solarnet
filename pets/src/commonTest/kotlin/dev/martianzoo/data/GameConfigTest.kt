@@ -12,36 +12,46 @@ internal class GameConfigTest {
     val config =
         GameConfig(
             """
-            Player1, Player2
             TerraformingMars, TharsisMapOption
 
             VenusNextExpansion, -WorldGovernmentOption
             """
-                .trimIndent()
+                .trimIndent(),
+            "Player1",
+            "Player2",
         )
 
     config.includedClassNames.shouldContainExactly(
-        cn("Player1"),
-        cn("Player2"),
         cn("TerraformingMars"),
         cn("TharsisMapOption"),
         cn("VenusNextExpansion"),
     )
     config.excludedClassNames.shouldContainExactly(cn("WorldGovernmentOption"))
+    config.playerClassNames.shouldContainExactly(cn("Player1"), cn("Player2"))
     config.toString() shouldBe
-        "Player1, Player2, TerraformingMars, TharsisMapOption, VenusNextExpansion, " +
-            "-WorldGovernmentOption"
+        "TerraformingMars, TharsisMapOption, VenusNextExpansion, -WorldGovernmentOption"
   }
 
   @Test
   fun entryOrderIsNotSemantic() {
-    GameConfig("Player1, TerraformingMars") shouldBe GameConfig("TerraformingMars, Player1")
+    GameConfig("TerraformingMars, PreludeExpansion") shouldBe
+        GameConfig("PreludeExpansion, TerraformingMars")
+  }
+
+  @Test
+  fun acceptsArbitraryPlayerClassNamesSeparately() {
+    val config = GameConfig("TerraformingMars", "Mom", "Ellie")
+
+    config.includedClassNames.shouldContainExactly(cn("TerraformingMars"))
+    config.playerClassNames.shouldContainExactly(cn("Mom"), cn("Ellie"))
+    config.toString() shouldBe "TerraformingMars"
   }
 
   @Test
   fun rejectsDuplicateAndNonClassEntries() {
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, -TerraformingMars") }
+    shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars", "Mom", "Mom") }
     shouldThrow<IllegalArgumentException> { GameConfig("2 Player") }
     shouldThrow<IllegalArgumentException> { GameConfig("Select<Class<Card001>>") }
   }

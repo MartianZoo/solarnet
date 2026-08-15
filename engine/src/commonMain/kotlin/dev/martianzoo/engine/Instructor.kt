@@ -161,7 +161,7 @@ internal class Instructor(
     }
     return when {
       type.className == ENGINE.className -> ENGINE
-      Player.isValid(type.className) -> Player(type.className)
+      Player.fromType(type) != null -> Player(type.className)
       else -> throw ExpressionException("unsupported Actor: ${type.expression}")
     }
   }

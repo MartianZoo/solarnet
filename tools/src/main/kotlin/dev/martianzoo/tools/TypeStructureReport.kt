@@ -41,7 +41,8 @@ internal object TypeStructureReport {
     return Engine.newGame(
         Canon.gamePremise(
             GameConfig.create(
-                included = (1..PLAYERS).map { cn("Player$it") } + selectedOptions + colonies
+                included = selectedOptions + colonies,
+                playerClassNames = (1..PLAYERS).map { cn("Player$it") },
             )
         )
     )

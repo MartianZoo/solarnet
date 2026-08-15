@@ -40,7 +40,7 @@ public class TfmGameplay(
     phase("Production")
     asActor(ENGINE).godMode().manual("Generation")
     phase("Research") {
-      for ((cards, player) in cardsBought.zip(Player.players(5))) {
+      for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
         asPlayer(player).doTask(if (cards > 0) "$cards BuyCard" else "Ok")
       }
     }
