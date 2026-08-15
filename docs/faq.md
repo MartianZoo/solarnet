@@ -26,7 +26,7 @@ You're speaking directly to the engine API, and the engine is extremely low-leve
 
 ### Where are the rest of the cards?
 
-There are currently over 450 cards supported. The rest are listed at [cards-to-add](cards-to-add.md).
+There are currently over 450 cards supported. The full inventory and remaining card and non-card components are listed at [what is supported](what-is-supported.md).
 
 ### Why no Turmoil?
 
