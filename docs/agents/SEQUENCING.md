@@ -201,11 +201,6 @@ semantics before adding syntax.
 
 ### These represent known bugs or missing rules
 
-- **Pluto's individual colony bonus:** the publisher specifies draw one card, then discard one.
-  Canon currently encodes `Ok`. It should be `ProjectCard THEN -ProjectCard`, not the reverse—which
-  deadlocks an empty hand—and not two independent tasks. Independent tasks could expose a temporary
-  empty hand to a hypothetical fan-card effect. Mars University avoids the empty-hand problem by
-  making its entire discard-to-draw branch optional.
 - **Event cleanup:** an event should remain in play through its immediate effect and tags, then move
   to the played-event pile. The current sibling cleanup lets Solar Probe disappear before counting
   its own science tag.
@@ -248,8 +243,9 @@ semantics before adding syntax.
 - Event-dependent effects become available only after their event, but then join the same pool.
 - Trade income and individual colony bonuses are separate effects whose order is chosen by the
   active player. Pluto may therefore take trade-income cards before resolving a draw/discard colony
-  bonus. Do not chain all colony bonuses after trade income, but do preserve draw-then-discard
-  inside each Pluto bonus.
+  bonus. Do not chain all colony bonuses after trade income. Pluto's bonus uses
+  `ProjectCard THEN -ProjectCard`, preserving draw-then-discard inside each bonus even from an empty
+  hand.
 - Separate triggers of the same effect remain separate entries in the pool. Whether one Mars
   University activation may itself be split around another remains under audit.
 

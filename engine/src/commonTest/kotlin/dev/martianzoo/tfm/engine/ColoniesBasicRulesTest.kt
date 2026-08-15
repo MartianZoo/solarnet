@@ -6,6 +6,7 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
@@ -246,5 +247,30 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
     localP1.assertCounts(7 to "Microbe<NitriteReducingBacteria>")
     localP2.assertCounts(1 to "Microbe<RegolithEaters>")
+  }
+
+  @Test
+  fun `Pluto colony bonus draws before its mandatory discard`() {
+    val localGame =
+        setUpGame(
+            ColoniesExpansion,
+            players = 2,
+            colonyTiles = testColonyTiles(2, "Pluto"),
+        )
+    val localP1 = localGame.tfm(PLAYER1)
+    val manual = localP1.godMode().also { it.autoExecMode = NONE }
+
+    localP1.assertCounts(0 to "ProjectCard")
+    manual.manual("GiveColonyBonus<Pluto>") {
+      val draw = localGame.tasks.extract { it }.single()
+      draw.instruction.toString() shouldBe "ProjectCard<Player1>!"
+      draw.then.toString() shouldBe "-ProjectCard<Player1>!"
+
+      doTask("ProjectCard")
+      localP1.assertCounts(1 to "ProjectCard")
+      localGame.tasks.extract { "${it.instruction}" }.single() shouldBe "-ProjectCard<Player1>!"
+      doTask("-ProjectCard")
+    }
+    localP1.assertCounts(0 to "ProjectCard")
   }
 }
