@@ -71,8 +71,13 @@ public object Prod {
                 inner
               }
               inProd && node is Expression && node.className == CLASS -> node
-              inProd && node is Expression && node.className in resourceClassNames ->
-                  PRODUCTION.of(node.arguments + node.className.classExpression())
+              inProd && node is Expression && node.className in resourceClassNames -> {
+                // Production represents its resource kind with a Class dependency, so the
+                // resource selector's refinement belongs on that represented class after lowering.
+                val resourceClass =
+                    node.className.classExpression().copy(refinement = node.refinement)
+                PRODUCTION.of(node.arguments + resourceClass)
+              }
               else -> transformChildren(node)
             }
         @Suppress("UNCHECKED_CAST")

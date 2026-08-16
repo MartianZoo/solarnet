@@ -490,7 +490,9 @@ Before any instruction string reaches the engine, `ApiTranslation` runs it throu
 4. **`insertDefaults()`** — fills in omitted dependency arguments using the class's declared
    defaults (e.g., a bare `Plant` inside Player1's instruction becomes `Plant<Player1>`)
 5. **`replaceOwnerWith(player)`** — replaces the `Owner` placeholder with the actual acting player
-6. **`Prod.deprodify()`** — unwraps `PROD[...]` notation into actual production-component instructions
+6. **`Prod.deprodify()`** — unwraps `PROD[...]` notation into actual production-component
+   instructions, preserving a resource refinement on the production component's represented-class
+   dependency.
 
 This pipeline runs on every instruction string before it reaches `Implementations` or
 `Instructor`. Instructions already in Pets AST form (from inside the engine) skip the string

@@ -95,6 +95,14 @@ class TransformersTest {
   }
 
   @Test
+  fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
+    val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
+
+    Prod.deprodify(setOf(cn("StandardResource"))).transform(prodden).toString() shouldBe
+        "Production<Class<StandardResource>(HAS LowestProduction)>"
+  }
+
+  @Test
   fun testDeprodify_lessSimple() {
     val prodden: Effect =
         parse(

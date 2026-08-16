@@ -89,7 +89,7 @@ internal class CanonBundlesTest {
 
   @Test
   fun authorityRetainsEveryCustomImplementation() {
-    Canon.customClasses.map { it.className.toString() } shouldContain "GainLowestProduction"
+    Canon.customClasses.map { it.className.toString() } shouldContain "LowestProduction"
   }
 
   @Test

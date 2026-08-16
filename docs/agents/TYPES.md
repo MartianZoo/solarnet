@@ -461,6 +461,10 @@ Satisfaction therefore has two parts. The candidate must narrow the unrefined ty
 must satisfy the substituted requirement. A concrete type that satisfies a refinement is not thereby
 a static subtype of the refinement; state-aware consumers perform the satisfaction test separately.
 
+A refined `Class<...>` type automatically narrows when exactly one concrete represented class
+satisfies its requirement. This lets metadata metrics filter a class-valued dependency while
+leaving multiple qualifying classes as an explicit choice.
+
 ### 6.2 Static relationships
 
 A refinement is always a subtype of its unrefined type. Narrowing the base while retaining exactly

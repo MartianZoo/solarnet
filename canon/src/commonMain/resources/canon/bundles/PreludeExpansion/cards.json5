@@ -24,8 +24,8 @@
       "id": "PC3",
       "deck": "CORPORATION",
       "immediate": "47",
-      "actions": [ "4 -> GainLowestProduction" ],
-      "components": [ "CLASS GainLowestProduction : Owned, Custom" ],
+      "actions": [ "4 -> PROD[StandardResource(HAS LowestProduction)]" ],
+      "components": [ "CLASS LowestProduction<Class<StandardResource>> : Owned, Custom" ],
     },
 
     // Valley Trust

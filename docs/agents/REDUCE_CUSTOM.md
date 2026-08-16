@@ -13,7 +13,7 @@ from hand-authored Pets and general existing runtime semantics. Moving behavior 
 lowering pass does not count. Nor should canonical facts be duplicated manually in Pets merely to
 avoid an honest Kotlin implementation.
 
-This review covers the 14 canonical `CustomClass.translate` implementations. Custom metrics are a
+This review covers the 13 canonical `CustomClass.translate` implementations. Custom metrics are a
 separate problem.
 
 ## Reasonable candidates
@@ -64,15 +64,19 @@ rule.
 per-area Pets effects or a second hand-authored adjacency catalog would be less direct than the
 current implementation.
 
-The remaining three perform selections the language cannot express:
+The remaining two perform selections the language cannot express:
 
-- `GainLowestProduction` computes an arg-min with ties and the megacredit-production offset;
 - `AssignAwardPlaces` ranks players while applying tie and player-count rules;
 - `MultiplayerVictoryCheck` performs a lexicographic arg-max and preserves ties.
 
-A future general relational selection facility could justify revisiting all three together. Do not
+A future general relational selection facility could justify revisiting both together. Do not
 add isolated `MIN`, ranking, or winner syntax merely to erase their Kotlin objects; the custom
 implementations are currently the smaller and clearer mechanism.
+
+Robinson Industries no longer uses a custom instruction. Its generic `LowestProduction` custom
+metric reports whether one concrete resource type is tied for the owner's lowest production. An
+ordinary refined `StandardResource` production instruction supplies the choice behavior without
+adding a relational-selection feature to Pets.
 
 ## Direction
 
