@@ -203,7 +203,7 @@ internal object TerraformingMars {
         cardFrontClassType: Type,
     ): Instruction {
       val deck = cardFromClassType(cardFrontClassType, reader).deck
-      return if (cardBackClassType.expression.arguments.single().className == deck?.className) {
+      return if (representedType(cardBackClassType, reader).className == deck?.className) {
         NoOp
       } else {
         gain(DIE)
@@ -390,9 +390,12 @@ internal object TerraformingMars {
       AWARD_TALLY.of(player.className.expression, awardType.expression)
 
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
-    require(cardClassType.className == CLASS)
-    val cardName = cardClassType.expression.arguments.single().className
-    return reader.tfmAuthority.card(cardName)
+    return reader.tfmAuthority.card(representedType(cardClassType, reader).className)
+  }
+
+  private fun representedType(classType: Type, reader: GameReader): Type {
+    require(classType.className == CLASS)
+    return reader.resolve(classType.expressionFull.arguments.single())
   }
 
   private fun card(type: HasClassName, reader: GameReader): CardDefinition =

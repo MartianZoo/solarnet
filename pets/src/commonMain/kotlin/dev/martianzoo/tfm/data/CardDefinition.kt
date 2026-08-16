@@ -90,7 +90,7 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val effects: List<Effect> = data.effects.map(::parse)
 
-  /** The card's requirement, if any. */
+  /** The card's printed play requirement, if any. */
   public val requirement: Requirement? = projectInfo?.requirement
 
   /** The card's non-negative cost in megacredits. */
@@ -100,7 +100,7 @@ public class CardDefinition(data: CardData) : Definition {
   public class ProjectInfo internal constructor(data: CardData) {
     public val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
 
-    /** The card's requirement, if any. */
+    /** The card's printed play requirement, if any. */
     public val requirement: Requirement? = data.requirement?.let(::parse)
 
     /** The card's non-negative cost in megacredits. */
