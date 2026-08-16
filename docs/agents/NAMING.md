@@ -1,36 +1,37 @@
-# Class Naming
+# Class names and vocabulary
 
-Every Class has exactly one engine-facing `ClassName`. Rules, Declarations, Kotlin implementations,
-Events, saved state, and engine APIs use that Class Name. Numerous Content-Class Definitions use
-language-neutral names (`Card072`, `MilestoneHM6`, `AwardBA1`, `ColonyTile03`). Standard actions
-and projects instead use semantic Class Names such as `PlayCardSA` and `AsteroidSP`.
+**Status: current model.**
 
-Bundles keep presentation text in `language/<tag>.json5`. Each file is an object from Class Name
-to natural-language Display Name. Vocabulary lookup follows the requested locale from
-most specific to least specific and then English, independently for each entry. Entries are grouped
-by content category and sorted by Class Name within each group; milestones precede awards and
-cards are last.
+Every class has one engine-facing `ClassName`. Pets, declarations, Kotlin implementations, events,
+saved state, and engine APIs use it. A `ClassName` begins with an ASCII uppercase letter and then
+contains ASCII letters, digits, or underscores.
 
-Each Game World owns a session `Vocabulary`. It provides:
+Structured content commonly uses language-neutral names such as `Card072`, `MilestoneHM6`,
+`AwardBA1`, and `ColonyTile03`. Rules and standard actions usually use semantic names such as
+`PlayCardSA` and `AsteroidSP`. Never use display text as persistent identity.
 
-- `canonicalName` and `canonicalize` for localized Pets input and separately configured input-only
-  synonyms;
-- `displayName` for ordinary natural-language UI;
-- `petsName` and `renderPets` for localized, parseable Pets-oriented output.
+Each Game World owns a locale-specific `Vocabulary`:
 
-Input-only synonyms are never rendering candidates. For cards, milestones, awards, colonies, and
-similar structured content, the Pets name is derived only from the effective localized display
-name using the [Google Java Style camel-case conversion][camel-case]: remove apostrophes, split on
-other punctuation and whitespace and on conventional internal camel-case boundaries, lowercase
-every word, uppercase each word's first character, and join the words while retaining supported
-letters, marks, and digits. Thus `UNMI Contractor` becomes `UnmiContractor`, `PolderTECH Dutch`
-becomes `PolderTechDutch`, and `Asteroid (Card)` becomes `AsteroidCard`. The current common
-implementation does not promise Unicode normalization or supplementary-code-point handling.
-There are no per-entry Pets-name overrides. Vocabulary construction rejects collisions between
-Class Synonyms and Class Names.
+- `canonicalName` and `canonicalize` resolve localized Pets input and input-only synonyms;
+- `displayName` produces ordinary UI text; and
+- `petsName` and `renderPets` produce localized, parseable Pets.
+
+Bundle files at `language/<tag>.json5` map Class Names to display names. Lookup falls back from the
+requested locale to less-specific locales and then English, independently for each entry. Keep
+entries grouped by content category and sorted by Class Name within each group; milestones precede
+awards and cards are last.
+
+For structured content, the Pets name is derived from the effective localized display name with the
+[Google Java Style camel-case conversion][camel-case]: remove apostrophes, split on other punctuation,
+whitespace, and conventional internal camel-case boundaries, lowercase each word, capitalize its
+first character, and join. The current implementation accepts ASCII display text only. Examples:
+`UNMI Contractor` becomes `UnmiContractor`, `PolderTECH Dutch` becomes `PolderTechDutch`, and
+`Asteroid (Card)` becomes `AsteroidCard`.
+
+There are no per-entry Pets-name overrides. Input-only synonyms never become rendering candidates.
+Vocabulary construction rejects collisions among Class Names, localized Pets names, and synonyms.
+UI code must render through the session Vocabulary rather than `ClassName.toString()`.
+
+There is no Unicode normalization because non-ASCII display text is currently rejected.
 
 [camel-case]: https://google.github.io/styleguide/javaguide.html#s5.3-camel-case
-
-`ClassName` itself accepts an ASCII uppercase letter followed by ASCII letters, digits, or
-underscores. UI code must render through the session Vocabulary rather than relying on `ClassName`
-`toString()` output.
