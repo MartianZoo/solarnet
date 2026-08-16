@@ -74,8 +74,11 @@ overload in `CardTest` uses the same resolution path.
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
 to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
 checking another Player or an intentionally cross-player total. Do not restate costs, fixture setup,
-or every incidental resource movement. Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to
-assert that a particular type did not change.
+literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
+fixtures, include explicitly narrated gains/removals and interesting automatic effects, even when the
+expected net differs from the narrated gross amount. Prefer a nearby absolute assertion when the
+source states an absolute value. Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert
+that a particular type did not change.
 
 Cover meaningful boundaries, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
@@ -92,17 +95,28 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Before editing a dated whole-game fixture, explicitly inspect its matching
   `_local/GameYYYYMMDD/` directory and read any `implementation-plan.md` there before acting. The
   repository's `_local` path may be a symlink, which `rg --files` does not traverse, so a general
-  file search is not evidence that the fixture's local sources are absent.
+  file search is not evidence that the fixture's local sources are absent. A plan supplies workflow,
+  not game facts: establish all setup, chronology, values, and reconciliations from original sources.
+- For a herokuapp archive, read `docs/agents/HEROKUAPP_GAME_LOGS.md` before implementation. Its API,
+  payment-reconstruction, screenshot, counterfactual, and endgame rules supplement this section.
+- Do not inspect an existing dated fixture, Git history, or previous agent summary to learn what
+  happened when the task calls for an independent reconstruction. Repository code and other fixtures
+  may teach the Solarnet API only.
 - In multiplayer action phases, express each player's actions as `player.turn { ... }`. A normal
-  turn block contains up to two actions and automatically declines an unused second action. Once
-  every other player has passed, keep the remaining player's actions through `pass()` in one turn
-  block; workflow-provided `NewTurn` tasks let that block continue across the remaining nominal
+  turn block contains up to two actions and automatically declines an unused second action. The
+  exception is a sourced fast-mode game, where players must take two actions unless passing; translate
+  those actions directly rather than using `turn {}`, and preserve explicit passes or declined second
+  actions when the source records them.
+  Once every other player has passed, keep the remaining player's actions through `pass()` in one
+  turn block; workflow-provided `NewTurn` tasks let that block continue across the remaining nominal
   turns.
 - Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
   immediately play another Prelude or project inside one of those plays.
 - Preserve supplied log lines as comments near the test actions that translate them. Assert
   selective checkpoints, summaries, and final facts rather than mechanically asserting every log
-  entry.
+  entry. For a requested complete machine-log translation, preserve every source line in order;
+  audio transcripts may drop filler and repetition while retaining gameplay-relevant personality,
+  uncertainty, corrections, and mistakes.
 - Treat every supplied screenshot as an authoritative snapshot at its exact point in the timeline.
   At a generation boundary, reproduce any research choices logged before that screenshot, then
   reconcile every visible resource and production discrepancy before the first action. If the
