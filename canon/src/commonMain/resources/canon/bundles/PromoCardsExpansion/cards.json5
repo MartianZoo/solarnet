@@ -681,6 +681,17 @@
       "immediate": "PROD[Plant], Plant / PlantTag",
     },
 
+    // Supercapacitors
+    {
+      "id": "X46",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 4,
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "immediate": "PROD[1]",
+      "effects": [ "-Energy IF ProductionPhase: Energy FROM Heat?" ],
+    },
+
     // Icy Impactors
     {
       "id": "X47",

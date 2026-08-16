@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.data.GameConfig
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -131,23 +130,17 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(RegolithEaters).expect("Microbe")
       playProject("ResearchOutpost", 12, steel = 2) { doTask("CityTile<Hellas_7_6>") }
 
-      withAutoExecLoweredAfterOperation(
-              NONE,
-              operation = { lowerAutoExec -> playProject("Cartel", 7) { lowerAutoExec() } },
-          ) {
-            // The player played Supercapacitors, which is no longer supported by Canon.
-            godMode().manual("-3, PROD[1], -ProjectCard")
-          }
-          .expect("PROD[5]")
+      playProject("Cartel", 7).expect("PROD[5]")
+      playProject("Supercapacitors", 3).expect("PROD[1]")
 
       // The player chose to convert only one of three energy with Supercapacitors.
       pass()
-      godMode().sneak("2 Energy FROM Heat")
+      doTask("2 Energy FROM Heat!")
       buyCards(3)
 
       assertProduction(m = 14, s = 1, t = 2, p = 2, e = 3, h = 1)
       assertResources(m = 33, s = 1, t = 4, p = 2, e = 5, h = 5)
-      assertDashMiddle(played = 21, actions = 3, vp = 29, tr = 27, hand = 14)
+      assertDashMiddle(played = 22, actions = 3, vp = 29, tr = 27, hand = 14)
       assertDashRight(events = 3, tagless = 2, cities = 1)
       assertSidebar(gen = 8, temp = -22, oxygen = 2, oceans = 1, venus = 2)
 
@@ -165,7 +158,7 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       // The player chose to convert none of five energy with Supercapacitors.
       pass()
-      godMode().sneak("5 Energy FROM Heat")
+      doTask("5 Energy FROM Heat!")
       buyCards(2)
 
       val AiCentral = "AiCentral"
@@ -173,13 +166,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(SubCrustMeasurements)
       cardAction2(RegolithEaters)
       playProject("Archaebacteria", 5)
-      withAutoExecLoweredAfterOperation(
-          NONE,
-          operation = { lowerAutoExec -> playProject("PowerGrid", 17) { lowerAutoExec() } },
-      ) {
-        // The unsupported Supercapacitors supplied one of the power tags counted by Power Grid.
-        godMode().manual("PROD[Energy]")
-      }
+      playProject("PowerGrid", 17)
       cardAction1(EquatorialMagnetizer)
       playProject(AiCentral, 16, steel = 1)
       cardAction1(AiCentral)
@@ -187,12 +174,12 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       // The player chose to convert only two of five energy with Supercapacitors.
       pass()
-      godMode().sneak("3 Energy FROM Heat")
+      doTask("3 Energy FROM Heat!")
       buyCards(0)
 
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
       assertResources(m = 56, s = 1, t = 6, p = 7, e = 6, h = 8)
-      assertDashMiddle(played = 29, actions = 5, vp = 36, tr = 32, hand = 10)
+      assertDashMiddle(played = 30, actions = 5, vp = 36, tr = 32, hand = 10)
       assertDashRight(events = 3, tagless = 2, cities = 2)
       assertSidebar(gen = 10, temp = -20, oxygen = 3, oceans = 1, venus = 4)
 
@@ -211,7 +198,7 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       // The player chose to convert only three of six energy with Supercapacitors.
       pass()
-      godMode().sneak("3 Energy FROM Heat")
+      doTask("3 Energy FROM Heat!")
       buyCards(3)
 
       stdAction("ConvertHeatSA")
@@ -256,7 +243,7 @@ class SoloGame0611Test : AbstractSoloTest() {
 
       assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
       assertResources(m = 8, s = 1, t = 0, p = 0, e = 0, h = 1)
-      assertDashMiddle(played = 40, actions = 1, vp = 78, tr = 64, hand = 0)
+      assertDashMiddle(played = 41, actions = 1, vp = 78, tr = 64, hand = 0)
       assertDashRight(events = 6, tagless = 2, cities = 2)
       assertSidebar(gen = 12, temp = -10, oxygen = 11, oceans = 2, venus = 16)
 

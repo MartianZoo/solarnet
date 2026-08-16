@@ -848,13 +848,14 @@ class Game20260811Test : AbstractFullGameTest() {
     // Mom played Supercapacitors
     // Mom gained 1 M€ production
     // Mom removed 2 resource(s) from Mom's Recyclon
-    // The later dashboard requires Supercapacitors' unimplemented production and payment.
-    mom.exMachina("-2, -S, PROD[M, P], -2 Microbe<Recyclon>")
+    mom.playProject("Supercapacitors", 2, steel = 1) {
+          doTask("-2 Microbe<Recyclon>")
+        }
+        .expect("PROD[M, P]")
     // Mom used Hospitals action
     // Mom removed 1 resource(s) from Mom's Hospitals
     // Mom gained 3 M€
     mom.cardAction1("Hospitals").expect("-Disease, 3")
-    mom.declineSecondAction()
 
     // Ellie played Io Mining Industries
     // Ellie gained 2 M€ production
@@ -1275,6 +1276,7 @@ class Game20260811Test : AbstractFullGameTest() {
     dad.pass()
 
     // Mom converted 2 units of energy to heat
+    mom.doTask("Ok")
     // Final greenery placement
     dad.doTask("UseAction1<ConvertPlantsSA>")
     // Dad placed greenery tile at 18
