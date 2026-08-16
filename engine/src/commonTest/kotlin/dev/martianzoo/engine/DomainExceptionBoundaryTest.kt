@@ -3,9 +3,12 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.KindException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -21,6 +24,11 @@ internal class DomainExceptionBoundaryTest {
     shouldThrow<ExpressionException> { gameplay.has("WAT[Plant]") }
     shouldThrow<ExpressionException> { gameplay.manual("WAT[Plant]") }
     shouldThrow<PetSyntaxException> { gameplay.manual("PROD[PROD[Plant]]") }
+  }
+
+  @Test
+  fun preprocessingKindChangesUseKindExceptions() {
+    shouldThrow<KindException> { gameplay().parse<Instruction>("2 OxygenStep!") }
   }
 
   @Test

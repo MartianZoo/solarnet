@@ -8,6 +8,8 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -113,12 +115,15 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
           val multiple = match.groupValues[1].ifEmpty { "1" }.toInt()
           (multiple * x).toString()
         }
-    return repl.game.vocabulary.canonicalize(Parsing.parse(specialized))
+    return repl.game.vocabulary.canonicalize(Parsing.parse<Instruction>(specialized))
   }
 
   private fun paymentRemovals(payment: String): List<Instruction> {
     val gains =
-        Instruction.split(repl.game.vocabulary.canonicalize(Parsing.parse(payment))).instructions
+        repl.game.vocabulary
+            .canonicalize(Parsing.parse<InstructionTree>(payment))
+            .let(InstructionGroup::of)
+            .instructions
     return gains.map {
       val gain = it as? Gain ?: throw UsageException("payment must contain positive resources")
       remove(gain.scaledEx)

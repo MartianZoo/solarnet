@@ -199,15 +199,30 @@ let any other Task jump ahead, it could change the Game World that was already r
 
 ## Instructions and How They Execute
 
-`Instructor` is the thing that executes Pets instructions. These take various forms:
+Pets has three deliberately distinct instruction kinds:
+
+- `InstructionTree` — the broad syntax-tree type used where composition can produce either one
+  instruction or several
+- `Instruction` — one task-shaped root instruction; it can contain nested composition, but is not
+  itself a comma-separated batch
+- `InstructionGroup` — a normalized comma-separated batch of independent `Instruction`s; task
+  queues split it into one task per member
+
+String APIs preserve the same distinction. `manual`, `beginManual`, and `addTasks` accept explicit
+comma-separated batches because each seeds task queues. `doTask`, `tryTask`, and `reviseTask` also
+accept a group when it narrows one existing task, such as by selecting a grouped arm of an `OR`;
+the selected group then decomposes into independent tasks.
+
+`Instructor` prepares and executes individual `Instruction`s. These take various forms:
 
 - `Change` — the core: gain N of X, remove N of Y, or transmute N of Y into X
-- `Then` — sequential composition: do A, then B
+- `Then` — right-associative enqueue composition: `A THEN B THEN C` means
+  `A THEN (B THEN C)`, so completing `A` enqueues `B THEN C`; a left operand cannot contain another
+  `Then` or an `InstructionGroup`, while the final continuation may contain either
 - `Or` — a choice (player must revise to pick one branch)
 - `Gated` — conditional: only execute if a requirement is met
 - `Per` — scaled: multiply the inner instruction by a metric count
 - `By` — perform the inner instruction as a specified concrete Actor without changing its task assignee
-- `Multi` — parallel splits (used by atomization; see below)
 - `NoOp` — does nothing
 
 The process has two stages.
@@ -226,7 +241,7 @@ as much as possible without actually changing anything:
   A non-mandatory transfer whose source and destination narrow to the same component becomes
   `NoOp`; the same reflexive transfer remains invalid when mandatory.
 - Custom types delegate through `CustomClassRuntime`, which validates their concrete dependencies,
-  invokes the matching `CustomClass.translate()` overload, and lowers the returned instruction
+  invokes the matching `CustomClass.translate()` overload and lowers its returned `InstructionTree`
 
 ### 2. Execute
 
@@ -485,8 +500,8 @@ Before any instruction string reaches the engine, `ApiTranslation` runs it throu
 
 1. **Session Vocabulary canonicalization** — resolves localized Pets Names and configured input-only Class Synonyms to the sole Class Names
 2. **`useFullNames()`** — resolves and validates those Class Names against the Class Table
-3. **`atomizer()`** — expands `3 Heat` (where Heat is `Atomized`) into `Multi(Heat, Heat, Heat)`,
-   so that each unit triggers effects individually
+3. **`atomizer()`** — expands `3 Heat` (where Heat is `Atomized`) into an
+   `InstructionGroup(Heat, Heat, Heat)`, so that each unit triggers effects individually
 4. **`insertDefaults()`** — fills in omitted dependency arguments using the class's declared
    defaults (e.g., a bare `Plant` inside Player1's instruction becomes `Plant<Player1>`)
 5. **`replaceOwnerWith(player)`** — replaces the `Owner` placeholder with the actual acting player
@@ -497,6 +512,15 @@ Before any instruction string reaches the engine, `ApiTranslation` runs it throu
 This pipeline runs on every instruction string before it reaches `Implementations` or
 `Instructor`. Instructions already in Pets AST form (from inside the engine) skip the string
 parsing but can still go through some of these transforms as needed.
+
+Every `PetNode` names its primary API `kind`: the stable abstraction clients rely on instead of its
+concrete implementation type. For example, `Instruction.Gain.kind` is `Instruction`, not
+`Instruction.Gain`. `PetTransformer` entry points preserve a requested kind, so
+`transformInstruction` may replace a gain with another `Instruction` implementation. A caller that
+permits cardinality changes requests the broader `InstructionTree` kind, which also permits an
+`InstructionGroup`. Transformer implementations dispatch on raw `PetNode`s internally; clients use
+the named kind-preserving entry points so an invalid kind change fails with `KindException` at that
+boundary.
 
 This owner-substitution pass is present only where an operation has Player ownership context.
 `Engine` is not an Owner, so its instructions pass through without acquiring contextual ownership.

@@ -113,6 +113,35 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `an OR with only one live grouped arm starts each grouped task`() {
+    initiate("(4 Heat, 2 Energy) OR Die")
+
+    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
+  }
+
+  @Test
+  fun `doing a task can select a grouped arm`() {
+    initiate("5 Plant OR (4 Heat, 2 Energy)")
+
+    writer.doTask("4 Heat, 2 Energy")
+
+    writer.count("Heat") shouldBe 4
+    writer.count("Energy") shouldBe 2
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun `trying a task can select a grouped arm`() {
+    initiate("5 Plant OR (4 Heat, 2 Energy)")
+
+    writer.tryTask("4 Heat, 2 Energy")
+
+    writer.count("Heat") shouldBe 4
+    writer.count("Energy") shouldBe 2
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   fun `narrowing an OR can narrow each instruction in a grouped arm`() {
     initiate("5 Plant OR (4 StandardResource, 2 StandardResource)")
 

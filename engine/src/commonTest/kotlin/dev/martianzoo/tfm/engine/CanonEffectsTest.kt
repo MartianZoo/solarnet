@@ -46,7 +46,8 @@ internal class CanonEffectsTest {
     compiledByOwnerEffects.forEach { (className, effect) ->
       withClue("$className: $effect") {
         (OWNER in effect.instruction) shouldBe true
-        (OWNER in replaceOwnerWith(PLAYER1).transform(effect.instruction)) shouldBe false
+        (OWNER in replaceOwnerWith(PLAYER1).transformInstructionTree(effect.instruction)) shouldBe
+            false
       }
     }
   }

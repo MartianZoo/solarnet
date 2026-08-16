@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.KindException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
@@ -14,7 +15,6 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.Multiset
@@ -34,7 +34,11 @@ public interface Gameplay {
 
   public val actor: Actor
 
-  public fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
+  /**
+   * Parses and preprocesses [text]. Preprocessing may change its major kind; callers that require a
+   * particular result kind should use [parse].
+   */
+  public fun parseInternal(type: KClass<out PetElement>, text: String): PetElement
 
   public fun has(requirement: String): Boolean
 
@@ -51,8 +55,9 @@ public interface Gameplay {
    * assignee is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
    * instruction if necessary. Executes nothing.
    *
-   * @param [revised] the new instruction; may be abstract; if identical to the current instruction
-   *   this method does nothing
+   * @param [revised] the new instruction tree; may be abstract or a grouped arm selected from an
+   *   `OR`; a group replaces this one task with one task per member; if identical to the current
+   *   instruction this method does nothing
    * @throws [TaskException] if there is no task by this id assigned to this gameplay's Actor
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
@@ -78,10 +83,11 @@ public interface Gameplay {
    * re-prepare the task. If no possible narrowing could succeed, this method might or might not
    * recognize that fact and throw instead.
    *
+   * If preparation produces independent instructions, this task is replaced by one task for each
+   * instruction before any of them is prepared against the world.
+   *
    * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
    *   prepared
-   * @throws [AbstractException] if the task instruction contains a [Multi] at any level; it must
-   *   first be narrowed until it splits into tasks that can be prepared individually
    * @throws [NotNowException] if the prepared task would throw this exception on execution
    */
   public fun prepareTask(taskId: TaskId): TaskId?
@@ -93,10 +99,13 @@ public interface Gameplay {
   public fun prepareTask(instruction: String): TaskId?
 
   /**
-   * Carries out the task matched by [revised]. Prepares it first if necessary. As part of this,
-   * executes triggered instructions from *automatic* effects, enqueues tasks for queued effects and
-   * any contents of [Task.then], and removes the original task from the game's task queue. Throws
-   * an exception if any of this fails.
+   * Carries out the task matched by the source-level [revised] instruction tree. A grouped tree can
+   * select a grouped choice and replace the matched task with independent tasks; preprocessing can
+   * produce the same result, for example when atomizing a multi-step global parameter gain.
+   * Prepares the matched task first if necessary. As part of this, executes triggered instructions
+   * from *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then],
+   * and removes the original task from the game's task queue. Throws an exception if any of this
+   * fails.
    *
    * A prepared task always wins. Otherwise, the revision must match exactly one task, except that
    * fully identical tasks are interchangeable. [taskNumber], when supplied, selects the 1-based
@@ -128,9 +137,11 @@ public interface Gameplay {
   // Green mode
 
   public interface OperationLayer : TurnLayer {
-    public fun manual(initialInstruction: String, body: BodyLambda = {}): TaskResult
+    /** Starts and completes an operation seeded by one or more independent instructions. */
+    public fun manual(initialInstructions: String, body: BodyLambda = {}): TaskResult
 
-    public fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
+    /** Starts a resumable operation seeded by one or more independent instructions. */
+    public fun beginManual(initialInstructions: String, body: BodyLambda = {}): TaskResult
 
     public fun continueManual(body: BodyLambda = {}): TaskResult
 
@@ -168,8 +179,15 @@ public interface Gameplay {
   }
 
   public companion object {
-    public inline fun <reified P : PetElement> Gameplay.parse(text: String): P =
-        parseInternal(P::class, text)
+    public inline fun <reified P : PetElement> Gameplay.parse(text: String): P {
+      val parsed = parseInternal(P::class, text)
+      if (parsed !is P) {
+        throw KindException(
+            "Preprocessing produced `$parsed`, which is not a ${P::class.simpleName}"
+        )
+      }
+      return parsed
+    }
   }
 }
 

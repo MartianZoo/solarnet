@@ -22,7 +22,7 @@ import dev.martianzoo.util.iff
  */
 public data class Effect(
     val trigger: Trigger,
-    val instruction: Instruction,
+    val instruction: InstructionTree,
     val automatic: Boolean = false,
 ) : PetElement() {
   public val linkedTypeSources: Set<Expression>
@@ -245,7 +245,7 @@ public data class Effect(
 
       return Trigger.parser() and
           colons and
-          maybeGroup(Instruction.parser()) map
+          maybeGroup(InstructionTree.parser()) map
           { (trig, immed, instr) ->
             val effect =
                 Effect(

@@ -78,7 +78,7 @@ internal class Limiter(
 
     // Simplify it if we can
     if (klass.concreteTypes().drop(1).none()) {
-      expr = replaceThisExpressionsWith(klass.className.expression).transform(expr)
+      expr = replaceThisExpressionsWith(klass.className.expression).transformExpression(expr)
     }
 
     return if (THIS in expr.descendantsOfType<ClassName>()) {
@@ -170,7 +170,7 @@ internal class Limiter(
             (listOf(type) + type.typeDependencies.map { it.boundType }).singleOrNull {
               it.rootClass.isSubtypeOf(declaringClass)
             } ?: return null
-        val expr = replaceThisExpressionsWith(thisType.expression).transform(expression)
+        val expr = replaceThisExpressionsWith(thisType.expression).transformExpression(expression)
         return SimpleRangeRestriction(declaringClass.classTable.resolve(expr), range)
       }
 
