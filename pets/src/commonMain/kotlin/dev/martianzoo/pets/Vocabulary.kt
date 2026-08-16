@@ -7,6 +7,9 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.data.Task
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 
 /** Session-specific ASCII class-name input and presentation policy. */
@@ -28,10 +31,18 @@ private constructor(
   public fun petsName(name: ClassName): ClassName = petsNames[name] ?: name
 
   /** Rewrites every recognized input name in [node] to its stable canonical name. */
-  public fun <P : PetNode> canonicalize(node: P): P = canonicalizer.transform(node)
+  public fun canonicalize(node: Expression): Expression = canonicalizer.transformExpression(node)
+
+  /** Rewrites every recognized input name while preserving one task-shaped instruction. */
+  public fun canonicalize(node: Instruction): Instruction = canonicalizer.transformInstruction(node)
+
+  /** Rewrites every recognized input name in a possibly grouped instruction tree. */
+  public fun canonicalize(node: InstructionTree): InstructionTree =
+      canonicalizer.transformInstructionTree(node)
 
   /** Renders [node] as localized, parseable Pets source without emitting input-only synonyms. */
-  public fun renderPets(node: PetNode): String = petsRenderer.transform(node).toString()
+  public fun renderPets(node: PetNode): String =
+      petsRenderer.transformWithoutKindCheck(node).toString()
 
   /** Renders an engine state change using localized Pets-compatible class names. */
   public fun renderPets(change: StateChange): String {
@@ -232,10 +243,9 @@ private constructor(
 
     private fun classNameTransformer(transform: (ClassName) -> ClassName): PetTransformer =
         object : PetTransformer() {
-          override fun <P : PetNode> transform(node: P): P {
+          override fun transformNode(node: PetNode): PetNode {
             if (node is ClassName) {
-              @Suppress("UNCHECKED_CAST")
-              return transform(node) as P
+              return transform(node)
             }
             return transformChildren(node)
           }

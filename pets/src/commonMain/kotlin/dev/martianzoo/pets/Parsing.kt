@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
@@ -48,8 +49,8 @@ public object Parsing {
 
   /**
    * Parses the Pets element of type [P] from [elementSource], and returns it *not* surrounded by a
-   * `RAW` block. [P] can only be one of the major element types like [Effect], [Action],
-   * [Instruction], [Expression], etc.
+   * `RAW` block. [P] can only be one of the published node kinds like [Effect], [Action],
+   * [InstructionTree], [Expression], etc.
    */
   public inline fun <reified P : PetNode> parse(elementSource: String): P =
       parse(P::class, elementSource)
@@ -62,7 +63,7 @@ public object Parsing {
 
     val pet = group.parse(expectedType, elementSource, matches)
     check(expectedType.isInstance(pet)) {
-      "Expected ${expectedType.simpleName}, got ${pet.kind.simpleName}"
+      "Expected ${expectedType.simpleName} kind, got ${pet.kind.simpleName}"
     }
     return pet
   }
@@ -122,6 +123,7 @@ public object Parsing {
     pgb.publish(Cost.parser())
     pgb.publish(Effect.parser())
     pgb.publish(Expression.parser())
+    pgb.publish(InstructionTree.parser())
     pgb.publish(Instruction.parser())
     pgb.publish(Metric.parser())
     pgb.publish(Requirement.parser())

@@ -12,6 +12,8 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestOption.*
@@ -66,6 +68,7 @@ internal class CustomMetricTest {
     p1.count("SplitBehavior") shouldBe 9
     p1.godMode().manual("SplitBehavior")
     p1.count("Heat") shouldBe 1
+    p1.count("Plant") shouldBe 2
   }
 
   @Test
@@ -122,7 +125,8 @@ private object BothBehavior : CustomMetric() {
 
 private object SplitInstructionImplementation {
   object SplitBehavior : CustomClass() {
-    override fun translate(game: GameReader): Instruction = parse("Heat<Player1>")
+    override fun translate(game: GameReader): InstructionGroup =
+        InstructionGroup(listOf(parse("Heat<Player1>"), parse("Plant<Player1>")))
   }
 }
 
@@ -154,7 +158,7 @@ private object BrokenMetric : CustomMetric() {
 }
 
 private object BrokenInstruction : CustomClass() {
-  override fun translate(game: GameReader): Instruction = error("broken instruction")
+  override fun translate(game: GameReader): InstructionTree = error("broken instruction")
 }
 
 private object CustomClassDeclarations : TfmAuthority() {

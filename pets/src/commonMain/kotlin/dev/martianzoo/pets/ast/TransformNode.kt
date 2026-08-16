@@ -1,6 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Instruction.Transform
@@ -18,44 +17,31 @@ public interface TransformNode<P : PetNode> {
   public fun extract(): P
 
   public companion object {
-    /** Returns [node] wrapped as a [TransformNode] *if* that kind of node is supported. */
-    public fun <P : PetNode?> wrap(node: P, kind: String): P {
-      fun <P : PetNode?> isThisKind(node: P) = (node as? TransformNode<*>)?.transformKind == kind
+    public fun wrap(node: Cost, kind: String): Cost = wrap(node, kind) { Cost.Transform(it, kind) }
 
-      if (node == null || isThisKind(node)) return node
+    public fun wrap(node: InstructionTree, kind: String): InstructionTree =
+        wrap(node, kind) { Transform(it, kind) }
+
+    public fun wrap(node: Instruction, kind: String): Instruction =
+        wrap(node, kind) { Transform(it, kind) }
+
+    public fun wrap(node: Metric, kind: String): Metric =
+        wrap(node, kind) { Metric.Transform(it, kind) }
+
+    public fun wrap(node: Requirement, kind: String): Requirement =
+        wrap(node, kind) { Requirement.Transform(it, kind) }
+
+    public fun wrap(node: Trigger, kind: String): Trigger =
+        wrap(node, kind) { Trigger.Transform(it, kind) }
+
+    private fun <P : PetNode> wrap(node: P, kind: String, wrapper: (P) -> P): P {
+      fun isThisKind(candidate: PetNode) = (candidate as? TransformNode<*>)?.transformKind == kind
+
+      if (isThisKind(node)) return node
       require(node.descendantsOfType<PetNode>().none(::isThisKind)) {
         "already has a $kind component: $node"
       }
-
-      val wrapped =
-          when (node) {
-            is Cost -> Cost.Transform(node, kind)
-            is Instruction -> Transform(node, kind)
-            is Metric -> Metric.Transform(node, kind)
-            is Requirement -> Requirement.Transform(node, kind)
-            is Trigger -> Trigger.Transform(node, kind)
-            else -> error("no Transform supported for ${node.kind}")
-          }
-
-      @Suppress("UNCHECKED_CAST") // in theory the `require` above makes this approximately safe?
-      return wrapped as P
-    }
-
-    internal fun <P : PetNode> unwrap(node: P, kind: String) = unwrapper(kind).transform(node)
-
-    private fun unwrapper(kind: String): PetTransformer {
-      return object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
-          val result: PetNode =
-              if (node is TransformNode<*> && node.transformKind == kind) {
-                node.extract()
-              } else {
-                transformChildren(node)
-              }
-          @Suppress("UNCHECKED_CAST")
-          return result as P
-        }
-      }
+      return wrapper(node)
     }
   }
 }

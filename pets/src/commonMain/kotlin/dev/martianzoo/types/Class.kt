@@ -134,7 +134,7 @@ internal constructor(
   private val sups by declaration::supertypes
 
   private fun replaceThis(expression: Expression): Expression =
-      replaceThisExpressionsWith(className.expression).transform(expression)
+      replaceThisExpressionsWith(className.expression).transformExpression(expression)
 
   private fun directSupertypes(): Set<Type> =
       when {
@@ -279,7 +279,7 @@ internal constructor(
       val dependencySet = loader.load(expression.className).dependencies
       val resolvedArguments =
           expression.arguments.map(
-              replacer(THIS, className)::transform,
+              replacer(THIS, className)::transformExpression,
           )
       val matchedDependencies = dependencySet.matchPartialInOrder(resolvedArguments)
       expression.arguments.zip(matchedDependencies).forEach { (argument, dependency) ->

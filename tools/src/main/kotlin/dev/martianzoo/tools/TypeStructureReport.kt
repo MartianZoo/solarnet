@@ -537,7 +537,7 @@ internal object TypeStructureReport {
 
       fun collect(expression: Expression, prefix: List<Key>) {
         if (expression.arguments.isEmpty()) return
-        val arguments = expression.arguments.map(contextualizer::transform)
+        val arguments = expression.arguments.map(contextualizer::transformExpression)
         val dependencies = table.getClass(expression.className).dependencies
         val matchedKeys = dependencies.matchPartial(arguments).keys.toList()
         arguments.zip(matchedKeys).forEach { (argument, key) ->
@@ -589,7 +589,7 @@ internal object TypeStructureReport {
       klass.declaration.allNodes.forEach { node ->
         node.descendantsOfType<Expression>().forEach { source ->
           occurrences++
-          val expression = contextualizer.transform(source)
+          val expression = contextualizer.transformExpression(source)
           contextualExpressions += expression
           val nestedExpressions = expression.descendantsOfType<Expression>()
           val hasComplement = nestedExpressions.any(Expression::complement)

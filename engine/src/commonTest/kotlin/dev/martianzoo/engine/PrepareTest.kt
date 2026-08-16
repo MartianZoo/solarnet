@@ -5,11 +5,13 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.api.Exceptions.abstractInstruction
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.tfm.engine.Prod.deprodify
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.canonicalPremise
@@ -33,18 +35,21 @@ internal class PrepareTest {
     game.tfm(PLAYER1).godMode().sneak("Plant, 10 ProjectCard, PROD[-1]")
   }
 
-  private fun preprocess(instr: Instruction): Instruction {
+  private fun preprocess(instr: InstructionTree): InstructionTree {
     val xer =
         chain(
             deprodify(Transformers(game.classTable).classTable),
             Transformers(game.classTable).insertDefaults(),
             replaceOwnerWith(PLAYER1),
         )
-    return xer.transform(instr)
+    return xer.transformInstructionTree(instr)
   }
 
-  private fun preprocessAndPrepare(unprepared: String): Instruction {
-    return instructor.prepare(preprocess(game.vocabulary.canonicalize(parse(unprepared))))
+  private fun preprocessAndPrepare(unprepared: String): InstructionTree {
+    val preprocessed = preprocess(game.vocabulary.canonicalize(parse<InstructionTree>(unprepared)))
+    return instructor.prepare(
+        preprocessed as? Instruction ?: throw abstractInstruction(preprocessed)
+    )
   }
 
   private fun checkPrepare(unprepared: String, expected: String?) {
@@ -141,9 +146,9 @@ internal class PrepareTest {
   }
 
   @Test
-  fun testPrepareMulti() {
+  fun testPrepareGroups() {
     shouldThrow<AbstractException> { preprocessAndPrepare("Plant, Heat") }
     shouldThrow<AbstractException> { preprocessAndPrepare("(TR: Plant), Heat") }
-    shouldThrow<AbstractException> { preprocessAndPrepare("TR: (Plant, Heat)") }
+    checkPrepare("TR: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
   }
 }

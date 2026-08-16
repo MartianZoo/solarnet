@@ -119,11 +119,11 @@ public open class TfmAuthority : Authority {
         moduleNames,
         classSelections.mapTo(linkedSetOf()) { selection ->
           selection.copy(
-              className = rename.transform(selection.className),
-              requirement = selection.requirement?.let(rename::transform),
+              className = rename.transformClassName(selection.className),
+              requirement = selection.requirement?.let(rename::transformRequirement),
           )
         },
-        initialTypes.mapTo(linkedSetOf(), rename::transform),
+        initialTypes.mapTo(linkedSetOf(), rename::transformExpression),
         configuredPlayerNames,
         aliases,
     )

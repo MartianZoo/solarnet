@@ -22,17 +22,17 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.ClassTable
@@ -68,10 +68,14 @@ internal class Instructor(
     when (val prepped = prepare(instruction)) { // idempotent?
       is Change -> executeChange(prepped, cause, deferred, actor)
       is By -> doExecute(prepped.inner, cause, deferred, actorFor(prepped))
-      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred, actor) }
+      is Then ->
+          prepped.instructions.forEach {
+            doExecute(it as? Instruction ?: throw abstractInstruction(it), cause, deferred, actor)
+          }
       is Or -> throw orWithoutChoice(prepped)
       is NoOp -> {}
-      else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
+      is InstructionGroup -> throw abstractInstruction(prepped)
+      else -> error("somehow a ${prepped::class.simpleName} was enqueued: $prepped")
     }
   }
 
@@ -100,7 +104,7 @@ internal class Instructor(
 
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
-        split(task.instruction).forEach { doExecute(it, task.cause, deferred, task.actor) }
+        task.instruction.instructions.forEach { doExecute(it, task.cause, deferred, task.actor) }
       }
       deferred += effector.fire(result, automatic = false)
       if (done) break
@@ -109,8 +113,8 @@ internal class Instructor(
 
   /**
    * Returns a narrowed form of [unprepared] based on the current world (but does not change the
-   * world itself). The returned instruction *must* be executed against this very same world (i.e.,
-   * must be the next one executed. The returned instruction might still be abstract.
+   * world itself). The returned instruction tree *must* be executed against this very same world
+   * (i.e., must be the next one executed). The returned instruction tree might still be abstract.
    *
    * Preparing iterates to a fixed point. Examples of preparing:
    * * Replaces inert instructions with `Ok`
@@ -119,26 +123,28 @@ internal class Instructor(
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
    * * Prepares each option of an [Or]
-   * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate] *
+   * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
    */
   internal fun prepare(unprepared: Instruction) = doPrepare(unprepared)
 
-  private fun doPrepare(unprepared: Instruction): Instruction {
+  private fun prepareTree(unprepared: InstructionTree): InstructionTree =
+      if (unprepared is InstructionGroup) unprepared else doPrepare(unprepared as Instruction)
+
+  private fun doPrepare(unprepared: Instruction): InstructionTree {
     return when (unprepared) {
       is NoOp -> NoOp
       is Change -> prepareChange(unprepared)
-      is By -> By.create(doPrepare(unprepared.inner), canonicalActorExpression(unprepared))
+      is By -> By.createTree(doPrepare(unprepared.inner), canonicalActorExpression(unprepared))
       is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
       is Gated -> {
         if (!reader.has(unprepared.gate)) throw requirementNotMet(unprepared.gate)
-        doPrepare(unprepared.inner)
+        prepareTree(unprepared.inner)
       }
       is Or -> prepareOr(unprepared)
       is Then ->
           unprepared.withInstructions(
-              listOf(doPrepare(unprepared.instructions.first())) + unprepared.instructions.drop(1)
+              listOf(prepareTree(unprepared.first)) + unprepared.instructions.drop(1)
           )
-      is Multi -> throw abstractInstruction(unprepared)
       is Transform -> throw ExpressionException("unhandled instruction transform: $unprepared")
     }
   }
@@ -167,7 +173,7 @@ internal class Instructor(
   }
 
   // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.
-  private fun prepareChange(change: Change): Instruction {
+  private fun prepareChange(change: Change): InstructionTree {
     // can't prepare at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
     val intens = change.intensity ?: error("missing intensity: $change")
@@ -234,8 +240,9 @@ internal class Instructor(
         throw ExpressionException("custom class instructions can only be pure gains: $change")
       }
       val translated =
-          Prod.deprodify(classTable).transform(customClasses.prepare(gaining!!, reader))
-      return if (translated is Multi) translated else doPrepare(translated)
+          Prod.deprodify(classTable)
+              .transformInstructionTree(customClasses.prepare(gaining!!, reader))
+      return prepareTree(translated)
     }
 
     val limit = limiter.findLimit(gaining, removing)
@@ -263,20 +270,20 @@ internal class Instructor(
     )
   }
 
-  private fun prepareOr(unprepared: Or): Instruction {
+  private fun prepareOr(unprepared: Or): InstructionTree {
     val options: List<Any> =
         unprepared.instructions.map {
           try {
-            if (it is Multi) it else doPrepare(it)
+            prepareTree(it)
           } catch (e: NotNowException) {
             e
           } catch (e: DeadEndException) {
             e
           }
         }
-    val good = options.filterIsInstance<Instruction>()
+    val good = options.filterIsInstance<InstructionTree>()
     return if (good.any()) {
-      Or.create(good)
+      Or.createTree(good)
     } else if (options.any { it is DeadEndException }) {
       throw DeadEndException("every choice reaches an inactive type: $options")
     } else {

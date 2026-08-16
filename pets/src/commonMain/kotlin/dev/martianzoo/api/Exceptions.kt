@@ -2,9 +2,9 @@ package dev.martianzoo.api
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.Type
 
@@ -28,7 +28,7 @@ public object Exceptions {
           },
       )
 
-  public fun abstractInstruction(instr: Instruction): AbstractException =
+  public fun abstractInstruction(instr: InstructionTree): AbstractException =
       AbstractException("instruction is abstract: $instr")
 
   public fun orWithoutChoice(orInstruction: Or): AbstractException =
@@ -81,6 +81,10 @@ public object Exceptions {
   // Subtypes (catchable)
 
   public class PetSyntaxException(message: String, cause: Throwable? = null) :
+      PetException(message, cause)
+
+  /** A valid Pets tree changed into a kind that its caller cannot accept. */
+  public class KindException(message: String, cause: Throwable? = null) :
       PetException(message, cause)
 
   public class ExistingDependentsException(public val dependents: Collection<Type>) :

@@ -11,8 +11,7 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Companion.split
-import dev.martianzoo.pets.ast.Instruction.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.types.ClassTable
 
 /**
@@ -71,7 +70,7 @@ private constructor(
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
   internal fun addTasks(task: PendingTask) =
-      addTasks(split(task.instruction), task.assignee, task.cause, task.actor)
+      addTasks(task.instruction, task.assignee, task.cause, task.actor)
 
   internal fun addTasks(
       instruction: InstructionGroup,
