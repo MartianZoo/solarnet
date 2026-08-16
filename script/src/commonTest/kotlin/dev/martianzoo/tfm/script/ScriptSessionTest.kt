@@ -21,7 +21,7 @@ internal class ScriptSessionTest {
   fun playerSnapshotTracksResourcesProductionAndTags() {
     val repl = ScriptSession()
 
-    repl.command("become P1")
+    repl.command("become Player1")
     repl.command("mode red")
     repl.command("exec 7 Steel, PROD[2 Steel]")
 
@@ -50,7 +50,7 @@ internal class ScriptSessionTest {
     assertEquals(12, emptyMap.areas.count { it.kind == "water" })
     assertEquals(listOf("P", "P"), emptyMap.areas.single { it.row == 5 && it.column == 3 }.bonuses)
 
-    repl.command("become P1")
+    repl.command("become Player1")
     repl.command("mode red")
     repl.command("exec CityTile<Tharsis_5_3>")
 
