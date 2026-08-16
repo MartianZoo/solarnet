@@ -39,7 +39,9 @@ ABSTRACT CLASS Owned<Anyone> {
   "Anything represented by a copper cube IRL, perhaps except for SRR resources (not sure)"
   ABSTRACT CLASS Resource {
     ABSTRACT CLASS StandardResource {
-      CLASS Megacredit, Steel, Titanium, Plant
+      CLASS Megacredit
+      ABSTRACT CLASS Metal { CLASS Steel, Titanium }
+      CLASS Plant
       CLASS Energy { ProductionPhase:: Heat FROM This }
       CLASS Heat
     }

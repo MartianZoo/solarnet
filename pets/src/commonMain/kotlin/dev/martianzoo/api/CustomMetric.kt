@@ -8,8 +8,8 @@ public abstract class CustomMetric(name: String? = null) : CustomClass(name) {
   public constructor(className: ClassName) : this(className.toString())
 
   /**
-   * Returns the virtual component count represented by [type]. The engine calls this only when the
-   * custom class and all of its dependency arguments are concrete.
+   * Returns the virtual component count represented by the concrete [type]. For an abstract custom
+   * metric type, the engine calls this once for every concrete subtype and sums the results.
    */
   public abstract fun count(game: GameReader, type: Type): Int
 }

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
-import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.CustomCodeException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
@@ -69,14 +68,20 @@ internal class CustomMetricTest {
   }
 
   @Test
-  fun abstractArgumentsAreRejectedBeforeInvokingTheImplementation() {
+  fun abstractArgumentsSumTheirConcreteSpecializations() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     val invocationsBefore = ConcreteOnlyMetric.invocations
     p1.count("ConcreteOnlyMetric<Player1>") shouldBe 17
     ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 1
-    shouldThrow<AbstractException> { p1.count("ConcreteOnlyMetric<Player>") }
-    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 1
+    p1.count("ConcreteOnlyMetric<Player>") shouldBe 34
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 3
+
+    p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 0
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 3
+    p1.godMode().sneak("Plant<Player1>")
+    p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 17
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 4
   }
 
   @Test

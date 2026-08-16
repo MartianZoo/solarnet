@@ -248,7 +248,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "effects": [ "Pay<Class<Titanium>> OR Pay<Class<Steel>>:: -Owed" ],
+      "effects": [ "Pay<Class<Metal>>:: -Owed" ],
     },
 
     // Mars University

@@ -46,7 +46,7 @@
       "tags": [ "BuildingTag", "BuildingTag" ],
       "immediate": "30, 5 Steel, PROD[Steel]",
       "effects": [
-        "Tile<MarsArea(HAS MapBonus<Class<Steel>> OR MapBonus<Class<Titanium>>)>: PROD[Steel]"
+        "Tile<MarsArea(HAS MapBonus<Class<Metal>>)>: PROD[Steel]"
       ],
     },
 

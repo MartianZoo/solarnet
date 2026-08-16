@@ -256,10 +256,10 @@ component type it keeps the greatest matching multiplicity, so overlapping alter
 double-count components. Custom metrics cannot be alternatives because their virtual results have
 no component identities to union.
 
-The custom class and each dependency argument passed to its Kotlin implementation must be concrete.
-The engine rejects unsupported abstract queries before invoking the implementation, so plugins do
-not need to repeat that validation. Custom metrics may still decide how absent components and
-refinements affect their answers.
+The custom class and each dependency argument passed to its Kotlin implementation are concrete. For
+an abstract custom metric query, the engine enumerates the concrete subtypes satisfying the query,
+invokes the applicable implementation for each, and sums their virtual counts. Custom metrics may
+still decide how absent components affect their answers.
 
 An Authority registers custom classes by capability. One Kotlin object may supply both instruction
 and metric implementations, or two objects with the same Pets class name may supply the

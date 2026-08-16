@@ -336,8 +336,8 @@ Class<Class<Steel>>      the argument is not a bare class name
 Class literals are covariant just as their named classes are:
 
 ```text
-Steel <: StandardResource
-Class<Steel> <: Class<StandardResource>
+Steel <: Metal <: StandardResource
+Class<Steel> <: Class<Metal> <: Class<StandardResource>
 ```
 
 A class literal is concrete exactly when the named class is concrete. Dependencies of that class
@@ -418,8 +418,7 @@ CardFront(HAS 20 CardCost)                       CrediCor: a card costing 20 or 
 CardFront(HAS CardRequirement)                   Tactician: a card with a printed requirement
 LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)   an area where a city may be placed
 MarsArea(HAS 8 MarsRow)                          Polar Explorer: either polar row
-MarsArea(HAS MapBonus<Class<Steel>>
-         OR MapBonus<Class<Titanium>>)           Mining Guild: an area with either mining bonus
+MarsArea(HAS MapBonus<Class<Metal>>)             Mining Guild: an area with either mining bonus
 ```
 
 ### 6.1 Testing a candidate

@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.CustomCodeException
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.ExpressionException
@@ -61,14 +60,18 @@ internal class CustomClassRuntime(
     require(type.rootClass.declaration.custom)
     require(type.classTable === transformers.classTable)
 
+    if (type.abstract) {
+      return type
+          .allConcreteSubtypes()
+          .filter { it.narrows(type, reader) }
+          .sumOf { count(it, reader) }
+    }
+
     val implementation =
         authority.customMetric(type.className)
             ?: throw CustomCodeException(
                 "Custom class `${type.className}` has no metric implementation"
             )
-    if (type.abstract) {
-      throw AbstractException("custom metric type is abstract: ${type.expressionFull}")
-    }
 
     val count =
         try {

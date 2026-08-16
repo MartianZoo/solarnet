@@ -251,6 +251,9 @@ internal class CanonClassesTest {
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)
     checkConcreteSubtypeCount("Plant", 2)
+    checkConcreteSubtypeCount("Metal<Player1>", 2)
+    checkConcreteSubtypeCount("Metal", 4)
+    checkConcreteSubtypeCount("Class<Metal>", 2)
     checkConcreteSubtypeCount("StandardResource<Player1>", 6)
     checkConcreteSubtypeCount("StandardResource", 12)
     checkConcreteSubtypeCount("Class<StandardResource>", 6)

@@ -67,8 +67,11 @@ class CustomMetricCardsTest : CardTest() {
     p1.manual("CityTile<Tharsis_1_1>").expect("PROD[Steel]") // LSS
     p1.count("PROD[Steel]") shouldBe 2
 
+    p1.manual("CityTile<Tharsis_8_9>").expect("PROD[Steel]") // Titanium
+    p1.count("PROD[Steel]") shouldBe 3
+
     p1.manual("CityTile<Tharsis_2_1>") // L
-    p1.count("PROD[Steel]") shouldBe 2
+    p1.count("PROD[Steel]") shouldBe 3
   }
 
   @Test
