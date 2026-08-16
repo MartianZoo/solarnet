@@ -49,10 +49,7 @@ public data class AwardDefinition(
         kind = CONCRETE,
         supertypes = setOf(AWARD.expression),
         effects =
-            listOf(
-                parse<Effect>("EndPhase:: MeasureAward<This>"),
-                parse<Effect>("EndPhase: AssignAwardPlaces<This>"),
-            ),
+            listOf(parse<Effect>("EndPhase:: MeasureAward<This> THEN AssignAwardPlaces<This>")),
     )
   }
 

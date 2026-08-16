@@ -146,6 +146,17 @@ internal class PrepareTest {
   }
 
   @Test
+  fun `an unavailable choice preserves requirement failure when every option is gated`() {
+    val failure =
+        shouldThrow<RequirementException> {
+          preprocessAndPrepare("(30 TR: Plant) OR (15 OxygenStep: Steel)")
+        }
+
+    failure.message!!.contains("30 TerraformRating") shouldBe true
+    failure.message!!.contains("15 OxygenStep") shouldBe true
+  }
+
+  @Test
   fun testPrepareGroups() {
     shouldThrow<AbstractException> { preprocessAndPrepare("Plant, Heat") }
     shouldThrow<AbstractException> { preprocessAndPrepare("(TR: Plant), Heat") }

@@ -6,9 +6,11 @@ import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.api.Exceptions.abstractInstruction
 import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.Exceptions.requirementNotMet
+import dev.martianzoo.api.Exceptions.requirementsNotMetInChoices
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.ACTOR
 import dev.martianzoo.api.SystemClasses.ATOMIZED
@@ -286,6 +288,8 @@ internal class Instructor(
       Or.createTree(good)
     } else if (options.any { it is DeadEndException }) {
       throw DeadEndException("every choice reaches an inactive type: $options")
+    } else if (options.all { it is RequirementException }) {
+      throw requirementsNotMetInChoices(options.filterIsInstance<RequirementException>())
     } else {
       throw NotNowException("all options impossible: $options")
     }

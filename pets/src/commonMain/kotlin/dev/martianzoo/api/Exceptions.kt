@@ -37,6 +37,15 @@ public object Exceptions {
   public fun requirementNotMet(reqt: Requirement, message: String? = null): RequirementException =
       RequirementException("requirement not met: `$reqt` / $message")
 
+  public fun requirementsNotMetInChoices(
+      failures: Collection<RequirementException>
+  ): RequirementException {
+    require(failures.isNotEmpty())
+    return RequirementException(
+        "requirements not met in every choice: " + failures.joinToString { it.message.orEmpty() }
+    )
+  }
+
   internal fun refinementNotMet(reqt: Requirement) =
       NarrowingException("requirement not met: `$reqt`")
 
