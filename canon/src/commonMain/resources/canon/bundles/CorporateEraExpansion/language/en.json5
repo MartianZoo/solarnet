@@ -72,4 +72,9 @@
   "Card208": "AI Central",
   "CardB11": "Saturn Systems",
   "CardB12": "Teractor",
+
+  "Tile064": "Mining Area Tile",
+  "Tile085": "Commercial District Tile",
+  "Tile123": "Industrial Center Tile",
+  "Tile199": "Restricted Area Tile",
 }

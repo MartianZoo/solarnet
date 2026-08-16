@@ -191,8 +191,8 @@
       "projectKind": "AUTOMATED",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "MiningAreaTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningAreaTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningAreaTile, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS MiningAreaTile : SpecialTile" ],
+      "immediate": "Tile064<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS Tile064, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Tile064, MapBonus<Class<Titanium>>): Titanium)]",
+      "components": [ "CLASS Tile064 : SpecialTile" ],
     },
 
     // Building Industries
@@ -314,9 +314,9 @@
       "projectKind": "AUTOMATED",
       "cost": 16,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], CdTile",
-      "effects": [ "End: VictoryPoint / Adjacency<CdTile, CityTile<Anyone>>" ],
-      "components": [ "CLASS CdTile : SpecialTile" ],
+      "immediate": "PROD[-Energy, 4], Tile085",
+      "effects": [ "End: VictoryPoint / Adjacency<Tile085, CityTile<Anyone>>" ],
+      "components": [ "CLASS Tile085 : SpecialTile" ],
     },
 
     // Robotic Workforce
@@ -496,9 +496,9 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "IcTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
+      "immediate": "Tile123<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
       "actions": [ "7 -> PROD[Steel]" ],
-      "components": [ "CLASS IcTile : SpecialTile" ],
+      "components": [ "CLASS Tile123 : SpecialTile" ],
     },
 
     // Hired Raiders
@@ -731,9 +731,9 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "ScienceTag" ],
-      "immediate": "RaTile",
+      "immediate": "Tile199",
       "actions": [ "2 -> ProjectCard" ],
-      "components": [ "CLASS RaTile : SpecialTile" ],
+      "components": [ "CLASS Tile199 : SpecialTile" ],
     },
 
     // Energy Tapping

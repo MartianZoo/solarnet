@@ -517,9 +517,9 @@
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "NpTile<LandArea(HAS MAX 0 Neighbor)>, PROD[1]",
+      "immediate": "Tile044<LandArea(HAS MAX 0 Neighbor)>, PROD[1]",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS NpTile : SpecialTile" ],
+      "components": [ "CLASS Tile044 : SpecialTile" ],
     },
 
     // Nuclear Power
@@ -656,8 +656,8 @@
       "projectKind": "AUTOMATED",
       "cost": 9,
       "tags": [ "BuildingTag" ],
-      "immediate": "MiningRightsTile THEN PROD[(LandArea(HAS MiningRightsTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRightsTile, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS MiningRightsTile : SpecialTile" ],
+      "immediate": "Tile067 THEN PROD[(LandArea(HAS Tile067, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Tile067, MapBonus<Class<Titanium>>): Titanium)]",
+      "components": [ "CLASS Tile067 : SpecialTile" ],
     },
 
     // Birds
@@ -806,9 +806,9 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "EarthTag" ],
-      "immediate": "NzTile, 2 TemperatureStep",
+      "immediate": "Tile097, 2 TemperatureStep",
       "effects": [ "End: -2 VictoryPoint" ],
-      "components": [ "CLASS NzTile : SpecialTile" ],
+      "components": [ "CLASS Tile097 : SpecialTile" ],
     },
 
     // Fueled Generators
@@ -998,12 +998,12 @@
       "cost": 12,
       "tags": [ "AnimalTag", "PlantTag" ],
       "resourceType": "Animal",
-      "immediate": "EzTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
+      "immediate": "Tile128<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
       "effects": [
         "AnimalTag OR PlantTag: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
       ],
-      "components": [ "CLASS EzTile : SpecialTile" ],
+      "components": [ "CLASS Tile128 : SpecialTile" ],
     },
 
     // Zeppelins
@@ -1130,8 +1130,8 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 18,
-      "immediate": "2 TemperatureStep, LfTile<VolcanicArea> OR (MAX 0 VolcanicArea: LfTile)",
-      "components": [ "CLASS LfTile : SpecialTile" ],
+      "immediate": "2 TemperatureStep, Tile140<VolcanicArea> OR (MAX 0 VolcanicArea: Tile140)",
+      "components": [ "CLASS Tile140 : SpecialTile" ],
     },
 
     // Power Plant
@@ -1151,8 +1151,8 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[4 Heat], MaTile<WaterArea>",
-      "components": [ "CLASS MaTile : SpecialTile" ],
+      "immediate": "PROD[4 Heat], Tile142<WaterArea>",
+      "components": [ "CLASS Tile142 : SpecialTile" ],
     },
 
     // Large Convoy

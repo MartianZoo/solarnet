@@ -173,4 +173,11 @@
   "CardB08": "Tharsis Republic",
   "CardB09": "ThorGate",
   "CardB10": "United Nations Mars Initiative",
+
+  "Tile044": "Natural Preserve Tile",
+  "Tile067": "Mining Rights Tile",
+  "Tile097": "Nuclear Zone Tile",
+  "Tile128": "Ecological Zone Tile",
+  "Tile140": "Lava Flows Tile",
+  "Tile142": "Mohole Area Tile",
 }

@@ -574,8 +574,8 @@
       "projectKind": "EVENT",
       "cost": 31,
       "tags": [ "SpaceTag" ],
-      "immediate": "3 TemperatureStep, DdTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?",
-      "components": [ "CLASS DdTile : SpecialTile" ],
+      "immediate": "3 TemperatureStep, TileX31<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?",
+      "components": [ "CLASS TileX31 : SpecialTile" ],
     },
 
     // Great Dam (promo)
@@ -587,9 +587,9 @@
       "requirement": "4 OceanTile",
       "cost": 15,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[2 Energy], GdTile<LandArea(HAS Neighbor<OceanTile>)>",
+      "immediate": "PROD[2 Energy], TileX32<LandArea(HAS Neighbor<OceanTile>)>",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS GdTile : SpecialTile" ],
+      "components": [ "CLASS TileX32 : SpecialTile" ],
     },
 
     // Magnetic Field Generators (promo)
@@ -600,8 +600,8 @@
       "projectKind": "AUTOMATED",
       "cost": 22,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, MfgTile",
-      "components": [ "CLASS MfgTile : SpecialTile" ],
+      "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, TileX33",
+      "components": [ "CLASS TileX33 : SpecialTile" ],
     },
 
     // Asteroid Rights

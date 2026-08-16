@@ -95,4 +95,8 @@
   "CardXC09": "Tycho Magnetics",
   "CardXM1": "Floyd Continuum",
   "CardXM2": "New Holland",
+
+  "TileX31": "Deimos Down Tile",
+  "TileX32": "Great Dam Tile",
+  "TileX33": "Magnetic Field Generators Tile",
 }

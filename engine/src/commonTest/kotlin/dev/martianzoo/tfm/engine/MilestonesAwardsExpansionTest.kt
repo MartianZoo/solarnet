@@ -10,11 +10,11 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
   fun geologistUsesDeclarativeTileAndNeighborRelationships() {
     newGame(TestOption.MilestonesAwardsExpansion)
-    p1.manual("MaTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>")
+    p1.manual("Tile142<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>")
 
     shouldThrow<RequirementException> { p1.manual("Geologist") }
 
-    p1.manual("NpTile<Tharsis_2_3>")
+    p1.manual("Tile044<Tharsis_2_3>")
     p1.manual("Geologist")
     p1.count("Geologist") shouldBe 1
   }
@@ -24,7 +24,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     newGame(TestOption.MilestonesAwardsExpansion)
     val p2 = requireP2()
     p1.manual(
-        "MaTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>, NpTile<Tharsis_2_3>, " +
+        "Tile142<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>, Tile044<Tharsis_2_3>, " +
             "CityTile<Tharsis_4_6>"
     )
     p2.manual("CityTile<Tharsis_8_7>, GreeneryTile<Tharsis_8_6>")

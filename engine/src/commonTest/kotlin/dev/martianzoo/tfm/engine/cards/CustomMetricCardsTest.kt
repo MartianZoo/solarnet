@@ -79,7 +79,7 @@ class CustomMetricCardsTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     p1.manual("MiningArea") {
-          doTask("MiningAreaTile<Tharsis_1_1>")
+          doTask("Tile064<Tharsis_1_1>")
         }
         .expect("2 Steel, PROD[Steel]")
   }
@@ -89,7 +89,7 @@ class CustomMetricCardsTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_7_9>")
     p1.manual("MiningArea") {
-          doTask("MiningAreaTile<Tharsis_8_9>")
+          doTask("Tile064<Tharsis_8_9>")
         }
         .expect("Titanium, PROD[Titanium]")
   }
@@ -98,7 +98,7 @@ class CustomMetricCardsTest : CardTest() {
   fun `with a steel area selected, plays Mining Rights`() {
     newGame()
     p1.manual("MiningRights") {
-          doTask("MiningRightsTile<Tharsis_1_1>")
+          doTask("Tile067<Tharsis_1_1>")
         }
         .expect("2 Steel, PROD[Steel]")
     p1.count("PROD[Titanium]") shouldBe 0
@@ -110,7 +110,7 @@ class CustomMetricCardsTest : CardTest() {
     newGame(TerraCimmeriaMapOption)
 
     p1.manual("MiningRights") {
-          doTask("MiningRightsTile<TerraCimmeria_6_4>")
+          doTask("Tile067<TerraCimmeria_6_4>")
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
@@ -156,7 +156,7 @@ class CustomMetricCardsTest : CardTest() {
   fun `without an adjacent tile, tries to play Mining Area`() {
     newGame()
     shouldThrow<DependencyException> {
-      p1.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_1_1>") }
+      p1.manual("MiningArea") { doTask("Tile064<Tharsis_1_1>") }
     }
   }
 
@@ -165,7 +165,7 @@ class CustomMetricCardsTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     shouldThrow<NotNowException> {
-      p1.manual("MiningArea") { doTask("MiningAreaTile<Tharsis_3_2>") }
+      p1.manual("MiningArea") { doTask("Tile064<Tharsis_3_2>") }
     }
   }
 
@@ -173,7 +173,7 @@ class CustomMetricCardsTest : CardTest() {
   fun `with a card-bonus area selected, tries to play Mining Rights`() {
     newGame()
     shouldThrow<NotNowException> {
-      p1.manual("MiningRights") { doTask("MiningRightsTile<Tharsis_2_1>") }
+      p1.manual("MiningRights") { doTask("Tile067<Tharsis_2_1>") }
     }
   }
 

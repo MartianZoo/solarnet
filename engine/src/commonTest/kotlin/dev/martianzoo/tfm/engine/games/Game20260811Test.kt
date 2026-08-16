@@ -229,7 +229,7 @@ class Game20260811Test : AbstractFullGameTest() {
     ellie
         .playProject("MiningRights", 5, steel = 1) {
           // Ellie placed Mining Rights tile at 57
-          doTask("MiningRightsTile<Hellas_8_8>")
+          doTask("Tile067<Hellas_8_8>")
           // Ellie gained 1 titanium
         }
         .expect("PROD[T], T")
@@ -309,7 +309,7 @@ class Game20260811Test : AbstractFullGameTest() {
     // Mom played Industrial Center
     mom.playProject("IndustrialCenter", 4) {
           // Mom placed Industrial Center tile at 10
-          doTask("IcTile<Hellas_2_3>")
+          doTask("Tile123<Hellas_2_3>")
           // Mom gained 1 plant
           // Mom removed 2 resource(s) from Mom's Recyclon
           doTask("-2 Microbe<Recyclon> THEN PROD[P]")
@@ -340,7 +340,7 @@ class Game20260811Test : AbstractFullGameTest() {
     // Mom added 2 Animal(s) to Ecological Zone
     mom.playProject("EcologicalZone", 12) {
           // Mom placed Ecological Zone tile at 05
-          doTask("EzTile<Hellas_1_3>")
+          doTask("Tile128<Hellas_1_3>")
           // Mom gained 2 plants
         }
         .expect("3 H, 2 Animal, 2 P")
@@ -423,7 +423,7 @@ class Game20260811Test : AbstractFullGameTest() {
     // Mom gained 1 M€ production
     mom.playProject("NaturalPreserve", 5, steel = 2) {
           // Mom placed Natural Preserve tile at 20
-          doTask("NpTile<Hellas_3_7>")
+          doTask("Tile044<Hellas_3_7>")
           // Mom gained 1 plant
           // Mom drew 1 card(s)
           // You drew Psychrophiles
@@ -653,7 +653,7 @@ class Game20260811Test : AbstractFullGameTest() {
     ellie
         .playProject("LavaFlows", 16) {
           // Ellie placed Lava Flows tile at 09
-          doTask("LfTile<Hellas_2_2>")
+          doTask("Tile140<Hellas_2_2>")
           // Ellie gained 2 plants
           // Ellie gained 2 M€ from 1 ocean(s)
           // Ellie gained 3 M€
@@ -1208,7 +1208,7 @@ class Game20260811Test : AbstractFullGameTest() {
     ellie
         .playProject("MagneticFieldGenerators", steel = 10) {
           // Ellie placed Magnetic Field Generators tile at 29
-          doTask("MfgTile<Hellas_5_1>")
+          doTask("TileX33<Hellas_5_1>")
           // Ellie drew 1 card(s)
           // You drew Asteroid Hollowing
           // Ellie gained 2 M€ from 1 ocean(s)

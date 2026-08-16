@@ -433,7 +433,8 @@ internal class ScriptSessionTest {
             "CityTile<Tharsis_4_6>, GreeneryTile<Tharsis_5_7>"
     )
     repl.command(
-        "as Player2 exec GreeneryTile<Tharsis_4_5>, CityTile<Tharsis_6_6>, " + "MaTile<Tharsis_9_9>"
+        "as Player2 exec GreeneryTile<Tharsis_4_5>, CityTile<Tharsis_6_6>, " +
+            "Tile142<Tharsis_9_9>"
     )
     assertTrue(repl.command("tasks").isEmpty())
     assertEquals(8, repl.gameplay.count("Tile"))
