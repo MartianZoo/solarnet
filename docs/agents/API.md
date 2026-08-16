@@ -1,338 +1,170 @@
-# Engine API Restructuring
+# Engine workhorse and client API direction
 
-> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
-
-**NOTE:** This records the current direction for preparatory engine simplification and the later
-client API. It is not a requirements document or a commitment to particular type names.
-
-The current engine API tries to express who is allowed to do what. `Gameplay` has nested power
-layers and `godMode()` reveals more of them. Until recently, several live data structures also had
-paired read-only and writable types. This did not produce a meaningful authority boundary: the
-same implementation implements every gameplay layer, callers cast between them, and the REPL
-obtains `godMode()` before hiding methods again according to its color mode.
-
-The preparatory direction is to stop making the current engine responsible for authority. It should
-be a trusted, low-level workhorse with a straightforward API that permits all supported engine
-operations. The later client API is where we should design roles, permissions, capability objects,
-and safe workflows deliberately.
+**Status: proposal.** Some read/write data-structure pairs have already been collapsed. The
+`Gameplay` power hierarchy and `godMode()` remain committed behavior; see [ENGINE.md](ENGINE.md).
 
 ## Decision
 
-Separate two concerns that the current API mixes together:
+Separate two responsibilities:
 
-1. **Engine integrity:** keep Game Worlds structurally coherent, transactional, reversible, and
-   correctly indexed even when a caller requests a rules-bypassing operation.
-2. **Caller authority:** decide whether a particular caller should be offered that operation.
+1. **Engine integrity:** keep component, effect, task, event, and timeline state coherent,
+   transactional, reversible, and table-local, including during a rules-bypassing operation.
+2. **Caller authority:** decide which operations a player, workflow, script color, test, or
+   administrator may request.
 
-The current `engine` module remains responsible for the first concern and deliberately stops trying
-to solve the second. For now, the `script` module owns its color-mode restrictions. A future API
-layer will provide the principled authority boundary for normal clients.
+The existing `engine` module should become one flat, trusted, Actor-scoped workhorse responsible
+for integrity. A later client layer should own roles, permissions, visibility, and safe workflows.
+The `script` module may enforce its color modes locally in the meantime.
 
-This is not a claim that every internal collection should become directly mutable. A caller may be
-allowed to request any *engine operation* without being allowed to corrupt the engine's bookkeeping.
-For example, raw state editing may bypass Pets instruction semantics, but it must still update the
-component graph and effect indexes together, log the change, and remain reversible.
+Flattening does not mean exposing mutable collections. Every mutation must still pass through the
+single mechanism that maintains its structure and history.
 
-## The Current Problem
+## Why change
 
-### Gameplay layers do not enforce authority
+The current hierarchy is nominal rather than protective:
 
-`Gameplay` is currently an inheritance tower:
+```text
+Gameplay -> TurnLayer -> OperationLayer -> TaskLayer -> GodMode
+```
 
-| Interface | Adds |
-| --- | --- |
-| `Gameplay` | queries, task actions, auto-exec controls, `godMode()` |
-| `TurnLayer` | turns |
-| `OperationLayer` | manual operations |
-| `TaskLayer` | task insertion and removal |
-| `GodMode` | raw state changes |
+`ApiTranslation` implements every layer. `Gameplay.godMode()` reveals the bottom and callers cast
+the same object back to intermediate layers. Script colors reconstruct policy with those casts.
 
-`ApiTranslation` implements the entire tower. Any holder of `Gameplay` can call `godMode()`, and the
-returned object can be cast back to any layer. The layers therefore describe intended usage without
-actually constraining it. They also make signatures, adapters, and Terraforming Mars helpers more
-complicated.
+This complicates signatures without enforcing authority. It also confuses API taxonomy with the
+real safety boundary: coordinated mutation.
 
-### Read-only/writable pairs mixed two different ideas
+## Target workhorse
 
-`ComponentGraph`, `EventLog`, and `TaskQueue` formerly had separate internal writable counterparts.
-They are now single concrete types whose mutation paths preserve the same invariants. The
-paired hierarchy resembled the same ineffective authority model as the gameplay layers without
-providing useful implementation encapsulation.
+One Actor-scoped engine facade should expose the supported trusted operations:
 
-The important boundary is not whether a type's name advertises mutation. It is whether every
-mutation passes through the one mechanism that preserves the object's invariants. A single concrete
-service can expose only the queries required across modules while keeping other queries and
-bookkeeping primitives internal, without requiring parallel read/write interfaces.
+- contextual parsing and queries;
+- task revision, preparation, execution, insertion, and removal;
+- manual operations and turns;
+- auto-execution control; and
+- conspicuously named rules-bypassing changes.
 
-### Script color modes rebuild the layers with casts
+`godMode()` and the intermediate power interfaces disappear. Keep dangerous primitives internal;
+publish only integrity-preserving operations.
 
-`ScriptSession.access()` currently calls `gameplay.godMode()` for every color and `Access` casts the
-result down to the desired gameplay layer. This is ceremony rather than protection. The script
-session already knows its mode and is the natural temporary place to allow or reject commands.
+The workhorse must preserve:
 
-## Target for the Existing Engine
+1. rollback of every component, task, index, and event change in a failed atomic command;
+2. synchronization of component multiplicity and live effects;
+3. normalized, logged, reversible task mutation;
+4. one coherent global prepared-task lock;
+5. one Game World's Class Table identity;
+6. Actor/context semantics and event attribution; and
+7. committed initialization/workflow rollback floors.
 
-### One flat gameplay workhorse
+A raw change may bypass Pets and triggered effects. It may not corrupt indexes, omit history, or
+become irreversible.
 
-Replace the inheritance tower with one flat engine-facing API, retaining `Gameplay` as the
-compatibility name unless a clearly better name emerges. It should expose the operations the engine
-knows how to perform:
+## Command boundaries
 
-1. contextual parsing and queries;
-2. task revision, preparation, execution, insertion, and removal;
-3. manual operations and turns;
-4. auto-execution controls;
-5. raw, rules-bypassing state changes.
-
-`godMode()` disappears because there is no hidden layer to reveal. Method names and documentation
-should still distinguish ordinary ruleful operations from dangerous workhorse operations. `sneak`
-and `dropTask`, for example, should be candid that they bypass normal game semantics.
-
-Actor scoping remains meaningful even without authority layers. A gameplay object still supplies
-the Actor used for contextual defaults, task assignment, execution, and event attribution.
-
-### One integrity-preserving mutation path per structure
-
-Remove paired read-only/writable interfaces where they do not buy implementation safety. Prefer a
-single implementation type with:
-
-1. observation methods, public only when another module needs them;
-2. high-level workhorse operations, public only when direct engine clients need them; and
-3. internal low-level mutation methods used to keep related state synchronized.
-
-In particular:
-
-1. Component changes must update the multiset and live-effect indexes together.
-2. Task changes must preserve normalization, assignee validation, prepared-task rules, and event
-   logging.
-3. Event history must remain append-only except through rollback machinery coordinated with the
-   state it describes.
-
-The goal is to remove the writable/not-writable *API taxonomy*, not to publish mutable collections
-or independent event-log append methods.
-
-### `World` as the trusted Game World aggregate
-
-`World` can remain the live Game World aggregate for Components, Events, Tasks, Timeline control, readers, and
-Actor-scoped gameplay. Direct engine clients are trusted and may reach all of these facilities.
-There is no need to add current-engine accessors such as `playerActions`, `rawStateEditor`, or
-`timelineControl` merely to ration authority.
-
-This also means we should not introduce dependency-injected capability interfaces into the current
-engine as an intermediate architecture. DI may still assemble engine internals, but it should not
-simulate a client permission system that the workhorse explicitly does not promise.
-
-## What Must Remain Protected
-
-Flattening authority layers must not weaken these engine properties:
-
-1. Atomic commands roll back every component, task, index, and event change on failure.
-2. Every component mutation keeps dependent indexes and live effects synchronized.
-3. Every task mutation is logged and reversible and preserves queue normalization.
-4. The global prepared-task lock remains coherent across Actor-scoped queue views.
-5. Components and parsed Types belong to the Game World's own Class Table.
-6. Actor context continues to control defaults, `Owner` substitution where applicable, task scope,
-   and event attribution.
-7. Initialization and committed workflow boundaries cannot be accidentally undone through ordinary
-   rollback.
-
-These are correctness boundaries, not caller-permission boundaries. Keeping them inside the
-workhorse is compatible with letting trusted callers perform arbitrary ruleful or rules-bypassing
-operations.
-
-## Script Color Modes
-
-Until the new API exists, the `script` module should enforce its color modes locally. This is an
-intentional transitional policy shim, not a security boundary and not a reusable authorization
-framework.
-
-`Access` can hold the flat `Gameplay` object and decide which operation to invoke or reject for the
-current mode. Script commands that currently bypass `Access` should either be routed through it or
-perform an explicit mode check in one obvious place. No command should rely on a cast failing to
-enforce its mode.
-
-Visible behavior should remain unchanged:
-
-| Mode | Script policy |
-| --- | --- |
-| Purple | workflow stays engine-controlled; the user may resolve offered tasks |
-| Blue | user actions must enter through turn operations |
-| Green | arbitrary complete operations are allowed |
-| Yellow | task insertion/removal powers are additionally allowed |
-| Red | raw state changes are allowed without normal triggered consequences |
-
-The mode checks may be somewhat custom because the modes themselves are a REPL feature. They should
-nevertheless be centralized and directly tested so a new command cannot accidentally ignore them.
-
-## Command Pipeline
-
-The proposed command runner remains useful, but as an integrity and lifecycle mechanism rather than
-an authority object. Public command-style operations should eventually share one pipeline:
+Public command-like operations should eventually use one explicit lifecycle:
 
 ```text
 checkpoint
-run explicit operation
-run configured auto-exec behavior
-collect TaskResult from all activity since checkpoint
+run requested operation
+run configured auto-exec
+collect TaskResult
 rollback on failure
-publish outermost after-command notification
-return TaskResult
+publish one outermost completion notification
+return
 ```
 
-This pipeline should make current behavioral differences explicit before normalizing them.
-`reviseTask`, `prepareTask`, `addTasks`, `dropTask`, and `sneak` currently do not all have the same
-transaction, auto-exec, result, or notification semantics. Flat access does not imply that every
-method must trigger auto-exec, but each method's command boundary must be intentional.
+Do not assume every method should auto-execute. First characterize the current transaction,
+auto-exec, result, and notification behavior of task revision/preparation, insertion/removal, manual
+operations, turns, and raw changes. Normalize only deliberate differences.
 
-The first extraction can preserve the current whole-game auto-exec behavior. Actor-local auto-exec
-and workflow handoff are separate semantic changes and should not be smuggled into an API cleanup.
+`ApiTranslation` should remain a value/string adapter rather than the owner of all engine policy.
+A focused command runner can own atomicity, result collection, auto-exec coordination, and
+completion notification.
 
-## Implementation Responsibility Boundaries
+## Temporary script policy
 
-The flat `Gameplay` API is one caller-facing workhorse, not a requirement that one implementation
-class contain every policy. `ApiTranslation` should become only the string/value adapter for that
-surface. The command pipeline owns atomicity, auto-exec coordination, result collection, and
-completion notification. The current generically named `Implementations` class should disappear or
-become a plainly named facade over focused task lifecycle, task-selection/auto-exec, operation
-completion, and raw-change collaborators; Terraforming Mars turn signaling does not belong in any
-of those generic services.
+Until a real client API exists, `script` should check its modes explicitly in one place:
 
-`ScriptSession` should retain interactive session state and command dispatch. Terraforming Mars
-game construction, command catalog contributions, and vocabulary belong in an injected application
-profile, while task-list and result rendering remain presentation collaborators rather than
-additional session responsibilities.
+| Mode | Allowed policy |
+| --- | --- |
+| Purple | Resolve offered tasks while workflow stays engine-controlled |
+| Blue | Enter user actions through turns |
+| Green | Run arbitrary complete operations |
+| Yellow | Also insert and remove tasks |
+| Red | Also perform raw changes without normal triggered consequences |
 
-As described below, `TfmGameplay` is transitional. Its player actions, workflow/phase controls,
-test-fixture conveniences, and read-model calculations should become purpose-specific clients of
-the flat engine instead of surviving as one wrapper.
+These checks are REPL policy, not security and not a reusable authorization framework. Test the
+command/mode matrix so new commands cannot bypass it accidentally.
 
-## The Later Client API
+## Later client boundary
 
-The future API should wrap the workhorse instead of forcing the workhorse itself to impersonate a
-safe client API. That later layer can provide small role-appropriate objects such as:
+Build the restrictive API around the flat workhorse only when real clients require it. Likely
+surfaces include player-visible queries and choices, player actions, workflow monitoring,
+administration, fixtures/diagnostics, and Terraforming Mars read models.
 
-1. player queries and visible task choices;
-2. player actions and turn actions;
-3. workflow monitoring and administrative operations;
-4. test-fixture and diagnostic powers;
-5. timeline or composition control for privileged tools; and
-6. Terraforming Mars-specific player actions and read models.
-
-At that point, capability objects, dependency injection, unforgeable tokens, or another authority
-model can be evaluated against real client needs. The new API may expose only a small subset of the
-workhorse and can translate higher-level requests into several engine operations.
-
-The important architectural dependency points one way:
+The dependency direction is:
 
 ```text
-normal clients -> future policy/client API -> engine workhorse
-scripts (temporarily) ---------------------> engine workhorse
-tests and diagnostics ---------------------> engine workhorse
+normal client -> policy/observation API -> trusted engine workhorse
+scripts, tests, diagnostics -----------> trusted engine workhorse
 ```
 
-Terraforming Mars conveniences should likewise be separated by client purpose in the later API:
-player actions, game flow, fixtures, and read models should not all be one wrapper. This separation
-does not need to block simplification of today's `TfmGameplay`; it can temporarily depend on the
-flat workhorse.
+Do not introduce capability interfaces or dependency-injected permission objects into the current
+engine as speculative scaffolding.
 
-## Refactoring Sequence
+## Proposed responsibility split
 
-### 1. Characterize the boundaries we are about to simplify
+**Not implemented.** Flattening the caller-facing workhorse does not mean one implementation Class
+should accumulate every policy:
 
-Before changing interfaces, cover behavior that the type hierarchy currently obscures:
+- `ApiTranslation` should become only the string/value adapter for the flat surface.
+- A named command runner should own atomicity, result collection, auto-exec coordination, and the
+  one outermost completion notification.
+- The generically named `Implementations` should disappear or become a plainly named facade over
+  focused task lifecycle, task selection/auto-exec, operation completion, and raw-change services.
+  Terraforming Mars turn signaling does not belong in those generic services.
+- `ScriptSession` should retain interactive session state and command dispatch. An injected
+  application profile should contribute Terraforming Mars construction, commands, completion
+  sources, workflow, vocabulary, prompt metadata, and colors.
+- `TfmGameplay` should not remain a permanent bundle of player actions, workflow/phase controls,
+  fixture conveniences, and read-model calculations. Those are distinct future clients of the
+  workhorse.
 
-1. which script commands each color mode accepts and rejects;
-2. rollback on command failure and `AbortOperationException`;
-3. returned `TaskResult` contents;
-4. inclusion of auto-executed follow-up work;
-5. single outermost `onAtomicComplete` notification; and
-6. raw changes and task edits remaining reversible.
+This split is an aspiration to guide ownership during the mechanical flattening. It does not
+authorize building the later permission API at the same time.
 
-These should be behavior tests spanning the actual engine and script pieces, not tests that merely
-repeat interface declarations.
+## Safe sequence
 
-### 2. Flatten `Gameplay`
+1. Add behavior tests for script modes, rollback, `TaskResult`, auto-exec inclusion, outermost
+   notification, and reversibility.
+2. Move operations onto one `Gameplay` workhorse and remove `godMode()` plus the intermediate
+   interfaces without changing behavior.
+3. Replace script casts with centralized checks.
+4. Collapse any remaining read/write API pair one structure at a time while keeping raw mutation
+   internal.
+5. Extract and name the command lifecycle.
+6. Remove obsolete bindings, casts, and documentation.
+7. Stop. Design the safe client API separately from actual observation and workflow requirements.
 
-1. Move turn, operation, task-editing, and raw-change methods onto `Gameplay`.
-2. Remove `TurnLayer`, `OperationLayer`, `TaskLayer`, and `GodMode`.
-3. Remove `godMode()`.
-4. Update `ApiTranslation`, operation bodies, `TfmGameplay`, workflows, and tests to use the flat
-   type without casts.
-5. Preserve existing behavior while changing the surface.
+Open naming and exact command-boundary questions do not change this direction. Do not mix
+Actor-local auto-exec, native workflow delegation, hidden-information observation, or disposable
+state forks into the mechanical flattening.
 
-This is the first implementation step because it directly deletes a hierarchy that provides no
-real protection.
+## Open questions and risks
 
-### 3. Put script policy in `script`
+These remain intentionally unsettled:
 
-1. Give each `Access` mode the flat gameplay object.
-2. Replace layer casts with explicit allow/reject behavior.
-3. Route mode-sensitive commands through the centralized policy.
-4. Add an explicit test whenever a command receives a new mode-sensitive power.
+1. Whether the flat workhorse should still be called `Gameplay`, or instead `EngineSession` or
+   `ActorEngine`.
+2. Which methods are complete commands and which are primitives composed inside another command.
+3. Which coordinated child-object mutations should eventually become direct workhorse operations.
+4. How much timeline control belongs on the root facade versus `World.timeline`.
 
-Keep this small and local. Do not build the future authorization framework in `script`.
+Risks to preserve during the work:
 
-### 4. Collapse read/write API pairs selectively
-
-For components, events, and tasks, remove paired interfaces where one service with internal
-mutation methods is clearer. Do one structure at a time and preserve its mutation/event/rollback
-tests. The likely order is:
-
-1. event log, whose append operations are already internal service roles;
-2. component graph, keeping its update primitive internal;
-3. task queues, where scoped views and normalization make the change most delicate.
-
-Do not expose backing mutable collections. If merging a pair would force unrelated code to see a
-dangerous primitive, retain implementation encapsulation without treating it as caller authority.
-
-### 5. Name the command pipeline
-
-Extract `CommandRunner` (name tentative) from `ApiTranslation.atomic` after the flat surface has
-made command boundaries easier to compare. Initially preserve current auto-exec and notification
-semantics. Then decide method by method which operations use the full pipeline.
-
-### 6. Simplify wiring and documentation
-
-Remove DI bindings, casts, compatibility accessors, and documentation that exist only for the old
-layers or paired writable types. Keep stable engine documentation honest: direct engine callers are
-trusted, while structural invariants remain enforced.
-
-### 7. Stop before designing the new API accidentally
-
-Once the current engine is a coherent workhorse, use actual upcoming clients and workflow needs to
-design the restrictive API separately. Do not preserve speculative capability interfaces in the
-engine just because they might resemble that future design.
-
-## Risks and Mitigations
-
-1. **A flat API is easy to misuse.** This is deliberate for direct engine clients. Use conspicuous
-   names and KDoc for rules-bypassing methods, and direct normal applications to the future API.
-2. **Script checks can drift.** Centralize them and test the command/mode matrix.
-3. **Removing writable types could expose corrupting mutation.** Collapse type pairs only while
-   keeping structural mutation primitives internal and synchronized.
-4. **Flattening can accidentally change transactions.** First change types mechanically; normalize
-   command semantics only after characterization tests exist.
-5. **The temporary script policy might become permanent.** Document that it is REPL-specific and do
-   not let other clients depend on it as their authority model.
-
-## Open Questions
-
-1. Should the flat workhorse retain the name `Gameplay`, or would `EngineSession` or `ActorEngine`
-   make its trusted, Actor-scoped nature clearer?
-2. Which flat methods are complete commands and which are composable primitives inside another
-   command?
-3. Which child-object mutations, if any, should eventually become direct public engine operations
-   rather than remaining coordinated through gameplay?
-4. How much of timeline control belongs on the workhorse root versus `World.timeline`?
-
-None of these questions changes the main boundary decision.
-
-## Bottom Line
-
-This is a good preparatory simplification if we are precise about what “let everyone do whatever
-they want” means. The existing engine should stop rationing legitimate operations through nominal
-layers. It should not stop protecting its own data-structure and transaction invariants.
-
-The near-term model is one flat, trusted engine workhorse; localized script color-mode checks; and
-no speculative client-authority architecture inside the engine. The principled role- and
-capability-aware API comes afterward as a separate layer around the simplified workhorse.
+- A flat trusted API is easy to misuse; rules-bypassing names and KDoc must be conspicuous.
+- Script mode checks can drift; keep the matrix centralized and tested.
+- Collapsing a read/write pair can accidentally expose a corrupting primitive; the backing
+  collections and synchronization operations stay internal.
+- Type flattening can accidentally change transactions; characterize behavior before normalizing it.
+- The temporary REPL policy can become accidental architecture; no other client should depend on it.
