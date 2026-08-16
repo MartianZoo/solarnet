@@ -6,10 +6,11 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -151,10 +152,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Only 3 colonies total per Colony Tile are allowed - no exceptions!
   @Test
   fun `three colonies max`() {
-    engine.godMode().manual("Colony<P1, Luna>")
-    engine.godMode().manual("Colony<P2, Luna>")
-    engine.godMode().manual("Colony<P3, Luna>")
-    shouldThrow<LimitsException> { engine.godMode().manual("Colony<P4, Luna>") }
+    engine.godMode().manual("Colony<Player1, Luna>")
+    engine.godMode().manual("Colony<Player2, Luna>")
+    engine.godMode().manual("Colony<Player3, Luna>")
+    shouldThrow<LimitsException> { engine.godMode().manual("Colony<Player4, Luna>") }
   }
 
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
@@ -171,14 +172,18 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // your Trade Fleet from the Trade Fleets Tile to an available Colony Tile.
   @Test
   fun `basic trading`() {
-    engine.godMode().sneak("5 ColonyProduction<Luna>, Colony<P1, Luna>, Colony<P2, Luna>, 3 E<P1>")
+    engine
+        .godMode()
+        .sneak(
+            "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 E<Player1>"
+        )
     p1.assertCounts(6 to "ColonyProduction<Luna>")
     p1.stdAction("TradeSA", 2) {
           doTask("Trade<Luna>")
           // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
           // trade income, and give the local colony owners their colony bonus.
         }
-        .expect("19 Megacredit<P1>, 2 Megacredit<P2>, -3 E<P1>")
+        .expect("19 Megacredit<Player1>, 2 Megacredit<Player2>, -3 E<Player1>")
 
     // Directly after trading you move the white marker as far left as possible, stopping next to
     // the player colonies, or at the bottom of the track (in the example above the marker is moved
@@ -242,5 +247,30 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
     localP1.assertCounts(7 to "Microbe<NitriteReducingBacteria>")
     localP2.assertCounts(1 to "Microbe<RegolithEaters>")
+  }
+
+  @Test
+  fun `Pluto colony bonus draws before its mandatory discard`() {
+    val localGame =
+        setUpGame(
+            ColoniesExpansion,
+            players = 2,
+            colonyTiles = testColonyTiles(2, "Pluto"),
+        )
+    val localP1 = localGame.tfm(PLAYER1)
+    val manual = localP1.godMode().also { it.autoExecMode = NONE }
+
+    localP1.assertCounts(0 to "ProjectCard")
+    manual.manual("GiveColonyBonus<Pluto>") {
+      val draw = localGame.tasks.extract { it }.single()
+      draw.instruction.toString() shouldBe "ProjectCard<Player1>!"
+      draw.then.toString() shouldBe "-ProjectCard<Player1>!"
+
+      doTask("ProjectCard")
+      localP1.assertCounts(1 to "ProjectCard")
+      localGame.tasks.extract { "${it.instruction}" }.single() shouldBe "-ProjectCard<Player1>!"
+      doTask("-ProjectCard")
+    }
+    localP1.assertCounts(0 to "ProjectCard")
   }
 }

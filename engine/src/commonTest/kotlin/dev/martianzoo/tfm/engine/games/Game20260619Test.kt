@@ -1,21 +1,19 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.tfm.canon.Canon.Option.*
-import dev.martianzoo.tfm.canon.exclude
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.engine.canonicalPremise
 import kotlin.test.Test
 
 class Game20260619Test : AbstractFullGameTest() {
 
-  override fun setup() =
-      canonicalPremise(
-          VenusNextExpansion,
-          PreludeExpansion,
-          PromoCardPack,
-          TurmoilCardPack,
-          exclude(WorldGovernmentOption),
-          players = 2,
+  override val config =
+      GameConfig(
+          """
+          VenusNextExpansion, PreludeExpansion, PromoCardPack, TurmoilCardPack
+          -WorldGovernmentOption
+          """,
+          "Player1",
+          "Player2",
       )
 
   @Test
@@ -43,7 +41,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB gained 1 M€ production because of Saturn Systems
     KB.playCorp("SaturnSystems", 3).expect("PROD[1]")
 
-    with(ER) {
+    ER.turn {
       // ER played New Partner
       // ER gained 1 M€ production
       playPrelude("NewPartner") {
@@ -60,7 +58,7 @@ class Game20260619Test : AbstractFullGameTest() {
       playPrelude("DomeFarming")
     }
 
-    with(KB) {
+    KB.turn {
       // KB played Aquifer Turbines
       // KB gained 2 energy production
       // KB placed ocean tile at 13
@@ -82,22 +80,25 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Restricted Area
     // ER ended turn
-    ER.playProject("EarthOffice", 1) // net 0 ProjectCard
-    ER.declineSecondAction()
+    ER.turn {
+      playProject("EarthOffice", 1) // net 0 ProjectCard
+    }
 
     // KB played Vesta Shipyard
     // KB gained 1 titanium production
     // KB gained 1 M€ production because of Saturn Systems
     // KB ended turn
-    KB.playProject("VestaShipyard", 15).expect("PROD[1]")
-    KB.declineSecondAction()
+    KB.turn {
+      playProject("VestaShipyard", 15).expect("PROD[1]")
+    }
 
     // ER played Carbonate Processing
     // ER lost 1 energy production
     // ER gained 3 heat production
     // ER ended turn
-    ER.playProject("CarbonateProcessing", 6)
-    ER.declineSecondAction()
+    ER.turn {
+      playProject("CarbonateProcessing", 6)
+    }
 
     // KB passed
     KB.pass()
@@ -105,11 +106,13 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER played Subterranean Reservoir
     // ER placed ocean tile at 28
     // ER gained 2 plants
-    ER.playProject("SubterraneanReservoir", 11) { doTask("OceanTile<Tharsis_4_8>") }
-        .expect("TR, 2 Plant")
+    ER.turn {
+      playProject("SubterraneanReservoir", 11) { doTask("OceanTile<Tharsis_4_8>") }
+          .expect("TR, 2 Plant")
 
-    // ER passed
-    ER.pass()
+      // ER passed
+      pass()
+    }
 
     // Generation 2
     // First player this generation is KB
@@ -117,8 +120,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Business Contacts,Lagrange Observatory,Solar Wind Power
     // KB bought 2 card(s)
     // You bought Magnetic Field Generators,Power Supply Consortium
-    ER.doFirstTask("3 BuyCard")
-    KB.doFirstTask("2 BuyCard")
+    ER.buyCards(3)
+    KB.buyCards(2)
 
     with(ER) {
       assertProduction(m = 3, s = 0, t = 1, p = 2, e = 0, h = 3)
@@ -142,8 +145,9 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB drew 2 card(s)
     // You drew Robotic Workforce,Ore Processor
     // KB ended turn
-    KB.playProject("MartianSurvey", 9)
-    KB.declineSecondAction()
+    KB.turn {
+      playProject("MartianSurvey", 9)
+    }
 
     // ER played Restricted Area
     // ER placed Restricted Area tile at 20
@@ -152,27 +156,32 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER used Restricted Area action
     // ER drew 1 card(s)
     // You drew Immigrant City
-    ER.playProject("RestrictedArea", 11) { doTask("RaTile<Tharsis_3_7>") }.expect("-7, Steel")
-    ER.cardAction1("RestrictedArea")
+    ER.turn {
+      playProject("RestrictedArea", 11) { doTask("RaTile<Tharsis_3_7>") }.expect("-7, Steel")
+      cardAction1("RestrictedArea")
+    }
 
     // KB played Artificial Photosynthesis
     // KB gained 2 energy production
     // KB ended turn
-    KB.playProject("ArtificialPhotosynthesis", 12) { doTask("PROD[2 Energy]") }
-    KB.declineSecondAction()
+    KB.turn {
+      playProject("ArtificialPhotosynthesis", 12) { doTask("PROD[2 Energy]") }
+    }
 
     // ER played Solar Wind Power
     // ER gained 1 energy production
     // ER gained 2 titanium
     // ER ended turn
-    ER.playProject("SolarWindPower", 8, titanium = 1)
-    ER.declineSecondAction()
+    ER.turn {
+      playProject("SolarWindPower", 8, titanium = 1)
+    }
 
     // KB played Power Supply Consortium
     // KB stole 1 energy production from ER
     // KB ended turn
-    KB.playProject("PowerSupplyConsortium", 5) { doTask("PROD[-E<P1>]") }
-    KB.declineSecondAction()
+    KB.turn {
+      playProject("PowerSupplyConsortium", 5) { doTask("PROD[-E<Player1>]") }
+    }
 
     // ER passed
     ER.pass()
@@ -186,8 +195,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Soil Factory,Kelp Farming
     // ER bought 2 card(s)
     // You bought Natural Preserve,Nuclear Zone
-    ER.doFirstTask("2 BuyCard")
-    KB.doFirstTask("2 BuyCard")
+    ER.buyCards(2)
+    KB.buyCards(2)
 
     with(ER) {
       assertProduction(m = 3, s = 0, t = 1, p = 2, e = 0, h = 3)
@@ -210,17 +219,20 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER used Restricted Area action
     // ER drew 1 card(s)
     // You drew Satellites
-    ER.cardAction1("RestrictedArea")
+    ER.turn {
+      cardAction1("RestrictedArea")
 
-    // ER used Convert Plants standard action
-    // ER placed greenery tile at 19
-    // ER gained 2 M€ from 1 ocean(s)
-    ER.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_3_6>") }
+      // ER used Convert Plants standard action
+      // ER placed greenery tile at 19
+      // ER gained 2 M€ from 1 ocean(s)
+      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_3_6>") }
+    }
 
     // KB used Convert Heat standard action
     // KB ended turn
-    KB.stdAction("ConvertHeatSA")
-    KB.declineSecondAction()
+    KB.turn {
+      stdAction("ConvertHeatSA")
+    }
 
     // ER played Nuclear Zone
     // ER gained 1 heat production
@@ -229,30 +241,35 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER placed Nuclear Zone tile at 37
     // ER gained 2 plants
     // ER gained 2 M€ from 1 ocean(s)
-    ER.playProject("NuclearZone", 7) { doTask("NzTile<Tharsis_5_9>") }
+    ER.turn {
+      playProject("NuclearZone", 7) { doTask("NzTile<Tharsis_5_9>") }
 
-    // ER played Lagrange Observatory
-    // ER drew 1 card(s)
-    // You drew Trans-Neptune Probe
-    ER.playProject("LagrangeObservatory", titanium = 3)
+      // ER played Lagrange Observatory
+      // ER drew 1 card(s)
+      // You drew Trans-Neptune Probe
+      playProject("LagrangeObservatory", titanium = 3)
+    }
 
     // KB used Power Plant:SP standard project
     // KB ended turn
-    KB.stdProject("PowerPlantSP")
-    KB.declineSecondAction()
+    KB.turn {
+      stdProject("PowerPlantSP")
+    }
 
     // ER played Business Contacts
     // ER drew 1 card(s)
     // You drew Phobos Space Haven
     // ER drew 2 card(s)
     // You drew Sponsors,ArchaeBacteria
-    ER.playProject("BusinessContacts", 4)
+    ER.turn {
+      playProject("BusinessContacts", 4)
 
-    // ER played Sponsors
-    // ER gained 2 M€ production
-    // ER drew 1 card(s)
-    // You drew Imported GHG
-    ER.playProject("Sponsors", 3)
+      // ER played Sponsors
+      // ER gained 2 M€ production
+      // ER drew 1 card(s)
+      // You drew Imported GHG
+      playProject("Sponsors", 3)
+    }
 
     // KB passed
     KB.pass()
@@ -262,10 +279,12 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER gained 3 heat
     // ER drew 1 card(s)
     // You drew Permafrost Extraction
-    ER.playProject("ImportedGhg", 4)
+    ER.turn {
+      playProject("ImportedGhg", 4)
 
-    // ER passed
-    ER.pass()
+      // ER passed
+      pass()
+    }
 
     // Generation 4
     // First player this generation is KB
@@ -273,8 +292,8 @@ class Game20260619Test : AbstractFullGameTest() {
     // You bought Regolith Eaters,Power Plant
     // ER bought 2 card(s)
     // You bought Industrial Center,Miranda Resort
-    ER.doFirstTask("2 BuyCard")
-    KB.doFirstTask("2 BuyCard")
+    ER.buyCards(2)
+    KB.buyCards(2)
 
     with(ER) {
       assertProduction(m = 5, s = 0, t = 1, p = 2, e = 0, h = 5)
@@ -297,16 +316,18 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB played Power Plant
     // KB gained 1 energy production
     // KB ended turn
-    KB.playProject("PowerPlant", 4)
-    KB.declineSecondAction()
+    KB.turn {
+      playProject("PowerPlant", 4)
+    }
 
     // ER played Pets
     // ER drew 1 card(s)
     // You drew House Printing
     // ER added 1 Animal to Pets
     // ER ended turn
-    ER.playProject("Pets", 7)
-    ER.declineSecondAction()
+    ER.turn {
+      playProject("Pets", 7)
+    }
 
     // KB claimed Specialist milestone
     // KB ended turn
@@ -321,11 +342,15 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Large Convoy
     // ER ended turn
-    ER.playProject("MoholeArea", 18, steel = 1) { doTask("MaTile<Tharsis_1_4>") }
+    ER.turn {
+      playProject("MoholeArea", 18, steel = 1) { doTask("MaTile<Tharsis_1_4>") }
+    }
 
     // KB played Ore Processor
     // KB ended turn
-    KB.playProject("OreProcessor", 13)
+    KB.turn {
+      playProject("OreProcessor", 13)
+    }
 
     // ER passed
     ER.pass()
@@ -361,69 +386,91 @@ class Game20260619Test : AbstractFullGameTest() {
 
     // ER claimed Planner milestone
     // ER ended turn
-    ER.stdAction("ClaimMilestoneSA") { doTask("Planner") }
+    ER.turn {
+      stdAction("ClaimMilestoneSA") { doTask("Planner") }
+    }
 
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.turn {
+      stdAction("ConvertHeatSA")
 
-    // KB used Convert Heat standard action
-    // KB gained 1 heat production
-    KB.stdAction("ConvertHeatSA")
+      // KB used Convert Heat standard action
+      // KB gained 1 heat production
+      stdAction("ConvertHeatSA")
+    }
 
     // ER used Restricted Area action
     // ER drew 1 card(s)
     // You drew Nitrophilic Moss
-    ER.cardAction1("RestrictedArea")
+    ER.turn {
+      cardAction1("RestrictedArea")
 
-    // ER played ArchaeBacteria
-    // ER gained 1 plant production
-    ER.playProject("Archaebacteria", 6)
+      // ER played ArchaeBacteria
+      // ER gained 1 plant production
+      playProject("Archaebacteria", 6)
+    }
 
     // KB used Ore Processor action
     // KB gained 1 titanium
     // KB ended turn
-    KB.cardAction1("OreProcessor")
+    KB.turn {
+      cardAction1("OreProcessor")
+    }
 
     // ER played Miranda Resort
     // ER gained 5 M€ production
     // KB gained 1 M€ production because of Saturn Systems
     // ER ended turn
-    ER.playProject("MirandaResort", 6, titanium = 2)
+    ER.turn {
+      playProject("MirandaResort", 6, titanium = 2)
+    }
 
     // KB played Regolith Eaters
     // KB ended turn
-    KB.playProject("RegolithEaters", 13)
+    KB.turn {
+      playProject("RegolithEaters", 13)
+    }
 
     // ER used Convert Heat standard action
     // ER ended turn
-    ER.stdAction("ConvertHeatSA")
+    ER.turn {
+      stdAction("ConvertHeatSA")
+    }
 
     // KB used Regolith Eaters action
     // KB added 1 Microbe to Regolith Eaters
     // KB ended turn
-    KB.cardAction1("RegolithEaters")
+    KB.turn {
+      cardAction1("RegolithEaters")
+    }
 
     // ER used Convert Heat standard action
     // ER ended turn
-    ER.stdAction("ConvertHeatSA")
+    ER.turn {
+      stdAction("ConvertHeatSA")
+    }
 
     // KB played Investment Loan
     // KB lost 1 M€ production
     // KB gained 10 M€
     // KB ended turn
-    KB.playProject("InvestmentLoan", 3)
+    KB.turn {
+      playProject("InvestmentLoan", 3)
+    }
 
     // ER passed
     ER.pass()
 
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.turn {
+      stdAction("ConvertHeatSA")
 
-    // KB played Soil Factory
-    // KB gained 1 plant production
-    // KB lost 1 energy production
-    // KB passed
-    KB.playProject("SoilFactory", 9)
-    KB.pass()
+      // KB played Soil Factory
+      // KB gained 1 plant production
+      // KB lost 1 energy production
+      // KB passed
+      playProject("SoilFactory", 9)
+      pass()
+    }
   }
 }

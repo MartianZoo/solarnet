@@ -18,14 +18,14 @@ But there is a *lot* more that is important to us than just that.
 - Do not invent requirements or abstractions for hypothetical flexibility. Solarnet should have clean boundaries, but making it truly independent of Canon or suitable for unrelated games does not justify heroics. The realistic extension case is mostly Canon plus more material.
 - Prefer one systemic mechanism over scattered hacks, but keep the cure proportional to demonstrated use cases. Hardcoding a narrow fact can be cleaner than building an unused framework.
 - Watch for complexity spirals. Large changes should be teased into small, reviewable pieces that are independently beneficial. Revert or stash experiments that are not converging, while salvaging clean preparatory improvements.
-- Use precise, stable domain vocabulary. Names should expose the conceptual model and distinguish genuinely different things, such as bundles of available definitions, user-requested options, and the fully realized rules of a particular game.
+- Use precise, stable domain vocabulary. Distinguish an Authority's complete knowledge, Modules, internal provider bundles, unresolved user intent, and the exact premise of one game.
 
 ## 3. Keep Pets and the domain model central
 
-- Pets syntax should be compact, composable, internally consistent, and sensible to a normal reader. Prefer general precedence and linkage rules that remove redundant parentheses, repeated owners, and bespoke syntax.
-- Canon is principally a data provider. Selection, filtering, and game-state decisions belong outside its data APIs.
+- Pets syntax should be compact, composable, internally consistent, and sensible to a normal reader. Prefer general precedence and Type-variable rules that remove redundant parentheses, repeated Owners, and bespoke syntax.
+- An Authority, including Canon, is principally a coherent data provider. Selection, filtering, and game-state decisions belong outside its data APIs; custom metrics and instructions are the narrow exception.
 - Load only vocabulary a game needs. Merely mentioning an expansion-gated type in a safe context should not drag the expansion's machinery into the game.
-- Favor affirmative, composable rule modules: active components add the behavior of the realized game rather than a growing web of negations and special exclusions.
+- Favor affirmative, composable Modules: active components add the ambient behavior of the realized game rather than a growing web of negations and special exclusions.
 
 ## 4. Spend effort according to project priorities
 

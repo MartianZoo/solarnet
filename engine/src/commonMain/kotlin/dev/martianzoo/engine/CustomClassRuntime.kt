@@ -1,11 +1,10 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.CustomCodeException
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.data.Ruleset
+import dev.martianzoo.data.Authority
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Instruction
@@ -13,7 +12,7 @@ import dev.martianzoo.types.Type
 
 /** Engine runtime for Kotlin-provided instruction and metric behavior of Pets custom classes. */
 internal class CustomClassRuntime(
-    private val ruleset: Ruleset,
+    private val authority: Authority,
     private val transformers: Transformers,
 ) {
   internal fun prepare(component: Component, reader: GameReader): Instruction {
@@ -21,7 +20,7 @@ internal class CustomClassRuntime(
     require(component.type.classTable === transformers.classTable)
 
     val type = component.type
-    val implementation = ruleset.customClass(type.className)
+    val implementation = authority.customClass(type.className)
     val args = type.expressionFull.arguments.map(reader::resolve)
     val missing = args.filter { reader.countComponent(it) == 0 }
     if (missing.any()) throw DependencyException(missing)
@@ -61,14 +60,18 @@ internal class CustomClassRuntime(
     require(type.rootClass.declaration.custom)
     require(type.classTable === transformers.classTable)
 
+    if (type.abstract) {
+      return type
+          .allConcreteSubtypes()
+          .filter { it.narrows(type, reader) }
+          .sumOf { count(it, reader) }
+    }
+
     val implementation =
-        ruleset.customMetric(type.className)
+        authority.customMetric(type.className)
             ?: throw CustomCodeException(
                 "Custom class `${type.className}` has no metric implementation"
             )
-    if (type.abstract) {
-      throw AbstractException("custom metric type is abstract: ${type.expressionFull}")
-    }
 
     val count =
         try {

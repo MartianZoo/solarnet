@@ -8,12 +8,15 @@ internal class TfmPlayCommandTest {
   @Test
   fun `tfm play works within the automatic solo workflow`() {
     val repl = ScriptSession()
-    repl.command("newgame BERP 1 purple")
+    repl.command(
+        "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMapOption, " +
+            "PreludeExpansion\" Me purple"
+    )
     repl.command("task CityTile<Elysium_5_6, SoloOpponent>")
     repl.command("task GreeneryTile<Elysium_5_5, SoloOpponent>")
     repl.command("task CityTile<Elysium_7_7, SoloOpponent>")
     repl.command("task GreeneryTile<Elysium_7_6, SoloOpponent>")
-    repl.command("become P1")
+    repl.command("become Me")
     repl.command("tfm_play SaturnSystems")
     repl.command("task 10 BuyCard")
     repl.command("tfm_play Biolab")
@@ -22,15 +25,15 @@ internal class TfmPlayCommandTest {
     repl.command("tfm_play EarthOffice, 1")
 
     assertEquals(1, repl.gameplay.count("ActionPhase"))
-    assertEquals(1, repl.gameplay.count("EarthOffice<P1>"))
+    assertEquals(1, repl.gameplay.count("EarthOffice<Me>"))
   }
 
   @Test
   fun `tfm play selects the play card action and forwards inline payment`() {
     val repl = ScriptSession()
-    repl.command("newgame BERP 2")
+    repl.command("newgame BRP 2")
     repl.command("auto safe")
-    repl.command("become P1")
+    repl.command("become Player1")
     repl.command("phase Corporation")
     repl.command("turn")
     repl.command("tfm_play SaturnSystems")
@@ -41,8 +44,8 @@ internal class TfmPlayCommandTest {
 
     repl.command("tfm_play OlympusConference, 2 Steel, 6")
 
-    assertEquals(1, repl.gameplay.count("OlympusConference<P1>"))
-    assertEquals(0, repl.gameplay.count("Steel<P1>"))
-    assertEquals(0, repl.gameplay.count("Owed<P1>"))
+    assertEquals(1, repl.gameplay.count("OlympusConference<Player1>"))
+    assertEquals(0, repl.gameplay.count("Steel<Player1>"))
+    assertEquals(0, repl.gameplay.count("Owed<Player1>"))
   }
 }

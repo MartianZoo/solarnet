@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import kotlin.test.Test
 
 class PristarTest : CardTest() {
@@ -8,13 +9,15 @@ class PristarTest : CardTest() {
   fun `without a TR increase, runs Pristar production`() {
     newGame(TurmoilCardPack)
     p1.manual("Pristar")
-    engine.manual("ProductionPhase FROM Phase").expect("Preservation")
+    engine.phase("Production")
+    p1.assertCounts(1 to "Preservation")
   }
 
   @Test
   fun `after a TR increase, runs Pristar production`() {
     newGame(TurmoilCardPack)
     p1.manual("Pristar, TerraformRating")
-    engine.manual("ProductionPhase FROM Phase").expect("0 Preservation")
+    engine.phase("Production")
+    p1.assertCounts(0 to "Preservation")
   }
 }

@@ -1,8 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.canon.Canon.Option.*
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -33,7 +32,7 @@ class LavaFlowsTest : CardTest() {
       abort()
     }
 
-    p1.assertCounts(0 to "LavaFlows", 0 to "LfTile")
+    p1.count("Tile<Tharsis_2_3>") shouldBe 0
     p1.temperatureC() shouldBe -30
   }
 }

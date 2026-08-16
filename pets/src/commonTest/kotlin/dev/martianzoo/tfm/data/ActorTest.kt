@@ -18,10 +18,12 @@ internal class ActorTest {
     val player: Actor = PLAYER1
     Player.players(2).shouldContainExactly(PLAYER1, PLAYER2)
     (player is Owner) shouldBe true
-    Owner.fromClassName(cn("Player1")) shouldBe PLAYER1
+    Player(cn("Player1")).className shouldBe cn("Player1")
+    Player.isValid(cn("Player5")) shouldBe true
+    Player.isValid("Player6") shouldBe false
+    assertFails { Player(cn("Ellie")) }
     (ENGINE is Player) shouldBe false
     (ENGINE is Owner) shouldBe false
-    assertFails { Owner.fromClassName(cn("Engine")) }
     assertFails { Player(cn("Engine")) }
   }
 }

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,14 +18,14 @@ class DoubleDownTest : CardTest() {
 
   @Test
   fun `after Biosphere Support, plays Double Down`() {
-    p1.playPrelude("DoubleDown") { doFirstTask("CopyPrelude<BiosphereSupport>") }
+    p1.playPrelude("DoubleDown") { doTask("CopyPrelude<BiosphereSupport>") }
         .expect("PROD[-Megacredit, 0 Steel, 0 Titanium, 2 Plant, 0 Energy, 0 Heat]")
   }
 
   @Test
   fun `without Martian Industries in play, tries to copy it using Double Down`() {
     p1.playPrelude("DoubleDown") {
-      shouldThrow<DependencyException> { doFirstTask("CopyPrelude<MartianIndustries>") }
+      shouldThrow<DependencyException> { doTask("CopyPrelude<MartianIndustries>") }
       abort()
     }
   }
@@ -34,7 +34,7 @@ class DoubleDownTest : CardTest() {
   fun `with Unmi Contractor owned by p2, tries to copy it using Double Down`() {
     requireP2().playPrelude("UnmiContractor")
     p1.playPrelude("DoubleDown") {
-      shouldThrow<DependencyException> { doFirstTask("CopyPrelude<UnmiContractor>") }
+      shouldThrow<DependencyException> { doTask("CopyPrelude<UnmiContractor>") }
       abort()
     }
   }
@@ -42,7 +42,7 @@ class DoubleDownTest : CardTest() {
   @Test
   fun `with Pharmacy Union in play, tries to copy it using Double Down`() {
     p1.playPrelude("DoubleDown") {
-      shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<PharmacyUnion>") }
+      shouldThrow<NarrowingException> { doTask("CopyPrelude<PharmacyUnion>") }
       abort()
     }
   }
@@ -50,7 +50,7 @@ class DoubleDownTest : CardTest() {
   @Test
   fun `while playing Double Down, tries to copy itself`() {
     p1.playPrelude("DoubleDown") {
-      shouldThrow<NarrowingException> { doFirstTask("CopyPrelude<DoubleDown>") }
+      shouldThrow<NarrowingException> { doTask("CopyPrelude<DoubleDown>") }
       abort()
     }
   }

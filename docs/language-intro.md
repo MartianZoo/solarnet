@@ -10,17 +10,17 @@ Then I discovered that I was already hard at work on it! For example, the many h
 
 Now (December 2022) I've been working on it for over two years. It's been my main pursuit outside of work. Some of the effort has been writing actual computer programs to *test* that the language is suitable in the ways I want it to be. But most of it has been simply grappling with the *design* of the thing -- so far it's been a generous fountain of absolutely wicked design puzzles!
 
-## Worlds
+## Game Worlds
 
-The topic of this language is queries and manipulations of a world. For Terraforming Mars, a world represents the state of a game in progress, so we'd better start by understanding what that means.
+The topic of this language is queries and manipulations of a Game World. For Terraforming Mars, a Game World represents the state of a game in progress, so we'd better start by understanding what that means.
 
 I have a long answer to that, but the short version is: it's everything you need to know about a game-in-progress in order to fully reconstruct a *functionally equivalent* game-in-progress at another time or place. It's like a photograph of the game, but also needs to include invisible state like whose turn it is.
 
-PETS's conception of a *Terraforming Mars* world goes like this:
+PETS's conception of a *Terraforming Mars* Game World goes like this:
 
 ### Components
 
-What makes up a world is *a bunch of things*. Countable things, called components.
+What makes up a Game World is *a bunch of things*. Countable things, called Components.
 
 Anything that has no effect on the game, like a greenery/city tile waiting in a bowl to be used, simply does not exist. To play a tile is *create* it.
 
@@ -43,9 +43,9 @@ Examples, in order of ascending weirdness:
 
 Much of the power of the language comes from the way it treats everything in such a homogenized way -- and the idea came straight from the existing icon grammar, which depicts "raise the temperature 1 step" and "gain a plant" in entirely similar ways.
 
-### World
+### Game World
 
-A world is nothing but a set of components -- actually a "multiset", since there can be multiple indistinguishable elements, like your Steel resources.
+A Game World is nothing but a set of Components -- actually a "multiset", since there can be multiple indistinguishable elements, like your Steel resources.
 
 A change to that state is nothing but adding components, removing components, or transmuting some components into an equal number of other components.
 

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.canon.Canon.Option.PromoCardPack
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import kotlin.test.Test
 
 class VerminTest : CardTest() {
@@ -11,9 +11,9 @@ class VerminTest : CardTest() {
     p1.manual("Vermin, Decomposers")
     engine.phase("Action")
 
-    requireP2().manual("CityTile<Tharsis_2_1>").expect("Animal<Vermin>")
+    requireP2().manual("CityTile<Tharsis_2_1>").expect("Animal<Player1, Vermin<Player1>>")
     p1.cardAction1("Vermin") { doTask("Animal<Vermin>!") }
-    p1.manual("-ActionUsedMarker<Vermin>")
+    engine.manual("Generation")
     p1.cardAction1("Vermin") { doTask("Microbe<Decomposers>") }
 
     p1.assertCounts(2 to "Animal<Vermin>", 2 to "Microbe<Decomposers>")

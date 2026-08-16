@@ -62,7 +62,7 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val replaces: String? by data::replaces
 
-  /** Setup-world condition that must hold for this card to be included. */
+  /** Configuration condition that must hold for this card to be active. */
   override val setupRequirement: Requirement? = data.setupRequirement?.let(::parse)
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
@@ -207,6 +207,6 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
-    parseOneLinerClass("CLASS $type : CardResource")
+    parseOneLinerClass("CLASS $type : CardResource<ResourceHolder<Class<$type>, Owner>>")
   }
 }

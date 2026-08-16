@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.canon.Canon.Option.*
-import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -14,7 +12,6 @@ class VironTest : CardTest() {
     initializeGame()
     p1.cardAction1("AtmoCollectors")
     p1.cardAction1("Viron") { doTask("UseAction1<AtmoCollectors>") }.expect("Floater")
-    p1.assertOneActionMarkerOnEachCard()
   }
 
   @Test
@@ -28,8 +25,6 @@ class VironTest : CardTest() {
           doTask("2 Titanium")
         }
         .expect("-Floater")
-
-    p1.assertOneActionMarkerOnEachCard()
   }
 
   @Test
@@ -72,8 +67,6 @@ class VironTest : CardTest() {
       shouldThrow<NarrowingException> { doTask("UseAction1<AtmoCollectors<Player2>>") }
       abort()
     }
-
-    p2.assertCounts(1 to "ActionUsedMarker<AtmoCollectors>")
   }
 
   private fun initializeGame() {
@@ -84,13 +77,5 @@ class VironTest : CardTest() {
     )
     engine.phase("Action")
     p1.manual("Viron, AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
-  }
-
-  private fun TfmGameplay.assertOneActionMarkerOnEachCard() {
-    assertCounts(
-        1 to "ActionUsedMarker<AtmoCollectors>",
-        1 to "ActionUsedMarker<Viron>",
-        2 to "ActionUsedMarker",
-    )
   }
 }

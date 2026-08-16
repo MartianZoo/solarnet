@@ -14,7 +14,7 @@ This file is authoritative for phase ordering and terminal behavior.
 ## Current status
 
 `TfmWorkflow.Auto` currently implements the complete coarse game loop in Kotlin. It starts a
-Player's turn operation directly and suspends its coroutine while the **whole world** is not idle:
+Player's turn operation directly and suspends its coroutine while the **whole Game World** is not idle:
 any task or temporary component keeps it waiting. This is sufficient for the current game and is
 covered by workflow, card, and whole-game tests. World Government Terraforming, Philares, Splice,
 Icy Impactors, and Enceladus are working behaviors; none is waiting on native workflow or a new
@@ -86,6 +86,12 @@ After `ProductionPhase`, `SolarPhase` checks the multiplayer end condition. If i
 the workflow continues directly to `FinalGreeneryPhase` and then `EndPhase`; otherwise it
 continues through the applicable Solar subphases and into the next generation.
 
+During final greenery, each player receives the initial optional conversion turn in final-generation
+player order. A player who places a greenery receives another optional conversion turn after all of
+that placement's bonuses and triggered effects. After placing their last greenery, the player must
+explicitly choose `Ok`; only then does the workflow advance to the next player. This avoids both a
+fixed plant threshold and potentially expensive speculative execution.
+
 The Venus parameter is not part of the multiplayer end condition, even when Venus Next is in use.
 If a later Solar subphase completes the multiplayer end condition, the current Solar phase still
 finishes normally and the condition is detected at the next `SolarPhase` game-end check.
@@ -123,7 +129,7 @@ Instruction-side `BY` cannot express this: it changes only who performs an instr
 changing the task assignee or creating a control scope. The intended result is that Engine retains
 a temporarily nonactionable continuation, consequences of the Player's work remain within the
 Player's turn scope, and Engine resumes after that scope and any nested cross-owner choice drain.
-The native workflow must therefore not use whole-world idleness as its completion condition.
+The native Workflow must therefore not use whole-world idleness as its completion condition.
 
 Queue suspension is only one candidate representation. The required semantics may instead be
 implemented with execution frames or explicit continuations; current task queues have no
@@ -215,9 +221,10 @@ Names used by `WorkflowPrecedence` are **weak class references**: a constraint p
 when its span and both endpoint phase classes were independently activated by the selected rules.
 Reading the constraint must never activate an absent endpoint. This differs intentionally from an
 ordinary component dependency, whose existence asserts that its dependency exists. Workflow
-topology is ruleset metadata, not additional game-world state; the declarations may use ordinary
-Pets class syntax, but the runner should compile them from the selected ruleset rather than create
-their instances in the world.
+With the current Authority model, that future workflow topology should be Authority data filtered by the premise
+rather than additional Game World state; the Declarations may use ordinary Pets Class syntax, but
+the runner should compile them from the active premise classes rather than create their instances
+in the Game World.
 
 Dynamic decisions remain ordinary component effects. For example, completion of `SolarPhase` may
 transmute directly to `FinalGreeneryPhase` when the game-end requirement is true. Such an explicit
@@ -239,7 +246,7 @@ emptiness, as the condition for emitting `StepComplete`.
 ## Implementation direction
 
 1. Add the generic workflow vocabulary and compile weak, span-scoped precedence declarations from
-   the selected ruleset without activating their referenced phase classes.
+   the premise's Authority and active classes without activating their referenced phase classes.
 2. Build a generic runner by extracting the lifecycle, checkpoint, cancellation, and wakeup
    mechanics from `TfmWorkflow.Auto`. Prove it with a synthetic linear span, an inserted phase, a
    requirement-selected branch, and termination.

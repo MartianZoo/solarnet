@@ -6,6 +6,8 @@ import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.canonicalPremise
@@ -223,6 +225,56 @@ class TaskRevisionTest {
     writer.doTask("Steel!")
 
     tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
+    game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
+    initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
+
+    writer.autoExecNow()
+
+    tasksAsText()
+        .shouldContainExactly("3 Megacredit<Player1> FROM Megacredit<Player>. THEN Plant<Player>!")
+    game.gameplay(PLAYER2).count("Megacredit") shouldBe 3
+  }
+
+  @Test
+  fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
+    game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
+    initiate("3 Megacredit FROM Megacredit<Player>.")
+
+    writer.autoExecNow()
+
+    tasksAsText().shouldContainExactly("3 Megacredit<Player1> FROM Megacredit<Player>.")
+    game.gameplay(PLAYER2).count("Megacredit") shouldBe 3
+  }
+
+  @Test
+  fun `selecting a zero-count AMAP actor after autoexec still binds the continuation`() {
+    writer.godMode().manual("3 Megacredit")
+    initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
+    writer.autoExecNow()
+    writer.autoExecMode = NONE
+
+    writer.doTask("3 Megacredit FROM Megacredit<Player2>.")
+
+    tasksAsText().shouldContainExactly("Plant<Player2>!")
+    writer.count("Megacredit") shouldBe 3
+    game.gameplay(PLAYER2).count("Plant") shouldBe 0
+  }
+
+  @Test
+  fun `selecting an AMAP source binds the later stage before preparation`() {
+    game.gameplay(PLAYER2).godMode().manual("3 Megacredit")
+    writer.autoExecMode = NONE
+    initiate("3 Megacredit FROM Megacredit<Player>. THEN Plant<Player>")
+
+    writer.doTask("3 Megacredit FROM Megacredit<Player2>.")
+
+    tasksAsText().shouldContainExactly("Plant<Player2>!")
+    writer.count("Megacredit") shouldBe 3
+    game.gameplay(PLAYER2).count("Megacredit") shouldBe 0
   }
 
   private fun initiate(ins: String) = writer.godMode().addTasks(ins)

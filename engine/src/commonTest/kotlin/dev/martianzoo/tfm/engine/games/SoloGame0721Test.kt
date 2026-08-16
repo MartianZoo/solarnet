@@ -1,32 +1,25 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SoloGame0721Test : AbstractSoloTest() {
-  override fun setup(): GamePremise {
-    val colonyTiles = setOf(cn("Ceres"), cn("Luna"), cn("Triton"))
-    // Enceladus was removed because solo Colonies uses only three selected tiles.
-    return canonicalPremise(
-        ElysiumMapOption,
-        VenusNextExpansion,
-        PreludeExpansion,
-        ColoniesExpansion,
-        TurmoilCardPack,
-        PromoCardPack,
-        Tr63SoloVariant,
-        players = 1,
-        colonyTiles = colonyTiles,
-    )
-  }
+  // Enceladus was removed because solo Colonies uses only three selected tiles.
+  override val config =
+      GameConfig(
+          """
+          ElysiumMapOption
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
+          Tr63SoloVariant
+          Ceres, Luna, Triton
+          """,
+          "Me",
+      )
 
   // Could at some point calculate these automatically from cards drawn
 
@@ -63,10 +56,10 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Great Aquifer
       playPrelude("GreatAquifer") {
         // me placed ocean tile on row 3 position 6
-        doFirstTask("OceanTile<Elysium_3_6>")
+        doTask("OceanTile<Elysium_3_6>")
         // me placed ocean tile on row 4 position 7
         // me's plants amount increased by 1
-        doFirstTask("OceanTile<Elysium_4_7>")
+        doTask("OceanTile<Elysium_4_7>")
       }
 
       // me used United Nations Mars Initiative action
@@ -582,7 +575,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me placed greenery tile on row 8 position 5
       // me's steel amount increased by 2
       doTask("GreeneryTile<Elysium_8_8>")
-      doFirstTask("Ok")
+      doTask("Ok")
       // This game id was gf33a06d07a1c
       // herokuapp results image: https://tinyurl.com/39xerd7w
 
@@ -596,14 +589,14 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       val sum = Summarizer(game)
       assertCounts(69 to "TerraformRating")
-      sum.net("GreeneryTile", "VictoryPoint<P1>") shouldBe 8
-      sum.net("CityTile", "VictoryPoint<P1>") shouldBe 13
-      sum.net("Card", "VictoryPoint<P1>") shouldBe 5
+      sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 8
+      sum.net("CityTile", "VictoryPoint<Me>") shouldBe 13
+      sum.net("Card", "VictoryPoint<Me>") shouldBe 5
       assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
       // it's really 99 but we faked Flooding. note herokuapp says 111.
-      sum.net("ActionPhase", "UseAction<P1>") shouldBe 98
+      sum.net("ActionPhase", "UseAction<Me>") shouldBe 98
     }
   }
 }

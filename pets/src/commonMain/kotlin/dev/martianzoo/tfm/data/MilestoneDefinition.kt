@@ -38,7 +38,7 @@ public data class MilestoneDefinition(
         className,
         kind = CONCRETE,
         supertypes = setOf(MILESTONE.expression),
-        effects = listOf(parse("This:: ($requirementText: $OK)")),
+        effects = listOf(parse("This:: ($requirementText): $OK")),
     )
   }
 }

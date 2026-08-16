@@ -25,9 +25,7 @@ internal class Initializer(
     val engineEvent = execute("$ENGINE", cause = null).changes.first()
     val engineCause = Cause(ENGINE.expression, engineEvent.ordinal)
     createSingletons(engineCause)
-    premise.initialComponents.forEach { component ->
-      if (gameplay.count(component) == 0) execute(component, engineCause)
-    }
+    createInitialComponents(engineCause)
     timeline.initializationFinished()
     timeline.commit()
   }
@@ -42,18 +40,33 @@ internal class Initializer(
    * types until each dependency has had a chance to be created by an earlier round.
    */
   private fun createSingletons(cause: Cause) {
-    val remaining =
-        classTable
-            .allClasses()
-            .filter(Class::isSingletonType)
-            .flatMap { it.baseType.concreteSubtypesSameClass() }
-            .toMutableList()
+    createComponents(
+        classTable.allClasses().filter(Class::isSingletonType).flatMap {
+          it.baseType.concreteSubtypesSameClass()
+        },
+        cause,
+        "singleton",
+    )
+  }
+
+  private fun createInitialComponents(cause: Cause) {
+    createComponents(premise.initialComponentTypes.map(classTable::resolve), cause, "initial")
+  }
+
+  private fun createComponents(types: Collection<Type>, cause: Cause, description: String) {
+    val remaining = types.toMutableList()
     val missingByType = mutableMapOf<Type, Collection<Type>>()
 
     while (remaining.isNotEmpty()) {
       var progress = false
       val round = remaining.toList()
       for (type in round) {
+        if (gameplay.count("${type.expression}") > 0) {
+          remaining.remove(type)
+          missingByType.remove(type)
+          progress = true
+          continue
+        }
         try {
           execute("${type.expression}", cause)
           remaining.remove(type)
@@ -71,7 +84,7 @@ internal class Initializer(
               "  ${type.expressionFull} requires $missing"
             }
         throw invalidPetDefinition(
-            "Could not create singleton components; dependencies remain missing:\n$diagnostic"
+            "Could not create $description components; dependencies remain missing:\n$diagnostic"
         )
       }
     }

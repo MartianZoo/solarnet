@@ -4,7 +4,7 @@ import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -73,6 +73,22 @@ class SulphurEatingBacteriaTest : CardTest() {
   @Test
   fun `with four microbes, tries to add microbes for a cost`() {
     assertInvalidPayment<NarrowingException>("2 Microbe<SulphurEatingBacteria> THEN -6")
+  }
+
+  @Test
+  fun `can convert one microbe into three megacredits`() {
+    p1.cardAction2("SulphurEatingBacteria") {
+          doTask("-Microbe<SulphurEatingBacteria> THEN 3")
+        }
+        .expect("-Microbe, 3")
+  }
+
+  @Test
+  fun `can convert all four microbes into twelve megacredits`() {
+    p1.cardAction2("SulphurEatingBacteria") {
+          doTask("-4 Microbe<SulphurEatingBacteria> THEN 12")
+        }
+        .expect("-4 Microbe, 12")
   }
 
   private inline fun <reified T : Throwable> assertInvalidPayment(instruction: String) {

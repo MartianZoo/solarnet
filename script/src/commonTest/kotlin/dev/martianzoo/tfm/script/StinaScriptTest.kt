@@ -16,7 +16,7 @@ internal class StinaScriptTest {
     val script =
         """
         // Stina's Saturn Systems solo game
-        newgame BERP 1 purple
+        newgame "TerraformingMars, CorporateEraExpansion, ElysiumMapOption, PreludeExpansion" Me purple
 
         // Neutral tiles for solo setup
         task CityTile<Elysium_5_6, SoloOpponent>
@@ -24,7 +24,7 @@ internal class StinaScriptTest {
         task CityTile<Elysium_7_7, SoloOpponent>
         task GreeneryTile<Elysium_7_6, SoloOpponent>
 
-        become P1
+        become Me
 
         tfm_play SaturnSystems
         task 10 BuyCard
@@ -43,7 +43,7 @@ internal class StinaScriptTest {
         tfm_play EarthCatapult, 12
 
         tfm_play HiredRaiders
-        task 2 Steel<P1> FROM Steel<SoloOpponent>
+        task 2 Steel<Me> FROM Steel<SoloOpponent>
         task Ok
 
         tfm_play OlympusConference, 2 Steel, 1
@@ -67,20 +67,20 @@ internal class StinaScriptTest {
         tfm_play SpaceStation, 1 Titanium, 1
 
         tfm_play OptimalAerobraking
-        task A Ok
+        task 1 Ok
         task Ok
 
         tfm_play TechnologyDemonstration
-        task A Ok
-        task B Ok
+        task 1 Ok
+        task 1 Ok
         task ProjectCard FROM Science<OlympusConference>
 
         tfm_play ImportOfAdvancedGhg
-        task A Ok
+        task 1 Ok
         task Ok
 
         tfm_play ImportedGhg
-        task A Ok
+        task 1 Ok
         task Ok
 
         tfm_play MassConverter, 5

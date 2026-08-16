@@ -35,7 +35,7 @@ class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  fun wholeGameAutoExecutionUsesTheCallingActorToPerformAnotherAssigneesTask() {
+  fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.gameplay(PLAYER1).also { it.autoExecMode = NONE }
     val p2 = game.gameplay(PLAYER2).also { it.autoExecMode = NONE }
@@ -46,7 +46,7 @@ class TaskAssignmentCharacterizationTest {
 
     game.tasks.isEmpty() shouldBe true
     p2.count("Plant") shouldBe 1
-    game.events.changesSince(checkpoint).single().actor shouldBe PLAYER1
+    game.events.changesSince(checkpoint).single().actor shouldBe PLAYER2
   }
 
   @Test
@@ -106,6 +106,7 @@ class TaskAssignmentCharacterizationTest {
 
     added.id.ordinal shouldBe event.ordinal
     added.assignee shouldBe PLAYER2
+    added.actor shouldBe PLAYER2
     added.instruction shouldBe pending.instruction
     added.cause shouldBe cause
     queues[PLAYER2].ids().shouldContainExactly(TaskId(event.ordinal))

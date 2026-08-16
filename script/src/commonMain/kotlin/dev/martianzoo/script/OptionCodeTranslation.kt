@@ -1,7 +1,7 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.canon.Canon.Option
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toSetStrict
 
 /** Keeps the REPL's legacy one-letter game-option syntax out of Canon and the engine API. */
@@ -9,8 +9,8 @@ internal object OptionCodeTranslation {
   data class Setup(
       val optionCodes: String,
       val players: Int,
-      val options: Set<Option>,
-      val excludedOptions: Set<Option>,
+      val options: Set<ClassName>,
+      val excludedOptions: Set<ClassName>,
       val selectedColonies: Set<ClassName>,
   )
 
@@ -25,58 +25,65 @@ internal object OptionCodeTranslation {
       "supported option codes are: $optionsByCode"
     }
     require("B" in codes) { "include B for the base game" }
-    val selectedMaps = codes.intersect(mapOptions.keys)
-    require(selectedMaps.size == 1) { "select exactly one map: ${mapOptions.keys}" }
+    val selectedMapBundles = codes.intersect(bundleDefaultMapOptions.keys)
+    require(selectedMapBundles.size <= 1) {
+      "select at most one map bundle: ${bundleDefaultMapOptions.keys}"
+    }
 
     val options = buildSet {
-      add(Option.TerraformingMars)
-      add(mapOptions.getValue(selectedMaps.single()))
+      add(TERRAFORMING_MARS)
+      add(
+          selectedMapBundles.singleOrNull()?.let(bundleDefaultMapOptions::getValue)
+              ?: THARSIS_MAP_OPTION
+      )
       codes.mapNotNullTo(this) { positiveOptions[it] }
     }
-    val excludedOptions =
-        if (Option.CorporateEraExpansion in options) emptySet()
-        else setOf(Option.CorporateEraExpansion)
+    val excludedOptions = if (CORPORATE_ERA in options) emptySet() else setOf(CORPORATE_ERA)
     return Setup(optionCodes, players, options, excludedOptions, selectedColonies)
   }
 
-  fun suggestions(current: Setup): List<String> {
-    val nonMaps = optionsByCode - mapOptions.keys - "B"
-    val common = listOf("BM", "BRM", "BRMVX", "BRMVPX", "BRMVPXT", current.optionCodes)
-    val generated = mapOptions.keys.flatMap { map -> nonMaps.map { "B$it$map" } }
+  fun suggestions(currentOptionCodes: String): List<String> {
+    val nonMaps = optionsByCode - bundleDefaultMapOptions.keys - "B"
+    val common = listOf("B", "BR", "BRVX", "BRVPX", "BRVPXT", currentOptionCodes)
+    val generated = bundleDefaultMapOptions.keys.flatMap { map -> nonMaps.map { "B$it$map" } }
     return common + generated
   }
 
-  fun optionCodes(options: Set<Option>): String =
+  fun optionCodes(options: Set<ClassName>): String =
       optionByCode.entries
           .filter { it.value in options }
           .joinToString(separator = "") { (code) -> code }
 
-  private val mapOptions =
+  fun recognizedOptions(classNames: Set<ClassName>): Set<ClassName> =
+      optionByCode.values.filterTo(linkedSetOf()) { it in classNames }
+
+  private val TERRAFORMING_MARS = cn("TerraformingMars")
+  private val CORPORATE_ERA = cn("CorporateEraExpansion")
+  private val THARSIS_MAP_OPTION = cn("TharsisMapOption")
+
+  private val bundleDefaultMapOptions =
       linkedMapOf(
-          "M" to Option.TharsisMapOption,
-          "H" to Option.HellasMapOption,
-          "E" to Option.ElysiumMapOption,
-          "I" to Option.TerraCimmeriaMapOption,
-          "U" to Option.UtopiaPlanitiaMapOption,
+          "H" to cn("HellasMapOption"),
+          "U" to cn("UtopiaPlanitiaMapOption"),
       )
 
   private val positiveOptions =
       mapOf(
-          "R" to Option.CorporateEraExpansion,
-          "V" to Option.VenusNextExpansion,
-          "P" to Option.PreludeExpansion,
-          "C" to Option.ColoniesExpansion,
-          "T" to Option.TurmoilCardPack,
-          "X" to Option.PromoCardPack,
+          "R" to CORPORATE_ERA,
+          "M" to cn("MilestonesAwardsExpansion"),
+          "V" to cn("VenusNextExpansion"),
+          "P" to cn("PreludeExpansion"),
+          "C" to cn("ColoniesExpansion"),
+          "T" to cn("TurmoilCardPack"),
+          "X" to cn("PromoCardPack"),
       )
 
-  private val optionsByCode =
-      linkedSetOf("B", "R", "M", "H", "E", "I", "U", "V", "P", "C", "T", "X")
+  private val optionsByCode = linkedSetOf("B", "R", "M", "H", "U", "V", "P", "C", "T", "X")
 
   private val optionByCode = optionsByCode.associateWith { code ->
     when (code) {
-      "B" -> Option.TerraformingMars
-      else -> mapOptions[code] ?: positiveOptions.getValue(code)
+      "B" -> TERRAFORMING_MARS
+      else -> bundleDefaultMapOptions[code] ?: positiveOptions.getValue(code)
     }
   }
 }

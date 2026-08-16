@@ -17,7 +17,7 @@ className         := upperCamelRE
 
 Type expressions are the heart of the PETS language. There are two kinds.
 
-Class declarations contain only their canonical name; names use ASCII UpperCamelCase, with digits and underscores allowed after the first letter. A session vocabulary can accept localized Pets names and separately configured input-only synonyms, while engine state and rules use canonical names.
+Class Declarations contain only their Class Name; Class Names use ASCII UpperCamelCase, with digits and underscores allowed after the first letter. A session Vocabulary can accept localized Pets Names and separately configured input-only Class Synonyms, while engine state and rules use Class Names.
 
 ### Dependency-bearing type expression
 
@@ -75,7 +75,7 @@ prodReqt    := 'PROD[' requirement ']'
 groupedReqt := '(' requirement ')'
 ```
 
-A requirement expresses a condition that can be checked against a world to determine a `true` or `false` value. Of
+A Requirement expresses a condition that can be checked against a Game World to determine a `true` or `false` value. Of
 course, these are familiar from cards; many control whether the card can be played (`MAX 4 OxygenStep`), and in a few
 cases gate an instruction on the card (like in Nitro-Rich Asteroid, `PROD[Plant OR (3 PlantTag: 4 Plant)]`).
 
@@ -99,9 +99,9 @@ customInst   := '@' lowerCamelRE '(' [arguments] ')'
 arguments    := typeExpression (',' typeExpression)*
 perInst      := perableInst ['/' scalarAndType]
 perableInst  := gainInst | removeInst | fromInst | ('(' fromInst ')')
-gainInst     := scalarAndType [intensity]
-removeInst   := '-' scalarAndType [intensity]
-fromInst     := [scalar] dependentTypeExpr 'FROM' dependentTypeExpr [intensity]
+gainInst     := scalarAndType [quantifier]
+removeInst   := '-' scalarAndType [quantifier]
+fromInst     := [scalar] dependentTypeExpr 'FROM' dependentTypeExpr [quantifier]
 groupedInst  := '(' instruction ')'
 ```
 

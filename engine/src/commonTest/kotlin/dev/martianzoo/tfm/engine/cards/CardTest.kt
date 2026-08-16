@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
@@ -8,7 +9,8 @@ import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.canon.Canon.Option
+import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.TestOption as Option
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmTest
@@ -22,8 +24,8 @@ abstract class CardTest : TfmTest() {
   protected var p2: TfmGameplay? = null
     private set
 
-  protected fun newGame(premise: GamePremise): World =
-      setUpTfmGame(premise).initializeCardTestGame()
+  protected fun newGame(config: GameConfig): World =
+      setUpTfmGame(Canon.gamePremise(config)).initializeCardTestGame()
 
   protected fun newGame(
       vararg selectedOptions: Option,
@@ -56,14 +58,14 @@ abstract class CardTest : TfmTest() {
         }
 
     cities.zip(greeneries).forEach { (city, greenery) ->
-      engine.doFirstTask("CityTile<$city, SoloOpponent>")
+      engine.doTask("CityTile<$city, SoloOpponent>")
       engine.doTask("GreeneryTile<$greenery, SoloOpponent>")
     }
   }
 
   private fun World.bindPlayers(): World = apply {
     game = this
-    val players = Player.players(reader.getComponents("Player").size)
+    val players = actors.filterIsInstance<Player>()
     p1 = tfm(players.first())
     p2 = players.getOrNull(1)?.let { tfm(it) }
   }

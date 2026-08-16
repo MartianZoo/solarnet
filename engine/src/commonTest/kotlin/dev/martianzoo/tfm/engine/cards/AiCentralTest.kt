@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -22,7 +22,7 @@ class AiCentralTest : CardTest() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], AiCentral")
-    p1.cardAction1("AiCentral").expect("2 ProjectCard, ActionUsedMarker<AiCentral>")
+    p1.cardAction1("AiCentral").expect("2 ProjectCard")
   }
 
   @Test
@@ -32,7 +32,7 @@ class AiCentralTest : CardTest() {
     p1.manual("PROD[Energy], AiCentral")
     p1.cardAction1("AiCentral")
     engine.manual("Generation")
-    p1.cardAction1("AiCentral").expect("2 ProjectCard, ActionUsedMarker<AiCentral>")
+    p1.cardAction1("AiCentral").expect("2 ProjectCard")
   }
 
   @Test

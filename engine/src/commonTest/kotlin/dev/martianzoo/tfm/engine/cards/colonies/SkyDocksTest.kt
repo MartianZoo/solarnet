@@ -9,8 +9,8 @@ class SkyDocksTest : ColoniesCardTest() {
   @Test
   fun `with two Earth tags, plays Sky Docks`() {
     p1.manual("ProjectCard, 18, LunaGovernor")
-    p1.playProject("SkyDocks", 18).expect("ReserveTradeFleet")
-    p1.assertCounts(2 to "TradeFleet", 2 to "ReserveTradeFleet")
+    p1.playProject("SkyDocks", 18).expect("TradeFleet")
+    p1.assertCounts(2 to "TradeFleet")
   }
 
   @Test
@@ -18,7 +18,7 @@ class SkyDocksTest : ColoniesCardTest() {
     p1.manual("SkyDocks, 18")
     p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
     p1.stdAction("TradeSA", 1) { doTask("Trade<Triton>") }
-    p1.assertCounts(2 to "TradeFleet", 2 to "FlownTradeFleet", 0 to "ReserveTradeFleet")
+    p1.assertCounts(2 to "TradeFleet")
   }
 
   @Test

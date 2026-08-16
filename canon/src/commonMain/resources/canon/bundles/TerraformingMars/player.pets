@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone {
     ABSTRACT CLASS Player : Actor {
       HAS =1 This
 
-      This:: GrossHack<This>
+      This:: GrossHack<This> BY Engine
 
       SetupPhase:: 20 TerraformRating<This>
       CorporationPhase:: CorporationCard
@@ -39,9 +39,16 @@ ABSTRACT CLASS Owned<Anyone> {
   "Anything represented by a copper cube IRL, perhaps except for SRR resources (not sure)"
   ABSTRACT CLASS Resource {
     ABSTRACT CLASS StandardResource {
-      CLASS Megacredit, Steel, Titanium, Plant
-      CLASS Energy { ProductionPhase: Heat FROM This }
+      CLASS Megacredit
+      ABSTRACT CLASS Metal { CLASS Steel, Titanium }
+      CLASS Plant
+      CLASS Energy { ProductionPhase:: Heat FROM This }
       CLASS Heat
+    }
+
+    "A resource cube living on a compatible card or neutral holder, such as `Animal<Card172>`"
+    ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>> {
+      DEFAULT +CardResource.
     }
   }
 

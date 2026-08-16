@@ -9,7 +9,7 @@ class ArcticAlgaeTest : CardTest() {
     newGame()
     val p2 = requireP2()
     p2.manual("ArcticAlgae")
-    p1.manual("OceanTile<Tharsis_1_2>").expect("2 Plant")
+    p1.manual("OceanTile<Tharsis_1_2>").expect("2 Plant<Player2>")
   }
 
   @Test
@@ -21,8 +21,8 @@ class ArcticAlgaeTest : CardTest() {
     engine.phase("Action")
 
     p1.playProject("GiantIceAsteroid", 36) {
-      doFirstTask("OceanTile<Tharsis_1_2>")
-      doFirstTask("OceanTile<Tharsis_1_4>")
+      doTask("OceanTile<Tharsis_1_2>")
+      doTask("OceanTile<Tharsis_1_4>")
       doTask("-6 Plant<Player2>")
     }
 

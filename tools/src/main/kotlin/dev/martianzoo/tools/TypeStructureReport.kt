@@ -1,12 +1,14 @@
 package dev.martianzoo.tools
 
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option
 import dev.martianzoo.types.Class as PetsClass
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Dependency.Key
@@ -20,40 +22,39 @@ import kotlin.system.measureTimeMillis
 
 @Suppress("LargeClass") // Keeping the report calculations and formatting together aids comparison.
 internal object TypeStructureReport {
-  private val selectedOptions: Set<Option> =
+  private val selectedOptions: Set<ClassName> =
       setOf(
-          Option.TerraformingMars,
-          Option.MultiplayerMode,
-          Option.CorporateEraExpansion,
-          Option.TharsisMapOption,
-          Option.VenusNextExpansion,
-          Option.PreludeExpansion,
-          Option.ColoniesExpansion,
-          Option.TurmoilCardPack,
-          Option.PromoCardPack,
+          cn("TerraformingMars"),
+          cn("CorporateEraExpansion"),
+          cn("TharsisMapOption"),
+          cn("VenusNextExpansion"),
+          cn("PreludeExpansion"),
+          cn("ColoniesExpansion"),
+          cn("TurmoilCardPack"),
+          cn("PromoCardPack"),
       )
 
   fun createGame(): World {
-    val colonyCount = Canon.requiredColonyTileCount(PLAYERS)
+    val colonyCount = if (PLAYERS == 1) 3 else if (PLAYERS == 2) 5 else PLAYERS + 2
     val colonies =
         Canon.colonyTileDefinitions.map { it.className }.sorted().take(colonyCount).toSet()
-    val setupPremise =
-        Canon.setupWorldDefinition(
-            PLAYERS,
-            Canon.GameOptions(selectedOptions),
-            colonies,
+    return Engine.newGame(
+        Canon.gamePremise(
+            GameConfig.create(
+                included = selectedOptions + colonies,
+                playerNames = (1..PLAYERS).map { cn("Player$it") },
+            )
         )
-    val setupWorld = Engine.newSetupWorld(setupPremise)
-    return Engine.newGame(setupWorld, Canon::assemble)
+    )
   }
 
   @Suppress("CyclomaticComplexMethod") // The branches compute independent report statistics.
   fun render(game: World): String {
     val table = game.classTable
-    val ruleset = game.reader.ruleset
+    val authority = game.reader.authority
     val active = table.allClasses().sortedBy { it.className }
     val known =
-        (ruleset.knownClassDeclarations.keys.mapNotNull(table::findClass) + active)
+        (authority.allClassDeclarations.keys.mapNotNull(table::findClass) + active)
             .distinct()
             .sortedBy { it.className }
     val phantom = known.filter(PetsClass::phantom)
@@ -201,12 +202,12 @@ internal object TypeStructureReport {
     return buildString {
       section("Premise")
       line("players", PLAYERS)
-      line("requested options", selectedOptions.sortedBy(Option::name).joinToString())
+      line("requested options", selectedOptions.sorted().joinToString())
       line(
           "enabled options",
           currentComponentTypes
               .map { it.className }
-              .filter { it in Option.entries.map(Option::className) }
+              .filter { it in reportOptionClassNames }
               .sorted()
               .joinToString(),
       )
@@ -216,12 +217,7 @@ internal object TypeStructureReport {
       )
       line(
           "selected colonies",
-          game.reader
-              .getComponents("SelectedColonyTile")
-              .elements
-              .map { it.className }
-              .sorted()
-              .joinToString(),
+          game.reader.getComponents("ColonyTile").map { it.className }.sorted().joinToString(),
       )
       line("actors", game.reader.getComponents("Actor").elements.size)
       line("current component instances", currentComponents.size)
@@ -435,6 +431,9 @@ internal object TypeStructureReport {
     }
         .trimEnd()
   }
+
+  private val reportOptionClassNames =
+      selectedOptions + cn("MultiplayerMode") + cn("WorldGovernmentOption")
 
   private data class ExpressionStats(
       val expressionOccurrences: Int,

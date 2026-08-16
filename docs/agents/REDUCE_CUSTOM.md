@@ -13,29 +13,29 @@ from hand-authored Pets and general existing runtime semantics. Moving behavior 
 lowering pass does not count. Nor should canonical facts be duplicated manually in Pets merely to
 avoid an honest Kotlin implementation.
 
-This review covers the 14 canonical `CustomClass.translate` implementations. Custom metrics are a
+This review covers the 13 canonical `CustomClass.translate` implementations. Custom metrics are a
 separate problem.
 
 ## Reasonable candidates
 
 ### `ColoniesSetup`
 
-Replace the monolithic setup translation with ordinary, composable setup signals:
+The premise now initializes each exact selected colony type, and the generated `FooSelected` class
+family has been removed. `ColoniesSetup` retains only the player
+loop that creates reserve trade fleets. Replace that remaining translation with ordinary,
+composable setup signals:
 
 - the base player rules can emit `PlayerSetup<This>` once for every player;
-- the live `ColoniesExpansion` module can respond to each `PlayerSetup<Player>` by creating that
-  player's `ReserveTradeFleet`;
-- colony selection can use a generic component such as
-  `SelectedColonyTile<Class<ColonyTile>>`, whose setup effect requests that exact tile.
+- the live `ColoniesExpansion` Module can respond to each `PlayerSetup<Player>` by creating that
+  player's `ReserveTradeFleet`.
 
-This removes both the runtime loops and the generated `FooSelected` class family. `AddColonyTile`
-may remain custom because it still interprets colony-definition metadata.
+`AddColonyTile` may remain custom because it still interprets colony-definition metadata.
 
 ### `PassLeft`
 
 Represent realized seat topology explicitly with components such as `LeftOf<From, To>`. A live
 relation can subscribe to `PassLeft<StartToken<From>>` and transmute the matching token to
-`StartToken<To>` using ordinary trigger-to-instruction linkage.
+`StartToken<To>` using ordinary Trigger-to-Instruction Type-variable binding.
 
 The one- through five-player topologies are small and stable enough to author as Pets setup rules.
 This is preferable to teaching Pets numeric player-name arithmetic. It is worthwhile only if the
@@ -64,15 +64,19 @@ rule.
 per-area Pets effects or a second hand-authored adjacency catalog would be less direct than the
 current implementation.
 
-The remaining three perform selections the language cannot express:
+The remaining two perform selections the language cannot express:
 
-- `GainLowestProduction` computes an arg-min with ties and the megacredit-production offset;
 - `AssignAwardPlaces` ranks players while applying tie and player-count rules;
 - `MultiplayerVictoryCheck` performs a lexicographic arg-max and preserves ties.
 
-A future general relational selection facility could justify revisiting all three together. Do not
+A future general relational selection facility could justify revisiting both together. Do not
 add isolated `MIN`, ranking, or winner syntax merely to erase their Kotlin objects; the custom
 implementations are currently the smaller and clearer mechanism.
+
+Robinson Industries no longer uses a custom instruction. Its generic `LowestProduction` custom
+metric reports whether one concrete resource type is tied for the owner's lowest production. An
+ordinary refined `StandardResource` production instruction supplies the choice behavior without
+adding a relational-selection feature to Pets.
 
 ## Direction
 

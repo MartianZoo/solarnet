@@ -6,37 +6,46 @@ import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
-import dev.martianzoo.data.Ruleset
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
 
 /**
- * All [Class] instances come from here. Uses a [Ruleset] to pull class declarations from as needed.
- * Can be [frozen], which prevents additional classes from being loaded, and enables features such
- * as [Class.allSubclasses] to work.
+ * Builds a master [ClassTable] from an [Authority], or internally forms a projection from that
+ * master. Freezing prevents additional classes from being loaded and enables features such as
+ * [Class.allSubclasses] to work.
  */
 public class ClassLoader
-public constructor(
-    /**
-     * The source of class declarations to use as needed; [loadEverything] will load every class
-     * found here.
-     */
-    internal val ruleset: Ruleset,
+private constructor(
+    internal val authority: Authority,
+    private val masterSource: ClassTable?,
 ) : ClassTable() {
+  /** Compiles the master table that an [Authority] implementation retains and exposes. */
+  public constructor(authority: Authority) : this(authority, null)
+
+  internal override val masterTable: ClassTable = masterSource ?: this
+
+  private val knownClassNames: Set<ClassName> =
+      masterSource?.allClassNames ?: authority.allClassNames
+
   private val cache = mutableMapOf<Expression, Type>()
 
   /** The `Component` class, which is the root of the class hierarchy. */
   public override val componentClass: Class =
-      Class(validateCustomImplementation(decl(COMPONENT)), this, directSuperclasses = emptyList())
+      Class(
+          validateCustomImplementation(knownDeclaration(COMPONENT)),
+          this,
+          directSuperclasses = emptyList(),
+      )
 
   /** The `Class` class, the other class that is required to exist. */
   public override val classClass: Class =
       Class(
-          validateCustomImplementation(decl(CLASS)),
+          validateCustomImplementation(knownDeclaration(CLASS)),
           this,
           directSuperclasses = listOf(componentClass),
       )
@@ -85,9 +94,9 @@ public constructor(
     return getClass(name)
   }
 
-  /** Loads every class known to this class loader's backing [Ruleset], and freezes. */
+  /** Loads every class known to this class loader's backing [Authority], and freezes. */
   public fun loadEverything(): ClassTable {
-    ruleset.allClassNames.forEach(::loadSingle)
+    knownClassNames.forEach(::loadSingle)
     return freeze()
   }
 
@@ -109,38 +118,18 @@ public constructor(
       }
       return loaded
     }
-    val activeDeclaration = activeDeclaration(next)
-    val declaration =
-        if (active) activeDeclaration ?: knownDeclaration(next) else knownDeclaration(next)
-    val phantom = !active || activeDeclaration == null
-    if (!phantom) validateDependencyBounds(declaration)
+    val declaration = knownDeclaration(next)
+    val phantom = !active
     return construct(declaration, phantom).also {
       if (phantom) return@also
       queue.addAll(activationEdges(declaration) - loadedClasses.keys - THIS)
     }
   }
 
-  private fun validateDependencyBounds(declaration: ClassDeclaration) {
-    fun validate(expression: Expression) {
-      if (expression.complement) return
-      if (expression.className != THIS && activeDeclaration(expression.className) == null) {
-        knownDeclaration(expression.className)
-        throw PetException(
-            "${declaration.className} has inactive dependency type ${expression.className}"
-        )
-      }
-      expression.arguments.forEach(::validate)
-    }
-
-    declaration.dependencies.forEach(::validate)
-    declaration.supertypes.forEach { supertype -> supertype.arguments.forEach(::validate) }
-  }
-
   /**
    * The class names that loading [declaration] as active demands also be loaded as active. Today
    * this is every name the declaration mentions anywhere, no matter how it is mentioned; only the
-   * argument of a `Class<...>` metric gets narrower treatment. Note that a name reachable only this
-   * way still loads as a phantom when the ruleset has no active declaration for it.
+   * argument of a `Class<...>` metric gets narrower treatment.
    */
   private fun activationEdges(declaration: ClassDeclaration): Set<ClassName> = buildSet {
     fun collectRelated(node: PetNode) {
@@ -150,7 +139,7 @@ public constructor(
             add(CLASS)
             val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
             argument?.let { expression ->
-              if (knownClassName(expression.className) == null) {
+              if (expression.className !in knownClassNames) {
                 throw Exceptions.classNotFound(expression.className)
               }
             }
@@ -167,20 +156,12 @@ public constructor(
     }
     declaration.allNodes.forEach(::collectRelated)
     if (declaration.custom) {
-      addAll(ruleset.customClass(declaration.className).requiredClassNames)
+      addAll(authority.customClass(declaration.className).requiredClassNames)
     }
   }
 
-  private fun knownClassName(name: ClassName): ClassName? =
-      activeDeclaration(name)?.className
-          ?: declarationIn(ruleset.knownClassDeclarations, name)?.className
-
-  private fun loadSingle(idOrName: ClassName): Class =
-      if (frozen) {
-        getClass(idOrName)
-      } else {
-        loadedClasses[idOrName] ?: loadRelated(idOrName, active = true)
-      }
+  private fun loadSingle(name: ClassName): Class =
+      loadedClasses[name] ?: loadRelated(name, active = true)
 
   // All classes are created here (aside from Component and Class, at top).
   private fun construct(source: ClassDeclaration, phantom: Boolean): Class {
@@ -192,7 +173,49 @@ public constructor(
       loadedClasses[decl.className] = c
     }
     store(null) // to detect reentrancy
-    return Class(decl, this, phantom).also(::store)
+    try {
+      val klass = Class(decl, this, phantom)
+      if (!phantom && masterSource == null) validateCustomInheritance(klass)
+      store(klass)
+      return klass
+    } catch (e: Throwable) {
+      loadedClasses.remove(decl.className)
+      throw e
+    }
+  }
+
+  private fun validateCustomInheritance(klass: Class) {
+    if (!klass.declaration.custom) return
+
+    val inheritedEffects = klass.properSuperclasses().filter { it.declaration.effects.isNotEmpty() }
+    val inheritedInvariants =
+        klass.properSuperclasses().filter { it.declaration.invariants.isNotEmpty() }
+    fun hasInstructionIntensity(defaults: DefaultsDeclaration): Boolean =
+        defaults.universal.intensity != null ||
+            defaults.gainOnly.intensity != null ||
+            defaults.removeOnly.intensity != null
+
+    val inheritedDefaults =
+        klass.properSuperclasses().filter {
+          it.className != COMPONENT && hasInstructionIntensity(it.declaration.defaultsDeclaration)
+        }
+    val problems = buildList {
+      if (inheritedEffects.isNotEmpty()) {
+        add("effects from " + inheritedEffects.joinToString { "${it.className}" })
+      }
+      if (inheritedInvariants.isNotEmpty()) {
+        add("invariants from " + inheritedInvariants.joinToString { "${it.className}" })
+      }
+      if (inheritedDefaults.isNotEmpty()) {
+        add("instruction defaults from " + inheritedDefaults.joinToString { "${it.className}" })
+      }
+    }
+    if (problems.isNotEmpty()) {
+      throw PetException(
+          "${klass.className} cannot inherit Pets behavior as a Custom class: " +
+              problems.joinToString()
+      )
+    }
   }
 
   private var frozen: Boolean = false
@@ -212,15 +235,11 @@ public constructor(
 
   public fun freeze(): ClassTable {
     require(!frozen)
-    ruleset.knownClassDeclarations.values
-        .distinctBy { it.className }
-        .forEach { declaration ->
-          if (declaration.className !in loadedClasses) construct(declaration, phantom = true)
-        }
+    knownClassNames.forEach { name ->
+      if (name !in loadedClasses) construct(knownDeclaration(name), phantom = true)
+    }
 
     val knownClasses = loadedClasses.values.map { checkNotNull(it) }
-    val bitBearingSuperclasses = knownClasses.flatMap(Class::directSuperclasses).distinct()
-
     val knownProperSubclasses = mutableMapOf<Class, MutableSet<Class>>()
     knownClasses.forEach { subclass ->
       subclass.allSuperclasses().forEach { superclass ->
@@ -229,16 +248,22 @@ public constructor(
         }
       }
     }
-    val superclassBits =
-        bitBearingSuperclasses
-            .sortedWith(
-                compareBy<Class>(Class::phantom)
-                    .thenByDescending { knownProperSubclasses[it]?.size ?: 0 }
-                    .thenBy(Class::className)
-            )
-            .withIndex()
-            .associate { (index, klass) -> klass to index }
-    knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
+    if (masterSource == null) {
+      val bitBearingSuperclasses = knownClasses.flatMap(Class::directSuperclasses).distinct()
+      val superclassBits =
+          bitBearingSuperclasses
+              .sortedWith(
+                  compareByDescending<Class> { knownProperSubclasses[it]?.size ?: 0 }
+                      .thenBy(Class::className)
+              )
+              .withIndex()
+              .associate { (index, klass) -> klass to index }
+      knownClasses.forEach { it.initializeSubclassBits(superclassBits) }
+    } else {
+      knownClasses.forEach { klass ->
+        klass.initializeSubclassBitsFrom(masterSource.getClass(klass.className))
+      }
+    }
 
     val activeProperSubclasses = mutableMapOf<Class, Set<Class>>()
     knownProperSubclasses.forEach { (superclass, subclasses) ->
@@ -272,26 +297,17 @@ public constructor(
 
   override fun toString(): String = "loader$id"
 
-  private fun decl(cn: ClassName) = activeDeclaration(cn) ?: ruleset.classDeclaration(cn)
-
-  private fun activeDeclaration(name: ClassName): ClassDeclaration? =
-      declarationIn(ruleset.allClassDeclarations, name)
-
   private fun knownDeclaration(name: ClassName): ClassDeclaration =
-      declarationIn(ruleset.knownClassDeclarations, name) ?: throw Exceptions.classNotFound(name)
-
-  private fun declarationIn(
-      declarations: Map<ClassName, ClassDeclaration>,
-      name: ClassName,
-  ): ClassDeclaration? {
-    return declarations[name]
-  }
+      masterSource?.getClass(name)?.declaration
+          ?: authority.allClassDeclarations[name]
+          ?: throw Exceptions.classNotFound(name)
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
+    if (masterSource != null) return decl
     if (decl.custom) {
-      ruleset.customClass(decl.className)
+      authority.customClass(decl.className)
     } else {
-      if (ruleset.customClasses.any { it.className == decl.className }) {
+      if (authority.customClasses.any { it.className == decl.className }) {
         throw PetException("Non-custom class ${decl.className} has a custom implementation")
       }
     }
@@ -300,7 +316,15 @@ public constructor(
 
   private val id = nextId++
 
-  private companion object {
-    var nextId: Int = 0
+  internal companion object {
+    private var nextId: Int = 0
+
+    internal fun projection(authority: Authority): ClassLoader {
+      val masterTable = authority.classTable
+      require(masterTable.masterTable === masterTable) {
+        "Authority class table is not a master table"
+      }
+      return ClassLoader(authority, masterTable)
+    }
   }
 }

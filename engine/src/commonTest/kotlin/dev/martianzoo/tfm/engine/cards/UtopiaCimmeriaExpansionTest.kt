@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -37,73 +38,69 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Incorporator counts inexpensive active and automated projects only`() {
-    newGame(UtopiaPlanitiaMapOption, PreludeExpansion)
-    p1.manual("Ecoline, Donation, SearchForLife, Mine, PlayedEvent<Class<InventionContest>>")
+  fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
+    newGame(UtopiaPlanitiaMapOption)
+    val p2 = requireP2()
+    p1.manual("8, Ecoline, EarthCatapult, Asteroid")
+    p2.manual("Mine")
+    engine.phase("Action")
 
-    p1.count("CardFront") shouldBe 4
-    p1.count("PlayedEvent") shouldBe 1
-    p1.count("ActiveCard(HAS MAX 10 CardCost) OR AutomatedCard(HAS MAX 10 CardCost)") shouldBe 2
+    p1.stdAction("FundAwardSA") { doTask("Incorporator") }
+    engine.phase("End")
+
+    p1.assertCounts(22 to "VictoryPoint")
+    p2.assertCounts(25 to "VictoryPoint")
   }
 
   @Test
-  fun `Suburbian counts tiles having at most four neighboring Mars areas`() {
+  fun `Suburbian rewards a tile on the map edge over an interior tile`() {
     newGame(UtopiaPlanitiaMapOption)
-    val marsAreas = Canon.marsMap(cn("UtopiaPlanitia")).areas.filterNotNull()
-    p1.manual(marsAreas.joinToString { "CityTile<${it.className}>" })
+    val p2 = requireP2()
+    p1.manual("8, CityTile<UtopiaPlanitia_1_1>")
+    p2.manual("CityTile<UtopiaPlanitia_5_5>")
+    engine.phase("Action")
 
-    val expectedBorder =
-        setOf(
-            "UtopiaPlanitia_1_1",
-            "UtopiaPlanitia_1_2",
-            "UtopiaPlanitia_1_3",
-            "UtopiaPlanitia_1_4",
-            "UtopiaPlanitia_1_5",
-            "UtopiaPlanitia_2_1",
-            "UtopiaPlanitia_2_6",
-            "UtopiaPlanitia_3_1",
-            "UtopiaPlanitia_3_7",
-            "UtopiaPlanitia_4_1",
-            "UtopiaPlanitia_4_8",
-            "UtopiaPlanitia_5_1",
-            "UtopiaPlanitia_5_9",
-            "UtopiaPlanitia_6_2",
-            "UtopiaPlanitia_6_9",
-            "UtopiaPlanitia_7_3",
-            "UtopiaPlanitia_7_9",
-            "UtopiaPlanitia_8_4",
-            "UtopiaPlanitia_8_9",
-            "UtopiaPlanitia_9_5",
-            "UtopiaPlanitia_9_6",
-            "UtopiaPlanitia_9_7",
-            "UtopiaPlanitia_9_8",
-            "UtopiaPlanitia_9_9",
-        )
-    val actualBorder =
-        marsAreas
-            .filter {
-              p1.count("OwnedTile<${it.className}>(HAS MAX 4 Neighbor<OwnedTile>)") == 1
-            }
-            .mapTo(linkedSetOf()) { it.className.toString() }
+    p1.stdAction("FundAwardSA") { doTask("Suburbian") }
+    engine.phase("End")
 
-    actualBorder shouldBe expectedBorder
-    p1.count("OwnedTile(HAS MAX 4 Neighbor<OwnedTile>)") shouldBe expectedBorder.size
+    p1.assertCounts(25 to "VictoryPoint")
+    p2.assertCounts(20 to "VictoryPoint")
   }
 
   @Test
-  fun `Utopia milestone metrics count combined metal production and card resource types`() {
-    newGame(UtopiaPlanitiaMapOption)
-    val otherPlayer = requireP2()
+  fun `Founder counts an owned tile once when it neighbors multiple special tiles`() {
+    newGame(TerraCimmeriaMapOption)
     p1.manual(
-        "PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, Predators, " +
-            "Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"
+        "CityTile<TerraCimmeria_3_3>, MiningRightsTile<TerraCimmeria_3_2>, " +
+            "NpTile<TerraCimmeria_3_4>"
     )
-    otherPlayer.manual("PROD[10 Steel]")
 
-    p1.count("PROD[Steel OR Titanium]") shouldBe 6
-    otherPlayer.count("PROD[Steel OR Titanium]") shouldBe 10
-    p1.count("Class<CardResource>(HAS CardResource<Player1>)") shouldBe 3
-    p1.manual("Metallurgist")
-    p1.count("Metallurgist") shouldBe 1
+    p1.count("OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>") shouldBe 1
+  }
+
+  @Test
+  fun `claims Metallurgist for combined metal production and Trader for three resource types`() {
+    newGame(UtopiaPlanitiaMapOption)
+    p1.manual(
+        "16, PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, " +
+            "Predators, Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"
+    )
+    engine.phase("Action")
+
+    p1.stdAction("ClaimMilestoneSA") { doTask("Metallurgist") }.expect("-8, Milestone")
+    p1.stdAction("ClaimMilestoneSA") { doTask("Trader") }.expect("-8, Milestone")
+
+    p1.assertCounts(2 to "Milestone")
+  }
+
+  @Test
+  fun `Fundraiser requires printed megacredit production of twelve`() {
+    newGame(TerraCimmeriaMapOption)
+    p1.manual("PROD[11 Megacredit]")
+
+    shouldThrow<RequirementException> { p1.manual("Fundraiser") }
+
+    p1.manual("PROD[Megacredit], Fundraiser")
+    p1.count("Fundraiser") shouldBe 1
   }
 }

@@ -388,12 +388,17 @@ internal class TypeTest {
             """
             ABSTRACT CLASS Place { CLASS FirstPlace, SecondPlace }
             CLASS Marker<Place>
+            CLASS ClassMarker<Class<Place>>
             """
                 .trimIndent()
         )
     val onlyFirstIsMarked = typeInfo { "FirstPlace" in it.toString() }
     multipleTable.resolve(te("Place(HAS Marker)")).singleConcreteSubtype(onlyFirstIsMarked) shouldBe
         null
+    multipleTable
+        .resolve(te("Class<Place>(HAS ClassMarker)"))
+        .singleConcreteSubtype(onlyFirstIsMarked) shouldBe
+        multipleTable.resolve(te("Class<FirstPlace>"))
 
     val complementTable =
         loadTypes(

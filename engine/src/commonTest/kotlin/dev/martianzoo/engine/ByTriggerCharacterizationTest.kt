@@ -7,7 +7,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
@@ -48,6 +48,22 @@ class ByTriggerCharacterizationTest {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER1 to "Steel<Player1>!")
+    }
+  }
+
+  @Test
+  fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
+    val game = newGame()
+    val p2 = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
+    p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
+
+    p2.beginManual("-OwnedActorTrigger<Player1>!") {
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactlyInAnyOrder(
+              PLAYER1 to "Steel<Player2>!",
+              PLAYER1 to "Heat<Player1>!",
+          )
     }
   }
 
@@ -122,7 +138,7 @@ class ByTriggerCharacterizationTest {
   }
 
   @Test
-  fun byNotOwnerUsesTheActorTypeDomain() {
+  fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndEngine() {
     val game = newGame()
     val owner = game.gameplay(PLAYER1).godMode().also { it.autoExecMode = NONE }
     val other = game.gameplay(PLAYER2).godMode().also { it.autoExecMode = NONE }
@@ -130,12 +146,8 @@ class ByTriggerCharacterizationTest {
     owner.sneak("OpponentByProbe<Player1>!")
 
     owner.manual("ActorTriggerSignal!")
-    engine.beginManual("ActorTriggerSignal!") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "Heat<Player1>!")
-    }
-    owner.doTask("Heat<Player1>!")
+    engine.manual("ActorTriggerSignal!")
+    game.tasks.isEmpty() shouldBe true
 
     other.beginManual("ActorTriggerSignal!") {
       game.tasks
@@ -159,13 +171,13 @@ class ByTriggerCharacterizationTest {
   }
 
   private fun newGame(): World {
-    return Engine.newGame(canonicalPremise(ruleset = ProbeRuleset))
+    return Engine.newGame(canonicalPremise(authority = ProbeAuthority))
   }
 }
 
-private object ProbeRuleset : TfmRuleset.Composite(Canon, ProbeDeclarations)
+private object ProbeAuthority : TfmAuthority.Composite(Canon, ProbeDeclarations)
 
-private object ProbeDeclarations : TfmRuleset.Empty() {
+private object ProbeDeclarations : TfmAuthority() {
   override val explicitClassDeclarations =
       parseClasses(
               """
@@ -175,6 +187,10 @@ private object ProbeDeclarations : TfmRuleset.Empty() {
               CLASS ActorTriggerProbe : AutoLoad {
                 ActorTriggerSignal BY Anyone: Plant<Player1>
                 -ActorTriggerSignal BY Player: Steel<Player1>
+              }
+
+              CLASS ActorBindingProbe : AutoLoad {
+                -OwnedActorTrigger<!Player> BY Player: Steel<Player>, Heat<!Player>
               }
 
               CLASS RepeatedOwnerProbe : Owned, AutoLoad {

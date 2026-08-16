@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.Instruction
 /** Triggered work that has not yet been admitted to a task queue. */
 internal data class PendingTask(
     val assignee: Actor,
+    val actor: Actor = assignee,
     val instruction: Instruction,
     val cause: Cause,
 ) {

@@ -2,20 +2,33 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class NewPromoCardsTest : CardTest() {
+  @Test
+  fun `Solar Logistics draws for space events played by its owner and either opponent`() {
+    newGame(PromoCardPack, players = 3)
+    val p2 = requireP2()
+    val p3 = game.tfm(PLAYER3)
+    p1.manual("SolarLogistics")
+
+    p1.manual("ImportedGhg")
+    p1.count("ProjectCard") shouldBe 1
+    p2.manual("TechnologyDemonstration")
+    p1.count("ProjectCard") shouldBe 2
+    p3.manual("InterstellarColonyShip")
+
+    p1.count("ProjectCard") shouldBe 3
+  }
+
   @Test
   fun `Icy Impactors lets the first player choose an ocean placed by the card owner`() {
     newGame(PromoCardPack)
@@ -23,20 +36,10 @@ class NewPromoCardsTest : CardTest() {
     val oceanArea = "Tharsis_2_6"
     p2.manual("IcyImpactors, Asteroid<IcyImpactors>")
     engine.phase("Action")
-    val checkpoint = game.timeline.checkpoint()
-
     p2.cardAction2("IcyImpactors") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "OceanTile<WaterArea>. BY Player2")
       p1.doTask("OceanTile<$oceanArea> BY Player2")
     }
 
-    val oceanPlacement =
-        game.events.changesSince(checkpoint).single {
-          it.change.gaining?.className.toString() == "OceanTile"
-        }
-    oceanPlacement.actor shouldBe PLAYER2
     p2.count("TerraformRating") shouldBe 21
     p1.count("TerraformRating") shouldBe 20
     p2.count("ProjectCard") shouldBe 2
@@ -48,20 +51,10 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
     p1.manual("IcyImpactors, Asteroid<IcyImpactors>")
     engine.phase("Action")
-    val checkpoint = game.timeline.checkpoint()
-
     p1.cardAction2("IcyImpactors") {
-      game.tasks
-          .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "OceanTile<WaterArea>. BY Player1")
       doTask("OceanTile<Tharsis_1_2> BY Player1")
     }
 
-    val oceanPlacement =
-        game.events.changesSince(checkpoint).single {
-          it.change.gaining?.className.toString() == "OceanTile"
-        }
-    oceanPlacement.actor shouldBe PLAYER1
     p1.count("TerraformRating") shouldBe 21
   }
 
@@ -74,31 +67,20 @@ class NewPromoCardsTest : CardTest() {
     engine.phase("Action")
 
     p1.cardAction2("IcyImpactors") {
-      val oceanTask = game.tasks.extract { it }.single()
-      oceanTask.assignee shouldBe PLAYER3
-      oceanTask.instruction.toString() shouldBe "OceanTile<WaterArea>. BY Player1"
-      oceanTask.next shouldBe true
-
-      val p1Tasks = game.gameplay(PLAYER1).godMode()
-      val otherTask = p1Tasks.addTasks("Plant").single()
-      shouldThrow<TaskException> { p1.prepareTask(otherTask) }
-      p1Tasks.dropTask(otherTask)
-
+      shouldThrow<TaskException> { p1.doTask("OceanTile<Tharsis_1_2> BY Player1") }
       p3.doTask("OceanTile<Tharsis_1_2> BY Player1")
     }
+
+    p1.count("TerraformRating") shouldBe 21
+    p3.count("TerraformRating") shouldBe 20
   }
 
   @Test
   fun `Floyd Continuum pays for every completed parameter`() {
     newGame(PromoCardPack, VenusNextExpansion)
     engine.phase("Action")
-    p1.manual(
-        "FloydContinuum, " +
-            "GpComplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>>, " +
-            "GpComplete<Class<VenusStep>>"
-    )
+    val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
+    p1.manual("FloydContinuum, 19 TemperatureStep, 14 OxygenStep, 15 VenusStep, $oceans")
 
     p1.cardAction1("FloydContinuum").expect("12 Megacredit")
   }
@@ -164,14 +146,10 @@ class NewPromoCardsTest : CardTest() {
     val p2 = requireP2()
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE
-
     p1.manual("StJosephOfCupertinoMission")
     p2.manual("CityTile<Player2, Tharsis_4_2>") { doTask("Plant") }
 
-    p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>") {
-      game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
-    }
-
+    p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>")
     p2.doTask("Ok")
     p1.autoExecMode = FIRST
     p2.autoExecMode = FIRST

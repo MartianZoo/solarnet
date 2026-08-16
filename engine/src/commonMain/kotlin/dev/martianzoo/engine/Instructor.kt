@@ -48,11 +48,15 @@ internal class Instructor(
     private val classTable: ClassTable,
     private val defaultActor: Actor? = null,
     private val customClasses: CustomClassRuntime =
-        CustomClassRuntime(reader.ruleset, Transformers(classTable)),
+        CustomClassRuntime(reader.authority, Transformers(classTable)),
 ) {
 
-  internal fun execute(instruction: Instruction, cause: Cause?): List<PendingTask> = buildList {
-    doExecute(instruction, cause, this, checkNotNull(defaultActor))
+  internal fun execute(
+      instruction: Instruction,
+      cause: Cause?,
+      actor: Actor = checkNotNull(defaultActor),
+  ): List<PendingTask> = buildList {
+    doExecute(instruction, cause, this, actor)
   }
 
   private fun doExecute(
@@ -96,7 +100,7 @@ internal class Instructor(
 
       val now = effector!!.fire(result, automatic = true)
       for (task in now) {
-        split(task.instruction).forEach { doExecute(it, task.cause, deferred, actor) }
+        split(task.instruction).forEach { doExecute(it, task.cause, deferred, task.actor) }
       }
       deferred += effector.fire(result, automatic = false)
       if (done) break
@@ -170,7 +174,11 @@ internal class Instructor(
 
     val (g: Type?, r: Type?) =
         try {
-          autoNarrowTypes(change.gaining, change.removing)
+          autoNarrowTypes(
+              change.gaining,
+              change.removing,
+              preserveAbstractActor = intens == AMAP,
+          )
         } catch (e: DependencyException) {
           if (intens == AMAP && change.gaining != null && change.removing == null) return NoOp
           throw e
@@ -215,6 +223,7 @@ internal class Instructor(
       return Change.change(g?.expression, r?.expression, count, intens)
     }
 
+    if (g == r && intens != MANDATORY) return NoOp
     if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
 
     val gaining = g?.toComponent()
@@ -276,7 +285,11 @@ internal class Instructor(
   }
 
   // Still spending 25% of solo game time in this method
-  private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<Type?, Type?> {
+  private fun autoNarrowTypes(
+      gaining: Expression?,
+      removing: Expression?,
+      preserveAbstractActor: Boolean,
+  ): Pair<Type?, Type?> {
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
 
@@ -292,7 +305,11 @@ internal class Instructor(
       g = g.singleConcreteSubtype(reader) ?: g
     }
 
-    if (r?.abstract == true) {
+    val hasAbstractActorDependency =
+        r?.dependencies?.typeDependencies()?.any {
+          it.boundType.abstract && it.boundType.rootClass.isSubtypeOf(classTable.getClass(ACTOR))
+        } ?: false
+    if (r?.abstract == true && !(preserveAbstractActor && hasAbstractActorDependency)) {
       // Infer a type if there IS only one kind of component that has it
       r =
           reader.getComponents(r).elements.singleOrNull()?.let {

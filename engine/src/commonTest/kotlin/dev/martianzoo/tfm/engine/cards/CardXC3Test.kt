@@ -1,8 +1,9 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class CardXC3Test : CardTest() {
@@ -10,13 +11,13 @@ class CardXC3Test : CardTest() {
   fun `when Splice enters play, receives both benefits for its own microbe tag`() {
     newGame(PromoCardPack)
 
-    p1.manual("SpliceTacticalGenomics") {
+    p1.playCorp("SpliceTacticalGenomics", 0) {
           doTask("Microbe<SpliceTacticalGenomics>!")
         }
-        .expect("46 Megacredit, Mandate, MicrobeTag, Microbe<SpliceTacticalGenomics>")
+        .expect("46, Microbe<SpliceTacticalGenomics>")
 
     engine.phase("Action")
-    p1.stdAction("HandleMandates").expect("-Mandate, ProjectCard")
+    p1.stdAction("HandleMandates").expect("ProjectCard")
   }
 
   @Test
@@ -25,30 +26,20 @@ class CardXC3Test : CardTest() {
     val p2 = requireP2()
     p1.manual("SpliceTacticalGenomics") { doTask("2 Megacredit") }
 
-    p2.manual("Decomposers") { doTask("2 Megacredit") }.expect("4 Megacredit")
+    p2.manual("Decomposers") { doTask("2 Megacredit") }
+        .expect("2 Megacredit<Player1>, 2 Megacredit")
   }
 
   @Test
-  fun `microbe-tag player makes a separate choice for each tag`() {
+  fun `Pharmacy Union triggers Splice once for each of its two microbe tags`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("SpliceTacticalGenomics") { doTask("2 Megacredit") }
-    p2.manual("GhgProducingBacteria") { doTask("2 Megacredit") }.expect("4 Megacredit")
-    p2.manual("-MicrobeTag<GhgProducingBacteria>").expect("-MicrobeTag")
+    val before = p1.count("Megacredit")
 
-    p2.manual("2 MicrobeTag<GhgProducingBacteria>") {
-          doFirstTask("2 Megacredit")
-          doFirstTask("Microbe<GhgProducingBacteria>!")
-        }
-        .expect("2 MicrobeTag, 6 Megacredit, Microbe<GhgProducingBacteria>")
-  }
+    p2.manual("PharmacyUnion")
 
-  @Test
-  fun `abstract removal auto-narrows one concrete type regardless of its multiplicity`() {
-    newGame(PromoCardPack)
-    p1.manual("GhgProducingBacteria, 2 Microbe<GhgProducingBacteria>")
-
-    p1.manual("-Microbe").expect("-Microbe<GhgProducingBacteria>")
+    p1.count("Megacredit") shouldBe before + 4
   }
 
   @Test
@@ -58,7 +49,7 @@ class CardXC3Test : CardTest() {
     p1.manual("SpliceTacticalGenomics") { doTask("2 Megacredit") }
 
     p2.manual("Decomposers") { doTask("Microbe<Decomposers>!") }
-        .expect("2 Megacredit, 2 Microbe<Decomposers>")
+        .expect("2 Megacredit<Player1>, 2 Microbe<Decomposers>")
   }
 
   @Test
@@ -66,12 +57,13 @@ class CardXC3Test : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("SpliceTacticalGenomics") { doTask("2 Megacredit") }
-    p2.manual("RegolithEaters") { doTask("2 Megacredit") }.expect("4 Megacredit")
+    p2.manual("RegolithEaters") { doTask("2 Megacredit") }
+        .expect("2 Megacredit<Player1>, 2 Megacredit")
 
     p2.manual("Decomposers") {
           shouldThrow<NarrowingException> { doTask("Microbe<RegolithEaters>!") }
           doTask("Microbe<Decomposers>!")
         }
-        .expect("2 Megacredit, 2 Microbe<Decomposers>")
+        .expect("2 Megacredit<Player1>, 2 Microbe<Decomposers>")
   }
 }

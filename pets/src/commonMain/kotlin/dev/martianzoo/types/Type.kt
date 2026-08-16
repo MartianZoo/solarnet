@@ -172,6 +172,9 @@ public data class Type(
    * state-dependent constraints according to [info].
    */
   public fun singleConcreteSubtype(info: TypeInfo): Type? {
+    if (rootClass.className == CLASS && refinement != null) {
+      return allConcreteSubtypes().filter { it.narrows(this, info) }.take(2).singleOrNull()
+    }
     val klass = concreteSubclasses(rootClass).singleOrNull() ?: return null
     val intersection = this glb klass.baseType ?: return null
     val deps = intersection.dependencies.singleConcreteSubtype(info) ?: return null

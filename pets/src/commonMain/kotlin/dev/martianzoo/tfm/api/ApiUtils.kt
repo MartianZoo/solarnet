@@ -24,11 +24,11 @@ public object ApiUtils {
   }
 
   /** Returns [getOwner], requiring that the component is owned by a seated [Player]. */
-  public fun getPlayerOwner(game: GameReader, component: Type): Player =
-      getOwner(game, component).className.let {
-        if (Player.isValid(it)) Player(it)
-        else error("component is not owned by a Player: $component")
-      }
+  public fun getPlayerOwner(game: GameReader, component: Type): Player {
+    val ownerName = getOwner(game, component).className
+    return game.actors.filterIsInstance<Player>().singleOrNull { it.className == ownerName }
+        ?: error("component is not owned by a Player: $component")
+  }
 
   /**
    * Returns a map with six entries, giving [player]'s current production levels, adjusting
@@ -55,13 +55,13 @@ public object ApiUtils {
             .map { it.expression.arguments.single().className }
             .toSet()
     // Put them in declaration order
-    return game.ruleset.allClassNames.filter { it in names }.toSetStrict()
+    return game.authority.allClassNames.filter { it in names }.toSetStrict()
   }
 
   /** Returns the mars map definition being used in this game (there must be exactly one). */
   public fun mapDefinition(game: GameReader): MarsMapDefinition {
     val map = game.resolve(MARS_MAP.expression)
     val mapName = game.getComponents(map).single().className
-    return game.tfmRuleset.marsMap(mapName)
+    return game.tfmAuthority.marsMap(mapName)
   }
 }

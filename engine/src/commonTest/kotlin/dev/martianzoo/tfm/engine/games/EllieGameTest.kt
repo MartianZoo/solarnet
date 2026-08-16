@@ -1,12 +1,14 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.HellasMapOption
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
@@ -14,12 +16,14 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class EllieGameTest : AbstractFullGameTest() {
-  override fun setup() =
-      canonicalPremise(
-          HellasMapOption,
-          PromoCardPack,
-          PreludeExpansion,
-          players = 2,
+  override val config =
+      GameConfig(
+          """
+          HellasMapOption
+          PromoCardPack, PreludeExpansion
+          """,
+          "Player1",
+          "Player2",
       )
 
   @Test
@@ -30,60 +34,69 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    p1.playPrelude("UnmiContractor") // 3 TR<P1>
-    p1.playPrelude("CorporateArchives")
-    p2.playPrelude("BiosphereSupport")
-    p2.playPrelude("SocietySupport")
-
-    // Generation 1 (P1 first)
-
-    p1.playProject("MediaGroup", 6)
-    p1.playProject("Sabotage", 1) { doTask("-7 M<P2>") }
-
-    p2.playProject("Research", 11) // 1 VP<P2>, 2 TR<P2>
-    p2.playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<P2>
-
-    p1.pass()
-
-    p2.playProject("SearchForLife", 3) {
-      doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<P2>
+    p1.turn {
+      playPrelude("UnmiContractor") // 3 TR<Player1>
+      playPrelude("CorporateArchives")
     }
-    p2.cardAction1("SearchForLife") { doTask("Ok") } // no microbe
+    p2.turn {
+      playPrelude("BiosphereSupport")
+      playPrelude("SocietySupport")
+    }
 
+    // Generation 1 (Player1 first)
+
+    p1.turn {
+      playProject("MediaGroup", 6)
+      playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
+    }
+    p2.turn {
+      playProject("Research", 11) // 1 VP<Player2>, 2 TR<Player2>
+      playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<Player2>
+    }
+    p1.pass()
+    p2.turn {
+      playProject("SearchForLife", 3) {
+        doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<Player2>
+      }
+      cardAction1("SearchForLife") { doTask("Ok") } // no microbe
+    }
     p2.pass()
 
-    // Generation 2 (P2 first)
-    p1.doFirstTask("1 BuyCard")
-    p2.doFirstTask("3 BuyCard")
+    // Generation 2 (Player2 first)
+    p1.buyCards(1)
+    p2.buyCards(3)
 
-    p2.sellPatents(1)
-    p2.playProject("VestaShipyard", 15) // 1 VP<P2>
-
-    p1.playProject("EarthCatapult", 23) // 2 VP<P1>
-    p1.playProject("OlympusConference", steel = 4) // 1 VP<P1>
-
+    p2.turn {
+      sellPatents(1)
+      playProject("VestaShipyard", 15) // 1 VP<Player2>
+    }
+    p1.turn {
+      playProject("EarthCatapult", 23) // 2 VP<Player1>
+      playProject("OlympusConference", steel = 4) // 1 VP<Player1>
+    }
     p2.pass()
 
-    p1.playProject("DevelopmentCenter", 1, steel = 4) {
-      doTask("ProjectCard FROM Science<OlympusConference>")
+    p1.turn {
+      playProject("DevelopmentCenter", 1, steel = 4) {
+        doTask("ProjectCard FROM Science<OlympusConference>")
+      }
+      playProject("GeothermalPower", 1, steel = 4)
+      playProject("MirandaResort", 10) // 1 VP<Player1>
+      playProject("Hackers", 1) { doTask("PROD[-2 M<Player2>]") } // -1 VP<Player1>
+      playProject("MicroMills", 1)
     }
-    p1.playProject("GeothermalPower", 1, steel = 4)
-
-    p1.playProject("MirandaResort", 10) // 1 VP<P1>
-    p1.playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") } // -1 VP<P1>
-
-    p1.playProject("MicroMills", 1)
-
     p1.pass()
 
-    // Generation 3 (P1 first)
-    p1.doFirstTask("3 BuyCard")
-    p2.doFirstTask("1 BuyCard")
+    // Generation 3 (Player1 first)
+    p1.buyCards(3)
+    p2.buyCards(1)
 
-    p1.cardAction1("DevelopmentCenter")
-    p1.playProject("ImmigrantCity", 1, steel = 5) {
-      doTask("CityTile<Hellas_9_7>")
-      doTask("OceanTile<Hellas_5_6>") // 1 TR<P1>
+    p1.turn {
+      cardAction1("DevelopmentCenter")
+      playProject("ImmigrantCity", 1, steel = 5) {
+        doTask("CityTile<Hellas_9_7>")
+        doTask("OceanTile<Hellas_5_6>") // 1 TR<Player1>
+      }
     }
     workflow.shutdown()
     workflow.isRunning shouldBe false
@@ -116,15 +129,15 @@ class EllieGameTest : AbstractFullGameTest() {
     sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
     sum.net("CityTile", "VictoryPoint") shouldBe 0
 
-    p1.assertCounts(24 to "TR<P1>")
-    p1.assertCounts(27 to "VP<P1>")
-    sum.net("Card", "VP<P1>") shouldBe 3
+    p1.assertCounts(24 to "TR<Player1>")
+    p1.assertCounts(27 to "VP<Player1>")
+    sum.net("Card", "VP<Player1>") shouldBe 3
 
-    p2.assertCounts(25 to "TR<P2>")
-    sum.net("PharmacyUnion", "TR<P2>") shouldBe 5
+    p2.assertCounts(25 to "TR<Player2>")
+    sum.net("PharmacyUnion", "TR<Player2>") shouldBe 5
 
     p2.assertCounts(28 to "VictoryPoint")
-    sum.net("Card", "VP<P2>") shouldBe 3
+    sum.net("Card", "VP<Player2>") shouldBe 3
   }
 
   @Test
@@ -139,9 +152,13 @@ class EllieGameTest : AbstractFullGameTest() {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    p1.playProject("MediaGroup", 6)
-    p1.playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
+    p1.turn {
+      playProject("MediaGroup", 6)
+      playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
+    }
 
-    p2.playProject("Research", 11)
+    p2.turn {
+      playProject("Research", 11)
+    }
   }
 }

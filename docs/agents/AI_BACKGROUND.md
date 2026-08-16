@@ -81,7 +81,7 @@ work, not to raise a strength claim beyond its original evaluation.
 
 For every important result the audit asked:
 
-* What exact ruleset and content pool was implemented?
+* What exact Authority and content pool was implemented?
 * Was the evaluation against humans, agents, or the system's own checkpoints?
 * Was it head-to-head, statistically substantial, and free of privileged information at play time?
 * Did “generalization” mean new card identities, new combinations, new descriptions, new decks, new
@@ -472,7 +472,7 @@ may or may not already know how valuable its consequences are.
 
 ### Build an explicit player observation boundary
 
-The live `World`, event log, and trusted engine APIs can contain facts a player must not see. The
+The live Game World, Event Log, and trusted engine APIs can contain facts a Player must not see. The
 learning interface needs a deterministic, player-relative observation builder. It should expose:
 
 * public state and the acting player's private state;

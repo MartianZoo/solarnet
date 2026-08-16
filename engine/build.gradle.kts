@@ -17,17 +17,31 @@ kotlin {
   }
 }
 
-// The engine's browser suite is slow, so a routine build skips it. It runs when `includeSlowTests`
-// is set, or when it is named on the command line either directly or through the task below.
-val slowTestTaskNames = setOf("jsBrowserTest", "allTestsIncludingSlow")
-val runSlowTests =
-    providers.gradleProperty("includeSlowTests").orNull?.toBoolean() == true ||
-        gradle.startParameter.taskNames.any { it.substringAfterLast(':') in slowTestTaskNames }
+val fullBrowserTestsRequested =
+    providers.gradleProperty("includeBrowserTests").orNull?.toBoolean() == true ||
+        gradle.startParameter.taskNames.any {
+          it.substringAfterLast(':') in setOf("jsBrowserTest", "allTestsIncludingBrowser")
+        }
 
-tasks.named("jsBrowserTest") { enabled = runSlowTests }
+// A routine build exercises one representative multi-generation game in Chrome. Naming the full
+// browser task directly, using allTestsIncludingBrowser, or setting includeBrowserTests removes the
+// filter and runs every shared engine test in the browser.
+tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
+  if (!fullBrowserTestsRequested) {
+    filter.includeTestsMatching(
+        "dev.martianzoo.tfm.engine.games.Game20260619Test.gameThroughGeneration5"
+    )
+  }
+}
 
-tasks.register("allTestsIncludingSlow") {
+tasks.register("jsBrowserSmokeTest") {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Runs all engine tests, including slow browser tests."
+  description = "Runs one representative multi-generation game in a browser."
+  dependsOn("jsBrowserTest")
+}
+
+tasks.register("allTestsIncludingBrowser") {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs every engine test on the JVM and in a browser."
   dependsOn("allTests", "jsBrowserTest")
 }

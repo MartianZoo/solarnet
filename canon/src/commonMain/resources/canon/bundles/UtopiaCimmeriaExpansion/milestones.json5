@@ -10,7 +10,7 @@
         // Trader
         { "id": "UM2", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
         // Metallurgist
-        { "id": "UM3", "requirement": "6 PROD[Steel OR Titanium]" },
+        { "id": "UM3", "requirement": "6 PROD[Metal]" },
         // Researcher
         { "id": "UM4", "requirement": "4 ScienceTag" },
       ],
@@ -31,7 +31,7 @@
         // Forester
         { "id": "UM8", "requirement": "PROD[3 Plant]" },
         // Fundraiser
-        { "id": "UM9", "requirement": "PROD[12 Megacredit]" },
+        { "id": "UM9", "requirement": "PROD[17 Megacredit]" },
       ],
     },
   ],

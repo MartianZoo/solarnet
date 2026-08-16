@@ -93,28 +93,21 @@ public interface Gameplay {
   public fun prepareTask(instruction: String): TaskId?
 
   /**
-   * Brittle convenience that selects by the task set's non-semantic iteration order. Prefer an
-   * explicit task id unless the caller has established that only one task can apply.
-   */
-  public fun doFirstTask(revised: String? = null): TaskResult
-
-  /**
-   * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes
-   * triggered instructions from *automatic* effects, enqueues tasks for queued effects and any
-   * contents of [Task.then], and removes the original task from the game's task queue. Throws an
-   * exception if any of this fails.
+   * Carries out the task matched by [revised]. Prepares it first if necessary. As part of this,
+   * executes triggered instructions from *automatic* effects, enqueues tasks for queued effects and
+   * any contents of [Task.then], and removes the original task from the game's task queue. Throws
+   * an exception if any of this fails.
    *
-   * @throws [TaskException] if no prepared task by the id [taskId] is present
+   * A prepared task always wins. Otherwise, the revision must match exactly one task, except that
+   * fully identical tasks are interchangeable. [taskNumber], when supplied, selects the 1-based
+   * position in this Actor's current task list.
+   *
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be prepared
    */
-  public fun doTask(taskId: TaskId): TaskResult
+  public fun doTask(revised: String, taskNumber: Int? = null): TaskResult
 
-  public fun doTask(revised: String): TaskResult
-
-  public fun tryTask(taskId: TaskId): TaskResult
-
-  public fun tryTask(revised: String): TaskResult
+  public fun tryTask(revised: String, taskNumber: Int? = null): TaskResult
 
   public fun tryPreparedTask(): TaskResult
 
@@ -129,7 +122,7 @@ public interface Gameplay {
   public interface TurnLayer : Gameplay {
     public fun startTurn(): TaskResult
 
-    public fun turn(body: BodyLambda = {}): TaskResult
+    public fun inTurn(body: BodyLambda = {}): TaskResult
   }
 
   // Green mode
@@ -148,11 +141,9 @@ public interface Gameplay {
     public val tasks: TaskQueue
     public val reader: GameReader
 
-    public fun doFirstTask(revised: String)
+    public fun doTask(revised: String, taskNumber: Int? = null)
 
-    public fun doTask(revised: String)
-
-    public fun tryTask(revised: String)
+    public fun tryTask(revised: String, taskNumber: Int? = null)
 
     public fun autoExecNow()
 

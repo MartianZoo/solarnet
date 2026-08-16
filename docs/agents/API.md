@@ -20,7 +20,7 @@ and safe workflows deliberately.
 
 Separate two concerns that the current API mixes together:
 
-1. **Engine integrity:** keep worlds structurally coherent, transactional, reversible, and
+1. **Engine integrity:** keep Game Worlds structurally coherent, transactional, reversible, and
    correctly indexed even when a caller requests a rules-bypassing operation.
 2. **Caller authority:** decide whether a particular caller should be offered that operation.
 
@@ -111,9 +111,9 @@ In particular:
 The goal is to remove the writable/not-writable *API taxonomy*, not to publish mutable collections
 or independent event-log append methods.
 
-### `World` as the trusted aggregate
+### `World` as the trusted Game World aggregate
 
-`World` can remain the live aggregate for components, events, tasks, timeline control, readers, and
+`World` can remain the live Game World aggregate for Components, Events, Tasks, Timeline control, readers, and
 Actor-scoped gameplay. Direct engine clients are trusted and may reach all of these facilities.
 There is no need to add current-engine accessors such as `playerActions`, `rawStateEditor`, or
 `timelineControl` merely to ration authority.
@@ -130,7 +130,7 @@ Flattening authority layers must not weaken these engine properties:
 2. Every component mutation keeps dependent indexes and live effects synchronized.
 3. Every task mutation is logged and reversible and preserves queue normalization.
 4. The global prepared-task lock remains coherent across Actor-scoped queue views.
-5. Components and parsed types belong to the world's own class table.
+5. Components and parsed Types belong to the Game World's own Class Table.
 6. Actor context continues to control defaults, `Owner` substitution where applicable, task scope,
    and event attribution.
 7. Initialization and committed workflow boundaries cannot be accidentally undone through ordinary
@@ -199,7 +199,7 @@ of those generic services.
 
 `ScriptSession` should retain interactive session state and command dispatch. Terraforming Mars
 game construction, command catalog contributions, and vocabulary belong in an injected application
-profile, while task labels and result rendering remain presentation collaborators rather than
+profile, while task-list and result rendering remain presentation collaborators rather than
 additional session responsibilities.
 
 As described below, `TfmGameplay` is transitional. Its player actions, workflow/phase controls,

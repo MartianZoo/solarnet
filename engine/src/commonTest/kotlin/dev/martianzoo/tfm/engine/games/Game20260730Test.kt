@@ -1,28 +1,22 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Thermal Matter Wave - https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
 class Game20260730Test : AbstractSoloTest() {
-  override fun setup(): GamePremise {
-    return canonicalPremise(
-        VenusNextExpansion,
-        PreludeExpansion,
-        ColoniesExpansion,
-        PromoCardPack,
-        Tr63SoloVariant,
-        players = 1,
-        colonyTiles = setOf(cn("Ceres"), cn("Io"), cn("Triton")),
-    )
-  }
+  override val config =
+      GameConfig(
+          """
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack, Tr63SoloVariant
+          Ceres, Io, Triton
+          """,
+          "Player1",
+      )
 
   // Drew and discarded Mining Colony to place a 2
   // Drew and discarded Potatoes to place a 0
@@ -589,12 +583,12 @@ class Game20260730Test : AbstractSoloTest() {
         // Player1 discarded Trees
         // Player1 drew 1 card(s)
         // You drew Ganymede Colony
-        doFirstTask("-ProjectCard")
+        doTask("-ProjectCard")
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Trans-Neptune Probe
         // Player1 drew 1 card(s)
         // You drew Hi-Tech Lab
-        doFirstTask("-ProjectCard")
+        doTask("-ProjectCard")
       }
       // Player1 used Convert Heat standard action
       // Player1 placed ocean tile at 34
@@ -753,7 +747,7 @@ class Game20260730Test : AbstractSoloTest() {
       pass()
       has("Victory") shouldBe true
       // Final greenery placement
-      doFirstTask("Ok")
+      doTask("Ok")
       // This game id was gafda6ee74f34
 
       assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)
@@ -767,11 +761,12 @@ class Game20260730Test : AbstractSoloTest() {
 
       // Best current match for the app's reported action count: turns offered plus passes,
       // excluding the final-greenery offer.
-      (-sum.net("NewTurn", "NewTurn<P1>") + sum.net("ActionPhase", "Pass<P1>") - 1) shouldBe 168
+      (-sum.net("NewTurn", "NewTurn<Player1>") + sum.net("ActionPhase", "Pass<Player1>") -
+          1) shouldBe 168
 
       // Discounts earned
-      sum.net("AdvancedAlloys", "Owed<P1>") shouldBe -84
-      sum.net("Shuttles", "Owed<P1>") shouldBe -14
+      sum.net("AdvancedAlloys", "Owed<Player1>") shouldBe -84
+      sum.net("Shuttles", "Owed<Player1>") shouldBe -14
 
       // Resources and cards gained from active cards
       sum.net("CryoSleep", "Energy") shouldBe 2

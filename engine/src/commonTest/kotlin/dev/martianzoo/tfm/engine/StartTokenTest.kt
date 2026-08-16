@@ -5,8 +5,8 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -31,26 +31,26 @@ class StartTokenTest {
   }
 
   @Test
-  fun staysWithPlayer1InAnActualOnePlayerSetup() {
+  fun staysWithMeInAnActualOnePlayerSetup() {
     val game = setUpGame(players = 1)
     val engine = game.tfm(ENGINE)
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     engine.godMode().manual("Generation")
 
-    engine.assertCounts(1 to "StartToken<Player1>")
+    engine.assertCounts(1 to "StartToken<Me>")
   }
 
   @Test
   fun `solo setup links each greenery to its own city`() {
     val engine = setUpGame(players = 1).tfm(ENGINE)
 
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_5_8, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
 
     // This area neighbors the first city, but not the selected second city.
     shouldThrow<NarrowingException> {

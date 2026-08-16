@@ -1,218 +1,77 @@
-# Bundles and game options
+# Authorities, Modules, and game premises
 
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
-This document defines the configuration model. It deliberately does not describe a migration or
-implementation sequence.
+> **Status:** This document describes the current Authority, Module, configuration, and premise
+> model.
 
-## The model
+## Authority
 
-Starting a game requires an `Authority`, a completed setup world, and a `GameAssembler`.
+An **Authority** is one coherent source of everything Solarnet may know about a game. It provides:
 
-An **Authority** defines the complete environment in which games may be assembled. It provides a
-closed set of **Bundles** whose combined contents are self-consistent. `Canon` is the only important
-Authority for now. A future Authority may add personal bundles to Canon, replace canonical bundles,
-or provide an unrelated environment.
+- every directly authored Rule-Class Declaration in its namespace;
+- structured Definitions that generate Content-Class Declarations, such as cards, milestones, awards, maps, standard actions, and colony tiles;
+- vocabulary and other descriptive metadata;
+- declarative premise defaults and validity rules;
+- the exceptional custom metric and instruction implementations that cannot be expressed as data.
 
-A **Bundle** is only a unit of data ownership, provenance, and distribution. It may contain Pets
-declarations, JSON definitions, custom implementations, and metadata. Bundle presence has no game
-meaning and is not observable through Pets. A bundle is neither a game option nor a live component,
-even when their names happen to coincide.
+An Authority is almost entirely a data provider, even though much of that data describes behavior. Custom Kotlin implementations are the deliberate exception, not a reason for the Authority to make live game decisions.
 
-One bundle may provide several separately selectable game options. For example, the canonical
-`HellasElysiumExpansion` bundle owns both published boards while `HellasMapOption` and
-`ElysiumMapOption` remain distinct options. The corresponding live map components are `Hellas`
-and `Elysium`. Each board and map-specific milestone has a Pets `setupRequirement`, so only
-definitions applicable to the completed setup world become active game content.
+Published Terraforming Mars is one Authority. A versioned rebalance or a variant with changed fundamental behavior is another. Authorities may reuse a Class Name because their namespaces never mix.
 
-The **setup world** is the editable expression of what the user wants. It may contain policies such
-as choosing milestones randomly, convenient defaults, and explicit exclusions. Ordinary Pets
-effects may expand one selection into defaults; exclusions mask those effects. Before assembly,
-all policies are resolved into exact selections.
+Almost every operation uses exactly one Authority. An Authority may be assembled internally from several providers, but callers and playable games still see one Authority. Provider composition is an implementation detail. Identical Declarations may coalesce, but a Module must have exactly one bundle owner; ambiguous Module ownership is invalid.
 
-**GameModules** are the affirmative, immutable rule components produced by that resolution. Along
-with exact selected content and actors, they fully specify the equivalent games that could be used
-at every table of a duplicate-style tournament. A module adds behavior by being present; disabling
-behavior means omitting its module, not adding a negative gameplay variant.
+The reusable API exposes `Authority`. `TfmAuthority` extends it with typed registries for cards, milestones, awards, maps, standard actions, and colony tiles. Generic class loading and engine operation depend only on `Authority`.
 
-A **GameAssembler** combines one Authority with a validated, fully resolved setup world and
-produces a reusable `GamePremise`. It owns content selection, replacement, class reachability,
-phantom-type policy, and all configuration compatibility decisions. This is the proper home of the
-existing “slurping” policy that examines selected definitions to decide which classes the game
-actually needs.
+## One master class table
 
-`Ruleset` is not a fourth configuration layer. The responsibilities currently associated with that
-name divide between the Authority's available catalog and the GameAssembler's game-specific output.
+Within one Authority, every Class Name has exactly one Declaration and one meaning. Identical Declarations from separate providers coalesce; differing Declarations for the same Class Name are an error. A replacement has its own Class Name, and the replaced Definition remains known but can be inactive. The published Deimos Down Definitions are therefore `Card039` and `CardX31`.
 
-## Authorities and bundles
+The complete Authority catalog loads and validates once as the Authority's master `ClassTable`. Each playable game receives a projection backed by that table: selected Classes are active and every other Authority-known Class is present as a behaviorless phantom. Projections reuse the master's compiled hierarchy rather than loading an independent class universe. Rule Class versus Content Class records declaration provenance only; Class Loading erases that distinction. No game projection obtains Declarations or behavior from another provider.
 
-An Authority validates its entire available environment before any game is assembled. In
-particular:
+The universal catalog is a schema, not a playable Game World. It is not instantiated because doing so would create mutually exclusive maps, modes, and alternative Singleton Components together.
 
-- every ordinary class name must be known;
-- bundle dependencies must be satisfied;
-- identical declarations from several bundles may coalesce, while conflicting declarations are an
-  error;
-- definition identities, replacement targets, and provider metadata must be coherent.
+## Module
 
-This validation distinguishes a known but inactive name from a typo. A game may leave `Colony`
-inactive, but an Authority containing `Colnoy` should be invalid.
+A **Module** is an affirmative, immutable singleton component that carries ambient behavior for one realized game choice. Base behavior, expansions, maps, modes, and variants are all Modules. The exact set of Module components is the complete statement of the game's general behavior choices.
 
-Bundle dependencies are hard environment dependencies, not option implications. The Utopia &
-Cimmeria bundle depends on the Colonies bundle because its rules mention Colonies vocabulary.
-Therefore an Authority cannot provide those maps without also making the Colonies data available.
-This does not enable the Colonies game option in any assembled game.
+Each Module declares the classes it activates or deactivates. The Authority stores these selections directly by Module class name; there is no second Kotlin Module object duplicating that identity. A selection can be conditional on the complete configuration, which supports definitions such as a map milestone that exists only when a particular expansion is also selected. Structural activation may pull in dependencies, but it may not activate an unselected Module or reactivate an explicitly excluded class.
 
-The Authority is also the boundary for future customization. “Canon plus my content” means a new
-Authority whose bundles are validated together; it does not mean mutating Canon or a running game.
+## GamePremise
 
-Every canonical Pets file, JSON definition, and custom implementation belongs to a bundle, including
-unsupported data. The shared runtime declarations in `pets/system.pets` do not. JSON definitions
-derive their provenance from the bundle that reads their directory rather than carrying raw bundle
-attributes. Canonical bundle directories follow the `StandardFormBundle` resource contract so JVM
-and JavaScript discover the same supported files and report unexpected ones.
+A `GamePremise` is the complete immutable input needed to construct equivalent playable Game Worlds. It contains only:
 
-## Setup options, game modules, and active content
+1. one Authority;
+2. the selected Module class names;
+3. signed selections for other individual Authority classes;
+4. user-facing player names in seat order;
+5. exact concrete non-singleton types for which initialization creates one instance each.
 
-Setup options are a signed selection. Positive selections may contribute defaults, while explicit
-negative selections mask those defaults before expansion. They may also eventually request a
-selection policy whose result is not yet exact. Selectors may denote different kinds of things:
+The projection activates `Player1` through `PlayerN` for the occupied seats; Players are not ordinary signed class selections. Those canonical names remain the runtime class and Actor identities. Configured player names are vocabulary aliases, accepted as input and used when rendering Pets, just like friendly names for cards. Active and phantom Authority classes derive from the Modules and signed selections. Initial state is not an unrestricted list of Pets instructions.
 
-- a rule option such as `SoloMode` or `ColoniesExpansion`;
-- a map or a map's milestone set;
-- an individual card, milestone, award, or colony tile;
-- a named content group;
-- a vocabulary class that should be active even without its usual expansion option.
+Availability and initial existence are separate. With Colonies active, all eligible colony-tile classes are active so later effects can select them, while setup creates only the chosen starting tile components. An eligible but initially unchosen tile has count zero.
 
-The common text representation is one selector per line, with `-` marking a counteraction:
+`GameConfig` is the unresolved expression of user intent. Its included and excluded class-name sets have no ordering semantics, while player names are a separate seat-ordered list. Defaults, implications, selection policies, and validation convert it into a `GamePremise`. The Terraforming Mars resolver requires one to five player names and accepts Modules and signed individual classes from the ordinary configuration. Unambiguous English Pets names for structured definitions are accepted alongside canonical names. Mentioning any milestones or awards selects the exact named pool for that category; selected colony tiles additionally become initial components.
 
-```
-Player1
-CorporateEra
-ElysiumMapOption
-PreludeExpansion
-VenusNextExpansion
--Hoverlord
-Io
--TradeEnvoys
-```
+Configuration defaults belong to the Authority's premise-resolution process, not to clients or
+test helpers. They are evaluated against explicit inclusions: naming a competing choice suppresses
+the corresponding default, and an explicit exclusion defeats both defaults and implications.
 
-Counteractions take precedence independently of file order and mask defaults before those defaults
-are expanded. They exist only in the setup world, not as negative modules in a playable game. An
-independently selected item from a counteracted group does not re-enable the group or its other
-defaults; its own semantic requirements must still hold.
+## Bundles
 
-Selecting a definition makes it active content; it does not gain an instance of its class.
-Resolving a rule option creates an affirmative `GameModule` component before `SetupPhase` so its
-behavior can be ordinary Pets rules. Selecting vocabulary is not inherently a rule option:
-activating `VenusTag` need not mean enabling the Venus track, World Government Terraforming, or all
-Venus cards.
+A **Bundle** is an internal unit of file ownership, provenance, distribution, and loading. It may contribute declarations, structured definitions, premise metadata, and custom implementations. It is not selected directly by a game and never becomes a live component.
 
-Each definition may have a Pets `setupRequirement`, which is evaluated in the completed setup world
-and never against bundle presence. Filtering and replacement happen after signed selections and
-defaults are resolved but before class assembly. Replacement is same-kind, transitive, and based on
-stable definition identities. Replacement targets must be known to the Authority; cycles and
-multiple applicable replacements for one target are errors.
+Bundle provenance normally has no semantic effect. The one deliberate selection facility is that a Module may activate a whole category from a named bundle, such as all cards, milestones, awards, maps, standard actions, colony tiles, or auto-loaded classes. This supports relationships such as an expansion adding its milestone definitions to a selected map without exposing arbitrary per-definition selection. When no explicit mapping is supplied, a Module selects all categories from its own bundle.
 
-Configuration constraints and option-specific setup behavior should be ordinary Pets rules where
-that is natural. For example, the selected map can be constrained to exactly one and the Colonies
-option can validate and interpret the exact selected colony names. General compositional workflow
-changes may remain explicit until the language has a convincing model for them.
+## Required invariants
 
-## Game assembly and class reachability
-
-The GameAssembler begins with roots supplied by the resolved setup world: game modules,
-selected definitions, actors, explicitly selected vocabulary, and shared runtime classes. It then
-follows **activation edges** from those roots. Structural needs such as supertypes and dependency
-signatures are activation edges; a behavioral mention is not automatically one.
-
-This gives class references a crucial property: a reference may use content already selected for
-the game, but it cannot select that content. Mentioning `Colony` in an instruction must not activate
-Colonies, just as mentioning `VenusTag` on one selected card must not activate Venus Next.
-
-`AutoLoad` is interpreted within this same active-content policy. Merely making a provider bundle
-available must not activate every `AutoLoad` declaration it contains.
-
-The assembler must distinguish three sets:
-
-1. names known to the Authority;
-2. active classes with loaded declarations and behavior;
-3. known but inactive classes represented as phantom types.
-
-APIs that enumerate playable or creatable concrete types use only the second set. Type parsing and
-validation may use all three.
-
-## Phantom types
-
-A **Phantom Type** is known to the ClassTable because the Authority validated its name, but its
-class is inactive in this game. It retains enough catalog information to validate its type shape
-and relationships, but contributes no components, effects, defaults, invariants, or class-literal
-component.
-
-Phantom types have these semantics:
-
-- counting the type yields zero;
-- counting `Class<Phantom>` yields zero;
-- they are excluded from subtype enumeration, automatic narrowing, and player choices;
-- an optional or AMAP gain/removal succeeds at quantity zero;
-- a mandatory gain/removal is impossible and may be normalized early to `Die`;
-- a trigger on a phantom type can never fire;
-- an unknown name that was not validated by the Authority is an error, not a phantom.
-
-This general rule replaces special handling for unresolved class literals. `Class<Colony>` and
-`Colony` are both valid, resolvable queries with count zero when Colony is phantom.
-
-Turning atomic changes into `Die` lets ordinary Pets composition express optional-content rules.
-Choices discard dead branches, while an unavoidable dead instruction remains a real incompatibility.
-The assembler should reject selected content whose required initialization or self-creation reduces
-to an unavoidable `Die`, and report the inactive class that caused it.
-
-Structural absence is stricter. An active class cannot have a phantom superclass or an unusable
-dependency signature; that is a failure to assemble the game rather than behavior to defer until
-play.
-
-## Governing examples
-
-### Terra Cimmeria and Colonies
-
-The map data maps its special letter only to `TcColonyBonus`; that type owns the conditional rule.
-The Utopia & Cimmeria bundle has a hard provider dependency on the Colonies bundle, so every
-supporting Authority knows `ColoniesExpansion` and `Colony`.
-
-Without the Colonies option, those classes are phantom. Their class-literal metrics count zero and
-the mandatory colony branch becomes `Die`, leaving the no-op branch. With Colonies enabled, the
-classes are active and the bonus means paying 5 M€ and placing a colony.
-
-### Selected Venus cards without Venus Next
-
-An Authority may provide the Venus bundle while setup options select a few Venus cards but not the
-Venus Next option. Bundle availability alone activates nothing. If `VenusTag` remains phantom, the
-cards' mandatory tag creation becomes `Die`; the assembler should detect that those cards cannot be
-constructed correctly and reject the selection.
-
-A future configuration could explicitly activate `VenusTag` as vocabulary without enabling the
-Venus track, or deliberately transform the selected cards to remove their Venus tags. Those are
-content-selection features, not bundle-loading behavior.
-
-### Colonies workflow ordering with Venus
-
-As workflow rules become compositional, the Colonies bundle may state that when the Venus expansion
-is in use, `ColoniesSolarPhase` cannot occur until `VenusSolarPhase` has completed. Because that
-rule names Venus vocabulary, Colonies has a hard provider dependency on the Venus bundle. The
-dependency guarantees that an Authority containing Colonies can validate the rule; it does not
-enable Venus in any game.
-
-Without the Venus option, `VenusNextExpansion` and `VenusSolarPhase` are phantom and the guarded
-ordering rule is inert. With Venus enabled, they are active and the same rule enforces the phase
-ordering. The Colonies bundle therefore contains one valid rule that is innocuous under every valid
-resolved module selection, rather than separate bundle variants or workflow code paths.
-
-## Invariants
-
-- Authorities define valid available environments; completed setup worlds define games.
-- Bundle dependencies affect availability only and never imply game options.
-- Setup options express user intent; assembled game modules and content are exact and non-random.
-- Playable games contain affirmative modules and no exclusion or negative-variant components.
-- Behavioral references do not activate provider content.
-- Known inactive classes are phantom; unknown names are errors.
-- The ClassTable represents exactly one assembled game and never expands after assembly.
+- A game and almost every related operation use exactly one Authority.
+- Every Class Name has one meaning within an Authority; identical Declarations coalesce and differing Declarations are invalid.
+- Each Authority owns one complete, validated master class table.
+- Every game table is backed by that master, with inactive known classes represented as phantoms.
+- A premise contains only the Authority, Modules, signed individual class selections, seated player names, and exact initial concrete non-singleton types.
+- Bundles affect organization except for a Module's explicit bundle-wide category selections.
+- Eligible class availability and initial component existence are separate facts.
+- Structural activation cannot select an unrequested Module or defeat an exclusion.
+- Multiple simultaneously selected replacements for one definition are invalid.
+- Given one Authority, the ambient behavior is a deterministic function of the exact Module components present.

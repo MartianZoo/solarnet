@@ -20,7 +20,7 @@ ABSTRACT CLASS HasActions {
 
 "A Signal a player sends to indicate an action they want to perform"
 ABSTRACT CLASS UseAction<HasActions> : Owned, Signal {
-  This: MAX 0 Mandate: Ok                       // Should always be doable at least by end
+  This: MAX 0 Mandate: Ok                       // Every granted action must resolve a mandate first
 
   "A component can offer up to three actions; the digit (1, 2, 3) indicates which one"
   CLASS UseAction1, UseAction2, UseAction3

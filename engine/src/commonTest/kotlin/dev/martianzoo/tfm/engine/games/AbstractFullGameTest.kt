@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.engine.games
 
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.GameConfig
+import dev.martianzoo.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
@@ -17,14 +19,17 @@ import kotlin.test.BeforeTest
 abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
+  protected lateinit var p3: TfmGameplay
 
-  protected abstract fun setup(): GamePremise
+  protected abstract val config: GameConfig
 
   @BeforeTest
   open fun commonSetup() {
-    game = Engine.newGame(setup(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
-    p1 = game.tfm(PLAYER1)
-    if (game.reader.getComponents("Player").size > 1) p2 = game.tfm(PLAYER2)
+    game = Engine.newGame(Canon.gamePremise(config), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
+    val players = game.actors.filterIsInstance<Player>()
+    p1 = game.tfm(players[0])
+    if (players.size > 1) p2 = game.tfm(players[1])
+    if (players.size > 2) p3 = game.tfm(players[2])
   }
 
   fun copyThis() {
@@ -44,6 +49,55 @@ abstract class AbstractFullGameTest : TfmTest() {
 
   protected fun TfmGameplay.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertCounts(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
+  }
+
+  protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: String) {
+    val expectedUnusedActionCards = cardNames.map { resolve(it).className }.toSet()
+    val unusedActionCards =
+        reader
+            .getComponents(resolve("ActionCard"))
+            .elements
+            .filter { count("ActionUsedMarker<${it.className}>") == 0 }
+            .map { it.className }
+            .toSet()
+    unusedActionCards shouldBe expectedUnusedActionCards
+  }
+
+  /** Reproduces an evidenced player mistake without leaving a task prepared against stale state. */
+  protected fun TfmGameplay.exMachina(adjustment: String) {
+    val preparedId = game.tasks.preparedTask()
+    if (preparedId != null) {
+      val preparedTask = game.tasks.getTaskData(preparedId)
+      var expectedTask = preparedTask
+      val unpreparedTask =
+          game.events
+              .entriesSince(Checkpoint(0))
+              .asReversed()
+              .asSequence()
+              .map { event ->
+                check(event is TaskEditedEvent && event.task == expectedTask) {
+                  "unexpected event after preparation of task $preparedId: $event"
+                }
+                if (!event.oldTask.next && event.task.next) return@map event.oldTask
+
+                check(event.task == event.oldTask.copy(whyPending = event.task.whyPending)) {
+                  "unexpected edit after preparation of task $preparedId: $event"
+                }
+                expectedTask = event.oldTask
+                null
+              }
+              .firstNotNullOf { it }
+
+      game.tasks.editTask(unpreparedTask)
+    }
+
+    godMode().sneak(adjustment)
+
+    if (preparedId != null) {
+      val task = game.tasks.getTaskData(preparedId)
+      checkNotNull(game.gameplay(task.assignee).prepareTask(preparedId))
+      game.gameplay(task.assignee).autoExecNow()
+    }
   }
 
   protected fun TfmGameplay.assertDashMiddle(

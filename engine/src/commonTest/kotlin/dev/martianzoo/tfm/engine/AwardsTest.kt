@@ -7,11 +7,13 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -20,6 +22,9 @@ internal class AwardsTest : TfmTest() {
   fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = Engine.newGame(canonicalPremise(players = 1))
 
+    game.reader.tfmAuthority.awardDefinitions
+        .filter { game.classTable.isActive(it.className) }
+        .shouldBeEmpty()
     game.classTable.findClass(cn("ClaimMilestoneSA"))?.phantom shouldBe true
     game.classTable.findClass(cn("FundAwardSA"))?.phantom shouldBe true
     engine.assertCounts(
@@ -49,6 +54,35 @@ internal class AwardsTest : TfmTest() {
     p2.assertCounts(
         1 to "AwardTally<Player2, Incorporator>",
         1 to "FirstPlace<Player2, Incorporator>",
+    )
+  }
+
+  @Test
+  fun customAwardMetricsAreCountedForEachPlayer() {
+    game = Engine.newGame(canonicalPremise(TerraCimmeriaMapOption, players = 3))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val p3 = game.tfm(PLAYER3)
+
+    p1.godMode().sneak("Forecaster, ArtificialLake")
+    p2.godMode().sneak("Birds, Algae")
+    p1.count("CardFront(HAS CardRequirement)") shouldBe 1
+    p2.count("CardFront(HAS CardRequirement)") shouldBe 2
+
+    engine.godMode().manual("EndPhase")
+
+    p1.assertCounts(
+        1 to "AwardTally<Player1, Forecaster>",
+        1 to "SecondPlace<Player1, Forecaster>",
+    )
+    p2.assertCounts(
+        2 to "AwardTally<Player2, Forecaster>",
+        1 to "FirstPlace<Player2, Forecaster>",
+    )
+    p3.assertCounts(
+        0 to "AwardTally<Player3, Forecaster>",
+        0 to "FirstPlace<Player3, Forecaster>",
+        0 to "SecondPlace<Player3, Forecaster>",
     )
   }
 

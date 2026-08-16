@@ -3,13 +3,10 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
@@ -24,7 +21,7 @@ class BugsTest : CardTest() {
 
     p1.playPrelude("HeadStart") {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
-      doFirstTask("UseAction1<UseStandardProjectSA>")
+      doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<ConvertHeatSA>")
       doTask("UseAction1<AquiferSP>")
       doTask("OceanTile<Tharsis_5_5>")
@@ -45,8 +42,8 @@ class BugsTest : CardTest() {
 
     p1.playPrelude("ExcentricSponsor") {
       p1.playProject("GiantIceAsteroid", 11) {
-        doFirstTask("OceanTile<Tharsis_1_2>")
-        doFirstTask("OceanTile<Tharsis_1_4>")
+        doTask("OceanTile<Tharsis_1_2>")
+        doTask("OceanTile<Tharsis_1_4>")
         doTask("Ok")
       }
     }
@@ -66,46 +63,20 @@ class BugsTest : CardTest() {
     p1.manual("6 Heat, 2 ProjectCard")
 
     p1.manual("LocalHeatTrapping") {
-      tasks.extract { it.whyPending }.shouldContainExactlyInAnyOrder("abstract")
-
-      p1.prepareTask("4 Plant OR Ok")
-      tasks.extract { it.whyPending }.shouldContainExactlyInAnyOrder("abstract")
+      doTask("4 Plant")
+      shouldThrow<TaskException> { doTask("Ok") }
       abort()
     }
   }
 
-  // FAQ: "Draw 1 card for every 3 science tags you have, including this."
+  // Solar Probe should count its own science tag and draw one card for all three tags.
   @Test
-  fun `Solar Probe can incorrectly lose its card draw if event cleanup is handled first`() {
-    newGame(
-        ColoniesExpansion,
-        colonyTiles = testColonyTiles(2),
-    )
-    val p1GodMode = p1.godMode()
+  fun `Solar Probe incorrectly loses its card draw during normal play`() {
+    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     engine.phase("Action")
-    p1GodMode.manual("TransNeptuneProbe, PhysicsComplex")
+    p1.manual("9, ProjectCard, TransNeptuneProbe, PhysicsComplex")
 
-    p1.count("ScienceTag") shouldBe 2
-
-    p1GodMode.autoExecMode = NONE
-    p1GodMode.beginManual("SolarProbe") {
-      doTask("ProjectCard") // player deserves a card! but....
-      abort()
-    }
-
-    p1GodMode.beginManual("SolarProbe") {
-      // The user really shouldn't even have the option to do this first
-      doTask("PlayedEvent<Class<SolarProbe>> FROM SolarProbe")
-
-      // Now they can't get their card
-      shouldThrow<TaskException> { doTask("ProjectCard") }
-    }
-  }
-
-  @Test
-  fun `a quantified tile instruction incorrectly remains abstract instead of decomposing`() {
-    newGame()
-    shouldThrow<AbstractException> { p1.manual("2 CityTile") }
+    p1.playProject("SolarProbe", 9).expect("-9, -ProjectCard")
   }
 
   @Test

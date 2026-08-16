@@ -16,7 +16,7 @@
       "id": "B02",
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[2 Plant], 36, 3 Plant",
+      "immediate": "36, 3 Plant, PROD[2 Plant]",
       "effects": [ "UseAction<ConvertPlantsSA>: Plant" ],
     },
 
@@ -46,7 +46,7 @@
       "tags": [ "BuildingTag", "BuildingTag" ],
       "immediate": "30, 5 Steel, PROD[Steel]",
       "effects": [
-        "Tile<MarsArea(HAS MapBonus<Class<Steel>> OR MapBonus<Class<Titanium>>)>: PROD[Steel]"
+        "Tile<MarsArea(HAS MapBonus<Class<Metal>>)>: PROD[Steel]"
       ],
     },
 
@@ -77,7 +77,7 @@
       "id": "B09",
       "deck": "CORPORATION",
       "tags": [ "PowerTag" ],
-      "immediate": "PROD[Energy], 48",
+      "immediate": "48, PROD[Energy]",
       "effects": [
         "PlayTag<Class<PowerTag>>:: -3 Owed",
         "UseAction<PowerPlantSP>: 3"
@@ -93,7 +93,7 @@
       "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
       "components": [
         "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
-        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
+        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating IF MAX 0 SetupPhase:: HasRaisedTr. }"
       ],
     },
 
@@ -159,7 +159,7 @@
       "requirement": "MAX 4 OceanTile",
       "cost": 26,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-2 Energy, 5], CityTile THEN CapitalMarker<CityTile>",
+      "immediate": "CityTile THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5]",
       "effects": [
         "End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>"
       ],
@@ -232,7 +232,7 @@
       "requirement": "MAX 7 OxygenStep",
       "cost": 24,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 3], CityTile, 3 Plant",
+      "immediate": "3 Plant, CityTile, PROD[-Energy, 3]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -297,7 +297,8 @@
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 15,
-      "immediate": "PROD[-2, 3 Heat], OceanTile",
+      // Following text order instead of icon order on published cards.
+      "immediate": "OceanTile, PROD[-2, 3 Heat]",
     },
 
     // Arctic Algae
@@ -345,7 +346,8 @@
       "requirement": "MAX 9 OxygenStep",
       "cost": 16,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 3], CityTile",
+      // Following text order instead of icon order on published cards.
+      "immediate": "CityTile, PROD[-Energy, 3]",
     },
 
     // Lunar Beam
@@ -375,7 +377,8 @@
       "projectKind": "AUTOMATED",
       "cost": 18,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-2 Energy, 2 Steel], CityTile",
+      // Following text order instead of icon order on published cards.
+      "immediate": "CityTile, PROD[-2 Energy, 2 Steel]",
     },
 
     // Regolith Eaters
@@ -436,7 +439,8 @@
       "projectKind": "EVENT",
       "cost": 31,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[Plant OR (3 PlantTag: 4 Plant)], 2 TerraformRating, TemperatureStep",
+      // Following text order instead of icon order on published cards.
+      "immediate": "2 TerraformRating, TemperatureStep, PROD[Plant OR (3 PlantTag: 4 Plant)]",
     },
 
     // Rover Construction
@@ -513,7 +517,7 @@
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "PROD[1], NpTile<LandArea(HAS MAX 0 Neighbor)>",
+      "immediate": "NpTile<LandArea(HAS MAX 0 Neighbor)>, PROD[1]",
       "effects": [ "End: VictoryPoint" ],
       "components": [ "CLASS NpTile : SpecialTile" ],
     },
@@ -536,7 +540,7 @@
       "requirement": "5 OceanTile",
       "cost": 10,
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[2 Plant], Plant",
+      "immediate": "Plant, PROD[2 Plant]",
     },
 
     // Adapted Lichen
@@ -677,7 +681,7 @@
       "projectKind": "EVENT",
       "cost": 23,
       "tags": [ "SpaceTag" ],
-      "immediate": "OxygenStep, OceanTile, 2 Plant",
+      "immediate": "2 Plant, OxygenStep, OceanTile",
     },
 
     // Space Mirrors
@@ -802,7 +806,7 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "EarthTag" ],
-      "immediate": "2 TemperatureStep, NzTile",
+      "immediate": "NzTile, 2 TemperatureStep",
       "effects": [ "End: -2 VictoryPoint" ],
       "components": [ "CLASS NzTile : SpecialTile" ],
     },
@@ -865,7 +869,7 @@
       "requirement": "12 OxygenStep",
       "cost": 23,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], CityTile, 2 Plant",
+      "immediate": "PROD[-Energy, 4], 2 Plant, CityTile",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -1194,7 +1198,7 @@
       "cost": 12,
       "tags": [ "AnimalTag" ],
       "resourceType": "Animal",
-      "immediate": "PROD[-Plant<Anyone>], Animal<This>",
+      "immediate": "Animal<This>, PROD[-Plant<Anyone>]",
       "effects": [
         "GreeneryTile: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
@@ -1386,7 +1390,7 @@
       "projectKind": "EVENT",
       "cost": 26,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[3 Heat, Plant], 2 Microbe",
+      "immediate": "2 Microbe, PROD[3 Heat, Plant]",
     },
 
     // Magnetic Field Dome

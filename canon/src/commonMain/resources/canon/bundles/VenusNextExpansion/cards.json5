@@ -234,7 +234,7 @@
       "requirement": "5 VenusStep",
       "cost": 14,
       "tags": [ "VenusTag", "PlantTag" ],
-      "immediate": "PROD[-Energy, 2], 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
+      "immediate": "2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>, PROD[-Energy, 2]",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -265,7 +265,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "CityTile, PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag]",
+      "immediate": "PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile",
     },
 
     // Hydrogen To Venus

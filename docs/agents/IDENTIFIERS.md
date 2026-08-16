@@ -7,14 +7,14 @@ This document defines and audits the globally unique identifiers used by Solarne
 - Every identifier is globally unique across object kinds and collections. Category context is never required to disambiguate an ID.
 - A printed official identifier wins unchanged. Invented prefixes must never replace or decorate a printed ID.
 - Conventional IDs use an origin indicator only where necessary to remain globally unique.
-- A conventional origin letter identifies the bundle, not a game option within that bundle. `B` means the base family, `H` means Hellas & Elysium, `U` means Utopia & Cimmeria, and `V` means Venus Next. Future Amazonis & Vastitas objects use `A`.
+- A conventional origin letter identifies the bundle, not a game option within that bundle. `B` means the base family, `H` means Hellas & Elysium, `U` means Utopia & Cimmeria, `V` means Venus Next, and `M` means Milestones & Awards. Future Amazonis & Vastitas objects use `A`.
 - `B` is used for base-family corporations and base-family milestones/awards because those objects have no printed IDs; it does not specifically mean Tharsis.
 - Venus Next conventional objects use `VC#`, `VM#`, and `VA#`. Printed Venus project cards remain in their official numeric sequence.
 - Corporation ordinals are assigned by release group and then English alphabetical order. Milestone and award ordinals preserve their published board or rulebook order, including game-option group order.
-- Ordinals are unpadded unless a series exceeds nine. Ten-item milestone and award series use the single digits `0` through `9`; shorter series start at `1`. The base-corporation and promo-corporation series use two digits.
+- Ordinals are unpadded unless a series exceeds nine. Ten-item milestone and award series use the single digits `0` through `9`; the 35-item Milestones & Awards series and the base-corporation and promo-corporation series use two digits. Shorter milestone and award series start at `1`.
 - Assigned conventional ordinals are never recycled.
 
-The canonical JSON currently contains 534 ID fields and no duplicate identifier strings.
+The canonical JSON currently contains 573 active ID fields and no duplicate identifier strings.
 
 ## Identifier grammar
 
@@ -25,6 +25,7 @@ The canonical JSON currently contains 534 ID fields and no duplicate identifier 
 | Expansion corporation | origin + `C` + ordinal | `PC1`, `VC1`, `XC01` |
 | Tharsis milestone/award | `B` + kind + ordinal | `BM1`, `BA1` |
 | Other milestone/award | origin + kind + ordinal | `HM0`, `UM0`, `VM1` |
+| Milestones & Awards goal | `M` + kind + two-digit ordinal | `MM02`, `MA01` |
 | Follow-mode variant | base ID + `F` | `X14F`, `VC2F` |
 
 The milestone kind letter is `M`; the award kind letter is `A`. The future Amazonis & Vastitas bundle will use `AM0` through `AM9` and `AA0` through `AA9`, following its published game-option and component order.
@@ -76,8 +77,8 @@ Automa MarsBot card numbers identify Automa components, not the underlying corpo
 | Project cards | 382 | 369 | 13 |
 | Prelude cards | 44 | 42 | 2 |
 | Corporations | 38 | convention | convention review |
-| Milestones | 26 | convention | component-ID review |
-| Awards | 26 | convention | component-ID review |
+| Milestones | 42 | convention | component-ID review |
+| Awards | 36 | convention | component-ID review |
 
 No unofficial image was promoted to physical authentication.
 
@@ -123,7 +124,7 @@ These identifiers are project-assigned rather than printed. Reserved entries pre
 | Promo | Recyclon | XC02 |
 | Promo | Splice Tactical Genomics | XC03F |
 | Promo | Factorum | XC04F |
-| Promo | Mons Insurance | XC05 (reserved) |
+| Promo | Mons Insurance | XC05 |
 | Promo | Philares | XC06 |
 | Promo | AstroDrill | XC07 |
 | Promo | Pharmacy Union | XC08F |
@@ -133,7 +134,9 @@ These identifiers are project-assigned rather than printed. Reserved entries pre
 
 ## Milestone and award convention
 
-Each file contains exactly 1, 5, or 10 definitions, counting commented-out definitions. Definitions retain their original board or rulebook order. In a two-map file the first game option occupies `0` through `4` and the second occupies `5` through `9`, in their original within-group order. The code and this table use the same assignments.
+Map and small-expansion files contain exactly 1, 5, or 10 definitions, counting commented-out definitions. Definitions retain their original board or rulebook order. In a two-map file the first game option occupies `0` through `4` and the second occupies `5` through `9`, in their original within-group order. The code and this table use the same assignments.
+
+Milestones & Awards IDs follow its full 35-item published order. Its data files define new or revised implementations, reserve unsupported positions, and reuse the original canonical definitions for reprinted goals. The bundle's data and language files are its assignment inventory.
 
 | Collection | Kind | Name | ID |
 | --- | --- | --- | --- |

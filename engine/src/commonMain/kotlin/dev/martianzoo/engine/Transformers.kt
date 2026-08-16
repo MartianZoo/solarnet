@@ -307,9 +307,13 @@ public class Transformers(public val classTable: ClassTable) {
     return substituter(subs)
   }
 
-  private fun substituter(subs: Map<ClassName, Expression>): PetTransformer {
+  private fun substituter(
+      subs: Map<ClassName, Expression>,
+      preserved: Set<Expression> = emptySet(),
+  ): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
+        if (node is Expression && node in preserved) return node
         if (node is Expression) {
           val replacement: Expression? = subs[node.className]
           if (replacement != null) {
@@ -343,6 +347,20 @@ public class Transformers(public val classTable: ClassTable) {
     )
   }
 
+  /** Specializes a component while leaving trigger-local linked expressions to the event match. */
+  internal fun checkedSubstituterPreserving(
+      general: Type,
+      specific: Type,
+      preserved: Set<Expression>,
+      vararg afterSubstitution: PetTransformer?,
+  ): PetTransformer {
+    return chain(
+        listOf(substituter(specializationSubstitutions(general, specific), preserved)) +
+            afterSubstitution +
+            invalidChangesToDie()
+    )
+  }
+
   /** Applies trigger narrowing only to the source expressions declared by linkages. */
   internal fun checkedLinkageSubstituter(
       general: Type,
@@ -352,8 +370,22 @@ public class Transformers(public val classTable: ClassTable) {
   ): PetTransformer {
     val substitutions = specializationSubstitutions(general, specific)
     val broad = substituter(substitutions)
+    val dependencyPaths = general.dependencies.flatten().keys
     val linkedReplacements = linkedSources.mapNotNull { source ->
-      val replacement = broad.transform(source)
+      val broadReplacement = broad.transform(source)
+      val replacement =
+          if (broadReplacement != source) {
+            broadReplacement
+          } else {
+            dependencyPaths
+                .filter { path ->
+                  val dependency = general.dependencies.at(path)
+                  dependency.expression == source || dependency.expressionFull == source
+                }
+                .map { specific.dependencies.at(it).expressionFull }
+                .distinct()
+                .singleOrNull() ?: source
+          }
       if (replacement == source) null else PetNode.replacer(source, replacement)
     }
     return chain(linkedReplacements + afterSubstitution + invalidChangesToDie())

@@ -2,7 +2,7 @@ package dev.martianzoo.script
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player
-import dev.martianzoo.tfm.api.tfmRuleset
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {
@@ -10,9 +10,11 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
       repl.commands.values.map { ScriptCompletion(it.name, "commands", it.usage) }
 
   fun playerNames(includeEngine: Boolean = true): List<ScriptCompletion> {
-    val players = Player.players(repl.setup.players)
+    val players = repl.game.actors.filterIsInstance<Player>()
     val eligiblePlayers = if (includeEngine) players + ENGINE else players
-    return eligiblePlayers.map { ScriptCompletion(it.toString(), "players") }
+    return eligiblePlayers.map {
+      ScriptCompletion(repl.game.vocabulary.petsName(it.className).toString(), "players")
+    }
   }
 
   fun classNames(): List<ScriptCompletion> =
@@ -35,13 +37,24 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
-      repl.game.reader.tfmRuleset.allDefinitions.filterIsInstance<CardDefinition>().map {
+      repl.game.reader.tfmAuthority.allDefinitions.filterIsInstance<CardDefinition>().map {
         ScriptCompletion(
             repl.game.vocabulary.petsName(it.className).toString(),
             "cards",
             it.deck?.name?.lowercase(),
         )
       }
+
+  fun actionCardNames(): List<ScriptCompletion> =
+      repl.game.reader.tfmAuthority.allDefinitions
+          .filterIsInstance<CardDefinition>()
+          .filter { it.actions.isNotEmpty() }
+          .map {
+            ScriptCompletion(
+                repl.game.vocabulary.petsName(it.className).toString(),
+                "action cards",
+            )
+          }
 
   fun phaseNames(): List<ScriptCompletion> =
       classNames()
@@ -54,13 +67,8 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
         ScriptCompletion(it.toString(), "checkpoints")
       }
 
-  fun taskIds(): List<ScriptCompletion> =
-      repl.selectableTasks().map { (label, task) ->
-        ScriptCompletion(label, "tasks", repl.game.vocabulary.renderPets(task.instruction))
-      }
-
   fun optionSuggestions(): List<ScriptCompletion> {
-    return OptionCodeTranslation.suggestions(repl.setup).map {
+    return OptionCodeTranslation.suggestions(repl.optionCodes).map {
       ScriptCompletion(it, "option codes")
     }
   }

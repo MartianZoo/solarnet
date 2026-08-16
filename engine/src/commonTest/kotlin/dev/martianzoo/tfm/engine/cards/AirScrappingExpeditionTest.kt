@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -20,16 +20,16 @@ class AirScrappingExpeditionTest : CardTest() {
   @Test
   fun `with an eligible floater card, adds Air Scrapping Expedition`() {
     p1.manual("ForcedPrecipitation")
-    p1.manual("AirScrappingExpedition") { doFirstTask("3 Floater<ForcedPrecipitation>") }
+    p1.manual("AirScrappingExpedition") { doTask("3 Floater<ForcedPrecipitation>") }
         .expect("3 Floater")
   }
 
   @Test
   fun `with two floaters on Atmo Collectors, tries to add three more`() {
     p1.manual("ForcedPrecipitation")
-    p1.manual("AtmoCollectors") { doFirstTask("2 Floater<AtmoCollectors>") }
+    p1.manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
     shouldThrow<NarrowingException> {
-      p1.manual("AirScrappingExpedition") { doFirstTask("3 Floater<AtmoCollectors>") }
+      p1.manual("AirScrappingExpedition") { doTask("3 Floater<AtmoCollectors>") }
     }
   }
 }

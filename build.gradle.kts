@@ -9,6 +9,27 @@ plugins {
   alias(libs.plugins.dokka)
 }
 
+val fullBrowserTestsRequested =
+    providers.gradleProperty("includeBrowserTests").orNull?.toBoolean() == true ||
+        gradle.startParameter.taskNames.any {
+          it.substringAfterLast(':') in setOf("jsBrowserTest", "allTestsIncludingBrowser")
+        }
+
+// JVM tests provide the exhaustive routine signal. Browser tests are opt-in except for the one
+// representative engine smoke scenario configured in engine/build.gradle.kts.
+subprojects {
+  if (name != "engine") {
+    tasks
+        .matching { it.name == "jsBrowserTest" }
+        .configureEach {
+          inputs.property("fullBrowserTestsRequested", fullBrowserTestsRequested)
+          onlyIf("full browser tests were explicitly requested") { task ->
+            task.inputs.properties["fullBrowserTestsRequested"] == true
+          }
+        }
+  }
+}
+
 val pinnedYarnResolutions = mapOf("serialize-javascript" to "7.0.3", "fast-uri" to "3.1.4")
 
 plugins.withType<YarnPlugin> {

@@ -5,7 +5,7 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -25,7 +25,7 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun noActorCanRemoveGameModules() {
+  fun noActorCanRemoveModules() {
     val game = Engine.newGame(canonicalPremise())
     val player = game.gameplay(PLAYER1).godMode()
 
@@ -67,7 +67,7 @@ class EffectActorCharacterizationTest {
       p1.count("TerraformRating") shouldBe terraformRatingBefore
     }
 
-    p1.doFirstTask()
+    p1.doTask("TerraformRating!")
     p1.count("TerraformRating") shouldBe terraformRatingBefore + 1
   }
 

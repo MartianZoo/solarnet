@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.toStrings
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -28,7 +29,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun compiledByOwnerEffectsHaveResolvableOwnerBindings() {
-    val table = ClassLoader(Canon).loadEverything()
+    val table = Canon.classTable
     val transformers = Transformers(table)
     val compiledByOwnerEffects =
         table.allClasses().flatMap { mClass ->
@@ -42,9 +43,11 @@ internal class CanonEffectsTest {
         }
 
     compiledByOwnerEffects.isNotEmpty() shouldBe true
-    compiledByOwnerEffects.forEach { (_, effect) ->
-      (OWNER in effect.instruction) shouldBe true
-      (OWNER in replaceOwnerWith(PLAYER1).transform(effect.instruction)) shouldBe false
+    compiledByOwnerEffects.forEach { (className, effect) ->
+      withClue("$className: $effect") {
+        (OWNER in effect.instruction) shouldBe true
+        (OWNER in replaceOwnerWith(PLAYER1).transform(effect.instruction)) shouldBe false
+      }
     }
   }
 
@@ -52,7 +55,7 @@ internal class CanonEffectsTest {
   fun sabotage() {
     classEffectsOf("Card121")
         .shouldContainExactlyInAnyOrder(
-            "This: PlayedEvent<Owner, Class<This>> FROM This!",
+            "This: PlayedEvent<Owner, Class<This>> FROM This.",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
         )
   }
@@ -71,10 +74,10 @@ internal class CanonEffectsTest {
     classEffectsOf("Card230")
         .shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
-            "This: CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!," +
-                " PROD[-2 Energy<Owner>!," +
+            "This: PROD[-2 Energy<Owner>!," +
                 " Megacredit<Owner>! / VenusTag<Owner>," +
-                " Megacredit<Owner>! / EarthTag<Owner>]",
+                " Megacredit<Owner>! / EarthTag<Owner>]," +
+                " CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
         )
   }
 

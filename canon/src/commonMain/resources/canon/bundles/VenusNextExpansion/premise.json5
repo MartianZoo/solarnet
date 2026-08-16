@@ -1,0 +1,11 @@
+{
+  "configurationImplications": [
+    {
+      "present": ["VenusNextExpansion"],
+      "include": ["WorldGovernmentOption"],
+    },
+  ],
+  "bootstrapValidations": [
+    ["MAX 0 WorldGovernmentOption", "=1 VenusNextExpansion"],
+  ],
+}

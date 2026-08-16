@@ -60,9 +60,9 @@
     },
     // Pluto
     {
-      "id": "ColonyTile09F",
+      "id": "ColonyTile09",
       "placementBonus": "2 ProjectCard",
-      "colonyBonus": "Ok",
+      "colonyBonus": "ProjectCard THEN -ProjectCard",
       "tradeIncome": [ "Ok", "ProjectCard", "2 ProjectCard", "2 ProjectCard", "3 ProjectCard", "3 ProjectCard", "4 ProjectCard" ]
     },
     // Titan

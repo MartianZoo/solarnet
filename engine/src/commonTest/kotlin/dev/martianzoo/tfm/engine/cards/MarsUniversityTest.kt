@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.canon.Canon.Option.CorporateEraExpansion
+import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import kotlin.test.Test
 
 class MarsUniversityTest : CardTest() {
@@ -14,12 +14,12 @@ class MarsUniversityTest : CardTest() {
     manual
         .manual("Research") {
           doTask("2 ProjectCard")
-          doFirstTask("-ProjectCard")
-          doFirstTask("-ProjectCard")
-          doFirstTask("ProjectCard")
-          doFirstTask("ProjectCard")
+          doTask("-ProjectCard")
+          doTask("-ProjectCard")
+          doTask("ProjectCard")
+          doTask("ProjectCard")
         }
-        .expect("2 ScienceTag, 2 ProjectCard")
+        .expect("2 ProjectCard")
   }
 
   @Test
@@ -31,11 +31,11 @@ class MarsUniversityTest : CardTest() {
     manual
         .manual("Research") {
           doTask("2 ProjectCard")
-          doFirstTask("-ProjectCard")
+          doTask("-ProjectCard")
           doTask("ProjectCard")
-          doFirstTask("-ProjectCard")
-          doFirstTask("ProjectCard")
+          doTask("-ProjectCard")
+          doTask("ProjectCard")
         }
-        .expect("2 ScienceTag, 2 ProjectCard")
+        .expect("2 ProjectCard")
   }
 }

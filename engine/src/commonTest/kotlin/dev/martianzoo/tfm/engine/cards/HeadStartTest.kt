@@ -1,20 +1,42 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class HeadStartTest : CardTest() {
   @Test
-  fun `with Head Start, declines both actions`() {
+  fun `Head Start grants two mandatory actions`() {
     newGame(PreludeExpansion, PromoCardPack)
     engine.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard")
     p1.playPrelude("HeadStart") {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
 
-      doFirstTask("Ok")
-      doFirstTask("Ok")
+      doTask("UseAction1<UseStandardProjectSA>")
+      doTask("UseAction1<PowerPlantSP>")
+      doTask("UseAction1<UseStandardProjectSA>")
+      doTask("UseAction1<PowerPlantSP>")
+
+      p1.assertCounts(2 to "Megacredit")
+      p1.production(cn("Energy")) shouldBe 2
+    }
+  }
+
+  @Test
+  fun `Head Start must use its first granted action to resolve a mandate`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    p1.playCorp("ValleyTrust", 5)
+    engine.phase("Prelude")
+    p1.manual("10 ProjectCard, PreludeCard")
+
+    p1.playPrelude("HeadStart") {
+      doTask("UseAction1<HandleMandates>")
+      doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
+      doTask("UseAction1<UseStandardProjectSA>")
+      doTask("UseAction1<PowerPlantSP>")
     }
   }
 }

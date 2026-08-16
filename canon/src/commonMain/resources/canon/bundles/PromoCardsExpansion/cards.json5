@@ -37,6 +37,19 @@
       ],
     },
 
+    // Mons Insurance
+    {
+      "id": "XC05",
+      "deck": "CORPORATION",
+      "immediate": "48, PROD[4]",
+      "effects": [
+        "MyResourceWasRemoved<Anyone, Player> OR MyProductionWasDecreased<Anyone, Player>: 3 Megacredit<Anyone> FROM Megacredit.",
+      ],
+      "components": [
+        "CLASS MonsInsuranceWatcher : Owned<Player> { HAS =1 This; CardXC05<Anyone> IF MAX 0 CardXC05<Owner>: PROD[-2] BY Owner }",
+      ],
+    },
+
     // Philares
     {
       "id": "XC06",
@@ -121,7 +134,7 @@
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
-      "components": [ "CLASS CopyPrelude : Cardbound, Custom" ],
+      "components": [ "CLASS CopyPrelude<CardFront<Player>> : Owned<Player>, Custom" ],
     },
 
     // Merger
@@ -146,7 +159,7 @@
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
-      "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>?, UseAction<StandardAction>?",
+      "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
     // Anti-desertification Techniques
@@ -275,6 +288,16 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
+    // Law Suit
+    {
+      "id": "X06",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 2,
+      "immediate": "3 Megacredit FROM Megacredit<Player>. THEN ((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): PlayedEvent<Player, Class<This>> FROM PlayedEvent<Class<This>>)",
+      "effects": [ "End: -VictoryPoint" ],
+    },
+
     // Mercurian Alloys
     {
       "id": "X07",
@@ -357,7 +380,7 @@
       "immediate": "PROD[-Energy]",
       "actions": [ "-> Asteroid<This>?" ], // follow mode: the client supplies the reveal outcome
       "effects": [
-        "-Plant<Owner> BY !Owner:: Die",
+        "-Plant BY !Owner:: Die",
         "End: VictoryPoint / Asteroid<This>"
       ],
     },
@@ -393,14 +416,10 @@
       "id": "X17",
       "deck": "PROJECT",
       "projectKind": "EVENT",
-      "requirement": "AttackHappened<Class<Plant>>",
+      "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Owner>",
       "cost": 4,
       "immediate": "Titanium OR 2 Steel",
       "effects": [ "End: VictoryPoint" ],
-      "components": [
-        "CLASS AttackHappened<Class<Resource>> : Generational, Hidden { HAS MAX 1 This }",
-        "CLASS AttackWatcher<Class<Resource>> : System { HAS =1 This; -X Resource<Owner> BY !Owner:: AttackHappened<Class<Resource>>. }"
-      ],
     },
 
     // Cutting Edge Technology
@@ -447,7 +466,7 @@
       "projectKind": "AUTOMATED",
       "cost": 29,
       "tags": [ "PowerTag", "CityTag", "BuildingTag" ],
-      "immediate": "PROD[2, Energy], CityTile, 3 Plant",
+      "immediate": "PROD[2, Energy], 3 Plant, CityTile",
     },
 
     // Imported Nutrients
@@ -509,7 +528,8 @@
       "projectKind": "ACTIVE",
       "cost": 31,
       "tags": [ "BuildingTag" ],
-      "immediate": "3 Plant, TemperatureStep, OceanTile",
+      // Following text order instead of icon order on published cards.
+      "immediate": "OceanTile, TemperatureStep, 3 Plant",
       "actions": [ "-> Microbe OR Animal" ],
     },
 
@@ -554,7 +574,7 @@
       "projectKind": "EVENT",
       "cost": 31,
       "tags": [ "SpaceTag" ],
-      "immediate": "3 TemperatureStep, 4 Steel, -6 Plant<Anyone>?, DdTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>",
+      "immediate": "3 TemperatureStep, DdTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?",
       "components": [ "CLASS DdTile : SpecialTile" ],
     },
 
@@ -595,7 +615,7 @@
       "immediate": "2 Asteroid<This>",
       "actions": [
         "1 -> Asteroid",
-        "Asteroid<This> -> 2 Titanium OR PROD[1]"
+        "Asteroid<This> -> PROD[1] OR 2 Titanium"
       ],
     },
 
@@ -813,7 +833,7 @@
       "immediate": "2 Titanium",
       "effects": [
         "PlayTag<Class<EarthTag>>:: -2 Owed",
-        "EventCard<Anyone>(HAS SpaceTag): ProjectCard",
+        "EventCard<Anyone>(HAS SpaceTag<Anyone>): ProjectCard",
         "End: VictoryPoint"
       ],
     },

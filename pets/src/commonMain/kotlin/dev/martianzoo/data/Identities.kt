@@ -14,21 +14,12 @@ public sealed interface Actor : HasClassName, HasExpression {
 }
 
 /** A runtime identity that can own game-state components. */
-internal sealed interface Owner : HasClassName, HasExpression {
-  public companion object {
-    /** Returns the supported runtime Owner represented by [className]. */
-    internal fun fromClassName(className: ClassName): Owner =
-        when {
-          Player.isValid(className) -> Player(className)
-          else -> error("not a supported Owner identity: $className")
-        }
-  }
-}
+internal sealed interface Owner : HasClassName, HasExpression
 
-/** One of the actual people or bots playing the game; both an [Actor] and an [Owner]. */
+/** One canonical occupied seat; both an [Actor] and an [Owner]. */
 public data class Player(override val className: ClassName) : Actor, Owner {
   init {
-    require(isValid(className.toString())) { className }
+    require(isValid(className)) { "not a canonical Player class: $className" }
   }
 
   override val expression: Expression by lazy { className.expression }
@@ -37,7 +28,7 @@ public data class Player(override val className: ClassName) : Actor, Owner {
   override fun toString(): String = className.toString()
 
   public companion object {
-    internal val regex = Regex("^Player[1-5]$")
+    private val defaultRegex = Regex("^Player[1-5]$")
 
     public val PLAYER1: Player = Player(player(1))
     public val PLAYER2: Player = Player(player(2))
@@ -45,11 +36,16 @@ public data class Player(override val className: ClassName) : Actor, Owner {
     private val PLAYER4 = Player(player(4))
     private val PLAYER5 = Player(player(5))
 
-    public fun players(upTo: Int): List<Player> =
-        listOf(PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5).subList(0, upTo)
+    /** Returns the canonical `Player1` through `Player5` identities in seat order. */
+    public fun players(upTo: Int): List<Player> {
+      require(upTo in 0..5) { "player count must be between 0 and 5: $upTo" }
+      return listOf(PLAYER1, PLAYER2, PLAYER3, PLAYER4, PLAYER5).subList(0, upTo)
+    }
 
-    public fun isValid(name: String): Boolean = name.matches(regex)
+    /** Whether [name] is one of the canonical `Player1` through `Player5` class names. */
+    public fun isValid(name: String): Boolean = name.matches(defaultRegex)
 
+    /** Whether [name] is one of the canonical `Player1` through `Player5` class names. */
     public fun isValid(name: ClassName): Boolean = isValid(name.toString())
 
     private fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }

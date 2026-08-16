@@ -17,16 +17,20 @@ import kotlinx.serialization.Transient
 @Serializable
 public data class AwardDefinition(
     val id: String,
+    val replaces: String? = null,
     @SerialName("metric") val metricText: String,
     @SerialName("setupRequirement") private val setupRequirementText: String? = null,
 ) : Definition {
 
   init {
     require(metricText.isNotEmpty())
+    require(replaces?.isNotEmpty() != false)
     require(setupRequirementText?.isNotBlank() != false)
   }
 
-  @Transient override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
+  @Transient
+  override val setupRequirement: Requirement =
+      parse(listOf(MULTIPLAYER_ONLY, setupRequirementText).filterNotNull().joinToString())
 
   @Transient public val metric: Metric = parse(metricText)
 
@@ -50,5 +54,9 @@ public data class AwardDefinition(
                 parse<Effect>("EndPhase: AssignAwardPlaces<This>"),
             ),
     )
+  }
+
+  private companion object {
+    private const val MULTIPLAYER_ONLY = "MAX 0 SoloMode"
   }
 }

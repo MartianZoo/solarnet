@@ -1,14 +1,15 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.ClassSelection
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -21,10 +22,8 @@ import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option
-import dev.martianzoo.tfm.canon.Canon.OptionSelection
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -35,11 +34,6 @@ internal fun setUpGame(premise: GamePremise): World =
 
 internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
     listOf(
-        "P1" to "Player1",
-        "P2" to "Player2",
-        "P3" to "Player3",
-        "P4" to "Player4",
-        "P5" to "Player5",
         "M" to "Megacredit",
         "S" to "Steel",
         "T" to "Titanium",
@@ -51,75 +45,75 @@ internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
     )
 
 internal fun setUpGame(
-    vararg selectedOptions: OptionSelection,
+    vararg selectedOptions: TestSelection,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
 ): World =
     setUpGame(canonicalPremise(*selectedOptions, players = players, colonyTiles = colonyTiles))
 
 internal fun canonicalPremise(
-    vararg selectedOptions: OptionSelection,
+    vararg selectedOptions: TestSelection,
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
-    ruleset: TfmRuleset? = null,
-): GamePremise =
-    with(Canon.GameOptions(selectedOptions.asIterable())) {
-      canonicalPremise(
-          canonicalOptions(*included.toTypedArray()),
-          players,
-          colonyTiles,
-          ruleset,
-          excluded,
-      )
-    }
-
-internal fun canonicalPremise(
-    options: Set<Option>,
-    players: Int = 2,
-    colonyTiles: Set<ClassName> = emptySet(),
-    ruleset: TfmRuleset? = null,
-    excludedOptions: Set<Option> = emptySet(),
+    authority: TfmAuthority? = null,
 ): GamePremise {
-  val setupWorld =
-      Engine.newSetupWorld(
-          Canon.setupWorldDefinition(
-              players,
-              Canon.GameOptions(options, excludedOptions),
-              colonyTiles.mapTo(linkedSetOf(), TEST_ENGLISH_VOCABULARY::canonicalName),
-          ),
-          inputOnlySynonyms = TEST_CLASS_SYNONYMS,
-      )
-  setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
-  val base = Canon.assemble(setupWorld.reader)
-  if (ruleset == null) return base
-  val bundleNames = (base.ruleset as TfmRuleset).bundles.mapTo(linkedSetOf()) { it.bundleName }
-  val selectedRuleset = ruleset.resolve(bundleNames, setupWorld.reader)
-  return base.copy(
-      ruleset = selectedRuleset,
-      rootClassNames = base.rootClassNames + selectedRuleset.allDefinitions.classNames(),
+  val included = selectedOptions.filterIsInstance<TestOption>()
+  val excluded = selectedOptions.filterIsInstance<ExcludedTestOption>().map { it.option }.toSet()
+  return canonicalPremise(
+      canonicalOptions(*included.toTypedArray()),
+      players,
+      colonyTiles,
+      authority,
+      excluded,
   )
 }
 
-internal fun canonicalOptions(vararg selectedOptions: Option): Set<Option> {
+internal fun canonicalPremise(
+    options: Set<TestOption>,
+    players: Int = 2,
+    colonyTiles: Set<ClassName> = emptySet(),
+    authority: TfmAuthority? = null,
+    excludedOptions: Set<TestOption> = emptySet(),
+): GamePremise {
+  val config =
+      GameConfig.create(
+          included =
+              options.map(TestOption::className) +
+                  colonyTiles.map(TEST_ENGLISH_VOCABULARY::canonicalName),
+          excluded = excludedOptions.map(TestOption::className),
+          playerNames =
+              if (players == 1) listOf(cn("Me")) else (1..players).map { cn("Player$it") },
+      )
+  val base = Canon.gamePremise(config)
+  if (authority == null) return base
+  val extensionClassNames =
+      authority.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
+          Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
+  return base.copy(
+      authority = authority,
+      classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) },
+  )
+}
+
+internal fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
   val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }
   require(selectedMaps.size <= 1) { "select at most one map" }
-  val defaults =
-      if (selectedMaps.isEmpty()) Canon.Option.DEFAULTS else Canon.Option.DEFAULTS - MAP_OPTIONS
-  return defaults + selectedOptions
+  return selectedOptions.toSet()
 }
 
 private val MAP_OPTIONS =
     setOf(
-        Option.TharsisMapOption,
-        Option.HellasMapOption,
-        Option.ElysiumMapOption,
-        Option.UtopiaPlanitiaMapOption,
-        Option.TerraCimmeriaMapOption,
+        TestOption.TharsisMapOption,
+        TestOption.HellasMapOption,
+        TestOption.ElysiumMapOption,
+        TestOption.UtopiaPlanitiaMapOption,
+        TestOption.TerraCimmeriaMapOption,
     )
 
 object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
-    val count = Canon.requiredColonyTileCount(players)
+    require(players in 1..5)
+    val count = if (players == 1) 3 else if (players == 2) 5 else players + 2
     val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
     TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
         .filterNotTo(selected) {
@@ -137,9 +131,9 @@ object TestHelpers {
   fun assertNetChanges(
       result: TaskResult,
       game: World,
-      tfm: TfmGameplay,
       expectedAsInstructions: String,
   ) {
+    val inferredOwner = result.inferredExpectationOwner(game)
     val preprocessor =
         with(Transformers(game.classTable)) {
           chain(
@@ -147,7 +141,7 @@ object TestHelpers {
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
               Prod.deprodify(classTable),
-              (tfm.actor as? Player)?.let(::replaceOwnerWith),
+              inferredOwner?.let(::replaceOwnerWith),
           )
         }
 
@@ -169,13 +163,13 @@ object TestHelpers {
           }
         }
 
-    val types: List<Type> = expectedCountsToTypes.map { tfm.reader.resolve(it.second) }
+    val types: List<Type> = expectedCountsToTypes.map { game.reader.resolve(it.second) }
     val expectedCounts = expectedCountsToTypes.map { it.first }
 
     val actuals = MutableList(types.size) { 0 }
     for (change in result.net()) {
-      val g = change.gaining?.let(tfm.reader::resolve)
-      val r = change.removing?.let(tfm.reader::resolve)
+      val g = change.gaining?.let(game.reader::resolve)
+      val r = change.removing?.let(game.reader::resolve)
       for ((index, type) in types.withIndex()) {
         if (g?.isSubtypeOf(type) == true) actuals[index] += change.count
         if (r?.isSubtypeOf(type) == true) actuals[index] -= change.count
@@ -186,12 +180,29 @@ object TestHelpers {
 
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
+  private fun TaskResult.inferredExpectationOwner(game: World): Player? {
+    // The first change normally retains the gameplay caller. An explicit `BY Engine` loses that
+    // signal, so fall back only when every owned change points to the same Player.
+    (changes.firstOrNull()?.actor as? Player)?.let {
+      return it
+    }
+
+    return changes
+        .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }
+        .mapNotNull { game.reader.resolve(it).toComponent().playerOwner }
+        .distinct()
+        .singleOrNull()
+  }
+
   private const val ZERO_SCALAR_SENTINEL = 987_654_321
-  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|])")
+  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|\\])")
 
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")
 }
 
 private val TEST_ENGLISH_VOCABULARY =
-    Vocabulary.create(Canon.resolve(setOf(cn("TerraformingMars"), cn("ColoniesExpansion"))))
+    Vocabulary.create(
+        Canon,
+        activeClassNames = Canon.colonyTileDefinitions.mapTo(linkedSetOf()) { it.className },
+    )

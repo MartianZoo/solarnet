@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

@@ -6,7 +6,7 @@
       "id": "PC1",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[3], 44",
+      "immediate": "44, PROD[3]",
       "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed" ],
     },
 
@@ -15,7 +15,7 @@
       "id": "PC2",
       "deck": "CORPORATION",
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "PROD[Titanium], 38",
+      "immediate": "38, PROD[Titanium]",
       "effects": [ "EarthTag: ProjectCard" ],
     },
 
@@ -24,8 +24,8 @@
       "id": "PC3",
       "deck": "CORPORATION",
       "immediate": "47",
-      "actions": [ "4 -> GainLowestProduction" ],
-      "components": [ "CLASS GainLowestProduction : Owned, Custom" ],
+      "actions": [ "4 -> PROD[StandardResource(HAS LowestProduction)]" ],
+      "components": [ "CLASS LowestProduction<Class<StandardResource>> : Owned, Custom" ],
     },
 
     // Valley Trust
@@ -76,7 +76,7 @@
       "id": "P03",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag" ],
-      "immediate": "PROD[Energy, Plant], 2 Plant",
+      "immediate": "PROD[Plant, Energy], 2 Plant",
     },
 
     // Biolab
@@ -108,7 +108,7 @@
       "id": "P07",
       "deck": "PRELUDE",
       "tags": [ "PlantTag", "BuildingTag" ],
-      "immediate": "PROD[2, Plant]",
+      "immediate": "PROD[Plant, 2]",
     },
 
     // Donation
@@ -123,7 +123,7 @@
       "id": "P09",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[Plant], CityTile",
+      "immediate": "CityTile, PROD[Plant]",
     },
 
     // Ecology Experts
@@ -238,7 +238,7 @@
     {
       "id": "P24",
       "deck": "PRELUDE",
-      "immediate": "PROD[Plant], TerraformRating, 5",
+      "immediate": "TerraformRating, PROD[Plant], 5",
     },
 
     // Orbital Construction Yard
@@ -254,7 +254,7 @@
       "id": "P26",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2 Heat], OceanTile",
+      "immediate": "OceanTile, PROD[2 Heat]",
     },
 
     // Power Generation
@@ -270,7 +270,7 @@
       "id": "P29",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[2], CityTile",
+      "immediate": "CityTile, PROD[2]",
     },
 
     // Smelting Plant

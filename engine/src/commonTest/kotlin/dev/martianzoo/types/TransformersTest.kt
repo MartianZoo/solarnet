@@ -95,6 +95,14 @@ class TransformersTest {
   }
 
   @Test
+  fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
+    val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
+
+    Prod.deprodify(setOf(cn("StandardResource"))).transform(prodden).toString() shouldBe
+        "Production<Class<StandardResource>(HAS LowestProduction)>"
+  }
+
+  @Test
   fun testDeprodify_lessSimple() {
     val prodden: Effect =
         parse(
@@ -150,5 +158,17 @@ class TransformersTest {
         )
         .transform(instruction)
         .toString() shouldBe "Microbe<Card131<Player1>> OR Microbe<CardFront<Player2>>"
+  }
+
+  @Test
+  fun `linked complemented dependency specializes to the concrete event dependency`() {
+    val general = CanonClassesTest.table.resolve(parse<Expression>("Resource<!Player2>"))
+    val specific = CanonClassesTest.table.resolve(parse<Expression>("Plant<Player3>"))
+    val instruction = parse<Instruction>("Steel<!Player2>")
+
+    transformers
+        .checkedLinkageSubstituter(general, specific, setOf(parse("!Player2")))
+        .transform(instruction)
+        .toString() shouldBe "Steel<Player3>"
   }
 }

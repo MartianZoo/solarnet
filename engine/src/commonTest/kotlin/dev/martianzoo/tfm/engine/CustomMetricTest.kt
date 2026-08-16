@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.CustomMetric
-import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.CustomCodeException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.GameReader
@@ -12,9 +11,9 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.api.TfmRuleset
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.Type
 import io.kotest.assertions.throwables.shouldThrow
@@ -69,14 +68,20 @@ internal class CustomMetricTest {
   }
 
   @Test
-  fun abstractArgumentsAreRejectedBeforeInvokingTheImplementation() {
+  fun abstractArgumentsSumTheirConcreteSpecializations() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     val invocationsBefore = ConcreteOnlyMetric.invocations
     p1.count("ConcreteOnlyMetric<Player1>") shouldBe 17
     ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 1
-    shouldThrow<AbstractException> { p1.count("ConcreteOnlyMetric<Player>") }
-    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 1
+    p1.count("ConcreteOnlyMetric<Player>") shouldBe 34
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 3
+
+    p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 0
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 3
+    p1.godMode().sneak("Plant<Player1>")
+    p1.count("ConcreteOnlyMetric<Player(HAS Plant)>") shouldBe 17
+    ConcreteOnlyMetric.invocations shouldBe invocationsBefore + 4
   }
 
   @Test
@@ -157,7 +162,7 @@ private object BrokenInstruction : CustomClass() {
   override fun translate(game: GameReader): Instruction = error("broken instruction")
 }
 
-private object CustomClassDeclarations : TfmRuleset.Empty() {
+private object CustomClassDeclarations : TfmAuthority() {
   override val explicitClassDeclarations =
       parseClasses(
               """
@@ -190,5 +195,5 @@ private object CustomClassDeclarations : TfmRuleset.Empty() {
 
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
-        ruleset = TfmRuleset.compose(Canon, CustomClassDeclarations),
+        authority = TfmAuthority.compose(Canon, CustomClassDeclarations),
     )

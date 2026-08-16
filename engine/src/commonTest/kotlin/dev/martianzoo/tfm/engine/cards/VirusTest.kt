@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -29,7 +29,8 @@ class VirusTest : CardTest() {
 
   @Test
   fun `with animals on two cards, p1 removes from one using Virus`() {
-    p1.manual("Virus") { doTask("-Animal<Player2, Birds<Player2>>") }.expect("-Animal")
+    p1.manual("Virus") { doTask("-Animal<Player2, Birds<Player2>>") }
+        .expect("-Animal<Player2, Birds<Player2>>")
     requireP2().assertCounts(0 to "Animal<Birds>", 1 to "Animal<Fish>")
   }
 }

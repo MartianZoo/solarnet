@@ -3,13 +3,10 @@
 //
 
 "Expansion adding colony tiles, player colonies, and trade fleets"
-CLASS ColoniesExpansion : GameModule {
+CLASS ColoniesExpansion : Module {
   SetupPhase: ColoniesSetup
   SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
 }
-
-"A colony tile chosen for this fully resolved game configuration"
-ABSTRACT CLASS SelectedColonyTile : GameConfiguration { HAS MAX 1 This }
 
 "Creates the colony tiles and one trade fleet for each player"
 CLASS ColoniesSetup : Custom
@@ -30,7 +27,7 @@ ABSTRACT CLASS ColonyTile {
   // WHITE CUBE MAINTENANCE
 
   // Start at 1, not 0
-  This: ColonyProduction<This>
+  This:: ColonyProduction<This>
 
   // When colony built, move it right if necessary
   Colony<This>: -ColonyProduction<This>. / Colony<This> THEN ColonyProduction<This> / Colony<This>
@@ -50,8 +47,11 @@ CLASS Colony<ColonyTile> : Owned<Player> {
 
 "Initiates a Trade operation by moving one of the player's fleets to the colony tile"
 CLASS Trade<ColonyTile> : Owned, Signal {
-  This: FlownTradeFleet<ColonyTile> FROM ReserveTradeFleet
+  This: MAX 0 TradeBarrier: FlownTradeFleet<ColonyTile> FROM ReserveTradeFleet
 }
+
+"Blocks fleet movement until one trade-track decision has been handled"
+CLASS TradeBarrier : Barrier
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
 CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }

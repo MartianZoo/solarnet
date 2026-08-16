@@ -162,8 +162,14 @@ internal class Implementations(
         recoverable = true
         explainAnyTask(taskId, "abstract")
       } catch (_: NotNowException) {
-        // we're in trouble if ALL of these are NotNowExceptions
-        explainAnyTask(taskId, "currently impossible")
+        val task = queueForAnyTask(taskId).getTaskData(taskId)
+        if (task.instruction.isAbstract(reader)) {
+          recoverable = true
+          explainAnyTask(taskId, "abstract")
+        } else {
+          // we're in trouble if ALL of these are NotNowExceptions
+          explainAnyTask(taskId, "currently impossible")
+        }
       }
     }
     if (!recoverable) throw DeadEndException("")
@@ -188,7 +194,7 @@ internal class Implementations(
    */
   private fun handleTask(queue: TaskQueue, task: Task) {
     task.then?.let {
-      queue.queueFor(task.assignee).addTasks(split(it), task.cause)
+      queue.queueFor(task.assignee).addTasks(split(it), task.cause, task.actor)
     }
     queue.removeTask(task.id)
   }
@@ -312,16 +318,9 @@ internal class Implementations(
       val one = split.instructions[0]
       queue.editTask(replacement.copy(instructionIn = one))
     } else {
-      queue.queueFor(replacement.assignee).addTasks(split, replacement.cause)
-      handleTask(queue, queue.getTaskData(replacement.id))
+      queue.queueFor(replacement.assignee).addTasks(split, replacement.cause, replacement.actor)
+      handleTask(queue, replacement)
     }
-  }
-
-  internal fun doFirstTask(revised: Instruction? = null) {
-    val id = tasks.ids().min()
-    prepareTask(id)
-    if (id in tasks && revised != null) reviseTask(id, revised)
-    if (id in tasks) doTask(id)
   }
 
   internal fun doTask(taskId: TaskId) {
@@ -331,7 +330,8 @@ internal class Implementations(
   private fun doTask(queue: TaskQueue, taskId: TaskId) {
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
-    val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
+    val newTasks =
+        instructor.execute(preparedTask.instruction, preparedTask.cause, preparedTask.actor)
     newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
     handleTask(queue, queue.getTaskData(taskId))
   }
@@ -340,16 +340,25 @@ internal class Implementations(
     doTask(queueForAnyTask(taskId), taskId)
   }
 
-  internal fun doTask(revised: Instruction) {
-    val id = matchingTask(revised)
-    prepareTask(id)
-    if (id in tasks) reviseTask(id, revised)
+  internal fun doTask(revised: Instruction, taskNumber: Int? = null) {
+    val id = matchingTask(revised, taskNumber)
+    val selectsLinkedFirstStage =
+        selectFirstStageOrNull(tasks.getTaskData(id).instruction, revised) != null
+    if (selectsLinkedFirstStage) reviseTask(id, revised)
+    if (id in tasks) prepareTask(id)
+    if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, revised)
     if (id in tasks) doTask(id)
   }
 
-  private fun matchingTask(revised: Instruction): TaskId {
+  private fun matchingTask(revised: Instruction, taskNumber: Int? = null): TaskId {
     tasks.preparedTask()?.let {
       return it
+    }
+
+    if (taskNumber != null) {
+      if (taskNumber < 1) throw TaskException("task number must be at least 1")
+      return tasks.ids().elementAtOrNull(taskNumber - 1)
+          ?: throw TaskException("there is no task $taskNumber; tasks are:\n$tasks")
     }
 
     fun weCanReviseIt(taskData: Task): Boolean {
@@ -407,7 +416,10 @@ internal class Implementations(
     val first =
         matches.firstOrNull()
             ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
-    if (matches.map { it.copy(id = first.id) }.distinct().size == 1) return first.id
+    // Origin metadata does not distinguish choices that otherwise present and behave identically.
+    if (matches.map { it.copy(id = first.id, cause = first.cause) }.distinct().size == 1) {
+      return first.id
+    }
     throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
   }
 
@@ -424,10 +436,10 @@ internal class Implementations(
     }
   }
 
-  internal fun tryTask(revised: Instruction) {
-    val id = matchingTask(revised)
+  internal fun tryTask(revised: Instruction, taskNumber: Int? = null) {
+    val id = matchingTask(revised, taskNumber)
     try {
-      doTask(revised)
+      doTask(revised, taskNumber)
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {

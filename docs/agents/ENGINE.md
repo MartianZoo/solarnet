@@ -4,39 +4,39 @@
 
 The job of a game engine is to *know the rules of the game*. That is, at any given point, it knows what choices a player is allowed to make, and exactly what happens next if they do.
 
-This module's job is to represent a world, execute instructions, and trigger effects, keeping all these activities tightly coordinated. It also has optional workflow engine that orchestrates the overall flow of a game phase by phase.
+This module's job is to represent a Game World, execute Instructions, and trigger Effects while keeping those activities tightly coordinated. It also has an optional Workflow engine that orchestrates the game phase by phase.
 
 ---
 
-## Overview: The Holy Trinity of a World
+## Overview: The Holy Trinity of a Game World
 
-The common live abstraction is `World`: a Pets component graph together with its tasks, event
+The common live Game World abstraction is `World`: a Pets Component Graph together with its Tasks, Event
 history, timeline, class table, and Actor-scoped mutation API. `GamePremise` is the immutable,
-reusable input—ruleset, class roots, Actors, and initial components—from which equivalent playable
-worlds can be created.
+reusable input containing one Authority, the selected Modules, signed individual class inclusions
+and exclusions, seated player names, and the exact concrete non-singleton types to instantiate
+once. Actors and the active/phantom class projection derive from those facts.
 
-`Engine.newSetupWorld` creates an independent world for collecting setup components. Once it is
-idle, `Engine.newGame(setupWorld, assemble)` gains the setup ruleset's `ValidateSetup` signal,
-snapshots the world as a `GamePremise`, then constructs a separate playable world. Canon supplies
-its own setup ruleset, initial components, validation effects, and assembler. Callers construct a
-canonical setup premise with a player count, signed `Canon.GameOptions`, and optionally selected
-colony class names. Included options express user intent; exclusions mask effect-contributed
-defaults. For example, `TerraformingMars` adds Corporate Era and `VenusNextExpansion` adds
-`WorldGovernmentOption` unless explicitly excluded. Canon also derives `SoloMode` or
-`MultiplayerMode` from player count. SoloMode defaults to `StandardSoloVariant` unless another
-`SoloVariant`, such as `Tr63SoloVariant`, is selected.
+`GameConfig` is the raw input: a set parsed from comma-or-newline-separated Class Names, optionally
+prefixed with `-`, plus an ordered list of user-facing player names. The configuration string is not Pets
+syntax and never becomes a temporary Game World. Authority-backed resolution validates names,
+applies declarative implications and defaults, and returns an exact `GamePremise`. Provider bundles
+are internal provenance and loading details, not premise inputs;
+a Module may select a whole content category from a named bundle.
+`Engine.newGame(premise)` constructs the playable Game World directly and evaluates the Authority's
+premise-selected declarative validity requirements against the resulting active class table.
 
-Setup-world `GameOption` components are editable. Same-named gameplay declarations replace them
-during assembly and inherit immutable `GameModule`, so the playable world contains only the fully
-resolved, affirmative rules active at every equivalent table. Exclusion components are never
-copied. Pets validation requires the base game, exactly one map, a mode consistent with player
-count, and a solo variant exactly when SoloMode is active.
+For example, Authority data says that `TerraformingMars` defaults Corporate Era and
+`VenusNextExpansion` defaults `WorldGovernmentOption` unless those classes are explicitly
+excluded. It also says that solo mode defaults to `StandardSoloVariant` unless
+`Tr63SoloVariant` is selected, and derives the player-count mode from the selected player names.
 
-The `ClassTable` of active classes and authority-known inactive phantom classes is immutable. APIs
+Each Authority owns one master `ClassTable` containing its universal, uniquely named class catalog.
+A game's `ClassTable` is a projection backed by that master: selected classes carry behavior,
+authority-known inactive classes are phantom, and occupied seats activate canonical `Player1`
+through `PlayerN`. Configured player names are vocabulary aliases rather than Class identities. APIs
 that enumerate playable classes exclude phantoms, while type resolution accepts them with zero
-count. `GameReader.ruleset` is the selected ruleset from the premise. Terraforming Mars-specific
-clients can use
-`GameReader.tfmRuleset` to access its typed card, map, milestone, action, and colony registries.
+count. `GameReader.authority` exposes the complete Authority, and `GameReader.tfmAuthority` exposes
+its typed Terraforming Mars registries.
 
 Clients perform all mutative operations via the `Gameplay` interface. Internally, this mutable state is held in a trinity of child objects:
 
@@ -59,6 +59,11 @@ add, remove, and count -- this is what makes rollback-and-replay so trivial!
 invariant at the graph boundary. A custom metric may report a virtual count for a type, but that
 value does not add components, affect the total `Component` count, fire effects, satisfy
 dependencies, or appear in component enumeration.
+
+A `Custom` declaration may use ordinary supertypes to express dependencies and ownership, including
+their dependency defaults, but the class loader rejects inherited Pets effects, invariants, or
+non-framework Instruction Quantifier defaults. Runtime translation must remain the only source of
+behavior for a custom class.
 
 Generally an multiset isn't a "graph", but in our case, component instances themselves carry
 references to their dependency components, which the component graph ensures are always present and
@@ -100,7 +105,7 @@ log backward from the current end to the checkpoint, reversing each event in tur
 or task mutation is supplied to that boundary and must succeed before the corresponding event is
 appended or removed. Each successful application or reversal also advances an opaque
 `WorldRevision`. Unlike an event-count checkpoint, a revision is never reused after rollback, so a
-future overlay can reliably notice any mutation of its backing world.
+future overlay can reliably notice any mutation of its backing Game World.
 
 An event log may capture another log as an immutable prefix. Capturing retains the source and its
 current size and setup checkpoint directly, so creating the suffix is constant-time in the length
@@ -116,11 +121,12 @@ Change events render the performing Actor with `BY` and the effect-bearing causa
 ## The Task Queue
 
 The internal task queue manager is `TaskQueues`, which owns the set of `Task` objects and all task
-mutation. Task order has no game meaning: stable `TaskId` iteration only makes arbitrary API and
-auto-exec choices reproducible. Public readers and gameplay operation bodies see scoped `TaskQueue`
-objects.
+mutation. Task order has no game meaning: stable `TaskId` iteration makes auto-exec choices
+reproducible and defines the temporary 1-based positions clients may use to disambiguate otherwise
+ambiguous task instructions. Those positions are never stable ids. Public readers and gameplay
+operation bodies see scoped `TaskQueue` objects.
 Those views may be scoped; for example, gameplay for an assignee exposes only that assignee's tasks,
-while `World.tasks` remains a global view for diagnostics and workflow checks. Query and mutation
+while `World.tasks` remains a global view for diagnostics and Workflow checks. Query and mutation
 operations live on the same `TaskQueue` type; mutations still delegate to `TaskQueues`, which owns
 normalization, storage, and event logging. Only queries used across module boundaries are public;
 the engine's mutation and bookkeeping operations remain internal.
@@ -130,6 +136,7 @@ Each task has:
 - `id` — a `TaskId` wrapping the numeric ordinal of its original `TaskAddedEvent`, stable through edits
 - `instruction` — the Pets instruction still to be carried out (may be abstract)
 - `assignee` — whose pending work contains the task and whose scoped gameplay may narrow it
+- `actor` — who performs resulting state changes unless instruction-side `BY` overrides it
 - `cause` — what originally triggered this task (a `Cause` linking to a prior event)
 - `next` — boolean marking the task as "prepared" (below)
 - `then` — some tasks carry a follow-up instruction to automatically enqueue when they finish
@@ -147,26 +154,28 @@ Player1 creates the adjacency, distributes Enceladus card-resource choices to co
 helps the generated per-Player Splice watchers give each tag owner their choice. These cases are
 covered by integration tests and are not known gameplay failures.
 
-Instruction-side `BY` does not change this assignment. It is only a performer override. World
-Government Terraforming therefore works because the StartToken Owner is already the task assignee
+Task assignment is independent of Actor attribution. Triggered work records the effect's context
+owner as its Actor when one exists, otherwise the triggering Actor. That Actor survives queueing,
+splitting, `THEN` continuation, revision, preparation, and execution by another gameplay context.
+
+Instruction-side `BY` does not change this assignment. It is only a Performer override. World
+Government Terraforming therefore works because the StartToken Owner is already the Task Assignee
 while `BY Engine` attributes the selected increase to Engine. Icy Impactors uses the same separation
 between the Player choosing a task and the Actor performing its ocean placement.
 
-The script module separately assigns letter selection handles only when it presents tasks to a user
-or offers task completions. A handle remains attached while its task is pending. Once no
-lettered task remains pending, the next requested handle starts again at `A`; tasks completed by
-autoexec before presentation consume no letters. Label assignments are checkpointed with the event
-timeline so rollback restores both prior handles and tasks that had not yet received a handle.
+The script lists only the current Actor's tasks and omits internal task ids. Ordinary task commands
+select by instruction. A temporary 1-based queue position is accepted only to disambiguate an
+instruction, while `prepare` and `drop` require exactly one pending task.
 
 Task assignment and queue membership are the same fact: an assignee's scoped view contains that
 assignee's tasks. This remains true if the physical implementation is one collection with filtered
-views. Do not introduce another identity field on every task merely to model temporary workflow
-control.
+views. The separate `actor` field is execution attribution, not another form of queue ownership or
+temporary workflow control.
 
 There is currently no queue-suspension graph or parent/child control-scope state. A globally
 prepared task locks out preparation of every competing task, which protects isolated cross-Actor
 choices but does not describe a complete delegated turn. `TfmWorkflow.Auto` instead starts each
-Player operation directly and waits for whole-world idleness. Native workflow will need an explicit
+Player operation directly and waits for whole-world idleness. Native Workflow will need an explicit
 control-scope completion mechanism before it can retain an Engine continuation while Player work
 remains active; see [IDENTITY.md](IDENTITY.md) and [WORKFLOW.md](WORKFLOW.md).
 
@@ -178,13 +187,13 @@ is *abstract*. The instruction needs to be refined to a concrete instruction (as
 their choices) before it is executed.
 
 There are several ways for a task to be abstract: its component type is abstract, it has an
-"intensity" other than `!`, it includes an `OR` instruction, etc. Anything that makes it less than
+Quantifier other than `!`, it includes an `OR` Instruction, etc. Anything that makes it less than
 fully specified.
 
-Sometimes refining a task from concrete to abstract depends on reading the world. For example any
+Sometimes refining a Task from abstract to concrete depends on reading the Game World. For example, any
 "as much as possible" (AMAP) quantifier has to read how much is, well, possible. Once that resolution
 happens, the task is marked as "prepared", meaning that it *must* be the next one executed.  If we
-let any other task jump ahead, it could change the world that was already read.
+let any other Task jump ahead, it could change the Game World that was already read.
 
 ---
 
@@ -205,7 +214,7 @@ The process has two stages.
 
 ### 1. Prepare
 
-`instructor.prepare(instruction)` evaluates the *current world* to simplify an instruction
+`instructor.prepare(instruction)` evaluates the *current Game World* to simplify an Instruction
 as much as possible without actually changing anything:
 
 - `Per`: count the metric and actually multiply the inner instruction by that value
@@ -213,7 +222,9 @@ as much as possible without actually changing anything:
 - `Or`: each option within gets recursively prepared; those that would throw `NotNowException`
   specifially get pruned out
 - `Change` is "auto-narrowed": abstract types are resolved to concrete where there's only
-  one valid choice; limits are checked (see Limiter below); AMAP intensity is resolved
+  one valid choice; Limits are checked (see Limiter below); the AMAP Quantifier is resolved.
+  A non-mandatory transfer whose source and destination narrow to the same component becomes
+  `NoOp`; the same reflexive transfer remains invalid when mandatory.
 - Custom types delegate through `CustomClassRuntime`, which validates their concrete dependencies,
   invokes the matching `CustomClass.translate()` overload, and lowers the returned instruction
 
@@ -245,19 +256,19 @@ component type it keeps the greatest matching multiplicity, so overlapping alter
 double-count components. Custom metrics cannot be alternatives because their virtual results have
 no component identities to union.
 
-The custom class and each dependency argument passed to its Kotlin implementation must be concrete.
-The engine rejects unsupported abstract queries before invoking the implementation, so plugins do
-not need to repeat that validation. Custom metrics may still decide how absent components and
-refinements affect their answers.
+The custom class and each dependency argument passed to its Kotlin implementation are concrete. For
+an abstract custom metric query, the engine enumerates the concrete subtypes satisfying the query,
+invokes the applicable implementation for each, and sums their virtual counts. Custom metrics may
+still decide how absent components affect their answers.
 
-A ruleset registers custom classes by capability. One Kotlin object may supply both instruction
+An Authority registers custom classes by capability. One Kotlin object may supply both instruction
 and metric implementations, or two objects with the same Pets class name may supply the
 capabilities separately. By default, each implementation's Pets class name is its Kotlin class's
 simple name.
 
 Canon uses virtual-property metrics for printed card cost, printed standard-project cost, presence
 of a card requirement, map row, and placement bonus. Distinct tag and resource type counts instead
-use the represented-type linkage in refinements such as `Class<Tag>(HAS Tag<Owner>)`.
+use Represented-Type linkage in Refinements such as `Class<Tag>(HAS Tag<Owner>)`.
 `ClassCardRequirement` is the class-token
 counterpart of `CardRequirement`; it is used when the value being refined is a `Class<CardFront>`
 dependency such as the one on `PlayCard`.
@@ -280,7 +291,7 @@ therefore observes those tag gains through ordinary effect dispatch.
 When the `Instructor` prepares a `Change`, it calls `limiter.findLimit(gaining, removing)` to get the
 maximum allowable count for this operation given the current board state.
 
-Limits interact with instruction *intensity*:
+Limits interact with an Instruction's *Quantifier*:
 - `!` (MANDATORY): throws `LimitsException` if the limit is less than requested
 - `?` (OPTIONAL): silently reduces to the limit (possibly 0), stays optional
 - `.` (AMAP, "as many as possible"): like `?`, but gets upgraded to `!` in the prepared form
@@ -327,8 +338,12 @@ Each effect has a `Trigger` which is one of:
 These can be wrapped:
 - `ByTrigger` — only fires if the Actor recorded on the `ChangeEvent` matches its `BY` selector
 - `IfTrigger` — only fires if some condition is currently met
-- `XTrigger` — triggers that can match multiple times at once (e.g. Manutech, if raising production
-  5 steps, get 5 resources, without processing those as individual state changes)
+- `XTrigger` — treats any positive matching change count as one occurrence, so `X Signal: Reward`
+  produces one reward even when five signals arrive together
+
+Ordinary gain and removal triggers scale their instruction by the matching change count. Manutech's
+`PROD[StandardResource]: StandardResource`, for example, produces five resources when production
+rises five steps in one change. `XTrigger` is the explicit opt-out from that scaling.
 
 An effect belonging to an `Owned` component responds only to its Owner when it subscribes to an
 unowned component and has no authored `BY`. This is the Pets form of the published game's ordinary
@@ -338,6 +353,12 @@ implicitly restrict their subscribers; Players are also prohibited from creating
 is separate: it controls whether an implementation component normally appears in user-facing
 output. `System` extends `Hidden`, while `Signal` is hidden without necessarily being engine-only.
 These rules affect subscription matching and do not rewrite the authored effect.
+
+A positive abstract Actor selector also binds the concrete Actor that matched it. Repeating that
+selector in the trigger or instruction reuses the concrete Actor; for example,
+`Resource<!Player> BY Player` means a resource owned by someone other than the Player who performed
+the removal. The complemented dependency still narrows to the concrete owner of the changed
+resource, including `SoloOpponent`.
 
 Pets spells the self triggers `This:` and `-This:`. They fire only for the occurrences of the
 effect-bearing concrete type changed by this event; they are not ordinary subscriptions to that
@@ -365,14 +386,12 @@ When a live effect fires, if the effect is **automatic** (double-colon in Pets s
 queue.
 
 The `Task.assignee` field records whose queue contains deferred work and whose scoped gameplay may
-narrow it. When a gameplay context executes the task, that context's Actor normally performs the
-resulting state changes and receives their `ChangeEvent.actor` attribution. An instruction-level
-`BY` explicitly overrides that performer without changing who owns or may narrow the task.
-Trigger-level `BY` independently matches the Actor on the triggering `ChangeEvent`.
+narrow it. `Task.actor` records the Actor for resulting state changes. An instruction-level `BY`
+explicitly overrides that Actor without changing who owns or may narrow the task. Trigger-level
+`BY` independently matches the Actor on the triggering `ChangeEvent`.
 
-For automatic effects the temporary `PendingTask` still carries routing metadata in its `assignee` field,
-but execution remains inline through the triggering Actor's `Instructor` and `Changer`, so
-resulting change events retain the triggering Actor.
+Automatic effects use the same rule without admitting the temporary `PendingTask` to a queue: its
+context owner is the Actor when present, otherwise the triggering Actor remains the fallback.
 
 ---
 
@@ -395,13 +414,13 @@ Every public `Gameplay` method wraps its work in `atomic`. This means all state 
 one operation are either fully committed or fully reversed.
 
 A checkpoint is an event ordinal and may be reached again after rollback. `WorldRevision` instead
-advances on both forward and reverse event application; it identifies whether the live world has
+advances on both forward and reverse Event application; it identifies whether the live Game World has
 remained untouched, not merely whether it currently has the same number of events.
 
 ### Recoverable dead ends are part of execution
 
 Task selection is speculative until the enclosing operation finishes. Narrowing a task or executing
-one pending step proves only that the selected step is locally acceptable in the current world. It
+one pending step proves only that the selected step is locally acceptable in the current Game World. It
 does not promise that every task produced later by that choice can also be completed. A player may
 therefore choose a branch, target, amount, or task order that eventually leaves no way to finish.
 That is a normal dead end, not a committed rules violation.
@@ -414,10 +433,30 @@ different route. Public atomic operations perform this rollback automatically wh
 raised; longer interactive sequences retain the checkpoint needed to abandon the attempted route.
 No resulting game state is accepted merely because some prefix of the route executed successfully.
 
-Protected Habitats is the model example. Its effect is:
+The PromoCardPack normalizes hostile resource and production removals as durable generational records.
+`MyResourceWasRemoved<victim, Class<resource>, attacker>` records a removed resource, while
+`MyProductionWasDecreased<victim, Class<standard-resource>, attacker>` preserves which production
+was reduced. Each marker is an `Owned<Anyone>` component belonging to the victim. One generic
+promo-scoped system watcher creates each kind of record, once per attack occurrence. The owner bound is
+`Anyone`, so
+the same rules cover player-owned resources and the neutral solo stock. Crash Site Cleanup and Mons
+Insurance consume these records. Effects that must prevent a removal, such as
+Protected Habitats and Asteroid Deflection System, remain direct removal triggers.
+
+### Reject implementation-shaped Pets models
+
+Do not encode a compact game concept by proliferating parallel marker classes, one watcher per
+concrete resource, duplicated effect branches, or other machinery whose shape reflects an engine
+limitation rather than the rule being modeled. In particular, an attack abstraction must not need
+an `AttackKind` class hierarchy and separate watchers for megacredits, steel, titanium, plants,
+energy, heat, animals, microbes, and production. Stop and repair the generic Pets/type/trigger
+mechanism, or leave the card unimplemented with a clear blocker. Do not present such a workaround
+as a completed implementation.
+
+Protected Habitats is the model rollback example. Its effect is:
 
 ```
--Plant<Owner> OR -Animal<Owner> OR -Microbe<Owner> BY !Owner:: Die
+-Plant OR -Animal OR -Microbe BY !Owner:: Die
 ```
 
 An opponent's attack may initially offer a broad resource-removal instruction and let the attacker
@@ -444,14 +483,16 @@ a recoverable dead end does not qualify.
 Before any instruction string reaches the engine, `ApiTranslation` runs it through a chain of
 `PetTransformer` passes (assembled once per player scope):
 
-1. **Session vocabulary canonicalization** — resolves localized Pets names and configured input-only synonyms to the sole canonical class names
-2. **`useFullNames()`** — resolves and validates those canonical names against the class table
+1. **Session Vocabulary canonicalization** — resolves localized Pets Names and configured input-only Class Synonyms to the sole Class Names
+2. **`useFullNames()`** — resolves and validates those Class Names against the Class Table
 3. **`atomizer()`** — expands `3 Heat` (where Heat is `Atomized`) into `Multi(Heat, Heat, Heat)`,
    so that each unit triggers effects individually
 4. **`insertDefaults()`** — fills in omitted dependency arguments using the class's declared
    defaults (e.g., a bare `Plant` inside Player1's instruction becomes `Plant<Player1>`)
 5. **`replaceOwnerWith(player)`** — replaces the `Owner` placeholder with the actual acting player
-6. **`Prod.deprodify()`** — unwraps `PROD[...]` notation into actual production-component instructions
+6. **`Prod.deprodify()`** — unwraps `PROD[...]` notation into actual production-component
+   instructions, preserving a resource refinement on the production component's represented-class
+   dependency.
 
 This pipeline runs on every instruction string before it reaches `Implementations` or
 `Instructor`. Instructions already in Pets AST form (from inside the engine) skip the string
@@ -475,9 +516,9 @@ Gameplay         ← query-only + task revision/preparation + doTask
 ```
 
 - **Normal callers** use `Gameplay` directly — they can revise abstract tasks, prepare them, and
-  execute them, selecting by either generated task id or current instruction. Selecting by current
-  instruction also accepts multiple tasks that are otherwise identical, since those tasks are
-  interchangeable.
+  execute them by current instruction. A prepared task always wins; otherwise an omitted task
+  number requires one matching task, with visibly identical tasks treated as interchangeable. The
+  optional 1-based task number refers only to the current order of the Actor's scoped queue.
 - **`OperationLayer`** is for structured operations: `manual()` adds the instruction as tasks and
   runs those new tasks to completion (including autoexec), while preserving tasks that were already
   pending but unprepared. A prepared task remains a global lock and prevents `manual()` from
@@ -508,11 +549,11 @@ After each operation completes, `ApiTranslation.atomic` calls `impl.autoExecNow(
   iteration order; keep going until the queue is empty or stuck (default mode)
 
 `autoExecNow` runs in a loop calling `autoExecNext` until it returns false. It scans pending tasks
-across the whole game and uses the assignee only to select the queue containing the task. The Actor
-of the gameplay context calling `autoExecNow` performs and receives credit for the resulting state
-changes, even when the task has another assignee. Tasks that fail are annotated with `whyPending`.
-When only one option exists, it is executed. When multiple options exist, `SAFE` stops while `FIRST`
-uses their stable iteration order to make an arbitrary choice.
+across the whole game and uses the assignee only to select the queue containing the task. Execution
+uses the task's stored Actor even when another gameplay context drives auto-execution. Tasks that
+fail are annotated with `whyPending`. When only one option exists, it is executed. When multiple
+options exist, `SAFE` stops while `FIRST` uses their stable iteration order to make an arbitrary
+choice.
 
 ---
 
@@ -525,7 +566,7 @@ A convenience wrapper around `TurnLayer` that adds Terraforming helpers:
 - `playCorp(cardName, buyCards)`, `playProject(cardName, mc, steel, titanium)`, `cardAction1/2()`
 - `phase(phaseName)` — executes a phase transition as `ENGINE`
 - `pay(mc, steel, titanium)` — handles the payment sub-protocol (Owed/Accept tasks)
-- `production(resource)`, `oxygenPercent()`, `temperatureC()`, etc. for reading the world
+- `production(resource)`, `oxygenPercent()`, `temperatureC()`, etc. for reading the Game World
   translated to human terms (TODO: do these belong?)
 
 ### `TfmWorkflow`
@@ -548,7 +589,7 @@ fired when no one is waiting (e.g., during automatic engine phases) are silently
 
 Action and final-greenery turn order begins with the player who owns `StartToken`. Creating each
 generation after the first passes that token one seat left, so the workflow reads turn order from
-the world rather than maintaining a separate generation counter. During the action phase, players
+the Game World rather than maintaining a separate generation counter. During the action phase, Players
 receive an optional second action only while at least two players have not passed.
 
 In multiplayer, a rules component watches the temperature, oxygen, and ocean `GpComplete` markers
@@ -561,7 +602,8 @@ The workflow enters final greenery and scoring only when that victory component 
 end scoring first measures awards and assigns their places,
 then `End` pays out ordinary and award victory points. Once `FinalScore` exists,
 `MultiplayerVictoryCheck` awards `Victory` to the highest final score with megacredits as the
-tiebreaker.
+tiebreaker. The custom-instruction runtime specializes each translated award metric to the player
+being tallied. Tallying also activates the custom card-requirement metric used by Forecaster.
 
 This design means:
 - The game flow reads naturally (setupPhase, corporationPhase, then preludePhase, then action loop,
@@ -574,7 +616,7 @@ This design means:
 ## Wiring it all together
 
 `Engine.newGame()` delegates construction to `Engine.Wiring`, the engine's manual dependency-injection
-composition root. Each world owns a locale-specific `Vocabulary`; configured input-only synonyms
+composition root. Each Game World owns a locale-specific `Vocabulary`; configured input-only Class Synonyms
 are canonicalized there before type resolution and are not part of the `ClassTable`. Game-level objects (`ClassTable`, `Effector`, `EventLog`, `ComponentGraph`, etc.)
 are shared across all players. Each configured Actor gets its own
 `Changer`, `Instructor`, `Implementations`, and `ApiTranslation` (the `Gameplay` implementation).

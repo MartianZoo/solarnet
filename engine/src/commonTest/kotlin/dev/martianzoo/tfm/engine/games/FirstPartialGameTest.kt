@@ -4,16 +4,17 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.canon.Canon.Option.*
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmTest
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
-class FirstPartialGameTest {
+class FirstPartialGameTest : TfmTest() {
   @Test
   fun fourWholeGenerations() {
     repeat(1) {
@@ -34,95 +35,121 @@ class FirstPartialGameTest {
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
 
-      p1.playPrelude("MartianIndustries")
-      p1.playPrelude("GalileanMining")
-
-      p2.playPrelude("MiningOperations")
-      p2.playPrelude("UnmiContractor")
-
-      // Generation 1 (P1 first)
-      p1.playProject("AsteroidMining", 30)
-      p1.declineSecondAction()
-
-      p2.playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<Elysium_3_7>") }
-      p2.playProject("SpaceElevator", 1, steel = 13)
-
-      p1.pass()
-
-      p2.cardAction1("SpaceElevator")
-      p2.playProject("InventionContest", 2)
-
-      p2.playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
-
-      p2.pass()
-
-      // Generation 2 (P2 first)
-      p1.doFirstTask("4 BuyCard")
-      p2.doFirstTask("1 BuyCard")
-
-      p2.cardAction1("SpaceElevator")
-      p2.playProject("EarthCatapult", 23)
-
-      p1.playProject("TitaniumMine", 7)
-      p1.playProject("RoboticWorkforce", 9) { doTask("CopyProductionBox<MartianIndustries>") }
-
-      p2.playProject("IndustrialMicrobes", steel = 5)
-      p2.playProject("TechnologyDemonstration", titanium = 1)
-
-      p1.playProject("Sponsors", 6)
-      p1.declineSecondAction()
-
-      p2.playProject("EnergyTapping", 1) { doTask("PROD[-E<P1>]") }
-      p2.playProject("BuildingIndustries", steel = 2)
-
-      p1.pass()
-      p2.pass()
-
-      // Generation 3 (P1 first)
-      p1.doFirstTask("3 BuyCard")
-      p2.doFirstTask("2 BuyCard")
-
-      p1.playProject("Mine", 2, steel = 1)
-      p1.declineSecondAction()
-
-      p2.cardAction1("SpaceElevator")
-      p2.playProject("ElectroCatapult", 5, steel = 5)
-
-      p1.pass()
-
-      p2.cardAction1("ElectroCatapult")
-      p2.playProject("SpaceHotels", 7, titanium = 1)
-
-      p2.playProject("MarsUniversity", 6) {
-        doTask("-ProjectCard")
+      p1.turn {
+        playPrelude("MartianIndustries")
+        playPrelude("GalileanMining")
       }
-      p2.playProject("ArtificialPhotosynthesis", 10) {
-        doTask("PROD[2 Energy]")
-        doTask("Ok")
+      p2.turn {
+        playPrelude("MiningOperations")
+        playPrelude("UnmiContractor")
       }
 
-      p2.playProject("BribedCommittee", 5)
-
+      // Generation 1 (Player1 first)
+      p1.turn {
+        playProject("AsteroidMining", 30)
+      }
+      p2.turn {
+        playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<Elysium_3_7>") }
+      }
+      p1.pass()
+      p2.turn {
+        playProject("SpaceElevator", 1, steel = 13)
+        cardAction1("SpaceElevator")
+        playProject("InventionContest", 2)
+        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<Player1>]") }
+      }
       p2.pass()
 
-      // Generation 4 (P2 first)
-      p1.doFirstTask("3 BuyCard")
-      p2.doFirstTask("2 BuyCard")
+      // Generation 2 (Player2 first)
+      p1.buyCards(4)
+      p2.buyCards(1)
 
-      p2.cardAction1("ElectroCatapult")
-      p2.cardAction1("SpaceElevator")
+      p2.turn {
+        cardAction1("SpaceElevator")
+        playProject("EarthCatapult", 23)
+      }
 
-      p1.playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
-      p1.playProject("IoMiningIndustries", 1, titanium = 13)
+      p1.turn {
+        playProject("TitaniumMine", 7)
+        playProject("RoboticWorkforce", 9) { doTask("CopyProductionBox<MartianIndustries>") }
+      }
 
-      p2.playProject("TransNeptuneProbe", 1, titanium = 1) { doTask("Ok") }
-      p2.playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
+      p2.turn {
+        playProject("IndustrialMicrobes", steel = 5)
+        playProject("TechnologyDemonstration", titanium = 1)
+      }
 
-      p1.sellPatents(1)
-      p1.declineSecondAction()
+      p1.turn {
+        playProject("Sponsors", 6)
+      }
 
-      p2.playProject("SolarPower", 1, steel = 4)
-      p2.stdProject("CitySP") { doTask("CityTile<Elysium_6_5>") }
+      p2.turn {
+        playProject("EnergyTapping", 1) { doTask("PROD[-E<Player1>]") }
+        playProject("BuildingIndustries", steel = 2)
+      }
+
+      p1.pass()
+      p2.pass()
+
+      // Generation 3 (Player1 first)
+      p1.buyCards(3)
+      p2.buyCards(2)
+
+      p1.turn {
+        playProject("Mine", 2, steel = 1)
+      }
+
+      p2.turn {
+        cardAction1("SpaceElevator")
+        playProject("ElectroCatapult", 5, steel = 5)
+      }
+
+      p1.pass()
+
+      p2.turn {
+        cardAction1("ElectroCatapult")
+        playProject("SpaceHotels", 7, titanium = 1)
+
+        playProject("MarsUniversity", 6) {
+          doTask("-ProjectCard")
+        }
+        playProject("ArtificialPhotosynthesis", 10) {
+          doTask("PROD[2 Energy]")
+          doTask("Ok")
+        }
+
+        playProject("BribedCommittee", 5)
+
+        pass()
+      }
+
+      // Generation 4 (Player2 first)
+      p1.buyCards(3)
+      p2.buyCards(2)
+
+      p2.turn {
+        cardAction1("ElectroCatapult")
+        cardAction1("SpaceElevator")
+      }
+
+      p1.turn {
+        playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
+        playProject("IoMiningIndustries", 1, titanium = 13)
+      }
+
+      p2.turn {
+        playProject("TransNeptuneProbe", 1, titanium = 1) { doTask("Ok") }
+        playProject("Hackers", 1) { doTask("PROD[-2 M<Player1>]") }
+      }
+
+      p1.turn {
+        sellPatents(1)
+      }
+
+      p2.turn {
+        playProject("SolarPower", 1, steel = 4)
+        stdProject("CitySP") { doTask("CityTile<Elysium_6_5>") }
+      }
 
       workflow.shutdown()
       TfmWorkflow.Manual(game).productionPhase()

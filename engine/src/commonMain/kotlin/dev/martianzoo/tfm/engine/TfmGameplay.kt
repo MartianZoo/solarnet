@@ -2,11 +2,14 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
+import dev.martianzoo.data.Task
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
@@ -26,7 +29,6 @@ public class TfmGameplay(
     override val actor: Actor,
     internal val gameplay: TurnLayer = game.gameplay(actor) as TurnLayer,
 ) : TurnLayer by gameplay {
-
   public val reader: GameReader by game::reader
 
   internal fun asActor(actor: Actor) = TfmGameplay(game, actor)
@@ -37,7 +39,7 @@ public class TfmGameplay(
     phase("Production")
     asActor(ENGINE).godMode().manual("Generation")
     phase("Research") {
-      for ((cards, player) in cardsBought.zip(Player.players(5))) {
+      for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
         asPlayer(player).doTask(if (cards > 0) "$cards BuyCard" else "Ok")
       }
     }
@@ -45,19 +47,49 @@ public class TfmGameplay(
   }
 
   public fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
-    return turn {
+    return inTurn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
       body()
     }
   }
 
-  public fun pass(): TaskResult = turn { doTask("Pass") }
+  public fun pass(): TaskResult = inTurn { doTask("Pass") }
 
-  public fun declineSecondAction(): TaskResult = doFirstTask("Ok")
+  /**
+   * Performs the actions in one fixture-level turn, declining an unused second action when needed.
+   * If every other player has passed, the workflow offers `NewTurn` rather than a second action;
+   * that offer is deliberately left in place so this block can contain the rest of the generation.
+   */
+  public fun turn(body: TfmGameplay.() -> Unit) {
+    body()
+    if (secondActionOffer() != null) declineSecondAction()
+  }
+
+  public fun declineSecondAction(): TaskResult {
+    val secondAction =
+        secondActionOffer()
+            ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
+    return doTask("Ok", secondAction.index + 1)
+  }
+
+  private fun secondActionOffer(): IndexedValue<Task>? =
+      game.tasks
+          .extract { it }
+          .filter { it.assignee == actor }
+          .withIndex()
+          .filter { (_, task) -> task.isActionPhaseSecondAction() }
+          .singleOrNull()
+
+  private fun Task.isActionPhaseSecondAction(): Boolean {
+    val origin = cause ?: return false
+    if (origin.context.className != cn("ActionPhase")) return false
+    val trigger = game.events.entryAt(origin.triggerEvent) as? ChangeEvent
+    return trigger?.change?.gaining?.className == cn("SecondAction")
+  }
 
   public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
-    return turn {
+    return inTurn {
       doTask("UseAction$which<$stdAction>")
       body()
     }
@@ -71,7 +103,7 @@ public class TfmGameplay(
   }
 
   public fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
-    return turn {
+    return inTurn {
       doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
       body()
     }
@@ -89,9 +121,9 @@ public class TfmGameplay(
       titanium: Int = 0,
       body: BodyLambda = {},
   ): TaskResult {
-    return turn {
+    return inTurn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
-        doFirstTask("UseAction1<PlayCardSA>") // "first" because HeadStart
+        doTask("UseAction1<PlayCardSA>")
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 

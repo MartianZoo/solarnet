@@ -124,16 +124,12 @@ internal class ApiTranslation(
     override val tasks by this@ApiTranslation::tasks
     override val reader by this@ApiTranslation::reader
 
-    override fun doFirstTask(revised: String) {
-      this@ApiTranslation.doFirstTask(revised)
+    override fun doTask(revised: String, taskNumber: Int?) {
+      this@ApiTranslation.doTask(revised, taskNumber)
     }
 
-    override fun doTask(revised: String) {
-      this@ApiTranslation.doTask(revised)
-    }
-
-    override fun tryTask(revised: String) {
-      this@ApiTranslation.tryTask(revised)
+    override fun tryTask(revised: String, taskNumber: Int?) {
+      this@ApiTranslation.tryTask(revised, taskNumber)
     }
 
     override fun autoExecNow() {
@@ -147,7 +143,7 @@ internal class ApiTranslation(
 
   override fun startTurn() = atomic { impl.startTurn() }
 
-  override fun turn(body: BodyLambda): TaskResult {
+  override fun inTurn(body: BodyLambda): TaskResult {
     return if (tasks.isEmpty()) {
       manual("NewTurn", body)
     } else {
@@ -173,17 +169,13 @@ internal class ApiTranslation(
 
   override fun prepareTask(instruction: String) = impl.prepareTask(parse(instruction))
 
-  override fun doFirstTask(revised: String?) = atomic {
-    impl.doFirstTask(revised?.let { parse(it) })
+  override fun doTask(revised: String, taskNumber: Int?) = atomic {
+    impl.doTask(parse(revised), taskNumber)
   }
 
-  override fun doTask(taskId: TaskId) = atomic { impl.doTask(taskId) }
-
-  override fun doTask(revised: String) = atomic { impl.doTask(parse(revised)) }
-
-  override fun tryTask(taskId: TaskId) = atomic { impl.tryTask(taskId) }
-
-  override fun tryTask(revised: String) = atomic { impl.tryTask(parse(revised)) }
+  override fun tryTask(revised: String, taskNumber: Int?) = atomic {
+    impl.tryTask(parse(revised), taskNumber)
+  }
 
   override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
 

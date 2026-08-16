@@ -6,11 +6,11 @@ For now, I'll have to address this to the reader who is already familiar with th
 
 ## Components
 
-A world consists entirely of a multiset of **component** instances (plus task queues, which we can ignore for now). Each of these components has a concrete **type**. In fact, components are distinguishable by their *type alone*; there are no attributes/properties/fields in the language. Accordingly, component instances are always immutable.
+A Game World consists entirely of a multiset of **Component** instances (plus Task Queues, which we can ignore for now). Each Component has a Concrete **Type**. Components are distinguishable by their *Type alone*; there are no attributes, properties, or fields in the language. Accordingly, Components are always immutable.
 
 For example, when the game begins there are 20 instances of `TerraformRating<Player1>`, 20 of `TerraformRating<Player2>`, etc. The first 20 are indistinguishable from each other, and only their type distinguishes them from the latter 20. I'll try to use the term "component" consistently to mean a *single* instance, a.k.a a single occurrence of a component type (e.g., there were 40 components discussed in our example).
 
-A world is mutable. There are only two operations: adding or removing N identical copies of a component. (Technically there are atomic transmutations as well, but these aren't that different from a remove-and-add.) Being a multiset, or "just a bag of things", you can never have a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (megacredit production). This headache is worth suffering, though, because other than that adopting the multiset concept makes a large number of bugs impossible.
+A Game World is mutable. There are only two basic operations: adding or removing N identical copies of a Component. (There are also atomic Transmutations.) Being a multiset, or "just a bag of things", it can never contain a negative amount of anything -- a fact which creates exactly one headache for Terraforming Mars (megacredit production). This headache is worth suffering, though, because otherwise the multiset model makes a large number of bugs impossible.
 
 Note that components are never "out of play"; a tile that's not yet on the board simply doesn't exist, and when you pay for a card the resources just vanish. (The "transmuting" just alluded to is fairly rare; mostly "steal" cards, and energy becoming heat during a production phase.)
 
@@ -20,7 +20,7 @@ As expected, we *declare* named classes (like `Player1`, `Animal`, or `Ecologica
 
 A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
-The class table is frozen before a game begins. Its active classes are the types that *might* be needed in that game, and for any active class we know the complete set of its active subclasses. Names belonging to inactive expansions can also survive as phantom types, whose counts are zero. This explains, for example, how we can tell which 5 milestones are available to be claimed, even though no instance of `Milestone` exists in the world until we claim one; we just look at what classes are active. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
+The Class Table is frozen before a game begins. Its Active Classes are the Types that *might* be needed in that game, and for any Active Class we know the complete set of its active subclasses. Authority-known names that are inactive in this game survive as Phantom Classes and Phantom Types, whose counts are zero. This explains, for example, how we can tell which five milestones are available to be claimed even though no `Milestone` Component exists in the Game World until one is claimed; we inspect the Active Classes. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
 
 ## Types and dependencies
 
@@ -104,7 +104,7 @@ The `Class` class is predefined. `Class<Foo>` contains one class name, not a dep
 * Only a single class name can go inside the angle brackets. `Class<Steel>` works but `Class<Steel<Player2>>` does not.
 * Even though the type `Steel` is abstract, and the type `AnythingElse<Steel>` would also be abstract, `Class<Steel>` is considered concrete! After all, it's as concrete as it *can* be.
 
-`Class` is a singleton class. If you ask a world to count the instances of the type `Class<StandardResource>` you will get the answer `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get 7, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract, and so cannot exist as a component.)
+`Class` is a Singleton Class. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<Megacredit>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
 
 #### What's that good for?
 
@@ -116,7 +116,7 @@ CLASS Production<Class<StandardResource>> : Owned {
 }
 ```
 
-`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because then anytime you had no `Energy` resources you would be unable to have any `Production<Energy>` either! (The angle-bracket expressions describe real dependencies, not arbitrary parameterization.) But with this trick a world can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first type binds the class effect shown above, yielding `ProductionPhase: Steel<Player2>`.
+`Class` is a handy trick here. It would not make sense to have this as `Production<StandardResource>`, because whenever you had no `Energy` Components you would be unable to have any `Production<Energy>` either. (The angle-bracket Expressions describe real Dependencies, not arbitrary parameterization.) With a Class Literal, a Game World can have `4 Production<Class<Steel>, Player2>`, `8 Production<Class<Heat>, Player2>`, and so on. The first Type binds the Class Effect shown above, yielding `ProductionPhase: Steel<Player2>`.
 
 ## TODO
 

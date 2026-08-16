@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import kotlin.test.Test
 
 class MassiveDiscountsTest : CardTest() {
@@ -18,7 +18,6 @@ class MassiveDiscountsTest : CardTest() {
       doTask("CityTile<Tharsis_4_2>")
     }
 
-    p1.playProject("SpaceElevator", 4, steel = 1, titanium = 1)
-        .expect("SpaceElevator, -4 Megacredit, -Steel, -Titanium")
+    p1.playProject("SpaceElevator", 4, steel = 1, titanium = 1).expect("-4, -Steel, -Titanium")
   }
 }

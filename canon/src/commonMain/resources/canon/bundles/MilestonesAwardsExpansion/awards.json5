@@ -1,0 +1,38 @@
+{
+  // Reprinted goals retain the canonical definitions owned by their original map bundles. This
+  // file contains only new awards.
+  "awards": [
+    // Administrator
+    { "id": "MA01", "metric": "CardFront(HAS MAX 0 Tag)" },
+
+    // Biologist
+    { "id": "MA04", "metric": "BioTag" },
+
+    // Collector
+    { "id": "MA07", "metric": "Class<Resource>(HAS Resource<Owner>)" },
+
+    // Constructor
+    { "id": "MA08", "metric": "Colony OR CityTile" },
+
+    // Highlander
+    { "id": "MA16", "metric": "OwnedTile<MarsArea(HAS MAX 0 Neighbor<OceanTile>)>" },
+
+    // Landscaper
+    { "id": "MA21", "metric": "TileInLargestGroup" },
+
+    // Manufacturer
+    { "id": "MA23", "metric": "PROD[Steel OR Heat]" },
+
+    // Politician needs the unimplemented Turmoil party-leader and influence rules.
+    // { "id": "MA27", "metric": "..." },
+
+    // Promoter
+    { "id": "MA28", "metric": "PlayedEvent" },
+
+    // Traveller
+    { "id": "MA33", "metric": "JovianTag OR EarthTag" },
+
+    // Visionary
+    { "id": "MA34", "metric": "ProjectCard" },
+  ],
+}

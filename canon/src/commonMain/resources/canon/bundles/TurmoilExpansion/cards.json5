@@ -26,7 +26,7 @@
       "components": [
         // Must be exact copies of UNMI's
         "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
-        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
+        "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating IF MAX 0 SetupPhase:: HasRaisedTr. }"
       ],
     },
 

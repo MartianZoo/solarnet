@@ -13,7 +13,7 @@ internal object SampleGames {
   internal fun sampleGame(generations: Int): World {
     var gens = generations
 
-    val setup = OptionCodeTranslation.setup("BRMVPXT", 2)
+    val setup = OptionCodeTranslation.setup("BRVPXT", 2)
     val game = createGame(setup)
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -51,7 +51,7 @@ internal object SampleGames {
     p2.playProject("MarsUniversity", 6, steel = 1) {
       doTask("-ProjectCard")
     }
-    p1.cardAction1("InventorsGuild") { doFirstTask("BuyCard") }
+    p1.cardAction1("InventorsGuild") { doTask("BuyCard") }
     p1.playProject("EarthOffice", 1)
     p2.cardAction2("RotatorImpacts")
     p1.playProject("DevelopmentCenter", 1, steel = 5)
@@ -65,9 +65,9 @@ internal object SampleGames {
     engine.nextGeneration(2, 2)
 
     p1.cardAction1("DevelopmentCenter")
-    p1.cardAction1("InventorsGuild") { doFirstTask("Ok") }
+    p1.cardAction1("InventorsGuild") { doTask("Ok") }
     p2.cardAction1("Factorum")
-    p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doFirstTask("Ok") }
+    p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doTask("Ok") }
     p1.playProject("CorporateStronghold", 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
     p1.playProject("OptimalAerobraking", 7)
     p2.playProject("TransNeptuneProbe", 0, titanium = 2) {
@@ -104,7 +104,7 @@ internal object SampleGames {
     engine.nextGeneration(3, 3)
 
     p1.stdAction("ConvertHeatSA")
-    p1.playProject("SmallAsteroid", 10) { doTask("-2 Plant<P2>") }
+    p1.playProject("SmallAsteroid", 10) { doTask("-2 Plant<Player2>") }
     p2.cardAction2("Factorum")
     p2.playProject("DirectedImpactors", 2, titanium = 2)
     p1.cardAction1("DevelopmentCenter")
@@ -175,7 +175,7 @@ internal object SampleGames {
     p1.cardAction2("DeuteriumExport")
     p1.playProject("ProjectInspection", 0) { doTask("UseAction1<DevelopmentCenter>") }
     p2.cardAction1("Factorum")
-    p2.playProject("PowerSupplyConsortium", 3) { doTask("PROD[-E<P1>]") }
+    p2.playProject("PowerSupplyConsortium", 3) { doTask("PROD[-E<Player1>]") }
     p1.playProject("FloatingHabs", 5)
     p1.cardAction1("FloatingHabs") { doTask("Floater<DeuteriumExport>") }
     p2.playProject("TitaniumMine", 5)
@@ -223,7 +223,7 @@ internal object SampleGames {
     p2.playProject("DeimosDown", 9, titanium = 5) {
       p2.doTask("OceanTile<Tharsis_6_7>")
       p2.doTask("DdTile<Tharsis_2_5>")
-      p2.doTask("-4 Plant<P1>")
+      p2.doTask("-4 Plant<Player1>")
     }
     p2.cardAction1("AiCentral")
     p1.stdAction("ConvertHeatSA")

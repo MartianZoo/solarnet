@@ -1,29 +1,22 @@
 package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
-import dev.martianzoo.data.GamePremise
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.canonicalPremise
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SoloGame0710Test : AbstractSoloTest() {
-  override fun setup(): GamePremise {
-    val colonyTiles = setOf(cn("Callisto"), cn("Ganymede"), cn("Luna"))
-    // Miranda was removed because solo Colonies uses only three selected tiles.
-    return canonicalPremise(
-        VenusNextExpansion,
-        PreludeExpansion,
-        ColoniesExpansion,
-        TurmoilCardPack,
-        PromoCardPack,
-        Tr63SoloVariant,
-        players = 1,
-        colonyTiles = colonyTiles,
-    )
-  }
+  // Miranda was removed because solo Colonies uses only three selected tiles.
+  override val config =
+      GameConfig(
+          """
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
+          Tr63SoloVariant
+          Callisto, Ganymede, Luna
+          """,
+          "Me",
+      )
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"
 
@@ -40,17 +33,16 @@ class SoloGame0710Test : AbstractSoloTest() {
       }
 
       playPrelude("HeadStart") {
-        /*
-         * Decline one of the actions, because the convenience API expects to see an empty queue
-         * after each action. The game model does handle it fine, but it's annoying to interact with
-         * and there's no real harm done in this case. Still... TODO.
-         */
-        doFirstTask("Ok")
+        doTask("UseAction1<PlayCardSA>")
+        doTask("PlayCard<Class<ProjectCard>, Class<OlympusConference>>")
+        pay(4, steel = 3)
 
-        playProject("OlympusConference", 4, steel = 3).expect("Science")
+        doTask("UseAction1<PlayCardSA>")
+        doTask("PlayCard<Class<ProjectCard>, Class<StandardTechnology>>")
+        pay(6)
+        doTask("ProjectCard FROM Science<OlympusConference>")
       }
 
-      playProject("StandardTechnology", 6) { doTask("ProjectCard FROM Science<OlympusConference>") }
       playProject("AdvancedAlloys", 9) {
         doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
       }
@@ -140,8 +132,8 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       playProject("GiantIceAsteroid", 18, titanium = 4) {
         doTask("-6 Plant<SoloOpponent>")
-        doFirstTask("OceanTile<Tharsis_5_4>")
-        doFirstTask("OceanTile<Tharsis_5_6>")
+        doTask("OceanTile<Tharsis_5_4>")
+        doTask("OceanTile<Tharsis_5_6>")
       }
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_6_4>") }
       playProject("MagneticShield", 22)
@@ -262,17 +254,18 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       pass()
       has("Victory") shouldBe true
-      doFirstTask("Ok")
+      doTask("Ok")
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")
-      sum.net("GreeneryTile", "VictoryPoint<P1>") shouldBe 9
-      sum.net("CityTile", "VictoryPoint<P1>") shouldBe 24
-      sum.net("Card", "VictoryPoint<P1>") shouldBe 18
+      sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 9
+      sum.net("CityTile", "VictoryPoint<Me>") shouldBe 24
+      sum.net("Card", "VictoryPoint<Me>") shouldBe 18
       assertCounts(121 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
-      sum.net("ActionPhase", "UseAction<P1>") shouldBe 93 // note UI says 106
+      // Head Start's two actions occur during Prelude; the source UI says 106.
+      sum.net("ActionPhase", "UseAction<Me>") shouldBe 92
     }
   }
 }

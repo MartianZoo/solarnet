@@ -5,6 +5,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.HIDDEN
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
+import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
@@ -56,6 +57,7 @@ import dev.martianzoo.tfm.script.TfmColor.HEAT
 import dev.martianzoo.tfm.script.TfmColor.MEGACREDIT
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.PLANT
+import dev.martianzoo.tfm.script.commands.TfmActionCommand
 import dev.martianzoo.tfm.script.commands.TfmBoardCommand
 import dev.martianzoo.tfm.script.commands.TfmMapCommand
 import dev.martianzoo.tfm.script.commands.TfmPayCommand
@@ -72,30 +74,41 @@ public class ScriptSession(
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
 
   internal lateinit var gameplay: TurnLayer
-  internal lateinit var setup: OptionCodeTranslation.Setup
+  internal var optionCodes: String = ""
+    private set
+
+  internal var playerCount: Int = 0
+    private set
 
   internal var mode: ScriptMode = GREEN
-  private val taskLabels = TaskLabels()
 
   private fun newGame(
       setup: OptionCodeTranslation.Setup,
       purple: Boolean = false,
   ) {
-    val candidateGame = createGame(setup, locale)
+    installGame(createGame(setup, locale), setup.optionCodes, setup.players, purple)
+  }
+
+  private fun installGame(
+      candidateGame: World,
+      candidateOptionCodes: String,
+      candidatePlayerCount: Int,
+      purple: Boolean,
+  ) {
     val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer // default autoexec mode
     if (purple) {
       TfmWorkflow.Auto(candidateGame).launch()
     } else {
       TfmWorkflow.Manual(candidateGame).setupPhase()
     }
-    this.setup = setup
+    optionCodes = candidateOptionCodes
+    playerCount = candidatePlayerCount
     game = candidateGame
     gameplay = candidateGameplay
-    taskLabels.clear()
     if (purple) mode = PURPLE
   }
 
-  /** Adapts the REPL's option-code syntax to an instruction executed in a setup world. */
+  /** Adapts the REPL's legacy option-code syntax to a raw canonical game configuration. */
   internal fun newGame(
       optionCodes: String,
       players: Int,
@@ -106,25 +119,28 @@ public class ScriptSession(
   }
 
   internal fun newGame(
-      setupInstruction: String,
+      configText: String,
+      playerNames: List<String>,
       purple: Boolean = false,
   ) {
-    val (candidateSetup, candidateGame) = createGame(setupInstruction, locale)
-    val candidateGameplay = candidateGame.gameplay(ENGINE) as TurnLayer
-    if (purple) {
-      TfmWorkflow.Auto(candidateGame).launch()
-    } else {
-      TfmWorkflow.Manual(candidateGame).setupPhase()
-    }
-    setup = candidateSetup
-    game = candidateGame
-    gameplay = candidateGameplay
-    taskLabels.clear()
-    if (purple) mode = PURPLE
+    val premise = Canon.gamePremise(GameConfig(configText, *playerNames.toTypedArray()))
+    val options = OptionCodeTranslation.recognizedOptions(premise.modules)
+    val candidateGame =
+        Engine.newGame(
+            premise,
+            locale,
+            inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
+        )
+    installGame(
+        candidateGame,
+        OptionCodeTranslation.optionCodes(options),
+        premise.actors.count { it is Player },
+        purple,
+    )
   }
 
   init {
-    newGame("BM", 2)
+    newGame("B", 2)
   }
 
   public fun prompt(): String =
@@ -240,7 +256,7 @@ public class ScriptSession(
       with(gameplay) {
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
-        "${setup.optionCodes} $phase ${gameplay.actor}/${setup.players} @$checkpoint> "
+        "$optionCodes $phase ${game.vocabulary.petsName(gameplay.actor)}/$playerCount @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -286,6 +302,7 @@ public class ScriptSession(
               TaskCommand(this),
               TasksCommand(this),
               TurnCommand(this),
+              TfmActionCommand(this),
               TfmPayCommand(this),
               TfmPlayCommand(this),
               TfmSampleCommand(this),
@@ -309,10 +326,10 @@ public class ScriptSession(
               game.vocabulary.renderPets(event)
             }
 
-    val newTasks: Set<TaskId> = result.tasksSpawned
+    val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
-        if (newTasks.any()) {
-          listOf("New tasks pending:") + taskLines(newTasks)
+        if (newTaskLines.any()) {
+          listOf("New tasks pending:") + newTaskLines
         } else {
           emptyList()
         }
@@ -325,30 +342,19 @@ public class ScriptSession(
     }
   }
 
-  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Pair<String, Task>> {
-    val allTasks = game.tasks.extract { it }
-    val selectedTasks = if (ids == null) allTasks else allTasks.filter { it.id in ids }
-    val existingIds = allTasks.mapTo(mutableSetOf()) { it.id }
-    val labels =
-        taskLabels.labelsFor(
-            existingIds,
-            selectedTasks.map { it.id },
-            game.timeline.checkpoint().ordinal,
-        )
-    return selectedTasks.map { task -> labels.getValue(task.id) to task }
-  }
+  internal fun selectableTasks(ids: Set<TaskId>? = null): List<Task> =
+      game.tasks
+          .extract { it }
+          .filter {
+            it.assignee == gameplay.actor && (ids == null || it.id in ids)
+          }
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
-      selectableTasks(ids).map { (label, task) ->
-        game.vocabulary.renderPets(task, queueAssignee = task.assignee, displayId = label)
-      }
+      selectableTasks(ids).map { task -> game.vocabulary.renderPets(task, displayId = null) }
 
-  internal fun resolveTaskLabel(label: String): TaskId? =
-      taskLabels.resolve(game.tasks.ids(), label, game.timeline.checkpoint().ordinal)
-
-  internal fun restoreTaskLabelsAfterRollback(rollbackOrdinal: Int) {
-    taskLabels.restoreAfterRollback(game.tasks.ids(), rollbackOrdinal)
-  }
+  internal fun onlyTask(): Task =
+      selectableTasks().singleOrNull()
+          ?: throw UsageException("this requires exactly one pending task")
 
   internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {
     val g = event.change.gaining
@@ -407,7 +413,8 @@ public class ScriptSession(
   internal fun player(name: String): Player {
     // In case a configured synonym or definition id was used
     val type: Type = gameplay.resolve(name)
-    return Player(type.className)
+    return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
+        ?: throw UsageException("not a participating Player: $name")
   }
 
   internal fun canonicalColonyName(name: String): ClassName =
@@ -415,9 +422,10 @@ public class ScriptSession(
 
   private val colonyInputVocabulary: Vocabulary by lazy {
     Vocabulary.create(
-        Canon.resolve(setOf(cn("TerraformingMars"), cn("ColoniesExpansion"))),
+        Canon,
         locale,
         TFM_SCRIPT_CLASS_SYNONYMS,
+        activeClassNames = Canon.colonyTileDefinitions.mapTo(linkedSetOf()) { it.className },
     )
   }
 }
@@ -426,48 +434,19 @@ internal fun createGame(
     setup: OptionCodeTranslation.Setup,
     locale: String = Vocabulary.ENGLISH,
 ): World {
-  val setupWorld =
-      Engine.newSetupWorld(
-          Canon.setupWorldDefinition(
-              setup.players,
-              Canon.GameOptions(setup.options, setup.excludedOptions),
-              setup.selectedColonies,
-          ),
-          locale,
-          inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
+  val config =
+      GameConfig.create(
+          included = setup.options + setup.selectedColonies,
+          excluded = setup.excludedOptions,
+          playerNames =
+              if (setup.players == 1) listOf(cn("Me"))
+              else (1..setup.players).map { cn("Player$it") },
       )
-  return Engine.newGame(setupWorld, Canon::assemble)
-}
-
-private fun createGame(
-    setupInstruction: String,
-    locale: String = Vocabulary.ENGLISH,
-): Pair<OptionCodeTranslation.Setup, World> {
-  val setupWorld =
-      Engine.newSetupWorld(
-          Canon.emptySetupWorldDefinition(),
-          locale,
-          inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
-      )
-  setupWorld.gameplay(ENGINE).godMode().manual(setupInstruction)
-  setupWorld.gameplay(ENGINE).godMode().manual("ValidateSetup")
-
-  val options =
-      setupWorld.reader.getComponents("GameOption").mapNotNullTo(linkedSetOf()) { type ->
-        Canon.Option.entries.singleOrNull { it.className == type.className }
-      }
-  val players = setupWorld.reader.getComponents("Player").size
-  val selectedColonies =
-      setupWorld.reader.getComponents("SelectedColonyTile").mapTo(linkedSetOf()) { it.className }
-  val setup =
-      OptionCodeTranslation.Setup(
-          OptionCodeTranslation.optionCodes(options),
-          players,
-          options,
-          emptySet(),
-          selectedColonies,
-      )
-  return setup to Engine.newGame(setupWorld, Canon::assemble)
+  return Engine.newGame(
+      Canon.gamePremise(config),
+      locale,
+      inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
+  )
 }
 
 public val welcome: String =

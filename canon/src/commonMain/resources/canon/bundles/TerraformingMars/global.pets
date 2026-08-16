@@ -3,16 +3,14 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
-"An immutable fact in the fully resolved configuration of a playable game"
-ABSTRACT CLASS GameConfiguration : System {
+"An affirmative, immutable Module active in a playable game"
+ABSTRACT CLASS Module : System {
+  HAS =1 This
   -This:: Die!
 }
 
-"An affirmative module of rules active in a playable game"
-ABSTRACT CLASS GameModule : GameConfiguration { HAS =1 This }
-
 "The base Terraforming Mars rules"
-CLASS TerraformingMars : GameModule {
+CLASS TerraformingMars : Module {
   HAS =1 MarsMap
 
   SetupPhase IF 2 Player:: BeginGame

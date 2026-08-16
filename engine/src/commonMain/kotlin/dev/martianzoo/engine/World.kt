@@ -19,10 +19,13 @@ import dev.martianzoo.types.ClassTable
  * for complete world operations.
  *
  * A [GameReader] provides the public component queries, including queries expressed as a Pets
- * [Metric] or [Requirement]. Setup worlds and game worlds are specialized uses of the same
- * machinery.
+ * [Metric] or [Requirement].
  */
 public interface World {
+  /** Every Actor participating in this world, with seated Players in seat order. */
+  public val actors: List<Actor>
+    get() = reader.actors
+
   /** The current component graph. */
   public val components: ComponentGraph
 

@@ -26,6 +26,9 @@ public data class Task(
     /** Whose pending-work queue contains this task and whose scoped gameplay may revise it. */
     val assignee: Actor,
 
+    /** The Actor recorded for resulting changes unless the instruction contains an explicit BY. */
+    val actor: Actor = assignee,
+
     /** If true, the world may not be modified until this task is completed. */
     val next: Boolean = false,
 
@@ -127,17 +130,10 @@ public data class Task(
     whyPending?.let { append(" ($it)") }
   }
 
-  public fun toStringWithoutCause(queueAssignee: Actor? = null): String =
-      toStringWithoutCause(queueAssignee, id.toString())
-
-  public fun toStringWithoutCause(queueAssignee: Actor?, displayId: String): String = buildString {
+  public fun toStringWithoutCause(displayId: String = id.toString()): String = buildString {
     append(displayId)
     append(if (next) "* " else "  ")
-    if (queueAssignee == null) {
-      appendAssigneeLabel()
-    } else {
-      append("[queue: $queueAssignee, assignee: $assignee] ")
-    }
+    appendAssigneeLabel()
     append(instruction)
     then?.let { append(" (THEN $it)") }
     whyPending?.let { append(" ($it)") }
@@ -155,15 +151,19 @@ public data class Task(
         assignee: Actor,
         instruction: InstructionGroup,
         cause: Cause?,
+        actor: Actor = assignee,
         isAbstract: ((Expression) -> Boolean)? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map { newTask(ids.next(), assignee, it, cause, isAbstract = isAbstract) }
+      return instruction.map {
+        newTask(ids.next(), assignee, actor, it, cause, isAbstract = isAbstract)
+      }
     }
 
     private fun newTask(
         id: TaskId,
         assignee: Actor,
+        actor: Actor,
         instruction: Instruction,
         cause: Cause?,
         automatic: Boolean = false,
@@ -173,6 +173,7 @@ public data class Task(
           Task(
               id = id,
               assignee = assignee,
+              actor = actor,
               next = automatic,
               instructionIn = instruction,
               cause = cause,

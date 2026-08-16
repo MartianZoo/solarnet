@@ -11,6 +11,7 @@ import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost.Spend
 import dev.martianzoo.pets.ast.ClassName
@@ -40,7 +41,7 @@ import dev.martianzoo.pets.ast.Requirement.Transform as RequirementTransform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.tfmRuleset
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PROD
@@ -73,7 +74,7 @@ internal val baseCustomClasses: Set<CustomClass> =
 internal object TerraformingMars {
   internal object CopyProductionBox : CustomClass() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-      val card: CardDefinition = reader.tfmRuleset.card(cardType.className)
+      val card: CardDefinition = reader.tfmAuthority.card(cardType.className)
       val immediate =
           card.immediate
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")
@@ -146,7 +147,7 @@ internal object TerraformingMars {
   internal object StandardProjectCost : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val projectName = type.expressionFull.arguments.single().className
-      val action = parse<Action>(game.tfmRuleset.action(projectName).actions.single())
+      val action = parse<Action>(game.tfmAuthority.action(projectName).actions.single())
       return ((action.cost as Spend).scaledEx.scalar as ActualScalar).value
     }
   }
@@ -214,10 +215,13 @@ internal object TerraformingMars {
 
     override fun translate(
         reader: GameReader,
-        ignoredOwner: Type,
+        owner: Type,
         cardClassType: Type,
     ): Instruction {
-      val requirement = cardFromClassType(cardClassType, reader).requirement ?: return NoOp
+      val requirement =
+          cardFromClassType(cardClassType, reader).requirement?.let {
+            replaceOwnerWith(Player(owner.className)).transform(it)
+          } ?: return NoOp
       if (requirement.canEvaluateDirectly() && reader.has(requirement)) return NoOp
 
       return requirement.globalParameterShortfall(reader)?.let { (parameter, count) ->
@@ -292,16 +296,17 @@ internal object TerraformingMars {
   internal object PassLeft : CustomClass() {
     override fun translate(reader: GameReader, component: Type): Instruction {
       val currentOwner: Player = getPlayerOwner(reader, component)
-      val current = currentOwner.toString().removePrefix("Player").toInt()
-      val playerCount: Int = reader.count(parse<Metric>("Player"))
-      if (playerCount == 1) return NoOp
+      val players = reader.actors.filterIsInstance<Player>()
+      if (players.size == 1) return NoOp
 
-      val next = current % playerCount + 1
+      val current = players.indexOf(currentOwner)
+      check(current >= 0) { "StartToken owner is not a seated Player: $currentOwner" }
+      val nextOwner = players[(current + 1) % players.size]
       val fromExpression = component.className.of(component.expressionFull.arguments)
       val toExpression =
           component.className.of(
               component.expressionFull.arguments.map {
-                if (it == currentOwner.expression) cn("Player$next").expression else it
+                if (it == currentOwner.expression) nextOwner.expression else it
               }
           )
       return Transmute(
@@ -312,14 +317,15 @@ internal object TerraformingMars {
   }
 
   private val AWARD_TALLY = cn("AwardTally")
+  private val CARD_REQUIREMENT = cn("CardRequirement")
   private val FIRST_PLACE = cn("FirstPlace")
   private val SECOND_PLACE = cn("SecondPlace")
 
   internal object TallyAward : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY)
+    override val requiredClassNames: Set<ClassName> = setOf(AWARD_TALLY, CARD_REQUIREMENT)
 
     override fun translate(reader: GameReader, owner: Type, awardType: Type): Instruction {
-      val metric = reader.tfmRuleset.award(awardType.className).metric
+      val metric = reader.tfmAuthority.award(awardType.className).metric
       return parse("AwardTally<${owner.className}, ${awardType.className}> / ($metric)")
     }
   }
@@ -381,9 +387,9 @@ internal object TerraformingMars {
   private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
     require(cardClassType.className == CLASS)
     val cardName = cardClassType.expression.arguments.single().className
-    return reader.tfmRuleset.card(cardName)
+    return reader.tfmAuthority.card(cardName)
   }
 
   private fun card(type: HasClassName, reader: GameReader): CardDefinition =
-      reader.tfmRuleset.card(type.className)
+      reader.tfmAuthority.card(type.className)
 }

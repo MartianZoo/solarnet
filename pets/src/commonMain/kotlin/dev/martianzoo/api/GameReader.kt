@@ -1,6 +1,7 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.data.Ruleset
+import dev.martianzoo.data.Actor
+import dev.martianzoo.data.Authority
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -10,8 +11,11 @@ import dev.martianzoo.util.Multiset
 
 /** A readable view of a live Pets world. */
 public interface GameReader : TypeInfo {
-  /** The resolved ruleset used by the world. */
-  public val ruleset: Ruleset
+  /** Every Actor participating in this game, with seated Players in seat order. */
+  public val actors: List<Actor>
+
+  /** The Authority used by the world. */
+  public val authority: Authority
 
   /** Returns the type represented by the (fully-prepared) [expression]. */
   public fun resolve(expression: Expression): Type

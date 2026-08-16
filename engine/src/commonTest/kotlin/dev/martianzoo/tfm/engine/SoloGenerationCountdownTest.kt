@@ -4,7 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon.Option.*
+import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -75,13 +75,13 @@ internal class SoloGenerationCountdownTest {
 
     player.godMode().manual("16 Megacredit")
     player.godMode().manual("UseAction1<BufferGasSP>")
-    player.count("Megacredit<Player1>") shouldBe 0
-    player.count("TerraformRating<Player1>") shouldBe 15
+    player.count("Megacredit<Me>") shouldBe 0
+    player.count("TerraformRating<Me>") shouldBe 15
 
     player.godMode().manual("48 TerraformRating")
     engine.godMode().manual("SoloVictoryCheck")
 
-    player.count("Victory<Player1>") shouldBe 1
+    player.count("Victory<Me>") shouldBe 1
   }
 
   @Test
@@ -102,14 +102,14 @@ internal class SoloGenerationCountdownTest {
                 "GpComplete<Class<VenusStep>>, SoloVictoryCheck"
         )
 
-    player.count("TerraformRating<Player1>") shouldBe 14
-    player.count("Victory<Player1>") shouldBe 0
+    player.count("TerraformRating<Me>") shouldBe 14
+    player.count("Victory<Me>") shouldBe 0
   }
 
   private fun finishNeutralSetup(engine: TfmGameplay) {
-    engine.doFirstTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    engine.doFirstTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
   }
 }
