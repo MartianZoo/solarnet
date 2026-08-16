@@ -5,8 +5,6 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Multi
-import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.tfm.data.TfmClasses.PROD
@@ -37,31 +35,15 @@ public object Prod {
     return object : PetTransformer() {
       private var inProd = false
 
-      override fun <P : PetNode> transform(node: P): P {
+      override fun transformNode(node: PetNode): PetNode {
         val rewritten: PetNode =
             when {
-              node is Multi -> {
-                val badIndex =
-                    node.instructions.indexOfFirst {
-                      it is Transform && it.transformKind == PROD && it.instruction is Multi
-                    }
-                val xed = transformChildren(node)
-                if (badIndex == -1) {
-                  xed
-                } else {
-                  Multi.create(
-                      xed.instructions.subList(0, badIndex) +
-                          (xed.instructions[badIndex] as Multi).instructions +
-                          xed.instructions.subList(badIndex + 1, xed.instructions.size),
-                  )
-                }
-              }
               node is TransformNode<*> && node.transformKind == PROD -> {
                 if (inProd) throw PetSyntaxException("PROD boxes cannot be nested")
                 inProd = true
                 val inner =
                     try {
-                      transform(node.extract())
+                      transformNode(node.extract())
                     } finally {
                       inProd = false
                     }
@@ -80,8 +62,7 @@ public object Prod {
               }
               else -> transformChildren(node)
             }
-        @Suppress("UNCHECKED_CAST")
-        return rewritten as P
+        return rewritten
       }
     }
   }

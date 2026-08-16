@@ -14,11 +14,16 @@ import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import io.kotest.assertions.withClue
@@ -35,13 +40,23 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
+      register { Refinement(recurse(), choose(6 to false, 1 to true)) }
       register(Expression::class) {
-        Expression(recurse(), listOfSize(choose(specSizes)), refinement())
+        Expression(
+            recurse(),
+            listOfSize(choose(specSizes)),
+            chooseS(7 to { null }, 1 to { recurse<Refinement>() }),
+            choose(7 to false, 1 to true),
+        )
       }
+      val scalarTypes = multiset(7 to ActualScalar::class, 3 to XScalar::class)
+      register(Scalar::class) { recurse(choose(scalarTypes)) }
+      register { ActualScalar(choose(0, 1, 1, 1, 2, 5, 11)) }
+      register { XScalar(choose(1, 1, 2, 5, 11)) }
       register {
         scaledEx(
             choose(1 to MEGACREDIT.of(), 3 to recurse<Expression>()),
-            choose(0, 1, 1, 1, 5, 11),
+            recurse<Scalar>(),
         )
       }
 
@@ -90,9 +105,10 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               2 to Instruction.Transmute::class,
               1 to Instruction.Then::class,
               3 to Instruction.Or::class,
-              5 to Instruction.Multi::class,
               1 to Instruction.Transform::class,
           )
+      val instructionTreeTypes = instructionTypes + multiset(5 to InstructionGroup::class)
+      register(InstructionTree::class) { recurse(choose(instructionTreeTypes)) }
       register(Instruction::class) { recurse(choose(instructionTypes)) }
       register { Instruction.NoOp }
       register { Instruction.Gain(recurse(), intensity()) }
@@ -101,9 +117,14 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.By(recurse(), recurse()) }
       register { Instruction.Gated(recurse(), recurse()) }
       register { Instruction.Transmute(recurse(), recurse<ScaledExpression>().scalar, intensity()) }
-      register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
+      register {
+        Instruction.Then(
+            listOfSize(choose(1, 1, 1, 2)),
+            recurse<InstructionTree>(),
+        )
+      }
       register { Instruction.Or(listOfSize(choose(2, 2, 2, 2, 3))) }
-      register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
+      register { InstructionGroup(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Instruction.Transform(recurse(), PROD) }
 
       register(FromExpression::class) {
@@ -132,7 +153,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Trigger.WhenRemove }
       register { Trigger.OnGainOf.create(recurse()) as Trigger.OnGainOf }
       register { Trigger.OnRemoveOf.create(recurse()) as Trigger.OnRemoveOf }
-      register { Trigger.ByTrigger(recurse(), choose(1 to OWNER, 1 to PLAYER2.className)) }
+      register {
+        Trigger.ByTrigger(
+            recurse(),
+            choose(1 to OWNER.expression, 1 to PLAYER2.className.expression, 2 to recurse()),
+        )
+      }
       register { Trigger.IfTrigger(recurse(), recurse()) }
       register { Trigger.Or(List(choose(2, 2, 3)) { recurse<Trigger>() }) }
       register { Trigger.XTrigger(recurse()) }
@@ -143,6 +169,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       val costTypes =
           multiset(
               9 to Cost.Spend::class,
+              2 to Cost.Gated::class,
               3 to Cost.Per::class,
               3 to Cost.Or::class,
               2 to Cost.Multi::class,
@@ -150,6 +177,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           )
       register(Cost::class) { recurse(choose(costTypes)) }
       register { Cost.Spend(scaledEx = recurse()) }
+      register { Cost.Gated(recurse(), recurse()) }
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
@@ -166,15 +194,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
     }
 
-    fun RandomGenerator<PetNode>.refinement() =
-        chooseS(7 to { null }, 1 to { Refinement(recurse(), choose(6 to false, 1 to true)) })
-
     fun RandomGenerator<PetNode>.randomName() =
         choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
   }
 
   inline fun <reified T : PetNode> goNuts(count: Int = 10_000) {
-    return goNuts(T::class, count)
+    goNuts(T::class, count)
   }
 
   fun <T : PetNode> goNuts(type: KClass<T>, count: Int = 10_000) {

@@ -24,11 +24,12 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
 import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.And
@@ -220,7 +221,7 @@ internal object TerraformingMars {
     ): Instruction {
       val requirement =
           cardFromClassType(cardClassType, reader).requirement?.let {
-            replaceOwnerWith(Player(owner.className)).transform(it)
+            replaceOwnerWith(Player(owner.className)).transformRequirement(it)
           } ?: return NoOp
       if (requirement.canEvaluateDirectly() && reader.has(requirement)) return NoOp
 
@@ -285,9 +286,13 @@ internal object TerraformingMars {
   }
 
   internal object GetEventVps : CustomClass() {
-    override fun translate(reader: GameReader, ignoredOwner: Type, classType: Type): Instruction {
+    override fun translate(
+        reader: GameReader,
+        ignoredOwner: Type,
+        classType: Type,
+    ): InstructionTree {
       val effects = cardFromClassType(classType, reader).effects
-      return Multi.create(effects.filter { it.trigger == end }.map { it.instruction })
+      return InstructionGroup.of(effects.filter { it.trigger == end }.map { it.instruction })
     }
 
     private val end: Trigger = parse("End")

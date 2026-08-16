@@ -13,9 +13,9 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -75,7 +75,8 @@ public class CardDefinition(data: CardData) : Definition {
   public val tags: Multiset<ClassName> = HashMultiset.of(data.tags.map(::cn))
 
   /** The card's immediate instruction, if any. */
-  public val immediate: Instruction? = data.immediate?.let(::parse)
+  public val immediate: InstructionGroup? =
+      data.immediate?.let { InstructionGroup.of(parse<InstructionTree>(it)) }
 
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
@@ -128,7 +129,8 @@ public class CardDefinition(data: CardData) : Definition {
       data.components.map(::parseOneLinerClass) + listOfNotNull(resourceClassDeclaration())
 
   override val asClassDeclaration: ClassDeclaration by lazy {
-    val createTags = Multi.create(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
+    val createTags =
+        InstructionGroup.createTree(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
 
     val automaticFx: List<Effect> = listOfNotNull(immediateToEffect(createTags, true))
 

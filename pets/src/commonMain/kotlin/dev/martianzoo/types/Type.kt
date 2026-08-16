@@ -244,7 +244,7 @@ public data class Type(
         ignoreUnmatched: Boolean = false,
     ): PetTransformer {
       return object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
+        override fun transformNode(node: PetNode): PetNode {
           return if (node is Expression) {
             val resolved = classTable.resolve(node)
             val modded =
@@ -254,8 +254,7 @@ public data class Type(
                   if (!ignoreUnmatched) throw e
                   resolved
                 }
-            @Suppress("UNCHECKED_CAST")
-            modded.expressionFull as P
+            modded.expressionFull
           } else {
             transformChildren(node)
           }
@@ -269,24 +268,24 @@ public data class Type(
       val general = wide.arguments.single().className
       val specific = narrow.arguments.single().className
       return object : PetTransformer() {
-            override fun <P : PetNode> transform(node: P): P {
+            override fun transformNode(node: PetNode): PetNode {
               val linked =
                   if (node is Expression && node.className == general) {
                     node.copy(className = specific)
                   } else {
                     node
                   }
-              @Suppress("UNCHECKED_CAST")
-              return transformChildren(linked) as P
+              return transformChildren(linked)
             }
           }
-          .transform(requirement)
+          .transformRequirement(requirement)
     }
 
     val refin = wide.refinement!!
     val linked = linkRepresentedClass(refin.requirement)
     val transformed =
-        refinementMangler(narrow, ignoreUnmatched = narrow.className == CLASS).transform(linked)
+        refinementMangler(narrow, ignoreUnmatched = narrow.className == CLASS)
+            .transformRequirement(linked)
     return if (refin.forgiving) {
       Or(
           transformed,

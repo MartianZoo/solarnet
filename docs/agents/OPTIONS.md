@@ -1,77 +1,90 @@
 # Authorities, Modules, and game premises
 
-> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
-
-> **Status:** This document describes the current Authority, Module, configuration, and premise
-> model.
+**Status: current model.**
 
 ## Authority
 
-An **Authority** is one coherent source of everything Solarnet may know about a game. It provides:
+An **Authority** is one coherent namespace containing everything Solarnet may know about a game:
 
-- every directly authored Rule-Class Declaration in its namespace;
-- structured Definitions that generate Content-Class Declarations, such as cards, milestones, awards, maps, standard actions, and colony tiles;
-- vocabulary and other descriptive metadata;
-- declarative premise defaults and validity rules;
-- the exceptional custom metric and instruction implementations that cannot be expressed as data.
+- authored Rule-Class declarations;
+- structured definitions that generate Content-Class declarations;
+- vocabulary and descriptive metadata;
+- premise defaults, implications, and validity rules; and
+- the exceptional custom metrics and instructions that cannot be expressed as data.
 
-An Authority is almost entirely a data provider, even though much of that data describes behavior. Custom Kotlin implementations are the deliberate exception, not a reason for the Authority to make live game decisions.
+An Authority is principally a data provider. It does not make live game-state decisions. Published
+Terraforming Mars is one Authority; a variant that changes fundamental meanings is another.
+Authorities may reuse Class Names because their namespaces never mix.
 
-Published Terraforming Mars is one Authority. A versioned rebalance or a variant with changed fundamental behavior is another. Authorities may reuse a Class Name because their namespaces never mix.
+An Authority may be assembled from internal bundles, but callers and playable games still use
+exactly one Authority. Identical declarations may coalesce. Conflicting declarations for one Class
+Name or ambiguous ownership of a Module are invalid.
 
-Almost every operation uses exactly one Authority. An Authority may be assembled internally from several providers, but callers and playable games still see one Authority. Provider composition is an implementation detail. Identical Declarations may coalesce, but a Module must have exactly one bundle owner; ambiguous Module ownership is invalid.
+## One class catalog, projected per game
 
-The reusable API exposes `Authority`. `TfmAuthority` extends it with typed registries for cards, milestones, awards, maps, standard actions, and colony tiles. Generic class loading and engine operation depend only on `Authority`.
+Within an Authority, every Class Name has one meaning. The Authority loads and validates one master
+`ClassTable`. A playable game receives a projection backed by that master:
 
-## One master class table
+- selected classes are active;
+- Authority-known inactive classes are behaviorless phantoms; and
+- unknown names remain errors.
 
-Within one Authority, every Class Name has exactly one Declaration and one meaning. Identical Declarations from separate providers coalesce; differing Declarations for the same Class Name are an error. A replacement has its own Class Name, and the replaced Definition remains known but can be inactive. The published Deimos Down Definitions are therefore `Card039` and `CardX31`.
-
-The complete Authority catalog loads and validates once as the Authority's master `ClassTable`. Each playable game receives a projection backed by that table: selected Classes are active and every other Authority-known Class is present as a behaviorless phantom. Projections reuse the master's compiled hierarchy rather than loading an independent class universe. Rule Class versus Content Class records declaration provenance only; Class Loading erases that distinction. No game projection obtains Declarations or behavior from another provider.
-
-The universal catalog is a schema, not a playable Game World. It is not instantiated because doing so would create mutually exclusive maps, modes, and alternative Singleton Components together.
+The universal catalog is a schema, not a playable Game World. It is never instantiated because it
+contains mutually exclusive maps, modes, and replacement classes.
 
 ## Module
 
-A **Module** is an affirmative, immutable singleton component that carries ambient behavior for one realized game choice. Base behavior, expansions, maps, modes, and variants are all Modules. The exact set of Module components is the complete statement of the game's general behavior choices.
+A **Module** is an affirmative, immutable singleton component carrying ambient behavior for one
+realized choice. Base rules, expansions, maps, modes, and variants are Modules. The exact live Module
+set is the complete statement of a game's general rules.
 
-Each Module declares the classes it activates or deactivates. The Authority stores these selections directly by Module class name; there is no second Kotlin Module object duplicating that identity. A selection can be conditional on the complete configuration, which supports definitions such as a map milestone that exists only when a particular expansion is also selected. Structural activation may pull in dependencies, but it may not activate an unselected Module or reactivate an explicitly excluded class.
+Each Module selects classes to activate or deactivate. Selection may depend on the complete
+configuration. Structural reachability may activate dependencies, but it may not activate an
+unselected Module or defeat an explicit exclusion.
 
-## GamePremise
+## Configuration and premise
 
-A `GamePremise` is the complete immutable input needed to construct equivalent playable Game Worlds. It contains only:
+`GameConfig` is unresolved user intent: unordered included and excluded class-name sets plus player
+names in seat order. Defaults, implications, selection policy, and validation resolve it to a
+`GamePremise`.
+
+A `GamePremise` is the complete immutable input needed to construct equivalent Game Worlds. It
+contains only:
 
 1. one Authority;
-2. the selected Module class names;
-3. signed selections for other individual Authority classes;
-4. user-facing player names in seat order;
-5. exact concrete non-singleton types for which initialization creates one instance each.
+2. selected Module Class Names;
+3. signed selections for other Authority classes;
+4. user-facing player names in seat order; and
+5. exact concrete non-singleton types to instantiate once.
 
-The projection activates `Player1` through `PlayerN` for the occupied seats; Players are not ordinary signed class selections. Those canonical names remain the runtime class and Actor identities. Configured player names are vocabulary aliases, accepted as input and used when rendering Pets, just like friendly names for cards. Active and phantom Authority classes derive from the Modules and signed selections. Initial state is not an unrestricted list of Pets instructions.
+Occupied seats activate canonical `Player1` through `PlayerN`. Configured player names are
+Vocabulary aliases, not Class identities. Initial state is not an unrestricted Pets script.
 
-Availability and initial existence are separate. With Colonies active, all eligible colony-tile classes are active so later effects can select them, while setup creates only the chosen starting tile components. An eligible but initially unchosen tile has count zero.
+Availability and existence are distinct. With Colonies active, eligible colony classes are active
+so effects can select them, while setup creates only the chosen starting colony components.
 
-`GameConfig` is the unresolved expression of user intent. Its included and excluded class-name sets have no ordering semantics, while player names are a separate seat-ordered list. Defaults, implications, selection policies, and validation convert it into a `GamePremise`. The Terraforming Mars resolver requires one to five player names and accepts Modules and signed individual classes from the ordinary configuration. Unambiguous English Pets names for structured definitions are accepted alongside canonical names. Mentioning any milestones or awards selects the exact named pool for that category; selected colony tiles additionally become initial components.
+Defaults are evaluated against explicit inclusions. Naming a competing choice suppresses its
+default; an explicit exclusion defeats defaults and implications. Selecting named milestones or
+awards chooses that exact pool. Selecting colony tiles also requests their initial components.
 
-Configuration defaults belong to the Authority's premise-resolution process, not to clients or
-test helpers. They are evaluated against explicit inclusions: naming a competing choice suppresses
-the corresponding default, and an explicit exclusion defeats both defaults and implications.
+## Bundle
 
-## Bundles
+A **Bundle** is an internal unit of ownership, provenance, distribution, and loading. It may provide
+declarations, definitions, premise metadata, and custom implementations. It is not selected directly
+and never becomes a live component.
 
-A **Bundle** is an internal unit of file ownership, provenance, distribution, and loading. It may contribute declarations, structured definitions, premise metadata, and custom implementations. It is not selected directly by a game and never becomes a live component.
+A Module may select a whole content category from a named bundle. This supports an expansion adding
+its cards or milestones without exposing arbitrary bundle selection. Otherwise bundle provenance has
+no game semantics.
 
-Bundle provenance normally has no semantic effect. The one deliberate selection facility is that a Module may activate a whole category from a named bundle, such as all cards, milestones, awards, maps, standard actions, colony tiles, or auto-loaded classes. This supports relationships such as an expansion adding its milestone definitions to a selected map without exposing arbitrary per-definition selection. When no explicit mapping is supplied, a Module selects all categories from its own bundle.
+## Invariants
 
-## Required invariants
-
-- A game and almost every related operation use exactly one Authority.
-- Every Class Name has one meaning within an Authority; identical Declarations coalesce and differing Declarations are invalid.
-- Each Authority owns one complete, validated master class table.
-- Every game table is backed by that master, with inactive known classes represented as phantoms.
-- A premise contains only the Authority, Modules, signed individual class selections, seated player names, and exact initial concrete non-singleton types.
-- Bundles affect organization except for a Module's explicit bundle-wide category selections.
-- Eligible class availability and initial component existence are separate facts.
-- Structural activation cannot select an unrequested Module or defeat an exclusion.
-- Multiple simultaneously selected replacements for one definition are invalid.
-- Given one Authority, the ambient behavior is a deterministic function of the exact Module components present.
+- One game uses one Authority.
+- One Class Name has one meaning inside that Authority.
+- Every game table projects the Authority's validated master table.
+- Modules, signed class selections, seats, and exact requested initial types fully determine the
+  premise.
+- Structural activation cannot select an unrequested Module or override an exclusion.
+- Eligible availability and initial existence remain separate.
+- Multiple active replacements for one definition are invalid.
+- Given an Authority, ambient behavior is a deterministic function of the live Module components.

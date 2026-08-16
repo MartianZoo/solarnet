@@ -5,11 +5,15 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.Transforming.actionToEffect
 import dev.martianzoo.pets.Transforming.immediateToEffect
+import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.testlib.te
@@ -54,7 +58,7 @@ internal class TransformingTest {
   @Test
   fun testImmediateToEffect() {
     fun checkImmediateToEffect(immediate: String, effect: String) {
-      val immed: Instruction = parse(immediate)
+      val immed: InstructionTree = parse(immediate)
       val fx: Effect = parse(effect)
       immediateToEffect(immed) shouldBe fx
     }
@@ -62,6 +66,22 @@ internal class TransformingTest {
     checkImmediateToEffect("Foo, Bar", "This: Foo, Bar")
     checkImmediateToEffect("Foo, Bar: Qux", "This: Foo, Bar: Qux")
     checkImmediateToEffect("Foo: Bar", "This: (Foo: Bar)")
+  }
+
+  @Test
+  fun instructionTransformPreservesTheKindNotTheConcreteType() {
+    val original = parse<Instruction>("Plant") as Gain
+
+    replacer(original, NoOp).transformInstruction(original) shouldBe NoOp
+  }
+
+  @Test
+  fun instructionTransformDeduplicatesCollapsedOrArms() {
+    val transformed =
+        replaceOwnerWith(cn("Player1").expression)
+            .transformInstructionTree(parse("Foo<Owner> OR Foo<Player1>"))
+
+    transformed shouldBe parse<Instruction>("Foo<Player1>")
   }
 
   @Test
@@ -98,7 +118,13 @@ internal class TransformingTest {
   ) {
     val parsedOriginal = parse(type, original)
     val parsedExpected = parse(type, expected)
-    val tx = replacer(THIS.expression, thiss).transform(parsedOriginal)
+    val transformer = replacer(THIS.expression, thiss)
+    val tx =
+        when (parsedOriginal) {
+          is Effect -> transformer.transformEffect(parsedOriginal)
+          is Instruction -> transformer.transformInstruction(parsedOriginal)
+          else -> error("Test does not handle the ${parsedOriginal.kind} kind")
+        }
     tx shouldBe parsedExpected
 
     // more round-trip checking doesn't hurt

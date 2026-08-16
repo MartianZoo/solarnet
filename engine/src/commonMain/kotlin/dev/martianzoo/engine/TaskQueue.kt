@@ -8,7 +8,7 @@ import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
-import dev.martianzoo.pets.ast.Instruction.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.util.toSetStrict
 
 /**

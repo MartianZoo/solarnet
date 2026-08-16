@@ -17,49 +17,68 @@ internal class ActionTest {
     testRoundTrip<Action>("(=0 Award: 8) OR (=1 Award: 14) OR (=2 Award: 20) -> Award")
   }
 
+  @Test
+  fun perCostsParenthesizeNestedGates() {
+    testRoundTrip<Action>("(Bar: 1 / Foo) / Abc -> X Xyz")
+  }
+
   private val inputs =
       """
-      -> 11
-      -> Bar
-      1 -> -5!
-      1 -> -11!
-      11 Abc -> 1
-      -> PROD[Qux]
-      5 -> -11 Xyz?
-      PROD[1] -> Qux
-      Bar<Bar> -> 11!
-      Abc -> Bar / Wau
-      PROD[1] -> 11 Xyz
-      PROD[1] -> Foo<Foo>
-      PROD[1] -> Bar / Foo
-      11 Abc<Qux> -> 11 Bar?
-      Qux -> Wau<Ahh>: 11 Abc
-      5 Xyz<Foo> -> 5 Qux<Bar>
-      11 Abc -> 1. / Megacredit
-      Foo -> PROD[-1 / Bar<Wau>]
-      Bar -> 5 Ooh<Qux> FROM Abc.
-      PROD[Bar] / Foo<Qux> -> -Xyz
-      5 Abc<Abc<Xyz>, Qux, Qux> -> 1
-      1 -> -11 Ooh<Foo>, (Foo, -1, 1)
-      PROD[1], 11 Xyz, 5 Foo -> 5 Ahh.
-      Xyz<Foo> -> 11 Qux? THEN Ooh / Foo
-      Foo<Foo> / Qux -> (1, Qux), -11 Foo
-      -> (5 Qux FROM Bar, Bar) OR -1 OR Foo
-      PROD[Bar<Foo>] / Foo -> -Foo<Foo, Bar>
-      Bar, Bar -> Qux, Foo THEN ((1: 1) OR 1)
-      5 Ooh<Abc> -> Ooh, 1 OR (Abc FROM Foo)
-      1 / Eep -> 5 Foo THEN Bar: Abc<Qux> / Xyz
-      5 OR 1 -> Foo<Foo<Foo>>. OR -Foo<Foo, Qux>
-      Foo<Ahh<Foo<Ahh>>> -> 5, ((-1, 1: -1), Qux)
-      1 / 11 Bar -> PROD[Abc], (5 Bar, (-Foo, -1))
-      Xyz, Bar, Abc -> PROD[Xyz OR Abc / Megacredit]
-      1 -> (1 OR PROD[1] OR (1 OR Foo OR 5 Bar)): -Qux
-      Ooh<Qux> / Foo, 1 / Qux -> -Bar(HAS =1 Megacredit)
-      Foo / Ooh OR 1, Xyz / 5 Abc, PROD[Foo, Foo] -> Foo!
-      11 Foo / 11 Eep -> -Bar, 1, Ahh FROM Ahh?, 1 / Bar
-      1 / Megacredit OR PROD[11 / Megacredit] -> 1. OR -Xyz
-      PROD[Eep] -> Ooh<Foo<Abc>>., Abc., 11 Bar<Qux, Bar>, 1
-      Qux<Qux> -> 1 OR -1. OR (Foo<Qux>: 1 OR -Foo OR Foo)
+      -> Ok
+      -> -Wau
+      2X -> Ok
+      -> 11 Xyz
+      -> -X Qux!
+      Ahh, X -> 2
+      1 -> 1 OR 1?
+      -> 1: 1, -Ahh
+      5 Foo -> X Foo
+      PROD[Foo] -> Ok
+      PROD[1] -> X Foo
+      -> =1 Bar: -2 Xyz
+      PROD[1] -> -Wau, 5
+      -> PROD[1 / Foo], 1
+      5X Abc<Foo> -> 1, 5?
+      -> -1. OR Ok OR 2 Abc
+      2 Eep / Bar MAX 5 -> 1
+      PROD[PROD[Ooh]] -> -Eep
+      PROD[Foo] -> Bar / 2 Foo
+      Qux -> 1 OR Qux<Bar, Xyz>
+      PROD[X] -> 2 Ooh<Ahh, Ahh>
+      -> 5 Ahh? / PROD[Bar MAX 5]
+      PROD[X Foo] -> -2X Xyz / Bar
+      PROD[((1, 1): 1) / Xyz] -> 5X
+      PROD[Bar OR 2] -> -X Foo<Qux>!
+      PROD[Qux(HAS Foo)] -> -11X Eep?
+      Qux -> PROD[MAX 1 Megacredit: 2]
+      Qux<Abc> -> Qux BY Bar, Foo OR 1!
+      PROD[1 / PROD[Bar]] -> -1? / 2 Abc
+      PROD[2: Foo] -> Foo / 2 (Qux MAX 5)
+      PROD[MAX 0 Megacredit: (1, 1)] -> 5?
+      Eep, Qux -> PROD[Xyz FROM Qux], -!Qux
+      PROD[1] -> (-Abc, Foo) OR -2 OR (1, 1)
+      PROD[1] -> -2 Qux / (Qux OR Qux) OR Abc
+      PROD[X Ooh<Foo> / Bar] -> 11 Bar(HAS 1)!
+      PROD[Ahh / 2 Foo MAX 11] -> -1 / Xyz<Qux>
+      5 Ahh<Bar, Ooh, Foo> -> 1, Foo<Foo> BY Eep
+      PROD[(MAX 0 Foo: 1) / Xyz, Qux] -> Bar<Xyz>
+      1, Qux OR (1 OR Bar, 1) -> PROD[5X / Foo], 1
+      Foo<Foo<Bar, Bar>>: 1, PROD[Bar] -> Ahh<Qux>!
+      Eep -> 11 Ooh<Ahh>, (Bar FROM Qux!) OR 1 / Ahh
+      PROD[=1 Bar OR Bar]: PROD[Qux / Qux] -> 1 / Foo
+      (MAX 1 Abc, (Qux, 1)): 2 Bar -> X / Foo, PROD[1]
+      Qux, 1 / 2 (2 Xyz), (1, (1, Abc<Foo>, Bar)) -> Ok
+      PROD[1: Foo, (Bar: 1) / 2 Foo] -> Qux! / 3 (3 Qux)
+      PROD[1: Abc] / (Bar OR Foo<Foo, Bar>) OR Qux -> 11?
+      2, (Ahh, (MAX 0 Megacredit: 1) / 2 Qux) -> Foo<Foo>.
+      (Xyz, Bar): 1, PROD[Abc / Abc<Xyz>] -> X Abc FROM Ahh
+      5 Bar / Foo<Foo, Bar> -> Foo: -Foo, 1 / 2 Foo, 1 OR Ok
+      ((Xyz, 1) OR Xyz): PROD[1 / 2 Qux MAX 5] -> Foo(HAS 5)?
+      1 -> -Ooh / 3 Qux, X Abc / Xyz<Bar>, MAX 1 Megacredit: 1
+      (Ooh OR 1): (Foo<Bar, Qux> OR Qux OR 1) -> 1 / Abc OR Xyz
+      Bar: (((1 OR Ooh) OR (Foo: 1 / Qux) / Foo) OR 1) -> 5 Eep?
+      PROD[Bar<Foo>], 1, Eep<Bar> -> 11X Eep FROM !Xyz<Eep, Foo>?
+      Foo<Abc<Foo<Bar<Qux<Qux>>>>>, Bar / Qux OR 2 Foo -> PROD[-1]
       """
           .trimIndent()
 

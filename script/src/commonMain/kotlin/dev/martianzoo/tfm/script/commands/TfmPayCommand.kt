@@ -8,6 +8,8 @@ import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -22,7 +24,10 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
 
   override fun withArgs(args: String): List<String> {
     val gains: List<Instruction> =
-        Instruction.split(repl.game.vocabulary.canonicalize(Parsing.parse(args))).instructions
+        repl.game.vocabulary
+            .canonicalize(Parsing.parse<InstructionTree>(args))
+            .let(InstructionGroup::of)
+            .instructions
 
     val payments: List<Pair<String, String>> = gains.map {
       val sex = (it as Gain).scaledEx

@@ -10,6 +10,7 @@ import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.types.te
 import io.kotest.assertions.throwables.shouldThrow
@@ -97,7 +98,7 @@ class TaskAssignmentCharacterizationTest {
     val pending =
         PendingTask(
             assignee = PLAYER2,
-            instruction = parse<Instruction>("Plant<Player2>!"),
+            instruction = InstructionGroup(listOf(parse<Instruction>("Plant<Player2>!"))),
             cause = cause,
         )
 
@@ -107,7 +108,7 @@ class TaskAssignmentCharacterizationTest {
     added.id.ordinal shouldBe event.ordinal
     added.assignee shouldBe PLAYER2
     added.actor shouldBe PLAYER2
-    added.instruction shouldBe pending.instruction
+    added.instruction shouldBe pending.instruction.instructions.single()
     added.cause shouldBe cause
     queues[PLAYER2].ids().shouldContainExactly(TaskId(event.ordinal))
   }
@@ -119,7 +120,7 @@ class TaskAssignmentCharacterizationTest {
     val pending =
         PendingTask(
             assignee = PLAYER2,
-            instruction = parse<Instruction>("Plant<Player2>!"),
+            instruction = InstructionGroup(listOf(parse<Instruction>("Plant<Player2>!"))),
             cause = Cause(te("TerraformingMars"), triggerEvent = 0),
         )
     queues[PLAYER2].addTasks(pending)

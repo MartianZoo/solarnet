@@ -17,53 +17,60 @@ internal class EffectTest {
 
   private val inputs =
       """
-      Ooh: 1
-      Xyz: -1
-      -Foo: 5!
-      Abc: -Abc
-      -Xyz: -Bar
-      -Xyz:: -Abc
-      Eep: PROD[1]
-      Qux: -11 Eep!
-      PROD[Ahh]: Foo
-      PROD[Ahh]: -Qux?
-      Qux:: PROD[5 Foo]
-      PROD[Xyz]: PROD[1]
-      -Ooh<Xyz, Bar>:: -1
-      Ooh: PROD[PROD[Foo]]
-      PROD[Bar]: PROD[-Bar]
-      PROD[Xyz]:: PROD[-Bar]
-      PROD[Ooh]: -Foo, 11 Bar
-      -Foo<Bar, Bar, Abc>: Bar
-      PROD[Abc]: Ooh FROM Xyz
-      -Ooh: (Qux FROM Bar) OR 5
-      Xyz<Ooh, Bar, Eep>: PROD[-5]
-      Xyz: PROD[Qux<Foo, Abc>: Foo]
-      Wau: Bar(HAS 5 Qux) FROM Ahh
-      Ooh:: 1 / Abc, 11 Ooh<Foo<Foo>>
-      -Qux: Xyz / 5 Foo(HAS MAX 1 Qux)
-      Abc<Foo>:: 5 Foo FROM Abc<Foo>, 5
-      Ooh<Bar>:: 11 Foo, 5 Foo<Bar<Foo>>
-      -Bar(HAS Bar): -Eep<Qux, Bar<Bar>>.
-      -Qux<Ooh<Foo>>(HAS 5 OR Bar): -5 Ooh
-      PROD[Qux]: (1: (1 / 5 Foo, Foo<Xyz>))
-      PROD[-Ahh]: PROD[-Qux / 11 Megacredit]
-      Eep: (1 THEN 1) OR (-Qux, 1, -5 Foo, 1)
-      Qux:: Bar FROM Bar / Bar<Qux>, -5 Qux?
-      -Ooh: Ooh, (5 Abc<Foo>, 1: -1), 5 Foo!, 1
-      Foo: PROD[5. OR (=1 Megacredit: -1 OR 1)]
-      Xyz<Xyz>: Xyz FROM Abc / Xyz<Xyz<Bar>, Bar>
-      PROD[Abc]: Ooh OR (1 THEN Foo.), -11, Foo, Ooh
-      -Ooh<Foo<Ahh>>(HAS 1 OR (1 OR Foo)): Bar, -5 Ooh
-      -Eep<Foo, Ooh<Foo>>: ((-1, -Abc), 1!) OR Abc<Qux>
-      PROD[-Abc]: (Xyz OR MAX 0 Qux): -1 / Ooh<Foo>, Foo
-      -Wau<Bar<Foo>>: -5, 1. / 11 Abc, 5 Abc FROM Foo / Ooh
-      -Foo: PROD[5 Abc], (-1 THEN 1) OR (Bar OR (1: 1)), Ahh
-      Qux<Abc<Qux>, Qux>:: (1, 1 OR Foo) OR (Abc FROM Abc.)
-      -Ahh<Xyz(HAS =0 Megacredit), Foo<Abc>>: 5 / 11 Megacredit
-      -Xyz: (1 / Bar, 1 / Wau), (1, 1 / Foo OR Qux OR (1: -Bar))
-      -Bar<Foo<Ahh, Foo<Foo>>, Foo, Qux<Qux<Qux>, Foo>>:: PROD[1]
-      -Abc<Qux>: ((1 OR (MAX 1 Megacredit OR 1)): (Bar, 1 OR Qux))
+      Bar: 11
+      This: Ok
+      -Foo: -5X
+      X This: Ok
+      -X This: 5!
+      This: 5 Abc?
+      PROD[Qux]: 1?
+      This: 1, -!Foo
+      X Eep<Bar>: 5X?
+      PROD[X This]: Ok
+      PROD[X Xyz]:: -2.
+      -Xyz: 2 / Xyz OR 1
+      PROD[Bar]: Ahh, Ahh
+      -This: 1 / PROD[Qux]
+      This: (1: Abc) BY Bar
+      PROD[Qux]: -Xyz, 2 Bar
+      -X Foo(HAS Foo): -X Eep
+      This BY Ooh: Foo!, 2 Xyz
+      X This: PROD[2 Bar], -Abc
+      !Ooh<Ahh>: 2X Xyz FROM Qux
+      -Eep: Ok THEN Ok, PROD[Foo]
+      X This:: 2X Ahh, -Qux(HAS 1)
+      PROD[Wau<Bar, Ooh>]: PROD[1?]
+      X Abc: Foo, (Ok BY Qux) BY Bar
+      X Qux<Bar>: Bar / 2 Bar<Bar>, 1
+      Foo BY Player2 IF =1 Xyz: -X Ahh
+      PROD[X Ahh]: Bar<Ooh> / Xyz, -Qux
+      -X This: -Foo! OR X Qux, Ahh, Bar?
+      This OR PROD[X This]: Bar FROM !Ooh
+      -Bar: 11 Ahh<Foo, Foo> FROM Eep<Qux>
+      Bar<Foo<Bar<Bar<Bar>>, Eep>, Bar>: -1
+      X This: Abc / (2 Bar<Bar, Ooh> OR Qux)
+      PROD[Abc]: -X Qux, 11 Abc<Xyz> FROM Xyz
+      This OR This: 2 Xyz<Ooh<Foo>(HAS 5 Xyz)>
+      PROD[-Ooh<Qux<Bar>, Bar>]: -1 / PROD[Foo]
+      (This BY Abc) BY Xyz: !Foo<Foo>, 1!, 1: X.
+      PROD[Foo<Qux>]: 5X, Ahh<Qux> / Xyz, PROD[1]
+      !Foo: -1 / Foo, Ooh FROM Bar, 5!, Abc OR Qux
+      PROD[-Xyz] BY Foo:: 1 / Foo MAX 5, Foo(HAS 1)
+      -This: X!, Xyz(HAS Foo) FROM Foo, -5 Foo / Qux
+      Xyz IF MAX 0 Megacredit: Xyz<Abc, Foo> FROM Ahh
+      PROD[X Bar]: PROD[1 / Foo, Qux], Xyz, Qux, 2 Abc
+      PROD[X This]: 5X Eep<Bar<Abc>>, 2, Abc<Ooh, Qux>!
+      Ahh<Abc, Xyz>: -Eep(HAS Bar) OR (Bar: -Xyz BY Bar)
+      X Qux:: ((1 OR Bar): Abc) OR Ok OR -5 Qux, PROD[Ok]
+      Qux(HAS MAX 1 Megacredit): (-5, Qux FROM Qux) OR Xyz
+      Ahh IF MAX 1 Foo: PROD[2 Bar, 1 / Bar, Bar<Foo>: Xyz]
+      PROD[Foo] OR PROD[Bar]:: -5X, 2 THEN Foo<Qux> FROM Foo
+      PROD[Eep]:: -5, -2 Ooh<Abc>, (Foo: 2) OR (Qux FROM Foo)
+      -Foo<!Qux>: -X Foo<!Qux<Bar<Foo>, Abc>> / 2 (2 Foo<Abc>)
+      Bar IF MAX 2 Bar: X Abc / Qux<Eep> OR PROD[1] BY Bar<Xyz>
+      PROD[Foo]:: (2 Qux FROM Foo) OR (-Foo, 1), 2 Qux FROM Ahh.
+      PROD[X This]: 1: 1, Abc / Bar<Bar<Bar>> OR 2 Foo., -2X Qux.
+      Ahh<Foo>: (Qux<Qux, Foo>, 1 / 2 Bar OR 2) OR Abc / PROD[Abc]
       """
           .trimIndent()
 

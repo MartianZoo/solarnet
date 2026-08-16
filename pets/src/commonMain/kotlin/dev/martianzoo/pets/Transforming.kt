@@ -10,8 +10,10 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 
 /**
@@ -33,15 +35,14 @@ public object Transforming {
   @Suppress("ComplexCondition") // TODO fix
   public fun replaceOwnerWith(owner: HasClassName): PetTransformer =
       object : PetTransformer() {
-        override fun <P : dev.martianzoo.pets.ast.PetNode> transform(node: P): P {
+        override fun transformNode(node: PetNode): PetNode {
           if (
               node is Expression &&
                   node.className == OWNER &&
                   node.arguments.isEmpty() &&
                   node.refinement == null
           ) {
-            @Suppress("UNCHECKED_CAST")
-            return node.copy(className = owner.className) as P
+            return node.copy(className = owner.className)
           }
           return transformChildren(node)
         }
@@ -60,13 +61,19 @@ public object Transforming {
       }
 
   internal fun immediateToEffect(
-      instruction: Instruction,
+      instruction: InstructionTree,
       effectIsAutomatic: Boolean = false,
   ): Effect? {
-    return if (instruction == NoOp) {
+    val syntaxTree =
+        if (instruction is InstructionGroup) {
+          InstructionGroup.createTree(instruction.instructions)
+        } else {
+          instruction
+        }
+    return if (syntaxTree == NoOp) {
       null
     } else {
-      Effect(WhenGain, instruction, effectIsAutomatic)
+      Effect(WhenGain, syntaxTree, effectIsAutomatic)
     }
   }
 }

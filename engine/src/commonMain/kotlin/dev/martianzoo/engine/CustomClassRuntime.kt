@@ -7,7 +7,7 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.data.Authority
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.types.Type
 
 /** Engine runtime for Kotlin-provided instruction and metric behavior of Pets custom classes. */
@@ -15,7 +15,7 @@ internal class CustomClassRuntime(
     private val authority: Authority,
     private val transformers: Transformers,
 ) {
-  internal fun prepare(component: Component, reader: GameReader): Instruction {
+  internal fun prepare(component: Component, reader: GameReader): InstructionTree {
     require(component.isCustom)
     require(component.type.classTable === transformers.classTable)
 
@@ -53,7 +53,7 @@ internal class CustomClassRuntime(
         with(transformers) {
           chain(atomizer(), insertDefaults(), component.owner?.let(::replaceOwnerWith))
         }
-    return outputTransformer.transform(translated)
+    return outputTransformer.transformInstructionTree(translated)
   }
 
   internal fun count(type: Type, reader: GameReader): Int {
