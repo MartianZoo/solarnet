@@ -19,10 +19,10 @@ import dev.martianzoo.util.toSetStrict
 /**
  * An internal Authority-provider bundle loaded from conventionally named Pets and JSON resources.
  *
- * Every `.pets` file in [resourceDirectory] is loaded. The supported JSON filenames are exposed as
- * constants below. Files for unsupported canonical data are recognized but ignored; other files
- * produce a warning. A bundle identity is raw source provenance, not a Pets class, so no
- * declaration is required or synthesized for it. Callers whose resources are not in Canon's
+ * `classes.pets`, when present, supplies the Pets declarations. The supported JSON filenames are
+ * exposed as constants below. Files for unsupported canonical data are recognized but ignored;
+ * other files produce a warning. A bundle identity is raw source provenance, not a Pets class, so
+ * no declaration is required or synthesized for it. Callers whose resources are not in Canon's
  * generated index can provide [resourceFilenames] and [resourceReader] directly.
  */
 public class StandardFormBundle(
@@ -41,11 +41,7 @@ public class StandardFormBundle(
   }
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    resourceFilenames
-        .filter { it.endsWith(PETS_EXTENSION) }
-        .sorted()
-        .flatMap { parseClasses(read(it)) }
-        .toSetStrict()
+    readIfPresent(CLASSES_FILENAME, ::parseClasses).toSetStrict()
   }
 
   override val metadata: BundleMetadata by lazy {
@@ -99,7 +95,7 @@ public class StandardFormBundle(
       resourceFilenames.filter { it == MAPS_FILENAME || it.endsWith("-$MAPS_FILENAME") }.sorted()
 
   private fun isExpected(filename: String): Boolean =
-      filename.endsWith(PETS_EXTENSION) ||
+      filename == CLASSES_FILENAME ||
           LANGUAGE_FILENAME.matches(filename) ||
           filename in KNOWN_JSON_FILENAMES ||
           filename.endsWith("-$MAPS_FILENAME")
@@ -113,7 +109,7 @@ public class StandardFormBundle(
     public const val AWARDS_FILENAME: String = "awards.json5"
     public const val PREMISE_FILENAME: String = "premise.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
-    private const val PETS_EXTENSION = ".pets"
+    private const val CLASSES_FILENAME = "classes.pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
     private val KNOWN_JSON_FILENAMES =
         setOf(

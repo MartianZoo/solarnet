@@ -1,19 +1,8 @@
-"Represents a 2% increase in Venus... terraformedness"
-CLASS VenusStep : GlobalParameter {
-  HAS MAX 15 This
-  This IF =15 This: GpComplete<Class<VenusStep>>
-  This IF =4 This: ProjectCard
-  This IF =8 This: TerraformRating
-}
-
 CLASS VenusNextExpansion : Module {
   SetupPhase: SoloVictoryRequirement
   SoloVictoryCheck IF MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
   SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
 }
-
-"The Venus Next contribution to the Solar phase"
-CLASS VenusSolarPhase : Phase
 
 "Adds World Government Terraforming to the solar phase"
 CLASS WorldGovernmentOption : Module {
@@ -21,4 +10,22 @@ CLASS WorldGovernmentOption : Module {
   VenusSolarPhase IF MAX 3 GpComplete:: WorldGovernmentTerraforming
 }
 
+"The Venus Next contribution to the Solar phase"
+CLASS VenusSolarPhase : Phase
+
+"Represents a 2% increase in Venus... terraformedness"
+CLASS VenusStep : GlobalParameter {
+  HAS MAX 15 This
+
+  This IF =15 This: GpComplete<Class<VenusStep>>
+  This IF =4 This: ProjectCard
+  This IF =8 This: TerraformRating
+}
+
 CLASS VenusTag : PlanetTag
+
+"Asks the first player to choose one mandatory global-parameter increase performed by Engine"
+CLASS WorldGovernmentTerraforming : Signal, System
+
+"Asks the first player where an ocean is placed while preserving the performing Player"
+CLASS FirstPlayerOcean<Player> : Signal

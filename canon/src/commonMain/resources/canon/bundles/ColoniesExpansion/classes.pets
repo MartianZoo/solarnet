@@ -1,7 +1,3 @@
-//
-// Colonies expansion!
-//
-
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
   SetupPhase: ColoniesSetup
@@ -11,31 +7,13 @@ CLASS ColoniesExpansion : Module {
 "Creates the colony tiles and one trade fleet for each player"
 CLASS ColoniesSetup : Custom
 
-// Colony tile data read from colonies.json5 is converted to classes in this form:
-//
-//   CLASS $name : ColonyTile {
-//     Colony<This>: $placementBonus
-//     GiveColonyBonus<This>: $colonyBonus
-//     FlownTradeFleet<This> IF =0 ColonyProduction<This>: ${tradeIncome[0]} // etc.
-//     FlownTradeFleet<This>: ResetColonyProduction<This>
-//   }
-
 "A colony tile, such as Pluto"
 ABSTRACT CLASS ColonyTile {
-  HAS MAX 1 This,  MAX 3 Colony<This>, MAX 1 FlownTradeFleet<This>
+  HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 FlownTradeFleet<This>
 
-  // WHITE CUBE MAINTENANCE
-
-  // Start at 1, not 0
   This:: ColonyProduction<This>
-
-  // When colony built, move it right if necessary
   Colony<This>: -ColonyProduction<This>. / Colony<This> THEN ColonyProduction<This> / Colony<This>
-
-  // After trade, move it all the way left
   ResetColonyProduction<This>: -6 ColonyProduction<This>. THEN ColonyProduction<This> / Colony<This, Anyone>
-
-  // At end of gen, move it right one (technically during the "colonies solar phase" but shrug)
   ProductionPhase: ColonyProduction<This>.
 }
 
@@ -45,34 +23,33 @@ CLASS Colony<ColonyTile> : Owned<Player> {
   FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses: GiveColonyBonus<ColonyTile>
 }
 
-"Initiates a Trade operation by moving one of the player's fleets to the colony tile"
-CLASS Trade<ColonyTile> : Owned, Signal {
-  This: MAX 0 TradeBarrier: FlownTradeFleet<ColonyTile> FROM ReserveTradeFleet
+// A player's trade fleet, either in reserve or flown to a ColonyTile this generation
+ABSTRACT CLASS TradeFleet : Owned<Player> {
+  CLASS ReserveTradeFleet
+  CLASS FlownTradeFleet<ColonyTile> {
+    Generation: ReserveTradeFleet FROM This
+  }
 }
 
-"Blocks fleet movement until one trade-track decision has been handled"
-CLASS TradeBarrier : Barrier
+"Initiates a Trade operation"
+CLASS Trade<ColonyTile> : Owned<Player>, Signal {
+  This: MAX 0 TradeBarrier: FlownTradeFleet<ColonyTile> FROM ReserveTradeFleet
+}
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
 CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
 
 "An implementation detail used to trigger colony bonuses to be paid out"
-CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
+CLASS GiveColonyBonus<ColonyTile> : Owned<Player>, Signal
 
 "Requests one colony bonus payment for each colony the player owns"
-CLASS GiveColonyBonuses : Owned, Signal
+CLASS GiveColonyBonuses : Owned<Player>, Signal
+
+"Blocks fleet movement until one trade-track decision has been handled"
+CLASS TradeBarrier : Barrier
 
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
 CLASS ResetColonyProduction<ColonyTile> : Signal
-
-"A player's trade fleet, either in reserve or flown to a ColonyTile this generation"
-ABSTRACT CLASS TradeFleet : Owned<Player> {
-  CLASS ReserveTradeFleet
-
-  CLASS FlownTradeFleet<ColonyTile> {
-    Generation: ReserveTradeFleet FROM This
-  }
-}
 
 "To add a colony tile to the game (like Aridor does), gain this"
 CLASS AddColonyTile<Class<ColonyTile>> : Custom
@@ -80,6 +57,6 @@ CLASS AddColonyTile<Class<ColonyTile>> : Custom
 "If a ColonyTile gives card resources, one of these is created first instead"
 CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
   HAS MAX 1 This
-  This IF ResourceCard<Class<CardResource>>: ColonyTile FROM This // thanks Aridor
+  This IF ResourceCard<Class<CardResource>>: ColonyTile FROM This
   ResourceCard<Class<CardResource>>: ColonyTile FROM This
 }

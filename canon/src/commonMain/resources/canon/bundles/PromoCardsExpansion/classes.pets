@@ -2,9 +2,13 @@
 CLASS PromoCardPack : Module
 
 "A durable generational resource-removal record owned by the victim and naming the attacker"
+// IMPL: This should narrow ownership to Owner, but doing so loses the concrete victim while
+// specializing the complemented !Player binding used by the watcher below.
 CLASS MyResourceWasRemoved<Class<Resource>, Player> : Owned<Anyone>, Generational, Hidden
 
 "A durable generational production-decrease record owned by the victim and naming the attacker"
+// IMPL: This should narrow ownership to Owner, but doing so loses the concrete victim while
+// specializing the complemented !Player binding used by the watcher below.
 CLASS MyProductionWasDecreased<Class<StandardResource>, Player> : Owned<Anyone>, Generational, Hidden
 
 CLASS ResourceRemovalWatcher<Class<Resource>> : System, AutoLoad {

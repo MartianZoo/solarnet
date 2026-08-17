@@ -3,14 +3,14 @@ CLASS PreludeExpansion : Module {
   Generation IF =1 Generation: -2 SoloGenerationsLeft.
 }
 
-CLASS PreludeCard : CardBack
-
-CLASS PreludePhase : Phase {
-  NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
-}
-
 "Deals each player the two generic card backs consumed during PreludePhase"
 CLASS PreludeSetup : Owned<Player>, System, AutoLoad {
   HAS =1 This
   PreludePhase:: 2 PreludeCard
 }
+
+CLASS PreludePhase : Phase {
+  NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15)
+}
+
+CLASS PreludeCard : CardBack
