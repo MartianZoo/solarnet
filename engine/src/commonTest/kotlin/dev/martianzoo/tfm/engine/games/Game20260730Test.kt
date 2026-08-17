@@ -4,6 +4,7 @@ import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -34,7 +35,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Generation 1
       // Player1 played CrediCor
       // Player1 kept 7 project cards
-      playCorp("CrediCor", 7).expect("36")
+      playCorp(CrediCor, 7).expect("36")
 
       // You discarded Miranda
       // Player1 played Society Support
@@ -42,27 +43,27 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 gained 1 plant production
       // Player1 gained 1 energy production
       // Player1 gained 1 heat production
-      playPrelude("SocietySupport").expect("PROD[-1, P, E, H]")
+      playPrelude(SocietySupport).expect("PROD[-1, P, E, H]")
       // Player1 played Eccentric Sponsor
-      playPrelude("ExcentricSponsor") {
+      playPrelude(ExcentricSponsor) {
         // Player1 played Titan Shuttles
         // Player1 gained 4 M€
-        playProject("TitanShuttles", 0).expect("4")
+        playProject(TitanShuttles, 0).expect("4")
       }
 
       // Player1 used Titan Shuttles action
-      cardAction1("TitanShuttles") {
+      cardAction1(TitanShuttles) {
         // Player1 added 2 Floater(s) to Titan Shuttles
-        doTask("2 Floater<TitanShuttles>")
+        doTask("2 Floater<$TitanShuttles>")
       }
       // Player1 played Industrial Microbes
       // Player1 gained 1 steel production
       // Player1 gained 1 energy production
-      playProject("IndustrialMicrobes", 12).expect("PROD[S, E]")
+      playProject(IndustrialMicrobes, 12).expect("PROD[S, E]")
       // Player1 played Solar Reflectors
       // Player1 gained 5 heat production
       // Player1 gained 4 M€
-      playProject("SolarReflectors", 23).expect("PROD[5 H], -19")
+      playProject(SolarReflectors, 23).expect("PROD[5 H], -19")
 
       // Player1 passed
       // Player1 acted as World Government and increased Venus scale
@@ -72,9 +73,9 @@ class Game20260730Test : AbstractSoloTest() {
       nextRound("VenusStep", 3)
 
       // Player1 used Titan Shuttles action
-      cardAction1("TitanShuttles") {
+      cardAction1(TitanShuttles) {
         // Player1 added 2 Floater(s) to Titan Shuttles
-        doTask("2 Floater<TitanShuttles>")
+        doTask("2 Floater<$TitanShuttles>")
       }
 
       // Player1 passed
@@ -87,15 +88,15 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Convert Heat standard action
       stdAction("ConvertHeatSA").expect("TR")
       // Player1 used Titan Shuttles action
-      cardAction1("TitanShuttles") {
+      cardAction1(TitanShuttles) {
         // Player1 added 2 Floater(s) to Titan Shuttles
-        doTask("2 Floater<TitanShuttles>")
+        doTask("2 Floater<$TitanShuttles>")
       }
       // Player1 played Advanced Alloys
-      playProject("AdvancedAlloys", 9)
+      playProject(AdvancedAlloys, 9)
       // Player1 played House Printing
       // Player1 gained 1 steel production
-      playProject("HousePrinting", 4, steel = 2)
+      playProject(HousePrinting, 4, steel = 2)
 
       // Player1 passed
       // Player1 acted as World Government and increased Venus scale
@@ -107,7 +108,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Convert Heat standard action
       stdAction("ConvertHeatSA")
       // Player1 played Cryo-Sleep
-      playProject("CryoSleep", 10)
+      playProject(CryoSleep, 10)
       // Player1 spent 2 energy to trade with Ceres
       stdAction("TradeSA", 2) {
             doTask("Trade<Ceres>")
@@ -119,11 +120,11 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 gained 1 titanium production
       // Player1 lost 2 energy production
       // Player1 gained 4 M€
-      playProject("StripMine", 1, steel = 8).expect("3")
+      playProject(StripMine, 1, steel = 8).expect("3")
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Titan Shuttles
-      cardAction1("TitanShuttles") {
-        doTask("2 Floater<TitanShuttles>")
+      cardAction1(TitanShuttles) {
+        doTask("2 Floater<$TitanShuttles>")
       }
 
       // Player1 passed
@@ -138,10 +139,10 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 gained 1 heat production
       stdAction("ConvertHeatSA").expect("-8 H, PROD[H]")
       // Player1 used Titan Shuttles action
-      cardAction2("TitanShuttles") {
+      cardAction2(TitanShuttles) {
         // Player1 removed 8 resource(s) from Player1's Titan Shuttles
         // Player1 removed 8 floaters to gain 8 titanium
-        doTask("-8 Floater<TitanShuttles> THEN 8 Titanium")
+        doTask("-8 Floater<$TitanShuttles> THEN 8 Titanium")
       }
       // Player1 spent 2 titanium to trade with Triton
       // Player1 gained 4 titanium
@@ -149,16 +150,16 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 played Sterling Vents
       // Player1 gained 2 energy production
       // Player1 lost 2 heat production
-      playProject("SterlingVents", 5).expect("PROD[2 E, -2 H]")
+      playProject(SterlingVents, 5).expect("PROD[2 E, -2 H]")
       // Player1 played Electro Catapult
       // Player1 lost 1 energy production
-      playProject("ElectroCatapult", 5, steel = 4)
+      playProject(ElectroCatapult, 5, steel = 4)
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult").expect("7")
+      cardAction1(ElectroCatapult).expect("7")
       // Player1 played Corroder Suits
       // Player1 gained 2 M€ production
-      playProject("CorroderSuits", 8)
+      playProject(CorroderSuits, 8)
 
       // Player1 passed
       // Player1 placed ocean tile at 45
@@ -172,33 +173,33 @@ class Game20260730Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult") { doTask("-Plant") }
+      cardAction1(ElectroCatapult) { doTask("-Plant") }
       // Player1 played Towing A Comet
       // Player1 gained 2 plants
       // Player1 gained 4 M€
       // Player1 placed ocean tile at 44
       // Player1 gained 1 plant
       // Player1 gained 4 M€ from 2 ocean(s)
-      playProject("TowingAComet", titanium = 6) {
+      playProject(TowingAComet, titanium = 6) {
         doTask("OceanTile<Tharsis_6_8>")
       }
       // Player1 played Saturn Surfing
       // Player1 added 1 Floater to Saturn Surfing
-      playProject("SaturnSurfing", 13)
+      playProject(SaturnSurfing, 13)
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Saturn Surfing
-      cardAction1("TitanShuttles") { doTask("2 Floater<SaturnSurfing>") }
+      cardAction1(TitanShuttles) { doTask("2 Floater<$SaturnSurfing>") }
       // Player1 used Saturn Surfing action
       // Player1 gained 3 M€
-      cardAction1("SaturnSurfing").expect("-Floater, 3")
+      cardAction1(SaturnSurfing).expect("-Floater, 3")
       // Player1 played Designed Microorganisms
       // Player1 gained 2 plant production
-      playProject("DesignedMicroorganisms", 16).expect("PROD[2 P]")
+      playProject(DesignedMicroorganisms, 16).expect("PROD[2 P]")
       // Player1 played Rotator Impacts
-      playProject("RotatorImpacts", 2, titanium = 1)
+      playProject(RotatorImpacts, 2, titanium = 1)
       // Player1 used Rotator Impacts action
       // Player1 added 1 Asteroid to Rotator Impacts
-      cardAction1("RotatorImpacts") { pay(titanium = 2) }
+      cardAction1(RotatorImpacts) { pay(titanium = 2) }
 
       // Player1 passed
       // Player1 placed ocean tile at 28
@@ -210,20 +211,20 @@ class Game20260730Test : AbstractSoloTest() {
 
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult") { doTask("-Plant") }
+      cardAction1(ElectroCatapult) { doTask("-Plant") }
       // Player1 played Development Center
-      playProject("DevelopmentCenter", 2, steel = 3)
+      playProject(DevelopmentCenter, 2, steel = 3)
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Deimos Down:promo
-      cardAction1("DevelopmentCenter")
+      cardAction1(DevelopmentCenter)
       // Player1 played Corporate Stronghold
       // Player1 gained 3 M€ production
       // Player1 lost 1 energy production
       // Player1 placed city tile at 36
       // Player1 gained 2 plants
       // Player1 gained 6 M€ from 3 ocean(s)
-      playProject("CorporateStronghold", 5, steel = 2) {
+      playProject(CorporateStronghold, 5, steel = 2) {
             doTask("CityTile<Tharsis_5_8>")
           }
           .expect("PROD[3, -E]")
@@ -234,16 +235,16 @@ class Game20260730Test : AbstractSoloTest() {
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_5_9>") }
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Saturn Surfing
-      cardAction1("TitanShuttles") { doTask("2 Floater<SaturnSurfing>") }
+      cardAction1(TitanShuttles) { doTask("2 Floater<$SaturnSurfing>") }
       // Player1 used Saturn Surfing action
       // Player1 gained 4 M€
-      cardAction1("SaturnSurfing")
+      cardAction1(SaturnSurfing)
       // Player1 used Rotator Impacts action
       // Player1 removed 1 resource(s) from Player1's Rotator Impacts
       // Player1 drew 1 card(s)
       // You drew Spin-off Department
       // Player1 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2("RotatorImpacts").expect("TR")
+      cardAction2(RotatorImpacts).expect("TR")
       // Player1 spent 2 titanium to trade with Io
       // Player1 gained 13 heat
       stdAction("TradeSA", 3) { doTask("Trade<Io>") }.expect("-2 T, 13 H")
@@ -254,12 +255,12 @@ class Game20260730Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       // Player1 played Spin-off Department
       // Player1 gained 2 M€ production
-      playProject("SpinOffDepartment", 1, steel = 3)
+      playProject(SpinOffDepartment, 1, steel = 3)
       // Player1 played Tardigrades
-      playProject("Tardigrades", 4)
+      playProject(Tardigrades, 4)
       // Player1 used Tardigrades action
       // Player1 added 1 Microbe to Tardigrades
-      cardAction1("Tardigrades")
+      cardAction1(Tardigrades)
       // Player1 played Deimos Down:promo
       // Player1 gained 4 steel
       // Player1 gained 4 M€
@@ -268,7 +269,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed Deimos Down tile at 51
       // Player1 gained 1 plant
       // Player1 gained 4 M€ from 2 ocean(s)
-      playProject("DeimosDown", 23, titanium = 2) {
+      playProject(DeimosDown, 23, titanium = 2) {
             doTask("Ok")
             doTask("DdTile<Tharsis_7_8>")
           }
@@ -286,7 +287,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Release of Inert Gases
-      cardAction1("DevelopmentCenter")
+      cardAction1(DevelopmentCenter)
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile at 27
       // Player1 gained 1 plant
@@ -296,23 +297,23 @@ class Game20260730Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult") { doTask("-Plant") }
+      cardAction1(ElectroCatapult) { doTask("-Plant") }
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Saturn Surfing
-      cardAction1("TitanShuttles") { doTask("2 Floater<SaturnSurfing>") }
+      cardAction1(TitanShuttles) { doTask("2 Floater<$SaturnSurfing>") }
       // Player1 used Saturn Surfing action
       // Player1 gained 5 M€
-      cardAction1("SaturnSurfing").expect("-Floater, 5")
+      cardAction1(SaturnSurfing).expect("-Floater, 5")
       // Player1 used Rotator Impacts action
       // Player1 added 1 Asteroid to Rotator Impacts
-      cardAction1("RotatorImpacts") { pay(2, titanium = 1) }
+      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
       // Player1 used Tardigrades action
       // Player1 added 1 Microbe to Tardigrades
-      cardAction1("Tardigrades")
+      cardAction1(Tardigrades)
       // Player1 played Bribed Committee
-      playProject("BribedCommittee", 7)
+      playProject(BribedCommittee, 7)
       // Player1 played Release of Inert Gases
-      playProject("ReleaseOfInertGases", 14)
+      playProject(ReleaseOfInertGases, 14)
 
       // Player1 passed
       // Player1 placed ocean tile at 33
@@ -325,43 +326,43 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Interplanetary Trade
-      cardAction1("DevelopmentCenter")
+      cardAction1(DevelopmentCenter)
       // Player1 used Convert Heat standard action
       stdAction("ConvertHeatSA")
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult") { doTask("-Steel") }
+      cardAction1(ElectroCatapult) { doTask("-Steel") }
       // Player1 used Rotator Impacts action
       // Player1 removed 1 resource(s) from Player1's Rotator Impacts
       // Player1 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2("RotatorImpacts")
+      cardAction2(RotatorImpacts)
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Saturn Surfing
-      cardAction1("TitanShuttles") { doTask("2 Floater<SaturnSurfing>") }
+      cardAction1(TitanShuttles) { doTask("2 Floater<$SaturnSurfing>") }
       // Player1 used Saturn Surfing action
       // Player1 gained 5 M€
-      cardAction1("SaturnSurfing")
+      cardAction1(SaturnSurfing)
       // Player1 used Tardigrades action
       // Player1 added 1 Microbe to Tardigrades
-      cardAction1("Tardigrades")
+      cardAction1(Tardigrades)
       // Player1 played Venus Soils
       // Player1 gained 1 plant production
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Imported Nutrients
       // Player1 added 2 Microbe(s) to Tardigrades
-      playProject("VenusSoils", 20) { doTask("2 Microbe<Tardigrades>") }.expect("PROD[P]")
+      playProject(VenusSoils, 20) { doTask("2 Microbe<$Tardigrades>") }.expect("PROD[P]")
       // Player1 played Interplanetary Trade
       // Player1 gained 10 M€ production
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Io Mining Industries
-      playProject("InterplanetaryTrade", 27).expect("PROD[10], -23")
+      playProject(InterplanetaryTrade, 27).expect("PROD[10], -23")
       // Player1 played Forced Precipitation
-      playProject("ForcedPrecipitation", 8)
+      playProject(ForcedPrecipitation, 8)
       // Player1 used Forced Precipitation action
       // Player1 added 1 Floater to Forced Precipitation
-      cardAction1("ForcedPrecipitation")
+      cardAction1(ForcedPrecipitation)
       // Player1 used Air Scrapping standard project
       stdProject("AirScrappingSP").expect("2 TR")
 
@@ -376,9 +377,9 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Outdoor Sports
-      cardAction1("DevelopmentCenter")
+      cardAction1(DevelopmentCenter)
       // Player1 played Mars University
-      playProject("MarsUniversity", 5, steel = 1) {
+      playProject(MarsUniversity, 5, steel = 1) {
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Outdoor Sports
         // Player1 drew 1 card(s)
@@ -396,29 +397,29 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 drew 2 card(s)
       // You drew Predators,Equatorial Magnetizer
       // Player1 gained 2 M€ from 1 ocean(s)
-      playProject("Comet", 1, titanium = 5) {
+      playProject(Comet, 1, titanium = 5) {
         doTask("Ok")
         doTask("OceanTile<Tharsis_2_6>")
       }
       // Player1 used Saturn Surfing action
       // Player1 gained 5 M€
-      cardAction1("SaturnSurfing")
+      cardAction1(SaturnSurfing)
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Titan Shuttles
-      cardAction1("TitanShuttles") { doTask("2 Floater<TitanShuttles>") }
+      cardAction1(TitanShuttles) { doTask("2 Floater<$TitanShuttles>") }
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult") { doTask("-Steel") }
+      cardAction1(ElectroCatapult) { doTask("-Steel") }
       // Player1 played Io Mining Industries
       // Player1 gained 2 M€ production
       // Player1 gained 2 titanium production
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Optimal Aerobraking
-      playProject("IoMiningIndustries", 37, titanium = 1).expect("PROD[2, 2 T]")
+      playProject(IoMiningIndustries, 37, titanium = 1).expect("PROD[2, 2 T]")
       // Player1 played Solar Power
       // Player1 gained 1 energy production
-      playProject("SolarPower", steel = 4)
+      playProject(SolarPower, steel = 4)
       // Player1 played Gyropolis
       // Player1 gained 4 M€ production
       // Player1 lost 2 energy production
@@ -428,11 +429,11 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed city tile at 20
       // Player1 gained 1 steel
       // Player1 gained 4 M€ from 2 ocean(s)
-      playProject("Gyropolis", 2, steel = 6) { doTask("CityTile<Tharsis_3_7>") }
+      playProject(Gyropolis, 2, steel = 6) { doTask("CityTile<Tharsis_3_7>") }
           .expect("PROD[4, -2 E]")
       // Player1 played Medical Lab
       // Player1 gained 6 M€ production
-      playProject("MedicalLab", 1, steel = 4) {
+      playProject(MedicalLab, 1, steel = 4) {
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Predators
         // Player1 drew 1 card(s)
@@ -441,21 +442,21 @@ class Game20260730Test : AbstractSoloTest() {
       }
       // Player1 played Asteroid Rights
       // Player1 added 2 Asteroid(s) to Asteroid Rights
-      playProject("AsteroidRights", 10)
+      playProject(AsteroidRights, 10)
       // Player1 used Asteroid Rights action
       // Player1 removed 1 Asteroid from Asteroid Rights to gain 2 titanium
-      cardAction2("AsteroidRights") { doTask("2 Titanium") }
+      cardAction2(AsteroidRights) { doTask("2 Titanium") }
       // Player1 used Rotator Impacts action
       // Player1 added 1 Asteroid to Rotator Impacts
-      cardAction1("RotatorImpacts") { pay(titanium = 2) }
+      cardAction1(RotatorImpacts) { pay(titanium = 2) }
       // Player1 used Tardigrades action
       // Player1 added 1 Microbe to Tardigrades
-      cardAction1("Tardigrades")
+      cardAction1(Tardigrades)
       // Player1 played Power Supply Consortium
-      playProject("PowerSupplyConsortium", 5)
+      playProject(PowerSupplyConsortium, 5)
       // Player1 used Forced Precipitation action
       // Player1 added 1 Floater to Forced Precipitation
-      cardAction1("ForcedPrecipitation")
+      cardAction1(ForcedPrecipitation)
 
       // Player1 passed
       // Player1 acted as World Government and increased oxygen level
@@ -467,9 +468,9 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Search For Life
-      cardAction1("DevelopmentCenter")
+      cardAction1(DevelopmentCenter)
       // Player1 played Search For Life
-      playProject("SearchForLife", 3) {
+      playProject(SearchForLife, 3) {
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Space Hotels
         // Player1 drew 1 card(s)
@@ -478,60 +479,60 @@ class Game20260730Test : AbstractSoloTest() {
       }
       // Player1 used Asteroid Rights action
       // Player1 removed 1 Asteroid from Asteroid Rights to gain 2 titanium
-      cardAction2("AsteroidRights") { doTask("2 Titanium") }
+      cardAction2(AsteroidRights) { doTask("2 Titanium") }
       // Player1 used Saturn Surfing action
       // Player1 gained 4 M€
-      cardAction1("SaturnSurfing")
+      cardAction1(SaturnSurfing)
       // Player1 played 16 Psyche
       // Player1 gained 2 titanium production
       // Player1 gained 3 titanium
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Trees
-      playProject("SixteenPsyche", 11, titanium = 5).expect("PROD[2 T]")
+      playProject(SixteenPsyche, 11, titanium = 5).expect("PROD[2 T]")
       // Player1 used Search For Life action
       // Player1 revealed and discarded Topsoil Contract
       // Player1 found life!
-      cardAction1("SearchForLife") { doTask("Science<SearchForLife>") }
+      cardAction1(SearchForLife) { doTask("Science<$SearchForLife>") }
       // Player1 used Tardigrades action
       // Player1 added 1 Microbe to Tardigrades
-      cardAction1("Tardigrades")
+      cardAction1(Tardigrades)
       // Player1 used Forced Precipitation action
       // Player1 removed 2 resource(s) from Player1's Forced Precipitation
       // Player1 raised the Venus scale 1 step(s)
-      cardAction2("ForcedPrecipitation").expect("TR")
+      cardAction2(ForcedPrecipitation).expect("TR")
       // Player1 used Rotator Impacts action
       // Player1 removed 1 resource(s) from Player1's Rotator Impacts
       // Player1 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2("RotatorImpacts")
+      cardAction2(RotatorImpacts)
       // Player1 used Convert Heat standard action
       stdAction("ConvertHeatSA")
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Titan Shuttles
-      cardAction1("TitanShuttles") { doTask("2 Floater<TitanShuttles>") }
+      cardAction1(TitanShuttles) { doTask("2 Floater<$TitanShuttles>") }
       // Player1 played Magnetic Shield
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Beam From A Thorium Asteroid
-      playProject("MagneticShield", 12, titanium = 3)
+      playProject(MagneticShield, 12, titanium = 3)
       // Player1 played Beam From A Thorium Asteroid
       // Player1 gained 3 energy production
       // Player1 gained 3 heat production
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Research
-      playProject("BeamFromAThoriumAsteroid", 32).expect("PROD[3 E, 3 H]")
+      playProject(BeamFromAThoriumAsteroid, 32).expect("PROD[3 E, 3 H]")
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult") { doTask("-Steel") }
+      cardAction1(ElectroCatapult) { doTask("-Steel") }
       // Player1 played Thermophiles
-      playProject("Thermophiles", 9)
+      playProject(Thermophiles, 9)
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile at 58
       // Player1 gained 1 titanium
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_9>") }
       // Player1 played Optimal Aerobraking
-      playProject("OptimalAerobraking", 7)
+      playProject(OptimalAerobraking, 7)
       // Player1 used Sell Patents standard project
       // Player1 sold 1 patents
       withAutoExecLoweredAfterOperation(
@@ -551,18 +552,18 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 gained 3 M€ because of Optimal Aerobraking
       // Player1 gained 3 heat because of Optimal Aerobraking
       // Player1 added 4 Microbe(s) to Thermophiles
-      playProject("ImportedNutrients", 10, titanium = 1) {
-            doTask("4 Microbe<Thermophiles>")
+      playProject(ImportedNutrients, 10, titanium = 1) {
+            doTask("4 Microbe<$Thermophiles>")
           }
           .expect("4 P, 3 H")
       // Player1 used Thermophiles action
       // Player1 removed 2 resource(s) from Player1's Thermophiles
-      cardAction2("Thermophiles")
+      cardAction2(Thermophiles)
       // Player1 played Equatorial Magnetizer
-      playProject("EquatorialMagnetizer", 2, steel = 3)
+      playProject(EquatorialMagnetizer, 2, steel = 3)
       // Player1 used Equatorial Magnetizer action
       // Player1 lost 1 energy production
-      cardAction1("EquatorialMagnetizer").expect("PROD[-E], TR")
+      cardAction1(EquatorialMagnetizer).expect("PROD[-E], TR")
 
       // Player1 passed
       // Player1 acted as World Government and increased temperature
@@ -574,11 +575,11 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Pioneer Settlement
-      cardAction1("DevelopmentCenter")
+      cardAction1(DevelopmentCenter)
       // Player1 played Research
       // Player1 drew 2 card(s)
       // You drew Shuttles,Atmoscoop
-      playProject("Research", 11) {
+      playProject(Research, 11) {
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Trees
         // Player1 drew 1 card(s)
@@ -603,11 +604,11 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 played Shuttles
       // Player1 gained 2 M€ production
       // Player1 lost 1 energy production
-      playProject("Shuttles", 2, titanium = 2).expect("PROD[2, -E]")
+      playProject(Shuttles, 2, titanium = 2).expect("PROD[2, -E]")
       // Player1 played Pioneer Settlement
       // Player1 built a colony on Triton
       // Player1 gained 3 titanium
-      playProject("PioneerSettlement", titanium = 3) { doTask("Colony<Triton>") }
+      playProject(PioneerSettlement, titanium = 3) { doTask("Colony<Triton>") }
       // Player1 spent 2 energy to trade with Io
       // Player1 gained 10 heat
       stdAction("TradeSA", 2) { doTask("Trade<Io>") }
@@ -617,46 +618,46 @@ class Game20260730Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       // Player1 played Titan Floating Launch-pad
       // Player1 added 2 Floater(s) to Titan Shuttles
-      playProject("TitanFloatingLaunchPad", 18) {
-        doTask("2 Floater<TitanShuttles>")
+      playProject(TitanFloatingLaunchPad, 18) {
+        doTask("2 Floater<$TitanShuttles>")
       }
       // Player1 used Titan Floating Launch-pad action
       // Player1 added 1 Floater to Titan Shuttles
-      cardAction1("TitanFloatingLaunchPad") { doTask("Floater<TitanShuttles>") }
+      cardAction1(TitanFloatingLaunchPad) { doTask("Floater<$TitanShuttles>") }
       // Player1 used Search For Life action
       // Player1 revealed and discarded Arctic Algae
-      cardAction1("SearchForLife") { doTask("Ok") }
+      cardAction1(SearchForLife) { doTask("Ok") }
       // Player1 played Atmoscoop
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Media Archives
       // Player1 raised the Venus scale 2 step(s)
       // Player1 added 2 Floater(s) to Titan Shuttles
-      playProject("Atmoscoop", 8, titanium = 3) {
+      playProject(Atmoscoop, 8, titanium = 3) {
         doTask("2 VenusStep")
-        doTask("2 Floater<TitanShuttles>")
+        doTask("2 Floater<$TitanShuttles>")
       }
       // Player1 played Floater Prototypes
-      playProject("FloaterPrototypes", 2) {
+      playProject(FloaterPrototypes, 2) {
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Air-Scrapping Expedition
         // Player1 drew 1 card(s)
         // You drew Asteroid
         doTask("-ProjectCard")
         // Player1 added 2 Floater(s) to Titan Shuttles
-        doTask("2 Floater<TitanShuttles>")
+        doTask("2 Floater<$TitanShuttles>")
       }
       // Player1 used Titan Shuttles action
       // Player1 removed 11 resource(s) from Player1's Titan Shuttles
       // Player1 removed 11 floaters to gain 11 titanium
-      cardAction2("TitanShuttles") {
-        doTask("-11 Floater<TitanShuttles> THEN 11 Titanium")
+      cardAction2(TitanShuttles) {
+        doTask("-11 Floater<$TitanShuttles> THEN 11 Titanium")
       }
       // Player1 played Ganymede Colony
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Ants
-      playProject("GanymedeColony", titanium = 5)
+      playProject(GanymedeColony, titanium = 5)
       // Player1 played Convoy From Europa
       // Player1 drew 1 card(s)
       // You drew Dust Seals
@@ -664,7 +665,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 gained 3 heat because of Optimal Aerobraking
       // Player1 placed ocean tile at 63
       // Player1 gained 2 titanium
-      playProject("ConvoyFromEuropa", titanium = 4) {
+      playProject(ConvoyFromEuropa, titanium = 4) {
         doTask("OceanTile<Tharsis_9_9>")
       }
       // Player1 played Terraforming Ganymede
@@ -672,9 +673,9 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 gained 4 M€
       // Player1 drew 1 card(s)
       // You drew Project Inspection
-      playProject("TerraformingGanymede", 15, titanium = 4).expect("8 TR")
+      playProject(TerraformingGanymede, 15, titanium = 4).expect("8 TR")
       // Player1 played Hi-Tech Lab
-      playProject("HiTechLab", 5, steel = 4) {
+      playProject(HiTechLab, 5, steel = 4) {
         // Player1 is using their Mars University effect to draw a card by discarding a card.
         // Player1 discarded Dust Seals
         // Player1 drew 1 card(s)
@@ -683,30 +684,30 @@ class Game20260730Test : AbstractSoloTest() {
       }
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
-      cardAction1("ElectroCatapult")
+      cardAction1(ElectroCatapult)
       // Player1 played Asteroid
       // Player1 gained 2 titanium
       // Player1 gained 3 M€ because of Optimal Aerobraking
       // Player1 gained 3 heat because of Optimal Aerobraking
-      playProject("AsteroidCard", 12) { doTask("Ok") }
+      playProject(AsteroidCard, 12) { doTask("Ok") }
       // Player1 used Saturn Surfing action
       // Player1 gained 3 M€
-      cardAction1("SaturnSurfing")
+      cardAction1(SaturnSurfing)
       // Player1 used Thermophiles action
       // Player1 removed 2 resource(s) from Player1's Thermophiles
-      cardAction2("Thermophiles")
+      cardAction2(Thermophiles)
       // Player1 used Equatorial Magnetizer action
       // Player1 lost 1 energy production
-      cardAction1("EquatorialMagnetizer")
+      cardAction1(EquatorialMagnetizer)
       // Player1 played Project Inspection
       // Player1 used Electro Catapult action with Project Inspection
       // Player1 gained 7 M€
-      playProject("ProjectInspection", 0) {
-        doTask("UseAction1<ElectroCatapult>")
+      playProject(ProjectInspection, 0) {
+        doTask("UseAction1<$ElectroCatapult>")
       }
       // Player1 played Media Archives
       // Player1 gained 10 M€
-      playProject("MediaArchives", 8)
+      playProject(MediaArchives, 8)
       // Player1 used City standard project
       // Player1 gained 4 M€
       // Player1 placed city tile at 24
@@ -725,20 +726,20 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 played Dawn City
       // Player1 gained 1 titanium production
       // Player1 lost 1 energy production
-      playProject("DawnCity", 5, titanium = 2).expect("PROD[T, -E]")
+      playProject(DawnCity, 5, titanium = 2).expect("PROD[T, -E]")
       // Player1 used Asteroid Rights action
       // Player1 added 1 Asteroid to Rotator Impacts
-      cardAction1("AsteroidRights") { doTask("Asteroid<RotatorImpacts>") }
+      cardAction1(AsteroidRights) { doTask("Asteroid<$RotatorImpacts>") }
       // Player1 used Rotator Impacts action
       // Player1 removed 1 resource(s) from Player1's Rotator Impacts
       // Player1 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2("RotatorImpacts")
+      cardAction2(RotatorImpacts)
       // Player1 used Tardigrades action
       // Player1 added 1 Microbe to Tardigrades
-      cardAction1("Tardigrades")
+      cardAction1(Tardigrades)
       // Player1 played Windmills
       // Player1 gained 1 energy production
-      playProject("Windmills", 6).expect("PROD[E]")
+      playProject(Windmills, 6).expect("PROD[E]")
       // Player1 used Sell Patents standard project
       // Player1 sold 1 patents
       sellPatents(1)
@@ -765,28 +766,28 @@ class Game20260730Test : AbstractSoloTest() {
           1) shouldBe 168
 
       // Discounts earned
-      sum.net("AdvancedAlloys", "Owed<Player1>") shouldBe -84
-      sum.net("Shuttles", "Owed<Player1>") shouldBe -14
+      sum.net("$AdvancedAlloys", "Owed<Player1>") shouldBe -84
+      sum.net("$Shuttles", "Owed<Player1>") shouldBe -14
 
       // Resources and cards gained from active cards
-      sum.net("CryoSleep", "Energy") shouldBe 2
-      sum.net("CryoSleep", "Titanium") shouldBe 2
-      sum.net("DevelopmentCenter", "ProjectCard") shouldBe 6
-      sum.net("ElectroCatapult", "Plant") shouldBe -6
-      sum.net("ElectroCatapult", "Steel") shouldBe -3
-      sum.net("ElectroCatapult", "Megacredit") shouldBe 63
-      sum.net("OptimalAerobraking", "Megacredit") shouldBe 9
-      sum.net("OptimalAerobraking", "Heat") shouldBe 9
-      sum.net("SaturnSurfing", "Megacredit") shouldBe 29
-      sum.net("SpinOffDepartment", "ProjectCard") shouldBe 12
-      sum.net("TitanShuttles", "Titanium") shouldBe 19
-      sum.net("TitanShuttles", "Floater<SaturnSurfing>") shouldBe 8
+      sum.net("$CryoSleep", "Energy") shouldBe 2
+      sum.net("$CryoSleep", "Titanium") shouldBe 2
+      sum.net("$DevelopmentCenter", "ProjectCard") shouldBe 6
+      sum.net("$ElectroCatapult", "Plant") shouldBe -6
+      sum.net("$ElectroCatapult", "Steel") shouldBe -3
+      sum.net("$ElectroCatapult", "Megacredit") shouldBe 63
+      sum.net("$OptimalAerobraking", "Megacredit") shouldBe 9
+      sum.net("$OptimalAerobraking", "Heat") shouldBe 9
+      sum.net("$SaturnSurfing", "Megacredit") shouldBe 29
+      sum.net("$SpinOffDepartment", "ProjectCard") shouldBe 12
+      sum.net("$TitanShuttles", "Titanium") shouldBe 19
+      sum.net("$TitanShuttles", "Floater<$SaturnSurfing>") shouldBe 8
 
       // Terraforming gains
-      sum.net("EquatorialMagnetizer", "TerraformRating") shouldBe 2
-      sum.net("ForcedPrecipitation", "VenusStep") shouldBe 1
-      sum.net("RotatorImpacts", "VenusStep") shouldBe 4
-      sum.net("Thermophiles", "VenusStep") shouldBe 2
+      sum.net("$EquatorialMagnetizer", "TerraformRating") shouldBe 2
+      sum.net("$ForcedPrecipitation", "VenusStep") shouldBe 1
+      sum.net("$RotatorImpacts", "VenusStep") shouldBe 4
+      sum.net("$Thermophiles", "VenusStep") shouldBe 2
 
       // Puntos
       sum.net("GreeneryTile", "VictoryPoint") shouldBe 6

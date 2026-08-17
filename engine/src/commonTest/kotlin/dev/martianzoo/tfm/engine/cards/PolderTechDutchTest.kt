@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -10,7 +11,7 @@ class PolderTechDutchTest : CardTest() {
   @Test
   fun `initial action places adjacent ocean and greenery without an existing owned tile`() {
     newGame(PromoCardPack)
-    p1.playCorp("PolderTechDutch", 0)
+    p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")
 
     p1.stdAction("HandleMandates") {
@@ -27,7 +28,7 @@ class PolderTechDutchTest : CardTest() {
   @Test
   fun `later ocean and greenery placements grant their resources`() {
     newGame(PromoCardPack)
-    p1.playCorp("PolderTechDutch", 0)
+    p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")
     p1.stdAction("HandleMandates") {
       doTask("OceanTile<Tharsis_1_4>")

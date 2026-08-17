@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldHaveSize
@@ -45,11 +46,11 @@ internal class ActionSequencingTest {
   fun `use-card action rejects a different card after placing the marker`() {
     val game = setUpGame()
     val manual = game.tfm(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    manual.manual("SymbioticFungus, Ants")
+    manual.manual("$SymbioticFungus, $Ants")
 
     manual.beginManual("UseAction1<UseCardActionSA>") {
-      doTask("ActionUsedMarker<SymbioticFungus>")
-      shouldThrow<TaskException> { doTask("UseAction<Ants>") }
+      doTask("ActionUsedMarker<$SymbioticFungus>")
+      shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()
     }
   }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -10,7 +11,7 @@ class EcolineTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
-    p1.manual("Ecoline")
+    p1.manual("$Ecoline")
     engine.phase("Action")
   }
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class MartianRailsTest : CardTest() {
@@ -8,10 +9,10 @@ class MartianRailsTest : CardTest() {
   @Test
   fun `with only an off-Mars city, uses Martian Rails`() {
     newGame()
-    p1.manual("MartianRails, Energy")
-    p1.manual("GanymedeColony").expect("CityTile<Area081>")
+    p1.manual("$MartianRails, Energy")
+    p1.manual("$GanymedeColony").expect("CityTile<Area081>")
     engine.phase("Action")
-    p1.cardAction1("MartianRails").expect("-Energy, 0 Megacredit")
+    p1.cardAction1(MartianRails).expect("-Energy, 0 Megacredit")
     p1.assertCounts(0 to "Megacredit")
   }
 }

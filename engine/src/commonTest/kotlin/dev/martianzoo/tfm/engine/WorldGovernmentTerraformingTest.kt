@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TestOption.WorldGovernmentOption
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -20,7 +21,7 @@ internal class WorldGovernmentTerraformingTest {
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    p1.godMode().manual("Aphrodite")
+    p1.godMode().manual("$Aphrodite")
     val megacreditsBefore = p1.count("Megacredit")
     engine.godMode().manual("StartToken<Player2> FROM StartToken<Player1>")
     val checkpoint = game.timeline.checkpoint()
@@ -58,7 +59,7 @@ internal class WorldGovernmentTerraformingTest {
   fun `World Government does not trigger an ordinary owner-only effect`() {
     val game = setUpGame(VenusNextExpansion, PromoCardPack)
     val p1 = game.tfm(PLAYER1)
-    p1.godMode().manual("HomeostasisBureau")
+    p1.godMode().manual("$HomeostasisBureau")
 
     TfmWorkflow.Manual(game).solarPhase()
     p1.doTask("TemperatureStep! BY Engine")

@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -41,8 +42,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
     newGame(UtopiaPlanitiaMapOption)
     val p2 = requireP2()
-    p1.manual("8, Ecoline, EarthCatapult, Asteroid")
-    p2.manual("Mine")
+    p1.manual("8, $Ecoline, $EarthCatapult, Asteroid")
+    p2.manual("$Mine")
     engine.phase("Action")
 
     p1.stdAction("FundAwardSA") { doTask("Incorporator") }
@@ -82,8 +83,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `claims Metallurgist for combined metal production and Trader for three resource types`() {
     newGame(UtopiaPlanitiaMapOption)
     p1.manual(
-        "16, PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, " +
-            "Predators, Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"
+        "16, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
+            "$Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
     )
     engine.phase("Action")
 

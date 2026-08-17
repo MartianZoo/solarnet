@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.HellasMapOption
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class TfmWorkflowTest {
@@ -19,8 +20,8 @@ class TfmWorkflowTest {
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("InterplanetaryCinematics", 7)
-    p2.playCorp("PharmacyUnion", 5)
+    p1.playCorp(InterplanetaryCinematics, 7)
+    p2.playCorp(PharmacyUnion, 5)
 
     p1.turn { sellPatents(1) }
     p2.pass()
@@ -38,8 +39,8 @@ class TfmWorkflowTest {
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("InterplanetaryCinematics", 7)
-    p2.playCorp("PharmacyUnion", 5)
+    p1.playCorp(InterplanetaryCinematics, 7)
+    p2.playCorp(PharmacyUnion, 5)
 
     p1.pass()
     p2.turn {

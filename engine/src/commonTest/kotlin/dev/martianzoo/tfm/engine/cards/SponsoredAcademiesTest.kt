@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -17,11 +18,11 @@ class SponsoredAcademiesTest : CardTest() {
   @Test
   fun `with two cards in hand, plays Sponsored Academies`() {
     p1.manual("ProjectCard")
-    p1.playProject("SponsoredAcademies", 9).expect("ProjectCard<Player1>, ProjectCard<Player2>")
+    p1.playProject(SponsoredAcademies, 9).expect("ProjectCard<Player1>, ProjectCard<Player2>")
   }
 
   @Test
   fun `with one card in hand, tries to play Sponsored Academies`() {
-    shouldThrow<LimitsException> { p1.playProject("SponsoredAcademies", 9) }
+    shouldThrow<LimitsException> { p1.playProject(SponsoredAcademies, 9) }
   }
 }

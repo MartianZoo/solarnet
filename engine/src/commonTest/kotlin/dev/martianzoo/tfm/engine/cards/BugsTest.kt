@@ -6,6 +6,7 @@ import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -19,7 +20,7 @@ class BugsTest : CardTest() {
     p1.phase("Prelude")
     p1.manual("4, 10 ProjectCard, PreludeCard, 10 Heat")
 
-    p1.playPrelude("HeadStart") {
+    p1.playPrelude(HeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<ConvertHeatSA>")
@@ -34,14 +35,14 @@ class BugsTest : CardTest() {
   fun `Ecology Experts incorrectly cannot use Splice income to pay for Decomposers`() {
     newGame(PreludeExpansion, PromoCardPack)
     val p2 = requireP2()
-    p1.playCorp("TychoMagnetics", 9)
-    p2.playCorp("SpliceTacticalGenomics", 0) {
-      doTask("Microbe<SpliceTacticalGenomics>!")
+    p1.playCorp(TychoMagnetics, 9)
+    p2.playCorp(SpliceTacticalGenomics, 0) {
+      doTask("Microbe<$SpliceTacticalGenomics>!")
     }
     engine.phase("Prelude")
 
-    p1.playPrelude("ExcentricSponsor") {
-      p1.playProject("GiantIceAsteroid", 11) {
+    p1.playPrelude(ExcentricSponsor) {
+      p1.playProject(GiantIceAsteroid, 11) {
         doTask("OceanTile<Tharsis_1_2>")
         doTask("OceanTile<Tharsis_1_4>")
         doTask("Ok")
@@ -49,8 +50,8 @@ class BugsTest : CardTest() {
     }
     p1.assertCounts(4 to "Megacredit")
 
-    p1.playPrelude("EcologyExperts") {
-      shouldThrow<LimitsException> { p1.playProject("Decomposers", 5) }
+    p1.playPrelude(EcologyExperts) {
+      shouldThrow<LimitsException> { p1.playProject(Decomposers, 5) }
       abort()
     }
   }
@@ -62,7 +63,7 @@ class BugsTest : CardTest() {
     newGame()
     p1.manual("6 Heat, 2 ProjectCard")
 
-    p1.manual("LocalHeatTrapping") {
+    p1.manual("$LocalHeatTrapping") {
       doTask("4 Plant")
       shouldThrow<TaskException> { doTask("Ok") }
       abort()
@@ -74,17 +75,17 @@ class BugsTest : CardTest() {
   fun `Solar Probe incorrectly loses its card draw during normal play`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     engine.phase("Action")
-    p1.manual("9, ProjectCard, TransNeptuneProbe, PhysicsComplex")
+    p1.manual("9, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
 
-    p1.playProject("SolarProbe", 9).expect("-9, -ProjectCard")
+    p1.playProject(SolarProbe, 9).expect("-9, -ProjectCard")
   }
 
   @Test
   fun `Predators incorrectly remains abstract instead of unavailable without an animal`() {
     newGame()
-    p1.manual("Predators")
+    p1.manual("$Predators")
     engine.phase("Action")
-    shouldThrow<AbstractException> { p1.cardAction1("Predators") }
+    shouldThrow<AbstractException> { p1.cardAction1(Predators) }
   }
 
   @Test
@@ -97,6 +98,6 @@ class BugsTest : CardTest() {
         "15, ProjectCard, 12 TemperatureStep, " + landAreas.joinToString { "GreeneryTile<$it>" }
     )
 
-    shouldThrow<AbstractException> { p1.playProject("ArtificialLake", 15) }
+    shouldThrow<AbstractException> { p1.playProject(ArtificialLake, 15) }
   }
 }
