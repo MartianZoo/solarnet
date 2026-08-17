@@ -806,7 +806,8 @@
       "tags": [ "PowerTag" ],
       "resourceType": "Hydroelectric",
       "effects": [
-        "OceanTile: (5 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: (PROD[Energy], Hydroelectric<This>)) OR Ok",
+        "OceanTile BY Anyone: NeptunianOption?",
+        "NeptunianOption: 5 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: (PROD[Energy], Hydroelectric<This>)",
         "End: VictoryPoint / Hydroelectric<This>"
       ],
     },
