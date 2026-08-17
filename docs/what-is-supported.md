@@ -18,7 +18,7 @@ Each component is attributed to whatever product introduced it first.
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | the whole thing |
 | Milestones & Awards | - | - | - | - | - | - | 11 / 16 | - | - | - | - |
-| Promos through 2026-08 | 8 / 10 | 69 / 73 | 9 / 10 | - | 2 / 3 | - | - | - | 0 / 5 | - | - |
+| Promos through 2026-08 | 8 / 10 | 70 / 73 | 9 / 10 | - | 2 / 3 | - | - | - | 0 / 5 | - | - |
 
 ## Still to implement
 
@@ -32,7 +32,6 @@ Each component is attributed to whatever product introduced it first.
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Ready |
 | Prelude 2 | Cards | All 5 corporations, 24 projects, and 25 preludes | (investigate) |
 | Amazonis & Vastitas | Milestones / awards | Both maps' 10 milestones and awards | (investigate) |
-| Promos through 2026-08 | Project | Supercapacitors (`X46`) | (investigate) |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Prelude | Project | Research Coordination (`P40`) | Wild tag |
 | Prelude | Prelude | Research Network (`P28`) | Wild tag |
