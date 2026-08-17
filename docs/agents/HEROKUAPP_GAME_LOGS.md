@@ -50,12 +50,16 @@ add a fixture DSL operation for one named component.
 ## Treat sources according to what they prove
 
 The full log is nearly a gold standard for action identity, order, choices, and narrated consequences.
-When the requested fixture is a complete log translation, preserve every log line in order as a
-comment. Put each line as close as possible to the statement it proves, including inside lambdas for
-targets, placements, and other choices. Formatting may wrap a source line, but an end-to-end text audit
-should still be able to reconstruct the source sequence. When the fixture disagrees, first suspect our
-chronology, payment allocation, card implementation, workflow, or engine. Override a logged claim only
-with stronger independent evidence and say why.
+Keep the raw log as the source of truth instead of duplicating it line by line in fixture comments.
+Periodically audit the fixture against the preserved log for action identity, order, choices, and
+consequences. When the fixture disagrees, first suspect our chronology, payment allocation, card
+implementation, workflow, or engine. Override a logged claim only with stronger independent evidence
+and say why.
+
+Never invent a source-style comment. A comment that reads like a log line must be traceable to that
+line in the preserved log. Label deductions and assignments explicitly as fixture inference, user
+recollection, screenshot evidence, or player-record evidence, and state uncertainty rather than making
+an inference masquerade as archived text.
 
 The log is intentionally incomplete in several respects. It commonly omits payment composition,
 discount arithmetic, some automatic effects, and the internal details of an undo. Screenshots and player
@@ -244,7 +248,7 @@ defect, fix it only with a proportionate general design and add a smaller regres
 
 Before handoff:
 
-1. audit that the complete source-log text is represented in order and each comment is near its code;
+1. audit the fixture directly against the complete source log for chronology, choices, and consequences;
 2. trace every setup fact and assertion to the raw log, screenshot, end page, or player record;
 3. recheck screenshot phase placement and all six values in every dashboard stanza;
 4. justify every `exMachina()` and search once more for chronology, payment, ownership, or workflow

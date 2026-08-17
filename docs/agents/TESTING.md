@@ -92,6 +92,12 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 
 Whole-game tests are high-value integration evidence. When translating a supplied game log:
 
+- `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify every
+  project card entering or leaving each Player's hand. Named `draw()`, `buyCards()`, `discard()`,
+  and `sellPatents()` calls queue those cards, then reconcile them with completed `ProjectCard`
+  gains and removals. Playing a project must remove its name from that Player's tracked hand.
+  When a source gives only a discard count, an exact tracked hand requires the fixture to select
+  names explicitly and label that selection as fixture inference.
 - Before editing a dated whole-game fixture, explicitly inspect its matching
   `_local/GameYYYYMMDD/` directory and read any `implementation-plan.md` there before acting. The
   repository's `_local` path may be a symlink, which `rg --files` does not traverse, so a general
@@ -112,11 +118,11 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   turns.
 - Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
   immediately play another Prelude or project inside one of those plays.
-- Preserve supplied log lines as comments near the test actions that translate them. Assert
-  selective checkpoints, summaries, and final facts rather than mechanically asserting every log
-  entry. For a requested complete machine-log translation, preserve every source line in order;
-  audio transcripts may drop filler and repetition while retaining gameplay-relevant personality,
-  uncertainty, corrections, and mistakes.
+- Keep the supplied machine log as a separate source artifact rather than copying its lines into the
+  fixture solely for traceability. Periodically audit the fixture directly against that artifact for
+  chronology, choices, and consequences. Assert selective checkpoints, summaries, and final facts
+  rather than mechanically asserting every log entry. Audio transcript translations may drop filler
+  and repetition while retaining gameplay-relevant personality, uncertainty, corrections, and mistakes.
 - Treat every supplied screenshot as an authoritative snapshot at its exact point in the timeline.
   At a generation boundary, reproduce any research choices logged before that screenshot, then
   reconcile every visible resource and production discrepancy before the first action. If the
