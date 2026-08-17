@@ -80,7 +80,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
 - Split `Instructor.prepareChange` into narrowing, custom translation, and limit-checking stages.
 - Document the `BuyCard`/payment protocol and verify delayed 3 M€ payment cannot be exploited.
-- Move PET AST generation to Kotest property tests only if domain-aware shrinking improves failures.
+- Move Pets AST generation to Kotest property tests only if domain-aware shrinking improves failures.
 
 ## Autonomous Follow-ups
 
