@@ -8,6 +8,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -20,8 +21,8 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("Ecoline", 0)
-    game.tfm(PLAYER2).playCorp("TharsisRepublic", 0)
+    p1.playCorp(Ecoline, 0)
+    game.tfm(PLAYER2).playCorp(TharsisRepublic, 0)
     p1.godMode().sneak("8 Plant")
     engine.count("Photosynthesis") shouldBe 1
 
@@ -64,7 +65,7 @@ internal class FinalGreeneryPhaseTest {
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    p1.playCorp("Ecoline", 0)
+    p1.playCorp(Ecoline, 0)
     engine.godMode().sneak("-13 SoloGenerationsLeft, LastCall")
 
     p1.pass()
@@ -91,7 +92,7 @@ internal class FinalGreeneryPhaseTest {
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    p1.playCorp("Ecoline", 0)
+    p1.playCorp(Ecoline, 0)
     engine
         .godMode()
         .sneak(
@@ -120,7 +121,7 @@ internal class FinalGreeneryPhaseTest {
     engine.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     engine.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     engine.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    p1.playCorp("Ecoline", 0)
+    p1.playCorp(Ecoline, 0)
     engine
         .godMode()
         .sneak(
@@ -148,8 +149,8 @@ internal class FinalGreeneryPhaseTest {
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("Ecoline", 0)
-    p2.playCorp("TharsisRepublic", 0)
+    p1.playCorp(Ecoline, 0)
+    p2.playCorp(TharsisRepublic, 0)
     p1.pass()
     p2.pass()
 
@@ -167,8 +168,8 @@ internal class FinalGreeneryPhaseTest {
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("Ecoline", 0)
-    p2.playCorp("TharsisRepublic", 0)
+    p1.playCorp(Ecoline, 0)
+    p2.playCorp(TharsisRepublic, 0)
     p1.godMode().sneak("PROD[Steel]")
     engine
         .godMode()
@@ -195,9 +196,9 @@ internal class FinalGreeneryPhaseTest {
     val p3 = game.tfm(PLAYER3)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("CrediCor", 0)
-    p2.playCorp("MiningGuild", 0)
-    p3.playCorp("InterplanetaryCinematics", 0)
+    p1.playCorp(CrediCor, 0)
+    p2.playCorp(MiningGuild, 0)
+    p3.playCorp(InterplanetaryCinematics, 0)
     p1.godMode().sneak("8 Plant")
     p2.godMode().sneak("8 Plant")
     p3.godMode().sneak("8 Plant")
@@ -235,9 +236,9 @@ internal class FinalGreeneryPhaseTest {
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("CrediCor", 0)
-    p2.playCorp("MiningGuild", 0)
-    p1.godMode().sneak("Ecoline, PolderTechDutch, 10 Plant")
+    p1.playCorp(CrediCor, 0)
+    p2.playCorp(MiningGuild, 0)
+    p1.godMode().sneak("$Ecoline, $PolderTechDutch, 10 Plant")
     engine
         .godMode()
         .sneak(
@@ -268,14 +269,14 @@ internal class FinalGreeneryPhaseTest {
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("CrediCor", 0)
-    p2.playCorp("MiningGuild", 0)
+    p1.playCorp(CrediCor, 0)
+    p2.playCorp(MiningGuild, 0)
     p1.godMode().sneak("GreeneryTile<Elysium_4_5>")
     p2.godMode()
         .sneak(
             "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " + "GreeneryTile<Elysium_6_6>"
         )
-    p1.godMode().sneak("Philares, 10 Plant")
+    p1.godMode().sneak("$Philares, 10 Plant")
     engine
         .godMode()
         .sneak(
@@ -309,15 +310,15 @@ internal class FinalGreeneryPhaseTest {
     val p2 = game.tfm(PLAYER2)
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("CrediCor", 0)
-    p2.playCorp("MiningGuild", 0)
+    p1.playCorp(CrediCor, 0)
+    p2.playCorp(MiningGuild, 0)
     p1.godMode().sneak("GreeneryTile<Elysium_4_5>")
     p2.godMode()
         .sneak(
             "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " +
                 "GreeneryTile<Elysium_6_6>, GreeneryTile<Elysium_6_7>"
         )
-    p1.godMode().sneak("Ecoline, Philares, 7 Plant")
+    p1.godMode().sneak("$Ecoline, $Philares, 7 Plant")
     engine
         .godMode()
         .sneak(

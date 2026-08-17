@@ -2,13 +2,14 @@ package dev.martianzoo.tfm.engine.cards.colonies
 
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class TradeTrackIncreaseTest : ColoniesCardTest() {
   @Test
   fun `Trade Envoys raises the track before trade income`() {
     p1.manual("ProjectCard, 15")
-    p1.playProject("TradeEnvoys", 6)
+    p1.playProject(TradeEnvoys, 6)
     engine.manual("3 ColonyProduction<Luna>")
 
     p1.stdAction("TradeSA") {
@@ -24,25 +25,25 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
 
   @Test
   fun `Trade Envoys raises the track when Titan Floating Launch-Pad trades`() {
-    p1.manual("TradeEnvoys, TitanFloatingLaunchPad") {
-      doTask("2 Floater<TitanFloatingLaunchPad>")
+    p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") {
+      doTask("2 Floater<$TitanFloatingLaunchPad>")
     }
     engine.manual("3 ColonyProduction<Luna>")
 
-    p1.cardAction2("TitanFloatingLaunchPad") {
+    p1.cardAction2(TitanFloatingLaunchPad) {
       doTask("Trade<Luna>")
       doTask("ColonyProduction<Luna>")
     }
 
     p1.assertCounts(
-        1 to "Floater<TitanFloatingLaunchPad>",
+        1 to "Floater<$TitanFloatingLaunchPad>",
         13 to "Megacredit",
     )
   }
 
   @Test
   fun `Trade Envoys does not increase a maxed track`() {
-    p1.manual("TradeEnvoys, 9")
+    p1.manual("$TradeEnvoys, 9")
     engine.manual("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
 
@@ -57,7 +58,7 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
   @Test
   fun `may decline to increase track`() {
     p1.manual("ProjectCard, 30")
-    p1.playProject("TradingColony", 18) {
+    p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
       doTask("OceanTile<Tharsis_1_2>")
     }
@@ -77,8 +78,8 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
   @Test
   fun `all track decisions precede the trade when both cards are active`() {
     p1.manual("2 ProjectCard, 50")
-    p1.playProject("TradeEnvoys", 6)
-    p1.playProject("TradingColony", 18) {
+    p1.playProject(TradeEnvoys, 6)
+    p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
       doTask("OceanTile<Tharsis_1_2>")
     }

@@ -5,6 +5,7 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,35 +15,35 @@ class SulphurEatingBacteriaTest : CardTest() {
   fun initializeGame() {
     newGame(VenusNextExpansion)
     engine.phase("Action")
-    p1.manual("SulphurEatingBacteria, 4 Microbe<SulphurEatingBacteria>")
+    p1.manual("$SulphurEatingBacteria, 4 Microbe<$SulphurEatingBacteria>")
   }
 
   @Test
   fun `with Sulphur-Eating Bacteria, adds a microbe`() {
-    p1.cardAction1("SulphurEatingBacteria").expect("Microbe")
+    p1.cardAction1(SulphurEatingBacteria).expect("Microbe")
   }
 
   @Test
   fun `with four microbes, uses Sulphur-Eating Bacteria`() {
-    p1.cardAction2("SulphurEatingBacteria") {
-          doTask("-3 Microbe<SulphurEatingBacteria> THEN 9")
+    p1.cardAction2(SulphurEatingBacteria) {
+          doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9")
         }
         .expect("-3 Microbe, 9")
   }
 
   @Test
   fun `with four microbes, tries to take too much payment`() {
-    assertInvalidPayment<NarrowingException>("-Microbe<SulphurEatingBacteria> THEN 4")
+    assertInvalidPayment<NarrowingException>("-Microbe<$SulphurEatingBacteria> THEN 4")
   }
 
   @Test
   fun `with four microbes, tries to take too little payment`() {
-    assertInvalidPayment<NarrowingException>("-Microbe<SulphurEatingBacteria> THEN 2")
+    assertInvalidPayment<NarrowingException>("-Microbe<$SulphurEatingBacteria> THEN 2")
   }
 
   @Test
   fun `with four microbes, tries to take income without payment`() {
-    assertInvalidPayment<NarrowingException>("-Microbe<SulphurEatingBacteria>")
+    assertInvalidPayment<NarrowingException>("-Microbe<$SulphurEatingBacteria>")
   }
 
   @Test
@@ -52,47 +53,47 @@ class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   fun `with four microbes, tries to spend five`() {
-    assertInvalidPayment<LimitsException>("-5 Microbe<SulphurEatingBacteria> THEN 15")
+    assertInvalidPayment<LimitsException>("-5 Microbe<$SulphurEatingBacteria> THEN 15")
   }
 
   @Test
   fun `with four microbes, tries to spend zero`() {
-    assertInvalidPayment<PetSyntaxException>("-0 Microbe<SulphurEatingBacteria> THEN 0")
+    assertInvalidPayment<PetSyntaxException>("-0 Microbe<$SulphurEatingBacteria> THEN 0")
   }
 
   @Test
   fun `with four microbes, tries an unspecified-resource payment`() {
-    assertInvalidPayment<ExpressionException>("-3 Resource<SulphurEatingBacteria> THEN 9")
+    assertInvalidPayment<ExpressionException>("-3 Resource<$SulphurEatingBacteria> THEN 9")
   }
 
   @Test
   fun `with four microbes, tries to take income before paying`() {
-    assertInvalidPayment<NarrowingException>("9 THEN -3 Microbe<SulphurEatingBacteria>")
+    assertInvalidPayment<NarrowingException>("9 THEN -3 Microbe<$SulphurEatingBacteria>")
   }
 
   @Test
   fun `with four microbes, tries to add microbes for a cost`() {
-    assertInvalidPayment<NarrowingException>("2 Microbe<SulphurEatingBacteria> THEN -6")
+    assertInvalidPayment<NarrowingException>("2 Microbe<$SulphurEatingBacteria> THEN -6")
   }
 
   @Test
   fun `can convert one microbe into three megacredits`() {
-    p1.cardAction2("SulphurEatingBacteria") {
-          doTask("-Microbe<SulphurEatingBacteria> THEN 3")
+    p1.cardAction2(SulphurEatingBacteria) {
+          doTask("-Microbe<$SulphurEatingBacteria> THEN 3")
         }
         .expect("-Microbe, 3")
   }
 
   @Test
   fun `can convert all four microbes into twelve megacredits`() {
-    p1.cardAction2("SulphurEatingBacteria") {
-          doTask("-4 Microbe<SulphurEatingBacteria> THEN 12")
+    p1.cardAction2(SulphurEatingBacteria) {
+          doTask("-4 Microbe<$SulphurEatingBacteria> THEN 12")
         }
         .expect("-4 Microbe, 12")
   }
 
   private inline fun <reified T : Throwable> assertInvalidPayment(instruction: String) {
-    p1.cardAction2("SulphurEatingBacteria") {
+    p1.cardAction2(SulphurEatingBacteria) {
       shouldThrow<T> { doTask(instruction) }
       abort()
     }

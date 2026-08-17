@@ -2,17 +2,18 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class CommunityServicesTest : CardTest() {
   @Test
   fun `with three tagless cards, adds Community Services`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
-    p1.manual("Airliners") { doTask("2 Floater<AtmoCollectors>") }
+    p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("$Airliners") { doTask("2 Floater<$AtmoCollectors>") }
     p1.manual("PROD[2]")
     // Three tagless cards: Atmo Collectors, Airliners, and Community Services itself.
-    p1.manual("CommunityServices").expect("PROD[3]")
+    p1.manual("$CommunityServices").expect("PROD[3]")
   }
 
   @Test
@@ -24,9 +25,9 @@ class CommunityServicesTest : CardTest() {
     )
     engine.phase("Prelude")
     p1.manual("5 Megacredit, ProjectCard, PreludeCard")
-    p1.playPrelude("EcologyExperts") { p1.playProject("Decomposers", 5) }
+    p1.playPrelude(EcologyExperts) { p1.playProject(Decomposers, 5) }
 
     // Ecology Experts and Decomposers have tags; only Community Services itself is tagless.
-    p1.manual("CommunityServices").expect("PROD[1]")
+    p1.manual("$CommunityServices").expect("PROD[1]")
   }
 }

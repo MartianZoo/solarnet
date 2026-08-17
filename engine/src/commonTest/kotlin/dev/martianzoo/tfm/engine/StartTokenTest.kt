@@ -8,6 +8,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
@@ -68,9 +69,9 @@ class StartTokenTest {
 
     val workflow = TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("InterplanetaryCinematics", 7)
+    p1.playCorp(InterplanetaryCinematics, 7)
     engine.godMode().sneak("StartToken<Player2> FROM StartToken<Player1>")
-    p2.playCorp("PharmacyUnion", 5)
+    p2.playCorp(PharmacyUnion, 5)
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     workflow.shutdown()

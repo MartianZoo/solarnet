@@ -8,6 +8,7 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -18,13 +19,13 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    p1.manual("SolarLogistics")
+    p1.manual("$SolarLogistics")
 
-    p1.manual("ImportedGhg")
+    p1.manual("$ImportedGhg")
     p1.count("ProjectCard") shouldBe 1
-    p2.manual("TechnologyDemonstration")
+    p2.manual("$TechnologyDemonstration")
     p1.count("ProjectCard") shouldBe 2
-    p3.manual("InterstellarColonyShip")
+    p3.manual("$InterstellarColonyShip")
 
     p1.count("ProjectCard") shouldBe 3
   }
@@ -34,9 +35,9 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     val oceanArea = "Tharsis_2_6"
-    p2.manual("IcyImpactors, Asteroid<IcyImpactors>")
+    p2.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
-    p2.cardAction2("IcyImpactors") {
+    p2.cardAction2(IcyImpactors) {
       p1.doTask("OceanTile<$oceanArea> BY Player2")
     }
 
@@ -49,9 +50,9 @@ class NewPromoCardsTest : CardTest() {
   @Test
   fun `Icy Impactors owner chooses their own ocean when they are first player`() {
     newGame(PromoCardPack)
-    p1.manual("IcyImpactors, Asteroid<IcyImpactors>")
+    p1.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
-    p1.cardAction2("IcyImpactors") {
+    p1.cardAction2(IcyImpactors) {
       doTask("OceanTile<Tharsis_1_2> BY Player1")
     }
 
@@ -63,10 +64,10 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     engine.manual("StartToken<Player3> FROM StartToken<Player1>")
-    p1.manual("IcyImpactors, Asteroid<IcyImpactors>")
+    p1.manual("$IcyImpactors, Asteroid<$IcyImpactors>")
     engine.phase("Action")
 
-    p1.cardAction2("IcyImpactors") {
+    p1.cardAction2(IcyImpactors) {
       shouldThrow<TaskException> { p1.doTask("OceanTile<Tharsis_1_2> BY Player1") }
       p3.doTask("OceanTile<Tharsis_1_2> BY Player1")
     }
@@ -80,9 +81,9 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack, VenusNextExpansion)
     engine.phase("Action")
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
-    p1.manual("FloydContinuum, 19 TemperatureStep, 14 OxygenStep, 15 VenusStep, $oceans")
+    p1.manual("$FloydContinuum, 19 TemperatureStep, 14 OxygenStep, 15 VenusStep, $oceans")
 
-    p1.cardAction1("FloydContinuum").expect("12 Megacredit")
+    p1.cardAction1(FloydContinuum).expect("12 Megacredit")
   }
 
   @Test
@@ -92,12 +93,12 @@ class NewPromoCardsTest : CardTest() {
     engine.phase("Action")
     p1.manual("25, 2 ProjectCard")
 
-    p1.playProject("CarbonNanosystems", 14).expect("Graphene<CarbonNanosystems>")
+    p1.playProject(CarbonNanosystems, 14).expect("Graphene<$CarbonNanosystems>")
 
-    p1.playProject("IcyImpactors", 11) {
-          doTask("-Graphene<CarbonNanosystems>! THEN -4 Owed.")
+    p1.playProject(IcyImpactors, 11) {
+          doTask("-Graphene<$CarbonNanosystems>! THEN -4 Owed.")
         }
-        .expect("-Graphene<CarbonNanosystems>")
+        .expect("-Graphene<$CarbonNanosystems>")
   }
 
   @Test
@@ -105,8 +106,8 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
-    p1.manual("ProjectCard, MartianLumberCorp, 2 Plant, 20")
-    p1.playProject("Mine", 1) {
+    p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
+    p1.playProject(Mine, 1) {
           doTask("-Plant! THEN -3 Owed.")
         }
         .expect("-Plant")
@@ -116,7 +117,7 @@ class NewPromoCardsTest : CardTest() {
   fun `with Homeostasis Bureau, each actor raises temperature`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("HomeostasisBureau")
+    p1.manual("$HomeostasisBureau")
     p1.count("Megacredit") shouldBe 0
 
     p2.manual("TemperatureStep")
@@ -131,7 +132,7 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
-    p1.playProject("KaguyaTech", 10) {
+    p1.playProject(KaguyaTech, 10) {
           shouldThrow<NarrowingException> {
             doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
           }
@@ -146,7 +147,7 @@ class NewPromoCardsTest : CardTest() {
     val p2 = requireP2()
     p1.autoExecMode = NONE
     p2.autoExecMode = NONE
-    p1.manual("StJosephOfCupertinoMission")
+    p1.manual("$StJosephOfCupertinoMission")
     p2.manual("CityTile<Player2, Tharsis_4_2>") { doTask("Plant") }
 
     p1.godMode().beginManual("Cathedral<CityTile<Player2, Tharsis_4_2>>")
@@ -162,9 +163,9 @@ class NewPromoCardsTest : CardTest() {
   fun `Red Ships counts each city or special tile beside an ocean`() {
     newGame(PromoCardPack)
     engine.phase("Action")
-    p1.manual("RedShips, CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
+    p1.manual("$RedShips, CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
     p1.manual("Tile067<Tharsis_2_2>")
 
-    p1.cardAction1("RedShips").expect("2 Megacredit")
+    p1.cardAction1(RedShips).expect("2 Megacredit")
   }
 }

@@ -5,6 +5,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -24,7 +25,7 @@ class LawSuitTest : CardTest() {
     p2.assertCounts(5 to "Megacredit")
     p1.assertCounts(1 to "MyProductionWasDecreased<Player1, Class<Plant>, Player2>")
 
-    p1.playProject("LawSuit", 2) { choosePlayer2() }
+    p1.playProject(LawSuit, 2) { choosePlayer2() }
         .expect("Megacredit<Player1>, -3 Megacredit<Player2>")
   }
 
@@ -34,14 +35,14 @@ class LawSuitTest : CardTest() {
     p1.manual("Plant")
     p2.manual("5 Megacredit, -Plant<Player1>")
 
-    p1.playProject("LawSuit", 2) { choosePlayer2() }
+    p1.playProject(LawSuit, 2) { choosePlayer2() }
         .expect("Megacredit<Player1>, -3 Megacredit<Player2>")
   }
 
   @Test
   fun `without an opponent attack, p1 cannot complete Law Suit`() {
     requireP2().manual("3 Megacredit")
-    shouldThrow<RequirementException> { p1.playProject("LawSuit", 2) { choosePlayer2() } }
+    shouldThrow<RequirementException> { p1.playProject(LawSuit, 2) { choosePlayer2() } }
   }
 
   @Test
@@ -49,7 +50,7 @@ class LawSuitTest : CardTest() {
     p1.manual("PROD[-Plant]")
     requireP2().manual("3 Megacredit")
 
-    shouldThrow<RequirementException> { p1.playProject("LawSuit", 2) { choosePlayer2() } }
+    shouldThrow<RequirementException> { p1.playProject(LawSuit, 2) { choosePlayer2() } }
   }
 
   @Test
@@ -57,14 +58,14 @@ class LawSuitTest : CardTest() {
     requireP2().manual("3 Megacredit, PROD[-Plant<Player1>]")
     engine.manual("Generation")
 
-    shouldThrow<RequirementException> { p1.playProject("LawSuit", 2) { choosePlayer2() } }
+    shouldThrow<RequirementException> { p1.playProject(LawSuit, 2) { choosePlayer2() } }
   }
 
   @Test
   fun `steals only the money the responsible player has`() {
     requireP2().manual("2 Megacredit, PROD[-Plant<Player1>]")
 
-    p1.playProject("LawSuit", 2) { choosePlayer2() }
+    p1.playProject(LawSuit, 2) { choosePlayer2() }
         .expect("0 Megacredit<Player1>, -2 Megacredit<Player2>")
   }
 
@@ -79,10 +80,10 @@ class LawSuitTest : CardTest() {
     p3.manual("5 Megacredit")
     p1.assertCounts(1 to "MyProductionWasDecreased<Player1, Class<Plant>, Player2>")
 
-    p1.playProject("LawSuit", 2) { choosePlayer2() }
+    p1.playProject(LawSuit, 2) { choosePlayer2() }
 
-    p2.assertCounts(1 to "PlayedEvent<Class<LawSuit>>")
-    p1.assertCounts(0 to "Megacredit", 0 to "PlayedEvent<Class<LawSuit>>")
+    p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
+    p1.assertCounts(0 to "Megacredit", 0 to "PlayedEvent<Class<$LawSuit>>")
     p3.assertCounts(5 to "Megacredit")
   }
 
@@ -96,7 +97,7 @@ class LawSuitTest : CardTest() {
     p2.manual("5 Megacredit, PROD[-Plant<Player1>]")
     p3.manual("5 Megacredit, PROD[-Plant<Player1>]")
 
-    p1.playProject("LawSuit", 2) {
+    p1.playProject(LawSuit, 2) {
       choosePlayer2()
     }
 
@@ -109,9 +110,9 @@ class LawSuitTest : CardTest() {
   fun `Law Suit costs the responsible player one victory point`() {
     val p2 = requireP2()
     p2.manual("3 Megacredit, PROD[-Plant<Player1>]")
-    p1.playProject("LawSuit", 2) { choosePlayer2() }
-    p1.assertCounts(0 to "PlayedEvent<Class<LawSuit>>")
-    p2.assertCounts(1 to "PlayedEvent<Class<LawSuit>>")
+    p1.playProject(LawSuit, 2) { choosePlayer2() }
+    p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
+    p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
 
     engine.phase("End")
 

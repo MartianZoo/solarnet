@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.UtopiaPlanitiaMapOption
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -17,7 +18,7 @@ class CapitalTest : CardTest() {
     engine.manual("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
     engine.phase("Action")
 
-    p1.playProject("Capital", 26) {
+    p1.playProject(Capital, 26) {
       doTask("CityTile<Tharsis_3_3>")
     }
 
@@ -32,7 +33,7 @@ class CapitalTest : CardTest() {
     newGame(UtopiaPlanitiaMapOption)
     p1.manual("8, PROD[2 Energy]")
     p1.manual("Tile128<UtopiaPlanitia_2_2>, Tile044<UtopiaPlanitia_3_3>")
-    p1.manual("Capital") { doTask("CityTile<UtopiaPlanitia_1_1>") }
+    p1.manual("$Capital") { doTask("CityTile<UtopiaPlanitia_1_1>") }
     engine.phase("Action")
 
     shouldThrow<RequirementException> { p1.stdAction("ClaimMilestoneSA") { doTask("Manager") } }

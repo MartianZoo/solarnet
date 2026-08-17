@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class ImmigrantCityTest : CardTest() {
@@ -9,8 +10,8 @@ class ImmigrantCityTest : CardTest() {
   @Test
   fun `at the production floor, adds Immigrant City to Manutech`() {
     newGame(VenusNextExpansion)
-    p1.manual("Manutech, PROD[-4, Energy]")
-    p1.manual("ImmigrantCity") { doTask("CityTile<Tharsis_7_4>") }
+    p1.manual("$Manutech, PROD[-4, Energy]")
+    p1.manual("$ImmigrantCity") { doTask("CityTile<Tharsis_7_4>") }
         .expect("PROD[-Megacredit, -Energy], Megacredit, CityTile<Tharsis_7_4>")
     p1.assertProds(-5 to "Megacredit", 0 to "Energy")
   }

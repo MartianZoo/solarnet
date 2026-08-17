@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.engine.CanonClassesTest
+import dev.martianzoo.tfm.engine.cardnames.MediaGroup
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -452,10 +453,10 @@ internal class TypeTest {
 
   @Test
   fun subs2() {
-    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<Card109>>"))
+    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<$MediaGroup>>"))
     findSubstitutions(pprod) shouldBe
         mapOf(
-            cn("CardFront") to cn("Card109").expression,
+            cn("CardFront") to MediaGroup.expression,
             OWNER to PLAYER1.expression,
         )
   }

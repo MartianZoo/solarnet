@@ -18,6 +18,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.te
@@ -204,7 +205,7 @@ internal class CanonClassesTest {
   fun cardboundComponentsRequirePlayerOwners() {
     table.resolve(te("ResourceHolder<SoloOpponent, Class<Animal>>"))
     assertFailsWith<ExpressionException> {
-      table.resolve(te("Cardbound<SoloOpponent, Predators<Player1>>"))
+      table.resolve(te("Cardbound<SoloOpponent, $Predators<Player1>>"))
     }
   }
 

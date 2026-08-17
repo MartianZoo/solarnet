@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class AntsTest : CardTest() {
@@ -9,13 +10,13 @@ class AntsTest : CardTest() {
   @Test
   fun `with a microbe on Ants, uses its action`() {
     newGame(PromoCardPack)
-    p1.manual("Ants, TopsoilContract")
-    p1.manual("SymbioticFungus")
+    p1.manual("$Ants, $TopsoilContract")
+    p1.manual("$SymbioticFungus")
     engine.phase("Action")
 
-    p1.cardAction1("SymbioticFungus") { doTask("Microbe<Ants>") }.expect("Microbe<Ants>, 1")
-    p1.cardAction1("Ants").expect("0 Microbe<Ants>, 1")
+    p1.cardAction1(SymbioticFungus) { doTask("Microbe<$Ants>") }.expect("Microbe<$Ants>, 1")
+    p1.cardAction1(Ants).expect("0 Microbe<$Ants>, 1")
 
-    p1.assertCounts(1 to "Microbe<Ants>")
+    p1.assertCounts(1 to "Microbe<$Ants>")
   }
 }

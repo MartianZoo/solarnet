@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.cardnames.ColonizerTrainingCamp
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
@@ -112,9 +113,9 @@ internal class GamePremiseTest {
 
   @Test
   fun individualClassExclusionOverridesAModule() {
-    val premise = Canon.gamePremise(GameConfig("-Card001", "Player1", "Player2"))
+    val premise = Canon.gamePremise(GameConfig("-$ColonizerTrainingCamp", "Player1", "Player2"))
 
-    Engine.newGame(premise).classTable.isActive(cn("Card001")) shouldBe false
+    Engine.newGame(premise).classTable.isActive(ColonizerTrainingCamp) shouldBe false
   }
 
   @Test

@@ -5,6 +5,7 @@ import dev.martianzoo.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TEST_CLASS_SYNONYMS
@@ -51,8 +52,8 @@ abstract class AbstractFullGameTest : TfmTest() {
     assertCounts(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
   }
 
-  protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: String) {
-    val expectedUnusedActionCards = cardNames.map { resolve(it).className }.toSet()
+  protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: ClassName) {
+    val expectedUnusedActionCards = cardNames.toSet()
     val unusedActionCards =
         reader
             .getComponents(resolve("ActionCard"))

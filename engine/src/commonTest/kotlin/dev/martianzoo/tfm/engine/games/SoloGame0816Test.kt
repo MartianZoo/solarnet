@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.games
 
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -34,7 +35,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // Generation 1
       // You played TerraLabs Research
       // You kept 8 project cards
-      playCorp("TerraLabsResearch", 8)
+      playCorp(cn("TerraLabsResearch"), 8)
 
       // You discarded Miranda
 
@@ -42,10 +43,10 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You gained 1 M€ production
       // You gained 1 steel production
       // You gained 1 titanium production
-      playPrelude("MetalsCompany").expect("PROD[M, S, T]")
+      playPrelude(cn("MetalsCompany")).expect("PROD[M, S, T]")
       // You played Galilean Mining
       // You gained 2 titanium production
-      playPrelude("GalileanMining").expect("PROD[2 T]")
+      playPrelude(cn("GalileanMining")).expect("PROD[2 T]")
 
       // You passed
       // You acted as World Government and increased Venus scale
@@ -58,7 +59,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You sold 2 patents
       sellPatents(2)
       // You played Neptunian Power Consultants
-      val NeptunianPowerConsultants = "NeptunianPowerConsultants"
+      val NeptunianPowerConsultants = cn("NeptunianPowerConsultants")
       playProject(NeptunianPowerConsultants, 14)
 
       // You passed
@@ -70,7 +71,7 @@ class SoloGame0816Test : AbstractSoloTest() {
 
       // You played Vesta Shipyard
       // You gained 1 titanium production
-      playProject("VestaShipyard", titanium = 5).expect("PROD[T]")
+      playProject(cn("VestaShipyard"), titanium = 5).expect("PROD[T]")
 
       // You passed
       // You acted as World Government and increased Venus scale
@@ -82,14 +83,15 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Solar Wind Power
       // You gained 1 energy production
       // You gained 2 titanium
-      playProject("SolarWindPower", 2, titanium = 3).expect("PROD[E], -T")
+      playProject(cn("SolarWindPower"), 2, titanium = 3).expect("PROD[E], -T")
       // You played Artificial Photosynthesis
       // You gained 2 energy production
-      playProject("ArtificialPhotosynthesis", 12) { doTask("PROD[2 Energy]") }.expect("PROD[2 E]")
+      playProject(cn("ArtificialPhotosynthesis"), 12) { doTask("PROD[2 Energy]") }
+          .expect("PROD[2 E]")
       // You played Fueled Generators
       // You lost 1 M€ production
       // You gained 1 energy production
-      playProject("FueledGenerators", 1).expect("PROD[-M, E]")
+      playProject(cn("FueledGenerators"), 1).expect("PROD[-M, E]")
 
       // You passed
       // You placed ocean tile at 19
@@ -107,14 +109,14 @@ class SoloGame0816Test : AbstractSoloTest() {
 
       // You played Acquired Company
       // You gained 3 M€ production
-      playProject("AcquiredCompany", 10).expect("PROD[3 M]")
+      playProject(cn("AcquiredCompany"), 10).expect("PROD[3 M]")
       // You spent 3 energy to trade with Luna
       // You gained 13 M€
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 E, 13 M")
       // You played Research
       // You drew 2 card(s)
       // You drew Media Group,Eos Chasma National Park
-      playProject("Research", 11).expect("ProjectCard")
+      playProject(cn("Research"), 11).expect("ProjectCard")
 
       // You passed
       // You placed ocean tile at 27
@@ -131,36 +133,36 @@ class SoloGame0816Test : AbstractSoloTest() {
       buyCards(4)
 
       // You played Media Group
-      playProject("MediaGroup", 6)
+      playProject(cn("MediaGroup"), 6)
       // You played Import of Advanced GHG
       // You gained 2 heat production
       // You gained 3 M€
-      playProject("ImportOfAdvancedGhg", titanium = 3).expect("PROD[2 H], 3 M")
+      playProject(cn("ImportOfAdvancedGhg"), titanium = 3).expect("PROD[2 H], 3 M")
       // You played Conscription
       // You gained 3 M€
-      playProject("Conscription", 5).expect("-2 M")
+      playProject(cn("Conscription"), 5).expect("-2 M")
       // You played AI Central
       // You lost 1 energy production
-      val AiCentral = "AiCentral"
+      val AiCentral = cn("AiCentral")
       playProject(AiCentral, 3, steel = 1).expect("PROD[-E]")
       // You used AI Central action
       // You drew 2 card(s)
       // You drew Stratopolis,Rotator Impacts
       cardAction1(AiCentral).expect("2 ProjectCard")
       // You played Rotator Impacts
-      val RotatorImpacts = "RotatorImpacts"
+      val RotatorImpacts = cn("RotatorImpacts")
       playProject(RotatorImpacts, titanium = 2)
       // You used Rotator Impacts action
       // You added 1 Asteroid to Rotator Impacts
       cardAction1(RotatorImpacts) { pay(titanium = 2) }.expect("Asteroid")
       // You played Indentured Workers
       // You gained 3 M€
-      playProject("IndenturedWorkers", 0).expect("3 M")
+      playProject(cn("IndenturedWorkers"), 0).expect("3 M")
       // You played Lunar Beam
       // You lost 2 M€ production
       // You gained 2 energy production
       // You gained 2 heat production
-      playProject("LunarBeam", 5).expect("PROD[-2 M, 2 E, 2 H]")
+      playProject(cn("LunarBeam"), 5).expect("PROD[-2 M, 2 E, 2 H]")
       // You spent 3 energy to trade with Pluto
       // You drew 4 card(s)
       // You drew Geothermal Power,Building Industries,Forced Precipitation,Project Inspection
@@ -170,14 +172,14 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You drew 2 card(s)
       // You drew Great Escarpment Consortium,Restricted Area
       // You gained 3 M€
-      playProject("ProjectInspection", 0) { doTask("UseAction1<$AiCentral>") }
+      playProject(cn("ProjectInspection"), 0) { doTask("UseAction1<$AiCentral>") }
           .expect("ProjectCard, 3 M")
       // You used Sell Patents standard project
       // You sold 2 patents
       sellPatents(2)
       // You played Great Escarpment Consortium
       // You gained 1 steel production
-      playProject("GreatEscarpmentConsortium", 6) {
+      playProject(cn("GreatEscarpmentConsortium"), 6) {
             doTask("PROD[-Steel<SoloOpponent>]")
           }
           .expect("PROD[S<Me>]")
@@ -202,7 +204,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You lost 1 M€ production
       // You gained 10 M€
       // You gained 3 M€
-      playProject("InvestmentLoan", 3).expect("10 M, PROD[-M]")
+      playProject(cn("InvestmentLoan"), 3).expect("10 M, PROD[-M]")
       // You played Lava Tube Settlement
       // You gained 2 M€ production
       // You lost 1 energy production
@@ -210,24 +212,24 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You drew 3 card(s)
       // You drew Local Shading,Soil Enrichment,Trans-Neptune Probe
       // You gained 4 M€ from 2 ocean(s)
-      playProject("LavaTubeSettlement", 11, steel = 2) {
+      playProject(cn("LavaTubeSettlement"), 11, steel = 2) {
             doTask("CityTile<Elysium_3_7>")
           }
           .expect("PROD[2 M, -E], 2 ProjectCard, -7 M")
       // You played Callisto Penal Mines
       // You gained 3 M€ production
-      playProject("CallistoPenalMines", titanium = 8).expect("PROD[3 M]")
+      playProject(cn("CallistoPenalMines"), titanium = 8).expect("PROD[3 M]")
       // You used Sell Patents standard project
       // You sold 3 patents
       sellPatents(3)
       // You played Sulphur-Eating Bacteria
-      val SulphurEatingBacteria = "SulphurEatingBacteria"
+      val SulphurEatingBacteria = cn("SulphurEatingBacteria")
       playProject(SulphurEatingBacteria, 6)
       // You used Sulphur-Eating Bacteria action
       // You added 1 Microbe to Sulphur-Eating Bacteria
       cardAction1(SulphurEatingBacteria).expect("Microbe<$SulphurEatingBacteria>")
       // You played Extremophiles
-      val Extremophiles = "Extremophiles"
+      val Extremophiles = cn("Extremophiles")
       playProject(Extremophiles, 3)
       // You used Extremophiles action
       // You added 1 Microbe to Sulphur-Eating Bacteria
@@ -235,7 +237,7 @@ class SoloGame0816Test : AbstractSoloTest() {
           .expect("Microbe<$SulphurEatingBacteria>")
       // You played Luna Governor
       // You gained 2 M€ production
-      playProject("LunaGovernor", 4).expect("PROD[2 M]")
+      playProject(cn("LunaGovernor"), 4).expect("PROD[2 M]")
       // You spent 3 energy to trade with Ganymede
       // You gained 6 plants
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }.expect("-3 E, 6 P")
@@ -264,7 +266,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You added 1 Asteroid to Rotator Impacts
       cardAction1(RotatorImpacts) { pay(titanium = 2) }.expect("Asteroid")
       // You played Steelworks
-      val Steelworks = "Steelworks"
+      val Steelworks = cn("Steelworks")
       playProject(Steelworks, 11, steel = 2)
       // You used Steelworks action
       // You gained 2 steel
@@ -272,10 +274,10 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Building Industries
       // You gained 2 steel production
       // You lost 1 energy production
-      playProject("BuildingIndustries", 2, steel = 2).expect("PROD[2 S, -E]")
+      playProject(cn("BuildingIndustries"), 2, steel = 2).expect("PROD[2 S, -E]")
       // You played Satellites
       // You gained 5 M€ production
-      playProject("Satellites", 1, titanium = 3).expect("PROD[5 M]")
+      playProject(cn("Satellites"), 1, titanium = 3).expect("PROD[5 M]")
       // You used Sell Patents standard project
       // You sold 2 patents
       sellPatents(2)
@@ -309,7 +311,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Solarnet
       // You drew 2 card(s)
       // You drew Methane From Titan,Weather Balloons
-      playProject("Solarnet", 7).expect("ProjectCard")
+      playProject(cn("Solarnet"), 7).expect("ProjectCard")
       // You used Extremophiles action
       // You added 1 Microbe to Sulphur-Eating Bacteria
       cardAction1(Extremophiles) { doTask("Microbe<$SulphurEatingBacteria>") }
@@ -322,18 +324,18 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Mineral Deposit
       // You gained 5 steel
       // You gained 3 M€
-      playProject("MineralDeposit", 5).expect("5 S, -2 M")
+      playProject(cn("MineralDeposit"), 5).expect("5 S, -2 M")
       // You played Geothermal Power
       // You gained 2 energy production
-      playProject("GeothermalPower", 1, steel = 5).expect("PROD[2 E]")
+      playProject(cn("GeothermalPower"), 1, steel = 5).expect("PROD[2 E]")
       // You played Fuel Factory
       // You gained 1 M€ production
       // You gained 1 titanium production
       // You lost 1 energy production
-      playProject("FuelFactory", steel = 3).expect("PROD[M, T, -E]")
+      playProject(cn("FuelFactory"), steel = 3).expect("PROD[M, T, -E]")
       // You played Business Network
       // You lost 1 M€ production
-      val BusinessNetwork = "BusinessNetwork"
+      val BusinessNetwork = cn("BusinessNetwork")
       playProject(BusinessNetwork, 4).expect("PROD[-M]")
       // You used Business Network action
       // You bought 1 card(s)
@@ -346,18 +348,18 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You gained 4 titanium
       // You gained 1 heat production
       // You gained 3 M€
-      playProject("BigAsteroid", 15, titanium = 4) {
+      playProject(cn("BigAsteroid"), 15, titanium = 4) {
             doTask("-4 Plant<SoloOpponent>")
           }
           .expect("0 T, PROD[H], 2 TR, -12 M")
       // You played Static Harvesting
       // You gained 1 energy production
       // You gained 7 M€
-      playProject("StaticHarvesting", 5).expect("PROD[E], 2 M")
+      playProject(cn("StaticHarvesting"), 5).expect("PROD[E], 2 M")
       // You played Protected Growth
       // You gained 6 plants
       // You gained 3 M€
-      playProject("ProtectedGrowth", 2).expect("6 P, M")
+      playProject(cn("ProtectedGrowth"), 2).expect("6 P, M")
       // You used Sell Patents standard project
       // You sold 1 patents
       sellPatents(1)
@@ -369,7 +371,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_4_8>") }
           .expect("-7 P, S, 2 M, TR")
       // You played Regolith Eaters
-      val RegolithEaters = "RegolithEaters"
+      val RegolithEaters = cn("RegolithEaters")
       playProject(RegolithEaters, 13)
       // You used Regolith Eaters action
       // You added 1 Microbe to Regolith Eaters
@@ -378,7 +380,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You removed 1 resource(s) from You's Regolith Eaters
       // You removed 1 microbe from Regolith Eaters to gain 5 plants
       // You gained 3 M€
-      playProject("SoilEnrichment", 6).expect("-Microbe<$RegolithEaters>, 5 P, -3 M")
+      playProject(cn("SoilEnrichment"), 6).expect("-Microbe<$RegolithEaters>, 5 P, -3 M")
       // You used Convert Plants standard action
       // You placed greenery tile at 36
       // You gained 2 plants
@@ -389,7 +391,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       sellPatents(1)
       // You played Worms
       // You gained 2 plant production
-      playProject("Worms", 8).expect("PROD[2 P<Me>]")
+      playProject(cn("Worms"), 8).expect("PROD[2 P<Me>]")
 
       // You passed
       // You placed ocean tile at 24
@@ -434,35 +436,35 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Shuttles
       // You gained 2 M€ production
       // You lost 1 energy production
-      playProject("Shuttles", 1, titanium = 3).expect("PROD[2 M, -E]")
+      playProject(cn("Shuttles"), 1, titanium = 3).expect("PROD[2 M, -E]")
       // You played Carbonate Processing
       // You lost 1 energy production
       // You gained 3 heat production
-      playProject("CarbonateProcessing", steel = 3).expect("PROD[-E, 3 H]")
+      playProject(cn("CarbonateProcessing"), steel = 3).expect("PROD[-E, 3 H]")
       // You spent 3 energy to trade with Pluto
       // You drew 3 card(s)
       // You drew Venus Governor,Imported GHG,Olympus Conference
       stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 3 ProjectCard")
       // You played Olympus Conference
       // You added 1 Science to Olympus Conference
-      val OlympusConference = "OlympusConference"
+      val OlympusConference = cn("OlympusConference")
       playProject(OlympusConference, 4, steel = 3).expect("Science<$OlympusConference>")
       // You played Imported GHG
       // You gained 1 heat production
       // You gained 3 heat
       // You gained 3 M€
-      playProject("ImportedGhg", 2, titanium = 1).expect("PROD[H], 3 H, M")
+      playProject(cn("ImportedGhg"), 2, titanium = 1).expect("PROD[H], 3 H, M")
       // You used Convert Heat standard action
       stdAction("ConvertHeatSA").expect("TR")
       // You played Heather
       // You gained 1 plant production
       // You gained 1 plant
-      playProject("Heather", 6).expect("PROD[P], P")
+      playProject(cn("Heather"), 6).expect("PROD[P], P")
       // You used Sell Patents standard project
       // You sold 3 patents
       sellPatents(3)
       // You played Forced Precipitation
-      val ForcedPrecipitation = "ForcedPrecipitation"
+      val ForcedPrecipitation = cn("ForcedPrecipitation")
       playProject(ForcedPrecipitation, 8)
       // You used Sell Patents standard project
       // You sold 1 patents
@@ -470,7 +472,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Air-Scrapping Expedition
       // You added 3 Floater(s) to Forced Precipitation
       // You gained 3 M€
-      playProject("AirScrappingExpedition", 13) {
+      playProject(cn("AirScrappingExpedition"), 13) {
             doTask("3 Floater<$ForcedPrecipitation>")
           }
           .expect("3 Floater<$ForcedPrecipitation>, -10 M")
@@ -481,7 +483,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You removed a resource from Olympus Conference to draw a card
       // You drew 1 card(s)
       // You drew Atalanta Planitia Lab
-      playProject("TransNeptuneProbe", 1, titanium = 1) {
+      playProject(cn("TransNeptuneProbe"), 1, titanium = 1) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
       }
 
@@ -527,7 +529,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You gained 1 energy production
       // You added 1 Hydroelectric resource to Neptunian Power Consultants
       // You gained 3 M€
-      playProject("TowingAComet", titanium = 7) {
+      playProject(cn("TowingAComet"), titanium = 7) {
         doTask("OceanTile<Elysium_4_6>")
         doTask("NeptunianOption")
         pay(1, steel = 2)
@@ -539,7 +541,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You gained 1 plant
       // You gained 6 M€ from 3 ocean(s)
       // You declined to use the Neptunian Power Consultants effect
-      playProject("BlackPolarDust", 15) {
+      playProject(cn("BlackPolarDust"), 15) {
             doTask("OceanTile<Elysium_3_5>")
             doTask("Ok")
           }
@@ -560,19 +562,19 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Harvest
       // You gained 12 M€
       // You gained 3 M€
-      playProject("Harvest", 4).expect("11 M")
+      playProject(cn("Harvest"), 4).expect("11 M")
       // You played Atalanta Planitia Lab
       // You drew 2 card(s)
       // You drew Trade Envoys,Rego Plastics
       // You added 1 Science to Olympus Conference
-      playProject("AtalantaPlanitiaLab", 10).expect("ProjectCard, Science<$OlympusConference>")
+      playProject(cn("AtalantaPlanitiaLab"), 10).expect("ProjectCard, Science<$OlympusConference>")
       // You played Restricted Area
       // You removed a resource from Olympus Conference to draw a card
       // You drew 1 card(s)
       // You drew Extractor Balloons
       // You placed Restricted Area tile at 17
       // You gained 6 M€ from 3 ocean(s)
-      val RestrictedArea = "RestrictedArea"
+      val RestrictedArea = cn("RestrictedArea")
       playProject(RestrictedArea, 11) {
             doTask("ProjectCard FROM Science<$OlympusConference>")
             doTask("Tile199<Elysium_3_4>")
@@ -594,7 +596,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Trees
       // You gained 3 plant production
       // You gained 1 plant
-      playProject("Trees", 13).expect("PROD[3 P], P")
+      playProject(cn("Trees"), 13).expect("PROD[3 P], P")
 
       // You passed
       // You acted as World Government and increased Venus scale
@@ -646,15 +648,15 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You removed 2 resource(s) from You's Regolith Eaters
       cardAction2(RegolithEaters).expect("-2 Microbe<$RegolithEaters>, TR")
       // You played Rego Plastics
-      playProject("RegoPlastics", steel = 5)
+      playProject(cn("RegoPlastics"), steel = 5)
       // You played Business Contacts
       // You drew 2 card(s)
       // You drew Bribed Committee,Lava Flows
       // You gained 3 M€
-      playProject("BusinessContacts", 7).expect("ProjectCard, -4 M")
+      playProject(cn("BusinessContacts"), 7).expect("ProjectCard, -4 M")
       // You played Bribed Committee
       // You gained 3 M€
-      playProject("BribedCommittee", 7).expect("-4 M, 2 TR")
+      playProject(cn("BribedCommittee"), 7).expect("-4 M, 2 TR")
       // You used Sell Patents standard project
       // You sold 2 patents
       sellPatents(2)
@@ -662,10 +664,10 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You placed Lava Flows tile at 14
       // You gained 2 titanium
       // You gained 3 M€
-      playProject("LavaFlows", 18) { doTask("Tile140<Elysium_3_1>") }.expect("2 T, 2 TR, -15 M")
+      playProject(cn("LavaFlows"), 18) { doTask("Tile140<Elysium_3_1>") }.expect("2 T, 2 TR, -15 M")
       // You played Interstellar Colony Ship
       // You gained 3 M€
-      playProject("InterstellarColonyShip", 1, titanium = 7).expect("2 M")
+      playProject(cn("InterstellarColonyShip"), 1, titanium = 7).expect("2 M")
       // You spent 3 energy to trade with Pluto
       // You drew 2 card(s)
       // You drew Jovian Embassy,Bactoviral Research
@@ -673,7 +675,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You played Fusion Power
       // You gained 3 energy production
       // You added 1 Science to Olympus Conference
-      playProject("FusionPower", 2, steel = 4).expect("PROD[3 E], Science<$OlympusConference>")
+      playProject(cn("FusionPower"), 2, steel = 4).expect("PROD[3 E], Science<$OlympusConference>")
       // You played Bactoviral Research
       // You drew 1 card(s)
       // You drew Beam From A Thorium Asteroid
@@ -681,14 +683,14 @@ class SoloGame0816Test : AbstractSoloTest() {
       // You drew 1 card(s)
       // You drew Release of Inert Gases
       // You added 13 Microbe(s) to Sulphur-Eating Bacteria
-      playProject("BactoviralResearch", 10) {
+      playProject(cn("BactoviralResearch"), 10) {
             doTask("ProjectCard FROM Science<$OlympusConference>")
             doTask("13 Microbe<$SulphurEatingBacteria>")
           }
           .expect("ProjectCard, 13 Microbe<$SulphurEatingBacteria>")
       // You played Release of Inert Gases
       // You gained 3 M€
-      playProject("ReleaseOfInertGases", 14).expect("2 TR, -11 M")
+      playProject(cn("ReleaseOfInertGases"), 14).expect("2 TR, -11 M")
       // You used Sulphur-Eating Bacteria action
       // You removed 15 microbes from Sulphur-Eating Bacteria to gain 45 M€
       cardAction2(SulphurEatingBacteria) {
@@ -696,7 +698,7 @@ class SoloGame0816Test : AbstractSoloTest() {
           }
           .expect("-15 Microbe<$SulphurEatingBacteria>, 45 M")
       // You played Jovian Embassy
-      playProject("JovianEmbassy", 11, steel = 1)
+      playProject(cn("JovianEmbassy"), 11, steel = 1)
       // You used Sell Patents standard project
       // You sold 4 patents
       sellPatents(4)

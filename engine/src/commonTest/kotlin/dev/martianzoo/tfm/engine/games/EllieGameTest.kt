@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -31,34 +32,34 @@ class EllieGameTest : AbstractFullGameTest() {
     val workflow = TfmWorkflow.Auto(game).launch()
     workflow.isRunning shouldBe true
 
-    p1.playCorp("InterplanetaryCinematics", 7)
-    p2.playCorp("PharmacyUnion", 5)
+    p1.playCorp(InterplanetaryCinematics, 7)
+    p2.playCorp(PharmacyUnion, 5)
 
     p1.turn {
-      playPrelude("UnmiContractor") // 3 TR<Player1>
-      playPrelude("CorporateArchives")
+      playPrelude(UnmiContractor) // 3 TR<Player1>
+      playPrelude(CorporateArchives)
     }
     p2.turn {
-      playPrelude("BiosphereSupport")
-      playPrelude("SocietySupport")
+      playPrelude(BiosphereSupport)
+      playPrelude(SocietySupport)
     }
 
     // Generation 1 (Player1 first)
 
     p1.turn {
-      playProject("MediaGroup", 6)
-      playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
+      playProject(MediaGroup, 6)
+      playProject(Sabotage, 1) { doTask("-7 M<Player2>") }
     }
     p2.turn {
-      playProject("Research", 11) // 1 VP<Player2>, 2 TR<Player2>
-      playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip; 1 VP<Player2>
+      playProject(Research, 11) // 1 VP<Player2>, 2 TR<Player2>
+      playProject(MartianSurvey, 9) { doTask("Ok") } // ain't gon flip; 1 VP<Player2>
     }
     p1.pass()
     p2.turn {
-      playProject("SearchForLife", 3) {
-        doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // 3 TR<Player2>
+      playProject(SearchForLife, 3) {
+        doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TR") // 3 TR<Player2>
       }
-      cardAction1("SearchForLife") { doTask("Ok") } // no microbe
+      cardAction1(SearchForLife) { doTask("Ok") } // no microbe
     }
     p2.pass()
 
@@ -68,22 +69,22 @@ class EllieGameTest : AbstractFullGameTest() {
 
     p2.turn {
       sellPatents(1)
-      playProject("VestaShipyard", 15) // 1 VP<Player2>
+      playProject(VestaShipyard, 15) // 1 VP<Player2>
     }
     p1.turn {
-      playProject("EarthCatapult", 23) // 2 VP<Player1>
-      playProject("OlympusConference", steel = 4) // 1 VP<Player1>
+      playProject(EarthCatapult, 23) // 2 VP<Player1>
+      playProject(OlympusConference, steel = 4) // 1 VP<Player1>
     }
     p2.pass()
 
     p1.turn {
-      playProject("DevelopmentCenter", 1, steel = 4) {
-        doTask("ProjectCard FROM Science<OlympusConference>")
+      playProject(DevelopmentCenter, 1, steel = 4) {
+        doTask("ProjectCard FROM Science<$OlympusConference>")
       }
-      playProject("GeothermalPower", 1, steel = 4)
-      playProject("MirandaResort", 10) // 1 VP<Player1>
-      playProject("Hackers", 1) { doTask("PROD[-2 M<Player2>]") } // -1 VP<Player1>
-      playProject("MicroMills", 1)
+      playProject(GeothermalPower, 1, steel = 4)
+      playProject(MirandaResort, 10) // 1 VP<Player1>
+      playProject(Hackers, 1) { doTask("PROD[-2 M<Player2>]") } // -1 VP<Player1>
+      playProject(MicroMills, 1)
     }
     p1.pass()
 
@@ -92,8 +93,8 @@ class EllieGameTest : AbstractFullGameTest() {
     p2.buyCards(1)
 
     p1.turn {
-      cardAction1("DevelopmentCenter")
-      playProject("ImmigrantCity", 1, steel = 5) {
+      cardAction1(DevelopmentCenter)
+      playProject(ImmigrantCity, 1, steel = 5) {
         doTask("CityTile<Hellas_9_7>")
         doTask("OceanTile<Hellas_5_6>") // 1 TR<Player1>
       }
@@ -134,7 +135,7 @@ class EllieGameTest : AbstractFullGameTest() {
     sum.net("Card", "VP<Player1>") shouldBe 3
 
     p2.assertCounts(25 to "TR<Player2>")
-    sum.net("PharmacyUnion", "TR<Player2>") shouldBe 5
+    sum.net("$PharmacyUnion", "TR<Player2>") shouldBe 5
 
     p2.assertCounts(28 to "VictoryPoint")
     sum.net("Card", "VP<Player2>") shouldBe 3
@@ -149,16 +150,16 @@ class EllieGameTest : AbstractFullGameTest() {
 
     TfmWorkflow.Auto(game).launch()
 
-    p1.playCorp("InterplanetaryCinematics", 7)
-    p2.playCorp("PharmacyUnion", 5)
+    p1.playCorp(InterplanetaryCinematics, 7)
+    p2.playCorp(PharmacyUnion, 5)
 
     p1.turn {
-      playProject("MediaGroup", 6)
-      playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
+      playProject(MediaGroup, 6)
+      playProject(Sabotage, 1) { doTask("-7 M<Player2>") }
     }
 
     p2.turn {
-      playProject("Research", 11)
+      playProject(Research, 11)
     }
   }
 }

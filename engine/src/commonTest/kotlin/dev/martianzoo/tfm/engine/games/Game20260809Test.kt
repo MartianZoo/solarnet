@@ -6,6 +6,7 @@ import dev.martianzoo.data.Player
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -50,12 +51,12 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I call Mons Insurance again."
     // "Your money production goes up four." "And Dad's money production goes down two."
     // "You're buying six cards, which leaves you with 30 money."
-    ellie.playCorp("MonsInsurance", 6).expect("PROD[4 M<Ellie>, -2 M<Dad>], 30")
+    ellie.playCorp(MonsInsurance, 6).expect("PROD[4 M<Ellie>, -2 M<Dad>], 30")
 
     // "On my turn, I play Morning Star Inc."
     // "I am purchasing four cards. So I receive 50 money."
     // "And then I'm spending 12 money. So I have 38 money left."
-    dad.playCorp("MorningStarInc", 4).expect("38")
+    dad.playCorp(MorningStarInc, 4).expect("38")
 
     // "It is now the Prelude phase."
     engine.assertCounts(1 to "PreludePhase")
@@ -63,21 +64,21 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.turn {
       // "I got Dome Farming."
       // "That is, I gain a plant production and two money production."
-      playPrelude("DomeFarming").expect("PROD[P, 2]")
+      playPrelude(DomeFarming).expect("PROD[P, 2]")
 
       // "And Society Support: I lose a money production, I gain plant production, gain energy"
       // "production, gain heat production."
-      playPrelude("SocietySupport").expect("PROD[-1, P, E, H]")
+      playPrelude(SocietySupport).expect("PROD[-1, P, E, H]")
     }
 
     dad.turn {
       // "On my turn, I play Nitrogen Shipment."
       // "I get a TR, a plant production, and five money, bringing me to 43 money."
-      playPrelude("NitrogenShipment").expect("TR, PROD[P], 5")
+      playPrelude(NitrogenShipment).expect("TR, PROD[P], 5")
       assertCounts(43 to "M") // ledger entry 7
 
       // (11:30 am) "Then I play Great Aquifer."
-      playPrelude("GreatAquifer") {
+      playPrelude(GreatAquifer) {
             // "Place on the one-card spot..."
             doTask("OceanTile<Hellas_5_6>")
             // "... and then on the one-plant spot next to it."
@@ -92,10 +93,10 @@ class Game20260809Test : AbstractFullGameTest() {
 
     ellie.turn {
       // "I play Aquifer Pumping for 18."
-      playProject("AquiferPumping", 18)
+      playProject(AquiferPumping, 18)
 
       // "And then pay eight for an ocean place. So I'm gonna lose 26 money."
-      cardAction1("AquiferPumping") {
+      cardAction1(AquiferPumping) {
             pay(8)
             // "You had 30 and now you have four."
             assertCounts(4 to "M") // ledger entry 13
@@ -112,9 +113,9 @@ class Game20260809Test : AbstractFullGameTest() {
     // (11:33 am) "I pitch a card for money, and I spend all my nine money on Robotic Workforce."
     ellie.turn {
       sellPatents(1)
-      playProject("RoboticWorkforce", 9) {
+      playProject(RoboticWorkforce, 9) {
             // "It just so happens that Dome Farming is a box-building tag."
-            doTask("CopyProductionBox<DomeFarming>")
+            doTask("CopyProductionBox<$DomeFarming>")
           }
           // "So that's a plant production and 2 money production."
           .expect("PROD[P, 2]")
@@ -125,7 +126,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I satisfy the three-ocean requirement."
     // "I lose one plant and gain one plant production."
     dad.turn {
-      playProject("Moss", 4).expect("-P, PROD[P]")
+      playProject(Moss, 4).expect("-P, PROD[P]")
       assertCounts(41 to "M") // ledger entry 11
     }
 
@@ -176,12 +177,12 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.buyCards(2)
 
     // "I'm going to release my inert gases. For fourteen. That gives me two TR."
-    dad.turn { playProject("ReleaseOfInertGases", 14).expect("2 TR") }
+    dad.turn { playProject(ReleaseOfInertGases, 14).expect("2 TR") }
 
     // 11:43 am
     // "I'm gonna pay eight to pump an aquifer."
     ellie.turn {
-      cardAction1("AquiferPumping") {
+      cardAction1(AquiferPumping) {
             pay(8)
             assertCounts(14 to "M") // ledger entry 35
             doTask("OceanTile<Hellas_4_7>")
@@ -196,7 +197,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "So that costs me eight, bringing me down to 34."
     // "It takes me from negative two to positive two money production."
     dad.turn {
-      playProject("TerraformingContract", 8).expect("PROD[4]")
+      playProject(TerraformingContract, 8).expect("PROD[4]")
       assertCounts(34 to "M", 7 to "PROD[M]") // ledger entry 28; 7 really means 2
     }
 
@@ -236,7 +237,7 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.turn {
       // "I feel like I can always start by Aquifer Pumping."
       // "Eight real money to use Aquifer Pumping."
-      cardAction1("AquiferPumping") {
+      cardAction1(AquiferPumping) {
             pay(8)
             // "I'm going on the one-one. I get two plants and a TR."
             doTask("OceanTile<Hellas_1_1>")
@@ -258,7 +259,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "Giant Solar Shade. That cost me 27 full real money, bringing me down to 25."
     // "I raise Venus three steps and get three TR and a card."
     dad.turn {
-      playProject("GiantSolarShade", 27).expect("3 VenusStep, 3 TR, 0 ProjectCard")
+      playProject(GiantSolarShade, 27).expect("3 VenusStep, 3 TR, 0 ProjectCard")
       assertCounts(25 to "M") // ledger entry 41
     }
 
@@ -267,8 +268,8 @@ class Game20260809Test : AbstractFullGameTest() {
     // "placed away from oceans, so I had to fully minus eight."
     // "I play seven for Optimal Aerobraking and 21 for Comet."
     ellie.turn {
-      playProject("OptimalAerobraking", 7)
-      playProject("Comet", 21) {
+      playProject(OptimalAerobraking, 7)
+      playProject(Comet, 21) {
             // "I raise the temperature one step and place an ocean tile."
             // "I'll go on the rightmost space in the ring for 4 money."
             doTask("OceanTile<Hellas_5_8>")
@@ -287,15 +288,15 @@ class Game20260809Test : AbstractFullGameTest() {
     // "Because Venus is at 8%, I can play Venusian Insects, which requires Venus at 12%."
     // "That brings Enceladus into play, and the cube goes on the second spot."
     // "I should pay for that card, however. I should pay five for it."
-    dad.turn { playProject("VenusianInsects", 5).expect("Enceladus") }
+    dad.turn { playProject(VenusianInsects, 5).expect("Enceladus") }
 
     // "We have more than the five-ocean requirement, so I play Algae."
     // "I pay ten for Algae. I gain one plant and gain two plant production."
-    ellie.turn { playProject("Algae", 10).expect("P, PROD[2 P]") }
+    ellie.turn { playProject(Algae, 10).expect("P, PROD[2 P]") }
 
     // "I'm going to play Topsoil Contract. That costs me eight, leaving me with 15."
     // "I gain three plants."
-    dad.turn { playProject("TopsoilContract", 8).expect("3 P") }
+    dad.turn { playProject(TopsoilContract, 8).expect("3 P") }
 
     // "I believe I pass."
     ellie.pass()
@@ -303,21 +304,21 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm going to take the action of Venusian Insects to add one microbe to Venusian Insects"
     // "and get one money from Topsoil Contract."
     dad.turn {
-      cardAction1("VenusianInsects").expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1")
       assertCounts(16 to "M") // ledger entry 49
 
       // "I'm going to play Venus Governor because I have three Venus tags and it requires two."
       // "That costs me four, but gets me two money production, bringing me up to four money"
       // "production."
-      playProject("VenusGovernor", 4).expect("PROD[2]")
+      playProject(VenusGovernor, 4).expect("PROD[2]")
 
       // 11:55 am
       // "I'm going to play Search for Life, which we're still under the max requirement."
-      playProject("SearchForLife", 3)
+      playProject(SearchForLife, 3)
 
       // "I pay three and then I'll pay one to use Search for Life."
       // "I flip up Business Contacts, so I do not get a science resource."
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
       assertCounts(8 to "M") // ledger entry 52
 
       // "I think we're at the point where I've done everything. So, I pass."
@@ -361,12 +362,12 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm going to use Venusian Insects to take a microbe on Venusian Insects and gain one money"
     // "and forgo my second action."
     dad.turn {
-      cardAction1("VenusianInsects").expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1")
     }
 
     // "I'm gonna pay 16 for Imported Hydrogen. I'm gonna gain three plants."
     ellie.turn {
-      playProject("ImportedHydrogen", 16) {
+      playProject(ImportedHydrogen, 16) {
             doTask("3 Plant")
             // "Place an ocean tile. On the steel spot, for four money and a steel. What a steal."
             // "And a TR."
@@ -377,7 +378,7 @@ class Game20260809Test : AbstractFullGameTest() {
       assertCounts(19 to "M") // ledger entry 93
 
       // "I may as well use Aquifer Pumping."
-      cardAction1("AquiferPumping") {
+      cardAction1(AquiferPumping) {
             // "I'm gonna spend that steel and six real to place an ocean in the six-money
             // spot."
             pay(6, steel = 1)
@@ -390,14 +391,14 @@ class Game20260809Test : AbstractFullGameTest() {
     // (12:38 pm) "Peroxide Power costs me seven."
     // "It costs me a money production and gains me two energy production."
     dad.turn {
-      playProject("PeroxidePower", 7).expect("PROD[-1, 2 E]")
+      playProject(PeroxidePower, 7).expect("PROD[-1, 2 E]")
       assertCounts(25 to "M") // ledger entry 65
     }
 
     // "I'm gonna buzz buzz. Sponsorize some academies. That's nine to discard a card from hand."
     // "Draw three cards and you get one card."
     ellie.turn {
-      playProject("SponsoredAcademies", 9).expect("ProjectCard, ProjectCard<Dad>")
+      playProject(SponsoredAcademies, 9).expect("ProjectCard, ProjectCard<Dad>")
       assertCounts(10 to "M") // ledger entry 100
     }
 
@@ -418,7 +419,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
       // "Second action: 11 for Corporate Stronghold."
       // "I lose an energy production and gain three money production."
-      playProject("CorporateStronghold", 11) {
+      playProject(CorporateStronghold, 11) {
             // "I place a city tile at row two, column six, right above my two greeneries, for a"
             // "plant."
             doTask("CityTile<Hellas_2_6>")
@@ -429,7 +430,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm going to play Martian Survey while I still can."
     // "That costs me nine, and it draws me two cards."
     dad.turn {
-      playProject("MartianSurvey", 9).expect("ProjectCard")
+      playProject(MartianSurvey, 9).expect("ProjectCard")
       assertCounts(5 to "M") // derived from ledger entry 72 before Industrial Center
     }
 
@@ -438,7 +439,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use Search for Life, and I flip Potatoes, so I do not get a science resource."
     dad.turn {
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
 
       // "That appears to be the end of everything I can do except..."
       // HACK: Unlike the other narrated Search for Life actions, I never said that I paid the one
@@ -447,7 +448,7 @@ class Game20260809Test : AbstractFullGameTest() {
       assertCounts(5 to "M") // derived from ledger entry 72 before Industrial Center
 
       // "Sure. Let us play Industrial Center for four."
-      playProject("IndustrialCenter", 4) {
+      playProject(IndustrialCenter, 4) {
             // "Let's just get in your business over here. So I'm placing row two, column five, and"
             // "getting just one plant."
             doTask("Tile123<Hellas_2_5>")
@@ -459,7 +460,7 @@ class Game20260809Test : AbstractFullGameTest() {
       pass()
     }
     ellie.assertUnusedActionCards()
-    dad.assertUnusedActionCards("IndustrialCenter")
+    dad.assertUnusedActionCards(IndustrialCenter)
 
     // "Because we've both passed, we hit production."
     // "I will World Gov, and the thing that I will World Gov will be that I will Word Gov."
@@ -499,7 +500,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I will spend eight money to place the last ocean."
     ellie.turn {
-      cardAction1("AquiferPumping") {
+      cardAction1(AquiferPumping) {
             pay(8)
             // "I get a TR."
             // "It'll go on the two-one space for two plants and two money."
@@ -508,7 +509,7 @@ class Game20260809Test : AbstractFullGameTest() {
           .expect("2 P, -6, TR")
 
       // "And I will play... Energy Market."
-      playProject("EnergyMarket", 3)
+      playProject(EnergyMarket, 3)
     }
     // HACK: The ledger says Ellie paid six here, although the recording only names Energy Market.
     ellie.exMachina("-3")
@@ -521,7 +522,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I spend six money to gain three energy."
     ellie.turn {
-      cardAction1("EnergyMarket") { doTask("-6 THEN 3 Energy") }
+      cardAction1(EnergyMarket) { doTask("-6 THEN 3 Energy") }
 
       // "And then I will use the three energy to trade with Callisto and get ten."
       stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }.expect("7 E")
@@ -533,16 +534,16 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.assertCounts(21 to "M") // ledger entry 130
 
     // "Earth Catapult for 23."
-    dad.turn { playProject("EarthCatapult", 23) }
+    dad.turn { playProject(EarthCatapult, 23) }
 
     // (12:54 pm) "I'll spend five on Ishtar Mining."
     // "It requires Venus at 8%, and I get a titanium production."
-    ellie.turn { playProject("IshtarMining", 5).expect("PROD[T]") }
+    ellie.turn { playProject(IshtarMining, 5).expect("PROD[T]") }
 
     // "Well, I think it's time to play Lunar Mining. That cost me eleven. No, it cost me nine."
     // "It gives me two titanium production."
     dad.turn {
-      playProject("LunarMining", 9).expect("PROD[2 T]")
+      playProject(LunarMining, 9).expect("PROD[2 T]")
       assertCounts(4 to "M") // ledger entry 85
     }
 
@@ -555,18 +556,18 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm gonna use Venusian Insects to give myself a microbe."
     // "That gives me one money."
-    dad.turn { cardAction1("VenusianInsects").expect("Microbe, 1") }
+    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1") }
 
     // "I'm gonna play... Ironworks for 11. Boop."
-    ellie.turn { playProject("Ironworks", 11) }
+    ellie.turn { playProject(Ironworks, 11) }
 
     // "I use Search for Life to spend one money and flip Forced Precipitation."
     // "That does not get me a science resource."
-    dad.turn { cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science") }
+    dad.turn { cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science") }
 
     // "I will spend four energy on Ironworks to gain a steel."
     // "Oxygen goes to 5%. I get a TR."
-    ellie.turn { cardAction1("Ironworks").expect("S, TR") }
+    ellie.turn { cardAction1(Ironworks).expect("S, TR") }
     engine.assertCounts(5 to "OxygenStep")
 
     // "I am passing."
@@ -583,7 +584,7 @@ class Game20260809Test : AbstractFullGameTest() {
       assertCounts(6 to "OxygenStep")
 
       // "I spend four money and no steel on Biomass Combustors."
-      playProject("BiomassCombustors", 4) {
+      playProject(BiomassCombustors, 4) {
             // "Decrease any plant production one step." "That's me."
             // "Because I'm Mons, I have to pay you, but I only have one. Sorry, that was
             // unintentional."
@@ -597,7 +598,7 @@ class Game20260809Test : AbstractFullGameTest() {
       pass()
     }
     ellie.assertUnusedActionCards()
-    dad.assertUnusedActionCards("IndustrialCenter")
+    dad.assertUnusedActionCards(IndustrialCenter)
 
     // "We do production."
     // "I use World Government Terraforming to raise Venus to 12%."
@@ -637,7 +638,7 @@ class Game20260809Test : AbstractFullGameTest() {
       // risk: "while I still can."
       // "And I'm gonna play Cupola City while I still can, although there's still some time."
       // "That costs me 16."
-      playProject("CupolaCity", 14) {
+      playProject(CupolaCity, 14) {
             // "I lose an energy production, and I gain three money production, and I place a shitty
             // tile."
             // "I'm going to place it on the one-steel space at row three, column three."
@@ -648,7 +649,7 @@ class Game20260809Test : AbstractFullGameTest() {
     }
     // "I'm gonna pay 12 for Ecological Zone." "Oh my, does it hold animals?"
     ellie.turn {
-      playProject("EcologicalZone", 12) {
+      playProject(EcologicalZone, 12) {
             // "It holds animals, so Miranda finally comes into play."
             // "I place the tile adjacent to a greenery on the almost-rightmost space in the fourth"
             // "row. That's four money and a plant."
@@ -662,7 +663,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
       // (1:08 pm) "That makes me so sad." "I should also add two animals to EcoZone because of
       // its effect."
-      assertCounts(2 to "Animal<EcologicalZone>")
+      assertCounts(2 to "Animal<$EcologicalZone>")
     }
 
     // "I take back the two extra money I spent because I spent 16 on Cupola City and was only"
@@ -694,20 +695,20 @@ class Game20260809Test : AbstractFullGameTest() {
     // (1:12 pm) "Why do I play badly?" "Temp is at minus 20, and oxygen is at eight."
     // "Oh no, I didn't. I spent the titanium. What am I doing?"
     // "I don't want to spend the six. So I stay at 26 money and five titanium."
-    dad.turn { playProject("RotatorImpacts", 1, titanium = 1) }
+    dad.turn { playProject(RotatorImpacts, 1, titanium = 1) }
 
     // "I play Kelp Farming for 17. We have the six oceans."
     ellie.turn {
-      playProject("KelpFarming", 17)
+      playProject(KelpFarming, 17)
           // "I gain two money production, three plant production, and two plants."
           // "I add an animal to Ecological Zone."
-          .expect("PROD[2, 3 P], 2 P, Animal<EcologicalZone>")
+          .expect("PROD[2, 3 P], 2 P, Animal<$EcologicalZone>")
       assertCounts(7 to "M") // ledger entry 186
     }
 
     // "I'm going to play Nuclear Power, which costs eight. I spend one steel and six money."
     dad.turn {
-      playProject("NuclearPower", 6, steel = 1)
+      playProject(NuclearPower, 6, steel = 1)
           // "I lose two money production and gain three energy production."
           .expect("PROD[-2, 3 E]")
       assertCounts(19 to "M") // ledger entry 122
@@ -715,11 +716,11 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (1:15 pm) "Energy Market: pay four money, gain two energy."
     ellie.turn {
-      cardAction1("EnergyMarket") { doTask("-4 THEN 2 Energy") }
+      cardAction1(EnergyMarket) { doTask("-4 THEN 2 Energy") }
 
       // "I use Ironworks to pay four energy, gain a steel, and raise oxygen."
       // "Oxygen is at 9%. I get a TR."
-      cardAction1("Ironworks").expect("S, TR")
+      cardAction1(Ironworks).expect("S, TR")
       engine.assertCounts(9 to "OxygenStep")
     }
 
@@ -731,33 +732,33 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I am going to spend 11 on Venusian Plants, which is all the money I have."
     dad.turn {
-      playProject("VenusianPlants", 11) {
+      playProject(VenusianPlants, 11) {
             // (1:17 pm) "I meet the requirement of 16%. I raise Venus one step, which gives me one
             // TR."
             // "I put a microbe on Venusian Insects, which gives me one money."
-            doTask("Microbe<VenusianInsects>")
+            doTask("Microbe<$VenusianInsects>")
           }
           .expect("VenusStep, TR, -10")
 
       // "I'm going to use... thing. Venusian Insects itself to put another cube on Venusian Insects
       // and take"
       // "another money."
-      cardAction1("VenusianInsects").expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1")
 
       // "I'm going to use Rotator Impacts to spend two titanium and put an asteroid on Rotator"
       // "Impacts."
-      cardAction1("RotatorImpacts") { pay(titanium = 2) }.expect("Asteroid")
+      cardAction1(RotatorImpacts) { pay(titanium = 2) }.expect("Asteroid")
 
       // "I'm going to use Search for Life to pay one money and flip Titan Shuttles, which does not"
       // "get me a thing thing."
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
       assertCounts(1 to "M") // ledger entry 130
 
       // "I pass. We do production."
       pass()
     }
-    ellie.assertUnusedActionCards("AquiferPumping")
-    dad.assertUnusedActionCards("IndustrialCenter")
+    ellie.assertUnusedActionCards(AquiferPumping)
+    dad.assertUnusedActionCards(IndustrialCenter)
 
     // "For World Government Terraforming, I'm going to raise the temperature."
     // "The temperature is now −18°C."
@@ -808,7 +809,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm going to get four titanium, two temperature raises, and two TR."
     // "That takes the temperature to −14°C."
     dad.turn {
-      playProject("BigAsteroid", 7, titanium = 6) {
+      playProject(BigAsteroid, 7, titanium = 6) {
             // "You lose four plants."
             doTask("-4 Plant<Ellie>")
           }
@@ -817,50 +818,50 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (6:25 pm) "I think I'm gonna play some Nitrophilic Moss. It's eight money."
     ellie.turn {
-      playProject("NitrophilicMoss", 8)
+      playProject(NitrophilicMoss, 8)
           // "I lose two plants, gain two plant production, and add an animal to Ecological Zone."
-          .expect("-2 P, PROD[2 P], Animal<EcologicalZone>")
+          .expect("-2 P, PROD[2 P], Animal<$EcologicalZone>")
     }
 
     // "Titan Floating Launch-Pad. That costs all 16 of my money."
     dad.turn {
-      playProject("TitanFloatingLaunchPad", 16) {
+      playProject(TitanFloatingLaunchPad, 16) {
         // "It tells me to add two floaters to any Jovian card. I wonder which one I will pick."
         // "It'll be itself."
-        doTask("2 Floater<TitanFloatingLaunchPad>")
+        doTask("2 Floater<$TitanFloatingLaunchPad>")
       }
       assertCounts(0 to "M") // ledger entry 145
     }
 
     // (6:27 pm) "I will spend four money to gain two energy using Energy Market."
-    ellie.turn { cardAction1("EnergyMarket") { doTask("-4 THEN 2 Energy") } }
+    ellie.turn { cardAction1(EnergyMarket) { doTask("-4 THEN 2 Energy") } }
 
     // "I will sell a card."
     dad.turn { sellPatents(1) }
 
     // "I will spend four energy to gain a steel and raise the oxygen."
     // "Oxygen is at 11%."
-    ellie.turn { cardAction1("Ironworks").expect("S, TR") }
+    ellie.turn { cardAction1(Ironworks).expect("S, TR") }
     engine.assertCounts(11 to "OxygenStep")
 
     // "I'm playing a trans card for four money, which I'm going to do as one titanium, one money."
     // "It's Trans-Neptune Probe and that's it. It just—that's it."
-    dad.turn { playProject("TransNeptuneProbe", 1, titanium = 1) }
+    dad.turn { playProject(TransNeptuneProbe, 1, titanium = 1) }
 
     // "I play Mercurian Alloys for three money."
     ellie.turn {
-      playProject("MercurianAlloys", 3)
+      playProject(MercurianAlloys, 3)
       assertCounts(6 to "M") // ledger entry 230
 
       // "I play Solar Wind Power for two titanium and three money."
       // "I increase energy production one step and gain two titanium."
-      playProject("SolarWindPower", 3, titanium = 2).expect("PROD[E], 0 T")
+      playProject(SolarWindPower, 3, titanium = 2).expect("PROD[E], 0 T")
     }
 
     // (6:30 pm) "Oh jeez, I've been sitting on this the whole time. I'll use Rotator Impacts"
     // "to remove an asteroid and do a Venus raise to 16%, which gets me"
     // "two TR."
-    dad.turn { cardAction2("RotatorImpacts").expect("-Asteroid, 2 TR") }
+    dad.turn { cardAction2(RotatorImpacts).expect("-Asteroid, 2 TR") }
     engine.assertCounts(8 to "VenusStep")
 
     // "I pass."
@@ -869,26 +870,26 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I use Titan Floating Launch-Pad, lose a floater, and take four microbes from Enceladus."
     // "They go on Venusian Insects, and that gives me four money from Topsoil Contract."
     dad.turn {
-      cardAction2("TitanFloatingLaunchPad") {
+      cardAction2(TitanFloatingLaunchPad) {
             doTask("Trade<Enceladus>")
-            doTask("4 Microbe<VenusianInsects>")
+            doTask("4 Microbe<$VenusianInsects>")
           }
-          .expect("-Floater<TitanFloatingLaunchPad>, 4")
+          .expect("-Floater<$TitanFloatingLaunchPad>, 4")
 
       // "Then I will use Venusian Insects itself to get one more and one more
       // money."
-      cardAction1("VenusianInsects").expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1")
       assertCounts(5 to "M") // ledger entry 152
 
       // "I use Search for Life, spend one, and flip Research Coordination."
       // "Which, even though it's a wild tag, it does not count."
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
 
       // (6:33 pm) "I pass. We hit production."
       pass()
     }
-    ellie.assertUnusedActionCards("AquiferPumping")
-    dad.assertUnusedActionCards("IndustrialCenter")
+    ellie.assertUnusedActionCards(AquiferPumping)
+    dad.assertUnusedActionCards(IndustrialCenter)
 
     // "I use World Government Terraforming to raise the temperature to −12°C."
     ellie.doTask("TemperatureStep! BY Engine")
@@ -911,7 +912,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (6:37 pm) "God damn it. We play Penguins, which costs five."
     dad.turn {
-      playProject("Penguins", 5)
+      playProject(Penguins, 5)
 
       // "And then we just trade three energy to grab two measly little aminals from Miranda."
       // The later Generation 9 ledger and Dad's evidenced eight-heat conversion show that the trade
@@ -920,7 +921,7 @@ class Game20260809Test : AbstractFullGameTest() {
       // "But I can't use it now because I used two actions to both play Penguins and trade."
       stdAction("TradeSA", 3) {
         doTask("Trade<Miranda>")
-        doTask("2 Animal<Penguins>")
+        doTask("2 Animal<$Penguins>")
       }
     }
 
@@ -930,14 +931,14 @@ class Game20260809Test : AbstractFullGameTest() {
 
       // "I use Ironworks to spend four energy on steel and oxygen."
       // "Oxygen goes up to 12%. I get a TR."
-      cardAction1("Ironworks").expect("S, TR")
+      cardAction1(Ironworks).expect("S, TR")
       engine.assertCounts(12 to "OxygenStep")
     }
 
     // (7:54 pm) "Let us finally play Strato Birds. That cost me ten."
     // "I lose a floater from Titan Floating Launch-Pad to do that."
     dad.turn {
-      playProject("StratosphericBirds", 10).expect("-Floater<TitanFloatingLaunchPad>")
+      playProject(StratosphericBirds, 10).expect("-Floater<$TitanFloatingLaunchPad>")
       assertCounts(21 to "M") // ledger entry 171
     }
 
@@ -962,7 +963,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (7:56 pm) "Boids. I played boids for eight, bringing me down to 13."
     dad.turn {
-      playProject("Birds", 8) {
+      playProject(Birds, 8) {
         // "That lowers Ellie's plant production by two."
         doTask("PROD[-2 Plant<Ellie>]")
       }
@@ -984,7 +985,7 @@ class Game20260809Test : AbstractFullGameTest() {
     }
 
     // "I'm going to spend one on Extremophiles. I have the two science tags it needs."
-    dad.turn { playProject("Extremophiles", 1) }
+    dad.turn { playProject(Extremophiles, 1) }
 
     // "Before I forget, I'm going to claim Producer for eight. I have all three milestones."
     ellie.turn { stdAction("ClaimMilestoneSA") { doTask("Producer") } }
@@ -992,7 +993,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm going to use Venusian Insects and add a microbe to Venusian Insects and take the"
     // "money."
     dad.turn {
-      cardAction1("VenusianInsects").expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1")
       assertCounts(13 to "M") // ledger entry 176
     }
 
@@ -1002,35 +1003,35 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I am going to play Satellites."
     // "It would cost eight, but I'm spending six worth of titanium and two money."
     // "I'm getting four money production, bringing me up to eight money production."
-    dad.turn { playProject("Satellites", 2, titanium = 2).expect("PROD[4]") }
+    dad.turn { playProject(Satellites, 2, titanium = 2).expect("PROD[4]") }
 
     // "I pass."
     ellie.pass()
 
     // "I add a Penguin, a Strato Bird, and a Bird."
     dad.turn {
-      cardAction1("Penguins").expect("Animal")
-      cardAction1("StratosphericBirds").expect("Animal")
-      cardAction1("Birds").expect("Animal")
+      cardAction1(Penguins).expect("Animal")
+      cardAction1(StratosphericBirds).expect("Animal")
+      cardAction1(Birds).expect("Animal")
 
       // "I use Extremophiles to add a Venusian Insect and take a money."
-      cardAction1("Extremophiles") { doTask("Microbe<VenusianInsects>") }.expect("1")
+      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }.expect("1")
 
       // "I use Rotator Impacts to spend six money to add an asteroid."
-      cardAction1("RotatorImpacts") { pay(6) }.expect("Asteroid")
+      cardAction1(RotatorImpacts) { pay(6) }.expect("Asteroid")
 
       // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
-      cardAction1("TitanFloatingLaunchPad") { doTask("Floater<TitanFloatingLaunchPad>") }
+      cardAction1(TitanFloatingLaunchPad) { doTask("Floater<$TitanFloatingLaunchPad>") }
 
       // "I use Search for Life to pay one and flip Deep Well Heating, which is not a microbe tag."
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
       assertCounts(5 to "M") // ledger entry 181
 
       // "I pass. We do production."
       pass()
     }
-    ellie.assertUnusedActionCards("AquiferPumping", "EnergyMarket")
-    dad.assertUnusedActionCards("IndustrialCenter")
+    ellie.assertUnusedActionCards(AquiferPumping, EnergyMarket)
+    dad.assertUnusedActionCards(IndustrialCenter)
 
     // "I use World Government Terraforming to raise the temperature to −10°C."
     dad.doTask("TemperatureStep! BY Engine")
@@ -1062,10 +1063,10 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to play Eos Chasma National Park, which costs 14."
     dad.turn {
-      playProject("EosChasmaNationalPark", 14) {
+      playProject(EosChasmaNationalPark, 14) {
             // "It gives me three plants."
             // "It gives me an aminal, which I'm putting on Penguins."
-            doTask("Animal<Penguins>")
+            doTask("Animal<$Penguins>")
             // "It gives me two money production. We meet the requirement."
           }
           .expect("3 P, PROD[2]")
@@ -1082,14 +1083,14 @@ class Game20260809Test : AbstractFullGameTest() {
     }
 
     // (8:08 pm) "I will pay ten money for Rego Plastics."
-    ellie.turn { playProject("RegoPlastics", 10) }
+    ellie.turn { playProject(RegoPlastics, 10) }
 
     // "I use Venusian Insects to add a cube to Venusian Insects and take one money."
-    dad.turn { cardAction1("VenusianInsects").expect("Microbe, 1") }
+    dad.turn { cardAction1(VenusianInsects).expect("Microbe, 1") }
 
     // "I will pay four steel, because it's worth three now, for Industrial Microbes."
     ellie.turn {
-      playProject("IndustrialMicrobes", 0, steel = 4)
+      playProject(IndustrialMicrobes, 0, steel = 4)
           // "I increase energy production and steel production one step each."
           .expect("PROD[S, E]")
       assertCounts(4 to "PROD[E]") // ledger entry 294
@@ -1101,7 +1102,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I will pay four titanium for 16 and 12 money for Methane from Titan."
     ellie.turn {
-      playProject("MethaneFromTitan", 12, titanium = 4)
+      playProject(MethaneFromTitan, 12, titanium = 4)
           // "I increase heat production two steps and plant production two steps."
           .expect("PROD[2 H, 2 P]")
     }
@@ -1109,32 +1110,32 @@ class Game20260809Test : AbstractFullGameTest() {
     // "Maxwell Edison... I'm sorry, Maxwell Base, costs all 16 money that I have."
     // "It gives me a negative energy production, taking me down to four."
     // "And I place a shitty tile on the Maxwell Base space area and put a delegate on it."
-    dad.turn { playProject("MaxwellBase", 16).expect("PROD[-E], CityTile") }
+    dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile") }
 
     // (8:12 pm) "I raise the temperature to −8°C with eight heat. I get a TR."
     ellie.turn { stdAction("ConvertHeatSA").expect("TR") }
     engine.assertCounts(11 to "TemperatureStep")
 
     // "I use Maxwell Base to add a Stratospheric Bird."
-    dad.turn { cardAction1("MaxwellBase") { doTask("Animal<StratosphericBirds>") } }
+    dad.turn { cardAction1(MaxwellBase) { doTask("Animal<$StratosphericBirds>") } }
 
     // "I play Nitrite Reducing Bacteria for 11. I get three free microbes on that."
     ellie.turn {
-      playProject("NitriteReducingBacteria", 11).expect("3 Microbe")
+      playProject(NitriteReducingBacteria, 11).expect("3 Microbe")
       assertCounts(1 to "M") // ledger entry 304
     }
 
     // "I use Rotator Impacts to remove an asteroid and raise Venus to 18%."
     // "That gives me a TR, taking me to 35 TR."
-    dad.turn { cardAction2("RotatorImpacts").expect("-Asteroid, TR") }
+    dad.turn { cardAction2(RotatorImpacts).expect("-Asteroid, TR") }
     engine.assertCounts(9 to "VenusStep")
 
     // "I use Nitrite Reducing Bacteria to remove three microbes and get a TR."
-    ellie.turn { cardAction2("NitriteReducingBacteria").expect("-3 Microbe, TR") }
+    ellie.turn { cardAction2(NitriteReducingBacteria).expect("-3 Microbe, TR") }
 
     // "I use Extremophiles to add a Venusian Insect, which gives me one money."
     dad.turn {
-      cardAction1("Extremophiles") { doTask("Microbe<VenusianInsects>") }
+      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }
       assertCounts(1 to "M") // ledger entry 201
     }
 
@@ -1144,22 +1145,22 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I use all three of my animal cards to take one animal each."
     // "That gives me my fifth Penguin."
     dad.turn {
-      cardAction1("Penguins").expect("Animal")
-      cardAction1("StratosphericBirds").expect("Animal")
-      cardAction1("Birds").expect("Animal")
+      cardAction1(Penguins).expect("Animal")
+      cardAction1(StratosphericBirds).expect("Animal")
+      cardAction1(Birds).expect("Animal")
 
       // "I will use Titan Floating Launch-Pad to remove one floater and trade with, believe it or
       // not, Miranda to take one"
       // "animal. I'll put that on Penguins."
-      cardAction2("TitanFloatingLaunchPad") {
+      cardAction2(TitanFloatingLaunchPad) {
             doTask("Trade<Miranda>")
-            doTask("Animal<Penguins>")
+            doTask("Animal<$Penguins>")
           }
           .expect("-Floater")
 
       // (8:15 pm) "I use Search for Life to spend the only money I have and flip AI Central, which"
       // "does not have a microbe tag."
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
 
       // "I do a heat raise to −6°C. That gives me a TR, so I'm at 36 TR."
       stdAction("ConvertHeatSA").expect("TR")
@@ -1168,8 +1169,8 @@ class Game20260809Test : AbstractFullGameTest() {
       // "We do production. You get to do World Government Terraforming."
       pass()
     }
-    ellie.assertUnusedActionCards("AquiferPumping", "EnergyMarket", "Ironworks")
-    dad.assertUnusedActionCards("IndustrialCenter")
+    ellie.assertUnusedActionCards(AquiferPumping, EnergyMarket, Ironworks)
+    dad.assertUnusedActionCards(IndustrialCenter)
     // "We'll move the temperature. The temperature is now −4°C."
     ellie.doTask("TemperatureStep! BY Engine")
 
@@ -1195,7 +1196,7 @@ class Game20260809Test : AbstractFullGameTest() {
     dad.turn {
       stdAction("TradeSA", 2) {
             doTask("Trade<Enceladus>")
-            doTask("3 Microbe<VenusianInsects>")
+            doTask("3 Microbe<$VenusianInsects>")
           }
           .expect("3")
     }
@@ -1215,7 +1216,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "What I'm going to do is play Restricted Area for nine."
     dad.turn {
-      playProject("RestrictedArea", 9) {
+      playProject(RestrictedArea, 9) {
             // (8:21 pm) "Thank you. You know, screw that. I'll give back the two steel."
             // "I'm going to place Restricted Area on the one-card space that is two above the south
             // pole"
@@ -1228,8 +1229,8 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to play my Sub-Zero Salt Fish." "Oh, I guess I lose a plant production."
     ellie.turn {
-      playProject("SubZeroSaltFish", 5) { doTask("PROD[-Plant<Dad>]") }
-          .expect("Animal<EcologicalZone>, -8 M<Ellie>, 3 M<Dad>")
+      playProject(SubZeroSaltFish, 5) { doTask("PROD[-Plant<Dad>]") }
+          .expect("Animal<$EcologicalZone>, -8 M<Ellie>, 3 M<Dad>")
       // "I add an animal to Ecological Zone."
     }
     // "Like that's gonna change much."
@@ -1239,7 +1240,7 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.assertCounts(31 to "M") // ledger entry 325
 
     // "I use Restricted Area to draw a card."
-    dad.turn { cardAction1("RestrictedArea").expect("ProjectCard") }
+    dad.turn { cardAction1(RestrictedArea).expect("ProjectCard") }
     // HACK: I narrated drawing the card but never mentioned Restricted Area's two-money cost.
     dad.exMachina("2")
     dad.assertCounts(31 to "M") // ledger entry 217
@@ -1248,7 +1249,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I increase money production one step for every two building tags."
     // "I have eight building tags, so that's four money production."
     ellie.turn {
-      playProject("MedicalLab", 1, steel = 4).expect("PROD[4]")
+      playProject(MedicalLab, 1, steel = 4).expect("PROD[4]")
       assertCounts(25 to "PROD[M]") // ledger entry 328; 25 really means 20
     }
 
@@ -1256,7 +1257,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "because I can now finally. Finally."
     // "That gives me two cards."
     dad.turn {
-      playProject("AtalantaPlanitiaLab", 8).expect("ProjectCard")
+      playProject(AtalantaPlanitiaLab, 8).expect("ProjectCard")
       assertCounts(23 to "M") // ledger entry 221
     }
 
@@ -1264,7 +1265,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I increase plant production one step. I add two microbes to Nitrite Reducing Bacteria."
     // "I also add an animal to Ecological Zone."
     ellie.turn {
-      playProject("VenusSoils", 20) { doTask("2 Microbe<NitriteReducingBacteria>") }
+      playProject(VenusSoils, 20) { doTask("2 Microbe<$NitriteReducingBacteria>") }
           .expect("VenusStep, TR, PROD[P], Animal")
       assertCounts(10 to "M") // ledger entry 329
     }
@@ -1272,12 +1273,12 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I play Invention Contest for free and choose this card."
     // Dad's Earth Catapult discount reduces its printed 2-M€ cost to zero.
     dad.turn {
-      playProject("InventionContest", 0).expect("0 ProjectCard")
+      playProject(InventionContest, 0).expect("0 ProjectCard")
 
       // "For my second action, I play Lawsuit for free. You lowered my production this generation."
       // "So you lose three money and I gain three money?"
       // "My Mons doesn't activate for that. I would just pay myself."
-      playProject("LawSuit", 0) {
+      playProject(LawSuit, 0) {
             doTask("3 Megacredit<Dad> FROM Megacredit<Ellie>.")
           }
           .expect("3 M<Dad>, -3 M<Ellie>")
@@ -1286,7 +1287,7 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.assertCounts(7 to "M") // ledger entry 332
 
     // "I add a Sub-Zero Salt Fish."
-    ellie.turn { cardAction1("SubZeroSaltFish").expect("Animal") }
+    ellie.turn { cardAction1(SubZeroSaltFish).expect("Animal") }
 
     // "I'm going to spend 23 and put a greenery at the only spot next to my city that isn't next"
     // "to one of yours. I get a steel."
@@ -1296,11 +1297,11 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.assertCounts(7 to "M") // ledger entry 332
 
     // (8:28 pm) "I add a Nitrite Reducing Bacterium."
-    ellie.turn { cardAction1("NitriteReducingBacteria").expect("Microbe") }
+    ellie.turn { cardAction1(NitriteReducingBacteria).expect("Microbe") }
 
     // "I play Harvest for two and then get 12. Now I have 13 money."
     dad.turn {
-      playProject("Harvest", 2).expect("10")
+      playProject(Harvest, 2).expect("10")
       assertCounts(13 to "M") // ledger entry 226
     }
 
@@ -1309,19 +1310,19 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.turn {
       stdAction("TradeSA", 2) {
         doTask("Trade<Miranda>")
-        doTask("Animal<SubZeroSaltFish>")
+        doTask("Animal<$SubZeroSaltFish>")
       }
     }
 
     // "I'm going to play Floating Habs for three. I meet the requirement."
-    dad.turn { playProject("FloatingHabs", 3) }
+    dad.turn { playProject(FloatingHabs, 3) }
 
     // "I use Energy Market to pay six money for three energy."
-    ellie.turn { cardAction1("EnergyMarket") { doTask("-6 THEN 3 Energy") } }
+    ellie.turn { cardAction1(EnergyMarket) { doTask("-6 THEN 3 Energy") } }
 
     // "I use Titan Floating Launch-Pad to add a floater to Titan Floating Launch-Pad."
     dad.turn {
-      cardAction1("TitanFloatingLaunchPad") { doTask("Floater<TitanFloatingLaunchPad>") }
+      cardAction1(TitanFloatingLaunchPad) { doTask("Floater<$TitanFloatingLaunchPad>") }
     }
 
     // (8:30 pm) "I pass."
@@ -1329,39 +1330,39 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use Venusian Insects to get a microbe and a money."
     dad.turn {
-      cardAction1("VenusianInsects").expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1")
       // "I'm going to use Penguins, Stratospheric Birds, and Birds to get one animal on each."
-      cardAction1("Penguins").expect("Animal")
-      cardAction1("StratosphericBirds").expect("Animal")
-      cardAction1("Birds").expect("Animal")
+      cardAction1(Penguins).expect("Animal")
+      cardAction1(StratosphericBirds).expect("Animal")
+      cardAction1(Birds).expect("Animal")
 
       // "I'm going to pay two to Floating Habs to put a floater on Floating Habs."
-      cardAction1("FloatingHabs") { doTask("Floater<FloatingHabs>") }
+      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
       assertCounts(9 to "M") // ledger entry 229
 
       // "I'm going to use Maxwell Base to add an animal to Penguins."
       // Maxwell Base can only target a Venus card; no later resource assertion establishes that the
       // narrated illegal Penguins placement occurred, so retain the legal Stratospheric Birds
       // target.
-      cardAction1("MaxwellBase") { doTask("Animal<StratosphericBirds>") }
+      cardAction1(MaxwellBase) { doTask("Animal<$StratosphericBirds>") }
 
       // "I'm going to use Extremophiles to add a microbe to Venusian Insects and give myself"
       // "another money."
-      cardAction1("Extremophiles") { doTask("Microbe<VenusianInsects>") }.expect("1")
+      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }.expect("1")
 
       // "I'm going to use Rotator Impacts to pay two titanium to put an asteroid on Rotator
       // Impacts."
-      cardAction1("RotatorImpacts") { pay(titanium = 2) }.expect("Asteroid")
+      cardAction1(RotatorImpacts) { pay(titanium = 2) }.expect("Asteroid")
 
       // "I'm going to use Search for Life to spend one and flip this microbe tag right here, which"
       // "is Deimos Down, which is not a microbe tag. So I still do not get a science resource."
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
 
       // "I pass."
       pass()
     }
-    ellie.assertUnusedActionCards("AquiferPumping", "Ironworks")
-    dad.assertUnusedActionCards("IndustrialCenter")
+    ellie.assertUnusedActionCards(AquiferPumping, Ironworks)
+    dad.assertUnusedActionCards(IndustrialCenter)
 
     // (8:32 pm) "We do production. I will World Gov temperature up to minus two."
     dad.doTask("TemperatureStep! BY Engine")
@@ -1405,7 +1406,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (8:38 pm) "I'm going to use Restricted Area to draw a card."
     dad.turn {
-      cardAction1("RestrictedArea").expect("ProjectCard")
+      cardAction1(RestrictedArea).expect("ProjectCard")
 
       // "I'm going to trade with Triton. I spend three energy and take four titanium."
       stdAction("TradeSA", 2) { doTask("Trade<Triton>") }.expect("4 T")
@@ -1423,7 +1424,7 @@ class Game20260809Test : AbstractFullGameTest() {
       // cities?"
       // "I place it in six-three." "Looks like you put it in five-three." "Five-three. Sorry."
       // "I get no placement bonuses, but it's next to two greeneries."
-      playProject("Gyropolis", 11, steel = 3) { doTask("CityTile<Hellas_5_3>") }
+      playProject(Gyropolis, 11, steel = 3) { doTask("CityTile<Hellas_5_3>") }
           .expect("PROD[3, -2 E]")
     }
     // HACK: Dad distracted Ellie into forgetting to make the production changes
@@ -1431,16 +1432,16 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (8:41 pm) "I'm going to use Venusian Insects for one microbe and one money."
     dad.turn {
-      cardAction1("VenusianInsects").expect("Microbe, 1")
+      cardAction1(VenusianInsects).expect("Microbe, 1")
       assertCounts(44 to "M") // ledger entry 247
     }
 
     // "I remove three Nitrite Reducing Bacteria to gain a TR."
-    ellie.turn { cardAction2("NitriteReducingBacteria").expect("-3 Microbe, TR") }
+    ellie.turn { cardAction2(NitriteReducingBacteria).expect("-3 Microbe, TR") }
 
     // "I'm going to use Rotator Impacts to remove an asteroid and raise Venus."
     // "Venus is now at 22%, and my TR is at 37."
-    dad.turn { cardAction2("RotatorImpacts").expect("-Asteroid") }
+    dad.turn { cardAction2(RotatorImpacts).expect("-Asteroid") }
     engine.assertCounts(11 to "VenusStep")
     dad.assertCounts(37 to "TR")
 
@@ -1449,14 +1450,14 @@ class Game20260809Test : AbstractFullGameTest() {
     ellie.turn {
       stdAction("TradeSA", 2) {
         doTask("Trade<Enceladus>")
-        doTask("Microbe<NitriteReducingBacteria>")
+        doTask("Microbe<$NitriteReducingBacteria>")
       }
     }
 
     // "I hope this is not a mistake. Jovian Lanterns cost me 18 money."
     // "It gives me a TR and two floaters, which I put on Jovian Lanterns itself."
     dad.turn {
-      playProject("JovianLanterns", 18) { doTask("2 Floater<JovianLanterns>") }.expect("TR")
+      playProject(JovianLanterns, 18) { doTask("2 Floater<$JovianLanterns>") }.expect("TR")
     }
     // HACK: It was a mistake: I only paid 17.
     dad.exMachina("1")
@@ -1470,7 +1471,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "That gives me three TR."
     // (later) "Oh shit. Let me take back one titanium and spend three more money."
     dad.turn {
-      playProject("TerraformingGanymede", 10, titanium = 7).expect("3 TR")
+      playProject(TerraformingGanymede, 10, titanium = 7).expect("3 TR")
       assertCounts(17 to "M") // ledger entry 260
 
       // "Since you haven't done anything, I'mma go ahead and do a heat boop."
@@ -1478,7 +1479,7 @@ class Game20260809Test : AbstractFullGameTest() {
     }
 
     // "I will play Molecular Printing for 11. I get 8 money for the 8 cities."
-    ellie.turn { playProject("MolecularPrinting", 11).expect("-3") }
+    ellie.turn { playProject(MolecularPrinting, 11).expect("-3") }
     ellie.assertCounts(48 to "M") // ledger entry 365
 
     // (8:48 pm) "I think I forgot one megacredit of cost, so I'll correct that."
@@ -1488,7 +1489,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use Jovian Lanterns to spend a titanium and put two more floaters on Jovian"
     // "Lanterns."
-    dad.turn { cardAction1("JovianLanterns").expect("2 Floater") }
+    dad.turn { cardAction1(JovianLanterns).expect("2 Floater") }
 
     // (8:50 pm) "Asteroid, Asteroid."
     // "Oh, I'm a dumbass. I forgot to boop the temperature when you did. There we go."
@@ -1502,7 +1503,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I am going to spend one on Floater Leasing, which gives me two money production."
     dad.turn {
-      playProject("FloaterLeasing", 1).expect("PROD[2]")
+      playProject(FloaterLeasing, 1).expect("PROD[2]")
       assertCounts(16 to "M") // ledger entry 262
     }
 
@@ -1514,26 +1515,26 @@ class Game20260809Test : AbstractFullGameTest() {
       // "I add one animal to any card, which will be Sub-Zero Salt Fish."
       // "I add two microbes to any card, which will be Nitrite."
       // "Then I get two animals for EcoZone."
-      playProject("EcologyResearch", 21) {
-            doTask("Animal<SubZeroSaltFish>")
-            doTask("2 Microbe<NitriteReducingBacteria>")
+      playProject(EcologyResearch, 21) {
+            doTask("Animal<$SubZeroSaltFish>")
+            doTask("2 Microbe<$NitriteReducingBacteria>")
           }
           .expect("3 Animal")
       assertCounts(0 to "M") // ledger entry 376
     }
 
     // "I'm starting to have tough decisions, so I'll just stall more by taking a Penguin."
-    dad.turn { cardAction1("Penguins").expect("Animal") }
+    dad.turn { cardAction1(Penguins).expect("Animal") }
 
     // "And, for zero, Project Inspection."
     // "I use Nitrite Reducing Bacteria to turn in three microbes and get another TR."
     ellie.turn {
-      playProject("ProjectInspection", 0) { doTask("UseAction2<NitriteReducingBacteria>") }
+      playProject(ProjectInspection, 0) { doTask("UseAction2<$NitriteReducingBacteria>") }
           .expect("-3 Microbe, TR")
     }
 
     // (8:52 pm) "I knew there had to be a plan. I'll take a Strato Bird."
-    dad.turn { cardAction1("StratosphericBirds").expect("Animal") }
+    dad.turn { cardAction1(StratosphericBirds).expect("Animal") }
 
     // "There is one thing I can do. Not that I really need to. Do a plant forest."
     // "In other words, convert plants to greenery. To this four-two for a plant."
@@ -1543,14 +1544,14 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use Birds to take a Bird."
     dad.turn {
-      cardAction1("Birds").expect("Animal")
-      cardAction1("Extremophiles") { doTask("Microbe<VenusianInsects>") }.expect("1")
+      cardAction1(Birds).expect("Animal")
+      cardAction1(Extremophiles) { doTask("Microbe<$VenusianInsects>") }.expect("1")
     }
 
     // "Not that it would have helped me much, but I can use Energy Market to decrease"
     // "an energy production." "I pitched one card. For the energy production."
     ellie.turn {
-      cardAction2("EnergyMarket").expect("PROD[-E], 8")
+      cardAction2(EnergyMarket).expect("PROD[-E], 8")
       assertCounts(8 to "M") // ledger entry 382
     }
 
@@ -1558,10 +1559,10 @@ class Game20260809Test : AbstractFullGameTest() {
     // "Be brave. Try playing Viral Enhancers first. That cost me seven. And it gives me a plant,
     // right?"
     dad.turn {
-      playProject("ViralEnhancers", 7).expect("P")
+      playProject(ViralEnhancers, 7).expect("P")
 
       // "I play Advanced Ecosystems for nine. It gives me three plants."
-      playProject("AdvancedEcosystems", 9).expect("3 P")
+      playProject(AdvancedEcosystems, 9).expect("3 P")
     }
     dad.assertCounts(1 to "M") // ledger entry 266
 
@@ -1577,21 +1578,21 @@ class Game20260809Test : AbstractFullGameTest() {
       // (8:58 pm) "Mining Quota cost three, so I'll spend two steel on it."
       // "It gives me two steel production. Yay, my very first steel production."
       // "I believe I now have 17 green. Whew."
-      playProject("MiningQuota", steel = 2).expect("PROD[2 S]")
+      playProject(MiningQuota, steel = 2).expect("PROD[2 S]")
 
       // "I'm going to sell Stanford Torus to get a money."
       sellPatents(1)
       // "I'm going to pay two money to use Floating Habs to put a floater on Floating Habs."
-      cardAction1("FloatingHabs") { doTask("Floater<FloatingHabs>") }
+      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
       assertCounts(0 to "M") // ledger entry 274
 
       // "I'm gonna use Maxwell Base to put a microbe on Venusian Insects and give me a money back."
       // "Give me my money back."
-      cardAction1("MaxwellBase") { doTask("Microbe<VenusianInsects>") }.expect("1")
+      cardAction1(MaxwellBase) { doTask("Microbe<$VenusianInsects>") }.expect("1")
 
       // "I will try Search for Life. Wouldn't that be funny if this made all the difference"
       // "right here? Search for Life, Vesta Shipyard, no life. I got no life."
-      cardAction1("SearchForLife") { doTask("Ok") }.expect("0 Science")
+      cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
 
       // I never narrated paying the action's one money; the ledger suggests I took one instead.
       exMachina("2")
@@ -1600,8 +1601,8 @@ class Game20260809Test : AbstractFullGameTest() {
       // "So now I must pass. And so we hit production."
       pass()
     }
-    ellie.assertUnusedActionCards("AquiferPumping", "Ironworks", "SubZeroSaltFish")
-    dad.assertUnusedActionCards("IndustrialCenter", "TitanFloatingLaunchPad")
+    ellie.assertUnusedActionCards(AquiferPumping, Ironworks, SubZeroSaltFish)
+    dad.assertUnusedActionCards(IndustrialCenter, TitanFloatingLaunchPad)
 
     with(dad) {
       assertProduction(m = 12, s = 2, t = 2, p = 0, e = 4, h = 0)

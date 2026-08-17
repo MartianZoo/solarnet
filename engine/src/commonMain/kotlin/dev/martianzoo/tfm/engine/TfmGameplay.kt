@@ -46,7 +46,7 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  public fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
+  public fun playCorp(cardName: ClassName, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return inTurn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
@@ -102,7 +102,7 @@ public class TfmGameplay(
     }
   }
 
-  public fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
+  public fun playPrelude(cardName: ClassName, body: BodyLambda = {}): TaskResult {
     return inTurn {
       doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
       body()
@@ -111,11 +111,11 @@ public class TfmGameplay(
 
   // In the method after this, all the cost parameters are optional,
   // but you've gotta provide ONE of them.
-  public fun playProject(unused1: String, unused2: BodyLambda = {}): Nothing =
+  public fun playProject(unused1: ClassName, unused2: BodyLambda = {}): Nothing =
       error("you must specify some cost")
 
   public fun playProject(
-      cardName: String,
+      cardName: ClassName,
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
@@ -164,13 +164,13 @@ public class TfmGameplay(
     }
   }
 
-  public fun cardAction1(cardName: String, body: BodyLambda = {}): TaskResult =
+  public fun cardAction1(cardName: ClassName, body: BodyLambda = {}): TaskResult =
       cardAction(1, cardName, body)
 
-  public fun cardAction2(cardName: String, body: BodyLambda = {}): TaskResult =
+  public fun cardAction2(cardName: ClassName, body: BodyLambda = {}): TaskResult =
       cardAction(2, cardName, body)
 
-  private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
+  private fun cardAction(which: Int, cardName: ClassName, body: BodyLambda = {}): TaskResult {
     return stdAction("UseCardActionSA") {
       doTask("ActionUsedMarker<$cardName>")
       doTask("$USE_ACTION$which<$cardName>")
