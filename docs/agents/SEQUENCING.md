@@ -165,8 +165,10 @@ These current encodings are considered principled:
 - Global-parameter change before TR and threshold reactions.
 - Tile placement before adjacency, bonuses, and placement reactions; the reactions remain siblings.
 - Action costs before payoffs through generated `THEN`.
-- Direct spend-to-benefit offers on Olympus Conference, Recyclon, Neptunian Power Consultants, and
-  St. Joseph of Cupertino Mission.
+- Direct spend-to-benefit offers on Olympus Conference, Recyclon, and St. Joseph of Cupertino
+  Mission.
+- Neptunian Power Consultants using a named optional signal before creating its spend-to-benefit
+  payment sequence.
 - Card-resource payment modifiers whose `THEN` carries X into an `Owed` reduction.
 - Capital, Flooding, Mining Rights, and Mining Area carrying one selected identity into a follow-up.
 - Spend-enabled effects establishing `Owed`, `Accept`, and a barrier before their payoff.
