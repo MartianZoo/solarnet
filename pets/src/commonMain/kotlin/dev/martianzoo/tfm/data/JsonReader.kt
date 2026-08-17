@@ -152,16 +152,12 @@ public object JsonReader {
 
   // ACTIONS
 
-  public fun readActions(json5: String): List<StandardActionDefinition> {
-    val import = fromJson5<ActionsImport>(json5)
-
-    return import.actions.map { it.complete(false) } + import.projects.map { it.complete(true) }
-  }
+  public fun readActions(json5: String): List<StandardActionDefinition> =
+      fromJson5<ActionsImport>(json5).actions.map { it.complete() }
 
   @Serializable
   private data class ActionsImport(
       val actions: List<IncompleteActionDef>,
-      val projects: List<IncompleteActionDef>,
   ) {
 
     @Serializable
@@ -171,7 +167,7 @@ public object JsonReader {
         val actions: List<String>? = null,
         val setupRequirement: String? = null,
     ) {
-      fun complete(project: Boolean): StandardActionDefinition {
+      fun complete(): StandardActionDefinition {
         val realActions =
             if (action == null) {
               require(!actions.isNullOrEmpty())
@@ -180,7 +176,7 @@ public object JsonReader {
               require(actions == null)
               listOf(action)
             }
-        return StandardActionDefinition(cn(id), project, realActions, setupRequirement)
+        return StandardActionDefinition(cn(id), realActions, setupRequirement)
       }
     }
   }

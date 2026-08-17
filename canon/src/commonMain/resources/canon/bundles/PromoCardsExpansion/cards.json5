@@ -366,7 +366,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "EarthTag" ],
-      "effects": [ "CardFront(HAS 20 CardCost): PROD[1]" ],
+      "effects": [ "CardFront(HAS 20 cost): PROD[1]" ],
     },
 
     // Asteroid Deflection System[F]
@@ -430,7 +430,7 @@
       "cost": 12,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard<Class<CardFront>(HAS ClassCardRequirement)>:: -2 Owed",
+        "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed",
         "End: VictoryPoint"
       ],
     },

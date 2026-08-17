@@ -35,25 +35,4 @@
     // Mandatory first action; it's always here but you can't take it if you have 0 Mandate
     { "id": "HandleMandates", "action": "-> Mandate: MandateSignal" }
   ],
-
-  "projects": [
-
-    // Power Plant
-    { "id": "PowerPlantSP", "action": "11 -> PROD[Energy]" },
-
-    // Asteroid
-    { "id": "AsteroidSP", "action": "14 -> TemperatureStep" },
-
-    // Buffer Gas (TR 63 solo variant)
-    { "id": "BufferGasSP", "action": "16 -> TerraformRating", "setupRequirement": "Tr63SoloVariant" },
-
-    // Aquifer
-    { "id": "AquiferSP", "action": "18 -> OceanTile" },
-
-    // Greenery
-    { "id": "GreenerySP", "action": "23 -> GreeneryTile" },
-
-    // City
-    { "id": "CitySP", "action": "25 -> PROD[1], CityTile" },
-  ],
 }

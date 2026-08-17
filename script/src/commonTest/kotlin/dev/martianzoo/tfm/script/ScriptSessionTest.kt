@@ -100,13 +100,13 @@ internal class ScriptSessionTest {
   }
 
   @Test
-  fun listCountsCustomMetrics() {
+  fun countReadsCountProperties() {
     val repl = ScriptSession()
     repl.command("newgame BH 2")
 
     assertEquals(
-        listOf("8 MarsRow<Hellas_8_4>:", "  8 MarsRow<Hellas_8_4>"),
-        repl.command("list MarsRow<Hellas_8_4>"),
+        listOf("8 Hellas_8_4.row"),
+        repl.command("count Hellas_8_4.row"),
     )
   }
 

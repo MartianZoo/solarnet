@@ -16,6 +16,9 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -153,8 +156,12 @@ public class CardDefinition(data: CardData) : Definition {
         supertypes = supertypes,
         effects = allEffects,
         invariants = setOf(Max(scaledEx(className.expression, 1))),
-        extraNodes =
-            setOfNotNull(requirement, deck?.className) + extraClasses.flatMap { it.allNodes },
+        properties =
+            buildMap {
+              put(COST_PROPERTY, NumberValue(cost))
+              requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
+            },
+        extraNodes = setOfNotNull(deck?.className) + extraClasses.flatMap { it.allNodes },
     )
   }
 
@@ -210,5 +217,10 @@ public class CardDefinition(data: CardData) : Definition {
 
   private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
     parseOneLinerClass("CLASS $type : CardResource<ResourceHolder<Class<$type>, Owner>>")
+  }
+
+  private companion object {
+    val COST_PROPERTY = PropertyName("cost")
+    val REQUIREMENT_PROPERTY = PropertyName("requirement")
   }
 }

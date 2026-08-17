@@ -6,9 +6,9 @@
         // Diversifier
         { "id": "HM0", "requirement": "8 Class<Tag>(HAS Tag<Owner>)" },
         // Tactician
-        { "id": "HM1", "requirement": "5 CardFront(HAS CardRequirement)" },
+        { "id": "HM1", "requirement": "5 CardFront(HAS requirement)" },
         // Polar Explorer
-        { "id": "HM2", "requirement": "3 OwnedTile<MarsArea(HAS 8 MarsRow)>" },
+        { "id": "HM2", "requirement": "3 OwnedTile<MarsArea(HAS 8 row)>" },
         // Energizer
         { "id": "HM3", "requirement": "PROD[6 Energy]" },
         // Rim Settler

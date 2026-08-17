@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
@@ -99,15 +100,12 @@ internal class ClassTableProjectionTest {
   }
 
   @Test
-  fun `concrete award definitions and placement classes stay unloaded in solo`() {
+  fun `concrete award definitions stay unloaded in solo`() {
     baseSolo.classTable
         .getClass(cn("Award"))
         .allSubclasses()
         .map { it.className }
         .shouldContainExactly(cn("Award"))
-    assertNotLoaded("FirstPlace", baseSolo)
-    assertNotLoaded("SecondPlace", baseSolo)
-    assertNotLoaded("AssignAwardPlaces", baseSolo)
   }
 
   @Test
@@ -125,14 +123,16 @@ internal class ClassTableProjectionTest {
       matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
 
   @Test
-  fun `abstract Award and its tallying machinery are incorrectly loaded in solo`() {
+  fun `abstract Award and its scoring machinery are incorrectly loaded in solo`() {
     matchingClasses("award", baseSolo)
         .shouldContainExactlyInAnyOrder(
             cn("Award"),
             cn("MeasureAward"),
-            cn("TallyAward"),
             cn("AwardTally"),
+            cn("AssignAwardPlaces"),
         )
+    baseSolo.classNames.shouldContain(cn("FirstPlace"))
+    baseSolo.classNames.shouldContain(cn("SecondPlace"))
   }
 
   @Test
@@ -141,9 +141,9 @@ internal class ClassTableProjectionTest {
     matchingClasses("award", projection)
         .shouldContainExactlyInAnyOrder(
             cn("MeasureAward"),
-            cn("TallyAward"),
             cn("AwardTally"),
             cn("Award"),
+            cn("AssignAwardPlaces"),
         )
     projection.classTable
         .getClass(cn("Award"))

@@ -4,6 +4,11 @@ CLASS VenusNextExpansion : Module {
   SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
 }
 
+CLASS AirScrappingSP : StandardProject, AutoLoad {
+  cost = 15
+  1 / This.cost -> VenusStep
+}
+
 "Adds World Government Terraforming to the solar phase"
 CLASS WorldGovernmentOption : Module {
   // A Venus game has four global parameters, so MAX 3 means at least one is still incomplete.

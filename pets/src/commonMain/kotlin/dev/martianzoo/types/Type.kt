@@ -11,7 +11,14 @@ import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Or
@@ -54,6 +61,22 @@ public data class Type(
    * mentions an inactive class is simply unsatisfiable rather than making the type phantom.
    */
   public val phantom: Boolean = rootClass.phantom || dependencies.phantom
+
+  /** Returns the concrete numeric value of the class property named [propertyName]. */
+  public fun getNumberPropertyValue(propertyName: String): Int =
+      (rootClass.properties.getValue(PropertyName(propertyName)) as NumberValue).value
+
+  /** Returns the concrete metric-valued class property named [propertyName]. */
+  public fun getMetricPropertyValue(propertyName: String): Metric =
+      (rootClass.properties.getValue(PropertyName(propertyName)) as MetricValue).value
+
+  /** Returns the concrete requirement-valued class property named [propertyName], if present. */
+  public fun getRequirementPropertyValue(propertyName: String): Requirement? =
+      when (val value = rootClass.properties.getValue(PropertyName(propertyName))) {
+        AbsentRequirementValue -> null
+        is RequirementValue -> value.value
+        else -> error("Property `$propertyName` is not a concrete Requirement value: $value")
+      }
 
   /**
    * Performs a context-free subtype check. Comparisons that reach a state-dependent refinement
@@ -245,7 +268,9 @@ public data class Type(
     ): PetTransformer {
       return object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
-          return if (node is Expression) {
+          return if (node is Property && node.receiver == null) {
+            node.copy(receiver = proposed)
+          } else if (node is Expression) {
             val resolved = classTable.resolve(node)
             val modded =
                 try {

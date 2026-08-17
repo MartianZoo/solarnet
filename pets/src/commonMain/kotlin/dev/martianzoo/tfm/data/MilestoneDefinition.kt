@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.TfmClasses.MILESTONE
 import kotlinx.serialization.SerialName
@@ -38,7 +39,11 @@ public data class MilestoneDefinition(
         className,
         kind = CONCRETE,
         supertypes = setOf(MILESTONE.expression),
-        effects = listOf(parse("This:: ($requirementText): $OK")),
+        properties = mapOf(REQUIREMENT_PROPERTY to RequirementValue(requirement)),
     )
+  }
+
+  private companion object {
+    private val REQUIREMENT_PROPERTY = PropertyName("requirement")
   }
 }

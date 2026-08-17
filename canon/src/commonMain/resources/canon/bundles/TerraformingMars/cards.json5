@@ -7,7 +7,7 @@
       "deck": "CORPORATION",
       "immediate": "57",
       "effects": [
-        "CardFront(HAS 20 CardCost) OR UseAction<StandardProject(HAS 20 StandardProjectCost)>: 4"
+        "CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4"
       ],
     },
 

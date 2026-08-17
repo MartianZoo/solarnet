@@ -177,7 +177,7 @@ identity must remain sealed until the decision is irrevocably committed.
 A card back in Deck has no live `MicrobeTag` component. Do not make `HAS` silently jump through
 every CardBack's represented Class.
 
-Use honest metadata metrics, analogous to `ClassCardRequirement`:
+Use an honest metadata property or metric:
 
 ```text
 ProjectCard<
@@ -185,11 +185,16 @@ ProjectCard<
 >
 ```
 
-The custom metric reads canonical `CardDefinition` metadata. The chance selector receives an
-already filtered source Type and knows nothing about tags. Cost, color, requirement, and other
-printed filters use the same pattern.
+A temporary custom metric could read canonical `CardDefinition` metadata. The chance selector
+receives an already filtered source Type and knows nothing about tags. Cost and requirement filters
+reuse the card Class's immutable properties; color, deck, and other printed facts need similarly
+honest properties or metadata bridges.
 
 Do not generate subclasses or live components for every printed fact.
+
+The abbreviated argument form above still needs a focused type proof; use the fully explicit form
+if dependency specialization cannot justify it. Any future `ProjectCard(HAS MicrobeTag)` sugar must
+lower to the explicit printed-fact constraint rather than changing the global meaning of `HAS`.
 
 ## Player-relative observation
 

@@ -18,8 +18,8 @@ public interface Definition : HasClassName {
 
   /**
    * Converts this definition to a class declaration. As much information as possible should be
-   * represented appropriately as effects of the class, so that there is less need for custom
-   * instructions to refer back to this definition.
+   * represented appropriately as properties or effects of the class, so that custom behavior does
+   * not need to refer back to this definition.
    */
   public val asClassDeclaration: ClassDeclaration
 }

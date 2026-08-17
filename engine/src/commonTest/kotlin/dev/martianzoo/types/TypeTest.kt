@@ -9,6 +9,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.engine.cardnames.MediaGroup
@@ -17,6 +18,46 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class TypeTest {
+  @Test
+  fun getsInheritedConcretePropertyValues() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS TemperatureStep",
+            """
+            ABSTRACT CLASS Area {
+              row = Number
+              score = Metric
+              requirement = Requirement
+            }
+            """
+                .trimIndent(),
+            """
+            CLASS ConcreteArea : Area {
+              row = 8
+              score = COUNT TemperatureStep
+              requirement = HAS TemperatureStep
+            }
+            """
+                .trimIndent(),
+        )
+
+    val area = table.resolve(te("ConcreteArea"))
+    area.getNumberPropertyValue("row") shouldBe 8
+    area.getMetricPropertyValue("score") shouldBe parse<Metric>("TemperatureStep")
+    area.getRequirementPropertyValue("requirement") shouldBe parse<Requirement>("TemperatureStep")
+  }
+
+  @Test
+  fun getsAbsentOptionalRequirementPropertyValue() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Goal { requirement = Requirement? }",
+            "CLASS OptionalGoal : Goal",
+        )
+
+    table.resolve(te("OptionalGoal")).getRequirementPropertyValue("requirement") shouldBe null
+  }
+
   @Test
   fun classTablesCannotBeMixed() {
     fun universe() = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar<Foo>")

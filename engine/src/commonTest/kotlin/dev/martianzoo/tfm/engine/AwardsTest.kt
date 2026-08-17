@@ -67,8 +67,8 @@ internal class AwardsTest : TfmTest() {
 
     p1.godMode().sneak("Forecaster, $ArtificialLake")
     p2.godMode().sneak("$Birds, $Algae")
-    p1.count("CardFront(HAS CardRequirement)") shouldBe 1
-    p2.count("CardFront(HAS CardRequirement)") shouldBe 2
+    p1.count("CardFront(HAS requirement)") shouldBe 1
+    p2.count("CardFront(HAS requirement)") shouldBe 2
 
     engine.godMode().manual("EndPhase")
 

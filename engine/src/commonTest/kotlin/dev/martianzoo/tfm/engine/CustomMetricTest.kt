@@ -15,7 +15,6 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.Type
 import io.kotest.assertions.throwables.shouldThrow
@@ -23,37 +22,6 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CustomMetricTest {
-  @Test
-  fun marsRowIsCountedAsAMetricButNeverStoredAsAComponent() {
-    val game = Engine.newGame(canonicalPremise(HellasMapOption, VenusNextExpansion, players = 2))
-    val p1 = game.tfm(PLAYER1)
-    val componentCount = p1.count("Component")
-
-    p1.count("MarsRow<Hellas_8_4>") shouldBe 8
-    game.reader.getComponents(p1.resolve("MarsRow<Hellas_8_4>")).isEmpty() shouldBe true
-    p1.count("Component") shouldBe componentCount
-
-    shouldThrow<ExpressionException> { p1.count("MarsRow<MaxwellBaseArea>") }
-  }
-
-  @Test
-  fun marsRowWorksInsideARefinement() {
-    val game = Engine.newGame(canonicalPremise(HellasMapOption, players = 2))
-    val p1 = game.tfm(PLAYER1)
-
-    p1.godMode()
-        .sneak(
-            "CityTile<Player1, Hellas_7_4>, CityTile<Player1, Hellas_8_4>, " +
-                "CityTile<Player1, Hellas_8_5>, CityTile<Player1, Hellas_9_5>"
-        )
-
-    p1.count("OwnedTile<MarsArea(HAS 8 MarsRow)>") shouldBe 3
-    p1.has("3 OwnedTile<MarsArea(HAS 8 MarsRow)>") shouldBe true
-    p1.has("4 OwnedTile<MarsArea(HAS 8 MarsRow)>") shouldBe false
-    p1.godMode().manual("PolarExplorer")
-    p1.count("PolarExplorer") shouldBe 1
-  }
-
   @Test
   fun instructionAndMetricCapabilitiesCanShareOrSplitImplementations() {
     val game = Engine.newGame(customClassSetup())

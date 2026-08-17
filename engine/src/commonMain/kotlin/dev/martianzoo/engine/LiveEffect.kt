@@ -42,6 +42,7 @@ private constructor(
     internal val effect: Effect,
     private val context: Component,
     private val triggerClass: ClassName?,
+    private val transformers: Transformers,
 ) {
   internal val automatic: Boolean
     get() = effect.automatic
@@ -83,10 +84,14 @@ private constructor(
     val assignee = assigneeForTriggeredWork(triggerEvent, effectOwner, changedComponentPlayer)
     val hit = subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
+    val instruction =
+        transformers
+            .evaluateProperties(context.expression, contextualOwner)
+            .transformInstructionTree(hit.specialize(effect.instruction))
     return PendingTask(
         assignee = assignee,
         actor = effectOwner ?: triggerEvent.actor,
-        instruction = InstructionGroup.of(hit.specialize(effect.instruction)),
+        instruction = InstructionGroup.of(instruction),
         cause = cause,
     )
   }
@@ -149,7 +154,7 @@ private constructor(
       val subscription = Subscription.from(effect.trigger, context, linkedSources)
       val triggerClass =
           subscription.classToCheck?.let(transformers.classTable::getClass)?.className
-      return LiveEffect(subscription, effect, context, triggerClass)
+      return LiveEffect(subscription, effect, context, triggerClass, transformers)
     }
 
     private fun specialize(component: Component, transformers: Transformers): List<Effect> {

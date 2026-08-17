@@ -11,6 +11,8 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 
 /**
@@ -42,6 +44,9 @@ public data class ClassDeclaration(
 
     /** The merged contents of any `DEFAULT` clauses in the class body. */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
+
+    /** Property bounds or values declared directly by this class. */
+    public val properties: Map<PropertyName, PropertyValue> = emptyMap(),
     public val docstring: String? = null,
     /**
      * Any additional Pets elements belonging to this class that aren't given for the previous
@@ -134,6 +139,8 @@ public data class ClassDeclaration(
         invariants +
         effects +
         defaultsDeclaration.allNodes +
+        properties.keys +
+        properties.values +
         extraNodes
   }
 }

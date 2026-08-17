@@ -51,7 +51,11 @@ internal class CustomClassRuntime(
 
     val outputTransformer =
         with(transformers) {
-          chain(atomizer(), insertDefaults(), component.owner?.let(::replaceOwnerWith))
+          chain(
+              atomizer(),
+              insertDefaults(),
+              component.owner?.let(::replaceOwnerWith),
+          )
         }
     return outputTransformer.transformInstructionTree(translated)
   }

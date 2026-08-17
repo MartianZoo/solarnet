@@ -4,6 +4,11 @@ CLASS ColoniesExpansion : Module {
   SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
 }
 
+CLASS BuildColonySP : StandardProject, AutoLoad {
+  cost = 17
+  1 / This.cost -> Colony
+}
+
 "Creates the colony tiles and one trade fleet for each player"
 CLASS ColoniesSetup : Custom
 

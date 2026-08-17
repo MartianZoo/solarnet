@@ -5,8 +5,8 @@ CLASS TerraformingMars : Module {
   SetupPhase IF 2 Player:: BeginGame
   CorporationPhase: Photosynthesis
 
-  PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
-  PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
+  PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
+  PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed
   Pay<Class<Titanium>>:: -3 Owed
 }
@@ -21,7 +21,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase:: 20 TerraformRating<This>
   CorporationPhase:: CorporationCard
   ResearchPhase: 4 BuyCard<This>?
-  MeasureAward<Award>:: TallyAward<This, Award>
+  MeasureAward<Award>:: AwardTally<Award> / EVAL Award.metric
 
   CLASS Player1, Player2, Player3, Player4, Player5
 }
@@ -49,6 +49,9 @@ ABSTRACT CLASS Area {
 
   "One of the usually-61 areas on the planet itself"
   ABSTRACT CLASS MarsArea {
+    row = Number
+    column = Number
+
     Tile<This>:: CreateAdjacencies<This>
 
     // An unreserved area
@@ -143,6 +146,9 @@ ABSTRACT CLASS Card : Owned<Player> {
 
   // A card in play: face-up on the table
   ABSTRACT CLASS CardFront {
+    cost = Number
+    requirement = Requirement?
+
     ABSTRACT CLASS ActiveCard, AutomatedCard
     ABSTRACT CLASS ActionCard : HasActions
     ABSTRACT CLASS ResourceCard : ResourceHolder
@@ -223,6 +229,9 @@ CLASS VictoryPoint : Owned<Player>
 "A milestone already claimed; unclaimed milestones exist only as a Class<ThatMilestoneType>"
 ABSTRACT CLASS Milestone : Owned<Player> {
   HAS MAX 3 Milestone
+  requirement = Requirement
+
+  This:: (EVAL This.requirement: Ok)
   End: 5 VictoryPoint
 }
 
@@ -230,6 +239,8 @@ ABSTRACT CLASS Milestone : Owned<Player> {
 ABSTRACT CLASS Award {
   HAS MAX 1 This
   HAS MAX 3 Award
+  metric = Metric
+  EndPhase:: MeasureAward<This> THEN AssignAwardPlaces<This>
 }
 
 CLASS FirstPlace<Award> : Owned<Player> {
@@ -274,7 +285,40 @@ CLASS Pass : Owned<Player>, Generational { HAS MAX 1 This }
 ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
 
 "A standard project, as the game defines it (but excluding Sell Patents)"
-ABSTRACT CLASS StandardProject : HasActions { HAS =1 This }
+ABSTRACT CLASS StandardProject : HasActions {
+  HAS =1 This
+  cost = Number
+}
+
+CLASS PowerPlantSP : StandardProject, AutoLoad {
+  cost = 11
+  1 / This.cost -> PROD[Energy]
+}
+
+CLASS AsteroidSP : StandardProject, AutoLoad {
+  cost = 14
+  1 / This.cost -> TemperatureStep
+}
+
+CLASS BufferGasSP : StandardProject {
+  cost = 16
+  1 / This.cost -> TerraformRating
+}
+
+CLASS AquiferSP : StandardProject, AutoLoad {
+  cost = 18
+  1 / This.cost -> OceanTile
+}
+
+CLASS GreenerySP : StandardProject, AutoLoad {
+  cost = 23
+  1 / This.cost -> GreeneryTile
+}
+
+CLASS CitySP : StandardProject, AutoLoad {
+  cost = 25
+  1 / This.cost -> PROD[1], CityTile
+}
 
 // PAY AND PLAY
 
@@ -284,8 +328,9 @@ CLASS BuyCard : Owned<Player>, Signal {
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
-  This:: CheckCardRequirement<Class<CardFront>>
-  This:: HandleCardCost<Class<CardFront>>
+  This:: (EVAL CardFront.requirement: Ok) OR HandlePossibleGpRequirement<Class<CardFront>>
+  This:: Owed / CardFront.cost
+  This:: HandleCardTags<Class<CardFront>>
   This: MAX 0 Barrier: CardFront FROM CardBack
 }
 
@@ -424,6 +469,8 @@ ABSTRACT CLASS SoloVariant : Module {
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloVariant {
+    HAS =1 BufferGasSP
+
     SetupPhase: Tr63SoloObjective
     SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
   }
@@ -483,9 +530,6 @@ ABSTRACT CLASS Adjacency<Tile, Tile> {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
-"A virtual metric whose count is the area's row number; no MarsRow component ever exists"
-CLASS MarsRow<MarsArea> : Custom
-
 "Triggers creating Neighbors and Adjacencies"
 CLASS CreateAdjacencies<MarsArea> : Custom
 
@@ -494,18 +538,6 @@ CLASS MapBonus<Class<Resource>, MarsArea> : Custom
 
 "Moves an owned component to the next player in seat order"
 CLASS PassLeft<StartToken> : Custom
-
-"A virtual metric whose count is the printed megacredit cost of a card in play"
-CLASS CardCost<CardFront> : Custom
-
-"A virtual metric whose count is 1 when a card has a printed play requirement"
-CLASS CardRequirement<CardFront> : Custom
-
-"The CardRequirement metric applied to a card class token rather than a card in play"
-CLASS ClassCardRequirement<Class<CardFront>> : Custom
-
-"A virtual metric whose count is the printed megacredit cost of a standard project"
-CLASS StandardProjectCost<StandardProject> : Custom
 
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
 CLASS GetEventVps<Class<CardFront>> : Owned<Player>, Custom
@@ -520,8 +552,8 @@ CLASS GrossHack : Owned<Player>, System {
 }
 
 CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
-CLASS CheckCardRequirement<Class<CardFront>> : Owned<Player>, Custom
-CLASS HandleCardCost<Class<CardFront>> : Owned<Player>, Custom
+CLASS HandlePossibleGpRequirement<Class<CardFront>> : Owned<Player>, Custom
+CLASS HandleCardTags<Class<CardFront>> : Owned<Player>, Custom
 
 "A temporary shortfall between a printed global requirement and the current parameter"
 CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
@@ -532,6 +564,5 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
 CLASS Neighbor<Tile<MarsArea>, MarsArea> : Hidden
 
 CLASS MeasureAward<Award> : Signal, System
-CLASS TallyAward<Award> : Owned<Player>, Custom
 CLASS AwardTally<Award> : Owned<Player>
 CLASS AssignAwardPlaces<Award> : Custom

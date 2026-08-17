@@ -2,6 +2,9 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
@@ -41,7 +44,24 @@ internal class CardDefinitionTest {
     birds.resourceType shouldBe cn("Animal")
     birds.requirement?.toString() shouldBe "13 OxygenStep"
     birds.cost shouldBe 10
+    birds.asClassDeclaration.properties[PropertyName("cost")] shouldBe NumberValue(10)
+    birds.asClassDeclaration.properties[PropertyName("requirement")] shouldBe
+        RequirementValue(parse("13 OxygenStep"))
     birds.projectInfo?.kind shouldBe ACTIVE
+  }
+
+  @Test
+  fun cardWithoutRequirementOmitsThePropertyValue() {
+    val card =
+        CardDefinition(
+            CardData(
+                id = "001",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+            )
+        )
+
+    card.asClassDeclaration.properties.containsKey(PropertyName("requirement")) shouldBe false
   }
 
   @Test

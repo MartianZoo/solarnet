@@ -19,11 +19,11 @@
       "setupRequirement": "ElysiumMapOption",
       "awards": [
         // Celebrity
-        { "id": "HA5", "metric": "CardFront(HAS 20 CardCost)" },
+        { "id": "HA5", "metric": "CardFront(HAS 20 cost)" },
         // Industrialist
         { "id": "HA6", "metric": "Steel OR Energy" },
         // Desert Settler
-        { "id": "HA7", "metric": "OwnedTile<MarsArea(HAS 6 MarsRow)>" },
+        { "id": "HA7", "metric": "OwnedTile<MarsArea(HAS 6 row)>" },
         // Estate Dealer
         { "id": "HA8", "metric": "OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
         // Benefactor

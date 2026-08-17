@@ -11,6 +11,17 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
+import dev.martianzoo.pets.ast.PropertyValue.MetricType
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
+import dev.martianzoo.pets.ast.PropertyValue.NumberType
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
+import dev.martianzoo.pets.ast.PropertyValue.RequirementType
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.types.Dependency.Key
@@ -22,6 +33,181 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ClassTest {
+  @Test
+  fun `metric properties narrow through number bounds literals and metric expressions`() {
+    val table =
+        loader(
+            """
+            ABSTRACT CLASS Area {
+              score = Metric
+            }
+            ABSTRACT CLASS FixedArea : Area {
+              score = Number
+            }
+            CLASS EightPointArea : FixedArea {
+              score = 8
+            }
+            CLASS TemperatureArea : Area {
+              score = COUNT TemperatureStep
+            }
+            CLASS SevenPointArea : Area {
+              score = 7
+            }
+            """
+                .trimIndent()
+        )
+
+    table.getClass(cn("Area")).properties[PropertyName("score")] shouldBe MetricType
+    table.getClass(cn("FixedArea")).properties[PropertyName("score")] shouldBe NumberType
+    table.getClass(cn("EightPointArea")).properties[PropertyName("score")] shouldBe NumberValue(8)
+    table.getClass(cn("TemperatureArea")).properties[PropertyName("score")] shouldBe
+        MetricValue(parse<Metric>("TemperatureStep"))
+    table.getClass(cn("SevenPointArea")).properties[PropertyName("score")] shouldBe NumberValue(7)
+  }
+
+  @Test
+  fun `requirement properties narrow to requirement expressions`() {
+    val table =
+        loader(
+            """
+            ABSTRACT CLASS Goal {
+              requirement = Requirement
+            }
+            CLASS Gardener : Goal {
+              requirement = HAS 3 Plant, MAX 2 Steel
+            }
+            """
+                .trimIndent()
+        )
+
+    table.getClass(cn("Goal")).properties[PropertyName("requirement")] shouldBe RequirementType
+    table.getClass(cn("Gardener")).properties[PropertyName("requirement")] shouldBe
+        RequirementValue(parse<Requirement>("3 Plant, MAX 2 Steel"))
+  }
+
+  @Test
+  fun `optional requirement properties may be absent present or narrowed to required`() {
+    val table =
+        loader(
+            """
+            ABSTRACT CLASS Goal {
+              requirement = Requirement?
+            }
+            CLASS OptionalGoal : Goal
+            CLASS SpecificGoal : Goal {
+              requirement = HAS 3 Plant
+            }
+            ABSTRACT CLASS RequiredGoal : Goal {
+              requirement = Requirement
+            }
+            CLASS SpecificRequiredGoal : RequiredGoal {
+              requirement = HAS 2 Steel
+            }
+            """
+                .trimIndent()
+        )
+
+    table.getClass(cn("Goal")).properties[PropertyName("requirement")] shouldBe
+        OptionalRequirementType
+    table.getClass(cn("OptionalGoal")).properties[PropertyName("requirement")] shouldBe
+        AbsentRequirementValue
+    table.getClass(cn("SpecificGoal")).properties[PropertyName("requirement")] shouldBe
+        RequirementValue(parse<Requirement>("3 Plant"))
+    table.getClass(cn("RequiredGoal")).properties[PropertyName("requirement")] shouldBe
+        RequirementType
+    table.getClass(cn("SpecificRequiredGoal")).properties[PropertyName("requirement")] shouldBe
+        RequirementValue(parse<Requirement>("2 Steel"))
+  }
+
+  @Test
+  fun `property inheritance rejects incomplete concrete classes overrides and conflicts`() {
+    shouldThrow<PetException> {
+      loader("ABSTRACT CLASS Area { row = Number }\nCLASS ConcreteArea : Area")
+    }
+    shouldThrow<PetException> {
+      loader("ABSTRACT CLASS Area { score = Metric }\nCLASS ConcreteArea : Area")
+    }
+    shouldThrow<PetException> {
+      loader("ABSTRACT CLASS Goal { requirement = Requirement }\nCLASS ConcreteGoal : Goal")
+    }
+    shouldThrow<PetException> {
+      loader(
+          "ABSTRACT CLASS Area { row = Number }\n" +
+              "ABSTRACT CLASS FixedArea : Area { row = 8 }\n" +
+              "CLASS ConcreteArea : FixedArea { row = 9 }"
+      )
+    }
+    shouldThrow<PetException> {
+      loader(
+          "ABSTRACT CLASS FirstArea { row = 8 }\n" +
+              "ABSTRACT CLASS SecondArea { row = 8 }\n" +
+              "CLASS ConcreteArea : FirstArea, SecondArea"
+      )
+    }
+    shouldThrow<PetException> {
+      loader(
+          "ABSTRACT CLASS Area { row = Number }\n" +
+              "ABSTRACT CLASS FirstArea : Area { row = 8 }\n" +
+              "ABSTRACT CLASS SecondArea : Area { row = 8 }\n" +
+              "CLASS ConcreteArea : FirstArea, SecondArea"
+      )
+    }
+    shouldThrow<PetException> {
+      loader(
+          "ABSTRACT CLASS Area { row = Number }\n" +
+              "CLASS ConcreteArea : Area { row = TemperatureStep }"
+      )
+    }
+    shouldThrow<PetException> {
+      loader(
+          "ABSTRACT CLASS Area { score = Metric }\n" +
+              "ABSTRACT CLASS FirstArea : Area { score = Number }\n" +
+              "ABSTRACT CLASS SecondArea : Area { score = COUNT TemperatureStep }\n" +
+              "CLASS ConcreteArea : FirstArea, SecondArea"
+      )
+    }
+    shouldThrow<PetException> {
+      loader(
+          "ABSTRACT CLASS Goal { requirement = Requirement }\n" +
+              "CLASS ConcreteGoal : Goal { requirement = TemperatureStep }"
+      )
+    }
+  }
+
+  @Test
+  fun `diamond inheritance coalesces the selfsame property fact`() {
+    val table =
+        loader(
+            """
+            ABSTRACT CLASS Area { row = 8 }
+            ABSTRACT CLASS FirstArea : Area
+            ABSTRACT CLASS SecondArea : Area
+            CLASS ConcreteArea : FirstArea, SecondArea
+            """
+                .trimIndent()
+        )
+
+    table.getClass(cn("ConcreteArea")).properties[PropertyName("row")] shouldBe NumberValue(8)
+  }
+
+  @Test
+  fun `a narrower property fact wins when a broader inheritance path rejoins it`() {
+    val table =
+        loader(
+            """
+            ABSTRACT CLASS Area { score = Metric }
+            ABSTRACT CLASS FixedArea : Area { score = Number }
+            ABSTRACT CLASS OtherArea : Area
+            ABSTRACT CLASS RejoinedArea : FixedArea, OtherArea
+            CLASS ConcreteArea : RejoinedArea { score = 8 }
+            """
+                .trimIndent()
+        )
+
+    table.getClass(cn("RejoinedArea")).properties[PropertyName("score")] shouldBe NumberType
+    table.getClass(cn("ConcreteArea")).properties[PropertyName("score")] shouldBe NumberValue(8)
+  }
+
   @Test
   fun classLoadingUsesCanonicalNamesOnly() {
     val classes = parseClasses("CLASS Foo").toSetStrict()

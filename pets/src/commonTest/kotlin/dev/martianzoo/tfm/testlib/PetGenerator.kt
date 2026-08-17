@@ -18,6 +18,8 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
+import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -67,6 +69,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               3 to Metric.Max::class,
               2 to Metric.Or::class,
               3 to Metric.Transform::class,
+              1 to Metric.Eval::class,
           )
       register(Metric::class) { recurse(choose(metricTypes)) }
       register { Metric.Count(recurse()) }
@@ -74,6 +77,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Metric.Max(inner = recurse(), maximum = choose(5, 11)) }
       register { Metric.Or(listOfSize(choose(2, 2, 2, 3, 4))) }
       register { Metric.Transform(recurse(), PROD) }
+      register { Metric.Eval(Property(PropertyName("score"), recurse())) }
 
       val requirementTypes =
           multiset(
@@ -83,6 +87,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               5 to Requirement.Or::class,
               3 to Requirement.And::class,
               1 to Requirement.Transform::class,
+              1 to Requirement.Eval::class,
           )
       register(Requirement::class) { recurse(choose(requirementTypes)) }
       register { Requirement.Min(scaledEx = recurse()) }
@@ -91,6 +96,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Requirement.Transform(recurse(), PROD) }
+      register { Requirement.Eval(Property(PropertyName("requirement"), recurse())) }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 

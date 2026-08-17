@@ -39,14 +39,29 @@ public sealed class Metric : PetElement() {
    * The callbacks supply the world-dependent operations; scaling and maximum behavior are intrinsic
    * to the metric syntax tree.
    */
-  public fun evaluate(count: (Count) -> Int, countUnion: (Or) -> Int): Int =
+  public fun evaluate(
+      count: (Count) -> Int,
+      readProperty: (Property) -> Int,
+      countUnion: (Or) -> Int,
+  ): Int =
       when (this) {
         is Count -> count(this)
-        is Scaled -> inner.evaluate(count, countUnion) / unit
-        is Max -> min(inner.evaluate(count, countUnion), maximum)
+        is Property -> readProperty(this)
+        is Scaled -> inner.evaluate(count, readProperty, countUnion) / unit
+        is Max -> min(inner.evaluate(count, readProperty, countUnion), maximum)
         is Or -> countUnion(this)
+        is Eval -> error("metric property evaluation was not expanded: $this")
         is Transform -> throw ExpressionException("unhandled metric transform: $this")
       }
+
+  /** Includes a concrete Metric property's syntax in the surrounding class effect. */
+  public data class Eval(val property: Property) : Metric() {
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(property)
+
+    override fun toString(): String = "EVAL $property"
+
+    override fun precedence(): Int = 12
+  }
 
   public data class Count(val expression: Expression) : Metric() {
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
@@ -143,7 +158,10 @@ public sealed class Metric : PetElement() {
         val transform: Parser<Metric> =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
 
-        val atom: Parser<Metric> = transform or count or group(parser())
+        val eval: Parser<Metric> = skip(_eval) and Property.parser() map ::Eval
+
+        val atom: Parser<Metric> =
+            eval or transform or Property.parser() or count or group(parser())
 
         val scaled: Parser<Metric> =
             optional(rawScalar) and

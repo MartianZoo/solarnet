@@ -17,6 +17,9 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -130,6 +133,17 @@ public abstract class PetTransformer protected constructor() {
   /** Transforms a metric while preserving the [Metric] kind. */
   public fun transformMetric(node: Metric): Metric = transformAsKind(node, Metric::class)
 
+  /** Transforms a property while preserving the [Property] kind. */
+  public fun transformProperty(node: Property): Property = transformAsKind(node, Property::class)
+
+  /** Transforms a property name while preserving the [PropertyName] kind. */
+  public fun transformPropertyName(node: PropertyName): PropertyName =
+      transformAsKind(node, PropertyName::class)
+
+  /** Transforms a property value while preserving the [PropertyValue] kind. */
+  public fun transformPropertyValue(node: PropertyValue): PropertyValue =
+      transformAsKind(node, PropertyValue::class)
+
   /** Transforms a requirement while preserving the [Requirement] kind. */
   public fun transformRequirement(node: Requirement): Requirement =
       transformAsKind(node, Requirement::class)
@@ -184,12 +198,31 @@ public abstract class PetTransformer protected constructor() {
       is ScaledExpression ->
           scaledEx(transformExpression(node.expression), transformScalar(node.scalar))
       is Scalar -> node
+      is PropertyName -> node
+      is PropertyValue ->
+          when (node) {
+            is PropertyValue.MetricType,
+            is PropertyValue.NumberType,
+            is PropertyValue.RequirementType,
+            is PropertyValue.OptionalRequirementType,
+            is PropertyValue.AbsentRequirementValue,
+            is PropertyValue.NumberValue -> node
+            is PropertyValue.MetricValue -> PropertyValue.MetricValue(transformMetric(node.value))
+            is PropertyValue.RequirementValue ->
+                PropertyValue.RequirementValue(transformRequirement(node.value))
+          }
       is Metric ->
           when (node) {
             is Metric.Count -> Metric.Count(transformExpression(node.expression))
+            is Property ->
+                Property(
+                    transformPropertyName(node.propertyName),
+                    node.receiver?.let(::transformExpression),
+                )
             is Metric.Scaled -> Metric.scaled(transformMetric(node.inner), node.unit)
             is Metric.Max -> Metric.Max(transformMetric(node.inner), node.maximum)
             is Metric.Or -> Metric.Or(metrics(node.metrics))
+            is Metric.Eval -> Metric.Eval(transformProperty(node.property))
             is Metric.Transform -> Metric.Transform(transformMetric(node.inner), node.transformKind)
           }
       is Requirement ->
@@ -199,6 +232,7 @@ public abstract class PetTransformer protected constructor() {
             is Requirement.Exact -> Requirement.Exact(node.target, transformMetric(node.metric))
             is Requirement.Or -> Requirement.Or(requirements(node.requirements))
             is Requirement.And -> Requirement.And(requirements(node.requirements))
+            is Requirement.Eval -> Requirement.Eval(transformProperty(node.property))
             is Requirement.Transform ->
                 Requirement.Transform(transformRequirement(node.requirement), node.transformKind)
           }

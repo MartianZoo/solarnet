@@ -81,11 +81,11 @@ internal class CustomMetricMilestonesTest {
             .tfm(PLAYER1)
     p1.godMode().sneak("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
 
-    p1.count("CardFront(HAS CardRequirement)") shouldBe 4
+    p1.count("CardFront(HAS requirement)") shouldBe 4
     shouldThrow<RequirementException> { p1.godMode().manual("Tactician") }
 
     p1.godMode().sneak("$BreathingFilters")
-    p1.count("CardFront(HAS CardRequirement)") shouldBe 5
+    p1.count("CardFront(HAS requirement)") shouldBe 5
     p1.godMode().manual("Tactician")
     p1.count("Tactician") shouldBe 1
   }

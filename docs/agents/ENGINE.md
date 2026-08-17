@@ -175,8 +175,12 @@ identity.
 An abstract custom metric enumerates satisfying concrete subtypes and sums their implementations.
 Every Kotlin invocation receives concrete dependency arguments.
 
-Refinements substitute a candidate into their requirement and query the current World. Canon uses
-custom metadata metrics for printed cost, requirement, map row, and bonuses. Distinct live tag or
+Refinements substitute a candidate into their requirement and query the current World. Immutable
+class properties supply printed cost and requirement plus map row and column without creating live
+components. Numeric properties are ordinary Metrics. Stored Metric and Requirement syntax enters a
+class effect only through `EVAL`; expansion substitutes the concrete receiver for `This`, can defer
+until trigger specialization, and then receives normal defaults, `Owner` binding, and `PROD`
+lowering. Map bonuses and other computed metadata remain honest custom metrics. Distinct live tag or
 resource kinds use refined `Class<...>` Types instead.
 
 `Limiter` computes a maximum from class invariants. Quantifiers respond as follows:

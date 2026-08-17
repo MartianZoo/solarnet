@@ -23,6 +23,7 @@ import dev.martianzoo.pets.ClassParsing.Body.BodyElement.DefaultsElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.EffectElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.InvariantElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.NestedDeclGroup
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement.PropertyElement
 import dev.martianzoo.pets.ClassParsing.BodyElements.bodyElementExceptNestedClasses
 import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.pets.ClassParsing.Signatures.moreSignatures
@@ -33,8 +34,11 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.util.KClassMultimap
+import dev.martianzoo.util.associateStrict
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
@@ -105,9 +109,18 @@ internal object ClassParsing : PetTokenizer() {
     private val default: Parser<DefaultsDeclaration> =
         skip(_default) and (gainOnlyDefaults or removeOnlyDefaults or allCasesDefault)
 
+    private val property: Parser<Pair<PropertyName, PropertyValue>> =
+        PropertyName.parser() and
+            skipChar('=') and
+            PropertyValue.parser() map
+            { (name, value) ->
+              name to value
+            }
+
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
             (default map ::DefaultsElement) or
+            (property map ::PropertyElement) or
             (Effect.parser() map { EffectElement(it) }) or
             (Action.parser() map { ActionElement(it) })
   }
@@ -210,12 +223,15 @@ internal object ClassParsing : PetTokenizer() {
     val defaultses = getAll<DefaultsElement>().map { it.defaults }
     val effects = getAll<EffectElement>().map { it.effect }
     val actions = getAll<ActionElement>().map { it.action }
+    val properties = getAll<PropertyElement>().associateStrict { it.property }
     val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
 
     sealed class BodyElement {
       class InvariantElement(val invariant: Requirement) : BodyElement()
 
       class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
+
+      class PropertyElement(val property: Pair<PropertyName, PropertyValue>) : BodyElement()
 
       class EffectElement(val effect: Effect) : BodyElement()
 
@@ -250,6 +266,7 @@ internal object ClassParsing : PetTokenizer() {
                 invariants = body.invariants.toSetStrict(),
                 effects = body.effects + actionListToEffects(body.actions),
                 defaultsDeclaration = mergedDefaults,
+                properties = body.properties,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested

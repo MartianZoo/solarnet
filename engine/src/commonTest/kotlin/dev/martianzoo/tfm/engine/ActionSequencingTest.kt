@@ -20,14 +20,17 @@ internal class ActionSequencingTest {
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.beginManual("UseAction1<CitySP>")
-    val payment =
-        game.tasks.extract { it }.single { it.instruction.toString().startsWith("-25 Megacredit") }
+    val propertyScaledPayment =
+        game.tasks.extract { it }.single { "CitySP.cost" in it.instruction.toString() }
+    val paymentId = checkNotNull(manual.prepareTask(propertyScaledPayment.id))
+    val payment = game.tasks.extract { it }.single { it.id == paymentId }
     withClue(payment) {
+      payment.instruction.toString().startsWith("-25 Megacredit") shouldBe true
       payment.then.toString().contains("Production<") shouldBe true
       payment.then.toString().contains("CityTile<") shouldBe true
     }
 
-    manual.doTask(payment.instruction.toString())
+    manual.tryPreparedTask()
 
     val results =
         game.tasks

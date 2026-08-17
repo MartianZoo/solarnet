@@ -13,6 +13,8 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.data.TfmClasses.TILE
@@ -70,6 +72,11 @@ public data class MarsMapDefinition(
           className = className,
           kind = CONCRETE,
           supertypes = setOf(kind.expression),
+          properties =
+              mapOf(
+                  PropertyName("row") to NumberValue(row),
+                  PropertyName("column") to NumberValue(column),
+              ),
           effects = toEffects(bonus),
       )
     }

@@ -12,62 +12,62 @@ import kotlin.test.Test
 internal class MetricTest {
   private val inputs =
       """
-      Foo
-      !Abc
-      3 Abc
-      Wau<Bar>
-      PROD[Abc]
-      Foo MAX 11
-      3 PROD[Abc]
-      2 Foo OR Bar
-      2 (Eep MAX 5)
-      !Eep(HAS? Bar)
-      PROD[Abc MAX 5]
-      PROD[3 Abc<Foo>]
-      PROD[2 Qux MAX 5]
-      2 (2 (3 Qux<Foo>))
-      2 Abc<Foo> OR 2 Xyz
-      PROD[3 (Xyz MAX 11)]
-      PROD[PROD[Foo] MAX 5]
-      PROD[Xyz MAX 5] MAX 11
-      PROD[PROD[2 Qux] MAX 5]
-      3 (Abc<Abc<Abc>> MAX 11)
-      PROD[PROD[2 (Foo MAX 5)]]
-      3 (3 (2 PROD[Foo MAX 11]))
-      2 PROD[2 (Foo MAX 5)] MAX 5
-      PROD[2 (2 (2 (Bar MAX 11)))]
-      Foo<Wau, !Abc>(HAS MAX 0 Bar)
-      Wau<Xyz, Qux>(HAS? Bar OR Qux)
-      PROD[PROD[Foo<Bar<Bar>>] MAX 5]
-      PROD[PROD[2 PROD[2 Foo]] OR Foo]
-      Xyz<Bar<Qux<Bar<Bar>>, Bar<Qux>>>
-      PROD[Ooh<Qux, Foo, Bar<Bar<Qux>>>]
-      Foo OR 2 (2 Bar) MAX 5 OR PROD[Abc]
-      PROD[Foo] OR 2 Abc OR PROD[Abc<Ahh>]
-      PROD[Abc] OR PROD[2 (2 Qux)] OR 3 Ooh
-      2 Qux<Ooh> OR PROD[2 Bar] OR Bar MAX 5
-      Abc OR PROD[Qux] OR 2 Foo OR 3 Abc<Foo>
-      !Abc OR PROD[Foo MAX 11] OR Qux OR 2 Abc
-      Abc<Eep<Ahh<Ooh>>, !Xyz, Wau<Qux>(HAS 1)>
-      PROD[Bar OR PROD[Abc] OR Bar OR 3 (3 Xyz)]
-      Bar<Ahh> OR PROD[Ooh<Abc, Bar> OR Xyz<Qux>]
-      PROD[PROD[2 Foo] OR Qux<Abc<Abc, Foo<Bar>>>]
-      2 (2 (2 Qux)) OR Xyz<Qux, !Abc> OR Ooh OR Bar
-      2 (Foo MAX 5) MAX 11 OR PROD[PROD[Xyz]] OR Xyz
-      2 (Foo MAX 5) OR 2 Bar<Abc> OR PROD[Foo] OR Xyz
-      PROD[Foo<Abc<Abc, Foo<Bar>>(HAS =1 Megacredit)>]
-      (2 Abc MAX 5 OR Abc OR 2 (2 Foo) OR 3 Ooh) MAX 11
-      !Xyz<Xyz<!Xyz<Wau>>, Ooh<Qux<Qux>>, Eep<Abc, Xyz>>
-      PROD[2 PROD[Qux] OR 2 Abc OR Qux<Ahh> OR PROD[Ooh]]
-      PROD[Wau<Foo<Foo, Abc<Foo>, Bar>, !Foo(HAS 1), Foo>]
-      2 Bar OR Foo OR 3 (2 (2 Qux)) OR 3 (2 (2 Foo) OR Foo)
-      Xyz<Abc<Qux<Wau<Qux, Xyz>(HAS MAX 0 Qux)>, !Xyz, Wau>>
-      3 (2 (2 (2 Bar)) OR Ooh<Bar> OR PROD[PROD[Qux]] OR Foo)
-      2 (2 (Bar MAX 11) OR 3 Xyz MAX 5) OR PROD[2 (Foo MAX 5)]
-      PROD[2 Foo OR Bar<Ooh, Qux, Xyz> OR 2 Xyz OR 2 Foo MAX 5]
-      Wau<Bar<Bar>, Bar<!Ahh<Foo, Bar>>, Qux<Qux, Ooh>>(HAS Foo)
-      3 (2 Foo) OR Xyz<Qux<Abc>(HAS Bar)> OR Ooh OR 2 PROD[2 Bar]
-      Bar<Bar<Qux, Xyz<Bar>>, Ahh(HAS 2 OR 1 OR (1 OR Foo))> MAX 5
+      Eep
+      2 Abc
+      Eep<Wau>
+      EVAL Foo.score
+      PROD[Qux]
+      Wau MAX 11
+      PROD[2 Qux]
+      2 Xyz MAX 11
+      Eep<Wau<Xyz>>
+      3 (3 Qux<Ahh>)
+      PROD[2 (2 Qux)]
+      PROD[Ooh] MAX 11
+      3 (2 PROD[2 Bar])
+      2 PROD[Ahh MAX 11]
+      PROD[3 (Ooh MAX 5)]
+      PROD[3 (2 Bar<Ahh>)]
+      PROD[Foo<Xyz> OR Foo]
+      PROD[PROD[2 Abc<Ooh>]]
+      PROD[2 (2 (Abc MAX 5))]
+      PROD[2 PROD[Foo] MAX 11]
+      PROD[PROD[Bar(HAS? Foo)]]
+      PROD[3 (2 Bar<Abc>)] MAX 5
+      2 PROD[Abc(HAS Foo OR Qux)]
+      Foo<Foo(HAS Qux), Foo> MAX 5
+      2 (2 Qux) OR PROD[Bar] MAX 11
+      PROD[(Ooh OR Qux<Qux>) MAX 11]
+      PROD[Xyz<Wau<Ahh>, Ooh> MAX 11]
+      PROD[PROD[2 (Bar MAX 5)]] MAX 11
+      (PROD[2 Qux] OR 2 (2 Qux)) MAX 11
+      PROD[PROD[2 ((Foo OR Foo) MAX 5)]]
+      2 (2 (2 (Foo OR PROD[Foo] MAX 11)))
+      2 Qux OR 3 (2 (2 (2 (2 Foo)))) MAX 5
+      PROD[2 Xyz<Abc> OR Abc OR Foo OR Foo]
+      Xyz<Abc<Ahh>, Xyz<Eep, Foo<Foo<Qux>>>>
+      PROD[2 Abc OR 2 Xyz<Xyz> OR Bar MAX 11]
+      Ahh<Qux<Qux>(HAS 11 Bar), Foo<Abc, Qux>>
+      PROD[Xyz<Foo, Eep>(HAS MAX 0 Megacredit)]
+      PROD[PROD[Ooh<Foo> OR 2 Qux MAX 5 OR Ooh]]
+      2 Eep MAX 11 OR Foo OR Bar OR Ooh<Bar, Qux>
+      PROD[Eep<Qux<Foo, Abc, Foo>, Qux<Foo, Qux>>]
+      2 (2 (2 Qux)) OR Ahh<Eep> OR Foo OR PROD[Foo]
+      Bar OR PROD[3 (Bar MAX 11)] OR 2 Abc<Ahh<Foo>>
+      Bar<Qux<Bar>, Ooh(HAS =0 Bar OR =0 Megacredit)>
+      PROD[Foo<Xyz<Xyz<Foo, Foo, Bar>>(HAS Qux), Xyz>]
+      Ahh<Xyz, Abc, Xyz<Qux<Abc<Bar>>>> OR 2 Ahh OR Eep
+      (Ahh OR Foo MAX 11 OR 2 PROD[2 (2 (2 Foo))]) MAX 5
+      PROD[2 Bar MAX 11 OR (2 Bar OR 2 Qux) MAX 5 OR Xyz]
+      PROD[Foo MAX 5 OR Qux OR 2 (Bar OR Foo OR Bar<Foo>)]
+      PROD[2 Bar] OR PROD[2 Bar] OR PROD[Xyz MAX 11 OR Foo]
+      PROD[Foo MAX 5 OR Abc] OR PROD[Xyz MAX 11] OR Ooh<Abc>
+      Foo<Abc<Ahh, Ooh(HAS MAX 1 Megacredit)>(HAS MAX 0 Abc)>
+      3 (PROD[Abc<Bar> MAX 11] OR Bar OR 3 (Bar MAX 5) OR Xyz)
+      PROD[2 Xyz] OR Foo<Abc, Foo> OR 2 Bar OR PROD[Foo] MAX 11
+      Qux<Foo<Qux<Xyz<Foo, Bar<Xyz<Eep<Xyz<Qux>>, Foo>>>, Ooh>>>
+      Abc<Ahh<Abc, Bar<Foo>>>(HAS Ahh, MAX 0 Xyz OR 5 Foo) MAX 11
+      PROD[Foo] OR 3 (2 (Qux OR Foo MAX 5 OR 2 Qux)) OR Ahh OR Foo
       """
           .trimIndent()
 
@@ -87,5 +87,12 @@ internal class MetricTest {
 
     Metric.scaled(count, 1) shouldBe count
     parse<Metric>("1 Foo") shouldBe count
+  }
+
+  @Test
+  fun unexpandedEvalIsAProgrammerError() {
+    shouldThrow<IllegalStateException> {
+      parse<Metric>("EVAL Foo.score").evaluate({ 0 }, { 0 }, { 0 })
+    }
   }
 }

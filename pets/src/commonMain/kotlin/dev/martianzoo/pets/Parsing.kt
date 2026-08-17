@@ -21,6 +21,8 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.util.ParserGroup
@@ -126,6 +128,8 @@ public object Parsing {
     pgb.publish(InstructionTree.parser())
     pgb.publish(Instruction.parser())
     pgb.publish(Metric.parser())
+    pgb.publish(PropertyName.parser())
+    pgb.publish(PropertyValue.parser())
     pgb.publish(Requirement.parser())
     pgb.publish(ScaledExpression.parser())
     pgb.publish(Trigger.parser())

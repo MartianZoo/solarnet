@@ -1,16 +1,21 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
+import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
@@ -28,7 +33,14 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -60,7 +72,129 @@ public class Transformers(public val classTable: ClassTable) {
       fun directClassEffects(source: Class) =
           source.declaration.effects.map(attachToClassTransformer(source)::transformEffect)
 
-      klass.allSuperclasses().flatMap(::directClassEffects)
+      val evaluator =
+          evaluateProperties(
+              context = klass.defaultType.expressionFull,
+              deferAbstract = true,
+          )
+      klass.allSuperclasses().flatMap(::directClassEffects).map(evaluator::transformEffect)
+    }
+  }
+
+  /** Rejects property evaluation syntax outside a class effect. */
+  internal fun rejectPropertyEvaluations(): PetTransformer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode =
+            when (node) {
+              is Metric.Eval,
+              is Requirement.Eval ->
+                  throw PetSyntaxException("EVAL is valid only inside a class effect")
+              else -> transformChildren(node)
+            }
+      }
+
+  /** Expands explicit property evaluations after their receivers have become concrete. */
+  internal fun evaluateProperties(
+      context: Expression,
+      owner: HasClassName? = null,
+      deferAbstract: Boolean = false,
+  ): PetTransformer {
+    val expanding = mutableSetOf<Pair<Expression, PropertyName>>()
+    val contextualizer =
+        chain(
+            replaceThisExpressionsWith(context),
+            owner?.let(::replaceOwnerWith),
+        )
+    return object : PetTransformer() {
+      override fun transformNode(node: PetNode): PetNode {
+        val property =
+            when (node) {
+              is Metric.Eval -> node.property
+              is Requirement.Eval -> node.property
+              else -> return transformChildren(node)
+            }
+        val contextualProperty = contextualizer.transformProperty(property)
+        val receiver =
+            contextualProperty.receiver
+                ?: throw invalidPetDefinition(
+                    "Evaluated property `${contextualProperty.propertyName}` has no receiver"
+                )
+
+        val receiverType = classTable.resolve(receiver)
+        val propertyType =
+            if (receiverType.rootClass === classTable.classClass) {
+              classTable.resolve(receiverType.expressionFull.arguments.single())
+            } else {
+              receiverType
+            }
+        val propertyClass = propertyType.rootClass
+        val value =
+            propertyClass.properties[contextualProperty.propertyName]
+                ?: throw invalidPetDefinition(
+                    "Class `${propertyClass.className}` has no property " +
+                        "`${contextualProperty.propertyName}`"
+                )
+        if (deferAbstract && value.abstract) return node
+        val syntax: PetNode =
+            when (node) {
+              is Metric.Eval ->
+                  when (value) {
+                    is MetricValue -> value.value
+                    is NumberValue -> contextualProperty
+                    else ->
+                        throw invalidPetDefinition(
+                            "Property `${contextualProperty.propertyName}` is not a concrete Metric on " +
+                                "`${propertyClass.className}`"
+                        )
+                  }
+              is Requirement.Eval ->
+                  when (value) {
+                    AbsentRequirementValue -> Min(scaledEx(COMPONENT, 1))
+                    is RequirementValue -> value.value
+                    else ->
+                        throw invalidPetDefinition(
+                            "Property `${contextualProperty.propertyName}` is not a concrete Requirement on " +
+                                "`${propertyClass.className}`"
+                        )
+                  }
+              else -> error("checked above")
+            }
+
+        val key = propertyType.expressionFull to contextualProperty.propertyName
+        if (!expanding.add(key)) {
+          throw invalidPetDefinition(
+              "Property `${contextualProperty.propertyName}` is recursive on " +
+                  "`${propertyType.expressionFull}`"
+          )
+        }
+        val expanded: PetNode =
+            try {
+              val transformer =
+                  chain(
+                      replaceThisExpressionsWith(propertyType.expressionFull),
+                      owner?.let(::replaceOwnerWith),
+                  )
+              when (syntax) {
+                is Metric -> transformMetric(transformer.transformMetric(syntax))
+                is Requirement -> transformRequirement(transformer.transformRequirement(syntax))
+                else -> error("checked above")
+              }
+            } finally {
+              expanding.remove(key)
+            }
+        val finishing =
+            chain(
+                atomizer(),
+                insertDefaults(context),
+                owner?.let(::replaceOwnerWith),
+                Prod.deprodify(classTable),
+            )
+        return when (expanded) {
+          is Metric -> finishing.transformMetric(expanded)
+          is Requirement -> finishing.transformRequirement(expanded)
+          else -> error("checked above")
+        }
+      }
     }
   }
 

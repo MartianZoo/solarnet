@@ -4,6 +4,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
+  directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
+- Support requirement adjustment when one part of a compound card requirement is a global-parameter
+  requirement.
+- Decide whether `CardFront` should depend on `Class<CardBack>`, with types such as `ActiveCard`
+  extending `CardFront<Class<ProjectCard>>`, so the front-to-back relationship is represented in
+  the type model and may subsume the separate deck check.
 - Document the slight, intentional differences between `Canon` and the published Terraforming Mars rules.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
 - Make Modules enumerate the AutoLoad Classes they require instead of implicitly activating every AutoLoad Class in their selected bundle content.
@@ -84,6 +91,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Keep the `Award` base class's scoring effect inherited while avoiding loading its scoring
+  machinery in solo games, where no concrete Award definitions are active.
 - Break `PetTransformer.transformChildren` into focused rebuild helpers; its instruction-tree
   support has made the existing cyclomatic-complexity suppression increasingly costly to maintain.
 - Complete the unsupported Milestones & Awards goals: Briber's special claim cost, Hydrologist and

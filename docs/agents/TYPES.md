@@ -11,6 +11,7 @@ reference for `dev.martianzoo.types`. The human tutorial is
 - Classes provide nominal subtyping. Concrete Classes cannot have subclasses.
 - Type arguments are dependency edges to other unique components, not ordinary generic parameters.
 - `Class<X>` names a Class without depending on an X component.
+- Class properties record immutable facts about a Class, not state on component occurrences.
 - Refinements filter candidates by querying the current World.
 - Complements exclude a dependency subdomain.
 - Each World has one frozen closed Class Table, allowing concrete enumeration and automatic
@@ -151,16 +152,24 @@ narrowing; Quantifiers must agree.
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
 
+## 5a. Class properties
+
+Class properties record immutable facts about a Class rather than state on component occurrences.
+They narrow through inheritance, can be read without a component instance, and explicitly evaluate
+stored Metric or Requirement syntax inside class effects. The complete current model, settled
+semantic rulings, and cardinality/default/group directions are in
+[PROPERTIES.md](PROPERTIES.md).
+
 ## 6. Refinements
 
-`CardFront(HAS 20 CardCost)` is an abstract subtype filtered by a Requirement. A candidate first
+`CardFront(HAS 20 cost)` is an abstract subtype filtered by a Requirement. A candidate first
 narrows the base Type, then the reader substitutes that candidate into dependency positions in the
 Requirement and tests the current World.
 
 Examples:
 
 ```text
-CardFront(HAS CardRequirement)
+CardFront(HAS requirement)
 LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)
 MarsArea(HAS MapBonus<Class<Metal>>)
 ```

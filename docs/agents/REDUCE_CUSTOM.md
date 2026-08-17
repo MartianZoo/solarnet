@@ -35,11 +35,13 @@ These honestly bridge Pets to canonical metadata absent from the component graph
 - `CopyPrelude`
 - `GetEventVps`
 - `CheckCardDeck`
-- `CheckCardRequirement`
-- `HandleCardCost`
-- `TallyAward`
+- `HandlePossibleGpRequirement`
+- `HandleCardTags`
 - `AddColonyTile`
 - `CreateAdjacencies`
+
+Generating card- or colony-specific Pets responders would only move these to the worse generation
+tier. Hand-authoring copies of canonical facts would create two authorities for the same rule.
 
 These perform general selections Pets cannot currently express:
 

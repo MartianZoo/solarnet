@@ -79,6 +79,7 @@ internal class ApiTranslation(
 
   private val preprocessor =
       chain(
+          xers.rejectPropertyEvaluations(),
           xers.canonicalize(vocabulary),
           xers.useFullNames(),
           xers.atomizer(),

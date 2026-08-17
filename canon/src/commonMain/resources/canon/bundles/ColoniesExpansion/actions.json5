@@ -11,10 +11,4 @@
       ]
     },
   ],
-
-  "projects": [
-
-    // Build Colony
-    { "id": "BuildColonySP", "action": "17 -> Colony" },
-  ],
 }

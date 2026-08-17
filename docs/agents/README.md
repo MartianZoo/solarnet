@@ -18,6 +18,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Project priorities and review standard | [VALUES.md](VALUES.md) | Working rules |
 | Current Game World and execution architecture | [ENGINE.md](ENGINE.md) | Current model |
 | Pets types, dependencies, refinements, and variables | [TYPES.md](TYPES.md) | Current model, with divergences |
+| Class-property values, cardinality, defaults, and groups | [PROPERTIES.md](PROPERTIES.md) | Current model plus working rules and proposals |
 | Authorities, Modules, configuration, and premises | [OPTIONS.md](OPTIONS.md) | Current model |
 | Task ordering, `THEN`, automatic effects, and barriers | [SEQUENCING.md](SEQUENCING.md) | Working rules and audit |
 | Commands and test design | [TESTING.md](TESTING.md) | Current procedure |

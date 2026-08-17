@@ -502,7 +502,7 @@
       "cost": 10,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2]",
-      "effects": [ "CardFront(HAS 20 CardCost): ProjectCard" ],
+      "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
     },
 
     // Sub-Zero Salt Fish
