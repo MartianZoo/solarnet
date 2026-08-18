@@ -408,7 +408,7 @@ CardT13	T13	Sponsored Mohole	Requires that Kelvinists are ruling or that you hav
 CardT14	T14	Supported Research	Requires that Scientists are ruling or that you have 2 delegates there. Draw 2 cards.	
 CardT15	T15	Wildlife Dome	Requires that Greens are ruling or that you have 2 delegates there. Place a greenery tile (and raise oxygen 1 step).	
 CardT16	T16	Vote Of No Confidence	Requires that you have a Party Leader in any party and that the sitting Chairman is neutral. Remove the NEUTRAL Chairman and move your own delegate (from the reserve) there instead. Raise your TR 1 step.	
-CardX01	X01	Dusk Laser Mining	Requires 2 science tags. Decrease your energy production 1 step, and increase your titanium production 1 step. Gain 4 titanium.	
+CardX01	X01	Dusk Laser Mining	Requires 2 science tags. Decrease your energy production 1 step and increase your titanium production 1 step. Gain 4 titanium.	
 CardX02	X02	Project Inspection	Use an action from a card that has already been used this generation.	
 CardX03	X03	Energy Market		Action: Spend 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
 CardX04F	X04	Hi-Tech Lab		Action: Spend one or more energy to reveal the same number of cards. Draw 1 of them and discard the rest.

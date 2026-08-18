@@ -4,6 +4,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.canon.Canon
 
 internal fun renderRequirement(requirement: Requirement): String? =
     when (requirement) {
@@ -23,6 +24,7 @@ private fun renderMinimum(requirement: Requirement.Min): String? =
           "Requires $it ocean ${if (it == 1) "tile" else "tiles"}."
         }
         ?: target(requirement, venusStep)?.let { "Requires Venus ${it * 2}%." }
+        ?: renderTagRequirement(requirement)
 
 private fun renderMaximum(requirement: Requirement.Max): String? =
     target(requirement, oxygenStep)?.let { "Oxygen must be $it% or less." }
@@ -40,6 +42,30 @@ private fun target(requirement: Requirement.Counting, className: ClassName): Int
   return requirement.target
 }
 
+private fun renderTagRequirement(requirement: Requirement.Min): String? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple) return null
+  val className = metric.expression.className
+  val componentClass = Canon.classTable.findClass(className) ?: return null
+  if (componentClass.abstract || !componentClass.isSubtypeOf(Canon.classTable.getClass(tag))) {
+    return null
+  }
+  val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
+  val tagName =
+      if (componentClass.isSubtypeOf(Canon.classTable.getClass(planetTag))) {
+        ordinaryName.replaceFirstChar(Char::uppercaseChar)
+      } else {
+        ordinaryName
+      }
+  return if (requirement.target == 1) {
+    "Requires ${indefiniteArticle(tagName)} $tagName tag."
+  } else {
+    "Requires ${requirement.target} $tagName tags."
+  }
+}
+
+private fun indefiniteArticle(noun: String): String = if (noun.first() in "aeiou") "an" else "a"
+
 private fun temperature(steps: Int): String {
   val degreesCelsius = -30 + 2 * steps
   return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
@@ -47,5 +73,7 @@ private fun temperature(steps: Int): String {
 
 private val oceanTile = cn("OceanTile")
 private val oxygenStep = cn("OxygenStep")
+private val planetTag = cn("PlanetTag")
+private val tag = cn("Tag")
 private val temperatureStep = cn("TemperatureStep")
 private val venusStep = cn("VenusStep")
