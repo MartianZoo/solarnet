@@ -22,6 +22,7 @@ private fun renderMinimum(requirement: Requirement.Min): String? =
         ?: target(requirement, oceanTile)?.let {
           "Requires $it ocean ${if (it == 1) "tile" else "tiles"}."
         }
+        ?: target(requirement, venusStep)?.let { "Requires Venus ${it * 2}%." }
 
 private fun renderMaximum(requirement: Requirement.Max): String? =
     target(requirement, oxygenStep)?.let { "Oxygen must be $it% or less." }
@@ -31,6 +32,7 @@ private fun renderMaximum(requirement: Requirement.Max): String? =
         ?: target(requirement, oceanTile)?.let {
           "There must be $it or fewer ocean tiles."
         }
+        ?: target(requirement, venusStep)?.let { "Venus must be ${it * 2}% or less." }
 
 private fun target(requirement: Requirement.Counting, className: ClassName): Int? {
   val metric = requirement.metric as? Metric.Count ?: return null
@@ -46,3 +48,4 @@ private fun temperature(steps: Int): String {
 private val oceanTile = cn("OceanTile")
 private val oxygenStep = cn("OxygenStep")
 private val temperatureStep = cn("TemperatureStep")
+private val venusStep = cn("VenusStep")
