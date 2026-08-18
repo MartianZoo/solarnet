@@ -108,8 +108,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Distinguish Poseidon's delayed first-action colony placement from an immediate `Colony` gain so
-  ordinary colony placements can be derived by the English renderer without erasing that timing.
+- After the unnamed-classes feature from `work1` is merged, fix Poseidon's delayed first-action
+  colony placement by replacing its immediate `Colony` gain with `Mandate { Colony }`.
 - Keep the `Award` base class's scoring effect inherited while avoiding loading its scoring
   machinery in solo games, where no concrete Award definitions are active.
 - Break `PetTransformer.transformChildren` into focused rebuild helpers; its instruction-tree

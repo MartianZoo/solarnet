@@ -77,12 +77,12 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 
 ## Current derivation boundary
 
-`English` derives an empty region when the card definition has no element printed there. It also
-derives bottom text when every immediate instruction is one of: a concrete mandatory gain or removal
-of a standard resource; a group of concrete mandatory standard-resource production gains or
-decreases; a city- or ocean-tile placement; or a concrete mandatory temperature, oxygen, Venus-step,
-or TR gain or removal. Supported instructions are rendered in authored order, with adjacent
-standard-resource gains coalesced into one sentence.
+`English` derives an empty region when the card definition has no element printed there. It derives
+minimum and maximum oxygen requirements, and it derives bottom text when every immediate instruction
+is one of: a concrete mandatory gain or removal of a standard resource; a group of concrete mandatory
+standard-resource production gains or decreases; a city- or ocean-tile placement; or a concrete
+mandatory temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are rendered
+in authored order, with adjacent standard-resource gains coalesced into one sentence.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
@@ -108,11 +108,12 @@ not structurally sufficient.
 Greenery placement is not yet a plain placement noun. Its printed text includes the implicit oxygen
 increase, and the unrestricted canonical example also has an unsupported tagged-card draw. Preserve
 the fallback until a renderer can express the full greenery consequence and is exercised by a
-canonical card. Colony placement also cannot yet be derived from its instruction shape alone:
-Poseidon authors the same plain `Colony` gain as ordinary placement cards, but its printed rule
-delays the placement until the corporation's first action. Preserve the fallback until the data
-distinguishes those semantics. When the shape becomes derivable, use `a colony` for one and numeric
-counts above one, following the placed-object article policy.
+canonical card. Colony placement also cannot yet be derived from its instruction shape alone because
+Poseidon incorrectly authors its delayed first-action placement as an immediate `Colony` gain. After
+the unnamed-classes feature from `work1` arrives, model that rule as `Mandate { Colony }`; then a plain
+gain can unambiguously mean immediate placement. Preserve the fallback until that data fix. When the
+shape becomes derivable, use `a colony` for one and numeric counts above one, following the
+placed-object article policy.
 
 ## Review cadence
 
