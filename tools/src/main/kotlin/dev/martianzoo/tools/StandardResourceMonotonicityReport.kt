@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.AwardDefinition
@@ -398,7 +399,9 @@ internal object StandardResourceMonotonicityReport {
   ): Boolean {
     if (upperBound == Int.MAX_VALUE) return false
     return when (metric) {
+      is Metric.Eval -> true
       is Metric.Count -> expressionCouldCount(metric.expression, quantity, subjectClass, table)
+      is Property -> false
       is Metric.Scaled ->
           metricCouldCount(
               metric.inner,
@@ -425,6 +428,7 @@ internal object StandardResourceMonotonicityReport {
   ): Boolean {
     if (upperBound == Int.MAX_VALUE) return false
     return when (metric) {
+      is Metric.Eval -> true
       is Metric.Count ->
           baseExpressionCouldCount(
               metric.expression,
@@ -432,6 +436,7 @@ internal object StandardResourceMonotonicityReport {
               subjectClass,
               table,
           )
+      is Property -> false
       is Metric.Scaled ->
           metricCouldCountAsResource(
               metric.inner,
