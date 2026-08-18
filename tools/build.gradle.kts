@@ -20,3 +20,10 @@ tasks.register<JavaExec>("typeStructureReport") {
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tools.TypeStructureReportKt")
 }
+
+tasks.register<JavaExec>("standardResourceMonotonicityReport") {
+  group = "application"
+  description = "Reports declarative threats to solo resource and production monotonicity."
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tools.StandardResourceMonotonicityReportKt")
+}
