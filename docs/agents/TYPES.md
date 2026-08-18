@@ -340,6 +340,11 @@ containing a Complement should not participate.
 
 A variable can be introduced outside an `OR` or Requirement and have occurrences inside it.
 
+The proposed [`EACH`](EACHPLAYER.md) fanout would add one region linking its selector to repeated
+authored occurrences in its body. Each enumerated concrete selector Type would substitute through
+those paths. It would not bind contextual `Owner` or `This` and would reject a body with no linked
+selector occurrence. This region is not implemented.
+
 ### Narrowing
 
 A proposed subtype is substituted at every occurrence path and every containing Expression is

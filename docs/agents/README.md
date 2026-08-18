@@ -32,6 +32,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Area | Document | Status |
 | --- | --- | --- |
 | Actor, assignee, context owner, and future delegation | [IDENTITY.md](IDENTITY.md) | Current model plus proposal |
+| Component fanout through proposed `EACH` syntax | [EACHPLAYER.md](EACHPLAYER.md) | Proposal |
 | Flattening the engine workhorse and later client boundary | [API.md](API.md) | Proposal |
 | Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
 | Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |
