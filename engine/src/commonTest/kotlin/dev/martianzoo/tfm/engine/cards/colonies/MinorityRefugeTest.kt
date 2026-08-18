@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
 import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-// This isn't really a test specific to this card, just testing task reordering
 class MinorityRefugeTest : ColoniesCardTest() {
   @Test
   fun `at minimum megacredit production, tries to place its colony on Io`() {
@@ -26,9 +27,16 @@ class MinorityRefugeTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `at minimum megacredit production, places its colony on Luna`() {
+  fun `Luna placement can enable Minority Refuge's production decrease`() {
     initializeCard()
-    p1.playProject(MinorityRefuge, 5) { doTask("Colony<Luna>") }.expect("Colony<Luna>")
+    p1.playProject(MinorityRefuge, 5) {
+          p1.autoExecMode = NONE
+          doTask("Colony<Luna>")
+          doTask("PROD[2 Megacredit]")
+          doTask("PROD[-2 Megacredit]")
+          p1.autoExecMode = FIRST
+        }
+        .expect("Colony<Luna>, PROD[0 Megacredit]")
   }
 
   private fun initializeCard() {

@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
-class TradeTrackIncreaseTest : ColoniesCardTest() {
+class TradeEnvoysTest : ColoniesCardTest() {
   @Test
-  fun `Trade Envoys raises the track before trade income`() {
+  fun `raises the track before trade income`() {
     p1.manual("ProjectCard, 15")
     p1.playProject(TradeEnvoys, 6)
     engine.manual("3 ColonyProduction<Luna>")
@@ -24,7 +24,7 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Trade Envoys raises the track when Titan Floating Launch-Pad trades`() {
+  fun `raises the track when Titan Floating Launch-Pad trades`() {
     p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") {
       doTask("2 Floater<$TitanFloatingLaunchPad>")
     }
@@ -42,7 +42,7 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `Trade Envoys does not increase a maxed track`() {
+  fun `does not increase a maxed track`() {
     p1.manual("$TradeEnvoys, 9")
     engine.manual("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
@@ -56,7 +56,7 @@ class TradeTrackIncreaseTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `may decline to increase track`() {
+  fun `Trading Colony may decline the shared track increase`() {
     p1.manual("ProjectCard, 30")
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")

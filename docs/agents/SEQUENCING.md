@@ -3,20 +3,60 @@
 **Status: working rules and audit.** This document defines the ordering model agents should preserve.
 Current known defects remain defects even when tests characterize them.
 
-## Default: a pool, not a queue
+## Default: preserve the whole valid decision tree
 
 Pending tasks are an unordered pool. Stable task ids and auto-exec iteration are implementation
 conveniences, never game precedence. A player may normally interleave a card's direct effects,
 persistent reactions, and already-triggered consequences.
 
+This freedom is a major part of engine correctness, not a rare exception. Many groups of changes
+may be resolved in any order. Preserve all of those orders even when no current card, component, or
+test demonstrates that the choice matters. The absence of a known observable difference is not a
+game rule and does not justify turning the pool into a sequence.
+
 Causality is the baseline exception: a consequence cannot precede the event that triggered it.
 Placing an ocean precedes Arctic Algae; raising production precedes Manutech. Once triggered, the
 consequence joins the pool without priority.
 
+The engine's contract is to support every rules-valid committed state and no rules-invalid one; it
+does not choose a play policy. A client may deliberately trade away flexibility for convenience by
+selecting work in an order the user will probably accept, or it may play safe and ask. The current
+auto-execution implementation is engine-side, but that selection policy belongs on the client side
+and is intended to move there. Its order must not become an engine guarantee or an authored
+precedence rule.
+
 Tests should prove only real precedence. When freedom matters, also prove that legal siblings may be
 reordered.
 
+## Recoverable dead ends are part of the model
+
+Supporting only valid game states does not require the engine to prove in advance that every locally
+valid choice has a legal completion. An encompassing operation is speculative until it commits. A
+client may choose a branch whose later mandatory work cannot finish; the engine should report the
+dead end and roll the whole operation back rather than commit an invalid result. See the current
+transaction mechanics in [ENGINE.md](ENGINE.md#recoverable-dead-ends).
+
+Pruning that decision tree is a client concern. A client may simulate branches, recognize common
+traps, choose a likely-good route, or ask the user. Pets and engine code should not duplicate target
+exclusions, add premature requirements, or impose sequencing merely to spare the client from a
+recoverable mistake. The engine may reject a branch as soon as ordinary rules make its failure
+unavoidable; it need not predict that failure through additional game concepts.
+
+Protected Habitats is the model example. An attack may narrow its broad resource choice to a
+protected Plant, Animal, or Microbe. Protected Habitats reacts to that hostile removal with `Die`,
+so the enclosing atomic attack reaches a dead end and rolls back. The card can state one direct rule
+about hostile removals; every attack and target selector need not know how to pre-exclude protected
+resources.
+
+During the Pets audit, actively look for restrictions and ordering machinery whose only purpose is
+to pre-prune such branches. Prefer the simpler rule-and-rollback model when it still makes every
+legal completion reachable, prevents every illegal result from committing, and rolls back the
+entire speculative operation.
+
 ## Choose the weakest honest mechanism
+
+Only impose sequencing when the game rules demand it or an otherwise valid operation cannot be
+modeled correctly without it.
 
 ### 1. Prefer a trigger
 
@@ -44,6 +84,13 @@ task, not every transitive consequence it causes.
 
 `THEN` also creates one implicit Type-variable region. Mining Rights and Capital use that linkage
 to carry an area or tile choice into later work; temporal order is not its only purpose.
+
+This can force sequencing that the game rules do not independently require. It is often still the
+most natural expression: one stage owns the Player's choice and the other is derived from that same
+choice, so put the choice-bearing stage first and its derived continuation second. Treat this as a
+linkage constraint, not evidence that unrelated work needs priority. During audit, verify both that
+the choice really belongs to the first stage and that the artificial order is buying a useful,
+readable linkage rather than concealing a more natural unordered model.
 
 If every producer of A is expected to remember B, the relationship belongs in a trigger instead.
 
@@ -237,9 +284,13 @@ These are domain constraints even where the current workflow approximates them:
 
 For a new A-before-B claim:
 
-1. Record authoritative wording and the smallest observable counterexample.
-2. Ask whether A or the ambient rule owner should trigger B, possibly with `IF`.
-3. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
-4. Otherwise use the narrowest barrier or completion scope.
-5. Add a precedence test and, when relevant, a freedom test.
-6. Classify the result above and update `TODO.md` if work remains.
+1. Identify the illegal committed result or rules violation that would occur without the ordering.
+   If the only consequence is a recoverable dead end, preserve the freedom and rely on rollback.
+2. Record authoritative wording and the smallest observable counterexample.
+3. Ask whether A or the ambient rule owner should trigger B, possibly with `IF`.
+4. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
+5. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is genuinely
+   derived from it; do not mistake that local artificial order for broader game precedence.
+6. Otherwise use the narrowest barrier or completion scope.
+7. Add a precedence test and, when relevant, a freedom test.
+8. Classify the result above and update `TODO.md` if work remains.
