@@ -122,6 +122,8 @@ public object English {
     val (className, count) = concreteMandatoryGain(instruction) ?: return null
     val subject =
         when (className) {
+          oxygenStep -> "oxygen"
+          temperatureStep -> "temperature"
           terraformRating -> "your TR"
           venusStep -> "Venus"
           else -> return null
@@ -196,7 +198,9 @@ public object English {
   }
 
   private val endExpression = cn("End").expression
+  private val oxygenStep = cn("OxygenStep")
   private val plant = cn("Plant")
+  private val temperatureStep = cn("TemperatureStep")
   private val terraformRating = cn("TerraformRating")
   private val venusStep = cn("VenusStep")
 }
