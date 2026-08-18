@@ -191,8 +191,7 @@
       "projectKind": "AUTOMATED",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "Tile064<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS Tile064, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Tile064, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS Tile064 : SpecialTile" ],
+      "immediate": "SpecialTile {}<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS Card064_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card064_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
     },
 
     // Building Industries
@@ -314,9 +313,8 @@
       "projectKind": "AUTOMATED",
       "cost": 16,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], Tile085",
-      "effects": [ "End: VictoryPoint / Adjacency<Tile085, CityTile<Anyone>>" ],
-      "components": [ "CLASS Tile085 : SpecialTile" ],
+      "immediate": "PROD[-Energy, 4], SpecialTile {}",
+      "effects": [ "End: VictoryPoint / Adjacency<Card085_SpecialTile, CityTile<Anyone>>" ],
     },
 
     // Robotic Workforce
@@ -496,9 +494,8 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "Tile123<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
+      "immediate": "SpecialTile {}<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
       "actions": [ "7 -> PROD[Steel]" ],
-      "components": [ "CLASS Tile123 : SpecialTile" ],
     },
 
     // Hired Raiders
@@ -697,9 +694,8 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "Card195Effect",
+      "immediate": "NextCardEffect { PlayCard:: -8 Owed }",
       "effects": [ "End: -VictoryPoint" ],
-      "components": [ "CLASS Card195Effect : NextCardEffect { PlayCard:: -8 Owed }" ],
     },
 
     // Lagrange Observatory
@@ -731,9 +727,8 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "ScienceTag" ],
-      "immediate": "Tile199",
+      "immediate": "SpecialTile {}",
       "actions": [ "2 -> ProjectCard" ],
-      "components": [ "CLASS Tile199 : SpecialTile" ],
     },
 
     // Energy Tapping

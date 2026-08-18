@@ -10,7 +10,7 @@ class MartianRailsTest : CardTest() {
   fun `with only an off-Mars city, uses Martian Rails`() {
     newGame()
     p1.manual("$MartianRails, Energy")
-    p1.manual("$GanymedeColony").expect("CityTile<Area081>")
+    p1.manual("$GanymedeColony").expect("CityTile<Card081_RemoteArea>")
     engine.phase("Action")
     p1.cardAction1(MartianRails).expect("-Energy, 0 Megacredit")
     p1.assertCounts(0 to "Megacredit")

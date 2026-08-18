@@ -82,9 +82,8 @@
       "requirement": "2 EarthTag",
       "cost": 5,
       "tags": [ "EarthTag" ],
-      "immediate": "CardC05Effect",
+      "immediate": "NextCardEffect { PlayCard:: -16 Owed }",
       "effects": [ "End: -VictoryPoint" ],
-      "components": [ "CLASS CardC05Effect : NextCardEffect { PlayCard:: -16 Owed }" ],
     },
 
     // Corona Extractor

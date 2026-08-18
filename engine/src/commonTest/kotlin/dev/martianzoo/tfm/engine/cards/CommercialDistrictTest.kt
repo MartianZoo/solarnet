@@ -12,7 +12,7 @@ class CommercialDistrictTest : CardTest() {
     val p2 = requireP2()
 
     p1.manual("PROD[Energy], CityTile<Tharsis_3_2>")
-    p1.manual("$CommercialDistrict") { doTask("Tile085<Tharsis_3_3>") }
+    p1.manual("$CommercialDistrict") { doTask("Card085_SpecialTile<Tharsis_3_3>") }
     p2.manual("CityTile<Tharsis_3_4>")
 
     engine.phase("End")

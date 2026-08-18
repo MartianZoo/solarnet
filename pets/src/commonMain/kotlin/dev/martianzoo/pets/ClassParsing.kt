@@ -53,10 +53,14 @@ internal object ClassParsing : PetTokenizer() {
   internal object Signatures {
 
     private val dependencies: Parser<List<Expression>> =
-        optionalList(skipChar('<') and commaSeparated(Expression.parser()) and skipChar('>'))
+        optionalList(
+            skipChar('<') and
+                commaSeparated(Expression.parser(allowDerivedClass = false)) and
+                skipChar('>')
+        )
 
     private val supertypeList: Parser<List<Expression>> =
-        optionalList(skipChar(':') and commaSeparated(Expression.parser()))
+        optionalList(skipChar(':') and commaSeparated(Expression.parser(allowDerivedClass = false)))
 
     val signature: Parser<Signature> =
         classFullName and
@@ -158,13 +162,17 @@ internal object ClassParsing : PetTokenizer() {
     val declarationFile: Parser<List<ClassDeclaration>> =
         zeroOrMore(topLevelGroup) and skip(nls) map { it.flatten() }
 
-    // For CardDefinition
+    // Single-line and owner-local derived Class bodies
 
-    private val oneLineBody: Parser<Body> =
+    private fun oneLineBodyParser(acceptZero: Boolean): Parser<Body> =
         skipChar('{') and
-            separatedTerms(bodyElementExceptNestedClasses, char(';')) and
+            separatedTerms(bodyElementExceptNestedClasses, char(';'), acceptZero = acceptZero) and
             skipChar('}') map
             ClassParsing::Body
+
+    val derivedClassBody: Parser<Body> by lazy { oneLineBodyParser(acceptZero = true) }
+
+    private val oneLineBody: Parser<Body> by lazy { oneLineBodyParser(acceptZero = false) }
 
     val oneLineDecl: Parser<ClassDeclaration> =
         kind and
@@ -225,6 +233,14 @@ internal object ClassParsing : PetTokenizer() {
     val actions = getAll<ActionElement>().map { it.action }
     val properties = getAll<PropertyElement>().associateStrict { it.property }
     val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
+
+    fun asDerivedDeclaration(className: ClassName, base: ClassName): ClassDeclaration =
+        NestableDeclGroup(
+                CONCRETE,
+                Signature(className, emptyList(), listOf(base.expression)),
+                this,
+            )
+            .finishOnlyDecl()
 
     sealed class BodyElement {
       class InvariantElement(val invariant: Requirement) : BodyElement()

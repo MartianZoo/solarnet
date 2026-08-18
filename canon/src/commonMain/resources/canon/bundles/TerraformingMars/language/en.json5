@@ -174,10 +174,10 @@
   "CardB09": "ThorGate",
   "CardB10": "United Nations Mars Initiative",
 
-  "Tile044": "Natural Preserve Tile",
-  "Tile067": "Mining Rights Tile",
-  "Tile097": "Nuclear Zone Tile",
-  "Tile128": "Ecological Zone Tile",
-  "Tile140": "Lava Flows Tile",
-  "Tile142": "Mohole Area Tile",
+  "Card044_SpecialTile": "Natural Preserve Tile",
+  "Card067_SpecialTile": "Mining Rights Tile",
+  "Card097_SpecialTile": "Nuclear Zone Tile",
+  "Card128_SpecialTile": "Ecological Zone Tile",
+  "Card140_SpecialTile": "Lava Flows Tile",
+  "Card142_SpecialTile": "Mohole Area Tile",
 }

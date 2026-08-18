@@ -92,6 +92,10 @@ public object Exceptions {
   public class PetSyntaxException(message: String, cause: Throwable? = null) :
       PetException(message, cause)
 
+  /** Valid Pets source attempted to declare a Class after the current Class Table was built. */
+  public class NoNewClassDeclarationsException :
+      PetException("New Class declarations are not allowed after the Class Table is frozen")
+
   /** A valid Pets tree changed into a kind that its caller cannot accept. */
   public class KindException(message: String, cause: Throwable? = null) :
       PetException(message, cause)

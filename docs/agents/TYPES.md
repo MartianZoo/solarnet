@@ -39,6 +39,32 @@ concrete Type and every nominal supertype of that Type. Ten plant cubes are ten 
 The graph changes only by gain, removal, and atomic transmutation `A FROM B`. Counts cannot become
 negative.
 
+### Owner-local derived Classes
+
+A card definition can declare a component Class at its point of use without choosing its canonical
+name explicitly. For example, a card instruction can gain `Mandate { -> 3 ProjectCard }`, or use
+`CityTile<RemoteArea {}>`. Card-definition construction lowers these to ordinary declarations with
+stable owner-derived names such as `CardB05_Mandate` and `Card021_RemoteArea` before building the
+Class Table. They have exactly the existing Class and component semantics; there is no runtime
+anonymous identity.
+
+The body follows the base Class name, before any arguments on that use: for example,
+`SpecialTile {}<LandArea>`. Those arguments specialize the generated Class occurrence; they do not
+narrow its declared superclass.
+
+Use this for a Class local to one definition, especially mandates, temporary effects, special tiles,
+and remote areas. A shared Class, a Custom implementation, or a component with several semantic
+roles should remain explicit. Multiple local Classes with the same natural suffix must be declared
+explicitly rather than distinguished by an ordinal or hash.
+
+Another expression that needs the exact derived Class may use its assigned canonical name. Writing
+the unbraced superclass still means the ordinary abstract family; it does not implicitly resolve to
+the local subtype. Existing implicit Type-variable rules continue to link repeated abstract
+dependencies inside the derived Type.
+
+This syntax is definition-time only. Manually submitted instructions are still parsed and validated,
+then rejected with `NoNewClassDeclarationsException` because the live game's Class Table is frozen.
+
 ## 2. Nominal subtyping
 
 Classes may have several abstract direct supertypes:

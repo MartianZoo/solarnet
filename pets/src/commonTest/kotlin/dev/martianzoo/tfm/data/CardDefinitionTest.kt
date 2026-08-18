@@ -1,7 +1,10 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -12,9 +15,11 @@ import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 
 internal class CardDefinitionTest {
   private val birds =
@@ -106,6 +111,74 @@ internal class CardDefinitionTest {
     val card = CardDefinition(JsonReader.readCards(json).single())
 
     card.setupRequirement.toString() shouldBe "PreludeExpansion, VenusNextExpansion"
+  }
+
+  @Test
+  fun derivedClassAtPointOfUseLowersToAnOrdinaryCardLocalClass() {
+    val card = CardDefinition(CardData(id = "T1", immediate = "Mandate { -> 3 ProjectCard }"))
+
+    card.immediate.toString() shouldBe "CardT1_Mandate"
+    val declaration = card.extraClasses.single()
+    declaration.className shouldBe cn("CardT1_Mandate")
+    declaration.supertypes.shouldContainExactly(parse<Expression>("Mandate"))
+    declaration.effects.shouldContainExactly(parse<Effect>("UseAction1<This>: 3 ProjectCard"))
+  }
+
+  @Test
+  fun derivedClassMayAppearInsideDependenciesAndBeforeOrdinaryArguments() {
+    val card =
+        CardDefinition(
+            CardData(
+                id = "T2",
+                deck = "PROJECT",
+                projectKind = "AUTOMATED",
+                immediate = "CityTile<RemoteArea {}>, SpecialTile {}<LandArea>",
+            )
+        )
+
+    card.immediate.toString() shouldBe "CityTile<CardT2_RemoteArea>, CardT2_SpecialTile<LandArea>"
+    card.extraClasses
+        .map { it.className }
+        .shouldContainExactly(
+            cn("CardT2_RemoteArea"),
+            cn("CardT2_SpecialTile"),
+        )
+  }
+
+  @Test
+  fun assignedDerivedClassNameMayBeReferencedElsewhereInTheParentInstruction() {
+    val card =
+        CardDefinition(
+            CardData(
+                id = "T3",
+                immediate = "Mandate { -> ProjectCard } THEN Link<CardT3_Mandate>",
+            )
+        )
+
+    card.immediate.toString() shouldBe "CardT3_Mandate THEN Link<CardT3_Mandate>"
+  }
+
+  @Test
+  fun repeatedUnnamedDerivedClassMustBeExplicit() {
+    assertFailsWith<PetSyntaxException> {
+      CardDefinition(CardData(id = "T4", immediate = "Mandate {}, Mandate {}"))
+    }
+  }
+
+  @Test
+  fun grammarFindsNestedDerivedClassesButNotClassLikeTextInComments() {
+    val card =
+        CardDefinition(
+            CardData(
+                id = "T5",
+                immediate = "Mandate { -> NextCardEffect {} } // NotAClass {}",
+            )
+        )
+
+    card.immediate.toString() shouldBe "CardT5_Mandate"
+    card.extraClasses
+        .map { it.className }
+        .shouldContainExactly(cn("CardT5_NextCardEffect"), cn("CardT5_Mandate"))
   }
 
   // Just so we don't have to keep repeating the "x" part

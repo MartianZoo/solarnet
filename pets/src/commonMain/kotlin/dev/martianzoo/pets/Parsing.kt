@@ -6,6 +6,7 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
+import dev.martianzoo.api.Exceptions.NoNewClassDeclarationsException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ClassParsing.Declarations
@@ -52,22 +53,36 @@ public object Parsing {
   /**
    * Parses the Pets element of type [P] from [elementSource], and returns it *not* surrounded by a
    * `RAW` block. [P] can only be one of the published node kinds like [Effect], [Action],
-   * [InstructionTree], [Expression], etc.
+   * [InstructionTree], [Expression], etc. Owner-local derived Class syntax is fully parsed, then
+   * rejected because this API has no definition owner or mutable Class Table.
    */
   public inline fun <reified P : PetNode> parse(elementSource: String): P =
       parse(P::class, elementSource)
 
   /** Non-reified form of [parse]. */
   public fun <P : PetNode> parse(expectedType: KClass<P>, elementSource: String): P {
+    val lowerer = DerivedClassLowerer(ClassName.cn("Submitted"))
+    val pet = parse(expectedType, elementSource, lowerer)
+    if (lowerer.declarations.isNotEmpty()) throw NoNewClassDeclarationsException()
+    return pet
+  }
+
+  internal fun <P : PetNode> parse(
+      expectedType: KClass<P>,
+      elementSource: String,
+      derivedClasses: DerivedClassLowerer,
+  ): P {
     val group = parserGroup
     val matches: TokenMatchesSequence = TokenCache.tokenize(elementSource)
     require(expectedType != PetNode::class) { "missing type info" }
 
-    val pet = group.parse(expectedType, elementSource, matches)
-    check(expectedType.isInstance(pet)) {
-      "Expected ${expectedType.simpleName} kind, got ${pet.kind.simpleName}"
+    val parsed = group.parse(expectedType, elementSource, matches)
+    val lowered = derivedClasses.transformWithoutKindCheck(parsed)
+    check(expectedType.isInstance(lowered)) {
+      "Expected ${expectedType.simpleName} kind, got ${lowered.kind.simpleName}"
     }
-    return pet
+    @Suppress("UNCHECKED_CAST")
+    return lowered as P
   }
 
   internal fun <T> parse(

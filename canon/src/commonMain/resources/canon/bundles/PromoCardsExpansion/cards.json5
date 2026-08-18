@@ -17,10 +17,9 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "resourceType": "Microbe",
-      "immediate": "44, MandateXC03F",
+      "immediate": "44, Mandate { -> ProjectCard }",
       "effects": [ "MicrobeTag<Anyone>: 2" ],
       "components": [
-        "CLASS MandateXC03F : Mandate { -> ProjectCard }",
         "CLASS CardXC03FWatcher : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF CardXC03F<Anyone>: Microbe<CardFront> OR 2 }"
       ],
     },
@@ -55,11 +54,10 @@
       "id": "XC06",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "47, MandateXC06",
+      "immediate": "47, Mandate { -> GreeneryTile }",
       "effects": [
         "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
       ],
-      "components": [ "CLASS MandateXC06 : Mandate { -> GreeneryTile }" ],
     },
 
     // AstroDrill
@@ -109,13 +107,10 @@
       "id": "XC11",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "35, MandateXC11",
+      "immediate": "35, Mandate { -> OceanTile THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
       "effects": [
         "OceanTile: Energy",
         "GreeneryTile: Plant",
-      ],
-      "components": [
-        "CLASS MandateXC11 : Mandate { -> OceanTile THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
       ],
     },
 
@@ -354,9 +349,8 @@
       "projectKind": "AUTOMATED",
       "cost": 12,
       "tags": [ "CityTag", "SpaceTag" ],
-      "immediate": "CityTile<FloatingInSpace>",
+      "immediate": "CityTile<RemoteArea {}>",
       "effects": [ "End: 2 VictoryPoint" ],
-      "components": [ "CLASS FloatingInSpace : RemoteArea" ],
     },
 
     // Advertising
@@ -574,8 +568,7 @@
       "projectKind": "EVENT",
       "cost": 31,
       "tags": [ "SpaceTag" ],
-      "immediate": "3 TemperatureStep, TileX31<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?",
-      "components": [ "CLASS TileX31 : SpecialTile" ],
+      "immediate": "3 TemperatureStep, SpecialTile {}<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?",
     },
 
     // Great Dam (promo)
@@ -587,9 +580,8 @@
       "requirement": "4 OceanTile",
       "cost": 15,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[2 Energy], TileX32<LandArea(HAS Neighbor<OceanTile>)>",
+      "immediate": "PROD[2 Energy], SpecialTile {}<LandArea(HAS Neighbor<OceanTile>)>",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS TileX32 : SpecialTile" ],
     },
 
     // Magnetic Field Generators (promo)
@@ -600,8 +592,7 @@
       "projectKind": "AUTOMATED",
       "cost": 22,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, TileX33",
-      "components": [ "CLASS TileX33 : SpecialTile" ],
+      "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile {}",
     },
 
     // Asteroid Rights

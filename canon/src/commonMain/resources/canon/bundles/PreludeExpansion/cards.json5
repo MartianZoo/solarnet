@@ -33,11 +33,8 @@
       "id": "PC4",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "37, MandatePC4",
+      "immediate": "37, Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
-      "components": [
-        "CLASS MandatePC4 : Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }"
-      ],
     },
 
     // Vitor
@@ -45,13 +42,12 @@
       "id": "PC5",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
-      "immediate": "45, (Class<Award>: MandatePC5) OR Ok",
+      "immediate": "45, (Class<Award>: Mandate { -> Award }) OR Ok",
       "effects": [
         "CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3"
       ],
       "components": [
         "CLASS CitationsIgnoringRemoves<CardFront, Class<Component>> : Custom",
-        "CLASS MandatePC5 : Mandate { -> Award }",
       ],
     },
 

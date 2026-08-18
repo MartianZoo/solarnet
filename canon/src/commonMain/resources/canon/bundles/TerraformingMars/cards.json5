@@ -34,9 +34,8 @@
       "id": "B05",
       "deck": "CORPORATION",
       "tags": [ "ScienceTag" ],
-      "immediate": "45, MandateB05",
+      "immediate": "45, Mandate { -> 3 ProjectCard }",
       "effects": [ "PlayCard: -2 Required<Class<GlobalParameter>>." ],
-      "components": [ "CLASS MandateB05 : Mandate { -> 3 ProjectCard }" ],
     },
 
     // Mining Guild
@@ -64,12 +63,11 @@
       "id": "B08",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "40, MandateB08, (=1 Player: PROD[2]) OR Ok",
+      "immediate": "40, Mandate { -> CityTile }, (=1 Player: PROD[2]) OR Ok",
       "effects": [
         "CityTile<Anyone, MarsArea>: PROD[1]",
         "CityTile: 3",
       ],
-      "components": [ "CLASS MandateB08 : Mandate { -> CityTile }" ],
     },
 
     // ThorGate
@@ -286,9 +284,8 @@
       "projectKind": "AUTOMATED",
       "cost": 25,
       "tags": [ "SpaceTag", "CityTag" ],
-      "immediate": "PROD[Titanium], CityTile<Area021>",
+      "immediate": "PROD[Titanium], CityTile<RemoteArea {}>",
       "effects": [ "End: 3 VictoryPoint" ],
-      "components": [ "CLASS Area021 : RemoteArea" ],
     },
 
     // Black Polar Dust
@@ -517,9 +514,8 @@
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "Tile044<LandArea(HAS MAX 0 Neighbor)>, PROD[1]",
+      "immediate": "SpecialTile {}<LandArea(HAS MAX 0 Neighbor)>, PROD[1]",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS Tile044 : SpecialTile" ],
     },
 
     // Nuclear Power
@@ -656,8 +652,7 @@
       "projectKind": "AUTOMATED",
       "cost": 9,
       "tags": [ "BuildingTag" ],
-      "immediate": "Tile067 THEN PROD[(LandArea(HAS Tile067, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Tile067, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS Tile067 : SpecialTile" ],
+      "immediate": "SpecialTile {} THEN PROD[(LandArea(HAS Card067_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card067_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
     },
 
     // Birds
@@ -731,9 +726,8 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "JovianTag", "SpaceTag", "CityTag" ],
-      "immediate": "CityTile<Area081>",
+      "immediate": "CityTile<RemoteArea {}>",
       "effects": [ "End: VictoryPoint / JovianTag" ],
-      "components": [ "CLASS Area081 : RemoteArea" ],
     },
 
     // Giant Space Mirror
@@ -806,9 +800,8 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "EarthTag" ],
-      "immediate": "Tile097, 2 TemperatureStep",
+      "immediate": "SpecialTile {}, 2 TemperatureStep",
       "effects": [ "End: -2 VictoryPoint" ],
-      "components": [ "CLASS Tile097 : SpecialTile" ],
     },
 
     // Fueled Generators
@@ -998,12 +991,11 @@
       "cost": 12,
       "tags": [ "AnimalTag", "PlantTag" ],
       "resourceType": "Animal",
-      "immediate": "Tile128<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
+      "immediate": "SpecialTile {}<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
       "effects": [
         "AnimalTag OR PlantTag: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
       ],
-      "components": [ "CLASS Tile128 : SpecialTile" ],
     },
 
     // Zeppelins
@@ -1130,8 +1122,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 18,
-      "immediate": "2 TemperatureStep, Tile140<VolcanicArea> OR (MAX 0 VolcanicArea: Tile140)",
-      "components": [ "CLASS Tile140 : SpecialTile" ],
+      "immediate": "2 TemperatureStep, SpecialTile {}<VolcanicArea> OR (MAX 0 VolcanicArea: Card140_SpecialTile)",
     },
 
     // Power Plant
@@ -1151,8 +1142,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[4 Heat], Tile142<WaterArea>",
-      "components": [ "CLASS Tile142 : SpecialTile" ],
+      "immediate": "PROD[4 Heat], SpecialTile {}<WaterArea>",
     },
 
     // Large Convoy

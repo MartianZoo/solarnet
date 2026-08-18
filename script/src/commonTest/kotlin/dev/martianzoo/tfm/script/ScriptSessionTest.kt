@@ -35,6 +35,14 @@ internal class ScriptSessionTest {
   }
 
   @Test
+  fun execReportsThatOwnerLocalClassesCannotBeAddedToALiveGame() {
+    assertEquals(
+        listOf("New Class declarations are not allowed after the Class Table is frozen"),
+        ScriptSession().command("exec Mandate { -> 3 ProjectCard }"),
+    )
+  }
+
+  @Test
   fun `as Engine temporarily selects the Engine actor`() {
     val repl = ScriptSession()
     repl.command("newgame B 2")
@@ -434,7 +442,7 @@ internal class ScriptSessionTest {
     )
     repl.command(
         "as Player2 exec GreeneryTile<Tharsis_4_5>, CityTile<Tharsis_6_6>, " +
-            "Tile142<Tharsis_9_9>"
+            "Card142_SpecialTile<Tharsis_9_9>"
     )
     assertTrue(repl.command("tasks").isEmpty())
     assertEquals(8, repl.gameplay.count("Tile"))

@@ -12,7 +12,7 @@ class MiningAreaTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     p1.manual("$MiningArea") {
-          doTask("Tile064<Tharsis_1_1>")
+          doTask("Card064_SpecialTile<Tharsis_1_1>")
         }
         .expect("2 Steel, PROD[Steel]")
   }
@@ -22,7 +22,7 @@ class MiningAreaTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_7_9>")
     p1.manual("$MiningArea") {
-          doTask("Tile064<Tharsis_8_9>")
+          doTask("Card064_SpecialTile<Tharsis_8_9>")
         }
         .expect("Titanium, PROD[Titanium]")
   }
@@ -31,7 +31,7 @@ class MiningAreaTest : CardTest() {
   fun `without an adjacent tile, tries to play Mining Area`() {
     newGame()
     shouldThrow<DependencyException> {
-      p1.manual("$MiningArea") { doTask("Tile064<Tharsis_1_1>") }
+      p1.manual("$MiningArea") { doTask("Card064_SpecialTile<Tharsis_1_1>") }
     }
   }
 
@@ -40,7 +40,7 @@ class MiningAreaTest : CardTest() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     shouldThrow<NotNowException> {
-      p1.manual("$MiningArea") { doTask("Tile064<Tharsis_3_2>") }
+      p1.manual("$MiningArea") { doTask("Card064_SpecialTile<Tharsis_3_2>") }
     }
   }
 }

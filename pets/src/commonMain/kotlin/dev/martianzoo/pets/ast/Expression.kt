@@ -6,6 +6,7 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
@@ -31,6 +32,17 @@ public data class Expression(
     val refinement: Refinement? = null,
     val complement: Boolean = false,
 ) : PetElement(), HasClassName, HasExpression {
+
+  /**
+   * Parser-only source information removed before a parsed AST leaves
+   * [dev.martianzoo.pets.Parsing].
+   */
+  internal var derivedClassBody: ClassParsing.Body? = null
+    private set
+
+  internal fun withDerivedClassBody(body: ClassParsing.Body?): Expression = apply {
+    derivedClassBody = body
+  }
 
   override val expression: Expression
     get() = this
@@ -91,22 +103,34 @@ public data class Expression(
   }
 
   internal companion object : PetTokenizer() {
-    fun parser(): Parser<Expression> {
+    fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
       return parser {
-        val argumentList = skipChar('<') and commaSeparated(parser()) and skipChar('>')
+        val argumentList =
+            skipChar('<') and commaSeparated(parser(allowDerivedClass)) and skipChar('>')
         val refinement: Parser<Refinement> =
             group(skip(_has) and isPresent(char('?')) and Requirement.parser()) map
                 { (a, b) ->
                   Refinement(b, a)
                 }
 
-        isPresent(char('!')) and
-            ClassName.parser() and
-            optionalList(argumentList) and
-            optional(refinement) map
-            { (not, clazz, args, ref) ->
-              Expression(clazz, args, ref, not)
-            }
+        if (allowDerivedClass) {
+          isPresent(char('!')) and
+              ClassName.parser() and
+              optional(ClassParsing.Declarations.derivedClassBody) and
+              optionalList(argumentList) and
+              optional(refinement) map
+              { (not, clazz, body, args, ref) ->
+                Expression(clazz, args, ref, not).withDerivedClassBody(body)
+              }
+        } else {
+          isPresent(char('!')) and
+              ClassName.parser() and
+              optionalList(argumentList) and
+              optional(refinement) map
+              { (not, clazz, args, ref) ->
+                Expression(clazz, args, ref, not)
+              }
+        }
       }
     }
   }
