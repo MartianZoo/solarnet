@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
@@ -67,10 +68,20 @@ public object English {
   private fun derivedProductionGain(instruction: Instruction): String? {
     val transform = instruction as? Transform ?: return null
     if (transform.transformKind != PROD) return null
-    val (className, count) =
-        standardResourceGain(transform.instruction as? Gain ?: return null) ?: return null
+    val gains =
+        InstructionGroup.of(transform.instruction).instructions.map {
+          standardResourceGain(it) ?: return null
+        }
+    val count = gains.map { it.second }.distinct().singleOrNull() ?: return null
     val steps = if (count == 1) "step" else "steps"
-    return "Increase your ${componentNoun(className, count)} production $count $steps."
+    val productions = gains.map { (className) ->
+      "your ${componentNoun(className, count)} production"
+    }
+    return if (productions.size == 1) {
+      "Increase ${productions.single()} $count $steps."
+    } else {
+      "Increase ${englishList(productions)} $count $steps each."
+    }
   }
 
   private fun standardResourceGain(instruction: Instruction): Pair<ClassName, Int>? {
