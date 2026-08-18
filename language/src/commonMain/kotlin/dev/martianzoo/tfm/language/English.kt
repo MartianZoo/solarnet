@@ -59,46 +59,35 @@ public object English {
       return null
     }
     val instructions = card.immediate?.instructions ?: return null
-    return derivedStandardResourceGains(instructions)
-        ?: derivedProductionAndResourceGains(instructions)
-        ?: derivedProductionAndTrackGain(instructions)
-        ?: instructions.singleOrNull()?.let(::derivedProductionChange)
-        ?: instructions.singleOrNull()?.let(::derivedTrackGain)
+    return derivedInstructions(instructions)
   }
 
-  private fun derivedStandardResourceGains(instructions: List<Instruction>): String? {
+  private fun derivedInstructions(instructions: List<Instruction>): String? {
+    if (instructions.isEmpty()) return null
+    val sentences = mutableListOf<String>()
+    var index = 0
+    while (index < instructions.size) {
+      if (standardResourceGain(instructions[index]) != null) {
+        val gains = instructions.drop(index).takeWhile { standardResourceGain(it) != null }
+        sentences += derivedStandardResourceGains(gains)
+        index += gains.size
+      } else {
+        sentences +=
+            derivedProductionChange(instructions[index])
+                ?: derivedTrackGain(instructions[index])
+                ?: return null
+        index++
+      }
+    }
+    return sentences.joinToString(" ")
+  }
+
+  private fun derivedStandardResourceGains(instructions: List<Instruction>): String {
     val objects = instructions.map { instruction ->
-      val (className, count) = standardResourceGain(instruction) ?: return null
+      val (className, count) = checkNotNull(standardResourceGain(instruction))
       "$count ${componentNoun(className, count)}"
     }
-    if (objects.isEmpty()) return null
     return "Gain ${englishList(objects)}."
-  }
-
-  private fun derivedProductionAndResourceGains(instructions: List<Instruction>): String? {
-    if (instructions.size < 2) return null
-    val firstProduction = derivedProductionChange(instructions.first())
-    if (firstProduction != null) {
-      val resources = derivedStandardResourceGains(instructions.drop(1))
-      if (resources != null) return "$firstProduction $resources"
-    }
-    val lastProduction = derivedProductionChange(instructions.last())
-    if (lastProduction != null) {
-      val resources = derivedStandardResourceGains(instructions.dropLast(1))
-      if (resources != null) return "$resources $lastProduction"
-    }
-    return null
-  }
-
-  private fun derivedProductionAndTrackGain(instructions: List<Instruction>): String? {
-    if (instructions.size != 2) return null
-    val firstProduction = derivedProductionChange(instructions.first())
-    val secondTrack = derivedTrackGain(instructions.last())
-    if (firstProduction != null && secondTrack != null) return "$firstProduction $secondTrack"
-    val firstTrack = derivedTrackGain(instructions.first())
-    val secondProduction = derivedProductionChange(instructions.last())
-    if (firstTrack != null && secondProduction != null) return "$firstTrack $secondProduction"
-    return null
   }
 
   private fun derivedProductionChange(instruction: Instruction): String? {

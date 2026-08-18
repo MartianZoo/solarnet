@@ -74,16 +74,16 @@ clearest and the implementation simplest.
 ## Current derivation boundary
 
 `English` derives an empty region when the card definition has no element printed there. It also
-derives bottom text when that entire region consists of one or more concrete, mandatory gains of
-standard resources, or when it consists of concrete, mandatory standard-resource production gains
-that all have the same count, or one concrete, mandatory standard-resource production decrease. A
-singleton concrete, mandatory Venus-step or TR gain is also derived. A requirement, an End-triggered
-scoring effect, an extra component declaration, or any unsupported immediate-instruction shape
-keeps the whole region data-backed. Component declarations can encode printed setup behavior that
-is absent from `immediate`, so deriving only that group could omit bottom text. A supported
-production change and one or more standard-resource gains can be composed in either authored order
-from those same renderers, as can a production change and a Venus-step or TR gain. Actions and
-non-End effects are top elements and do not prevent bottom derivation.
+derives bottom text when every immediate instruction is one of: a concrete mandatory gain of a
+standard resource; a group of concrete mandatory standard-resource production gains that all have
+the same count; one concrete mandatory standard-resource production decrease; or a concrete
+mandatory Venus-step or TR gain. Supported instructions are rendered in authored order, with
+adjacent standard-resource gains coalesced into one sentence.
+
+A requirement, an End-triggered scoring effect, an extra component declaration, or any unsupported
+immediate-instruction shape keeps the whole region data-backed. Component declarations can encode
+printed setup behavior that is absent from `immediate`, so deriving only that group could omit bottom
+text. Actions and non-End effects are top elements and do not prevent bottom derivation.
 
 ## Component nouns and change verbs
 
