@@ -24,6 +24,12 @@ private fun renderMinimum(requirement: Requirement.Min): String? =
           "Requires $it ocean ${if (it == 1) "tile" else "tiles"}."
         }
         ?: target(requirement, venusStep)?.let { "Requires Venus ${it * 2}%." }
+        ?: target(requirement, terraformRating)?.let {
+          "Requires that you have at least $it TR."
+        }
+        ?: target(requirement, greeneryTile)?.let {
+          "Requires that you have $it greenery ${if (it == 1) "tile" else "tiles"}."
+        }
         ?: renderTagRequirement(requirement)
 
 private fun renderMaximum(requirement: Requirement.Max): String? =
@@ -97,9 +103,11 @@ private fun temperature(steps: Int): String {
   return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
 }
 
+private val greeneryTile = cn("GreeneryTile")
 private val oceanTile = cn("OceanTile")
 private val oxygenStep = cn("OxygenStep")
 private val planetTag = cn("PlanetTag")
 private val tag = cn("Tag")
 private val temperatureStep = cn("TemperatureStep")
+private val terraformRating = cn("TerraformRating")
 private val venusStep = cn("VenusStep")
