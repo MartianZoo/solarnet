@@ -34,7 +34,7 @@ class MiningAreaTest : CardTest() {
     newGame(TerraCimmeriaMapOption)
     p1.manual("CityTile<TerraCimmeria_5_4>")
     p1.manual("$MiningArea") {
-          doTask("Tile064<TerraCimmeria_6_4>")
+          doTask("Card064_SpecialTile<TerraCimmeria_6_4>")
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
