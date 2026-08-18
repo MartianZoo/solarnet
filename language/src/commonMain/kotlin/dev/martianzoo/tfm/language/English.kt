@@ -94,30 +94,46 @@ public object English {
     val transform = instruction as? Transform ?: return null
     if (transform.transformKind != PROD) return null
     val instructions = InstructionGroup.of(transform.instruction).instructions
-    val gains = instructions.mapNotNull(::standardResourceGain)
-    if (gains.size != instructions.size) {
-      val (className, count) =
-          standardResourceRemoval(instructions.singleOrNull() ?: return null) ?: return null
-      val steps = if (count == 1) "step" else "steps"
-      return "Decrease your ${componentNoun(className, count)} production $count $steps."
+    val changes = instructions.map { productionChange(it) ?: return null }
+    val clauses = mutableListOf<String>()
+    var index = 0
+    while (index < changes.size) {
+      val run = changes.drop(index).takeWhile { it.gaining == changes[index].gaining }
+      clauses += derivedProductionClause(run)
+      index += run.size
     }
-    val sharedCount = gains.map { it.second }.distinct().singleOrNull()
+    return clauses.joinToString(" and ").replaceFirstChar(Char::uppercaseChar) + "."
+  }
+
+  private fun productionChange(instruction: Instruction): ResourceProductionChange? {
+    standardResourceGain(instruction)?.let { (className, count) ->
+      return ResourceProductionChange(true, className, count)
+    }
+    standardResourceRemoval(instruction)?.let { (className, count) ->
+      return ResourceProductionChange(false, className, count)
+    }
+    return null
+  }
+
+  private fun derivedProductionClause(changes: List<ResourceProductionChange>): String {
+    val verb = if (changes.first().gaining) "increase" else "decrease"
+    val sharedCount = changes.map { it.count }.distinct().singleOrNull()
     if (sharedCount != null) {
       val steps = if (sharedCount == 1) "step" else "steps"
-      val productions = gains.map { (className) ->
-        "your ${componentNoun(className, 1)} production"
+      val productions = changes.map {
+        "your ${componentNoun(it.className, 1)} production"
       }
       return if (productions.size == 1) {
-        "Increase ${productions.single()} $sharedCount $steps."
+        "$verb ${productions.single()} $sharedCount $steps"
       } else {
-        "Increase ${englishList(productions)} $sharedCount $steps each."
+        "$verb ${englishList(productions)} $sharedCount $steps each"
       }
     }
-    val changes = gains.map { (className, count) ->
-      val steps = if (count == 1) "step" else "steps"
-      "your ${componentNoun(className, 1)} production $count $steps"
+    val productions = changes.map {
+      val steps = if (it.count == 1) "step" else "steps"
+      "your ${componentNoun(it.className, 1)} production ${it.count} $steps"
     }
-    return "Increase ${englishList(changes)}."
+    return "$verb ${englishList(productions)}"
   }
 
   private fun standardResourceGain(instruction: Instruction): Pair<ClassName, Int>? {
@@ -210,4 +226,10 @@ public object English {
   private val temperatureStep = cn("TemperatureStep")
   private val terraformRating = cn("TerraformRating")
   private val venusStep = cn("VenusStep")
+
+  private data class ResourceProductionChange(
+      val gaining: Boolean,
+      val className: ClassName,
+      val count: Int,
+  )
 }

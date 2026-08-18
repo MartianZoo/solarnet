@@ -44,7 +44,7 @@ CardP01	P01	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
 CardP02	P02	Aquifer Turbines	Place an ocean tile. Increase your energy production 2 steps. Remove 3 M€.	
 CardP03	P03	Biofuels	Increase your plant production and your energy production 1 step each. Gain 2 plants.	
 CardP04	P04	Biolab	Increase your plant production 1 step. Draw 3 cards.	
-CardP05	P05	Biosphere Support	Decrease your M€ production 1 step. Increase your plant production 2 steps.	
+CardP05	P05	Biosphere Support	Decrease your M€ production 1 step and increase your plant production 2 steps.	
 CardP06	P06	Business Empire	Increase your M€ production 6 steps. Remove 6 M€.	
 CardP07	P07	Dome Farming	Increase your plant production 1 step and your M€ production 2 steps.	
 CardP08	P08	Donation	Gain 21 M€.	
@@ -70,7 +70,7 @@ CardP27	P27	Power Generation	Increase your energy production 3 steps.
 CardP28	P28	Research Network	Draw 3 cards, and increase your M€ production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice.	
 CardP29	P29	Self-Sufficient Settlement	Place a city tile. Increase your M€ production 2 steps.	
 CardP30	P30	Smelting Plant	Raise oxygen 2 steps. Gain 5 steel.	
-CardP31	P31	Society Support	Decrease your M€ production 1 step. Increase your plant production, your energy production, and your heat production 1 step each.	
+CardP31	P31	Society Support	Decrease your M€ production 1 step and increase your plant production, your energy production, and your heat production 1 step each.	
 CardP32	P32	Supplier	Increase your energy production 2 steps. Gain 4 steel.	
 CardP33	P33	Supply Drop	Gain 3 titanium, 8 steel, and 3 plants.	
 CardP34	P34	UNMI Contractor	Raise your TR 3 steps. Draw 1 card.	
@@ -164,7 +164,7 @@ Card133	133	Symbiotic Fungus	Requires -14°C or warmer.	Action: Add 1 microbe to
 Card134	134	Extreme-Cold Fungus	It must be -10°C or colder.	Action: Gain 1 plant or add 2 microbes to ANOTHER card.
 Card135	135	Advanced Ecosystems	Requires a plant tag, a microbe tag, and an animal tag.	
 Card136	136	Great Dam	Requires 4 ocean tiles. Increase your energy production 2 steps.	
-Card138	138	Strip Mine	Decrease your energy production 2 steps. Increase your steel production 2 steps and your titanium production 1 step. Raise oxygen 2 steps.	
+Card138	138	Strip Mine	Decrease your energy production 2 steps and increase your steel production 2 steps and your titanium production 1 step. Raise oxygen 2 steps.	
 Card139	139	Wave Power	Requires 3 ocean tiles. Increase your energy production 1 step.	
 Card140	140	Lava Flows	Raise temperature 2 steps and place this tile; if using a board with volcanic areas, this tile MUST be placed on one.	
 Card141	141	Power Plant	Increase your energy production 1 step.	
@@ -269,7 +269,7 @@ Card156	156	Standard Technology		Effect: After you pay for a standard project, e
 Card160	160	Power Supply Consortium	Requires 2 power tags. Decrease any player's energy production 1 step and increase your energy production 1 step.	
 Card173	173	Protected Habitats		Effect: Opponents may not remove your plant, animal, or microbe resources.
 Card175	175	Satellites	Increase your M€ production 1 step for each space tag you have, including this.	
-Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium and your M€ production 1 step each.	
+Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium production and your M€ production 1 step each.	
 Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile.	
 Card185	185	Olympus Conference		Effect: When you play a science tag, including this, either add 1 science resource to this card, or remove 1 science resource to draw 1 card.
 Card186	186	Rad-Suits	Requires 2 city tiles in play. Increase your M€ production 1 step.	
