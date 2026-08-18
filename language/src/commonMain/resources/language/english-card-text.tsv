@@ -48,7 +48,7 @@ CardP05	P05	Biosphere Support	Decrease your M€ production 1 step and increase 
 CardP06	P06	Business Empire	Increase your M€ production 6 steps. Remove 6 M€.	
 CardP07	P07	Dome Farming	Increase your plant production 1 step and your M€ production 2 steps.	
 CardP08	P08	Donation	Gain 21 M€.	
-CardP09	P09	Early Settlement	Place a city tile. Increase your plant production 1 step.	
+CardP09	P09	Early Settlement	Place 1 city tile. Increase your plant production 1 step.	
 CardP10	P10	Ecology Experts	Increase your plant production 1 step. Play a card from hand, ignoring global requirements.	
 CardP11	P11	Excentric Sponsor	Play a card from hand, reducing its cost by 25 M€.	
 CardP12F	P12	Experimental Forest	Place a greenery tile (and raise oxygen 1 step). Draw 2 plant-tag cards.	
@@ -68,7 +68,7 @@ CardP25	P25	Orbital Construction Yard	Increase your titanium production 1 step. 
 CardP26	P26	Polar Industries	Place 1 ocean tile. Increase your heat production 2 steps.	
 CardP27	P27	Power Generation	Increase your energy production 3 steps.	
 CardP28	P28	Research Network	Draw 3 cards, and increase your M€ production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice.	
-CardP29	P29	Self-Sufficient Settlement	Place a city tile. Increase your M€ production 2 steps.	
+CardP29	P29	Self-Sufficient Settlement	Place 1 city tile. Increase your M€ production 2 steps.	
 CardP30	P30	Smelting Plant	Raise oxygen 2 steps. Gain 5 steel.	
 CardP31	P31	Society Support	Decrease your M€ production 1 step and increase your plant production, your energy production, and your heat production 1 step each.	
 CardP32	P32	Supplier	Increase your energy production 2 steps. Gain 4 steel.	
@@ -99,7 +99,7 @@ Card026	026	Eos Chasma National Park	Requires -12°C or warmer. Add 1 animal to 
 Card029	029	Cupola City	Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps.	
 Card030	030	Lunar Beam	Decrease your M€ production 2 steps and increase your heat production and your energy production 2 steps each.	
 Card031	031	Optimal Aerobraking		Effect: When you place a space event, you gain 3 M€ and 3 heat.
-Card032	032	Underground City	Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.	
+Card032	032	Underground City	Place 1 city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.	
 Card033	033	Regolith Eaters		Action: Add 1 microbe to this card, or remove 2 microbes to raise oxygen 1 step.
 Card034	034	GHG Producing Bacteria	Requires 4% oxygen.	Action: Add 1 microbe to this card, or remove 2 microbes to raise temperature 1 step.
 Card035	035	Ants	Requires 4% oxygen. 1 VP for every 2 microbes on this card.	Action: Remove 1 microbe from any player's card and add it to this card.
@@ -207,7 +207,7 @@ Card190	190	Local Heat Trapping	Spend 5 heat to either gain 4 plants, or to add 
 Card191	191	Permafrost Extraction	Requires -8°C or warmer. Place 1 ocean tile.	
 Card193	193	Plantation	Requires 2 science tags. Place a greenery tile (and raise oxygen 1 step).	
 Card198	198	Immigration Shuttles	Increase your M€ production 5 steps. 1 VP for every 3 city tiles in play.	
-Card200	200	Immigrant City	Decrease your energy production 1 step and decrease your M€ production 2 steps. Place a city tile.	Effect: When a city tile is placed, including this, increase your M€ production 1 step.
+Card200	200	Immigrant City	Decrease your energy production 1 step and your M€ production 2 steps. Place 1 city tile.	Effect: When a city tile is placed, including this, increase your M€ production 1 step.
 Card202	202	Underground Detonations		Action: Spend 10 M€ to increase your heat production 2 steps.
 Card203	203	Soletta	Increase your heat production 7 steps.	
 Card205	205	Rad-Chem Factory	Decrease your energy production 1 step. Raise your TR 2 steps.	
@@ -270,7 +270,7 @@ Card160	160	Power Supply Consortium	Requires 2 power tags. Decrease any player's
 Card173	173	Protected Habitats		Effect: Opponents may not remove your plant, animal, or microbe resources.
 Card175	175	Satellites	Increase your M€ production 1 step for each space tag you have, including this.	
 Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium production and your M€ production 1 step each.	
-Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile.	
+Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place 1 city tile.	
 Card185	185	Olympus Conference		Effect: When you play a science tag, including this, either add 1 science resource to this card, or remove 1 science resource to draw 1 card.
 Card186	186	Rad-Suits	Requires 2 city tiles in play. Increase your M€ production 1 step.	
 Card192F	192	Invention Contest	Look at the top 3 cards from the deck. Draw 1 of them and discard the other 2.	
@@ -428,7 +428,7 @@ CardX17	X17	Crash Site Cleanup	Requires that a player removed another player's p
 CardX18	X18	Cutting Edge Technology		Effect: When you play a card with a requirement, you pay 2 M€ less for it.
 CardX19	X19	Directed Impactors		Action: Spend 6 M€ to add 1 asteroid to ANY CARD (titanium may be used), or remove 1 asteroid to raise temperature 1 step.
 CardX20	X20	Diversity Support	Requires that you have 9 different types of resources. Raise your TR 1 step.	
-CardX21	X21	Field-Capped City	Increase your M€ production 2 steps, and increase your energy production 1 step. Gain 3 plants, and place a city tile.	
+CardX21	X21	Field-Capped City	Increase your M€ production 2 steps and your energy production 1 step. Gain 3 plants. Place 1 city tile.	
 CardX22	X22	Imported Nutrients	Gain 4 plants, and add 4 microbes to ANOTHER card.	
 CardX23	X23	Jovian Embassy	Raise your TR 1 step.	
 CardX24	X24	Magnetic Shield	Requires 3 power tags. Raise your TR 4 steps.	

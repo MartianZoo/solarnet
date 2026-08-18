@@ -75,7 +75,7 @@ public object English {
         sentences +=
             derivedProductionChange(instructions[index])
                 ?: derivedTrackChange(instructions[index])
-                ?: derivedOceanPlacement(instructions[index])
+                ?: derivedTilePlacement(instructions[index])
                 ?: return null
         index++
       }
@@ -159,10 +159,15 @@ public object English {
     return "$verb $subject $count $steps."
   }
 
-  private fun derivedOceanPlacement(instruction: Instruction): String? {
+  private fun derivedTilePlacement(instruction: Instruction): String? {
     val (className, count) = concreteMandatoryGain(instruction) ?: return null
-    if (className != oceanTile) return null
-    val noun = if (count == 1) "ocean tile" else "ocean tiles"
+    val singular =
+        when (className) {
+          cityTile -> "city tile"
+          oceanTile -> "ocean tile"
+          else -> return null
+        }
+    val noun = if (count == 1) singular else "${singular}s"
     return "Place $count $noun."
   }
 
@@ -236,6 +241,7 @@ public object English {
   }
 
   private val endExpression = cn("End").expression
+  private val cityTile = cn("CityTile")
   private val oceanTile = cn("OceanTile")
   private val oxygenStep = cn("OxygenStep")
   private val plant = cn("Plant")
