@@ -7,6 +7,9 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EnglishTest {
+  // This characterization is deliberately the sole wording test for every derivation shape. Do
+  // not add shape-specific expected text: the data file is the oracle. The two tests below it only
+  // prove that an absent region does not consult that oracle at all.
   @Test
   fun allCardTextMatchesDataFile() {
     EnglishCardTextData.byCardFront.forEach { (cardFront, expected) ->
