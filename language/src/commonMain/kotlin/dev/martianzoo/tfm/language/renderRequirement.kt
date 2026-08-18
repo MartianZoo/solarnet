@@ -1,13 +1,14 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
 internal fun renderRequirement(requirement: Requirement): String? =
     when (requirement) {
-      is Requirement.Min -> oxygenTarget(requirement)?.let { "Requires $it% oxygen." }
-      is Requirement.Max -> oxygenTarget(requirement)?.let { "Oxygen must be $it% or less." }
+      is Requirement.Min -> renderMinimum(requirement)
+      is Requirement.Max -> renderMaximum(requirement)
       is Requirement.And,
       is Requirement.Eval,
       is Requirement.Exact,
@@ -15,10 +16,26 @@ internal fun renderRequirement(requirement: Requirement): String? =
       is Requirement.Transform -> null
     }
 
-private fun oxygenTarget(requirement: Requirement.Counting): Int? {
+private fun renderMinimum(requirement: Requirement.Min): String? =
+    target(requirement, oxygenStep)?.let { "Requires $it% oxygen." }
+        ?: target(requirement, temperatureStep)?.let { "Requires ${temperature(it)} or warmer." }
+
+private fun renderMaximum(requirement: Requirement.Max): String? =
+    target(requirement, oxygenStep)?.let { "Oxygen must be $it% or less." }
+        ?: target(requirement, temperatureStep)?.let {
+          "Temperature must be ${temperature(it)} or colder."
+        }
+
+private fun target(requirement: Requirement.Counting, className: ClassName): Int? {
   val metric = requirement.metric as? Metric.Count ?: return null
-  if (!metric.expression.simple || metric.expression.className != oxygenStep) return null
+  if (!metric.expression.simple || metric.expression.className != className) return null
   return requirement.target
 }
 
+private fun temperature(steps: Int): String {
+  val degreesCelsius = -30 + 2 * steps
+  return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
+}
+
 private val oxygenStep = cn("OxygenStep")
+private val temperatureStep = cn("TemperatureStep")

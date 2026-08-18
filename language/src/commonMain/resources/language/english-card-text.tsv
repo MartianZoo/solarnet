@@ -93,7 +93,7 @@ Card019	019	Imported Hydrogen	Gain 3 plants, or add 3 microbes or 2 animals to A
 Card020	020	Research Outpost	Place a city tile NEXT TO NO OTHER TILE.	Effect: When you play a card, you pay 1 M€ less for it.
 Card021	021	Phobos Space Haven	Increase your titanium production 1 step and place a city tile ON THE RESERVED AREA.	
 Card022	022	Black Polar Dust	Place an ocean tile. Decrease your M€ production 2 steps and increase your heat production 3 steps.	
-Card023	023	Arctic Algae	It must be -12°C or colder. Gain 1 plant.	Effect: When an ocean tile is placed, gain 2 plants.
+Card023	023	Arctic Algae	Temperature must be -12°C or colder. Gain 1 plant.	Effect: When an ocean tile is placed, gain 2 plants.
 Card024	024	Predators	Requires 11% oxygen. 1 VP for each animal on this card.	Action: Remove 1 animal from any player's card and add it to this card.
 Card026	026	Eos Chasma National Park	Requires -12°C or warmer. Add 1 animal to ANOTHER card. Gain 3 plants. Increase your M€ production 2 steps.	
 Card029	029	Cupola City	Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps.	
@@ -109,7 +109,7 @@ Card038	038	Rover Construction		Effect: When any city tile is placed, gain 2 M�
 Card039	039	Deimos Down	Raise temperature 3 steps and gain 4 steel. Remove up to 8 plants from any player.	
 Card040	040	Asteroid Mining	Increase your titanium production 2 steps.	
 Card041	041	Food Factory	Decrease your plant production 1 step and increase your M€ production 4 steps.	
-Card042	042	Archaebacteria	It must be -18°C or colder. Increase your plant production 1 step.	
+Card042	042	Archaebacteria	Temperature must be -18°C or colder. Increase your plant production 1 step.	
 Card043	043	Carbonate Processing	Decrease your energy production 1 step and increase your heat production 3 steps.	
 Card044	044	Natural Preserve	Oxygen must be 4% or less. Place this tile NEXT TO NO OTHER TILE. Increase your M€ production 1 step.	
 Card045	045	Nuclear Power	Decrease your M€ production 2 steps and increase your energy production 3 steps.	
@@ -161,7 +161,7 @@ Card130	130	Worms	Requires 4% oxygen. Increase your plant production 1 step for 
 Card131	131	Decomposers	Requires 3% oxygen. 1 VP for every 3 microbes on this card.	Effect: When you play an animal tag, plant tag, or microbe tag, including this, add 1 microbe to this card.
 Card132	132	Fusion Power	Requires 2 power tags. Increase your energy production 3 steps.	
 Card133	133	Symbiotic Fungus	Requires -14°C or warmer.	Action: Add 1 microbe to ANOTHER card.
-Card134	134	Extreme-Cold Fungus	It must be -10°C or colder.	Action: Gain 1 plant or add 2 microbes to ANOTHER card.
+Card134	134	Extreme-Cold Fungus	Temperature must be -10°C or colder.	Action: Gain 1 plant or add 2 microbes to ANOTHER card.
 Card135	135	Advanced Ecosystems	Requires a plant tag, a microbe tag, and an animal tag.	
 Card136	136	Great Dam	Requires 4 ocean tiles. Increase your energy production 2 steps.	
 Card138	138	Strip Mine	Decrease your energy production 2 steps and increase your steel production 2 steps and your titanium production 1 step. Raise oxygen 2 steps.	
@@ -176,7 +176,7 @@ Card147	147	Herbivores	Requires 8% oxygen. Add 1 animal to this card. Decrease a
 Card148	148	Insects	Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.	
 Card152	152	Insulation	Decrease your heat production one or more steps and increase your M€ production the same number of steps.	
 Card153	153	Adaptation Technology		Effect: You may treat any global parameter requirement as if it is 2 steps lower or higher.
-Card155	155	Designed Microorganisms	It must be -14°C or colder. Increase your plant production 2 steps.	
+Card155	155	Designed Microorganisms	Temperature must be -14°C or colder. Increase your plant production 2 steps.	
 Card157	157	Nitrite Reducing Bacteria	Add 3 microbes to this card.	Action: Add 1 microbe to this card, or remove 3 microbes to raise your TR 1 step.
 Card158	158	Industrial Microbes	Increase your energy production and your steel production 1 step each.	
 Card159	159	Lichen	Requires -24°C or warmer. Increase your plant production 1 step.	
