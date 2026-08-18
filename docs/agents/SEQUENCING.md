@@ -66,8 +66,8 @@ the component that owns the ambient rule. Use `IF` when state distinguishes whic
 Examples:
 
 - `GlobalParameter` owns its TR reaction because every qualifying parameter step uses it.
-- `Photosynthesis` owns greenery-to-oxygen because setup and final greenery can omit that ambient
-  rule without redefining `GreeneryTile`.
+- `GreeneryTile` owns its oxygen reaction because every greenery raises oxygen. Solo setup cancels
+  the oxygen locally after each neutral placement.
 
 Use queued `:` by default. Use automatic `::` only for a fully determined, choice-free
 consequence or hidden structural maintenance that must be incorporated before player work appears.
@@ -243,9 +243,6 @@ this is acceptable only while nothing can observe their relative order.
   the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag.
 - **Head Start:** every descendant of its first granted action must finish before the second begins.
   Siblings and ordinary `THEN` are too weak; this requires a completion scope or narrow barrier.
-- **Ecology Experts with Splice:** the selected card must be provisionally present for its effect to
-  react to Ecology Experts' early tags, while those tags may fund payment. No linear before/after
-  order expresses this. A card-play/payment transaction scope is likely required.
 
 ## Open design or rules audits
 

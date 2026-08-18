@@ -24,7 +24,6 @@ internal class FinalGreeneryPhaseTest {
     p1.playCorp(Ecoline, 0)
     game.tfm(PLAYER2).playCorp(TharsisRepublic, 0)
     p1.godMode().sneak("8 Plant")
-    engine.count("Photosynthesis") shouldBe 1
 
     p1.stdAction("ConvertPlantsSA") {
       doTask("GreeneryTile<Tharsis_3_6>")
@@ -35,7 +34,7 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  fun finalGreeneryDoesNotRaiseOxygen() {
+  fun finalGreeneryRaisesOxygen() {
     val game = Engine.newGame(canonicalPremise())
     val engine = game.tfm(ENGINE)
     val p1 = game.tfm(PLAYER1)
@@ -45,12 +44,11 @@ internal class FinalGreeneryPhaseTest {
     workflow.corporationPhase()
     p1.godMode().manual("8 Plant")
     workflow.finalGreeneryPhase()
-    engine.count("Photosynthesis") shouldBe 0
     p1.startTurn()
     p1.doTask("UseAction1<ConvertPlantsSA>")
     p1.doTask("GreeneryTile<Tharsis_3_5>")
 
-    engine.oxygenPercent() shouldBe 0
+    engine.oxygenPercent() shouldBe 1
   }
 
   @Test

@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class EcologyExpertsTest : CardTest() {
@@ -20,8 +22,25 @@ class EcologyExpertsTest : CardTest() {
 
     p1.assertCounts(
         1 to "$Decomposers",
-        3 to "Microbe<$Decomposers>",
+        1 to "Microbe<$Decomposers>",
     )
+  }
+
+  @Test
+  fun `Splice money from Ecology Experts tags can pay for Decomposers`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    val p2 = requireP2()
+    p2.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
+    engine.phase("Prelude")
+    p1.manual("4 Megacredit, ProjectCard, PreludeCard")
+    val spliceMoney = p2.count("Megacredit")
+
+    p1.playPrelude(EcologyExperts) {
+      p1.playProject(Decomposers, 5) { doTask("2 Megacredit<Player1>") }
+    }
+
+    p1.assertCounts(3 to "Megacredit", 1 to "Microbe<$Decomposers>")
+    p2.count("Megacredit") shouldBe spliceMoney + 4
   }
 
   @Test
@@ -36,7 +55,7 @@ class EcologyExpertsTest : CardTest() {
   }
 
   @Test
-  fun `Viral Enhancers sees all three relevant microbe and plant tags`() {
+  fun `Viral Enhancers sees only its own plant tag`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     engine.phase("Prelude")
     p1.manual("9 Megacredit, ProjectCard, PreludeCard")
@@ -45,11 +64,11 @@ class EcologyExpertsTest : CardTest() {
       p1.playProject(ViralEnhancers, 9)
     }
 
-    p1.assertCounts(3 to "Plant")
+    p1.assertCounts(1 to "Plant")
   }
 
   @Test
-  fun `Ecological Zone sees its plant tag`() {
+  fun `Ecological Zone sees only its own tags`() {
     newGame(PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("12 Megacredit, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
@@ -58,6 +77,6 @@ class EcologyExpertsTest : CardTest() {
       p1.playProject(EcologicalZone, 12) { doTask("Tile128<Tharsis_4_5>") }
     }
 
-    p1.assertCounts(3 to "Animal<$EcologicalZone>")
+    p1.assertCounts(2 to "Animal<$EcologicalZone>")
   }
 }

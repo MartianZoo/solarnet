@@ -18,9 +18,9 @@ incoherent exception, parallel mechanism, or disproportionate framework is still
   card behavior follows naturally.
 - Keep effects with the game component that owns the rule. Use a cross-cutting system component only
   when the rule is genuinely switchable or ambient.
-- `Photosynthesis` is the known concession: greenery-to-oxygen cannot live intrinsically on every
-  `GreeneryTile` because setup and final greenery must be able to omit it. `PharmacyUnion` is the
-  opposite kind of exception: its published rule genuinely needs special treatment.
+- Greenery-to-oxygen lives intrinsically on `GreeneryTile`; solo setup owns its narrow cancellation
+  after each neutral greenery. `PharmacyUnion` is the opposite kind of exception: its published rule
+  genuinely needs special treatment.
 - Prefer hand-authored Pets plus general runtime semantics. A custom instruction is honest when it
   bridges metadata or a capability Pets does not have; Kotlin-generated Pets is not automatically
   simpler.

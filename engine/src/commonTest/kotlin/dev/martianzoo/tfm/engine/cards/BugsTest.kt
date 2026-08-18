@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
@@ -26,33 +25,6 @@ class BugsTest : CardTest() {
       doTask("UseAction1<ConvertHeatSA>")
       doTask("UseAction1<AquiferSP>")
       doTask("OceanTile<Tharsis_5_5>")
-    }
-  }
-
-  // FAQ: Ecology Experts' tags trigger both Splice and the card it plays. Splice's payment should
-  // therefore be available to pay for that card, while Decomposers should still receive 2 microbes.
-  @Test
-  fun `Ecology Experts incorrectly cannot use Splice income to pay for Decomposers`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    val p2 = requireP2()
-    p1.playCorp(TychoMagnetics, 9)
-    p2.playCorp(SpliceTacticalGenomics, 0) {
-      doTask("Microbe<$SpliceTacticalGenomics>!")
-    }
-    engine.phase("Prelude")
-
-    p1.playPrelude(ExcentricSponsor) {
-      p1.playProject(GiantIceAsteroid, 11) {
-        doTask("OceanTile<Tharsis_1_2>")
-        doTask("OceanTile<Tharsis_1_4>")
-        doTask("Ok")
-      }
-    }
-    p1.assertCounts(4 to "Megacredit")
-
-    p1.playPrelude(EcologyExperts) {
-      shouldThrow<LimitsException> { p1.playProject(Decomposers, 5) }
-      abort()
     }
   }
 
@@ -99,5 +71,28 @@ class BugsTest : CardTest() {
     )
 
     shouldThrow<AbstractException> { p1.playProject(ArtificialLake, 15) }
+  }
+
+  @Test
+  fun `stealing zero is incorrectly permitted, and even avoids Mons Insurance compensation`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p1.manual("$MonsInsurance, 10 Megacredit")
+    p2.manual("5 Megacredit")
+
+    p1.manual("3 Megacredit FROM Megacredit<Player2>?") { doTask("Ok") }
+        .expect("0 Megacredit<Player1>, 0 Megacredit<Player2>")
+  }
+
+  @Test
+  fun `Air Raid incorrectly remains playable when only its player has money`() {
+    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
+    val p2 = requireP2()
+    engine.phase("Action")
+    p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("ProjectCard, 5 Megacredit")
+
+    p1.playProject(AirRaid, 0).expect("-Floater<$AtmoCollectors>, 0 Megacredit<Player1>")
+    p2.assertCounts(0 to "Megacredit")
   }
 }
