@@ -140,8 +140,9 @@ to the next, and waits for the new step. No successor means termination; multipl
 successors are invalid.
 
 The transient signal is intended to avoid a second persistent readiness state while preserving the
-exactly-one-Phase invariant. It does not solve Player iteration; that still requires the delegation
-model in [IDENTITY.md](IDENTITY.md).
+exactly-one-Phase invariant. Unordered component fanout is the separate [`EACH`](EACHPLAYER.md)
+proposal. Player-controlled work still requires the delegation model in
+[IDENTITY.md](IDENTITY.md); fanout alone does not transfer control.
 
 ## Implementation gates
 
