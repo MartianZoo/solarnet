@@ -38,6 +38,17 @@ ABSTRACT CLASS Signal : Temporary {
 "An entity that can initiate or continue game operations"
 ABSTRACT CLASS Actor
 
+"The unrestricted target for an ownership dependency"
+ABSTRACT CLASS Anyone
+
+"An entity that can own Components"
+ABSTRACT CLASS Owner : Anyone
+
+"A Component whose Type carries an ownership dependency"
+ABSTRACT CLASS Owned<Anyone> {
+  DEFAULT Owned<Owner>
+}
+
 "The very first component created, which kicks the rest off and performs system operations"
 CLASS Engine : System, Actor { HAS MAX 1 This }
 

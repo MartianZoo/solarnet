@@ -13,7 +13,6 @@ class ComponentEffectsValidationTest {
   private val table =
       loader(
           """
-          ABSTRACT CLASS Owner
           ABSTRACT CLASS Target
           CLASS Good : Target
           CLASS Bad : Target
@@ -61,9 +60,9 @@ class ComponentEffectsValidationTest {
   }
 
   @Test
-  fun `components do not require an Owner class in their type universe`() {
-    val ownerlessTable = loader("CLASS Token")
+  fun `components without ownership are unowned`() {
+    val table = loader("CLASS Token")
 
-    Component(ownerlessTable.resolve(te("Token"))).owner.shouldBeNull()
+    Component(table.resolve(te("Token"))).owner.shouldBeNull()
   }
 }
