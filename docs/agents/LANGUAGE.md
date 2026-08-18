@@ -79,7 +79,8 @@ standard resources, or when it consists of concrete, mandatory standard-resource
 that all have the same count, or one concrete, mandatory standard-resource production decrease. A
 singleton concrete, mandatory Venus-step or TR gain is also derived. A requirement, an End-triggered
 scoring effect, or any unsupported immediate-instruction shape keeps the whole region data-backed.
-Actions and non-End effects are top elements and do not prevent bottom derivation.
+A supported production change followed only by standard-resource gains can be composed from those
+same renderers. Actions and non-End effects are top elements and do not prevent bottom derivation.
 
 ## Component nouns and change verbs
 

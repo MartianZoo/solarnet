@@ -54,6 +54,7 @@ public object English {
     if (card.requirement != null || card.effects.any(::isEndEffect)) return null
     val instructions = card.immediate?.instructions ?: return null
     return derivedStandardResourceGains(instructions)
+        ?: derivedProductionThenResourceGains(instructions)
         ?: instructions.singleOrNull()?.let(::derivedProductionChange)
         ?: instructions.singleOrNull()?.let(::derivedTrackGain)
   }
@@ -65,6 +66,13 @@ public object English {
     }
     if (objects.isEmpty()) return null
     return "Gain ${englishList(objects)}."
+  }
+
+  private fun derivedProductionThenResourceGains(instructions: List<Instruction>): String? {
+    if (instructions.size < 2) return null
+    val production = derivedProductionChange(instructions.first()) ?: return null
+    val resources = derivedStandardResourceGains(instructions.drop(1)) ?: return null
+    return "$production $resources"
   }
 
   private fun derivedProductionChange(instruction: Instruction): String? {

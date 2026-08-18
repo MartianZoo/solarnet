@@ -127,7 +127,7 @@ Card067	067	Mining Rights	Place this tile on an area with a steel or titanium pl
 Card072	072	Birds	Requires 13% oxygen. Decrease any player's plant production 2 steps. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card075	075	Towing A Comet	Gain 2 plants. Raise oxygen 1 step and place an ocean tile.	
 Card076	076	Space Mirrors		Action: Spend 7 M€ to increase your energy production 1 step.
-Card077	077	Solar Wind Power	Increase your energy production 1 step and gain 2 titanium.	
+Card077	077	Solar Wind Power	Increase your energy production 1 step. Gain 2 titanium.	
 Card078	078	Ice Asteroid	Place 2 ocean tiles.	
 Card080	080	Giant Ice Asteroid	Raise temperature 2 steps and place 2 ocean tiles. Remove up to 6 plants from any player.	
 Card081	081	Ganymede Colony	Place a city tile ON THE RESERVED AREA. 1 VP for each Jovian tag you have.	
@@ -181,7 +181,7 @@ Card157	157	Nitrite Reducing Bacteria	Add 3 microbes to this card.	Action: Add 1
 Card158	158	Industrial Microbes	Increase your energy production and your steel production 1 step each.	
 Card159	159	Lichen	Requires -24°C or warmer. Increase your plant production 1 step.	
 Card161	161	Convoy From Europa	Place 1 ocean tile and draw 1 card.	
-Card162	162	Imported GHG	Increase your heat production 1 step and gain 3 heat.	
+Card162	162	Imported GHG	Increase your heat production 1 step. Gain 3 heat.	
 Card163	163	Imported Nitrogen	Raise your TR 1 step and gain 4 plants. Add 3 microbes to ANOTHER card and 2 animals to ANOTHER card.	
 Card164	164	Micro-Mills	Increase your heat production 1 step.	
 Card165	165	Magnetic Field Generators	Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your TR 3 steps.	
