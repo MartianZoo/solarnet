@@ -71,6 +71,10 @@ wording and punctuation may be standardized without reordering those subclauses.
 may happen alongside derivation or in focused data-cleanup passes, whichever keeps the work
 clearest and the implementation simplest.
 
+Corporation definitions must author starting money before their other immediate instructions so
+the ordinary authored-order renderer puts that gain first. Correct the canonical card definition
+when this order is wrong; do not teach the renderer to reorder corporations.
+
 ## Current derivation boundary
 
 `English` derives an empty region when the card definition has no element printed there. It also
@@ -88,6 +92,32 @@ A requirement, an End-triggered scoring effect, an extra component declaration, 
 immediate-instruction shape keeps the whole region data-backed. Component declarations can encode
 printed setup behavior that is absent from `immediate`, so deriving only that group could omit bottom
 text. Actions and non-End effects are top elements and do not prevent bottom derivation.
+
+## Known layout boundaries
+
+Do not add direct standard-resource removals to the bottom renderer without first teaching the
+layout facade to split immediate instructions between printed regions. Potatoes is the concrete
+counterexample: its plant removal is top text while its production increase is bottom text. An
+all-or-nothing immediate renderer would put both below the artwork.
+
+Continue treating cards with extra component declarations as data-backed. Mons Insurance shows why:
+its component declarations encode printed setup behavior that is absent from `immediate`. Likewise,
+do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
+draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
+not structurally sufficient.
+
+Greenery placement is not yet a plain placement noun. Its printed text includes the implicit oxygen
+increase, and the unrestricted canonical example also has an unsupported tagged-card draw. Preserve
+the fallback until a renderer can express the full greenery consequence and is exercised by a
+canonical card. Simple colony placement is a promising next placement shape; use `a colony` for one
+and numeric counts above one, following the placed-object article policy.
+
+## Review cadence
+
+Commit bounded renderer iterations autonomously. Accumulate roughly ten golden-text row changes,
+then provide an old-versus-new comparison roundup grouped by the systemic wording rule that caused
+them. The golden file may be committed along the way; reconstruct the roundup from the commit-range
+diff rather than expecting review of each historical commit.
 
 ## Component nouns and change verbs
 
