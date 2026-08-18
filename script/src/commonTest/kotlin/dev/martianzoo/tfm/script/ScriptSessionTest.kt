@@ -287,8 +287,8 @@ internal class ScriptSessionTest {
         [Player1] 10 BuyCard<Player1>? (abstract)
         0000: +Manutech<Player1> FROM CorporationCard<Player1> BY Player1 VIA PlayCard<Player1, Class<CorporationCard>, Class<Manutech>> BECAUSE 0000
         0000: +BuildingTag<Player1, Manutech<Player1>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
-        0000: +Production<Player1, Class<Steel>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +35 Megacredit<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
+        0000: +Production<Player1, Class<Steel>> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: +Steel<Player1> BY Player1 VIA Manutech<Player1> BECAUSE 0000
         0000: -15 Megacredit<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
         0000: +5 ProjectCard<Player1> BY Player1 VIA BuyCard<Player1> BECAUSE 0000
