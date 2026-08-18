@@ -4,6 +4,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -47,13 +48,29 @@ public object English {
 
   private fun derivedBottomText(card: CardDefinition): String? {
     if (card.requirement != null || card.effects.any(::isEndEffect)) return null
-    val instruction = card.immediate?.instructions?.singleOrNull() as? Gain ?: return null
-    if (instruction.intensity != null && instruction.intensity != MANDATORY) return null
-    if (!instruction.gaining.simple) return null
-    val count = (instruction.count as? ActualScalar)?.value ?: return null
-    if (!isStandardResource(instruction.gaining.className)) return null
-    return "Gain $count ${componentNoun(instruction.gaining.className, count)}."
+    val instructions = card.immediate?.instructions ?: return null
+    return derivedStandardResourceGains(instructions)
   }
+
+  private fun derivedStandardResourceGains(instructions: List<Instruction>): String? {
+    val objects = instructions.map { instruction ->
+      val gain = instruction as? Gain ?: return null
+      if (gain.intensity != null && gain.intensity != MANDATORY) return null
+      if (!gain.gaining.simple) return null
+      val count = (gain.count as? ActualScalar)?.value ?: return null
+      if (!isStandardResource(gain.gaining.className)) return null
+      "$count ${componentNoun(gain.gaining.className, count)}"
+    }
+    if (objects.isEmpty()) return null
+    return "Gain ${englishList(objects)}."
+  }
+
+  private fun englishList(parts: List<String>): String =
+      when (parts.size) {
+        1 -> parts.single()
+        2 -> parts.joinToString(" and ")
+        else -> parts.dropLast(1).joinToString(", ") + ", and " + parts.last()
+      }
 
   private fun isStandardResource(className: ClassName): Boolean {
     val resourceClass = Canon.classTable.findClass(className) ?: return false

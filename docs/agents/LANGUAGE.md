@@ -11,6 +11,43 @@ slowly, one well-bounded instruction shape at a time, while retaining the data f
 fallback. Compare every affected canonical card with the oracle before expanding the supported
 shape. An incremental approach that leaves most shapes data-backed is expected and acceptable.
 
+## Verification while replacing the data file
+
+Do not add a test merely to prove that a newly supported shape bypasses the fallback. Such a test
+would restate the implementation boundary without protecting card behavior, and every incremental
+step would require another synthetic fixture. The existing all-card comparison is the behavioral
+check: a derivation expansion is valid when every affected canonical card still renders the oracle
+text. Review the production diff to establish that the fallback boundary actually moved; the code
+is clearer evidence of that progress than a change-detector test.
+
+The two explicit fallback tests for absent regions remain useful because emptiness is not represented
+by a row's wording: they establish that a structurally empty region succeeds without any card-text
+record. New derivation shapes do not need analogous tests while their canonical examples are covered
+by the all-card comparison. If a renderer gains behavior not exercised by any canonical card, add a
+behavioral test for that behavior or defer the generalization; do not add a test whose only assertion
+is that the data file was not consulted.
+
+## Expected renderer architecture
+
+Natural-language rendering should remain outside the Pets AST. Use one compositional renderer per
+major sealed Pets family, such as instructions, requirements, metrics, triggers, and action costs.
+Each renderer should recursively dispatch with a localized exhaustive `when`; do not replace those
+dispatchers with English-aware methods on Pets nodes or a classic typed Visitor. The existing
+`PetNode` visitor is appropriate for structure-insensitive descendant traversal, but rendering is
+structure-sensitive: a parent determines whether a child is a noun phrase, clause, condition, cost,
+or conjunction.
+
+`English` should remain the card-layout facade. It decides which requirements, actions, effects,
+and immediate instructions belong in each printed region, while the family renderers realize those
+elements compositionally. Keep lexical policy, such as component nouns and change verbs, narrower
+than the structural rendering rules.
+
+Produce strings directly while that remains clear. If agreement, conjunction, scope, and
+punctuation begin to couple otherwise independent renderers, introduce only the smallest useful
+phrase representation rather than a general English grammar framework. A growing collection of
+whole-card shape tests in `English` is a signal to extract the appropriate family renderer, not an
+acceptable final architecture.
+
 ## Transitional derivation
 
 Intermediate solutions may derive most of an instruction structurally while looking up one narrow
@@ -37,10 +74,10 @@ clearest and the implementation simplest.
 ## Current derivation boundary
 
 `English` derives an empty region when the card definition has no element printed there. It also
-derives bottom text when that entire region is a singleton, concrete, mandatory gain of a standard
-resource. A requirement, an End-triggered scoring effect, or any unsupported immediate-instruction
-shape keeps the whole region data-backed. Actions and non-End effects are top elements and do not
-prevent bottom derivation.
+derives bottom text when that entire region consists of one or more concrete, mandatory gains of
+standard resources. A requirement, an End-triggered scoring effect, or any unsupported
+immediate-instruction shape keeps the whole region data-backed. Actions and non-End effects are top
+elements and do not prevent bottom derivation.
 
 ## Component nouns and change verbs
 
