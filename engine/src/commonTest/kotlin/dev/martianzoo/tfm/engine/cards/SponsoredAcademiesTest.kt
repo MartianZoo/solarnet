@@ -10,15 +10,19 @@ import kotlin.test.Test
 class SponsoredAcademiesTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(VenusNextExpansion)
+    newGame(VenusNextExpansion, players = 3)
     engine.phase("Action")
-    engine.manual("9 Megacredit<Player1>, ProjectCard<Player1>, ProjectCard<Player2>")
+    engine.manual(
+        "9 Megacredit<Player1>, ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>"
+    )
   }
 
   @Test
-  fun `with two cards in hand, plays Sponsored Academies`() {
+  fun `owner discards one and draws two while every opponent draws one`() {
     p1.manual("ProjectCard")
-    p1.playProject(SponsoredAcademies, 9).expect("ProjectCard<Player1>, ProjectCard<Player2>")
+
+    p1.playProject(SponsoredAcademies, 9)
+        .expect("ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>")
   }
 
   @Test
