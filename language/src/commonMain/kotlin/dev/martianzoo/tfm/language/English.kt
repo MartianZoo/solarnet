@@ -74,7 +74,7 @@ public object English {
       } else {
         sentences +=
             derivedProductionChange(instructions[index])
-                ?: derivedTrackGain(instructions[index])
+                ?: derivedTrackChange(instructions[index])
                 ?: return null
         index++
       }
@@ -141,8 +141,10 @@ public object English {
     return gain.takeIf { (className) -> isStandardResource(className) }
   }
 
-  private fun derivedTrackGain(instruction: Instruction): String? {
-    val (className, count) = concreteMandatoryGain(instruction) ?: return null
+  private fun derivedTrackChange(instruction: Instruction): String? {
+    val gain = concreteMandatoryGain(instruction)
+    val removal = concreteMandatoryRemoval(instruction)
+    val (className, count) = gain ?: removal ?: return null
     val subject =
         when (className) {
           oxygenStep -> "oxygen"
@@ -152,7 +154,8 @@ public object English {
           else -> return null
         }
     val steps = if (count == 1) "step" else "steps"
-    return "Raise $subject $count $steps."
+    val verb = if (gain != null) "Raise" else "Lower"
+    return "$verb $subject $count $steps."
   }
 
   private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {
@@ -164,11 +167,15 @@ public object English {
   }
 
   private fun standardResourceRemoval(instruction: Instruction): Pair<ClassName, Int>? {
+    val removal = concreteMandatoryRemoval(instruction) ?: return null
+    return removal.takeIf { (className) -> isStandardResource(className) }
+  }
+
+  private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
     val removal = instruction as? Remove ?: return null
     if (removal.intensity != null && removal.intensity != MANDATORY) return null
     if (!removal.removing.simple) return null
     val count = (removal.count as? ActualScalar)?.value ?: return null
-    if (!isStandardResource(removal.removing.className)) return null
     return removal.removing.className to count
   }
 
