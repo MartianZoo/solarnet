@@ -73,7 +73,8 @@ public object English {
         index += gains.size
       } else {
         sentences +=
-            derivedProductionChange(instructions[index])
+            derivedStandardResourceRemoval(instructions[index])
+                ?: derivedProductionChange(instructions[index])
                 ?: derivedTrackChange(instructions[index])
                 ?: derivedTilePlacement(instructions[index])
                 ?: return null
@@ -89,6 +90,11 @@ public object English {
       "$count ${componentNoun(className, count)}"
     }
     return "Gain ${englishList(objects)}."
+  }
+
+  private fun derivedStandardResourceRemoval(instruction: Instruction): String? {
+    val (className, count) = standardResourceRemoval(instruction) ?: return null
+    return "Remove $count ${componentNoun(className, count)}."
   }
 
   private fun derivedProductionChange(instruction: Instruction): String? {

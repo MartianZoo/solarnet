@@ -78,11 +78,11 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 ## Current derivation boundary
 
 `English` derives an empty region when the card definition has no element printed there. It also
-derives bottom text when every immediate instruction is one of: a concrete mandatory gain of a
-standard resource; a group of concrete mandatory standard-resource production gains or decreases;
-a city- or ocean-tile placement; or a concrete mandatory temperature, oxygen, Venus-step, or TR gain
-or removal. Supported instructions are rendered in authored order, with adjacent standard-resource
-gains coalesced into one sentence.
+derives bottom text when every immediate instruction is one of: a concrete mandatory gain or removal
+of a standard resource; a group of concrete mandatory standard-resource production gains or
+decreases; a city- or ocean-tile placement; or a concrete mandatory temperature, oxygen, Venus-step,
+or TR gain or removal. Supported instructions are rendered in authored order, with adjacent
+standard-resource gains coalesced into one sentence.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
@@ -95,10 +95,9 @@ text. Actions and non-End effects are top elements and do not prevent bottom der
 
 ## Known layout boundaries
 
-Do not add direct standard-resource removals to the bottom renderer without first teaching the
-layout facade to split immediate instructions between printed regions. Potatoes is the concrete
-counterexample: its plant removal is top text while its production increase is bottom text. NO, ACTUALLY THAT IS A MISTAKE IN THE DATA FILE, THOSE ARE BOTH IMMEDIATE INSTRUCTIONS THAT BELONG IN THE SAME PLACE. An
-all-or-nothing immediate renderer would put both below the artwork.
+Potatoes' plant removal and production increase are both immediate instructions printed below the
+artwork. The former split across regions in the data file was a data error, not evidence that the
+layout facade must divide one immediate group.
 
 Continue treating cards with extra component declarations as data-backed. Mons Insurance shows why:
 its component declarations encode printed setup behavior that is absent from `immediate`. Likewise,
@@ -109,8 +108,11 @@ not structurally sufficient.
 Greenery placement is not yet a plain placement noun. Its printed text includes the implicit oxygen
 increase, and the unrestricted canonical example also has an unsupported tagged-card draw. Preserve
 the fallback until a renderer can express the full greenery consequence and is exercised by a
-canonical card. Simple colony placement is a promising next placement shape; use `a colony` for one
-and numeric counts above one, following the placed-object article policy.
+canonical card. Colony placement also cannot yet be derived from its instruction shape alone:
+Poseidon authors the same plain `Colony` gain as ordinary placement cards, but its printed rule
+delays the placement until the corporation's first action. Preserve the fallback until the data
+distinguishes those semantics. When the shape becomes derivable, use `a colony` for one and numeric
+counts above one, following the placed-object article policy.
 
 ## Review cadence
 
