@@ -191,7 +191,7 @@
       "projectKind": "AUTOMATED",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "SpecialTile {}<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS Card064_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card064_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} THEN PROD[(LandArea(HAS Card064_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card064_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
     },
 
     // Building Industries
@@ -494,7 +494,7 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "SpecialTile {}<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)> {}",
       "actions": [ "7 -> PROD[Steel]" ],
     },
 

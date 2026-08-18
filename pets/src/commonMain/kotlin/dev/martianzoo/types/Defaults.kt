@@ -1,7 +1,6 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.SystemClasses.OWNER
-import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
@@ -23,8 +22,8 @@ public data class Defaults(
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
       val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
 
-      val gainIntensity = inheritDefault(klass, { it.gainOnly.intensity })!!
-      val removeIntensity = inheritDefault(klass, { it.removeOnly.intensity })!!
+      val gainIntensity = inheritDefault(klass, { it.defaultsDecl.gainOnly.intensity })!!
+      val removeIntensity = inheritDefault(klass, { it.defaultsDecl.removeOnly.intensity })!!
 
       return Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
@@ -35,31 +34,29 @@ public data class Defaults(
 
     private fun <T> inheritDefault(
         klass: Class,
-        extractor: (DefaultsDeclaration) -> T?,
+        extractor: (Class) -> T?,
         merger: (List<T>) -> T = { it.single() },
     ): T? {
-      fun extractFromClass(c: Class): T? = extractor(c.defaultsDecl)
-
-      val haveDefault: List<Class> = klass.allSuperclasses().filter { extractFromClass(it) != null }
+      val haveDefault: List<Class> = klass.allSuperclasses().filter { extractor(it) != null }
 
       // Anything that was overridden by *any* of our superclasses must be discarded
       val lasdfasdf = haveDefault.flatMap { it.properSuperclasses() }.toSet()
       val inheritFrom = haveDefault - lasdfasdf
-      val candidates: List<T> = inheritFrom.map { extractFromClass(it)!! }.distinct()
+      val candidates: List<T> = inheritFrom.map { extractor(it)!! }.distinct()
 
       return if (candidates.any()) merger(candidates) else null
     }
 
     private fun gatherDefaultDeps(klass: Class, kind: DefaultKind): DependencySet {
       // TODO: this is complex and this human doesn't understand it
-      fun toDependencyMap(specs: List<Expression>): DependencySet {
-        val resolved = klass.classTable.resolve(klass.className.of(specs)).narrowedDependencies
+      fun toDependencyMap(origin: Class, specs: List<Expression>): DependencySet {
+        val resolved = origin.classTable.resolve(origin.className.of(specs)).narrowedDependencies
         if (OWNER.expression !in specs) return resolved
 
         // Owner also acts as a contextual variable. Don't normalize that variable to its bound
         // before it can be replaced with Player1, etc.
         val ownerKey =
-            klass.dependencies
+            origin.dependencies
                 .matchPartial(listOf(OWNER.expression))
                 .typeDependencies()
                 .single()
@@ -72,7 +69,16 @@ public data class Defaults(
           klass.dependencies.keys.mapNotNull { key ->
             inheritDefault(
                 klass,
-                { toDependencyMap(it.default(kind).specs).getIfPresent(key) },
+                { origin ->
+                  val inherited =
+                      toDependencyMap(origin, origin.defaultsDecl.default(kind).specs)
+                          .getIfPresent(key)
+                  if (inherited?.expression == OWNER.expression) {
+                    inherited
+                  } else {
+                    inherited?.glb(klass.dependencies.get(key))
+                  }
+                },
                 { deps: List<Dependency> -> glb(deps)!! },
             )
           }

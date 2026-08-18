@@ -32,6 +32,7 @@ class TransformersTest {
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
     checkApplyDefaults("OceanTile", "OceanTile<WaterArea>.")
+    checkApplyDefaults("Card142_SpecialTile", "Card142_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
         "CityTile",

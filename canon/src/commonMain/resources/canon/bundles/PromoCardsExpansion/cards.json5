@@ -568,7 +568,7 @@
       "projectKind": "EVENT",
       "cost": 31,
       "tags": [ "SpaceTag" ],
-      "immediate": "3 TemperatureStep, SpecialTile {}<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?",
+      "immediate": "3 TemperatureStep, SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> {}, 4 Steel, -6 Plant<Anyone>?",
     },
 
     // Great Dam (promo)
@@ -580,7 +580,7 @@
       "requirement": "4 OceanTile",
       "cost": 15,
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[2 Energy], SpecialTile {}<LandArea(HAS Neighbor<OceanTile>)>",
+      "immediate": "PROD[2 Energy], SpecialTile<LandArea(HAS Neighbor<OceanTile>)> {}",
       "effects": [ "End: VictoryPoint" ],
     },
 

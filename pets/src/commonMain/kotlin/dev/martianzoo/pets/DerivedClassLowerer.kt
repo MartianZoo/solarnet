@@ -23,16 +23,40 @@ internal class DerivedClassLowerer(private val owner: ClassName) : PetTransforme
 
     val base = node.className
     val generated = cn("${owner}_$base")
+    val bodyNodes = body.asDerivedDeclaration(generated, base.expression).allNodes
+    if (
+        node.immediateChildren().any { it.containsDerivedClass() } ||
+            bodyNodes.any { it.containsDerivedClass() }
+    ) {
+      throw PetSyntaxException("Owner-local Classes cannot contain owner-local Classes")
+    }
     if (!claimedBases.add(base)) {
       throw PetSyntaxException(
           "Owner $owner has more than one unnamed derived $base Class; declare them explicitly"
       )
     }
 
-    val declaration = body.asDerivedDeclaration(generated, base)
+    val loweredArguments = node.arguments.map(::transformExpression)
+    val loweredRefinement = node.refinement?.let(::transformRefinement)
+    val supertype =
+        Expression(
+            className = base,
+            arguments = loweredArguments.map(::withoutRefinements),
+            complement = node.complement,
+        )
+    val declaration = body.asDerivedDeclaration(generated, supertype)
     declarationsByBase[base] = transformDeclaration(declaration)
-    return transformChildren(node.copy(className = generated))
+    return Expression(generated, loweredArguments, loweredRefinement, node.complement)
   }
+
+  private fun withoutRefinements(expression: Expression): Expression =
+      expression.copy(
+          arguments = expression.arguments.map(::withoutRefinements),
+          refinement = null,
+      )
+
+  private fun PetNode.containsDerivedClass(): Boolean =
+      descendantsOfType<Expression>().any { it.derivedClassBody != null }
 
   private fun transformDeclaration(declaration: ClassDeclaration): ClassDeclaration {
     fun transformDefault(one: OneDefault) = one.copy(specs = one.specs.map(::transformExpression))

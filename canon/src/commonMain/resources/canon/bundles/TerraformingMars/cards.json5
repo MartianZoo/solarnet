@@ -514,7 +514,7 @@
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "SpecialTile {}<LandArea(HAS MAX 0 Neighbor)>, PROD[1]",
+      "immediate": "SpecialTile<LandArea(HAS MAX 0 Neighbor)> {}, PROD[1]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -991,7 +991,7 @@
       "cost": 12,
       "tags": [ "AnimalTag", "PlantTag" ],
       "resourceType": "Animal",
-      "immediate": "SpecialTile {}<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)> {}",
       "effects": [
         "AnimalTag OR PlantTag: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
@@ -1122,7 +1122,8 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 18,
-      "immediate": "2 TemperatureStep, SpecialTile {}<VolcanicArea> OR (MAX 0 VolcanicArea: Card140_SpecialTile)",
+      "immediate": "2 TemperatureStep, Card140_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: Card140_SpecialTile)",
+      "components": [ "CLASS Card140_SpecialTile : SpecialTile" ],
     },
 
     // Power Plant
@@ -1142,7 +1143,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[4 Heat], SpecialTile {}<WaterArea>",
+      "immediate": "PROD[4 Heat], SpecialTile<WaterArea> {}",
     },
 
     // Large Convoy

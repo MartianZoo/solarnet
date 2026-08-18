@@ -48,9 +48,16 @@ stable owner-derived names such as `CardB05_Mandate` and `Card021_RemoteArea` be
 Class Table. They have exactly the existing Class and component semantics; there is no runtime
 anonymous identity.
 
-The body follows the base Class name, before any arguments on that use: for example,
-`SpecialTile {}<LandArea>`. Those arguments specialize the generated Class occurrence; they do not
-narrow its declared superclass.
+The body follows the complete expression. For example,
+`SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}` becomes the use-site expression
+`Card064_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>` and declares its superclass as
+`SpecialTile<LandArea>`. Arguments therefore specialize both the occurrence and the generated
+Class's superclass. Refinements constrain only the occurrence and are removed recursively from the
+declared superclass because refinement types cannot be supertypes.
+
+The local body may contain invariants, properties, effects, and actions. It may not contain
+`DEFAULT` clauses or nested Class declarations. The generated Class inherits applicable defaults
+from its supertypes.
 
 Use this for a Class local to one definition, especially mandates, temporary effects, special tiles,
 and remote areas. A shared Class, a Custom implementation, or a component with several semantic
@@ -58,12 +65,13 @@ roles should remain explicit. Multiple local Classes with the same natural suffi
 explicitly rather than distinguished by an ordinal or hash.
 
 Another expression that needs the exact derived Class may use its assigned canonical name. Writing
-the unbraced superclass still means the ordinary abstract family; it does not implicitly resolve to
-the local subtype. Existing implicit Type-variable rules continue to link repeated abstract
-dependencies inside the derived Type.
+the superclass without a local body still means the ordinary abstract family; it does not implicitly
+resolve to the local subtype. Existing implicit Type-variable rules continue to link repeated
+abstract dependencies inside the derived Type.
 
-This syntax is definition-time only. Manually submitted instructions are still parsed and validated,
-then rejected with `NoNewClassDeclarationsException` because the live game's Class Table is frozen.
+This syntax is available only in card-definition expressions. Ordinary Class declarations reject
+it. Manually submitted instructions are still parsed and validated, then rejected with
+`NoNewClassDeclarationsException` because the live game's Class Table is frozen.
 
 ## 2. Nominal subtyping
 

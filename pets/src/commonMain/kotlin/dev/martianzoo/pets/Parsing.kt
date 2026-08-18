@@ -36,10 +36,12 @@ public object Parsing {
    * examples can be reviewed in `global.pets` and `player.pets`.
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
-    return parse(
-        Declarations.declarationFile,
-        declarationsSource,
-        expectedTypeDesc = "Pets class declarations",
+    return rejectOwnerLocalClasses(
+        parse(
+            Declarations.declarationFile,
+            declarationsSource,
+            expectedTypeDesc = "Pets class declarations",
+        )
     )
   }
 
@@ -48,7 +50,22 @@ public object Parsing {
    * semicolon-separated. Syntax examples can be seen in `"components"` fields of `cards.json`.
    */
   public fun parseOneLinerClass(declarationSource: String): ClassDeclaration =
-      parse(Declarations.oneLineDecl, declarationSource)
+      rejectOwnerLocalClasses(listOf(parse(Declarations.oneLineDecl, declarationSource))).single()
+
+  private fun rejectOwnerLocalClasses(
+      declarations: List<ClassDeclaration>
+  ): List<ClassDeclaration> {
+    val hasOwnerLocalClass = declarations.any { declaration ->
+      declaration.allNodes.any { node ->
+        (node as? Expression)?.derivedClassBody != null ||
+            node.descendantsOfType<Expression>().any { it.derivedClassBody != null }
+      }
+    }
+    if (hasOwnerLocalClass) {
+      throw PetSyntaxException("Owner-local Classes are not allowed inside Class declarations")
+    }
+    return declarations
+  }
 
   /**
    * Parses the Pets element of type [P] from [elementSource], and returns it *not* surrounded by a

@@ -33,15 +33,34 @@ public data class Expression(
     val complement: Boolean = false,
 ) : PetElement(), HasClassName, HasExpression {
 
-  /**
-   * Parser-only source information removed before a parsed AST leaves
-   * [dev.martianzoo.pets.Parsing].
-   */
   internal var derivedClassBody: ClassParsing.Body? = null
     private set
 
-  internal fun withDerivedClassBody(body: ClassParsing.Body?): Expression = apply {
+  /**
+   * Adds parser-only source information while this expression is being constructed. It is set at
+   * most once, before the expression can enter an AST collection, and removed before a parsed AST
+   * leaves [dev.martianzoo.pets.Parsing].
+   */
+  internal fun withDerivedClassBody(body: ClassParsing.Body): Expression = apply {
+    check(derivedClassBody == null)
     derivedClassBody = body
+  }
+
+  override fun equals(other: Any?): Boolean =
+      this === other ||
+          (other is Expression &&
+              className == other.className &&
+              arguments == other.arguments &&
+              refinement == other.refinement &&
+              complement == other.complement &&
+              derivedClassBody == other.derivedClassBody)
+
+  override fun hashCode(): Int {
+    var result = className.hashCode()
+    result = 31 * result + arguments.hashCode()
+    result = 31 * result + (refinement?.hashCode() ?: 0)
+    result = 31 * result + complement.hashCode()
+    return 31 * result + (derivedClassBody?.hashCode() ?: 0)
   }
 
   override val expression: Expression
@@ -116,11 +135,13 @@ public data class Expression(
         if (allowDerivedClass) {
           isPresent(char('!')) and
               ClassName.parser() and
-              optional(ClassParsing.Declarations.derivedClassBody) and
               optionalList(argumentList) and
-              optional(refinement) map
-              { (not, clazz, body, args, ref) ->
-                Expression(clazz, args, ref, not).withDerivedClassBody(body)
+              optional(refinement) and
+              optional(ClassParsing.Declarations.derivedClassBody) map
+              { (not, clazz, args, ref, body) ->
+                Expression(clazz, args, ref, not).let {
+                  if (body == null) it else it.withDerivedClassBody(body)
+                }
               }
         } else {
           isPresent(char('!')) and
