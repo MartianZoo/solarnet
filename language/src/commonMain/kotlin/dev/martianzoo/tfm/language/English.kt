@@ -101,16 +101,23 @@ public object English {
       val steps = if (count == 1) "step" else "steps"
       return "Decrease your ${componentNoun(className, count)} production $count $steps."
     }
-    val count = gains.map { it.second }.distinct().singleOrNull() ?: return null
-    val steps = if (count == 1) "step" else "steps"
-    val productions = gains.map { (className) ->
-      "your ${componentNoun(className, 1)} production"
+    val sharedCount = gains.map { it.second }.distinct().singleOrNull()
+    if (sharedCount != null) {
+      val steps = if (sharedCount == 1) "step" else "steps"
+      val productions = gains.map { (className) ->
+        "your ${componentNoun(className, 1)} production"
+      }
+      return if (productions.size == 1) {
+        "Increase ${productions.single()} $sharedCount $steps."
+      } else {
+        "Increase ${englishList(productions)} $sharedCount $steps each."
+      }
     }
-    return if (productions.size == 1) {
-      "Increase ${productions.single()} $count $steps."
-    } else {
-      "Increase ${englishList(productions)} $count $steps each."
+    val changes = gains.map { (className, count) ->
+      val steps = if (count == 1) "step" else "steps"
+      "your ${componentNoun(className, 1)} production $count $steps"
     }
+    return "Increase ${englishList(changes)}."
   }
 
   private fun standardResourceGain(instruction: Instruction): Pair<ClassName, Int>? {

@@ -46,7 +46,7 @@ CardP03	P03	Biofuels	Increase your plant production and your energy production 1
 CardP04	P04	Biolab	Increase your plant production 1 step. Draw 3 cards.	
 CardP05	P05	Biosphere Support	Decrease your M€ production 1 step. Increase your plant production 2 steps.	
 CardP06	P06	Business Empire	Increase your M€ production 6 steps. Remove 6 M€.	
-CardP07	P07	Dome Farming	Increase your plant production 1 step. Increase your M€ production 2 steps.	
+CardP07	P07	Dome Farming	Increase your plant production 1 step and your M€ production 2 steps.	
 CardP08	P08	Donation	Gain 21 M€.	
 CardP09	P09	Early Settlement	Place a city tile. Increase your plant production 1 step.	
 CardP10	P10	Ecology Experts	Increase your plant production 1 step. Play a card from hand, ignoring global requirements.	
@@ -62,7 +62,7 @@ CardP19	P19	Metal-Rich Asteroid	Raise temperature 1 step. Gain 4 titanium and 4 
 CardP20	P20	Metals Company	Increase your M€ production, your steel production, and your titanium production 1 step each.	
 CardP21	P21	Mining Operations	Increase your steel production 2 steps. Gain 4 steel.	
 CardP22	P22	Mohole	Increase your heat production 3 steps. Gain 3 heat.	
-CardP23	P23	Mohole Excavation	Increase your steel production 1 step, and your heat production 2 steps. Gain 2 heat.	
+CardP23	P23	Mohole Excavation	Increase your steel production 1 step and your heat production 2 steps. Gain 2 heat.	
 CardP24	P24	Nitrogen Shipment	Raise your TR 1 step. Increase your plant production 1 step. Gain 5 M€.	
 CardP25	P25	Orbital Construction Yard	Increase your titanium production 1 step. Gain 4 titanium.	
 CardP26	P26	Polar Industries	Place 1 ocean tile. Increase your heat production 2 steps.	

@@ -75,8 +75,8 @@ clearest and the implementation simplest.
 
 `English` derives an empty region when the card definition has no element printed there. It also
 derives bottom text when every immediate instruction is one of: a concrete mandatory gain of a
-standard resource; a group of concrete mandatory standard-resource production gains that all have
-the same count; one concrete mandatory standard-resource production decrease; or a concrete
+standard resource; a group of concrete mandatory standard-resource production gains; one concrete
+mandatory standard-resource production decrease; or a concrete
 mandatory temperature, oxygen, Venus-step, or TR gain. Supported instructions are rendered in
 authored order, with adjacent standard-resource gains coalesced into one sentence.
 
