@@ -96,6 +96,8 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   project card entering or leaving each Player's hand. Named `draw()`, `buyCards()`, `discard()`,
   and `sellPatents()` calls queue those cards, then reconcile them with completed `ProjectCard`
   gains and removals. Playing a project must remove its name from that Player's tracked hand.
+  `AbstractSoloTest` inherits this capability, but a solo fixture opts into tracking only by using
+  the named calls.
   When a source gives only a discard count, an exact tracked hand requires the fixture to select
   names explicitly and label that selection as fixture inference.
 - Before editing a dated whole-game fixture, explicitly inspect its matching
