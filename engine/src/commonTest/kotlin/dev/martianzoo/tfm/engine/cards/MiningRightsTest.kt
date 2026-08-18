@@ -27,7 +27,7 @@ class MiningRightsTest : CardTest() {
   }
 
   @Test
-  fun `after selecting steel, copies its production box`() {
+  fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
     newGame(TerraCimmeriaMapOption)
 
