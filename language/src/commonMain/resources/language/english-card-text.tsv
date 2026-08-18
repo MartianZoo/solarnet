@@ -200,7 +200,7 @@ Card179	179	Soil Factory	Decrease your energy production 1 step and increase you
 Card181	181	Ice Cap Melting	Requires +2°C or warmer. Place an ocean tile.	
 Card183	183	Biomass Combustors	Requires 6% oxygen. Decrease any player's plant production 1 step and increase your energy production 2 steps.	
 Card184	184	Livestock	Requires 9% oxygen. Decrease your plant production 1 step and increase your M€ production 2 steps. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
-Card187	187	Aquifer Pumping		Action: Spend 8 M€ to place 1 ocean tile. Steel may be used.
+Card187	187	Aquifer Pumping		Action: Spend 8 M€ to place an ocean tile. Steel may be used.
 Card188	188	Flooding	Place an ocean tile. If there are tiles adjacent to this ocean tile, you may remove up to 4 M€ from the owner of one of those tiles.	
 Card189	189	Energy Saving	Increase your energy production 1 step for each city tile in play.	
 Card190	190	Local Heat Trapping	Spend 5 heat to either gain 4 plants, or to add 2 animals to ANOTHER card.	
