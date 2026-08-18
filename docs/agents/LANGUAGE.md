@@ -97,7 +97,7 @@ text. Actions and non-End effects are top elements and do not prevent bottom der
 
 Do not add direct standard-resource removals to the bottom renderer without first teaching the
 layout facade to split immediate instructions between printed regions. Potatoes is the concrete
-counterexample: its plant removal is top text while its production increase is bottom text. An
+counterexample: its plant removal is top text while its production increase is bottom text. NO, ACTUALLY THAT IS A MISTAKE IN THE DATA FILE, THOSE ARE BOTH IMMEDIATE INSTRUCTIONS THAT BELONG IN THE SAME PLACE. An
 all-or-nothing immediate renderer would put both below the artwork.
 
 Continue treating cards with extra component declarations as data-backed. Mons Insurance shows why:
