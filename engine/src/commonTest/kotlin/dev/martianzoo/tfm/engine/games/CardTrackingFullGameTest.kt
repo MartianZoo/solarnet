@@ -39,8 +39,10 @@ abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
-    discard(*cardClasses)
-    return sellPatents(cardClasses.size)
+    return stdAction("SellPatents") {
+      doTask("-${cardClasses.size} ProjectCard THEN ${cardClasses.size}")
+      discard(*cardClasses)
+    }
   }
 
   protected fun assertCardTrackingComplete() {

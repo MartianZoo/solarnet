@@ -470,8 +470,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.stdAction("FundAwardSA") { doTask("SpaceBaron") }
     ellie
         .playProject(AsteroidCard, 6, titanium = 2) {
-          doTask("-3 P<Player3>")
           dad.draw(SterlingVents)
+          doTask("-3 P<Player3>")
         }
         .expect("0 T, -3")
     dad.stdProject("AsteroidSP").expect("TR")
@@ -482,8 +482,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
     mom.playProject(ImportedNutrients, 14) {
-          doTask("4 Microbe<$Recyclon>")
           dad.draw(Grass)
+          doTask("4 Microbe<$Recyclon>")
         }
         .expect("4 P")
     ellie.stdAction("ConvertHeatSA")
@@ -559,8 +559,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("TR, 2 S, -7")
 
     dad.playProject(IceAsteroid, 15, titanium = 2) {
-          doTask("OceanTile<Hellas_7_3>")
           dad.draw(RobotPollinators)
+          doTask("OceanTile<Hellas_7_3>")
           doTask("OceanTile<Hellas_4_1>")
         }
         .expect("2 TR, 0 T, P, -13")
@@ -575,9 +575,9 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     ellie
         .playProject(ConvoyFromEuropa, 7, titanium = 2) {
-          doTask("OceanTile<Hellas_5_8>")
           ellie.draw(MagneticFieldGenerators)
           dad.draw(LocalHeatTrapping)
+          doTask("OceanTile<Hellas_5_8>")
         }
         .expect("TR, 0 M")
     ellie.playProject(VestaShipyard, 1, titanium = 4).expect("PROD[T]")
@@ -676,8 +676,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     dad.playProject(Windmills, 4, steel = 1).expect("PROD[E]")
     dad.playProject(BactoviralResearch, 10) {
-          doTask("5 Microbe<$Ants>")
           dad.draw(Potatoes)
+          doTask("5 Microbe<$Ants>")
         }
         .expect("P, -6")
 
