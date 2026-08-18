@@ -51,10 +51,16 @@ public object English {
       card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (card.requirement != null || card.effects.any(::isEndEffect)) return null
+    if (
+        card.requirement != null ||
+            card.effects.any(::isEndEffect) ||
+            card.extraClasses.isNotEmpty()
+    ) {
+      return null
+    }
     val instructions = card.immediate?.instructions ?: return null
     return derivedStandardResourceGains(instructions)
-        ?: derivedProductionThenResourceGains(instructions)
+        ?: derivedProductionAndResourceGains(instructions)
         ?: instructions.singleOrNull()?.let(::derivedProductionChange)
         ?: instructions.singleOrNull()?.let(::derivedTrackGain)
   }
@@ -68,11 +74,19 @@ public object English {
     return "Gain ${englishList(objects)}."
   }
 
-  private fun derivedProductionThenResourceGains(instructions: List<Instruction>): String? {
+  private fun derivedProductionAndResourceGains(instructions: List<Instruction>): String? {
     if (instructions.size < 2) return null
-    val production = derivedProductionChange(instructions.first()) ?: return null
-    val resources = derivedStandardResourceGains(instructions.drop(1)) ?: return null
-    return "$production $resources"
+    val firstProduction = derivedProductionChange(instructions.first())
+    if (firstProduction != null) {
+      val resources = derivedStandardResourceGains(instructions.drop(1))
+      if (resources != null) return "$firstProduction $resources"
+    }
+    val lastProduction = derivedProductionChange(instructions.last())
+    if (lastProduction != null) {
+      val resources = derivedStandardResourceGains(instructions.dropLast(1))
+      if (resources != null) return "$resources $lastProduction"
+    }
+    return null
   }
 
   private fun derivedProductionChange(instruction: Instruction): String? {
@@ -89,7 +103,7 @@ public object English {
     val count = gains.map { it.second }.distinct().singleOrNull() ?: return null
     val steps = if (count == 1) "step" else "steps"
     val productions = gains.map { (className) ->
-      "your ${componentNoun(className, count)} production"
+      "your ${componentNoun(className, 1)} production"
     }
     return if (productions.size == 1) {
       "Increase ${productions.single()} $count $steps."

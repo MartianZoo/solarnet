@@ -18,7 +18,7 @@ CardVC3	V03	Manutech	Gain 35 M€. Increase your steel production 1 step.	Effect
 CardVC4F	V04	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 Venus-tag cards.	Effect: Your Venus requirements are +2 or -2 steps, your choice in each case.
 CardVC5	V05	Viron	Gain 48 M€.	Action: Use an action from a blue card that has already been used this generation.
 CardPC1	PC1	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 steps.	Effect: When you play a building tag, you pay 2 M€ less for it.
-CardPC2	PC2	Point Luna	 Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag, including this, draw 1 card.
+CardPC2	PC2	Point Luna	Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag, including this, draw 1 card.
 CardPC3	PC3	Robinson Industries	Gain 47 M€.	Action: Spend 4 M€ to increase (one of) your lowest production 1 step.
 CardPC4	PC4	Valley Trust	Gain 37 M€. As your first action, draw 3 Prelude cards. Discard 2 of them, then play the remaining card.	Effect: When you play a science tag, you pay 2 M€ less for it.
 CardPC5	PC5	Vitor	Gain 45 M€. As your first action, fund an award for free.	Effect: When you play a card with a NON-NEGATIVE VP icon, including this, gain 3 M€.
