@@ -61,6 +61,7 @@ public object English {
     val instructions = card.immediate?.instructions ?: return null
     return derivedStandardResourceGains(instructions)
         ?: derivedProductionAndResourceGains(instructions)
+        ?: derivedProductionAndTrackGain(instructions)
         ?: instructions.singleOrNull()?.let(::derivedProductionChange)
         ?: instructions.singleOrNull()?.let(::derivedTrackGain)
   }
@@ -86,6 +87,17 @@ public object English {
       val resources = derivedStandardResourceGains(instructions.dropLast(1))
       if (resources != null) return "$resources $lastProduction"
     }
+    return null
+  }
+
+  private fun derivedProductionAndTrackGain(instructions: List<Instruction>): String? {
+    if (instructions.size != 2) return null
+    val firstProduction = derivedProductionChange(instructions.first())
+    val secondTrack = derivedTrackGain(instructions.last())
+    if (firstProduction != null && secondTrack != null) return "$firstProduction $secondTrack"
+    val firstTrack = derivedTrackGain(instructions.first())
+    val secondProduction = derivedProductionChange(instructions.last())
+    if (firstTrack != null && secondProduction != null) return "$firstTrack $secondProduction"
     return null
   }
 

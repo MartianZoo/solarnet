@@ -82,8 +82,8 @@ scoring effect, an extra component declaration, or any unsupported immediate-ins
 keeps the whole region data-backed. Component declarations can encode printed setup behavior that
 is absent from `immediate`, so deriving only that group could omit bottom text. A supported
 production change and one or more standard-resource gains can be composed in either authored order
-from those same renderers. Actions and non-End effects are top elements and do not prevent bottom
-derivation.
+from those same renderers, as can a production change and a Venus-step or TR gain. Actions and
+non-End effects are top elements and do not prevent bottom derivation.
 
 ## Component nouns and change verbs
 
