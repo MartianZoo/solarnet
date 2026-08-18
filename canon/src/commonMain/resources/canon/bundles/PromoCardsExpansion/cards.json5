@@ -540,7 +540,7 @@
       "projectKind": "AUTOMATED",
       "cost": 2,
       "tags": [ "PlantTag" ],
-      "immediate": "-2 Plant, PROD[2]",
+      "immediate": "PROD[2], -2 Plant",
     },
 
     // Sub-Crust Measurements

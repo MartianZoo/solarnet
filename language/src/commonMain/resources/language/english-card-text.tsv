@@ -435,7 +435,7 @@ CardX24	X24	Magnetic Shield	Requires 3 power tags. Raise your TR 4 steps.
 CardX25	X25	Meat Industry		Effect: When you add an animal to ANY CARD, gain 2 M€.
 CardX26	X26	Meltworks		Action: Spend 5 heat to gain 3 steel.
 CardX27	X27	Mohole Lake	Place an ocean tile. Raise temperature 1 step. Gain 3 plants.	Action: Add 1 microbe or animal to ANOTHER card.
-CardX28	X28	Potatoes	Remove 2 plants. Increase your M€ production 2 steps.	
+CardX28	X28	Potatoes	Increase your M€ production 2 steps. Remove 2 plants.	
 CardX29	X29	Sub-Crust Measurements	Requires 2 science tags.	Action: Draw 1 card.
 CardX30	X30	Topsoil Contract	Gain 3 plants.	Effect: When you add a microbe to ANY CARD, gain 1 M€.
 CardX31	X31	Deimos Down*	Raise temperature 3 steps. Place this tile ADJACENT TO NO CITY TILE. Gain 4 steel. Remove up to 6 plants from any player.	
