@@ -1,6 +1,20 @@
 config.set({
   files: config.files.concat([
     {
+      pattern: "canon/**/*",
+      included: false,
+      served: true,
+      watched: false,
+      nocache: true,
+    },
+    {
+      pattern: "pets/**/*",
+      included: false,
+      served: true,
+      watched: false,
+      nocache: true,
+    },
+    {
       pattern: "language/**/*",
       included: false,
       served: true,
@@ -9,6 +23,8 @@ config.set({
     },
   ]),
   proxies: Object.assign(config.proxies, {
+    "/canon/": "/base/canon/",
+    "/pets/": "/base/pets/",
     "/language/": "/base/language/",
   }),
 });

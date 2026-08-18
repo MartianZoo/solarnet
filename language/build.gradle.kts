@@ -2,7 +2,12 @@ plugins { id("solarnet.kmp-jvm-js") }
 
 kotlin {
   sourceSets {
-    commonMain { dependencies { implementation(project(":pets")) } }
+    commonMain {
+      dependencies {
+        implementation(project(":pets"))
+        implementation(project(":canon"))
+      }
+    }
     commonTest { dependencies { implementation(libs.kotest.assertions.core) } }
   }
 }
