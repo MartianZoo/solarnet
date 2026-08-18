@@ -7,10 +7,12 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
+import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 
 /**
@@ -50,19 +52,34 @@ public object English {
     if (card.requirement != null || card.effects.any(::isEndEffect)) return null
     val instructions = card.immediate?.instructions ?: return null
     return derivedStandardResourceGains(instructions)
+        ?: instructions.singleOrNull()?.let(::derivedProductionGain)
   }
 
   private fun derivedStandardResourceGains(instructions: List<Instruction>): String? {
     val objects = instructions.map { instruction ->
-      val gain = instruction as? Gain ?: return null
-      if (gain.intensity != null && gain.intensity != MANDATORY) return null
-      if (!gain.gaining.simple) return null
-      val count = (gain.count as? ActualScalar)?.value ?: return null
-      if (!isStandardResource(gain.gaining.className)) return null
-      "$count ${componentNoun(gain.gaining.className, count)}"
+      val (className, count) = standardResourceGain(instruction) ?: return null
+      "$count ${componentNoun(className, count)}"
     }
     if (objects.isEmpty()) return null
     return "Gain ${englishList(objects)}."
+  }
+
+  private fun derivedProductionGain(instruction: Instruction): String? {
+    val transform = instruction as? Transform ?: return null
+    if (transform.transformKind != PROD) return null
+    val (className, count) =
+        standardResourceGain(transform.instruction as? Gain ?: return null) ?: return null
+    val steps = if (count == 1) "step" else "steps"
+    return "Increase your ${componentNoun(className, count)} production $count $steps."
+  }
+
+  private fun standardResourceGain(instruction: Instruction): Pair<ClassName, Int>? {
+    val gain = instruction as? Gain ?: return null
+    if (gain.intensity != null && gain.intensity != MANDATORY) return null
+    if (!gain.gaining.simple) return null
+    val count = (gain.count as? ActualScalar)?.value ?: return null
+    if (!isStandardResource(gain.gaining.className)) return null
+    return gain.gaining.className to count
   }
 
   private fun englishList(parts: List<String>): String =
