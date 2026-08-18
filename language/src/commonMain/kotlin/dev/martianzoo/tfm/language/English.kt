@@ -161,14 +161,14 @@ public object English {
 
   private fun derivedTilePlacement(instruction: Instruction): String? {
     val (className, count) = concreteMandatoryGain(instruction) ?: return null
-    val singular =
+    val (article, singular) =
         when (className) {
-          cityTile -> "city tile"
-          oceanTile -> "ocean tile"
+          cityTile -> "a" to "city tile"
+          oceanTile -> "an" to "ocean tile"
           else -> return null
         }
-    val noun = if (count == 1) singular else "${singular}s"
-    return "Place $count $noun."
+    val nounPhrase = if (count == 1) "$article $singular" else "$count ${singular}s"
+    return "Place $nounPhrase."
   }
 
   private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {

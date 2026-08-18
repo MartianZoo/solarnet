@@ -80,6 +80,10 @@ a city- or ocean-tile placement; or a concrete mandatory temperature, oxygen, Ve
 or removal. Supported instructions are rendered in authored order, with adjacent standard-resource
 gains coalesced into one sentence.
 
+Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
+ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
+remain numeric even when the count is one.
+
 A requirement, an End-triggered scoring effect, an extra component declaration, or any unsupported
 immediate-instruction shape keeps the whole region data-backed. Component declarations can encode
 printed setup behavior that is absent from `immediate`, so deriving only that group could omit bottom
