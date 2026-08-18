@@ -64,6 +64,7 @@ dokka {
 
 dependencies {
   dokka(project(":pets"))
+  dokka(project(":language"))
   dokka(project(":engine"))
   dokka(project(":script"))
   dokka(project(":repl"))
