@@ -20,6 +20,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Provide a stable, machine-learning-friendly action interface that enumerates or scores complete legal choices while preserving the relationship among the engine's lower-level card, payment, target, quantity, and placement tasks.
 - Add reproducible randomness, cheap disposable state forks, parallel or batched simulation, and throughput benchmarks suitable for self-play and online search.
 - Add a standard training-environment adapter, baseline player population, replay format or dataset pipeline, and duplicated-seed evaluation harness.
+- Extend the standard-resource monotonicity scan from premise-wide candidates to state-conditional
+  certificates; classify triggered consequences and define contracts or simulations for relevant
+  custom operations.
 - Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and Prelude 2; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
 
 ### Soon

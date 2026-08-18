@@ -36,6 +36,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Remaining implicit-variable work | [LINKAGES.md](LINKAGES.md) | Focused implementation note |
 | Candidates for eliminating custom instructions | [REDUCE_CUSTOM.md](REDUCE_CUSTOM.md) | Audit |
 | Shuffle, physical cards, hidden information, and chance | [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md) | Proposal |
+| Monotonicity in optimal TR63 solo play | [OPTIMAL_SOLO.md](OPTIMAL_SOLO.md) | Research note |
 | AI-player research and supporting literature | [AI_BACKGROUND.md](AI_BACKGROUND.md) and [board-gamer overview](AI_BACKGROUND_FOR_BOARD_GAMERS.md) | Research notes |
 
 ## Editing discipline
