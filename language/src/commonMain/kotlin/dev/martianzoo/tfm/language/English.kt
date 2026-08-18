@@ -164,6 +164,9 @@ public object English {
 
   private fun derivedTilePlacement(instruction: Instruction): String? {
     val (className, count) = concreteMandatoryGain(instruction) ?: return null
+    if (className == greeneryTile && count == 1) {
+      return "Place a greenery tile (and raise oxygen 1 step)."
+    }
     val (article, singular) =
         when (className) {
           cityTile -> "a" to "city tile"
@@ -245,6 +248,7 @@ public object English {
 
   private val endExpression = cn("End").expression
   private val cityTile = cn("CityTile")
+  private val greeneryTile = cn("GreeneryTile")
   private val oceanTile = cn("OceanTile")
   private val oxygenStep = cn("OxygenStep")
   private val plant = cn("Plant")

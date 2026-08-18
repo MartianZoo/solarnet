@@ -82,9 +82,9 @@ minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, pl
 requirements, same-category groups of one-count tags, and minimum TR and owned-greenery requirements.
 It derives bottom text when every immediate instruction is one of: a concrete mandatory gain or
 removal of a standard resource; a group of concrete mandatory standard-resource production gains or
-decreases; a city- or ocean-tile placement; or a concrete mandatory temperature, oxygen, Venus-step,
-or TR gain or removal. Supported instructions are rendered in authored order, with adjacent
-standard-resource gains coalesced into one sentence.
+decreases; a city- or ocean-tile placement; one plain greenery-tile placement; or a concrete mandatory
+temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are rendered in
+authored order, with adjacent standard-resource gains coalesced into one sentence.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
@@ -107,15 +107,16 @@ do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets sh
 draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
 not structurally sufficient.
 
-Greenery placement is not yet a plain placement noun. Its printed text includes the implicit oxygen
-increase, and the unrestricted canonical example also has an unsupported tagged-card draw. Preserve
-the fallback until a renderer can express the full greenery consequence and is exercised by a
-canonical card. Colony placement also cannot yet be derived from its instruction shape alone because
-Poseidon incorrectly authors its delayed first-action placement as an immediate `Colony` gain. After
-the unnamed-classes feature from `work1` arrives, model that rule as `Mandate { Colony }`; then a plain
-gain can unambiguously mean immediate placement. Preserve the fallback until that data fix. When the
-shape becomes derivable, use `a colony` for one and numeric counts above one, following the
-placed-object article policy.
+A plain mandatory placement of one greenery tile renders its implicit oxygen increase. Restricted
+greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
+because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
+
+Colony placement cannot yet be derived from its instruction shape alone because Poseidon incorrectly
+authors its delayed first-action placement as an immediate `Colony` gain. After the unnamed-classes
+feature from `work1` arrives, model that rule as `Mandate { Colony }`; then a plain gain can
+unambiguously mean immediate placement. Preserve the fallback until that data fix. When the shape
+becomes derivable, use `a colony` for one and numeric counts above one, following the placed-object
+article policy.
 
 ## Review cadence
 
