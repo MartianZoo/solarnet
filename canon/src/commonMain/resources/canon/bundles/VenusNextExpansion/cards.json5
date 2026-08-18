@@ -6,7 +6,7 @@
       "id": "VC1",
       "deck": "CORPORATION",
       "tags": [ "VenusTag", "PlantTag" ],
-      "immediate": "PROD[Plant], 47",
+      "immediate": "47, PROD[Plant]",
       "effects": [ "VenusStep BY Anyone: 2" ],
     },
 
@@ -26,7 +26,7 @@
       "id": "VC3",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[Steel], 35",
+      "immediate": "35, PROD[Steel]",
       "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 

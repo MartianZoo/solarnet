@@ -11,6 +11,43 @@ slowly, one well-bounded instruction shape at a time, while retaining the data f
 fallback. Compare every affected canonical card with the oracle before expanding the supported
 shape. An incremental approach that leaves most shapes data-backed is expected and acceptable.
 
+## Verification while replacing the data file
+
+Do not add a test merely to prove that a newly supported shape bypasses the fallback. Such a test
+would restate the implementation boundary without protecting card behavior, and every incremental
+step would require another synthetic fixture. The existing all-card comparison is the behavioral
+check: a derivation expansion is valid when every affected canonical card still renders the oracle
+text. Review the production diff to establish that the fallback boundary actually moved; the code
+is clearer evidence of that progress than a change-detector test.
+
+The two explicit fallback tests for absent regions remain useful because emptiness is not represented
+by a row's wording: they establish that a structurally empty region succeeds without any card-text
+record. New derivation shapes do not need analogous tests while their canonical examples are covered
+by the all-card comparison. If a renderer gains behavior not exercised by any canonical card, add a
+behavioral test for that behavior or defer the generalization; do not add a test whose only assertion
+is that the data file was not consulted.
+
+## Expected renderer architecture
+
+Natural-language rendering should remain outside the Pets AST. Use one compositional renderer per
+major sealed Pets family, such as instructions, requirements, metrics, triggers, and action costs.
+Each renderer should recursively dispatch with a localized exhaustive `when`; do not replace those
+dispatchers with English-aware methods on Pets nodes or a classic typed Visitor. The existing
+`PetNode` visitor is appropriate for structure-insensitive descendant traversal, but rendering is
+structure-sensitive: a parent determines whether a child is a noun phrase, clause, condition, cost,
+or conjunction.
+
+`English` should remain the card-layout facade. It decides which requirements, actions, effects,
+and immediate instructions belong in each printed region, while the family renderers realize those
+elements compositionally. Keep lexical policy, such as component nouns and change verbs, narrower
+than the structural rendering rules.
+
+Produce strings directly while that remains clear. If agreement, conjunction, scope, and
+punctuation begin to couple otherwise independent renderers, introduce only the smallest useful
+phrase representation rather than a general English grammar framework. A growing collection of
+whole-card shape tests in `English` is a signal to extract the appropriate family renderer, not an
+acceptable final architecture.
+
 ## Transitional derivation
 
 Intermediate solutions may derive most of an instruction structurally while looking up one narrow
@@ -34,13 +71,59 @@ wording and punctuation may be standardized without reordering those subclauses.
 may happen alongside derivation or in focused data-cleanup passes, whichever keeps the work
 clearest and the implementation simplest.
 
+Corporation definitions must author starting money before their other immediate instructions so
+the ordinary authored-order renderer puts that gain first. Correct the canonical card definition
+when this order is wrong; do not teach the renderer to reorder corporations.
+
 ## Current derivation boundary
 
-`English` derives an empty region when the card definition has no element printed there. It also
-derives bottom text when that entire region is a singleton, concrete, mandatory gain of a standard
-resource. A requirement, an End-triggered scoring effect, or any unsupported immediate-instruction
-shape keeps the whole region data-backed. Actions and non-End effects are top elements and do not
-prevent bottom derivation.
+`English` derives an empty region when the card definition has no element printed there. It derives
+minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum concrete-tag
+requirements, same-category groups of one-count tags, and minimum TR and owned-greenery requirements.
+It derives bottom text when every immediate instruction is one of: a concrete mandatory gain or
+removal of a standard resource; a group of concrete mandatory standard-resource production gains or
+decreases; a city- or ocean-tile placement; one plain greenery-tile placement; or a concrete mandatory
+temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are rendered in
+authored order, with adjacent standard-resource gains coalesced into one sentence.
+
+Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
+ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
+remain numeric even when the count is one.
+
+A requirement, an End-triggered scoring effect, an extra component declaration, or any unsupported
+immediate-instruction shape keeps the whole region data-backed. Component declarations can encode
+printed setup behavior that is absent from `immediate`, so deriving only that group could omit bottom
+text. Actions and non-End effects are top elements and do not prevent bottom derivation.
+
+## Known layout boundaries
+
+Potatoes' plant removal and production increase are both immediate instructions printed below the
+artwork. The former split across regions in the data file was a data error, not evidence that the
+layout facade must divide one immediate group.
+
+Continue treating cards with extra component declarations as data-backed. Mons Insurance shows why:
+its component declarations encode printed setup behavior that is absent from `immediate`. Likewise,
+do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
+draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
+not structurally sufficient.
+
+A plain mandatory placement of one greenery tile renders its implicit oxygen increase. Restricted
+greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
+because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
+
+Colony placement cannot yet be derived from its instruction shape alone because Poseidon incorrectly
+authors its delayed first-action placement as an immediate `Colony` gain. After the unnamed-classes
+feature from `work1` arrives, model that rule as `Mandate { Colony }`; then a plain gain can
+unambiguously mean immediate placement. Preserve the fallback until that data fix. When the shape
+becomes derivable, use `a colony` for one and numeric counts above one, following the placed-object
+article policy.
+
+## Review cadence
+
+Commit bounded renderer iterations autonomously. Accumulate roughly ten golden-text row changes,
+then provide an old-versus-new comparison roundup grouped by the systemic wording rule that caused
+them. The golden file may be committed along the way; reconstruct the roundup from the commit-range
+diff rather than expecting review of each historical commit.
 
 ## Component nouns and change verbs
 

@@ -4,12 +4,17 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
+import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 
 /**
@@ -46,14 +51,159 @@ public object English {
       card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (card.requirement != null || card.effects.any(::isEndEffect)) return null
-    val instruction = card.immediate?.instructions?.singleOrNull() as? Gain ?: return null
-    if (instruction.intensity != null && instruction.intensity != MANDATORY) return null
-    if (!instruction.gaining.simple) return null
-    val count = (instruction.count as? ActualScalar)?.value ?: return null
-    if (!isStandardResource(instruction.gaining.className)) return null
-    return "Gain $count ${componentNoun(instruction.gaining.className, count)}."
+    if (card.effects.any(::isEndEffect) || card.extraClasses.isNotEmpty()) {
+      return null
+    }
+    val requirement = card.requirement?.let { renderRequirement(it) ?: return null }
+    val instructions = card.immediate?.instructions?.let { derivedInstructions(it) ?: return null }
+    return listOfNotNull(requirement, instructions).takeIf { it.isNotEmpty() }?.joinToString(" ")
   }
+
+  private fun derivedInstructions(instructions: List<Instruction>): String? {
+    if (instructions.isEmpty()) return null
+    val sentences = mutableListOf<String>()
+    var index = 0
+    while (index < instructions.size) {
+      if (standardResourceGain(instructions[index]) != null) {
+        val gains = instructions.drop(index).takeWhile { standardResourceGain(it) != null }
+        sentences += derivedStandardResourceGains(gains)
+        index += gains.size
+      } else {
+        sentences +=
+            derivedStandardResourceRemoval(instructions[index])
+                ?: derivedProductionChange(instructions[index])
+                ?: derivedTrackChange(instructions[index])
+                ?: derivedTilePlacement(instructions[index])
+                ?: return null
+        index++
+      }
+    }
+    return sentences.joinToString(" ")
+  }
+
+  private fun derivedStandardResourceGains(instructions: List<Instruction>): String {
+    val objects = instructions.map { instruction ->
+      val (className, count) = checkNotNull(standardResourceGain(instruction))
+      "$count ${componentNoun(className, count)}"
+    }
+    return "Gain ${englishList(objects)}."
+  }
+
+  private fun derivedStandardResourceRemoval(instruction: Instruction): String? {
+    val (className, count) = standardResourceRemoval(instruction) ?: return null
+    return "Remove $count ${componentNoun(className, count)}."
+  }
+
+  private fun derivedProductionChange(instruction: Instruction): String? {
+    val transform = instruction as? Transform ?: return null
+    if (transform.transformKind != PROD) return null
+    val instructions = InstructionGroup.of(transform.instruction).instructions
+    val changes = instructions.map { productionChange(it) ?: return null }
+    val clauses = mutableListOf<String>()
+    var index = 0
+    while (index < changes.size) {
+      val run = changes.drop(index).takeWhile { it.gaining == changes[index].gaining }
+      clauses += derivedProductionClause(run)
+      index += run.size
+    }
+    return clauses.joinToString(" and ").replaceFirstChar(Char::uppercaseChar) + "."
+  }
+
+  private fun productionChange(instruction: Instruction): ResourceProductionChange? {
+    standardResourceGain(instruction)?.let { (className, count) ->
+      return ResourceProductionChange(true, className, count)
+    }
+    standardResourceRemoval(instruction)?.let { (className, count) ->
+      return ResourceProductionChange(false, className, count)
+    }
+    return null
+  }
+
+  private fun derivedProductionClause(changes: List<ResourceProductionChange>): String {
+    val verb = if (changes.first().gaining) "increase" else "decrease"
+    val sharedCount = changes.map { it.count }.distinct().singleOrNull()
+    if (sharedCount != null) {
+      val steps = if (sharedCount == 1) "step" else "steps"
+      val productions = changes.map {
+        "your ${componentNoun(it.className, 1)} production"
+      }
+      return if (productions.size == 1) {
+        "$verb ${productions.single()} $sharedCount $steps"
+      } else {
+        "$verb ${englishList(productions)} $sharedCount $steps each"
+      }
+    }
+    val productions = changes.map {
+      val steps = if (it.count == 1) "step" else "steps"
+      "your ${componentNoun(it.className, 1)} production ${it.count} $steps"
+    }
+    return "$verb ${englishList(productions)}"
+  }
+
+  private fun standardResourceGain(instruction: Instruction): Pair<ClassName, Int>? {
+    val gain = concreteMandatoryGain(instruction) ?: return null
+    return gain.takeIf { (className) -> isStandardResource(className) }
+  }
+
+  private fun derivedTrackChange(instruction: Instruction): String? {
+    val gain = concreteMandatoryGain(instruction)
+    val removal = concreteMandatoryRemoval(instruction)
+    val (className, count) = gain ?: removal ?: return null
+    val subject =
+        when (className) {
+          oxygenStep -> "oxygen"
+          temperatureStep -> "temperature"
+          terraformRating -> "your TR"
+          venusStep -> "Venus"
+          else -> return null
+        }
+    val steps = if (count == 1) "step" else "steps"
+    val verb = if (gain != null) "Raise" else "Lower"
+    return "$verb $subject $count $steps."
+  }
+
+  private fun derivedTilePlacement(instruction: Instruction): String? {
+    val (className, count) = concreteMandatoryGain(instruction) ?: return null
+    if (className == greeneryTile && count == 1) {
+      return "Place a greenery tile (and raise oxygen 1 step)."
+    }
+    val (article, singular) =
+        when (className) {
+          cityTile -> "a" to "city tile"
+          oceanTile -> "an" to "ocean tile"
+          else -> return null
+        }
+    val nounPhrase = if (count == 1) "$article $singular" else "$count ${singular}s"
+    return "Place $nounPhrase."
+  }
+
+  private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {
+    val gain = instruction as? Gain ?: return null
+    if (gain.intensity != null && gain.intensity != MANDATORY) return null
+    if (!gain.gaining.simple) return null
+    val count = (gain.count as? ActualScalar)?.value ?: return null
+    return gain.gaining.className to count
+  }
+
+  private fun standardResourceRemoval(instruction: Instruction): Pair<ClassName, Int>? {
+    val removal = concreteMandatoryRemoval(instruction) ?: return null
+    return removal.takeIf { (className) -> isStandardResource(className) }
+  }
+
+  private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
+    val removal = instruction as? Remove ?: return null
+    if (removal.intensity != null && removal.intensity != MANDATORY) return null
+    if (!removal.removing.simple) return null
+    val count = (removal.count as? ActualScalar)?.value ?: return null
+    return removal.removing.className to count
+  }
+
+  private fun englishList(parts: List<String>): String =
+      when (parts.size) {
+        1 -> parts.single()
+        2 -> parts.joinToString(" and ")
+        else -> parts.dropLast(1).joinToString(", ") + ", and " + parts.last()
+      }
 
   private fun isStandardResource(className: ClassName): Boolean {
     val resourceClass = Canon.classTable.findClass(className) ?: return false
@@ -97,5 +247,18 @@ public object English {
   }
 
   private val endExpression = cn("End").expression
+  private val cityTile = cn("CityTile")
+  private val greeneryTile = cn("GreeneryTile")
+  private val oceanTile = cn("OceanTile")
+  private val oxygenStep = cn("OxygenStep")
   private val plant = cn("Plant")
+  private val temperatureStep = cn("TemperatureStep")
+  private val terraformRating = cn("TerraformRating")
+  private val venusStep = cn("VenusStep")
+
+  private data class ResourceProductionChange(
+      val gaining: Boolean,
+      val className: ClassName,
+      val count: Int,
+  )
 }
