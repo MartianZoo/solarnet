@@ -86,14 +86,11 @@ internal class TypeTest {
     val table: ClassTable =
         loadTypes(
             """
-            ABSTRACT CLASS Anyone {
-              ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-            }
+            CLASS Player1 : Owner
+            CLASS Player2 : Owner
 
-            ABSTRACT CLASS Owned<Owner> {
-              ABSTRACT CLASS CardFront
-              ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
-            }
+            ABSTRACT CLASS CardFront : Owned<Owner>
+            ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
 
             // Treated as an extension of Cardbound<ResourceCard<Class<CardResource>>>, plus a rule
             ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> {
@@ -181,13 +178,8 @@ internal class TypeTest {
     val table =
         loadTypes(
             """
-            ABSTRACT CLASS Anyone {
-              ABSTRACT CLASS Owner {
-                CLASS SoloOpponent
-                ABSTRACT CLASS Player { CLASS Player1 }
-              }
-            }
-            ABSTRACT CLASS Owned<Anyone>
+            CLASS SoloOpponent : Owner
+            ABSTRACT CLASS Player : Owner { CLASS Player1 }
             ABSTRACT CLASS Card : Owned<Player> { CLASS Badge }
             ABSTRACT CLASS Resource : Owned<Owner> { CLASS Coin }
             """
@@ -340,10 +332,8 @@ internal class TypeTest {
     val table =
         loadTypes(
             """
-            ABSTRACT CLASS Anyone {
-              ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-            }
-            ABSTRACT CLASS Owned<Owner>
+            CLASS Player1 : Owner
+            CLASS Player2 : Owner
             """
                 .trimIndent()
         )
@@ -445,13 +435,14 @@ internal class TypeTest {
     val complementTable =
         loadTypes(
             """
-            ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-            CLASS Owned<Owner>
+            CLASS Player1 : Owner
+            CLASS Player2 : Owner
+            CLASS Possession<Owner>
             """
                 .trimIndent()
         )
-    complementTable.resolve(te("Owned<!Player1>")).singleConcreteSubtype(met) shouldBe
-        complementTable.resolve(te("Owned<Player2>"))
+    complementTable.resolve(te("Possession<!Player1>")).singleConcreteSubtype(met) shouldBe
+        complementTable.resolve(te("Possession<Player2>"))
 
     val incompatibleTable =
         loadTypes(

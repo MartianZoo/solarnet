@@ -26,17 +26,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   CLASS Player1, Player2, Player3, Player4, Player5
 }
 
-// The icon-grammar spelling for an unrestricted ownership target
-ABSTRACT CLASS Anyone
-
-// An entity that can own things without necessarily being a Player
-ABSTRACT CLASS Owner : Anyone
-
-"Everything owned by a player or neutral owner must be a subclass of this"
-ABSTRACT CLASS Owned<Anyone> {
-  DEFAULT Owned<Owner>
-}
-
 // MAPS AND AREAS
 
 "Every game must have exactly one of these (Tharsis Map, etc.)"

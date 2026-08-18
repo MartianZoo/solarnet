@@ -29,12 +29,12 @@ public object SystemClasses {
   public val SIGNAL: ClassName = cn("Signal")
   public val SYSTEM: ClassName = cn("System")
   public val TEMPORARY: ClassName = cn("Temporary")
-
-  // Classes not defined in system.pets but which need to be defined by the game somewhere
-
   public val ANYONE: ClassName = cn("Anyone")
   public val OWNED: ClassName = cn("Owned")
   public val OWNER: ClassName = cn("Owner")
+
+  // Classes not defined in system.pets but which need to be defined by the game somewhere
+
   public val PLAYER: ClassName = cn("Player")
   public val USE_ACTION: ClassName = cn("UseAction")
 }

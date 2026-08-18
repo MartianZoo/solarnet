@@ -81,7 +81,9 @@ classes. They are too small to drive an architecture change. Move them only with
 Do not reopen these without new evidence:
 
 - `system.pets` owns the runtime classes `Component`, `Class`, `Hidden`, `System`,
-  `Temporary`, `Signal`, `Ok`, `Die`, `Engine`, `AutoLoad`, `Custom`, and `Atomized`.
+  `Temporary`, `Signal`, `Ok`, `Die`, `Engine`, `AutoLoad`, `Custom`, `Atomized`, `Anyone`,
+  `Owner`, and `Owned`. Ownership is generic engine vocabulary; concrete owner kinds remain
+  game-specific.
 - `Initializer` creates only engine/singleton baseline state; Terraforming Mars workflow creates
   `SetupPhase`.
 - Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
