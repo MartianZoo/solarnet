@@ -19,11 +19,17 @@ internal fun renderRequirement(requirement: Requirement): String? =
 private fun renderMinimum(requirement: Requirement.Min): String? =
     target(requirement, oxygenStep)?.let { "Requires $it% oxygen." }
         ?: target(requirement, temperatureStep)?.let { "Requires ${temperature(it)} or warmer." }
+        ?: target(requirement, oceanTile)?.let {
+          "Requires $it ocean ${if (it == 1) "tile" else "tiles"}."
+        }
 
 private fun renderMaximum(requirement: Requirement.Max): String? =
     target(requirement, oxygenStep)?.let { "Oxygen must be $it% or less." }
         ?: target(requirement, temperatureStep)?.let {
           "Temperature must be ${temperature(it)} or colder."
+        }
+        ?: target(requirement, oceanTile)?.let {
+          "There must be $it or fewer ocean tiles."
         }
 
 private fun target(requirement: Requirement.Counting, className: ClassName): Int? {
@@ -37,5 +43,6 @@ private fun temperature(steps: Int): String {
   return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
 }
 
+private val oceanTile = cn("OceanTile")
 private val oxygenStep = cn("OxygenStep")
 private val temperatureStep = cn("TemperatureStep")

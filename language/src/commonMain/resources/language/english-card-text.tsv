@@ -113,7 +113,7 @@ Card042	042	Archaebacteria	Temperature must be -18°C or colder. Increase your p
 Card043	043	Carbonate Processing	Decrease your energy production 1 step and increase your heat production 3 steps.	
 Card044	044	Natural Preserve	Oxygen must be 4% or less. Place this tile NEXT TO NO OTHER TILE. Increase your M€ production 1 step.	
 Card045	045	Nuclear Power	Decrease your M€ production 2 steps and increase your energy production 3 steps.	
-Card047	047	Algae	Requires 5 ocean tiles. Gain 1 plant and increase your plant production 2 steps.	
+Card047	047	Algae	Requires 5 ocean tiles. Gain 1 plant. Increase your plant production 2 steps.	
 Card048	048	Adapted Lichen	Increase your plant production 1 step.	
 Card052	052	Fish	Requires +2°C or warmer. Decrease any player's plant production 1 step. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card053	053	Lake Marineris	Requires 0°C or warmer. Place 2 ocean tiles.	
@@ -152,7 +152,7 @@ Card117	117	Geothermal Power	Increase your energy production 2 steps.
 Card118	118	Farming	Requires +4°C or warmer. Increase your M€ production 2 steps and your plant production 2 steps. Gain 2 plants.	
 Card119	119	Dust Seals	There must be 3 or fewer ocean tiles.	
 Card120	120	Urbanized Area	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile ADJACENT TO AT LEAST 2 OTHER CITY TILES.	
-Card122	122	Moss	Requires 3 ocean tiles. Increase your plant production 1 step.	Remove 1 plant.
+Card122	122	Moss	Requires 3 ocean tiles. Increase your plant production 1 step. Remove 1 plant.	
 Card126	126	GHG Factories	Decrease your energy production 1 step and increase your heat production 4 steps.	
 Card127	127	Subterranean Reservoir	Place an ocean tile.	
 Card128	128	Ecological Zone	Requires that you have a greenery tile. Place this tile ADJACENT TO ANY GREENERY TILE. 1 VP for every 2 animals on this card.	Effect: When you play an animal tag or plant tag (including these 2), add 1 animal to this card.
@@ -171,7 +171,7 @@ Card141	141	Power Plant	Increase your energy production 1 step.
 Card142	142	Mohole Area	Increase your heat production 4 steps. Place this tile ON AN AREA RESERVED FOR OCEAN.	
 Card143	143	Large Convoy	Place an ocean tile and draw 2 cards. Gain 5 plants, or add 4 animals to ANOTHER card.	
 Card145	145	Tectonic Stress Power	Requires 2 science tags. Increase your energy production 3 steps.	
-Card146	146	Nitrophilic Moss	Requires 3 ocean tiles. Increase your plant production 2 steps.	Remove 2 plants.
+Card146	146	Nitrophilic Moss	Requires 3 ocean tiles. Increase your plant production 2 steps. Remove 2 plants.	
 Card147	147	Herbivores	Requires 8% oxygen. Add 1 animal to this card. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Effect: When you place a greenery tile, add 1 animal to this card.
 Card148	148	Insects	Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.	
 Card152	152	Insulation	Decrease your heat production one or more steps and increase your M€ production the same number of steps.	

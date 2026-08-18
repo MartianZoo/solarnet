@@ -78,9 +78,9 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 ## Current derivation boundary
 
 `English` derives an empty region when the card definition has no element printed there. It derives
-minimum and maximum oxygen and temperature requirements, and it derives bottom text when every
-immediate instruction is one of: a concrete mandatory gain or removal of a standard resource; a group
-of concrete mandatory standard-resource production gains or decreases; a city- or ocean-tile
+minimum and maximum oxygen, temperature, and ocean-count requirements, and it derives bottom text when
+every immediate instruction is one of: a concrete mandatory gain or removal of a standard resource; a
+group of concrete mandatory standard-resource production gains or decreases; a city- or ocean-tile
 placement; or a concrete mandatory temperature, oxygen, Venus-step, or TR gain or removal. Supported
 instructions are rendered in authored order, with adjacent standard-resource gains coalesced into one
 sentence.
