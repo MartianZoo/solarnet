@@ -39,13 +39,15 @@ class EffectActorCharacterizationTest {
   }
 
   @Test
-  fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerAReward() {
+  fun enginePerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(ElysiumMapOption, players = 2))
     val engine = game.gameplay(ENGINE).godMode().also { it.autoExecMode = NONE }
     val checkpoint = game.timeline.checkpoint()
 
     engine.beginManual("GreeneryTile<Player1, Elysium_9_8>") {
-      game.tasks.extract { it.assignee to it.instruction.toString() }.shouldContainExactly()
+      game.tasks
+          .extract { it.assignee to it.instruction.toString() }
+          .shouldContainExactly(PLAYER1 to "OxygenStep.")
 
       engine.has("Neighbor") shouldBe true
       engine.count("ProjectCard<Player1>") shouldBe 0

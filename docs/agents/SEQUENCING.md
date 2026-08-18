@@ -101,8 +101,8 @@ the component that owns the ambient rule. Use `IF` when state distinguishes whic
 Examples:
 
 - `GlobalParameter` owns its TR reaction because every qualifying parameter step uses it.
-- `Photosynthesis` owns greenery-to-oxygen because setup and final greenery can omit that ambient
-  rule without redefining `GreeneryTile`.
+- `GreeneryTile` owns its oxygen reaction because every greenery raises oxygen. Solo setup cancels
+  the oxygen locally after each neutral placement.
 
 Use queued `:` by default. [Automatic `::`](#use-automatic-effects-to-preserve-player-visible-invariants)
 is the stronger form for restoring an invariant before player work appears.
@@ -190,6 +190,30 @@ admission, or as a substitute for a scope that must wait for transitive descenda
 
 Lifecycle families using mixed modes still need audit. Card play also uses a broad barrier whose
 scope may be wider than its payment transaction.
+
+## Proposed fanout composes as siblings, not a loop or join
+
+**Not implemented.** The proposed [`EACH`](EACHPLAYER.md) instruction takes one World snapshot and
+produces one sibling instruction tree per matching concrete Type, multiplied by that Type's
+snapshot multiplicity. It has no authored iteration order or branch-to-branch sequencing. Engine
+traversal order must remain unobservable.
+
+The intended sequencing shapes are deliberately local:
+
+```pets
+A THEN EACH Player { B<Player> }              // completing A produces the B siblings
+EACH Player { A<Player> THEN B<Player> }      // one ordinary continuation in each branch
+Trigger:: EACH Player { A<Player> }           // inline only when every A is choice-free
+```
+
+Do not interpret `EACH Player { A<Player> } THEN B` as waiting for every branch or every descendant
+caused by a branch. That is a distributed-completion scope, which ordinary `THEN` and sibling
+fanout do not provide. If a real rule requires such a join, use or design the narrow completion
+mechanism for that rule rather than changing fanout globally.
+
+Fanout also does not imply delegation. Every branch retains the surrounding assignee, so work that
+a selected Player must narrow should continue to use a meaningful Player-owned listener or an
+explicit future delegation mechanism.
 
 ## Exploratory continuation semantics
 
@@ -361,9 +385,6 @@ this is acceptable only while nothing can observe their relative order.
   the played-event pile. Current sibling cleanup can make Solar Probe lose its own science tag.
 - **Head Start:** every descendant of its first granted action must finish before the second begins.
   Siblings and ordinary `THEN` are too weak; this requires a completion scope or narrow barrier.
-- **Ecology Experts with Splice:** the selected card must be provisionally present for its effect to
-  react to Ecology Experts' early tags, while those tags may fund payment. No linear before/after
-  order expresses this. A card-play/payment transaction scope is likely required.
 
 ## Open design or rules audits
 

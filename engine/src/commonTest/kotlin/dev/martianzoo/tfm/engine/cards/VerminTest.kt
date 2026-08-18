@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
@@ -22,24 +24,30 @@ class VerminTest : CardTest() {
 
   @Test
   fun `ten animals make every player lose one point per owned city`() {
-    newGame(PromoCardPack)
+    newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
+    val p3 = game.tfm(PLAYER3)
     p1.manual("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, CityTile<Tharsis_2_3>")
     p2.manual("CityTile<Tharsis_3_2>")
+    p3.manual("CityTile<Tharsis_3_3>")
 
     engine.phase("End")
 
     p1.assertCounts(18 to "VictoryPoint")
     p2.assertCounts(19 to "VictoryPoint")
+    p3.assertCounts(19 to "VictoryPoint")
   }
 
   @Test
   fun `fewer than ten animals do not impose the city penalty`() {
     newGame(PromoCardPack)
-    p1.manual("$Vermin, 8 Animal<$Vermin>, CityTile<Tharsis_2_1>")
+    val p2 = requireP2()
+    p1.manual("$Vermin, 7 Animal<$Vermin>, CityTile<Tharsis_2_1>")
+    p2.manual("CityTile<Tharsis_3_2>")
 
     engine.phase("End")
 
     p1.assertCounts(20 to "VictoryPoint")
+    p2.assertCounts(20 to "VictoryPoint")
   }
 }

@@ -4,6 +4,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Replace the `English` card-text data-file fallback incrementally with derivation from Pets
+  instructions, reviewing each resulting wording change against the data-file characterization.
+- Settle and prototype the generic `EACH Type { ... }` fanout proposed in
+  [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
+  completion separate.
 - Develop the class-property cardinality, abstract-default, RequirementGroup, and `Instruction*`
   directions recorded in [`docs/agents/PROPERTIES.md`](docs/agents/PROPERTIES.md).
 - Support requirement adjustment when one part of a compound card requirement is a global-parameter
@@ -11,7 +16,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Decide whether `CardFront` should depend on `Class<CardBack>`, with types such as `ActiveCard`
   extending `CardFront<Class<ProjectCard>>`, so the front-to-back relationship is represented in
   the type model and may subsume the separate deck check.
-- Document the slight, intentional differences between `Canon` and the published Terraforming Mars rules.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
 - Make Modules enumerate the AutoLoad Classes they require instead of implicitly activating every AutoLoad Class in their selected bundle content.
 - Audit `system.pets` and retain only the System Types the generic engine genuinely requires.
@@ -27,6 +31,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.
 - Move fixture-only action helpers such as `playCorp` and `playProject` out of production
   `TfmGameplay`; remove or replace `SampleGames` and give benchmarks explicit harness utilities.
+- Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
+  and whether adding and then removing those steps has any other observable consequences.
 
 ### Making Solarnet AI-player-ready
 

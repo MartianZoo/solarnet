@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.NotNowException
+import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.engine.TestOption.TerraCimmeriaMapOption
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -25,6 +27,25 @@ class MiningAreaTest : CardTest() {
           doTask("Card064_SpecialTile<Tharsis_8_9>")
         }
         .expect("Titanium, PROD[Titanium]")
+  }
+
+  @Test
+  fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
+    newGame(TerraCimmeriaMapOption)
+    p1.manual("CityTile<TerraCimmeria_5_4>")
+    p1.manual("$MiningArea") {
+          doTask("Tile064<TerraCimmeria_6_4>")
+          doTask("PROD[Steel]")
+        }
+        .expect("Titanium, 2 Steel, PROD[Steel]")
+
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+    manual.beginManual("$RoboticWorkforce")
+    manual.reviseTask(
+        "CopyProductionBox<CardFront(HAS BuildingTag)>",
+        "CopyProductionBox<$MiningArea>",
+    )
+    manual.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 
   @Test

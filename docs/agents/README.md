@@ -25,12 +25,14 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Reconstructing supplied game logs | [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md) | Current procedure |
 | Class Names, display names, and vocabulary | [NAMING.md](NAMING.md) | Current model |
 | Canonical definition identifiers | [IDENTIFIERS.md](IDENTIFIERS.md) | Current convention and audit |
+| English card-text derivation | [LANGUAGE.md](LANGUAGE.md) | Working rules |
 
 ## Read only when the task touches the area
 
 | Area | Document | Status |
 | --- | --- | --- |
 | Actor, assignee, context owner, and future delegation | [IDENTITY.md](IDENTITY.md) | Current model plus proposal |
+| Component fanout through proposed `EACH` syntax | [EACHPLAYER.md](EACHPLAYER.md) | Proposal |
 | Flattening the engine workhorse and later client boundary | [API.md](API.md) | Proposal |
 | Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
 | Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |

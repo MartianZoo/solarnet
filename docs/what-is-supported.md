@@ -20,6 +20,53 @@ Each component is attributed to whatever product introduced it first.
 | Milestones & Awards | - | - | - | - | - | - | 11 / 16 | - | - | - | - |
 | Promos through 2026-08 | 8 / 10 | 70 / 73 | 9 / 10 | - | 2 / 3 | - | - | - | 0 / 5 | - | - |
 
+## Supported game variant
+
+Solarnet aims to implement Terraforming Mars faithfully. Its deliberate rule differences are very
+minor edge cases, not a substantially different game, and almost every game will be unaffected by
+them.
+
+### Ecology Experts resolves its tags before its project
+
+Ecology Experts supplies its plant and microbe tags before its player chooses the project it will
+play. Reactions to those tags happen at that time. In particular, Splice Tactical Genomics can
+provide money that helps pay for the project.
+
+The selected project does not react retroactively to those tags. If Ecology Experts plays
+Decomposers, Decomposers does not gain microbes from Ecology Experts itself. Making the same tags
+take effect once before card selection and again after card play would add a second, exceptional
+timing model for a few rare interactions.
+
+### Every greenery raises oxygen
+
+Every greenery placement raises oxygen, including greeneries placed during the final greenery
+phase. Ordinarily this is unobservable because oxygen must already be maximized for the game to end.
+It matters in variants such as TR 63 solo, which can end with oxygen below 14%.
+
+The two neutral greeneries placed during solo setup are the sole exception: each oxygen increase is
+immediately canceled. This keeps solo setup at its printed starting oxygen level without teaching
+greenery tiles a phase-dependent rule.
+
+### Robotic Workforce re-evaluates Mining Rights and Mining Area
+
+When Robotic Workforce copies Mining Rights or Mining Area, Solarnet re-evaluates the copied
+production instruction from the tile's map bonus. It does not remember whether steel or titanium
+was selected when the mining card was originally played. On the rare area that provides both kinds
+of bonus, Robotic Workforce may therefore choose the other production.
+
+Remembering an otherwise invisible historical choice would add permanent state for this one edge
+case. Jacob Fryxelius [declined to settle the interaction](https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce)
+when it was presented to him.
+
+### A solo loss has no score
+
+If a solo game reaches its deadline without satisfying its victory condition, Solarnet ends the
+game immediately. There are no final greeneries and no scoring; the result is a loss with a score
+of zero.
+
+This follows what we believe is the designer's intent: scoring distinguishes successful solo games,
+not different degrees of failure.
+
 ## Still to implement
 
 | Product | Category | Item | Why |

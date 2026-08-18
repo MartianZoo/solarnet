@@ -14,12 +14,24 @@ import kotlin.test.Test
 
 class MonsInsuranceTest : CardTest() {
   @Test
-  fun `starting production loss is self-applied and triggers no compensation`() {
-    newGame(PromoCardPack)
-    requireP2()
+  fun `starting production loss reaches every opponent but not its owner`() {
+    newGame(PromoCardPack, players = 3)
+    val p3 = game.tfm(PLAYER3)
 
     p1.playCorp(MonsInsurance, 0)
-        .expect("48, PROD[4 Megacredit<Player1>], PROD[-2 Megacredit<Player2>]")
+        .expect(
+            "48, PROD[4 Megacredit<Player1>], PROD[-2 Megacredit<Player2>], PROD[-2 Megacredit<Player3>]"
+        )
+
+    p3.assertProds(-2 to "Megacredit")
+  }
+
+  @Test
+  fun `starting production loss does not target the solo opponent`() {
+    newGame(PromoCardPack, players = 1)
+
+    p1.playCorp(MonsInsurance, 0)
+        .expect("48, PROD[4 Megacredit<Me>], PROD[0 Megacredit<SoloOpponent>]")
   }
 
   @Test
