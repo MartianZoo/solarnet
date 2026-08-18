@@ -77,9 +77,9 @@ clearest and the implementation simplest.
 derives bottom text when that entire region consists of one or more concrete, mandatory gains of
 standard resources, or when it consists of concrete, mandatory standard-resource production gains
 that all have the same count, or one concrete, mandatory standard-resource production decrease. A
-requirement, an End-triggered scoring effect, or any unsupported immediate-instruction shape keeps
-the whole region data-backed. Actions and non-End effects are top elements and do not prevent bottom
-derivation.
+singleton concrete, mandatory Venus-step or TR gain is also derived. A requirement, an End-triggered
+scoring effect, or any unsupported immediate-instruction shape keeps the whole region data-backed.
+Actions and non-End effects are top elements and do not prevent bottom derivation.
 
 ## Component nouns and change verbs
 

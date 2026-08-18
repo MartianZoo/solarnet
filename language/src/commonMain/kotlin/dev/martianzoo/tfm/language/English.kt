@@ -55,6 +55,7 @@ public object English {
     val instructions = card.immediate?.instructions ?: return null
     return derivedStandardResourceGains(instructions)
         ?: instructions.singleOrNull()?.let(::derivedProductionChange)
+        ?: instructions.singleOrNull()?.let(::derivedTrackGain)
   }
 
   private fun derivedStandardResourceGains(instructions: List<Instruction>): String? {
@@ -90,11 +91,27 @@ public object English {
   }
 
   private fun standardResourceGain(instruction: Instruction): Pair<ClassName, Int>? {
+    val gain = concreteMandatoryGain(instruction) ?: return null
+    return gain.takeIf { (className) -> isStandardResource(className) }
+  }
+
+  private fun derivedTrackGain(instruction: Instruction): String? {
+    val (className, count) = concreteMandatoryGain(instruction) ?: return null
+    val subject =
+        when (className) {
+          terraformRating -> "your TR"
+          venusStep -> "Venus"
+          else -> return null
+        }
+    val steps = if (count == 1) "step" else "steps"
+    return "Raise $subject $count $steps."
+  }
+
+  private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {
     val gain = instruction as? Gain ?: return null
     if (gain.intensity != null && gain.intensity != MANDATORY) return null
     if (!gain.gaining.simple) return null
     val count = (gain.count as? ActualScalar)?.value ?: return null
-    if (!isStandardResource(gain.gaining.className)) return null
     return gain.gaining.className to count
   }
 
@@ -157,4 +174,6 @@ public object English {
 
   private val endExpression = cn("End").expression
   private val plant = cn("Plant")
+  private val terraformRating = cn("TerraformRating")
+  private val venusStep = cn("VenusStep")
 }
