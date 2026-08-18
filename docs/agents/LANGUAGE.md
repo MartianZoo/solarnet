@@ -76,9 +76,10 @@ clearest and the implementation simplest.
 `English` derives an empty region when the card definition has no element printed there. It also
 derives bottom text when that entire region consists of one or more concrete, mandatory gains of
 standard resources, or when it consists of concrete, mandatory standard-resource production gains
-that all have the same count. A requirement, an End-triggered scoring effect, or any unsupported
-immediate-instruction shape keeps the whole region data-backed. Actions and non-End effects are top
-elements and do not prevent bottom derivation.
+that all have the same count, or one concrete, mandatory standard-resource production decrease. A
+requirement, an End-triggered scoring effect, or any unsupported immediate-instruction shape keeps
+the whole region data-backed. Actions and non-End effects are top elements and do not prevent bottom
+derivation.
 
 ## Component nouns and change verbs
 

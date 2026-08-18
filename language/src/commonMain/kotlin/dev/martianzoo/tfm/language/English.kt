@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -53,7 +54,7 @@ public object English {
     if (card.requirement != null || card.effects.any(::isEndEffect)) return null
     val instructions = card.immediate?.instructions ?: return null
     return derivedStandardResourceGains(instructions)
-        ?: instructions.singleOrNull()?.let(::derivedProductionGain)
+        ?: instructions.singleOrNull()?.let(::derivedProductionChange)
   }
 
   private fun derivedStandardResourceGains(instructions: List<Instruction>): String? {
@@ -65,13 +66,17 @@ public object English {
     return "Gain ${englishList(objects)}."
   }
 
-  private fun derivedProductionGain(instruction: Instruction): String? {
+  private fun derivedProductionChange(instruction: Instruction): String? {
     val transform = instruction as? Transform ?: return null
     if (transform.transformKind != PROD) return null
-    val gains =
-        InstructionGroup.of(transform.instruction).instructions.map {
-          standardResourceGain(it) ?: return null
-        }
+    val instructions = InstructionGroup.of(transform.instruction).instructions
+    val gains = instructions.mapNotNull(::standardResourceGain)
+    if (gains.size != instructions.size) {
+      val (className, count) =
+          standardResourceRemoval(instructions.singleOrNull() ?: return null) ?: return null
+      val steps = if (count == 1) "step" else "steps"
+      return "Decrease your ${componentNoun(className, count)} production $count $steps."
+    }
     val count = gains.map { it.second }.distinct().singleOrNull() ?: return null
     val steps = if (count == 1) "step" else "steps"
     val productions = gains.map { (className) ->
@@ -91,6 +96,15 @@ public object English {
     val count = (gain.count as? ActualScalar)?.value ?: return null
     if (!isStandardResource(gain.gaining.className)) return null
     return gain.gaining.className to count
+  }
+
+  private fun standardResourceRemoval(instruction: Instruction): Pair<ClassName, Int>? {
+    val removal = instruction as? Remove ?: return null
+    if (removal.intensity != null && removal.intensity != MANDATORY) return null
+    if (!removal.removing.simple) return null
+    val count = (removal.count as? ActualScalar)?.value ?: return null
+    if (!isStandardResource(removal.removing.className)) return null
+    return removal.removing.className to count
   }
 
   private fun englishList(parts: List<String>): String =
