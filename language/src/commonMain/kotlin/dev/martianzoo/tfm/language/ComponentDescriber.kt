@@ -6,6 +6,7 @@ internal data class ComponentDescriber(
     val standardResource: Boolean? = null,
     val cardResource: CardResource? = null,
     val cardResourceHolder: String? = null,
+    val metricLocation: String? = null,
     val tag: Tag? = null,
     val track: Track? = null,
     val placement: Placement? = null,

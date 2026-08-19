@@ -388,10 +388,17 @@ internal object Describers {
   private fun placementCountPhrase(expression: Expression, count: Int): String? {
     if (expression.refinement != null || expression.complement) return null
     val placement = this[expression.className].placement ?: return null
-    val scope =
+    val (scope, location) =
         when {
-          expression.simple -> placement.unqualifiedMetricScope
-          expression.arguments == listOf(anyoneExpression) -> placement.anyoneMetricScope
+          expression.simple -> (placement.unqualifiedMetricScope ?: return null) to null
+          expression.arguments == listOf(anyoneExpression) ->
+              (placement.anyoneMetricScope ?: return null) to null
+          expression.arguments.size == 2 && expression.arguments.last() == anyoneExpression -> {
+            val location = expression.arguments.first()
+            if (!location.simple) return null
+            (placement.anyoneMetricScope ?: return null) to
+                (this[location.className].metricLocation ?: return null)
+          }
           else -> null
         } ?: return null
     val scopePhrase =
@@ -399,7 +406,7 @@ internal object Describers {
           ComponentDescriber.MetricScope.OWNED -> "you own"
           ComponentDescriber.MetricScope.IN_PLAY -> "in play"
         }
-    return "${if (count == 1) placement.singular else placement.plural} $scopePhrase"
+    return "${if (count == 1) placement.singular else placement.plural} $scopePhrase${location?.let { " $it" }.orEmpty()}"
   }
 
   private fun renderProductionRequirement(minimum: Requirement.Min): String? {
@@ -594,6 +601,7 @@ internal object Describers {
                 cardResource = ComponentDescriber.CardResource.SUFFIXED,
             ),
         klass("CardFront") to ComponentDescriber(cardResourceHolder = "card"),
+        klass("MarsArea") to ComponentDescriber(metricLocation = "on Mars"),
         klass("Animal") to
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
         klass("Asteroid") to
@@ -681,6 +689,7 @@ internal object Describers {
           standardResource = resolveFact(componentClass, ComponentDescriber::standardResource),
           cardResource = resolveFact(componentClass, ComponentDescriber::cardResource),
           cardResourceHolder = resolveFact(componentClass, ComponentDescriber::cardResourceHolder),
+          metricLocation = resolveFact(componentClass, ComponentDescriber::metricLocation),
           tag = resolveFact(componentClass, ComponentDescriber::tag),
           track = resolveFact(componentClass, ComponentDescriber::track),
           placement = resolveFact(componentClass, ComponentDescriber::placement),
