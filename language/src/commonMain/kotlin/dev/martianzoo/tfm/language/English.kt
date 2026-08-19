@@ -55,14 +55,20 @@ public object English {
       return null
     }
     val requirement = card.requirement?.let { renderRequirement(it) ?: return null }
-    val instructions = card.immediate?.instructions?.let { derivedInstructions(it) ?: return null }
+    val instructions =
+        card.immediate?.instructions?.let {
+          derivedInstructions(it, card.resourceType) ?: return null
+        }
     val scoring = card.effects.filter(::isEndEffect).map { renderEndEffect(it) ?: return null }
     return (listOfNotNull(requirement, instructions) + scoring)
         .takeIf { it.isNotEmpty() }
         ?.joinToString(" ")
   }
 
-  private fun derivedInstructions(instructions: List<Instruction>): String? {
+  private fun derivedInstructions(
+      instructions: List<Instruction>,
+      cardResourceType: ClassName?,
+  ): String? {
     if (instructions.isEmpty()) return null
     val sentences = mutableListOf<String>()
     var index = 0
@@ -75,7 +81,7 @@ public object English {
         sentences +=
             derivedStandardResourceRemoval(instructions[index])
                 ?: derivedDirectGain(instructions[index])
-                ?: derivedCardResourceGain(instructions[index])
+                ?: derivedCardResourceGain(instructions[index], cardResourceType)
                 ?: derivedProductionChange(instructions[index])
                 ?: derivedTrackChange(instructions[index])
                 ?: derivedTilePlacement(instructions[index])
@@ -110,20 +116,26 @@ public object English {
     return "Gain $count ${gain.noun}."
   }
 
-  private fun derivedCardResourceGain(instruction: Instruction): String? {
+  private fun derivedCardResourceGain(
+      instruction: Instruction,
+      cardResourceType: ClassName?,
+  ): String? {
     val gain = instruction as? Gain ?: return null
     if (gain.intensity != null && gain.intensity != MANDATORY) return null
     val expression = gain.gaining
-    if (
-        expression.arguments != listOf(thisExpression) ||
-            expression.refinement != null ||
-            expression.complement
-    ) {
+    if (expression.refinement != null || expression.complement) {
       return null
     }
     val count = (gain.count as? ActualScalar)?.value ?: return null
     val noun = cardResourceNoun(expression.className, count) ?: return null
-    return "Add $count $noun to this card."
+    val target =
+        when {
+          expression.arguments == listOf(thisExpression) -> "this card"
+          expression.arguments.isEmpty() ->
+              if (cardResourceType == expression.className) "ANY card" else "ANOTHER card"
+          else -> return null
+        }
+    return "Add $count $noun to $target."
   }
 
   private fun derivedProductionChange(instruction: Instruction): String? {

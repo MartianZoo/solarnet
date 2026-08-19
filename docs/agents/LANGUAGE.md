@@ -93,7 +93,7 @@ It also derives minimum and maximum owned-colony requirements. It derives bottom
 immediate instruction is one of: a concrete mandatory
 gain or removal of a standard resource; an optional removal of up to a concrete number of standard
 resources from any player; a gain of one reserve Trade Fleet; a concrete mandatory gain of a card
-resource on the played card; a group of concrete
+resource on the played card or an unrestricted card; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
 placement; one plain greenery-tile placement; or a concrete mandatory
 temperature, oxygen, Venus-step, or TR gain or removal. A production decrease may target any player.
@@ -131,6 +131,9 @@ not structurally sufficient.
 A plain mandatory placement of one greenery tile renders its implicit oxygen increase. Restricted
 greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
+
+An unrestricted gain of a concrete card resource says `ANY card` when the played card can hold that
+resource and `ANOTHER card` when it cannot. A narrowed card-resource target remains data-backed.
 
 Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
 `Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; counts above
