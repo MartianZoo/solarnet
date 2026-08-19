@@ -28,9 +28,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   other automatic effects, admit and immediately prepare one forced choice, then let that choice
   and its own automatic effects execute normally. Prefer this only if it removes more
   barrier/continuation machinery than it adds.
-- Explore a global `Idle : Signal, System` fixed point: queue-empty broadcasts give one-shot
-  Temporary continuations a chance to create work, and workflow wakes only when a broadcast creates
-  no work and no Temporary remains. Keep this distinct from local Barriers and scoped drain.
+- Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
+  highest occupied priority in their control scope, without task-targeting effects or mutation.
+  Test whether Trade can delete its pure scheduling barrier and whether PlayCard can directly create
+  reduced-priority card-entry and event-cleanup work while preserving auditable `Owed` and
+  `Required` components. Keep this distinct from `THEN`, state gates, and scoped drain.
 - Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.
 - Move fixture-only action helpers such as `playCorp` and `playProject` out of production
   `TfmGameplay`; remove or replace `SampleGames` and give benchmarks explicit harness utilities.
