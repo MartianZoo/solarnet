@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.engine.cards.colonies
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.engine.cards.CardTest
 import dev.martianzoo.tfm.engine.cardnames.Poseidon
+import dev.martianzoo.tfm.engine.cards.CardTest
 import kotlin.test.Test
 
 class PoseidonTest : CardTest() {
