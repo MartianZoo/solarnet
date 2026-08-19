@@ -2,8 +2,6 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
@@ -52,7 +50,7 @@ public object English {
   private fun derivedBottomText(card: CardDefinition): String? {
     if (
         card.extraClasses.any { it.className != card.resourceType } ||
-            card.className == searchForLife
+            Describers[card.className].deriveBottomText == false
     ) {
       return null
     }
@@ -76,7 +74,7 @@ public object English {
       } else {
         sentences +=
             derivedStandardResourceRemoval(instructions[index])
-                ?: derivedTradeFleetGain(instructions[index])
+                ?: derivedDirectGain(instructions[index])
                 ?: derivedCardResourceGain(instructions[index])
                 ?: derivedProductionChange(instructions[index])
                 ?: derivedTrackChange(instructions[index])
@@ -105,10 +103,11 @@ public object English {
     return "Remove up to ${removal.count} ${componentNoun(removal.className, removal.count)} from any player."
   }
 
-  private fun derivedTradeFleetGain(instruction: Instruction): String? {
+  private fun derivedDirectGain(instruction: Instruction): String? {
     val (className, count) = concreteMandatoryGain(instruction) ?: return null
-    if (className != reserveTradeFleet || count != 1) return null
-    return "Gain 1 Trade Fleet."
+    val gain = Describers[className].directGain ?: return null
+    if (count != gain.count) return null
+    return "Gain $count ${gain.noun}."
   }
 
   private fun derivedCardResourceGain(instruction: Instruction): String? {
@@ -174,38 +173,24 @@ public object English {
     val gain = concreteMandatoryGain(instruction)
     val removal = concreteMandatoryRemoval(instruction)
     val (className, count) = gain ?: removal ?: return null
-    val subject =
-        when (className) {
-          oxygenStep -> "oxygen"
-          temperatureStep -> "temperature"
-          terraformRating -> "your TR"
-          venusStep -> "Venus"
-          else -> return null
-        }
+    val track = Describers[className].track ?: return null
     val steps = if (count == 1) "step" else "steps"
     val verb = if (gain != null) "Raise" else "Lower"
-    return "$verb $subject $count $steps."
+    return "$verb ${track.subject} $count $steps."
   }
 
   private fun derivedTilePlacement(instruction: Instruction): String? {
     val (className, count) = concreteMandatoryGain(instruction) ?: return null
-    if (className == greeneryTile && count == 1) {
-      return "Place a greenery tile (and raise oxygen 1 step)."
-    }
-    val (article, singular) =
-        when (className) {
-          cityTile -> "a" to "city tile"
-          colony -> "a" to "colony"
-          oceanTile -> "an" to "ocean tile"
-          else -> return null
-        }
+    val placement = Describers[className].placement ?: return null
+    if (count != 1 && !placement.allowsMultiple) return null
     val nounPhrase =
         if (count == 1) {
-          "$article $singular"
+          "${placement.article} ${placement.singular}"
         } else {
-          "$count ${if (className == colony) "colonies" else "${singular}s"}"
+          "$count ${placement.plural}"
         }
-    return "Place $nounPhrase."
+    val consequence = placement.consequence?.let { " ($it)" }.orEmpty()
+    return "Place $nounPhrase$consequence."
   }
 
   private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {
@@ -248,28 +233,12 @@ public object English {
         else -> parts.dropLast(1).joinToString(", ") + ", and " + parts.last()
       }
 
-  private fun isEndEffect(effect: Effect): Boolean {
-    val cardTrigger = effect.trigger
-    return cardTrigger is OnGainOf && cardTrigger.expression == endExpression
-  }
-
   private val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
     Canon.cardDefinitions.associateBy { it.className }
   }
 
-  private val endExpression = cn("End").expression
   private val anyoneExpression = cn("Anyone").expression
-  private val cityTile = cn("CityTile")
-  private val colony = cn("Colony")
-  private val greeneryTile = cn("GreeneryTile")
-  private val oceanTile = cn("OceanTile")
-  private val oxygenStep = cn("OxygenStep")
-  private val reserveTradeFleet = cn("ReserveTradeFleet")
-  private val searchForLife = cn("Card005F")
-  private val temperatureStep = cn("TemperatureStep")
-  private val terraformRating = cn("TerraformRating")
   private val thisExpression = cn("This").expression
-  private val venusStep = cn("VenusStep")
 
   private data class ResourceProductionChange(
       val gaining: Boolean,

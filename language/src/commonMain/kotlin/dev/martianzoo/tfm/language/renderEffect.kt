@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.language
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -11,13 +10,17 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal fun renderEndEffect(effect: Effect): String? {
-  val trigger = effect.trigger as? OnGainOf ?: return null
-  if (trigger.expression != endExpression) return null
+  if (!isEndEffect(effect)) return null
   renderPerVictoryPoints(effect.instruction)?.let {
     return it
   }
   val (count, penalty) = fixedVictoryPoints(effect.instruction) ?: return null
   return "${if (penalty) "-" else ""}$count ${if (count == 1) "VP" else "VPs"}."
+}
+
+internal fun isEndEffect(effect: Effect): Boolean {
+  val trigger = effect.trigger as? OnGainOf ?: return false
+  return trigger.expression.simple && Describers[trigger.expression.className].endTrigger == true
 }
 
 private fun renderPerVictoryPoints(instruction: InstructionTree): String? {
@@ -32,20 +35,26 @@ private fun fixedVictoryPoints(instruction: InstructionTree): Pair<Int, Boolean>
   return when (instruction) {
     is Gain -> {
       if (instruction.intensity != null && instruction.intensity != MANDATORY) return null
-      if (!instruction.gaining.simple || instruction.gaining.className != victoryPoint) return null
+      if (
+          !instruction.gaining.simple ||
+              Describers[instruction.gaining.className].victoryPoint != true
+      ) {
+        return null
+      }
       val count = (instruction.count as? ActualScalar)?.value ?: return null
       count to false
     }
     is Remove -> {
       if (instruction.intensity != null && instruction.intensity != MANDATORY) return null
-      if (!instruction.removing.simple || instruction.removing.className != victoryPoint)
-          return null
+      if (
+          !instruction.removing.simple ||
+              Describers[instruction.removing.className].victoryPoint != true
+      ) {
+        return null
+      }
       val count = (instruction.count as? ActualScalar)?.value ?: return null
       count to true
     }
     else -> null
   }
 }
-
-private val endExpression = cn("End").expression
-private val victoryPoint = cn("VictoryPoint")

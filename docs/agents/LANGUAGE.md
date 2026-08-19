@@ -42,6 +42,14 @@ and immediate instructions belong in each printed region, while the family rende
 elements compositionally. Keep lexical policy, such as component nouns and change verbs, narrower
 than the structural rendering rules.
 
+Component-specific English knowledge lives in `Describers`, whose sparse `ComponentDescriber`
+values are keyed by loaded component `Class`. Renderers inspect describer facts rather than naming
+component Classes themselves. Each fact is inherited independently: a declaration on a more
+specific Class overrides the same fact from its superclass, facts from incomparable branches
+compose, and differing values for the same fact from incomparable nearest providers are rejected.
+Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
+shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
+
 Produce strings directly while that remains clear. If agreement, conjunction, scope, and
 punctuation begin to couple otherwise independent renderers, introduce only the smallest useful
 phrase representation rather than a general English grammar framework. A growing collection of

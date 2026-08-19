@@ -1,51 +1,43 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 
-internal fun isStandardResource(className: ClassName): Boolean {
-  val resourceClass = Canon.classTable.findClass(className) ?: return false
-  return !resourceClass.abstract &&
-      resourceClass.isSubtypeOf(Canon.classTable.getClass(STANDARD_RESOURCE))
+internal fun isStandardResource(className: ClassName): Boolean =
+    concrete(className) && Describers[className].standardResource == true
+
+internal fun componentNoun(className: ClassName, count: Int): String {
+  return when (val noun = Describers[className].noun) {
+    is ComponentDescriber.Noun.Counted -> if (count == 1) noun.singular else noun.plural
+    is ComponentDescriber.Noun.Fixed -> noun.text
+    ComponentDescriber.Noun.ClassName,
+    null -> unCamelCase(className.toString())
+  }
 }
 
-internal fun componentNoun(className: ClassName, count: Int): String =
-    when {
-      className == MEGACREDIT -> "M€"
-      className == plant && count != 1 -> "plants"
-      else -> unCamelCase(className.toString())
-    }
-
 internal fun tagName(className: ClassName): Pair<String, Boolean>? {
-  val componentClass = Canon.classTable.findClass(className) ?: return null
-  if (componentClass.abstract || !componentClass.isSubtypeOf(Canon.classTable.getClass(tag))) {
-    return null
-  }
+  if (!concrete(className)) return null
+  val style = Describers[className].tag ?: return null
   val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-  val isPlanetTag = componentClass.isSubtypeOf(Canon.classTable.getClass(planetTag))
+  val isPlanetTag = style == ComponentDescriber.Tag.PLANET
   val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
   return name to isPlanetTag
 }
 
 internal fun cardResourceNoun(className: ClassName, count: Int): String? {
-  val componentClass = Canon.classTable.findClass(className) ?: return null
-  if (
-      componentClass.abstract ||
-          !componentClass.isSubtypeOf(Canon.classTable.getClass(cardResource))
-  ) {
-    return null
-  }
+  if (!concrete(className)) return null
+  val style = Describers[className].cardResource ?: return null
   val noun = unCamelCase(className.toString())
-  val ordinaryNoun = className in ordinaryCardResourceNouns
   return noun +
-      if (count == 1) {
-        if (ordinaryNoun) "" else " resource"
-      } else {
-        if (ordinaryNoun) "s" else " resources"
+      when (style) {
+        ComponentDescriber.CardResource.ORDINARY -> if (count == 1) "" else "s"
+        ComponentDescriber.CardResource.SUFFIXED -> if (count == 1) " resource" else " resources"
       }
+}
+
+private fun concrete(className: ClassName): Boolean {
+  val componentClass = Canon.classTable.findClass(className) ?: return false
+  return !componentClass.abstract
 }
 
 private fun unCamelCase(name: String): String = buildString {
@@ -66,10 +58,3 @@ private fun unCamelCase(name: String): String = buildString {
     }
   }
 }
-
-private val plant = cn("Plant")
-private val planetTag = cn("PlanetTag")
-private val tag = cn("Tag")
-private val cardResource = cn("CardResource")
-private val ordinaryCardResourceNouns =
-    setOf(cn("Animal"), cn("Asteroid"), cn("Floater"), cn("Microbe"))
