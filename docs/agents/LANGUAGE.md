@@ -71,9 +71,9 @@ whether to make them separate sentences or coordinate them under one action cost
 representation keeps punctuation out of structural decisions without attempting to model general
 English grammar.
 
-Instruction rendering lowers `PROD[...]` through the shared Terraforming Mars Pets transformer
-before inspecting the resulting ordinary `Production` changes. Production boxes therefore do not
-need a parallel renderer for every instruction-tree wrapper.
+Instruction and requirement rendering lower `PROD[...]` through the shared Terraforming Mars Pets
+transformer before inspecting the resulting ordinary `Production` expressions. Production boxes
+therefore do not need parallel renderers for every Pets wrapper.
 
 ## Transitional derivation
 

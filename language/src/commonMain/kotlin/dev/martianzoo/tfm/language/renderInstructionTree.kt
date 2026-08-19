@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.language
 
-import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
@@ -12,10 +11,7 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.Prod
-import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
@@ -26,7 +22,7 @@ internal fun renderInstructions(
     instructionTree: InstructionTree,
     card: CardDefinition? = null,
 ): RenderedInstructions? =
-    renderLoweredInstructions(deprodifier.transformInstructionTree(instructionTree), card)
+    renderLoweredInstructions(lowerProductionSyntax(instructionTree), card)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,
@@ -147,21 +143,8 @@ private fun productionChange(instruction: Instruction): ResourceProductionChange
   val gaining = change is Gain
   if (!gaining && change !is Remove) return null
   val expression = change.gaining ?: change.removing ?: return null
-  if (expression.className != PRODUCTION || expression.refinement != null || expression.complement) {
-    return null
-  }
-  val resourceDependency = expression.arguments.lastOrNull() ?: return null
-  if (
-      resourceDependency.className != CLASS ||
-          resourceDependency.arguments.size != 1 ||
-          resourceDependency.refinement != null ||
-          resourceDependency.complement
-  ) {
-    return null
-  }
-  val resource = resourceDependency.arguments.single()
-  if (!resource.simple || !isStandardResource(resource.className)) return null
-  val ownerArguments = expression.arguments.dropLast(1)
+  val (ownerArguments, resourceClassName) =
+      standardResourceProduction(expression) ?: return null
   val owner =
       when {
         ownerArguments.isEmpty() -> "your"
@@ -169,7 +152,7 @@ private fun productionChange(instruction: Instruction): ResourceProductionChange
         else -> return null
       }
   val count = (change.count as? ActualScalar)?.value ?: return null
-  return ResourceProductionChange(gaining, owner, resource.className, count)
+  return ResourceProductionChange(gaining, owner, resourceClassName, count)
 }
 
 private fun renderProductionClause(changes: List<ResourceProductionChange>): String {
@@ -252,7 +235,6 @@ private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, 
 
 private val anyoneExpression = cn("Anyone").expression
 private val thisExpression = cn("This").expression
-private val deprodifier by lazy { Prod.deprodify(Canon.classTable) }
 
 private data class ResourceProductionChange(
     val gaining: Boolean,

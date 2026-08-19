@@ -3,9 +3,11 @@ package dev.martianzoo.tfm.language
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.TfmClasses.PROD
 
 internal fun renderRequirement(requirement: Requirement): String? =
+    renderLoweredRequirement(lowerProductionSyntax(requirement))
+
+private fun renderLoweredRequirement(requirement: Requirement): String? =
     when (requirement) {
       is Requirement.Min -> renderMinimum(requirement)
       is Requirement.Max -> renderMaximum(requirement)
@@ -15,7 +17,7 @@ internal fun renderRequirement(requirement: Requirement): String? =
       is Requirement.Eval,
       is Requirement.Exact,
       is Requirement.Or -> null
-      is Requirement.Transform -> renderProductionRequirement(requirement)
+      is Requirement.Transform -> null
     }
 
 internal fun renderScoringCondition(requirement: Requirement): String? {
@@ -33,13 +35,13 @@ internal fun renderScoringCondition(requirement: Requirement): String? {
   return "if you have at least ${minimum.target} $noun on this card"
 }
 
-private fun renderProductionRequirement(requirement: Requirement.Transform): String? {
-  if (requirement.transformKind != PROD) return null
-  val minimum = requirement.requirement as? Requirement.Min ?: return null
+private fun renderProductionRequirement(minimum: Requirement.Min): String? {
   if (minimum.target != 1) return null
   val metric = minimum.metric as? Metric.Count ?: return null
-  if (!metric.expression.simple || !isStandardResource(metric.expression.className)) return null
-  return "Requires that you have ${componentNoun(metric.expression.className, 1)} production."
+  val (ownerArguments, resourceClassName) =
+      standardResourceProduction(metric.expression) ?: return null
+  if (ownerArguments.isNotEmpty()) return null
+  return "Requires that you have ${componentNoun(resourceClassName, 1)} production."
 }
 
 private fun renderMinimum(requirement: Requirement.Min): String? {
@@ -84,7 +86,10 @@ private fun renderMinimum(requirement: Requirement.Min): String? {
       if (!expression.simple) return null
       "Requires Venus ${target * 2}%."
     }
-    null -> renderCardResourceRequirement(requirement) ?: renderTagRequirement(requirement)
+    null ->
+        renderProductionRequirement(requirement)
+            ?: renderCardResourceRequirement(requirement)
+            ?: renderTagRequirement(requirement)
   }
 }
 
