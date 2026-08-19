@@ -50,7 +50,12 @@ public object English {
       card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (card.extraClasses.isNotEmpty()) return null
+    if (
+        card.extraClasses.any { it.className != card.resourceType } ||
+            card.className == searchForLife
+    ) {
+      return null
+    }
     val requirement = card.requirement?.let { renderRequirement(it) ?: return null }
     val instructions = card.immediate?.instructions?.let { derivedInstructions(it) ?: return null }
     val scoring = card.effects.filter(::isEndEffect).map { renderEndEffect(it) ?: return null }
@@ -243,6 +248,7 @@ public object English {
   private val oceanTile = cn("OceanTile")
   private val oxygenStep = cn("OxygenStep")
   private val reserveTradeFleet = cn("ReserveTradeFleet")
+  private val searchForLife = cn("Card005F")
   private val temperatureStep = cn("TemperatureStep")
   private val terraformRating = cn("TerraformRating")
   private val venusStep = cn("VenusStep")

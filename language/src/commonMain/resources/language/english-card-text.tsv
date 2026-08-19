@@ -271,7 +271,7 @@ Card173	173	Protected Habitats		Effect: Opponents may not remove your plant, ani
 Card175	175	Satellites	Increase your M€ production 1 step for each space tag you have, including this.	
 Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium production 1 step and your M€ production 1 step.	
 Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. -2 VPs.	
-Card185	185	Olympus Conference		Effect: When you play a science tag, including this, either add 1 science resource to this card, or remove 1 science resource to draw 1 card.
+Card185	185	Olympus Conference	1 VP.	Effect: When you play a science tag, including this, either add 1 science resource to this card, or remove 1 science resource to draw 1 card.
 Card186	186	Rad-Suits	Requires 2 city tiles in play. Increase your M€ production 1 step.	
 Card192F	192	Invention Contest	Look at the top 3 cards from the deck. Draw 1 of them and discard the other 2.	
 Card194	194	Power Infrastructure		Action: Spend one or more energy to gain that amount of M€.
@@ -287,7 +287,7 @@ Card209	209	Small Asteroid	Raise temperature 1 step. Remove up to 2 plants from 
 Card210	210	Self-Replicating Robots	Requires 2 science tags.	Action: Reveal and place a SPACE or BUILDING card here from hand, and place 2 resources on it, or double the resources on a card here. / Effect: Cards here may be played as if from hand with its cost reduced by the number of resources on it.
 Card211	211	Snow Algae	Requires 2 ocean tiles. Increase your plant production 1 step and your heat production 1 step.	
 Card212	212	Penguins	Requires 8 ocean tiles. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
-Card213	213	Aerial Mappers		Action: Add 1 floater to ANY card, or remove 1 floater to draw 1 card.
+Card213	213	Aerial Mappers	1 VP.	Action: Add 1 floater to ANY card, or remove 1 floater to draw 1 card.
 Card214	214	Aerosport Tournament	Requires that you have 5 floaters. Gain 1 M€ for each city tile in play.	
 Card215	215	Air-Scrapping Expedition	Raise Venus 1 step. Add 3 floaters to ANY VENUS CARD.	
 Card216	216	Atalanta Planitia Lab	Requires 3 science tags. Draw 2 cards.	
@@ -361,7 +361,7 @@ CardC15	C15	Ice Moon Colony	Place a colony. Place an ocean tile.
 CardC16	C16	Impactor Swarm	Requires 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.	
 CardC17	C17	Interplanetary Colony Ship	Place a colony.	
 CardC18	C18	Jovian Lanterns	Requires 1 Jovian tag. Raise your TR 1 step. Add 2 floaters to ANY card. 1 VP for every 2 floaters here.	Action: Spend 1 titanium to add 2 floaters to this card.
-CardC19	C19	Jupiter Floating Station	Requires 3 science tags.	Action: Add 1 floater to a JOVIAN CARD, or gain 1 M€ for every floater here (max 4).
+CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 1 floater to a JOVIAN CARD, or gain 1 M€ for every floater here (max 4).
 CardC20	C20	Luna Governor	Requires 3 Earth tags. Increase your M€ production 2 steps.	
 CardC21	C21	Lunar Exports	Increase your plant production 2 steps, or increase your M€ production 5 steps.	
 CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have in play, including this.	
@@ -385,9 +385,9 @@ CardC39	C39	Space Port	Requires 1 colony. Gain 1 Trade Fleet. Place a city tile.
 CardC40	C40	Space Port Colony	Requires a colony. Place a colony. May be placed on a colony tile where you already have a colony. Gain 1 Trade Fleet. 1 VP for every 2 colonies in play.	
 CardC41	C41	Spin-Off Department	Increase your M€ production 2 steps.	Effect: When you play a card with a basic cost of 20 M€ or more, draw 1 card.
 CardC42	C42	Sub-Zero Salt Fish	Requires -6°C or warmer. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Action: Add 1 animal to this card.
-CardC43	C43	Titan Air-Scrapping		Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters to raise your TR 1 step.
+CardC43	C43	Titan Air-Scrapping	2 VPs.	Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters to raise your TR 1 step.
 CardC44	C44	Titan Floating Launch-Pad	Add 2 floaters to ANY JOVIAN CARD.	Action: Add 1 floater to ANY JOVIAN CARD, or remove 1 floater to trade for free.
-CardC45	C45	Titan Shuttles		Action: Add 2 floaters to ANY JOVIAN CARD, or remove one or more floaters to gain the same number of titanium.
+CardC45	C45	Titan Shuttles	1 VP.	Action: Add 2 floaters to ANY JOVIAN CARD, or remove one or more floaters to gain the same number of titanium.
 CardC46	C46	Trade Envoys		Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC47	C47	Trading Colony	Place a colony.	Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC48	C48	Urban Decomposers	Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.	

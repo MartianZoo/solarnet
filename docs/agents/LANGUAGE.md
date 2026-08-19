@@ -96,10 +96,13 @@ ocean tile`. Counts above one remain numeric. Resource quantities and track or p
 remain numeric even when the count is one. Attach a step count to every production named; do not
 move a shared count after several productions with `each`.
 
-An unsupported requirement, unsupported End-triggered scoring effect, extra component declaration, or
+An unsupported requirement, unsupported End-triggered scoring effect, behavior-bearing extra component declaration, or
 unsupported immediate-instruction shape keeps the whole region data-backed. Component declarations can
 encode printed setup behavior that is absent from `immediate`, so deriving only that group could omit
-bottom text. Actions and non-End effects are top elements and do not prevent bottom derivation.
+bottom text. A card's generated declaration of its ordinary card-resource type is not behavior-bearing
+and does not prevent derivation. Search for Life remains data-backed because its conditional
+science-resource score is absent from Pets. Actions and non-End effects are top elements and do not
+prevent bottom derivation.
 
 ## Known layout boundaries
 
@@ -107,8 +110,9 @@ Potatoes' plant removal and production increase are both immediate instructions 
 artwork. The former split across regions in the data file was a data error, not evidence that the
 layout facade must divide one immediate group.
 
-Continue treating cards with extra component declarations as data-backed. Mons Insurance shows why:
-its component declarations encode printed setup behavior that is absent from `immediate`. Likewise,
+Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
+Insurance shows why: its component declarations encode printed setup behavior that is absent from
+`immediate`. Likewise,
 do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
 draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
 not structurally sufficient.
