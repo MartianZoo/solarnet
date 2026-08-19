@@ -301,7 +301,7 @@ Card223	223	Extractor Balloons	Add 3 floaters to this card.	Action: Add 1 floate
 Card224	224	Extremophiles	Requires 2 science tags. 1 VP for every 3 microbes on this card.	Action: Add 1 microbe to ANY card.
 Card225	225	Floating Habs	Requires 2 science tags. 1 VP for every 2 floaters on this card.	Action: Spend 2 M€ to add 1 floater to ANY card.
 Card226	226	Forced Precipitation		Action: Spend 2 M€ to add 1 floater to this card, or remove 2 floaters from this card to raise Venus 1 step.
-Card227	227	Freyja Biodomes	Requires Venus 10%. Add 2 microbes or animals to a card with a Venus tag. Decrease your energy production 1 step and increase your M€ production 2 steps. 2 VPs.	
+Card227	227	Freyja Biodomes	Requires Venus 10%. Add 2 microbes or 2 animals to a card with a Venus tag. Decrease your energy production 1 step and increase your M€ production 2 steps. 2 VPs.	
 Card228	228	GHG Import From Venus	Raise Venus 1 step. Increase your heat production 3 steps.	
 Card229	229	Giant Solar Shade	Raise Venus 3 steps.	
 Card230	230	Gyropolis	Decrease your energy production 2 steps. Increase your M€ production 1 step for each Venus tag you have. Increase your M€ production 1 step for each Earth tag you have. Place a city tile.	
@@ -335,7 +335,7 @@ Card257	257	Venus Soils	Raise Venus 1 step. Increase your plant production 1 ste
 Card258	258	Venus Waystation	1 VP.	Effect: When you play a Venus tag, you pay 2 M€ less for it.
 Card259	259	Venusian Animals	Requires Venus 18%. 1 VP for each animal on this card.	Effect: When you play a science tag, add 1 animal to this card.
 Card260	260	Venusian Insects	Requires Venus 12%. 1 VP for every 2 microbes on this card.	Action: Add 1 microbe to this card.
-Card261	261	Venusian Plants	Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or animal to a card with a Venus tag. 1 VP.	
+Card261	261	Venusian Plants	Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to a card with a Venus tag. 1 VP.	
 CardP36	P36	House Printing	Increase your steel production 1 step. 1 VP.	
 CardP37	P37	Lava Tube Settlement	Decrease your energy production 1 step. Increase your M€ production 2 steps. Place a city tile; if using a board with volcanic areas, this tile MUST be placed on one, but may ignore adjacent cities.	
 CardP38	P38	Martian Survey	Oxygen must be 4% or less. Draw 2 cards. 1 VP.	
@@ -434,7 +434,7 @@ CardX23	X23	Jovian Embassy	Raise your terraform rating 1 step. 1 VP.
 CardX24	X24	Magnetic Shield	Requires 3 power tags. Raise your terraform rating 4 steps.	
 CardX25	X25	Meat Industry		Effect: When you add an animal to ANY CARD, gain 2 M€.
 CardX26	X26	Meltworks		Action: Spend 5 heat to gain 3 steel.
-CardX27	X27	Mohole Lake	Place an ocean tile. Raise temperature 1 step. Gain 3 plants.	Action: Add 1 microbe or animal to ANOTHER card.
+CardX27	X27	Mohole Lake	Place an ocean tile. Raise temperature 1 step. Gain 3 plants.	Action: Add 1 microbe or 1 animal to ANOTHER card.
 CardX28	X28	Potatoes	Remove 2 plants. Increase your M€ production 2 steps.	
 CardX29	X29	Sub-Crust Measurements	Requires 2 science tags. 2 VPs.	Action: Draw 1 card.
 CardX30	X30	Topsoil Contract	Gain 3 plants.	Effect: When you add a microbe to ANY CARD, gain 1 M€.

@@ -92,13 +92,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     }
     val cardGains = gains.map { cardResourceGain(it, card) ?: return null }
     val target = cardGains.map { it.target }.distinct().singleOrNull() ?: return null
-    val counts = cardGains.map { it.count }.distinct()
-    val objects =
-        if (counts.size == 1) {
-          "${counts.single()} ${englishAlternatives(cardGains.map { it.noun })}"
-        } else {
-          englishAlternatives(cardGains.map { "${it.count} ${it.noun}" })
-        }
+    val objects = englishAlternatives(cardGains.map { "${it.count} ${it.noun}" })
     return "add $objects to $target"
   }
 

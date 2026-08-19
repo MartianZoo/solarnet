@@ -161,7 +161,8 @@ may be gated by a concrete minimum number of a tag the player owns.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains
 coalesced into one sentence. Alternatives that are all concrete standard-resource gains share one
 `gain`; alternatives that are all concrete card-resource gains share one `add` when their card
-destination is the same. A concrete fixed VP gain or penalty triggered by `End` is also derived,
+destination is the same. Each alternative retains its own scalar. A concrete fixed VP gain or
+penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or
 complete concrete group of one card-resource type on the scoring card. An unscaled fixed VP gain or
 penalty may be conditional on the player having a concrete minimum number of one resource type on
