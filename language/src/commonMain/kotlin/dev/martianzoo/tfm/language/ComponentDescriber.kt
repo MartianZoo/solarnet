@@ -12,7 +12,6 @@ internal data class ComponentDescriber(
     val directGain: DirectGain? = null,
     val victoryPoint: Boolean? = null,
     val endTrigger: Boolean? = null,
-    val deriveBottomText: Boolean? = null,
 ) {
   internal sealed interface Noun {
     data object ClassName : Noun

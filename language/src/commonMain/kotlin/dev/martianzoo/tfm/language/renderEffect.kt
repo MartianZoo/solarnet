@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
@@ -10,7 +11,8 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal fun renderEndEffect(effect: Effect): String? {
-  if (!isEndEffect(effect)) return null
+  val trigger = effect.trigger as? OnGainOf ?: return null
+  if (!isEndTrigger(trigger)) return null
   renderPerVictoryPoints(effect.instruction)?.let {
     return it
   }
@@ -19,9 +21,19 @@ internal fun renderEndEffect(effect: Effect): String? {
 }
 
 internal fun isEndEffect(effect: Effect): Boolean {
-  val trigger = effect.trigger as? OnGainOf ?: return false
-  return trigger.expression.simple && Describers[trigger.expression.className].endTrigger == true
+  return isEndTrigger(effect.trigger)
 }
+
+private fun isEndTrigger(trigger: Trigger): Boolean =
+    when (trigger) {
+      is OnGainOf ->
+          trigger.expression.simple && Describers[trigger.expression.className].endTrigger == true
+      is Trigger.Or -> trigger.triggers.all(::isEndTrigger)
+      is Trigger.WrappingTrigger -> isEndTrigger(trigger.inner)
+      is Trigger.OnRemoveOf,
+      Trigger.WhenGain,
+      Trigger.WhenRemove -> false
+    }
 
 private fun renderPerVictoryPoints(instruction: InstructionTree): String? {
   val per = instruction as? Per ?: return null
