@@ -42,6 +42,9 @@ private fun renderMinimum(requirement: Requirement.Min): String? =
         ?: target(requirement, colony)?.let {
           "Requires $it ${if (it == 1) "colony" else "colonies"}."
         }
+        ?: targetInPlay(requirement, cityTile)?.let {
+          "Requires $it city ${if (it == 1) "tile" else "tiles"} in play."
+        }
         ?: renderTagRequirement(requirement)
 
 private fun renderMaximum(requirement: Requirement.Max): String? =
@@ -53,10 +56,27 @@ private fun renderMaximum(requirement: Requirement.Max): String? =
           "There must be $it or fewer ocean tiles."
         }
         ?: target(requirement, venusStep)?.let { "Venus must be ${it * 2}% or less." }
+        ?: target(requirement, colony)?.let {
+          "You must have no more than $it ${if (it == 1) "colony" else "colonies"}."
+        }
 
 private fun target(requirement: Requirement.Counting, className: ClassName): Int? {
   val metric = requirement.metric as? Metric.Count ?: return null
   if (!metric.expression.simple || metric.expression.className != className) return null
+  return requirement.target
+}
+
+private fun targetInPlay(requirement: Requirement.Counting, className: ClassName): Int? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  val expression = metric.expression
+  if (
+      expression.className != className ||
+          expression.arguments != listOf(anyoneExpression) ||
+          expression.refinement != null ||
+          expression.complement
+  ) {
+    return null
+  }
   return requirement.target
 }
 
@@ -108,6 +128,8 @@ private fun temperature(steps: Int): String {
 }
 
 private val colony = cn("Colony")
+private val anyoneExpression = cn("Anyone").expression
+private val cityTile = cn("CityTile")
 private val greeneryTile = cn("GreeneryTile")
 private val oceanTile = cn("OceanTile")
 private val oxygenStep = cn("OxygenStep")

@@ -79,9 +79,10 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum concrete-tag
-requirements, same-category groups of one-count tags, minimum TR and owned-greenery requirements, and
-a requirement that the player have a standard-resource production. It also derives a minimum colony
-requirement. It derives bottom text when every immediate instruction is one of: a concrete mandatory
+requirements, same-category groups of one-count tags, minimum TR and owned-greenery requirements,
+minimum city tiles in play, and a requirement that the player have a standard-resource production.
+It also derives minimum and maximum owned-colony requirements. It derives bottom text when every
+immediate instruction is one of: a concrete mandatory
 gain or removal of a standard resource; an optional removal of up to a concrete number of standard
 resources from any player; a gain of one reserve Trade Fleet; a concrete mandatory gain of a card
 resource on the played card; a group of concrete
