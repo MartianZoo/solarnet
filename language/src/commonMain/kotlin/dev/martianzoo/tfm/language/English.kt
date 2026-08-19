@@ -71,6 +71,7 @@ public object English {
       } else {
         sentences +=
             derivedStandardResourceRemoval(instructions[index])
+                ?: derivedTradeFleetGain(instructions[index])
                 ?: derivedProductionChange(instructions[index])
                 ?: derivedTrackChange(instructions[index])
                 ?: derivedTilePlacement(instructions[index])
@@ -92,6 +93,12 @@ public object English {
   private fun derivedStandardResourceRemoval(instruction: Instruction): String? {
     val (className, count) = standardResourceRemoval(instruction) ?: return null
     return "Remove $count ${componentNoun(className, count)}."
+  }
+
+  private fun derivedTradeFleetGain(instruction: Instruction): String? {
+    val (className, count) = concreteMandatoryGain(instruction) ?: return null
+    if (className != reserveTradeFleet || count != 1) return null
+    return "Gain 1 Trade Fleet."
   }
 
   private fun derivedProductionChange(instruction: Instruction): String? {
@@ -259,6 +266,7 @@ public object English {
   private val oceanTile = cn("OceanTile")
   private val oxygenStep = cn("OxygenStep")
   private val plant = cn("Plant")
+  private val reserveTradeFleet = cn("ReserveTradeFleet")
   private val temperatureStep = cn("TemperatureStep")
   private val terraformRating = cn("TerraformRating")
   private val venusStep = cn("VenusStep")

@@ -381,7 +381,7 @@ CardC35	C35	Rim Freighters		Effect: When you use the Trade standard action, you 
 CardC36	C36	Sky Docks	Requires 2 Earth tags. Gain 1 Trade Fleet.	Effect: When you play a card, you pay 1 M€ less for it.
 CardC37	C37	Solar Probe	Draw 1 card for every 3 science tags you have, including this.	
 CardC38	C38	Solar Reflectors	Increase your heat production 5 steps.	
-CardC39	C39	Space Port	Requires 1 colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step, and increase your M€ production 4 steps.	
+CardC39	C39	Space Port	Requires 1 colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step and increase your M€ production 4 steps.	
 CardC40	C40	Space Port Colony	Requires a colony. Place a colony. May be placed on a colony tile where you already have a colony. Gain 1 Trade Fleet. 1 VP for every 2 colonies in play.	
 CardC41	C41	Spin-Off Department	Increase your M€ production 2 steps.	Effect: When you play a card with a basic cost of 20 M€ or more, draw 1 card.
 CardC42	C42	Sub-Zero Salt Fish	Requires -6°C or warmer. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Action: Add 1 animal to this card.

@@ -30,6 +30,9 @@ private fun renderMinimum(requirement: Requirement.Min): String? =
         ?: target(requirement, greeneryTile)?.let {
           "Requires that you have $it greenery ${if (it == 1) "tile" else "tiles"}."
         }
+        ?: target(requirement, colony)?.let {
+          "Requires $it ${if (it == 1) "colony" else "colonies"}."
+        }
         ?: renderTagRequirement(requirement)
 
 private fun renderMaximum(requirement: Requirement.Max): String? =
@@ -103,6 +106,7 @@ private fun temperature(steps: Int): String {
   return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
 }
 
+private val colony = cn("Colony")
 private val greeneryTile = cn("GreeneryTile")
 private val oceanTile = cn("OceanTile")
 private val oxygenStep = cn("OxygenStep")
