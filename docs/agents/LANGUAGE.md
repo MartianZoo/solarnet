@@ -135,7 +135,8 @@ non-End effects include a fixed M€ discount triggered by playing a card or one
 supported instruction consequence triggered by playing concrete tags, placing a supported tile,
 raising a supported track, or adding a concrete card resource. Trigger wording preserves whether
 the acting player or any player causes the event. Other non-End effects keep the whole top region
-data-backed. When actions
+data-backed. A fixed M€ increase in the payment value of a standard resource or resource category
+is also derived from its spent-resource trigger. When actions
 and effects share a top region, actions are rendered first and their card-resource metrics name
 `this card` rather than the contextual `here`.
 

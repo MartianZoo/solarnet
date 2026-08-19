@@ -11,13 +11,21 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? =
     if (isEndEffect(effect, describers)) {
       renderEndEffect(effect, describers)
     } else {
-      renderPaymentDiscount(effect, describers) ?: renderTriggeredInstructions(effect, describers)
+      renderPaymentDiscount(effect, describers)
+          ?: renderResourcePaymentValue(effect, describers)
+          ?: renderTriggeredInstructions(effect, describers)
     }
 
 private fun renderPaymentDiscount(effect: Effect, describers: Describers): String? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val reduction = describers.renderOwedReduction(effect.instruction) ?: return null
-  return "${trigger.replaceFirstChar(Char::uppercaseChar)}, $reduction."
+  return "${trigger.replaceFirstChar(Char::uppercaseChar)}, you pay ${reduction.count} ${reduction.noun} less for it."
+}
+
+private fun renderResourcePaymentValue(effect: Effect, describers: Describers): String? {
+  val spent = describers.renderSpentResource(effect.trigger) ?: return null
+  val reduction = describers.renderOwedReduction(effect.instruction) ?: return null
+  return "Each $spent you spend is worth ${reduction.count} ${reduction.noun} extra."
 }
 
 private fun renderTriggeredInstructions(effect: Effect, describers: Describers): String? {

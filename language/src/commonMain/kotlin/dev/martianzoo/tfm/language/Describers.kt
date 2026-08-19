@@ -120,7 +120,15 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     }
   }
 
-  internal fun renderOwedReduction(instruction: InstructionTree): String? {
+  internal fun renderSpentResource(trigger: Trigger): String? {
+    val expression = (trigger as? OnGainOf)?.expression ?: return null
+    if (expression.refinement != null || expression.complement) return null
+    if (this[expression.className].spentResourceTrigger != true) return null
+    val resource = representedClass(expression) ?: return null
+    return standardResourceCategoryNoun(resource.className, 1)
+  }
+
+  internal fun renderOwedReduction(instruction: InstructionTree): ResourceAmount? {
     val removal = instruction as? Remove ?: return null
     if (removal.intensity != null && removal.intensity != MANDATORY) return null
     val expression = removal.removing
@@ -129,8 +137,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val resource = representedClass(expression) ?: return null
     val count = (removal.count as? ActualScalar)?.value ?: return null
     val noun = standardResourceNoun(resource.className, count) ?: return null
-    return "you pay $count $noun less for it"
+    return ResourceAmount(count, noun)
   }
+
+  internal data class ResourceAmount(val count: Int, val noun: String)
 
   private fun renderEvent(trigger: Trigger): Event? {
     if (trigger is ByTrigger) {
@@ -605,6 +615,9 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       componentNoun(className, count).takeIf {
         concrete(className) && this[className].standardResource == true
       }
+
+  private fun standardResourceCategoryNoun(className: ClassName, count: Int): String? =
+      componentNoun(className, count).takeIf { this[className].standardResource == true }
 
   private fun cardResourceNoun(className: ClassName, count: Int): String? {
     val style = this[className].cardResource ?: return null
