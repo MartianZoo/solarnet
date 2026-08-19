@@ -156,7 +156,11 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       return null
     }
     val expression = (trigger as? OnGainOf)?.expression ?: return null
-    if (expression.refinement != null || expression.complement) return null
+    if (expression.complement) return null
+    playedCardEvent(expression)?.let {
+      return it
+    }
+    if (expression.refinement != null) return null
     when (this[expression.className].playTrigger) {
       ComponentDescriber.PlayTrigger.CARD -> {
         if (!expression.simple) return null
@@ -189,6 +193,22 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       }
     }
     return null
+  }
+
+  private fun playedCardEvent(expression: Expression): Event? {
+    if (expression.arguments.isNotEmpty() || this[expression.className].playedCard != true) {
+      return null
+    }
+    val card = componentNoun(expression.className, 1)
+    val phrase =
+        expression.refinement?.let { refinement ->
+          if (refinement.forgiving) return null
+          val minimum = refinement.requirement as? Requirement.Min ?: return null
+          if (minimum.target != 1) return null
+          val (tag) = tagName(minimum) ?: return null
+          "${indefiniteArticle(card)} $card with ${indefiniteArticle(tag)} $tag tag"
+        } ?: "${indefiniteArticle(card)} $card"
+    return Event(EventKind.PLAY, phrase)
   }
 
   private fun placementEvent(expression: Expression, kind: EventKind): Event? {

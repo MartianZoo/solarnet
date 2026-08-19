@@ -17,6 +17,7 @@ public data class ComponentDescriber(
     public val score: Score? = null,
     public val endTrigger: Boolean? = null,
     public val playTrigger: PlayTrigger? = null,
+    public val playedCard: Boolean? = null,
     public val spentResourceTrigger: Boolean? = null,
     public val owedPayment: Boolean? = null,
 ) {

@@ -136,7 +136,8 @@ supported instruction consequence triggered by playing concrete tags, placing a 
 raising a supported track, or adding a concrete card resource. Trigger wording preserves whether
 the acting player or any player causes the event. Other non-End effects keep the whole top region
 data-backed. A fixed M€ increase in the payment value of a standard resource or resource category
-is also derived from its spent-resource trigger. When actions
+is also derived from its spent-resource trigger. A direct trigger on a concrete played-card subtype
+is derived, including a subtype narrowed to one concrete tag. When actions
 and effects share a top region, actions are rendered first and their card-resource metrics name
 `this card` rather than the contextual `here`.
 

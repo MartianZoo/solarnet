@@ -3,7 +3,7 @@ CardB00	B00	Beginner Corporation	Gain 42 M€. Keep all 10 project cards you rec
 CardB01	B01	CrediCor	Gain 57 M€.	Effect: After you pay for a card or standard project with a basic cost of 20 M€ or more, you gain 4 M€.
 CardB02	B02	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less for it.
 CardB03	B03	Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: You may use heat as M€. You may not use M€ as heat.
-CardB04	B04	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event, you gain 2 M€.
+CardB04	B04	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
 CardB05	B05	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: You may treat any global parameter requirement as if it is 2 steps lower or higher.
 CardB06	B06	Mining Guild	Gain 30 M€ and 5 steel. Increase your steel production 1 step.	Effect: When you place a tile on an area with steel or titanium placement bonus, increase your steel production 1 step.
 CardB07	B07	PhoboLog	Gain 23 M€ and 10 titanium.	Effect: Each titanium you spend is worth 1 M€ extra.
@@ -98,7 +98,7 @@ Card024	024	Predators	Requires 11% oxygen. 1 VP for each animal on this card.	Ac
 Card026	026	Eos Chasma National Park	Requires -12°C or warmer. Add 1 animal to ANOTHER card. Gain 3 plants. Increase your M€ production 2 steps. 1 VP.	
 Card029	029	Cupola City	Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps.	
 Card030	030	Lunar Beam	Decrease your M€ production 2 steps and increase your heat production 2 steps and your energy production 2 steps.	
-Card031	031	Optimal Aerobraking		Effect: When you place a space event, you gain 3 M€ and 3 heat.
+Card031	031	Optimal Aerobraking		Effect: When you play an event card with a space tag, gain 3 M€ and 3 heat.
 Card032	032	Underground City	Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.	
 Card033	033	Regolith Eaters		Action: Add 1 microbe to this card, or remove 2 microbes from this card to raise oxygen 1 step.
 Card034	034	GHG Producing Bacteria	Requires 4% oxygen.	Action: Add 1 microbe to this card, or remove 2 microbes from this card to raise temperature 1 step.
@@ -251,7 +251,7 @@ Card099	099	Toll Station	Increase your M€ production 1 step for each space tag
 Card105	105	Earth Office		Effect: When you play an Earth tag, you pay 3 M€ less for it.
 Card106	106	Acquired Company	Increase your M€ production 3 steps.	
 Card107	107	Media Archives	Gain 1 M€ for each card in all players' event piles.	
-Card109	109	Media Group		Effect: When you play an event card, you gain 3 M€.
+Card109	109	Media Group		Effect: When you play an event card, gain 3 M€.
 Card110F	110	Business Network	Decrease your M€ production 1 step.	Action: Look at the top card and either buy it or discard it.
 Card111F	111	Business Contacts	Look at the top 4 cards from the deck. Draw 2 of them and discard the other 2.	
 Card112	112	Bribed Committee	Raise your terraform rating 2 steps. -2 VPs.	

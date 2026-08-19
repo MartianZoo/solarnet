@@ -26,7 +26,7 @@ internal object TerraformingMarsDescribers {
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
                 cardResource = ComponentDescriber.CardResource.SUFFIXED,
             ),
-        klass("CardFront") to ComponentDescriber(cardResourceHolder = "card"),
+        klass("CardFront") to ComponentDescriber(cardResourceHolder = "card", playedCard = true),
         klass("MarsArea") to ComponentDescriber(metricLocation = "on Mars"),
         klass("Animal") to
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
@@ -204,6 +204,7 @@ internal object TerraformingMarsDescribers {
           score = resolveFact(componentClass, ComponentDescriber::score),
           endTrigger = resolveFact(componentClass, ComponentDescriber::endTrigger),
           playTrigger = resolveFact(componentClass, ComponentDescriber::playTrigger),
+          playedCard = resolveFact(componentClass, ComponentDescriber::playedCard),
           spentResourceTrigger =
               resolveFact(componentClass, ComponentDescriber::spentResourceTrigger),
           owedPayment = resolveFact(componentClass, ComponentDescriber::owedPayment),
