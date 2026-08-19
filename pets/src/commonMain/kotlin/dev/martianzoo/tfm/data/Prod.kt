@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.tfm.data
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.CLASS
@@ -17,12 +17,10 @@ public object Prod {
     return deprodify(findResourceClassNames(classTable))
   }
 
-  internal fun findResourceClassNames(classTable: ClassTable): Set<ClassName> {
+  private fun findResourceClassNames(classTable: ClassTable): Set<ClassName> {
     val standardResource = classTable.findActiveClass(STANDARD_RESOURCE) ?: return emptySet()
     if (!classTable.isActive(PRODUCTION)) return emptySet()
-    return standardResource.allSubclasses().flatMapTo(mutableSetOf()) {
-      setOf(it.className)
-    }
+    return standardResource.allSubclasses().mapTo(mutableSetOf()) { it.className }
   }
 
   /**
@@ -31,22 +29,22 @@ public object Prod {
    */
   public fun deprodify(resourceClassNames: Set<ClassName>): PetTransformer {
     if (resourceClassNames.isEmpty()) return PetTransformer.noOp()
+    return deprodifier(resourceClassNames, inProd = false)
+  }
 
-    return object : PetTransformer() {
-      private var inProd = false
-
+  private fun deprodifier(
+      resourceClassNames: Set<ClassName>,
+      inProd: Boolean,
+  ): PetTransformer =
+      object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
         val rewritten: PetNode =
             when {
               node is TransformNode<*> && node.transformKind == PROD -> {
                 if (inProd) throw PetSyntaxException("PROD boxes cannot be nested")
-                inProd = true
                 val inner =
-                    try {
-                      transformNode(node.extract())
-                    } finally {
-                      inProd = false
-                    }
+                    deprodifier(resourceClassNames, inProd = true)
+                        .transformWithoutKindCheck(node.extract())
                 if (inner == node.extract()) {
                   throw PetSyntaxException("No standard resources found in PROD box: $inner")
                 }
@@ -65,5 +63,4 @@ public object Prod {
         return rewritten
       }
     }
-  }
 }

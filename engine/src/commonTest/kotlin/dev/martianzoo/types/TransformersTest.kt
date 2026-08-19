@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.tfm.data.Prod
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

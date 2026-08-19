@@ -22,7 +22,7 @@ import dev.martianzoo.tfm.data.AwardDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
-import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.Class as PetsClass
 import dev.martianzoo.types.ClassTable
 

@@ -32,9 +32,11 @@ under Terraforming Mars. The half-generic placement is the defect.
 
 **Priority when boundary work is selected: P1.**
 
-`Prod` belongs to Terraforming Mars, but generic input, class-effect, and custom-output processing
-invoke it. If another configured transformer is needed, introduce one small Authority- or
-application-supplied pipeline. Do not build a general plugin framework preemptively.
+`Prod` belongs to Terraforming Mars and lives with the Terraforming Mars Pets data so both language
+and engine code can use the same syntax lowering. Generic input, class-effect, and custom-output
+processing still invoke it directly. If another configured transformer is needed, introduce one
+small Authority- or application-supplied pipeline. Do not build a general plugin framework
+preemptively.
 
 ### The script application is mostly REgo/Terraforming Mars
 
