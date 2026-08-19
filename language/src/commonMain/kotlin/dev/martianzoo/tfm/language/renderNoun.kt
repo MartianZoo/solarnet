@@ -30,6 +30,24 @@ internal fun tagName(className: ClassName): Pair<String, Boolean>? {
   return name to isPlanetTag
 }
 
+internal fun cardResourceNoun(className: ClassName, count: Int): String? {
+  val componentClass = Canon.classTable.findClass(className) ?: return null
+  if (
+      componentClass.abstract ||
+          !componentClass.isSubtypeOf(Canon.classTable.getClass(cardResource))
+  ) {
+    return null
+  }
+  val noun = unCamelCase(className.toString())
+  val ordinaryNoun = className in ordinaryCardResourceNouns
+  return noun +
+      if (count == 1) {
+        if (ordinaryNoun) "" else " resource"
+      } else {
+        if (ordinaryNoun) "s" else " resources"
+      }
+}
+
 private fun unCamelCase(name: String): String = buildString {
   name.forEachIndexed { index, character ->
     val previous = name.getOrNull(index - 1)
@@ -52,3 +70,6 @@ private fun unCamelCase(name: String): String = buildString {
 private val plant = cn("Plant")
 private val planetTag = cn("PlanetTag")
 private val tag = cn("Tag")
+private val cardResource = cn("CardResource")
+private val ordinaryCardResourceNouns =
+    setOf(cn("Animal"), cn("Asteroid"), cn("Floater"), cn("Microbe"))
