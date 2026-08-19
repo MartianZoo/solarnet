@@ -133,12 +133,12 @@ temperature, oxygen, Venus-step, or terraform-rating gain or removal. A producti
 target any player. A choice is derived when every alternative is one supported clause, including a
 choice among concrete production-change clauses. A production increase may be scaled by the number
 of a concrete tag the player owns, or by complete groups of that tag.
-Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
-into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
-VP for each simple tag the player owns, for each card resource on the scoring card, or for each
-complete concrete group of one card-resource type on the scoring card. A fixed VP gain or penalty
-may be conditional on the player having a concrete minimum number of one resource type on the
-scoring card.
+Supported instructions are rendered in authored order, with adjacent standard-resource gains
+coalesced into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived,
+either unscaled or for each simple tag the player owns, card resource on the scoring card, or
+complete concrete group of one card-resource type on the scoring card. An unscaled fixed VP gain or
+penalty may be conditional on the player having a concrete minimum number of one resource type on
+the scoring card.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
