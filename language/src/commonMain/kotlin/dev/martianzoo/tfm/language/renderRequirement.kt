@@ -9,7 +9,9 @@ internal fun renderRequirement(requirement: Requirement): String? =
     when (requirement) {
       is Requirement.Min -> renderMinimum(requirement)
       is Requirement.Max -> renderMaximum(requirement)
-      is Requirement.And -> renderTagRequirementGroup(requirement)
+      is Requirement.And ->
+          renderTagRequirementGroup(requirement)
+              ?: renderOwnedPlacementRequirementGroup(requirement)
       is Requirement.Eval,
       is Requirement.Exact,
       is Requirement.Or -> null
@@ -32,8 +34,12 @@ private fun renderMinimum(requirement: Requirement.Min): String? {
   val target = requirement.target
   return when (style) {
     ComponentDescriber.Requirement.CITY_TILES_IN_PLAY -> {
-      if (!inPlay(expression)) return null
-      "Requires $target city ${if (target == 1) "tile" else "tiles"} in play."
+      val tiles = "$target city ${if (target == 1) "tile" else "tiles"}"
+      when {
+        inPlay(expression) -> "Requires $tiles in play."
+        expression.simple -> "Requires that you have $tiles."
+        else -> null
+      }
     }
     ComponentDescriber.Requirement.COLONIES -> {
       if (!expression.simple) return null
@@ -124,6 +130,23 @@ private fun renderTagRequirementGroup(requirement: Requirement.And): String? {
         tags.map { (name) -> "${indefiniteArticle(name)} $name tag" }
       }
   return "Requires ${englishList(nouns)}${if (allPlanetTags) " tags" else ""}."
+}
+
+private fun renderOwnedPlacementRequirementGroup(requirement: Requirement.And): String? {
+  val nouns =
+      requirement.requirements.map { child ->
+        val minimum = child as? Requirement.Min ?: return null
+        val metric = minimum.metric as? Metric.Count ?: return null
+        if (!metric.expression.simple) return null
+        when (Describers[metric.expression.className].requirement) {
+          ComponentDescriber.Requirement.CITY_TILES_IN_PLAY ->
+              "${minimum.target} city ${if (minimum.target == 1) "tile" else "tiles"}"
+          ComponentDescriber.Requirement.COLONIES ->
+              "${minimum.target} ${if (minimum.target == 1) "colony" else "colonies"}"
+          else -> return null
+        }
+      }
+  return "Requires that you have ${englishList(nouns)} in play."
 }
 
 private fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {

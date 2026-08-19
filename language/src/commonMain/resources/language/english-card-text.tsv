@@ -390,7 +390,7 @@ CardC44	C44	Titan Floating Launch-Pad	Add 2 floaters to ANY JOVIAN CARD.	Action:
 CardC45	C45	Titan Shuttles	1 VP.	Action: Add 2 floaters to ANY JOVIAN CARD, or remove one or more floaters to gain the same number of titanium.
 CardC46	C46	Trade Envoys		Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC47	C47	Trading Colony	Place a colony.	Effect: When you trade, you may first increase that Colony Tile track 1 step.
-CardC48	C48	Urban Decomposers	Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step, and add 2 microbes to ANOTHER card.	
+CardC48	C48	Urban Decomposers	Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step. Add 2 microbes to ANOTHER card.	
 CardC49	C49	Warp Drive	Requires 5 science tags. 2 VPs.	Effect: When you play a space tag, you pay 4 M€ less for it.
 CardT01	T01	Aerial Lenses	Requires that Kelvinists are ruling or that you have 2 delegates there. Remove up to 2 plants from any player. Increase your heat production 2 steps.	
 CardT02	T02	Banned Delegate	Requires that you are Chairman. Remove any NON-LEADER delegate.	
