@@ -13,9 +13,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PROD
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 
 /**
  * English card text, derived from canonical card definitions or read from the backing data file.
@@ -119,10 +117,13 @@ public object English {
 
   private fun productionChange(instruction: Instruction): ResourceProductionChange? {
     standardResourceGain(instruction)?.let { (className, count) ->
-      return ResourceProductionChange(true, className, count)
+      return ResourceProductionChange(true, "your", className, count)
     }
     standardResourceRemoval(instruction)?.let { (className, count) ->
-      return ResourceProductionChange(false, className, count)
+      return ResourceProductionChange(false, "your", className, count)
+    }
+    standardResourceRemovalFromAnyPlayer(instruction)?.let { (className, count) ->
+      return ResourceProductionChange(false, "any player's", className, count)
     }
     return null
   }
@@ -133,7 +134,7 @@ public object English {
     if (sharedCount != null) {
       val steps = if (sharedCount == 1) "step" else "steps"
       val productions = changes.map {
-        "your ${componentNoun(it.className, 1)} production"
+        "${it.owner} ${componentNoun(it.className, 1)} production"
       }
       return if (productions.size == 1) {
         "$verb ${productions.single()} $sharedCount $steps"
@@ -143,7 +144,7 @@ public object English {
     }
     val productions = changes.map {
       val steps = if (it.count == 1) "step" else "steps"
-      "your ${componentNoun(it.className, 1)} production ${it.count} $steps"
+      "${it.owner} ${componentNoun(it.className, 1)} production ${it.count} $steps"
     }
     return "$verb ${englishList(productions)}"
   }
@@ -204,6 +205,19 @@ public object English {
     return removal.takeIf { (className) -> isStandardResource(className) }
   }
 
+  private fun standardResourceRemovalFromAnyPlayer(
+      instruction: Instruction
+  ): Pair<ClassName, Int>? {
+    val removal = instruction as? Remove ?: return null
+    if (removal.intensity != null && removal.intensity != MANDATORY) return null
+    val expression = removal.removing
+    if (expression.complement || expression.refinement != null) return null
+    if (expression.arguments != listOf(anyoneExpression)) return null
+    if (!isStandardResource(expression.className)) return null
+    val count = (removal.count as? ActualScalar)?.value ?: return null
+    return expression.className to count
+  }
+
   private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
     val removal = instruction as? Remove ?: return null
     if (removal.intensity != null && removal.intensity != MANDATORY) return null
@@ -219,38 +233,6 @@ public object English {
         else -> parts.dropLast(1).joinToString(", ") + ", and " + parts.last()
       }
 
-  private fun isStandardResource(className: ClassName): Boolean {
-    val resourceClass = Canon.classTable.findClass(className) ?: return false
-    return !resourceClass.abstract &&
-        resourceClass.isSubtypeOf(Canon.classTable.getClass(STANDARD_RESOURCE))
-  }
-
-  private fun componentNoun(className: ClassName, count: Int): String =
-      when {
-        className == MEGACREDIT -> "M€"
-        className == plant && count != 1 -> "plants"
-        else -> unCamelCase(className.toString())
-      }
-
-  private fun unCamelCase(name: String): String = buildString {
-    name.forEachIndexed { index, character ->
-      val previous = name.getOrNull(index - 1)
-      val next = name.getOrNull(index + 1)
-      if (character == '_') {
-        append(' ')
-      } else {
-        val startsWord =
-            previous != null &&
-                character.isUpperCase() &&
-                (previous.isLowerCase() ||
-                    previous.isDigit() ||
-                    (previous.isUpperCase() && next?.isLowerCase() == true))
-        if (startsWord) append(' ')
-        append(character.lowercaseChar())
-      }
-    }
-  }
-
   private fun isEndEffect(effect: Effect): Boolean {
     val cardTrigger = effect.trigger
     return cardTrigger is OnGainOf && cardTrigger.expression == endExpression
@@ -261,12 +243,12 @@ public object English {
   }
 
   private val endExpression = cn("End").expression
+  private val anyoneExpression = cn("Anyone").expression
   private val cityTile = cn("CityTile")
   private val colony = cn("Colony")
   private val greeneryTile = cn("GreeneryTile")
   private val oceanTile = cn("OceanTile")
   private val oxygenStep = cn("OxygenStep")
-  private val plant = cn("Plant")
   private val reserveTradeFleet = cn("ReserveTradeFleet")
   private val temperatureStep = cn("TemperatureStep")
   private val terraformRating = cn("TerraformRating")
@@ -274,6 +256,7 @@ public object English {
 
   private data class ResourceProductionChange(
       val gaining: Boolean,
+      val owner: String,
       val className: ClassName,
       val count: Int,
   )

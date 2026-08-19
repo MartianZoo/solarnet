@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.TfmClasses.PROD
 
 internal fun renderRequirement(requirement: Requirement): String? =
     when (requirement) {
@@ -13,9 +14,18 @@ internal fun renderRequirement(requirement: Requirement): String? =
       is Requirement.And -> renderTagRequirementGroup(requirement)
       is Requirement.Eval,
       is Requirement.Exact,
-      is Requirement.Or,
-      is Requirement.Transform -> null
+      is Requirement.Or -> null
+      is Requirement.Transform -> renderProductionRequirement(requirement)
     }
+
+private fun renderProductionRequirement(requirement: Requirement.Transform): String? {
+  if (requirement.transformKind != PROD) return null
+  val minimum = requirement.requirement as? Requirement.Min ?: return null
+  if (minimum.target != 1) return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple || !isStandardResource(metric.expression.className)) return null
+  return "Requires that you have ${componentNoun(metric.expression.className, 1)} production."
+}
 
 private fun renderMinimum(requirement: Requirement.Min): String? =
     target(requirement, oxygenStep)?.let { "Requires $it% oxygen." }

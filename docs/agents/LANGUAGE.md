@@ -79,14 +79,15 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum concrete-tag
-requirements, same-category groups of one-count tags, and minimum TR and owned-greenery requirements.
-It also derives a minimum colony requirement. It derives bottom text when every immediate instruction
-is one of: a concrete mandatory gain or removal of a standard resource; a gain of one reserve Trade
-Fleet; a group of concrete mandatory standard-resource production gains or decreases; a city-tile,
-colony, or ocean-tile placement; one plain greenery-tile placement; or a concrete mandatory
-temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are rendered in authored
-order, with adjacent standard-resource gains coalesced into one sentence. A concrete fixed VP gain
-triggered by `End` is also derived.
+requirements, same-category groups of one-count tags, minimum TR and owned-greenery requirements, and
+a requirement that the player have a standard-resource production. It also derives a minimum colony
+requirement. It derives bottom text when every immediate instruction is one of: a concrete mandatory
+gain or removal of a standard resource; a gain of one reserve Trade Fleet; a group of concrete
+mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
+placement; one plain greenery-tile placement; or a concrete mandatory
+temperature, oxygen, Venus-step, or TR gain or removal. A production decrease may target any player.
+Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
+into one sentence. A concrete fixed VP gain triggered by `End` is also derived.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
