@@ -78,7 +78,7 @@ CardP35F	P35	Acquired Space Agency	Gain 6 titanium. Draw 2 space cards.
 Card001	001	Colonizer Training Camp	Oxygen must be 5% or less. 2 VPs.	
 Card003	003	Deep Well Heating	Increase your energy production 1 step. Raise temperature 1 step.	
 Card004	004	Cloud Seeding	Requires 3 ocean tiles. Decrease your M€ production 1 step and any player's heat production 1 step and increase your plant production 2 steps.	
-Card005F	005	Search For Life	Oxygen must be 6% or less. 3 VPs if you have one or more science resources here.	Action: Spend 1 M€ to reveal and discard the top card of the draw deck. If that card has a microbe tag, add 1 science resource to this card.
+Card005F	005	Search For Life	Oxygen must be 6% or less. 3 VPs if you have at least 1 science resource on this card.	Action: Spend 1 M€ to reveal and discard the top card of the draw deck. If that card has a microbe tag, add 1 science resource to this card.
 Card007	007	Martian Rails		Action: Spend 1 energy to gain 1 M€ for each city tile in play ON MARS.
 Card008	008	Capital	Requires 4 ocean tiles. Place this city tile. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP for each ocean tile adjacent to this city tile.	
 Card009	009	Asteroid	Raise temperature 1 step. Gain 2 titanium. Remove up to 3 plants from any player.	

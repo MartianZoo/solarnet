@@ -18,6 +18,21 @@ internal fun renderRequirement(requirement: Requirement): String? =
       is Requirement.Transform -> renderProductionRequirement(requirement)
     }
 
+internal fun renderScoringCondition(requirement: Requirement): String? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  val expression = metric.expression
+  if (
+      expression.arguments != listOf(thisExpression) ||
+          expression.refinement != null ||
+          expression.complement
+  ) {
+    return null
+  }
+  val noun = cardResourceNoun(expression.className, minimum.target) ?: return null
+  return "if you have at least ${minimum.target} $noun on this card"
+}
+
 private fun renderProductionRequirement(requirement: Requirement.Transform): String? {
   if (requirement.transformKind != PROD) return null
   val minimum = requirement.requirement as? Requirement.Min ?: return null
@@ -163,3 +178,4 @@ private fun temperature(steps: Int): String {
 }
 
 private val anyoneExpression = cn("Anyone").expression
+private val thisExpression = cn("This").expression

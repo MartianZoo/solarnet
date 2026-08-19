@@ -129,7 +129,9 @@ target any player.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
 into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
 VP for each simple tag the player owns, for each card resource on the scoring card, or for each
-complete concrete group of one card-resource type on the scoring card.
+complete concrete group of one card-resource type on the scoring card. A fixed VP gain or penalty
+may be conditional on the player having a concrete minimum number of one resource type on the
+scoring card.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
@@ -140,9 +142,8 @@ An unsupported requirement, unsupported End-triggered scoring effect, behavior-b
 unsupported immediate-instruction shape keeps the whole region data-backed. Component declarations can
 encode printed setup behavior that is absent from `immediate`, so deriving only that group could omit
 bottom text. A card's generated declaration of its ordinary card-resource type is not behavior-bearing
-and does not prevent derivation. Search for Life remains data-backed because conditional End scoring
-is not yet rendered. Actions and non-End effects are top elements and do not prevent bottom
-derivation.
+and does not prevent derivation. Actions and non-End effects are top elements and do not prevent
+bottom derivation.
 
 ## Known layout boundaries
 

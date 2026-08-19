@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
@@ -11,13 +12,24 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal fun renderEndEffect(effect: Effect): String? {
-  val trigger = effect.trigger as? OnGainOf ?: return null
-  if (!isEndTrigger(trigger)) return null
+  val condition =
+      when (val trigger = effect.trigger) {
+        is IfTrigger -> {
+          if (!isEndTrigger(trigger.inner)) return null
+          renderScoringCondition(trigger.condition) ?: return null
+        }
+        else -> {
+          if (!isEndTrigger(trigger)) return null
+          null
+        }
+      }
   renderPerVictoryPoints(effect.instruction)?.let {
+    if (condition != null) return null
     return it
   }
   val (count, penalty) = fixedVictoryPoints(effect.instruction) ?: return null
-  return "${if (penalty) "-" else ""}$count ${if (count == 1) "VP" else "VPs"}."
+  val points = "${if (penalty) "-" else ""}$count ${if (count == 1) "VP" else "VPs"}"
+  return "$points${condition?.let { " $it" } ?: ""}."
 }
 
 internal fun isEndEffect(effect: Effect): Boolean {
