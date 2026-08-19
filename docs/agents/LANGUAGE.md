@@ -222,9 +222,9 @@ and Space Port Colony print additional permission to reuse an occupied colony ti
 ## Review cadence
 
 Commit bounded renderer iterations autonomously. Stop autonomous rounds after accumulating roughly
-ten golden-text row changes, then provide an old-versus-new comparison roundup grouped by the
+25 modified cards, then provide an old-versus-new comparison roundup grouped by the
 systemic wording rule that caused them. If one renderer shape would itself change materially more
-than ten rows, report that scope before updating the golden data or committing it. The golden file may be
+than 25 cards, report that scope before updating the golden data or committing it. The golden file may be
 committed along the way; reconstruct the roundup from the commit-range diff rather than expecting
 review of each historical commit.
 
