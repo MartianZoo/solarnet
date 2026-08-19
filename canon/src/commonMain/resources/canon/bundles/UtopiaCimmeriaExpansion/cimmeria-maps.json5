@@ -13,7 +13,7 @@
 
   "maps": [
     {
-      "name": "TerraCimmeria",
+      "name": "Cimmeria",
       "setupRequirement": "TerraCimmeriaMapOption",
       "rows": [
         [

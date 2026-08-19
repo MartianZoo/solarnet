@@ -12,7 +12,7 @@
 
   "maps": [
     {
-      "name": "UtopiaPlanitia",
+      "name": "Utopia",
       "setupRequirement": "UtopiaPlanitiaMapOption",
       "rows": [
         [

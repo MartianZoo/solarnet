@@ -15,7 +15,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
     newGame(TerraCimmeriaMapOption)
     p1.manual("10")
 
-    p1.manual("CityTile<TerraCimmeria_3_3>")
+    p1.manual("CityTile<Cimmeria_3_3>")
 
     p1.count("Megacredit") shouldBe 10
     p1.count("Colony") shouldBe 0
@@ -30,7 +30,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
     )
     p1.manual("10")
 
-    p1.manual("CityTile<TerraCimmeria_3_3>") {
+    p1.manual("CityTile<Cimmeria_3_3>") {
       doTask("Colony<Luna>")
     }
 
@@ -57,8 +57,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `Suburbian rewards a tile on the map edge over an interior tile`() {
     newGame(UtopiaPlanitiaMapOption)
     val p2 = requireP2()
-    p1.manual("8, CityTile<UtopiaPlanitia_1_1>")
-    p2.manual("CityTile<UtopiaPlanitia_5_5>")
+    p1.manual("8, CityTile<Utopia_1_1>")
+    p2.manual("CityTile<Utopia_5_5>")
     engine.phase("Action")
 
     p1.stdAction("FundAwardSA") { doTask("Suburbian") }
@@ -72,8 +72,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `Founder counts an owned tile once when it neighbors multiple special tiles`() {
     newGame(TerraCimmeriaMapOption)
     p1.manual(
-        "CityTile<TerraCimmeria_3_3>, Card067_SpecialTile<TerraCimmeria_3_2>, " +
-            "Card044_SpecialTile<TerraCimmeria_3_4>"
+        "CityTile<Cimmeria_3_3>, Card067_SpecialTile<Cimmeria_3_2>, " +
+            "Card044_SpecialTile<Cimmeria_3_4>"
     )
 
     p1.count("OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>") shouldBe 1

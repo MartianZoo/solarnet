@@ -16,13 +16,19 @@ internal class CanonMapsTest {
 
   @Test fun testElysium() = checkMap(Canon.marsMap(cn("Elysium")))
 
-  @Test fun testUtopiaPlanitia() = checkMap(Canon.marsMap(cn("UtopiaPlanitia")))
+  @Test
+  fun testUtopia() {
+    val map = Canon.marsMap(cn("Utopia"))
+    map.className shouldBe cn("Utopia")
+    map.areas.single { it.className == cn("Utopia_3_3") }.bonusText shouldBe "Steel"
+    checkMap(map)
+  }
 
   @Test
-  fun testTerraCimmeria() {
-    val map = Canon.marsMap(cn("TerraCimmeria"))
-    map.className shouldBe cn("TerraCimmeria")
-    map.areas.single { it.className == cn("TerraCimmeria_3_3") }.bonusText shouldBe "TcColonyBonus"
+  fun testCimmeria() {
+    val map = Canon.marsMap(cn("Cimmeria"))
+    map.className shouldBe cn("Cimmeria")
+    map.areas.single { it.className == cn("Cimmeria_3_3") }.bonusText shouldBe "TcColonyBonus"
     checkMap(map)
   }
 

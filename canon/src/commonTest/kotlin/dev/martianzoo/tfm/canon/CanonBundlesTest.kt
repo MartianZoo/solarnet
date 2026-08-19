@@ -12,7 +12,7 @@ internal class CanonBundlesTest {
   @Test
   fun oneAuthorityKnowsEveryMapWhileOneModuleSelectsOneMap() {
     Canon.marsMapDefinitions.map { it.className }.toSet() shouldBe
-        setOf(cn("Tharsis"), cn("Hellas"), cn("Elysium"), cn("UtopiaPlanitia"), cn("TerraCimmeria"))
+        setOf(cn("Tharsis"), cn("Hellas"), cn("Elysium"), cn("Utopia"), cn("Cimmeria"))
 
     val hellas = table(cn("HellasMapOption"))
 
@@ -29,10 +29,10 @@ internal class CanonBundlesTest {
     val utopia = table(cn("UtopiaPlanitiaMapOption"))
     val cimmeria = table(cn("TerraCimmeriaMapOption"))
 
-    utopia.isActive(cn("UtopiaPlanitia")) shouldBe true
-    utopia.isActive(cn("TerraCimmeria")) shouldBe false
-    cimmeria.isActive(cn("TerraCimmeria")) shouldBe true
-    cimmeria.isActive(cn("UtopiaPlanitia")) shouldBe false
+    utopia.isActive(cn("Utopia")) shouldBe true
+    utopia.isActive(cn("Cimmeria")) shouldBe false
+    cimmeria.isActive(cn("Cimmeria")) shouldBe true
+    cimmeria.isActive(cn("Utopia")) shouldBe false
   }
 
   @Test
