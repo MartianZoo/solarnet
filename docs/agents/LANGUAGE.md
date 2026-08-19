@@ -123,7 +123,8 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 Above the artwork, `English` now composes a card's action region from its `Action` list when the card
 has no immediate instruction or behavior-bearing extra declaration. It supports no-cost actions and
 actions that spend a concrete amount of one standard resource, provided the result uses the
-supported instruction shapes below. Multiple authored actions render as alternatives. Non-End
+supported instruction shapes below. An action may instead remove a concrete number of one card
+resource from the acting card. Multiple authored actions render as alternatives. Non-End
 effects are not yet structurally rendered, so they keep the whole top region data-backed. An
 immediate group explicitly assigned to `TOP` may be composed before those actions; a bottom or
 split immediate still keeps the top region data-backed so this layout step does not implicitly

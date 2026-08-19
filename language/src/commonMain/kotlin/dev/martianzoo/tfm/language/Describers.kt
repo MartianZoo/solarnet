@@ -33,8 +33,16 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal fun renderCost(cost: Cost): String? {
     val spend = cost as? Cost.Spend ?: return null
     val expression = spend.scaledEx.expression
-    if (!expression.simple) return null
     val count = (spend.scaledEx.scalar as? ActualScalar)?.value ?: return null
+    if (
+        expression.arguments == listOf(thisExpression) &&
+            expression.refinement == null &&
+            !expression.complement
+    ) {
+      val noun = cardResourceNoun(expression.className, count) ?: return null
+      return "remove $count $noun from this card"
+    }
+    if (!expression.simple) return null
     val noun = standardResourceNoun(expression.className, count) ?: return null
     return "spend $count $noun"
   }
