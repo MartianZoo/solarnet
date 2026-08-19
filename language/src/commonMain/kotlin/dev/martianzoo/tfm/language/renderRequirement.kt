@@ -4,7 +4,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 
 internal fun renderRequirement(requirement: Requirement): String? =
@@ -91,15 +90,7 @@ private fun renderTagRequirementGroup(requirement: Requirement.And): String? {
 private fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {
   val metric = requirement.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
-  val className = metric.expression.className
-  val componentClass = Canon.classTable.findClass(className) ?: return null
-  if (componentClass.abstract || !componentClass.isSubtypeOf(Canon.classTable.getClass(tag))) {
-    return null
-  }
-  val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-  val isPlanetTag = componentClass.isSubtypeOf(Canon.classTable.getClass(planetTag))
-  val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
-  return name to isPlanetTag
+  return tagName(metric.expression.className)
 }
 
 private fun englishList(parts: List<String>): String =
@@ -120,8 +111,6 @@ private val colony = cn("Colony")
 private val greeneryTile = cn("GreeneryTile")
 private val oceanTile = cn("OceanTile")
 private val oxygenStep = cn("OxygenStep")
-private val planetTag = cn("PlanetTag")
-private val tag = cn("Tag")
 private val temperatureStep = cn("TemperatureStep")
 private val terraformRating = cn("TerraformRating")
 private val venusStep = cn("VenusStep")
