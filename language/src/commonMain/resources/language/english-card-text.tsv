@@ -272,7 +272,7 @@ Card175	175	Satellites	Increase your M€ production 1 step for each space tag y
 Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium production 1 step and your M€ production 1 step.	
 Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. -2 VPs.	
 Card185	185	Olympus Conference	1 VP.	Effect: When you play a science tag, either add 1 science resource to this card, or remove 1 science resource to draw 1 card.
-Card186	186	Rad-Suits	Requires 2 city tiles in play. Increase your M€ production 1 step. 1 VP.	
+Card186	186	Rad-Suits	Requires 2 city tiles. Increase your M€ production 1 step. 1 VP.	
 Card192F	192	Invention Contest	Look at the top 3 cards from the deck. Draw 1 of them and discard the other 2.	
 Card194	194	Power Infrastructure		Action: Spend one or more energy to gain that amount of M€.
 Card195	195	Indentured Workers	The next card you play this generation costs 8 M€ less. -1 VP.	
@@ -366,7 +366,7 @@ CardC20	C20	Luna Governor	Requires 3 Earth tags. Increase your M€ production 2
 CardC21	C21	Lunar Exports	Increase your plant production 2 steps or increase your M€ production 5 steps.	
 CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have.	
 CardC23	C23	Market Manipulation	Increase one colony tile track 1 step. Decrease another colony tile track 1 step.	
-CardC24	C24	Martian Zoo	Requires 2 city tiles in play. 1 VP.	Effect: When you play an Earth tag, add 1 animal to this card. / Action: Gain 1 M€ for each animal here.
+CardC24	C24	Martian Zoo	Requires 2 city tiles. 1 VP.	Effect: When you play an Earth tag, add 1 animal to this card. / Action: Gain 1 M€ for each animal here.
 CardC25	C25	Mining Colony	Increase your titanium production 1 step. Place a colony.	
 CardC26	C26	Minority Refuge	Decrease your M€ production 2 steps. Place a colony.	
 CardC27	C27	Molecular Printing	Gain 1 M€ for each city tile. Gain 1 M€ for each colony. 1 VP.	
@@ -390,7 +390,7 @@ CardC44	C44	Titan Floating Launch-Pad	Add 2 floaters to a card with a Jovian tag
 CardC45	C45	Titan Shuttles	1 VP.	Action: Add 2 floaters to ANY JOVIAN CARD, or remove one or more floaters to gain the same number of titanium.
 CardC46	C46	Trade Envoys		Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC47	C47	Trading Colony	Place a colony.	Effect: When you trade, you may first increase that Colony Tile track 1 step.
-CardC48	C48	Urban Decomposers	Requires that you have 1 city tile and 1 colony in play. Increase your plant production 1 step. Add 2 microbes to ANOTHER card.	
+CardC48	C48	Urban Decomposers	Requires that you have 1 city tile and 1 colony. Increase your plant production 1 step. Add 2 microbes to ANOTHER card.	
 CardC49	C49	Warp Drive	Requires 5 science tags. 2 VPs.	Effect: When you play a space tag, you pay 4 M€ less for it.
 CardT01	T01	Aerial Lenses	Requires that Kelvinists are ruling or that you have 2 delegates there. Remove up to 2 plants from any player. Increase your heat production 2 steps.	
 CardT02	T02	Banned Delegate	Requires that you are Chairman. Remove any NON-LEADER delegate.	
@@ -457,7 +457,7 @@ CardX50	X50	Aqueduct Systems	Requires that you have a city tile adjacent to an o
 CardX52	X52	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space or city tag, graphene resources on this card may be used as 4 M€ each.
 CardX61	X61	Neptunian Power Consultants	1 VP for each hydroelectric resource on this card.	Effect: When any ocean tile is placed, you may pay 5 M€ (steel may be used) to increase your energy production 1 step and add 1 hydroelectric resource to this card.
 CardX63	X63	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, you pay 2 M€ less. When any player plays a space event, draw 1 card.
-CardX68	X68	Supermarkets	Requires 2 city tiles in play. Increase your M€ production 2 steps. 1 VP.	
+CardX68	X68	Supermarkets	Requires 2 city tiles. Increase your M€ production 2 steps. 1 VP.	
 CardX69	X69	Hospitals	Decrease your energy production 1 step. 1 VP.	Effect: When any city tile is placed, add 1 disease to this card. / Action: Remove 1 disease from ANY OF YOUR CARDS to gain 1 M€ for each city tile in play.
 CardX70	X70	Public Baths	Requires 6 ocean tiles. Gain 6 M€. 1 VP.	
 CardX71	X71	City Parks	Requires that you have 3 city tiles. Gain 2 plants. 2 VPs.	

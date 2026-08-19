@@ -107,7 +107,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       ComponentDescriber.Requirement.CITY_TILES -> {
         val tiles = "$target city ${if (target == 1) "tile" else "tiles"}"
         when {
-          ownedByAnyPlayer(expression) -> "Requires $tiles in play."
+          ownedByAnyPlayer(expression) -> "Requires $tiles."
           expression.simple -> "Requires that you have $tiles."
           else -> null
         }
@@ -467,7 +467,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
             else -> return null
           }
         }
-    return "Requires that you have ${englishList(nouns)} in play."
+    return "Requires that you have ${englishList(nouns)}."
   }
 
   private fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {

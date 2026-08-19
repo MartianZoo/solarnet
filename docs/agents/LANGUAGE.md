@@ -165,9 +165,9 @@ semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic 
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
 policy.
 
-The requirement renderer still emits the published `in play` wording for any-player city-tile
-requirements and for one compound owned-placement form. This is transitional wording, not a
-Solarnet existence state or scope; replace it in the next requirement-focused round.
+Any-player city-tile requirements name the required tiles without `in play`; a compound owned
+city-and-colony requirement says that you have those components. Solarnet components outside the
+game do not exist, so the published `in play` wording adds no existence state or scope.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
