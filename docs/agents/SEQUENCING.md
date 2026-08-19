@@ -36,8 +36,10 @@ Several different concerns are easy to collapse into a vague request for work to
 - **Sequencing:** B cannot precede A. `THEN`, a barrier, or natural unavailability can establish it.
 - **Immediacy:** after A, work cannot be postponed behind a player choice. Automatic `::` expresses
   this.
+- **Deferred eligibility:** B already exists as work, but cannot be selected while higher-priority
+  work remains in the relevant control scope. The task-priority hypothesis below explores this.
 - **Global completion:** the whole World task pool has drained and remains empty after completion
-  reactions. The proposed `Idle` signal would expose this boundary.
+  work.
 - **Scoped completion:** one delegated operation and its descendants have drained, even if unrelated
   World work remains. This requires a control scope.
 - **Game-rule atomicity:** no player interleaving or rule observation may split the conceptual
@@ -56,6 +58,37 @@ When evaluating an “atomic” rule, specify separately:
 
 Do not infer those answers from an unanswered community post. For disputed rules, find the linked
 Jacob Fryxelius ruling or preserve the uncertainty.
+
+## Put facts in components and future work in tasks
+
+The component graph says what **is** or what **is happening**. This includes transient facts inside
+an operation when their identity, cardinality, or individual changes matter. `Owed` records the
+current debt and lets the event history attribute each reduction to Earth Catapult, Advanced
+Alloys, a payment, or another cause. `Required` similarly records a quantitative global-parameter
+shortfall. `CardX53FirstChoice` carries one selected card identity into a later choice, and
+`AwardTally` carries measured values into award comparison. Their temporary or process-local nature
+does not make them task metadata.
+
+Tasks say what activities remain available or mandatory. Keep them sealed after creation: authored
+game behavior must not edit, reprioritize, cancel, or remove another task. Player narrowing remains
+the deliberate exception; engine preparation and execution retain their existing mechanical roles.
+A future priority is immutable task metadata assigned when work is created, not a new capability for
+effects to reach into the task pool.
+
+Signals such as `PlayCard`, `Trade`, `Accept`, and `Pay` are coherent component events: they state
+what is happening and disappear before a stable World is exposed. Durable facts such as `Phase`,
+`Pass`, `ActionUsedMarker`, and next-card effects likewise remain component state.
+
+`Temporary` currently covers two opposite lifecycle policies that a scoped completion model should
+distinguish. Some transient component facts should be removed automatically when their action or
+turn scope drains. Others represent mandatory unfinished state and must already have been removed;
+if they survive the boundary, the operation reaches a dead end. Neither policy makes the component
+task state, and the relevant boundary must be explicit rather than assumed to be global queue
+emptiness.
+
+The suspicious case is therefore narrower: a component whose entire payload is “some task must
+wait.” `TradeBarrier` is the strongest current example. Priority may remove such pure scheduling
+semaphores without moving quantitative or identity-bearing World state into tasks.
 
 ## Recoverable dead ends are part of the model
 
@@ -135,10 +168,13 @@ A barrier makes later work illegal until separately produced work finishes: card
 entry, all optional trade-track choices before fleet movement, or one delegated operation before the
 next. Prefer a specific gate such as `MAX 0 TradeBarrier` to `MAX 0 Barrier`.
 
-A barrier controls legality, not priority. Other currently legal work remains reorderable. Phase
-topology and Player control-until-drain belong to [WORKFLOW.md](WORKFLOW.md), not generic barriers.
-Creating work only after the entire World task pool drains is another distinct need; the
-exploratory [world-idle signal](#world-idle-continuations-exploratory) below considers it separately.
+A barrier controls legality, not priority. Other currently legal work remains reorderable. Retain a
+component gate when the component carries real state, as `Owed` and `Required` do. When the only
+fact represented is that later work must wait for the relevant task pool to drain, investigate
+immutable task priority instead; do not create a graph semaphore merely to schedule tasks.
+
+Phase topology and Player control-until-drain belong to [WORKFLOW.md](WORKFLOW.md), not generic
+barriers. Global queue drain is only the root-scope case of that broader completion model.
 
 ## Model before-trigger effects with a committed precursor
 
@@ -330,50 +366,52 @@ already-finished automatic work as a continuation.
 Keep the current choice-free rule for `::` unless this constrained model is selected and proves that
 it removes more permanent machinery than it adds.
 
-## World-idle continuations (exploratory)
+## Immutable task priority (exploratory)
 
-**Aspirational hypothesis, not an approved engine rule.** Some work genuinely belongs after the
-whole World task pool empties rather than after one particular task. A systemic way to express that
-could be an engine-owned signal:
+**Aspirational hypothesis, not an approved engine rule.** Some work should exist immediately but
+remain ineligible until other work drains. This may be task priority rather than an `Idle` component
+and fixed-point broadcast protocol.
 
-```pets
-CLASS Idle : Signal, System
+A task may be prepared only when it has or ties for the highest priority in the relevant control
+scope. Tasks tied at that priority remain an unordered pool. When they are gone, the next occupied
+priority becomes eligible automatically; no task is edited or literally “bumped.” A task's priority
+is fixed when it is created and survives player narrowing, preparation, splitting, and execution
+machinery just as assignee, Actor, and cause do.
 
-CLASS AfterFoo : Temporary {
-  Idle: B THEN -This
-}
-```
+Use a small semantic ordering, not arbitrary author-selected numbers. The exact bands remain open,
+but the model needs at least ordinary player work, reduced-priority settlement, and an Engine-owned
+workflow fallback below both. A prepared task can share the eligibility check as the sole selected
+work, but preparation remains explicit state: it has read the World and therefore forbids every
+intervening mutation, not merely lower-priority task selection.
 
-Creating `AfterFoo` records a one-shot continuation without creating a pending task. At the next
-queue-empty boundary, `Idle` makes B pending and the continuation eventually removes itself. A
-continuation that does not consume itself would hear every later idle broadcast and could prevent
-settlement forever.
+Priority is not `THEN`. Completing A creates its particular B continuation; queue-drain priority
+delays already-created B behind all higher-priority work in one scope. It is also not automatically
+a replacement for barriers: `Owed` and `Required` remain auditable quantitative components, and
+their survival at settlement can still make an operation incomplete. Priority is most promising
+where a component currently carries no information except scheduling.
 
-Idle settlement would be a fixed-point protocol at the outer operation boundary:
+The first two investigations should be:
 
-1. When the task pool is empty, broadcast `Idle`.
-2. Let automatic and queued reactions to that signal appear.
-3. If any task appears, the World was not stably idle. After that work drains, broadcast `Idle`
-   again.
-4. If the broadcast creates no work and no `Temporary` remains, the World is stably idle. Only then
-   send a workflow wakeup.
+1. **Trade.** Let `Trade<ColonyTile>` directly create the selected fleet-movement task at reduced
+   priority while Trade Envoys and Trading Colony create ordinary optional production decisions.
+   If draining those decisions makes fleet movement eligible with all valid sibling orders intact,
+   delete `TradeBarrier` and its create/remove effects.
+2. **PlayCard.** Let `PlayCard<Class<CardBack>, Class<CardFront>>` directly create the corresponding
+   `CardFront FROM CardBack` task at reduced priority. Payment setup, discounts, and payment choices
+   remain ordinary work, with `Owed` and `Required` preserved as component facts. Event-card entry
+   can then create its `PlayedEvent FROM EventCard` cleanup at reduced priority in the new task
+   context, testing whether Solar Probe retains its own tags through all ordinary card work.
 
-This requires separating **queue empty** from **stably idle**. Current `World.isIdle()` combines an
-empty task pool with `MAX 0 Temporary`; an idle waiter intentionally survives the first condition so
-that the broadcast can consume it. A remaining Temporary with no work capable of removing it is an
-incomplete operation, not stable idleness.
+These cases test both directions of the idea: Trade may remove a pure graph semaphore, while
+PlayCard should preserve quantitative graph state and change only when the already-promised work may
+run. Do not add task-targeting instructions or effect access to task identity for either experiment.
 
-Settlement must also remain inside the originating failure boundary. Broadcasting only from a
-post-success callback would let the original operation commit even if its mandatory idle reaction
-failed. The engine may still implement the fixed-point check at its outer operation boundary, but
-the signal and its consequences must share the rollback scope that made the waiter.
-
-An idle continuation is not a simpler spelling of every barrier. A barrier makes particular work
-illegal while a local condition exists and preserves unrelated task-order freedom. An idle waiter
-delays even creating B until every task in the World drains, so using it for payment or trade can
-impose false precedence over unrelated work. Likewise, `Idle` cannot express completion of one
-delegated control scope while unrelated tasks remain. Native workflow still needs the scoped model
-described in [WORKFLOW.md](WORKFLOW.md); stable global idleness is only its whole-World special case.
+Several semantics must be proved before selection. Determine the relevant scope—Player queue,
+delegated operation, or whole World—rather than using global priority as an approximation. Prove
+what priority newly triggered tasks receive and that activating reduced work does not serialize
+otherwise reorderable siblings. Keep settlement inside the originating failure boundary. A lowest
+priority Engine task may eventually replace workflow queue-drained wakeups, but only after scoped
+control and the two domain cases establish the rule.
 
 ## Atomicity audit hypotheses
 
@@ -450,9 +488,13 @@ this is acceptable only while nothing can observe their relative order.
 - **Candidate draw/select/play:** Valley Trust, Merger, and New Partner use ordinary hand cards in
   incremental chains, so candidates are neither isolated nor forced to continue. Prefer one
   operation-scoped candidate representation if a fix is selected.
-- **Card-play barrier:** determine whether `MAX 0 Barrier` should be payment-specific.
-- **Trade settlement:** determine whether colony-track reset can be observed before income and
-  colony bonuses finish.
+- **Task priority:** investigate Trade first as a possible deletion of `TradeBarrier`, then PlayCard
+  as direct creation of reduced-priority card-entry and event-cleanup tasks. Preserve `Owed` and
+  `Required` cardinality and audit history; do not introduce task mutation.
+- **Card-play gate:** determine whether reduced-priority entry plus scoped settlement can replace the
+  broad `MAX 0 Barrier` gate, or whether a payment-specific state gate remains necessary.
+- **Trade settlement:** while testing priority, determine whether colony-track reset can be observed
+  before income and colony bonuses finish.
 - **Lifecycle mixed modes:** prove setup, generation, and phase effects do not depend on automatic
   effect registration order.
 
