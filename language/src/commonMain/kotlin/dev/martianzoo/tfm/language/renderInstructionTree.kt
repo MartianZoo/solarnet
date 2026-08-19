@@ -50,14 +50,25 @@ private fun renderInstruction(instruction: Instruction, card: CardDefinition?): 
               ?: renderTilePlacement(instruction)
       is Remove -> renderStandardResourceRemoval(instruction) ?: renderTrackChange(instruction)
       is Transform -> renderProductionChange(instruction)
+      is Instruction.Or -> renderAlternatives(instruction, card)
       is NoOp,
       is Instruction.By,
       is Instruction.Gated,
-      is Instruction.Or,
       is Instruction.Per,
       is Instruction.Then,
       is Instruction.Transmute -> null
     }
+
+private fun renderAlternatives(
+    instruction: Instruction.Or,
+    card: CardDefinition?,
+): String? {
+  val alternatives =
+      instruction.instructions.map { option ->
+        renderInstructions(option, card)?.clauses?.singleOrNull() ?: return null
+      }
+  return englishAlternatives(alternatives)
+}
 
 private fun renderStandardResourceGains(instructions: List<Instruction>): String {
   val objects = instructions.map { instruction ->

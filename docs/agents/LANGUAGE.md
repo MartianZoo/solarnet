@@ -123,10 +123,10 @@ gain or removal of a standard resource; an optional removal of up to a concrete 
 resources from any player; a gain of one reserve Trade Fleet; a concrete mandatory gain of a card
 resource on the played card or an unrestricted card; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
-placement, whether written unqualified or with an explicit empty placement choice; one plain
-greenery-tile placement; or a concrete mandatory
+placement using the type's default arguments; one plain greenery-tile placement; or a concrete
+mandatory
 temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
-target any player.
+target any player. A choice is derived when every alternative is one supported clause.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
 into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
 VP for each simple tag the player owns, for each card resource on the scoring card, or for each

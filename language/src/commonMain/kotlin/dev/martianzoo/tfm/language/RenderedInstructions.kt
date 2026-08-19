@@ -20,3 +20,9 @@ internal fun englishList(parts: List<String>): String =
       2 -> parts.joinToString(" and ")
       else -> parts.dropLast(1).joinToString(", ") + ", and " + parts.last()
     }
+
+internal fun englishAlternatives(parts: List<String>): String =
+    when (parts.size) {
+      2 -> parts.joinToString(" or ")
+      else -> parts.dropLast(1).joinToString(", ") + ", or " + parts.last()
+    }
