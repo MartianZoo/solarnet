@@ -52,7 +52,7 @@ internal object Describers {
             ),
         klass("TerraformRating") to
             ComponentDescriber(
-                track = ComponentDescriber.Track("your TR"),
+                track = ComponentDescriber.Track("your terraform rating"),
                 requirement = ComponentDescriber.Requirement.TERRAFORM_RATING,
             ),
         klass("OceanTile") to

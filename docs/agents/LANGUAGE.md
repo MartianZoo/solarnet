@@ -27,6 +27,10 @@ by the all-card comparison. If a renderer gains behavior not exercised by any ca
 behavioral test for that behavior or defer the generalization; do not add a test whose only assertion
 is that the data file was not consulted.
 
+Keep every structurally supported End-scoring sentence canonical in the card-text data even when
+another part of that card keeps the whole region data-backed. The oracle should already contain the
+complete scoring text before an unrelated instruction shape becomes derivable.
+
 ## Expected renderer architecture
 
 Natural-language rendering should remain outside the Pets AST. Use one compositional renderer per
@@ -86,10 +90,10 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 ## Current derivation boundary
 
 `English` derives an empty region when the card definition has no element printed there. It derives
-minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum concrete-tag
-requirements, same-category groups of one-count tags, minimum TR and owned-greenery requirements,
-minimum owned or in-play city tiles, compound owned city-and-colony requirements, and a requirement
-that the player have a standard-resource production.
+minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
+concrete-tag requirements, same-category groups of one-count tags, minimum terraform-rating and
+owned-greenery requirements, minimum owned or in-play city tiles, compound owned city-and-colony
+requirements, and a requirement that the player have a standard-resource production.
 It also derives minimum concrete card-resource requirements and minimum and maximum owned-colony
 requirements. It derives bottom text when every
 immediate instruction is one of: a concrete mandatory
@@ -98,7 +102,8 @@ resources from any player; a gain of one reserve Trade Fleet; a concrete mandato
 resource on the played card or an unrestricted card; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
 placement; one plain greenery-tile placement; or a concrete mandatory
-temperature, oxygen, Venus-step, or TR gain or removal. A production decrease may target any player.
+temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
+target any player.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
 into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
 VP for each simple tag the player owns, for each card resource on the scoring card, or for each
@@ -155,9 +160,10 @@ review of each historical commit.
 
 - A component type can often become its ordinary noun by splitting its camel-case name. Number
   agreement is separate; `Plant` specifically becomes `plant` or `plants`.
-- Temperature, oxygen, Venus, TR, and colony productions are tracks, not countable units. Render
-  their gains and removals with the applicable `increase`/`decrease` or `raise`/`lower` pair rather
-  than resource language.
+- Temperature, oxygen, Venus, terraform rating, and colony productions are tracks, not countable
+  units. Render their gains and removals with the applicable `increase`/`decrease` or `raise`/`lower`
+  pair rather than resource language.
+- Spell out `terraform rating` in rendered prose; `TR` remains only an input synonym for Pets.
 - Gaining a standard resource uses `gain`; gaining a card resource uses `add`. Standard-resource
   gains use `Megacredit` -> `M€`, singular/plural `Plant` -> `plant`/`plants`, and a lowercased,
   un-camel-cased component Class Name by default.

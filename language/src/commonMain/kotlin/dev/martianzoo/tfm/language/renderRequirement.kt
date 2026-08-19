@@ -63,7 +63,7 @@ private fun renderMinimum(requirement: Requirement.Min): String? {
     }
     ComponentDescriber.Requirement.TERRAFORM_RATING -> {
       if (!expression.simple) return null
-      "Requires that you have at least $target TR."
+      "Requires that you have at least $target terraform rating."
     }
     ComponentDescriber.Requirement.VENUS_PERCENT -> {
       if (!expression.simple) return null
