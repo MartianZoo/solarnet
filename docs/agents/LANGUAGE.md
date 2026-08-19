@@ -134,7 +134,7 @@ target any player. A choice is derived when every alternative is one supported c
 choice among concrete production-change clauses. A supported single-clause instruction may be
 scaled by the number of a concrete tag or card resource the player owns, or by complete groups of
 that tag or resource. It may also be scaled by the player's colonies or by city tiles or colonies
-in play.
+in play. One supported clause may be gated by a concrete minimum number of a tag the player owns.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains
 coalesced into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or

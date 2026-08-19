@@ -62,13 +62,20 @@ private fun renderInstruction(instruction: Instruction, card: CardDefinition?): 
       is Remove -> renderStandardResourceRemoval(instruction) ?: renderTrackChange(instruction)
       is Instruction.Or -> renderAlternatives(instruction, card)
       is Instruction.Per -> renderPer(instruction, card)
+      is Instruction.Gated -> renderGated(instruction, card)
       is NoOp,
       is Instruction.By,
-      is Instruction.Gated,
       is Instruction.Then,
       is Instruction.Transform,
       is Instruction.Transmute -> null
     }
+
+private fun renderGated(instruction: Instruction.Gated, card: CardDefinition?): String? {
+  val clause =
+      renderLoweredInstructions(instruction.inner, card)?.clauses?.singleOrNull() ?: return null
+  val condition = renderOwnedTagCondition(instruction.gate) ?: return null
+  return "$clause $condition"
+}
 
 private fun renderPer(instruction: Instruction.Per, card: CardDefinition?): String? {
   val clause =

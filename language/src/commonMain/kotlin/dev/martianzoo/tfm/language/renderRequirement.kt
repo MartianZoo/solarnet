@@ -35,6 +35,15 @@ internal fun renderScoringCondition(requirement: Requirement): String? {
   return "if you have at least ${minimum.target} $noun on this card"
 }
 
+internal fun renderOwnedTagCondition(requirement: Requirement): String? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple) return null
+  val (name) = tagName(metric.expression.className) ?: return null
+  val tags = if (minimum.target == 1) "tag" else "tags"
+  return "if you have ${minimum.target} $name $tags"
+}
+
 private fun renderProductionRequirement(minimum: Requirement.Min): String? {
   if (minimum.target != 1) return null
   val metric = minimum.metric as? Metric.Count ?: return null
