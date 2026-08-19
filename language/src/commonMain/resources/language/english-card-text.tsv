@@ -7,12 +7,12 @@ CardB04	B04	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When yo
 CardB05	B05	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: You may treat any global parameter requirement as if it is 2 steps lower or higher.
 CardB06	B06	Mining Guild	Gain 30 M€ and 5 steel. Increase your steel production 1 step.	Effect: When you place a tile on an area with steel or titanium placement bonus, increase your steel production 1 step.
 CardB07	B07	PhoboLog	Gain 23 M€ and 10 titanium.	Effect: Each titanium you spend is worth 1 M€ extra.
-CardB08	B08	Tharsis Republic	Gain 40 M€. As your first action, place a city tile.	Effect: When any player places a city tile ON MARS, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
+CardB08	B08	Tharsis Republic	Gain 40 M€. As your first action, place a city tile.	Effect: When any city tile is placed ON MARS, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
 CardB09	B09	ThorGate	Gain 48 M€. Increase your energy production 1 step.	Effect: When you play a power tag or use the Power Plant standard project, you pay 3 M€ less.
 CardB10	B10	United Nations Mars Initiative	Gain 40 M€.	Action: If your terraform rating was raised this generation, you may spend 3 M€ to raise your terraform rating 1 step more.
 CardB11	B11	Saturn Systems	Gain 42 M€. Increase your titanium production 1 step.	Effect: When any Jovian tag is played, increase your M€ production 1 step.
 CardB12	B12	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, you pay 3 M€ less.
-CardVC1	V01	Aphrodite	Gain 47 M€. Increase your plant production 1 step.	Effect: When any player raises Venus 1 step, gain 2 M€.
+CardVC1	V01	Aphrodite	Gain 47 M€. Increase your plant production 1 step.	Effect: When Venus is raised 1 step, gain 2 M€.
 CardVC2F	V02	Celestic	Gain 42 M€. As your first action, draw 2 cards with floater icons. 1 VP for every 3 floaters on this card.	Action: Add 1 floater to ANY card.
 CardVC3	V03	Manutech	Gain 35 M€. Increase your steel production 1 step.	Effect: For each step you increase one of your productions, you also gain that resource.
 CardVC4F	V04	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 Venus-tag cards.	Effect: Your Venus requirements are +2 or -2 steps, your choice in each case.
@@ -29,7 +29,7 @@ CardCC4	CC4	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect:
 CardCC5	CC5	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to ANY card. / Effect: Floaters on this card may be used as 2 heat each.
 CardTC1	TC1	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean is placed, increase your M€ production 1 step. / Your bonus for placing adjacent to oceans is 3 M€ instead of 2 M€.
 CardTC2	TC2	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP for each preservation resource on this card.	Effect: When a production phase begins, if you did not raise your terraform rating so far this generation, add 1 preservation resource to this card and gain 6 M€.
-CardTC3	TC3	Septem Tribus	Gain 36 M€. When you perform an action, the wild tag counts as any tag of your choice.	Action: Gain 2 M€ for each party where you have at least 1 delegate.
+CardTC3	TC3	Septem Tribus	Gain 36 M€. When you perform an action, the wild tag counts as any tag of your choice.	Action: Gain 2 M€ for each party where you have 1 or more delegates.
 CardTC4	TC4	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: Buying cards to hand costs 1 M€, including your starting hand.
 CardTC5	TC5	Utopia Invest	Gain 40 M€. Increase your steel production 1 step and your titanium production 1 step.	Action: Decrease one of your productions to gain 4 resources of that kind.
 CardXC1	XC1	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, place a community on a non-reserved area.	Action: Place a community (player marker) on a non-reserved area adjacent to one of your tiles or marked areas. / Effect: Marked areas are reserved for you. When you place a tile there, gain 3 M€.
@@ -78,7 +78,7 @@ CardP35F	P35	Acquired Space Agency	Gain 6 titanium. Draw 2 space cards.
 Card001	001	Colonizer Training Camp	Oxygen must be 5% or less. 2 VPs.	
 Card003	003	Deep Well Heating	Increase your energy production 1 step. Raise temperature 1 step.	
 Card004	004	Cloud Seeding	Requires 3 ocean tiles. Decrease your M€ production 1 step and any player's heat production 1 step and increase your plant production 2 steps.	
-Card005F	005	Search For Life	Oxygen must be 6% or less. 3 VPs if you have at least 1 science resource on this card.	Action: Spend 1 M€ to reveal and discard the top card of the draw deck. If that card has a microbe tag, add 1 science resource to this card.
+Card005F	005	Search For Life	Oxygen must be 6% or less. 3 VPs if you have 1 or more science resources on this card.	Action: Spend 1 M€ to reveal and discard the top card of the draw deck. If that card has a microbe tag, add 1 science resource to this card.
 Card007	007	Martian Rails		Action: Spend 1 energy to gain 1 M€ for each city tile on Mars.
 Card008	008	Capital	Requires 4 ocean tiles. Place this city tile. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP for each ocean tile adjacent to this city tile.	
 Card009	009	Asteroid	Raise temperature 1 step. Gain 2 titanium. Remove up to 3 plants from any player.	
@@ -93,7 +93,7 @@ Card019	019	Imported Hydrogen	Gain 3 plants, add 3 microbes to ANOTHER card, or 
 Card020	020	Research Outpost	Place a city tile NEXT TO NO OTHER TILE.	Effect: When you play a card, you pay 1 M€ less for it.
 Card021	021	Phobos Space Haven	Increase your titanium production 1 step and place a city tile ON THE RESERVED AREA. 3 VPs.	
 Card022	022	Black Polar Dust	Place an ocean tile. Decrease your M€ production 2 steps and increase your heat production 3 steps.	
-Card023	023	Arctic Algae	Temperature must be -12°C or colder. Gain 1 plant.	Effect: When any player places an ocean tile, gain 2 plants.
+Card023	023	Arctic Algae	Temperature must be -12°C or colder. Gain 1 plant.	Effect: When any ocean tile is placed, gain 2 plants.
 Card024	024	Predators	Requires 11% oxygen. 1 VP for each animal on this card.	Action: Remove 1 animal from ANY PLAYER'S CARD to add 1 animal to this card.
 Card026	026	Eos Chasma National Park	Requires -12°C or warmer. Add 1 animal to ANOTHER card. Gain 3 plants. Increase your M€ production 2 steps. 1 VP.	
 Card029	029	Cupola City	Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps.	
@@ -105,7 +105,7 @@ Card034	034	GHG Producing Bacteria	Requires 4% oxygen.	Action: Add 1 microbe to 
 Card035	035	Ants	Requires 4% oxygen. 1 VP for every 2 microbes on this card.	Action: Remove 1 microbe from ANY PLAYER'S CARD to add 1 microbe to this card.
 Card036	036	Release Of Inert Gases	Raise your terraform rating 2 steps.	
 Card037	037	Nitrogen-Rich Asteroid	Raise your terraform rating 2 steps. Raise temperature 1 step. Increase your plant production 1 step or increase your plant production 4 steps if you have 3 plant tags.	
-Card038	038	Rover Construction	1 VP.	Effect: When any player places a city tile, gain 2 M€.
+Card038	038	Rover Construction	1 VP.	Effect: When any city tile is placed, gain 2 M€.
 Card039	039	Deimos Down	Raise temperature 3 steps. Gain 4 steel. Remove up to 8 plants from any player.	
 Card040	040	Asteroid Mining	Increase your titanium production 2 steps. 2 VPs.	
 Card041	041	Food Factory	Decrease your plant production 1 step and increase your M€ production 4 steps. 1 VP.	
@@ -151,7 +151,7 @@ Card116	116	Artificial Lake	Requires -6°C or warmer. Place an ocean tile ON AN 
 Card117	117	Geothermal Power	Increase your energy production 2 steps.	
 Card118	118	Farming	Requires +4°C or warmer. Increase your M€ production 2 steps and your plant production 2 steps. Gain 2 plants. 2 VPs.	
 Card119	119	Dust Seals	There must be 3 or fewer ocean tiles. 1 VP.	
-Card120	120	Urbanized Area	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile ADJACENT TO AT LEAST 2 OTHER CITY TILES.	
+Card120	120	Urbanized Area	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile ADJACENT TO 2 OR MORE OTHER CITY TILES.	
 Card122	122	Moss	Requires 3 ocean tiles. Increase your plant production 1 step. Remove 1 plant.	
 Card126	126	GHG Factories	Decrease your energy production 1 step and increase your heat production 4 steps.	
 Card127	127	Subterranean Reservoir	Place an ocean tile.	
@@ -191,7 +191,7 @@ Card168	168	Windmills	Requires 7% oxygen. Increase your energy production 1 step
 Card169	169	Tundra Farming	Requires -6°C or warmer. Increase your plant production 1 step and your M€ production 2 steps. Gain 1 plant. 2 VPs.	
 Card170	170	Aerobraked Ammonia Asteroid	Add 2 microbes to ANOTHER card. Increase your heat production 3 steps and your plant production 1 step.	
 Card171	171	Magnetic Field Dome	Decrease your energy production 2 steps and increase your plant production 1 step. Raise your terraform rating 1 step.	
-Card172	172	Pets	Add 1 animal to this card. 1 VP for every 2 animals on this card.	Effect: When any player places a city tile, add 1 animal to this card. Animals may not be removed from this card.
+Card172	172	Pets	Add 1 animal to this card. 1 VP for every 2 animals on this card.	Effect: When any city tile is placed, add 1 animal to this card. Animals may not be removed from this card.
 Card174	174	Protected Valley	Increase your M€ production 2 steps. Place a greenery tile ON AN AREA RESERVED FOR OCEAN (and raise oxygen 1 step), disregarding normal placement restrictions.	
 Card176	176	Noctis Farming	Requires -20°C or warmer. Increase your M€ production 1 step. Gain 2 plants. 1 VP.	
 Card177	177	Water Splitting Plant	Requires 2 ocean tiles.	Action: Spend 3 energy to raise oxygen 1 step.
@@ -207,7 +207,7 @@ Card190	190	Local Heat Trapping	Remove 5 heat. Gain 4 plants or add 2 animals to
 Card191	191	Permafrost Extraction	Requires -8°C or warmer. Place an ocean tile.	
 Card193	193	Plantation	Requires 2 science tags. Place a greenery tile (and raise oxygen 1 step).	
 Card198	198	Immigration Shuttles	Increase your M€ production 5 steps. 1 VP for every 3 city tiles.	
-Card200	200	Immigrant City	Decrease your energy production 1 step and your M€ production 2 steps. Place a city tile.	Effect: When any player places a city tile, increase your M€ production 1 step.
+Card200	200	Immigrant City	Decrease your energy production 1 step and your M€ production 2 steps. Place a city tile.	Effect: When any city tile is placed, increase your M€ production 1 step.
 Card202	202	Underground Detonations		Action: Spend 10 M€ to increase your heat production 2 steps.
 Card203	203	Soletta	Increase your heat production 7 steps.	
 Card205	205	Rad-Chem Factory	Decrease your energy production 1 step. Raise your terraform rating 2 steps.	
@@ -261,7 +261,7 @@ Card124	124	Hired Raiders	Steal up to 2 steel, or 3 M€ from any player.
 Card125	125	Hackers	Decrease your energy production 1 step and any player's M€ production 2 steps and increase your M€ production 2 steps. -1 VP.	
 Card137	137	Cartel	Increase your M€ production 1 step for each Earth tag you have.	
 Card144	144	Titanium Mine	Increase your titanium production 1 step.	
-Card149	149	CEO's Favorite Project	Add 1 resource to a card with at least 1 resource on it.	
+Card149	149	CEO's Favorite Project	Add 1 resource to a card with 1 or more resources on it.	
 Card150	150	Anti-Gravity Technology	Requires 7 science tags. 3 VPs.	Effect: When you play a card, you pay 2 M€ less for it.
 Card151	151	Investment Loan	Decrease your M€ production 1 step. Gain 10 M€.	
 Card154	154	Caretaker Contract	Requires 0°C or warmer.	Action: Spend 8 heat to raise your terraform rating 1 step.
@@ -306,7 +306,7 @@ Card228	228	GHG Import From Venus	Raise Venus 1 step. Increase your heat product
 Card229	229	Giant Solar Shade	Raise Venus 3 steps.	
 Card230	230	Gyropolis	Decrease your energy production 2 steps. Increase your M€ production 1 step for each Venus tag you have. Increase your M€ production 1 step for each Earth tag you have. Place a city tile.	
 Card231	231	Hydrogen To Venus	Raise Venus 1 step. Add 1 floater to a card with a Venus tag for each Jovian tag you have.	
-Card232	232	Io Sulphur Research	Draw 1 card, or draw 3 cards if you have at least 3 Venus tags. 2 VPs.	
+Card232	232	Io Sulphur Research	Draw 1 card, or draw 3 cards if you have 3 or more Venus tags. 2 VPs.	
 Card233	233	Ishtar Mining	Requires Venus 8%. Increase your titanium production 1 step.	
 Card234	234	Jet Stream Microscrappers		Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters from this card to raise Venus 1 step.
 Card235	235	Local Shading		Action: Add 1 floater to this card, or remove 1 floater from this card to increase your M€ production 1 step.
@@ -326,7 +326,7 @@ Card248	248	Stratopolis	Requires 2 science tags. Increase your M€ production 2
 Card249	249	Stratospheric Birds	Requires Venus 12%. Remove 1 floater from any card. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card250	250	Sulphur Exports	Raise Venus 1 step. Increase your M€ production 1 step for each Venus tag you have.	
 Card251	251	Sulphur-Eating Bacteria	Requires Venus 6%.	Action: Add 1 microbe to this card, or remove one or more microbes to gain triple that amount of M€.
-Card252	252	Terraforming Contract	Requires that you have at least 25 terraform rating. Increase your M€ production 4 steps.	
+Card252	252	Terraforming Contract	Requires that you have a terraform rating of 25 or more. Increase your M€ production 4 steps.	
 Card253	253	Thermophiles	Requires Venus 6%.	Action: Add 1 microbe to a card with a Venus tag, or remove 2 microbes from this card to raise Venus 1 step.
 Card254	254	Water To Venus	Raise Venus 1 step.	
 Card255	255	Venus Governor	Requires 2 Venus tags. Increase your M€ production 2 steps.	
@@ -456,9 +456,9 @@ CardX45	X45	Robot Pollinators	Requires 4% oxygen. Increase your plant production
 CardX50	X50	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 cards with a building tag. 1 VP.	
 CardX52	X52	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space or city tag, graphene resources on this card may be used as 4 M€ each.
 CardX61	X61	Neptunian Power Consultants	1 VP for each hydroelectric resource on this card.	Effect: When any ocean tile is placed, you may pay 5 M€ (steel may be used) to increase your energy production 1 step and add 1 hydroelectric resource to this card.
-CardX63	X63	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, you pay 2 M€ less. When any player plays a space event, draw 1 card.
+CardX63	X63	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, you pay 2 M€ less. When any space event is played, draw 1 card.
 CardX68	X68	Supermarkets	Requires 2 city tiles. Increase your M€ production 2 steps. 1 VP.	
-CardX69	X69	Hospitals	Decrease your energy production 1 step. 1 VP.	Action: Remove 1 disease resource from any of your cards to gain 1 M€ for each city tile. / Effect: When any player places a city tile, add 1 disease resource to this card.
+CardX69	X69	Hospitals	Decrease your energy production 1 step. 1 VP.	Action: Remove 1 disease resource from any of your cards to gain 1 M€ for each city tile. / Effect: When any city tile is placed, add 1 disease resource to this card.
 CardX70	X70	Public Baths	Requires 6 ocean tiles. Gain 6 M€. 1 VP.	
 CardX71	X71	City Parks	Requires that you have 3 city tiles. Gain 2 plants. 2 VPs.	
 CardX77F	X77	Public Plans	Reveal any number of other cards from your hand (your opponents may inspect them). Gain 1 M€ for each revealed card. 1 VP.	

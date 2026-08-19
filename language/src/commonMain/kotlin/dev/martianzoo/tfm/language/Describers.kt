@@ -115,8 +115,8 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       EventKind.PLAY_ANY -> "when $objects is played"
       EventKind.USE_ACTION -> "when you use $objects"
       EventKind.PLACE -> "when you place $objects"
-      EventKind.PLACE_BY_ANYONE -> "when any player places $objects"
-      EventKind.RAISE_BY_ANYONE -> "when any player raises $objects"
+      EventKind.PLACE_ANY -> "when $objects is placed"
+      EventKind.RAISE_ANY -> "when $objects is raised 1 step"
       EventKind.ADD_TO_CARD -> "when you add $objects to any card"
     }
   }
@@ -169,12 +169,12 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     if (trigger is ByTrigger) {
       if (trigger.by != anyoneExpression) return null
       val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
-      placementEvent(expression, EventKind.PLACE_BY_ANYONE)?.let {
+      placementEvent(expression, EventKind.PLACE_ANY)?.let {
         return it
       }
       if (!expression.simple) return null
       this[expression.className].track?.let { track ->
-        return Event(EventKind.RAISE_BY_ANYONE, "${track.subject} 1 step")
+        return Event(EventKind.RAISE_ANY, track.subject)
       }
       return null
     }
@@ -222,7 +222,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       tagName(expression.className)?.let { (name) ->
         return Event(EventKind.PLAY_ANY, "any $name tag")
       }
-      placementEvent(expression, EventKind.PLACE_BY_ANYONE)?.let {
+      placementEvent(expression, EventKind.PLACE_ANY)?.let {
         return it
       }
     }
@@ -259,7 +259,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   private fun placementEvent(expression: Expression, kind: EventKind): Event? {
     if (expression.refinement != null || expression.complement) return null
     if (
-        kind == EventKind.PLACE_BY_ANYONE &&
+        kind == EventKind.PLACE_ANY &&
             !expression.simple &&
             expression.arguments != listOf(anyoneExpression)
     ) {
@@ -268,12 +268,12 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val placement = this[expression.className].placement ?: return null
     val phrase =
         when (kind) {
-          EventKind.PLACE,
-          EventKind.PLACE_BY_ANYONE -> "${placement.article} ${placement.singular}"
+          EventKind.PLACE -> "${placement.article} ${placement.singular}"
+          EventKind.PLACE_ANY -> "any ${placement.singular}"
           EventKind.PLAY,
           EventKind.PLAY_ANY,
           EventKind.USE_ACTION,
-          EventKind.RAISE_BY_ANYONE,
+          EventKind.RAISE_ANY,
           EventKind.ADD_TO_CARD -> return null
         }
     return Event(kind, phrase)
@@ -286,8 +286,8 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     PLAY_ANY,
     USE_ACTION,
     PLACE,
-    PLACE_BY_ANYONE,
-    RAISE_BY_ANYONE,
+    PLACE_ANY,
+    RAISE_ANY,
     ADD_TO_CARD,
   }
 
@@ -368,8 +368,8 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     ) {
       return null
     }
-    val noun = cardResourceNoun(expression.className, minimum.target) ?: return null
-    return "if you have at least ${minimum.target} $noun on this card"
+    val noun = cardResourceNoun(expression.className, maxOf(2, minimum.target)) ?: return null
+    return "if you have ${minimum.target} or more $noun on this card"
   }
 
   internal fun renderGateCondition(requirement: Requirement): String? {

@@ -101,7 +101,7 @@ internal object TerraformingMarsDescribers {
                     requirement(
                         minimum = { expression, target ->
                           ifSimple(expression) {
-                            "Requires that you have at least $target terraform rating."
+                            "Requires that you have a terraform rating of $target or more."
                           }
                         }
                     ),
