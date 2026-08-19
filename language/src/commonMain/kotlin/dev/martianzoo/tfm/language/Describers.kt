@@ -46,6 +46,11 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         return "remove $count $noun from $holder"
       }
     }
+    standardResourceProduction(expression)?.let { (ownerArguments, resourceClassName) ->
+      if (ownerArguments.isNotEmpty()) return null
+      val steps = if (count == 1) "step" else "steps"
+      return "decrease your ${componentNoun(resourceClassName, 1)} production $count $steps"
+    }
     if (!expression.simple) return null
     val noun = standardResourceNoun(expression.className, count) ?: return null
     return "spend $count $noun"

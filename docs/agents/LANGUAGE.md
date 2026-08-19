@@ -125,10 +125,11 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 
 Above the artwork, `English` now composes a card's action region from its `Action` list when the card
 has no behavior-bearing extra declaration. Bottom-region immediate instructions do not prevent
-independent action derivation. It supports no-cost actions and actions that spend a concrete amount
-of one standard resource, provided the result uses the supported instruction shapes below. An
-action may instead remove a concrete number of one card resource from this card, any card, or any of
-the player's cards, as specified by the cost expression. Multiple authored actions render as
+independent action derivation. It supports no-cost actions, actions that spend a concrete amount of
+one standard resource, and actions that decrease one concrete standard-resource production by a
+fixed number of steps, provided the result uses the supported instruction shapes below. An action
+may instead remove a concrete number of one card resource from this card, any card, or any of the
+player's cards, as specified by the cost expression. Multiple authored actions render as
 alternatives. Non-End effects are not yet structurally rendered, so they keep the whole top region
 data-backed.
 
