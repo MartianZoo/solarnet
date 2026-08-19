@@ -158,7 +158,14 @@ private fun renderTrackChange(instruction: Instruction): String? {
 }
 
 private fun renderTilePlacement(instruction: Instruction): String? {
-  val (className, count) = concreteMandatoryGain(instruction) ?: return null
+  val gain = instruction as? Gain ?: return null
+  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  val expression = gain.gaining
+  if (expression.arguments.isNotEmpty() || expression.refinement != null || expression.complement) {
+    return null
+  }
+  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val className = expression.className
   val placement = Describers[className].placement ?: return null
   if (count != 1 && !placement.allowsMultiple) return null
   val nounPhrase =

@@ -123,7 +123,8 @@ gain or removal of a standard resource; an optional removal of up to a concrete 
 resources from any player; a gain of one reserve Trade Fleet; a concrete mandatory gain of a card
 resource on the played card or an unrestricted card; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
-placement; one plain greenery-tile placement; or a concrete mandatory
+placement, whether written unqualified or with an explicit empty placement choice; one plain
+greenery-tile placement; or a concrete mandatory
 temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
 target any player.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
