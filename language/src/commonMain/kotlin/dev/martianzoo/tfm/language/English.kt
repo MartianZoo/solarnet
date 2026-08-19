@@ -59,7 +59,7 @@ public object English {
       EnglishCardTextData.byCardFront[cardFront] ?: error("No English text for $cardFront")
 
   // Immediate instructions are still treated as possible top elements. Of the card's Effects,
-  // only End-triggered scoring is printed below the artwork.
+  // only endgame scoring is printed below the artwork.
   private fun hasTopTextElement(card: CardDefinition): Boolean =
       card.immediate != null || card.actions.isNotEmpty() || card.effects.isNotEmpty()
 
@@ -67,7 +67,7 @@ public object English {
       card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (card.extraClasses.any { it.className != card.resourceType }) {
+    if (Describers.hasBehaviorBearingExtraClass(card)) {
       return null
     }
     val requirement = card.requirement?.let { describeOrNull(it) ?: return null }
@@ -79,7 +79,7 @@ public object English {
   }
 
   private fun derivedTopText(card: CardDefinition): String? {
-    if (card.immediate != null || card.extraClasses.any { it.className != card.resourceType }) {
+    if (card.immediate != null || Describers.hasBehaviorBearingExtraClass(card)) {
       return null
     }
     val actions =

@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Action
-import dev.martianzoo.pets.ast.Action.Cost
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.data.CardDefinition
 
 internal fun renderActions(
@@ -20,17 +18,9 @@ private fun renderAction(
     action: Action,
     card: CardDefinition?,
 ): RenderedAction? {
-  val cost = action.cost?.let { renderCost(it) ?: return null }
+  val cost = action.cost?.let { Describers.renderCost(it) ?: return null }
   val result = renderInstructions(action.instruction, card) ?: return null
   return RenderedAction(cost, result)
-}
-
-private fun renderCost(cost: Cost): String? {
-  val spend = cost as? Cost.Spend ?: return null
-  val expression = spend.scaledEx.expression
-  if (!expression.simple || !isStandardResource(expression.className)) return null
-  val count = (spend.scaledEx.scalar as? ActualScalar)?.value ?: return null
-  return "spend $count ${componentNoun(expression.className, count)}"
 }
 
 private data class RenderedAction(

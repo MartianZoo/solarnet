@@ -53,8 +53,10 @@ on this card. Unsupported valid Pets shapes currently fail rather than falling b
 row.
 
 Component-specific English knowledge lives in `Describers`, whose sparse `ComponentDescriber`
-values are keyed by loaded component `Class`. Renderers inspect describer facts rather than naming
-component Classes themselves. Each fact is inherited independently: a declaration on a more
+values are keyed by loaded component `Class`. Structural renderers delegate component-bearing
+leaves to `Describers`; they neither name component Classes nor interpret component categories such
+as standard resources, card resources, tags, tracks, placements, or scoring units themselves. Each
+fact is inherited independently: a declaration on a more
 specific Class overrides the same fact from its superclass, facts from incomparable branches
 compose, and differing values for the same fact from incomparable nearest providers are rejected.
 Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
@@ -72,8 +74,9 @@ representation keeps punctuation out of structural decisions without attempting 
 English grammar.
 
 Instruction and requirement rendering lower `PROD[...]` through the shared Terraforming Mars Pets
-transformer before inspecting the resulting ordinary `Production` expressions. Production boxes
-therefore do not need parallel renderers for every Pets wrapper.
+transformer before inspection. Only `Describers` interprets the resulting ordinary `Production`
+expressions, so production boxes do not need parallel renderers for every Pets wrapper and the
+structural renderers do not know the production component's representation.
 
 ## Transitional derivation
 

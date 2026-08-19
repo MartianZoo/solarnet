@@ -10,7 +10,7 @@ internal data class ComponentDescriber(
     val placement: Placement? = null,
     val requirement: Requirement? = null,
     val directGain: DirectGain? = null,
-    val victoryPoint: Boolean? = null,
+    val score: Score? = null,
     val endTrigger: Boolean? = null,
 ) {
   internal sealed interface Noun {
@@ -60,4 +60,6 @@ internal data class ComponentDescriber(
   }
 
   internal data class DirectGain(val noun: String, val count: Int)
+
+  internal data class Score(val singular: String, val plural: String)
 }
