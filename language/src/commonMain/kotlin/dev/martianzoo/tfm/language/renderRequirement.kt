@@ -1,52 +1,109 @@
 package dev.martianzoo.tfm.language
 
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.TfmClasses.PROD
 
 internal fun renderRequirement(requirement: Requirement): String? =
     when (requirement) {
       is Requirement.Min -> renderMinimum(requirement)
       is Requirement.Max -> renderMaximum(requirement)
-      is Requirement.And -> renderTagRequirementGroup(requirement)
+      is Requirement.And ->
+          renderTagRequirementGroup(requirement)
+              ?: renderOwnedPlacementRequirementGroup(requirement)
       is Requirement.Eval,
       is Requirement.Exact,
-      is Requirement.Or,
-      is Requirement.Transform -> null
+      is Requirement.Or -> null
+      is Requirement.Transform -> renderProductionRequirement(requirement)
     }
 
-private fun renderMinimum(requirement: Requirement.Min): String? =
-    target(requirement, oxygenStep)?.let { "Requires $it% oxygen." }
-        ?: target(requirement, temperatureStep)?.let { "Requires ${temperature(it)} or warmer." }
-        ?: target(requirement, oceanTile)?.let {
-          "Requires $it ocean ${if (it == 1) "tile" else "tiles"}."
-        }
-        ?: target(requirement, venusStep)?.let { "Requires Venus ${it * 2}%." }
-        ?: target(requirement, terraformRating)?.let {
-          "Requires that you have at least $it TR."
-        }
-        ?: target(requirement, greeneryTile)?.let {
-          "Requires that you have $it greenery ${if (it == 1) "tile" else "tiles"}."
-        }
-        ?: renderTagRequirement(requirement)
-
-private fun renderMaximum(requirement: Requirement.Max): String? =
-    target(requirement, oxygenStep)?.let { "Oxygen must be $it% or less." }
-        ?: target(requirement, temperatureStep)?.let {
-          "Temperature must be ${temperature(it)} or colder."
-        }
-        ?: target(requirement, oceanTile)?.let {
-          "There must be $it or fewer ocean tiles."
-        }
-        ?: target(requirement, venusStep)?.let { "Venus must be ${it * 2}% or less." }
-
-private fun target(requirement: Requirement.Counting, className: ClassName): Int? {
-  val metric = requirement.metric as? Metric.Count ?: return null
-  if (!metric.expression.simple || metric.expression.className != className) return null
-  return requirement.target
+private fun renderProductionRequirement(requirement: Requirement.Transform): String? {
+  if (requirement.transformKind != PROD) return null
+  val minimum = requirement.requirement as? Requirement.Min ?: return null
+  if (minimum.target != 1) return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple || !isStandardResource(metric.expression.className)) return null
+  return "Requires that you have ${componentNoun(metric.expression.className, 1)} production."
 }
+
+private fun renderMinimum(requirement: Requirement.Min): String? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  val expression = metric.expression
+  val style = Describers[expression.className].requirement
+  val target = requirement.target
+  return when (style) {
+    ComponentDescriber.Requirement.CITY_TILES_IN_PLAY -> {
+      val tiles = "$target city ${if (target == 1) "tile" else "tiles"}"
+      when {
+        inPlay(expression) -> "Requires $tiles in play."
+        expression.simple -> "Requires that you have $tiles."
+        else -> null
+      }
+    }
+    ComponentDescriber.Requirement.COLONIES -> {
+      if (!expression.simple) return null
+      "Requires $target ${if (target == 1) "colony" else "colonies"}."
+    }
+    ComponentDescriber.Requirement.GREENERY_TILES -> {
+      if (!expression.simple) return null
+      "Requires that you have $target greenery ${if (target == 1) "tile" else "tiles"}."
+    }
+    ComponentDescriber.Requirement.OCEAN_TILES -> {
+      if (!expression.simple) return null
+      "Requires $target ocean ${if (target == 1) "tile" else "tiles"}."
+    }
+    ComponentDescriber.Requirement.OXYGEN_PERCENT -> {
+      if (!expression.simple) return null
+      "Requires $target% oxygen."
+    }
+    ComponentDescriber.Requirement.TEMPERATURE -> {
+      if (!expression.simple) return null
+      "Requires ${temperature(target)} or warmer."
+    }
+    ComponentDescriber.Requirement.TERRAFORM_RATING -> {
+      if (!expression.simple) return null
+      "Requires that you have at least $target terraform rating."
+    }
+    ComponentDescriber.Requirement.VENUS_PERCENT -> {
+      if (!expression.simple) return null
+      "Requires Venus ${target * 2}%."
+    }
+    null -> renderCardResourceRequirement(requirement) ?: renderTagRequirement(requirement)
+  }
+}
+
+private fun renderCardResourceRequirement(requirement: Requirement.Min): String? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple) return null
+  val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
+  return "Requires that you have ${requirement.target} $noun."
+}
+
+private fun renderMaximum(requirement: Requirement.Max): String? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  val expression = metric.expression
+  if (!expression.simple) return null
+  val target = requirement.target
+  return when (Describers[expression.className].requirement) {
+    ComponentDescriber.Requirement.COLONIES ->
+        "You must have no more than $target ${if (target == 1) "colony" else "colonies"}."
+    ComponentDescriber.Requirement.OCEAN_TILES -> "There must be $target or fewer ocean tiles."
+    ComponentDescriber.Requirement.OXYGEN_PERCENT -> "Oxygen must be $target% or less."
+    ComponentDescriber.Requirement.TEMPERATURE ->
+        "Temperature must be ${temperature(target)} or colder."
+    ComponentDescriber.Requirement.VENUS_PERCENT -> "Venus must be ${target * 2}% or less."
+    ComponentDescriber.Requirement.CITY_TILES_IN_PLAY,
+    ComponentDescriber.Requirement.GREENERY_TILES,
+    ComponentDescriber.Requirement.TERRAFORM_RATING,
+    null -> null
+  }
+}
+
+private fun inPlay(expression: dev.martianzoo.pets.ast.Expression): Boolean =
+    expression.arguments == listOf(anyoneExpression) &&
+        expression.refinement == null &&
+        !expression.complement
 
 private fun renderTagRequirement(requirement: Requirement.Min): String? {
   val (tagName) = tagName(requirement) ?: return null
@@ -75,18 +132,27 @@ private fun renderTagRequirementGroup(requirement: Requirement.And): String? {
   return "Requires ${englishList(nouns)}${if (allPlanetTags) " tags" else ""}."
 }
 
+private fun renderOwnedPlacementRequirementGroup(requirement: Requirement.And): String? {
+  val nouns =
+      requirement.requirements.map { child ->
+        val minimum = child as? Requirement.Min ?: return null
+        val metric = minimum.metric as? Metric.Count ?: return null
+        if (!metric.expression.simple) return null
+        when (Describers[metric.expression.className].requirement) {
+          ComponentDescriber.Requirement.CITY_TILES_IN_PLAY ->
+              "${minimum.target} city ${if (minimum.target == 1) "tile" else "tiles"}"
+          ComponentDescriber.Requirement.COLONIES ->
+              "${minimum.target} ${if (minimum.target == 1) "colony" else "colonies"}"
+          else -> return null
+        }
+      }
+  return "Requires that you have ${englishList(nouns)} in play."
+}
+
 private fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {
   val metric = requirement.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
-  val className = metric.expression.className
-  val componentClass = Canon.classTable.findClass(className) ?: return null
-  if (componentClass.abstract || !componentClass.isSubtypeOf(Canon.classTable.getClass(tag))) {
-    return null
-  }
-  val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-  val isPlanetTag = componentClass.isSubtypeOf(Canon.classTable.getClass(planetTag))
-  val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
-  return name to isPlanetTag
+  return tagName(metric.expression.className)
 }
 
 private fun englishList(parts: List<String>): String =
@@ -103,11 +169,4 @@ private fun temperature(steps: Int): String {
   return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
 }
 
-private val greeneryTile = cn("GreeneryTile")
-private val oceanTile = cn("OceanTile")
-private val oxygenStep = cn("OxygenStep")
-private val planetTag = cn("PlanetTag")
-private val tag = cn("Tag")
-private val temperatureStep = cn("TemperatureStep")
-private val terraformRating = cn("TerraformRating")
-private val venusStep = cn("VenusStep")
+private val anyoneExpression = cn("Anyone").expression

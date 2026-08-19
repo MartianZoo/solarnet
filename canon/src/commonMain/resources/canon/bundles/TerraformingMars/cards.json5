@@ -328,7 +328,7 @@
       "id": "026",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
-      "requirement": "8 TemperatureStep",
+      "requirement": "9 TemperatureStep",
       "cost": 16,
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "Animal, 3 Plant, PROD[2]",

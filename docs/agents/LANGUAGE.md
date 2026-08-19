@@ -27,6 +27,10 @@ by the all-card comparison. If a renderer gains behavior not exercised by any ca
 behavioral test for that behavior or defer the generalization; do not add a test whose only assertion
 is that the data file was not consulted.
 
+Keep every structurally supported End-scoring sentence canonical in the card-text data even when
+another part of that card keeps the whole region data-backed. The oracle should already contain the
+complete scoring text before an unrelated instruction shape becomes derivable.
+
 ## Expected renderer architecture
 
 Natural-language rendering should remain outside the Pets AST. Use one compositional renderer per
@@ -42,6 +46,20 @@ and immediate instructions belong in each printed region, while the family rende
 elements compositionally. Keep lexical policy, such as component nouns and change verbs, narrower
 than the structural rendering rules.
 
+`English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
+`InstructionTree`, or a `Requirement`. An instruction or action can also be described with its host
+`CardDefinition`, which supplies context such as whether an unqualified card-resource gain may go
+on this card. Unsupported valid Pets shapes currently fail rather than falling back to a whole-card
+row.
+
+Component-specific English knowledge lives in `Describers`, whose sparse `ComponentDescriber`
+values are keyed by loaded component `Class`. Renderers inspect describer facts rather than naming
+component Classes themselves. Each fact is inherited independently: a declaration on a more
+specific Class overrides the same fact from its superclass, facts from incomparable branches
+compose, and differing values for the same fact from incomparable nearest providers are rejected.
+Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
+shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
+
 Produce strings directly while that remains clear. If agreement, conjunction, scope, and
 punctuation begin to couple otherwise independent renderers, introduce only the smallest useful
 phrase representation rather than a general English grammar framework. A growing collection of
@@ -56,6 +74,11 @@ whole-card special case or new gameplay concepts. For example, city-placing card
 normal placement derivation while a small table supplies only how each card describes the allowed
 city location. Such tables are acceptable stepping stones toward broader structural derivation;
 they need not solve the general case immediately.
+
+Do not automatically populate such a table from card regions keyed only by the Pets element. Equal
+syntax trees currently occur in card rows with context-specific variants such as “including this.”
+Either derive such wording from explicit host context or canonicalize the redundant variant away. A
+granular fallback must remain valid independently of whichever whole-card row happened to teach it.
 
 ## Canonical wording versus rules
 
@@ -77,23 +100,44 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 
 ## Current derivation boundary
 
+Above the artwork, `English` now composes a card's action region from its `Action` list when the card
+has no immediate instruction or behavior-bearing extra declaration. It supports no-cost actions and
+actions that spend a concrete amount of one standard resource, provided the result uses the
+supported instruction shapes below. Multiple authored actions render as alternatives. Non-End
+effects are not yet structurally rendered, so they keep the whole top region data-backed.
+
 `English` derives an empty region when the card definition has no element printed there. It derives
-minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum concrete-tag
-requirements, same-category groups of one-count tags, and minimum TR and owned-greenery requirements.
-It derives bottom text when every immediate instruction is one of: a concrete mandatory gain or
-removal of a standard resource; a group of concrete mandatory standard-resource production gains or
-decreases; a city- or ocean-tile placement; one plain greenery-tile placement; or a concrete mandatory
-temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are rendered in
-authored order, with adjacent standard-resource gains coalesced into one sentence.
+minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
+concrete-tag requirements, same-category groups of one-count tags, minimum terraform-rating and
+owned-greenery requirements, minimum owned or in-play city tiles, compound owned city-and-colony
+requirements, and a requirement that the player have a standard-resource production.
+It also derives minimum concrete card-resource requirements and minimum and maximum owned-colony
+requirements. It derives bottom text when every
+immediate instruction is one of: a concrete mandatory
+gain or removal of a standard resource; an optional removal of up to a concrete number of standard
+resources from any player; a gain of one reserve Trade Fleet; a concrete mandatory gain of a card
+resource on the played card or an unrestricted card; a group of concrete
+mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
+placement; one plain greenery-tile placement; or a concrete mandatory
+temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
+target any player.
+Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
+into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
+VP for each simple tag the player owns, for each card resource on the scoring card, or for each
+complete concrete group of one card-resource type on the scoring card.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
-remain numeric even when the count is one.
+remain numeric even when the count is one. Attach a step count to every production named; do not
+move a shared count after several productions with `each`.
 
-A requirement, an End-triggered scoring effect, an extra component declaration, or any unsupported
-immediate-instruction shape keeps the whole region data-backed. Component declarations can encode
-printed setup behavior that is absent from `immediate`, so deriving only that group could omit bottom
-text. Actions and non-End effects are top elements and do not prevent bottom derivation.
+An unsupported requirement, unsupported End-triggered scoring effect, behavior-bearing extra component declaration, or
+unsupported immediate-instruction shape keeps the whole region data-backed. Component declarations can
+encode printed setup behavior that is absent from `immediate`, so deriving only that group could omit
+bottom text. A card's generated declaration of its ordinary card-resource type is not behavior-bearing
+and does not prevent derivation. Search for Life remains data-backed because its conditional
+science-resource score is absent from Pets. Actions and non-End effects are top elements and do not
+prevent bottom derivation.
 
 ## Known layout boundaries
 
@@ -101,8 +145,9 @@ Potatoes' plant removal and production increase are both immediate instructions 
 artwork. The former split across regions in the data file was a data error, not evidence that the
 layout facade must divide one immediate group.
 
-Continue treating cards with extra component declarations as data-backed. Mons Insurance shows why:
-its component declarations encode printed setup behavior that is absent from `immediate`. Likewise,
+Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
+Insurance shows why: its component declarations encode printed setup behavior that is absent from
+`immediate`. Likewise,
 do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
 draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
 not structurally sufficient.
@@ -111,24 +156,31 @@ A plain mandatory placement of one greenery tile renders its implicit oxygen inc
 greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
+An unrestricted gain of a concrete card resource says `ANY card` when the played card can hold that
+resource and `ANOTHER card` when it cannot. A narrowed card-resource target remains data-backed.
+
 Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
-`Colony` gain unambiguously means immediate placement. Use `a colony` for one and numeric counts
-above one, following the placed-object article policy.
+`Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; counts above
+one use `colonies`. A placement narrowed to a colony tile remains data-backed because Research Colony
+and Space Port Colony print additional permission to reuse an occupied colony tile.
 
 ## Review cadence
 
-Commit bounded renderer iterations autonomously. Accumulate roughly ten golden-text row changes,
-then provide an old-versus-new comparison roundup grouped by the systemic wording rule that caused
-them. The golden file may be committed along the way; reconstruct the roundup from the commit-range
-diff rather than expecting review of each historical commit.
+Commit bounded renderer iterations autonomously. Stop autonomous rounds after accumulating roughly
+ten golden-text row changes, then provide an old-versus-new comparison roundup grouped by the
+systemic wording rule that caused them. If one renderer shape would itself change materially more
+than ten rows, report that scope before updating the oracle or committing it. The golden file may be
+committed along the way; reconstruct the roundup from the commit-range diff rather than expecting
+review of each historical commit.
 
 ## Component nouns and change verbs
 
 - A component type can often become its ordinary noun by splitting its camel-case name. Number
   agreement is separate; `Plant` specifically becomes `plant` or `plants`.
-- Temperature, oxygen, Venus, TR, and colony productions are tracks, not countable units. Render
-  their gains and removals with the applicable `increase`/`decrease` or `raise`/`lower` pair rather
-  than resource language.
+- Temperature, oxygen, Venus, terraform rating, and colony productions are tracks, not countable
+  units. Render their gains and removals with the applicable `increase`/`decrease` or `raise`/`lower`
+  pair rather than resource language.
+- Spell out `terraform rating` in rendered prose; `TR` remains only an input synonym for Pets.
 - Gaining a standard resource uses `gain`; gaining a card resource uses `add`. Standard-resource
   gains use `Megacredit` -> `M€`, singular/plural `Plant` -> `plant`/`plants`, and a lowercased,
   un-camel-cased component Class Name by default.
