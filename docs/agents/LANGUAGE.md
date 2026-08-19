@@ -127,8 +127,9 @@ It also derives minimum concrete card-resource requirements and minimum and maxi
 requirements. It derives bottom text when every
 immediate instruction is one of: a concrete mandatory
 gain or removal of a standard resource; an optional removal of up to a concrete number of standard
-resources from any player; a gain of one reserve Trade Fleet; a concrete mandatory gain of a card
-resource on the played card or an unrestricted card; a group of concrete
+resources from any player; a gain of one reserve Trade Fleet; a mandatory gain of a generic or
+concrete card resource on the played card, an unrestricted card, or a card narrowed to one concrete
+tag; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
 placement using the type's default arguments; one plain greenery-tile placement; or a concrete
 mandatory
@@ -144,6 +145,12 @@ either unscaled or for each simple tag the player owns, card resource on the sco
 complete concrete group of one card-resource type on the scoring card. An unscaled fixed VP gain or
 penalty may be conditional on the player having a concrete minimum number of one resource type on
 the scoring card.
+
+A tag-narrowed card-resource destination renders as `a card with a <name> tag`, independently of
+whether the played card itself qualifies. This canonical wording replaces the data file's
+semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
+class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
+policy.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps

@@ -5,6 +5,7 @@ internal data class ComponentDescriber(
     val noun: Noun? = null,
     val standardResource: Boolean? = null,
     val cardResource: CardResource? = null,
+    val cardResourceHolder: String? = null,
     val tag: Tag? = null,
     val track: Track? = null,
     val placement: Placement? = null,

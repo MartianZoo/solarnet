@@ -255,12 +255,27 @@ internal object Describers {
     val target =
         when {
           expression.arguments == listOf(thisExpression) -> "this card"
+          expression.arguments.size == 1 ->
+              renderCardResourceHolder(expression.arguments.single()) ?: return null
           expression.arguments.isNotEmpty() -> return null
           card == null -> "an eligible card"
           card.resourceType == expression.className -> "ANY card"
           else -> "ANOTHER card"
         }
     return "add $count $noun to $target"
+  }
+
+  private fun renderCardResourceHolder(expression: Expression): String? {
+    if (expression.arguments.isNotEmpty() || expression.complement) return null
+    val holder = this[expression.className].cardResourceHolder ?: return null
+    val refinement = expression.refinement ?: return null
+    if (refinement.forgiving) return null
+    val minimum = refinement.requirement as? Requirement.Min ?: return null
+    if (minimum.target != 1) return null
+    val metric = minimum.metric as? Metric.Count ?: return null
+    if (!metric.expression.simple) return null
+    val (tag) = tagName(metric.expression.className) ?: return null
+    return "${indefiniteArticle(holder)} $holder with ${indefiniteArticle(tag)} $tag tag"
   }
 
   private fun renderProductionChanges(changes: List<ResourceProductionChange>): String {
@@ -467,14 +482,17 @@ internal object Describers {
       }
 
   private fun cardResourceNoun(className: ClassName, count: Int): String? {
-    if (!concrete(className)) return null
     val style = this[className].cardResource ?: return null
+    if (!concrete(className)) {
+      val noun = this[className].noun as? ComponentDescriber.Noun.Counted ?: return null
+      return if (count == 1) noun.singular else noun.plural
+    }
     val noun = unCamelCase(className.toString())
-    return noun +
-        when (style) {
-          ComponentDescriber.CardResource.ORDINARY -> if (count == 1) "" else "s"
-          ComponentDescriber.CardResource.SUFFIXED -> if (count == 1) " resource" else " resources"
-        }
+    return when (style) {
+      ComponentDescriber.CardResource.ORDINARY -> noun + if (count == 1) "" else "s"
+      ComponentDescriber.CardResource.SUFFIXED ->
+          noun + if (count == 1) " resource" else " resources"
+    }
   }
 
   private fun tagName(className: ClassName): Pair<String, Boolean>? {
@@ -571,7 +589,11 @@ internal object Describers {
         klass("Plant") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),
         klass("CardResource") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.SUFFIXED),
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("resource", "resources"),
+                cardResource = ComponentDescriber.CardResource.SUFFIXED,
+            ),
+        klass("CardFront") to ComponentDescriber(cardResourceHolder = "card"),
         klass("Animal") to
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
         klass("Asteroid") to
@@ -658,6 +680,7 @@ internal object Describers {
           noun = resolveFact(componentClass, ComponentDescriber::noun),
           standardResource = resolveFact(componentClass, ComponentDescriber::standardResource),
           cardResource = resolveFact(componentClass, ComponentDescriber::cardResource),
+          cardResourceHolder = resolveFact(componentClass, ComponentDescriber::cardResourceHolder),
           tag = resolveFact(componentClass, ComponentDescriber::tag),
           track = resolveFact(componentClass, ComponentDescriber::track),
           placement = resolveFact(componentClass, ComponentDescriber::placement),
