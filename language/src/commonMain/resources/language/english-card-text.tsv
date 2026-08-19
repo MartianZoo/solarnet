@@ -158,7 +158,7 @@ Card127	127	Subterranean Reservoir	Place an ocean tile.
 Card128	128	Ecological Zone	Requires that you have a greenery tile. Place this tile ADJACENT TO ANY GREENERY TILE. 1 VP for every 2 animals on this card.	Effect: When you play an animal tag or plant tag (including these 2), add 1 animal to this card.
 Card129	129	Zeppelins	Requires 5% oxygen. Increase your M€ production 1 step for each city tile on Mars. 1 VP.	
 Card130	130	Worms	Requires 4% oxygen. Increase your plant production 1 step for every 2 microbe tags you have.	
-Card131	131	Decomposers	Requires 3% oxygen. 1 VP for every 3 microbes on this card.	Effect: When you play an animal tag, plant tag, or microbe tag, add 1 microbe to this card.
+Card131	131	Decomposers	Requires 3% oxygen. 1 VP for every 3 microbes on this card.	Effect: When you play an animal tag, a plant tag, or a microbe tag, add 1 microbe to this card.
 Card132	132	Fusion Power	Requires 2 power tags. Increase your energy production 3 steps.	
 Card133	133	Symbiotic Fungus	Requires -14°C or warmer.	Action: Add 1 microbe to ANOTHER card.
 Card134	134	Extreme-Cold Fungus	Temperature must be -10°C or colder.	Action: Gain 1 plant, or add 2 microbes to ANOTHER card.
@@ -420,7 +420,7 @@ CardX09	X09	Political Alliance	Requires that you have 2 Party Leaders. Raise you
 CardX10	X10	Rego Plastics	1 VP.	Effect: Each steel you spend is worth 1 M€ extra.
 CardX11	X11	Saturn Surfing	Add 1 floater to this card for each Earth tag you have. 1 VP.	Action: Remove 1 floater to gain 1 M€ for each floater here, including the removed floater (max 5).
 CardX12	X12	Stanford Torus	Place a city tile IN SPACE, outside and separate from the planet. 2 VPs.	
-CardX13	X13	Advertising		Effect: When you play a card with a basic cost of 20 M€ or more, increase your M€ production 1 step.
+CardX13	X13	Advertising		Effect: When you play a card costing at least 20 M€, increase your M€ production 1 step.
 CardX14F	X14	Asteroid Deflection System	Decrease your energy production 1 step. 1 VP for each asteroid on this card.	Action: Reveal and discard the top card of the deck. If it has a space tag, add 1 asteroid to this card. / Opponents may not remove your plants.
 CardX15	X15	Asteroid Hollowing	1 VP for every 2 asteroids on this card.	Action: Spend 1 titanium to add 1 asteroid to this card and increase your M€ production 1 step.
 CardX16	X16	Comet Aiming		Action: Spend 1 titanium to add 1 asteroid to ANY card, or remove 1 asteroid from this card to place an ocean tile.

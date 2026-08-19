@@ -18,6 +18,7 @@ public data class ComponentDescriber(
     public val endTrigger: Boolean? = null,
     public val playTrigger: PlayTrigger? = null,
     public val playedCard: Boolean? = null,
+    public val playedTagPhrase: String? = null,
     public val usedActionTrigger: Boolean? = null,
     public val actionUse: String? = null,
     public val spentResourceTrigger: Boolean? = null,

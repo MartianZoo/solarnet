@@ -132,12 +132,13 @@ may instead remove a concrete number of one card resource from this card, `ANY P
 any of the player's own cards, as specified by the cost expression. Multiple authored actions render
 as alternatives, with a comma before `or` to distinguish their operation boundaries. Supported
 non-End effects include a fixed M€ discount triggered by playing a card or one concrete tag, and a
-supported instruction consequence triggered by playing concrete tags, placing a supported tile,
+supported instruction consequence triggered by playing concrete tags or one described tag group,
+placing a supported tile,
 raising a supported track, or adding a concrete card resource. Trigger wording preserves whether
 the acting player or any player causes the event. Other non-End effects keep the whole top region
 data-backed. A fixed M€ increase in the payment value of a standard resource or resource category
-is also derived from its spent-resource trigger. A direct trigger on a concrete played-card subtype
-is derived, including a subtype narrowed to one concrete tag. A trigger on using a described
+is also derived from its spent-resource trigger. A direct trigger on a played-card type is derived,
+including a type narrowed to one concrete tag or a minimum card cost. A trigger on using a described
 standard action or standard project composes with the same supported consequences. When actions
 and effects share a top region, actions are rendered first and their card-resource metrics name
 `this card` rather than the contextual `here`.

@@ -26,7 +26,13 @@ internal object TerraformingMarsDescribers {
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
                 cardResource = ComponentDescriber.CardResource.SUFFIXED,
             ),
-        klass("CardFront") to ComponentDescriber(cardResourceHolder = "card", playedCard = true),
+        klass("CardFront") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Fixed("card"),
+                cardResourceHolder = "card",
+                playedCard = true,
+            ),
+        klass("EventCard") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
         klass("MarsArea") to ComponentDescriber(metricLocation = "on Mars"),
         klass("Animal") to
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
@@ -38,6 +44,11 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
         klass("Tag") to ComponentDescriber(tag = ComponentDescriber.Tag.ORDINARY),
         klass("PlanetTag") to ComponentDescriber(tag = ComponentDescriber.Tag.PLANET),
+        klass("BioTag") to
+            ComponentDescriber(playedTagPhrase = "an animal tag, a plant tag, or a microbe tag"),
+        klass("AnimalTag") to ComponentDescriber(playedTagPhrase = "an animal tag"),
+        klass("PlantTag") to ComponentDescriber(playedTagPhrase = "a plant tag"),
+        klass("MicrobeTag") to ComponentDescriber(playedTagPhrase = "a microbe tag"),
         klass("OxygenStep") to
             ComponentDescriber(
                 track = ComponentDescriber.Track("oxygen"),
@@ -210,6 +221,7 @@ internal object TerraformingMarsDescribers {
           endTrigger = resolveFact(componentClass, ComponentDescriber::endTrigger),
           playTrigger = resolveFact(componentClass, ComponentDescriber::playTrigger),
           playedCard = resolveFact(componentClass, ComponentDescriber::playedCard),
+          playedTagPhrase = resolveFact(componentClass, ComponentDescriber::playedTagPhrase),
           usedActionTrigger = resolveFact(componentClass, ComponentDescriber::usedActionTrigger),
           actionUse = resolveFact(componentClass, ComponentDescriber::actionUse),
           spentResourceTrigger =

@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.data.CardDefinition
@@ -174,6 +175,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       }
       null -> Unit
     }
+    this[expression.className].playedTagPhrase?.let { phrase ->
+      if (!expression.simple) return null
+      return Event(EventKind.PLAY, phrase)
+    }
     if (this[expression.className].usedActionTrigger == true) {
       if (expression.arguments.size != 1) return null
       val action = expression.arguments.single()
@@ -212,9 +217,20 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         expression.refinement?.let { refinement ->
           if (refinement.forgiving) return null
           val minimum = refinement.requirement as? Requirement.Min ?: return null
-          if (minimum.target != 1) return null
-          val (tag) = tagName(minimum) ?: return null
-          "${indefiniteArticle(card)} $card with ${indefiniteArticle(tag)} $tag tag"
+          val qualifier =
+              when (val metric = minimum.metric) {
+                is Metric.Count -> {
+                  if (minimum.target != 1) return null
+                  val (tag) = tagName(minimum) ?: return null
+                  "with ${indefiniteArticle(tag)} $tag tag"
+                }
+                is Property -> {
+                  if (metric.receiver != null || metric.propertyName.value != "cost") return null
+                  "costing at least ${minimum.target} M€"
+                }
+                else -> return null
+              }
+          "${indefiniteArticle(card)} $card $qualifier"
         } ?: "${indefiniteArticle(card)} $card"
     return Event(EventKind.PLAY, phrase)
   }
