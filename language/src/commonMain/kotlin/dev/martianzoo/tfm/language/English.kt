@@ -69,7 +69,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
   }
 
   private fun derivedTopText(card: CardDefinition): String? {
-    if (card.immediate != null || describers.hasBehaviorBearingExtraClass(card)) {
+    if (describers.hasBehaviorBearingExtraClass(card)) {
       return null
     }
     val actions =

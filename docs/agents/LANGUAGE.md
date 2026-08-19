@@ -124,13 +124,12 @@ when this order is wrong; do not teach the renderer to reorder corporations.
 ## Current derivation boundary
 
 Above the artwork, `English` now composes a card's action region from its `Action` list when the card
-has no immediate instruction or behavior-bearing extra declaration. It supports no-cost actions and
-actions that spend a concrete amount of one standard resource, provided the result uses the
-supported instruction shapes below. An action may instead remove a concrete number of one card
-resource from the acting card. Multiple authored actions render as alternatives. Non-End
-effects are not yet structurally rendered, so they keep the whole top region data-backed. Immediate
-instructions are always below the artwork and still keep the top region data-backed so their
-presence does not implicitly expand the action-rendering boundary.
+has no behavior-bearing extra declaration. Bottom-region immediate instructions do not prevent
+independent action derivation. It supports no-cost actions and actions that spend a concrete amount
+of one standard resource, provided the result uses the supported instruction shapes below. An
+action may instead remove a concrete number of one card resource from the acting card. Multiple
+authored actions render as alternatives. Non-End effects are not yet structurally rendered, so they
+keep the whole top region data-backed.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
@@ -207,7 +206,7 @@ greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as do
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
 An unrestricted gain of a concrete card resource says `ANY card` when the played card can hold that
-resource and `ANOTHER card` when it cannot. A narrowed card-resource target remains data-backed.
+resource and `ANOTHER card` when it cannot. Other narrowed card-resource targets remain data-backed.
 
 Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
 `Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; counts above
