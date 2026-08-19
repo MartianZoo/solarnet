@@ -453,3 +453,13 @@ CardX40	X40	Double Down	Copy your other Prelude's direct effect.
 CardX43	X43	Head Start	Gain 2 steel. Gain 2 M€ for each project card you have in hand. Immediately take 2 actions.	
 CardX44	X44	16 Psyche	Increase your titanium production 2 steps. Gain 3 titanium. 2 VPs.	 
 CardX45	X45	Robot Pollinators	Requires 4% oxygen. Increase your plant production 1 step. Gain 1 plant for every plant tag you have.	
+CardX50	X50	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 cards with a building tag. 1 VP.	
+CardX52	X52	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, including this, add 1 graphene resource to this card. When you play a space or city tag, graphene resources on this card may be used as 4 M€ each.
+CardX61	X61	Neptunian Power Consultants	1 VP for each hydroelectric resource on this card.	Effect: When any ocean tile is placed, you may pay 5 M€ (steel may be used) to increase your energy production 1 step and add 1 hydroelectric resource to this card.
+CardX63	X63	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, you pay 2 M€ less. When any player plays a space event, draw 1 card.
+CardX68	X68	Supermarkets	Requires 2 city tiles in play. Increase your M€ production 2 steps. 1 VP.	
+CardX69	X69	Hospitals	Decrease your energy production 1 step. 1 VP.	Effect: When any city tile is placed, add 1 disease to this card. / Action: Remove 1 disease from ANY OF YOUR CARDS to gain 1 M€ for each city tile in play.
+CardX70	X70	Public Baths	Requires 6 ocean tiles. Gain 6 M€. 1 VP.	
+CardX71	X71	City Parks	Requires that you have 3 city tiles. Gain 2 plants. 2 VPs.	
+CardX77F	X77	Public Plans	Reveal any number of other cards from your hand (your opponents may inspect them). Gain 1 M€ for each revealed card. 1 VP.	
+CardX79	X79	Sterling Vents	Decrease your heat production 2 steps and increase your energy production 2 steps. 1 VP.	
