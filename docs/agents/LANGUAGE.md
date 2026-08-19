@@ -132,7 +132,8 @@ mandatory
 temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
 target any player. A choice is derived when every alternative is one supported clause, including a
 choice among concrete production-change clauses. A supported single-clause instruction may be
-scaled by the number of a concrete tag the player owns, or by complete groups of that tag.
+scaled by the number of a concrete tag or card resource the player owns, or by complete groups of
+that tag or resource.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains
 coalesced into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or

@@ -73,7 +73,7 @@ private fun renderInstruction(instruction: Instruction, card: CardDefinition?): 
 private fun renderPer(instruction: Instruction.Per, card: CardDefinition?): String? {
   val clause =
       renderLoweredInstructions(instruction.inner, card)?.clauses?.singleOrNull() ?: return null
-  val metric = renderScoringMetric(instruction.metric) ?: return null
+  val metric = renderMetricPhrase(instruction.metric) ?: return null
   return "$clause for $metric"
 }
 

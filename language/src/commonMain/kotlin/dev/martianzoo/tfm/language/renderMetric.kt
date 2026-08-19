@@ -4,10 +4,10 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 
-internal fun renderScoringMetric(metric: Metric): String? {
+internal fun renderMetricPhrase(metric: Metric): String? {
   return when (metric) {
-    is Metric.Count -> renderScoringCount(metric)
-    is Metric.Scaled -> renderScaledScoringCount(metric)
+    is Metric.Count -> renderCountPhrase(metric)
+    is Metric.Scaled -> renderScaledCountPhrase(metric)
     is Metric.Eval,
     is Metric.Max,
     is Metric.Or,
@@ -16,20 +16,30 @@ internal fun renderScoringMetric(metric: Metric): String? {
   }
 }
 
-private fun renderScoringCount(metric: Metric.Count): String? {
+private fun renderCountPhrase(metric: Metric.Count): String? {
   if (metric.expression.simple) {
-    val (name) = tagName(metric.expression.className) ?: return null
-    return "each $name tag you have"
+    tagName(metric.expression.className)?.let { (name) ->
+      return "each $name tag you have"
+    }
+    cardResourceNoun(metric.expression.className, 1)?.let { noun ->
+      return "each $noun you have"
+    }
+    return null
   }
   val resourceType = resourceOnThisCard(metric) ?: return null
   return "each ${cardResourceNoun(resourceType, 1)} on this card"
 }
 
-private fun renderScaledScoringCount(metric: Metric.Scaled): String? {
+private fun renderScaledCountPhrase(metric: Metric.Scaled): String? {
   val count = metric.inner as? Metric.Count ?: return null
   if (count.expression.simple) {
-    val (name) = tagName(count.expression.className) ?: return null
-    return "every ${metric.unit} $name tags you have"
+    tagName(count.expression.className)?.let { (name) ->
+      return "every ${metric.unit} $name tags you have"
+    }
+    cardResourceNoun(count.expression.className, metric.unit)?.let { noun ->
+      return "every ${metric.unit} $noun you have"
+    }
+    return null
   }
   val resourceType = resourceOnThisCard(count) ?: return null
   return "every ${metric.unit} ${cardResourceNoun(resourceType, metric.unit)} on this card"

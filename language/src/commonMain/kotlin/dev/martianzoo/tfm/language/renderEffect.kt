@@ -50,7 +50,7 @@ private fun isEndTrigger(trigger: Trigger): Boolean =
 private fun renderPerVictoryPoints(instruction: InstructionTree): String? {
   val per = instruction as? Per ?: return null
   val (count, penalty) = fixedVictoryPoints(per.inner) ?: return null
-  val metric = renderScoringMetric(per.metric) ?: return null
+  val metric = renderMetricPhrase(per.metric) ?: return null
   val points = "${if (penalty) "-" else ""}$count ${if (count == 1) "VP" else "VPs"}"
   return "$points for $metric."
 }
