@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.language
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 
-internal fun renderMetricPhrase(metric: Metric): String? {
+internal fun renderMetricPhrase(metric: Metric, describers: Describers): String? {
   return when (metric) {
-    is Metric.Count -> renderCountPhrase(metric)
-    is Metric.Scaled -> renderScaledCountPhrase(metric)
+    is Metric.Count -> renderCountPhrase(metric, describers)
+    is Metric.Scaled -> renderScaledCountPhrase(metric, describers)
     is Metric.Eval,
     is Metric.Max,
     is Metric.Or,
@@ -15,10 +15,10 @@ internal fun renderMetricPhrase(metric: Metric): String? {
   }
 }
 
-private fun renderCountPhrase(metric: Metric.Count): String? =
-    Describers.renderMetric(metric.expression)
+private fun renderCountPhrase(metric: Metric.Count, describers: Describers): String? =
+    describers.renderMetric(metric.expression)
 
-private fun renderScaledCountPhrase(metric: Metric.Scaled): String? {
+private fun renderScaledCountPhrase(metric: Metric.Scaled, describers: Describers): String? {
   val count = metric.inner as? Metric.Count ?: return null
-  return Describers.renderMetric(count.expression, metric.unit)
+  return describers.renderMetric(count.expression, metric.unit)
 }

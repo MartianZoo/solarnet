@@ -1,56 +1,56 @@
 package dev.martianzoo.tfm.language
 
 /** Sparse English-language facts declared for one component Class. */
-internal data class ComponentDescriber(
-    val noun: Noun? = null,
-    val standardResource: Boolean? = null,
-    val cardResource: CardResource? = null,
-    val cardResourceHolder: String? = null,
-    val metricLocation: String? = null,
-    val tag: Tag? = null,
-    val track: Track? = null,
-    val placement: Placement? = null,
-    val requirement: Requirement? = null,
-    val directGain: DirectGain? = null,
-    val score: Score? = null,
-    val endTrigger: Boolean? = null,
+public data class ComponentDescriber(
+    public val noun: Noun? = null,
+    public val standardResource: Boolean? = null,
+    public val cardResource: CardResource? = null,
+    public val cardResourceHolder: String? = null,
+    public val metricLocation: String? = null,
+    public val tag: Tag? = null,
+    public val track: Track? = null,
+    public val placement: Placement? = null,
+    public val requirement: Requirement? = null,
+    public val directGain: DirectGain? = null,
+    public val score: Score? = null,
+    public val endTrigger: Boolean? = null,
 ) {
-  internal sealed interface Noun {
-    data object ClassName : Noun
+  public sealed interface Noun {
+    public data object ClassName : Noun
 
-    data class Fixed(val text: String) : Noun
+    public data class Fixed(public val text: String) : Noun
 
-    data class Counted(val singular: String, val plural: String) : Noun
+    public data class Counted(public val singular: String, public val plural: String) : Noun
   }
 
-  internal enum class CardResource {
+  public enum class CardResource {
     ORDINARY,
     SUFFIXED,
   }
 
-  internal enum class Tag {
+  public enum class Tag {
     ORDINARY,
     PLANET,
   }
 
-  internal data class Track(val subject: String)
+  public data class Track(public val subject: String)
 
-  internal data class Placement(
-      val article: String,
-      val singular: String,
-      val plural: String,
-      val consequence: String? = null,
-      val allowsMultiple: Boolean = true,
-      val unqualifiedMetricOwner: MetricOwner? = null,
-      val anyoneMetricOwner: MetricOwner? = null,
+  public data class Placement(
+      public val article: String,
+      public val singular: String,
+      public val plural: String,
+      public val consequence: String? = null,
+      public val allowsMultiple: Boolean = true,
+      public val unqualifiedMetricOwner: MetricOwner? = null,
+      public val anyoneMetricOwner: MetricOwner? = null,
   )
 
-  internal enum class MetricOwner {
+  public enum class MetricOwner {
     YOU,
     ANY_PLAYER,
   }
 
-  internal enum class Requirement {
+  public enum class Requirement {
     CITY_TILES,
     COLONIES,
     GREENERY_TILES,
@@ -61,7 +61,7 @@ internal data class ComponentDescriber(
     VENUS_PERCENT,
   }
 
-  internal data class DirectGain(val noun: String, val count: Int)
+  public data class DirectGain(public val noun: String, public val count: Int)
 
-  internal data class Score(val singular: String, val plural: String)
+  public data class Score(public val singular: String, public val plural: String)
 }

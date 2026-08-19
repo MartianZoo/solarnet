@@ -1,17 +1,16 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Action
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.types.Class
 
-/**
- * English card text, derived from canonical card definitions or read from the backing data file.
- */
-public object English {
+/** English Pets text using the complete component descriptions supplied by its client. */
+public class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
+  private val describers = Describers(descriptions)
+
   /** Returns complete English sentences describing [effect]. */
   public fun describe(effect: Effect): String = describeOrNull(effect) ?: unsupported(effect)
 
@@ -37,26 +36,13 @@ public object English {
   public fun describe(requirement: Requirement): String =
       describeOrNull(requirement) ?: unsupported(requirement)
 
-  /** Returns the text printed above the artwork on [cardFront]. */
-  public fun topText(cardFront: ClassName): String {
-    val card = cardsByClassName[cardFront] ?: return text(cardFront).top
-    return topText(card) { text(cardFront).top }
-  }
-
-  /** Returns the text printed below the artwork on [cardFront]. */
-  public fun bottomText(cardFront: ClassName): String {
-    val card = cardsByClassName[cardFront] ?: return text(cardFront).bottom
-    return bottomText(card) { text(cardFront).bottom }
-  }
-
-  internal fun topText(card: CardDefinition, fallback: () -> String): String =
+  /** Returns the text above [card]'s artwork, using [fallback] for unsupported content. */
+  public fun topText(card: CardDefinition, fallback: () -> String): String =
       derivedTopText(card) ?: if (hasTopTextElement(card)) fallback() else ""
 
-  internal fun bottomText(card: CardDefinition, fallback: () -> String): String =
+  /** Returns the text below [card]'s artwork, using [fallback] for unsupported content. */
+  public fun bottomText(card: CardDefinition, fallback: () -> String): String =
       derivedBottomText(card) ?: if (hasBottomTextElement(card)) fallback() else ""
-
-  private fun text(cardFront: ClassName): EnglishCardTextData.Text =
-      EnglishCardTextData.byCardFront[cardFront] ?: error("No English text for $cardFront")
 
   // Immediate instructions are still treated as possible top elements. Of the card's Effects,
   // only endgame scoring is printed below the artwork.
@@ -64,22 +50,27 @@ public object English {
       card.immediate != null || card.actions.isNotEmpty() || card.effects.isNotEmpty()
 
   private fun hasBottomTextElement(card: CardDefinition): Boolean =
-      card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
+      card.requirement != null ||
+          card.immediate != null ||
+          card.effects.any { isEndEffect(it, describers) }
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (Describers.hasBehaviorBearingExtraClass(card)) {
+    if (describers.hasBehaviorBearingExtraClass(card)) {
       return null
     }
     val requirement = card.requirement?.let { describeOrNull(it) ?: return null }
     val instructions = card.immediate?.let { describeOrNull(it, card) ?: return null }
-    val scoring = card.effects.filter(::isEndEffect).map { describeOrNull(it) ?: return null }
+    val scoring =
+        card.effects
+            .filter { isEndEffect(it, describers) }
+            .map { describeOrNull(it) ?: return null }
     return (listOfNotNull(requirement, instructions) + scoring)
         .takeIf { it.isNotEmpty() }
         ?.joinToString(" ")
   }
 
   private fun derivedTopText(card: CardDefinition): String? {
-    if (card.immediate != null || Describers.hasBehaviorBearingExtraClass(card)) {
+    if (card.immediate != null || describers.hasBehaviorBearingExtraClass(card)) {
       return null
     }
     val actions =
@@ -90,7 +81,7 @@ public object English {
             }
     val effects =
         card.effects
-            .filterNot(::isEndEffect)
+            .filterNot { isEndEffect(it, describers) }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
               val rendered = list.map { describeOrNull(it) ?: return null }
@@ -99,24 +90,21 @@ public object English {
     return listOfNotNull(actions, effects).joinToString(" / ")
   }
 
-  private fun describeOrNull(effect: Effect): String? = renderEndEffect(effect)
+  private fun describeOrNull(effect: Effect): String? = renderEndEffect(effect, describers)
 
   private fun describeOrNull(
       actions: List<Action>,
       card: CardDefinition? = null,
-  ): String? = renderActions(actions, card)
+  ): String? = renderActions(actions, card, describers)
 
   private fun describeOrNull(
       instructionTree: InstructionTree,
       card: CardDefinition? = null,
-  ): String? = renderInstructionTree(instructionTree, card)
+  ): String? = renderInstructionTree(instructionTree, card, describers)
 
-  private fun describeOrNull(requirement: Requirement): String? = renderRequirement(requirement)
+  private fun describeOrNull(requirement: Requirement): String? =
+      renderRequirement(requirement, describers)
 
   private fun unsupported(element: Any): Nothing =
       throw IllegalArgumentException("No English description for Pets element: $element")
-
-  private val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
-    Canon.cardDefinitions.associateBy { it.className }
-  }
 }

@@ -52,11 +52,20 @@ than the structural rendering rules.
 on this card. Unsupported valid Pets shapes currently fail rather than falling back to a whole-card
 row.
 
-Component-specific English knowledge lives in `Describers`, whose sparse `ComponentDescriber`
-values are keyed by loaded component `Class`. Structural renderers delegate component-bearing
-leaves to `Describers`; they neither name component Classes nor interpret component categories such
-as standard resources, card resources, tags, tracks, placements, or scoring units themselves. Each
-fact is inherited independently: a declaration on a more
+`English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
+It has no canonical component registry or implicit Terraforming Mars description source; it only
+looks up the describer mapped to a component Class found in the Pets element being rendered.
+`TerraformingMarsDescribers` currently owns the canonical sparse declarations and resolves their
+inheritance before constructing `English`.
+
+The injected map establishes the dependency direction, but `ComponentDescriber` still exposes
+centralized category values and `Describers` still switches over some of them. That is transitional,
+not the intended component boundary. Structural renderers should only identify the component Class,
+look up its describer, ask that instance for the applicable phrase or capability, and compose the
+answer. They must not name component Classes or enumerate categories such as city tiles and
+colonies.
+
+Each current sparse fact is inherited independently: a declaration on a more
 specific Class overrides the same fact from its superclass, facts from incomparable branches
 compose, and differing values for the same fact from incomparable nearest providers are rejected.
 Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
