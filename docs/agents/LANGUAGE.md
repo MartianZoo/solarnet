@@ -71,6 +71,10 @@ whether to make them separate sentences or coordinate them under one action cost
 representation keeps punctuation out of structural decisions without attempting to model general
 English grammar.
 
+Instruction rendering lowers `PROD[...]` through the shared Terraforming Mars Pets transformer
+before inspecting the resulting ordinary `Production` changes. Production boxes therefore do not
+need a parallel renderer for every instruction-tree wrapper.
+
 ## Transitional derivation
 
 Intermediate solutions may derive most of an instruction structurally while looking up one narrow
@@ -126,7 +130,8 @@ mandatory standard-resource production gains or decreases; a city-tile, colony, 
 placement using the type's default arguments; one plain greenery-tile placement; or a concrete
 mandatory
 temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
-target any player. A choice is derived when every alternative is one supported clause.
+target any player. A choice is derived when every alternative is one supported clause, including a
+choice among concrete production-change clauses.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
 into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
 VP for each simple tag the player owns, for each card resource on the scoring card, or for each

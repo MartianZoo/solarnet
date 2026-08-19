@@ -146,7 +146,7 @@ Card104	104	Ore Processor		Action: Spend 4 energy to gain 1 titanium and raise o
 Card108	108	Open City	Requires 12% oxygen. Decrease your energy production 1 step and increase your M€ production 4 steps. Gain 2 plants. Place a city tile. 1 VP.	
 Card113	113	Solar Power	Increase your energy production 1 step. 1 VP.	
 Card114	114	Breathing Filters	Requires 7% oxygen. 2 VPs.	
-Card115	115	Artificial Photosynthesis	Increase your plant production 1 step or your energy production 2 steps.	
+Card115	115	Artificial Photosynthesis	Increase your plant production 1 step or increase your energy production 2 steps.	
 Card116	116	Artificial Lake	Requires -6°C or warmer. Place an ocean tile ON AN AREA NOT RESERVED FOR OCEAN. 1 VP.	
 Card117	117	Geothermal Power	Increase your energy production 2 steps.	
 Card118	118	Farming	Requires +4°C or warmer. Increase your M€ production 2 steps and your plant production 2 steps. Gain 2 plants. 2 VPs.	
@@ -363,7 +363,7 @@ CardC17	C17	Interplanetary Colony Ship	Place a colony.
 CardC18	C18	Jovian Lanterns	Requires a Jovian tag. Raise your terraform rating 1 step. Add 2 floaters to ANY card. 1 VP for every 2 floaters on this card.	Action: Spend 1 titanium to add 2 floaters to this card.
 CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 1 floater to a JOVIAN CARD, or gain 1 M€ for every floater here (max 4).
 CardC20	C20	Luna Governor	Requires 3 Earth tags. Increase your M€ production 2 steps.	
-CardC21	C21	Lunar Exports	Increase your plant production 2 steps, or increase your M€ production 5 steps.	
+CardC21	C21	Lunar Exports	Increase your plant production 2 steps or increase your M€ production 5 steps.	
 CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have in play.	
 CardC23	C23	Market Manipulation	Increase one colony tile track 1 step. Decrease another colony tile track 1 step.	
 CardC24	C24	Martian Zoo	Requires 2 city tiles in play. 1 VP.	Effect: When you play an Earth tag, add 1 animal to this card. / Action: Gain 1 M€ for each animal here.
