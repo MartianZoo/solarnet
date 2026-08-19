@@ -82,9 +82,9 @@ minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, pl
 requirements, same-category groups of one-count tags, and minimum TR and owned-greenery requirements.
 It derives bottom text when every immediate instruction is one of: a concrete mandatory gain or
 removal of a standard resource; a group of concrete mandatory standard-resource production gains or
-decreases; a city- or ocean-tile placement; one plain greenery-tile placement; or a concrete mandatory
-temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are rendered in
-authored order, with adjacent standard-resource gains coalesced into one sentence.
+decreases; a city-tile, colony, or ocean-tile placement; one plain greenery-tile placement; or a
+concrete mandatory temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are
+rendered in authored order, with adjacent standard-resource gains coalesced into one sentence.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
@@ -112,8 +112,9 @@ greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as do
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
 Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
-`Colony` gain unambiguously means immediate placement. Use `a colony` for one and numeric counts
-above one, following the placed-object article policy.
+`Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; counts above
+one use `colonies`. A placement narrowed to a colony tile remains data-backed because Research Colony
+and Space Port Colony print additional permission to reuse an occupied colony tile.
 
 ## Review cadence
 

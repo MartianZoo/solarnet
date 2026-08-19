@@ -170,10 +170,16 @@ public object English {
     val (article, singular) =
         when (className) {
           cityTile -> "a" to "city tile"
+          colony -> "a" to "colony"
           oceanTile -> "an" to "ocean tile"
           else -> return null
         }
-    val nounPhrase = if (count == 1) "$article $singular" else "$count ${singular}s"
+    val nounPhrase =
+        if (count == 1) {
+          "$article $singular"
+        } else {
+          "$count ${if (className == colony) "colonies" else "${singular}s"}"
+        }
     return "Place $nounPhrase."
   }
 
@@ -248,6 +254,7 @@ public object English {
 
   private val endExpression = cn("End").expression
   private val cityTile = cn("CityTile")
+  private val colony = cn("Colony")
   private val greeneryTile = cn("GreeneryTile")
   private val oceanTile = cn("OceanTile")
   private val oxygenStep = cn("OxygenStep")
