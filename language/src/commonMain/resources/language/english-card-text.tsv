@@ -351,7 +351,7 @@ CardC05	C05	Conscription	Requires 2 Earth tags. The next card you play this gene
 CardC06	C06	Corona Extractor	Requires 4 science tags. Increase your energy production 4 steps.	
 CardC07	C07	Cryo-Sleep	1 VP.	Effect: When you use the Trade standard action, you pay 1 less resource for it.
 CardC08	C08	Earth Elevator	Increase your titanium production 3 steps. 4 VPs.	
-CardC09	C09	Ecology Research	Increase your plant production 1 step for each colony you own. Add 1 animal to ANOTHER card and 2 microbes to ANOTHER card. 1 VP.	
+CardC09	C09	Ecology Research	Increase your plant production 1 step for each colony you own. Add 1 animal to ANOTHER card. Add 2 microbes to ANOTHER card. 1 VP.	
 CardC10	C10	Floater Leasing	Increase your M€ production 1 step for every 3 floaters you have.	
 CardC11	C11	Floater Prototypes	Add 2 floaters to ANOTHER card.	
 CardC12	C12	Floater Technology		Action: Add 1 floater to ANOTHER card.
