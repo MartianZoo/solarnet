@@ -93,7 +93,8 @@ VP for each simple tag the player owns or for each animal on the scoring card.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
-remain numeric even when the count is one.
+remain numeric even when the count is one. Attach a step count to every production named; do not
+move a shared count after several productions with `each`.
 
 An unsupported requirement, unsupported End-triggered scoring effect, extra component declaration, or
 unsupported immediate-instruction shape keeps the whole region data-backed. Component declarations can
@@ -123,10 +124,12 @@ and Space Port Colony print additional permission to reuse an occupied colony ti
 
 ## Review cadence
 
-Commit bounded renderer iterations autonomously. Accumulate roughly ten golden-text row changes,
-then provide an old-versus-new comparison roundup grouped by the systemic wording rule that caused
-them. The golden file may be committed along the way; reconstruct the roundup from the commit-range
-diff rather than expecting review of each historical commit.
+Commit bounded renderer iterations autonomously. Stop autonomous rounds after accumulating roughly
+ten golden-text row changes, then provide an old-versus-new comparison roundup grouped by the
+systemic wording rule that caused them. If one renderer shape would itself change materially more
+than ten rows, report that scope before updating the oracle or committing it. The golden file may be
+committed along the way; reconstruct the roundup from the commit-range diff rather than expecting
+review of each historical commit.
 
 ## Component nouns and change verbs
 

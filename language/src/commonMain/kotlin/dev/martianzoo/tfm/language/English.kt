@@ -136,18 +136,6 @@ public object English {
 
   private fun derivedProductionClause(changes: List<ResourceProductionChange>): String {
     val verb = if (changes.first().gaining) "increase" else "decrease"
-    val sharedCount = changes.map { it.count }.distinct().singleOrNull()
-    if (sharedCount != null) {
-      val steps = if (sharedCount == 1) "step" else "steps"
-      val productions = changes.map {
-        "${it.owner} ${componentNoun(it.className, 1)} production"
-      }
-      return if (productions.size == 1) {
-        "$verb ${productions.single()} $sharedCount $steps"
-      } else {
-        "$verb ${englishList(productions)} $sharedCount $steps each"
-      }
-    }
     val productions = changes.map {
       val steps = if (it.count == 1) "step" else "steps"
       "${it.owner} ${componentNoun(it.className, 1)} production ${it.count} $steps"
