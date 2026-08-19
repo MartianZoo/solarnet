@@ -137,7 +137,8 @@ raising a supported track, or adding a concrete card resource. Trigger wording p
 the acting player or any player causes the event. Other non-End effects keep the whole top region
 data-backed. A fixed M€ increase in the payment value of a standard resource or resource category
 is also derived from its spent-resource trigger. A direct trigger on a concrete played-card subtype
-is derived, including a subtype narrowed to one concrete tag. When actions
+is derived, including a subtype narrowed to one concrete tag. A trigger on using a described
+standard action or standard project composes with the same supported consequences. When actions
 and effects share a top region, actions are rendered first and their card-resource metrics name
 `this card` rather than the contextual `here`.
 

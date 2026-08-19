@@ -184,6 +184,11 @@ internal object TerraformingMarsDescribers {
         klass("End") to ComponentDescriber(endTrigger = true),
         klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
+        klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
+        klass("StandardProject") to ComponentDescriber(actionUse = "a standard project"),
+        klass("ConvertPlantsSA") to
+            ComponentDescriber(actionUse = "the Convert Plants standard action"),
+        klass("PowerPlantSP") to ComponentDescriber(actionUse = "the Power Plant standard project"),
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
         klass("Owed") to ComponentDescriber(owedPayment = true),
     )
@@ -205,6 +210,8 @@ internal object TerraformingMarsDescribers {
           endTrigger = resolveFact(componentClass, ComponentDescriber::endTrigger),
           playTrigger = resolveFact(componentClass, ComponentDescriber::playTrigger),
           playedCard = resolveFact(componentClass, ComponentDescriber::playedCard),
+          usedActionTrigger = resolveFact(componentClass, ComponentDescriber::usedActionTrigger),
+          actionUse = resolveFact(componentClass, ComponentDescriber::actionUse),
           spentResourceTrigger =
               resolveFact(componentClass, ComponentDescriber::spentResourceTrigger),
           owedPayment = resolveFact(componentClass, ComponentDescriber::owedPayment),
