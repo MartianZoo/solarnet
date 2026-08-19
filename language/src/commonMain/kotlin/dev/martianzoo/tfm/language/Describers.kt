@@ -76,6 +76,32 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return null
   }
 
+  internal fun renderGainAlternatives(
+      instructions: List<Instruction>,
+      card: CardDefinition?,
+  ): String? {
+    if (instructions.size < 2) return null
+    val gains = instructions.map { it as? Gain ?: return null }
+    val standardGains = gains.map { standardResourceGain(it) }
+    if (standardGains.all { it != null }) {
+      val objects =
+          standardGains.filterNotNull().map { (className, count) ->
+            "$count ${componentNoun(className, count)}"
+          }
+      return "gain ${englishAlternatives(objects)}"
+    }
+    val cardGains = gains.map { cardResourceGain(it, card) ?: return null }
+    val target = cardGains.map { it.target }.distinct().singleOrNull() ?: return null
+    val counts = cardGains.map { it.count }.distinct()
+    val objects =
+        if (counts.size == 1) {
+          "${counts.single()} ${englishAlternatives(cardGains.map { it.noun })}"
+        } else {
+          englishAlternatives(cardGains.map { "${it.count} ${it.noun}" })
+        }
+    return "add $objects to $target"
+  }
+
   internal fun renderChange(instruction: Instruction, card: CardDefinition?): String? =
       when (instruction) {
         is Gain ->
@@ -98,7 +124,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         return "$prefix $name ${if (unit == null) "tag" else "tags"} you have"
       }
       cardResourceNoun(expression.className, count)?.let { noun ->
-        return "$prefix $noun on your cards"
+        return "$prefix $noun"
       }
       placementCountPhrase(expression, count)?.let { phrase ->
         return "$prefix $phrase"
@@ -224,7 +250,15 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   private fun renderCardResourceGain(
       instruction: Instruction,
       card: CardDefinition?,
-  ): String? {
+  ): String? =
+      cardResourceGain(instruction, card)?.let { gain ->
+        "add ${gain.count} ${gain.noun} to ${gain.target}"
+      }
+
+  private fun cardResourceGain(
+      instruction: Instruction,
+      card: CardDefinition?,
+  ): CardResourceGain? {
     val gain = instruction as? Gain ?: return null
     if (gain.intensity != null && gain.intensity != MANDATORY) return null
     val expression = gain.gaining
@@ -241,8 +275,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
           card.resourceType == expression.className -> "ANY card"
           else -> "ANOTHER card"
         }
-    return "add $count $noun to $target"
+    return CardResourceGain(count, noun, target)
   }
+
+  private data class CardResourceGain(val count: Int, val noun: String, val target: String)
 
   private fun renderCardResourceHolder(expression: Expression): String? {
     if (expression.arguments.isNotEmpty() || expression.complement) return null
@@ -401,7 +437,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val metric = requirement.metric as? Metric.Count ?: return null
     if (!metric.expression.simple) return null
     val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
-    return "Requires that you have ${requirement.target} $noun on your cards."
+    return "Requires that you have ${requirement.target} $noun."
   }
 
   private fun renderTagRequirement(requirement: Requirement.Min): String? {

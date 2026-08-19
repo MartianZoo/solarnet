@@ -12,7 +12,10 @@ internal fun renderActions(
   val rendered = actions.map { renderAction(it, card, describers) ?: return null }
   if (rendered.size == 1) return rendered.single().asSentences()
   val alternatives = rendered.map { it.asAlternative() ?: return null }
-  return completeSentence(englishAlternatives(alternatives))
+  val joined =
+      if (alternatives.size == 2) alternatives.joinToString(", or ")
+      else englishAlternatives(alternatives)
+  return completeSentence(joined)
 }
 
 private fun renderAction(

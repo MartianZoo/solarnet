@@ -90,6 +90,15 @@ private fun renderAlternatives(
     card: CardDefinition?,
     describers: Describers,
 ): String? {
+  val singleInstructions =
+      instruction.instructions.map { option ->
+        InstructionGroup.of(option).instructions.singleOrNull()
+      }
+  if (singleInstructions.all { it != null }) {
+    describers.renderGainAlternatives(singleInstructions.filterNotNull(), card)?.let {
+      return it
+    }
+  }
   val alternatives =
       instruction.instructions.map { option ->
         renderLoweredInstructions(option, card, describers)?.clauses?.singleOrNull() ?: return null

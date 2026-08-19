@@ -130,8 +130,8 @@ one standard resource, and actions that decrease one concrete standard-resource 
 fixed number of steps, provided the result uses the supported instruction shapes below. An action
 may instead remove a concrete number of one card resource from this card, `ANY PLAYER'S CARD`, or
 any of the player's own cards, as specified by the cost expression. Multiple authored actions render
-as alternatives. Non-End effects are not yet structurally rendered, so they keep the whole top
-region data-backed.
+as alternatives, with a comma before `or` to distinguish their operation boundaries. Non-End
+effects are not yet structurally rendered, so they keep the whole top region data-backed.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
@@ -159,7 +159,9 @@ Solarnet's model, generated metric phrases do not say `in play`; the published c
 to contrast any player's components with the acting player's own components. One supported clause
 may be gated by a concrete minimum number of a tag the player owns.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains
-coalesced into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived,
+coalesced into one sentence. Alternatives that are all concrete standard-resource gains share one
+`gain`; alternatives that are all concrete card-resource gains share one `add` when their card
+destination is the same. A concrete fixed VP gain or penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or
 complete concrete group of one card-resource type on the scoring card. An unscaled fixed VP gain or
 penalty may be conditional on the player having a concrete minimum number of one resource type on
@@ -169,10 +171,11 @@ A tag-narrowed card-resource destination renders as `a card with a <name> tag`, 
 whether the played card itself qualifies. This canonical wording replaces the data file's
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
-policy. Every rendered card-resource reference names a card location: `This` becomes `this card`, a
-tag-narrowed holder becomes `a card with a <name> tag`, an owned count says `on your cards`, and an
-unqualified removal says `from any card`. An unrestricted gain says `ANY card` when the played card
-can hold that resource and `ANOTHER card` when it cannot.
+policy. Every card-resource instruction that moves a resource names a card location: `This` becomes
+`this card`, a tag-narrowed holder becomes `a card with a <name> tag`, and an unqualified removal
+says `from any card`. Aggregate requirements and metrics omit the redundant card location. An
+unrestricted gain says `ANY card` when the played card can hold that resource and `ANOTHER card`
+when it cannot.
 
 Any-player city-tile requirements name the required tiles without `in play`; a compound owned
 city-and-colony requirement says that you have those components. Solarnet components outside the
