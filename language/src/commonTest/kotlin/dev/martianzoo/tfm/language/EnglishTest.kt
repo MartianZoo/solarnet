@@ -16,9 +16,9 @@ internal class EnglishTest {
   private val english = English(TerraformingMarsDescribers.descriptions)
   private val cardsByClassName = Canon.cardDefinitions.associateBy { it.className }
 
-  // This characterization is deliberately the sole wording test for every derivation shape. Do
-  // not add shape-specific expected text: the data file is the oracle. The two tests below it only
-  // prove that an absent region does not consult that oracle at all.
+  // This fallible golden characterization is deliberately the sole wording test for every
+  // derivation shape. Do not add shape-specific expected text. The two tests below it only prove
+  // that an absent region does not consult the golden data at all.
   @Test
   fun allCardTextMatchesDataFile() {
     EnglishCardTextData.byCardFront.forEach { (cardFront, expected) ->

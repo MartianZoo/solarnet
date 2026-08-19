@@ -89,7 +89,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         return "$prefix $name ${if (unit == null) "tag" else "tags"} you have"
       }
       cardResourceNoun(expression.className, count)?.let { noun ->
-        return "$prefix $noun you have"
+        return "$prefix $noun on your cards"
       }
       placementCountPhrase(expression, count)?.let { phrase ->
         return "$prefix $phrase"
@@ -209,7 +209,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   private fun renderCardResourceRemoval(instruction: Instruction): String? {
     val (className, count) = concreteMandatoryRemoval(instruction) ?: return null
     val noun = cardResourceNoun(className, count) ?: return null
-    return "remove $count $noun"
+    return "remove $count $noun from any card"
   }
 
   private fun renderCardResourceGain(
@@ -392,7 +392,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val metric = requirement.metric as? Metric.Count ?: return null
     if (!metric.expression.simple) return null
     val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
-    return "Requires that you have ${requirement.target} $noun."
+    return "Requires that you have ${requirement.target} $noun on your cards."
   }
 
   private fun renderTagRequirement(requirement: Requirement.Min): String? {

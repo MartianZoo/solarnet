@@ -288,7 +288,7 @@ Card210	210	Self-Replicating Robots	Requires 2 science tags.	Action: Reveal and 
 Card211	211	Snow Algae	Requires 2 ocean tiles. Increase your plant production 1 step and your heat production 1 step.	
 Card212	212	Penguins	Requires 8 ocean tiles. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card213	213	Aerial Mappers	1 VP.	Action: Add 1 floater to ANY card, or remove 1 floater to draw 1 card.
-Card214	214	Aerosport Tournament	Requires that you have 5 floaters. Gain 1 M€ for each city tile. 1 VP.	
+Card214	214	Aerosport Tournament	Requires that you have 5 floaters on your cards. Gain 1 M€ for each city tile. 1 VP.	
 Card215	215	Air-Scrapping Expedition	Raise Venus 1 step. Add 3 floaters to a card with a Venus tag.	
 Card216	216	Atalanta Planitia Lab	Requires 3 science tags. Draw 2 cards. 2 VPs.	
 Card217	217	Atmoscoop	Requires 3 science tags. Raise temperature 2 steps or raise Venus 2 steps. Add 2 floaters to ANOTHER card. 1 VP.	
@@ -323,7 +323,7 @@ Card245	245	Solarnet	Requires Venus, Earth, and Jovian tags. Draw 2 cards. 1 VP.
 Card246	246	Spin-Inducing Asteroid	Venus must be 10% or less. Raise Venus 2 steps.	
 Card247	247	Sponsored Academies	Discard 1 card from hand and then draw 3 cards. All opponents draw 1 card. 1 VP.	
 Card248	248	Stratopolis	Requires 2 science tags. Increase your M€ production 2 steps. Place a city tile on THE RESERVED AREA. 1 VP for every 3 floaters on this card.	Action: Add 2 floaters to ANY VENUS CARD.
-Card249	249	Stratospheric Birds	Requires Venus 12%. 1 VP for each animal on this card.	Remove 1 floater. / Action: Add 1 animal to this card.
+Card249	249	Stratospheric Birds	Requires Venus 12%. Remove 1 floater from any card. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card250	250	Sulphur Exports	Raise Venus 1 step. Increase your M€ production 1 step for each Venus tag you have.	
 Card251	251	Sulphur-Eating Bacteria	Requires Venus 6%.	Action: Add 1 microbe to this card, or remove one or more microbes to gain triple that amount of M€.
 Card252	252	Terraforming Contract	Requires that you have at least 25 terraform rating. Increase your M€ production 4 steps.	
@@ -343,8 +343,8 @@ CardP39	P39	Psychrophiles	Temperature must be -20°C or colder.	Action: Add 1 mi
 CardP40	P40	Research Coordination	After being played, when you perform an action, the wild tag counts as any tag of your choice.	
 CardP41	P41	SF Memorial	Draw 1 card. 1 VP.	
 CardP42	P42	Space Hotels	Requires 2 Earth tags. Increase your M€ production 4 steps.	
-CardC01	C01	Airliners	Requires that you have 3 floaters. Increase your M€ production 2 steps. Add 2 floaters to ANOTHER card. 1 VP.	
-CardC02	C02	Air Raid	Steal up to 5 M€ from any player.	Remove 1 floater.
+CardC01	C01	Airliners	Requires that you have 3 floaters on your cards. Increase your M€ production 2 steps. Add 2 floaters to ANOTHER card. 1 VP.	
+CardC02	C02	Air Raid	Remove 1 floater from any card. Steal up to 5 M€ from any player.	
 CardC03	C03	Atmo Collectors	Add 2 floaters to ANY card.	Action: Add 1 floater to this card, or remove 1 floater to gain 2 titanium, or 3 energy, or 4 heat.
 CardC04	C04	Community Services	Increase your M€ production 1 step for each card with no tags. 1 VP.	
 CardC05	C05	Conscription	Requires 2 Earth tags. The next card you play this generation costs 16 M€ less. -1 VP.	
@@ -352,7 +352,7 @@ CardC06	C06	Corona Extractor	Requires 4 science tags. Increase your energy produ
 CardC07	C07	Cryo-Sleep	1 VP.	Effect: When you use the Trade standard action, you pay 1 less resource for it.
 CardC08	C08	Earth Elevator	Increase your titanium production 3 steps. 4 VPs.	
 CardC09	C09	Ecology Research	Increase your plant production 1 step for each colony you own. Add 1 animal to ANOTHER card. Add 2 microbes to ANOTHER card. 1 VP.	
-CardC10	C10	Floater Leasing	Increase your M€ production 1 step for every 3 floaters you have.	
+CardC10	C10	Floater Leasing	Increase your M€ production 1 step for every 3 floaters on your cards.	
 CardC11	C11	Floater Prototypes	Add 2 floaters to ANOTHER card.	
 CardC12	C12	Floater Technology		Action: Add 1 floater to ANOTHER card.
 CardC13	C13	Galilean Waystation	Increase your M€ production 1 step for each Jovian tag in play. 1 VP.	

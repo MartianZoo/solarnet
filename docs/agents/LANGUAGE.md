@@ -7,18 +7,20 @@
 
 The eventual goal is for `English` to render any instruction expressed in Pets, without depending
 on whole-card text data. That is a direction, not a near-term completeness requirement. Progress
-slowly, one well-bounded instruction shape at a time, while retaining the data file as an oracle and
-fallback. Compare every affected canonical card with the oracle before expanding the supported
-shape. An incremental approach that leaves most shapes data-backed is expected and acceptable.
+slowly, one well-bounded instruction shape at a time, while retaining the data file as a golden
+characterization and fallback. The file is fallible, not authoritative: compare every affected
+canonical card with it, but correct a row when the card data or a systemic rule shows that the row
+is mistaken. An incremental approach that leaves most shapes data-backed is expected and acceptable.
 
 ## Verification while replacing the data file
 
 Do not add a test merely to prove that a newly supported shape bypasses the fallback. Such a test
 would restate the implementation boundary without protecting card behavior, and every incremental
 step would require another synthetic fixture. The existing all-card comparison is the behavioral
-check: a derivation expansion is valid when every affected canonical card still renders the oracle
-text. Review the production diff to establish that the fallback boundary actually moved; the code
-is clearer evidence of that progress than a change-detector test.
+check: a derivation expansion is valid when every affected canonical card renders the reviewed
+golden text. A mismatch is a review prompt, not an instruction to preserve the row. Review the
+production diff to establish that the fallback boundary actually moved; the code is clearer
+evidence of that progress than a change-detector test.
 
 The two explicit fallback tests for absent regions remain useful because emptiness is not represented
 by a row's wording: they establish that a structurally empty region succeeds without any card-text
@@ -28,8 +30,8 @@ behavioral test for that behavior or defer the generalization; do not add a test
 is that the data file was not consulted.
 
 Keep every structurally supported End-scoring sentence canonical in the card-text data even when
-another part of that card keeps the whole region data-backed. The oracle should already contain the
-complete scoring text before an unrelated instruction shape becomes derivable.
+another part of that card keeps the whole region data-backed. The golden row should already contain
+the complete scoring text before an unrelated instruction shape becomes derivable.
 
 ## Expected renderer architecture
 
@@ -102,11 +104,12 @@ granular fallback must remain valid independently of whichever whole-card row ha
 
 ## Canonical wording versus rules
 
-Treat the data text as an oracle for meaning, not for incidental wording. A textual difference is
-not evidence of a rules distinction by itself. When equivalent instructions vary only in style,
-choose one clear form that is easy to derive consistently rather than adding code to reproduce
-each variation. For example, `Gain 1 steel and 1 titanium` and `Gain 1 plant. Gain 1 energy` do not
-establish that conjunction and separate sentences have different semantics.
+Treat the data text as fallible evidence for meaning, not as authority or as a source of incidental
+wording. A textual difference is not evidence of a rules distinction by itself. When equivalent
+instructions vary only in style, choose one clear form that is easy to derive consistently rather
+than adding code to reproduce each variation. For example, `Gain 1 steel and 1 titanium` and `Gain
+1 plant. Gain 1 energy` do not establish that conjunction and separate sentences have different
+semantics.
 
 Verify that apparent variants really do express the same instruction before canonicalizing them.
 Preserve the existing order of subclauses within each individual action, effect, or requirement;
@@ -125,10 +128,9 @@ has no immediate instruction or behavior-bearing extra declaration. It supports 
 actions that spend a concrete amount of one standard resource, provided the result uses the
 supported instruction shapes below. An action may instead remove a concrete number of one card
 resource from the acting card. Multiple authored actions render as alternatives. Non-End
-effects are not yet structurally rendered, so they keep the whole top region data-backed. An
-immediate group explicitly assigned to `TOP` may be composed before those actions; a bottom or
-split immediate still keeps the top region data-backed so this layout step does not implicitly
-expand the action-rendering boundary.
+effects are not yet structurally rendered, so they keep the whole top region data-backed. Immediate
+instructions are always below the artwork and still keep the top region data-backed so their
+presence does not implicitly expand the action-rendering boundary.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
@@ -166,8 +168,10 @@ A tag-narrowed card-resource destination renders as `a card with a <name> tag`, 
 whether the played card itself qualifies. This canonical wording replaces the data file's
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
-policy. An unqualified card-resource removal says only `remove <count> <resource>`; naming an
-arbitrary source card adds no scope because card resources exist only on cards.
+policy. Every rendered card-resource reference names a card location: `This` becomes `this card`, a
+tag-narrowed holder becomes `a card with a <name> tag`, an owned count says `on your cards`, and an
+unqualified removal says `from any card`. An unrestricted gain says `ANY card` when the played card
+can hold that resource and `ANOTHER card` when it cannot.
 
 Any-player city-tile requirements name the required tiles without `in play`; a compound owned
 city-and-colony requirement says that you have those components. Solarnet components outside the
@@ -187,15 +191,9 @@ bottom derivation.
 
 ## Known layout boundaries
 
-Potatoes' plant removal and production increase are both immediate instructions printed below the
-artwork. The former split across regions in the data file was a data error, not evidence that the
-layout facade must divide one immediate group.
-
-`CardDefinition.immediateRegion` records whether an immediate group is printed above or below the
-artwork. Stratospheric Birds uses `TOP`, placing its immediate floater removal beside its action
-while its requirement and End scoring remain below. Air Raid uses `SPLIT`: its floater removal is
-above the artwork while its M€ transfer is below. A split group remains data-backed because the
-coarse region fact deliberately does not assign individual clauses to regions.
+Immediate instructions are printed below the artwork. The golden rows that split Potatoes, Air
+Raid, or Stratospheric Birds across regions were data errors, not evidence for a layout distinction
+in `CardDefinition` or for dividing one authored immediate group.
 
 Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
 Insurance shows why: its component declarations encode printed setup behavior that is absent from
@@ -221,7 +219,7 @@ and Space Port Colony print additional permission to reuse an occupied colony ti
 Commit bounded renderer iterations autonomously. Stop autonomous rounds after accumulating roughly
 ten golden-text row changes, then provide an old-versus-new comparison roundup grouped by the
 systemic wording rule that caused them. If one renderer shape would itself change materially more
-than ten rows, report that scope before updating the oracle or committing it. The golden file may be
+than ten rows, report that scope before updating the golden data or committing it. The golden file may be
 committed along the way; reconstruct the roundup from the commit-range diff rather than expecting
 review of each historical commit.
 

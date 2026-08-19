@@ -5,9 +5,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.CardDefinition.ImmediateRegion.BOTTOM
-import dev.martianzoo.tfm.data.CardDefinition.ImmediateRegion.SPLIT
-import dev.martianzoo.tfm.data.CardDefinition.ImmediateRegion.TOP
 import dev.martianzoo.types.Class
 
 /** English Pets text using the complete component descriptions supplied by its client. */
@@ -49,24 +46,19 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
 
   // Of the card's Effects, only endgame scoring is printed below the artwork.
   private fun hasTopTextElement(card: CardDefinition): Boolean =
-      (card.immediate != null && card.immediateRegion != BOTTOM) ||
-          card.actions.isNotEmpty() ||
-          card.effects.isNotEmpty()
+      card.actions.isNotEmpty() || card.effects.isNotEmpty()
 
   private fun hasBottomTextElement(card: CardDefinition): Boolean =
       card.requirement != null ||
-          (card.immediate != null && card.immediateRegion != TOP) ||
+          card.immediate != null ||
           card.effects.any { isEndEffect(it, describers) }
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (describers.hasBehaviorBearingExtraClass(card) || card.immediateRegion == SPLIT) {
+    if (describers.hasBehaviorBearingExtraClass(card)) {
       return null
     }
     val requirement = card.requirement?.let { describeOrNull(it) ?: return null }
-    val instructions =
-        card.immediate
-            ?.takeIf { card.immediateRegion == BOTTOM }
-            ?.let { describeOrNull(it, card) ?: return null }
+    val instructions = card.immediate?.let { describeOrNull(it, card) ?: return null }
     val scoring =
         card.effects
             .filter { isEndEffect(it, describers) }
@@ -77,17 +69,9 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
   }
 
   private fun derivedTopText(card: CardDefinition): String? {
-    if (
-        describers.hasBehaviorBearingExtraClass(card) ||
-            card.immediateRegion == SPLIT ||
-            (card.immediate != null && card.immediateRegion == BOTTOM)
-    ) {
+    if (card.immediate != null || describers.hasBehaviorBearingExtraClass(card)) {
       return null
     }
-    val instructions =
-        card.immediate
-            ?.takeIf { card.immediateRegion == TOP }
-            ?.let { describeOrNull(it, card) ?: return null }
     val actions =
         card.actions
             .takeIf { it.isNotEmpty() }
@@ -102,7 +86,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
               val rendered = list.map { describeOrNull(it) ?: return null }
               "Effect: ${rendered.joinToString(" ")}"
             }
-    return listOfNotNull(instructions, actions, effects).joinToString(" / ")
+    return listOfNotNull(actions, effects).joinToString(" / ")
   }
 
   private fun describeOrNull(effect: Effect): String? = renderEndEffect(effect, describers)
