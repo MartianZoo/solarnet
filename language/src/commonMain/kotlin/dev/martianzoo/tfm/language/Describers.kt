@@ -73,12 +73,25 @@ internal object Describers {
             ),
         klass("CityTile") to
             ComponentDescriber(
-                placement = ComponentDescriber.Placement("a", "city tile", "city tiles"),
+                placement =
+                    ComponentDescriber.Placement(
+                        "a",
+                        "city tile",
+                        "city tiles",
+                        anyoneMetricScope = ComponentDescriber.MetricScope.IN_PLAY,
+                    ),
                 requirement = ComponentDescriber.Requirement.CITY_TILES_IN_PLAY,
             ),
         klass("Colony") to
             ComponentDescriber(
-                placement = ComponentDescriber.Placement("a", "colony", "colonies"),
+                placement =
+                    ComponentDescriber.Placement(
+                        "a",
+                        "colony",
+                        "colonies",
+                        unqualifiedMetricScope = ComponentDescriber.MetricScope.OWNED,
+                        anyoneMetricScope = ComponentDescriber.MetricScope.IN_PLAY,
+                    ),
                 requirement = ComponentDescriber.Requirement.COLONIES,
             ),
         klass("ReserveTradeFleet") to

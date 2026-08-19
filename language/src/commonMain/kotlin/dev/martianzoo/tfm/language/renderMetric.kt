@@ -71,22 +71,19 @@ private fun placementCountPhrase(
     count: Int,
 ): String? {
   if (expression.refinement != null || expression.complement) return null
-  val (singular, plural, scope) =
-      when (Describers[expression.className].requirement) {
-        ComponentDescriber.Requirement.CITY_TILES_IN_PLAY -> {
-          if (expression.arguments != listOf(anyoneExpression)) return null
-          Triple("city tile", "city tiles", "in play")
-        }
-        ComponentDescriber.Requirement.COLONIES ->
-            when {
-              expression.simple -> Triple("colony", "colonies", "you own")
-              expression.arguments == listOf(anyoneExpression) ->
-                  Triple("colony", "colonies", "in play")
-              else -> return null
-            }
-        else -> return null
+  val placement = Describers[expression.className].placement ?: return null
+  val scope =
+      when {
+        expression.simple -> placement.unqualifiedMetricScope
+        expression.arguments == listOf(anyoneExpression) -> placement.anyoneMetricScope
+        else -> null
+      } ?: return null
+  val scopePhrase =
+      when (scope) {
+        ComponentDescriber.MetricScope.OWNED -> "you own"
+        ComponentDescriber.MetricScope.IN_PLAY -> "in play"
       }
-  return "${if (count == 1) singular else plural} $scope"
+  return "${if (count == 1) placement.singular else placement.plural} $scopePhrase"
 }
 
 private val anyoneExpression = cn("Anyone").expression
