@@ -130,9 +130,13 @@ one standard resource, and actions that decrease one concrete standard-resource 
 fixed number of steps, provided the result uses the supported instruction shapes below. An action
 may instead remove a concrete number of one card resource from this card, `ANY PLAYER'S CARD`, or
 any of the player's own cards, as specified by the cost expression. Multiple authored actions render
-as alternatives, with a comma before `or` to distinguish their operation boundaries. A fixed M€
-discount triggered by playing a card or one concrete tag is also derived. Other non-End effects
-keep the whole top region data-backed.
+as alternatives, with a comma before `or` to distinguish their operation boundaries. Supported
+non-End effects include a fixed M€ discount triggered by playing a card or one concrete tag, and a
+supported instruction consequence triggered by playing concrete tags, placing a supported tile,
+or adding a concrete card resource. Trigger wording preserves whether the acting player or any
+player causes the event. Other non-End effects keep the whole top region data-backed. When actions
+and effects share a top region, actions are rendered first and their card-resource metrics name
+`this card` rather than the contextual `here`.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum

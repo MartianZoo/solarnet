@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -98,23 +99,23 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return "add $objects to $target"
   }
 
-  internal fun renderPlayTrigger(trigger: Trigger): String? {
-    val expression = (trigger as? OnGainOf)?.expression ?: return null
-    if (expression.refinement != null || expression.complement) return null
-    val played =
-        when (this[expression.className].playTrigger) {
-          ComponentDescriber.PlayTrigger.CARD -> {
-            if (!expression.simple) return null
-            "a card"
-          }
-          ComponentDescriber.PlayTrigger.TAG -> {
-            val tag = representedClass(expression) ?: return null
-            val (name) = tagName(tag.className) ?: return null
-            "${indefiniteArticle(name)} $name tag"
-          }
-          null -> return null
+  internal fun renderEventTrigger(trigger: Trigger): String? {
+    val events =
+        when (trigger) {
+          is Trigger.Or -> trigger.triggers.map { renderEvent(it) ?: return null }
+          else -> listOf(renderEvent(trigger) ?: return null)
         }
-    return "when you play $played"
+    val kind = events.map { it.kind }.distinct().singleOrNull() ?: return null
+    val objectPhrases = events.map { it.objectPhrase }
+    val objects =
+        if (objectPhrases.size == 1) objectPhrases.single() else englishAlternatives(objectPhrases)
+    return when (kind) {
+      EventKind.PLAY -> "when you play $objects"
+      EventKind.PLACE -> "when you place $objects"
+      EventKind.PLACE_ANY -> "when $objects is placed"
+      EventKind.PLACE_BY_ANYONE -> "when any player places $objects"
+      EventKind.ADD_TO_CARD -> "when you add $objects to any card"
+    }
   }
 
   internal fun renderOwedReduction(instruction: InstructionTree): String? {
@@ -127,6 +128,71 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val count = (removal.count as? ActualScalar)?.value ?: return null
     val noun = standardResourceNoun(resource.className, count) ?: return null
     return "you pay $count $noun less for it"
+  }
+
+  private fun renderEvent(trigger: Trigger): Event? {
+    if (trigger is ByTrigger) {
+      if (trigger.by != anyoneExpression) return null
+      val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
+      val placement = placementEvent(expression, EventKind.PLACE_BY_ANYONE) ?: return null
+      return placement
+    }
+    val expression = (trigger as? OnGainOf)?.expression ?: return null
+    if (expression.refinement != null || expression.complement) return null
+    when (this[expression.className].playTrigger) {
+      ComponentDescriber.PlayTrigger.CARD -> {
+        if (!expression.simple) return null
+        return Event(EventKind.PLAY, "a card")
+      }
+      ComponentDescriber.PlayTrigger.TAG -> {
+        val tag = representedClass(expression) ?: return null
+        val (name) = tagName(tag.className) ?: return null
+        return Event(EventKind.PLAY, "${indefiniteArticle(name)} $name tag")
+      }
+      null -> Unit
+    }
+    if (expression.simple) {
+      tagName(expression.className)?.let { (name) ->
+        return Event(EventKind.PLAY, "${indefiniteArticle(name)} $name tag")
+      }
+      placementEvent(expression, EventKind.PLACE)?.let {
+        return it
+      }
+      cardResourceNoun(expression.className, 1)?.let { noun ->
+        return Event(EventKind.ADD_TO_CARD, "${indefiniteArticle(noun)} $noun")
+      }
+    }
+    if (expression.arguments == listOf(anyoneExpression)) {
+      placementEvent(expression, EventKind.PLACE_ANY)?.let {
+        return it
+      }
+    }
+    return null
+  }
+
+  private fun placementEvent(expression: Expression, kind: EventKind): Event? {
+    if (expression.refinement != null || expression.complement) return null
+    if (kind == EventKind.PLACE_BY_ANYONE && !expression.simple) return null
+    val placement = this[expression.className].placement ?: return null
+    val phrase =
+        when (kind) {
+          EventKind.PLACE_ANY -> "any ${placement.singular}"
+          EventKind.PLACE,
+          EventKind.PLACE_BY_ANYONE -> "${placement.article} ${placement.singular}"
+          EventKind.PLAY,
+          EventKind.ADD_TO_CARD -> return null
+        }
+    return Event(kind, phrase)
+  }
+
+  private data class Event(val kind: EventKind, val objectPhrase: String)
+
+  private enum class EventKind {
+    PLAY,
+    PLACE,
+    PLACE_ANY,
+    PLACE_BY_ANYONE,
+    ADD_TO_CARD,
   }
 
   internal fun renderChange(instruction: Instruction, card: CardDefinition?): String? =

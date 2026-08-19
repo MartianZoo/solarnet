@@ -11,13 +11,19 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? =
     if (isEndEffect(effect, describers)) {
       renderEndEffect(effect, describers)
     } else {
-      renderPaymentDiscount(effect, describers)
+      renderPaymentDiscount(effect, describers) ?: renderTriggeredInstructions(effect, describers)
     }
 
 private fun renderPaymentDiscount(effect: Effect, describers: Describers): String? {
-  val trigger = describers.renderPlayTrigger(effect.trigger) ?: return null
+  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val reduction = describers.renderOwedReduction(effect.instruction) ?: return null
   return "${trigger.replaceFirstChar(Char::uppercaseChar)}, $reduction."
+}
+
+private fun renderTriggeredInstructions(effect: Effect, describers: Describers): String? {
+  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+  val result = renderInstructions(effect.instruction, describers = describers) ?: return null
+  return completeSentence("$trigger, ${result.asCoordinatedClause()}")
 }
 
 internal fun renderEndEffect(effect: Effect, describers: Describers): String? {
