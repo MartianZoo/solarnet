@@ -39,7 +39,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         val holder =
             when (expression.arguments) {
               listOf(thisExpression) -> "this card"
-              listOf(anyoneExpression) -> "any card"
+              listOf(anyoneExpression) -> "ANY PLAYER'S CARD"
               emptyList<Expression>() -> "any of your cards"
               else -> return null
             }
