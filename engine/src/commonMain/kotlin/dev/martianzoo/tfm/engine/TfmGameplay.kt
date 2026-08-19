@@ -54,7 +54,7 @@ public class TfmGameplay(
     }
   }
 
-  public fun pass(): TaskResult = inTurn { doTask("Pass") }
+  public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
 
   /**
    * Performs the actions in one fixture-level turn, declining an unused second action when needed.
@@ -67,10 +67,12 @@ public class TfmGameplay(
   }
 
   public fun declineSecondAction(): TaskResult {
-    val secondAction =
-        secondActionOffer()
-            ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
-    return doTask("Ok", secondAction.index + 1)
+    return inTfmTurn {
+      val secondAction =
+          secondActionOffer()
+              ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
+      doTask("Ok", secondAction.index + 1)
+    }
   }
 
   private fun secondActionOffer(): IndexedValue<Task>? =
@@ -89,7 +91,7 @@ public class TfmGameplay(
   }
 
   public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
-    return inTurn {
+    return inTfmTurn {
       doTask("UseAction$which<$stdAction>")
       body()
     }
@@ -103,7 +105,7 @@ public class TfmGameplay(
   }
 
   public fun playPrelude(cardName: ClassName, body: BodyLambda = {}): TaskResult {
-    return inTurn {
+    return inTfmTurn {
       doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
       body()
     }
@@ -121,7 +123,7 @@ public class TfmGameplay(
       titanium: Int = 0,
       body: BodyLambda = {},
   ): TaskResult {
-    return inTurn {
+    return inTfmTurn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
         doTask("UseAction1<PlayCardSA>")
       }
@@ -131,6 +133,36 @@ public class TfmGameplay(
       body()
       autoExecNow()
     }
+  }
+
+  private fun inTfmTurn(body: BodyLambda): TaskResult {
+    declineWildTagOffers()
+    return inTurn {
+      declineWildTagOffers()
+      body()
+      autoExecNow()
+      removeWildTagUses()
+    }
+  }
+
+  private fun declineWildTagOffers() {
+    while (true) {
+      val offer =
+          game.tasks
+              .extract { it }
+              .withIndex()
+              .firstOrNull { (_, task) ->
+                task.assignee == actor && task.cause?.context?.className == cn("WildTagUse")
+              } ?: return
+      doTask("Ok", offer.index + 1)
+    }
+  }
+
+  private fun removeWildTagUses() {
+    val uses = reader.getComponents("WildTagUse<$actor>")
+    if (uses.isEmpty()) return
+    val removals = uses.elements.joinToString(", ") { "-${it.expression}" }
+    godMode().manual(removals)
   }
 
   public fun pay(

@@ -165,6 +165,26 @@ instruction positions without rewriting coincidental equal Class Names.
 admitted. `:` effects become tasks. Use [SEQUENCING.md](SEQUENCING.md) before depending on that
 difference.
 
+### Terraforming Mars wild tags
+
+`Tag` depends on `TagHolder`; `CardFront` is one such holder. Printed tags therefore remain ordinary
+components such as `PlantTag<CardFront>`. A `WildTag` creates a distinct `WildTagUse` holder for
+each `NewTurn` in Action or Prelude and each action-phase `SecondAction`. The temporary holder offers
+the owner `Tag<This>?`, so a chosen wild meaning is an ordinary tag and participates in bare tag
+metrics and requirements.
+
+The holder distinction is also the trigger distinction. An effect that reacts only to printed tags
+must subscribe explicitly, for example `PlantTag<CardFront>:`. It will not see
+`PlantTag<WildTagUse<...>>`; there is no dispatch filter or special change kind. Refinements can
+follow the dependency graph when card identity matters. Robotic Workforce uses
+`CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
+action-scoped wild holder received the Building interpretation.
+
+`WildTagUse` is `Temporary`, so the action cannot finish while it remains. `TfmGameplay` declines
+unchosen offers and removes all of the acting player's uses after the action body has drained; the
+dependent tags disappear through ordinary dependency cascade. A different client must perform the
+same uniquely implied settlement before completing the operation.
+
 ## Metrics, refinements, and limits
 
 `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a

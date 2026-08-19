@@ -16,7 +16,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "38, PROD[Titanium]",
-      "effects": [ "EarthTag: ProjectCard" ],
+      "effects": [ "EarthTag<CardFront>: ProjectCard" ],
     },
 
     // Robinson Industries
@@ -263,6 +263,13 @@
       "immediate": "PROD[3 Energy]",
     },
 
+    // Research Network
+    {
+      "id": "P28",
+      "deck": "PRELUDE",
+      "immediate": "PROD[1], 3 ProjectCard, WildTag<This>",
+    },
+
     // Self-Sufficient Settlement
     {
       "id": "P29",
@@ -362,6 +369,15 @@
       "effects": [
         "PlayTag<Class<PlantTag>>: (-X Microbe<This>! THEN -2X Owed.) OR Ok"
       ],
+    },
+
+    // Research Coordination
+    {
+      "id": "P40",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 4,
+      "immediate": "WildTag<This>",
     },
 
     // SF Memorial

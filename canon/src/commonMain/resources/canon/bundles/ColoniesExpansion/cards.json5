@@ -9,7 +9,7 @@
       "resourceType": "Animal",
       "immediate": "45, PROD[2]",
       "effects" : [
-        "AnimalTag OR PlantTag: Animal<This>",
+        "AnimalTag<CardFront> OR PlantTag<CardFront>: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
       ],
     },
@@ -302,7 +302,7 @@
       "resourceType": "Animal",
       "actions": [ "-> 1 / Animal<This>" ],
       "effects": [
-        "EarthTag: Animal<This>",
+        "EarthTag<CardFront>: Animal<This>",
         "End: VictoryPoint"
       ],
     },

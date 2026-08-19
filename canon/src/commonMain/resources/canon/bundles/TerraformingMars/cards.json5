@@ -1000,7 +1000,7 @@
       "resourceType": "Animal",
       "immediate": "Tile128<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
       "effects": [
-        "AnimalTag OR PlantTag: Animal<This>",
+        "AnimalTag<CardFront> OR PlantTag<CardFront>: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
       ],
       "components": [ "CLASS Tile128 : SpecialTile" ],
@@ -1038,7 +1038,7 @@
       "tags": [ "MicrobeTag" ],
       "resourceType": "Microbe",
       "effects": [
-        "BioTag: Microbe<This>",
+        "BioTag<CardFront>: Microbe<This>",
         "End: VictoryPoint / 3 Microbe<This>"
       ],
     },

@@ -98,7 +98,7 @@ internal class CanonEffectsTest {
     classEffectsOf(VenusianAnimals)
         .shouldContainExactlyInAnyOrder(
             "This:: VenusTag<Owner, This>!, ScienceTag<Owner, This>!, AnimalTag<Owner, This>!",
-            "ScienceTag<Owner>: Animal<Owner, This>.",
+            "ScienceTag<Owner, CardFront<Owner>>: Animal<Owner, This>.",
             "End: VictoryPoint<Owner>! / Animal<Owner, This>",
         )
   }
