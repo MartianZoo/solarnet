@@ -112,6 +112,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return when (kind) {
       EventKind.PLAY -> "when you play $objects"
       EventKind.PLAY_ANY -> "when $objects is played"
+      EventKind.USE_ACTION -> "when you use $objects"
       EventKind.PLACE -> "when you place $objects"
       EventKind.PLACE_ANY -> "when $objects is placed"
       EventKind.PLACE_BY_ANYONE -> "when any player places $objects"
@@ -173,6 +174,13 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       }
       null -> Unit
     }
+    if (this[expression.className].usedActionTrigger == true) {
+      if (expression.arguments.size != 1) return null
+      val action = expression.arguments.single()
+      if (!action.simple) return null
+      val phrase = this[action.className].actionUse ?: return null
+      return Event(EventKind.USE_ACTION, phrase)
+    }
     if (expression.simple) {
       tagName(expression.className)?.let { (name) ->
         return Event(EventKind.PLAY, "${indefiniteArticle(name)} $name tag")
@@ -222,6 +230,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
           EventKind.PLACE_BY_ANYONE -> "${placement.article} ${placement.singular}"
           EventKind.PLAY,
           EventKind.PLAY_ANY,
+          EventKind.USE_ACTION,
           EventKind.RAISE_BY_ANYONE,
           EventKind.ADD_TO_CARD -> return null
         }
@@ -233,6 +242,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   private enum class EventKind {
     PLAY,
     PLAY_ANY,
+    USE_ACTION,
     PLACE,
     PLACE_ANY,
     PLACE_BY_ANYONE,

@@ -1,14 +1,14 @@
 class_name	id	english_name	bottom_text	top_text
 CardB00	B00	Beginner Corporation	Gain 42 M€. Keep all 10 project cards you received in setup for free.	*To begin setup, any player may take this card instead of drawing any face-down Corporations.
 CardB01	B01	CrediCor	Gain 57 M€.	Effect: After you pay for a card or standard project with a basic cost of 20 M€ or more, you gain 4 M€.
-CardB02	B02	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less for it.
+CardB02	B02	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you use the Convert Plants standard action, gain 1 plant.
 CardB03	B03	Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: You may use heat as M€. You may not use M€ as heat.
 CardB04	B04	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
 CardB05	B05	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: You may treat any global parameter requirement as if it is 2 steps lower or higher.
 CardB06	B06	Mining Guild	Gain 30 M€ and 5 steel. Increase your steel production 1 step.	Effect: When you place a tile on an area with steel or titanium placement bonus, increase your steel production 1 step.
 CardB07	B07	PhoboLog	Gain 23 M€ and 10 titanium.	Effect: Each titanium you spend is worth 1 M€ extra.
 CardB08	B08	Tharsis Republic	Gain 40 M€. As your first action, place a city tile.	Effect: When any city tile is placed ON MARS, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
-CardB09	B09	ThorGate	Gain 48 M€. Increase your energy production 1 step.	Effect: When you play a power card or the Standard Project Power Plant, you pay 3 M€ less for it.
+CardB09	B09	ThorGate	Gain 48 M€. Increase your energy production 1 step.	Effect: When you play a power tag, you pay 3 M€ less for it. When you use the Power Plant standard project, gain 3 M€.
 CardB10	B10	United Nations Mars Initiative	Gain 40 M€.	Action: If your terraform rating was raised this generation, you may spend 3 M€ to raise your terraform rating 1 step more.
 CardB11	B11	Saturn Systems	Gain 42 M€. Increase your titanium production 1 step.	Effect: When any Jovian tag is played, increase your M€ production 1 step.
 CardB12	B12	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, you pay 3 M€ less for it.
@@ -265,7 +265,7 @@ Card149	149	CEO's Favorite Project	Add 1 resource to a card with at least 1 reso
 Card150	150	Anti-Gravity Technology	Requires 7 science tags. 3 VPs.	Effect: When you play a card, you pay 2 M€ less for it.
 Card151	151	Investment Loan	Decrease your M€ production 1 step. Gain 10 M€.	
 Card154	154	Caretaker Contract	Requires 0°C or warmer.	Action: Spend 8 heat to raise your terraform rating 1 step.
-Card156	156	Standard Technology		Effect: After you pay for a standard project, except selling patents, you gain 3 M€.
+Card156	156	Standard Technology		Effect: When you use a standard project, gain 3 M€.
 Card160	160	Power Supply Consortium	Requires 2 power tags. Decrease any player's energy production 1 step and increase your energy production 1 step.	
 Card173	173	Protected Habitats		Effect: Opponents may not remove your plant, animal, or microbe resources.
 Card175	175	Satellites	Increase your M€ production 1 step for each space tag you have.	
