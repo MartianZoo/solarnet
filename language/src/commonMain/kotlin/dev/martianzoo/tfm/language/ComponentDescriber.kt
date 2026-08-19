@@ -16,6 +16,8 @@ public data class ComponentDescriber(
     public val directGain: DirectGain? = null,
     public val score: Score? = null,
     public val endTrigger: Boolean? = null,
+    public val playTrigger: PlayTrigger? = null,
+    public val owedPayment: Boolean? = null,
 ) {
   public sealed interface Noun {
     public data object ClassName : Noun
@@ -63,4 +65,9 @@ public data class ComponentDescriber(
   public data class DirectGain(public val noun: String, public val count: Int)
 
   public data class Score(public val singular: String, public val plural: String)
+
+  public enum class PlayTrigger {
+    CARD,
+    TAG,
+  }
 }

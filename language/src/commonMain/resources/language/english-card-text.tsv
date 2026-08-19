@@ -185,7 +185,7 @@ Card162	162	Imported GHG	Increase your heat production 1 step. Gain 3 heat.
 Card163	163	Imported Nitrogen	Raise your terraform rating 1 step. Gain 4 plants. Add 3 microbes to ANOTHER card. Add 2 animals to ANOTHER card.	
 Card164	164	Micro-Mills	Increase your heat production 1 step.	
 Card165	165	Magnetic Field Generators	Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your terraform rating 3 steps.	
-Card166	166	Shuttles	Requires 5% oxygen. Decrease your energy production 1 step and increase your M€ production 2 steps. 1 VP.	Effect: When you play a space card, you pay 2 M€ less for it.
+Card166	166	Shuttles	Requires 5% oxygen. Decrease your energy production 1 step and increase your M€ production 2 steps. 1 VP.	Effect: When you play a space tag, you pay 2 M€ less for it.
 Card167	167	Import Of Advanced GHG	Increase your heat production 2 steps.	
 Card168	168	Windmills	Requires 7% oxygen. Increase your energy production 1 step. 1 VP.	
 Card169	169	Tundra Farming	Requires -6°C or warmer. Increase your plant production 1 step and your M€ production 2 steps. Gain 1 plant. 2 VPs.	
@@ -216,7 +216,7 @@ Card002	002	Asteroid Mining Consortium	Requires that you have titanium productio
 Card006F	006	Inventors' Guild		Action: Look at the top card and either buy it or discard it.
 Card013	013	Space Elevator	Increase your titanium production 1 step. 2 VPs.	Action: Spend 1 steel to gain 5 M€.
 Card014	014	Development Center		Action: Spend 1 energy to draw 1 card.
-Card025	025	Space Station	1 VP.	Effect: When you play a space card, you pay 2 M€ less for it.
+Card025	025	Space Station	1 VP.	Effect: When you play a space tag, you pay 2 M€ less for it.
 Card027	027	Interstellar Colony Ship	Requires 5 science tags. 4 VPs.	
 Card028	028	Security Fleet	1 VP for each fighter resource on this card.	Action: Spend 1 titanium to add 1 fighter resource to this card.
 Card046	046	Lightning Harvest	Requires 3 science tags. Increase your energy production 1 step and your M€ production 1 step. 1 VP.	
@@ -236,7 +236,7 @@ Card070	070	Earth Catapult	2 VPs.	Effect: When you play a card, you pay 2 M€ l
 Card071	071	Advanced Alloys		Effect: Each titanium you have is worth 1 M€ extra. Each steel you have is worth 1 M€ extra.
 Card073	073	Mars University	1 VP.	Effect: When you play a science tag, you may discard a card from hand to draw 1 card.
 Card074	074	Viral Enhancers		Effect: When you play a plant, microbe, or an animal tag, gain 1 plant or add 1 resource TO THAT CARD.
-Card079	079	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space card, you pay 2 M€ less for it.
+Card079	079	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space tag, you pay 2 M€ less for it.
 Card082	082	Callisto Penal Mines	Increase your M€ production 3 steps. 2 VPs.	
 Card084	084	Trans-Neptune Probe	1 VP.	
 Card085	085	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP for each adjacent city tile.	
@@ -244,7 +244,7 @@ Card086	086	Robotic Workforce	Duplicate only the production box of one of your b
 Card090	090	Research	Counts as playing 2 science tags. Draw 2 cards. 1 VP.	
 Card091	091	Gene Repair	Requires 3 science tags. Increase your M€ production 2 steps. 2 VPs.	
 Card092	092	Io Mining Industries	Increase your titanium production 2 steps and your M€ production 2 steps. 1 VP for each Jovian tag you have.	
-Card094	094	Mass Converter	Requires 5 science tags. Increase your energy production 6 steps.	Effect: When you play a space card, you pay 2 M€ less for it.
+Card094	094	Mass Converter	Requires 5 science tags. Increase your energy production 6 steps.	Effect: When you play a space tag, you pay 2 M€ less for it.
 Card095	095	Physics Complex	2 VPs for each science resource on this card.	Action: Spend 6 energy to add 1 science resource to this card.
 Card098	098	Tropical Resort	Decrease your heat production 2 steps and increase your M€ production 3 steps. 2 VPs.	
 Card099	099	Toll Station	Increase your M€ production 1 step for each space tag your opponents have.	

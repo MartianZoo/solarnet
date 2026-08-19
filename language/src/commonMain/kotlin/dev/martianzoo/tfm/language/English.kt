@@ -89,7 +89,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
     return listOfNotNull(actions, effects).joinToString(" / ")
   }
 
-  private fun describeOrNull(effect: Effect): String? = renderEndEffect(effect, describers)
+  private fun describeOrNull(effect: Effect): String? = renderEffect(effect, describers)
 
   private fun describeOrNull(
       actions: List<Action>,

@@ -182,6 +182,9 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(directGain = ComponentDescriber.DirectGain("Trade Fleet", 1)),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("End") to ComponentDescriber(endTrigger = true),
+        klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
+        klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
+        klass("Owed") to ComponentDescriber(owedPayment = true),
     )
   }
 
@@ -199,6 +202,8 @@ internal object TerraformingMarsDescribers {
           directGain = resolveFact(componentClass, ComponentDescriber::directGain),
           score = resolveFact(componentClass, ComponentDescriber::score),
           endTrigger = resolveFact(componentClass, ComponentDescriber::endTrigger),
+          playTrigger = resolveFact(componentClass, ComponentDescriber::playTrigger),
+          owedPayment = resolveFact(componentClass, ComponentDescriber::owedPayment),
       )
 
   private fun <T> resolveFact(

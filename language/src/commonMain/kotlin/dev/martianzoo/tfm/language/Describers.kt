@@ -4,6 +4,8 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -94,6 +96,37 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val target = cardGains.map { it.target }.distinct().singleOrNull() ?: return null
     val objects = englishAlternatives(cardGains.map { "${it.count} ${it.noun}" })
     return "add $objects to $target"
+  }
+
+  internal fun renderPlayTrigger(trigger: Trigger): String? {
+    val expression = (trigger as? OnGainOf)?.expression ?: return null
+    if (expression.refinement != null || expression.complement) return null
+    val played =
+        when (this[expression.className].playTrigger) {
+          ComponentDescriber.PlayTrigger.CARD -> {
+            if (!expression.simple) return null
+            "a card"
+          }
+          ComponentDescriber.PlayTrigger.TAG -> {
+            val tag = representedClass(expression) ?: return null
+            val (name) = tagName(tag.className) ?: return null
+            "${indefiniteArticle(name)} $name tag"
+          }
+          null -> return null
+        }
+    return "when you play $played"
+  }
+
+  internal fun renderOwedReduction(instruction: InstructionTree): String? {
+    val removal = instruction as? Remove ?: return null
+    if (removal.intensity != null && removal.intensity != MANDATORY) return null
+    val expression = removal.removing
+    if (expression.refinement != null || expression.complement) return null
+    if (this[expression.className].owedPayment != true) return null
+    val resource = representedClass(expression) ?: return null
+    val count = (removal.count as? ActualScalar)?.value ?: return null
+    val noun = standardResourceNoun(resource.className, count) ?: return null
+    return "you pay $count $noun less for it"
   }
 
   internal fun renderChange(instruction: Instruction, card: CardDefinition?): String? =
@@ -537,12 +570,27 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return expression.arguments.dropLast(1) to resource.className
   }
 
+  private fun representedClass(expression: Expression): Expression? {
+    if (expression.arguments.size != 1) return null
+    val classExpression = expression.arguments.single()
+    if (
+        classExpression.className != CLASS ||
+            classExpression.arguments.size != 1 ||
+            classExpression.refinement != null ||
+            classExpression.complement
+    ) {
+      return null
+    }
+    return classExpression.arguments.single().takeIf { it.simple }
+  }
+
   private fun concrete(className: ClassName): Boolean {
     val componentClass = classesByName[className] ?: return false
     return !componentClass.abstract
   }
 
-  private fun indefiniteArticle(noun: String): String = if (noun.first() in "aeiou") "an" else "a"
+  private fun indefiniteArticle(noun: String): String =
+      if (noun.first().lowercaseChar() in "aeiou") "an" else "a"
 
   private fun unCamelCase(name: String): String = buildString {
     name.forEachIndexed { index, character ->

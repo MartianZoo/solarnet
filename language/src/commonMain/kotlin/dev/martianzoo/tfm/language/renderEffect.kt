@@ -7,6 +7,19 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionTree
 
+internal fun renderEffect(effect: Effect, describers: Describers): String? =
+    if (isEndEffect(effect, describers)) {
+      renderEndEffect(effect, describers)
+    } else {
+      renderPaymentDiscount(effect, describers)
+    }
+
+private fun renderPaymentDiscount(effect: Effect, describers: Describers): String? {
+  val trigger = describers.renderPlayTrigger(effect.trigger) ?: return null
+  val reduction = describers.renderOwedReduction(effect.instruction) ?: return null
+  return "${trigger.replaceFirstChar(Char::uppercaseChar)}, $reduction."
+}
+
 internal fun renderEndEffect(effect: Effect, describers: Describers): String? {
   val condition =
       when (val trigger = effect.trigger) {
