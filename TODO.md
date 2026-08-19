@@ -111,6 +111,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Move the remaining component-specific requirement wording out of `renderRequirement.kt` and into
+  composable `ComponentDescriber` facts; unlike the corrected metric renderer, it still names
+  colony/city/ocean and global-parameter cases directly.
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.
