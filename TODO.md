@@ -111,6 +111,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Remove the remaining generated `in play` wording from any-player city-tile requirements and the
+  compound owned city-and-colony requirement. Solarnet components outside the game do not exist;
+  the published phrase is only an awkward proxy for ownership scope.
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.

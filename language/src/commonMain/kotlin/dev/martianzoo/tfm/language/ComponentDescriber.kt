@@ -41,17 +41,17 @@ internal data class ComponentDescriber(
       val plural: String,
       val consequence: String? = null,
       val allowsMultiple: Boolean = true,
-      val unqualifiedMetricScope: MetricScope? = null,
-      val anyoneMetricScope: MetricScope? = null,
+      val unqualifiedMetricOwner: MetricOwner? = null,
+      val anyoneMetricOwner: MetricOwner? = null,
   )
 
-  internal enum class MetricScope {
-    OWNED,
-    IN_PLAY,
+  internal enum class MetricOwner {
+    YOU,
+    ANY_PLAYER,
   }
 
   internal enum class Requirement {
-    CITY_TILES_IN_PLAY,
+    CITY_TILES,
     COLONIES,
     GREENERY_TILES,
     OCEAN_TILES,

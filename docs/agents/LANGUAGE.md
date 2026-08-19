@@ -121,7 +121,7 @@ effects are not yet structurally rendered, so they keep the whole top region dat
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
 concrete-tag requirements, same-category groups of one-count tags, minimum terraform-rating and
-owned-greenery requirements, minimum owned or in-play city tiles, compound owned city-and-colony
+owned-greenery requirements, minimum owned or any-player city tiles, compound owned city-and-colony
 requirements, and a requirement that the player have a standard-resource production.
 It also derives minimum concrete card-resource requirements and minimum and maximum owned-colony
 requirements. It derives bottom text when every
@@ -137,9 +137,12 @@ temperature, oxygen, Venus-step, or terraform-rating gain or removal. A producti
 target any player. A choice is derived when every alternative is one supported clause, including a
 choice among concrete production-change clauses. A supported single-clause instruction may be
 scaled by the number of a concrete tag or card resource the player owns, or by complete groups of
-that tag or resource. It may also be scaled by the player's colonies, by city tiles or colonies in
-play, or specifically by city tiles in play on Mars. One supported clause may be gated by a
-concrete minimum number of a tag the player owns.
+that tag or resource. It may also be scaled by the player's colonies, by city tiles or colonies
+owned by any player, or specifically by any player's city tiles on Mars. Ownership and location
+remain independent renderer facts. Because a component outside the game does not exist in
+Solarnet's model, generated metric phrases do not say `in play`; the published cards use that phrase
+to contrast any player's components with the acting player's own components. One supported clause
+may be gated by a concrete minimum number of a tag the player owns.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains
 coalesced into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or
@@ -152,6 +155,10 @@ whether the played card itself qualifies. This canonical wording replaces the da
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
 policy.
+
+The requirement renderer still emits the published `in play` wording for any-player city-tile
+requirements and for one compound owned-placement form. This is transitional wording, not a
+Solarnet existence state or scope; replace it in the next requirement-focused round.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps

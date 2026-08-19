@@ -103,10 +103,10 @@ internal object Describers {
     val expression = metric.expression
     val target = requirement.target
     return when (this[expression.className].requirement) {
-      ComponentDescriber.Requirement.CITY_TILES_IN_PLAY -> {
+      ComponentDescriber.Requirement.CITY_TILES -> {
         val tiles = "$target city ${if (target == 1) "tile" else "tiles"}"
         when {
-          inPlay(expression) -> "Requires $tiles in play."
+          ownedByAnyPlayer(expression) -> "Requires $tiles in play."
           expression.simple -> "Requires that you have $tiles."
           else -> null
         }
@@ -159,7 +159,7 @@ internal object Describers {
       ComponentDescriber.Requirement.TEMPERATURE ->
           "Temperature must be ${temperature(target)} or colder."
       ComponentDescriber.Requirement.VENUS_PERCENT -> "Venus must be ${target * 2}% or less."
-      ComponentDescriber.Requirement.CITY_TILES_IN_PLAY,
+      ComponentDescriber.Requirement.CITY_TILES,
       ComponentDescriber.Requirement.GREENERY_TILES,
       ComponentDescriber.Requirement.TERRAFORM_RATING,
       null -> null
@@ -388,25 +388,25 @@ internal object Describers {
   private fun placementCountPhrase(expression: Expression, count: Int): String? {
     if (expression.refinement != null || expression.complement) return null
     val placement = this[expression.className].placement ?: return null
-    val (scope, location) =
+    val (owner, location) =
         when {
-          expression.simple -> (placement.unqualifiedMetricScope ?: return null) to null
+          expression.simple -> (placement.unqualifiedMetricOwner ?: return null) to null
           expression.arguments == listOf(anyoneExpression) ->
-              (placement.anyoneMetricScope ?: return null) to null
+              (placement.anyoneMetricOwner ?: return null) to null
           expression.arguments.size == 2 && expression.arguments.last() == anyoneExpression -> {
             val location = expression.arguments.first()
             if (!location.simple) return null
-            (placement.anyoneMetricScope ?: return null) to
+            (placement.anyoneMetricOwner ?: return null) to
                 (this[location.className].metricLocation ?: return null)
           }
           else -> null
         } ?: return null
-    val scopePhrase =
-        when (scope) {
-          ComponentDescriber.MetricScope.OWNED -> "you own"
-          ComponentDescriber.MetricScope.IN_PLAY -> "in play"
+    val ownerPhrase =
+        when (owner) {
+          ComponentDescriber.MetricOwner.YOU -> " you own"
+          ComponentDescriber.MetricOwner.ANY_PLAYER -> ""
         }
-    return "${if (count == 1) placement.singular else placement.plural} $scopePhrase${location?.let { " $it" }.orEmpty()}"
+    return "${if (count == 1) placement.singular else placement.plural}$ownerPhrase${location?.let { " $it" }.orEmpty()}"
   }
 
   private fun renderProductionRequirement(minimum: Requirement.Min): String? {
@@ -459,7 +459,7 @@ internal object Describers {
           val metric = minimum.metric as? Metric.Count ?: return null
           if (!metric.expression.simple) return null
           when (this[metric.expression.className].requirement) {
-            ComponentDescriber.Requirement.CITY_TILES_IN_PLAY ->
+            ComponentDescriber.Requirement.CITY_TILES ->
                 "${minimum.target} city ${if (minimum.target == 1) "tile" else "tiles"}"
             ComponentDescriber.Requirement.COLONIES ->
                 "${minimum.target} ${if (minimum.target == 1) "colony" else "colonies"}"
@@ -533,7 +533,7 @@ internal object Describers {
     return expression.arguments.dropLast(1) to resource.className
   }
 
-  private fun inPlay(expression: Expression): Boolean =
+  private fun ownedByAnyPlayer(expression: Expression): Boolean =
       expression.arguments == listOf(anyoneExpression) &&
           expression.refinement == null &&
           !expression.complement
@@ -656,9 +656,9 @@ internal object Describers {
                         "a",
                         "city tile",
                         "city tiles",
-                        anyoneMetricScope = ComponentDescriber.MetricScope.IN_PLAY,
+                        anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
                     ),
-                requirement = ComponentDescriber.Requirement.CITY_TILES_IN_PLAY,
+                requirement = ComponentDescriber.Requirement.CITY_TILES,
             ),
         klass("Colony") to
             ComponentDescriber(
@@ -667,8 +667,8 @@ internal object Describers {
                         "a",
                         "colony",
                         "colonies",
-                        unqualifiedMetricScope = ComponentDescriber.MetricScope.OWNED,
-                        anyoneMetricScope = ComponentDescriber.MetricScope.IN_PLAY,
+                        unqualifiedMetricOwner = ComponentDescriber.MetricOwner.YOU,
+                        anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
                     ),
                 requirement = ComponentDescriber.Requirement.COLONIES,
             ),
