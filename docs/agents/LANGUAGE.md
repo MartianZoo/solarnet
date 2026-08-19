@@ -131,7 +131,8 @@ placement using the type's default arguments; one plain greenery-tile placement;
 mandatory
 temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
 target any player. A choice is derived when every alternative is one supported clause, including a
-choice among concrete production-change clauses.
+choice among concrete production-change clauses. A production increase may be scaled by the number
+of a concrete tag the player owns, or by complete groups of that tag.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
 into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
 VP for each simple tag the player owns, for each card resource on the scoring card, or for each

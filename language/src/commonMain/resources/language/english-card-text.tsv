@@ -304,7 +304,7 @@ Card226	226	Forced Precipitation		Action: Spend 2 M€ to add 1 floater to this 
 Card227	227	Freyja Biodomes	Requires Venus 10%. Add 2 microbes or 2 animals to ANOTHER VENUS CARD. Decrease your energy production 1 step, and increase your M€ production 2 steps. 2 VPs.	
 Card228	228	GHG Import From Venus	Raise Venus 1 step. Increase your heat production 3 steps.	
 Card229	229	Giant Solar Shade	Raise Venus 3 steps.	
-Card230	230	Gyropolis	Decrease your energy production 2 steps. Increase your M€ production 1 step for each Venus and Earth tag you have. Place a city tile.	
+Card230	230	Gyropolis	Decrease your energy production 2 steps. Increase your M€ production 1 step for each Venus tag you have. Increase your M€ production 1 step for each Earth tag you have. Place a city tile.	
 Card231	231	Hydrogen To Venus	Raise Venus 1 step. Add 1 floater to a VENUS CARD for each Jovian tag you have.	
 Card232	232	Io Sulphur Research	Draw 1 card, or draw 3 cards if you have at least 3 Venus tags. 2 VPs.	
 Card233	233	Ishtar Mining	Requires Venus 8%. Increase your titanium production 1 step.	
@@ -364,7 +364,7 @@ CardC18	C18	Jovian Lanterns	Requires a Jovian tag. Raise your terraform rating 1
 CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 1 floater to a JOVIAN CARD, or gain 1 M€ for every floater here (max 4).
 CardC20	C20	Luna Governor	Requires 3 Earth tags. Increase your M€ production 2 steps.	
 CardC21	C21	Lunar Exports	Increase your plant production 2 steps or increase your M€ production 5 steps.	
-CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have in play.	
+CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have.	
 CardC23	C23	Market Manipulation	Increase one colony tile track 1 step. Decrease another colony tile track 1 step.	
 CardC24	C24	Martian Zoo	Requires 2 city tiles in play. 1 VP.	Effect: When you play an Earth tag, add 1 animal to this card. / Action: Gain 1 M€ for each animal here.
 CardC25	C25	Mining Colony	Increase your titanium production 1 step. Place a colony.	

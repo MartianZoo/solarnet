@@ -27,6 +27,10 @@ private fun renderScoringCount(metric: Metric.Count): String? {
 
 private fun renderScaledScoringCount(metric: Metric.Scaled): String? {
   val count = metric.inner as? Metric.Count ?: return null
+  if (count.expression.simple) {
+    val (name) = tagName(count.expression.className) ?: return null
+    return "every ${metric.unit} $name tags you have"
+  }
   val resourceType = resourceOnThisCard(count) ?: return null
   return "every ${metric.unit} ${cardResourceNoun(resourceType, metric.unit)} on this card"
 }
