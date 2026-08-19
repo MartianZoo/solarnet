@@ -609,7 +609,7 @@
       "tags": [ "VenusTag", "ScienceTag", "AnimalTag" ],
       "resourceType": "Animal",
       "effects": [
-        "ScienceTag<CardFront>: Animal<This>",
+        "ScienceTag<>: Animal<This>",
         "End: VictoryPoint / Animal<This>"
       ],
     },

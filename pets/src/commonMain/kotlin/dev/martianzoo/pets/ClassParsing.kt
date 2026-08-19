@@ -111,8 +111,20 @@ internal object ClassParsing : PetTokenizer() {
           }
     }
 
+    private val triggerOnlyDefaults: Parser<DefaultsDeclaration> =
+        Expression.parser() and
+            skipChar(':') map
+            { expr ->
+              require(expr.refinement == null)
+              DefaultsDeclaration(
+                  triggerOnly = OneDefault(expr.arguments),
+                  forClass = expr.className,
+              )
+            }
+
     private val default: Parser<DefaultsDeclaration> =
-        skip(_default) and (gainOnlyDefaults or removeOnlyDefaults or allCasesDefault)
+        skip(_default) and
+            (gainOnlyDefaults or removeOnlyDefaults or triggerOnlyDefaults or allCasesDefault)
 
     private val property: Parser<Pair<PropertyName, PropertyValue>> =
         PropertyName.parser() and

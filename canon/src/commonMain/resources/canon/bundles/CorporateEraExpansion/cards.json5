@@ -258,7 +258,7 @@
       "cost": 8,
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag<CardFront>: (-ProjectCard THEN ProjectCard) OR Ok",
+        "ScienceTag<>: (-ProjectCard THEN ProjectCard) OR Ok",
         "End: VictoryPoint"
       ],
     },
@@ -652,7 +652,7 @@
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "resourceType": "Science",
       "effects": [
-        "ScienceTag<CardFront>: Science<This> OR (ProjectCard FROM Science<This>)",
+        "ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)",
         "End: VictoryPoint"
       ],
     },

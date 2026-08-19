@@ -261,6 +261,7 @@ internal class ClassDeclarationParsingTest {
         ABSTRACT CLASS Component {
            DEFAULT +Component!
            DEFAULT Component<Foo>
+           DEFAULT Component<Foo>:
 
            CLASS What   // comment
 

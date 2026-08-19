@@ -5,6 +5,7 @@ import dev.martianzoo.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_USAGES
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMOVE_ONLY
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.TRIGGER_ONLY
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -78,6 +79,7 @@ public data class ClassDeclaration(
       val universal: OneDefault = OneDefault(),
       val gainOnly: OneDefault = OneDefault(),
       val removeOnly: OneDefault = OneDefault(),
+      val triggerOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
     public data class OneDefault(
@@ -89,6 +91,7 @@ public data class ClassDeclaration(
       ALL_USAGES,
       GAIN_ONLY,
       REMOVE_ONLY,
+      TRIGGER_ONLY,
     }
 
     internal fun default(kind: DefaultKind) =
@@ -96,6 +99,7 @@ public data class ClassDeclaration(
           ALL_USAGES -> universal
           GAIN_ONLY -> gainOnly
           REMOVE_ONLY -> removeOnly
+          TRIGGER_ONLY -> triggerOnly
         }
 
     internal companion object {
@@ -104,6 +108,7 @@ public data class ClassDeclaration(
             universal = merge(defs.map { it.universal }),
             gainOnly = merge(defs.map { it.gainOnly }),
             removeOnly = merge(defs.map { it.removeOnly }),
+            triggerOnly = merge(defs.map { it.triggerOnly }),
             forClass = defs.mapNotNull { it.forClass }.singleOrNull(),
         )
       }
@@ -116,7 +121,7 @@ public data class ClassDeclaration(
     }
 
     internal val allNodes: Set<PetNode> =
-        listOf(universal, gainOnly, removeOnly).flatMap { it.specs }.toSet()
+        listOf(universal, gainOnly, removeOnly, triggerOnly).flatMap { it.specs }.toSet()
   }
 
   /**

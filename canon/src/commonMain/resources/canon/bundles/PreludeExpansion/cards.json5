@@ -16,7 +16,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "38, PROD[Titanium]",
-      "effects": [ "EarthTag<CardFront>: ProjectCard" ],
+      "effects": [ "EarthTag<>: ProjectCard" ],
     },
 
     // Robinson Industries

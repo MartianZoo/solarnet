@@ -173,8 +173,9 @@ each `NewTurn` in Action or Prelude and each action-phase `SecondAction`. The te
 the owner `Tag<This>?`, so a chosen wild meaning is an ordinary tag and participates in bare tag
 metrics and requirements.
 
-The holder distinction is also the trigger distinction. An effect that reacts only to printed tags
-must subscribe explicitly, for example `PlantTag<CardFront>:`. It will not see
+The holder distinction is also the trigger distinction. `Tag` has the trigger default
+`Tag<CardFront>:`, so an effect that reacts only to printed tags can explicitly accept it with
+`PlantTag<>:` or spell out `PlantTag<CardFront>:`. It will not see
 `PlantTag<WildTagUse<...>>`; there is no dispatch filter or special change kind. Refinements can
 follow the dependency graph when card identity matters. Robotic Workforce uses
 `CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
