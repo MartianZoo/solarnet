@@ -38,7 +38,7 @@ CardXC03F	XC3	Splice Tactical Genomics	Gain 44 M€. As your first action, draw 
 CardXC04F	XC4	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: Increase your energy production 1 step if you have no energy resources, or spend 3 M€ to draw a building card.
 CardXC05	XC5	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. All opponents decrease their M€ production 2 steps. This does not trigger the effect below.	Effect: When any player has their resources removed or production decreased by another player (including you), pay 3 M€ to the victim, or as much as possible.
 CardXC06	XC6	Philares	Gain 47 M€. As your first action, place a greenery tile (and raise oxygen 1 step).	Effect: Each new adjacency between your tile and an opponent's tile gives you a standard resource of your choice (regardless of who just placed a tile).
-CardXC07	XC7	AstroDrill	Gain 35 M€. Add 3 asteroid resources to this card.	Action: Either add 1 asteroid to ANY CARD or gain any standard resource, or remove 1 asteroid to gain 3 titanium.
+CardXC07	XC7	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Either add 1 asteroid to ANY CARD or gain any standard resource, or remove 1 asteroid to gain 3 titanium.
 CardXC08F	XC8	Pharmacy Union	Gain 54 M€. Draw a science card.	Effect: When ANY microbe tag is played, including these 2, add 1 disease to this card and lose 4 M€ or as much as possible. When you play a science tag, remove 1 disease and raise your TR 1 step, or, if there are no diseases here, you may raise your TR 3 steps and place this card in your event pile. It now counts as a played event.
 CardP01	P01	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.	
 CardP02	P02	Aquifer Turbines	Place an ocean tile. Increase your energy production 2 steps. Remove 3 M€.	
@@ -191,7 +191,7 @@ Card168	168	Windmills	Requires 7% oxygen. Increase your energy production 1 step
 Card169	169	Tundra Farming	Requires -6°C or warmer. Increase your plant production 1 step and your M€ production 2 steps. Gain 1 plant. 2 VPs.	
 Card170	170	Aerobraked Ammonia Asteroid	Add 2 microbes to ANOTHER card. Increase your heat production 3 steps and your plant production 1 step.	
 Card171	171	Magnetic Field Dome	Decrease your energy production 2 steps and increase your plant production 1 step. Raise your TR 1 step.	
-Card172	172	Pets	Add 1 animal to this card. 1 VP for every 2 animals here.	Effect: When any city tile is placed, add 1 animal to this card. Animals may not be removed from this card.
+Card172	172	Pets	Add 1 animal to this card. 1 VP for every 2 animals on this card.	Effect: When any city tile is placed, add 1 animal to this card. Animals may not be removed from this card.
 Card174	174	Protected Valley	Increase your M€ production 2 steps. Place a greenery tile ON AN AREA RESERVED FOR OCEAN (and raise oxygen 1 step), disregarding normal placement restrictions.	
 Card176	176	Noctis Farming	Requires -20°C or warmer. Increase your M€ production 1 step. Gain 2 plants. 1 VP.	
 Card177	177	Water Splitting Plant	Requires 2 ocean tiles.	Action: Spend 3 energy to raise oxygen 1 step.

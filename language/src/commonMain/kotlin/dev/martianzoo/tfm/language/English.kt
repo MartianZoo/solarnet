@@ -77,6 +77,7 @@ public object English {
         sentences +=
             derivedStandardResourceRemoval(instructions[index])
                 ?: derivedTradeFleetGain(instructions[index])
+                ?: derivedCardResourceGain(instructions[index])
                 ?: derivedProductionChange(instructions[index])
                 ?: derivedTrackChange(instructions[index])
                 ?: derivedTilePlacement(instructions[index])
@@ -108,6 +109,22 @@ public object English {
     val (className, count) = concreteMandatoryGain(instruction) ?: return null
     if (className != reserveTradeFleet || count != 1) return null
     return "Gain 1 Trade Fleet."
+  }
+
+  private fun derivedCardResourceGain(instruction: Instruction): String? {
+    val gain = instruction as? Gain ?: return null
+    if (gain.intensity != null && gain.intensity != MANDATORY) return null
+    val expression = gain.gaining
+    if (
+        expression.arguments != listOf(thisExpression) ||
+            expression.refinement != null ||
+            expression.complement
+    ) {
+      return null
+    }
+    val count = (gain.count as? ActualScalar)?.value ?: return null
+    val noun = cardResourceNoun(expression.className, count) ?: return null
+    return "Add $count $noun to this card."
   }
 
   private fun derivedProductionChange(instruction: Instruction): String? {
@@ -251,6 +268,7 @@ public object English {
   private val searchForLife = cn("Card005F")
   private val temperatureStep = cn("TemperatureStep")
   private val terraformRating = cn("TerraformRating")
+  private val thisExpression = cn("This").expression
   private val venusStep = cn("VenusStep")
 
   private data class ResourceProductionChange(
