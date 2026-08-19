@@ -66,7 +66,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
                 ?: renderCardResourceGain(instruction, card)
                 ?: renderTrackChange(instruction)
                 ?: renderPlacement(instruction)
-        is Remove -> renderStandardResourceRemoval(instruction) ?: renderTrackChange(instruction)
+        is Remove ->
+            renderStandardResourceRemoval(instruction)
+                ?: renderCardResourceRemoval(instruction)
+                ?: renderTrackChange(instruction)
         else -> null
       }
 
@@ -193,6 +196,12 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val gain = this[className].directGain ?: return null
     if (count != gain.count) return null
     return "gain $count ${gain.noun}"
+  }
+
+  private fun renderCardResourceRemoval(instruction: Instruction): String? {
+    val (className, count) = concreteMandatoryRemoval(instruction) ?: return null
+    val noun = cardResourceNoun(className, count) ?: return null
+    return "remove $count $noun"
   }
 
   private fun renderCardResourceGain(

@@ -48,6 +48,7 @@
       "projectKind": "EVENT",
       "cost": 0,
       "immediate": "-Floater, 5 Megacredit<Owner> FROM Megacredit<Anyone>?",
+      "immediateRegion": "SPLIT",
     },
 
     // Atmo Collectors

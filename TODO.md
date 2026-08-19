@@ -111,9 +111,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Represent the printed region for immediate instruction groups explicitly enough to distinguish
-  Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
-  (the whole immediate group below) before expanding English card-resource removal derivation.
 - Revisit a Pets-element English fallback table only after making every host context that affects
   wording explicit. Equal `InstructionTree`s currently inherit card-specific variants such as “including this” from the
   golden text, so either compute those variants from the host card or canonicalize the redundant

@@ -489,6 +489,7 @@
       "tags": [ "VenusTag", "AnimalTag" ],
       "resourceType": "Animal",
       "immediate": "-Floater",
+      "immediateRegion": "TOP",
       "actions": [ "-> Animal<This>" ],
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },

@@ -95,6 +95,9 @@ public class CardDefinition(data: CardData) : Definition {
         InstructionGroup.of(parseOwned<InstructionTree>(it))
       }
 
+  /** Where the card prints its immediate instruction relative to its artwork. */
+  public val immediateRegion: ImmediateRegion by data::immediateRegion
+
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
    * may not have these.
@@ -195,6 +198,13 @@ public class CardDefinition(data: CardData) : Definition {
     ACTIVE(ACTIVE_CARD),
   }
 
+  /** Printed region occupied by the card's immediate instruction. */
+  public enum class ImmediateRegion {
+    BOTTOM,
+    TOP,
+    SPLIT,
+  }
+
   /** The *raw* imported form of a [CardDefinition]; not really meant to be widely consumed. */
   @Serializable
   public data class CardData(
@@ -204,6 +214,7 @@ public class CardDefinition(data: CardData) : Definition {
       val setupRequirement: String? = null,
       val tags: List<String> = emptyList(),
       val immediate: String? = null,
+      val immediateRegion: ImmediateRegion = ImmediateRegion.BOTTOM,
       val actions: List<String> = emptyList(),
       val effects: List<String> = emptyList(),
       val resourceType: String? = null,
@@ -219,6 +230,7 @@ public class CardDefinition(data: CardData) : Definition {
       require(resourceType?.isNotEmpty() != false)
       require(requirement?.isNotEmpty() != false)
       require(cost >= 0)
+      if (immediate == null) require(immediateRegion == ImmediateRegion.BOTTOM)
 
       if (deck == "PROJECT") {
         require(projectKind != null)

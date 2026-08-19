@@ -124,7 +124,10 @@ Above the artwork, `English` now composes a card's action region from its `Actio
 has no immediate instruction or behavior-bearing extra declaration. It supports no-cost actions and
 actions that spend a concrete amount of one standard resource, provided the result uses the
 supported instruction shapes below. Multiple authored actions render as alternatives. Non-End
-effects are not yet structurally rendered, so they keep the whole top region data-backed.
+effects are not yet structurally rendered, so they keep the whole top region data-backed. An
+immediate group explicitly assigned to `TOP` may be composed before those actions; a bottom or
+split immediate still keeps the top region data-backed so this layout step does not implicitly
+expand the action-rendering boundary.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
@@ -139,8 +142,8 @@ resources from any player; a gain of one reserve Trade Fleet; a mandatory gain o
 concrete card resource on the played card, an unrestricted card, or a card narrowed to one concrete
 tag; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
-placement using the type's default arguments; one plain greenery-tile placement; or a concrete
-mandatory
+placement using the type's default arguments; one plain greenery-tile placement; a concrete
+mandatory removal of a concrete card resource; or a concrete mandatory
 temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
 target any player. A choice is derived when every alternative is one supported clause, including a
 choice among concrete production-change clauses. A supported single-clause instruction may be
@@ -162,7 +165,8 @@ A tag-narrowed card-resource destination renders as `a card with a <name> tag`, 
 whether the played card itself qualifies. This canonical wording replaces the data file's
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
-policy.
+policy. An unqualified card-resource removal says only `remove <count> <resource>`; naming an
+arbitrary source card adds no scope because card resources exist only on cards.
 
 Any-player city-tile requirements name the required tiles without `in play`; a compound owned
 city-and-colony requirement says that you have those components. Solarnet components outside the
@@ -186,11 +190,11 @@ Potatoes' plant removal and production increase are both immediate instructions 
 artwork. The former split across regions in the data file was a data error, not evidence that the
 layout facade must divide one immediate group.
 
-Stratospheric Birds has the opposite whole-group placement: its immediate floater removal is
-printed above the artwork beside its action, while its requirement and End scoring are below. The
-current `CardDefinition` has no layout fact that distinguishes this from an immediate group printed
-below. Do not infer the region from the instruction's resource type or from the presence of an
-action; represent the layout distinction explicitly before deriving this card's regions.
+`CardDefinition.immediateRegion` records whether an immediate group is printed above or below the
+artwork. Stratospheric Birds uses `TOP`, placing its immediate floater removal beside its action
+while its requirement and End scoring remain below. Air Raid uses `SPLIT`: its floater removal is
+above the artwork while its M€ transfer is below. A split group remains data-backed because the
+coarse region fact deliberately does not assign individual clauses to regions.
 
 Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
 Insurance shows why: its component declarations encode printed setup behavior that is absent from
