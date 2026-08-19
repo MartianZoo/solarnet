@@ -21,8 +21,7 @@ internal fun renderInstructionTree(
 internal fun renderInstructions(
     instructionTree: InstructionTree,
     card: CardDefinition? = null,
-): RenderedInstructions? =
-    renderLoweredInstructions(lowerProductionSyntax(instructionTree), card)
+): RenderedInstructions? = renderLoweredInstructions(lowerProductionSyntax(instructionTree), card)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,
@@ -39,9 +38,12 @@ private fun renderLoweredInstructions(
       index += gains.size
     } else if (productionChange(instructions[index]) != null) {
       val changes =
-          instructions.drop(index).takeWhile { productionChange(it) != null }.map {
-            checkNotNull(productionChange(it))
-          }
+          instructions
+              .drop(index)
+              .takeWhile { productionChange(it) != null }
+              .map {
+                checkNotNull(productionChange(it))
+              }
       clauses += renderProductionChanges(changes)
       index += changes.size
     } else {
@@ -157,8 +159,7 @@ private fun productionChange(instruction: Instruction): ResourceProductionChange
   val gaining = change is Gain
   if (!gaining && change !is Remove) return null
   val expression = change.gaining ?: change.removing ?: return null
-  val (ownerArguments, resourceClassName) =
-      standardResourceProduction(expression) ?: return null
+  val (ownerArguments, resourceClassName) = standardResourceProduction(expression) ?: return null
   val owner =
       when {
         ownerArguments.isEmpty() -> "your"

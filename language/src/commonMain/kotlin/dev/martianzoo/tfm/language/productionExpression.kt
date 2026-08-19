@@ -18,7 +18,9 @@ internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
 internal fun standardResourceProduction(
     expression: Expression,
 ): Pair<List<Expression>, ClassName>? {
-  if (expression.className != PRODUCTION || expression.refinement != null || expression.complement) {
+  if (
+      expression.className != PRODUCTION || expression.refinement != null || expression.complement
+  ) {
     return null
   }
   val resourceDependency = expression.arguments.lastOrNull() ?: return null

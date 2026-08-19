@@ -37,30 +37,31 @@ public object Prod {
       inProd: Boolean,
   ): PetTransformer =
       object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode {
-        val rewritten: PetNode =
-            when {
-              node is TransformNode<*> && node.transformKind == PROD -> {
-                if (inProd) throw PetSyntaxException("PROD boxes cannot be nested")
-                val inner =
-                    deprodifier(resourceClassNames, inProd = true)
-                        .transformWithoutKindCheck(node.extract())
-                if (inner == node.extract()) {
-                  throw PetSyntaxException("No standard resources found in PROD box: $inner")
+        override fun transformNode(node: PetNode): PetNode {
+          val rewritten: PetNode =
+              when {
+                node is TransformNode<*> && node.transformKind == PROD -> {
+                  if (inProd) throw PetSyntaxException("PROD boxes cannot be nested")
+                  val inner =
+                      deprodifier(resourceClassNames, inProd = true)
+                          .transformWithoutKindCheck(node.extract())
+                  if (inner == node.extract()) {
+                    throw PetSyntaxException("No standard resources found in PROD box: $inner")
+                  }
+                  inner
                 }
-                inner
+                inProd && node is Expression && node.className == CLASS -> node
+                inProd && node is Expression && node.className in resourceClassNames -> {
+                  // Production represents its resource kind with a Class dependency, so the
+                  // resource selector's refinement belongs on that represented class after
+                  // lowering.
+                  val resourceClass =
+                      node.className.classExpression().copy(refinement = node.refinement)
+                  PRODUCTION.of(node.arguments + resourceClass)
+                }
+                else -> transformChildren(node)
               }
-              inProd && node is Expression && node.className == CLASS -> node
-              inProd && node is Expression && node.className in resourceClassNames -> {
-                // Production represents its resource kind with a Class dependency, so the
-                // resource selector's refinement belongs on that represented class after lowering.
-                val resourceClass =
-                    node.className.classExpression().copy(refinement = node.refinement)
-                PRODUCTION.of(node.arguments + resourceClass)
-              }
-              else -> transformChildren(node)
-            }
-        return rewritten
+          return rewritten
+        }
       }
-    }
 }
