@@ -63,8 +63,15 @@ private fun renderMinimum(requirement: Requirement.Min): String? {
       if (!expression.simple) return null
       "Requires Venus ${target * 2}%."
     }
-    null -> renderTagRequirement(requirement)
+    null -> renderCardResourceRequirement(requirement) ?: renderTagRequirement(requirement)
   }
+}
+
+private fun renderCardResourceRequirement(requirement: Requirement.Min): String? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple) return null
+  val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
+  return "Requires that you have ${requirement.target} $noun."
 }
 
 private fun renderMaximum(requirement: Requirement.Max): String? {

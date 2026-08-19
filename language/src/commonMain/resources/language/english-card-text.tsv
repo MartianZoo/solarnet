@@ -343,7 +343,7 @@ CardP39	P39	Psychrophiles	Temperature must be -20°C or colder.	Action: Add 1 mi
 CardP40	P40	Research Coordination	After being played, when you perform an action, the wild tag counts as any tag of your choice.	
 CardP41	P41	SF Memorial	Draw 1 card.	
 CardP42	P42	Space Hotels	Requires 2 Earth tags. Increase your M€ production 4 steps.	
-CardC01	C01	Airliners	Requires that you have 3 floaters. Increase your M€ production 2 steps. Add 2 floaters to ANOTHER card.	
+CardC01	C01	Airliners	Requires that you have 3 floaters. Increase your M€ production 2 steps. Add 2 floaters to ANOTHER card. 1 VP.	
 CardC02	C02	Air Raid	Steal up to 5 M€ from any player.	Remove 1 floater.
 CardC03	C03	Atmo Collectors	Add 2 floaters to ANY card.	Action: Add 1 floater to this card, or remove 1 floater to gain 2 titanium, or 3 energy, or 4 heat.
 CardC04	C04	Community Services	Increase your M€ production 1 step for each card with no tags, including this.	
