@@ -107,6 +107,9 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   not game facts: establish all setup, chronology, values, and reconciliations from original sources.
 - For a herokuapp archive, read `docs/agents/HEROKUAPP_GAME_LOGS.md` before implementation. Its API,
   payment-reconstruction, screenshot, counterfactual, and endgame rules supplement this section.
+- For a recorded physical game, read `docs/agents/OTB_GAME_RECORDS.md` before implementation. Its
+  source-preservation, mixed-evidence, photograph, reconciliation, and endgame rules supplement this
+  section.
 - Do not inspect an existing dated fixture, Git history, or previous agent summary to learn what
   happened when the task calls for an independent reconstruction. Repository code and other fixtures
   may teach the Solarnet API only.

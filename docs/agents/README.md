@@ -22,7 +22,8 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Authorities, Modules, configuration, and premises | [OPTIONS.md](OPTIONS.md) | Current model |
 | Task ordering, completion, `THEN`, automatic effects, and barriers | [SEQUENCING.md](SEQUENCING.md) | Working rules and audit |
 | Commands and test design | [TESTING.md](TESTING.md) | Current procedure |
-| Reconstructing supplied game logs | [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md) | Current procedure |
+| Reconstructing herokuapp game logs | [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md) | Current procedure |
+| Reconstructing recorded physical games | [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md) | Current procedure |
 | Class Names, display names, and vocabulary | [NAMING.md](NAMING.md) | Current model |
 | Canonical definition identifiers | [IDENTIFIERS.md](IDENTIFIERS.md) | Current convention and audit |
 | English card-text derivation | [LANGUAGE.md](LANGUAGE.md) | Working rules |
