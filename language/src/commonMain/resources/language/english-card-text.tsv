@@ -81,9 +81,9 @@ Card004	004	Cloud Seeding	Requires 3 ocean tiles. Decrease your M€ production 
 Card005F	005	Search For Life	Oxygen must be 6% or less. 3 VPs if you have one or more science resources here.	Action: Spend 1 M€ to reveal and discard the top card of the draw deck. If that card has a microbe tag, add 1 science resource to this card.
 Card007	007	Martian Rails		Action: Spend 1 energy to gain 1 M€ for each city tile in play ON MARS.
 Card008	008	Capital	Requires 4 ocean tiles. Place this city tile. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP for each ocean tile adjacent to this city tile.	
-Card009	009	Asteroid	Raise temperature 1 step and gain 2 titanium. Remove up to 3 plants from any player.	
-Card010	010	Comet	Raise temperature 1 step and place an ocean tile. Remove up to 3 plants from any player.	
-Card011	011	Big Asteroid	Raise temperature 2 steps and gain 4 titanium. Remove up to 4 plants from any player.	
+Card009	009	Asteroid	Raise temperature 1 step. Gain 2 titanium. Remove up to 3 plants from any player.	
+Card010	010	Comet	Raise temperature 1 step. Place an ocean tile. Remove up to 3 plants from any player.	
+Card011	011	Big Asteroid	Raise temperature 2 steps. Gain 4 titanium. Remove up to 4 plants from any player.	
 Card012	012	Water Import From Europa	1 VP for each Jovian tag you have.	Action: Spend 12 M€ to place an ocean tile. Titanium may be used.
 Card015	015	Equatorial Magnetizer		Action: Decrease your energy production 1 step to raise your TR 1 step.
 Card016	016	Domed Crater	Oxygen must be 7% or less. Gain 3 plants. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps. 1 VP.	
@@ -106,7 +106,7 @@ Card035	035	Ants	Requires 4% oxygen. 1 VP for every 2 microbes on this card.	Act
 Card036	036	Release Of Inert Gases	Raise your TR 2 steps.	
 Card037	037	Nitrogen-Rich Asteroid	Raise your TR 2 steps and raise temperature 1 step. Increase your plant production 1 step, or 4 steps if you have 3 plant tags.	
 Card038	038	Rover Construction	1 VP.	Effect: When any city tile is placed, gain 2 M€.
-Card039	039	Deimos Down	Raise temperature 3 steps and gain 4 steel. Remove up to 8 plants from any player.	
+Card039	039	Deimos Down	Raise temperature 3 steps. Gain 4 steel. Remove up to 8 plants from any player.	
 Card040	040	Asteroid Mining	Increase your titanium production 2 steps. 2 VPs.	
 Card041	041	Food Factory	Decrease your plant production 1 step and increase your M€ production 4 steps. 1 VP.	
 Card042	042	Archaebacteria	Temperature must be -18°C or colder. Increase your plant production 1 step.	
@@ -129,7 +129,7 @@ Card075	075	Towing A Comet	Gain 2 plants. Raise oxygen 1 step. Place an ocean ti
 Card076	076	Space Mirrors		Action: Spend 7 M€ to increase your energy production 1 step.
 Card077	077	Solar Wind Power	Increase your energy production 1 step. Gain 2 titanium.	
 Card078	078	Ice Asteroid	Place 2 ocean tiles.	
-Card080	080	Giant Ice Asteroid	Raise temperature 2 steps and place 2 ocean tiles. Remove up to 6 plants from any player.	
+Card080	080	Giant Ice Asteroid	Raise temperature 2 steps. Place 2 ocean tiles. Remove up to 6 plants from any player.	
 Card081	081	Ganymede Colony	Place a city tile ON THE RESERVED AREA. 1 VP for each Jovian tag you have.	
 Card083	083	Giant Space Mirror	Increase your energy production 3 steps.	
 Card087	087	Grass	Requires -16°C or warmer. Increase your plant production 1 step. Gain 3 plants.	

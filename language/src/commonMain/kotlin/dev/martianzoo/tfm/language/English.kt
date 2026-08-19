@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -90,8 +91,12 @@ public object English {
   }
 
   private fun derivedStandardResourceRemoval(instruction: Instruction): String? {
-    val (className, count) = standardResourceRemoval(instruction) ?: return null
-    return "Remove $count ${componentNoun(className, count)}."
+    standardResourceRemoval(instruction)?.let { (className, count) ->
+      return "Remove $count ${componentNoun(className, count)}."
+    }
+    val removal = standardResourceRemovalFromAnyPlayer(instruction) ?: return null
+    if (removal.intensity != OPTIONAL) return null
+    return "Remove up to ${removal.count} ${componentNoun(removal.className, removal.count)} from any player."
   }
 
   private fun derivedTradeFleetGain(instruction: Instruction): String? {
@@ -122,8 +127,9 @@ public object English {
     standardResourceRemoval(instruction)?.let { (className, count) ->
       return ResourceProductionChange(false, "your", className, count)
     }
-    standardResourceRemovalFromAnyPlayer(instruction)?.let { (className, count) ->
-      return ResourceProductionChange(false, "any player's", className, count)
+    standardResourceRemovalFromAnyPlayer(instruction)?.let { removal ->
+      if (removal.intensity != null && removal.intensity != MANDATORY) return null
+      return ResourceProductionChange(false, "any player's", removal.className, removal.count)
     }
     return null
   }
@@ -207,15 +213,14 @@ public object English {
 
   private fun standardResourceRemovalFromAnyPlayer(
       instruction: Instruction
-  ): Pair<ClassName, Int>? {
+  ): TargetedResourceRemoval? {
     val removal = instruction as? Remove ?: return null
-    if (removal.intensity != null && removal.intensity != MANDATORY) return null
     val expression = removal.removing
     if (expression.complement || expression.refinement != null) return null
     if (expression.arguments != listOf(anyoneExpression)) return null
     if (!isStandardResource(expression.className)) return null
     val count = (removal.count as? ActualScalar)?.value ?: return null
-    return expression.className to count
+    return TargetedResourceRemoval(expression.className, count, removal.intensity)
   }
 
   private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
@@ -259,5 +264,11 @@ public object English {
       val owner: String,
       val className: ClassName,
       val count: Int,
+  )
+
+  private data class TargetedResourceRemoval(
+      val className: ClassName,
+      val count: Int,
+      val intensity: Instruction.Intensity?,
   )
 }

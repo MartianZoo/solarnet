@@ -82,7 +82,8 @@ minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, pl
 requirements, same-category groups of one-count tags, minimum TR and owned-greenery requirements, and
 a requirement that the player have a standard-resource production. It also derives a minimum colony
 requirement. It derives bottom text when every immediate instruction is one of: a concrete mandatory
-gain or removal of a standard resource; a gain of one reserve Trade Fleet; a group of concrete
+gain or removal of a standard resource; an optional removal of up to a concrete number of standard
+resources from any player; a gain of one reserve Trade Fleet; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
 placement; one plain greenery-tile placement; or a concrete mandatory
 temperature, oxygen, Venus-step, or TR gain or removal. A production decrease may target any player.
