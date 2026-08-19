@@ -140,6 +140,59 @@ topology and Player control-until-drain belong to [WORKFLOW.md](WORKFLOW.md), no
 Creating work only after the entire World task pool drains is another distinct need; the
 exploratory [world-idle signal](#world-idle-continuations-exploratory) below considers it separately.
 
+## Model before-trigger effects with a committed precursor
+
+Some rules must modify an operation before the component that normally announces its result exists.
+A discount cannot wait for the card's real Tag, and Trade Envoys cannot wait for the fleet to have
+already flown. Canon currently handles these cases by exposing an earlier Signal that effects can
+subscribe to. Creating that precursor is not a prediction that the later component might appear: a
+successful encompassing operation is committed to creating it. If the later mandatory work reaches
+a dead end, rollback removes the precursor and all of its consequences too.
+
+Call this a **committed precursor**, or informally a pre-trigger. For precursor P and result A:
+
+- create P only after the Player has selected the operation that entails A;
+- make every producer of P force the corresponding A before the operation can commit;
+- preserve the owner, selected Type, and multiplicity needed to relate P to A;
+- put on P only effects that must distinguish or modify the operation before A exists; ordinary
+  reactions should still subscribe to A; and
+- establish P-before-A with the ordinary mechanisms in this document. Being a Signal does not
+  itself provide sequencing or completion semantics.
+
+The distinction between P and A is permanent conceptual cost. It is justified when A is genuinely
+too late, or when A alone cannot distinguish how it was obtained. It is not justified merely to give
+some reactions priority. Never let P degrade into a notification that callers may emit without
+performing A, or duplicate all A reactions onto both types.
+
+Current strong examples are:
+
+- `PlayTag<Class<Tag>>` precedes the corresponding real Tag. Card play creates one `PlayTag` per
+  printed tag before payment settles; discounts and alternative payment effects subscribe there.
+  Successful card entry then creates the card's real Tags automatically with their printed
+  multiplicity.
+- `Trade<ColonyTile>` precedes `FlownTradeFleet<ColonyTile>`. Trade Envoys and Trading Colony
+  subscribe to `Trade`, establish a `TradeBarrier`, and finish their optional track decision before
+  the already-selected fleet movement can occur.
+- `PlayCard<Class<CardBack>, Class<CardFront>>` is the broader precursor to moving that selected
+  card into its `CardFront` state. Card-wide discounts and next-card effects modify `Owed` from this
+  signal; gated card entry is mandatory in every successful play operation.
+
+Two related families should not be described more strongly than the implementation supports:
+
+- `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
+  Docks use the numbered Trade action signals to supply the selected payment resource. This is
+  generic action dispatch, however, not a promise of one uniform later component Type.
+- `BuyCard` distinguishes a purchase from any other `ProjectCard` gain, allowing Polyphemos and
+  Terralabs Research to change the purchase cost. Its intrinsic cost and card gain are queued
+  together, so it promises both in a successful operation but does not currently prove a strict
+  cost-before-`ProjectCard` observation boundary.
+
+`Pay` is a transaction marker created in the same `FROM` instruction that removes the resource,
+not an earlier promise of a later removal. `FirstPlayerOcean`, `WorldGovernmentTerraforming`,
+`ResetColonyProduction`, and the colony-bonus Signals have the request/continuation shape but no
+current subscribers that need a before-A modification. `Accept` is not a committed precursor at
+all: it exposes an optional payment choice.
+
 ## Use automatic effects to preserve player-visible invariants
 
 For one concrete change, the engine recursively executes all matching automatic effects before
@@ -426,16 +479,18 @@ For a new A-before-B claim:
 1. Identify the illegal committed result or rules violation that would occur without the ordering.
    If the only consequence is a recoverable dead end, preserve the freedom and rely on rollback.
 2. Record authoritative wording and the smallest observable counterexample.
-3. Ask whether A or the ambient rule owner should trigger B, possibly with `IF`.
-4. If A-without-B is not a coherent state to expose and B is choice-free, use automatic `A:: B`;
+3. If an effect must modify A before A exists, ask whether a committed precursor P can honestly
+   promise A; audit every producer of P and keep ordinary after-A reactions on A.
+4. Ask whether A or the ambient rule owner should trigger B, possibly with `IF`.
+5. If A-without-B is not a coherent state to expose and B is choice-free, use automatic `A:: B`;
    otherwise prefer queued `A: B`.
-5. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
-6. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is genuinely
+6. If only certain authored A sources need B, ask whether each source owns `A THEN B`.
+7. If `THEN` exists for Type linkage, verify that A naturally owns the choice and B is genuinely
    derived from it; do not mistake that local artificial order for broader game precedence.
-7. Otherwise classify the required boundary: a local condition calls for a barrier, the entire
+8. Otherwise classify the required boundary: a local condition calls for a barrier, the entire
    World task pool calls for global idle settlement, and one delegated descendant tree calls for a
    control scope. Do not approximate one with a broader boundary merely because it exists today.
-8. Use only a committed mechanism; leave the case open when it requires an exploratory completion
+9. Use only a committed mechanism; leave the case open when it requires an exploratory completion
    rule.
-9. Add a precedence test and, when relevant, a freedom test.
-10. Classify the result above and update `TODO.md` if work remains.
+10. Add a precedence test and, when relevant, a freedom test.
+11. Classify the result above and update `TODO.md` if work remains.
