@@ -160,6 +160,12 @@ Potatoes' plant removal and production increase are both immediate instructions 
 artwork. The former split across regions in the data file was a data error, not evidence that the
 layout facade must divide one immediate group.
 
+Stratospheric Birds has the opposite whole-group placement: its immediate floater removal is
+printed above the artwork beside its action, while its requirement and End scoring are below. The
+current `CardDefinition` has no layout fact that distinguishes this from an immediate group printed
+below. Do not infer the region from the instruction's resource type or from the presence of an
+action; represent the layout distinction explicitly before deriving this card's regions.
+
 Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
 Insurance shows why: its component declarations encode printed setup behavior that is absent from
 `immediate`. Likewise,
