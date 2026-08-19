@@ -31,7 +31,7 @@ class PsychrophilesTest : CardTest() {
   fun `with a microbe, plays a plant-tag card using Psychrophiles`() {
     p1.manual("$Psychrophiles, Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 7) {
-          doTask("-Microbe<$Psychrophiles>! THEN -2 Owed.")
+          doTask("-Microbe<$Psychrophiles>! THEN -2 Owed<Class<Megacredit>>.")
         }
         .expect("-Microbe<$Psychrophiles>, PROD[Plant]")
   }
@@ -40,7 +40,7 @@ class PsychrophilesTest : CardTest() {
   fun `with five microbes, plays a nine-cost card using Psychrophiles`() {
     p1.manual("$Psychrophiles, 5 Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 0) {
-          doTask("-5 Microbe<$Psychrophiles>! THEN -10 Owed.")
+          doTask("-5 Microbe<$Psychrophiles>! THEN -10 Owed<Class<Megacredit>>.")
         }
         .expect("-5 Microbe<$Psychrophiles>, PROD[Plant]")
   }

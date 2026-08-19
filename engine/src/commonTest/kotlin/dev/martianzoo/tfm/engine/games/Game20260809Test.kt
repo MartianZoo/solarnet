@@ -1110,7 +1110,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "Maxwell Edison... I'm sorry, Maxwell Base, costs all 16 money that I have."
     // "It gives me a negative energy production, taking me down to four."
     // "And I place a shitty tile on the Maxwell Base space area and put a delegate on it."
-    dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile") }
+    dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile<>") }
 
     // (8:12 pm) "I raise the temperature to −8°C with eight heat. I get a TR."
     ellie.turn { stdAction("ConvertHeatSA").expect("TR") }

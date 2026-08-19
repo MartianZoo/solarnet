@@ -173,7 +173,7 @@ Defaults preserve omitted physical-game context:
 ```pets
 DEFAULT Owned<Owner>
 DEFAULT +OceanTile<WaterArea>
-DEFAULT -Owed<Class<Megacredit>>.
+DEFAULT -Required.
 ```
 
 They supply omitted dependency bounds and, for gains/removals, a Quantifier. They change how an
@@ -185,6 +185,12 @@ narrowing; Quantifiers must agree.
 
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
+
+A gain or removal that would receive dependency bounds from its use-specific default cannot leave
+its argument list implicit. It must supply at least one argument or write an empty list such as
+`GreeneryTile<>` to explicitly accept those bounds. The gain and removal halves of `A FROM B` are
+checked independently. This rule does not apply to all-use dependency defaults or to Quantifier
+defaults; `<>` has the same Type meaning as a bare expression after defaults are inserted.
 
 ## 5a. Class properties
 

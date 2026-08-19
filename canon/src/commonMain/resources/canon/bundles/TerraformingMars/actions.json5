@@ -24,7 +24,7 @@
     },
 
     // Convert plants
-    { "id": "ConvertPlantsSA", "action": "8 Plant -> GreeneryTile" },
+    { "id": "ConvertPlantsSA", "action": "8 Plant -> GreeneryTile<>" },
 
     // Convert heat
     { "id": "ConvertHeatSA", "action": "8 Heat -> TemperatureStep" },

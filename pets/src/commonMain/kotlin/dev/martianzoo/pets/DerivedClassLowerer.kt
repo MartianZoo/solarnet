@@ -46,7 +46,13 @@ internal class DerivedClassLowerer(private val owner: ClassName) : PetTransforme
         )
     val declaration = body.asDerivedDeclaration(generated, supertype)
     declarationsByBase[base] = transformDeclaration(declaration)
-    return Expression(generated, loweredArguments, loweredRefinement, node.complement)
+    return Expression(
+        generated,
+        loweredArguments,
+        loweredRefinement,
+        node.complement,
+        node.argumentsSpecified,
+    )
   }
 
   private fun withoutRefinements(expression: Expression): Expression =

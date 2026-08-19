@@ -18,6 +18,7 @@ internal class ExpressionTest {
   fun simpleSourceToApi() {
     val foo = te("Foo")
     foo shouldBe cn("Foo").expression
+    te("Foo<>").argumentsSpecified shouldBe true
   }
 
   @Test
@@ -28,6 +29,7 @@ internal class ExpressionTest {
   @Test
   fun simpleRoundTrips() {
     testRoundTrip("Foo")
+    testRoundTrip("Foo<>")
     testRoundTrip("Foo<Bar>")
     testRoundTrip("Foo<Bar, Baz>")
     testRoundTrip("Foo<Bar<Qux>, Baz>")

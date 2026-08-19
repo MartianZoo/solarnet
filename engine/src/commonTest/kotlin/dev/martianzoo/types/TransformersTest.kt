@@ -1,6 +1,7 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions.KindException
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
@@ -31,11 +32,11 @@ class TransformersTest {
     checkApplyDefaults("Heat", "Heat<Owner>!")
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
-    checkApplyDefaults("OceanTile", "OceanTile<WaterArea>.")
-    checkApplyDefaults("Card142_SpecialTile", "Card142_SpecialTile<Owner>!")
+    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea>.")
+    checkApplyDefaults("Card142_SpecialTile<>", "Card142_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
-        "CityTile",
+        "CityTile<>",
         "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
     )
     checkApplyDefaults("-CityTile", "-CityTile<Owner>!")
@@ -58,22 +59,32 @@ class TransformersTest {
         "LandArea(HAS Neighbor<OwnedTile<Owner>>)!",
     )
     checkApplyDefaults(
-        "GreeneryTile",
+        "GreeneryTile<>",
         "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>, MAX 0 Tile), Owner>!",
     )
 
     checkApplyDefaults(
-        "Heat FROM Owed!",
+        "Heat FROM Owed<Class<Megacredit>>!",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
     checkApplyDefaults(
-        "Heat FROM Owed.",
+        "Heat FROM Owed<Class<Megacredit>>.",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>.",
     )
     checkApplyDefaults(
-        "Heat FROM Owed",
+        "Heat FROM Owed<Class<Megacredit>>",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
+    checkApplyDefaults("Owed", "Owed<Owner>!")
+    checkApplyDefaults("-Owed", "-Owed<Owner>.")
+  }
+
+  @Test
+  fun dependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
+    shouldThrow<PetSyntaxException> { applyDefaults("OceanTile") }.message shouldBe
+        "`OceanTile` has gain dependency defaults; write `OceanTile<>` to accept them or provide dependency arguments"
+    checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
+    checkApplyDefaults("-OceanTile", "-OceanTile.")
   }
 
   private companion object {

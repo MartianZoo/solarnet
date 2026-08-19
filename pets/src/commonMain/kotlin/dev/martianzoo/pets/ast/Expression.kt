@@ -31,6 +31,8 @@ public data class Expression(
     val arguments: List<Expression> = emptyList(),
     val refinement: Refinement? = null,
     val complement: Boolean = false,
+    /** Whether the source wrote angle brackets, including an explicit empty `<>`. */
+    val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 ) : PetElement(), HasClassName, HasExpression {
 
   internal var derivedClassBody: ClassParsing.Body? = null
@@ -72,17 +74,22 @@ public data class Expression(
   override fun toString(): String = buildString {
     if (complement) append("!")
     append(className)
-    if (arguments.isNotEmpty()) append(arguments.joinToString(", ", "<", ">"))
+    if (argumentsSpecified) append(arguments.joinToString(", ", "<", ">"))
     refinement?.let { append("($it)") }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
-  val simple: Boolean = !complement && arguments.isEmpty() && refinement == null
+  val simple: Boolean =
+      !complement && arguments.isEmpty() && refinement == null && !argumentsSpecified
 
   public fun appendArguments(moreArgs: List<Expression>): Expression =
       replaceArguments(arguments + moreArgs)
 
-  internal fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
+  internal fun replaceArguments(newArgs: List<Expression>): Expression =
+      copy(
+          arguments = newArgs,
+          argumentsSpecified = argumentsSpecified || newArgs.isNotEmpty(),
+      )
 
   internal fun uncomplemented(): Expression = copy(complement = false)
 
@@ -125,7 +132,9 @@ public data class Expression(
     fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
       return parser {
         val argumentList =
-            skipChar('<') and commaSeparated(parser(allowDerivedClass)) and skipChar('>')
+            skipChar('<') and
+                optionalList(commaSeparated(parser(allowDerivedClass))) and
+                skipChar('>')
         val refinement: Parser<Refinement> =
             group(skip(_has) and isPresent(char('?')) and Requirement.parser()) map
                 { (a, b) ->
@@ -135,21 +144,21 @@ public data class Expression(
         if (allowDerivedClass) {
           isPresent(char('!')) and
               ClassName.parser() and
-              optionalList(argumentList) and
+              optional(argumentList) and
               optional(refinement) and
               optional(ClassParsing.Declarations.derivedClassBody) map
               { (not, clazz, args, ref, body) ->
-                Expression(clazz, args, ref, not).let {
+                Expression(clazz, args.orEmpty(), ref, not, args != null).let {
                   if (body == null) it else it.withDerivedClassBody(body)
                 }
               }
         } else {
           isPresent(char('!')) and
               ClassName.parser() and
-              optionalList(argumentList) and
+              optional(argumentList) and
               optional(refinement) map
               { (not, clazz, args, ref) ->
-                Expression(clazz, args, ref, not)
+                Expression(clazz, args.orEmpty(), ref, not, args != null)
               }
         }
       }

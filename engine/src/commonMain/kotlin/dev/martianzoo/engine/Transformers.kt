@@ -293,6 +293,7 @@ public class Transformers(public val classTable: ClassTable) {
           node // don't descend
         } else {
           val spec: DefaultSpec = extractor(classTable.getClass(original.className).defaults)
+          requireExplicitDependencyDefaults(original, spec, node is Gain)
           val fixed =
               insertDefaultsIntoExpr(
                   original,
@@ -306,8 +307,8 @@ public class Transformers(public val classTable: ClassTable) {
       }
 
       private fun handleTransmute(node: Transmute): Transmute {
-        val gainDefault = defaultFor(node.gaining) { it.gainOnly }
-        val removeDefault = defaultFor(node.removing) { it.removeOnly }
+        val gainDefault = defaultFor(node.gaining, { it.gainOnly }, gain = true)
+        val removeDefault = defaultFor(node.removing, { it.removeOnly }, gain = false)
         val intensity =
             node.intensity ?: intersectIntensities(gainDefault?.intensity, removeDefault?.intensity)
 
@@ -324,9 +325,31 @@ public class Transformers(public val classTable: ClassTable) {
       private fun defaultFor(
           expression: Expression,
           extractor: (Defaults) -> DefaultSpec,
-      ): DefaultSpec? =
-          if (leaveItAlone(expression)) null
-          else extractor(classTable.getClass(expression.className).defaults)
+          gain: Boolean,
+      ): DefaultSpec? {
+        if (leaveItAlone(expression)) return null
+        val default = extractor(classTable.getClass(expression.className).defaults)
+        requireExplicitDependencyDefaults(expression, default, gain)
+        return default
+      }
+
+      private fun requireExplicitDependencyDefaults(
+          expression: Expression,
+          default: DefaultSpec,
+          gain: Boolean,
+      ) {
+        if (
+            default.dependencies.keys.isNotEmpty() &&
+                expression.arguments.isEmpty() &&
+                !expression.argumentsSpecified
+        ) {
+          val kind = if (gain) "gain" else "removal"
+          throw PetSyntaxException(
+              "`${expression.className}` has $kind dependency defaults; write " +
+                  "`${expression.className}<>` to accept them or provide dependency arguments"
+          )
+        }
+      }
 
       private fun applyDefault(
           expression: Expression,
@@ -417,11 +440,16 @@ public class Transformers(public val classTable: ClassTable) {
           preferred[it] ?: fallbacks[it]?.takeUnless { _ -> it in inferred }
         }
 
-    return original.copy(arguments = newArgs).also {
-      require(it.className == original.className)
-      require(it.refinement == original.refinement)
-      require(it.arguments.containsAll(original.arguments))
-    }
+    return original
+        .copy(
+            arguments = newArgs,
+            argumentsSpecified = original.argumentsSpecified || newArgs.isNotEmpty(),
+        )
+        .also {
+          require(it.className == original.className)
+          require(it.refinement == original.refinement)
+          require(it.arguments.containsAll(original.arguments))
+        }
   }
 
   internal fun substituter(general: Type, specific: Type): PetTransformer {

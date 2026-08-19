@@ -194,6 +194,7 @@ public abstract class PetTransformer protected constructor() {
               expressions(node.arguments),
               node.refinement?.let(::transformRefinement),
               node.complement,
+              node.argumentsSpecified,
           )
       is ScaledExpression ->
           scaledEx(transformExpression(node.expression), transformScalar(node.scalar))

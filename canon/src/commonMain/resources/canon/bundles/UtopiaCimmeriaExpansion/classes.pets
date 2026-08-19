@@ -6,5 +6,5 @@ CLASS TerraCimmeriaMapOption : Module
 
 "Terra Cimmeria's MSL Curiosity placement bonus; its colony branch exists only with Colonies"
 CLASS TcColonyBonus : Signal {
-  This IF Class<ColoniesExpansion>: Colony, -5
+  This IF Class<ColoniesExpansion>: Colony<>, -5
 }

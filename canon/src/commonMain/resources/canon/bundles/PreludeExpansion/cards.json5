@@ -7,7 +7,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "44, PROD[3]",
-      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed" ],
+      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed<Class<Megacredit>>" ],
     },
 
     // Point Luna
@@ -34,7 +34,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "37, Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }",
-      "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
+      "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<Class<Megacredit>>" ],
     },
 
     // Vitor
@@ -64,7 +64,7 @@
       "id": "P02",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "OceanTile, PROD[2 Energy], -3",
+      "immediate": "OceanTile<>, PROD[2 Energy], -3",
     },
 
     // Biofuels
@@ -119,7 +119,7 @@
       "id": "P09",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "CityTile, PROD[Plant]",
+      "immediate": "CityTile<>, PROD[Plant]",
     },
 
     // Ecology Experts
@@ -134,7 +134,7 @@
     {
       "id": "P11",
       "deck": "PRELUDE",
-      "immediate": "PlayCard THEN -25 Owed.",
+      "immediate": "PlayCard THEN -25 Owed<Class<Megacredit>>.",
     },
 
     // Experimental Forest[F]
@@ -142,7 +142,7 @@
       "id": "P12F",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "GreeneryTile, 2 ProjectCard",
+      "immediate": "GreeneryTile<>, 2 ProjectCard",
     },
 
     // Galilean Mining
@@ -157,7 +157,7 @@
     {
       "id": "P14",
       "deck": "PRELUDE",
-      "immediate": "2 OceanTile",
+      "immediate": "2 OceanTile<>",
     },
 
     // Huge Asteroid
@@ -248,7 +248,7 @@
       "id": "P26",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "OceanTile, PROD[2 Heat]",
+      "immediate": "OceanTile<>, PROD[2 Heat]",
     },
 
     // Power Generation
@@ -264,7 +264,7 @@
       "id": "P29",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "CityTile, PROD[2]",
+      "immediate": "CityTile<>, PROD[2]",
     },
 
     // Smelting Plant
@@ -330,7 +330,7 @@
       "projectKind": "AUTOMATED",
       "cost": 15,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 2], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile)",
+      "immediate": "PROD[-Energy, 2], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)",
     },
 
     // Martian Survey
@@ -356,7 +356,7 @@
       "resourceType": "Microbe",
       "actions": [ "-> Microbe<This>" ],
       "effects": [
-        "PlayTag<Class<PlantTag>>: (-X Microbe<This>! THEN -2X Owed.) OR Ok"
+        "PlayTag<Class<PlantTag>>: (-X Microbe<This>! THEN -2X Owed<Class<Megacredit>>.) OR Ok"
       ],
     },
 

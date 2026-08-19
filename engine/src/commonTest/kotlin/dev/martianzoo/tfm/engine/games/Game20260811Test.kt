@@ -386,7 +386,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     mom.stdAction("ClaimMilestoneSA") { doTask("Trader") }
     mom.playProject(ProtectedValley, 9, steel = 5) {
-          doTask("-2 Microbe<$Psychrophiles> THEN -4 Owed")
+          doTask("-2 Microbe<$Psychrophiles> THEN -4 Owed<Class<Megacredit>>")
           doTask("GreeneryTile<Hellas_1_1>")
         }
         .expect("PROD[2 M], 3 H, Animal, TR, 2 P, -7")
@@ -666,7 +666,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.sellPatents(FusionPower)
 
     mom.playProject(AdaptedLichen, 3) {
-          doTask("-3 Microbe<$Psychrophiles> THEN -6 Owed")
+          doTask("-3 Microbe<$Psychrophiles> THEN -6 Owed<Class<Megacredit>>")
         }
         .expect("PROD[P], 3 H, Animal")
     mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }

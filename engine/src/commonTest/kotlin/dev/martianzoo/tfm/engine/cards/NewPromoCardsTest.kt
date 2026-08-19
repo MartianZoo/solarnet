@@ -96,7 +96,7 @@ class NewPromoCardsTest : CardTest() {
     p1.playProject(CarbonNanosystems, 14).expect("Graphene<$CarbonNanosystems>")
 
     p1.playProject(IcyImpactors, 11) {
-          doTask("-Graphene<$CarbonNanosystems>! THEN -4 Owed.")
+          doTask("-Graphene<$CarbonNanosystems>! THEN -4 Owed<Class<Megacredit>>.")
         }
         .expect("-Graphene<$CarbonNanosystems>")
   }
@@ -108,7 +108,7 @@ class NewPromoCardsTest : CardTest() {
     engine.phase("Action")
     p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
     p1.playProject(Mine, 1) {
-          doTask("-Plant! THEN -3 Owed.")
+          doTask("-Plant! THEN -3 Owed<Class<Megacredit>>.")
         }
         .expect("-Plant")
   }

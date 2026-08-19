@@ -164,7 +164,7 @@
       "resourceType": "Floater",
       "actions": [ "-> Floater" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed.) OR Ok"
+        "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed<Class<Megacredit>>.) OR Ok"
       ],
     },
 
@@ -262,7 +262,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile",
+      "immediate": "PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile<>",
     },
 
     // Hydrogen To Venus
@@ -413,7 +413,7 @@
       "resourceType": "Asteroid",
       "actions": [
         // 6[Titanium] -> Asteroid<This>
-        "-> 6 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
+        "-> 6 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
     },
@@ -594,7 +594,7 @@
       "cost": 9,
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>:: -2 Owed",
+        "PlayTag<Class<VenusTag>>:: -2 Owed<Class<Megacredit>>",
         "End: VictoryPoint"
       ],
     },

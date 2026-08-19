@@ -6,8 +6,8 @@ CLASS TerraformingMars : Module {
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
-  Pay<Class<Steel>>:: -2 Owed
-  Pay<Class<Titanium>>:: -3 Owed
+  Pay<Class<Steel>>:: -2 Owed<Class<Megacredit>>
+  Pay<Class<Titanium>>:: -3 Owed<Class<Megacredit>>
 }
 
 // PLAYERS AND OWNERSHIP
@@ -111,7 +111,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 
     This IF =3 This: PROD[Heat]
     This IF =5 This: PROD[Heat]
-    This IF =15 This: OceanTile
+    This IF =15 This: OceanTile<>
     This IF =19 This: GpComplete<Class<TemperatureStep>>
   }
 
@@ -296,17 +296,17 @@ CLASS BufferGasSP : StandardProject {
 
 CLASS AquiferSP : StandardProject, AutoLoad {
   cost = 18
-  1 / This.cost -> OceanTile
+  1 / This.cost -> OceanTile<>
 }
 
 CLASS GreenerySP : StandardProject, AutoLoad {
   cost = 23
-  1 / This.cost -> GreeneryTile
+  1 / This.cost -> GreeneryTile<>
 }
 
 CLASS CitySP : StandardProject, AutoLoad {
   cost = 25
-  1 / This.cost -> PROD[1], CityTile
+  1 / This.cost -> PROD[1], CityTile<>
 }
 
 // PAY AND PLAY
@@ -318,7 +318,7 @@ CLASS BuyCard : Owned<Player>, Signal {
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
   This:: (EVAL CardFront.requirement: Ok) OR HandlePossibleGpRequirement<Class<CardFront>>
-  This:: Owed / CardFront.cost
+  This:: Owed<Class<Megacredit>> / CardFront.cost
   This:: HandleCardTags<Class<CardFront>>
   This: MAX 0 Barrier: CardFront FROM CardBack
 }
@@ -327,8 +327,7 @@ CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
 ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Temporary {
   CLASS Owed : Barrier {
-    DEFAULT +Owed<Class<Megacredit>>
-    DEFAULT -Owed<Class<Megacredit>>.
+    DEFAULT -Owed.
     X This:: Accept<Class<StandardResource>>
   }
 
@@ -403,7 +402,7 @@ CLASS FinalScore : Signal, System
 CLASS StartToken : Owned<Player> {
   HAS MAX 1 StartToken
   Generation: PassLeft<This>
-  FirstPlayerOcean<Player> BY Anyone: OceanTile BY Player
+  FirstPlayerOcean<Player> BY Anyone: OceanTile<> BY Player
   WorldGovernmentTerraforming BY Anyone: GlobalParameter! BY Engine
 }
 
