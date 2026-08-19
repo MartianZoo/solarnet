@@ -23,8 +23,9 @@ private fun renderAction(
     card: CardDefinition?,
     describers: Describers,
 ): RenderedAction? {
-  val cost = action.cost?.let { describers.renderCost(it) ?: return null }
-  val result = renderInstructions(action.instruction, card, describers) ?: return null
+  val lowered = lowerProductionSyntax(action)
+  val cost = lowered.cost?.let { describers.renderCost(it) ?: return null }
+  val result = renderInstructions(lowered.instruction, card, describers) ?: return null
   return RenderedAction(cost, result)
 }
 
