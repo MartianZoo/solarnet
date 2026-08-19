@@ -123,28 +123,28 @@ its importance explicit or has seen and accepted the design cost.
 3. Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted
    without asking for separate approval.
 
-## Test Fixture Reconciliations
+## Test Reconciliations
 
-- Never call `sneak` directly in a game fixture. Use the fixture's `exMachina` helper for an
+- Never call `sneak` directly in a game test. Use the test's `exMachina` helper for an
   evidence-backed player error that requires a direct state adjustment.
 - Place `exMachina` as late in the timeline as the sourced assertions allow, and precede it with a
   comment saying which later step requires the adjustment.
 - Never hide a manual or other raw state reconciliation inside the body of an unrelated
   action, card play, turn, or phase merely because that body provides an executable context. Keep
   the adjustment as a standalone timeline statement at the evidence-supported boundary. If a
-  prepared task prevents that, use an explicit fixture-level mechanism or fix the helper/API; do
+  prepared task prevents that, use an explicit test-level mechanism or fix the helper/API; do
   not make the unrelated action appear to have caused the adjustment.
 - A missing consequence may be handled inside an action body only when it is genuinely caused by
   that exact action, and the comment must name that causal relationship.
 
-## Fixture DSL Design
+## Test DSL Design
 
-- Keep gameplay and fixture APIs generic. Never add a Kotlin function or DSL operation solely to
+- Keep gameplay and test APIs generic. Never add a Kotlin function or DSL operation solely to
   represent one card, corporation, prelude, or other individual game component.
 - Use existing gameplay helpers when their operation boundaries fit. Express component-specific
   steps directly through the existing `OperationBody` primitives when they must remain in an outer
   operation, including when a sibling task must stay pending.
-- Add a shared fixture helper only for a recurring, component-independent concept that materially
+- Add a shared test helper only for a recurring, component-independent concept that materially
   simplifies multiple call sites.
 
 ## Terraforming Mars Rule Research

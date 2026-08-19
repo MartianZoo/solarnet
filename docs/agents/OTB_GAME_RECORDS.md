@@ -9,9 +9,9 @@ whose primary record is an application log.
 
 ## Preserve and inventory the original evidence
 
-Before reading an existing dated fixture, Git history, commit message, derived reconstruction, or
+Before reading an existing dated test, Git history, commit message, derived reconstruction, or
 another game record, inventory the original sources in `_local/GameYYYYMMDD/`. Reconstruct the game
-from those sources independently; old fixtures and plans may teach current Solarnet syntax but are
+from those sources independently; old tests and plans may teach current Solarnet syntax but are
 not evidence of what happened.
 
 Keep supplied archives unchanged under `source-archives/`. Extract useful files beside them with
@@ -41,7 +41,7 @@ Evidence in a physical game is complementary rather than interchangeable:
   from contents and timestamps rather than filename order alone.
 - A raw app-log screenshot can disambiguate a ledger entry, but a machine-readable ledger is easier
   to audit when both represent the same observations.
-- Repository code and other fixtures explain APIs and engine behavior only. Derived ledgers,
+- Repository code and other tests explain APIs and engine behavior only. Derived ledgers,
   previous guesses, excerpts, and plans are likewise secondary and never prove an event or value.
 
 Correlate timestamps across sources. Two sources disagreeing creates a research question; it does
@@ -84,7 +84,7 @@ do not silently change ownership or invent a missing action. Isolate an extra ac
 state change at its exact boundary when possible; otherwise make the smallest chronology distortion
 and say exactly what moved and why. Record the missing general mechanism in `TODO.md`.
 
-Follow the current full-game fixture style rather than copying an old revision:
+Follow the current full-game test style rather than copying an old revision:
 
 - define `override val config = GameConfig(...)` with player-name arguments;
 - resolve gameplay objects with `game.tfm(Player.PLAYERn)`;
@@ -141,7 +141,7 @@ does not produce. It is not a general test-unblocking tool.
 
 Before retaining one, verify chronology and phase transitions, reconcile the source interval, add
 expectations for affected types, distinguish corrected mistakes from persistent ones, and check for
-an engine or fixture defect. Use an explicit relative delta. Put it at the causal action only when
+an engine or test defect. Use an explicit relative delta. Put it at the causal action only when
 the evidence proves that placement; otherwise place it as late as the next sourced checkpoint
 allows. Keep it as a standalone timeline statement with a comment naming the source boundary that
 requires it. Never use `sneak`, an absolute snapshot setter, a catch-all repair, or an unrelated
@@ -149,14 +149,14 @@ action lambda as a hiding place.
 
 If Solarnet lacks a real component, represent only its known sourced consequences at the correct
 boundary, state that support is missing, and record a reusable follow-up in `TODO.md`. Never add a
-component-specific fixture API.
+component-specific test API.
 
 ## Treat photographs and endgame as first-class evidence
 
 Inspect every useful photograph at original resolution. Reconcile only what is actually visible:
 owned cards and tags, card resources, used markers, milestones and awards, tile kind/owner/location,
 global tracks, colonies, and player-board values. Resolve coordinates from the photographed board
-and configured map, never by copying another fixture. Avoid inferring precise hidden state from a
+and configured map, never by copying another test. Avoid inferring precise hidden state from a
 coarse image.
 
 Do not stop after the final action phase. Verify that all players passed, final production occurred
@@ -169,7 +169,7 @@ production, TR, milestones, awards, greenery, cities, card points, totals, tie-b
 
 Before handoff:
 
-1. reread the original sources without consulting an old fixture;
+1. reread the original sources without consulting an old test;
 2. audit operations and comments against transcript order;
 3. trace every assertion to a named source or label it as characterization;
 4. justify every `exMachina()` and search once more for a natural explanation;
@@ -179,5 +179,5 @@ Before handoff:
 7. inspect the final diff for game-specific helpers, accidental production changes, and stale
    repairs.
 
-A green replay proves internal consistency. Quality means the fixture remains traceable to the
+A green replay proves internal consistency. Quality means the test remains traceable to the
 physical record and makes every uncertainty, real mistake, and unsupported behavior explicit.

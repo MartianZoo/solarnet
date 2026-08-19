@@ -62,7 +62,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       playProject(Research, 11) { draw(MediaGroup, EosChasmaNationalPark) }
       playProject(AiCentral, 17, steel = 2)
       cardAction1(AiCentral) { draw(Stratopolis, RotatorImpacts) }
-      // The source gives only sale counts; unused-card identities at each sale are fixture
+      // The source gives only sale counts; unused-card identities at each sale are test
       // inference.
       sellPatents(
           EosChasmaNationalPark,

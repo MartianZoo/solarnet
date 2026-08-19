@@ -274,7 +274,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           mom.draw(Psychrophiles)
         }
         .expect("PROD[M], P")
-    // Fixture inference: the log gives only the count; Optimal Aerobraking is never played later.
+    // Test inference: the log gives only the count; Optimal Aerobraking is never played later.
     mom.sellPatents(OptimalAerobraking)
 
     ellie.playProject(ProtectedGrowth, megacredits = 0).expect("P, 3")
@@ -339,7 +339,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("2 S, TR")
 
     ellie.playProject(BribedCommittee, 5).expect("-2")
-    // Fixture inference: the log gives only the count; Meat Industry is never played later.
+    // Test inference: the log gives only the count; Meat Industry is never played later.
     ellie.sellPatents(MeatIndustry)
 
     dad.playProject(DiversitySupport, 1)
@@ -504,7 +504,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
       doTask("Asteroid<$DirectedImpactors>")
     }
 
-    // Fixture inference: the log gives only the count; Cyberia Systems is never played later.
+    // Test inference: the log gives only the count; Cyberia Systems is never played later.
     dad.sellPatents(CyberiaSystems)
     dad.playProject(Grass, 11).expect("PROD[P], 4 P")
 
@@ -583,7 +583,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.playProject(VestaShipyard, 1, titanium = 4).expect("PROD[T]")
 
     dad.cardAction2(WeatherBalloons).expect("-Floater, 4")
-    // Fixture inference: the log gives only the count; Medical Lab is never played later.
+    // Test inference: the log gives only the count; Medical Lab is never played later.
     dad.sellPatents(MedicalLab)
 
     mom.cardAction1(Psychrophiles).expect("Microbe")
@@ -603,7 +603,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     ellie.cardAction1(SaturnSurfing).expect("3")
     ellie.declineSecondAction()
-    // Fixture inference: the log gives only the count; none of these cards is played later.
+    // Test inference: the log gives only the count; none of these cards is played later.
     dad.sellPatents(
         AiCentral,
         DesignedMicroorganisms,
@@ -662,7 +662,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.playProject(TechnologyDemonstration, 1, titanium = 1) {
       dad.draw(MartianRails, AcquiredCompany, Windmills)
     }
-    // Fixture inference: the log gives only the count; Fusion Power is never played later.
+    // Test inference: the log gives only the count; Fusion Power is never played later.
     dad.sellPatents(FusionPower)
 
     mom.playProject(AdaptedLichen, 3) {
@@ -690,7 +690,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           ellie.draw(AsteroidHollowing)
         }
         .expect("PROD[2 P, -4 E], 2 M")
-    // Fixture inference: the log gives only the count; Cloud Seeding is never played later.
+    // Test inference: the log gives only the count; Cloud Seeding is never played later.
     ellie.sellPatents(CloudSeeding)
 
     dad.cardAction1(Ants) {
@@ -701,16 +701,16 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("0 Microbe<$Ants>")
     dad.cardAction1(EquatorialMagnetizer).expect("PROD[-E], TR")
 
-    // Fixture inference: the log gives only the count; none of these cards is played later.
+    // Test inference: the log gives only the count; none of these cards is played later.
     mom.sellPatents(WaterImportFromEuropa, PhysicsComplex, LightningHarvest)
     mom.stdProject("CitySP") {
           doTask("CityTile<Hellas_1_5>")
         }
         .expect("P, Disease")
 
-    // Fixture inference: the log gives only the count; Methane From Titan is never played later.
+    // Test inference: the log gives only the count; Methane From Titan is never played later.
     ellie.sellPatents(MethaneFromTitan)
-    // Fixture inference: the log gives only the count; Asteroid Hollowing is never played later.
+    // Test inference: the log gives only the count; Asteroid Hollowing is never played later.
     ellie.sellPatents(AsteroidHollowing)
 
     dad.cardAction2(AsteroidRights) { doTask("2 T") }.expect("-Asteroid")
@@ -720,7 +720,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     mom.cardAction1(IndustrialCenter).expect("PROD[S]")
 
     ellie.pass()
-    // Fixture inference: the log gives only the count; these are Dad's remaining tracked cards.
+    // Test inference: the log gives only the count; these are Dad's remaining tracked cards.
     dad.sellPatents(
         InventorsGuild,
         CometAiming,

@@ -16,7 +16,7 @@ is mistaken. An incremental approach that leaves most shapes data-backed is expe
 
 Do not add a test merely to prove that a newly supported shape bypasses the fallback. Such a test
 would restate the implementation boundary without protecting card behavior, and every incremental
-step would require another synthetic fixture. The existing all-card comparison is the behavioral
+step would require another synthetic test. The existing all-card comparison is the behavioral
 check: a derivation expansion is valid when every affected canonical card renders the reviewed
 golden text. A mismatch is a review prompt, not an instruction to preserve the row. Review the
 production diff to establish that the fallback boundary actually moved; the code is clearer

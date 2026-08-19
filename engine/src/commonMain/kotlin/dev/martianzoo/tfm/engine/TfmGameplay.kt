@@ -57,9 +57,9 @@ public class TfmGameplay(
   public fun pass(): TaskResult = inTurn { doTask("Pass") }
 
   /**
-   * Performs the actions in one fixture-level turn, declining an unused second action when needed.
-   * If every other player has passed, the workflow offers `NewTurn` rather than a second action;
-   * that offer is deliberately left in place so this block can contain the rest of the generation.
+   * Performs the actions in one test-level turn, declining an unused second action when needed. If
+   * every other player has passed, the workflow offers `NewTurn` rather than a second action; that
+   * offer is deliberately left in place so this block can contain the rest of the generation.
    */
   public fun turn(body: TfmGameplay.() -> Unit) {
     body()
