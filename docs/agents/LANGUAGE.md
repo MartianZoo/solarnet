@@ -46,6 +46,12 @@ and immediate instructions belong in each printed region, while the family rende
 elements compositionally. Keep lexical policy, such as component nouns and change verbs, narrower
 than the structural rendering rules.
 
+`English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
+`InstructionTree`, or a `Requirement`. An instruction or action can also be described with its host
+`CardDefinition`, which supplies context such as whether an unqualified card-resource gain may go
+on this card. Unsupported valid Pets shapes currently fail rather than falling back to a whole-card
+row.
+
 Component-specific English knowledge lives in `Describers`, whose sparse `ComponentDescriber`
 values are keyed by loaded component `Class`. Renderers inspect describer facts rather than naming
 component Classes themselves. Each fact is inherited independently: a declaration on a more
@@ -69,6 +75,11 @@ normal placement derivation while a small table supplies only how each card desc
 city location. Such tables are acceptable stepping stones toward broader structural derivation;
 they need not solve the general case immediately.
 
+Do not automatically populate such a table from card regions keyed only by the Pets element. Equal
+syntax trees currently occur in card rows with context-specific variants such as “including this.”
+Either derive such wording from explicit host context or canonicalize the redundant variant away. A
+granular fallback must remain valid independently of whichever whole-card row happened to teach it.
+
 ## Canonical wording versus rules
 
 Treat the data text as an oracle for meaning, not for incidental wording. A textual difference is
@@ -88,6 +99,12 @@ the ordinary authored-order renderer puts that gain first. Correct the canonical
 when this order is wrong; do not teach the renderer to reorder corporations.
 
 ## Current derivation boundary
+
+Above the artwork, `English` now composes a card's action region from its `Action` list when the card
+has no immediate instruction or behavior-bearing extra declaration. It supports no-cost actions and
+actions that spend a concrete amount of one standard resource, provided the result uses the
+supported instruction shapes below. Multiple authored actions render as alternatives. Non-End
+effects are not yet structurally rendered, so they keep the whole top region data-backed.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum

@@ -108,6 +108,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Revisit a Pets-element English fallback table only after settling its rendering context. Equal
+  `InstructionTree`s currently inherit card-specific variants such as “including this” from the
+  golden text, so either compute those variants from the host card or canonicalize the redundant
+  wording away; do not harvest one card region's string by AST key and apply it blindly.
 - Keep the `Award` base class's scoring effect inherited while avoiding loading its scoring
   machinery in solo games, where no concrete Award definitions are active.
 - Break `PetTransformer.transformChildren` into focused rebuild helpers; its instruction-tree
