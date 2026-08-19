@@ -32,7 +32,7 @@ class MiningRightsTest : CardTest() {
     newGame(TerraCimmeriaMapOption)
 
     p1.manual("$MiningRights") {
-          doTask("Tile067<TerraCimmeria_6_4>")
+          doTask("Tile067<Cimmeria_6_4>")
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")

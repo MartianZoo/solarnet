@@ -32,9 +32,9 @@ class MiningAreaTest : CardTest() {
   @Test
   fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     newGame(TerraCimmeriaMapOption)
-    p1.manual("CityTile<TerraCimmeria_5_4>")
+    p1.manual("CityTile<Cimmeria_5_4>")
     p1.manual("$MiningArea") {
-          doTask("Tile064<TerraCimmeria_6_4>")
+          doTask("Tile064<Cimmeria_6_4>")
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
