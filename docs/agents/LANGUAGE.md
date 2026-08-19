@@ -133,8 +133,9 @@ any of the player's own cards, as specified by the cost expression. Multiple aut
 as alternatives, with a comma before `or` to distinguish their operation boundaries. Supported
 non-End effects include a fixed M€ discount triggered by playing a card or one concrete tag, and a
 supported instruction consequence triggered by playing concrete tags, placing a supported tile,
-or adding a concrete card resource. Trigger wording preserves whether the acting player or any
-player causes the event. Other non-End effects keep the whole top region data-backed. When actions
+raising a supported track, or adding a concrete card resource. Trigger wording preserves whether
+the acting player or any player causes the event. Other non-End effects keep the whole top region
+data-backed. When actions
 and effects share a top region, actions are rendered first and their card-resource metrics name
 `this card` rather than the contextual `here`.
 
