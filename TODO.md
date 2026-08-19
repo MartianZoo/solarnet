@@ -6,9 +6,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Replace the `English` card-text data-file fallback incrementally with derivation from Pets
   instructions, reviewing each resulting wording change against the data-file characterization.
-- Finish making injected `ComponentDescriber` values behavioral capabilities: structural English
-  renderers should only look up the describer mapped to each component Class and compose its
-  answers, never switch over centralized component categories such as city tiles and colonies.
 - Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.

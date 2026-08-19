@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.ast.Expression
+
 /** Sparse English-language facts declared for one component Class. */
 public data class ComponentDescriber(
     public val noun: Noun? = null,
@@ -50,15 +52,12 @@ public data class ComponentDescriber(
     ANY_PLAYER,
   }
 
-  public enum class Requirement {
-    CITY_TILES,
-    COLONIES,
-    GREENERY_TILES,
-    OCEAN_TILES,
-    OXYGEN_PERCENT,
-    TEMPERATURE,
-    TERRAFORM_RATING,
-    VENUS_PERCENT,
+  public interface Requirement {
+    public fun renderMinimum(expression: Expression, target: Int): String?
+
+    public fun renderMaximum(expression: Expression, target: Int): String? = null
+
+    public fun renderOwnedCount(target: Int): String? = null
   }
 
   public data class DirectGain(public val noun: String, public val count: Int)

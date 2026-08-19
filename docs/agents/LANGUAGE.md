@@ -58,12 +58,11 @@ looks up the describer mapped to a component Class found in the Pets element bei
 `TerraformingMarsDescribers` currently owns the canonical sparse declarations and resolves their
 inheritance before constructing `English`.
 
-The injected map establishes the dependency direction, but `ComponentDescriber` still exposes
-centralized category values and `Describers` still switches over some of them. That is transitional,
-not the intended component boundary. Structural renderers should only identify the component Class,
-look up its describer, ask that instance for the applicable phrase or capability, and compose the
-answer. They must not name component Classes or enumerate categories such as city tiles and
-colonies.
+Structural renderers only identify the component Class, look up its describer, ask that instance
+for the applicable phrase or capability, and compose the answer. They do not name component
+Classes or enumerate categories such as city tiles and colonies. In particular, requirement
+descriptions own their minimum, maximum, and compound-owned wording rather than exposing a
+centralized component-category value for `Describers` to switch over.
 
 Each current sparse fact is inherited independently: a declaration on a more
 specific Class overrides the same fact from its superclass, facts from incomparable branches

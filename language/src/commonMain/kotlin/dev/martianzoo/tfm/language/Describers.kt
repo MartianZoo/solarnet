@@ -103,68 +103,20 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val metric = requirement.metric as? Metric.Count ?: return null
     val expression = metric.expression
     val target = requirement.target
-    return when (this[expression.className].requirement) {
-      ComponentDescriber.Requirement.CITY_TILES -> {
-        val tiles = "$target city ${if (target == 1) "tile" else "tiles"}"
-        when {
-          ownedByAnyPlayer(expression) -> "Requires $tiles."
-          expression.simple -> "Requires that you have $tiles."
-          else -> null
-        }
-      }
-      ComponentDescriber.Requirement.COLONIES -> {
-        if (!expression.simple) return null
-        "Requires $target ${if (target == 1) "colony" else "colonies"}."
-      }
-      ComponentDescriber.Requirement.GREENERY_TILES -> {
-        if (!expression.simple) return null
-        "Requires that you have $target greenery ${if (target == 1) "tile" else "tiles"}."
-      }
-      ComponentDescriber.Requirement.OCEAN_TILES -> {
-        if (!expression.simple) return null
-        "Requires $target ocean ${if (target == 1) "tile" else "tiles"}."
-      }
-      ComponentDescriber.Requirement.OXYGEN_PERCENT -> {
-        if (!expression.simple) return null
-        "Requires $target% oxygen."
-      }
-      ComponentDescriber.Requirement.TEMPERATURE -> {
-        if (!expression.simple) return null
-        "Requires ${temperature(target)} or warmer."
-      }
-      ComponentDescriber.Requirement.TERRAFORM_RATING -> {
-        if (!expression.simple) return null
-        "Requires that you have at least $target terraform rating."
-      }
-      ComponentDescriber.Requirement.VENUS_PERCENT -> {
-        if (!expression.simple) return null
-        "Requires Venus ${target * 2}%."
-      }
-      null ->
-          renderProductionRequirement(requirement)
-              ?: renderCardResourceRequirement(requirement)
-              ?: renderTagRequirement(requirement)
+    val componentRequirement = this[expression.className].requirement
+    if (componentRequirement != null) {
+      return componentRequirement.renderMinimum(expression, target)
     }
+    return renderProductionRequirement(requirement)
+        ?: renderCardResourceRequirement(requirement)
+        ?: renderTagRequirement(requirement)
   }
 
   internal fun renderMaximum(requirement: Requirement.Max): String? {
     val metric = requirement.metric as? Metric.Count ?: return null
     val expression = metric.expression
-    if (!expression.simple) return null
     val target = requirement.target
-    return when (this[expression.className].requirement) {
-      ComponentDescriber.Requirement.COLONIES ->
-          "You must have no more than $target ${if (target == 1) "colony" else "colonies"}."
-      ComponentDescriber.Requirement.OCEAN_TILES -> "There must be $target or fewer ocean tiles."
-      ComponentDescriber.Requirement.OXYGEN_PERCENT -> "Oxygen must be $target% or less."
-      ComponentDescriber.Requirement.TEMPERATURE ->
-          "Temperature must be ${temperature(target)} or colder."
-      ComponentDescriber.Requirement.VENUS_PERCENT -> "Venus must be ${target * 2}% or less."
-      ComponentDescriber.Requirement.CITY_TILES,
-      ComponentDescriber.Requirement.GREENERY_TILES,
-      ComponentDescriber.Requirement.TERRAFORM_RATING,
-      null -> null
-    }
+    return this[expression.className].requirement?.renderMaximum(expression, target)
   }
 
   internal fun renderRequirementGroup(requirement: Requirement.And): String? =
@@ -459,13 +411,8 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
           val minimum = child as? Requirement.Min ?: return null
           val metric = minimum.metric as? Metric.Count ?: return null
           if (!metric.expression.simple) return null
-          when (this[metric.expression.className].requirement) {
-            ComponentDescriber.Requirement.CITY_TILES ->
-                "${minimum.target} city ${if (minimum.target == 1) "tile" else "tiles"}"
-            ComponentDescriber.Requirement.COLONIES ->
-                "${minimum.target} ${if (minimum.target == 1) "colony" else "colonies"}"
-            else -> return null
-          }
+          this[metric.expression.className].requirement?.renderOwnedCount(minimum.target)
+              ?: return null
         }
     return "Requires that you have ${englishList(nouns)}."
   }
@@ -534,19 +481,9 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return expression.arguments.dropLast(1) to resource.className
   }
 
-  private fun ownedByAnyPlayer(expression: Expression): Boolean =
-      expression.arguments == listOf(anyoneExpression) &&
-          expression.refinement == null &&
-          !expression.complement
-
   private fun concrete(className: ClassName): Boolean {
     val componentClass = classesByName[className] ?: return false
     return !componentClass.abstract
-  }
-
-  private fun temperature(steps: Int): String {
-    val degreesCelsius = -30 + 2 * steps
-    return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
   }
 
   private fun indefiniteArticle(noun: String): String = if (noun.first() in "aeiou") "an" else "a"
