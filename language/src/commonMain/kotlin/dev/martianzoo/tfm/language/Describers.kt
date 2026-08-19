@@ -34,13 +34,17 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val spend = cost as? Cost.Spend ?: return null
     val expression = spend.scaledEx.expression
     val count = (spend.scaledEx.scalar as? ActualScalar)?.value ?: return null
-    if (
-        expression.arguments == listOf(thisExpression) &&
-            expression.refinement == null &&
-            !expression.complement
-    ) {
-      val noun = cardResourceNoun(expression.className, count) ?: return null
-      return "remove $count $noun from this card"
+    if (expression.refinement == null && !expression.complement) {
+      cardResourceNoun(expression.className, count)?.let { noun ->
+        val holder =
+            when (expression.arguments) {
+              listOf(thisExpression) -> "this card"
+              listOf(anyoneExpression) -> "any card"
+              emptyList<Expression>() -> "any of your cards"
+              else -> return null
+            }
+        return "remove $count $noun from $holder"
+      }
     }
     if (!expression.simple) return null
     val noun = standardResourceNoun(expression.className, count) ?: return null

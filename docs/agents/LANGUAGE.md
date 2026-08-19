@@ -127,9 +127,10 @@ Above the artwork, `English` now composes a card's action region from its `Actio
 has no behavior-bearing extra declaration. Bottom-region immediate instructions do not prevent
 independent action derivation. It supports no-cost actions and actions that spend a concrete amount
 of one standard resource, provided the result uses the supported instruction shapes below. An
-action may instead remove a concrete number of one card resource from the acting card. Multiple
-authored actions render as alternatives. Non-End effects are not yet structurally rendered, so they
-keep the whole top region data-backed.
+action may instead remove a concrete number of one card resource from this card, any card, or any of
+the player's cards, as specified by the cost expression. Multiple authored actions render as
+alternatives. Non-End effects are not yet structurally rendered, so they keep the whole top region
+data-backed.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum
