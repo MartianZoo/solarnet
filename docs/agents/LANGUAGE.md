@@ -133,15 +133,19 @@ any of the player's own cards, as specified by the cost expression. Multiple aut
 as alternatives, with a comma before `or` to distinguish their operation boundaries. Supported
 non-End effects include a fixed M€ discount triggered by playing a card or one concrete tag, and a
 supported instruction consequence triggered by playing concrete tags or one described tag group,
-placing a supported tile,
-raising a supported track, or adding a concrete card resource. Trigger wording preserves whether
-the acting player or any player causes the event. Other non-End effects keep the whole top region
-data-backed. A fixed M€ increase in the payment value of a standard resource or resource category
-is also derived from its spent-resource trigger. A direct trigger on a played-card type is derived,
-including a type narrowed to one concrete tag or a minimum card cost. A trigger on using a described
-standard action or standard project composes with the same supported consequences. When actions
-and effects share a top region, actions are rendered first and their card-resource metrics name
-`this card` rather than the contextual `here`.
+placing a supported tile, raising a supported track, or adding a concrete card resource. Trigger
+wording preserves whether the acting player or any player causes the event; a tile-placement trigger
+attributed to `Anyone` says that any player places the tile rather than using a passive voice. Other
+non-End effects keep the whole top region data-backed. A fixed M€ increase in the payment value of a
+standard resource or resource category is also derived from its spent-resource trigger. A direct
+trigger on a played-card type is derived, including a type narrowed to one concrete tag or a minimum
+printed card cost. A trigger on using a described standard action or standard project composes with
+the same supported consequences. A pre-payment resource gain for an explicitly described action may
+be presented as the discount it implements; adjacent equal discounts combine under one trigger
+sentence. Discounts triggered by playing a card retain `for it`, while discounts triggered by
+playing a tag omit that pronoun because the tag is not the object being paid for. When actions and
+effects share a top region, actions are rendered first and their card-resource metrics name `this
+card` rather than the contextual `here`.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum

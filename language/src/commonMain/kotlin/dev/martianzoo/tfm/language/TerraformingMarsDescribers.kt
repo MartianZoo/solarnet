@@ -18,6 +18,10 @@ internal object TerraformingMarsDescribers {
                 noun = ComponentDescriber.Noun.ClassName,
             ),
         klass("StandardResource") to ComponentDescriber(standardResource = true),
+        klass("Metal") to
+            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("titanium or steel")),
+        klass("Steel") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
+        klass("Titanium") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
         klass("Megacredit") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
         klass("Plant") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),
@@ -196,10 +200,24 @@ internal object TerraformingMarsDescribers {
         klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
         klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
-        klass("StandardProject") to ComponentDescriber(actionUse = "a standard project"),
+        klass("StandardProject") to
+            ComponentDescriber(actionUse = ComponentDescriber.ActionUse("a standard project")),
         klass("ConvertPlantsSA") to
-            ComponentDescriber(actionUse = "the Convert Plants standard action"),
-        klass("PowerPlantSP") to ComponentDescriber(actionUse = "the Power Plant standard project"),
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "the Convert Plants standard action",
+                        refundDiscountTrigger = "you convert plants to greenery",
+                    )
+            ),
+        klass("PowerPlantSP") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "the Power Plant standard project",
+                        refundDiscountTrigger = "you use the Power Plant standard project",
+                    )
+            ),
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
         klass("Owed") to ComponentDescriber(owedPayment = true),
     )

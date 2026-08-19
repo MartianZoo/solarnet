@@ -111,6 +111,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Present other pre-payment resource refunds, especially reduced trade costs, as player-facing
+  discounts once their action effects become structurally derivable.
 - Revisit a Pets-element English fallback table only after making every host context that affects
   wording explicit. Equal `InstructionTree`s currently inherit card-specific variants such as “including this” from the
   golden text, so either compute those variants from the host card or canonicalize the redundant

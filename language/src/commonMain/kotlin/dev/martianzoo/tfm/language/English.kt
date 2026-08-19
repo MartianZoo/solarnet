@@ -83,8 +83,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
             .filterNot { isEndEffect(it, describers) }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
-              val rendered = list.map { describeOrNull(it) ?: return null }
-              "Effect: ${rendered.joinToString(" ")}"
+              "Effect: ${renderEffects(list, describers) ?: return null}"
             }
     return listOfNotNull(actions, effects).joinToString(" / ")
   }

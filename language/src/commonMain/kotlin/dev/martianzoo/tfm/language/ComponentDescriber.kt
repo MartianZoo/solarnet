@@ -20,7 +20,7 @@ public data class ComponentDescriber(
     public val playedCard: Boolean? = null,
     public val playedTagPhrase: String? = null,
     public val usedActionTrigger: Boolean? = null,
-    public val actionUse: String? = null,
+    public val actionUse: ActionUse? = null,
     public val spentResourceTrigger: Boolean? = null,
     public val owedPayment: Boolean? = null,
 ) {
@@ -70,6 +70,11 @@ public data class ComponentDescriber(
   public data class DirectGain(public val noun: String, public val count: Int)
 
   public data class Score(public val singular: String, public val plural: String)
+
+  public data class ActionUse(
+      public val objectPhrase: String,
+      public val refundDiscountTrigger: String? = null,
+  )
 
   public enum class PlayTrigger {
     CARD,

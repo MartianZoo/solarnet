@@ -115,7 +115,6 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       EventKind.PLAY_ANY -> "when $objects is played"
       EventKind.USE_ACTION -> "when you use $objects"
       EventKind.PLACE -> "when you place $objects"
-      EventKind.PLACE_ANY -> "when $objects is placed"
       EventKind.PLACE_BY_ANYONE -> "when any player places $objects"
       EventKind.RAISE_BY_ANYONE -> "when any player raises $objects"
       EventKind.ADD_TO_CARD -> "when you add $objects to any card"
@@ -128,6 +127,28 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     if (this[expression.className].spentResourceTrigger != true) return null
     val resource = representedClass(expression) ?: return null
     return standardResourceCategoryNoun(resource.className, 1)
+  }
+
+  internal fun renderActionRefundDiscountTrigger(trigger: Trigger): String? {
+    val expression = (trigger as? OnGainOf)?.expression ?: return null
+    if (expression.refinement != null || expression.complement) return null
+    if (this[expression.className].usedActionTrigger != true) return null
+    if (expression.arguments.size != 1) return null
+    val action = expression.arguments.single()
+    if (!action.simple) return null
+    return this[action.className].actionUse?.refundDiscountTrigger
+  }
+
+  internal fun renderStandardResourceGainAmount(instruction: InstructionTree): ResourceAmount? {
+    val change = instruction as? Instruction ?: return null
+    val (className, count) = standardResourceGain(change) ?: return null
+    return ResourceAmount(count, componentNoun(className, count))
+  }
+
+  internal fun paymentDiscountRefersToPlayedObject(trigger: Trigger): Boolean {
+    val expression = (trigger as? OnGainOf)?.expression ?: return false
+    return this[expression.className].playTrigger == ComponentDescriber.PlayTrigger.CARD ||
+        this[expression.className].playedCard == true
   }
 
   internal fun renderOwedReduction(instruction: InstructionTree): ResourceAmount? {
@@ -183,7 +204,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       if (expression.arguments.size != 1) return null
       val action = expression.arguments.single()
       if (!action.simple) return null
-      val phrase = this[action.className].actionUse ?: return null
+      val phrase = this[action.className].actionUse?.objectPhrase ?: return null
       return Event(EventKind.USE_ACTION, phrase)
     }
     if (expression.simple) {
@@ -201,7 +222,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       tagName(expression.className)?.let { (name) ->
         return Event(EventKind.PLAY_ANY, "any $name tag")
       }
-      placementEvent(expression, EventKind.PLACE_ANY)?.let {
+      placementEvent(expression, EventKind.PLACE_BY_ANYONE)?.let {
         return it
       }
     }
@@ -226,7 +247,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
                 }
                 is Property -> {
                   if (metric.receiver != null || metric.propertyName.value != "cost") return null
-                  "costing at least ${minimum.target} M€"
+                  "with a printed cost of ${minimum.target} M€ or more"
                 }
                 else -> return null
               }
@@ -237,11 +258,16 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   private fun placementEvent(expression: Expression, kind: EventKind): Event? {
     if (expression.refinement != null || expression.complement) return null
-    if (kind == EventKind.PLACE_BY_ANYONE && !expression.simple) return null
+    if (
+        kind == EventKind.PLACE_BY_ANYONE &&
+            !expression.simple &&
+            expression.arguments != listOf(anyoneExpression)
+    ) {
+      return null
+    }
     val placement = this[expression.className].placement ?: return null
     val phrase =
         when (kind) {
-          EventKind.PLACE_ANY -> "any ${placement.singular}"
           EventKind.PLACE,
           EventKind.PLACE_BY_ANYONE -> "${placement.article} ${placement.singular}"
           EventKind.PLAY,
@@ -260,7 +286,6 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     PLAY_ANY,
     USE_ACTION,
     PLACE,
-    PLACE_ANY,
     PLACE_BY_ANYONE,
     RAISE_BY_ANYONE,
     ADD_TO_CARD,

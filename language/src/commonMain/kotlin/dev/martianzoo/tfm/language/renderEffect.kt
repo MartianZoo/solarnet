@@ -11,16 +11,70 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? =
     if (isEndEffect(effect, describers)) {
       renderEndEffect(effect, describers)
     } else {
-      renderPaymentDiscount(effect, describers)
+      paymentDiscount(effect, describers)?.let { renderPaymentDiscount(listOf(it)) }
           ?: renderResourcePaymentValue(effect, describers)
           ?: renderTriggeredInstructions(effect, describers)
     }
 
-private fun renderPaymentDiscount(effect: Effect, describers: Describers): String? {
-  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
-  val reduction = describers.renderOwedReduction(effect.instruction) ?: return null
-  return "${trigger.replaceFirstChar(Char::uppercaseChar)}, you pay ${reduction.count} ${reduction.noun} less for it."
+internal fun renderEffects(effects: List<Effect>, describers: Describers): String? {
+  val sentences = mutableListOf<String>()
+  var index = 0
+  while (index < effects.size) {
+    val discount = paymentDiscount(effects[index], describers)
+    if (discount == null) {
+      sentences += renderEffect(effects[index], describers) ?: return null
+      index++
+      continue
+    }
+    val run =
+        effects
+            .drop(index)
+            .map { paymentDiscount(it, describers) }
+            .takeWhile {
+              it?.reduction == discount.reduction
+            }
+    sentences += renderPaymentDiscount(run.filterNotNull())
+    index += run.size
+  }
+  return sentences.joinToString(" ")
 }
+
+private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
+  describers.renderOwedReduction(effect.instruction)?.let { reduction ->
+    val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+    return PaymentDiscount(
+        trigger.removePrefix("when "),
+        reduction,
+        describers.paymentDiscountRefersToPlayedObject(effect.trigger),
+    )
+  }
+  val trigger = describers.renderActionRefundDiscountTrigger(effect.trigger) ?: return null
+  val reduction = describers.renderStandardResourceGainAmount(effect.instruction) ?: return null
+  return PaymentDiscount(trigger, reduction, refersToObject = true)
+}
+
+private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
+  val clauses = discounts.map { it.triggerClause }
+  fun joinAlternatives(parts: List<String>): String =
+      if (parts.size == 1) parts.single() else englishAlternatives(parts)
+  val trigger =
+      if (clauses.all { it.startsWith("you ") }) {
+        "you " + joinAlternatives(clauses.map { it.removePrefix("you ") })
+      } else {
+        joinAlternatives(clauses)
+      }
+  val reduction = discounts.first().reduction
+  val objectReference = if (discounts.all { it.refersToObject }) " for it" else ""
+  return completeSentence(
+      "when $trigger, you pay ${reduction.count} ${reduction.noun} less$objectReference"
+  )
+}
+
+private data class PaymentDiscount(
+    val triggerClause: String,
+    val reduction: Describers.ResourceAmount,
+    val refersToObject: Boolean,
+)
 
 private fun renderResourcePaymentValue(effect: Effect, describers: Describers): String? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
