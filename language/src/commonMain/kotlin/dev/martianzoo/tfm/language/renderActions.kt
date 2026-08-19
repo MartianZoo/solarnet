@@ -11,27 +11,18 @@ internal fun renderActions(
 ): String? {
   if (actions.isEmpty()) return ""
   val rendered = actions.map { renderAction(it, card) ?: return null }
-  if (rendered.size == 1) return rendered.single()
-  if (rendered.any { ". " in it.removeSuffix(".") }) return null
-  return rendered
-      .mapIndexed { index, action ->
-        action.removeSuffix(".").let {
-          if (index == 0) it else it.replaceFirstChar(Char::lowercaseChar)
-        }
-      }
-      .joinToString(" or ", postfix = ".")
+  if (rendered.size == 1) return rendered.single().asSentences()
+  val alternatives = rendered.map { it.asAlternative() ?: return null }
+  return completeSentence(alternatives.joinToString(" or "))
 }
 
 private fun renderAction(
     action: Action,
     card: CardDefinition?,
-): String? {
-  val result = renderInstructionClauses(action.instruction, card) ?: return null
-  val cost =
-      action.cost
-          ?: return result.joinToString(" ") { it.replaceFirstChar(Char::uppercaseChar) + "." }
-  val spending = renderCost(cost) ?: return null
-  return "$spending to ${result.joinToString(" and ")}."
+): RenderedAction? {
+  val cost = action.cost?.let { renderCost(it) ?: return null }
+  val result = renderInstructions(action.instruction, card) ?: return null
+  return RenderedAction(cost, result)
 }
 
 private fun renderCost(cost: Cost): String? {
@@ -39,5 +30,17 @@ private fun renderCost(cost: Cost): String? {
   val expression = spend.scaledEx.expression
   if (!expression.simple || !isStandardResource(expression.className)) return null
   val count = (spend.scaledEx.scalar as? ActualScalar)?.value ?: return null
-  return "Spend $count ${componentNoun(expression.className, count)}"
+  return "spend $count ${componentNoun(expression.className, count)}"
+}
+
+private data class RenderedAction(
+    val cost: String?,
+    val result: RenderedInstructions,
+) {
+  fun asSentences(): String =
+      cost?.let { completeSentence("$it to ${result.asCoordinatedClause()}") }
+          ?: result.asSentences()
+
+  fun asAlternative(): String? =
+      cost?.let { "$it to ${result.asCoordinatedClause()}" } ?: result.clauses.singleOrNull()
 }

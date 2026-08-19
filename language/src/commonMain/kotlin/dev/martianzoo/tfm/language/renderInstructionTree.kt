@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -17,15 +18,14 @@ import dev.martianzoo.tfm.data.TfmClasses.PROD
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     card: CardDefinition? = null,
-): String? =
-    renderInstructionClauses(instructionTree, card)?.joinToString(" ") { completeSentence(it) }
+): String? = renderInstructions(instructionTree, card)?.asSentences()
 
-internal fun renderInstructionClauses(
+internal fun renderInstructions(
     instructionTree: InstructionTree,
     card: CardDefinition? = null,
-): List<String>? {
+): RenderedInstructions? {
   val instructions = InstructionGroup.of(instructionTree).instructions
-  if (instructions.isEmpty()) return listOf("do nothing")
+  if (instructions.isEmpty()) return RenderedInstructions(listOf("do nothing"))
   val clauses = mutableListOf<String>()
   var index = 0
   while (index < instructions.size) {
@@ -34,19 +34,30 @@ internal fun renderInstructionClauses(
       clauses += renderStandardResourceGains(gains)
       index += gains.size
     } else {
-      clauses +=
-          renderStandardResourceRemoval(instructions[index])
-              ?: renderDirectGain(instructions[index])
-              ?: renderCardResourceGain(instructions[index], card)
-              ?: renderProductionChange(instructions[index])
-              ?: renderTrackChange(instructions[index])
-              ?: renderTilePlacement(instructions[index])
-              ?: return null
+      clauses += renderInstruction(instructions[index], card) ?: return null
       index++
     }
   }
-  return clauses
+  return RenderedInstructions(clauses)
 }
+
+private fun renderInstruction(instruction: Instruction, card: CardDefinition?): String? =
+    when (instruction) {
+      is Gain ->
+          renderDirectGain(instruction)
+              ?: renderCardResourceGain(instruction, card)
+              ?: renderTrackChange(instruction)
+              ?: renderTilePlacement(instruction)
+      is Remove -> renderStandardResourceRemoval(instruction) ?: renderTrackChange(instruction)
+      is Transform -> renderProductionChange(instruction)
+      is NoOp,
+      is Instruction.By,
+      is Instruction.Gated,
+      is Instruction.Or,
+      is Instruction.Per,
+      is Instruction.Then,
+      is Instruction.Transmute -> null
+    }
 
 private fun renderStandardResourceGains(instructions: List<Instruction>): String {
   val objects = instructions.map { instruction ->
@@ -192,16 +203,6 @@ private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, 
   val count = (removal.count as? ActualScalar)?.value ?: return null
   return removal.removing.className to count
 }
-
-private fun englishList(parts: List<String>): String =
-    when (parts.size) {
-      1 -> parts.single()
-      2 -> parts.joinToString(" and ")
-      else -> parts.dropLast(1).joinToString(", ") + ", and " + parts.last()
-    }
-
-private fun completeSentence(clause: String): String =
-    clause.replaceFirstChar(Char::uppercaseChar) + "."
 
 private val anyoneExpression = cn("Anyone").expression
 private val thisExpression = cn("This").expression

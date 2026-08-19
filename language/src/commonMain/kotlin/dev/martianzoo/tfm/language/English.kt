@@ -67,10 +67,7 @@ public object English {
       card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (
-        card.extraClasses.any { it.className != card.resourceType } ||
-            Describers[card.className].deriveBottomText == false
-    ) {
+    if (card.extraClasses.any { it.className != card.resourceType }) {
       return null
     }
     val requirement = card.requirement?.let { describeOrNull(it) ?: return null }

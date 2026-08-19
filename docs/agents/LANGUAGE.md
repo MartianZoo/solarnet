@@ -66,6 +66,11 @@ phrase representation rather than a general English grammar framework. A growing
 whole-card shape tests in `English` is a signal to extract the appropriate family renderer, not an
 acceptable final architecture.
 
+Instruction rendering retains its ordered clauses until the enclosing instruction or action chooses
+whether to make them separate sentences or coordinate them under one action cost. This small
+representation keeps punctuation out of structural decisions without attempting to model general
+English grammar.
+
 ## Transitional derivation
 
 Intermediate solutions may derive most of an instruction structurally while looking up one narrow
@@ -135,9 +140,9 @@ An unsupported requirement, unsupported End-triggered scoring effect, behavior-b
 unsupported immediate-instruction shape keeps the whole region data-backed. Component declarations can
 encode printed setup behavior that is absent from `immediate`, so deriving only that group could omit
 bottom text. A card's generated declaration of its ordinary card-resource type is not behavior-bearing
-and does not prevent derivation. Search for Life remains data-backed because its conditional
-science-resource score is absent from Pets. Actions and non-End effects are top elements and do not
-prevent bottom derivation.
+and does not prevent derivation. Search for Life remains data-backed because conditional End scoring
+is not yet rendered. Actions and non-End effects are top elements and do not prevent bottom
+derivation.
 
 ## Known layout boundaries
 

@@ -17,7 +17,6 @@ internal object Describers {
         klass("Component") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.ClassName,
-                deriveBottomText = true,
             ),
         klass("StandardResource") to ComponentDescriber(standardResource = true),
         klass("Megacredit") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
@@ -86,7 +85,6 @@ internal object Describers {
             ComponentDescriber(directGain = ComponentDescriber.DirectGain("Trade Fleet", 1)),
         klass("VictoryPoint") to ComponentDescriber(victoryPoint = true),
         klass("End") to ComponentDescriber(endTrigger = true),
-        klass("Card005F") to ComponentDescriber(deriveBottomText = false),
     )
   }
 
@@ -106,7 +104,6 @@ internal object Describers {
           directGain = resolveFact(componentClass, ComponentDescriber::directGain),
           victoryPoint = resolveFact(componentClass, ComponentDescriber::victoryPoint),
           endTrigger = resolveFact(componentClass, ComponentDescriber::endTrigger),
-          deriveBottomText = resolveFact(componentClass, ComponentDescriber::deriveBottomText),
       )
 
   private fun <T> resolveFact(
