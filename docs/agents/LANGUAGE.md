@@ -89,7 +89,7 @@ placement; one plain greenery-tile placement; or a concrete mandatory
 temperature, oxygen, Venus-step, or TR gain or removal. A production decrease may target any player.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
 into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived, as is one
-VP for each simple tag the player owns.
+VP for each simple tag the player owns or for each animal on the scoring card.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
