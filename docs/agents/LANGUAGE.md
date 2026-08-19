@@ -85,16 +85,17 @@ is one of: a concrete mandatory gain or removal of a standard resource; a gain o
 Fleet; a group of concrete mandatory standard-resource production gains or decreases; a city-tile,
 colony, or ocean-tile placement; one plain greenery-tile placement; or a concrete mandatory
 temperature, oxygen, Venus-step, or TR gain or removal. Supported instructions are rendered in authored
-order, with adjacent standard-resource gains coalesced into one sentence.
+order, with adjacent standard-resource gains coalesced into one sentence. A concrete fixed VP gain
+triggered by `End` is also derived.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
 remain numeric even when the count is one.
 
-A requirement, an End-triggered scoring effect, an extra component declaration, or any unsupported
-immediate-instruction shape keeps the whole region data-backed. Component declarations can encode
-printed setup behavior that is absent from `immediate`, so deriving only that group could omit bottom
-text. Actions and non-End effects are top elements and do not prevent bottom derivation.
+An unsupported requirement, unsupported End-triggered scoring effect, extra component declaration, or
+unsupported immediate-instruction shape keeps the whole region data-backed. Component declarations can
+encode printed setup behavior that is absent from `immediate`, so deriving only that group could omit
+bottom text. Actions and non-End effects are top elements and do not prevent bottom derivation.
 
 ## Known layout boundaries
 

@@ -51,12 +51,13 @@ public object English {
       card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (card.effects.any(::isEndEffect) || card.extraClasses.isNotEmpty()) {
-      return null
-    }
+    if (card.extraClasses.isNotEmpty()) return null
     val requirement = card.requirement?.let { renderRequirement(it) ?: return null }
     val instructions = card.immediate?.instructions?.let { derivedInstructions(it) ?: return null }
-    return listOfNotNull(requirement, instructions).takeIf { it.isNotEmpty() }?.joinToString(" ")
+    val scoring = card.effects.filter(::isEndEffect).map { renderEndEffect(it) ?: return null }
+    return (listOfNotNull(requirement, instructions) + scoring)
+        .takeIf { it.isNotEmpty() }
+        ?.joinToString(" ")
   }
 
   private fun derivedInstructions(instructions: List<Instruction>): String? {
