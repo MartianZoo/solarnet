@@ -61,7 +61,7 @@ private fun renderInstruction(instruction: Instruction, card: CardDefinition?): 
               ?: renderTilePlacement(instruction)
       is Remove -> renderStandardResourceRemoval(instruction) ?: renderTrackChange(instruction)
       is Instruction.Or -> renderAlternatives(instruction, card)
-      is Instruction.Per -> renderProductionPer(instruction)
+      is Instruction.Per -> renderPer(instruction, card)
       is NoOp,
       is Instruction.By,
       is Instruction.Gated,
@@ -70,11 +70,11 @@ private fun renderInstruction(instruction: Instruction, card: CardDefinition?): 
       is Instruction.Transmute -> null
     }
 
-private fun renderProductionPer(instruction: Instruction.Per): String? {
-  val change = productionChange(instruction.inner) ?: return null
-  if (!change.gaining) return null
+private fun renderPer(instruction: Instruction.Per, card: CardDefinition?): String? {
+  val clause =
+      renderLoweredInstructions(instruction.inner, card)?.clauses?.singleOrNull() ?: return null
   val metric = renderScoringMetric(instruction.metric) ?: return null
-  return "${renderProductionClause(listOf(change))} for $metric"
+  return "$clause for $metric"
 }
 
 private fun renderAlternatives(
