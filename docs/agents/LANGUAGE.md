@@ -111,12 +111,9 @@ A plain mandatory placement of one greenery tile renders its implicit oxygen inc
 greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
-Colony placement cannot yet be derived from its instruction shape alone because Poseidon incorrectly
-authors its delayed first-action placement as an immediate `Colony` gain. After the unnamed-classes
-feature from `work1` arrives, model that rule as `Mandate { Colony }`; then a plain gain can
-unambiguously mean immediate placement. Preserve the fallback until that data fix. When the shape
-becomes derivable, use `a colony` for one and numeric counts above one, following the placed-object
-article policy.
+Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
+`Colony` gain unambiguously means immediate placement. Use `a colony` for one and numeric counts
+above one, following the placed-object article policy.
 
 ## Review cadence
 

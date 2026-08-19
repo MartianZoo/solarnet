@@ -26,7 +26,7 @@
     {
       "id": "CC4",
       "deck": "CORPORATION",
-      "immediate": "45, Colony",
+      "immediate": "45, Mandate { -> Colony }",
       "effects": [ "Colony<Anyone>: PROD[1]" ],
     },
 
