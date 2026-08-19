@@ -71,7 +71,10 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   @Test
   fun `Founder counts an owned tile once when it neighbors multiple special tiles`() {
     newGame(TerraCimmeriaMapOption)
-    p1.manual("CityTile<Cimmeria_3_3>, Tile067<Cimmeria_3_2>, " + "Tile044<Cimmeria_3_4>")
+    p1.manual(
+        "CityTile<Cimmeria_3_3>, Card067_SpecialTile<Cimmeria_3_2>, " +
+            "Card044_SpecialTile<Cimmeria_3_4>"
+    )
 
     p1.count("OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>") shouldBe 1
   }

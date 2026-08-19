@@ -25,7 +25,7 @@
     // Europa
     {
       "id": "ColonyTile04",
-      "placementBonus": "OceanTile",
+      "placementBonus": "OceanTile<>",
       "colonyBonus": "1",
       "tradeIncome": [ "PROD[1]", "PROD[1]", "PROD[Energy]", "PROD[Energy]", "PROD[Plant]", "PROD[Plant]", "PROD[Plant]" ]
     },

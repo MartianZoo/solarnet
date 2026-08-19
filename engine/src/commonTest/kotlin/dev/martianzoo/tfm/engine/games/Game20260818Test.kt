@@ -129,7 +129,7 @@ class Game20260818Test : AbstractFullGameTest() {
     ellie.turn {
       // "I'm going to play Mining Rights... row three, column six. I get two cards and a
       // titanium... and increase titanium production."
-      playProject(MiningRights, 1, steel = 4) { doTask("Tile067<Utopia_3_6>") }
+      playProject(MiningRights, 1, steel = 4) { doTask("Card067_SpecialTile<Utopia_3_6>") }
           .expect("ProjectCard, T, PROD[T]")
       // "I play Energy Tapping... Dad loses an energy production."
       playProject(EnergyTapping, 3) { doTask("PROD[-E<Dad>]") }.expect("PROD[E]")
@@ -279,7 +279,7 @@ class Game20260818Test : AbstractFullGameTest() {
       // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
       // production."
       playProject(Potatoes, 0) {
-            doTask("-Microbe<$Psychrophiles> THEN -2 Owed")
+            doTask("-Microbe<$Psychrophiles> THEN -2 Owed<Class<Megacredit>>")
           }
           .expect("-Microbe, -2 P, PROD[2 M]")
     }

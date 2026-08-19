@@ -451,7 +451,7 @@ class Game20260809Test : AbstractFullGameTest() {
       playProject(IndustrialCenter, 4) {
             // "Let's just get in your business over here. So I'm placing row two, column five, and"
             // "getting just one plant."
-            doTask("Tile123<Hellas_2_5>")
+            doTask("Card123_SpecialTile<Hellas_2_5>")
           }
           .expect("P")
       assertCounts(1 to "M") // ledger entry 72
@@ -653,7 +653,7 @@ class Game20260809Test : AbstractFullGameTest() {
             // "It holds animals, so Miranda finally comes into play."
             // "I place the tile adjacent to a greenery on the almost-rightmost space in the fourth"
             // "row. That's four money and a plant."
-            doTask("Tile128<Hellas_4_8>")
+            doTask("Card128_SpecialTile<Hellas_4_8>")
             assertCounts(30 to "M") // ledger entry 169
           }
           .expect("-8, P, Miranda, 2 Animal")
@@ -1110,7 +1110,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "Maxwell Edison... I'm sorry, Maxwell Base, costs all 16 money that I have."
     // "It gives me a negative energy production, taking me down to four."
     // "And I place a shitty tile on the Maxwell Base space area and put a delegate on it."
-    dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile") }
+    dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile<>") }
 
     // (8:12 pm) "I raise the temperature to −8°C with eight heat. I get a TR."
     ellie.turn { stdAction("ConvertHeatSA").expect("TR") }
@@ -1221,7 +1221,7 @@ class Game20260809Test : AbstractFullGameTest() {
             // "I'm going to place Restricted Area on the one-card space that is two above the south
             // pole"
             // "so that I can take a card."
-            doTask("Tile199<Hellas_7_6>")
+            doTask("Card199_SpecialTile<Hellas_7_6>")
           }
           .expect("0 ProjectCard")
     }

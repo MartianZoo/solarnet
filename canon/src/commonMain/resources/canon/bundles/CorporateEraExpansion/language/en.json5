@@ -73,8 +73,8 @@
   "CardB11": "Saturn Systems",
   "CardB12": "Teractor",
 
-  "Tile064": "Mining Area Tile",
-  "Tile085": "Commercial District Tile",
-  "Tile123": "Industrial Center Tile",
-  "Tile199": "Restricted Area Tile",
+  "Card064_SpecialTile": "Mining Area Tile",
+  "Card085_SpecialTile": "Commercial District Tile",
+  "Card123_SpecialTile": "Industrial Center Tile",
+  "Card199_SpecialTile": "Restricted Area Tile",
 }

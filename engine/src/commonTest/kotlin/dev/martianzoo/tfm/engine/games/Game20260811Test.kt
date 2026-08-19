@@ -161,7 +161,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.pass()
     ellie
         .playProject(MiningRights, 5, steel = 1) {
-          doTask("Tile067<Hellas_8_8>")
+          doTask("Card067_SpecialTile<Hellas_8_8>")
         }
         .expect("PROD[T], T")
     ellie.playProject(DirectedImpactors, titanium = 2)
@@ -203,7 +203,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
 
     mom.playProject(IndustrialCenter, 4) {
-          doTask("Tile123<Hellas_2_3>")
+          doTask("Card123_SpecialTile<Hellas_2_3>")
           doTask("-2 Microbe<$Recyclon> THEN PROD[P]")
         }
         .expect("P")
@@ -221,7 +221,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.pass()
 
     mom.playProject(EcologicalZone, 12) {
-          doTask("Tile128<Hellas_1_3>")
+          doTask("Card128_SpecialTile<Hellas_1_3>")
         }
         .expect("3 H, 2 Animal, 2 P")
     mom.stdAction("ConvertHeatSA").expect("TR")
@@ -270,7 +270,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("PROD[E]")
 
     mom.playProject(NaturalPreserve, 5, steel = 2) {
-          doTask("Tile044<Hellas_3_7>")
+          doTask("Card044_SpecialTile<Hellas_3_7>")
           mom.draw(Psychrophiles)
         }
         .expect("PROD[M], P")
@@ -386,14 +386,14 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     mom.stdAction("ClaimMilestoneSA") { doTask("Trader") }
     mom.playProject(ProtectedValley, 9, steel = 5) {
-          doTask("-2 Microbe<$Psychrophiles> THEN -4 Owed")
+          doTask("-2 Microbe<$Psychrophiles> THEN -4 Owed<Class<Megacredit>>")
           doTask("GreeneryTile<Hellas_1_1>")
         }
         .expect("PROD[2 M], 3 H, Animal, TR, 2 P, -7")
 
     ellie
         .playProject(LavaFlows, 16) {
-          doTask("Tile140<Hellas_2_2>")
+          doTask("Card140_SpecialTile<Hellas_2_2>")
         }
         .expect("2 TR, 2 P, -11")
     ellie
@@ -666,7 +666,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.sellPatents(FusionPower)
 
     mom.playProject(AdaptedLichen, 3) {
-          doTask("-3 Microbe<$Psychrophiles> THEN -6 Owed")
+          doTask("-3 Microbe<$Psychrophiles> THEN -6 Owed<Class<Megacredit>>")
         }
         .expect("PROD[P], 3 H, Animal")
     mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
@@ -686,7 +686,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     ellie
         .playProject(MagneticFieldGenerators, steel = 10) {
-          doTask("TileX33<Hellas_5_1>")
+          doTask("CardX33_SpecialTile<Hellas_5_1>")
           ellie.draw(AsteroidHollowing)
         }
         .expect("PROD[2 P, -4 E], 2 M")

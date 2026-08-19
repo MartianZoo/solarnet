@@ -223,7 +223,7 @@ internal object SampleGames {
     p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
     p2.playProject(cn("DeimosDown"), 9, titanium = 5) {
       p2.doTask("OceanTile<Tharsis_6_7>")
-      p2.doTask("TileX31<Tharsis_2_5>")
+      p2.doTask("CardX31_SpecialTile<Tharsis_2_5>")
       p2.doTask("-4 Plant<Player1>")
     }
     p2.cardAction1(cn("AiCentral"))
@@ -243,7 +243,7 @@ internal object SampleGames {
     }
     p1.cardAction1(cn("FloatingHabs")) { doTask("Floater<ExtractorBalloons>") }
     p1.cardAction2(cn("ExtractorBalloons"))
-    p2.playProject(cn("EcologicalZone"), 10) { doTask("Tile128<Tharsis_4_5>") }
+    p2.playProject(cn("EcologicalZone"), 10) { doTask("Card128_SpecialTile<Tharsis_4_5>") }
     p2.playProject(cn("Harvest"), 2)
     p1.playProject(cn("NoctisFarming"), 1, steel = 3)
     p1.cardAction2(cn("DeuteriumExport"))
@@ -254,7 +254,7 @@ internal object SampleGames {
     p2.cardAction2(cn("Factorum"))
     p2.playProject(cn("NaturalPreserve"), 1, steel = 2) {
       doTask("-ProjectCard")
-      doTask("Tile044<Tharsis_3_1>")
+      doTask("Card044_SpecialTile<Tharsis_3_1>")
     }
     p1.sellPatents(3)
     p1.playProject(cn("WaterToVenus"), 4, titanium = 1)

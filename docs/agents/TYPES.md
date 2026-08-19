@@ -39,6 +39,40 @@ concrete Type and every nominal supertype of that Type. Ten plant cubes are ten 
 The graph changes only by gain, removal, and atomic transmutation `A FROM B`. Counts cannot become
 negative.
 
+### Owner-local derived Classes
+
+A card definition can declare a component Class at its point of use without choosing its canonical
+name explicitly. For example, a card instruction can gain `Mandate { -> 3 ProjectCard }`, or use
+`CityTile<RemoteArea {}>`. Card-definition construction lowers these to ordinary declarations with
+stable owner-derived names such as `CardB05_Mandate` and `Card021_RemoteArea` before building the
+Class Table. They have exactly the existing Class and component semantics; there is no runtime
+anonymous identity.
+
+The body follows the complete expression. For example,
+`SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}` becomes the use-site expression
+`Card064_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>` and declares its superclass as
+`SpecialTile<LandArea>`. Arguments therefore specialize both the occurrence and the generated
+Class's superclass. Refinements constrain only the occurrence and are removed recursively from the
+declared superclass because refinement types cannot be supertypes.
+
+The local body may contain invariants, properties, effects, and actions. It may not contain
+`DEFAULT` clauses or nested Class declarations. The generated Class inherits applicable defaults
+from its supertypes.
+
+Use this for a Class local to one definition, especially mandates, temporary effects, special tiles,
+and remote areas. A shared Class, a Custom implementation, or a component with several semantic
+roles should remain explicit. Multiple local Classes with the same natural suffix must be declared
+explicitly rather than distinguished by an ordinal or hash.
+
+Another expression that needs the exact derived Class may use its assigned canonical name. Writing
+the superclass without a local body still means the ordinary abstract family; it does not implicitly
+resolve to the local subtype. Existing implicit Type-variable rules continue to link repeated
+abstract dependencies inside the derived Type.
+
+This syntax is available only in card-definition expressions. Ordinary Class declarations reject
+it. Manually submitted instructions are still parsed and validated, then rejected with
+`NoNewClassDeclarationsException` because the live game's Class Table is frozen.
+
 ## 2. Nominal subtyping
 
 Classes may have several abstract direct supertypes:
@@ -139,7 +173,7 @@ Defaults preserve omitted physical-game context:
 ```pets
 DEFAULT Owned<Owner>
 DEFAULT +OceanTile<WaterArea>
-DEFAULT -Owed<Class<Megacredit>>.
+DEFAULT -Required.
 ```
 
 They supply omitted dependency bounds and, for gains/removals, a Quantifier. They change how an
@@ -151,6 +185,12 @@ narrowing; Quantifiers must agree.
 
 Literal `Owner` in a default stays unresolved until a concrete owned context can bind it. In an
 ownerless context it remains the abstract Class.
+
+A gain or removal that would receive dependency bounds from its use-specific default cannot leave
+its argument list implicit. It must supply at least one argument or write an empty list such as
+`GreeneryTile<>` to explicitly accept those bounds. The gain and removal halves of `A FROM B` are
+checked independently. This rule does not apply to all-use dependency defaults or to Quantifier
+defaults; `<>` has the same Type meaning as a bare expression after defaults are inserted.
 
 ## 5a. Class properties
 

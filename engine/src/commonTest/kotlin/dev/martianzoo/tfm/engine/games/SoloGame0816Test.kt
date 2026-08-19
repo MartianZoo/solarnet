@@ -98,7 +98,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       cardAction1(RotatorImpacts) { pay(titanium = 2) }
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("13 M")
       playProject(RestrictedArea, 11) {
-        doTask("Tile199<Elysium_3_7>")
+        doTask("Card199_SpecialTile<Elysium_3_7>")
         draw(CallistoPenalMines, Shuttles, Extremophiles)
       }
       cardAction1(RestrictedArea) { draw(LocalShading) }
@@ -289,7 +289,7 @@ class SoloGame0816Test : AbstractSoloTest() {
           }
           .expect("1 M")
       playProject(TowingAComet, 5, titanium = 6) { doTask("OceanTile<Elysium_4_6>") }.expect("0 M")
-      playProject(LavaFlows, 18) { doTask("Tile140<Elysium_3_1>") }.expect("-15 M")
+      playProject(LavaFlows, 18) { doTask("Card140_SpecialTile<Elysium_3_1>") }.expect("-15 M")
       stdProject("AsteroidSP") { doTask("OceanTile<Elysium_4_7>") }.expect("-10 M")
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_7>") }.expect("4 M")
       cardAction1(BusinessNetwork) { buyCards(NuclearPower) }

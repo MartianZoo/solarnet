@@ -32,7 +32,7 @@ class CapitalTest : CardTest() {
   fun `does not qualify as a special tile for the Manager milestone`() {
     newGame(UtopiaPlanitiaMapOption)
     p1.manual("8, PROD[2 Energy]")
-    p1.manual("Tile128<Utopia_2_2>, Tile044<Utopia_3_3>")
+    p1.manual("Card128_SpecialTile<Utopia_2_2>, Card044_SpecialTile<Utopia_3_3>")
     p1.manual("$Capital") { doTask("CityTile<Utopia_1_1>") }
     engine.phase("Action")
 

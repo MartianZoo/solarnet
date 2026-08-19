@@ -20,7 +20,7 @@ class PolderTechDutchTest : CardTest() {
           shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_2_1>") }
           doTask("GreeneryTile<Tharsis_1_3>")
         }
-        .expect("OceanTile, GreeneryTile, OxygenStep, Energy, Plant")
+        .expect("OceanTile<>, GreeneryTile<>, OxygenStep, Energy, Plant")
 
     p1.assertCounts(1 to "Energy", 1 to "Plant")
   }

@@ -267,11 +267,19 @@ internal class CanonClassesTest {
     checkConcreteSubtypeCount("CityTile", 63 * 2)
     checkConcreteSubtypeCount("OceanTile", 61)
     checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
-    checkConcreteSubtypeCount("SpecialTile", (10 * 61) * 2)
+    checkConcreteSubtypeCount("Card044_SpecialTile", 48 * 2)
+    checkConcreteSubtypeCount("Card085_SpecialTile", 61 * 2)
+    checkConcreteSubtypeCount("Card142_SpecialTile", 12 * 2)
+    val landConstrainedSpecialTiles = 4 * 48
+    val unconstrainedSpecialTiles = 5 * 61
+    val waterConstrainedSpecialTiles = 12
+    val specialTileTypes =
+        (landConstrainedSpecialTiles + unconstrainedSpecialTiles + waterConstrainedSpecialTiles) * 2
+    checkConcreteSubtypeCount("SpecialTile", specialTileTypes)
 
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
-    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 2) + (61 * 2) + (10 * 61 * 2)
+    type.allConcreteSubtypes().count() shouldBe 61 + (63 * 2) + (61 * 2) + specialTileTypes
   }
 
   @Test

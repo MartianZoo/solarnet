@@ -25,6 +25,7 @@ import dev.martianzoo.pets.ClassParsing.Body.BodyElement.InvariantElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.NestedDeclGroup
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.PropertyElement
 import dev.martianzoo.pets.ClassParsing.BodyElements.bodyElementExceptNestedClasses
+import dev.martianzoo.pets.ClassParsing.BodyElements.derivedClassBodyElement
 import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.pets.ClassParsing.Signatures.signature
@@ -53,10 +54,14 @@ internal object ClassParsing : PetTokenizer() {
   internal object Signatures {
 
     private val dependencies: Parser<List<Expression>> =
-        optionalList(skipChar('<') and commaSeparated(Expression.parser()) and skipChar('>'))
+        optionalList(
+            skipChar('<') and
+                commaSeparated(Expression.parser(allowDerivedClass = false)) and
+                skipChar('>')
+        )
 
     private val supertypeList: Parser<List<Expression>> =
-        optionalList(skipChar(':') and commaSeparated(Expression.parser()))
+        optionalList(skipChar(':') and commaSeparated(Expression.parser(allowDerivedClass = false)))
 
     val signature: Parser<Signature> =
         classFullName and
@@ -117,12 +122,17 @@ internal object ClassParsing : PetTokenizer() {
               name to value
             }
 
+    private val invariantElement = invariant map ::InvariantElement
+    private val defaultsElement = default map ::DefaultsElement
+    private val propertyElement = property map ::PropertyElement
+    private val effectElement = Effect.parser() map { EffectElement(it) }
+    private val actionElement = Action.parser() map { ActionElement(it) }
+
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
-        (invariant map ::InvariantElement) or
-            (default map ::DefaultsElement) or
-            (property map ::PropertyElement) or
-            (Effect.parser() map { EffectElement(it) }) or
-            (Action.parser() map { ActionElement(it) })
+        invariantElement or defaultsElement or propertyElement or effectElement or actionElement
+
+    val derivedClassBodyElement: Parser<BodyElement> =
+        invariantElement or propertyElement or effectElement or actionElement
   }
 
   internal object Declarations {
@@ -158,13 +168,24 @@ internal object ClassParsing : PetTokenizer() {
     val declarationFile: Parser<List<ClassDeclaration>> =
         zeroOrMore(topLevelGroup) and skip(nls) map { it.flatten() }
 
-    // For CardDefinition
+    // Single-line and owner-local derived Class bodies
 
-    private val oneLineBody: Parser<Body> =
+    private fun oneLineBodyParser(
+        bodyElement: Parser<BodyElement>,
+        acceptZero: Boolean,
+    ): Parser<Body> =
         skipChar('{') and
-            separatedTerms(bodyElementExceptNestedClasses, char(';')) and
+            separatedTerms(bodyElement, char(';'), acceptZero = acceptZero) and
             skipChar('}') map
             ClassParsing::Body
+
+    val derivedClassBody: Parser<Body> by lazy {
+      oneLineBodyParser(derivedClassBodyElement, acceptZero = true)
+    }
+
+    private val oneLineBody: Parser<Body> by lazy {
+      oneLineBodyParser(bodyElementExceptNestedClasses, acceptZero = false)
+    }
 
     val oneLineDecl: Parser<ClassDeclaration> =
         kind and
@@ -225,6 +246,14 @@ internal object ClassParsing : PetTokenizer() {
     val actions = getAll<ActionElement>().map { it.action }
     val properties = getAll<PropertyElement>().associateStrict { it.property }
     val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
+
+    fun asDerivedDeclaration(className: ClassName, supertype: Expression): ClassDeclaration =
+        NestableDeclGroup(
+                CONCRETE,
+                Signature(className, emptyList(), listOf(supertype)),
+                this,
+            )
+            .finishOnlyDecl()
 
     sealed class BodyElement {
       class InvariantElement(val invariant: Requirement) : BodyElement()

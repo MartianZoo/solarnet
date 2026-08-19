@@ -6,6 +6,7 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
@@ -30,7 +31,39 @@ public data class Expression(
     val arguments: List<Expression> = emptyList(),
     val refinement: Refinement? = null,
     val complement: Boolean = false,
+    /** Whether the source wrote angle brackets, including an explicit empty `<>`. */
+    val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 ) : PetElement(), HasClassName, HasExpression {
+
+  internal var derivedClassBody: ClassParsing.Body? = null
+    private set
+
+  /**
+   * Adds parser-only source information while this expression is being constructed. It is set at
+   * most once, before the expression can enter an AST collection, and removed before a parsed AST
+   * leaves [dev.martianzoo.pets.Parsing].
+   */
+  internal fun withDerivedClassBody(body: ClassParsing.Body): Expression = apply {
+    check(derivedClassBody == null)
+    derivedClassBody = body
+  }
+
+  override fun equals(other: Any?): Boolean =
+      this === other ||
+          (other is Expression &&
+              className == other.className &&
+              arguments == other.arguments &&
+              refinement == other.refinement &&
+              complement == other.complement &&
+              derivedClassBody == other.derivedClassBody)
+
+  override fun hashCode(): Int {
+    var result = className.hashCode()
+    result = 31 * result + arguments.hashCode()
+    result = 31 * result + (refinement?.hashCode() ?: 0)
+    result = 31 * result + complement.hashCode()
+    return 31 * result + (derivedClassBody?.hashCode() ?: 0)
+  }
 
   override val expression: Expression
     get() = this
@@ -41,17 +74,22 @@ public data class Expression(
   override fun toString(): String = buildString {
     if (complement) append("!")
     append(className)
-    if (arguments.isNotEmpty()) append(arguments.joinToString(", ", "<", ">"))
+    if (argumentsSpecified) append(arguments.joinToString(", ", "<", ">"))
     refinement?.let { append("($it)") }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
-  val simple: Boolean = !complement && arguments.isEmpty() && refinement == null
+  val simple: Boolean =
+      !complement && arguments.isEmpty() && refinement == null && !argumentsSpecified
 
   public fun appendArguments(moreArgs: List<Expression>): Expression =
       replaceArguments(arguments + moreArgs)
 
-  internal fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
+  internal fun replaceArguments(newArgs: List<Expression>): Expression =
+      copy(
+          arguments = newArgs,
+          argumentsSpecified = argumentsSpecified || newArgs.isNotEmpty(),
+      )
 
   internal fun uncomplemented(): Expression = copy(complement = false)
 
@@ -91,22 +129,38 @@ public data class Expression(
   }
 
   internal companion object : PetTokenizer() {
-    fun parser(): Parser<Expression> {
+    fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
       return parser {
-        val argumentList = skipChar('<') and commaSeparated(parser()) and skipChar('>')
+        val argumentList =
+            skipChar('<') and
+                optionalList(commaSeparated(parser(allowDerivedClass))) and
+                skipChar('>')
         val refinement: Parser<Refinement> =
             group(skip(_has) and isPresent(char('?')) and Requirement.parser()) map
                 { (a, b) ->
                   Refinement(b, a)
                 }
 
-        isPresent(char('!')) and
-            ClassName.parser() and
-            optionalList(argumentList) and
-            optional(refinement) map
-            { (not, clazz, args, ref) ->
-              Expression(clazz, args, ref, not)
-            }
+        if (allowDerivedClass) {
+          isPresent(char('!')) and
+              ClassName.parser() and
+              optional(argumentList) and
+              optional(refinement) and
+              optional(ClassParsing.Declarations.derivedClassBody) map
+              { (not, clazz, args, ref, body) ->
+                Expression(clazz, args.orEmpty(), ref, not, args != null).let {
+                  if (body == null) it else it.withDerivedClassBody(body)
+                }
+              }
+        } else {
+          isPresent(char('!')) and
+              ClassName.parser() and
+              optional(argumentList) and
+              optional(refinement) map
+              { (not, clazz, args, ref) ->
+                Expression(clazz, args.orEmpty(), ref, not, args != null)
+              }
+        }
       }
     }
   }

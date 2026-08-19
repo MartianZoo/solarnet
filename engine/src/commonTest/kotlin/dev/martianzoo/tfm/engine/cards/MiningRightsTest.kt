@@ -18,7 +18,7 @@ class MiningRightsTest : CardTest() {
     manual
         .manual("$MiningRights") {
           shouldThrow<TaskException> { doTask("PROD[Steel]") }
-          doTask("Tile067<Tharsis_1_1>")
+          doTask("Card067_SpecialTile<Tharsis_1_1>")
           doTask("2 Steel")
           doTask("PROD[Steel]")
         }
@@ -32,7 +32,7 @@ class MiningRightsTest : CardTest() {
     newGame(TerraCimmeriaMapOption)
 
     p1.manual("$MiningRights") {
-          doTask("Tile067<Cimmeria_6_4>")
+          doTask("Card067_SpecialTile<Cimmeria_6_4>")
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
@@ -50,7 +50,7 @@ class MiningRightsTest : CardTest() {
   fun `with a card-bonus area selected, tries to play Mining Rights`() {
     newGame()
     shouldThrow<NotNowException> {
-      p1.manual("$MiningRights") { doTask("Tile067<Tharsis_2_1>") }
+      p1.manual("$MiningRights") { doTask("Card067_SpecialTile<Tharsis_2_1>") }
     }
   }
 }

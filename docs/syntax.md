@@ -8,7 +8,7 @@ in `cards.json5`.
 ```
 typeExpression    := dependentTypeExpr | classLiteral
 dependentTypeExpr := className [dependencyBounds] [hasRefinement]
-dependencyBounds  := '<' dependencyBound (',' dependencyBound)* '>'
+dependencyBounds  := '<' [dependencyBound (',' dependencyBound)*] '>'
 dependencyBound   := ['!'] typeExpression
 hasRefinement     := '(' ('HAS' | 'HAS?') requirement ')'
 classLiteral      := 'Class' '<' className '>' [hasRefinement]
@@ -26,6 +26,11 @@ comes a class name, then an optional list of one or more dependency bounds insid
 requirement. Of course, each listed bound is an entire type expression itself.
 
 These expressions are a way of identifying a type, and types are explained in the [type system](type-system.md) article.
+
+Empty angle brackets explicitly accept any dependency bounds defaulted for that gain or removal.
+For example, if `GreeneryTile` has a gain dependency default, a gain must say either
+`GreeneryTile<>` or provide at least one dependency argument. Gain and removal defaults are
+independent, including on the two sides of `FROM`.
 
 A leading `!` can be used inside a dependency bound to mean "anything within this dependency's bound except the named type". For example, `OwnedTile<!Player1>` matches owned tiles whose owner is not Player1. Complement type expressions are dependency constraints and have no standalone type.
 

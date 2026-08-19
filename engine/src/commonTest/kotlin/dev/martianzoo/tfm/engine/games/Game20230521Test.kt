@@ -1056,7 +1056,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2's plants amount increased by 1
         p2.doTask("OceanTile<Tharsis_6_7>")
         // Player2 placed Deimos Down tile on row 2 position 5
-        p2.doTask("TileX31<Tharsis_2_5>")
+        p2.doTask("CardX31_SpecialTile<Tharsis_2_5>")
         // Player1's plants amount decreased by 4 by Player2
         p2.doTask("-4 Plant<Player1>")
         // Player2 gained 2 plants from Arctic Algae
@@ -1128,7 +1128,7 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject(EcologicalZone, 10) {
             // Player2 placed Ecological Zone tile on row 4 position 5
             // Player2's plants amount increased by 2
-            doTask("Tile128<Tharsis_4_5>")
+            doTask("Card128_SpecialTile<Tharsis_4_5>")
           }
           .expect("2 Animal, 2 Plant")
 
@@ -1188,7 +1188,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2 placed Natural Preserve tile on row 3 position 1
         // Player2 drew 1 card(s)
         // You drew Black Polar Dust
-        doTask("Tile044<Tharsis_3_1>")
+        doTask("Card044_SpecialTile<Tharsis_3_1>")
       }
     }
 
@@ -1586,7 +1586,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       playProject(MagneticFieldGenerators, 5, steel = 5) {
             // Player2 placed Magnetic Field Generators tile on row 6 position 5
-            doTask("TileX33<Tharsis_6_6>")
+            doTask("CardX33_SpecialTile<Tharsis_6_6>")
             // Player2's plants amount increased by 1
           }
           .expect("PROD[-4 Energy, 2 Plant], 3 TR, Plant")

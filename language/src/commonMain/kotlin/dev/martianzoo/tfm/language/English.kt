@@ -1,21 +1,42 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 
 /**
  * English card text, derived from canonical card definitions or read from the backing data file.
  */
 public object English {
+  /** Returns complete English sentences describing [effect]. */
+  public fun describe(effect: Effect): String = describeOrNull(effect) ?: unsupported(effect)
+
+  /** Returns complete English sentences describing [actions] as one action region. */
+  public fun describe(actions: List<Action>): String =
+      describeOrNull(actions) ?: unsupported(actions)
+
+  /** Returns complete English sentences describing [actions] as actions on [card]. */
+  public fun describe(actions: List<Action>, card: CardDefinition): String =
+      describeOrNull(actions, card) ?: unsupported(actions)
+
+  /** Returns complete, context-neutral English sentences describing [instructionTree]. */
+  public fun describe(instructionTree: InstructionTree): String =
+      describeOrNull(instructionTree) ?: unsupported(instructionTree)
+
+  /**
+   * Returns complete English sentences describing [instructionTree] as an instruction on [card].
+   */
+  public fun describe(instructionTree: InstructionTree, card: CardDefinition): String =
+      describeOrNull(instructionTree, card) ?: unsupported(instructionTree)
+
+  /** Returns complete English sentences describing [requirement]. */
+  public fun describe(requirement: Requirement): String =
+      describeOrNull(requirement) ?: unsupported(requirement)
+
   /** Returns the text printed above the artwork on [cardFront]. */
   public fun topText(cardFront: ClassName): String {
     val card = cardsByClassName[cardFront] ?: return text(cardFront).top
@@ -29,7 +50,7 @@ public object English {
   }
 
   internal fun topText(card: CardDefinition, fallback: () -> String): String =
-      if (hasTopTextElement(card)) fallback() else ""
+      derivedTopText(card) ?: if (hasTopTextElement(card)) fallback() else ""
 
   internal fun bottomText(card: CardDefinition, fallback: () -> String): String =
       derivedBottomText(card) ?: if (hasBottomTextElement(card)) fallback() else ""
@@ -46,56 +67,56 @@ public object English {
       card.requirement != null || card.immediate != null || card.effects.any(::isEndEffect)
 
   private fun derivedBottomText(card: CardDefinition): String? {
-    if (card.requirement != null || card.effects.any(::isEndEffect)) return null
-    val instruction = card.immediate?.instructions?.singleOrNull() as? Gain ?: return null
-    if (instruction.intensity != null && instruction.intensity != MANDATORY) return null
-    if (!instruction.gaining.simple) return null
-    val count = (instruction.count as? ActualScalar)?.value ?: return null
-    if (!isStandardResource(instruction.gaining.className)) return null
-    return "Gain $count ${componentNoun(instruction.gaining.className, count)}."
-  }
-
-  private fun isStandardResource(className: ClassName): Boolean {
-    val resourceClass = Canon.classTable.findClass(className) ?: return false
-    return !resourceClass.abstract &&
-        resourceClass.isSubtypeOf(Canon.classTable.getClass(STANDARD_RESOURCE))
-  }
-
-  private fun componentNoun(className: ClassName, count: Int): String =
-      when {
-        className == MEGACREDIT -> "M€"
-        className == plant && count != 1 -> "plants"
-        else -> unCamelCase(className.toString())
-      }
-
-  private fun unCamelCase(name: String): String = buildString {
-    name.forEachIndexed { index, character ->
-      val previous = name.getOrNull(index - 1)
-      val next = name.getOrNull(index + 1)
-      if (character == '_') {
-        append(' ')
-      } else {
-        val startsWord =
-            previous != null &&
-                character.isUpperCase() &&
-                (previous.isLowerCase() ||
-                    previous.isDigit() ||
-                    (previous.isUpperCase() && next?.isLowerCase() == true))
-        if (startsWord) append(' ')
-        append(character.lowercaseChar())
-      }
+    if (card.extraClasses.any { it.className != card.resourceType }) {
+      return null
     }
+    val requirement = card.requirement?.let { describeOrNull(it) ?: return null }
+    val instructions = card.immediate?.let { describeOrNull(it, card) ?: return null }
+    val scoring = card.effects.filter(::isEndEffect).map { describeOrNull(it) ?: return null }
+    return (listOfNotNull(requirement, instructions) + scoring)
+        .takeIf { it.isNotEmpty() }
+        ?.joinToString(" ")
   }
 
-  private fun isEndEffect(effect: Effect): Boolean {
-    val cardTrigger = effect.trigger
-    return cardTrigger is OnGainOf && cardTrigger.expression == endExpression
+  private fun derivedTopText(card: CardDefinition): String? {
+    if (card.immediate != null || card.extraClasses.any { it.className != card.resourceType }) {
+      return null
+    }
+    val actions =
+        card.actions
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+              "Action: ${describeOrNull(it, card) ?: return null}"
+            }
+    val effects =
+        card.effects
+            .filterNot(::isEndEffect)
+            .takeIf { it.isNotEmpty() }
+            ?.let { list ->
+              val rendered = list.map { describeOrNull(it) ?: return null }
+              "Effect: ${rendered.joinToString(" ")}"
+            }
+    return listOfNotNull(actions, effects).joinToString(" / ")
   }
+
+  private fun describeOrNull(effect: Effect): String? = renderEndEffect(effect)
+
+  private fun describeOrNull(
+      actions: List<Action>,
+      card: CardDefinition? = null,
+  ): String? = renderActions(actions, card)
+
+  private fun describeOrNull(
+      instructionTree: InstructionTree,
+      card: CardDefinition? = null,
+  ): String? = renderInstructionTree(instructionTree, card)
+
+  private fun describeOrNull(requirement: Requirement): String? = renderRequirement(requirement)
+
+  private fun unsupported(element: Any): Nothing =
+      throw IllegalArgumentException("No English description for Pets element: $element")
 
   private val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
     Canon.cardDefinitions.associateBy { it.className }
   }
-
-  private val endExpression = cn("End").expression
-  private val plant = cn("Plant")
 }

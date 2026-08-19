@@ -1,5 +1,10 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import io.kotest.assertions.withClue
@@ -18,6 +23,29 @@ internal class EnglishTest {
         English.bottomText(cardFront) shouldBe expected.bottom
       }
     }
+  }
+
+  @Test
+  fun describesStandalonePetsElements() {
+    English.describe(parse<Effect>("End: VictoryPoint / Animal<This>")) shouldBe
+        "1 VP for each animal on this card."
+    English.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
+        "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
+    English.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
+        "Gain 2 plants. Raise temperature 1 step."
+    English.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Oxygen must be 6% or less."
+
+    val animalCard =
+        CardDefinition(
+            CardData(
+                id = "AnimalHolder",
+                deck = "PROJECT",
+                projectKind = "ACTIVE",
+                resourceType = "Animal",
+            )
+        )
+    English.describe(parse<InstructionTree>("Animal"), animalCard) shouldBe
+        "Add 1 animal to ANY card."
   }
 
   @Test

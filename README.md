@@ -16,8 +16,8 @@
 | `ElectroCatapult` | `Plant OR Steel -> 7`                                       |
 | `ArcticAlgae`     | `OceanTile BY Anyone: 2 Plant`                              |
 | `Insulation`      | `This: PROD[X Megacredit FROM Heat]`                        |
-| `EarthCatapult`   | `PlayCard: -2 Owed<Megacredit>`                             |
-| `CitySP`          | `25 -> CityTile, PROD[1]`                                   |
+| `EarthCatapult`   | `PlayCard: -2 Owed<Class<Megacredit>>`                      |
+| `CitySP`          | `25 -> CityTile<>, PROD[1]`                                 |
 | `TerraformRating` | `ProductionPhase: 1`, `End: VictoryPoint`                   |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>` |
 

@@ -13,7 +13,7 @@ class DirigiblesTest : CardTest() {
     p1.manual("ProjectCard, $Dirigibles, 2 Floater<$Dirigibles>, 5")
 
     p1.playProject(AerialMappers, 5) {
-          doTask("-2 Floater<$Dirigibles>! THEN -6 Owed.")
+          doTask("-2 Floater<$Dirigibles>! THEN -6 Owed<Class<Megacredit>>.")
         }
         .expect("-2 Floater<$Dirigibles>, $AerialMappers")
   }

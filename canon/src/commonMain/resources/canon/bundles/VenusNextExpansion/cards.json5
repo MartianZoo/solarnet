@@ -6,7 +6,7 @@
       "id": "VC1",
       "deck": "CORPORATION",
       "tags": [ "VenusTag", "PlantTag" ],
-      "immediate": "PROD[Plant], 47",
+      "immediate": "47, PROD[Plant]",
       "effects": [ "VenusStep BY Anyone: 2" ],
     },
 
@@ -16,10 +16,9 @@
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
       "resourceType": "Floater",
-      "immediate": "42, MandateVC2F",
+      "immediate": "42, Mandate { -> 2 ProjectCard }",
       "actions": [ "-> Floater" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
-      "components": [ "CLASS MandateVC2F : Mandate { -> 2 ProjectCard }" ],
     },
 
     // Manutech
@@ -27,7 +26,7 @@
       "id": "VC3",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[Steel], 35",
+      "immediate": "35, PROD[Steel]",
       "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
@@ -36,9 +35,8 @@
       "id": "VC4F",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
-      "immediate": "50, MandateVC4F",
+      "immediate": "50, Mandate { -> 3 ProjectCard }",
       "effects": [ "PlayCard: -2 Required<Class<VenusStep>>." ],
-      "components": [ "CLASS MandateVC4F : Mandate { -> 3 ProjectCard }" ],
     },
 
     // Viron
@@ -138,9 +136,8 @@
       "requirement": "4 ScienceTag",
       "cost": 15,
       "tags": [ "SpaceTag", "CityTag" ],
-      "immediate": "PROD[-Energy, Titanium], CityTile<Area220>",
+      "immediate": "PROD[-Energy, Titanium], CityTile<RemoteArea {}>",
       "effects": [ "End: 3 VictoryPoint" ],
-      "components": [ "CLASS Area220 : RemoteArea" ],
     },
 
     // Deuterium Export
@@ -167,7 +164,7 @@
       "resourceType": "Floater",
       "actions": [ "-> Floater" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed.) OR Ok"
+        "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed<Class<Megacredit>>.) OR Ok"
       ],
     },
 
@@ -265,7 +262,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile",
+      "immediate": "PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile<>",
     },
 
     // Hydrogen To Venus
@@ -335,9 +332,8 @@
       "projectKind": "AUTOMATED",
       "cost": 21,
       "tags": [ "SpaceTag", "EarthTag", "CityTag" ],
-      "immediate": "PROD[1 / EarthTag], CityTile<Area236>",
+      "immediate": "PROD[1 / EarthTag], CityTile<RemoteArea {}>",
       "effects": [ "End: 2 VictoryPoint" ],
-      "components": [ "CLASS Area236 : RemoteArea" ],
     },
 
     // Luxury Foods
@@ -358,10 +354,9 @@
       "requirement": "6 VenusStep",
       "cost": 18,
       "tags": [ "VenusTag", "CityTag" ],
-      "immediate": "PROD[-Energy], CityTile<Area238>",
+      "immediate": "PROD[-Energy], CityTile<RemoteArea {}>",
       "actions": [ "-> CardResource<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: 3 VictoryPoint" ],
-      "components": [ "CLASS Area238 : RemoteArea" ],
     },
 
     // Mining Quota
@@ -418,7 +413,7 @@
       "resourceType": "Asteroid",
       "actions": [
         // 6[Titanium] -> Asteroid<This>
-        "-> 6 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
+        "-> 6 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
     },
@@ -463,11 +458,10 @@
       "projectKind": "AUTOMATED",
       "cost": 9,
       "tags": [ "ScienceTag", "EarthTag" ],
-      "immediate": "-ProjectCard THEN (2 ProjectCard, AllDraw)",
+      "immediate": "-ProjectCard THEN (2 ProjectCard, Signal {})",
       "effects": [ "End: VictoryPoint" ],
       "components": [
-        "CLASS AllDraw : Signal",
-        "CLASS Card247Watcher : Owned<Player> { HAS =1 This; AllDraw BY Anyone: ProjectCard }"
+        "CLASS Card247Watcher : Owned<Player> { HAS =1 This; Card247_Signal BY Anyone: ProjectCard }"
       ],
     },
 
@@ -480,10 +474,9 @@
       "cost": 22,
       "tags": [ "VenusTag", "CityTag" ],
       "resourceType": "Floater",
-      "immediate": "PROD[2], CityTile<Area248>",
+      "immediate": "PROD[2], CityTile<RemoteArea {}>",
       "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
-      "components": [ "CLASS Area248 : RemoteArea" ],
     },
 
     // Stratospheric Birds
@@ -601,7 +594,7 @@
       "cost": 9,
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>:: -2 Owed",
+        "PlayTag<Class<VenusTag>>:: -2 Owed<Class<Megacredit>>",
         "End: VictoryPoint"
       ],
     },

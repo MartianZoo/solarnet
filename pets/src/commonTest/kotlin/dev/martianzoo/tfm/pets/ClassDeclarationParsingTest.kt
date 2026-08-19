@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.pets
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -74,6 +75,14 @@ internal class ClassDeclarationParsingTest {
     shouldThrow<PetSyntaxException> {
       parseClasses("CLASS Foo { score = TemperatureStep }")
     }
+  }
+
+  @Test
+  fun ownerLocalClassesAreRejectedInsideOrdinaryClassDeclarations() {
+    val source = "CLASS Foo { Bar {}: Baz }"
+
+    shouldThrow<PetSyntaxException> { parseClasses(source) }
+    shouldThrow<PetSyntaxException> { parseOneLinerClass(source) }
   }
 
   @Test

@@ -96,7 +96,7 @@ An automatic triggering Effect already provides the automatic form of fanout. Do
 | Starting TR and corporation cards on `Player` | `EACH Player { 20 TerraformRating<Player> }`; `EACH Player { CorporationCard<Player> }` | Pure recipient fanout |
 | `PreludeSetup<Player>` singleton listeners | `EACH Player { 2 PreludeCard<Player> }` | Pure recipient fanout |
 | Award tallying through every `Player` | `EACH Player { AwardTally<Player, This> / EVAL This.metric }` | Pure scoring fanout |
-| Sponsored Academies' `AllDraw` and Player watchers | `-ProjectCard THEN (3 ProjectCard, EACH (Player except Owner) { ProjectCard<Player> })` | Schematic opponent fanout; difference-selector syntax unresolved |
+| Sponsored Academies' owner-local `Signal` and Player watchers | `-ProjectCard THEN (3 ProjectCard, EACH (Player except Owner) { ProjectCard<Player> })` | Schematic opponent fanout; difference-selector syntax unresolved |
 | Mons Insurance setup watchers | `EACH Player { MAX 0 CardXC05<Player>: PROD[-2 Megacredit<Player>] BY Player }` | Must name Player so solo opponent is excluded |
 | Vermin's end-game Player watchers | `EACH Player { -VictoryPoint<Player> / CityTile<Player> }` | Pure scoring fanout |
 | Kotlin `ColoniesSetup` fleet loop | `EACH Player { ReserveTradeFleet<Player> }` | Pure setup fanout |

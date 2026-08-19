@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.KindException
+import dev.martianzoo.api.Exceptions.NoNewClassDeclarationsException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
@@ -29,6 +30,16 @@ internal class DomainExceptionBoundaryTest {
   @Test
   fun preprocessingKindChangesUseKindExceptions() {
     shouldThrow<KindException> { gameplay().parse<Instruction>("2 OxygenStep!") }
+  }
+
+  @Test
+  fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
+    val gameplay = gameplay()
+
+    shouldThrow<NoNewClassDeclarationsException> {
+      gameplay.manual("Mandate { -> 3 ProjectCard }")
+    }
+    shouldThrow<PetSyntaxException> { gameplay.manual("Mandate { -> }") }
   }
 
   @Test

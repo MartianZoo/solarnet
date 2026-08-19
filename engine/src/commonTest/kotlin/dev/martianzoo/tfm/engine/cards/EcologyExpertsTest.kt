@@ -74,7 +74,7 @@ class EcologyExpertsTest : CardTest() {
     p1.manual("12 Megacredit, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
     p1.playPrelude(EcologyExperts) {
-      p1.playProject(EcologicalZone, 12) { doTask("Tile128<Tharsis_4_5>") }
+      p1.playProject(EcologicalZone, 12) { doTask("Card128_SpecialTile<Tharsis_4_5>") }
     }
 
     p1.assertCounts(2 to "Animal<$EcologicalZone>")
