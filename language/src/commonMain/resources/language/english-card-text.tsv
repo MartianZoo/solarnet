@@ -195,10 +195,10 @@ Card172	172	Pets	Add 1 animal to this card. 1 VP for every 2 animals here.	Effec
 Card174	174	Protected Valley	Increase your M€ production 2 steps. Place a greenery tile ON AN AREA RESERVED FOR OCEAN (and raise oxygen 1 step), disregarding normal placement restrictions.	
 Card176	176	Noctis Farming	Requires -20°C or warmer. Increase your M€ production 1 step. Gain 2 plants. 1 VP.	
 Card177	177	Water Splitting Plant	Requires 2 ocean tiles.	Action: Spend 3 energy to raise oxygen 1 step.
-Card178	178	Heat Trappers	Decrease any player's heat production 2 steps and increase your energy production 1 step.	
+Card178	178	Heat Trappers	Decrease any player's heat production 2 steps and increase your energy production 1 step. -1 VP.	
 Card179	179	Soil Factory	Decrease your energy production 1 step and increase your plant production 1 step. 1 VP.	
 Card181	181	Ice Cap Melting	Requires +2°C or warmer. Place an ocean tile.	
-Card183	183	Biomass Combustors	Requires 6% oxygen. Decrease any player's plant production 1 step and increase your energy production 2 steps.	
+Card183	183	Biomass Combustors	Requires 6% oxygen. Decrease any player's plant production 1 step and increase your energy production 2 steps. -1 VP.	
 Card184	184	Livestock	Requires 9% oxygen. Decrease your plant production 1 step and increase your M€ production 2 steps. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card187	187	Aquifer Pumping		Action: Spend 8 M€ to place an ocean tile. Steel may be used.
 Card188	188	Flooding	Place an ocean tile. If there are tiles adjacent to this ocean tile, you may remove up to 4 M€ from the owner of one of those tiles.	
@@ -254,11 +254,11 @@ Card107	107	Media Archives	Gain 1 M€ for each card in all players' event piles
 Card109	109	Media Group		Effect: When you play an event card, you gain 3 M€.
 Card110F	110	Business Network	Decrease your M€ production 1 step.	Action: Look at the top card and either buy it or discard it.
 Card111F	111	Business Contacts	Look at the top 4 cards from the deck. Draw 2 of them and discard the other 2.	
-Card112	112	Bribed Committee	Raise your TR 2 steps.	
+Card112	112	Bribed Committee	Raise your TR 2 steps. -2 VPs.	
 Card121	121	Sabotage	Remove up to 3 titanium from any player, or 4 steel, or 7 M€.	
 Card123	123	Industrial Center	Place this tile ADJACENT TO A CITY TILE.	Action: Spend 7 M€ to increase your steel production 1 step.
 Card124	124	Hired Raiders	Steal up to 2 steel, or 3 M€ from any player.	
-Card125	125	Hackers	Decrease your energy production 1 step and any player's M€ production 2 steps. Increase your M€ production 2 steps.	
+Card125	125	Hackers	Decrease your energy production 1 step and any player's M€ production 2 steps and increase your M€ production 2 steps. -1 VP.	
 Card137	137	Cartel	Increase your M€ production 1 step for each Earth tag you have, including this.	
 Card144	144	Titanium Mine	Increase your titanium production 1 step.	
 Card149	149	CEO's Favorite Project	Add 1 resource to a card with at least 1 resource on it.	
@@ -270,7 +270,7 @@ Card160	160	Power Supply Consortium	Requires 2 power tags. Decrease any player's
 Card173	173	Protected Habitats		Effect: Opponents may not remove your plant, animal, or microbe resources.
 Card175	175	Satellites	Increase your M€ production 1 step for each space tag you have, including this.	
 Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium production and your M€ production 1 step each.	
-Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile.	
+Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. -2 VPs.	
 Card185	185	Olympus Conference		Effect: When you play a science tag, including this, either add 1 science resource to this card, or remove 1 science resource to draw 1 card.
 Card186	186	Rad-Suits	Requires 2 city tiles in play. Increase your M€ production 1 step.	
 Card192F	192	Invention Contest	Look at the top 3 cards from the deck. Draw 1 of them and discard the other 2.	
@@ -279,7 +279,7 @@ Card195	195	Indentured Workers	The next card you play this generation costs 8 M�
 Card196	196	Lagrange Observatory	Draw 1 card.	
 Card197	197	Terraforming Ganymede	Raise your TR 1 step for each Jovian tag you have, including this.	
 Card199	199	Restricted Area	Place this tile.	Action: Spend 2 M€ to draw 1 card.
-Card201	201	Energy Tapping	Decrease any player's energy production 1 step and increase your energy production 1 step.	
+Card201	201	Energy Tapping	Decrease any player's energy production 1 step and increase your energy production 1 step. -1 VP.	
 Card204	204	Technology Demonstration	Draw 2 cards.	
 Card207	207	Medical Lab	Increase your M€ production 1 step for every 2 building tags you have, including this.	
 Card208	208	AI Central	Requires 3 science tags. Decrease your energy production 1 step. 1 VP.	Action: Draw 2 cards.
@@ -356,7 +356,7 @@ CardC10	C10	Floater Leasing	Increase your M€ production 1 step for every 3 flo
 CardC11	C11	Floater Prototypes	Add 2 floaters to ANOTHER card.	
 CardC12	C12	Floater Technology		Action: Add 1 floater to ANOTHER card.
 CardC13	C13	Galilean Waystation	Increase your M€ production 1 step for each Jovian tag in play.	
-CardC14	C14	Heavy Taxation	Requires 2 Earth tags. Increase your M€ production 2 steps, and gain 4 M€.	
+CardC14	C14	Heavy Taxation	Requires 2 Earth tags. Increase your M€ production 2 steps. Gain 4 M€. -1 VP.	
 CardC15	C15	Ice Moon Colony	Place a colony. Place an ocean tile.	
 CardC16	C16	Impactor Swarm	Requires 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.	
 CardC17	C17	Interplanetary Colony Ship	Place a colony.	

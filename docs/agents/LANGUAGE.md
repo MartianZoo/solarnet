@@ -88,7 +88,7 @@ mandatory standard-resource production gains or decreases; a city-tile, colony, 
 placement; one plain greenery-tile placement; or a concrete mandatory
 temperature, oxygen, Venus-step, or TR gain or removal. A production decrease may target any player.
 Supported instructions are rendered in authored order, with adjacent standard-resource gains coalesced
-into one sentence. A concrete fixed VP gain triggered by `End` is also derived.
+into one sentence. A concrete fixed VP gain or penalty triggered by `End` is also derived.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
