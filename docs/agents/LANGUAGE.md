@@ -85,6 +85,12 @@ and declares no dependency, invariant, effect, default, property, refinement, or
 This replaces category-name exemptions without allowing a behavior-bearing intermediate class to
 inherit permission accidentally.
 
+`directChangeForSubclasses` is likewise a direct opt-in by one exact superclass. It permits the
+superclass's direct-change construction to inspect a gained concrete direct subclass. Each such
+construction must reject any subclass declaration whose behavior it does not completely account
+for; the next-played-card discount construction, for example, accepts exactly one automatic
+played-card payment reduction and obtains the amount and resource from that Effect.
+
 Instruction changes and requirements are retained as internal clauses, predicates, noun phrases,
 modifiers, and coordinations until their enclosing sentence or action has made its structural
 decisions. One linearizer owns capitalization, punctuation, number agreement, and final text
@@ -204,6 +210,8 @@ Tag metrics may instead count tags among all players or only tags the player's o
 An instruction metric may cap any otherwise supported count with a parenthetical maximum.
 One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
 component's Describer when its procedure is absent from the Pets change itself.
+Another supported direct-change construction gains a temporary component whose declaration says
+that the next card played receives one fixed standard-resource payment discount.
 Ownership and location remain independent renderer facts. Because a component outside the game
 does not exist in Solarnet's model, generated metric phrases do not say `in play`; the published
 cards use that phrase to contrast any player's components with the acting player's own components.
@@ -245,8 +253,9 @@ move a shared count after several productions with `each`.
 An unsupported requirement, unsupported End-triggered scoring effect, unaccounted behavior-bearing
 extra component declaration, or unsupported immediate-instruction shape keeps the whole region
 data-backed. Component declarations can encode printed setup behavior that is absent from
-`immediate`, so deriving only that group could omit bottom text. An exact direct-change declaration
-accounts for a gained extra component's printed procedure. A strictly empty direct subclass of
+`immediate`, so deriving only that group could omit bottom text. An exact direct-change declaration,
+or an exact superclass's explicit and validated subclass construction, accounts for a gained extra
+component's printed procedure. A strictly empty direct subclass of
 CardResource, SpecialTile, or RemoteArea is declared text-neutral and does not prevent derivation.
 Actions and non-End effects are top elements and do not prevent bottom derivation.
 

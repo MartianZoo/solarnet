@@ -43,11 +43,23 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       card: CardDefinition,
   ): Boolean {
     val componentClass = classesByName.getValue(declaration.className)
-    if (descriptions.getValue(componentClass).directChange == null) return false
+    val ownDescription = descriptions.getValue(componentClass)
+    val described =
+        ownDescription.directChange != null ||
+            (!componentClass.abstract &&
+                componentClass.directSuperclasses.singleOrNull()?.let { superclass ->
+                  val superclassDescription = descriptions.getValue(superclass)
+                  superclassDescription.directChange != null &&
+                      superclassDescription.directChangeForSubclasses
+                } == true)
+    if (!described) return false
     return card.immediate?.descendantsOfType<Gain>()?.any {
       it.gaining.className == declaration.className
     } == true
   }
+
+  internal fun declaration(className: ClassName): ClassDeclaration =
+      classesByName.getValue(className).declaration
 
   private fun isTextNeutralExtraClass(declaration: ClassDeclaration): Boolean {
     val superclass = declaration.supertypes.singleOrNull() ?: return false

@@ -107,7 +107,7 @@ internal fun renderEffects(effects: List<Effect>, describers: Describers): Strin
 }
 
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
-  describers.renderOwedReduction(effect.instruction)?.let { reduction ->
+  owedReduction(effect.instruction, describers)?.let { reduction ->
     val actionTrigger = describers.renderActionPaymentDiscountTrigger(effect.trigger)
     val trigger = actionTrigger ?: describers.renderEventTrigger(effect.trigger) ?: return null
     return PaymentDiscount(
@@ -146,11 +146,9 @@ private data class PaymentDiscount(
 
 private fun renderResourcePaymentValue(effect: Effect, describers: Describers): String? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
-  val reduction = describers.renderOwedReduction(effect.instruction) ?: return null
+  val reduction = owedReduction(effect.instruction, describers) ?: return null
   return "Each $spent you spend is worth ${reduction.count} ${reduction.noun} extra."
 }
-
-private data class ResourceAmount(val count: Int, val noun: String)
 
 private data class EventTrigger(val subject: String?, val predicate: String) {
   fun linearize(): String = listOfNotNull(subject, predicate).joinToString(" ")
@@ -213,17 +211,6 @@ private fun Describers.paymentDiscountRefersToPlayedObject(trigger: Trigger): Bo
   return fact(expression.className, ComponentDescriber::playTrigger) ==
       ComponentDescriber.PlayTrigger.CARD ||
       fact(expression.className, ComponentDescriber::playedCard) == true
-}
-
-private fun Describers.renderOwedReduction(instruction: InstructionTree): ResourceAmount? {
-  val removal = instruction as? Remove ?: return null
-  if (removal.intensity != null && removal.intensity != MANDATORY) return null
-  val expression = removal.removing
-  if (expression.refinement != null || expression.complement) return null
-  if (fact(expression.className, ComponentDescriber::owedPayment) != true) return null
-  val resource = representedClass(expression) ?: return null
-  val count = (removal.count as? ActualScalar)?.value ?: return null
-  return ResourceAmount(count, plainGainNoun(resource.className, count) ?: return null)
 }
 
 private data class Event(val kind: EventKind, val objectPhrase: String)

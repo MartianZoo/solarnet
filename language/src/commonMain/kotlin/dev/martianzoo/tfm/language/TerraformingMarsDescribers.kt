@@ -276,6 +276,11 @@ internal object TerraformingMarsDescribers {
                         "all your colony bonuses",
                     )
             ),
+        klass("NextCardEffect") to
+            ComponentDescriber(
+                directChange = ComponentDescriber.DirectChange.NextPlayedCardDiscount,
+                directChangeForSubclasses = true,
+            ),
         klass("ReserveTradeFleet") to
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)

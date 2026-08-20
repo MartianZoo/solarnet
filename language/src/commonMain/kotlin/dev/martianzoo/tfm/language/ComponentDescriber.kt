@@ -15,6 +15,8 @@ public data class ComponentDescriber(
     public val spatialRelation: SpatialRelation? = null,
     /** Whether a structurally empty direct subclass adds no English text of its own. */
     public val textNeutralSubclasses: Boolean = false,
+    /** Whether [directChange] interprets the declared behavior of concrete direct subclasses. */
+    public val directChangeForSubclasses: Boolean = false,
     public val production: Boolean? = null,
     public val requirement: Requirement? = null,
     public val directChange: DirectChange? = null,
@@ -128,6 +130,9 @@ public data class ComponentDescriber(
     /** Supplies an imperative construction for one otherwise-unmodeled concrete gain. */
     public data class Imperative(public val verb: String, public val objectPhrase: String) :
         DirectChange
+
+    /** Describes a gained component that discounts the next card played. */
+    public data object NextPlayedCardDiscount : DirectChange
 
     /** Supplies the otherwise-unmodeled review, purchase, or discard procedure for the top card. */
     public data object TopCardPurchase : DirectChange

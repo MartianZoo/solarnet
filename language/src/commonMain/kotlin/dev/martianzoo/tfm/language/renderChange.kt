@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -113,9 +114,38 @@ private fun renderDirectChange(
       if ((gain.count as? ActualScalar)?.value != 1) return null
       clause(description.verb, NounPhrase.text(description.objectPhrase))
     }
+    ComponentDescriber.DirectChange.NextPlayedCardDiscount ->
+        renderNextPlayedCardDiscount(instruction, describers)
     ComponentDescriber.DirectChange.TopCardPurchase ->
         renderTopCardPurchase(instruction, describers)
   }
+}
+
+private fun renderNextPlayedCardDiscount(
+    instruction: Instruction,
+    describers: Describers,
+): Clause? {
+  val (className, count) = concreteMandatoryGain(instruction) ?: return null
+  if (count != 1) return null
+  val effect = describers.declaration(className).effects.singleOrNull() ?: return null
+  if (!effect.automatic) return null
+  val played = (effect.trigger as? OnGainOf)?.expression ?: return null
+  if (
+      !played.simple ||
+          describers.fact(played.className, ComponentDescriber::playTrigger) !=
+              ComponentDescriber.PlayTrigger.CARD
+  ) {
+    return null
+  }
+  val reduction = owedReduction(effect.instruction, describers) ?: return null
+  return Clause.Simple(
+      predicate =
+          Predicate(
+              "costs",
+              Coordination.one(NounPhrase.text("${reduction.count} ${reduction.noun} less")),
+          ),
+      subject = NounPhrase.text("the next card you play this generation"),
+  )
 }
 
 private fun renderTopCardPurchase(
