@@ -23,7 +23,7 @@ contains one Authority, selected Modules, signed class selections, seat-ordered 
 exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 
 Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
-are active and other Authority-known Classes are inert phantoms. Occupied seats activate canonical
+are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
 `Player1` through `PlayerN`; configured player names are Vocabulary aliases.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks

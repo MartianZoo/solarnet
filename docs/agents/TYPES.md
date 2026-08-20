@@ -17,7 +17,7 @@ reference for `dev.martianzoo.types`. The human tutorial is
 - Each World has one frozen closed Class Table, allowing concrete enumeration and automatic
   narrowing.
 - Repeated authored abstract Expressions can form implicit Type variables inside defined regions.
-- Authority-known inactive Classes are phantoms: resolvable but inert.
+- Authority-known inactive Classes are uninhabited: nominally resolvable, with provably empty domains.
 
 ## 1. Components and Classes
 
@@ -279,7 +279,7 @@ Freezing compiles nominal subtype masks and sparse active-subclass indexes.
 The Authority owns a master catalog. Each game projects it. A name has one of three states:
 
 - **active:** full behavior in this game;
-- **phantom:** known to the Authority but inactive here; or
+- **uninhabited:** nominally known to the Authority, with an empty domain here; or
 - **unknown:** an error in every context.
 
 A game's table is closed. No later declaration may change its hierarchy or set of concrete choices.
@@ -396,27 +396,47 @@ Variables survive inheritance and enumeration. A Class-header owner link therefo
 matching owner/card pairs. Outside headers, an open variable prevents task splitting across its
 regions until earlier work chooses its Type.
 
-## 11. Phantoms
+## 11. Uninhabited Classes and Types
 
-Authority-known inactive Classes remain resolvable as behaviorless phantoms. A Type is phantom when
-its root or a dependency bound is phantom. A refinement mentioning a phantom has an unsatisfiable
-Requirement instead; the refined Type itself need not be phantom.
+The Authority's master table establishes one nominal universe. A game projection preserves every
+master Class identity in one of two states: active or uninhabited. Unknown names remain errors. An
+uninhabited Class retains its name, declared hierarchy, and Dependency shape so resolution and
+nominal subtyping remain meaningful, but it contributes no live behavior or inhabitants.
 
-Phantoms:
+A Type is uninhabited when its root or a dependency bound is uninhabited. A refinement mentioning
+an uninhabited Class has an unsatisfiable Requirement instead; the refined Type itself need not be
+uninhabited. A Complement excluding an uninhabited Type remains active over its active domain.
+Here *uninhabited* is the permanent classification produced by the game projection, not a claim
+that every Type with no candidates in one current World receives that classification.
 
-- have no components, effects, defaults, invariants, or enumerated concrete subtypes;
-- count zero;
+Uninhabited Classes and Types:
+
+- have no Components, Effects, defaults, Invariants, or enumerated concrete subtypes;
+- count zero, as do Class literals representing uninhabited Classes;
 - make optional and AMAP changes zero no-ops;
 - make mandatory changes dead;
 - never auto-narrow or fire triggers; and
 - do not appear in listings or generated choices.
 
-An active Class cannot have a phantom direct supertype or dependency bound. A Complement excluding a
-phantom remains active over its active domain.
+Thus an uninhabited `Jackalope : Rabbit` remains resolvable and nominally below `Rabbit`, while both
+`Jackalope` and `Class<Jackalope>` count zero and enumeration below `Rabbit` or `Class<Rabbit>` omits
+it. A declaration guarded by a Trigger over an uninhabited Type is unreachable rather than
+malformed. A mandatory change that actually reaches an uninhabited Type is dead.
+
+An active Class cannot have an uninhabited direct supertype or dependency bound.
+
+### Current activation policy
 
 Loading an active declaration normally activates structurally mentioned Classes. A Class mentioned
-only as the represented value of a Class-literal metric may remain phantom, but it must be known to
-the Authority. Remaining known declarations become phantoms when the projection freezes.
+only as the represented value of a Class-literal metric may remain uninhabited, but it must be known
+to the Authority. Remaining known declarations become uninhabited when the projection freezes.
+
+This activation-edge rule is current implementation, not the desired final policy. It is almost
+entirely syntactic and can activate a Class referenced by an unreachable instruction. For example,
+Terra Cimmeria's Colonies-gated bonus currently leaves `ColoniesExpansion` uninhabited but activates
+`Colony` because the guarded instruction mentions a Colony gain. The target role- and
+viability-aware projection policy is specified in
+[OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
 
 ## 12. Known divergences
 

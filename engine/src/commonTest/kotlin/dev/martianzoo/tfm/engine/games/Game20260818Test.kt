@@ -586,14 +586,12 @@ class Game20260818Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 7, temp = -16, oxygen = 2, oceans = 4, venus = 16)
 
-    // The resumed Generation 7 Research phase requires Dad's correction of yesterday's extra TR
-    // and resulting M€, plus Industrial Microbes' omitted production and Generation 7 resources.
+    // When we resumed the physical game, we knew about the errors found above, so we made this
+    // manual correction to put things right again.
     dad.exMachina("-TR, -1, PROD[S, E], S, E")
 
-    // The Generation 7 action ledger requires Dad to retain the six M€ he did not pay for these
-    // cards until the following Research phase.
     dad.buyCards(2)
-    dad.exMachina("6")
+    dad.exMachina("6") // And then I immediately screwed up and forgot to pay for my cards!
     ellie.buyCards(3)
 
     dad.turn {
@@ -622,11 +620,10 @@ class Game20260818Test : AbstractFullGameTest() {
       // Ellie: "Io Sulphur Research for 17. I have three Venus tags from the two floater cards and
       // Strata Birds, so three cards."
       playProject(IoSulphurResearch, 15) { doTask("3 ProjectCard") }
-    }
 
-    // Ellie's Generation 8 ledger requires the narrated 17-M€ payment, which omitted Valley
-    // Trust's science-tag discount.
-    ellie.exMachina("-2")
+      // She forgot her Valley Trust discount
+      ellie.exMachina("-2")
+    }
 
     dad.turn {
       // Dad: "I'm going to play Nuclear Power. That cost me ten. I lose two money production. I
@@ -684,8 +681,7 @@ class Game20260818Test : AbstractFullGameTest() {
           .expect("TR, 4 P, 3 Animal, 0 ProjectCard")
     }
 
-    // Dad's later three-M€ Martian Zoo action requires the omitted animal from Imported
-    // Nitrogen's Earth tag to be removed.
+    // I forgot the extra animal from MZ's effect
     dad.exMachina("-Animal<$MartianZoo>")
 
     ellie.turn {
@@ -693,8 +689,7 @@ class Game20260818Test : AbstractFullGameTest() {
       cardAction2(NitriteReducingBacteria).expect("-3 Microbe, TR")
     }
 
-    // Ellie's Generation 8 ledger remains one TR below the narrated Nitrite Reducing Bacteria
-    // result, so the physical game did not retain that TR.
+    // It looks like she forgot to take her TR
     ellie.exMachina("-TR")
 
     dad.turn {
@@ -752,10 +747,13 @@ class Game20260818Test : AbstractFullGameTest() {
     assertSidebar(gen = 8, temp = -14, oxygen = 2, oceans = 4, venus = 24)
 
     dad.buyCards(2)
-    // The following action phase and Generation 9 photo require Dad's Generation 8 repayment and
-    // removal of the Venusian Insects microbe from the action he could not have afforded in time.
-    dad.exMachina("-6, -Microbe<$VenusianInsects>")
     ellie.buyCards(1)
+
+    // I suddenly realized my mistake last turn when I forgot to pay for my cards!
+    // So I pay for them now, and realize I wouldn't have afforded VI last round.
+    // I let it stay, but reason that it should lose a microbe that I wouldn't have had the
+    // chance to play.
+    dad.exMachina("-6, -Microbe<$VenusianInsects>")
 
     ellie.turn {
       // Ellie: "Ice Moon Colony. I will pay two of my three titanium for six money, and then 17
@@ -808,8 +806,7 @@ class Game20260818Test : AbstractFullGameTest() {
       playProject(VenusianAnimals, 13).expect("Animal")
     }
 
-    // Ellie's Generation 9 ledger requires her printed-cost payment without Valley Trust's two-M€
-    // science discount.
+    // Again forgot her Valley Trust discount.
     ellie.exMachina("-2")
 
     dad.turn {
