@@ -8,6 +8,9 @@ CLASS TerraformingMars : Module {
   PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed<Class<Megacredit>>
   Pay<Class<Titanium>>:: -3 Owed<Class<Megacredit>>
+
+  CostPaid<Class<ConvertPlantsSA>>: GreeneryTile<>
+  CostPaid<Class<ConvertHeatSA>>: TemperatureStep
 }
 
 // PLAYERS AND OWNERSHIP
@@ -278,36 +281,38 @@ ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
 ABSTRACT CLASS StandardProject : HasActions {
   HAS =1 This
   cost = Number
+  UseAction<This>:: Owed<Class<Megacredit>> / This.cost
+  -> Payment<Class<This>>
 }
 
 CLASS PowerPlantSP : StandardProject, AutoLoad {
   cost = 11
-  1 / This.cost -> PROD[Energy]
+  CostPaid<Class<This>>: PROD[Energy]
 }
 
 CLASS AsteroidSP : StandardProject, AutoLoad {
   cost = 14
-  1 / This.cost -> TemperatureStep
+  CostPaid<Class<This>>: TemperatureStep
 }
 
 CLASS BufferGasSP : StandardProject {
   cost = 16
-  1 / This.cost -> TerraformRating
+  CostPaid<Class<This>>: TerraformRating
 }
 
 CLASS AquiferSP : StandardProject, AutoLoad {
   cost = 18
-  1 / This.cost -> OceanTile<>
+  CostPaid<Class<This>>: OceanTile<>
 }
 
 CLASS GreenerySP : StandardProject, AutoLoad {
   cost = 23
-  1 / This.cost -> GreeneryTile<>
+  CostPaid<Class<This>>: GreeneryTile<>
 }
 
 CLASS CitySP : StandardProject, AutoLoad {
   cost = 25
-  1 / This.cost -> PROD[1], CityTile<>
+  CostPaid<Class<This>>: PROD[1], CityTile<>
 }
 
 // PAY AND PLAY
@@ -343,6 +348,22 @@ ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Tempora
     This:: -Owed<Class<StandardResource>>
   }
 }
+
+"Offers payment using the resource held by a specific card"
+CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal {
+  This: X PayFromCard<ResourceCard> FROM CardResource<ResourceCard>?
+}
+
+"Records payment using the resource held by a specific card"
+CLASS PayFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal
+
+"Becomes a payment-specific signal when the owner's final debt is removed"
+CLASS Payment<Class<HasActions>> : Owned<Player>, Barrier {
+  -X Owed IF MAX 0 Owed: CostPaid<Class<HasActions>> FROM This
+}
+
+"Signals that a specific payment has been completed"
+CLASS CostPaid<Class<HasActions>> : Owned<Player>, Signal
 
 "Cards like Indentured Workers leave this in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {

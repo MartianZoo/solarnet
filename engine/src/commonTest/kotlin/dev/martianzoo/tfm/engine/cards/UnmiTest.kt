@@ -16,8 +16,7 @@ class UnmiTest : CardTest() {
   @Test
   fun `after raising TR before choosing UNMI, uses its action`() {
     newGame()
-    p1.manual("14")
-    p1.manual("UseAction1<AsteroidSP>")
+    p1.manual("TemperatureStep")
     p1.playCorp(UnitedNationsMarsInitiative, 0)
     engine.phase("Action")
     p1.cardAction1(UnitedNationsMarsInitiative).expect("-3, TerraformRating")

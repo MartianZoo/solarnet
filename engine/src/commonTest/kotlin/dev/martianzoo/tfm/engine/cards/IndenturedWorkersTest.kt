@@ -17,7 +17,7 @@ class IndenturedWorkersTest : CardTest() {
     initializeGame("39, 4 ProjectCard, 8 Heat")
     p1.playProject(IndenturedWorkers, 0)
     p1.stdProject("AsteroidSP")
-    p1.stdAction("ConvertHeatSA")
+    p1.convertHeat()
     p1.sellPatents(2)
     p1.playProject(Soletta, 27).expect("-27")
   }

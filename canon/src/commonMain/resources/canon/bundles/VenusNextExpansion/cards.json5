@@ -164,7 +164,8 @@
       "resourceType": "Floater",
       "actions": [ "-> Floater" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>: (-X Floater<This>! THEN -3X Owed<Class<Megacredit>>.) OR Ok"
+        "PlayTag<Class<VenusTag>>: AcceptFromCard<This>",
+        "PayFromCard<This>:: -3 Owed"
       ],
     },
 

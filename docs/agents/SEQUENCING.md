@@ -212,10 +212,18 @@ Current strong examples are:
 - `PlayCard<Class<CardBack>, Class<CardFront>>` is the broader precursor to moving that selected
   card into its `CardFront` state. Card-wide discounts and next-card effects modify `Owed` from this
   signal; gated card entry is mandatory in every successful play operation.
-- `UseAction<ConvertPlantsSA>` creates an eight-plant `Owed` payment before the gated greenery
-  placement. Ecoline reduces that debt by one, and the placement cannot proceed until the remaining
-  debt is paid through `Accept<Class<Plant>>` and `Pay<Class<Plant>>`.
-
+- `UseAction<ConvertPlantsSA>` and `UseAction<ConvertHeatSA>` create their standard-resource `Owed`
+  payments and a payment-specific `Payment` barrier. Ecoline reduces the plant debt by one. Once
+  the corresponding `Pay` removes the owner's final `Owed`, the barrier is transmuted into that
+  conversion's `CostPaid` signal and only that conversion's result responds.
+- Every concrete `StandardProject` inherits the same payment protocol: one automatic rule creates
+  M€ debt from its `cost` property, and its shared action creates `Payment<Class<This>>`. The
+  concrete project says only how it responds to `CostPaid<Class<This>>`. Discounts reduce `Owed`;
+  Standard Technology's separate 3 M€ reaction remains a rebate rather than reducing the debt.
+- `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose
+  `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
+  the same concrete holder. The holder dependency distinguishes cards that use the same resource
+  class, while each card's reaction to its own signal supplies its printed exchange rate.
 Two related families should not be described more strongly than the implementation supports:
 
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky

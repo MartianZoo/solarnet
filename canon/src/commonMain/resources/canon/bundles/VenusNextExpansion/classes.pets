@@ -11,7 +11,7 @@ CLASS VenusNextSoloAdjustment : System {
 
 CLASS AirScrappingSP : StandardProject, AutoLoad {
   cost = 15
-  1 / This.cost -> VenusStep
+  CostPaid<Class<This>>: VenusStep
 }
 
 "Adds World Government Terraforming to the solar phase"

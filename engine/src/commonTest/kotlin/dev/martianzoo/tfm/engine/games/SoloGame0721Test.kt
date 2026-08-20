@@ -196,7 +196,7 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       // me used Convert Heat standard action
       // me's heat production increased by 1
-      stdAction("ConvertHeatSA").expect("PROD[Heat]")
+      convertHeat().expect("PROD[Heat]")
       // me used United Nations Mars Initiative action
       cardAction1(UnitedNationsMarsInitiative)
       // me used Rotator Impacts action
@@ -256,7 +256,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       assertSidebar(gen = 7, temp = -20, oxygen = 2, oceans = 3, venus = 10)
 
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used United Nations Mars Initiative action
       cardAction1(UnitedNationsMarsInitiative)
       // me used Extractor Balloons action
@@ -310,9 +310,9 @@ class SoloGame0721Test : AbstractSoloTest() {
       playProject(InterplanetaryColonyShip, 5, titanium = 1) { doTask("Colony<Luna>") }
           .expect("PROD[2]")
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used Greenery standard project
       // me placed greenery tile on row 3 position 7
       // me drew 3 card(s)
@@ -345,9 +345,9 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("4 Heat")
       }
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used United Nations Mars Initiative action
       cardAction1(UnitedNationsMarsInitiative)
       // me used Rotator Impacts action
@@ -390,9 +390,9 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Dust Seals
       playProject(DustSeals, 2)
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used United Nations Mars Initiative action
       cardAction1(UnitedNationsMarsInitiative)
       // me used Extractor Balloons action
@@ -442,7 +442,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       nextRound("OceanTile<Elysium_2_4>", 1)
 
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used United Nations Mars Initiative action
       cardAction1(UnitedNationsMarsInitiative)
       // me used Extractor Balloons action
@@ -464,7 +464,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("4 Heat")
       }
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me played Trees
       // me's plants production increased by 3
       // me's plants amount increased by 1
@@ -511,9 +511,9 @@ class SoloGame0721Test : AbstractSoloTest() {
       assertSidebar(gen = 12, temp = 0, oxygen = 9, oceans = 8, venus = 28)
 
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // me used United Nations Mars Initiative action
       cardAction1(UnitedNationsMarsInitiative)
       // me used Rotator Impacts action

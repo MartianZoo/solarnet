@@ -16,7 +16,7 @@ Most of the published game content is working... and mostly correctly.
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | the whole thing |
 | Milestones & Awards | - | - | - | - | - | - | 11 / 16 | - | - | - | - |
-| Promos through 2026-08 | 8 / 10 | 70 / 73 | 9 / 10 | - | 3 / 3 | - | - | - | 0 / 5 | - | - |
+| Promos through 2026-08 | 9 / 10 | 70 / 73 | 9 / 10 | - | 3 / 3 | - | - | - | 0 / 5 | - | - |
 
 ## Still to implement
 
@@ -34,7 +34,6 @@ Most of the published game content is working... and mostly correctly.
 | Prelude | Prelude | Research Network (`P28`) | (Works on wildtag branch) |
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
 | Colonies | Corporation | Stormcraft Incorporated (`CC5`) | Payment rewrites |
-| Promos through 2026-08 | Corporation | Kuiper Cooperative | Payment rewrites |
 | Corporate Era | Project | Land Claim (`066`) | Non-tiles on map |
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |
 | Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
