@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.engine.TestOption.HellasMapOption
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class TfmWorkflowTest {
@@ -50,6 +51,21 @@ class TfmWorkflowTest {
     }
 
     engine.assertCounts(2 to "Generation", 1 to "ResearchPhase")
+    workflow.shutdown()
+  }
+
+  @Test
+  fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
+    val workflow = TfmWorkflow.Auto(game).launch()
+    p1.playCorp(UnitedNationsMarsInitiative, 0)
+    p2.playCorp(CrediCor, 0)
+
+    p1.pass()
+
+    p1.count("Pass") shouldBe 1
     workflow.shutdown()
   }
 }

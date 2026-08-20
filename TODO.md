@@ -62,6 +62,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game fixture can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
 - Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game fixture no longer needs an 8 M€ reconciliation injection.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
+- Fix Public Plans so “any number” cannot be zero and the card is unavailable when the player has no other card to reveal; keep the current wrong behavior characterized in `BugsTest` until fixed.
+- Let a Pharmacy Union microbe trigger that was already pending at the flip finish its money loss without trying to place disease on the vanished corporation; keep the current dependency failure in `BugsTest` until fixed.
+- When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
 - Unify `OR` semantics and construction across AST families: reject duplicate authored arms; let programmatic factories deduplicate in first-occurrence order; preserve significant trigger order; and reconcile `Metric.Or` syntax with execution ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
