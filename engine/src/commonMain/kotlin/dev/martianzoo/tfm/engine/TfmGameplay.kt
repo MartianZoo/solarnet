@@ -165,10 +165,10 @@ public class TfmGameplay(
       val offer =
           game.tasks
               .extract { it }
+              .filter { it.assignee == actor }
               .withIndex()
-              .firstOrNull { (_, task) ->
-                task.assignee == actor && task.cause?.context?.className == cn("WildTagUse")
-              } ?: return
+              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("WildTagUse") }
+              ?: return
       doTask("Ok", offer.index + 1)
     }
   }
