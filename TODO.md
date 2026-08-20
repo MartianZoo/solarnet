@@ -34,7 +34,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   reduced-priority card-entry and event-cleanup work while preserving auditable `Owed` and
   `Required` components. Keep this distinct from `THEN`, state gates, and scoped drain.
 - Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.
-- Move fixture-only action helpers such as `playCorp` and `playProject` out of production
+- Move test-only action helpers such as `playCorp` and `playProject` out of production
   `TfmGameplay`; remove or replace `SampleGames` and give benchmarks explicit harness utilities.
 - Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
   and whether adding and then removing those steps has any other observable consequences.
@@ -55,11 +55,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Use [`docs/agents/SEQUENCING.md`](docs/agents/SEQUENCING.md) to audit and normalize real A-before-B rules; next settle the action-marker/Viron tension and the mixed automatic/queued phase triggers, and keep the verdict buckets current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and descendant-completion semantics.
 - Confirm whether each Mars University discard-to-draw activation is indivisible, then replace the two-discards-first characterization if the official rule permits ordering only whole effects.
-- Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game fixtures.
-- Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game fixture to decline one action early.
-- Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game fixture's mandatory `!` override.
-- Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game fixture can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
-- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game fixture no longer needs an 8 M€ reconciliation injection.
+- Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game tests.
+- Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game test to decline one action early.
+- Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game test's mandatory `!` override.
+- Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game test can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
+- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
@@ -122,7 +122,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; the `wildtag` branch's parked
   `Game20260818Test` uses a standalone reconciliation for a patent sale taken beyond the normal
-  action allowance, but that fixture is not present on `work4`.
+  action allowance, but that test is not present on `work4`.
 - Keep the `Award` base class's scoring effect inherited while avoiding loading its scoring
   machinery in solo games, where no concrete Award definitions are active.
 - Break `PetTransformer.transformChildren` into focused rebuild helpers; its instruction-tree
