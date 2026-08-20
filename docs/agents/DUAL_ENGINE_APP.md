@@ -1,8 +1,8 @@
 # Dual-engine Terraforming Mars app
 
-**Status: the Gate 1 development runtime boundary is proven; Gate 2 is next.** This records the
-smallest promising design, verified runtime facts, and the proof gates that should precede broad
-integration.
+**Status: the Gate 1 development runtime boundary is proven; Gate 2 has its first paid-project
+slice.** This records the smallest promising design, verified runtime facts, and the proof gates
+that should precede broad integration.
 
 ## Goal
 
@@ -149,9 +149,10 @@ game, uses semantic `selectCorporation` messages for both players, advances from
 selection to the action phase through ordinary `TfmGameplay` operations, reads JSON snapshots and
 incremental event batches, and shuts down. The checked-in external TypeScript consumer compiles
 against the generated declarations, imports and runs the standalone development package, reads its
-packaged resources, applies both moves, and prints each move's new events without replaying old
-ones. The optimized production package currently misparses a valid Canon effect; resolving that is
-deliberately deferred, and the development package is the Gate 1 artifact.
+packaged resources, applies both setup moves, and prints each move's new events without replaying
+old ones. It now also applies the first Gate 2 move described below. The optimized production
+package currently misparses a valid Canon effect; resolving that is deliberately deferred, and the
+development package is the Gate 1 artifact.
 
 ### Gate 2: Define the semantic move protocol
 
@@ -166,6 +167,16 @@ component really introduces distinct intent.
 
 The Solarnet interpreter converts the protocol to ordinary task revisions and executions using the
 generic `Gameplay` surface. Do not add card-specific methods to Solarnet.
+
+**Verified so far:** `playProject` carries a player seat, printed card ID, and explicit M€/steel/
+titanium payment composition. For this first proof, the facade delegates to the existing
+transitional `TfmGameplay.playProject` convenience path, which specializes one generic project card
+already in that Player's follow-mode hand and executes the ordinary project-play and payment tasks.
+This is evidence for the message shape and underlying task path, not yet the settled generic
+interpreter. The Node and external TypeScript scenarios buy one generic card during setup, play card
+105 (Earth Office) for 1 M€, and observe both the play and payment in the diagnostic event feed;
+normalized public-state comparison remains Gate 3. Targets, follow-up choices, other payment media,
+the second action, and pass remain unimplemented protocol families.
 
 **Pass condition:** a short scenario covers setup, a paid project, a target choice, a tile placement,
 an automatic effect, a second action, and pass without parsing display text.

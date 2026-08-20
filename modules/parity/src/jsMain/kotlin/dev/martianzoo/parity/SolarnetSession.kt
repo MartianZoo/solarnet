@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -50,11 +51,21 @@ public class SolarnetSession(
     val move = Json.parseToJsonElement(moveJson).jsonObject
     when (move.getValue("operation").jsonPrimitive.content) {
       "selectCorporation" -> {
-        val player = move.getValue("player").jsonPrimitive.int
-        require(player in 1..players.size) { "Unknown player seat: $player" }
         val corporation = cn(move.getValue("corporation").jsonPrimitive.content)
         val projectCards = move.getValue("projectCards").jsonPrimitive.int
-        game.tfm(players[player - 1]).playCorp(corporation, projectCards)
+        game.tfm(movePlayer(move)).playCorp(corporation, projectCards)
+      }
+      "playProject" -> {
+        val card = cn("Card${move.getValue("cardId").jsonPrimitive.content}")
+        val payment = move.getValue("payment").jsonObject
+        game
+            .tfm(movePlayer(move))
+            .playProject(
+                card,
+                megacredits = paymentAmount(payment, "megacredits"),
+                steel = paymentAmount(payment, "steel"),
+                titanium = paymentAmount(payment, "titanium"),
+            )
       }
       else -> error("Unknown parity operation: ${move.getValue("operation")}")
     }
@@ -101,5 +112,17 @@ public class SolarnetSession(
   private fun installResourceReader(resourceReader: (String) -> String) {
     val global = js("globalThis")
     global.solarnetResourceReader = resourceReader
+  }
+
+  private fun movePlayer(move: JsonObject): Player {
+    val seat = move.getValue("player").jsonPrimitive.int
+    require(seat in 1..players.size) { "Unknown player seat: $seat" }
+    return players[seat - 1]
+  }
+
+  private fun paymentAmount(payment: JsonObject, resource: String): Int {
+    val amount = payment.getValue(resource).jsonPrimitive.int
+    require(amount >= 0) { "Negative $resource payment: $amount" }
+    return amount
   }
 }
