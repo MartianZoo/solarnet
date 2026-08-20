@@ -125,11 +125,12 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
   val clauses = discounts.map { it.trigger }
   fun joinAlternatives(parts: List<String>): String =
       if (parts.size == 1) parts.single() else englishAlternatives(parts)
+  val actingPlayer = NounPhrase.text("you")
   val trigger =
-      if (clauses.all { it.subject == "you" }) {
-        "you " + joinAlternatives(clauses.map { it.predicate })
+      if (clauses.all { it.subject == actingPlayer }) {
+        actingPlayer.linearize() + " " + joinAlternatives(clauses.map { it.predicate.linearize() })
       } else {
-        joinAlternatives(clauses.map(EventTrigger::linearize))
+        joinAlternatives(clauses.map(Clause.Simple::linearize))
       }
   val reduction = discounts.first().reduction
   val objectReference = if (discounts.all { it.refersToObject }) " for it" else ""
@@ -139,7 +140,7 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
 }
 
 private data class PaymentDiscount(
-    val trigger: EventTrigger,
+    val trigger: Clause.Simple,
     val reduction: ResourceAmount,
     val refersToObject: Boolean,
 )
@@ -150,13 +151,7 @@ private fun renderResourcePaymentValue(effect: Effect, describers: Describers): 
   return "Each $spent you spend is worth ${reduction.count} ${reduction.noun} extra."
 }
 
-private data class EventTrigger(val subject: String?, val predicate: String) {
-  fun linearize(): String = listOfNotNull(subject, predicate).joinToString(" ")
-
-  fun asCondition(): String = "when ${linearize()}"
-}
-
-private fun Describers.renderEventTrigger(trigger: Trigger): EventTrigger? {
+private fun Describers.renderEventTrigger(trigger: Trigger): Clause.Simple? {
   val events =
       when (trigger) {
         is Trigger.Or -> trigger.triggers.map { renderEvent(it) ?: return null }
@@ -181,14 +176,14 @@ private fun Describers.renderSpentResource(trigger: Trigger): String? {
   return plainGainCategoryNoun(resource.className, 1)
 }
 
-private fun Describers.renderActionPaymentDiscountTrigger(trigger: Trigger): EventTrigger? {
+private fun Describers.renderActionPaymentDiscountTrigger(trigger: Trigger): Clause.Simple? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
   val action = expression.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
   val predicate =
       fact(action.className, ComponentDescriber::actionUse)?.refundDiscountPredicate ?: return null
-  return EventTrigger("you", predicate)
+  return eventTrigger(subject = "you", verb = predicate)
 }
 
 private fun Describers.renderPlainGainAmount(instruction: InstructionTree): ResourceAmount? {
@@ -217,27 +212,56 @@ private enum class EventActor {
 
 private enum class EventKind(
     private val activeVerb: String? = null,
-    private val activeSuffix: String = "",
+    private val activeModifier: String? = null,
     private val passiveVerb: String? = null,
-    private val passiveSuffix: String = "",
+    private val passiveModifier: String? = null,
 ) {
   PLAY(activeVerb = "play", passiveVerb = "is played"),
   PERFORM_OPERATION(activeVerb = ""),
   USE_ACTION(activeVerb = "use"),
   PLACE(activeVerb = "place", passiveVerb = "is placed"),
-  RAISE(passiveVerb = "is raised", passiveSuffix = " 1 step"),
-  ADD_TO_CARD(activeVerb = "add", activeSuffix = " to any card"),
-  ADD_TO_THIS_CARD(activeVerb = "add", activeSuffix = " to this card"),
+  RAISE(passiveVerb = "is raised", passiveModifier = "1 step"),
+  ADD_TO_CARD(activeVerb = "add", activeModifier = "to any card"),
+  ADD_TO_THIS_CARD(activeVerb = "add", activeModifier = "to this card"),
   ;
 
-  fun renderTrigger(actor: EventActor, objects: String): EventTrigger? =
+  fun renderTrigger(actor: EventActor, objects: String): Clause.Simple? =
       when (actor) {
         EventActor.YOU ->
-            activeVerb?.let { EventTrigger("you", "$it $objects$activeSuffix".trimStart()) }
+            activeVerb?.let { verb ->
+              eventTrigger(
+                  subject = "you",
+                  verb = verb,
+                  objectPhrase = objects,
+                  modifierPhrase = activeModifier,
+              )
+            }
         EventActor.UNRESTRICTED ->
-            passiveVerb?.let { EventTrigger(null, "$objects $it$passiveSuffix") }
+            passiveVerb?.let { verb ->
+              eventTrigger(
+                  subject = objects,
+                  verb = verb,
+                  modifierPhrase = passiveModifier,
+              )
+            }
       }
 }
+
+private fun eventTrigger(
+    subject: String,
+    verb: String,
+    objectPhrase: String? = null,
+    modifierPhrase: String? = null,
+): Clause.Simple =
+    Clause.Simple(
+        predicate =
+            Predicate(
+                verb,
+                objectPhrase?.let { Coordination.one(NounPhrase.text(it)) },
+                listOfNotNull(modifierPhrase?.let(Modifier::Phrase)),
+            ),
+        subject = NounPhrase.text(subject),
+    )
 
 private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (trigger is ByTrigger) {
@@ -420,7 +444,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
 private fun renderTriggeredInstructions(effect: Effect, describers: Describers): String? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val result = renderInstructions(effect.instruction, describers = describers) ?: return null
-  return completeSentence("${trigger.asCondition()}, ${result.asCoordinatedClause()}")
+  return completeSentence("when ${trigger.linearize()}, ${result.asCoordinatedClause()}")
 }
 
 internal fun renderEndEffect(effect: Effect, describers: Describers): String? {

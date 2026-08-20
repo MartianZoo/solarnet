@@ -178,6 +178,8 @@ actor; this includes non-player mechanisms such as World Government Terraforming
 effects keep the whole top region data-backed.
 Event interpretation retains the event kind and actor constraint independently; the actor
 constraint selects active `you` wording or unrestricted passive wording at linearization.
+Event triggers use the same structured clauses, predicates, noun phrases, and modifiers as
+instructions and requirements rather than assembling a separate partial-string representation.
 An automatic removal trigger whose described consequence is a dead end renders as a prohibition
 when the trigger structurally identifies resources on this card or resources an opponent removes.
 A fixed M€ increase in the payment value of a standard resource or resource category is also derived

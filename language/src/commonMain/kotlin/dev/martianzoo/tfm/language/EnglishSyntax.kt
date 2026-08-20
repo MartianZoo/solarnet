@@ -23,14 +23,14 @@ internal sealed interface Clause {
 /** The part of a clause that can be factored across coordinated alternatives. */
 internal data class Predicate(
     val verb: String,
-    val objects: Coordination<NounPhrase>,
+    val objects: Coordination<NounPhrase>? = null,
     val modifiers: List<Modifier> = emptyList(),
 ) {
   fun withModifier(modifier: Modifier): Predicate = copy(modifiers = modifiers + modifier)
 
   fun linearize(): String = buildList {
     add(verb)
-    add(objects.linearize(NounPhrase::linearize))
+    objects?.let { add(it.linearize(NounPhrase::linearize)) }
     addAll(modifiers.map(Modifier::linearize))
   }
       .filter(String::isNotEmpty)
@@ -44,8 +44,9 @@ internal fun coordinatePredicateObjects(
 ): Predicate? {
   val first = predicates.firstOrNull() ?: return null
   if (predicates.any { it.verb != first.verb || it.modifiers != first.modifiers }) return null
+  val objects = predicates.map { it.objects ?: return null }
   return first.copy(
-      objects = Coordination(predicates.flatMap { it.objects.members }, conjunction),
+      objects = Coordination(objects.flatMap { it.members }, conjunction),
   )
 }
 
