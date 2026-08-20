@@ -370,6 +370,10 @@ internal object TerraformingMarsDescribers {
                 directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)
             ),
         klass("Production") to ComponentDescriber(production = true),
+        klass("ColonyProduction") to
+            ComponentDescriber(
+                directChange = ComponentDescriber.DirectChange.TrackTransfer("colony tile track")
+            ),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("End") to ComponentDescriber(endTrigger = true),

@@ -223,8 +223,9 @@ concrete standard-resource type from any player to the acting player; a gain of 
 Fleet; a mandatory gain of a generic or concrete card resource on the played card, an unrestricted
 card, or a card narrowed to one concrete tag; a group of concrete
 mandatory standard-resource production gains or decreases; a mandatory one-for-one conversion of
-one or more steps of the player's production from one concrete standard resource to another; a
-city-tile, colony, ocean-tile, or described special-tile placement using the type's default
+one or more steps of the player's production from one concrete standard resource to another;
+a mandatory transfer of a fixed number of steps between two selected instances of one described
+track; a city-tile, colony, ocean-tile, or described special-tile placement using the type's default
 arguments; one plain greenery-tile placement; one city, greenery, or special-tile placement on a
 described land site, optionally narrowed by a supported minimum or zero-maximum adjacency
 refinement; one city placement on a definite described site outside Mars; a concrete

@@ -146,6 +146,9 @@ public data class ComponentDescriber(
     public data class Imperative(public val verb: String, public val objectPhrase: String) :
         DirectChange
 
+    /** Describes moving a fixed number of steps between two selected instances of one track. */
+    public data class TrackTransfer(public val trackNoun: String) : DirectChange
+
     /** Describes a gained component that discounts the next card played. */
     public data object NextPlayedCardDiscount : DirectChange
 

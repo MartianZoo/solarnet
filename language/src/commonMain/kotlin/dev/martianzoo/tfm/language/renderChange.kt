@@ -114,6 +114,8 @@ private fun renderDirectChange(
       if ((gain.count as? ActualScalar)?.value != 1) return null
       clause(description.verb, NounPhrase.text(description.objectPhrase))
     }
+    is ComponentDescriber.DirectChange.TrackTransfer ->
+        renderTrackTransfer(instruction, description)
     ComponentDescriber.DirectChange.NextPlayedCardDiscount ->
         renderNextPlayedCardDiscount(instruction, describers)
     ComponentDescriber.DirectChange.ProductionBoxCopy ->
@@ -122,6 +124,26 @@ private fun renderDirectChange(
     ComponentDescriber.DirectChange.TopCardPurchase ->
         renderTopCardPurchase(instruction, describers)
   }
+}
+
+private fun renderTrackTransfer(
+    instruction: Instruction,
+    description: ComponentDescriber.DirectChange.TrackTransfer,
+): Clause? {
+  val transmute = instruction as? Transmute ?: return null
+  if (
+      transmute.intensity != MANDATORY ||
+          !transmute.gaining.simple ||
+          transmute.removing != transmute.gaining
+  ) {
+    return null
+  }
+  val count = (transmute.count as? ActualScalar)?.value ?: return null
+  val steps = if (count == 1) "step" else "steps"
+  val increase = clause("increase", NounPhrase.text("one ${description.trackNoun} $count $steps"))
+  val decrease =
+      clause("decrease", NounPhrase.text("another ${description.trackNoun} $count $steps"))
+  return Clause.Coordinated(Coordination(listOf(increase, decrease), Conjunction.AND))
 }
 
 private fun renderFirstAction(
