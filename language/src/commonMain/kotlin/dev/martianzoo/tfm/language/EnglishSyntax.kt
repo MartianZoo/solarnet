@@ -18,6 +18,10 @@ internal sealed interface Clause {
   data class Coordinated(val clauses: Coordination<Clause>) : Clause {
     override fun linearize(): String = clauses.linearize(Clause::linearize)
   }
+
+  data class Prefaced(val preface: String, val clause: Clause) : Clause {
+    override fun linearize(): String = "$preface, ${clause.linearize()}"
+  }
 }
 
 /** The part of a clause that can be factored across coordinated alternatives. */

@@ -118,9 +118,33 @@ private fun renderDirectChange(
         renderNextPlayedCardDiscount(instruction, describers)
     ComponentDescriber.DirectChange.ProductionBoxCopy ->
         renderProductionBoxCopy(instruction, describers)
+    ComponentDescriber.DirectChange.FirstAction -> renderFirstAction(instruction, describers)
     ComponentDescriber.DirectChange.TopCardPurchase ->
         renderTopCardPurchase(instruction, describers)
   }
+}
+
+private fun renderFirstAction(
+    instruction: Instruction,
+    describers: Describers,
+): Clause? {
+  val (className, count) = concreteMandatoryGain(instruction) ?: return null
+  if (count != 1) return null
+  val declaration = describers.directChangeSubclassDeclaration(className) ?: return null
+  val effect = declaration.effects.singleOrNull() ?: return null
+  if (effect.automatic) return null
+  val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
+  if (
+      trigger.arguments != listOf(describers.thisExpression) ||
+          trigger.refinement != null ||
+          trigger.complement ||
+          describers.fact(trigger.className, ComponentDescriber::actionNumber) != 1
+  ) {
+    return null
+  }
+  val result =
+      renderInstructions(effect.instruction, describers)?.clauses?.singleOrNull() ?: return null
+  return Clause.Prefaced("as your first action", result)
 }
 
 private fun renderProductionBoxCopy(
@@ -148,7 +172,8 @@ private fun renderNextPlayedCardDiscount(
 ): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
-  val effect = describers.declaration(className).effects.singleOrNull() ?: return null
+  val declaration = describers.directChangeSubclassDeclaration(className) ?: return null
+  val effect = declaration.effects.singleOrNull() ?: return null
   if (!effect.automatic) return null
   val played = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (

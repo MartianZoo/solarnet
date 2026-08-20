@@ -30,6 +30,7 @@ public data class ComponentDescriber(
     public val playedTagPhrase: String? = null,
     public val operationTrigger: String? = null,
     public val usedActionTrigger: Boolean? = null,
+    public val actionNumber: Int? = null,
     public val actionUse: ActionUse? = null,
     public val spentResourceTrigger: Boolean? = null,
     public val owedPayment: Boolean? = null,
@@ -144,6 +145,9 @@ public data class ComponentDescriber(
 
     /** Describes copying the production box of the card selected by the gained expression. */
     public data object ProductionBoxCopy : DirectChange
+
+    /** Describes a gained component whose one declared effect grants the player's first action. */
+    public data object FirstAction : DirectChange
 
     /** Supplies the otherwise-unmodeled review, purchase, or discard procedure for the top card. */
     public data object TopCardPurchase : DirectChange

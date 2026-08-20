@@ -46,20 +46,40 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val ownDescription = descriptions.getValue(componentClass)
     val described =
         ownDescription.directChange != null ||
-            (!componentClass.abstract &&
-                componentClass.directSuperclasses.singleOrNull()?.let { superclass ->
-                  val superclassDescription = descriptions.getValue(superclass)
-                  superclassDescription.directChange != null &&
-                      superclassDescription.directChangeForSubclasses
-                } == true)
+            directChangeSubclassDeclaration(declaration.className) != null
     if (!described) return false
     return card.immediate?.descendantsOfType<Gain>()?.any {
       it.gaining.className == declaration.className
     } == true
   }
 
-  internal fun declaration(className: ClassName): ClassDeclaration =
-      classesByName.getValue(className).declaration
+  internal fun directChangeSubclassDeclaration(className: ClassName): ClassDeclaration? {
+    val componentClass = classesByName.getValue(className)
+    if (componentClass.abstract) return null
+    val superclass = componentClass.directSuperclasses.singleOrNull() ?: return null
+    val superclassDescription = descriptions.getValue(superclass)
+    if (
+        superclassDescription.directChange == null ||
+            !superclassDescription.directChangeForSubclasses
+    ) {
+      return null
+    }
+    val declaration = componentClass.declaration
+    val supertype = declaration.supertypes.singleOrNull()
+    if (
+        declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||
+            declaration.custom ||
+            declaration.dependencies.isNotEmpty() ||
+            supertype?.simple != true ||
+            supertype.className != superclass.className ||
+            declaration.invariants.isNotEmpty() ||
+            declaration.defaultsDeclaration != ClassDeclaration.DefaultsDeclaration() ||
+            declaration.properties.isNotEmpty()
+    ) {
+      return null
+    }
+    return declaration
+  }
 
   private fun isTextNeutralExtraClass(declaration: ClassDeclaration): Boolean {
     val superclass = declaration.supertypes.singleOrNull() ?: return false

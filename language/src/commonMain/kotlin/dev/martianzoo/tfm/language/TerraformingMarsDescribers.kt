@@ -314,6 +314,11 @@ internal object TerraformingMarsDescribers {
                 directChange = ComponentDescriber.DirectChange.NextPlayedCardDiscount,
                 directChangeForSubclasses = true,
             ),
+        klass("Mandate") to
+            ComponentDescriber(
+                directChange = ComponentDescriber.DirectChange.FirstAction,
+                directChangeForSubclasses = true,
+            ),
         klass("ReserveTradeFleet") to
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)
@@ -326,6 +331,7 @@ internal object TerraformingMarsDescribers {
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
         klass("Trade") to ComponentDescriber(operationTrigger = "trade"),
         klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
+        klass("UseAction1") to ComponentDescriber(actionNumber = 1),
         klass("StandardProject") to
             ComponentDescriber(actionUse = ComponentDescriber.ActionUse("a standard project")),
         klass("ConvertPlantsSA") to

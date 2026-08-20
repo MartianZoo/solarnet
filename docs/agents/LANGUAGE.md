@@ -231,6 +231,9 @@ One mandatory concrete gain may instead use an imperative verb and object phrase
 component's Describer when its procedure is absent from the Pets change itself.
 Another supported direct-change construction gains a temporary component whose declaration says
 that the next card played receives one fixed standard-resource payment discount.
+A gained component may instead declare exactly one described first action; its consequence is
+rendered through the ordinary instruction renderer, while unsupported consequences remain
+data-backed.
 A described production-box-copy component obtains the selected card and its concrete tag from its
 expression argument; the Describer does not contain that tag or a complete instruction.
 Ownership and location remain independent renderer facts. Because a component outside the game
