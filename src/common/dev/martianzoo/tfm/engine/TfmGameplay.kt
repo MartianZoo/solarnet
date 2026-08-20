@@ -176,15 +176,8 @@ public class TfmGameplay(
       game.tasks
           .extract { it }
           .filter { it.assignee == actor }
-          .filter { task -> task.isActionPhaseSecondAction() }
+          .filter { task -> isActionPhaseSecondAction(game, task) }
           .singleOrNull()
-
-  private fun Task.isActionPhaseSecondAction(): Boolean {
-    val origin = cause ?: return false
-    if (origin.context.className != cn("ActionPhase")) return false
-    val trigger = game.events.changeAt(origin.triggerEvent)
-    return trigger?.change?.gaining?.className == cn("SecondAction")
-  }
 
   /** Uses an action supplied by [stdAction], which must be a `StandardAction` provider. */
   public fun stdAction(

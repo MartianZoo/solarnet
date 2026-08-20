@@ -5,7 +5,11 @@ plugins {
 
 kotlin {
   js {
-    nodejs()
+    nodejs {
+      testTask {
+        useMocha { timeout = "120s" }
+      }
+    }
     binaries.executable()
     generateTypeScriptDefinitions()
   }

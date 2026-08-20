@@ -19,6 +19,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.isVisibleInLog
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.engine.isActionPhaseSecondAction
 import dev.martianzoo.types.Type
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
@@ -63,6 +64,9 @@ public class SolarnetSession(
       "selectCorporation" -> {
         val corporation = cn(move.getValue("corporation").jsonPrimitive.content)
         val projectCards = move.getValue("projectCards").jsonPrimitive.int
+        require(projectCards in 0..10) {
+          "Initial project-card purchase count must be between 0 and 10: $projectCards"
+        }
         game.tfm(movePlayer(move)).playCorp(corporation, projectCards)
       }
       "playProject" -> {
@@ -81,8 +85,13 @@ public class SolarnetSession(
         val card = cardClassForPrintedId(move.getValue("cardId").jsonPrimitive.content)
         game.tfm(movePlayer(move)).cardAction1(card)
       }
+      "buyCards" -> buyCards(move)
       "standardProject" -> startStandardProject(move)
+      "convertHeat" -> convertHeat(move)
+      "convertPlants" -> convertPlants(move)
+      "sellPatents" -> sellPatents(move)
       "placeTile" -> placeTile(move)
+      "declineFinalGreenery" -> declineFinalGreenery(move)
       "endTurn" -> game.tfm(movePlayer(move)).declineSecondAction()
       "pass" -> game.tfm(movePlayer(move)).doTask("Pass")
       else -> error("Unknown parity operation: ${move.getValue("operation")}")
@@ -96,8 +105,11 @@ public class SolarnetSession(
     return buildJsonObject {
       put("generation", engine.count("Generation"))
       put("phase", phase)
+      put("gameEnd", phase == "end")
       put("firstPlayer", firstPlayerSeat())
       put("passedPlayers", seatsJson(passedPlayerSeats(phase)))
+      put("waitingPlayers", seatsJson(waitingPlayerSeats()))
+      put("secondActionPlayers", seatsJson(secondActionPlayerSeats()))
       put(
           "players",
           buildJsonArray {
@@ -179,6 +191,24 @@ public class SolarnetSession(
         players.filter { game.tfm(it).has("Pass") }.map(::playerSeat)
       }
 
+  private fun waitingPlayerSeats(): List<Int> =
+      game.tasks
+          .extract { it.assignee }
+          .filterIsInstance<Player>()
+          .distinct()
+          .map(::playerSeat)
+          .sorted()
+
+  private fun secondActionPlayerSeats(): List<Int> =
+      game.tasks
+          .extract { it }
+          .filter { isActionPhaseSecondAction(game, it) }
+          .map { it.assignee }
+          .filterIsInstance<Player>()
+          .map(::playerSeat)
+          .distinct()
+          .sorted()
+
   private fun playerSeat(player: Player): Int =
       players.indexOf(player).takeIf { it >= 0 }?.plus(1) ?: error("Unknown seated player: $player")
 
@@ -189,6 +219,7 @@ public class SolarnetSession(
     return buildJsonObject {
       put("seat", seat)
       put("terraformRating", gameplay.count("TerraformRating"))
+      put("victoryPoints", gameplay.count("VictoryPoint"))
       put("resources", resourceSnapshot(gameplay, production = false))
       put("production", resourceSnapshot(gameplay, production = true))
       put("handCount", gameplay.count("ProjectCard"))
@@ -258,29 +289,72 @@ public class SolarnetSession(
           buildJsonObject {
             put("row", area.row)
             put("column", area.column)
-            put("kind", tileKind(tile))
-            put("owner", JsonNull)
+            val kind = tileKind(tile)
+            put("kind", kind)
+            if (kind == "ocean") {
+              put("owner", JsonNull)
+            } else {
+              put("owner", playerSeat(getPlayerOwner(game.reader, tile)))
+            }
           }
       )
     }
   }
 
   private fun tileKind(tile: Type): String {
-    require(isTileKind(tile, "OceanTile")) { "Unsupported parity tile: $tile" }
-    return "ocean"
+    return when {
+      isTileKind(tile, "OceanTile") -> "ocean"
+      isTileKind(tile, "GreeneryTile") -> "greenery"
+      isTileKind(tile, "CityTile") -> "city"
+      else -> error("Unsupported parity tile: $tile")
+    }
   }
 
   private fun isTileKind(tile: Type, kind: String): Boolean =
       tile.rootClass.isSubtypeOf(game.reader.resolve(cn(kind).expression).rootClass)
 
   private fun startStandardProject(move: JsonObject) {
-    when (val project = move.getValue("project").jsonPrimitive.content) {
-      "aquifer" ->
-          moveOperation(move).continueManual {
-            doTask("UseAction1<UseStandardProjectSA>")
-            doTask("UseAction1<AquiferSP>")
-          }
-      else -> error("Unknown standard project: $project")
+    val project =
+        when (val semanticName = move.getValue("project").jsonPrimitive.content) {
+          "powerPlant" -> "PowerPlantSP"
+          "asteroid" -> "AsteroidSP"
+          "aquifer" -> "AquiferSP"
+          "greenery" -> "GreenerySP"
+          "city" -> "CitySP"
+          else -> error("Unknown standard project: $semanticName")
+        }
+    moveOperation(move).continueManual {
+      doTask("UseAction1<UseStandardProjectSA>")
+      doTask("UseAction1<$project>")
+    }
+  }
+
+  private fun buyCards(move: JsonObject) {
+    require(currentPhase() == "research") { "Cards can be bought here only during Research" }
+    val count = move.getValue("count").jsonPrimitive.int
+    require(count in 0..4) { "Research purchase count must be between 0 and 4: $count" }
+    game.tfm(movePlayer(move)).doTask(if (count == 0) "Ok" else "$count BuyCard")
+  }
+
+  private fun convertHeat(move: JsonObject) {
+    moveOperation(move).continueManual { doTask("UseAction1<ConvertHeatSA>") }
+  }
+
+  private fun convertPlants(move: JsonObject) {
+    val gameplay = game.tfm(movePlayer(move))
+    moveOperation(move).continueManual {
+      doTask("UseAction1<ConvertPlantsSA>")
+      val plantsOwed = gameplay.count("Owed<Class<Plant>>")
+      doTask("$plantsOwed Pay<Class<Plant>> FROM Plant")
+    }
+  }
+
+  private fun sellPatents(move: JsonObject) {
+    val count = move.getValue("count").jsonPrimitive.int
+    require(count > 0) { "Patent sale count must be positive: $count" }
+    moveOperation(move).finish {
+      doTask("UseAction1<SellPatents>")
+      doTask("-$count ProjectCard THEN $count")
     }
   }
 
@@ -288,8 +362,17 @@ public class SolarnetSession(
     val area = moveArea(move)
     when (val tile = move.getValue("tile").jsonPrimitive.content) {
       "ocean" -> moveOperation(move).finish { doTask("OceanTile<$area>") }
+      "greenery" -> moveOperation(move).finish { doTask("GreeneryTile<$area>") }
+      "city" -> moveOperation(move).finish { doTask("CityTile<$area>") }
       else -> error("Unknown tile kind: $tile")
     }
+  }
+
+  private fun declineFinalGreenery(move: JsonObject) {
+    require(currentPhase() == "finalGreenery") {
+      "Final greenery can be declined only during Final Greenery"
+    }
+    game.tfm(movePlayer(move)).doTask("Ok")
   }
 
   private fun moveOperation(move: JsonObject): OperationLayer =
