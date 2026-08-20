@@ -11,7 +11,7 @@ internal class MetricTest {
   @Test
   fun metricUnitsAndRequirementThresholdsHaveDifferentMeanings() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
-    p1.godMode().sneak("8 Plant")
+    p1.godMode().manual("8 Plant")
 
     p1.godMode().manual("Heat / 3 Plant")
     p1.count("Heat<Player1>") shouldBe 2
@@ -21,17 +21,35 @@ internal class MetricTest {
   }
 
   @Test
+  fun metricSubtractionComposesInCountsRequirementsAndInstructions() {
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    p1.godMode().manual("7 Plant, 2 Steel")
+
+    p1.count("Plant MAX 5 - Steel") shouldBe 3
+    p1.count("2 (Plant - Steel - 1) MAX 2") shouldBe 2
+    p1.count("Plant - (Steel - 1)") shouldBe 6
+    p1.count("Plant - 8") shouldBe 0
+    p1.has("5 (Plant - Steel)") shouldBe true
+    p1.has("6 (Plant - Steel)") shouldBe false
+
+    p1.godMode().manual("Heat / Plant MAX 5 - Steel")
+    p1.count("Heat<Player1>") shouldBe 3
+    p1.godMode().manual("-Heat / Plant - 6")
+    p1.count("Heat<Player1>") shouldBe 2
+  }
+
+  @Test
   fun orCountsTheUnionOfMatchingComponents() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode()
-        .sneak(
+        .manual(
             "CityTile<Player1, Tharsis_4_2>, GreeneryTile<Player1, Tharsis_4_3>, " +
-                "Plant<Player1>"
+                "Victory<Player1>"
         )
 
     p1.count("OwnedTile<Player1>") shouldBe 2
     p1.count("CityTile<Player1>") shouldBe 1
     p1.count("OwnedTile<Player1> OR CityTile<Player1>") shouldBe 2
-    p1.count("OwnedTile<Player1> OR Plant<Player1>") shouldBe 3
+    p1.count("OwnedTile<Player1> OR Victory<Player1>") shouldBe 3
   }
 }

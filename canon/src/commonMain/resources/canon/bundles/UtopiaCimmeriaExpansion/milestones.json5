@@ -31,7 +31,8 @@
         // Forester
         { "id": "UM8", "requirement": "PROD[3 Plant]" },
         // Fundraiser
-        { "id": "UM9", "requirement": "PROD[17 Megacredit]" },
+        // Search for GrossHack to understand this nonsense
+        { "id": "UM9", "requirement": "PROD[12 (Megacredit - 5)]" },
       ],
     },
   ],

@@ -6,7 +6,6 @@ import dev.martianzoo.data.GamePremise
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Metric.Or
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
@@ -87,11 +86,6 @@ internal class GameReaderImpl(
   private fun countUnion(metric: Or): Int {
     val union = mutableMapOf<Component, Int>()
     metric.metrics.forEach { alternative ->
-      if (alternative !is Count) {
-        throw ExpressionException(
-            "OR metric alternatives must count components, but found: $alternative"
-        )
-      }
       componentsMatching(alternative.expression).entries.forEach { (component, count) ->
         union[component] = maxOf(union[component] ?: 0, count)
       }

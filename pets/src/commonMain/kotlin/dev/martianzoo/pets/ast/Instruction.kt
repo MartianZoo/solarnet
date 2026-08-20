@@ -696,7 +696,7 @@ public sealed class Instruction : InstructionTree() {
 
         val maybePer: Parser<Instruction> =
             perable and
-                optional(skipChar('/') and Metric.atomParser()) map
+                optional(skipChar('/') and Metric.subtractionParser()) map
                 { (instr, metric) ->
                   if (metric == null) instr else Per(instr, metric)
                 }
