@@ -17,7 +17,7 @@ public data class ComponentDescriber(
     public val textNeutralSubclasses: Boolean = false,
     public val production: Boolean? = null,
     public val requirement: Requirement? = null,
-    public val directGain: DirectGain? = null,
+    public val directChange: DirectChange? = null,
     public val draw: Boolean? = null,
     public val score: Score? = null,
     public val endTrigger: Boolean? = null,
@@ -118,7 +118,12 @@ public data class ComponentDescriber(
     }
   }
 
-  public data class DirectGain(public val noun: String, public val count: Int)
+  public sealed interface DirectChange {
+    public data class Gain(public val noun: String, public val count: Int) : DirectChange
+
+    /** Supplies the otherwise-unmodeled review, purchase, or discard procedure for the top card. */
+    public data object TopCardPurchase : DirectChange
+  }
 
   public data class Score(public val singular: String, public val plural: String)
 

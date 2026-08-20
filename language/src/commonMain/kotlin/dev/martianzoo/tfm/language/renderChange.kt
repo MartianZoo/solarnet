@@ -25,8 +25,8 @@ internal fun renderChange(
         is Transmute -> instruction.gaining
         else -> return null
       }
-  describers.fact(expression.className, ComponentDescriber::directGain)?.let {
-    return renderDirectGain(instruction, it)
+  describers.fact(expression.className, ComponentDescriber::directChange)?.let {
+    return renderDirectChange(instruction, it, describers)
   }
   if (describers.fact(expression.className, ComponentDescriber::discardable) == true)
       return renderDiscard(instruction, describers)
@@ -86,13 +86,47 @@ internal fun standardResourceGain(
   }
 }
 
-private fun renderDirectGain(
+private fun renderDirectChange(
     instruction: Instruction,
-    description: ComponentDescriber.DirectGain,
+    description: ComponentDescriber.DirectChange,
+    describers: Describers,
 ): Clause? {
-  val (_, count) = concreteMandatoryGain(instruction) ?: return null
-  if (count != description.count) return null
-  return clause("gain", NounPhrase(description.noun, count = count))
+  return when (description) {
+    is ComponentDescriber.DirectChange.Gain -> {
+      val (_, count) = concreteMandatoryGain(instruction) ?: return null
+      if (count != description.count) return null
+      clause("gain", NounPhrase(description.noun, count = count))
+    }
+    ComponentDescriber.DirectChange.TopCardPurchase ->
+        renderTopCardPurchase(instruction, describers)
+  }
+}
+
+private fun renderTopCardPurchase(
+    instruction: Instruction,
+    describers: Describers,
+): Clause? {
+  val gain = instruction as? Gain ?: return null
+  if (
+      gain.intensity != OPTIONAL ||
+          !gain.gaining.simple ||
+          !describers.concrete(gain.gaining.className) ||
+          (gain.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val look = clause("look at", NounPhrase.text("the top card"))
+  val decision =
+      Clause.Coordinated(
+          Coordination(
+              listOf(
+                  clause("buy", NounPhrase.text("it")),
+                  clause("discard", NounPhrase.text("it")),
+              ),
+              Conjunction.EITHER_OR,
+          )
+      )
+  return Clause.Coordinated(Coordination(listOf(look, decision), Conjunction.AND))
 }
 
 private fun renderCardResourceDrawExchange(

@@ -252,8 +252,14 @@ internal object TerraformingMarsDescribers {
                         ownedCount = ComponentDescriber.Noun.Counted("colony", "colonies"),
                     ),
             ),
+        klass("BuyCard") to
+            ComponentDescriber(
+                directChange = ComponentDescriber.DirectChange.TopCardPurchase,
+            ),
         klass("ReserveTradeFleet") to
-            ComponentDescriber(directGain = ComponentDescriber.DirectGain("Trade Fleet", 1)),
+            ComponentDescriber(
+                directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)
+            ),
         klass("Production") to ComponentDescriber(production = true),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("End") to ComponentDescriber(endTrigger = true),

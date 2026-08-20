@@ -86,6 +86,7 @@ internal data class Coordination<T>(
       null -> parts.single()
       Conjunction.AND -> englishList(parts)
       Conjunction.OR -> englishAlternatives(parts)
+      Conjunction.EITHER_OR -> "either ${englishAlternatives(parts)}"
     }
   }
 
@@ -97,6 +98,7 @@ internal data class Coordination<T>(
 internal enum class Conjunction {
   AND,
   OR,
+  EITHER_OR,
 }
 
 /** The sole capitalization and punctuation boundary. */
