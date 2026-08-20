@@ -4,11 +4,15 @@ package dev.martianzoo.tfm.language
 internal sealed interface Clause {
   fun linearize(): String
 
-  data class Simple(val predicate: Predicate) : Clause {
+  data class Simple(
+      val predicate: Predicate,
+      val subject: NounPhrase? = null,
+  ) : Clause {
     fun withModifier(modifier: Modifier): Simple =
         copy(predicate = predicate.withModifier(modifier))
 
-    override fun linearize(): String = predicate.linearize()
+    override fun linearize(): String =
+        listOfNotNull(subject?.linearize(), predicate.linearize()).joinToString(" ")
   }
 
   data class Coordinated(val clauses: Coordination<Clause>) : Clause {

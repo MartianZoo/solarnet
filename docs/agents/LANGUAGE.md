@@ -71,10 +71,10 @@ compose, and differing values for the same fact from incomparable nearest provid
 Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
 shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
 
-Instruction changes are retained as internal clauses, predicates, noun phrases, modifiers, and
-coordinations until the enclosing instruction or action has made its structural decisions. One
-linearizer owns capitalization, punctuation, number agreement, and final text assembly. This is a
-small renderer representation rather than a general English grammar framework.
+Instruction changes and requirements are retained as internal clauses, predicates, noun phrases,
+modifiers, and coordinations until their enclosing sentence or action has made its structural
+decisions. One linearizer owns capitalization, punctuation, number agreement, and final text
+assembly. This is a small renderer representation rather than a general English grammar framework.
 
 Instruction rendering retains its ordered clauses until the enclosing instruction or action chooses
 whether to make them separate sentences or coordinate them under one action cost. This small
