@@ -1,8 +1,9 @@
 # Dual-engine Terraforming Mars app
 
 **Status: the Gate 1 development runtime boundary is proven; Gate 2 covers its first paid project,
-turn boundary, standard project, and map target.** This records the smallest promising design,
-verified runtime facts, and the proof gates that should precede broad integration.
+turn boundary, standard project, and map target; and the first Solarnet-side Gate 3 projection is
+verified.** This records the smallest promising design, verified runtime facts, and the proof gates
+that should precede broad integration.
 
 ## Goal
 
@@ -100,7 +101,7 @@ has one mutable session and a human text protocol, so it is not the production b
 Start with state both engines represent faithfully:
 
 - profile identity: map, enabled expansions/variants, player seats;
-- workflow: generation, phase, first/active player, passed players, game end;
+- workflow: generation, phase, first player, passed players, and game end;
 - global parameters: temperature, oxygen, oceans, and Venus when enabled;
 - per player: TR, six resources, six production values, hand count, played card IDs, card-resource
   counts, used actions, colonies, fleets, claimed milestones, and funded awards;
@@ -175,8 +176,8 @@ already in that Player's follow-mode hand and executes the ordinary project-play
 This is evidence for the message shape and underlying task path, not yet the settled generic
 interpreter. The Node and external TypeScript scenarios buy one generic card during setup, play card
 105 (Earth Office) for 1 M€, and observe both the play and payment in the diagnostic event feed;
-normalized public-state comparison remains Gate 3. Other target kinds, follow-up choices, and other
-payment media remain unimplemented protocol families.
+the first normalized Solarnet state slice is described under Gate 3. Other target kinds, follow-up
+choices, and other payment media remain unimplemented protocol families.
 
 `endTurn` and `pass` are separate semantic moves. `endTurn` declines only the optional second-action
 offer, leaving that Player active in the generation; `pass` executes the ordinary offered `Pass`
@@ -205,6 +206,16 @@ command, profile, and both pinned revisions.
 Classify every disagreement as bridge defect, projector defect, upstream rule difference, Solarnet
 defect, documented Solarnet variant, or unsupported content. A classification never suppresses a
 diff unless the compatibility contract is updated explicitly.
+
+**Verified so far:** Solarnet projects generation, normalized phase, first and passed seats, TR, all
+six resources and production values, hand count, public played-card IDs, temperature, oxygen,
+oceans, and normalized ocean tiles. Set-like arrays are sorted, ocean ownership is explicit `null`,
+and all card IDs come from Canon rather than class-name text. The short Gate 2 scenario asserts the
+complete projected result after Player 2 passes; a separate event-card scenario verifies that a
+played event is mapped through its typed card dependency. This slice deliberately omits active or
+waiting-player continuation state and rejects non-ocean or off-map tiles rather than flattening
+unmodeled state into a false equality. The app projector, comparator, and disagreement diagnostic
+remain unimplemented.
 
 **Pass condition:** injected resource, production, card-resource, and tile mismatches each yield a
 small intelligible diagnostic.

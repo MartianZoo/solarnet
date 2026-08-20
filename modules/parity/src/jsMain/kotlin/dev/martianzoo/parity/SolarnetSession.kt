@@ -1,5 +1,6 @@
 package dev.martianzoo.parity
 
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
@@ -9,14 +10,18 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.api.tfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.types.Type
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
@@ -79,17 +84,29 @@ public class SolarnetSession(
     return snapshot()
   }
 
-  /** Returns the first deliberately small parity snapshot as JSON. */
+  /** Returns the first normalized public-state parity slice as JSON. */
   public fun snapshot(): String {
-    val phase = game.reader.getComponents("Phase").singleOrNull()?.className?.toString()
+    val phase = currentPhase()
     return buildJsonObject {
       put("generation", engine.count("Generation"))
-      put("phase", phase.orEmpty())
-      put("pendingTasks", game.tasks.ids().size)
+      put("phase", phase)
+      put("firstPlayer", firstPlayerSeat())
+      put("passedPlayers", seatsJson(passedPlayerSeats(phase)))
       put(
           "players",
-          buildJsonArray { players.forEach { add(it.className.toString()) } },
+          buildJsonArray {
+            players.forEachIndexed { index, player -> add(playerSnapshot(player, index + 1)) }
+          },
       )
+      put(
+          "globalParameters",
+          buildJsonObject {
+            put("temperature", engine.temperatureC())
+            put("oxygen", engine.oxygenPercent())
+            put("oceans", engine.count("OceanTile"))
+          },
+      )
+      put("tiles", tilesSnapshot())
     }
         .toString()
   }
@@ -133,6 +150,112 @@ public class SolarnetSession(
     return amount
   }
 
+  private fun currentPhase(): String =
+      game.reader
+          .getComponents("Phase")
+          .single()
+          .className
+          .toString()
+          .removeSuffix("Phase")
+          .replaceFirstChar { it.lowercase() }
+
+  private fun firstPlayerSeat(): Int =
+      playerSeat(getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()))
+
+  private fun passedPlayerSeats(phase: String): List<Int> =
+      if (phase != "action") {
+        emptyList()
+      } else {
+        players.filter { game.tfm(it).has("Pass") }.map(::playerSeat)
+      }
+
+  private fun playerSeat(player: Player): Int =
+      players.indexOf(player).takeIf { it >= 0 }?.plus(1) ?: error("Unknown seated player: $player")
+
+  private fun seatsJson(seats: List<Int>) = buildJsonArray { seats.forEach(::add) }
+
+  private fun playerSnapshot(player: Player, seat: Int): JsonObject {
+    val gameplay = game.tfm(player)
+    return buildJsonObject {
+      put("seat", seat)
+      put("terraformRating", gameplay.count("TerraformRating"))
+      put("resources", resourceSnapshot(gameplay, production = false))
+      put("production", resourceSnapshot(gameplay, production = true))
+      put("handCount", gameplay.count("ProjectCard"))
+      put(
+          "playedCardIds",
+          buildJsonArray { playedCardIds(player).forEach(::add) },
+      )
+    }
+  }
+
+  private fun resourceSnapshot(gameplay: TfmGameplay, production: Boolean): JsonObject =
+      buildJsonObject {
+        RESOURCE_KINDS.forEach { (key, kind) ->
+          put(key, if (production) gameplay.production(kind) else gameplay.count(kind.toString()))
+        }
+      }
+
+  private fun playedCardIds(player: Player): List<String> =
+      game.reader
+          .let {
+            it.getComponents("CardFront").toList() + it.getComponents("PlayedEvent").toList()
+          }
+          .asSequence()
+          .filter { getPlayerOwner(game.reader, it) == player }
+          .map(::cardId)
+          .sorted()
+          .toList()
+
+  private fun cardId(component: Type): String {
+    val cardName =
+        if (component.className == PLAYED_EVENT) {
+          component.expressionFull.arguments
+              .filter { it.className == CLASS }
+              .map { it.arguments.single().className }
+              .single()
+        } else {
+          component.className
+        }
+    return game.reader.tfmAuthority.card(cardName).id
+  }
+
+  private fun tilesSnapshot() = buildJsonArray {
+    val areas = mapDefinition(game.reader).areas.rows().flatten().filterNotNull()
+    val areaByName = areas.associateBy { it.className }
+    val tiles =
+        game.reader
+            .getComponents("Tile")
+            .asSequence()
+            .map { tile ->
+              val matchingAreas =
+                  tile.typeDependencies.mapNotNull { areaByName[it.boundType.className] }
+              require(matchingAreas.size == 1) { "Unsupported parity tile area: $tile" }
+              val area = matchingAreas.single()
+              area to tile
+            }
+            .sortedWith(compareBy({ it.first.row }, { it.first.column }))
+
+    tiles.forEach { (area, tile) ->
+      add(
+          buildJsonObject {
+            put("row", area.row)
+            put("column", area.column)
+            put("kind", tileKind(tile))
+            put("owner", JsonNull)
+          }
+      )
+    }
+  }
+
+  private fun tileKind(tile: Type): String {
+    require(isTileKind(tile, "OceanTile")) { "Unsupported parity tile: $tile" }
+    return "ocean"
+  }
+
+  private fun isTileKind(tile: Type, kind: String): Boolean =
+      tile.rootClass.isSubtypeOf(game.reader.resolve(cn(kind).expression).rootClass)
+
   private fun startStandardProject(move: JsonObject) {
     when (val project = move.getValue("project").jsonPrimitive.content) {
       "aquifer" ->
@@ -167,5 +290,16 @@ public class SolarnetSession(
 
   private companion object {
     const val FIRST_APP_SPACE_ID = 3
+
+    private val PLAYED_EVENT: ClassName = cn("PlayedEvent")
+    private val RESOURCE_KINDS: List<Pair<String, ClassName>> =
+        listOf(
+            "megacredits" to cn("Megacredit"),
+            "steel" to cn("Steel"),
+            "titanium" to cn("Titanium"),
+            "plants" to cn("Plant"),
+            "energy" to cn("Energy"),
+            "heat" to cn("Heat"),
+        )
   }
 }
