@@ -534,7 +534,7 @@ class Game20260818Test : AbstractFullGameTest() {
       // "Use Energy Market to spend my last two money to get one energy resource."
       cardAction1(EnergyMarket) { doTask("-2 THEN 1 Energy") }.expect("-2 M, Energy")
       // "I'm going to convert plants and get in this spot where I get a plant and four money."
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             doTask("GreeneryTile<Utopia_4_2>")
           }
           .expect("-7 P, 4 M, OxygenStep, TR")

@@ -126,7 +126,7 @@ class BugsTest : CardTest() {
     engine.phase("Action")
     p1.manual("7 Megacredit, ProjectCard")
 
-    p1.playProject(PublicPlans, 7) { doTask("Ok") }
+    p1.playProject(PublicPlans, 7)
 
     p1.assertCounts(0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
   }

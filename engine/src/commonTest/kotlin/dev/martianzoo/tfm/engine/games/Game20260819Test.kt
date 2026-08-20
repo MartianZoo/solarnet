@@ -348,7 +348,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // JR used Convert Plants standard action
     // JR placed greenery tile at 13
     // JR gained 2 steel
-    JR.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_2_6>") }
+    JR.convertPlants { doTask("GreeneryTile<Elysium_2_6>") }
     // JR played Kaguya Tech
     // JR gained 2 M€ production
     // JR drew 1 card(s)
@@ -590,12 +590,12 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // ER placed greenery tile at 36
     // ER gained 2 plants
     // ER gained 2 M€ from 1 ocean(s)
-    ER.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_8>") }
+    ER.convertPlants { doTask("GreeneryTile<Elysium_5_8>") }
     // JR used Convert Plants standard action
     // JR placed greenery tile at 33
     // JR gained 2 plants
     // JR gained 4 M€ from 2 ocean(s)
-    JR.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_5>") }
+    JR.convertPlants { doTask("GreeneryTile<Elysium_5_5>") }
 
     // NOTE: _local/Game20260819/Game20260819-dashboard-gen6.png was taken here, after JR's
     // NOTE: generation-6 greenery and before JR played Zeppelins.
@@ -644,7 +644,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // ER placed greenery tile at 37
     // ER gained 1 plant
     // ER gained 1 titanium
-    ER.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_9>") }.expect("T")
+    ER.convertPlants { doTask("GreeneryTile<Elysium_5_9>") }.expect("T")
     JR.pass()
     // NOTE: Fixture inference: Corporate Stronghold is KB's other unidentified opening keep.
     // KB used Sell Patents standard project
@@ -697,7 +697,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // KB used Convert Plants standard action
     // KB placed greenery tile at 30
     // KB gained 2 plants
-    KB.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_2>") }
+    KB.convertPlants { doTask("GreeneryTile<Elysium_5_2>") }
     // KB used Restricted Area action
     // KB drew 1 card(s)
     // You drew Potatoes
@@ -866,7 +866,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // JR placed greenery tile at 25
     // JR gained 1 plant
     // JR gained 6 M€ from 3 ocean(s)
-    JR.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_4_5>") }
+    JR.convertPlants { doTask("GreeneryTile<Elysium_4_5>") }
     // KB used Convert Heat standard action
     KB.stdAction("ConvertHeatSA")
     // KB used Convert Heat standard action
@@ -1014,7 +1014,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // KB used Convert Plants standard action
     // KB placed greenery tile at 39
     // KB gained 1 plant
-    KB.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_6_3>") }
+    KB.convertPlants { doTask("GreeneryTile<Elysium_6_3>") }
     // KB used Restricted Area action
     // KB drew 1 card(s)
     // You drew Kelp Farming
@@ -1195,16 +1195,13 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // JR placed greenery tile at 35
     // JR gained 2 plants
     // JR gained 4 M€ from 2 ocean(s)
-    JR.doTask("UseAction1<ConvertPlantsSA>")
-    JR.doTask("GreeneryTile<Elysium_5_7>")
+    JR.convertPlants { doTask("GreeneryTile<Elysium_5_7>") }
     JR.doTask("Ok")
     // KB placed greenery tile at 47
     // KB gained 1 steel
     // KB placed greenery tile at 54
-    KB.doTask("UseAction1<ConvertPlantsSA>")
-    KB.doTask("GreeneryTile<Elysium_7_4>")
-    KB.doTask("UseAction1<ConvertPlantsSA>")
-    KB.doTask("GreeneryTile<Elysium_8_5>")
+    KB.convertPlants { doTask("GreeneryTile<Elysium_7_4>") }
+    KB.convertPlants { doTask("GreeneryTile<Elysium_8_5>") }
     KB.doTask("Ok")
 
     // This game id was g4ce040d78bb6
