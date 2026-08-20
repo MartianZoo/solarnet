@@ -178,7 +178,14 @@ private fun renderPlacement(
 ): Clause? {
   val gain = instruction as? Gain ?: return null
   if (gain.intensity != null && gain.intensity != MANDATORY) return null
-  if (!gain.gaining.simple) return null
+  // Explicit <> accepts placement defaults and does not narrow the placed component.
+  if (
+      gain.gaining.arguments.isNotEmpty() ||
+          gain.gaining.refinement != null ||
+          gain.gaining.complement
+  ) {
+    return null
+  }
   val count = (gain.count as? ActualScalar)?.value ?: return null
   if (count != 1 && !description.allowsMultiple) return null
   val noun =
