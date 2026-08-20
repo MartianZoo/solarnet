@@ -13,6 +13,7 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
@@ -29,9 +30,56 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? {
         ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
         ?: renderResourcePaymentValue(lowered, describers)
         ?: renderRequirementFlexibility(lowered, describers)
+        ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
         ?: renderLinkedProductionReward(lowered, describers)
         ?: renderTriggeredInstructions(lowered, describers)
   }
+}
+
+private fun renderLinkedPlayedTagResourceChoice(
+    effect: Effect,
+    describers: Describers,
+): String? {
+  val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
+  if (trigger.refinement != null || trigger.complement) return null
+  val holder = trigger.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
+  val tagPhrase =
+      describers.fact(trigger.className, ComponentDescriber::playedTagPhrase) ?: return null
+  val alternatives = (effect.instruction as? Instruction.Or)?.instructions ?: return null
+  var linkedDestination = false
+  val clauses = alternatives.map { alternative ->
+    renderLinkedCardResourceGain(alternative, holder, describers)?.also {
+      linkedDestination = true
+    } ?: renderInstructions(alternative, describers)?.clauses?.singleOrNull() ?: return null
+  }
+  if (!linkedDestination) return null
+  val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
+  return completeSentence("when you play $tagPhrase, ${result.linearize()}")
+}
+
+private fun renderLinkedCardResourceGain(
+    instruction: InstructionTree,
+    holder: Expression,
+    describers: Describers,
+): Clause.Simple? {
+  val gain = InstructionGroup.of(instruction).instructions.singleOrNull() as? Gain ?: return null
+  if (
+      (gain.intensity != null && gain.intensity != MANDATORY) ||
+          gain.gaining.arguments != listOf(holder) ||
+          gain.gaining.refinement != null ||
+          gain.gaining.complement
+  ) {
+    return null
+  }
+  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val resource = describers.cardResourceNounPhrase(gain.gaining.className, count) ?: return null
+  return Clause.Simple(
+      Predicate(
+          "add",
+          Coordination.one(resource),
+          listOf(Modifier.Phrase("to that card")),
+      )
+  )
 }
 
 private fun renderRequirementFlexibility(effect: Effect, describers: Describers): String? {

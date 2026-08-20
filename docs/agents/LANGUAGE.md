@@ -188,6 +188,8 @@ constraint selects active `you` wording or unrestricted passive wording at linea
 Alternative event clauses with different verbs remain coordinated as complete clauses.
 Event triggers use the same structured clauses, predicates, noun phrases, and modifiers as
 instructions and requirements rather than assembling a separate partial-string representation.
+A played-tag trigger may bind its card argument to a generic card-resource result, retaining that
+shared destination as `that card`.
 An abstract production-resource trigger linked to a gain of the same resource renders as a per-step
 relationship. It retains the selected production type as `of that type` and makes the trigger's
 natural count multiplication explicit.
