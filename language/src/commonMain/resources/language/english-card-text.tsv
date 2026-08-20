@@ -427,7 +427,7 @@ CardC41	C41	Spin-Off Department	Increase your M€ production 2 steps.	Effect: W
 CardC42	C42	Sub-Zero Salt Fish	Requires -6°C or warmer. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Action: Add 1 animal to this card.
 CardC43	C43	Titan Air-Scrapping	2 VPs.	Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters from this card to raise your terraform rating 1 step.
 CardC44	C44	Titan Floating Launch-Pad	Add 2 floaters to a card with a Jovian tag. 1 VP.	Action: Add 1 floater to ANY JOVIAN CARD, or remove 1 floater from this card to trade for free.
-CardC45	C45	Titan Shuttles	1 VP.	Action: Add 2 floaters to ANY JOVIAN CARD, or remove one or more floaters from this card to gain the same number of titanium.
+CardC45	C45	Titan Shuttles	1 VP.	Action: Add 2 floaters to a card with a Jovian tag, or remove one or more floaters from this card to gain the same number of titanium.
 CardC46	C46	Trade Envoys		Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC47	C47	Trading Colony	Place a colony.	Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC48	C48	Urban Decomposers	Requires that you have 1 city tile and 1 colony. Increase your plant production 1 step. Add 2 microbes to any card.	

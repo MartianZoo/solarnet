@@ -147,7 +147,10 @@ may instead remove a concrete number of one card resource from this card, `ANY P
 any of the player's own cards, as specified by the cost expression. Multiple authored actions render
 as alternatives, with a comma before `or` to distinguish their operation boundaries. Alternative
 costs share one verb only when their verb and modifiers agree; other mixes remain data-backed rather
-than risking a change in scope. Supported non-End effects include a fixed M€ discount triggered by
+than risking a change in scope. An action may also link an `X`-scaled standard-resource or
+card-resource cost to one `X`-scaled concrete standard-resource gain; the action renderer retains
+the shared quantity when it says the same number, that amount, or an explicit multiple. Supported
+non-End effects include a fixed M€ discount triggered by
 playing a card or one concrete tag, and a supported instruction consequence triggered by playing
 concrete tags or one described tag group,
 placing a supported tile, raising a supported track, or adding a concrete card resource. Trigger
