@@ -26,6 +26,11 @@ internal object TerraformingMarsDescribers {
         klass("Megacredit") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
         klass("Plant") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),
+        klass("ProjectCard") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                draw = true,
+            ),
         klass("CardResource") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),

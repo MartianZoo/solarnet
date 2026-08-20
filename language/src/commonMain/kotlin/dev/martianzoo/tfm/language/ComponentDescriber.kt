@@ -16,6 +16,7 @@ public data class ComponentDescriber(
     public val production: Boolean? = null,
     public val requirement: Requirement? = null,
     public val directGain: DirectGain? = null,
+    public val draw: Boolean? = null,
     public val score: Score? = null,
     public val endTrigger: Boolean? = null,
     public val playTrigger: PlayTrigger? = null,

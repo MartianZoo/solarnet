@@ -311,7 +311,7 @@ Card173	173	Protected Habitats		Effect: Opponents may not remove your plant, ani
 Card175	175	Satellites	Increase your M€ production 1 step for each space tag you have.	
 Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium production 1 step and your M€ production 1 step.	
 Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. -2 VPs.	
-Card185	185	Olympus Conference	1 VP.	Effect: When you play a science tag, either add 1 science resource to this card, or remove 1 science resource to draw 1 card.
+Card185	185	Olympus Conference	1 VP.	Effect: When you play a science tag, add 1 science resource to this card or remove 1 science resource from this card to draw 1 card.
 Card186	186	Rad-Suits	Requires 2 city tiles. Increase your M€ production 1 step. 1 VP.	
 Card192F	192	Invention Contest	Look at the top 3 cards from the deck. Draw 1 of them and discard the other 2.	
 Card194	194	Power Infrastructure		Action: Spend one or more energy to gain that amount of M€.

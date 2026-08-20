@@ -29,6 +29,11 @@ internal fun renderChange(
   }
   if (describers.fact(expression.className, ComponentDescriber::discardable) == true)
       return renderDiscard(instruction, describers)
+  if (instruction is Transmute) {
+    renderCardResourceDrawExchange(instruction, describers)?.let {
+      return it
+    }
+  }
   if (describers.fact(expression.className, ComponentDescriber::cardResource) != null)
       return renderCardResourceChange(instruction, describers)
   if (describers.fact(expression.className, ComponentDescriber::production) == true)
@@ -87,6 +92,33 @@ private fun renderDirectGain(
   val (_, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != description.count) return null
   return clause("gain", NounPhrase(description.noun, count = count))
+}
+
+private fun renderCardResourceDrawExchange(
+    transmute: Transmute,
+    describers: Describers,
+): Clause? {
+  if (transmute.intensity != null && transmute.intensity != MANDATORY) return null
+  val count = (transmute.count as? ActualScalar)?.value ?: return null
+  val gaining = transmute.gaining
+  if (!gaining.simple || !describers.concrete(gaining.className)) return null
+  val removing = transmute.removing
+  if (
+      removing.arguments != listOf(describers.thisExpression) ||
+          removing.refinement != null ||
+          removing.complement
+  ) {
+    return null
+  }
+  val resource = describers.cardResourceNounPhrase(removing.className, count) ?: return null
+  if (describers.fact(gaining.className, ComponentDescriber::draw) != true) return null
+  val cards = describers.componentNounPhrase(gaining.className, count)
+  return clause(
+      "remove",
+      resource,
+      Modifier.Phrase("from this card"),
+      Modifier.Phrase("to draw ${cards.linearize()}"),
+  )
 }
 
 private fun renderStandardResourceChange(

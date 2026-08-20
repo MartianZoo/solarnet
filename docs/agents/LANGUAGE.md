@@ -173,17 +173,18 @@ mandatory standard-resource production gains or decreases; a city-tile, colony, 
 placement using the type's default arguments; one plain greenery-tile placement; one city or
 greenery placement on a described land site, optionally narrowed by a supported minimum or
 zero-maximum adjacency refinement; a concrete
-mandatory removal of a concrete card resource; or a concrete mandatory
-temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
-target any player. A choice is derived when every alternative is one supported clause, including a
-choice among concrete production-change clauses. A supported single-clause instruction may be
-scaled by the number of a concrete tag or card resource the player owns, or by complete groups of
-that tag or resource. It may also be scaled by the player's colonies, by city tiles or colonies
-owned by any player, or specifically by any player's city tiles on Mars. Ownership and location
-remain independent renderer facts. Because a component outside the game does not exist in
-Solarnet's model, generated metric phrases do not say `in play`; the published cards use that phrase
-to contrast any player's components with the acting player's own components. One supported clause
-may be gated by a concrete minimum number of a tag the player owns.
+mandatory removal of a concrete card resource; a mandatory exchange of a concrete number of card
+resources on this card to draw that number of a component declared as drawable; or a concrete
+mandatory temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production
+decrease may target any player. A choice is derived when every alternative is one supported clause,
+including a choice among concrete production-change clauses. A supported single-clause
+instruction may be scaled by the number of a concrete tag or card resource the player owns, or by
+complete groups of that tag or resource. It may also be scaled by the player's colonies, by city
+tiles or colonies owned by any player, or specifically by any player's city tiles on Mars.
+Ownership and location remain independent renderer facts. Because a component outside the game
+does not exist in Solarnet's model, generated metric phrases do not say `in play`; the published
+cards use that phrase to contrast any player's components with the acting player's own components.
+One supported clause may be gated by a concrete minimum number of a tag the player owns.
 Supported instructions are rendered in authored order. Adjacent standard-resource gains coalesce,
 and adjacent production changes remain coordinated in one sentence. Separate card-resource gains
 retain separate clauses because each may choose a different destination card. Alternatives factor
@@ -235,7 +236,9 @@ Insurance shows why: its component declarations encode printed setup behavior th
 `immediate`. Likewise,
 do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
 draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
-not structurally sufficient.
+not structurally sufficient. A mandatory transmutation can say that card resources are removed from
+this card to draw a declared drawable component; this deliberately does not cover optional
+`PlayedEvent` retrieval.
 
 A plain mandatory placement of one greenery tile renders its implicit oxygen increase. A strict
 placement-site refinement can express a minimum adjacency count or the absence of adjacent tiles;
