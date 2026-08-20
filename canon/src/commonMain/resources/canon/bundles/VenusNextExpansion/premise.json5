@@ -5,6 +5,14 @@
       "include": ["WorldGovernmentOption"],
     },
   ],
+  "moduleClassSelections": {
+    "VenusNextExpansion": [
+      {
+        "className": "VenusNextSoloAdjustment",
+        "requirement": "SoloMode",
+      },
+    ],
+  },
   "bootstrapValidations": [
     ["MAX 0 WorldGovernmentOption", "=1 VenusNextExpansion"],
   ],

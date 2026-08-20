@@ -86,10 +86,12 @@
         // the whole 54 money free and clear!
         // Reference: https://boardgamegeek.com/thread/3067197/can-card-effects-really-be-done-any-order-weird-sc
         "This:: 54",
-        "MicrobeTag<Anyone>: Disease<This>, -4.",
-        // ideally: `ScienceTag: TR FROM Disease ELSE (PlayedEvent<Class<This>> FROM This, 3 TR)?`
-        "ScienceTag IF Disease: TerraformRating FROM Disease<This>",
-        "ScienceTag IF MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok"
+        // The disease task can remain pending after this corporation flips. Its gated fallback
+        // states that lifetime exception without weakening the mandatory placement while it exists.
+        "MicrobeTag<Anyone>: (Disease<This>! OR (MAX 0 This: Ok)), -4.",
+        // Check the disease count when each tag consequence executes, so two simultaneous science
+        // tags can remove the last disease and then offer the flip.
+        "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
       ],
     },
 

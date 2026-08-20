@@ -118,7 +118,8 @@ operation. Preparation reads the current World and:
 - evaluates gates and optional no-ops;
 - recursively prepares `OR` arms and removes locally impossible ones;
 - narrows Types when exactly one concrete choice remains;
-- resolves AMAP quantities;
+- resolves quantifiers and abstract choice domains as specified in
+  [QUANTIFIERS.md](QUANTIFIERS.md);
 - rejects limits;
 - makes a reflexive nonmandatory transfer a no-op; and
 - translates a valid concrete custom instruction.
@@ -195,8 +196,11 @@ decide whether the engine can express the uniquely implied cleanup more directly
 
 `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
 multiset union: for each exact component Type, keep the greatest matching multiplicity so overlapping
-arms do not double count. Virtual custom counts cannot participate because they have no component
-identity.
+arms do not double count. Its arms must be distinct component counts; capped, scaled, subtractive,
+property, and virtual custom counts cannot participate because they have no component identity.
+Numeric Metrics may also subtract Metrics or positive scalar operands, saturating at zero; a scalar
+by itself is not a Metric. Complete-group scaling and `MAX` bind before subtraction, which binds
+before union.
 
 An abstract custom metric enumerates satisfying concrete subtypes and sums their implementations.
 Every Kotlin invocation receives concrete dependency arguments.
@@ -209,15 +213,9 @@ until trigger specialization, and then receives normal defaults, `Owner` binding
 lowering. Map bonuses and other computed metadata remain honest custom metrics. Distinct live tag or
 resource kinds use refined `Class<...>` Types instead.
 
-`Limiter` computes a maximum from class invariants. Quantifiers respond as follows:
-
-| Quantifier | Limit behavior |
-| --- | --- |
-| mandatory `!` | fail when the request exceeds the limit |
-| optional `?` | reduce to the limit, possibly zero |
-| AMAP `.` | reduce to the limit, then become mandatory |
-
-Invariants may use `This` and are compiled to a per-class lookup after table construction.
+`Limiter` computes a maximum from class invariants. Invariants may use `This` and are compiled to a
+per-class lookup after table construction. [QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete
+limits, abstract domains, dependencies, and instruction composition determine the result.
 
 ## Recoverable dead ends
 

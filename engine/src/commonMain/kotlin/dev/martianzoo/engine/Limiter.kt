@@ -2,7 +2,9 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.api.TypeInfo.NoGameState
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
 import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
@@ -109,14 +111,34 @@ internal class Limiter(
     return (headroom + footroom).minOrNull() ?: MAX_VALUE
   }
 
-  internal fun findAbstractGainLimit(type: Type): Int {
-    val restrictions =
-        rangeRestrictionsByClass[type.rootClass].orEmpty().mapNotNull {
-          val simple = it.bindThisTo(type) ?: return@mapNotNull null
-          if (type.isSubtypeOf(simple.type)) simple else null
-        }
-    return restrictions.minOfOrNull { it.range.last - components.count(it.type, NoGameState) }
-        ?: MAX_VALUE
+  internal fun hasExecutableConcreteGain(
+      type: Type,
+      minimum: Int,
+      info: TypeInfo,
+  ): Boolean {
+    require(type.abstract)
+    require(minimum > 0)
+    return type.allConcreteSubtypes().any { candidate ->
+      !candidate.phantom &&
+          candidate.narrows(type, info) &&
+          try {
+            findLimit(candidate.toComponent(), null) >= minimum
+          } catch (_: DependencyException) {
+            false
+          }
+    }
+  }
+
+  internal fun hasExecutableConcreteRemoval(
+      type: Type,
+      minimum: Int,
+      info: GameReader,
+  ): Boolean {
+    require(type.abstract)
+    require(minimum > 0)
+    return info.getComponents(type).elements.any { candidate ->
+      findLimit(null, candidate.toComponent()) >= minimum
+    }
   }
 
   internal fun applicableRangeRestrictions(component: Component?): Set<SimpleRangeRestriction> {

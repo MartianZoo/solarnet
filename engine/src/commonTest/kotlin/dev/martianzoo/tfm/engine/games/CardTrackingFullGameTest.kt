@@ -8,6 +8,7 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmGameplay
+import kotlin.test.BeforeTest
 
 abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   private val hands = mutableMapOf<Player, MutableSet<ClassName>>()
@@ -16,6 +17,7 @@ abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   private lateinit var trackingCheckpoint: Checkpoint
   private var observerInstalled = false
 
+  @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
     game.actors.filterIsInstance<Player>().forEach { hands[it] = mutableSetOf() }
