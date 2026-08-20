@@ -1,221 +1,176 @@
 package dev.martianzoo.tfm.language
 
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
-import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.TfmClasses.PROD
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
 
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
-    card: CardDefinition? = null,
-): String? = renderInstructions(instructionTree, card)?.asSentences()
+    describers: Describers,
+): String? = renderInstructions(instructionTree, describers)?.asSentences()
 
 internal fun renderInstructions(
     instructionTree: InstructionTree,
-    card: CardDefinition? = null,
+    describers: Describers,
+): RenderedInstructions? =
+    renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers)
+
+private fun renderLoweredInstructions(
+    instructionTree: InstructionTree,
+    describers: Describers,
 ): RenderedInstructions? {
   val instructions = InstructionGroup.of(instructionTree).instructions
-  if (instructions.isEmpty()) return RenderedInstructions(listOf("do nothing"))
-  val clauses = mutableListOf<String>()
-  var index = 0
-  while (index < instructions.size) {
-    if (standardResourceGain(instructions[index]) != null) {
-      val gains = instructions.drop(index).takeWhile { standardResourceGain(it) != null }
-      clauses += renderStandardResourceGains(gains)
-      index += gains.size
-    } else {
-      clauses += renderInstruction(instructions[index], card) ?: return null
-      index++
-    }
+  if (instructions.isEmpty()) {
+    return RenderedInstructions(
+        listOf(Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing")))))
+    )
   }
-  return RenderedInstructions(clauses)
+  val rendered = instructions.map { instruction ->
+    instruction to (renderInstruction(instruction, describers) ?: return null)
+  }
+  return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
 
-private fun renderInstruction(instruction: Instruction, card: CardDefinition?): String? =
+private fun renderInstruction(
+    instruction: Instruction,
+    describers: Describers,
+): Clause? =
     when (instruction) {
-      is Gain ->
-          renderDirectGain(instruction)
-              ?: renderCardResourceGain(instruction, card)
-              ?: renderTrackChange(instruction)
-              ?: renderTilePlacement(instruction)
-      is Remove -> renderStandardResourceRemoval(instruction) ?: renderTrackChange(instruction)
-      is Transform -> renderProductionChange(instruction)
+      is Gain,
+      is Remove -> renderChange(instruction, describers)
+      is Instruction.Or -> renderAlternatives(instruction, describers)
+      is Instruction.Per -> renderPer(instruction, describers)
+      is Instruction.Gated -> renderGated(instruction, describers)
       is NoOp,
       is Instruction.By,
-      is Instruction.Gated,
-      is Instruction.Or,
-      is Instruction.Per,
       is Instruction.Then,
+      is Instruction.Transform,
       is Instruction.Transmute -> null
     }
 
-private fun renderStandardResourceGains(instructions: List<Instruction>): String {
-  val objects = instructions.map { instruction ->
-    val (className, count) = checkNotNull(standardResourceGain(instruction))
-    "$count ${componentNoun(className, count)}"
-  }
-  return "gain ${englishList(objects)}"
+private fun renderGated(
+    instruction: Instruction.Gated,
+    describers: Describers,
+): Clause? {
+  val clause =
+      renderLoweredInstructions(instruction.inner, describers)?.clauses?.singleOrNull()
+          ?: return null
+  val condition = describers.renderGateCondition(instruction.gate) ?: return null
+  return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase(condition))
 }
 
-private fun renderStandardResourceRemoval(instruction: Instruction): String? {
-  standardResourceRemoval(instruction)?.let { (className, count) ->
-    return "remove $count ${componentNoun(className, count)}"
-  }
-  val removal = standardResourceRemovalFromAnyPlayer(instruction) ?: return null
-  if (removal.intensity != OPTIONAL) return null
-  return "remove up to ${removal.count} ${componentNoun(removal.className, removal.count)} from any player"
+private fun renderPer(
+    instruction: Instruction.Per,
+    describers: Describers,
+): Clause? {
+  val clause =
+      renderLoweredInstructions(instruction.inner, describers)?.clauses?.singleOrNull()
+          ?: return null
+  val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
+  return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
 }
 
-private fun renderDirectGain(instruction: Instruction): String? {
-  val (className, count) = concreteMandatoryGain(instruction) ?: return null
-  val gain = Describers[className].directGain ?: return null
-  if (count != gain.count) return null
-  return "gain $count ${gain.noun}"
-}
-
-private fun renderCardResourceGain(
-    instruction: Instruction,
-    card: CardDefinition?,
-): String? {
-  val gain = instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
-  val expression = gain.gaining
-  if (expression.refinement != null || expression.complement) return null
-  val count = (gain.count as? ActualScalar)?.value ?: return null
-  val noun = cardResourceNoun(expression.className, count) ?: return null
-  val target =
-      when {
-        expression.arguments == listOf(thisExpression) -> "this card"
-        expression.arguments.isNotEmpty() -> return null
-        card == null -> "an eligible card"
-        card.resourceType == expression.className -> "ANY card"
-        else -> "ANOTHER card"
+private fun renderAlternatives(
+    instruction: Instruction.Or,
+    describers: Describers,
+): Clause? {
+  val alternatives =
+      instruction.instructions.map { option ->
+        renderLoweredInstructions(option, describers)?.clauses?.singleOrNull() ?: return null
       }
-  return "add $count $noun to $target"
+  val predicates = alternatives.map { (it as? Clause.Simple)?.predicate }
+  if (predicates.all { it != null }) {
+    val present = predicates.filterNotNull()
+    val first = present.first()
+    if (present.all { it.verb == first.verb && it.modifiers == first.modifiers }) {
+      return Clause.Simple(
+          first.copy(
+              objects =
+                  Coordination(
+                      present.flatMap { it.objects.members },
+                      Conjunction.OR,
+                  )
+          )
+      )
+    }
+  }
+  return Clause.Coordinated(Coordination(alternatives, Conjunction.OR))
 }
 
-private fun renderProductionChange(instruction: Instruction): String? {
-  val transform = instruction as? Transform ?: return null
-  if (transform.transformKind != PROD) return null
-  val instructions = InstructionGroup.of(transform.instruction).instructions
-  val changes = instructions.map { productionChange(it) ?: return null }
-  val clauses = mutableListOf<String>()
+private fun coalesceAdjacentChanges(
+    rendered: List<Pair<Instruction, Clause>>,
+    describers: Describers,
+): List<Clause> {
+  val result = mutableListOf<Clause>()
   var index = 0
-  while (index < changes.size) {
-    val run = changes.drop(index).takeWhile { it.gaining == changes[index].gaining }
-    clauses += renderProductionClause(run)
-    index += run.size
+  while (index < rendered.size) {
+    val (instruction, renderedClause) = rendered[index]
+    if (isProductionChange(instruction, describers)) {
+      val run =
+          rendered.drop(index).takeWhile { (candidate) ->
+            isProductionChange(candidate, describers)
+          }
+      val clauses = factorAdjacentPredicates(run.map { it.second })
+      result +=
+          if (clauses.size == 1) clauses.single()
+          else Clause.Coordinated(Coordination(clauses, Conjunction.AND))
+      index += run.size
+      continue
+    }
+    if (isCoalescibleStandardResourceGain(instruction, describers)) {
+      val run =
+          rendered.drop(index).takeWhile { (candidate) ->
+            isCoalescibleStandardResourceGain(candidate, describers)
+          }
+      val clauses = factorAdjacentPredicates(run.map { it.second })
+      result += clauses
+      index += run.size
+      continue
+    }
+    result += renderedClause
+    index++
   }
-  return clauses.joinToString(" and ")
+  return result
 }
 
-private fun productionChange(instruction: Instruction): ResourceProductionChange? {
-  standardResourceGain(instruction)?.let { (className, count) ->
-    return ResourceProductionChange(true, "your", className, count)
+private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
+  val result = mutableListOf<Clause>()
+  clauses.forEach { clause ->
+    val previous = result.lastOrNull() as? Clause.Simple
+    val current = clause as? Clause.Simple
+    if (
+        previous != null &&
+            current != null &&
+            previous.predicate.verb == current.predicate.verb &&
+            previous.predicate.modifiers == current.predicate.modifiers
+    ) {
+      result[result.lastIndex] =
+          Clause.Simple(
+              previous.predicate.copy(
+                  objects =
+                      Coordination(
+                          previous.predicate.objects.members + current.predicate.objects.members,
+                          Conjunction.AND,
+                      )
+              )
+          )
+    } else {
+      result += clause
+    }
   }
-  standardResourceRemoval(instruction)?.let { (className, count) ->
-    return ResourceProductionChange(false, "your", className, count)
-  }
-  standardResourceRemovalFromAnyPlayer(instruction)?.let { removal ->
-    if (removal.intensity != null && removal.intensity != MANDATORY) return null
-    return ResourceProductionChange(false, "any player's", removal.className, removal.count)
-  }
-  return null
+  return result
 }
 
-private fun renderProductionClause(changes: List<ResourceProductionChange>): String {
-  val verb = if (changes.first().gaining) "increase" else "decrease"
-  val productions = changes.map {
-    val steps = if (it.count == 1) "step" else "steps"
-    "${it.owner} ${componentNoun(it.className, 1)} production ${it.count} $steps"
-  }
-  return "$verb ${englishList(productions)}"
+private fun Describers.renderGateCondition(requirement: Requirement): String? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple) return null
+  val (name) = tagName(metric.expression.className) ?: return null
+  val tags = if (minimum.target == 1) "tag" else "tags"
+  return "if you have ${minimum.target} $name $tags"
 }
-
-private fun standardResourceGain(instruction: Instruction): Pair<ClassName, Int>? {
-  val gain = concreteMandatoryGain(instruction) ?: return null
-  return gain.takeIf { (className) -> isStandardResource(className) }
-}
-
-private fun renderTrackChange(instruction: Instruction): String? {
-  val gain = concreteMandatoryGain(instruction)
-  val removal = concreteMandatoryRemoval(instruction)
-  val (className, count) = gain ?: removal ?: return null
-  val track = Describers[className].track ?: return null
-  val steps = if (count == 1) "step" else "steps"
-  val verb = if (gain != null) "raise" else "lower"
-  return "$verb ${track.subject} $count $steps"
-}
-
-private fun renderTilePlacement(instruction: Instruction): String? {
-  val (className, count) = concreteMandatoryGain(instruction) ?: return null
-  val placement = Describers[className].placement ?: return null
-  if (count != 1 && !placement.allowsMultiple) return null
-  val nounPhrase =
-      if (count == 1) {
-        "${placement.article} ${placement.singular}"
-      } else {
-        "$count ${placement.plural}"
-      }
-  val consequence = placement.consequence?.let { " ($it)" }.orEmpty()
-  return "place $nounPhrase$consequence"
-}
-
-private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {
-  val gain = instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
-  if (!gain.gaining.simple) return null
-  val count = (gain.count as? ActualScalar)?.value ?: return null
-  return gain.gaining.className to count
-}
-
-private fun standardResourceRemoval(instruction: Instruction): Pair<ClassName, Int>? {
-  val removal = concreteMandatoryRemoval(instruction) ?: return null
-  return removal.takeIf { (className) -> isStandardResource(className) }
-}
-
-private fun standardResourceRemovalFromAnyPlayer(
-    instruction: Instruction
-): TargetedResourceRemoval? {
-  val removal = instruction as? Remove ?: return null
-  val expression = removal.removing
-  if (expression.complement || expression.refinement != null) return null
-  if (expression.arguments != listOf(anyoneExpression)) return null
-  if (!isStandardResource(expression.className)) return null
-  val count = (removal.count as? ActualScalar)?.value ?: return null
-  return TargetedResourceRemoval(expression.className, count, removal.intensity)
-}
-
-private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
-  val removal = instruction as? Remove ?: return null
-  if (removal.intensity != null && removal.intensity != MANDATORY) return null
-  if (!removal.removing.simple) return null
-  val count = (removal.count as? ActualScalar)?.value ?: return null
-  return removal.removing.className to count
-}
-
-private val anyoneExpression = cn("Anyone").expression
-private val thisExpression = cn("This").expression
-
-private data class ResourceProductionChange(
-    val gaining: Boolean,
-    val owner: String,
-    val className: ClassName,
-    val count: Int,
-)
-
-private data class TargetedResourceRemoval(
-    val className: ClassName,
-    val count: Int,
-    val intensity: Instruction.Intensity?,
-)

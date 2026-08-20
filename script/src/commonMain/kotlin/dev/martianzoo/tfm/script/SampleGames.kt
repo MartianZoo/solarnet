@@ -128,7 +128,9 @@ internal object SampleGames {
     if (gens-- == 0) return game
     engine.nextGeneration(4, 2)
 
-    p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_7>") }
+    p2.convertPlants {
+      doTask("GreeneryTile<Tharsis_8_7>")
+    }
     p2.cardAction2(cn("Factorum"))
     p1.cardAction1(cn("DevelopmentCenter"))
     p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
@@ -207,12 +209,16 @@ internal object SampleGames {
     p1.playProject(cn("MoholeLake"), 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
     p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer") }
     p2.stdAction("ConvertHeatSA")
-    p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_6>") }
+    p2.convertPlants {
+      doTask("GreeneryTile<Tharsis_8_6>")
+    }
     p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
     p1.cardAction1(cn("DeuteriumExport"))
     p2.cardAction1(cn("BioPrintingFacility")) { doTask("2 Plant") }
     p1.stdAction("ConvertHeatSA")
-    p1.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_3_5>") }
+    p1.convertPlants {
+      doTask("GreeneryTile<Tharsis_3_5>")
+    }
     p1.cardAction1(cn("StratosphericBirds"))
     p1.cardAction1(cn("MoholeLake")) { doTask("Animal<StratosphericBirds>") }
 
@@ -233,7 +239,9 @@ internal object SampleGames {
       p2.pay(steel = 3)
       doTask("OceanTile<Tharsis_5_6>")
     }
-    p2.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_9_7>") }
+    p2.convertPlants {
+      doTask("GreeneryTile<Tharsis_9_7>")
+    }
     p1.playProject(cn("RegoPlastics"), 10)
     p1.playProject(cn("SfMemorial"), 1, steel = 2)
     p2.stdAction("ClaimMilestoneSA") { doTask("Gardener") }

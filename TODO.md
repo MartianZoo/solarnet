@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
+  the ordinary unspecialized type name instead of an unresolved argument list.
 - Replace the `English` card-text data-file fallback incrementally with derivation from Pets
   instructions, reviewing each resulting wording change against the data-file characterization.
 - Settle and prototype the generic `EACH Type { ... }` fanout proposed in
@@ -25,11 +27,13 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   other automatic effects, admit and immediately prepare one forced choice, then let that choice
   and its own automatic effects execute normally. Prefer this only if it removes more
   barrier/continuation machinery than it adds.
-- Explore a global `Idle : Signal, System` fixed point: queue-empty broadcasts give one-shot
-  Temporary continuations a chance to create work, and workflow wakes only when a broadcast creates
-  no work and no Temporary remains. Keep this distinct from local Barriers and scoped drain.
+- Explore immutable task priority, starting with Trade and PlayCard: tasks may prepare only at the
+  highest occupied priority in their control scope, without task-targeting effects or mutation.
+  Test whether Trade can delete its pure scheduling barrier and whether PlayCard can directly create
+  reduced-priority card-entry and event-cleanup work while preserving auditable `Owed` and
+  `Required` components. Keep this distinct from `THEN`, state gates, and scoped drain.
 - Finish replacing the legacy “linkage” terminology and machinery with the Type-variable model.
-- Move fixture-only action helpers such as `playCorp` and `playProject` out of production
+- Move test-only action helpers such as `playCorp` and `playProject` out of production
   `TfmGameplay`; remove or replace `SampleGames` and give benchmarks explicit harness utilities.
 - Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
   and whether adding and then removing those steps has any other observable consequences.
@@ -50,12 +54,15 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Use [`docs/agents/SEQUENCING.md`](docs/agents/SEQUENCING.md) to audit and normalize real A-before-B rules; next settle the action-marker/Viron tension and the mixed automatic/queued phase triggers, and keep the verdict buckets current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and descendant-completion semantics.
 - Confirm whether each Mars University discard-to-draw activation is indivisible, then replace the two-discards-first characterization if the official rule permits ordering only whole effects.
-- Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game fixtures.
-- Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game fixture to decline one action early.
-- Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game fixture's mandatory `!` override.
-- Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game fixture can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
-- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game fixture no longer needs an 8 M€ reconciliation injection.
+- Generalize corporation-play support so Merger can play its second corporation without also assuming corporation-phase card buying or a separate full turn; then remove the raw `PlayCard<CorporationCard>` calls from the solo whole-game tests.
+- Fix Head Start workflow and convenience-API handling so its first action can leave the additional granted action pending, instead of requiring the solo whole-game test to decline one action early.
+- Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game test's mandatory `!` override.
+- Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game test can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
+- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
 - [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
+- Fix Public Plans so “any number” cannot be zero and the card is unavailable when the player has no other card to reveal; keep the current wrong behavior characterized in `BugsTest` until fixed.
+- Let a Pharmacy Union microbe trigger that was already pending at the flip finish its money loss without trying to place disease on the vanished corporation; keep the current dependency failure in `BugsTest` until fixed.
+- When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
 - Unify `OR` semantics and construction across AST families: reject duplicate authored arms; let programmatic factories deduplicate in first-occurrence order; preserve significant trigger order; and reconcile `Metric.Or` syntax with execution ([#63](https://github.com/MartianZoo/solarnet/issues/63)).
@@ -116,6 +123,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.
+- Present other pre-payment resource refunds, especially reduced trade costs, as player-facing
+  discounts once their action effects become structurally derivable.
 - Revisit a Pets-element English fallback table only after making every host context that affects
   wording explicit. Equal `InstructionTree`s currently inherit card-specific variants such as “including this” from the
   golden text, so either compute those variants from the host card or canonicalize the redundant

@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
 
-/** Follow-along solo fixtures driven by the engine-owned game workflow. */
+/** Follow-along solo tests driven by the engine-owned game workflow. */
 abstract class AbstractSoloTest : CardTrackingFullGameTest() {
   protected lateinit var me: TfmGameplay
   protected lateinit var workflow: TfmWorkflow.Auto

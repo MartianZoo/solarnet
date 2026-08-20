@@ -66,16 +66,16 @@ of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impo
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Authority-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMapOption`; the parser already trims each
-entry, so these literals do not need `trimIndent()`. Solo fixtures conventionally give canonical
+entry, so these literals do not need `trimIndent()`. Solo tests conventionally give canonical
 `Player1` the vocabulary alias `Me` and use `Player.PLAYER1` in Kotlin. The raw-configuration
 overload in `CardTest` uses the same resolution path.
 
-`CardTest` and the full-game fixtures provide `TaskResult.expect()`. Expectations are partial net
+`CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
 to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
-checking another Player or an intentionally cross-player total. Do not restate costs, fixture setup,
+checking another Player or an intentionally cross-player total. Do not restate costs, test setup,
 literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
-fixtures, include explicitly narrated gains/removals and interesting automatic effects, even when the
+tests, include explicitly narrated gains/removals and interesting automatic effects, even when the
 expected net differs from the narrated gross amount. Prefer a nearby absolute assertion when the
 source states an absolute value. Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert
 that a particular type did not change.
@@ -96,22 +96,22 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   project card entering or leaving each Player's hand. Named `draw()`, `buyCards()`, `discard()`,
   and `sellPatents()` calls queue those cards, then reconcile them with completed `ProjectCard`
   gains and removals. Playing a project must remove its name from that Player's tracked hand.
-  `AbstractSoloTest` inherits this capability, but a solo fixture opts into tracking only by using
+  `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
   the named calls.
-  When a source gives only a discard count, an exact tracked hand requires the fixture to select
-  names explicitly and label that selection as fixture inference.
-- Before editing a dated whole-game fixture, explicitly inspect its matching
+  When a source gives only a discard count, an exact tracked hand requires the test to select
+  names explicitly and label that selection as test inference.
+- Before editing a dated whole-game test, explicitly inspect its matching
   `_local/GameYYYYMMDD/` directory and read any `implementation-plan.md` there before acting. The
   repository's `_local` path may be a symlink, which `rg --files` does not traverse, so a general
-  file search is not evidence that the fixture's local sources are absent. A plan supplies workflow,
+  file search is not evidence that the test's local sources are absent. A plan supplies workflow,
   not game facts: establish all setup, chronology, values, and reconciliations from original sources.
 - For a herokuapp archive, read `docs/agents/HEROKUAPP_GAME_LOGS.md` before implementation. Its API,
   payment-reconstruction, screenshot, counterfactual, and endgame rules supplement this section.
 - For a recorded physical game, read `docs/agents/OTB_GAME_RECORDS.md` before implementation. Its
   source-preservation, mixed-evidence, photograph, reconciliation, and endgame rules supplement this
   section.
-- Do not inspect an existing dated fixture, Git history, or previous agent summary to learn what
-  happened when the task calls for an independent reconstruction. Repository code and other fixtures
+- Do not inspect an existing dated test, Git history, or previous agent summary to learn what
+  happened when the task calls for an independent reconstruction. Repository code and other tests
   may teach the Solarnet API only.
 - In multiplayer action phases, express each player's actions as `player.turn { ... }`. A normal
   turn block contains up to two actions and automatically declines an unused second action. The
@@ -124,7 +124,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
   immediately play another Prelude or project inside one of those plays.
 - Keep the supplied machine log as a separate source artifact rather than copying its lines into the
-  fixture solely for traceability. Periodically audit the fixture directly against that artifact for
+  test solely for traceability. Periodically audit the test directly against that artifact for
   chronology, choices, and consequences. Assert selective checkpoints, summaries, and final facts
   rather than mechanically asserting every log entry. Audio transcript translations may drop filler
   and repetition while retaining gameplay-relevant personality, uncertainty, corrections, and mistakes.
@@ -149,7 +149,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Prefer supplied logs, images, and local map data over investigating another application's
   implementation. Work around unsupported engine behavior narrowly and record real follow-ups in
   `TODO.md`.
-- Never call `sneak` directly in a game fixture. Use the fixture's `exMachina` helper for an
+- Never call `sneak` directly in a game test. Use the test's `exMachina` helper for an
   evidence-backed player error that requires a direct state adjustment. Place it as late in the
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add
   source-backed `.expect()` assertions for the mistake-prone types to preceding actions wherever
@@ -158,7 +158,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   repeats it after the adjustment so state-dependent instructions are recalculated.
   Keep unexplained state reconciliations as standalone timeline statements.
   Never place a manual or other raw adjustment inside an unrelated action body to evade a prepared-task or
-  operation-boundary restriction; use an explicit fixture mechanism or fix the helper/API instead.
+  operation-boundary restriction; use an explicit test mechanism or fix the helper/API instead.
   Nest a missing consequence only when the enclosing action genuinely caused it.
 
 ## Multiplatform tests

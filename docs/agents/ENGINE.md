@@ -295,7 +295,7 @@ Scanning is global. Assignee selects the queue; stored Actor controls attributio
 receive `whyPending`.
 
 `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
-layers. Treat it as transitional; fixture conveniences and player-facing domain actions need not
+layers. Treat it as transitional; test conveniences and player-facing domain actions need not
 remain one production wrapper.
 
 `TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting

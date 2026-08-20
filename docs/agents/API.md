@@ -100,7 +100,7 @@ command/mode matrix so new commands cannot bypass it accidentally.
 
 Build the restrictive API around the flat workhorse only when real clients require it. Likely
 surfaces include player-visible queries and choices, player actions, workflow monitoring,
-administration, fixtures/diagnostics, and Terraforming Mars read models.
+administration, tests/diagnostics, and Terraforming Mars read models.
 
 The dependency direction is:
 
@@ -127,7 +127,7 @@ should accumulate every policy:
   application profile should contribute Terraforming Mars construction, commands, completion
   sources, workflow, vocabulary, prompt metadata, and colors.
 - `TfmGameplay` should not remain a permanent bundle of player actions, workflow/phase controls,
-  fixture conveniences, and read-model calculations. Those are distinct future clients of the
+  test conveniences, and read-model calculations. Those are distinct future clients of the
   workhorse.
 
 This split is an aspiration to guide ownership during the mechanical flattening. It does not

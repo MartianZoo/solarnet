@@ -36,7 +36,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import kotlin.math.min

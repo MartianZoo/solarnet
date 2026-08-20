@@ -245,7 +245,7 @@ class Game20260809Test : AbstractFullGameTest() {
           .expect("2 P, TR")
 
       // "I spend eight plants to place a greenery."
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // "Rightmost of row three."
             doTask("GreeneryTile<Hellas_3_7>")
           }
@@ -409,7 +409,9 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (12:40 pm) "I will convert eight plants to a greenery."
     ellie.turn {
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_3_6>") }
+      convertPlants {
+            doTask("GreeneryTile<Hellas_3_6>")
+          }
           // "And that'll be on the 2-plants, 4-money spot."
           .expect("-6 P, 4, TR")
 
@@ -575,7 +577,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // (12:58 pm) "I will spend eight plants to place a greenery. Oxygen is now at six."
     ellie.turn {
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // "I get a TR."
             // "I put it at the top right on the one-plant spot."
             doTask("GreeneryTile<Hellas_1_5>")
@@ -673,13 +675,16 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'll spend the eight plants. I'm going to put the greenery on the two-plants, four-money"
     // "spot. I raise oxygen to 7% and get a TR."
     dad.turn {
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_2_2>") }.expect("-6 P, 4, TR")
+      convertPlants {
+            doTask("GreeneryTile<Hellas_2_2>")
+          }
+          .expect("-6 P, 4, TR")
       engine.assertCounts(7 to "OxygenStep")
     }
 
     // "I will do my plant forest."
     ellie.turn {
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // "I'm going to put it at row five, column nine."
             doTask("GreeneryTile<Hellas_5_9>")
           }
@@ -800,7 +805,10 @@ class Game20260809Test : AbstractFullGameTest() {
 
       // "I spend eight plants on a greenery at row one, column three, for two plants."
       // "Oxygen goes up to 10%. I get a TR."
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_1_3>") }.expect("-6 P, TR")
+      convertPlants {
+            doTask("GreeneryTile<Hellas_1_3>")
+          }
+          .expect("-6 P, TR")
       engine.assertCounts(10 to "OxygenStep")
     }
 
@@ -952,7 +960,7 @@ class Game20260809Test : AbstractFullGameTest() {
       assertCounts(27 to "M") // ledger entry 257
 
       // "I convert eight plants to a greenery."
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // "I place it at row two, column four, where I get a plant and steel."
             doTask("GreeneryTile<Hellas_2_4>")
           }
@@ -971,7 +979,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm going to spend eight plants on a greenery."
     ellie.turn {
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // "And that will be the four-five for a steel and four money."
             // "You're slaughtering me."
             doTask("GreeneryTile<Hellas_4_5>")
@@ -1073,7 +1081,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
       // Dad uses the park's three plants immediately as his second action.
       // "I'm going to do plant boop, which should not give me TR: convert plants to greenery."
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // "I'm going to place it at row three, column two, where I get one plant and two
             // money."
             doTask("GreeneryTile<Hellas_3_2>")
@@ -1211,7 +1219,10 @@ class Game20260809Test : AbstractFullGameTest() {
       assertCounts(32 to "M") // ledger entry 322
 
       // "Then I'll convert plants to a greenery at row six, column six, for four money."
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_6_6>") }.expect("4, 0 TR")
+      convertPlants {
+            doTask("GreeneryTile<Hellas_6_6>")
+          }
+          .expect("4, 0 TR")
     }
 
     // "What I'm going to do is play Restricted Area for nine."
@@ -1419,7 +1430,10 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I'm going to convert eight plants to a greenery."
     // "I place it at row five, column four, and get two steel."
     ellie.turn {
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_5_4>") }.expect("2 S, 0 TR")
+      convertPlants {
+            doTask("GreeneryTile<Hellas_5_4>")
+          }
+          .expect("2 S, 0 TR")
       // "And... Gyropolis. I pay... Wow. Free steel. What is going on, Ellie? Why do you have six
       // cities?"
       // "I place it in six-three." "Looks like you put it in five-three." "Five-three. Sorry."
@@ -1539,7 +1553,10 @@ class Game20260809Test : AbstractFullGameTest() {
     // "There is one thing I can do. Not that I really need to. Do a plant forest."
     // "In other words, convert plants to greenery. To this four-two for a plant."
     ellie.turn {
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_4_2>") }.expect("-7 P, 0 TR")
+      convertPlants {
+            doTask("GreeneryTile<Hellas_4_2>")
+          }
+          .expect("-7 P, 0 TR")
     }
 
     // "I'm going to use Birds to take a Bird."
@@ -1573,7 +1590,10 @@ class Game20260809Test : AbstractFullGameTest() {
     // "go next to your city. Whatever. I did it."
     // "I might need the steel, so I'm going on four-four to get two steel."
     dad.turn {
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_4_4>") }.expect("2 S, 0 TR")
+      convertPlants {
+            doTask("GreeneryTile<Hellas_4_4>")
+          }
+          .expect("2 S, 0 TR")
 
       // (8:58 pm) "Mining Quota cost three, so I'll spend two steel on it."
       // "It gives me two steel production. Yay, my very first steel production."
@@ -1619,11 +1639,11 @@ class Game20260809Test : AbstractFullGameTest() {
     // (8:58 pm) "My thing allows me to plant two forestes." "Two? God, Ellie, you're fucking
     // killing me."
     // "I don't understand why every game goes so well for you."
-    ellie.doTask("UseAction1<ConvertPlantsSA>")
-    // The final ledger's steel gain and the narrated city scores establish this placement.
-    ellie.doTask("GreeneryTile<Hellas_6_4>")
-    ellie.doTask("UseAction1<ConvertPlantsSA>")
-    ellie.doTask("GreeneryTile<Hellas_5_2>")
+    ellie.convertPlants {
+      // The final ledger's steel gain and the narrated city scores establish this placement.
+      doTask("GreeneryTile<Hellas_6_4>")
+    }
+    ellie.convertPlants { doTask("GreeneryTile<Hellas_5_2>") }
     ellie.doTask("Ok")
     dad.doTask("Ok")
 

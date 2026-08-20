@@ -422,7 +422,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("OceanTile<Elysium_5_4>")
       }
       // me used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         // me placed greenery tile on row 5 position 5
         // me's plants amount increased by 2
         doTask("GreeneryTile<Elysium_5_5>")
@@ -477,7 +477,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("OceanTile<Elysium_3_5>")
       }
       // me used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // me placed greenery tile on row 4 position 5
             // me's plants amount increased by 1
             doTask("GreeneryTile<Elysium_4_5>")
@@ -522,7 +522,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me removed an asteroid resource to increase Venus scale 1 step
       cardAction2(RotatorImpacts)
       // me used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         // me placed greenery tile on row 6 position 6
         // me's plants amount increased by 1
         doTask("GreeneryTile<Elysium_6_7>")
@@ -570,10 +570,11 @@ class SoloGame0721Test : AbstractSoloTest() {
       has("Victory") shouldBe true
 
       // Final greenery placement
-      doTask("UseAction1<ConvertPlantsSA>")
-      // me placed greenery tile on row 8 position 5
-      // me's steel amount increased by 2
-      doTask("GreeneryTile<Elysium_8_8>")
+      convertPlants {
+        // me placed greenery tile on row 8 position 5
+        // me's steel amount increased by 2
+        doTask("GreeneryTile<Elysium_8_8>")
+      }
       doTask("Ok")
       // This game id was gf33a06d07a1c
       // herokuapp results image: https://tinyurl.com/39xerd7w

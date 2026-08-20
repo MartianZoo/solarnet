@@ -20,7 +20,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset

@@ -226,7 +226,9 @@ class Game20260619Test : AbstractFullGameTest() {
       // ER used Convert Plants standard action
       // ER placed greenery tile at 19
       // ER gained 2 M€ from 1 ocean(s)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_3_6>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_3_6>")
+      }
     }
 
     // KB used Convert Heat standard action

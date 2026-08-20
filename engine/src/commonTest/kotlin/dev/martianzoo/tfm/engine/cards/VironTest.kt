@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class VironTest : CardTest() {
@@ -68,6 +69,21 @@ class VironTest : CardTest() {
       shouldThrow<NarrowingException> { doTask("UseAction1<$AtmoCollectors<Player2>>") }
       abort()
     }
+  }
+
+  @Test
+  fun `repeats an action on another corporation`() {
+    newGame(VenusNextExpansion)
+    engine.phase("Action")
+    p1.manual("$Viron, $Celestic")
+    p1.stdAction("HandleMandates").expect("2 ProjectCard")
+    p1.cardAction1(Celestic) { doTask("Floater<$Celestic>") }
+
+    p1.cardAction1(Viron) {
+      doTask("UseAction1<$Celestic>")
+      doTask("Floater<$Celestic>")
+    }
+    p1.count("Floater<$Celestic>") shouldBe 2
   }
 
   private fun initializeGame() {

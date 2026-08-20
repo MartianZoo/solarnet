@@ -19,13 +19,18 @@ class EcolineTest : CardTest() {
   fun `with seven plants, converts plants as Ecoline`() {
     p1.manual("4 Plant")
     p1.assertCounts(7 to "Plant")
-    p1.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_4_2>") }.expect("GreeneryTile<>")
+    p1.convertPlants {
+          doTask("GreeneryTile<Tharsis_4_2>")
+        }
+        .expect("-6 Plant, GreeneryTile")
     p1.assertCounts(1 to "Plant")
   }
 
   @Test
   fun `with six plants, tries to convert plants as Ecoline`() {
     p1.manual("3 Plant")
-    shouldThrow<LimitsException> { p1.stdAction("ConvertPlantsSA") }
+    shouldThrow<LimitsException> {
+      p1.convertPlants()
+    }
   }
 }

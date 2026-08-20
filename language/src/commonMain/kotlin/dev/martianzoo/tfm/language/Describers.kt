@@ -1,131 +1,150 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.types.Class
 
-/** English component descriptions, inherited independently one fact at a time. */
-internal object Describers {
-  internal operator fun get(className: ClassName): ComponentDescriber {
-    val componentClass = Canon.classTable.findClass(className) ?: return ComponentDescriber()
-    return effectiveDescribers.getValue(componentClass)
+/** Looks up the English description supplied for each component Class. */
+internal class Describers(private val descriptions: Map<Class, ComponentDescriber>) {
+  private val classesByName = descriptions.keys.associateBy { it.className }
+
+  internal operator fun get(className: ClassName): ComponentDescriber =
+      descriptions.getValue(classesByName.getValue(className))
+
+  internal fun hasBehaviorBearingExtraClass(card: CardDefinition): Boolean =
+      card.extraClasses.any { it.className != card.resourceType }
+
+  internal fun componentNoun(className: ClassName, count: Int): String =
+      when (val noun = this[className].noun) {
+        is ComponentDescriber.Noun.Counted -> if (count == 1) noun.singular else noun.plural
+        is ComponentDescriber.Noun.Fixed -> noun.text
+        ComponentDescriber.Noun.ClassName,
+        null -> unCamelCase(className.toString())
+      }
+
+  internal fun plainGainNoun(className: ClassName, count: Int): String? =
+      componentNoun(className, count).takeIf { concrete(className) && isPlainGain(className) }
+
+  internal fun plainGainCategoryNoun(className: ClassName, count: Int): String? =
+      componentNoun(className, count).takeIf { isPlainGain(className) }
+
+  internal fun isPlainGain(className: ClassName): Boolean {
+    return this[className].standardResource == true
   }
 
-  private val declarations: Map<Class, ComponentDescriber> by lazy {
-    mapOf(
-        klass("Component") to
-            ComponentDescriber(
-                noun = ComponentDescriber.Noun.ClassName,
-            ),
-        klass("StandardResource") to ComponentDescriber(standardResource = true),
-        klass("Megacredit") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
-        klass("Plant") to
-            ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),
-        klass("CardResource") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.SUFFIXED),
-        klass("Animal") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
-        klass("Asteroid") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
-        klass("Floater") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
-        klass("Microbe") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
-        klass("Tag") to ComponentDescriber(tag = ComponentDescriber.Tag.ORDINARY),
-        klass("PlanetTag") to ComponentDescriber(tag = ComponentDescriber.Tag.PLANET),
-        klass("OxygenStep") to
-            ComponentDescriber(
-                track = ComponentDescriber.Track("oxygen"),
-                requirement = ComponentDescriber.Requirement.OXYGEN_PERCENT,
-            ),
-        klass("TemperatureStep") to
-            ComponentDescriber(
-                track = ComponentDescriber.Track("temperature"),
-                requirement = ComponentDescriber.Requirement.TEMPERATURE,
-            ),
-        klass("VenusStep") to
-            ComponentDescriber(
-                track = ComponentDescriber.Track("Venus"),
-                requirement = ComponentDescriber.Requirement.VENUS_PERCENT,
-            ),
-        klass("TerraformRating") to
-            ComponentDescriber(
-                track = ComponentDescriber.Track("your terraform rating"),
-                requirement = ComponentDescriber.Requirement.TERRAFORM_RATING,
-            ),
-        klass("OceanTile") to
-            ComponentDescriber(
-                placement = ComponentDescriber.Placement("an", "ocean tile", "ocean tiles"),
-                requirement = ComponentDescriber.Requirement.OCEAN_TILES,
-            ),
-        klass("GreeneryTile") to
-            ComponentDescriber(
-                placement =
-                    ComponentDescriber.Placement(
-                        "a",
-                        "greenery tile",
-                        "greenery tiles",
-                        consequence = "and raise oxygen 1 step",
-                        allowsMultiple = false,
-                    ),
-                requirement = ComponentDescriber.Requirement.GREENERY_TILES,
-            ),
-        klass("CityTile") to
-            ComponentDescriber(
-                placement = ComponentDescriber.Placement("a", "city tile", "city tiles"),
-                requirement = ComponentDescriber.Requirement.CITY_TILES_IN_PLAY,
-            ),
-        klass("Colony") to
-            ComponentDescriber(
-                placement = ComponentDescriber.Placement("a", "colony", "colonies"),
-                requirement = ComponentDescriber.Requirement.COLONIES,
-            ),
-        klass("ReserveTradeFleet") to
-            ComponentDescriber(directGain = ComponentDescriber.DirectGain("Trade Fleet", 1)),
-        klass("VictoryPoint") to ComponentDescriber(victoryPoint = true),
-        klass("End") to ComponentDescriber(endTrigger = true),
-    )
+  internal fun componentNounPhrase(className: ClassName, count: Int): NounPhrase {
+    val noun = this[className].noun
+    return when (noun) {
+      is ComponentDescriber.Noun.Counted -> NounPhrase(noun.singular, noun.plural, count)
+      is ComponentDescriber.Noun.Fixed -> NounPhrase(noun.text, noun.text, count)
+      ComponentDescriber.Noun.ClassName,
+      null -> NounPhrase(unCamelCase(className.toString()), count = count)
+    }
   }
 
-  private val effectiveDescribers: Map<Class, ComponentDescriber> by lazy {
-    Canon.classTable.allClasses().associateWith(::resolve)
+  internal fun cardResourceNoun(className: ClassName, count: Int): String? {
+    return cardResourceNounPhrase(className, count)?.noun()
   }
 
-  private fun resolve(componentClass: Class): ComponentDescriber =
-      ComponentDescriber(
-          noun = resolveFact(componentClass, ComponentDescriber::noun),
-          standardResource = resolveFact(componentClass, ComponentDescriber::standardResource),
-          cardResource = resolveFact(componentClass, ComponentDescriber::cardResource),
-          tag = resolveFact(componentClass, ComponentDescriber::tag),
-          track = resolveFact(componentClass, ComponentDescriber::track),
-          placement = resolveFact(componentClass, ComponentDescriber::placement),
-          requirement = resolveFact(componentClass, ComponentDescriber::requirement),
-          directGain = resolveFact(componentClass, ComponentDescriber::directGain),
-          victoryPoint = resolveFact(componentClass, ComponentDescriber::victoryPoint),
-          endTrigger = resolveFact(componentClass, ComponentDescriber::endTrigger),
-      )
+  internal fun tagName(className: ClassName): Pair<String, Boolean>? {
+    if (!concrete(className)) return null
+    val style = this[className].tag ?: return null
+    val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
+    val isPlanetTag = style == ComponentDescriber.Tag.PLANET
+    val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
+    return name to isPlanetTag
+  }
 
-  private fun <T> resolveFact(
-      componentClass: Class,
-      fact: (ComponentDescriber) -> T?,
-  ): T? {
-    val providers =
-        componentClass.allSuperclasses().mapNotNull { superclass ->
-          declarations[superclass]?.let(fact)?.let { superclass to it }
-        }
-    val nearest = providers.filter { (provider) ->
-      providers.none { (other) ->
-        other !== provider && other.isSubtypeOf(provider)
+  internal fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {
+    val metric = requirement.metric as? Metric.Count ?: return null
+    if (!metric.expression.simple) return null
+    return tagName(metric.expression.className)
+  }
+
+  internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {
+    val style = this[className].cardResource ?: return null
+    if (!concrete(className)) {
+      val noun = this[className].noun as? ComponentDescriber.Noun.Counted ?: return null
+      return NounPhrase(noun.singular, noun.plural, count)
+    }
+    val noun = unCamelCase(className.toString())
+    return when (style) {
+      ComponentDescriber.CardResource.ORDINARY -> NounPhrase(noun, "${noun}s", count)
+      ComponentDescriber.CardResource.SUFFIXED ->
+          NounPhrase("$noun resource", "$noun resources", count)
+    }
+  }
+
+  internal fun productionExpression(
+      expression: Expression,
+  ): Pair<List<Expression>, ClassName>? {
+    if (
+        this[expression.className].production != true ||
+            expression.refinement != null ||
+            expression.complement
+    ) {
+      return null
+    }
+    val resourceDependency = expression.arguments.lastOrNull() ?: return null
+    if (
+        resourceDependency.className != CLASS ||
+            resourceDependency.arguments.size != 1 ||
+            resourceDependency.refinement != null ||
+            resourceDependency.complement
+    ) {
+      return null
+    }
+    val resource = resourceDependency.arguments.single()
+    if (!resource.simple || plainGainNoun(resource.className, 1) == null) return null
+    return expression.arguments.dropLast(1) to resource.className
+  }
+
+  internal fun representedClass(expression: Expression): Expression? {
+    if (expression.arguments.size != 1) return null
+    val classExpression = expression.arguments.single()
+    if (
+        classExpression.className != CLASS ||
+            classExpression.arguments.size != 1 ||
+            classExpression.refinement != null ||
+            classExpression.complement
+    ) {
+      return null
+    }
+    return classExpression.arguments.single().takeIf { it.simple }
+  }
+
+  internal fun concrete(className: ClassName): Boolean {
+    val componentClass = classesByName[className] ?: return false
+    return !componentClass.abstract
+  }
+
+  internal fun indefiniteArticle(noun: String): String =
+      if (noun.first().lowercaseChar() in "aeiou") "an" else "a"
+
+  private fun unCamelCase(name: String): String = buildString {
+    name.forEachIndexed { index, character ->
+      val previous = name.getOrNull(index - 1)
+      val next = name.getOrNull(index + 1)
+      if (character == '_') {
+        append(' ')
+      } else {
+        val startsWord =
+            previous != null &&
+                character.isUpperCase() &&
+                (previous.isLowerCase() ||
+                    previous.isDigit() ||
+                    (previous.isUpperCase() && next?.isLowerCase() == true))
+        if (startsWord) append(' ')
+        append(character.lowercaseChar())
       }
     }
-    val values = nearest.map { (_, value) -> value }.distinct()
-    check(values.size <= 1) {
-      "${componentClass.className} inherits conflicting English component knowledge from " +
-          nearest.joinToString { (provider) -> provider.className.toString() }
-    }
-    return values.singleOrNull()
   }
 
-  private fun klass(name: String): Class = Canon.classTable.getClass(cn(name))
+  internal val anyoneExpression = cn("Anyone").expression
+  internal val thisExpression = cn("This").expression
 }

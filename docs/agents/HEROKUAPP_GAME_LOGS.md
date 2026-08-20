@@ -3,12 +3,12 @@
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
 This guide intentionally contains no setup, action, balance, coordinate, or scoring answer for a
-particular archived game. Reconstruct each fixture independently from its archive. An existing dated
-fixture, Git history, commit message, or previous agent summary is not evidence about what happened.
+particular archived game. Reconstruct each test independently from its archive. An existing dated
+test, Git history, commit message, or previous agent summary is not evidence about what happened.
 
 ## Discover and preserve the evidence first
 
-Do not begin translating actions until the source archive has been inventoried. For a dated fixture,
+Do not begin translating actions until the source archive has been inventoried. For a dated test,
 inspect `_local/GameYYYYMMDD/` explicitly, including any source inventory; `_local` may be a symlink
 that a repository-wide file search does not traverse. Read an `implementation-plan.md` only for its
 general workflow, never for game-specific answers.
@@ -26,7 +26,7 @@ Given any player ID from an endgame or player URL, collect the machine-readable 
 5. Save useful sources under `_local/GameYYYYMMDD/` with stable descriptive names. Keep the raw JSON,
    full log, end-page capture, and original screenshots so later work does not depend on a live archive.
 
-Write the exact local screenshot filename in the fixture comment. A later rename should be reflected in
+Write the exact local screenshot filename in the test comment. A later rename should be reflected in
 the test so the assertion stanza remains traceable to its source.
 
 Before coding, make a compact evidence inventory covering:
@@ -45,19 +45,19 @@ milestone or award is unsupported, a clearly labeled same-role substitute can ke
 component is actually played, claimed, funded, scored, or otherwise affects the archive, prefer
 implementing its general rule. When that would be disproportionate, encode only its sourced
 consequences at the right boundary, explain the limitation, and add a reusable `TODO.md` item. Never
-add a fixture DSL operation for one named component.
+add a test DSL operation for one named component.
 
 ## Treat sources according to what they prove
 
 The full log is nearly a gold standard for action identity, order, choices, and narrated consequences.
-Keep the raw log as the source of truth instead of duplicating it line by line in fixture comments.
-Periodically audit the fixture against the preserved log for action identity, order, choices, and
-consequences. When the fixture disagrees, first suspect our chronology, payment allocation, card
+Keep the raw log as the source of truth instead of duplicating it line by line in test comments.
+Periodically audit the test against the preserved log for action identity, order, choices, and
+consequences. When the test disagrees, first suspect our chronology, payment allocation, card
 implementation, workflow, or engine. Override a logged claim only with stronger independent evidence
 and say why.
 
 Never invent a source-style comment. A comment that reads like a log line must be traceable to that
-line in the preserved log. Label deductions and assignments explicitly as fixture inference, user
+line in the preserved log. Label deductions and assignments explicitly as test inference, user
 recollection, screenshot evidence, or player-record evidence, and state uncertainty rather than making
 an inference masquerade as archived text.
 
@@ -69,7 +69,7 @@ authoritative for final resources, production, tableau, scoring, and board state
 An assertion without an external source is still useful as a characterization, but label it honestly.
 For example, a missing generation screenshot may use a full resource/production stanza with a comment
 that it merely records replay values. Never present such a stanza as source validation, and never copy
-a value from an old fixture into a supposedly independent reconstruction.
+a value from an old test into a supposedly independent reconstruction.
 
 ## Establish chronology before reconciling values
 
@@ -82,7 +82,7 @@ Check whether the archived game used fast mode. In fast-mode multiplayer games, 
 actions on every turn unless passing, so translate the actions directly and do not use `player.turn {
 ... }` to auto-decline a second action. In games without that restriction, use `player.turn { ... }`
 consistently for ordinary turns instead of scattering many `declineSecondAction()` calls through the
-fixture. Once every other player has passed, keep the remaining player's actions through `pass()` in one
+test. Once every other player has passed, keep the remaining player's actions through `pass()` in one
 turn block when the workflow permits. Play both of a player's Preludes in the same turn block.
 
 Keep each log comment directly above its representing statement. Put a consequence inside an action
@@ -116,7 +116,7 @@ order:
 6. triggered effects from every player; in multiplayer, test both other players rather than assuming
    that a rule written for one opponent generalizes;
 7. setup facts such as a handicap or second corporation;
-8. omitted pass, choice, or effect statements in the fixture.
+8. omitted pass, choice, or effect statements in the test.
 
 Look for repeated discrepancies before treating them as separate errors. A constant M€ shortfall every
 generation is more likely a missing TR handicap than several unrelated gains. Equal and opposite
@@ -169,8 +169,8 @@ to distinguish a real gap from a stale paired adjustment.
 
 ## Reserve `exMachina()` for evidenced residuals
 
-`exMachina()` is a last-resort fixture mechanism, not a general way to make checkpoints pass. Valid uses
-include an archived setup fact the fixture cannot otherwise express, an out-of-band adjustment explicitly
+`exMachina()` is a last-resort test mechanism, not a general way to make checkpoints pass. Valid uses
+include an archived setup fact the test cannot otherwise express, an out-of-band adjustment explicitly
 shown by the source, or an unsupported component whose exact consequences are known. A discrepancy by
 itself is not evidence that the archived application made a mistake.
 
@@ -219,7 +219,7 @@ negative assertions when they prove a non-obvious boundary that was genuinely te
 Use the precise domain exception (`RequirementException`, `NarrowingException`, `LimitsException`,
 `DeadEndException`, or another specific result). Put a choice-level failure inside the action lambda
 beside the successful choice. Skip obvious cases that merely require the card or resources gained by the
-preceding action, and do not turn the whole-game fixture into a substitute for focused rule tests.
+preceding action, and do not turn the whole-game test into a substitute for focused rule tests.
 
 ## Map coordinates
 
@@ -243,12 +243,12 @@ Random milestones and awards do not identify the map.
 
 ## Verification
 
-Run the focused whole-game JVM test after each source-backed span. When the fixture exposes a production
+Run the focused whole-game JVM test after each source-backed span. When the test exposes a production
 defect, fix it only with a proportionate general design and add a smaller regression beside it.
 
 Before handoff:
 
-1. audit the fixture directly against the complete source log for chronology, choices, and consequences;
+1. audit the test directly against the complete source log for chronology, choices, and consequences;
 2. trace every setup fact and assertion to the raw log, screenshot, end page, or player record;
 3. recheck screenshot phase placement and all six values in every dashboard stanza;
 4. justify every `exMachina()` and search once more for chronology, payment, ownership, or workflow
@@ -257,7 +257,7 @@ Before handoff:
 6. run formatting, the documented engine or repository-wide suite appropriate to the changes, and
    `git diff --check`;
 7. inspect the final diff for game-specific APIs, accidental production changes, stale repairs, and
-   claims copied from an old fixture.
+   claims copied from an old test.
 
-A green replay proves internal consistency, not fidelity to the archive. The fixture is finished only
+A green replay proves internal consistency, not fidelity to the archive. The test is finished only
 when its chronology and assertions remain independently traceable to the preserved source set.

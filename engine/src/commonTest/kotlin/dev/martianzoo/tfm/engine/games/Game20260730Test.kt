@@ -234,7 +234,9 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed greenery tile at 37
       // Player1 gained 2 plants
       // Player1 gained 4 M€ from 2 ocean(s)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_5_9>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_5_9>")
+      }
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Saturn Surfing
       cardAction1(TitanShuttles) { doTask("2 Floater<$SaturnSurfing>") }
@@ -294,7 +296,10 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed greenery tile at 27
       // Player1 gained 1 plant
       // Player1 gained 2 M€ from 1 ocean(s)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_4_7>") }.expect("TR")
+      convertPlants {
+            doTask("GreeneryTile<Tharsis_4_7>")
+          }
+          .expect("TR")
       // Player1 used Convert Heat standard action
       stdAction("ConvertHeatSA")
       // Player1 used Electro Catapult action
@@ -534,7 +539,9 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile at 58
       // Player1 gained 1 titanium
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_9>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_8_9>")
+      }
       // Player1 played Optimal Aerobraking
       playProject(OptimalAerobraking, 3, titanium = 1)
       // Player1 used Sell Patents standard project
@@ -604,7 +611,9 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed greenery tile at 35
       // Player1 gained 2 plants
       // Player1 gained 6 M€ from 3 ocean(s)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_5_7>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_5_7>")
+      }
       // Player1 played Shuttles
       // Player1 gained 2 M€ production
       // Player1 lost 1 energy production
@@ -729,7 +738,9 @@ class Game20260730Test : AbstractSoloTest() {
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_4_5>") }
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile at 17
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_3_4>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_3_4>")
+      }
       // Player1 played Dawn City
       // Player1 gained 1 titanium production
       // Player1 lost 1 energy production

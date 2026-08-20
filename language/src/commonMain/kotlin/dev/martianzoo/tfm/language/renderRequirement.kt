@@ -1,120 +1,83 @@
 package dev.martianzoo.tfm.language
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.TfmClasses.PROD
 
-internal fun renderRequirement(requirement: Requirement): String? =
+internal fun renderRequirement(requirement: Requirement, describers: Describers): String? =
+    renderLoweredRequirement(lowerProductionSyntax(requirement), describers)
+        ?.let(::Sentence)
+        ?.linearize()
+
+private fun renderLoweredRequirement(requirement: Requirement, describers: Describers): Clause? =
     when (requirement) {
-      is Requirement.Min -> renderMinimum(requirement)
-      is Requirement.Max -> renderMaximum(requirement)
-      is Requirement.And ->
-          renderTagRequirementGroup(requirement)
-              ?: renderOwnedPlacementRequirementGroup(requirement)
+      is Requirement.Min -> renderMinimum(requirement, describers)
+      is Requirement.Max -> renderMaximum(requirement, describers)
+      is Requirement.And -> describers.renderRequirementGroup(requirement)
       is Requirement.Eval,
       is Requirement.Exact,
       is Requirement.Or -> null
-      is Requirement.Transform -> renderProductionRequirement(requirement)
+      is Requirement.Transform -> null
     }
 
-private fun renderProductionRequirement(requirement: Requirement.Transform): String? {
-  if (requirement.transformKind != PROD) return null
-  val minimum = requirement.requirement as? Requirement.Min ?: return null
-  if (minimum.target != 1) return null
-  val metric = minimum.metric as? Metric.Count ?: return null
-  if (!metric.expression.simple || !isStandardResource(metric.expression.className)) return null
-  return "Requires that you have ${componentNoun(metric.expression.className, 1)} production."
-}
+private fun renderMinimum(requirement: Requirement.Min, describers: Describers): Clause? =
+    describers.renderMinimum(requirement)
 
-private fun renderMinimum(requirement: Requirement.Min): String? {
+private fun renderMaximum(requirement: Requirement.Max, describers: Describers): Clause? =
+    describers.renderMaximum(requirement)
+
+private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
   val metric = requirement.metric as? Metric.Count ?: return null
   val expression = metric.expression
-  val style = Describers[expression.className].requirement
   val target = requirement.target
-  return when (style) {
-    ComponentDescriber.Requirement.CITY_TILES_IN_PLAY -> {
-      val tiles = "$target city ${if (target == 1) "tile" else "tiles"}"
-      when {
-        inPlay(expression) -> "Requires $tiles in play."
-        expression.simple -> "Requires that you have $tiles."
-        else -> null
-      }
-    }
-    ComponentDescriber.Requirement.COLONIES -> {
-      if (!expression.simple) return null
-      "Requires $target ${if (target == 1) "colony" else "colonies"}."
-    }
-    ComponentDescriber.Requirement.GREENERY_TILES -> {
-      if (!expression.simple) return null
-      "Requires that you have $target greenery ${if (target == 1) "tile" else "tiles"}."
-    }
-    ComponentDescriber.Requirement.OCEAN_TILES -> {
-      if (!expression.simple) return null
-      "Requires $target ocean ${if (target == 1) "tile" else "tiles"}."
-    }
-    ComponentDescriber.Requirement.OXYGEN_PERCENT -> {
-      if (!expression.simple) return null
-      "Requires $target% oxygen."
-    }
-    ComponentDescriber.Requirement.TEMPERATURE -> {
-      if (!expression.simple) return null
-      "Requires ${temperature(target)} or warmer."
-    }
-    ComponentDescriber.Requirement.TERRAFORM_RATING -> {
-      if (!expression.simple) return null
-      "Requires that you have at least $target terraform rating."
-    }
-    ComponentDescriber.Requirement.VENUS_PERCENT -> {
-      if (!expression.simple) return null
-      "Requires Venus ${target * 2}%."
-    }
-    null -> renderCardResourceRequirement(requirement) ?: renderTagRequirement(requirement)
+  this[expression.className].requirement?.minimum?.let { bound ->
+    return renderRequirementBound(expression, target, bound)
   }
+  return renderProductionRequirement(requirement)
+      ?: renderCardResourceRequirement(requirement)
+      ?: renderTagRequirement(requirement)
 }
 
-private fun renderCardResourceRequirement(requirement: Requirement.Min): String? {
+private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  val expression = metric.expression
+  val bound = this[expression.className].requirement?.maximum ?: return null
+  return renderRequirementBound(expression, requirement.target, bound)
+}
+
+private fun Describers.renderRequirementGroup(requirement: Requirement.And): Clause? =
+    renderTagRequirementGroup(requirement) ?: renderOwnedPlacementRequirementGroup(requirement)
+
+private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Clause? {
+  if (minimum.target != 1) return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  val (owners, resourceClassName) = productionExpression(metric.expression) ?: return null
+  if (owners.isNotEmpty()) return null
+  return requirementClause(
+      "requires",
+      "that you have ${componentNoun(resourceClassName, 1)} production",
+  )
+}
+
+private fun Describers.renderCardResourceRequirement(requirement: Requirement.Min): Clause? {
   val metric = requirement.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
   val noun = cardResourceNoun(metric.expression.className, requirement.target) ?: return null
-  return "Requires that you have ${requirement.target} $noun."
+  return requirementClause("requires", "that you have ${requirement.target} $noun")
 }
 
-private fun renderMaximum(requirement: Requirement.Max): String? {
-  val metric = requirement.metric as? Metric.Count ?: return null
-  val expression = metric.expression
-  if (!expression.simple) return null
-  val target = requirement.target
-  return when (Describers[expression.className].requirement) {
-    ComponentDescriber.Requirement.COLONIES ->
-        "You must have no more than $target ${if (target == 1) "colony" else "colonies"}."
-    ComponentDescriber.Requirement.OCEAN_TILES -> "There must be $target or fewer ocean tiles."
-    ComponentDescriber.Requirement.OXYGEN_PERCENT -> "Oxygen must be $target% or less."
-    ComponentDescriber.Requirement.TEMPERATURE ->
-        "Temperature must be ${temperature(target)} or colder."
-    ComponentDescriber.Requirement.VENUS_PERCENT -> "Venus must be ${target * 2}% or less."
-    ComponentDescriber.Requirement.CITY_TILES_IN_PLAY,
-    ComponentDescriber.Requirement.GREENERY_TILES,
-    ComponentDescriber.Requirement.TERRAFORM_RATING,
-    null -> null
-  }
+private fun Describers.renderTagRequirement(requirement: Requirement.Min): Clause? {
+  val (name) = tagName(requirement) ?: return null
+  val objectPhrase =
+      if (requirement.target == 1) {
+        "${indefiniteArticle(name)} $name tag"
+      } else {
+        "${requirement.target} $name tags"
+      }
+  return requirementClause("requires", objectPhrase)
 }
 
-private fun inPlay(expression: dev.martianzoo.pets.ast.Expression): Boolean =
-    expression.arguments == listOf(anyoneExpression) &&
-        expression.refinement == null &&
-        !expression.complement
-
-private fun renderTagRequirement(requirement: Requirement.Min): String? {
-  val (tagName) = tagName(requirement) ?: return null
-  return if (requirement.target == 1) {
-    "Requires ${indefiniteArticle(tagName)} $tagName tag."
-  } else {
-    "Requires ${requirement.target} $tagName tags."
-  }
-}
-
-private fun renderTagRequirementGroup(requirement: Requirement.And): String? {
+private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): Clause? {
   val tags =
       requirement.requirements.map { child ->
         val minimum = child as? Requirement.Min ?: return null
@@ -124,42 +87,93 @@ private fun renderTagRequirementGroup(requirement: Requirement.And): String? {
   val allPlanetTags = tags.all { (_, planet) -> planet }
   if (!allPlanetTags && tags.any { (_, planet) -> planet }) return null
   val nouns =
-      if (allPlanetTags) {
-        tags.map { (name) -> name }
-      } else {
-        tags.map { (name) -> "${indefiniteArticle(name)} $name tag" }
-      }
-  return "Requires ${englishList(nouns)}${if (allPlanetTags) " tags" else ""}."
+      if (allPlanetTags) tags.map { (name) -> name }
+      else tags.map { (name) -> "${indefiniteArticle(name)} $name tag" }
+  return requirementClause("requires", "${englishList(nouns)}${if (allPlanetTags) " tags" else ""}")
 }
 
-private fun renderOwnedPlacementRequirementGroup(requirement: Requirement.And): String? {
+private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Requirement.And): Clause? {
   val nouns =
       requirement.requirements.map { child ->
         val minimum = child as? Requirement.Min ?: return null
         val metric = minimum.metric as? Metric.Count ?: return null
         if (!metric.expression.simple) return null
-        when (Describers[metric.expression.className].requirement) {
-          ComponentDescriber.Requirement.CITY_TILES_IN_PLAY ->
-              "${minimum.target} city ${if (minimum.target == 1) "tile" else "tiles"}"
-          ComponentDescriber.Requirement.COLONIES ->
-              "${minimum.target} ${if (minimum.target == 1) "colony" else "colonies"}"
-          else -> return null
-        }
+        val noun =
+            this[metric.expression.className].requirement?.ownedCount
+                as? ComponentDescriber.Noun.Counted ?: return null
+        "${minimum.target} ${if (minimum.target == 1) noun.singular else noun.plural}"
       }
-  return "Requires that you have ${englishList(nouns)} in play."
+  return requirementClause("requires", "that you have ${englishList(nouns)}")
 }
 
-private fun tagName(requirement: Requirement.Min): Pair<String, Boolean>? {
-  val metric = requirement.metric as? Metric.Count ?: return null
-  if (!metric.expression.simple) return null
-  return tagName(metric.expression.className)
+private fun Describers.renderRequirementBound(
+    expression: Expression,
+    target: Int,
+    bound: ComponentDescriber.Requirement.Bound,
+): Clause? {
+  return when (bound) {
+    is ComponentDescriber.Requirement.Bound.Threshold -> {
+      if (!expression.simple) return null
+      val value = renderRequirementValue(bound.value, target)
+      when (bound.syntax) {
+        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_VALUE_SUBJECT ->
+            requirementClause("requires", "$value ${bound.subject}")
+        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_SUBJECT_VALUE ->
+            requirementClause("requires", "${bound.subject} $value")
+        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_VALUE_OR_WARMER ->
+            requirementClause("requires", "$value or warmer")
+        ComponentDescriber.Requirement.ThresholdSyntax.REQUIRES_HAVE_SUBJECT_OF_VALUE_OR_MORE ->
+            requirementClause("requires", "that you have ${bound.subject} of $value or more")
+        ComponentDescriber.Requirement.ThresholdSyntax.SUBJECT_MUST_BE_VALUE_OR_LESS ->
+            requirementClause("must be", "$value or less", bound.subject)
+        ComponentDescriber.Requirement.ThresholdSyntax.SUBJECT_MUST_BE_VALUE_OR_COLDER ->
+            requirementClause("must be", "$value or colder", bound.subject)
+      }
+    }
+    is ComponentDescriber.Requirement.Bound.Count -> {
+      val syntax =
+          when {
+            expression.simple -> bound.syntax
+            expression.arguments == listOf(anyoneExpression) &&
+                expression.refinement == null &&
+                !expression.complement -> bound.anyoneSyntax ?: return null
+            else -> return null
+          }
+      val noun = if (target == 1) bound.noun.singular else bound.noun.plural
+      when (syntax) {
+        ComponentDescriber.Requirement.CountSyntax.REQUIRES_COUNT ->
+            requirementClause("requires", "$target $noun")
+        ComponentDescriber.Requirement.CountSyntax.REQUIRES_OWNED_COUNT ->
+            requirementClause("requires", "that you have $target $noun")
+        ComponentDescriber.Requirement.CountSyntax.THERE_MUST_BE_COUNT_OR_FEWER ->
+            requirementClause("must be", "$target or fewer ${bound.noun.plural}", "there")
+        ComponentDescriber.Requirement.CountSyntax.YOU_MUST_HAVE_NO_MORE_THAN_COUNT ->
+            requirementClause("must have", "no more than $target $noun", "you")
+      }
+    }
+  }
 }
 
-private fun indefiniteArticle(noun: String): String = if (noun.first() in "aeiou") "an" else "a"
+private fun requirementClause(
+    verb: String,
+    objectPhrase: String,
+    subject: String? = null,
+): Clause.Simple =
+    Clause.Simple(
+        predicate = Predicate(verb, Coordination.one(NounPhrase.text(objectPhrase))),
+        subject = subject?.let(NounPhrase::text),
+    )
 
-private fun temperature(steps: Int): String {
-  val degreesCelsius = -30 + 2 * steps
-  return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
-}
-
-private val anyoneExpression = cn("Anyone").expression
+private fun renderRequirementValue(
+    value: ComponentDescriber.Requirement.Value,
+    target: Int,
+): String =
+    when (value) {
+      ComponentDescriber.Requirement.Value.PLAIN -> target.toString()
+      ComponentDescriber.Requirement.Value.PERCENT -> "$target%"
+      ComponentDescriber.Requirement.Value.DOUBLE_PERCENT -> "${target * 2}%"
+      ComponentDescriber.Requirement.Value.TEMPERATURE -> {
+        val degrees = -30 + 2 * target
+        "${if (degrees > 0) "+" else ""}${degrees}°C"
+      }
+    }

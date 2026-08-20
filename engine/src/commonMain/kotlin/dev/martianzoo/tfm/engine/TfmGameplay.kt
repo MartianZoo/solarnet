@@ -64,9 +64,9 @@ public class TfmGameplay(
   public fun pass(): TaskResult = inTfmTurn { doTask("Pass") }
 
   /**
-   * Performs the actions in one fixture-level turn, declining an unused second action when needed.
-   * If every other player has passed, the workflow offers `NewTurn` rather than a second action;
-   * that offer is deliberately left in place so this block can contain the rest of the generation.
+   * Performs the actions in one test-level turn, declining an unused second action when needed. If
+   * every other player has passed, the workflow offers `NewTurn` rather than a second action; that
+   * offer is deliberately left in place so this block can contain the rest of the generation.
    */
   public fun turn(body: TfmGameplay.() -> Unit) {
     body()
@@ -100,6 +100,14 @@ public class TfmGameplay(
   public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
     return inTfmTurn {
       doTask("UseAction$which<$stdAction>")
+      body()
+    }
+  }
+
+  public fun convertPlants(body: BodyLambda = {}): TaskResult {
+    return stdAction("ConvertPlantsSA") {
+      val plantsOwed = this@TfmGameplay.count("Owed<Class<Plant>>")
+      doTask("$plantsOwed Pay<Class<Plant>> FROM Plant")
       body()
     }
   }

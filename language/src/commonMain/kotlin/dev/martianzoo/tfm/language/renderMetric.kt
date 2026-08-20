@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.language
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 
-internal fun renderScoringMetric(metric: Metric): String? {
+internal fun renderMetricPhrase(metric: Metric, describers: Describers): String? {
   return when (metric) {
-    is Metric.Count -> renderScoringCount(metric)
-    is Metric.Scaled -> renderScaledScoringCount(metric)
+    is Metric.Count -> renderCountPhrase(metric, describers)
+    is Metric.Scaled -> renderScaledCountPhrase(metric, describers)
     is Metric.Eval,
     is Metric.Max,
     is Metric.Or,
@@ -16,27 +16,64 @@ internal fun renderScoringMetric(metric: Metric): String? {
   }
 }
 
-private fun renderScoringCount(metric: Metric.Count): String? {
-  if (metric.expression.simple) {
-    val (name) = tagName(metric.expression.className) ?: return null
-    return "each $name tag you have"
-  }
-  val resourceType = resourceOnThisCard(metric) ?: return null
-  return "each ${cardResourceNoun(resourceType, 1)} on this card"
-}
+private fun renderCountPhrase(metric: Metric.Count, describers: Describers): String? =
+    describers.renderMetric(metric.expression)
 
-private fun renderScaledScoringCount(metric: Metric.Scaled): String? {
+private fun renderScaledCountPhrase(metric: Metric.Scaled, describers: Describers): String? {
   val count = metric.inner as? Metric.Count ?: return null
-  val resourceType = resourceOnThisCard(count) ?: return null
-  return "every ${metric.unit} ${cardResourceNoun(resourceType, metric.unit)} on this card"
+  return describers.renderMetric(count.expression, metric.unit)
 }
 
-private fun resourceOnThisCard(metric: Metric.Count) =
-    metric.expression.className.takeIf {
-      metric.expression.arguments == listOf(thisExpression) &&
-          metric.expression.refinement == null &&
-          !metric.expression.complement &&
-          cardResourceNoun(it, 1) != null
+internal fun Describers.renderMetric(expression: Expression, unit: Int? = null): String? {
+  val count = unit ?: 1
+  val prefix = unit?.let { "every $it" } ?: "each"
+  if (expression.simple) {
+    tagName(expression.className)?.let { (name) ->
+      return "$prefix $name ${if (unit == null) "tag" else "tags"} you have"
     }
+    cardResourceNoun(expression.className, count)?.let { noun ->
+      return "$prefix $noun"
+    }
+    placementCountPhrase(expression, count)?.let { phrase ->
+      return "$prefix $phrase"
+    }
+    return null
+  }
+  placementCountPhrase(expression, count)?.let { phrase ->
+    return "$prefix $phrase"
+  }
+  if (
+      expression.arguments != listOf(thisExpression) ||
+          expression.refinement != null ||
+          expression.complement
+  ) {
+    return null
+  }
+  val noun = cardResourceNoun(expression.className, count) ?: return null
+  return "$prefix $noun on this card"
+}
 
-private val thisExpression = cn("This").expression
+private fun Describers.placementCountPhrase(expression: Expression, count: Int): String? {
+  if (expression.refinement != null || expression.complement) return null
+  val placement = this[expression.className].placement ?: return null
+  val (owner, location) =
+      when {
+        expression.simple -> (placement.unqualifiedMetricOwner ?: return null) to null
+        expression.arguments == listOf(anyoneExpression) ->
+            (placement.anyoneMetricOwner ?: return null) to null
+        expression.arguments.size == 2 && expression.arguments.last() == anyoneExpression -> {
+          val location = expression.arguments.first()
+          if (!location.simple) return null
+          (placement.anyoneMetricOwner ?: return null) to
+              (this[location.className].metricLocation ?: return null)
+        }
+        else -> null
+      } ?: return null
+  val ownerPhrase =
+      when (owner) {
+        ComponentDescriber.MetricOwner.YOU -> " you own"
+        ComponentDescriber.MetricOwner.ANY_PLAYER -> ""
+      }
+  val noun = if (count == 1) placement.singular else placement.plural
+  return "$noun$ownerPhrase${location?.let { " $it" }.orEmpty()}"
+}
