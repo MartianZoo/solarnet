@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
@@ -27,9 +28,44 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? {
         ?: renderPurchaseAdjustment(lowered, describers)
         ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
         ?: renderResourcePaymentValue(lowered, describers)
+        ?: renderRequirementFlexibility(lowered, describers)
         ?: renderLinkedProductionReward(lowered, describers)
         ?: renderTriggeredInstructions(lowered, describers)
   }
+}
+
+private fun renderRequirementFlexibility(effect: Effect, describers: Describers): String? {
+  val trigger = effect.trigger as? OnGainOf ?: return null
+  if (
+      !trigger.expression.simple ||
+          describers.fact(trigger.expression.className, ComponentDescriber::playTrigger) !=
+              ComponentDescriber.PlayTrigger.CARD
+  ) {
+    return null
+  }
+  val removal = effect.instruction as? Remove ?: return null
+  if (
+      removal.intensity != AMAP ||
+          removal.removing.refinement != null ||
+          removal.removing.complement ||
+          describers.fact(
+              removal.removing.className,
+              ComponentDescriber::requirementShortfall,
+          ) != true
+  ) {
+    return null
+  }
+  val count = (removal.count as? ActualScalar)?.value ?: return null
+  val target = describers.representedClass(removal.removing) ?: return null
+  val requirementKind =
+      describers.fact(target.className, ComponentDescriber::track)?.subject
+          ?: describers.fact(target.className, ComponentDescriber::requirementKind)
+          ?: return null
+  val steps = if (count == 1) "step" else "steps"
+  return completeSentence(
+      "when you play a card, you may treat its $requirementKind requirement as if it were " +
+          "$count $steps lower or higher"
+  )
 }
 
 private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): String? {

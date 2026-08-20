@@ -194,8 +194,11 @@ when the trigger structurally identifies resources on this card or resources an 
 A fixed M€ increase in the payment value of a standard resource or resource category is also derived
 from its spent-resource trigger. A played-card trigger is derived, including a type narrowed to one
 concrete tag or a described minimum or present property. A trigger on using a described standard
-action or standard project composes with the same supported consequences. A pre-payment resource gain
-for an explicitly described action may be presented as the discount it implements; adjacent equal
+action or standard project composes with the same supported consequences. An as-much-as-possible
+removal of generated requirement shortfalls after a card play renders as permission to treat that
+card's described global-parameter requirement as lower or higher by the fixed amount.
+A pre-payment resource gain for an explicitly described action may be presented as the discount it
+implements; adjacent equal
 discounts combine under one trigger sentence. The action description may supply a shared counted
 noun for alternative standard-resource refunds, allowing those equal amounts to combine as one
 discount. Discounts triggered by playing a card retain `for it`,

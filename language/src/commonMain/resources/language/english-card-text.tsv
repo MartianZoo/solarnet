@@ -4,7 +4,7 @@ CardB01	B01	CrediCor	Gain 57 M€.	Effect: After you pay for a card or standard 
 CardB02	B02	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less for it.
 CardB03	B03	Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: You may use heat as M€. You may not use M€ as heat.
 CardB04	B04	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
-CardB05	B05	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: You may treat any global parameter requirement as if it is 2 steps lower or higher.
+CardB05	B05	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: When you play a card, you may treat its global parameter requirement as if it were 2 steps lower or higher.
 CardB06	B06	Mining Guild	Gain 30 M€ and 5 steel. Increase your steel production 1 step.	Effect: When you place a tile on an area with a titanium or steel placement bonus, increase your steel production 1 step.
 CardB07	B07	PhoboLog	Gain 23 M€ and 10 titanium.	Effect: Each titanium you spend is worth 1 M€ extra.
 CardB08	B08	Tharsis Republic	Gain 40 M€. As your first action, place a city tile.	Effect: When any city tile is placed ON MARS, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
@@ -15,7 +15,7 @@ CardB12	B12	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, you pay 3
 CardVC1	V01	Aphrodite	Gain 47 M€. Increase your plant production 1 step.	Effect: When Venus is raised 1 step, gain 2 M€.
 CardVC2F	V02	Celestic	Gain 42 M€. As your first action, draw 2 cards with floater icons. 1 VP for every 3 floaters on this card.	Action: Add 1 floater to any card.
 CardVC3	V03	Manutech	Gain 35 M€. Increase your steel production 1 step.	Effect: For each step you increase one of your productions, gain 1 resource of that type.
-CardVC4F	V04	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 Venus-tag cards.	Effect: Your Venus requirements are +2 or -2 steps, your choice in each case.
+CardVC4F	V04	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 Venus-tag cards.	Effect: When you play a card, you may treat its Venus requirement as if it were 2 steps lower or higher.
 CardVC5	V05	Viron	Gain 48 M€.	Action: Use an action from a blue card that has already been used this generation.
 CardPC1	PC1	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 steps.	Effect: When you play a building tag, you pay 2 M€ less.
 CardPC2	PC2	Point Luna	Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag, draw 1 card.
@@ -215,7 +215,7 @@ Card146	146	Nitrophilic Moss	Requires 3 ocean tiles. Increase your plant product
 Card147	147	Herbivores	Requires 8% oxygen. Add 1 animal to this card. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Effect: When you place a greenery tile, add 1 animal to this card.
 Card148	148	Insects	Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.	
 Card152	152	Insulation	Decrease your heat production one or more steps and increase your M€ production the same number of steps.	
-Card153	153	Adaptation Technology	1 VP.	Effect: You may treat any global parameter requirement as if it is 2 steps lower or higher.
+Card153	153	Adaptation Technology	1 VP.	Effect: When you play a card, you may treat its global parameter requirement as if it were 2 steps lower or higher.
 Card155	155	Designed Microorganisms	Temperature must be -14°C or colder. Increase your plant production 2 steps.	
 Card157	157	Nitrite Reducing Bacteria	Add 3 microbes to this card.	Action: Add 1 microbe to this card, or remove 3 microbes from this card to raise your terraform rating 1 step.
 Card158	158	Industrial Microbes	Increase your energy production 1 step and your steel production 1 step.	
