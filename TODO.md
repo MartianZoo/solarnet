@@ -5,7 +5,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 ## User Ideas and Agreed Directions
 
 - Continue the dual-engine app described in
-  [`docs/agents/DUAL_ENGINE_APP.md`](docs/agents/DUAL_ENGINE_APP.md). The first unpublished app-side
+  [`docs/agents/DUAL_ENGINE_APP.md`](docs/agents/DUAL_ENGINE_APP.md). The first app-side
   slice now executes its supported moves in Solarnet follow mode and streams the event feed; add the
   independent app projector and comparison next while the app continues owning chance and hidden
   cards.
