@@ -13,14 +13,31 @@ import dev.martianzoo.types.Class
 internal class Describers(private val descriptions: Map<Class, ComponentDescriber>) {
   private val classesByName = descriptions.keys.associateBy { it.className }
 
-  internal operator fun get(className: ClassName): ComponentDescriber =
-      descriptions.getValue(classesByName.getValue(className))
+  internal fun <T> fact(
+      className: ClassName,
+      fact: (ComponentDescriber) -> T?,
+  ): T? {
+    val componentClass = classesByName.getValue(className)
+    val providers =
+        componentClass.allSuperclasses().mapNotNull { superclass ->
+          descriptions.getValue(superclass).let(fact)?.let { superclass to it }
+        }
+    val nearest = providers.filter { (provider) ->
+      providers.none { (other) -> other !== provider && other.isSubtypeOf(provider) }
+    }
+    val values = nearest.map { (_, value) -> value }.distinct()
+    check(values.size <= 1) {
+      "${componentClass.className} inherits conflicting English component knowledge from " +
+          nearest.joinToString { (provider) -> provider.className.toString() }
+    }
+    return values.singleOrNull()
+  }
 
   internal fun hasBehaviorBearingExtraClass(card: CardDefinition): Boolean =
       card.extraClasses.any { it.className != card.resourceType }
 
   internal fun componentNoun(className: ClassName, count: Int): String =
-      when (val noun = this[className].noun) {
+      when (val noun = fact(className, ComponentDescriber::noun)) {
         is ComponentDescriber.Noun.Counted -> if (count == 1) noun.singular else noun.plural
         is ComponentDescriber.Noun.Fixed -> noun.text
         ComponentDescriber.Noun.ClassName,
@@ -34,11 +51,11 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       componentNoun(className, count).takeIf { isPlainGain(className) }
 
   internal fun isPlainGain(className: ClassName): Boolean {
-    return this[className].standardResource == true
+    return fact(className, ComponentDescriber::standardResource) == true
   }
 
   internal fun componentNounPhrase(className: ClassName, count: Int): NounPhrase {
-    val noun = this[className].noun
+    val noun = fact(className, ComponentDescriber::noun)
     return when (noun) {
       is ComponentDescriber.Noun.Counted -> NounPhrase(noun.singular, noun.plural, count)
       is ComponentDescriber.Noun.Fixed -> NounPhrase(noun.text, noun.text, count)
@@ -53,7 +70,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun tagName(className: ClassName): Pair<String, Boolean>? {
     if (!concrete(className)) return null
-    val style = this[className].tag ?: return null
+    val style = fact(className, ComponentDescriber::tag) ?: return null
     val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
     val isPlanetTag = style == ComponentDescriber.Tag.PLANET
     val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
@@ -67,9 +84,11 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {
-    val style = this[className].cardResource ?: return null
+    val style = fact(className, ComponentDescriber::cardResource) ?: return null
     if (!concrete(className)) {
-      val noun = this[className].noun as? ComponentDescriber.Noun.Counted ?: return null
+      val noun =
+          fact(className, ComponentDescriber::noun) as? ComponentDescriber.Noun.Counted
+              ?: return null
       return NounPhrase(noun.singular, noun.plural, count)
     }
     val noun = unCamelCase(className.toString())
@@ -84,7 +103,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       expression: Expression,
   ): Pair<List<Expression>, ClassName>? {
     if (
-        this[expression.className].production != true ||
+        fact(expression.className, ComponentDescriber::production) != true ||
             expression.refinement != null ||
             expression.complement
     ) {

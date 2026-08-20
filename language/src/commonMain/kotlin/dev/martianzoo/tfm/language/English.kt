@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.types.Class
 
-/** English Pets text using the complete component descriptions supplied by its client. */
+/** English Pets text using the client's complete map of sparse component descriptions. */
 public class English public constructor(descriptions: Map<Class, ComponentDescriber>) {
   private val describers = Describers(descriptions)
 

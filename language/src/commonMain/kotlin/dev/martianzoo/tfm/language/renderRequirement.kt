@@ -30,7 +30,7 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
   val metric = requirement.metric as? Metric.Count ?: return null
   val expression = metric.expression
   val target = requirement.target
-  this[expression.className].requirement?.minimum?.let { bound ->
+  fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
     return renderRequirementBound(expression, target, bound)
   }
   return renderProductionRequirement(requirement)
@@ -41,7 +41,7 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
 private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
   val metric = requirement.metric as? Metric.Count ?: return null
   val expression = metric.expression
-  val bound = this[expression.className].requirement?.maximum ?: return null
+  val bound = fact(expression.className, ComponentDescriber::requirement)?.maximum ?: return null
   return renderRequirementBound(expression, requirement.target, bound)
 }
 
@@ -99,7 +99,7 @@ private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Require
         val metric = minimum.metric as? Metric.Count ?: return null
         if (!metric.expression.simple) return null
         val noun =
-            this[metric.expression.className].requirement?.ownedCount
+            fact(metric.expression.className, ComponentDescriber::requirement)?.ownedCount
                 as? ComponentDescriber.Noun.Counted ?: return null
         "${minimum.target} ${if (minimum.target == 1) noun.singular else noun.plural}"
       }

@@ -55,15 +55,17 @@ valid Pets shapes currently fail rather than falling back to a whole-card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
 It has no canonical component registry or implicit Terraforming Mars description source; it only
-looks up the describer mapped to a component Class found in the Pets element being rendered.
-`TerraformingMarsDescribers` currently owns the canonical sparse declarations and resolves their
-inheritance before constructing `English`.
+looks up the component Class found in the Pets element being rendered. Map values are sparse
+declarations: `Describers` resolves each requested fact independently through that Class's ancestry.
+`TerraformingMarsDescribers` owns the canonical declarations and supplies an empty describer for
+every undeclared canonical Class, keeping its map complete without copying inherited facts into
+each value.
 
-Structural renderers only identify the component Class, look up its describer, ask that instance
-for the applicable phrase or capability, and compose the answer. They do not name component
-Classes or enumerate categories such as city tiles and colonies. In particular, requirement
-descriptions own their minimum, maximum, and compound-owned wording rather than exposing a
-centralized component-category value for `Describers` to switch over.
+Structural renderers only identify the component Class, ask `Describers` for the applicable
+inherited phrase or capability, and compose the answer. They do not name component Classes or
+enumerate categories such as city tiles and colonies. In particular, requirement descriptions own
+their minimum, maximum, and compound-owned wording rather than exposing a centralized
+component-category value for `Describers` to switch over.
 
 Each current sparse fact is inherited independently: a declaration on a more
 specific Class overrides the same fact from its superclass, facts from incomparable branches

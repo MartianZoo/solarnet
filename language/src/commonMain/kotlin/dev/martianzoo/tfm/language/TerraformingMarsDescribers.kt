@@ -9,7 +9,7 @@ private typealias RequirementCount = ComponentDescriber.Requirement.CountSyntax
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
   internal val descriptions: Map<Class, ComponentDescriber> by lazy {
-    Canon.classTable.allClasses().associateWith(::resolve)
+    Canon.classTable.allClasses().associateWith { declarations[it] ?: ComponentDescriber() }
   }
 
   private val declarations: Map<Class, ComponentDescriber> by lazy {
@@ -244,52 +244,6 @@ internal object TerraformingMarsDescribers {
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
         klass("Owed") to ComponentDescriber(owedPayment = true),
     )
-  }
-
-  private fun resolve(componentClass: Class): ComponentDescriber =
-      ComponentDescriber(
-          noun = resolveFact(componentClass, ComponentDescriber::noun),
-          discardable = resolveFact(componentClass, ComponentDescriber::discardable),
-          standardResource = resolveFact(componentClass, ComponentDescriber::standardResource),
-          cardResource = resolveFact(componentClass, ComponentDescriber::cardResource),
-          cardResourceHolder = resolveFact(componentClass, ComponentDescriber::cardResourceHolder),
-          metricLocation = resolveFact(componentClass, ComponentDescriber::metricLocation),
-          tag = resolveFact(componentClass, ComponentDescriber::tag),
-          track = resolveFact(componentClass, ComponentDescriber::track),
-          placement = resolveFact(componentClass, ComponentDescriber::placement),
-          production = resolveFact(componentClass, ComponentDescriber::production),
-          requirement = resolveFact(componentClass, ComponentDescriber::requirement),
-          directGain = resolveFact(componentClass, ComponentDescriber::directGain),
-          score = resolveFact(componentClass, ComponentDescriber::score),
-          endTrigger = resolveFact(componentClass, ComponentDescriber::endTrigger),
-          playTrigger = resolveFact(componentClass, ComponentDescriber::playTrigger),
-          playedCard = resolveFact(componentClass, ComponentDescriber::playedCard),
-          playedTagPhrase = resolveFact(componentClass, ComponentDescriber::playedTagPhrase),
-          operationTrigger = resolveFact(componentClass, ComponentDescriber::operationTrigger),
-          usedActionTrigger = resolveFact(componentClass, ComponentDescriber::usedActionTrigger),
-          actionUse = resolveFact(componentClass, ComponentDescriber::actionUse),
-          spentResourceTrigger =
-              resolveFact(componentClass, ComponentDescriber::spentResourceTrigger),
-          owedPayment = resolveFact(componentClass, ComponentDescriber::owedPayment),
-      )
-
-  private fun <T> resolveFact(
-      componentClass: Class,
-      fact: (ComponentDescriber) -> T?,
-  ): T? {
-    val providers =
-        componentClass.allSuperclasses().mapNotNull { superclass ->
-          declarations[superclass]?.let(fact)?.let { superclass to it }
-        }
-    val nearest = providers.filter { (provider) ->
-      providers.none { (other) -> other !== provider && other.isSubtypeOf(provider) }
-    }
-    val values = nearest.map { (_, value) -> value }.distinct()
-    check(values.size <= 1) {
-      "${componentClass.className} inherits conflicting English component knowledge from " +
-          nearest.joinToString { (provider) -> provider.className.toString() }
-    }
-    return values.singleOrNull()
   }
 
   private fun klass(name: String): Class = Canon.classTable.getClass(cn(name))

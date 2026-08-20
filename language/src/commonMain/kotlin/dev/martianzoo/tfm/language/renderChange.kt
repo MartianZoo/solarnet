@@ -22,17 +22,24 @@ internal fun renderChange(
         is Remove -> instruction.removing
         else -> return null
       }
-  val description = describers[expression.className]
-  return when {
-    description.directGain != null -> renderDirectGain(instruction, description.directGain)
-    description.discardable == true -> renderDiscard(instruction, describers)
-    description.cardResource != null -> renderCardResourceChange(instruction, describers)
-    description.production == true -> renderProductionChange(instruction, describers)
-    description.track != null -> renderTrackChange(instruction, description.track)
-    description.placement != null -> renderPlacement(instruction, description.placement)
-    description.standardResource == true -> renderStandardResourceChange(instruction, describers)
-    else -> null
+  describers.fact(expression.className, ComponentDescriber::directGain)?.let {
+    return renderDirectGain(instruction, it)
   }
+  if (describers.fact(expression.className, ComponentDescriber::discardable) == true)
+      return renderDiscard(instruction, describers)
+  if (describers.fact(expression.className, ComponentDescriber::cardResource) != null)
+      return renderCardResourceChange(instruction, describers)
+  if (describers.fact(expression.className, ComponentDescriber::production) == true)
+      return renderProductionChange(instruction, describers)
+  describers.fact(expression.className, ComponentDescriber::track)?.let {
+    return renderTrackChange(instruction, it)
+  }
+  describers.fact(expression.className, ComponentDescriber::placement)?.let {
+    return renderPlacement(instruction, it)
+  }
+  if (describers.fact(expression.className, ComponentDescriber::standardResource) == true)
+      return renderStandardResourceChange(instruction, describers)
+  return null
 }
 
 private fun renderDiscard(
@@ -49,7 +56,7 @@ private fun renderDiscard(
 internal fun isProductionChange(instruction: Instruction, describers: Describers): Boolean {
   val expression =
       (instruction as? Instruction.Change)?.let { it.gaining ?: it.removing } ?: return false
-  return describers[expression.className].production == true
+  return describers.fact(expression.className, ComponentDescriber::production) == true
 }
 
 internal fun isCoalescibleStandardResourceGain(
@@ -57,7 +64,7 @@ internal fun isCoalescibleStandardResourceGain(
     describers: Describers,
 ): Boolean {
   val expression = (instruction as? Gain)?.gaining ?: return false
-  return describers[expression.className].standardResource == true
+  return describers.fact(expression.className, ComponentDescriber::standardResource) == true
 }
 
 internal fun standardResourceGain(
@@ -65,9 +72,9 @@ internal fun standardResourceGain(
     describers: Describers,
 ): Pair<ClassName, Int>? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
-  val description = describers[className]
   return (className to count).takeIf {
-    describers.concrete(className) && description.standardResource == true
+    describers.concrete(className) &&
+        describers.fact(className, ComponentDescriber::standardResource) == true
   }
 }
 
@@ -92,7 +99,8 @@ private fun renderStandardResourceChange(
   if (expression.refinement != null || expression.complement) return null
   val count = (removal.count as? ActualScalar)?.value ?: return null
   if (!describers.concrete(expression.className)) return null
-  if (describers[expression.className].standardResource != true) return null
+  if (describers.fact(expression.className, ComponentDescriber::standardResource) != true)
+      return null
   if (expression.simple && (removal.intensity == null || removal.intensity == MANDATORY)) {
     return clause("remove", describers.componentNounPhrase(expression.className, count))
   }
@@ -216,7 +224,7 @@ private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, 
 
 private fun Describers.renderCardResourceHolder(expression: Expression): String? {
   if (expression.arguments.isNotEmpty() || expression.complement) return null
-  val holder = this[expression.className].cardResourceHolder ?: return null
+  val holder = fact(expression.className, ComponentDescriber::cardResourceHolder) ?: return null
   val refinement = expression.refinement ?: return null
   if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null

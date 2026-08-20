@@ -130,7 +130,7 @@ private fun Describers.renderEventTrigger(trigger: Trigger): EventTrigger? {
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
-  if (this[expression.className].spentResourceTrigger != true) return null
+  if (fact(expression.className, ComponentDescriber::spentResourceTrigger) != true) return null
   val resource = representedClass(expression) ?: return null
   return plainGainCategoryNoun(resource.className, 1)
 }
@@ -138,9 +138,10 @@ private fun Describers.renderSpentResource(trigger: Trigger): String? {
 private fun Describers.renderActionPaymentDiscountTrigger(trigger: Trigger): EventTrigger? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
-  if (this[expression.className].usedActionTrigger != true) return null
+  if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
   val action = expression.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
-  val predicate = this[action.className].actionUse?.refundDiscountPredicate ?: return null
+  val predicate =
+      fact(action.className, ComponentDescriber::actionUse)?.refundDiscountPredicate ?: return null
   return EventTrigger("you", predicate)
 }
 
@@ -152,8 +153,9 @@ private fun Describers.renderPlainGainAmount(instruction: InstructionTree): Reso
 
 private fun Describers.paymentDiscountRefersToPlayedObject(trigger: Trigger): Boolean {
   val expression = (trigger as? OnGainOf)?.expression ?: return false
-  return this[expression.className].playTrigger == ComponentDescriber.PlayTrigger.CARD ||
-      this[expression.className].playedCard == true
+  return fact(expression.className, ComponentDescriber::playTrigger) ==
+      ComponentDescriber.PlayTrigger.CARD ||
+      fact(expression.className, ComponentDescriber::playedCard) == true
 }
 
 private fun Describers.renderOwedReduction(instruction: InstructionTree): ResourceAmount? {
@@ -161,7 +163,7 @@ private fun Describers.renderOwedReduction(instruction: InstructionTree): Resour
   if (removal.intensity != null && removal.intensity != MANDATORY) return null
   val expression = removal.removing
   if (expression.refinement != null || expression.complement) return null
-  if (this[expression.className].owedPayment != true) return null
+  if (fact(expression.className, ComponentDescriber::owedPayment) != true) return null
   val resource = representedClass(expression) ?: return null
   val count = (removal.count as? ActualScalar)?.value ?: return null
   return ResourceAmount(count, plainGainNoun(resource.className, count) ?: return null)
@@ -189,7 +191,9 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       return it
     }
     if (!expression.simple) return null
-    return this[expression.className].track?.let { Event(EventKind.RAISE_ANY, it.subject) }
+    return fact(expression.className, ComponentDescriber::track)?.let {
+      Event(EventKind.RAISE_ANY, it.subject)
+    }
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.complement) return null
@@ -202,7 +206,7 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     return it
   }
   if (expression.refinement != null) return null
-  when (this[expression.className].playTrigger) {
+  when (fact(expression.className, ComponentDescriber::playTrigger)) {
     ComponentDescriber.PlayTrigger.CARD -> {
       if (!expression.simple) return null
       return Event(EventKind.PLAY, "a card")
@@ -214,15 +218,15 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     }
     null -> Unit
   }
-  this[expression.className].playedTagPhrase?.let {
+  fact(expression.className, ComponentDescriber::playedTagPhrase)?.let {
     if (!expression.simple) return null
     return Event(EventKind.PLAY, it)
   }
-  if (this[expression.className].usedActionTrigger == true) {
+  if (fact(expression.className, ComponentDescriber::usedActionTrigger) == true) {
     val action = expression.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
     return Event(
         EventKind.USE_ACTION,
-        this[action.className].actionUse?.objectPhrase ?: return null,
+        fact(action.className, ComponentDescriber::actionUse)?.objectPhrase ?: return null,
     )
   }
   if (expression.arguments == listOf(thisExpression)) {
@@ -253,7 +257,10 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
 }
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
-  if (expression.arguments.isNotEmpty() || this[expression.className].playedCard != true)
+  if (
+      expression.arguments.isNotEmpty() ||
+          fact(expression.className, ComponentDescriber::playedCard) != true
+  )
       return null
   val card = componentNoun(expression.className, 1)
   val phrase =
@@ -286,7 +293,7 @@ private fun Describers.placementEvent(expression: Expression, kind: EventKind): 
           expression.arguments != listOf(anyoneExpression)
   )
       return null
-  val placement = this[expression.className].placement ?: return null
+  val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
   val phrase =
       when (kind) {
         EventKind.PLACE -> "${placement.article} ${placement.singular}"
@@ -311,7 +318,7 @@ private fun Describers.renderScoringCondition(requirement: Requirement): String?
 }
 
 private fun Describers.isEndTrigger(expression: Expression): Boolean =
-    expression.simple && this[expression.className].endTrigger == true
+    expression.simple && fact(expression.className, ComponentDescriber::endTrigger) == true
 
 private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
   val (className, count, penalty) =
@@ -336,7 +343,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
         }
         else -> return null
       }
-  val score = this[className].score ?: return null
+  val score = fact(className, ComponentDescriber::score) ?: return null
   return "${if (penalty) "-" else ""}$count ${if (count == 1) score.singular else score.plural}"
 }
 

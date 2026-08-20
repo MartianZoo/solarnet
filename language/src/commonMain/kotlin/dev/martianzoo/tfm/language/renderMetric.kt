@@ -57,7 +57,7 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
 
 private fun Describers.placementCountPhrase(expression: Expression, count: Int): String? {
   if (expression.refinement != null || expression.complement) return null
-  val placement = this[expression.className].placement ?: return null
+  val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
   val (owner, location) =
       when {
         expression.simple -> (placement.unqualifiedMetricOwner ?: return null) to null
@@ -67,7 +67,7 @@ private fun Describers.placementCountPhrase(expression: Expression, count: Int):
           val location = expression.arguments.first()
           if (!location.simple) return null
           (placement.anyoneMetricOwner ?: return null) to
-              (this[location.className].metricLocation ?: return null)
+              (fact(location.className, ComponentDescriber::metricLocation) ?: return null)
         }
         else -> null
       } ?: return null
