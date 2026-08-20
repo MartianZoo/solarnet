@@ -67,6 +67,8 @@ public class SolarnetSession(
                 titanium = paymentAmount(payment, "titanium"),
             )
       }
+      "endTurn" -> game.tfm(movePlayer(move)).declineSecondAction()
+      "pass" -> game.tfm(movePlayer(move)).doTask("Pass")
       else -> error("Unknown parity operation: ${move.getValue("operation")}")
     }
     return snapshot()

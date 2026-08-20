@@ -99,6 +99,21 @@ try {
     ),
     "project payment not logged",
   );
+
+  session.apply(JSON.stringify({ operation: "endTurn", player: 1 }));
+  const endTurnEvents = printNewEvents();
+  check(
+    endTurnEvents.lines.some((line) => line.includes("NewTurn<Player2>")),
+    "ending Player 1's turn did not rotate to Player 2",
+  );
+
+  session.apply(JSON.stringify({ operation: "pass", player: 2 }));
+  const passEvents = printNewEvents();
+  check(passEvents.lines.some((line) => line.includes("+Pass<Player2>")), "pass not logged");
+  check(
+    passEvents.lines.some((line) => line.includes("NewTurn<Player1>")),
+    "Player 2's pass did not rotate to Player 1",
+  );
 } finally {
   session.close();
 }

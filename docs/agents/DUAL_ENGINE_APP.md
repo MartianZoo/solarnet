@@ -1,8 +1,8 @@
 # Dual-engine Terraforming Mars app
 
-**Status: the Gate 1 development runtime boundary is proven; Gate 2 has its first paid-project
-slice.** This records the smallest promising design, verified runtime facts, and the proof gates
-that should precede broad integration.
+**Status: the Gate 1 development runtime boundary is proven; Gate 2 covers its first paid project
+and turn boundary.** This records the smallest promising design, verified runtime facts, and the
+proof gates that should precede broad integration.
 
 ## Goal
 
@@ -176,7 +176,14 @@ This is evidence for the message shape and underlying task path, not yet the set
 interpreter. The Node and external TypeScript scenarios buy one generic card during setup, play card
 105 (Earth Office) for 1 M€, and observe both the play and payment in the diagnostic event feed;
 normalized public-state comparison remains Gate 3. Targets, follow-up choices, other payment media,
-the second action, and pass remain unimplemented protocol families.
+and performing a second action remain unimplemented protocol families.
+
+`endTurn` and `pass` are separate semantic moves. `endTurn` declines only the optional second-action
+offer, leaving that Player active in the generation; `pass` executes the ordinary offered `Pass`
+task and removes that Player from the action rotation. The scenarios end Player 1's turn after Earth
+Office, pass Player 2, and observe the workflow return to Player 1. Negative tests prove that
+`pass` is rejected during a second-action offer and `endTurn` is rejected during a first-action
+offer.
 
 **Pass condition:** a short scenario covers setup, a paid project, a target choice, a tile placement,
 an automatic effect, a second action, and pass without parsing display text.
