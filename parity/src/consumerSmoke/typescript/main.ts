@@ -22,18 +22,27 @@ type Resources = {
 type Snapshot = {
   generation: number;
   phase: string;
+  gameEnd: boolean;
   firstPlayer: number;
   passedPlayers: number[];
+  waitingPlayers: number[];
+  secondActionPlayers: number[];
   players: Array<{
     seat: number;
     terraformRating: number;
+    victoryPoints: number;
     resources: Resources;
     production: Resources;
     handCount: number;
     playedCardIds: string[];
   }>;
   globalParameters: { temperature: number; oxygen: number; oceans: number };
-  tiles: Array<{ row: number; column: number; kind: "ocean"; owner: null }>;
+  tiles: Array<{
+    row: number;
+    column: number;
+    kind: "ocean" | "greenery" | "city";
+    owner: number | null;
+  }>;
 };
 
 type FileSystem = {

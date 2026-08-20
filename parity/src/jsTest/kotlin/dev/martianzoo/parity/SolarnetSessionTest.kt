@@ -5,9 +5,11 @@ import dev.martianzoo.api.Exceptions.TaskException
 import kotlin.js.JsNonModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -124,12 +126,16 @@ internal class SolarnetSessionTest {
               {
                 "generation": 1,
                 "phase": "action",
+                "gameEnd": false,
                 "firstPlayer": 1,
                 "passedPlayers": [2],
+                "waitingPlayers": [1],
+                "secondActionPlayers": [],
                 "players": [
                   {
                     "seat": 1,
                     "terraformRating": 21,
+                    "victoryPoints": 0,
                     "resources": {
                       "megacredits": 8,
                       "steel": 22,
@@ -152,6 +158,7 @@ internal class SolarnetSessionTest {
                   {
                     "seat": 2,
                     "terraformRating": 20,
+                    "victoryPoints": 0,
                     "resources": {
                       "megacredits": 57,
                       "steel": 0,
@@ -297,6 +304,47 @@ internal class SolarnetSessionTest {
   }
 
   @Test
+  fun rejectsProjectPaymentWithoutChangingStateOrHistory() {
+    val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
+    try {
+      session.apply(
+          """{"operation":"selectCorporation","player":1,"corporation":"InterplanetaryCinematics","projectCards":1}"""
+      )
+      session.apply(
+          """{"operation":"selectCorporation","player":2,"corporation":"CrediCor","projectCards":0}"""
+      )
+      val beforeSnapshot = session.snapshot()
+      val beforeEvents = Json.parseToJsonElement(session.eventsSince(0)).jsonObject
+      val cursor = beforeEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+
+      val invalidPayments =
+          listOf(
+              """{"megacredits":0,"steel":0,"titanium":0}""",
+              """{"megacredits":2,"steel":0,"titanium":0}""",
+              """{"megacredits":0,"steel":1,"titanium":0}""",
+              """{"megacredits":0,"steel":0,"titanium":1}""",
+          )
+      invalidPayments.forEach { payment ->
+        assertFails {
+          session.apply(
+              """{"operation":"playProject","player":1,"cardId":"105","payment":$payment}"""
+          )
+        }
+        assertEquals(beforeSnapshot, session.snapshot())
+        val afterEvents = Json.parseToJsonElement(session.eventsSince(cursor)).jsonObject
+        assertEquals(cursor, afterEvents.getValue("nextCursor").jsonPrimitive.content.toInt())
+        assertTrue(afterEvents.getValue("lines").jsonArray.isEmpty())
+      }
+
+      session.apply(
+          """{"operation":"playProject","player":1,"cardId":"105","payment":{"megacredits":1,"steel":0,"titanium":0}}"""
+      )
+    } finally {
+      session.close()
+    }
+  }
+
+  @Test
   fun endsOnlyAnOfferedSecondAction() {
     val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
     try {
@@ -328,6 +376,222 @@ internal class SolarnetSessionTest {
       assertFailsWith<TaskException> {
         session.apply("""{"operation":"endTurn","player":2}""")
       }
+    } finally {
+      session.close()
+    }
+  }
+
+  @Test
+  fun completesMinimalTwoPlayerGameThroughExportedMoves() {
+    val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
+    try {
+      fun apply(move: String): JsonObject = Json.parseToJsonElement(session.apply(move)).jsonObject
+
+      fun int(snapshot: JsonObject, key: String): Int =
+          snapshot.getValue(key).jsonPrimitive.content.toInt()
+
+      fun global(snapshot: JsonObject, key: String): Int =
+          int(snapshot.getValue("globalParameters").jsonObject, key)
+
+      fun waitingPlayer(snapshot: JsonObject): Int =
+          snapshot.getValue("waitingPlayers").jsonArray.first().jsonPrimitive.content.toInt()
+
+      fun player(snapshot: JsonObject, seat: Int): JsonObject =
+          snapshot
+              .getValue("players")
+              .jsonArray
+              .map { it.jsonObject }
+              .single { int(it, "seat") == seat }
+
+      fun resource(snapshot: JsonObject, seat: Int, kind: String): Int =
+          int(player(snapshot, seat).getValue("resources").jsonObject, kind)
+
+      val oceanSpaces = ArrayDeque(listOf("04", "06", "07", "13", "28", "32", "33", "34", "43"))
+      val greenerySpaces =
+          mapOf(
+              1 to
+                  ArrayDeque(
+                      listOf(
+                          "35",
+                          "27",
+                          "26",
+                          "25",
+                          "24",
+                          "23",
+                          "16",
+                          "15",
+                          "09",
+                          "08",
+                          "14",
+                          "21",
+                          "29",
+                          "30",
+                          "31",
+                      )
+                  ),
+              2 to
+                  ArrayDeque(
+                      listOf(
+                          "55",
+                          "54",
+                          "53",
+                          "59",
+                          "60",
+                          "61",
+                          "56",
+                          "57",
+                          "50",
+                          "49",
+                          "48",
+                          "47",
+                          "46",
+                          "39",
+                          "40",
+                      )
+                  ),
+          )
+
+      fun place(seat: Int, tile: String): JsonObject {
+        val space =
+            if (tile == "ocean") oceanSpaces.removeFirst()
+            else greenerySpaces.getValue(seat).removeFirst()
+        return apply(
+            """{"operation":"placeTile","player":$seat,"tile":"$tile","spaceId":"$space"}"""
+        )
+      }
+
+      apply(
+          """{"operation":"selectCorporation","player":1,"corporation":"CrediCor","projectCards":1}"""
+      )
+      var snapshot =
+          apply(
+              """{"operation":"selectCorporation","player":2,"corporation":"Teractor","projectCards":0}"""
+          )
+      assertEquals("action", snapshot.getValue("phase").jsonPrimitive.content)
+
+      var builtCity = false
+      var powerPlantsBuilt = 0
+      var soldPatent = false
+      var convertedHeat = false
+      var convertedPlants = false
+      var acceptedMoves = 2
+
+      while (!snapshot.getValue("gameEnd").jsonPrimitive.content.toBoolean()) {
+        check(acceptedMoves < 500) { "minimal full-game driver did not converge: $snapshot" }
+        when (snapshot.getValue("phase").jsonPrimitive.content) {
+          "research" -> {
+            val seat = waitingPlayer(snapshot)
+            snapshot = apply("""{"operation":"buyCards","player":$seat,"count":0}""")
+          }
+          "action" -> {
+            val seat = waitingPlayer(snapshot)
+            val megacredits = resource(snapshot, seat, "megacredits")
+            val temperature = global(snapshot, "temperature")
+            val oceans = global(snapshot, "oceans")
+            val oxygen = global(snapshot, "oxygen")
+            when {
+              seat == 1 && !builtCity && megacredits >= 25 -> {
+                apply("""{"operation":"standardProject","player":1,"project":"city"}""")
+                snapshot =
+                    apply("""{"operation":"placeTile","player":1,"tile":"city","spaceId":"36"}""")
+                builtCity = true
+              }
+              seat == 1 && powerPlantsBuilt < 3 && megacredits >= 11 -> {
+                snapshot =
+                    apply("""{"operation":"standardProject","player":1,"project":"powerPlant"}""")
+                powerPlantsBuilt++
+              }
+              seat == 1 && !soldPatent -> {
+                snapshot = apply("""{"operation":"sellPatents","player":1,"count":1}""")
+                soldPatent = true
+              }
+              oxygen < 14 && resource(snapshot, seat, "plants") >= 8 -> {
+                apply("""{"operation":"convertPlants","player":$seat}""")
+                snapshot = place(seat, "greenery")
+                convertedPlants = true
+              }
+              temperature < 8 && resource(snapshot, seat, "heat") >= 8 -> {
+                val oldTemperature = temperature
+                val actionSnapshot = apply("""{"operation":"convertHeat","player":$seat}""")
+                snapshot =
+                    if (oldTemperature == -2 && oceans < 9) place(seat, "ocean") else actionSnapshot
+                convertedHeat = true
+              }
+              temperature < 8 && megacredits >= 14 -> {
+                val oldTemperature = temperature
+                val actionSnapshot =
+                    apply("""{"operation":"standardProject","player":$seat,"project":"asteroid"}""")
+                snapshot =
+                    if (oldTemperature == -2 && oceans < 9) place(seat, "ocean") else actionSnapshot
+              }
+              oceans < 9 && megacredits >= 18 -> {
+                apply("""{"operation":"standardProject","player":$seat,"project":"aquifer"}""")
+                snapshot = place(seat, "ocean")
+              }
+              oxygen < 14 && megacredits >= 23 -> {
+                apply("""{"operation":"standardProject","player":$seat,"project":"greenery"}""")
+                snapshot = place(seat, "greenery")
+              }
+              else -> {
+                val secondActionSeats =
+                    snapshot.getValue("secondActionPlayers").jsonArray.map {
+                      it.jsonPrimitive.content.toInt()
+                    }
+                snapshot =
+                    if (seat in secondActionSeats) {
+                      apply("""{"operation":"endTurn","player":$seat}""")
+                    } else {
+                      apply("""{"operation":"pass","player":$seat}""")
+                    }
+              }
+            }
+          }
+          "finalGreenery" -> {
+            val seat = waitingPlayer(snapshot)
+            snapshot =
+                if (resource(snapshot, seat, "plants") >= 8) {
+                  apply("""{"operation":"convertPlants","player":$seat}""")
+                  place(seat, "greenery")
+                } else {
+                  apply("""{"operation":"declineFinalGreenery","player":$seat}""")
+                }
+          }
+          else -> error("Unexpected full-game phase: $snapshot")
+        }
+        acceptedMoves++
+      }
+
+      assertTrue(int(snapshot, "generation") > 1)
+      assertEquals("end", snapshot.getValue("phase").jsonPrimitive.content)
+      assertEquals(8, global(snapshot, "temperature"))
+      assertEquals(14, global(snapshot, "oxygen"))
+      assertEquals(9, global(snapshot, "oceans"))
+      assertTrue(builtCity)
+      assertEquals(3, powerPlantsBuilt)
+      assertTrue(soldPatent)
+      assertTrue(convertedHeat)
+      assertTrue(convertedPlants)
+      assertTrue(
+          snapshot
+              .getValue("players")
+              .jsonArray
+              .map { int(it.jsonObject, "victoryPoints") }
+              .all { it > 0 }
+      )
+      val tiles = snapshot.getValue("tiles").jsonArray.map { it.jsonObject }
+      assertEquals(9, tiles.count { it.getValue("kind").jsonPrimitive.content == "ocean" })
+      assertTrue(
+          tiles.any {
+            it.getValue("kind").jsonPrimitive.content == "city" &&
+                it.getValue("owner").jsonPrimitive.content.toInt() == 1
+          }
+      )
+      assertTrue(
+          tiles.any {
+            it.getValue("kind").jsonPrimitive.content == "greenery" &&
+                it.getValue("owner").jsonPrimitive.content.toInt() in 1..2
+          }
+      )
     } finally {
       session.close()
     }

@@ -7,7 +7,6 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.TaskResult
@@ -78,15 +77,8 @@ public class TfmGameplay(
           .extract { it }
           .filter { it.assignee == actor }
           .withIndex()
-          .filter { (_, task) -> task.isActionPhaseSecondAction() }
+          .filter { (_, task) -> isActionPhaseSecondAction(game, task) }
           .singleOrNull()
-
-  private fun Task.isActionPhaseSecondAction(): Boolean {
-    val origin = cause ?: return false
-    if (origin.context.className != cn("ActionPhase")) return false
-    val trigger = game.events.entryAt(origin.triggerEvent) as? ChangeEvent
-    return trigger?.change?.gaining?.className == cn("SecondAction")
-  }
 
   public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
     return inTurn {
