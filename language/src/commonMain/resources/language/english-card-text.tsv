@@ -160,7 +160,7 @@ Card053	053	Lake Marineris	Requires 0°C or warmer. Place 2 ocean tiles. 2 VPs.
 Card054	054	Small Animals	Requires 6% oxygen. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Action: Add 1 animal to this card.
 Card055	055	Kelp Farming	Requires 6 ocean tiles. Increase your M€ production 2 steps and your plant production 3 steps. Gain 2 plants. 1 VP.	
 Card058	058	Beam From A Thorium Asteroid	Requires a Jovian tag. Increase your heat production 3 steps and your energy production 3 steps. 1 VP.	
-Card059	059	Mangrove	Requires +4°C or warmer. Place a greenery tile ON AN AREA RESERVED FOR OCEAN (and raise oxygen 1 step). Disregard normal placement restrictions for this. 1 VP.	
+Card059	059	Mangrove	Requires +4°C or warmer. Place a greenery tile on an area reserved for ocean (and raise oxygen 1 step). 1 VP.	
 Card060	060	Trees	Requires -4°C or warmer. Increase your plant production 3 steps. Gain 1 plant. 1 VP.	
 Card063	063	Mining Expedition	Raise oxygen 1 step. Remove up to 2 plants from any player. Gain 2 steel.	
 Card067	067	Mining Rights	Place this tile on an area with a steel or titanium placement bonus. Increase that production 1 step.	
@@ -208,7 +208,7 @@ Card138	138	Strip Mine	Decrease your energy production 2 steps and increase your
 Card139	139	Wave Power	Requires 3 ocean tiles. Increase your energy production 1 step. 1 VP.	
 Card140	140	Lava Flows	Raise temperature 2 steps and place this tile; if using a board with volcanic areas, this tile MUST be placed on one.	
 Card141	141	Power Plant	Increase your energy production 1 step.	
-Card142	142	Mohole Area	Increase your heat production 4 steps. Place this tile ON AN AREA RESERVED FOR OCEAN.	
+Card142	142	Mohole Area	Increase your heat production 4 steps. Place this tile on an area reserved for ocean.	
 Card143	143	Large Convoy	Place an ocean tile and draw 2 cards. Gain 5 plants, or add 4 animals to any card. 2 VPs.	
 Card145	145	Tectonic Stress Power	Requires 2 science tags. Increase your energy production 3 steps. 1 VP.	
 Card146	146	Nitrophilic Moss	Requires 3 ocean tiles. Increase your plant production 2 steps. Remove 2 plants.	
@@ -232,7 +232,7 @@ Card169	169	Tundra Farming	Requires -6°C or warmer. Increase your plant product
 Card170	170	Aerobraked Ammonia Asteroid	Add 2 microbes to any card. Increase your heat production 3 steps and your plant production 1 step.	
 Card171	171	Magnetic Field Dome	Decrease your energy production 2 steps and increase your plant production 1 step. Raise your terraform rating 1 step.	
 Card172	172	Pets	Add 1 animal to this card. 1 VP for every 2 animals on this card.	Effect: When any city tile is placed, add 1 animal to this card. Animals may not be removed from this card.
-Card174	174	Protected Valley	Increase your M€ production 2 steps. Place a greenery tile ON AN AREA RESERVED FOR OCEAN (and raise oxygen 1 step), disregarding normal placement restrictions.	
+Card174	174	Protected Valley	Increase your M€ production 2 steps. Place a greenery tile on an area reserved for ocean (and raise oxygen 1 step).	
 Card176	176	Noctis Farming	Requires -20°C or warmer. Increase your M€ production 1 step. Gain 2 plants. 1 VP.	
 Card177	177	Water Splitting Plant	Requires 2 ocean tiles.	Action: Spend 3 energy to raise oxygen 1 step.
 Card178	178	Heat Trappers	Decrease any player's heat production 2 steps and increase your energy production 1 step. -1 VP.	

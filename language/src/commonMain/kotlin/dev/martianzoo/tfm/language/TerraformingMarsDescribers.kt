@@ -85,6 +85,14 @@ internal object TerraformingMarsDescribers {
                     ),
                 textNeutralSubclasses = true,
             ),
+        klass("WaterArea") to
+            ComponentDescriber(
+                placementSite =
+                    ComponentDescriber.PlacementSite(
+                        noun = ComponentDescriber.Noun.Fixed("area reserved for ocean"),
+                        article = "an",
+                    ),
+            ),
         klass("LandArea") to
             ComponentDescriber(
                 placementSite = ComponentDescriber.PlacementSite(ComponentDescriber.Noun.ClassName)

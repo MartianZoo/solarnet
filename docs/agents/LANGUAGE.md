@@ -311,8 +311,9 @@ this card to draw a declared drawable component; this deliberately does not cove
 A plain mandatory placement of one greenery tile renders its implicit oxygen increase. A strict
 placement-site refinement can express a minimum adjacency count or the absence of adjacent tiles;
 its relation target may be implicit or one described placed-component type explicitly qualified by
-`Anyone`. Ocean-reserved greenery placement remains data-backed because its printed waiver of
-normal placement restrictions is not yet represented. Experimental Forest remains data-backed
+`Anyone`. A Describer can also identify a specialized placement site such as an area reserved for
+ocean. The resulting placement is derived, but any printed waiver of normal placement restrictions
+is omitted because Pets does not represent that waiver. Experimental Forest remains data-backed
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
 An unrestricted gain of a concrete card resource says `any card`. Other narrowed card-resource
