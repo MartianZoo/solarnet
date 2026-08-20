@@ -149,8 +149,10 @@ as alternatives, with a comma before `or` to distinguish their operation boundar
 costs share one verb only when their verb and modifiers agree; other mixes remain data-backed rather
 than risking a change in scope. An action may also link an `X`-scaled standard-resource or
 card-resource cost to one `X`-scaled concrete standard-resource gain; the action renderer retains
-the shared quantity when it says the same number, that amount, or an explicit multiple. A supported
-action may also invoke a component described as the optional top-card purchase procedure.
+the shared quantity when it says the same number, that amount, or an explicit multiple. A Describer
+may also supply the object phrase for gaining one chosen concrete member of an abstract component
+category. A supported action may also invoke a component described as the optional top-card
+purchase procedure.
 That description supplies narrow component-level knowledge for behavior absent from the Pets
 change; it is not inferred from an ordinary optional gain. Supported non-End effects include a
 fixed M€ discount triggered by

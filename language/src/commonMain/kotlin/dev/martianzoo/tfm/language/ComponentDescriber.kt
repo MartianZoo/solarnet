@@ -122,6 +122,9 @@ public data class ComponentDescriber(
   public sealed interface DirectChange {
     public data class Gain(public val noun: String, public val count: Int) : DirectChange
 
+    /** Describes gaining one abstract component whose concrete subtype is chosen by the player. */
+    public data class GainChoice(public val objectPhrase: String) : DirectChange
+
     /** Supplies the otherwise-unmodeled review, purchase, or discard procedure for the top card. */
     public data object TopCardPurchase : DirectChange
   }

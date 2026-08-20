@@ -26,7 +26,9 @@ internal fun renderChange(
         else -> return null
       }
   describers.fact(expression.className, ComponentDescriber::directChange)?.let {
-    return renderDirectChange(instruction, it, describers)
+    renderDirectChange(instruction, it, describers)?.let { clause ->
+      return clause
+    }
   }
   if (describers.fact(expression.className, ComponentDescriber::discardable) == true)
       return renderDiscard(instruction, describers)
@@ -96,6 +98,13 @@ private fun renderDirectChange(
       val (_, count) = concreteMandatoryGain(instruction) ?: return null
       if (count != description.count) return null
       clause("gain", NounPhrase(description.noun, count = count))
+    }
+    is ComponentDescriber.DirectChange.GainChoice -> {
+      val gain = instruction as? Gain ?: return null
+      if (gain.intensity != null && gain.intensity != MANDATORY) return null
+      if (!gain.gaining.simple || describers.concrete(gain.gaining.className)) return null
+      if ((gain.count as? ActualScalar)?.value != 1) return null
+      clause("gain", NounPhrase.text(description.objectPhrase))
     }
     ComponentDescriber.DirectChange.TopCardPurchase ->
         renderTopCardPurchase(instruction, describers)

@@ -18,7 +18,11 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.ClassName,
             ),
-        klass("StandardResource") to ComponentDescriber(standardResource = true),
+        klass("StandardResource") to
+            ComponentDescriber(
+                standardResource = true,
+                directChange = ComponentDescriber.DirectChange.GainChoice("any standard resource"),
+            ),
         klass("Metal") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("titanium or steel")),
         klass("Steel") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
