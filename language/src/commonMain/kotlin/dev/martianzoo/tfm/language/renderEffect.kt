@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -21,10 +22,66 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? =
     if (isEndEffect(effect, describers)) {
       renderEndEffect(effect, describers)
     } else {
-      paymentDiscount(effect, describers)?.let { renderPaymentDiscount(listOf(it)) }
+      renderRemovalPrevention(effect, describers)
+          ?: paymentDiscount(effect, describers)?.let { renderPaymentDiscount(listOf(it)) }
           ?: renderResourcePaymentValue(effect, describers)
           ?: renderTriggeredInstructions(effect, describers)
     }
+
+private fun renderRemovalPrevention(effect: Effect, describers: Describers): String? {
+  if (!effect.automatic || !isDeadEndInstruction(effect.instruction, describers)) return null
+  val (trigger, actor) =
+      when (val authoredTrigger = effect.trigger) {
+        is ByTrigger -> authoredTrigger.inner to authoredTrigger.by
+        else -> authoredTrigger to null
+      }
+  val removed =
+      when (trigger) {
+        is OnRemoveOf -> listOf(trigger.expression)
+        is Trigger.Or -> trigger.triggers.map { (it as? OnRemoveOf)?.expression ?: return null }
+        else -> return null
+      }
+  val nouns = removed.map { protectedResourceNoun(it, describers) ?: return null }
+  val resources = if (nouns.size == 1) nouns.single() else englishAlternatives(nouns)
+  return when {
+    actor == null &&
+        removed.all {
+          it.arguments == listOf(describers.thisExpression)
+        } -> completeSentence("$resources may not be removed from this card")
+    actor == describers.notOwnerExpression && removed.all(Expression::simple) ->
+        completeSentence("opponents may not remove your $resources")
+    else -> null
+  }
+}
+
+private fun isDeadEndInstruction(
+    instruction: InstructionTree,
+    describers: Describers,
+): Boolean {
+  val gain = instruction as? Gain ?: return false
+  if (gain.intensity != null && gain.intensity != MANDATORY) return false
+  return gain.gaining.simple &&
+      describers.concrete(gain.gaining.className) &&
+      describers.fact(gain.gaining.className, ComponentDescriber::deadEndSignal) == true &&
+      (gain.count as? ActualScalar)?.value == 1
+}
+
+private fun protectedResourceNoun(expression: Expression, describers: Describers): String? {
+  if (
+      !describers.concrete(expression.className) ||
+          expression.refinement != null ||
+          expression.complement
+  ) {
+    return null
+  }
+  describers.cardResourceNoun(expression.className, 2)?.let {
+    return it
+  }
+  if (describers.fact(expression.className, ComponentDescriber::standardResource) != true) {
+    return null
+  }
+  return describers.componentNoun(expression.className, 2)
+}
 
 internal fun renderEffects(effects: List<Effect>, describers: Describers): String? {
   val sentences = mutableListOf<String>()

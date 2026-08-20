@@ -160,6 +160,8 @@ placing a supported tile, raising a supported track, or adding a concrete card r
 wording preserves whether the acting player is constrained. An unrestricted trigger uses passive
 voice so it does not introduce or imply any triggering actor; this includes non-player mechanisms
 such as World Government Terraforming. Other non-End effects keep the whole top region data-backed.
+An automatic removal trigger whose described consequence is a dead end renders as a prohibition
+when the trigger structurally identifies resources on this card or resources an opponent removes.
 A fixed M€ increase in the payment value of a standard resource or resource category is also derived
 from its spent-resource trigger. A direct trigger on a played-card type is derived, including a type
 narrowed to one concrete tag or a minimum printed card cost. A trigger on using a described standard

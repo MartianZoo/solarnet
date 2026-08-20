@@ -20,6 +20,7 @@ public data class ComponentDescriber(
     public val directChange: DirectChange? = null,
     public val draw: Boolean? = null,
     public val score: Score? = null,
+    public val deadEndSignal: Boolean? = null,
     public val endTrigger: Boolean? = null,
     public val playTrigger: PlayTrigger? = null,
     public val playedCard: Boolean? = null,

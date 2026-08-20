@@ -262,6 +262,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("Production") to ComponentDescriber(production = true),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
+        klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("End") to ComponentDescriber(endTrigger = true),
         klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),

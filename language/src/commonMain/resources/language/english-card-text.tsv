@@ -307,7 +307,7 @@ Card151	151	Investment Loan	Decrease your M€ production 1 step. Gain 10 M€.
 Card154	154	Caretaker Contract	Requires 0°C or warmer.	Action: Spend 8 heat to raise your terraform rating 1 step.
 Card156	156	Standard Technology		Effect: When you use a standard project, gain 3 M€.
 Card160	160	Power Supply Consortium	Requires 2 power tags. Decrease any player's energy production 1 step and increase your energy production 1 step.	
-Card173	173	Protected Habitats		Effect: Opponents may not remove your plant, animal, or microbe resources.
+Card173	173	Protected Habitats		Effect: Opponents may not remove your plants, animals, or microbes.
 Card175	175	Satellites	Increase your M€ production 1 step for each space tag you have.	
 Card180	180	Fuel Factory	Decrease your energy production 1 step and increase your titanium production 1 step and your M€ production 1 step.	
 Card182	182	Corporate Stronghold	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. -2 VPs.	
