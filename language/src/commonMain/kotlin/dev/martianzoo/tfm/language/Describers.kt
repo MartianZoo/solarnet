@@ -192,6 +192,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal val anyoneExpression = cn("Anyone").expression
+  internal val notOwnerExpression = cn("Owner").expression.copy(complement = true)
   internal val ownerExpression = cn("Owner").expression
   internal val thisExpression = cn("This").expression
 }

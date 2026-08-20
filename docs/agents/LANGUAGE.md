@@ -190,6 +190,7 @@ including a choice among concrete production-change clauses. A supported single-
 instruction may be scaled by the number of a concrete tag or card resource the player owns, or by
 complete groups of that tag or resource. It may also be scaled by the player's colonies, by city
 tiles or colonies owned by any player, or specifically by any player's city tiles on Mars.
+Tag metrics may instead count tags among all players or only tags the player's opponents have.
 Ownership and location remain independent renderer facts. Because a component outside the game
 does not exist in Solarnet's model, generated metric phrases do not say `in play`; the published
 cards use that phrase to contrast any player's components with the acting player's own components.

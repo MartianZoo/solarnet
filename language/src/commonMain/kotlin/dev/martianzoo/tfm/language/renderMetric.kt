@@ -29,10 +29,10 @@ private fun renderScaledCountPhrase(metric: Metric.Scaled, describers: Describer
 internal fun Describers.renderMetric(expression: Expression, unit: Int? = null): String? {
   val count = unit ?: 1
   val prefix = unit?.let { "every $it" } ?: "each"
+  renderTagMetric(expression, prefix, unit, this)?.let {
+    return it
+  }
   if (expression.simple) {
-    tagName(expression.className)?.let { (name) ->
-      return "$prefix $name ${if (unit == null) "tag" else "tags"} you have"
-    }
     cardResourceNoun(expression.className, count)?.let { noun ->
       return "$prefix $noun you have"
     }
@@ -53,6 +53,24 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   }
   val noun = cardResourceNoun(expression.className, count) ?: return null
   return "$prefix $noun on this card"
+}
+
+private fun renderTagMetric(
+    expression: Expression,
+    prefix: String,
+    unit: Int?,
+    describers: Describers,
+): String? {
+  if (expression.refinement != null || expression.complement) return null
+  val (name) = describers.tagName(expression.className) ?: return null
+  val ownership =
+      when {
+        expression.simple -> "you have"
+        expression.arguments == listOf(describers.anyoneExpression) -> "among all players"
+        expression.arguments == listOf(describers.notOwnerExpression) -> "your opponents have"
+        else -> return null
+      }
+  return "$prefix $name ${if (unit == null) "tag" else "tags"} $ownership"
 }
 
 private fun Describers.placementCountPhrase(expression: Expression, count: Int): String? {
