@@ -109,23 +109,39 @@ private fun renderSpatialRequirement(
 
   return when (requirement) {
     is Requirement.Min -> {
-      val count = if (requirement.target == 1) "one" else requirement.target.toString()
-      "${relation.phrase} $count or more ${target.plural}"
+      if (target.ownedByYou) {
+        val count = if (requirement.target == 1) "one" else requirement.target.toString()
+        "${relation.phrase} $count or more of your ${target.noun.plural}"
+      } else {
+        val count = if (requirement.target == 1) "one" else requirement.target.toString()
+        "${relation.phrase} $count or more ${target.noun.plural}"
+      }
     }
     is Requirement.Max -> {
       if (requirement.target != 0) return null
-      "not ${relation.phrase} any ${target.singular}"
+      if (target.ownedByYou) {
+        "not ${relation.phrase} any of your ${target.noun.plural}"
+      } else {
+        "not ${relation.phrase} any ${target.noun.singular}"
+      }
     }
     else -> null
   }
 }
 
+private data class SpatialTarget(
+    val noun: ComponentDescriber.Noun.Counted,
+    val ownedByYou: Boolean,
+)
+
 private fun renderSpatialTarget(
     relationExpression: Expression,
     relation: ComponentDescriber.SpatialRelation,
     describers: Describers,
-): ComponentDescriber.Noun.Counted? {
-  if (relationExpression.arguments.isEmpty()) return relation.defaultTarget
+): SpatialTarget? {
+  if (relationExpression.arguments.isEmpty()) {
+    return relation.defaultTarget?.let { SpatialTarget(it, ownedByYou = false) }
+  }
   val target = relationExpression.arguments.singleOrNull() ?: return null
   if (
       (target.arguments.isNotEmpty() && target.arguments != listOf(describers.anyoneExpression)) ||
@@ -135,7 +151,12 @@ private fun renderSpatialTarget(
     return null
   }
   val placement = describers.fact(target.className, ComponentDescriber::placement) ?: return null
-  return ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+  return SpatialTarget(
+      ComponentDescriber.Noun.Counted(placement.singular, placement.plural),
+      ownedByYou =
+          target.arguments.isEmpty() &&
+              placement.unqualifiedMetricOwner == ComponentDescriber.MetricOwner.YOU,
+  )
 }
 
 private fun placementClause(noun: NounPhrase, modifiers: List<Modifier>): Clause.Simple =

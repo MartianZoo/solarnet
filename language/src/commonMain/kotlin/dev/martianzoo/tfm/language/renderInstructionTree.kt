@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
@@ -50,12 +51,113 @@ private fun renderInstruction(
       is Instruction.Per -> renderPer(instruction, describers)
       is Instruction.Gated -> renderGated(instruction, describers)
       is Instruction.Then ->
-          renderCardPlaySequence(instruction, describers)
+          renderPlacementBonusProductionSequence(instruction, describers)
+              ?: renderCardPlaySequence(instruction, describers)
               ?: renderCardResourceCostSequence(instruction, describers)
       is NoOp,
       is Instruction.By,
       is Instruction.Transform -> null
     }
+
+private fun renderPlacementBonusProductionSequence(
+    instruction: Instruction.Then,
+    describers: Describers,
+): Clause? {
+  val placement = instruction.stages.singleOrNull() as? Gain ?: return null
+  if (
+      (placement.intensity != null && placement.intensity != MANDATORY) ||
+          placement.gaining.refinement != null ||
+          placement.gaining.complement ||
+          (placement.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val placementDescription =
+      describers.fact(placement.gaining.className, ComponentDescriber::placement) ?: return null
+  val alternatives = (instruction.continuation as? Instruction.Or)?.instructions ?: return null
+  val bonuses = alternatives.map { alternative ->
+    val gated = alternative as? Instruction.Gated ?: return null
+    val minimum = gated.gate as? Requirement.Min ?: return null
+    if (minimum.target != 1) return null
+    val site = (minimum.metric as? Metric.Count)?.expression ?: return null
+    if (site.arguments.isNotEmpty() || site.complement) return null
+    val requirements =
+        (site.refinement?.takeIf { !it.forgiving }?.requirement as? Requirement.And)?.requirements
+            ?: return null
+    val expressions = requirements.map { child ->
+      val childMinimum = child as? Requirement.Min ?: return null
+      if (childMinimum.target != 1) return null
+      (childMinimum.metric as? Metric.Count)?.expression ?: return null
+    }
+    if (expressions.none { it.simple && it.className == placement.gaining.className }) return null
+    val bonus =
+        expressions.singleOrNull {
+          describers.fact(it.className, ComponentDescriber::placementBonus) != null
+        } ?: return null
+    val bonusDescription =
+        describers.fact(bonus.className, ComponentDescriber::placementBonus) ?: return null
+    val resource = describers.representedClass(bonus) ?: return null
+    val production =
+        InstructionGroup.of(gated.inner).instructions.singleOrNull() as? Gain ?: return null
+    if (
+        (production.intensity != null && production.intensity != MANDATORY) ||
+            (production.count as? ActualScalar)?.value != 1
+    ) {
+      return null
+    }
+    val (owners, producedResource) =
+        describers.productionExpression(production.gaining) ?: return null
+    if (owners.isNotEmpty() || producedResource != resource.className) return null
+    PlacementBonusProduction(site.className, resource.className, bonusDescription.noun)
+  }
+  val siteClassName =
+      bonuses.map(PlacementBonusProduction::siteClassName).distinct().singleOrNull() ?: return null
+  val bonusNoun =
+      bonuses.map(PlacementBonusProduction::bonusNoun).distinct().singleOrNull() ?: return null
+  val siteModifiers =
+      renderPlacementSites(placement.gaining.arguments, describers)?.takeIf { it.isNotEmpty() }
+          ?: run {
+            val description = describers.placementSite(siteClassName) ?: return null
+            val noun = describers.describedNoun(siteClassName, description.noun, 1)
+            val article = description.article ?: describers.indefiniteArticle(noun)
+            listOf(Modifier.Phrase("on $article $noun"))
+          }
+  val resourceNames = bonuses.map { describers.componentNoun(it.resource, 1) }
+  val resourceAlternatives = englishAlternatives(resourceNames)
+  val bonusModifier =
+      Modifier.Phrase(
+          "with ${describers.indefiniteArticle(resourceAlternatives)} $resourceAlternatives " +
+              bonusNoun.singular
+      )
+  val placed =
+      Clause.Simple(
+          Predicate(
+              "place",
+              Coordination.one(
+                  NounPhrase(
+                      placementDescription.singular,
+                      placementDescription.plural,
+                      determiner = placementDescription.article,
+                  )
+              ),
+              siteModifiers.take(1) + bonusModifier + siteModifiers.drop(1),
+          )
+      )
+  val production =
+      Clause.Simple(
+          Predicate(
+              "increase",
+              Coordination.one(NounPhrase.text("the matching production 1 step")),
+          )
+      )
+  return Clause.Coordinated(Coordination(listOf(placed, production), Conjunction.AND))
+}
+
+private data class PlacementBonusProduction(
+    val siteClassName: ClassName,
+    val resource: ClassName,
+    val bonusNoun: ComponentDescriber.Noun.Counted,
+)
 
 private fun renderCardResourceCostSequence(
     instruction: Instruction.Then,

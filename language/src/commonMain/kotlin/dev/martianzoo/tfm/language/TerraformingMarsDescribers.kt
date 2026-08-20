@@ -158,6 +158,16 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 placement = ComponentDescriber.Placement("a", "tile", "tiles"),
             ),
+        klass("OwnedTile") to
+            ComponentDescriber(
+                placement =
+                    ComponentDescriber.Placement(
+                        "a",
+                        "tile",
+                        "tiles",
+                        unqualifiedMetricOwner = ComponentDescriber.MetricOwner.YOU,
+                    )
+            ),
         klass("SpecialTile") to
             ComponentDescriber(
                 placement =

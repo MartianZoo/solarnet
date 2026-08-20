@@ -163,7 +163,7 @@ Card058	058	Beam From A Thorium Asteroid	Requires a Jovian tag. Increase your he
 Card059	059	Mangrove	Requires +4°C or warmer. Place a greenery tile on an area reserved for ocean (and raise oxygen 1 step). 1 VP.	
 Card060	060	Trees	Requires -4°C or warmer. Increase your plant production 3 steps. Gain 1 plant. 1 VP.	
 Card063	063	Mining Expedition	Raise oxygen 1 step. Remove up to 2 plants from any player. Gain 2 steel.	
-Card067	067	Mining Rights	Place this tile on an area with a steel or titanium placement bonus. Increase that production 1 step.	
+Card067	067	Mining Rights	Place this tile on a land area with a steel or titanium placement bonus and increase the matching production 1 step.	
 Card072	072	Birds	Requires 13% oxygen. Decrease any player's plant production 2 steps. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card075	075	Towing A Comet	Gain 2 plants. Raise oxygen 1 step. Place an ocean tile.	
 Card076	076	Space Mirrors		Action: Spend 7 M€ to increase your energy production 1 step.
@@ -267,7 +267,7 @@ Card056	056	Mine	Increase your steel production 1 step.
 Card057	057	Vesta Shipyard	Increase your titanium production 1 step. 1 VP.	
 Card061	061	Great Escarpment Consortium	Requires that you have steel production. Decrease any player's steel production 1 step and increase your steel production 1 step.	
 Card062	062	Mineral Deposit	Gain 5 steel.	
-Card064	064	Mining Area	Place this tile on an area with a steel or titanium placement bonus, adjacent to another of your tiles. Increase your production of that resource 1 step.	
+Card064	064	Mining Area	Place this tile on a land area with a steel or titanium placement bonus adjacent to one or more of your tiles and increase the matching production 1 step.	
 Card065	065	Building Industries	Decrease your energy production 1 step and increase your steel production 2 steps.	
 Card066	066	Land Claim	Place your marker on a non-reserved area. Only you may place a tile here.	
 Card068	068	Sponsors	Increase your M€ production 2 steps.	

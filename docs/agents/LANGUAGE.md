@@ -261,6 +261,8 @@ requirement shortfall or remove up to one fixed owed amount, rendering the requi
 card discount at the scope of that play.
 A two-stage instruction may instead remove a fixed card-resource cost from this card before one
 supported consequence.
+A two-stage placement may instead link one of several described placement bonuses on the selected
+site to a one-step increase of the matching production.
 A gained component may instead declare exactly one described first action; its consequence is
 rendered through the ordinary instruction renderer, while unsupported consequences remain
 data-backed.
