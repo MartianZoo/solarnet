@@ -49,11 +49,43 @@ private fun renderInstruction(
       is Instruction.Or -> renderAlternatives(instruction, describers)
       is Instruction.Per -> renderPer(instruction, describers)
       is Instruction.Gated -> renderGated(instruction, describers)
-      is Instruction.Then -> renderCardPlaySequence(instruction, describers)
+      is Instruction.Then ->
+          renderCardPlaySequence(instruction, describers)
+              ?: renderCardResourceCostSequence(instruction, describers)
       is NoOp,
       is Instruction.By,
       is Instruction.Transform -> null
     }
+
+private fun renderCardResourceCostSequence(
+    instruction: Instruction.Then,
+    describers: Describers,
+): Clause.Simple? {
+  val removal = instruction.stages.singleOrNull() as? Remove ?: return null
+  if (
+      (removal.intensity != null && removal.intensity != MANDATORY) ||
+          removal.removing.arguments != listOf(describers.thisExpression) ||
+          removal.removing.refinement != null ||
+          removal.removing.complement
+  ) {
+    return null
+  }
+  val count = (removal.count as? ActualScalar)?.value ?: return null
+  val resource = describers.cardResourceNounPhrase(removal.removing.className, count) ?: return null
+  val result =
+      renderLoweredInstructions(instruction.continuation, describers)?.clauses?.singleOrNull()
+          ?: return null
+  return Clause.Simple(
+      Predicate(
+          "remove",
+          Coordination.one(resource),
+          listOf(
+              Modifier.Phrase("from this card"),
+              Modifier.Phrase("to ${result.linearize()}"),
+          ),
+      )
+  )
+}
 
 private fun renderCardPlaySequence(
     instruction: Instruction.Then,
