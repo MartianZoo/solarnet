@@ -4,6 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -69,7 +70,8 @@ public class SolarnetSession(
                 titanium = paymentAmount(payment, "titanium"),
             )
       }
-      "standardProject" -> playStandardProject(move)
+      "standardProject" -> startStandardProject(move)
+      "placeTile" -> placeTile(move)
       "endTurn" -> game.tfm(movePlayer(move)).declineSecondAction()
       "pass" -> game.tfm(movePlayer(move)).doTask("Pass")
       else -> error("Unknown parity operation: ${move.getValue("operation")}")
@@ -131,18 +133,30 @@ public class SolarnetSession(
     return amount
   }
 
-  private fun playStandardProject(move: JsonObject) {
+  private fun startStandardProject(move: JsonObject) {
     when (val project = move.getValue("project").jsonPrimitive.content) {
-      "aquifer" -> {
-        val area = moveArea(move.getValue("target").jsonObject)
-        game.tfm(movePlayer(move)).stdProject("AquiferSP") { doTask("OceanTile<$area>") }
-      }
+      "aquifer" ->
+          moveOperation(move).continueManual {
+            doTask("UseAction1<UseStandardProjectSA>")
+            doTask("UseAction1<AquiferSP>")
+          }
       else -> error("Unknown standard project: $project")
     }
   }
 
-  private fun moveArea(target: JsonObject): ClassName {
-    val spaceId = target.getValue("spaceId").jsonPrimitive.content
+  private fun placeTile(move: JsonObject) {
+    val area = moveArea(move)
+    when (val tile = move.getValue("tile").jsonPrimitive.content) {
+      "ocean" -> moveOperation(move).finish { doTask("OceanTile<$area>") }
+      else -> error("Unknown tile kind: $tile")
+    }
+  }
+
+  private fun moveOperation(move: JsonObject): OperationLayer =
+      game.gameplay(movePlayer(move)) as OperationLayer
+
+  private fun moveArea(move: JsonObject): ClassName {
+    val spaceId = move.getValue("spaceId").jsonPrimitive.content
     require(spaceId.length == 2 && spaceId.all { it in '0'..'9' }) {
       "Malformed app space ID: $spaceId"
     }
