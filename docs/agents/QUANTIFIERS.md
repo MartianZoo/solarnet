@@ -133,11 +133,11 @@ This permits a selected nonmandatory pair to execute zero and still supply its l
 `THEN` continuation. A missing destination dependency remains unavailable rather than becoming an
 AMAP zero.
 
-## Phantom and computed-zero changes
+## Uninhabited and computed-zero changes
 
-A phantom Type has no active concrete meaning in the current premise. A change touching a phantom
-target is `Ok` when optional or AMAP and a `DeadEndException` when mandatory. It does not
-auto-narrow, fire triggers, or participate in abstract feasibility.
+An uninhabited Type has a provably empty domain in the current premise. A change touching an
+uninhabited target is `Ok` when optional or AMAP and a `DeadEndException` when mandatory. It does
+not auto-narrow, fire triggers, or participate in abstract feasibility.
 
 When a `PER` metric or other scalar calculation makes the requested count zero, preparation returns
 `Ok` before ordinary positive-count quantifier behavior is needed.
