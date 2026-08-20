@@ -4,8 +4,17 @@ ABSTRACT CLASS Component {
   DEFAULT -Component!
 }
 
-"An entity that can initiate or continue game operations"
-ABSTRACT CLASS Actor
+"Magic rules: only a class name can go inside `<>`; `Class<Foo>` is concrete iff `Foo` is"
+CLASS Class<Component> : System { HAS =1 This }
+
+"Instances of this type never exist; Kotlin can instead define its instruction or metric behavior"
+ABSTRACT CLASS Custom
+
+"A class extends this to make sure it is always loaded even if never referenced by anything"
+ABSTRACT CLASS AutoLoad
+
+"Extend this to have plural instructions automatically split into individual instructions"
+ABSTRACT CLASS Atomized
 
 "Implementation detail normally omitted from user-facing output"
 ABSTRACT CLASS Hidden
@@ -13,38 +22,38 @@ ABSTRACT CLASS Hidden
 "Engine-only machinery; unowned occurrences are independent of any Player Actor"
 ABSTRACT CLASS System : Hidden {
   This BY Player: Die
-
-  "Magic rules: only a class name can go inside `<>`; `Class<Foo>` is concrete iff `Foo` is"
-  CLASS Class<Component> { HAS =1 This }
-
-  "The very first component created, which kicks the rest off and performs system operations"
-  CLASS Engine : Actor { HAS MAX 1 This }
 }
 
-"Anything that cannot exist after the task queue clears (i.e., the action ends)"
-ABSTRACT CLASS Temporary : Hidden {
-  // This: (MAX 0 Temporary: Ok)                     // technically right but too visible
+// Anything that cannot exist after the task queue clears (i.e., the action ends)
+ABSTRACT CLASS Temporary : Hidden
 
-  "A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
-  ABSTRACT CLASS Signal {
-    This:: -This!
+"Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
+ABSTRACT CLASS Barrier : Temporary
 
-    "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
-    CLASS Ok : AutoLoad
-
-    "A component you can't create; the task queue will refuse to enqueue an attempt to"
-    CLASS Die : AutoLoad { HAS MAX 0 This }
-  }
-
-  "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
-  ABSTRACT CLASS Barrier
+"A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
+ABSTRACT CLASS Signal : Temporary {
+  This:: -This!
 }
 
-"A class extends this to make sure it is always loaded even if never referenced by anything"
-ABSTRACT CLASS AutoLoad
+"An entity that can initiate or continue game operations"
+ABSTRACT CLASS Actor
 
-"Instances of this type never exist; Kotlin can instead define its instruction or metric behavior"
-ABSTRACT CLASS Custom
+"The unrestricted target for an ownership dependency"
+ABSTRACT CLASS Anyone
 
-"Extend this to have plural instructions auto-split (note `2 OceanTile` is impossible otherwise!)"
-ABSTRACT CLASS Atomized
+"An entity that can own Components"
+ABSTRACT CLASS Owner : Anyone
+
+"A Component whose Type carries an ownership dependency"
+ABSTRACT CLASS Owned<Anyone> {
+  DEFAULT Owned<Owner>
+}
+
+"The very first component created, which kicks the rest off and performs system operations"
+CLASS Engine : System, Actor { HAS MAX 1 This }
+
+"Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
+CLASS Ok : Signal, AutoLoad
+
+"A component you can't create; the task queue will refuse to enqueue an attempt to"
+CLASS Die : Signal, AutoLoad { HAS MAX 0 This }

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class OptimalAerobrakingTest : CardTest() {
@@ -8,7 +9,7 @@ class OptimalAerobrakingTest : CardTest() {
   fun `with Optimal Aerobraking, plays an asteroid`() {
     newGame()
     engine.phase("Action")
-    p1.manual("ProjectCard, OptimalAerobraking, 14")
-    p1.playProject("AsteroidCard", 14) { doTask("Ok") }.expect("-11, 3 Heat")
+    p1.manual("ProjectCard, $OptimalAerobraking, 14")
+    p1.playProject(AsteroidCard, 14).expect("-11, 3 Heat")
   }
 }

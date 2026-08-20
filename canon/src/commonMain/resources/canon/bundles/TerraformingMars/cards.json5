@@ -7,7 +7,7 @@
       "deck": "CORPORATION",
       "immediate": "57",
       "effects": [
-        "CardFront(HAS 20 CardCost) OR UseAction<StandardProject(HAS 20 StandardProjectCost)>: 4"
+        "CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4"
       ],
     },
 
@@ -17,7 +17,7 @@
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": "36, 3 Plant, PROD[2 Plant]",
-      "effects": [ "UseAction<ConvertPlantsSA>: Plant" ],
+      "effects": [ "UseAction<ConvertPlantsSA>: -Owed<Class<Plant>>" ],
     },
 
     // Interplanetary Cinematics
@@ -34,9 +34,8 @@
       "id": "B05",
       "deck": "CORPORATION",
       "tags": [ "ScienceTag" ],
-      "immediate": "45, MandateB05",
+      "immediate": "45, Mandate { -> 3 ProjectCard }",
       "effects": [ "PlayCard: -2 Required<Class<GlobalParameter>>." ],
-      "components": [ "CLASS MandateB05 : Mandate { -> 3 ProjectCard }" ],
     },
 
     // Mining Guild
@@ -56,7 +55,7 @@
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "23, 10 Titanium",
-      "effects": [ "Pay<Class<Titanium>>:: -Owed" ],
+      "effects": [ "Pay<Class<Titanium>>:: -Owed<Class<Megacredit>>" ],
     },
 
     // Tharsis Republic
@@ -64,12 +63,11 @@
       "id": "B08",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "40, MandateB08, (=1 Player: PROD[2]) OR Ok",
+      "immediate": "40, Mandate { -> CityTile<> }, (=1 Player: PROD[2]) OR Ok",
       "effects": [
         "CityTile<Anyone, MarsArea>: PROD[1]",
         "CityTile: 3",
       ],
-      "components": [ "CLASS MandateB08 : Mandate { -> CityTile }" ],
     },
 
     // ThorGate
@@ -79,7 +77,7 @@
       "tags": [ "PowerTag" ],
       "immediate": "48, PROD[Energy]",
       "effects": [
-        "PlayTag<Class<PowerTag>>:: -3 Owed",
+        "PlayTag<Class<PowerTag>>:: -3 Owed<Class<Megacredit>>",
         "UseAction<PowerPlantSP>: 3"
       ],
     },
@@ -159,7 +157,7 @@
       "requirement": "MAX 4 OceanTile",
       "cost": 26,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "CityTile THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5]",
+      "immediate": "CityTile<> THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5]",
       "effects": [
         "End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>"
       ],
@@ -185,7 +183,7 @@
       "projectKind": "EVENT",
       "cost": 21,
       "tags": [ "SpaceTag" ],
-      "immediate": "TemperatureStep, OceanTile, -3 Plant<Anyone>?",
+      "immediate": "TemperatureStep, OceanTile<>, -3 Plant<Anyone>?",
     },
 
     // Big Asteroid
@@ -207,7 +205,7 @@
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [
         // 12[Titanium] -> OceanTile
-        "-> 12 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: OceanTile"
+        "-> 12 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: OceanTile<>"
       ],
       "effects": [
           "End: VictoryPoint / JovianTag"
@@ -232,7 +230,7 @@
       "requirement": "MAX 7 OxygenStep",
       "cost": 24,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "3 Plant, CityTile, PROD[-Energy, 3]",
+      "immediate": "3 Plant, CityTile<>, PROD[-Energy, 3]",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -243,7 +241,7 @@
       "projectKind": "AUTOMATED",
       "cost": 18,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile)",
+      "immediate": "PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile<>)",
     },
 
     // Methane From Titan
@@ -265,7 +263,7 @@
       "projectKind": "EVENT",
       "cost": 16,
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "3 Plant OR 3 Microbe OR 2 Animal, OceanTile",
+      "immediate": "3 Plant OR 3 Microbe OR 2 Animal, OceanTile<>",
     },
 
     // Research Outpost
@@ -276,7 +274,7 @@
       "cost": 18,
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
       "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
-      "effects": [ "PlayCard: -Owed" ],
+      "effects": [ "PlayCard: -Owed<Class<Megacredit>>" ],
     },
 
     // Phobos Space Haven
@@ -286,9 +284,8 @@
       "projectKind": "AUTOMATED",
       "cost": 25,
       "tags": [ "SpaceTag", "CityTag" ],
-      "immediate": "PROD[Titanium], CityTile<Area021>",
+      "immediate": "PROD[Titanium], CityTile<RemoteArea {}>",
       "effects": [ "End: 3 VictoryPoint" ],
-      "components": [ "CLASS Area021 : RemoteArea" ],
     },
 
     // Black Polar Dust
@@ -298,7 +295,7 @@
       "projectKind": "AUTOMATED",
       "cost": 15,
       // Following text order instead of icon order on published cards.
-      "immediate": "OceanTile, PROD[-2, 3 Heat]",
+      "immediate": "OceanTile<>, PROD[-2, 3 Heat]",
     },
 
     // Arctic Algae
@@ -331,7 +328,7 @@
       "id": "026",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
-      "requirement": "8 TemperatureStep",
+      "requirement": "9 TemperatureStep",
       "cost": 16,
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "Animal, 3 Plant, PROD[2]",
@@ -347,7 +344,7 @@
       "cost": 16,
       "tags": [ "CityTag", "BuildingTag" ],
       // Following text order instead of icon order on published cards.
-      "immediate": "CityTile, PROD[-Energy, 3]",
+      "immediate": "CityTile<>, PROD[-Energy, 3]",
     },
 
     // Lunar Beam
@@ -378,7 +375,7 @@
       "cost": 18,
       "tags": [ "CityTag", "BuildingTag" ],
       // Following text order instead of icon order on published cards.
-      "immediate": "CityTile, PROD[-2 Energy, 2 Steel]",
+      "immediate": "CityTile<>, PROD[-2 Energy, 2 Steel]",
     },
 
     // Regolith Eaters
@@ -517,9 +514,8 @@
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "NpTile<LandArea(HAS MAX 0 Neighbor)>, PROD[1]",
+      "immediate": "SpecialTile<LandArea(HAS MAX 0 Neighbor)> {}, PROD[1]",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS NpTile : SpecialTile" ],
     },
 
     // Nuclear Power
@@ -574,7 +570,7 @@
       "projectKind": "AUTOMATED",
       "requirement": "15 TemperatureStep",
       "cost": 18,
-      "immediate": "2 OceanTile",
+      "immediate": "2 OceanTile<>",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -656,8 +652,7 @@
       "projectKind": "AUTOMATED",
       "cost": 9,
       "tags": [ "BuildingTag" ],
-      "immediate": "MiningRightsTile THEN PROD[(LandArea(HAS MiningRightsTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRightsTile, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS MiningRightsTile : SpecialTile" ],
+      "immediate": "SpecialTile<> {} THEN PROD[(LandArea(HAS Card067_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card067_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
     },
 
     // Birds
@@ -681,7 +676,7 @@
       "projectKind": "EVENT",
       "cost": 23,
       "tags": [ "SpaceTag" ],
-      "immediate": "2 Plant, OxygenStep, OceanTile",
+      "immediate": "2 Plant, OxygenStep, OceanTile<>",
     },
 
     // Space Mirrors
@@ -711,7 +706,7 @@
       "projectKind": "EVENT",
       "cost": 23,
       "tags": [ "SpaceTag" ],
-      "immediate": "2 OceanTile",
+      "immediate": "2 OceanTile<>",
     },
 
     // Giant Ice Asteroid
@@ -721,7 +716,7 @@
       "projectKind": "EVENT",
       "cost": 36,
       "tags": [ "SpaceTag" ],
-      "immediate": "2 TemperatureStep, 2 OceanTile, -6 Plant<Anyone>?",
+      "immediate": "2 TemperatureStep, 2 OceanTile<>, -6 Plant<Anyone>?",
     },
 
     // Ganymede Colony
@@ -731,9 +726,8 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "JovianTag", "SpaceTag", "CityTag" ],
-      "immediate": "CityTile<Area081>",
+      "immediate": "CityTile<RemoteArea {}>",
       "effects": [ "End: VictoryPoint / JovianTag" ],
-      "components": [ "CLASS Area081 : RemoteArea" ],
     },
 
     // Giant Space Mirror
@@ -806,9 +800,8 @@
       "projectKind": "AUTOMATED",
       "cost": 10,
       "tags": [ "EarthTag" ],
-      "immediate": "NzTile, 2 TemperatureStep",
+      "immediate": "SpecialTile<> {}, 2 TemperatureStep",
       "effects": [ "End: -2 VictoryPoint" ],
-      "components": [ "CLASS NzTile : SpecialTile" ],
     },
 
     // Fueled Generators
@@ -869,7 +862,7 @@
       "requirement": "12 OxygenStep",
       "cost": 23,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], 2 Plant, CityTile",
+      "immediate": "PROD[-Energy, 4], 2 Plant, CityTile<>",
       "effects": [ "End: VictoryPoint" ],
     },
 
@@ -986,7 +979,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 11,
-      "immediate": "OceanTile",
+      "immediate": "OceanTile<>",
     },
 
     // Ecological Zone
@@ -998,12 +991,11 @@
       "cost": 12,
       "tags": [ "AnimalTag", "PlantTag" ],
       "resourceType": "Animal",
-      "immediate": "EzTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)> {}",
       "effects": [
         "AnimalTag OR PlantTag: Animal<This>",
         "End: VictoryPoint / 2 Animal<This>"
       ],
-      "components": [ "CLASS EzTile : SpecialTile" ],
     },
 
     // Zeppelins
@@ -1130,8 +1122,8 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 18,
-      "immediate": "2 TemperatureStep, LfTile<VolcanicArea> OR (MAX 0 VolcanicArea: LfTile)",
-      "components": [ "CLASS LfTile : SpecialTile" ],
+      "immediate": "2 TemperatureStep, Card140_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: Card140_SpecialTile<>)",
+      "components": [ "CLASS Card140_SpecialTile : SpecialTile" ],
     },
 
     // Power Plant
@@ -1151,8 +1143,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[4 Heat], MaTile<WaterArea>",
-      "components": [ "CLASS MaTile : SpecialTile" ],
+      "immediate": "PROD[4 Heat], SpecialTile<WaterArea> {}",
     },
 
     // Large Convoy
@@ -1162,7 +1153,7 @@
       "projectKind": "EVENT",
       "cost": 36,
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal",
+      "immediate": "OceanTile<>, 2 ProjectCard, 5 Plant OR 4 Animal",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -1292,7 +1283,7 @@
       "projectKind": "EVENT",
       "cost": 15,
       "tags": [ "SpaceTag" ],
-      "immediate": "OceanTile, ProjectCard",
+      "immediate": "OceanTile<>, ProjectCard",
     },
 
     // Imported GHG
@@ -1344,7 +1335,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-Energy, 2]",
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -2 Owed",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>",
         "End: VictoryPoint"
       ],
     },
@@ -1481,7 +1472,7 @@
       "projectKind": "EVENT",
       "requirement": "16 TemperatureStep",
       "cost": 5,
-      "immediate": "OceanTile",
+      "immediate": "OceanTile<>",
     },
 
     // Biomass Combustors
@@ -1519,7 +1510,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [
         // 8[Steel] -> OceanTile
-        "-> 8 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: OceanTile"
+        "-> 8 Owed<Class<Megacredit>> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: OceanTile<>"
       ],
     },
 
@@ -1529,7 +1520,7 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
-      "immediate": "OceanTile OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 Megacredit<Anyone>?)",
+      "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Anyone>>)> THEN -4 Megacredit<Anyone>?)",
       "effects": [ "End: -VictoryPoint" ],
     },
 
@@ -1559,7 +1550,7 @@
       "projectKind": "EVENT",
       "requirement": "11 TemperatureStep",
       "cost": 8,
-      "immediate": "OceanTile",
+      "immediate": "OceanTile<>",
     },
 
     // Plantation
@@ -1570,7 +1561,7 @@
       "requirement": "2 ScienceTag",
       "cost": 15,
       "tags": [ "PlantTag" ],
-      "immediate": "GreeneryTile",
+      "immediate": "GreeneryTile<>",
     },
 
     // Immigration Shuttles
@@ -1591,7 +1582,7 @@
       "projectKind": "ACTIVE",
       "cost": 13,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, -2], CityTile",
+      "immediate": "PROD[-Energy, -2], CityTile<>",
       "effects": [ "CityTile<Anyone>: PROD[1]" ],
     },
 

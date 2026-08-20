@@ -1,16 +1,19 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.api.Exceptions.abstractInstruction
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.engine.Prod.deprodify
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.tfm.data.Prod.deprodify
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.canonicalPremise
 import dev.martianzoo.tfm.engine.setUpGame
@@ -33,18 +36,21 @@ internal class PrepareTest {
     game.tfm(PLAYER1).godMode().sneak("Plant, 10 ProjectCard, PROD[-1]")
   }
 
-  private fun preprocess(instr: Instruction): Instruction {
+  private fun preprocess(instr: InstructionTree): InstructionTree {
     val xer =
         chain(
             deprodify(Transformers(game.classTable).classTable),
             Transformers(game.classTable).insertDefaults(),
             replaceOwnerWith(PLAYER1),
         )
-    return xer.transform(instr)
+    return xer.transformInstructionTree(instr)
   }
 
-  private fun preprocessAndPrepare(unprepared: String): Instruction {
-    return instructor.prepare(preprocess(game.vocabulary.canonicalize(parse(unprepared))))
+  private fun preprocessAndPrepare(unprepared: String): InstructionTree {
+    val preprocessed = preprocess(game.vocabulary.canonicalize(parse<InstructionTree>(unprepared)))
+    return instructor.prepare(
+        preprocessed as? Instruction ?: throw abstractInstruction(preprocessed)
+    )
   }
 
   private fun checkPrepare(unprepared: String, expected: String?) {
@@ -68,6 +74,13 @@ internal class PrepareTest {
     checkPrepare("9 Heat FROM Plant?", "Heat<Player1> FROM Plant<Player1>?")
     checkPrepare("Plant FROM Heat.", "Ok")
     checkPrepare("Plant FROM Heat?", "Ok")
+    checkPrepare("3 Microbe.", "Ok")
+    checkPrepare("3 Microbe?", "Ok")
+    checkPrepare("-3 Microbe.", "Ok")
+    checkPrepare("-3 Microbe?", "Ok")
+    shouldThrow<DependencyException> { preprocessAndPrepare("Microbe<Card035>.") }
+    shouldThrow<DependencyException> { preprocessAndPrepare("3 Microbe!") }
+    shouldThrow<LimitsException> { preprocessAndPrepare("-3 Microbe!") }
     // shouldThrow<LimitsException> { preprocessAndPrepare("15 OxygenStep!") }
     shouldThrow<LimitsException> { preprocessAndPrepare("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndPrepare("Plant FROM Heat") }
@@ -141,9 +154,20 @@ internal class PrepareTest {
   }
 
   @Test
-  fun testPrepareMulti() {
+  fun `an unavailable choice preserves requirement failure when every option is gated`() {
+    val failure =
+        shouldThrow<RequirementException> {
+          preprocessAndPrepare("(30 TR: Plant) OR (15 OxygenStep: Steel)")
+        }
+
+    failure.message!!.contains("30 TerraformRating") shouldBe true
+    failure.message!!.contains("15 OxygenStep") shouldBe true
+  }
+
+  @Test
+  fun testPrepareGroups() {
     shouldThrow<AbstractException> { preprocessAndPrepare("Plant, Heat") }
     shouldThrow<AbstractException> { preprocessAndPrepare("(TR: Plant), Heat") }
-    shouldThrow<AbstractException> { preprocessAndPrepare("TR: (Plant, Heat)") }
+    checkPrepare("TR: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
   }
 }

@@ -10,6 +10,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.Int.Companion.MAX_VALUE
@@ -46,9 +47,9 @@ internal class CanonInvariantsTest {
     checkComponentLimit("TemperatureStep", 0..19)
     checkComponentLimit("VenusStep", 0..15)
 
-    checkComponentLimit("ActionUsedMarker<Player1, Card035<Player1>>", 0..1)
-    checkComponentLimit("MandateB08<Player1>", 0..1)
-    checkComponentLimit("PowerTag<Player1, Card035<Player1>>", 0..2)
+    checkComponentLimit("ActionUsedMarker<Player1, $Ants<Player1>>", 0..1)
+    checkComponentLimit("CardB08_Mandate<Player1>", 0..1)
+    checkComponentLimit("PowerTag<Player1, $Ants<Player1>>", 0..2)
     checkComponentLimit("Accept<Player1, Class<Steel>>", 0..1)
     checkComponentLimit("Pass<Player1>", 0..1)
 
@@ -81,7 +82,7 @@ internal class CanonInvariantsTest {
       restrictions(constrainedType)!!.shouldContain(UnboundRangeRestriction(expr, clazz, range))
     }
 
-    checkSimple("Card035", range = 0..1)
+    checkSimple("$Ants", range = 0..1)
     checkSimple("OceanTile", range = 0..9)
     checkSimple("ActionPhase", "Phase", range = 1..1)
     checkSimple("Tharsis_5_5", range = 1..1)

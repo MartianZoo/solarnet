@@ -13,6 +13,10 @@ import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue
+import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
+import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
@@ -65,6 +69,96 @@ internal constructor(
 
   /** A textual explanation for this class. */
   public val docstring: String? by declaration::docstring
+
+  private val resolvedProperties: Map<PropertyName, PropertyFact> = resolveProperties()
+
+  /** Every property bound or value supplied by this class and its supertypes. */
+  public val properties: Map<PropertyName, PropertyValue> = resolvedProperties.mapValues {
+    it.value.value
+  }
+
+  init {
+    if (!declaration.abstract) {
+      val abstractProperties = properties.filterValues { it.abstract }.keys
+      if (abstractProperties.isNotEmpty()) {
+        throw PetException(
+            "$className is concrete but has abstract properties: " +
+                abstractProperties.joinToString()
+        )
+      }
+    }
+  }
+
+  private fun resolveProperties(): Map<PropertyName, PropertyFact> {
+    val inherited = linkedMapOf<PropertyName, PropertyFact>()
+    directSuperclasses.forEach { superclass ->
+      superclass.resolvedProperties.forEach { (name, incoming) ->
+        val existing = inherited[name]
+        inherited[name] =
+            when {
+              existing == null || incoming == existing -> incoming
+              existing.origin != incoming.origin ->
+                  throw PetException(
+                      "$className inherits distinct properties named $name from " +
+                          "${existing.origin} and ${incoming.origin}"
+                  )
+              existing.lineage.isPrefixOf(incoming.lineage) -> incoming
+              incoming.lineage.isPrefixOf(existing.lineage) -> existing
+              else ->
+                  throw PetException(
+                      "$className inherits divergent narrowings for $name from " +
+                          "${existing.source} and ${incoming.source}"
+                  )
+            }
+      }
+    }
+
+    declaration.properties.forEach { (name, declared) ->
+      when (val inheritedFact = inherited[name]) {
+        null -> inherited[name] = PropertyFact(listOf(className), declared)
+        else -> {
+          val inheritedValue = inheritedFact.value
+          if (!inheritedValue.abstract) {
+            throw PetException(
+                "$className cannot override inherited property $name = $inheritedValue"
+            )
+          }
+          if (!inheritedValue.accepts(declared)) {
+            throw PetException(
+                "$className cannot narrow property $name = $inheritedValue with $declared"
+            )
+          }
+          inherited[name] =
+              inheritedFact.copy(lineage = inheritedFact.lineage + className, value = declared)
+        }
+      }
+    }
+    return if (declaration.abstract) {
+      inherited
+    } else {
+      inherited.mapValues { (_, fact) ->
+        if (fact.value === OptionalRequirementType) {
+          fact.copy(value = AbsentRequirementValue)
+        } else {
+          fact
+        }
+      }
+    }
+  }
+
+  private data class PropertyFact(
+      val lineage: List<ClassName>,
+      val value: PropertyValue,
+  ) {
+    val origin: ClassName
+      get() = lineage.first()
+
+    val source: ClassName
+      get() = lineage.last()
+  }
+
+  private fun <T> List<T>.isPrefixOf(other: List<T>): Boolean =
+      size <= other.size && indices.all { this[it] == other[it] }
 
   // HIERARCHY
 
@@ -147,7 +241,7 @@ internal constructor(
   private val sups by declaration::supertypes
 
   private fun replaceThis(expression: Expression): Expression =
-      replaceThisExpressionsWith(className.expression).transform(expression)
+      replaceThisExpressionsWith(className.expression).transformExpression(expression)
 
   private fun directSupertypes(): Set<Type> =
       when {
@@ -292,7 +386,7 @@ internal constructor(
       val dependencySet = loader.load(expression.className).dependencies
       val resolvedArguments =
           expression.arguments.map(
-              replacer(THIS, className)::transform,
+              replacer(THIS, className)::transformExpression,
           )
       val matchedDependencies = dependencySet.matchPartialInOrder(resolvedArguments)
       expression.arguments.zip(matchedDependencies).forEach { (argument, dependency) ->

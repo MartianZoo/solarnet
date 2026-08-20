@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -91,7 +92,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
     engine.phase("Action")
     p1.godMode().sneak("100, 5 ProjectCard")
-    p1.playProject("Pets", 10).expect("Miranda, ColonyProduction")
+    p1.playProject(Pets, 10).expect("Miranda, ColonyProduction")
     engine.assertCounts(
         4 to "ColonyTile",
         4 to "ColonyProduction",
@@ -124,10 +125,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     shouldThrow<DependencyException> { p1.stdAction("TradeSA") { doTask("Trade<Miranda>") } }
 
     // And just to show that it would have worked otherwise
-    p1.playProject("Pets", 10)
+    p1.playProject(Pets, 10)
     p1.stdAction("TradeSA") {
       doTask("Trade<Miranda>")
-      doTask("Animal<Pets>")
+      doTask("Animal<$Pets>")
     }
   }
 
@@ -232,21 +233,21 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     localP2.godMode().sneak("100, 5 ProjectCard")
     localEngine.phase("Action")
 
-    localP2.playProject("RegolithEaters", 13)
-    localP1.playProject("NitriteReducingBacteria", 11)
+    localP2.playProject(RegolithEaters, 13)
+    localP1.playProject(NitriteReducingBacteria, 11)
     localP1.stdProject("BuildColonySP") {
       doTask("Colony<Enceladus>")
-      doTask("3 Microbe<NitriteReducingBacteria>")
+      doTask("3 Microbe<$NitriteReducingBacteria>")
     }
 
     localP2.stdAction("TradeSA", 1) {
       doTask("Trade<Enceladus>")
-      doTask("Microbe<RegolithEaters>")
-      localP1.doTask("Microbe<NitriteReducingBacteria>")
+      doTask("Microbe<$RegolithEaters>")
+      localP1.doTask("Microbe<$NitriteReducingBacteria>")
     }
 
-    localP1.assertCounts(7 to "Microbe<NitriteReducingBacteria>")
-    localP2.assertCounts(1 to "Microbe<RegolithEaters>")
+    localP1.assertCounts(7 to "Microbe<$NitriteReducingBacteria>")
+    localP2.assertCounts(1 to "Microbe<$RegolithEaters>")
   }
 
   @Test

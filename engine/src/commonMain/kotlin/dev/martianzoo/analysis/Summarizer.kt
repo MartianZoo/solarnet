@@ -20,7 +20,7 @@ internal constructor(
   public fun net(byType: String, ofType: String): Int =
       net(
           vocabulary.canonicalize(parse<Expression>(byType)),
-          vocabulary.canonicalize(parse(ofType)),
+          vocabulary.canonicalize(parse<Expression>(ofType)),
       )
 
   private fun net(byType: Expression, ofType: Expression): Int =

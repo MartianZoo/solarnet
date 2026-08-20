@@ -1,0 +1,245 @@
+# Class properties
+
+**Status:** The core class-property mechanism is implemented. This document separates that current
+model from settled semantic decisions and open extensions. Proposed syntax is illustrative unless
+explicitly identified as current.
+
+Class properties record immutable facts about a Class. They are not fields on component
+occurrences: every component of one concrete Type sees the same class-property facts. A class
+property may also be read through `Class<X>`, so the fact does not require an X component to exist.
+
+## Current model
+
+A class body declares lowerCamelCase class-property names in a namespace separate from Class Names:
+
+```pets
+ABSTRACT CLASS MarsArea {
+  row = Number
+  column = Number
+}
+CLASS Tharsis_2_2 : MarsArea {
+  row = 2
+  column = 2
+}
+```
+
+The implemented value families are:
+
+| Declaration | Meaning | Concrete form |
+| --- | --- | --- |
+| `Number` | non-negative, world-independent integer | `cost = 10` |
+| `Metric` | world-dependent numeric expression; `Number` narrows it | `score = COUNT TemperatureStep` |
+| `Requirement` | one required game condition | `requirement = HAS 3 ScienceTag` |
+| `Requirement?` | currently, an absent or present Requirement | the declaration may be omitted by a concrete descendant |
+
+The Kotlin AST names are `Property`, `PropertyName`, and `PropertyValue`.
+
+### Narrowing and inheritance
+
+An ordinary class-property declaration narrows an inherited bound; it does not override a value:
+
+```pets
+ABSTRACT CLASS Scored { score = Metric }
+ABSTRACT CLASS FixedScore : Scored { score = Number }
+CLASS EightPoints : FixedScore { score = 8 }
+```
+
+Once an ordinary concrete value has been supplied, descendants cannot redeclare it. The same fact
+coalesces when inherited through multiple paths. Distinct origins and divergent narrowing paths
+conflict even when their printed values happen to match. Every ordinary non-cardinality bound on a
+concrete Class must have a concrete value.
+
+This rule is intentionally stronger than ordinary object-oriented property overriding. A class
+property is a fact about the Class, and inheritance accumulates and narrows facts.
+
+### Reading and evaluating
+
+A numeric class-property read is a Metric:
+
+```text
+Card001.cost
+Class<Card001>.cost
+CardFront(HAS 20 cost)
+```
+
+The first two forms have the same lookup meaning. An unqualified class property inside a refinement
+receives the candidate Type as its receiver.
+
+A stored Metric or Requirement is syntax, not an instruction to evaluate itself whenever read. A
+class effect expands it explicitly:
+
+```pets
+This:: Result / EVAL This.score
+This:: (EVAL This.requirement: Ok)
+```
+
+Expansion substitutes the concrete receiver for `This`, supplies the effect's contextual Owner,
+and then applies the normal defaults and lowering. Expansion may wait until trigger matching has
+specialized an abstract receiver. `EVAL` is invalid in an arbitrary count query.
+
+## Applicability is primarily structural
+
+A class property should be declared at the highest Class for which asking the question makes sense,
+not at a broader Class with a dummy value.
+
+`row` and `column` belong to `MarsArea`, not `Area`. Phobos Space Haven's derived
+`Card021_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
+`Card021_RemoteArea.row` is a nonsense question and fails
+because the class property does not exist; it does not return zero or an absent value.
+
+Use a cardinality type only when the question applies to every member of the declaring Class but a
+value is legitimately optional. Do not use cardinality to compensate for a property declared too
+high in the hierarchy.
+
+## Total values and the ruling on card cost
+
+Absence and zero are distinct in general. They coincide only when the domain concept itself is
+total and zero completely describes the behavior.
+
+`cost` is total across `CardFront`. Corporation and Prelude fronts cost zero: the player acquires
+them without paying anything. A hypothetical `NonProjectCardFront` would naturally narrow its cost
+all the way to zero. Project cards still state their cost explicitly, including the four current
+zero-cost project cards; there is no useful project-card default of zero.
+
+Therefore `CardFront.cost` remains `Number`, not `Number?`. This also keeps payment and numeric cost
+filters within one ordinary numeric model.
+
+There is no global rule that an absent numeric class property means zero. If `Number?` is eventually
+introduced, its empty case supplies no Number and hence no Metric: it cannot count anything. A
+present zero must remain observably different from absence. In particular, a future bare
+`HAS optionalNumber` must test cardinality, not numeric positivity.
+
+## Cardinality types, not null values
+
+The preferred model has no null class-property value. A suffix describes how many values a class
+property holds:
+
+- `T?` means zero or one T values.
+- A possible `T*` means zero or more T values.
+
+The empty case is an empty cardinality, not a distinguished value inhabiting T. This matters for
+lookup, narrowing, defaults, queries, and evaluation. The current specialized implementation uses
+`OptionalRequirementType` as the bound and `AbsentRequirementValue` as the effective value on a
+concrete Class; those are implementation vocabulary, not the intended general domain model.
+
+Cardinality queries should observe the number of held values. Bare `HAS property` means at least one
+value. If a cardinality can exceed one, `HAS 2 property` naturally means at least two. These are
+presence/cardinality queries, not ordinary numeric reads of the held value.
+
+### `Requirement?` and directional valence
+
+Requirement was deliberately named for its game meaning rather than the neutral mathematical word
+Predicate. Requirements combine directionally: comma-separated requirements all apply. The empty
+conjunction is satisfied, so evaluating zero held Requirements naturally produces `Ok`:
+
+```text
+EVAL zero requirements       => Ok
+EVAL one requirement         => that requirement
+EVAL several requirements    => all of them
+```
+
+That identity does not make cardinality irrelevant. Cutting Edge Technology discounts a card
+because a printed requirement is present; milestones and awards likewise count cards that have
+printed requirements. Replacing absence with a stored `Ok` would erase a fact those rules observe.
+A present requirement that happens to be satisfied—or even logically trivial—remains present.
+
+The current implementation captures the important behavior:
+
+- an absent `Requirement?` may remain on a concrete Class;
+- `EVAL` of the empty case lowers to the always-satisfied `Component` requirement;
+- bare `HAS requirement` distinguishes empty from present.
+
+It does so with a specialized absent/present representation and a 0/1 Metric interpretation. That
+is not yet the general cardinality model described here and must not be generalized by treating
+empty values as numeric zero.
+
+## Requirement versus RequirementGroup
+
+**Open design direction.** Requirements may deserve the same distinction now made between
+`Instruction` and `InstructionGroup`. Today `Requirement.And` makes a comma-separated source such as
+
+```pets
+EarthTag, JovianTag, VenusTag
+```
+
+one Requirement syntax tree containing three conjuncts. A future `RequirementGroup` could instead
+hold three independent Requirements, with empty and singleton groups collapsing in source just as
+instruction groups do.
+
+That would make the cardinality interpretation literal. A card could hold zero or more printed
+Requirements, `HAS requirement` would ask whether it has any, and `HAS 2 requirement` would ask
+whether it has at least two. It would also make conjunction's empty identity structural rather than
+encoding it as a special always-satisfied Requirement.
+
+Questions to settle before changing the AST include:
+
+- whether card fronts should declare `requirement = Requirement*` rather than `Requirement?`;
+- whether cardinality counts top-level comma-separated requirements, including `(A OR B), C` as two;
+- whether order and duplicates are significant in a RequirementGroup;
+- how transforms, linking, rendering, and narrowing act on a group;
+- whether `Requirement` remains the type of one atomic or possibly `OR`-composed condition.
+
+Do not document this group model as implemented until those questions are resolved.
+
+## Abstract defaults are not overrides
+
+**Settled principle, unimplemented mechanism.** Because concrete Classes are final, an abstract
+Class may safely offer descendants a default class-property value. A concrete descendant may accept
+that default or state another permitted value explicitly. Once the concrete Class's effective value
+is chosen, it remains final.
+
+This is not ordinary overriding. A default is a fallback used only when a descendant makes no
+choice; it is not an inherited concrete fact that is later replaced. The declaration model must
+distinguish:
+
+- a bound that requires every concrete descendant to choose explicitly;
+- a default that supplies the choice when a descendant is silent;
+- a final fact that every descendant inherits unchanged.
+
+Project-card cost illustrates the first case: each project card should state its cost, and the four
+zero-cost cards should explicitly state zero. A family whose members genuinely share a normal value
+might use a default. A family whose value is definitionally fixed should narrow to a final fact.
+
+Syntax and multiple-inheritance rules remain open. In particular, competing defaults, nearer
+defaults, and an abstract descendant replacing an ancestor's default need one systemic rule before
+the feature is implemented.
+
+## `Instruction*` and printed tags
+
+**Exploratory direction.** A zero-or-more Instruction class property could store the recipe for
+materializing a card's printed facts:
+
+```pets
+tags = Instruction*
+```
+
+A concrete card might then hold instructions that gain its printed Tag components when the front
+comes into existence. Because the instructions belong to the card Class, they would also be
+available through `Class<CardFront>` before a live CardFront component exists. This could subsume the
+current Kotlin metadata bridge that handles card tags during play.
+
+The direction is promising but not yet a design. It must answer:
+
+- whether an instruction-valued property represents behavior or immutable printed data;
+- how a query asks for a particular tag without executing the instructions;
+- how duplicate printed tags are represented and counted;
+- whether order matters, given that `InstructionGroup` is ordered while tags are not;
+- how `This`, Owner, defaults, and trigger-time specialization are contextualized;
+- whether `Instruction*` is a group value, a cardinality-bearing property, or both.
+
+The goal is not merely to move `HandleCardTags` into generated Pets. The result should provide one
+honest source of printed tag facts that supports both pre-existence queries and live materialization.
+
+## Design constraints for future extensions
+
+Any extension should preserve these rules:
+
+1. Class properties are immutable facts about Classes, never occurrence state.
+2. Put a property only where the question applies; prefer hierarchy over sentinel values.
+3. Totalize a domain concept only when no actionable distinction is lost, as with card cost.
+4. Empty cardinality is not a null value and is never globally coerced to zero or `Ok`.
+5. Type-specific identities may govern evaluation without erasing observable cardinality.
+6. Bounds, defaults, and final facts are distinct declaration concepts.
+7. Stored syntax is evaluated explicitly and in the concrete Class context.
+8. New group or cardinality machinery must replace special cases rather than coexist as a parallel
+   representation of the same fact.

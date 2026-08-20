@@ -28,6 +28,10 @@ You're speaking directly to the engine API, and the engine is extremely low-leve
 
 There are currently over 450 cards supported. The full inventory and remaining card and non-card components are listed at [what is supported](what-is-supported.md).
 
+### Does Solarnet use any house rules?
+
+Only for a few exceptionally minor edge cases. They are listed under the [supported game variant](what-is-supported.md#supported-game-variant).
+
 ### Why no Turmoil?
 
 Turmoil is completely doable but will be completely gross. I'm not in any hurry for it.

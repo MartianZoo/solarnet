@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class HermeticOrderOfMarsTest : CardTest() {
@@ -13,6 +14,6 @@ class HermeticOrderOfMarsTest : CardTest() {
     )
     requireP2().manual("OceanTile<Tharsis_1_2>, CityTile<Tharsis_3_2>")
 
-    p1.playProject("HermeticOrderOfMars", 10).expect("PROD[2]")
+    p1.playProject(HermeticOrderOfMars, 10).expect("PROD[2]")
   }
 }

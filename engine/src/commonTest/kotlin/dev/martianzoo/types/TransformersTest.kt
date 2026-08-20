@@ -1,5 +1,7 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.Exceptions.KindException
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
@@ -7,21 +9,34 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import dev.martianzoo.tfm.engine.Prod
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class TransformersTest {
   @Test
+  fun atomizerChangesKindOnlyThroughTheBroaderInstructionTreeKind() {
+    val instruction = parse<Instruction>("2 OxygenStep!")
+    val atomizer = transformers.atomizer()
+    val transformed = atomizer.transformInstructionTree(instruction)
+
+    transformed shouldBe parse<InstructionTree>("OxygenStep!, OxygenStep!")
+    shouldThrow<KindException> { atomizer.transformInstruction(instruction) }
+  }
+
+  @Test
   fun test() {
     checkApplyDefaults("Heat", "Heat<Owner>!")
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
-    checkApplyDefaults("OceanTile", "OceanTile<WaterArea>.")
+    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea>.")
+    checkApplyDefaults("Card142_SpecialTile<>", "Card142_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
-        "CityTile",
+        "CityTile<>",
         "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
     )
     checkApplyDefaults("-CityTile", "-CityTile<Owner>!")
@@ -44,22 +59,32 @@ class TransformersTest {
         "LandArea(HAS Neighbor<OwnedTile<Owner>>)!",
     )
     checkApplyDefaults(
-        "GreeneryTile",
+        "GreeneryTile<>",
         "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>, MAX 0 Tile), Owner>!",
     )
 
     checkApplyDefaults(
-        "Heat FROM Owed!",
+        "Heat FROM Owed<Class<Megacredit>>!",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
     checkApplyDefaults(
-        "Heat FROM Owed.",
+        "Heat FROM Owed<Class<Megacredit>>.",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>.",
     )
     checkApplyDefaults(
-        "Heat FROM Owed",
+        "Heat FROM Owed<Class<Megacredit>>",
         "Heat<Owner> FROM Owed<Owner, Class<Megacredit>>!",
     )
+    checkApplyDefaults("Owed", "Owed<Owner>!")
+    checkApplyDefaults("-Owed", "-Owed<Owner>.")
+  }
+
+  @Test
+  fun dependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
+    shouldThrow<PetSyntaxException> { applyDefaults("OceanTile") }.message shouldBe
+        "`OceanTile` has gain dependency defaults; write `OceanTile<>` to accept them or provide dependency arguments"
+    checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
+    checkApplyDefaults("-OceanTile", "-OceanTile.")
   }
 
   private companion object {
@@ -77,20 +102,20 @@ class TransformersTest {
   private fun applyDefaults(
       original: String,
       context: Expression = THIS.expression,
-  ): Instruction = transformers.insertDefaults(context).transform(parse(original))
+  ): Instruction = transformers.insertDefaults(context).transformInstruction(parse(original))
 
   @Test
   fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
-    val ep: Effect = Prod.deprodify(transformers.classTable).transform(e)
+    val ep: Effect = Prod.deprodify(transformers.classTable).transformEffect(e)
     ep.toString() shouldBe s
   }
 
   @Test
   fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = Prod.deprodify(setOf(cn("Plant"))).transform(prodden)
+    val deprodden: Effect = Prod.deprodify(setOf(cn("Plant"))).transformEffect(prodden)
     deprodden.toString() shouldBe "This: Production<Class<Plant>> / PlantTag"
   }
 
@@ -98,7 +123,7 @@ class TransformersTest {
   fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
     val prodden: Instruction = parse("PROD[StandardResource(HAS LowestProduction)]")
 
-    Prod.deprodify(setOf(cn("StandardResource"))).transform(prodden).toString() shouldBe
+    Prod.deprodify(setOf(cn("StandardResource"))).transformInstruction(prodden).toString() shouldBe
         "Production<Class<StandardResource>(HAS LowestProduction)>"
   }
 
@@ -115,7 +140,7 @@ class TransformersTest {
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz> FROM Foo<Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
         )
-    val deprodden: Effect = Prod.deprodify(transformers.classTable).transform(prodden)
+    val deprodden: Effect = Prod.deprodify(transformers.classTable).transformEffect(prodden)
     deprodden shouldBe expected
   }
 
@@ -125,8 +150,10 @@ class TransformersTest {
     val specific = CanonClassesTest.table.resolve(parse<Expression>("Card158<Player1>"))
     val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
 
-    transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
-        "Plant OR Die!"
+    transformers
+        .checkedSubstituter(general, specific)
+        .transformInstruction(instruction)
+        .toString() shouldBe "Plant OR Die!"
   }
 
   @Test
@@ -137,8 +164,10 @@ class TransformersTest {
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, Card131<Player1>>"))
     val instruction = parse<Instruction>("Microbe<CardFront<Player1>>")
 
-    transformers.checkedSubstituter(general, specific).transform(instruction).toString() shouldBe
-        "Microbe<Card131<Player1>>"
+    transformers
+        .checkedSubstituter(general, specific)
+        .transformInstruction(instruction)
+        .toString() shouldBe "Microbe<Card131<Player1>>"
   }
 
   @Test
@@ -156,7 +185,7 @@ class TransformersTest {
             specific,
             setOf(parse("CardFront<Player1>")),
         )
-        .transform(instruction)
+        .transformInstruction(instruction)
         .toString() shouldBe "Microbe<Card131<Player1>> OR Microbe<CardFront<Player2>>"
   }
 
@@ -168,7 +197,7 @@ class TransformersTest {
 
     transformers
         .checkedLinkageSubstituter(general, specific, setOf(parse("!Player2")))
-        .transform(instruction)
+        .transformInstruction(instruction)
         .toString() shouldBe "Steel<Player3>"
   }
 }

@@ -31,47 +31,29 @@ import dev.martianzoo.util.toSetStrict
  * appear as the right-hand side of [Action]s and [Effect]s, on map areas, in the "do this now"
  * section of cards, in an engine's task queues, and so forth.
  */
-public sealed class Instruction : PetElement() {
+public sealed class Instruction : InstructionTree() {
   public companion object {
-    /** Recursively breaks apart any [Multi] instructions found in [instruction]. */
-    public fun split(instruction: Instruction): InstructionGroup =
-        InstructionGroup(
-            when (instruction) {
-              is Multi -> instruction.instructions.flatMap { split(it).instructions }
-              is By ->
-                  split(instruction.inner).instructions.map { By.create(it, instruction.actor) }
-              is NoOp -> listOf()
-              else -> listOf(instruction)
+    internal fun parser(): Parser<Instruction> =
+        Parsers.parser() map
+            {
+              it as? Instruction
+                  ?: throw PetSyntaxException("Expected one instruction, got group: $it")
             }
-        )
 
-    internal fun parser(): Parser<Instruction> = Parsers.parser()
-  }
-
-  /** A flattened list of instructions containing no instances of [NoOp] or [Multi]. */
-  public data class InstructionGroup(val instructions: List<Instruction>) {
-    public val size: Int by instructions::size
-
-    public fun <T> map(function: (Instruction) -> T): List<T> = instructions.map(function)
-
-    public fun forEach(consumer: (Instruction) -> Unit): Unit = instructions.forEach(consumer)
-
-    internal fun asInstruction() = Multi.create(instructions)
-
-    init {
-      require(instructions.all { it !is NoOp && it !is Multi })
-    }
+    internal fun treeParser(): Parser<InstructionTree> = Parsers.parser()
   }
 
   /**
    * Returns an instruction that (in essence) does this instruction [factor] times. The [factor]
    * must be non-negative, and if zero, [NoOp] is returned.
    */
-  public operator fun times(factor: Int): Instruction {
+  final override operator fun times(factor: Int): Instruction {
     if (factor == 0) return NoOp
     require(factor > 0)
     return scale(factor)
   }
+
+  override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
 
   protected abstract fun scale(factor: Int): Instruction
 
@@ -81,7 +63,7 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(info: TypeInfo): Boolean = false
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed != NoOp) throw NarrowingException("not Ok")
     }
 
@@ -137,7 +119,7 @@ public sealed class Instruction : PetElement() {
       }
     }
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed == NoOp && intensity == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
       proposed.amount.ensureNarrows(amount, info)
@@ -251,8 +233,8 @@ public sealed class Instruction : PetElement() {
 
     override fun precedence(): Int = 7
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
-      super.ensureIsNarrowedBy_doNotCall(proposed, info)
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
+      super.ensureIsNarrowedBy(proposed, info)
       if (proposed == NoOp) return
       proposed as Transmute
       for (source in TypeLinking.atomicSources(this, info::isAbstract)) {
@@ -279,7 +261,7 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as Per
       if (proposed.metric != metric) {
         throw NarrowingException("can't change the metric")
@@ -295,6 +277,13 @@ public sealed class Instruction : PetElement() {
     public companion object {
       /** Creates a performer override. */
       public fun create(inner: Instruction, actor: Expression): Instruction = By(inner, actor)
+
+      /** Creates a performer override, distributing it over independent instructions. */
+      public fun createTree(inner: InstructionTree, actor: Expression): InstructionTree =
+          when (inner) {
+            is InstructionGroup -> InstructionGroup(inner.instructions.map { By(it, actor) })
+            is Instruction -> By(inner, actor)
+          }
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, actor)
@@ -304,7 +293,7 @@ public sealed class Instruction : PetElement() {
     override fun isAbstract(info: TypeInfo): Boolean =
         inner.isAbstract(info) || info.isAbstract(actor)
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? By ?: throw NarrowingException("$proposed does not preserve performer $actor")
       if (proposed.actor != actor) throw NarrowingException("can't change performer $actor")
       proposed.inner.ensureNarrows(inner, info)
@@ -316,10 +305,13 @@ public sealed class Instruction : PetElement() {
   }
 
   @ConsistentCopyVisibility
-  public data class Gated internal constructor(val gate: Requirement, val inner: Instruction) :
+  public data class Gated internal constructor(val gate: Requirement, val inner: InstructionTree) :
       Instruction() {
     public companion object {
       public fun create(gate: Requirement?, inner: Instruction): Instruction =
+          if (gate == null) inner else Gated(gate, inner)
+
+      internal fun createTree(gate: Requirement?, inner: InstructionTree): InstructionTree =
           if (gate == null) inner else Gated(gate, inner)
     }
 
@@ -333,7 +325,7 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as Gated
       if (proposed.gate != gate) {
         throw NarrowingException("can't change the condition")
@@ -346,47 +338,51 @@ public sealed class Instruction : PetElement() {
     override fun precedence(): Int = 4
   }
 
-  public sealed class CompositeInstruction(instrs: List<Instruction>) : Instruction() {
-    init {
-      require(instrs.size >= 2)
-    }
-
-    public abstract val instructions: List<Instruction>
-
-    internal abstract fun copy(instructions: Iterable<Instruction>): Instruction
-
-    final override fun scale(factor: Int): Instruction = copy(instructions.map { it * factor })
-
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(instructions)
-
-    internal abstract fun connector(): String
-
-    final override fun toString(): String =
-        instructions.joinToString(connector()) { groupPartIfNeeded(it) }
-  }
-
   @ConsistentCopyVisibility
   public data class Then
   internal constructor(
-      override val instructions: List<Instruction>,
-  ) : CompositeInstruction(instructions) {
+      /** Every stage except the final continuation. */
+      val stages: List<Instruction>,
+      val continuation: InstructionTree,
+  ) : Instruction() {
+    /** This sequence's stages in source order. */
+    public val instructions: List<InstructionTree> by lazy { stages + continuation }
+
+    public val first: Instruction
+      get() = stages.first()
+
     internal val linkedTypeSources: Set<Expression>
       get() = recordedLinkedTypeSources
 
     init {
-      if (instructions.size < 2) throw PetSyntaxException("")
-
-      // it's okay for the final instruction to have a Multi in it, but not the previous ones
-      val allButLast = instructions.subList(0, instructions.size - 1)
-      val problem = allButLast.any { it.descendantsOfType<Multi>().any() }
-      if (problem) throw PetSyntaxException("Bad THEN")
+      require(stages.isNotEmpty())
+      if (continuation is Then) {
+        throw PetSyntaxException("Nested THEN continuations must be flattened")
+      }
+      // Every left operand must remain one task and cannot itself contain an enqueue sequence.
+      if (
+          stages.any {
+            it.descendantsOfType<InstructionGroup>().any() || it.descendantsOfType<Then>().any()
+          }
+      ) {
+        throw PetSyntaxException("THEN left operands cannot contain groups or other THENs")
+      }
     }
 
-    override fun copy(instructions: Iterable<Instruction>) = withInstructions(instructions.toList())
+    override fun scale(factor: Int): Instruction =
+        withParts(stages.map { it * factor }, continuation * factor)
+
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(stages + continuation)
 
     /** Replaces stages while preserving the authored linkage identities carried by this `THEN`. */
-    public fun withInstructions(instructions: List<Instruction>): Then =
-        copy(instructions = instructions).withLinkedTypeSources(linkedTypeSources)
+    public fun withInstructions(instructions: List<InstructionTree>): Then {
+      val replacement = createTree(instructions) as? Then ?: error("THEN requires two stages")
+      return replacement.withLinkedTypeSources(linkedTypeSources)
+    }
+
+    /** Replaces the sequence parts while preserving this `THEN`'s linkage identities. */
+    public fun withParts(stages: List<Instruction>, continuation: InstructionTree): Then =
+        Then(stages, continuation).withLinkedTypeSources(linkedTypeSources)
 
     override fun precedence(): Int = 2
 
@@ -396,7 +392,7 @@ public sealed class Instruction : PetElement() {
       instructions.count { it.descendantsOfType<XScalar>().isNotEmpty() } >= 2
     }
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       proposed as? Then ?: throw NarrowingException("Can't reify $this to $proposed")
       if (instructions.size != proposed.instructions.size) {
         throw NarrowingException("Can't change the number of THEN stages")
@@ -445,10 +441,12 @@ public sealed class Instruction : PetElement() {
             bindings.singleOrNull()
                 ?: fallback
                     ?.takeIf { bindings.isEmpty() }
-                    ?.transform(source)
+                    ?.transformExpression(source)
                     ?.takeIf { it != source }
         binding?.let {
-          specialized = PetNode.replacer(source, binding).transform(specialized)
+          val transformed = PetNode.replacer(source, binding).transformInstruction(specialized)
+          specialized =
+              transformed as? Then ?: error("expression replacement changed THEN into $transformed")
         }
       }
       return specialized
@@ -488,12 +486,14 @@ public sealed class Instruction : PetElement() {
         loweredBinding: PetTransformer?,
         requireBinding: Boolean,
     ): Then {
-      proposed.ensureNarrows(instructions.first(), info)
-      val partial = withInstructions(listOf(proposed) + instructions.drop(1))
+      proposed.ensureNarrows(first, info)
+      val partial = withParts(listOf(proposed) + stages.drop(1), continuation)
       val authoredBinding =
           PetTransformer.chain(
               linkedTypeSources.mapNotNull { source ->
-                if (loweredBinding != null && loweredBinding.transform(source) != source) {
+                if (
+                    loweredBinding != null && loweredBinding.transformExpression(source) != source
+                ) {
                   return@mapNotNull null
                 }
                 val bindings =
@@ -514,38 +514,60 @@ public sealed class Instruction : PetElement() {
       if (requireBinding && specialized == this) {
         throw NarrowingException("The first stage does not bind this THEN's type linkage")
       }
-      return specialized.withInstructions(listOf(proposed) + specialized.instructions.drop(1))
+      return specialized.withParts(
+          listOf(proposed) + specialized.stages.drop(1),
+          specialized.continuation,
+      )
     }
 
     internal fun keepLinked(isAbstract: ((Expression) -> Boolean)?) =
         hasLinkedX || isAbstract?.let(linkedTypeSources::any) == true
 
-    override fun connector() = " THEN "
+    /** Returns the right-associated continuation enqueued after the first stage. */
+    public fun continuationAfterFirst(): InstructionGroup =
+        InstructionGroup.of(createTree(stages.drop(1) + continuation))
+
+    override fun toString(): String = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
     public companion object {
-      public fun create(it: List<Instruction>): Instruction =
-          when (it.size) {
-            0 -> NoOp
-            1 -> it.first()
-            else -> {
-              val then = Then(it.toList())
-              then.withLinkedTypeSources(TypeLinking.sourcesAcrossRegions(then))
-            }
-          }
+      public fun create(it: List<Instruction>): Instruction = createTree(it) as Instruction
+
+      internal fun createTree(it: List<InstructionTree>): InstructionTree =
+          it.let { sourceParts ->
+                val final = sourceParts.lastOrNull()
+                if (final is Then) sourceParts.dropLast(1) + final.instructions else sourceParts
+              }
+              .let { stages ->
+                when (stages.size) {
+                  0 -> NoOp
+                  1 -> stages.first()
+                  else -> {
+                    val leading =
+                        stages.dropLast(1).map { stage ->
+                          stage as? Instruction ?: throw PetSyntaxException("Bad THEN")
+                        }
+                    val then = Then(leading, stages.last())
+                    then.withLinkedTypeSources(TypeLinking.sourcesAcrossRegions(then))
+                  }
+                }
+              }
     }
   }
 
   @ConsistentCopyVisibility
-  public data class Or internal constructor(override val instructions: List<Instruction>) :
-      CompositeInstruction(instructions) {
+  public data class Or internal constructor(val instructions: List<InstructionTree>) :
+      Instruction() {
     init {
+      require(instructions.size >= 2)
       if (instructions.distinct().size != instructions.size) {
         throw PetSyntaxException("duplicates")
       }
     }
 
-    override fun copy(instructions: Iterable<Instruction>) =
-        copy(instructions = instructions.toList())
+    override fun scale(factor: Int): Instruction =
+        createTree(instructions.map { it * factor }) as Instruction
+
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(instructions)
 
     override fun safeToNestIn(container: PetNode): Boolean =
         super.safeToNestIn(container) && container !is Then
@@ -554,9 +576,9 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(info: TypeInfo): Boolean = true
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed is Or) {
-        proposed.instructions.forEach { ensureIsNarrowedBy_doNotCall(it, info) }
+        proposed.instructions.forEach { ensureIsNarrowedBy(it, info) }
         return
       }
       var messages = ""
@@ -573,7 +595,7 @@ public sealed class Instruction : PetElement() {
       )
     }
 
-    override fun connector() = " OR "
+    override fun toString(): String = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
 
     public companion object {
       public fun create(instructions: Collection<Instruction>): Instruction {
@@ -586,54 +608,26 @@ public sealed class Instruction : PetElement() {
         }
       }
 
-      internal fun create(first: Instruction, vararg rest: Instruction) =
-          if (rest.none()) first else Or(listOf(first) + rest)
-    }
-  }
-
-  @ConsistentCopyVisibility
-  public data class Multi internal constructor(override val instructions: List<Instruction>) :
-      CompositeInstruction(instructions) {
-    init {
-      require(instructions.count { it.descendantsOfType<XScalar>().any() } <= 1)
-    }
-
-    override fun copy(instructions: Iterable<Instruction>) =
-        copy(instructions = instructions.toList())
-
-    override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
-
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
-      proposed as? Multi
-          ?: throw NarrowingException("$proposed does not narrow grouped instruction $this")
-      if (proposed.instructions.size != instructions.size) {
-        throw NarrowingException("$proposed does not narrow grouped instruction $this")
-      }
-      for ((wide, narrow) in instructions.zip(proposed.instructions)) {
-        narrow.ensureNarrows(wide, info)
-      }
-    }
-
-    override fun precedence(): Int = 0
-
-    override fun connector() = ", "
-
-    public companion object {
-      public fun create(instructions: List<Instruction>): Instruction {
-        return when (instructions.size) {
-          0 -> NoOp
-          1 -> instructions.single()
-          else -> Multi(instructions.toList())
+      /** Creates an OR while preserving any grouped options produced by preprocessing. */
+      public fun createTree(instructions: Collection<InstructionTree>): InstructionTree {
+        require(instructions.any())
+        val set = instructions.toSet()
+        return if (set.size == 1) {
+          set.first()
+        } else {
+          Or(set.toList())
         }
       }
 
-      internal fun create(first: Instruction, vararg rest: Instruction) =
-          if (rest.none()) first else Multi(listOf(first) + rest)
+      internal fun create(first: InstructionTree, vararg rest: InstructionTree): InstructionTree =
+          createTree(listOf(first) + rest)
     }
   }
 
-  public data class Transform(val instruction: Instruction, override val transformKind: String) :
-      Instruction(), TransformNode<Instruction> {
+  public data class Transform(
+      val instruction: InstructionTree,
+      override val transformKind: String,
+  ) : Instruction(), TransformNode<InstructionTree> {
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(instruction)
 
     override fun scale(factor: Int): Instruction = copy(instruction = instruction * factor)
@@ -641,41 +635,13 @@ public sealed class Instruction : PetElement() {
     override fun isAbstract(info: TypeInfo): Boolean =
         error("should have been transformed by now: $this")
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo): Unit =
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo): Unit =
         error("should have been transformed by now: $this")
 
     override fun toString(): String = "$transformKind[$instruction]"
 
-    override fun extract(): Instruction = instruction
+    override fun extract(): InstructionTree = instruction
   }
-
-  override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
-
-  public abstract fun isAbstract(info: TypeInfo): Boolean
-
-  @Suppress("TooGenericExceptionCaught") // TODO
-  public fun narrows(abstractInstr: Instruction, info: TypeInfo): Boolean =
-      try {
-        ensureNarrows(abstractInstr, info)
-        true
-      } catch (_: Exception) {
-        false
-      }
-
-  // This is the entry point into all the ensureNarrows business throughout the codebase
-  public fun ensureNarrows(abstractInstr: Instruction, info: TypeInfo) {
-    if (abstractInstr !is Or && this != NoOp && this::class != abstractInstr::class) {
-      throw NarrowingException("`$this` can't reify `$abstractInstr` (different types)")
-    }
-    try {
-      abstractInstr.ensureIsNarrowedBy_doNotCall(this, info) // well WE can call it
-    } catch (e: NarrowingException) {
-      throw NarrowingException("$this does not narrow $abstractInstr", e)
-    }
-  }
-
-  @Suppress("FunctionNaming")
-  protected abstract fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo)
 
   public enum class Intensity(internal val symbol: String, override val abstract: Boolean = false) :
       Reifiable<Intensity> {
@@ -701,7 +667,7 @@ public sealed class Instruction : PetElement() {
   }
 
   private object Parsers : PetTokenizer() {
-    internal fun parser(): Parser<Instruction> {
+    internal fun parser(): Parser<InstructionTree> {
       return parser {
         val gain: Parser<Instruction> =
             ScaledExpression.parser() and
@@ -730,7 +696,7 @@ public sealed class Instruction : PetElement() {
 
         val maybePer: Parser<Instruction> =
             perable and
-                optional(skipChar('/') and Metric.atomParser()) map
+                optional(skipChar('/') and Metric.subtractionParser()) map
                 { (instr, metric) ->
                   if (metric == null) instr else Per(instr, metric)
                 }
@@ -738,34 +704,34 @@ public sealed class Instruction : PetElement() {
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
 
-        val maybeTransform: Parser<Instruction> = transform or maybePer
+        val maybeTransform: Parser<InstructionTree> = transform or maybePer
 
-        val atomBase: Parser<Instruction> = group(parser()) or maybeTransform
+        val atomBase: Parser<InstructionTree> = group(parser()) or maybeTransform
 
-        val atom: Parser<Instruction> =
+        val atom: Parser<InstructionTree> =
             atomBase and
                 optional(skip(_by) and Expression.parser()) map
                 { (instruction, actor) ->
-                  if (actor == null) instruction else By.create(instruction, actor)
+                  if (actor == null) instruction else By.createTree(instruction, actor)
                 }
 
-        val orInstr: Parser<Instruction> =
+        val orInstr: Parser<InstructionTree> =
             separatedTerms(atom, _or) map
                 {
                   val set = it.toSetStrict().toList()
-                  if (set.size == 1) set.first() else Or(set)
+                  Or.createTree(set)
                 }
 
-        val gated: Parser<Instruction> =
+        val gated: Parser<InstructionTree> =
             optional(Requirement.atomParser() and skipChar(':')) and
                 orInstr map
                 { (gate, ins) ->
-                  Gated.create(gate, ins)
+                  Gated.createTree(gate, ins)
                 }
 
-        val then = separatedTerms(gated, _then) map { Then.create(it) }
+        val then = separatedTerms(gated, _then) map { Then.createTree(it) }
 
-        commaSeparated(then) map { Multi.create(it) }
+        commaSeparated(then) map { InstructionGroup.createTree(it) }
       }
     }
   }

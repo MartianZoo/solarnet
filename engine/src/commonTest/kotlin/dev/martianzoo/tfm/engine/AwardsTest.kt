@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -45,8 +46,8 @@ internal class AwardsTest : TfmTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    p1.godMode().sneak("Incorporator, Ecoline, InterplanetaryCinematics")
-    p2.godMode().sneak("MiningGuild, Mine")
+    p1.godMode().sneak("Incorporator, $Ecoline, $InterplanetaryCinematics")
+    p2.godMode().sneak("$MiningGuild, $Mine")
 
     engine.godMode().manual("EndPhase")
 
@@ -64,10 +65,10 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
 
-    p1.godMode().sneak("Forecaster, ArtificialLake")
-    p2.godMode().sneak("Birds, Algae")
-    p1.count("CardFront(HAS CardRequirement)") shouldBe 1
-    p2.count("CardFront(HAS CardRequirement)") shouldBe 2
+    p1.godMode().sneak("Forecaster, $ArtificialLake")
+    p2.godMode().sneak("$Birds, $Algae")
+    p1.count("CardFront(HAS requirement)") shouldBe 1
+    p2.count("CardFront(HAS requirement)") shouldBe 2
 
     engine.godMode().manual("EndPhase")
 

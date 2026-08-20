@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -11,7 +12,7 @@ class NoctisCityTest : CardTest() {
   fun `on Hellas, plays Noctis City`() {
     newGame(HellasMapOption)
     p1.manual("PROD[Energy]")
-    p1.manual("NoctisCity") {
+    p1.manual("$NoctisCity") {
           doTask("CityTile<Hellas_1_3>")
         }
         .expect("PROD[3 Megacredit, -Energy]")
@@ -24,7 +25,7 @@ class NoctisCityTest : CardTest() {
 
     // Without this, the sole NoctisArea is selected before the operation body can try a bad space.
     p1.autoExecMode = NONE
-    p1.manual("NoctisCity") {
+    p1.manual("$NoctisCity") {
       shouldThrow<TaskException> { doTask("CityTile<Tharsis_1_3>") }
       doTask("CityTile<Tharsis_5_3>")
       doTask("PROD[-Energy]")

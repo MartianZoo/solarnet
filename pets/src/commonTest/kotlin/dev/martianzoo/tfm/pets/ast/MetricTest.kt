@@ -12,61 +12,62 @@ import kotlin.test.Test
 internal class MetricTest {
   private val inputs =
       """
-      Eep
-      2 Abc
-      Eep<Wau>
-      PROD[Qux]
-      Wau MAX 11
-      PROD[2 Qux]
-      2 Xyz MAX 11
-      Eep<Wau<Xyz>>
-      3 (3 Qux<Ahh>)
-      PROD[2 (2 Qux)]
-      PROD[Ooh] MAX 11
-      3 (2 PROD[2 Bar])
-      2 PROD[Ahh MAX 11]
-      PROD[3 (Ooh MAX 5)]
-      PROD[3 (2 Bar<Ahh>)]
-      PROD[Foo<Xyz> OR Foo]
-      PROD[PROD[2 Abc<Ooh>]]
-      PROD[2 (2 (Abc MAX 5))]
-      PROD[2 PROD[Foo] MAX 11]
-      PROD[PROD[Bar(HAS? Foo)]]
-      PROD[3 (2 Bar<Abc>)] MAX 5
-      2 PROD[Abc(HAS Foo OR Qux)]
-      Foo<Foo(HAS Qux), Foo> MAX 5
-      2 (2 Qux) OR PROD[Bar] MAX 11
-      PROD[(Ooh OR Qux<Qux>) MAX 11]
-      PROD[Xyz<Wau<Ahh>, Ooh> MAX 11]
-      PROD[PROD[2 (Bar MAX 5)]] MAX 11
-      (PROD[2 Qux] OR 2 (2 Qux)) MAX 11
-      PROD[PROD[2 ((Foo OR Foo) MAX 5)]]
-      2 (2 (2 (Foo OR PROD[Foo] MAX 11)))
-      2 Qux OR 3 (2 (2 (2 (2 Foo)))) MAX 5
-      PROD[2 Xyz<Abc> OR Abc OR Foo OR Foo]
-      Xyz<Abc<Ahh>, Xyz<Eep, Foo<Foo<Qux>>>>
-      PROD[2 Abc OR 2 Xyz<Xyz> OR Bar MAX 11]
-      Ahh<Qux<Qux>(HAS 11 Bar), Foo<Abc, Qux>>
-      PROD[Xyz<Foo, Eep>(HAS MAX 0 Megacredit)]
-      PROD[PROD[Ooh<Foo> OR 2 Qux MAX 5 OR Ooh]]
-      2 Eep MAX 11 OR Foo OR Bar OR Ooh<Bar, Qux>
-      PROD[Eep<Qux<Foo, Abc, Foo>, Qux<Foo, Qux>>]
-      2 (2 (2 Qux)) OR Ahh<Eep> OR Foo OR PROD[Foo]
-      Bar OR PROD[3 (Bar MAX 11)] OR 2 Abc<Ahh<Foo>>
-      Bar<Qux<Bar>, Ooh(HAS =0 Bar OR =0 Megacredit)>
-      PROD[Foo<Xyz<Xyz<Foo, Foo, Bar>>(HAS Qux), Xyz>]
-      Ahh<Xyz, Abc, Xyz<Qux<Abc<Bar>>>> OR 2 Ahh OR Eep
-      (Ahh OR Foo MAX 11 OR 2 PROD[2 (2 (2 Foo))]) MAX 5
-      PROD[2 Bar MAX 11 OR (2 Bar OR 2 Qux) MAX 5 OR Xyz]
-      PROD[Foo MAX 5 OR Qux OR 2 (Bar OR Foo OR Bar<Foo>)]
-      PROD[2 Bar] OR PROD[2 Bar] OR PROD[Xyz MAX 11 OR Foo]
-      PROD[Foo MAX 5 OR Abc] OR PROD[Xyz MAX 11] OR Ooh<Abc>
-      Foo<Abc<Ahh, Ooh(HAS MAX 1 Megacredit)>(HAS MAX 0 Abc)>
-      3 (PROD[Abc<Bar> MAX 11] OR Bar OR 3 (Bar MAX 5) OR Xyz)
-      PROD[2 Xyz] OR Foo<Abc, Foo> OR 2 Bar OR PROD[Foo] MAX 11
-      Qux<Foo<Qux<Xyz<Foo, Bar<Xyz<Eep<Xyz<Qux>>, Foo>>>, Ooh>>>
-      Abc<Ahh<Abc, Bar<Foo>>>(HAS Ahh, MAX 0 Xyz OR 5 Foo) MAX 11
-      PROD[Foo] OR 3 (2 (Qux OR Foo MAX 5 OR 2 Qux)) OR Ahh OR Foo
+      Xyz
+      !Ahh
+      3 Bar
+      Bar - 11
+      PROD[Bar]
+      Eep OR Abc
+      2 (Qux - 5)
+      2 Bar MAX 11
+      Qux<Foo, Qux>
+      EVAL Abc.score
+      EVAL !Ahh.score
+      Bar<Ooh> OR !Foo
+      Eep(HAS Foo) - 11
+      PROD[2 Abc MAX 11]
+      Bar<Abc> MAX 11 - 3
+      EVAL Eep<!Bar>.score
+      PROD[PROD[PROD[Xyz]]]
+      2 Bar - EVAL Ahh.score
+      EVAL Bar<Qux>.score - 1
+      2 (2 (2 Foo<Bar> - Qux))
+      PROD[PROD[Foo - Abc]] - 5
+      3 (3 (Bar - 2 Bar) MAX 11)
+      PROD[PROD[Foo<Bar> OR Xyz]]
+      PROD[PROD[2 (2 Bar) MAX 11]]
+      (2 Foo - 2 (2 Bar)) MAX 5 - 3
+      3 Foo<!Ahh<Foo, Abc>>(HAS Ooh)
+      3 EVAL Foo<Bar<Ahh>, Foo>.score
+      2 PROD[2 Foo MAX 5 - Foo] MAX 11
+      3 Ooh - (2 (Foo MAX 5) - 3) MAX 5
+      EVAL Eep<Qux<Abc, Bar>, Foo>.score
+      Qux - PROD[PROD[Foo - (Foo - Qux)]]
+      EVAL Xyz<!Qux<Xyz, Foo, !Ooh>>.score
+      3 (2 Bar - Foo - Ooh) - 3 Qux - 3
+      PROD[Abc<Foo> MAX 5 - (Foo - Bar) - 1]
+      3 (Foo - (2 Qux - 2 (2 Foo) MAX 5))
+      2 (2 (3 Foo MAX 5)) - !Wau<Abc<Ooh>> - 1
+      3 EVAL Ahh<Foo, Ooh, Xyz<Qux, Bar>>.score
+      Xyz<Bar<Ahh<Ooh, Foo>>, Foo<Ahh>>(HAS Qux)
+      (Bar - (Bar OR Xyz OR Qux<Abc<Foo>>)) MAX 5
+      EVAL Xyz<Eep<Xyz>(HAS 2 Qux)>(HAS Abc).score
+      Abc<Abc<Abc<Qux>>, Bar>(HAS Bar<Bar>) OR !Ahh
+      Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, 1)> OR Wau
+      EVAL Xyz<Eep>(HAS PROD[Abc OR MAX 1 Foo]).score
+      Ooh<Abc<Ooh(HAS MAX 0 Foo OR 1), Xyz>, Abc<Ahh>>
+      !Bar<Eep<Bar>(HAS MAX 1 Foo)>(HAS 1, =1 Foo<Foo>)
+      PROD[3 (Qux - (Foo<Foo> - Bar<Foo> MAX 5)) MAX 11]
+      Foo<Wau> OR Abc<Ahh(HAS Bar)>(HAS MAX 0 Megacredit)
+      EVAL Ahh.score MAX 5 - (!Bar OR Bar<Qux>) - 11 - Bar
+      PROD[2 (Foo - Abc - 2 (2 (2 Foo MAX 5)) - Foo) MAX 5]
+      PROD[Xyz - Qux - PROD[Qux] - Foo - (2 Qux - Bar<Foo>)]
+      Abc - PROD[Abc - PROD[Ahh]] - 11 - 2 (Foo MAX 5) MAX 11
+      Ooh<!Wau, Bar<!Xyz<Xyz<Ooh, Xyz, Qux>, Abc<Foo>>, !Abc>>
+      PROD[Abc MAX 11 - 11 - (2 (Foo MAX 5) - 2 (2 Foo)) MAX 5]
+      PROD[Foo MAX 11 - Foo - (Bar OR Abc<Bar> OR Foo(HAS Bar))]
+      EVAL Bar<Bar, Foo<!Xyz>, Abc<Foo>>(HAS =1 Megacredit).score
+      Eep<Foo(HAS PROD[1, =1 Foo]), Bar<Xyz(HAS 2 Foo), Qux>, Eep>
       """
           .trimIndent()
 
@@ -76,8 +77,51 @@ internal class MetricTest {
   }
 
   @Test
-  fun plusIsNotMetricSyntax() {
-    shouldThrow<PetSyntaxException> { parse<Metric>("Steel + Titanium") }
+  fun subtractionIsLeftAssociativeAndPreservesNecessaryGrouping() {
+    parse<Metric>("Foo - Bar - Qux").toString() shouldBe "Foo - Bar - Qux"
+    parse<Metric>("Foo - (Bar - Qux)").toString() shouldBe "Foo - (Bar - Qux)"
+  }
+
+  @Test
+  fun subtractionEvaluationRemainsNonnegative() {
+    val counts = mapOf("Ore" to 12, "Fleet" to 3)
+    fun evaluate(text: String): Int =
+        parse<Metric>(text)
+            .evaluate(
+                { counts[it.expression.toString()] ?: 0 },
+                { error("no properties") },
+                { error("no unions") },
+            )
+
+    evaluate("Ore MAX 5 - Fleet") shouldBe 2
+    evaluate("2 (Ore - 3) MAX 4") shouldBe 4
+    evaluate("Ore - (Fleet - 2)") shouldBe 11
+    evaluate("Ore - 20") shouldBe 0
+  }
+
+  @Test
+  fun orAcceptsOnlyDistinctComponentCounts() {
+    shouldThrow<PetSyntaxException> { parse<Metric>("Foo MAX 5 OR Bar") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("Foo - Bar OR Qux") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("Foo OR Foo") }
+
+    val foo = Metric.Count(cn("Foo").expression)
+    val bar = Metric.Count(cn("Bar").expression)
+    Metric.Or.create(listOf(foo, bar, foo)).toString() shouldBe "Foo OR Bar"
+  }
+
+  @Test
+  fun constantsArePositiveSubtrahendsOnly() {
+    shouldThrow<PetSyntaxException> { parse<Metric>("5") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("PROD[5]") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("2 5") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("Foo - 0") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("0 Foo") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("1 - Foo") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("Foo + Bar") }
+    shouldThrow<PetSyntaxException> { parse<Metric>("3 (11 - Foo)") }
+
+    parse<Metric>("Foo - 5").toString() shouldBe "Foo - 5"
   }
 
   @Test
@@ -86,5 +130,12 @@ internal class MetricTest {
 
     Metric.scaled(count, 1) shouldBe count
     parse<Metric>("1 Foo") shouldBe count
+  }
+
+  @Test
+  fun unexpandedEvalIsAProgrammerError() {
+    shouldThrow<IllegalStateException> {
+      parse<Metric>("EVAL Foo.score").evaluate({ 0 }, { 0 }, { 0 })
+    }
   }
 }

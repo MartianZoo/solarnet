@@ -8,8 +8,9 @@ import kotlin.reflect.KClass
 /** An API object that can be represented as PETS source code. */
 public sealed class PetNode {
   /**
-   * A string describing the high-level element kind, not the specific node type. For example, the
-   * [Gain] class returns `"Instruction"`, not `"Gain"`.
+   * This node's primary API kind: the stable abstraction clients should rely on, rather than its
+   * concrete implementation type. For example, a [Gain] has kind [Instruction], not [Gain]. A node
+   * may also be accepted through a broader kind such as [InstructionTree].
    */
   public abstract val kind: KClass<out PetNode>
 
@@ -25,8 +26,8 @@ public sealed class PetNode {
 
   /**
    * Returns an arbitrary integer for the sole purpose of determining [safeToNestIn] behavior. For
-   * example, [Instruction.Multi] returns a very low number, since *anything* else binds more
-   * tightly than it. [Metric]s return high values, since essentially everything after the `/` of an
+   * example, [InstructionGroup] returns a very low number, since *anything* else binds more tightly
+   * than it. [Metric]s return high values, since essentially everything after the `/` of an
    * instruction is part of the metric.
    */
   protected open fun precedence(): Int = Int.MAX_VALUE
@@ -110,10 +111,9 @@ public sealed class PetNode {
         if (from == to) noOp() else Replacer(from, to)
 
     private class Replacer(val from: PetNode, val to: PetNode) : PetTransformer() {
-      override fun <Q : PetNode> transform(node: Q): Q =
+      override fun transformNode(node: PetNode): PetNode =
           if (node == from) {
-            @Suppress("UNCHECKED_CAST")
-            to as Q
+            to
           } else {
             transformChildren(node)
           }

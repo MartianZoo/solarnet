@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -14,7 +15,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
     newGame(TerraCimmeriaMapOption)
     p1.manual("10")
 
-    p1.manual("CityTile<TerraCimmeria_3_3>")
+    p1.manual("CityTile<Cimmeria_3_3>")
 
     p1.count("Megacredit") shouldBe 10
     p1.count("Colony") shouldBe 0
@@ -29,7 +30,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
     )
     p1.manual("10")
 
-    p1.manual("CityTile<TerraCimmeria_3_3>") {
+    p1.manual("CityTile<Cimmeria_3_3>") {
       doTask("Colony<Luna>")
     }
 
@@ -41,8 +42,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
     newGame(UtopiaPlanitiaMapOption)
     val p2 = requireP2()
-    p1.manual("8, Ecoline, EarthCatapult, Asteroid")
-    p2.manual("Mine")
+    p1.manual("8, $Ecoline, $EarthCatapult, Asteroid")
+    p2.manual("$Mine")
     engine.phase("Action")
 
     p1.stdAction("FundAwardSA") { doTask("Incorporator") }
@@ -56,8 +57,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `Suburbian rewards a tile on the map edge over an interior tile`() {
     newGame(UtopiaPlanitiaMapOption)
     val p2 = requireP2()
-    p1.manual("8, CityTile<UtopiaPlanitia_1_1>")
-    p2.manual("CityTile<UtopiaPlanitia_5_5>")
+    p1.manual("8, CityTile<Utopia_1_1>")
+    p2.manual("CityTile<Utopia_5_5>")
     engine.phase("Action")
 
     p1.stdAction("FundAwardSA") { doTask("Suburbian") }
@@ -71,8 +72,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `Founder counts an owned tile once when it neighbors multiple special tiles`() {
     newGame(TerraCimmeriaMapOption)
     p1.manual(
-        "CityTile<TerraCimmeria_3_3>, MiningRightsTile<TerraCimmeria_3_2>, " +
-            "NpTile<TerraCimmeria_3_4>"
+        "CityTile<Cimmeria_3_3>, Card067_SpecialTile<Cimmeria_3_2>, " +
+            "Card044_SpecialTile<Cimmeria_3_4>"
     )
 
     p1.count("OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>") shouldBe 1
@@ -82,8 +83,8 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   fun `claims Metallurgist for combined metal production and Trader for three resource types`() {
     newGame(UtopiaPlanitiaMapOption)
     p1.manual(
-        "16, PROD[2 Steel, 4 Titanium], SearchForLife, Science<SearchForLife>, " +
-            "Predators, Animal<Predators>, RegolithEaters, Microbe<RegolithEaters>"
+        "16, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
+            "$Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
     )
     engine.phase("Action")
 

@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.Test
 
 class TitanFloatingLaunchPadTest : ColoniesCardTest() {
   @Test
   fun `with two floaters, trades using Titan Floating Launch-Pad`() {
-    p1.manual("TitanFloatingLaunchPad") { doTask("2 Floater<TitanFloatingLaunchPad>") }
-    p1.cardAction2("TitanFloatingLaunchPad") {
+    p1.manual("$TitanFloatingLaunchPad") { doTask("2 Floater<$TitanFloatingLaunchPad>") }
+    p1.cardAction2(TitanFloatingLaunchPad) {
           doTask("Trade<Io>")
         }
         .expect("-Floater, 3 Heat")

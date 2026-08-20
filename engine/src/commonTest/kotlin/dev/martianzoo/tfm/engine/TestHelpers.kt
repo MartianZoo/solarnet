@@ -17,13 +17,14 @@ import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.Type
 import io.kotest.matchers.shouldBe
 
@@ -149,10 +150,11 @@ object TestHelpers {
     // through the normal parser and transformers before restoring it as an expected count.
     val parseableExpectations =
         expectedAsInstructions.replace(ZERO_SCALAR_REGEX, ZERO_SCALAR_SENTINEL.toString())
-    val instruction = preprocessor.transform(Parsing.parse<Instruction>(parseableExpectations))
+    val instruction =
+        preprocessor.transformInstructionTree(Parsing.parse<InstructionTree>(parseableExpectations))
 
     val expectedCountsToTypes: List<Pair<Int, Expression>> =
-        split(instruction).map {
+        InstructionGroup.of(instruction).instructions.map {
           when (it) {
             is Gain ->
                 (it.scaledEx.scalar as ActualScalar).value.expectedCount() to it.scaledEx.expression

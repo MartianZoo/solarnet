@@ -2,22 +2,22 @@ package dev.martianzoo.data
 
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.InstructionGroup
-import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 
 public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
@@ -38,11 +38,8 @@ public data class Task(
      */
     private val instructionIn: Instruction,
 
-    /**
-     * Any instruction that should be automatically enqueued when this task is removed (a [Multi] is
-     * split). Used for `THEN` instructions. Normalized to [then].
-     */
-    private val thenIn: Instruction? = null,
+    /** Independent work enqueued when this task is removed. Used for `THEN` instructions. */
+    private val thenIn: InstructionGroup? = null,
 
     /** Why was this task born? */
     val cause: Cause?,
@@ -52,15 +49,15 @@ public data class Task(
 ) {
 
   /** Normalized form of [instructionIn]. */
-  public val instruction: Instruction = normalizeForTask(instructionIn)
+  public val instruction: Instruction =
+      normalizeForTask(instructionIn) as? Instruction
+          ?: throw TaskException(
+              "task input must be split into individual instructions: $instructionIn"
+          )
 
   /** Normalized form of [thenIn]. */
-  val then: Instruction? by lazy { // should it be InstructionGroup?
-    if (thenIn != null) {
-      val normed = normalizeForTask(thenIn)
-      if (normed != NoOp) return@lazy normed
-    }
-    null
+  val then: InstructionGroup? by lazy {
+    thenIn?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
   }
 
   init {
@@ -75,49 +72,6 @@ public data class Task(
 
   public operator fun times(factor: Int): Task {
     return copy(instructionIn = instruction * factor, thenIn = then?.times(factor))
-  }
-
-  private fun normalizeForTask(instruction: Instruction): Instruction {
-    return when (instruction) {
-      is Change ->
-          if (instruction.gaining != DIE.expression) {
-            instruction
-          } else {
-            throw DeadEndException("a Die instruction was reached")
-          }
-      is By -> {
-        val inner = normalizeForTask(instruction.inner)
-        if (inner is Then) {
-          inner.withInstructions(inner.instructions.map { By.create(it, instruction.actor) })
-        } else {
-          By.create(inner, instruction.actor)
-        }
-      }
-      is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
-      is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
-      is Or -> {
-        val liveOptions =
-            instruction.instructions.mapNotNull {
-              try {
-                normalizeForTask(it)
-              } catch (_: DeadEndException) {
-                null
-              }
-            }
-        if (liveOptions.isEmpty()) throw DeadEndException("every choice reaches Die")
-        Or.create(liveOptions.toSet())
-      }
-      is Then -> {
-        val parts = instruction.instructions
-        if ((parts.first() as? Gain)?.gaining?.className == DIE) {
-          throw DeadEndException("a Die instruction was reached")
-        }
-        instruction.withInstructions(parts.map(::normalizeForTask))
-      }
-      is NoOp,
-      is Multi -> split(instruction).asInstruction()
-      is Transform -> throw ExpressionException("unhandled transform in task: $instruction")
-    }
   }
 
   override fun toString(): String = buildString {
@@ -155,8 +109,59 @@ public data class Task(
         isAbstract: ((Expression) -> Boolean)? = null,
     ): List<Task> {
       val ids = generateSequence(firstId, TaskId::next).iterator()
-      return instruction.map {
+      val normalized =
+          InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
+      return normalized.map {
         newTask(ids.next(), assignee, actor, it, cause, isAbstract = isAbstract)
+      }
+    }
+
+    private fun normalizeForTask(tree: InstructionTree): InstructionTree {
+      return when (tree) {
+        is InstructionGroup -> InstructionGroup.of(tree.instructions.map(::normalizeForTask))
+        is Change ->
+            if (tree.gaining != DIE.expression) {
+              tree
+            } else {
+              throw DeadEndException("a Die instruction was reached")
+            }
+        is By -> {
+          val inner = normalizeForTask(tree.inner)
+          if (inner is Then) {
+            inner.withInstructions(inner.instructions.map { By.createTree(it, tree.actor) })
+          } else {
+            By.createTree(inner, tree.actor)
+          }
+        }
+        is Gated -> tree.copy(inner = normalizeForTask(tree.inner))
+        is Per -> {
+          val inner = normalizeForTask(tree.inner)
+          tree.copy(
+              inner =
+                  inner as? Instruction
+                      ?: throw TaskException("PER normalized to independent instructions: $inner")
+          )
+        }
+        is Or -> {
+          val liveOptions =
+              tree.instructions.mapNotNull {
+                try {
+                  normalizeForTask(it)
+                } catch (_: DeadEndException) {
+                  null
+                }
+              }
+          if (liveOptions.isEmpty()) throw DeadEndException("every choice reaches Die")
+          Or.createTree(liveOptions)
+        }
+        is Then -> {
+          if ((tree.first as? Gain)?.gaining?.className == DIE) {
+            throw DeadEndException("a Die instruction was reached")
+          }
+          tree.withInstructions(tree.instructions.map(::normalizeForTask))
+        }
+        is NoOp -> NoOp
+        is Transform -> throw ExpressionException("unhandled transform in task: $tree")
       }
     }
 
@@ -182,8 +187,8 @@ public data class Task(
 
       return if (normal is Then && !normal.keepLinked(isAbstract)) {
         task.copy(
-            instructionIn = normal.instructions.first(),
-            thenIn = Then.create(normal.instructions.drop(1)),
+            instructionIn = normal.first,
+            thenIn = normal.continuationAfterFirst(),
         )
       } else {
         task

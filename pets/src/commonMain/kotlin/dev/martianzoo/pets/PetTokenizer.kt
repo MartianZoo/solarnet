@@ -32,6 +32,8 @@ internal abstract class PetTokenizer {
   private val characters = "!@^+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
 
   internal val _by = caseInsensitiveWord("BY")
+  internal val _count = caseInsensitiveWord("COUNT")
+  internal val _eval = caseInsensitiveWord("EVAL")
   internal val _from = caseInsensitiveWord("FROM")
   internal val _has = caseInsensitiveWord("HAS")
   internal val _if = caseInsensitiveWord("IF")
@@ -44,10 +46,14 @@ internal abstract class PetTokenizer {
   internal val _abstract = literal("ABSTRACT")
   internal val _class = literal("CLASS")
   internal val _default = literal("DEFAULT")
+  internal val _metric = regex(Regex("""Metric\b"""), "Metric")
+  internal val _number = regex(Regex("""Number\b"""), "Number")
+  internal val _requirement = regex(Regex("""Requirement\b"""), "Requirement")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
   internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z_][A-Za-z0-9_]*\b"""), "UpperCamel")
   internal val _allCapsWordRE = regex(Regex("""([A-Z][A-Z0-9]{0,5})\b"""), "ALLCAPS")
+  internal val _lowerCamelRE = regex(Regex("""\b[a-z][A-Za-z0-9]*\b"""), "lowerCamel")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
 
   internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }

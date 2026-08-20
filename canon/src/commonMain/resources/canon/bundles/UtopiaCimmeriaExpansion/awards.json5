@@ -10,7 +10,7 @@
         // Botanist
         { "id": "UA2", "metric": "PROD[Plant]" },
         // Incorporator
-        { "id": "UA3", "metric": "ActiveCard(HAS MAX 10 CardCost) OR AutomatedCard(HAS MAX 10 CardCost)" },
+        { "id": "UA3", "metric": "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" },
         // Metropolist
         { "id": "UA4", "metric": "CityTile" },
       ],
@@ -27,7 +27,7 @@
         // Zoologist
         { "id": "UA8", "metric": "Animal OR Microbe" },
         // Forecaster
-        { "id": "UA9", "metric": "CardFront(HAS CardRequirement)" },
+        { "id": "UA9", "metric": "CardFront(HAS requirement)" },
       ],
     },
   ],

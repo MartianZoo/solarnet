@@ -15,9 +15,12 @@ import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.tfm.data.Prod
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.types.Type
 import dev.martianzoo.util.HashMultiset
@@ -76,6 +79,7 @@ internal class ApiTranslation(
 
   private val preprocessor =
       chain(
+          xers.rejectPropertyEvaluations(),
           xers.canonicalize(vocabulary),
           xers.useFullNames(),
           xers.atomizer(),
@@ -84,19 +88,24 @@ internal class ApiTranslation(
           Prod.deprodify(classTable),
       )
 
-  override fun <P : PetElement> parseInternal(type: KClass<P>, text: String) =
-      preprocessor.transform(Parsing.parse(type, text))
+  override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =
+      preprocessor.transformElement(Parsing.parse(type, text))
+
+  private fun parseInstructionTree(text: String): InstructionTree = parse(text)
+
+  private fun parseInstructionGroup(text: String): InstructionGroup =
+      InstructionGroup.of(parseInstructionTree(text))
 
   // CHANGES
 
   override fun sneak(changes: String, fakeCause: Cause?) = timeline.atomic {
-    impl.sneak(parse(changes), fakeCause)
+    impl.sneak(parseInstructionGroup(changes), fakeCause)
   }
 
   // TASKS
 
   override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> =
-      impl.addTasks(parse(instruction), firstCause)
+      impl.addTasks(parseInstructionGroup(instruction), firstCause)
 
   override fun dropTask(taskId: TaskId) = impl.dropTask(taskId)
 
@@ -104,12 +113,18 @@ internal class ApiTranslation(
 
   // OPERATIONS
 
-  override fun manual(initialInstruction: String, body: BodyLambda): TaskResult {
-    return atomic { impl.manual(parse(initialInstruction), autoExecMode) { Adapter().body() } }
+  override fun manual(initialInstructions: String, body: BodyLambda): TaskResult {
+    return atomic {
+      impl.manual(parseInstructionGroup(initialInstructions), autoExecMode) { Adapter().body() }
+    }
   }
 
-  override fun beginManual(initialInstruction: String, body: BodyLambda): TaskResult {
-    return atomic { impl.beginManual(parse(initialInstruction), autoExecMode) { Adapter().body() } }
+  override fun beginManual(initialInstructions: String, body: BodyLambda): TaskResult {
+    return atomic {
+      impl.beginManual(parseInstructionGroup(initialInstructions), autoExecMode) {
+        Adapter().body()
+      }
+    }
   }
 
   override fun continueManual(body: BodyLambda): TaskResult {
@@ -156,25 +171,25 @@ internal class ApiTranslation(
   // task in their queue at any given time
 
   override fun reviseTask(taskId: TaskId, revised: String) = timeline.atomic {
-    impl.reviseTask(taskId, parse(revised))
+    impl.reviseTask(taskId, parseInstructionTree(revised))
   }
 
   override fun reviseTask(current: String, revised: String) = timeline.atomic {
-    impl.reviseTask(parse(current), parse(revised))
+    impl.reviseTask(parse<Instruction>(current), parseInstructionTree(revised))
   }
 
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
 
   override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
 
-  override fun prepareTask(instruction: String) = impl.prepareTask(parse(instruction))
+  override fun prepareTask(instruction: String) = impl.prepareTask(parse<Instruction>(instruction))
 
   override fun doTask(revised: String, taskNumber: Int?) = atomic {
-    impl.doTask(parse(revised), taskNumber)
+    impl.doTask(parseInstructionTree(revised), taskNumber)
   }
 
   override fun tryTask(revised: String, taskNumber: Int?) = atomic {
-    impl.tryTask(parse(revised), taskNumber)
+    impl.tryTask(parseInstructionTree(revised), taskNumber)
   }
 
   override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }

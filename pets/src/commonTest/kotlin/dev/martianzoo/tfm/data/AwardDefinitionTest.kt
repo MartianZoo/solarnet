@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -29,6 +31,8 @@ internal class AwardDefinitionTest {
     val replacement = awards.single { it.className == cn("AwardHA1") }
     replacement.replaces shouldBe "BA1"
     replacement.setupRequirement.toString() shouldBe "MAX 0 SoloMode, DemoMapOption"
+    replacement.asClassDeclaration.properties[PropertyName("metric")] shouldBe
+        MetricValue(replacement.metric)
     awards.single { it.className == cn("AwardHA2") }.setupRequirement.toString() shouldBe
         "MAX 0 SoloMode, DemoMapOption, VenusNextExpansion"
   }

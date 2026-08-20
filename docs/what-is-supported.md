@@ -1,8 +1,6 @@
 # What is supported
 
-Here's what we've got working so far. There may be a few bugs here and there.
-
-Each component is attributed to whatever product introduced it first.
+Most of the published game content is working... and mostly correctly.
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones / awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
@@ -18,7 +16,7 @@ Each component is attributed to whatever product introduced it first.
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | the whole thing |
 | Milestones & Awards | - | - | - | - | - | - | 11 / 16 | - | - | - | - |
-| Promos through 2026-08 | 8 / 10 | 69 / 73 | 9 / 10 | - | 2 / 3 | - | - | - | 0 / 5 | - | - |
+| Promos through 2026-08 | 8 / 10 | 70 / 73 | 9 / 10 | - | 3 / 3 | - | - | - | 0 / 5 | - | - |
 
 ## Still to implement
 
@@ -30,33 +28,38 @@ Each component is attributed to whatever product introduced it first.
 | Amazonis & Vastitas | Map | Amazonis Planitia | Ready |
 | Amazonis & Vastitas | Map | Vastitas Borealis | Ready |
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Ready |
-| Prelude 2 | Cards | All 5 corporations, 24 projects, and 25 preludes | (investigate) |
-| Amazonis & Vastitas | Milestones / awards | Both maps' 10 milestones and awards | (investigate) |
-| Promos through 2026-08 | Project | Supercapacitors (`X46`) | (investigate) |
+| Amazonis & Vastitas | Milestones / awards | (maybe we do have them?) | (investigate) |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
-| Prelude | Project | Research Coordination (`P40`) | Wild tag |
-| Prelude | Prelude | Research Network (`P28`) | Wild tag |
+| Prelude | Project | Research Coordination (`P40`) | (Works on wildtag branch) |
+| Prelude | Prelude | Research Network (`P28`) | (Works on wildtag branch) |
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
 | Colonies | Corporation | Stormcraft Incorporated (`CC5`) | Payment rewrites |
 | Promos through 2026-08 | Corporation | Kuiper Cooperative | Payment rewrites |
 | Corporate Era | Project | Land Claim (`066`) | Non-tiles on map |
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |
 | Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
+| Amazonis & Vastitas | Global parameter | Extended tracks | Core replacement |
+| Prelude 2 | Cards | All 5 corporations, 24 projects, and 25 preludes | (investigate) |
+| Turmoil | everything | all of it | Turmoil |
 | Automa | Other | entire Automa rules | Wow that's a lot |
-| Amazonis & Vastitas | Global parameter | Extended temperature track | Core replacement |
-| Amazonis & Vastitas | Global parameter | Extended oxygen track | Core replacement |
-| Amazonis & Vastitas | Global parameter | Extended ocean track | Core replacement |
-| Amazonis & Vastitas | Global parameter | Extended Venus track | Core replacement |
-| Turmoil | Corporation | Septem Tribus (`TC3`) | Turmoil, Wild tag |
-| Turmoil | Projects | all | Turmoil |
-| Turmoil | Standard action | Lobby | Turmoil |
-| Turmoil | Milestone / award | Terraformer26 | Turmoil |
-| Turmoil | Global events | All 31 global events | Turmoil |
-| Turmoil | Game phase | Turmoil phase | Turmoil |
-| Turmoil | Other | parties | Turmoil |
-| Promos through 2026-08 | Project | Political Alliance (`X09`) | Turmoil |
-| Promos through 2026-08 | Global events | (five) | Turmoil |
 | Milestones & Awards | Milestone | Lobbyist | Turmoil |
 | Milestones & Awards | Award | Politician | Turmoil |
 | Milestones & Awards | Milestone | Hydrologist | Fork |
 | Milestones & Awards | Milestone | Thawer | Fork |
+
+## Solarnet's supported variant
+
+Teeechnically what Solarnet implements is a variant rule set. The differences are extremely minor, though.
+
+### Contradictions of official rules
+
+* In solo TR63 mode, during final greenery placement, oxygen raises DO still happen.
+* If EcologyExperts plays Decomposers, you get 1 microbe, not 3.
+
+### Our interpretations
+
+We don't think these interpretations are wrong, but we don't know for certain.
+
+* We follow the convention that the "X" icon and the phrase "any number" *exclude* zero as a choice, but the phrase "up to" *includes* zero as a valid choice. Exception: a STEAL effect is not allowed to "steal zero". If you are the only player with money, you can't play Air Raid. If your hand is empty you can't play Public Plans.
+* If your MiningRights tile is somewhere with both steel and titanium bonuses, and then you RoboticWorkforce it, the game doesn't "remember" your original choice; you get to choose again.
+* TharsisRepublic always gets +2 M€ production in any solo game, even if played much later in the game.

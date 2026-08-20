@@ -5,9 +5,11 @@ import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.cardnames.*
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.toStrings
@@ -17,14 +19,14 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CanonEffectsTest {
-  private fun classEffectsOf(name: String): List<String> {
+  private fun classEffectsOf(name: ClassName): List<String> {
     val loader = ClassLoader(Canon)
     loader.load(OK)
-    loader.load(cn(name))
-    return classEffectsOf(cn(name), loader.freeze())
+    loader.load(name)
+    return classEffectsOf(name, loader.freeze())
   }
 
-  private fun classEffectsOf(name: dev.martianzoo.pets.ast.ClassName, classTable: ClassTable) =
+  private fun classEffectsOf(name: ClassName, classTable: ClassTable) =
       Transformers(classTable).classEffects(classTable.getClass(name)).toStrings()
 
   @Test
@@ -46,14 +48,15 @@ internal class CanonEffectsTest {
     compiledByOwnerEffects.forEach { (className, effect) ->
       withClue("$className: $effect") {
         (OWNER in effect.instruction) shouldBe true
-        (OWNER in replaceOwnerWith(PLAYER1).transform(effect.instruction)) shouldBe false
+        (OWNER in replaceOwnerWith(PLAYER1).transformInstructionTree(effect.instruction)) shouldBe
+            false
       }
     }
   }
 
   @Test
   fun sabotage() {
-    classEffectsOf("Card121")
+    classEffectsOf(Sabotage)
         .shouldContainExactlyInAnyOrder(
             "This: PlayedEvent<Owner, Class<This>> FROM This.",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
@@ -62,7 +65,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun terraformer() {
-    classEffectsOf("MilestoneBM1")
+    classEffectsOf(cn("MilestoneBM1"))
         .shouldContainExactlyInAnyOrder(
             "This:: (35 TerraformRating<Owner>: Ok)",
             "End: 5 VictoryPoint<Owner>!",
@@ -71,7 +74,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun gyropolis() {
-    classEffectsOf("Card230")
+    classEffectsOf(Gyropolis)
         .shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: PROD[-2 Energy<Owner>!," +
@@ -83,7 +86,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun e98() {
-    classEffectsOf("Elysium_9_8")
+    classEffectsOf(cn("Elysium_9_8"))
         .shouldContainExactlyInAnyOrder(
             "Tile<This>:: CreateAdjacencies<This>!",
             "Tile<This> BY Owner: ProjectCard<Owner>!",
@@ -92,17 +95,17 @@ internal class CanonEffectsTest {
 
   @Test
   fun venusian() {
-    classEffectsOf("Card259")
+    classEffectsOf(VenusianAnimals)
         .shouldContainExactlyInAnyOrder(
             "This:: VenusTag<Owner, This>!, ScienceTag<Owner, This>!, AnimalTag<Owner, This>!",
-            "ScienceTag<Owner>: Animal<Owner, This>.",
-            "End: VictoryPoint<Owner>! / Animal<Owner, This>",
+            "ScienceTag<Owner>: Animal<This>.",
+            "End: VictoryPoint<Owner>! / Animal<This>",
         )
   }
 
   @Test
   fun convertHeat() {
-    classEffectsOf("ConvertHeatSA")
+    classEffectsOf(cn("ConvertHeatSA"))
         .shouldContainExactlyInAnyOrder(
             "UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep."
         )
@@ -110,7 +113,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun teractor() {
-    classEffectsOf("CardB12")
+    classEffectsOf(Teractor)
         .shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!",
             "This: 60 Megacredit<Owner>!",
@@ -120,7 +123,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun immigrantCity() {
-    classEffectsOf("Card200")
+    classEffectsOf(ImmigrantCity)
         .shouldContainExactlyInAnyOrder(
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
@@ -131,18 +134,18 @@ internal class CanonEffectsTest {
 
   @Test
   fun titanAirScrapping() {
-    classEffectsOf("CardC43")
+    classEffectsOf(TitanAirScrapping)
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
-            "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
-            "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!",
+            "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<This>.",
+            "UseAction2<Owner, This>: -2 Floater<This>! THEN TerraformRating<Owner>!",
             "End: 2 VictoryPoint<Owner>!",
         )
   }
 
   @Test
   fun amc() {
-    classEffectsOf("Card002")
+    classEffectsOf(AsteroidMiningConsortium)
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
@@ -152,13 +155,13 @@ internal class CanonEffectsTest {
 
   @Test
   fun pets() {
-    classEffectsOf("Card172")
+    classEffectsOf(Pets)
         .shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!, AnimalTag<Owner, This>!",
-            "This: Animal<Owner, This>.",
-            "-Animal<Owner, This>:: Die!",
-            "CityTile<Anyone>: Animal<Owner, This>.",
-            "End: VictoryPoint<Owner>! / 2 Animal<Owner, This>",
+            "This: Animal<This>.",
+            "-Animal<This>:: Die!",
+            "CityTile<Anyone>: Animal<This>.",
+            "End: VictoryPoint<Owner>! / 2 Animal<This>",
         )
   }
 }

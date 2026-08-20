@@ -6,6 +6,7 @@ import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -59,10 +60,10 @@ public open class BusyPreludePhaseBenchmark {
   @Benchmark
   public fun corporationThroughFirstActionPhase(): Int {
     workflow.corporationPhase()
-    me.playCorp("Teractor", 10)
+    me.playCorp(cn("Teractor"), 10)
 
     workflow.preludePhase()
-    me.playPrelude("HeadStart") {
+    me.playPrelude(cn("HeadStart")) {
       doTask("UseAction1<PlayCardSA>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>>")
       me.pay(0)
@@ -70,8 +71,8 @@ public open class BusyPreludePhaseBenchmark {
       doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>>")
       me.pay(0)
     }
-    me.playPrelude("NewPartner") {
-      me.playPrelude("Merger") {
+    me.playPrelude(cn("NewPartner")) {
+      me.playPrelude(cn("Merger")) {
         doTask("PlayCard<Class<CorporationCard>, Class<ValleyTrust>>")
       }
     }
@@ -80,7 +81,7 @@ public open class BusyPreludePhaseBenchmark {
     // Jacob Fryxelius's ruling makes Valley Trust's mandate the first action-phase action.
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("HandleMandates") {
-      me.playPrelude("DoubleDown") {
+      me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<HeadStart>")
         doTask("UseAction1<PlayCardSA>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>>")

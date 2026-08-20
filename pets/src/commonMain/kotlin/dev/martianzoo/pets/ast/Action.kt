@@ -11,7 +11,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.TypeLinking
-import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
@@ -28,7 +27,7 @@ import dev.martianzoo.util.suf
  * Actions eventually get converted into triggered [Effect]s; the example above would become
  * `UseAction1<ElectroCatapult>: (-Steel OR -Plant) THEN 7`.
  */
-public data class Action(val cost: Cost?, val instruction: Instruction) : PetElement() {
+public data class Action(val cost: Cost?, val instruction: InstructionTree) : PetElement() {
   override val kind: kotlin.reflect.KClass<out PetNode> = Action::class
 
   override fun toString(): String = "${cost.suf(' ')}-> $instruction"
@@ -36,7 +35,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
   override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost, instruction)
 
   /** Converts this action into the instruction performed when the action is used. */
-  internal fun toInstruction(): Instruction {
+  internal fun toInstruction(): InstructionTree {
     val lhs = cost?.toInstruction() ?: return instruction
     val allInstructions =
         when (instruction) {
@@ -45,13 +44,14 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
         }
     val actionSources = TypeLinking.sourcesAcrossRegions(this)
     val resultSources = (instruction as? Then)?.linkedTypeSources.orEmpty()
-    return Then(allInstructions).withLinkedTypeSources(actionSources + resultSources)
+    val result = Then.createTree(allInstructions) as Then
+    return result.withLinkedTypeSources(actionSources + resultSources)
   }
 
   public sealed class Cost : PetNode() {
     override val kind: kotlin.reflect.KClass<out PetNode> = Cost::class
 
-    internal abstract fun toInstruction(): Instruction
+    internal abstract fun toInstruction(): InstructionTree
 
     public data class Spend(val scaledEx: ScaledExpression) : Cost() {
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scaledEx)
@@ -76,16 +76,16 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun safeToNestIn(container: PetNode): Boolean =
           super.safeToNestIn(container) && container !is Or
 
-      override fun toInstruction(): Instruction =
-          Instruction.Gated.create(gate, cost.toInstruction())
+      override fun toInstruction(): InstructionTree =
+          Instruction.Gated.createTree(gate, cost.toInstruction())
     }
 
     // can't do non-prod per prod yet
     internal data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
         when (cost) {
-          is Or,
-          is Multi -> throw PetSyntaxException("Break into separate Per instructions")
+          is Cost.Or,
+          is Cost.Multi -> throw PetSyntaxException("Break into separate Per instructions")
           is Per -> throw PetSyntaxException("Might support in future?")
           else -> {}
         }
@@ -93,11 +93,12 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost, metric)
 
-      override fun toString() = "$cost / ${groupPartIfNeeded(metric)}"
+      override fun toString() = "${groupPartIfNeeded(cost)} / ${groupPartIfNeeded(metric)}"
 
       override fun precedence() = 5
 
-      override fun toInstruction() = Per(cost.toInstruction(), metric)
+      override fun toInstruction(): Instruction =
+          Instruction.Per(cost.toInstruction() as Instruction, metric)
     }
 
     internal data class Or(var costs: Set<Cost>) : Cost() {
@@ -129,7 +130,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
 
       override fun precedence() = 1
 
-      override fun toInstruction() = Multi(costs.map { it.toInstruction() })
+      override fun toInstruction(): InstructionTree =
+          InstructionGroup.createTree(costs.map { it.toInstruction() })
     }
 
     internal data class Transform(val cost: Cost, override val transformKind: String) :
@@ -152,7 +154,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
 
           val perCost =
               atomCost and
-                  optional(skipChar('/') and Metric.atomParser()) map
+                  optional(skipChar('/') and Metric.subtractionParser()) map
                   { (cost, met) ->
                     if (met == null) cost else Per(cost, met)
                   }
@@ -184,7 +186,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     fun parser(): Parser<Action> =
         optional(Cost.parser()) and
             skip(_arrow) and
-            Instruction.parser() map
+            InstructionTree.parser() map
             { (c, i) ->
               Action(c, i)
             }

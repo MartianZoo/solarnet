@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldHaveSize
@@ -19,14 +20,17 @@ internal class ActionSequencingTest {
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.beginManual("UseAction1<CitySP>")
-    val payment =
-        game.tasks.extract { it }.single { it.instruction.toString().startsWith("-25 Megacredit") }
+    val propertyScaledPayment =
+        game.tasks.extract { it }.single { "CitySP.cost" in it.instruction.toString() }
+    val paymentId = checkNotNull(manual.prepareTask(propertyScaledPayment.id))
+    val payment = game.tasks.extract { it }.single { it.id == paymentId }
     withClue(payment) {
+      payment.instruction.toString().startsWith("-25 Megacredit") shouldBe true
       payment.then.toString().contains("Production<") shouldBe true
       payment.then.toString().contains("CityTile<") shouldBe true
     }
 
-    manual.doTask(payment.instruction.toString())
+    manual.tryPreparedTask()
 
     val results =
         game.tasks
@@ -45,11 +49,11 @@ internal class ActionSequencingTest {
   fun `use-card action rejects a different card after placing the marker`() {
     val game = setUpGame()
     val manual = game.tfm(PLAYER1).godMode().also { it.autoExecMode = NONE }
-    manual.manual("SymbioticFungus, Ants")
+    manual.manual("$SymbioticFungus, $Ants")
 
     manual.beginManual("UseAction1<UseCardActionSA>") {
-      doTask("ActionUsedMarker<SymbioticFungus>")
-      shouldThrow<TaskException> { doTask("UseAction<Ants>") }
+      doTask("ActionUsedMarker<$SymbioticFungus>")
+      shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()
     }
   }

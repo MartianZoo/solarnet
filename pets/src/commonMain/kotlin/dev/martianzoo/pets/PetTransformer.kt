@@ -1,40 +1,52 @@
 package dev.martianzoo.pets
 
+import dev.martianzoo.api.Exceptions.KindException
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.BasicTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Property
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.withLinkedTypeSources
 import dev.martianzoo.util.toSetStrict
+import kotlin.reflect.KClass
 
 /**
- * An object that transforms [PetNode]s (typically entire syntax trees) into other [PetNode]s. Most
- * transformations should be exposed as a [PetTransformer] instance so they can be chained together
- * with [chain], etc.
+ * Transforms [PetNode] trees while preserving only the kind requested by each public entry point.
+ * For example, [transformInstruction] promises another [Instruction], but not the same concrete
+ * node type; [transformInstructionTree] also permits an [Instruction] to become an
+ * [InstructionGroup].
+ *
+ * Implementations use [transformNode] as an unchecked internal dispatcher. Clients should use the
+ * narrowest named kind-preserving entry point that describes what they require.
  */
 public abstract class PetTransformer protected constructor() {
   public companion object {
     /** A transformer that just returns its input. */
     public fun noOp(): PetTransformer =
         object : PetTransformer() {
-          override fun <P : PetNode> transform(node: P) = node
+          override fun transformNode(node: PetNode): PetNode = node
         }
 
     /**
-     * A transformer that applies each *non-null* transformer in [transformers], feeding the output
-     * from each to the input of the next.
+     * Applies each non-null transformer in order, feeding each result into the next transformer.
      */
     public fun chain(transformers: List<PetTransformer?>): PetTransformer =
         InSeriesTransformer(transformers.filterNotNull())
@@ -43,107 +55,278 @@ public abstract class PetTransformer protected constructor() {
     public fun chain(vararg transformers: PetTransformer?): PetTransformer =
         chain(transformers.toList())
 
-    private open class InSeriesTransformer(val transformers: List<PetTransformer>) :
+    private class InSeriesTransformer(private val transformers: List<PetTransformer>) :
         PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        var result = node
-        for (xer in transformers) {
-          result = xer.transform(result)
-        }
-        return result
-      }
+      override fun transformNode(node: PetNode): PetNode =
+          transformers.fold(node) { current, transformer ->
+            transformer.transformWithoutKindCheck(current)
+          }
     }
   }
 
   /**
-   * Returns an altered form of the [node] tree. To have your transformer descend the subtrees from
-   * here you must call [transformChildren]; you can either preprocess or postprocess those trees if
-   * needed.
+   * Implements this transformation for one node. Call [transformChildren] to descend into its
+   * children. This method deliberately makes no kind promise; the named public entry points enforce
+   * the kind each caller requests.
    */
-  public abstract fun <P : PetNode> transform(node: P): P
+  protected abstract fun transformNode(node: PetNode): PetNode
 
   /**
-   * Transforms [node] by transforming each of its children using [transform]; a "default"
-   * transformation. Call this from your own [transform] override when you don't need to transform
-   * the node itself, but you want to continue to descend the subtrees.
+   * Transforms a dynamically typed major Pets element using its major preprocessing kind.
+   * Instructions use the broader [InstructionTree] kind because their cardinality may change.
    */
-  @Suppress("CyclomaticComplexMethod") // TODO: break up
-  protected fun <P : PetNode> transformChildren(node: P): P {
-    // You can see below why we need these method names to be as short as possible...
-    @Suppress("UNCHECKED_CAST") fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P
-    fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)
-    fun <P : PetNode> x(nodes: Set<P>): Set<P> = x(nodes as Iterable<P>).toSetStrict()
+  public fun transformElement(node: PetElement): PetElement =
+      when (node) {
+        is Action -> transformAction(node)
+        is Effect -> transformEffect(node)
+        is Expression -> transformExpression(node)
+        is InstructionTree -> transformInstructionTree(node)
+        is Metric -> transformMetric(node)
+        is Requirement -> transformRequirement(node)
+      }
 
-    return (node as PetNode).run {
-      // The least interesting code in the entire project?
-      val rewritten =
-          when (this) {
-            is ClassName -> this
-            is Refinement -> Refinement(x(requirement), forgiving)
-            is Expression -> Expression(x(className), x(arguments), x(refinement), complement)
-            is ScaledExpression -> scaledEx(x(expression), x(scalar))
-            is Scalar -> this
-            is Metric ->
-                when (this) {
-                  is Metric.Count -> Metric.Count(x(expression))
-                  is Metric.Scaled -> Metric.scaled(x(inner), unit)
-                  is Metric.Max -> Metric.Max(x(inner), maximum)
-                  is Metric.Or -> Metric.Or(x(metrics))
-                  is Metric.Transform -> Metric.Transform(x(inner), transformKind)
-                }
-            is Requirement ->
-                when (this) {
-                  is Requirement.Min -> Requirement.Min(target, x(metric))
-                  is Requirement.Max -> Requirement.Max(target, x(metric))
-                  is Requirement.Exact -> Requirement.Exact(target, x(metric))
-                  is Requirement.Or -> Requirement.Or(x(requirements))
-                  is Requirement.And -> Requirement.And(x(requirements))
-                  is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
-                }
-            is Instruction ->
-                when (this) {
-                  is Instruction.NoOp -> this
-                  is Instruction.Gain -> Instruction.Gain(x(scaledEx), intensity)
-                  is Instruction.Remove -> Instruction.Remove(x(scaledEx), intensity)
-                  is Instruction.Transmute -> Instruction.Transmute(x(fromEx), x(scalar), intensity)
-                  is Instruction.Per -> Instruction.Per(x(inner), x(metric))
-                  is Instruction.By -> Instruction.By.create(x(inner), x(actor))
-                  is Instruction.Gated -> Instruction.Gated(x(gate), x(inner))
-                  is Instruction.Then ->
-                      withInstructions(x(instructions)).withLinkedTypeSources(x(linkedTypeSources))
-                  is Instruction.Or -> Instruction.Or(x(instructions))
-                  is Instruction.Multi -> Instruction.Multi(x(instructions))
-                  is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
-                }
-            is FromExpression -> FromExpression(x(toExpression), x(fromExpression))
-            is Effect ->
-                copy(trigger = x(trigger), instruction = x(instruction))
-                    .withLinkedTypeSources(x(linkedTypeSources))
-            is Trigger ->
-                when (this) {
-                  is Trigger.Or -> Trigger.Or(x(triggers))
-                  is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(expression))
-                  is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(expression))
-                  is Trigger.ByTrigger -> Trigger.ByTrigger(x(inner), x(by))
-                  is Trigger.IfTrigger -> Trigger.IfTrigger(x(inner), x(condition))
-                  is Trigger.XTrigger -> Trigger.XTrigger(x(inner))
-                  is Trigger.Transform -> Trigger.Transform(x(inner), transformKind)
-                  is Trigger.WhenGain -> this
-                  is Trigger.WhenRemove -> this
-                }
-            is Action -> Action(x(cost), x(instruction))
-            is Cost ->
-                when (this) {
-                  is Cost.Spend -> Cost.Spend(x(scaledEx))
-                  is Cost.Gated -> Cost.Gated(x(gate), x(cost))
-                  is Cost.Per -> Cost.Per(x(cost), x(metric))
-                  is Cost.Or -> Cost.Or(x(costs))
-                  is Cost.Multi -> Cost.Multi(x(costs))
-                  is Cost.Transform -> Cost.Transform(x(cost), transformKind)
-                }
+  /** Transforms an action while preserving the [Action] kind. */
+  public fun transformAction(node: Action): Action = transformAsKind(node, Action::class)
+
+  /** Transforms an action cost while preserving the [Cost] kind. */
+  public fun transformCost(node: Cost): Cost = transformAsKind(node, Cost::class)
+
+  /** Transforms a class name while preserving the [ClassName] kind. */
+  public fun transformClassName(node: ClassName): ClassName =
+      transformAsKind(node, ClassName::class)
+
+  /** Transforms an effect while preserving the [Effect] kind. */
+  public fun transformEffect(node: Effect): Effect = transformAsKind(node, Effect::class)
+
+  /** Transforms an effect trigger while preserving the [Trigger] kind. */
+  public fun transformTrigger(node: Trigger): Trigger = transformAsKind(node, Trigger::class)
+
+  /** Transforms a child that structurally must remain a [BasicTrigger]. */
+  private fun transformBasicTrigger(node: BasicTrigger): BasicTrigger =
+      transformAsKind(node, BasicTrigger::class)
+
+  /** Transforms an expression while preserving the [Expression] kind. */
+  public fun transformExpression(node: Expression): Expression =
+      transformAsKind(node, Expression::class)
+
+  /** Transforms a refinement while preserving the [Refinement] kind. */
+  public fun transformRefinement(node: Refinement): Refinement =
+      transformAsKind(node, Refinement::class)
+
+  /** Transforms a from-expression while preserving the [FromExpression] kind. */
+  public fun transformFromExpression(node: FromExpression): FromExpression =
+      transformAsKind(node, FromExpression::class)
+
+  /**
+   * Transforms one task-shaped instruction while preserving the [Instruction] kind. Use
+   * [transformInstructionTree] when cardinality is allowed to change.
+   */
+  public fun transformInstruction(node: Instruction): Instruction =
+      transformAsKind(node, Instruction::class)
+
+  /**
+   * Transforms while preserving the broader [InstructionTree] kind, permitting cardinality changes.
+   */
+  public fun transformInstructionTree(node: InstructionTree): InstructionTree =
+      transformAsKind(node, InstructionTree::class)
+
+  /** Transforms a metric while preserving the [Metric] kind. */
+  public fun transformMetric(node: Metric): Metric = transformAsKind(node, Metric::class)
+
+  /** Transforms a property while preserving the [Property] kind. */
+  public fun transformProperty(node: Property): Property = transformAsKind(node, Property::class)
+
+  /** Transforms a property name while preserving the [PropertyName] kind. */
+  public fun transformPropertyName(node: PropertyName): PropertyName =
+      transformAsKind(node, PropertyName::class)
+
+  /** Transforms a property value while preserving the [PropertyValue] kind. */
+  public fun transformPropertyValue(node: PropertyValue): PropertyValue =
+      transformAsKind(node, PropertyValue::class)
+
+  /** Transforms a requirement while preserving the [Requirement] kind. */
+  public fun transformRequirement(node: Requirement): Requirement =
+      transformAsKind(node, Requirement::class)
+
+  /** Transforms a scaled expression while preserving the [ScaledExpression] kind. */
+  public fun transformScaledExpression(node: ScaledExpression): ScaledExpression =
+      transformAsKind(node, ScaledExpression::class)
+
+  /** Transforms a scalar while preserving the [Scalar] kind. */
+  public fun transformScalar(node: Scalar): Scalar = transformAsKind(node, Scalar::class)
+
+  /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
+  internal fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
+
+  private fun <P : PetNode> transformAsKind(node: PetNode, requiredKind: KClass<P>): P {
+    val transformed = transformWithoutKindCheck(node)
+    if (!requiredKind.isInstance(transformed)) {
+      throw KindException(
+          "${this::class.simpleName ?: "PetTransformer"} transformed ${node::class.simpleName} " +
+              "outside the ${requiredKind.simpleName} kind: $transformed"
+      )
+    }
+    @Suppress("UNCHECKED_CAST")
+    return transformed as P
+  }
+
+  /** Returns [node] rebuilt after recursively transforming each immediate child. */
+  @Suppress("CyclomaticComplexMethod") // TODO: break up
+  protected fun transformChildren(node: PetNode): PetNode {
+    fun expressions(nodes: Iterable<Expression>): List<Expression> =
+        nodes.map(::transformExpression)
+    fun expressions(nodes: Set<Expression>): Set<Expression> =
+        expressions(nodes as Iterable<Expression>).toSetStrict()
+    fun metrics(nodes: Iterable<Metric>): List<Metric> = nodes.map(::transformMetric)
+    fun requirements(nodes: Iterable<Requirement>): List<Requirement> =
+        nodes.map(::transformRequirement)
+    fun requirements(nodes: Set<Requirement>): Set<Requirement> =
+        requirements(nodes as Iterable<Requirement>).toSetStrict()
+    fun trees(nodes: Iterable<InstructionTree>): List<InstructionTree> =
+        nodes.map(::transformInstructionTree)
+
+    return when (node) {
+      is ClassName -> node
+      is Refinement -> Refinement(transformRequirement(node.requirement), node.forgiving)
+      is Expression ->
+          Expression(
+              transformClassName(node.className),
+              expressions(node.arguments),
+              node.refinement?.let(::transformRefinement),
+              node.complement,
+              node.argumentsSpecified,
+          )
+      is ScaledExpression ->
+          scaledEx(transformExpression(node.expression), transformScalar(node.scalar))
+      is Scalar -> node
+      is PropertyName -> node
+      is PropertyValue ->
+          when (node) {
+            is PropertyValue.MetricType,
+            is PropertyValue.NumberType,
+            is PropertyValue.RequirementType,
+            is PropertyValue.OptionalRequirementType,
+            is PropertyValue.AbsentRequirementValue,
+            is PropertyValue.NumberValue -> node
+            is PropertyValue.MetricValue -> PropertyValue.MetricValue(transformMetric(node.value))
+            is PropertyValue.RequirementValue ->
+                PropertyValue.RequirementValue(transformRequirement(node.value))
           }
-      @Suppress("UNCHECKED_CAST")
-      rewritten as P
+      is Metric ->
+          when (node) {
+            is Metric.Count -> Metric.Count(transformExpression(node.expression))
+            is Metric.Constant -> node
+            is Property ->
+                Property(
+                    transformPropertyName(node.propertyName),
+                    node.receiver?.let(::transformExpression),
+                )
+            is Metric.Scaled -> Metric.scaled(transformMetric(node.inner), node.unit)
+            is Metric.Max -> Metric.Max(transformMetric(node.inner), node.maximum)
+            is Metric.Subtract ->
+                Metric.Subtract(
+                    transformMetric(node.minuend),
+                    transformMetric(node.subtrahend),
+                )
+            is Metric.Or -> Metric.Or.create(metrics(node.metrics))!!
+            is Metric.Eval -> Metric.Eval(transformProperty(node.property))
+            is Metric.Transform -> Metric.Transform(transformMetric(node.inner), node.transformKind)
+          }
+      is Requirement ->
+          when (node) {
+            is Requirement.Min -> Requirement.Min(node.target, transformMetric(node.metric))
+            is Requirement.Max -> Requirement.Max(node.target, transformMetric(node.metric))
+            is Requirement.Exact -> Requirement.Exact(node.target, transformMetric(node.metric))
+            is Requirement.Or -> Requirement.Or(requirements(node.requirements))
+            is Requirement.And -> Requirement.And(requirements(node.requirements))
+            is Requirement.Eval -> Requirement.Eval(transformProperty(node.property))
+            is Requirement.Transform ->
+                Requirement.Transform(transformRequirement(node.requirement), node.transformKind)
+          }
+      is InstructionGroup -> InstructionGroup.createTree(trees(node.instructions))
+      is Instruction ->
+          when (node) {
+            is Instruction.NoOp -> node
+            is Instruction.Gain ->
+                Instruction.Gain(transformScaledExpression(node.scaledEx), node.intensity)
+            is Instruction.Remove ->
+                Instruction.Remove(transformScaledExpression(node.scaledEx), node.intensity)
+            is Instruction.Transmute ->
+                Instruction.Transmute(
+                    transformFromExpression(node.fromEx),
+                    transformScalar(node.scalar),
+                    node.intensity,
+                )
+            is Instruction.Per ->
+                Instruction.Per(transformInstruction(node.inner), transformMetric(node.metric))
+            is Instruction.By ->
+                Instruction.By.createTree(
+                    transformInstructionTree(node.inner),
+                    transformExpression(node.actor),
+                )
+            is Instruction.Gated ->
+                Instruction.Gated(
+                    transformRequirement(node.gate),
+                    transformInstructionTree(node.inner),
+                )
+            is Instruction.Then ->
+                node
+                    .withParts(
+                        node.stages.map(::transformInstruction),
+                        transformInstructionTree(node.continuation),
+                    )
+                    .withLinkedTypeSources(expressions(node.linkedTypeSources))
+            is Instruction.Or -> Instruction.Or.createTree(trees(node.instructions))
+            is Instruction.Transform ->
+                Instruction.Transform(
+                    transformInstructionTree(node.instruction),
+                    node.transformKind,
+                )
+          }
+      is FromExpression ->
+          FromExpression(
+              transformExpression(node.toExpression),
+              transformExpression(node.fromExpression),
+          )
+      is Effect ->
+          node
+              .copy(
+                  trigger = transformTrigger(node.trigger),
+                  instruction = transformInstructionTree(node.instruction),
+              )
+              .withLinkedTypeSources(expressions(node.linkedTypeSources))
+      is Trigger ->
+          when (node) {
+            is Trigger.Or -> Trigger.Or(node.triggers.map(::transformTrigger))
+            is Trigger.OnGainOf -> Trigger.OnGainOf.create(transformExpression(node.expression))
+            is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(transformExpression(node.expression))
+            is Trigger.ByTrigger ->
+                Trigger.ByTrigger(transformTrigger(node.inner), transformExpression(node.by))
+            is Trigger.IfTrigger ->
+                Trigger.IfTrigger(
+                    transformTrigger(node.inner),
+                    transformRequirement(node.condition),
+                )
+            is Trigger.XTrigger -> Trigger.XTrigger(transformBasicTrigger(node.inner))
+            is Trigger.Transform ->
+                Trigger.Transform(transformTrigger(node.inner), node.transformKind)
+            is Trigger.WhenGain -> node
+            is Trigger.WhenRemove -> node
+          }
+      is Action ->
+          Action(
+              node.cost?.let(::transformCost),
+              transformInstructionTree(node.instruction),
+          )
+      is Cost ->
+          when (node) {
+            is Cost.Spend -> Cost.Spend(transformScaledExpression(node.scaledEx))
+            is Cost.Gated -> Cost.Gated(transformRequirement(node.gate), transformCost(node.cost))
+            is Cost.Per -> Cost.Per(transformCost(node.cost), transformMetric(node.metric))
+            is Cost.Or -> Cost.Or(node.costs.map(::transformCost).toSetStrict())
+            is Cost.Multi -> Cost.Multi(node.costs.map(::transformCost))
+            is Cost.Transform -> Cost.Transform(transformCost(node.cost), node.transformKind)
+          }
     }
   }
 }

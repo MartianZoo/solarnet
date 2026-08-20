@@ -12,13 +12,11 @@ internal class DependencyLinkTest {
   private val table =
       loadTypes(
           """
-          ABSTRACT CLASS Anyone {
-            ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-          }
+          CLASS Player1 : Owner
+          CLASS Player2 : Owner
 
           CLASS Token<Owner>
-          ABSTRACT CLASS Owned<Owner>
-          CLASS Card : Owned
+          CLASS Card : Owned<Owner>
 
           ABSTRACT CLASS Linked<Card<Owner>> : Owned<Owner> {
             This: Token<Owner>

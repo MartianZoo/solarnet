@@ -62,13 +62,13 @@
     { "id": "MM28", "requirement": "4 SpaceTag" },
 
     // Sponsor
-    { "id": "MM29", "requirement": "3 CardFront(HAS 20 CardCost)" },
+    { "id": "MM29", "requirement": "3 CardFront(HAS 20 cost)" },
 
     // Tactician
     {
       "id": "MM30",
       "replaces": "HM1",
-      "requirement": "4 CardFront(HAS CardRequirement)",
+      "requirement": "4 CardFront(HAS requirement)",
     },
 
     // Terraformer

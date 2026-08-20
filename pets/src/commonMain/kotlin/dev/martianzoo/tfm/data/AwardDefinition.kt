@@ -6,8 +6,9 @@ import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.TfmClasses.AWARD
 import kotlinx.serialization.SerialName
@@ -48,15 +49,12 @@ public data class AwardDefinition(
         className,
         kind = CONCRETE,
         supertypes = setOf(AWARD.expression),
-        effects =
-            listOf(
-                parse<Effect>("EndPhase:: MeasureAward<This>"),
-                parse<Effect>("EndPhase: AssignAwardPlaces<This>"),
-            ),
+        properties = mapOf(METRIC_PROPERTY to MetricValue(metric)),
     )
   }
 
   private companion object {
     private const val MULTIPLAYER_ONLY = "MAX 0 SoloMode"
+    private val METRIC_PROPERTY = PropertyName("metric")
   }
 }

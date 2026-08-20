@@ -1,217 +1,117 @@
-# Game Boundary Audit
+# Generic and Terraforming Mars boundary audit
 
-> **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
+**Status: audit, not a mandate to support unrelated games.** The useful goal is coherent ownership
+inside Solarnet. Do not perform heroic extraction for hypothetical clients.
 
-> **Status note:** References below to Authority data, premise resolution, Modules, and the revised
-> `GamePremise` describe the desired boundary, not the current implementation.
+The generic runtime is mostly reusable, but a few seams still mix Pets/engine mechanics with
+Terraforming Mars or REgo application policy. `TODO.md` decides whether any seam is worth changing.
 
-This audit reviews whether an unrelated board game with suitable mechanics could reuse all
-Solarnet code outside `dev.martianzoo.tfm` while using none of the code inside
-`dev.martianzoo.tfm`.
+## Terraforming Mars behavior outside `tfm`
 
-The boundary is not ready yet, but the misplaced behavior is concentrated in a manageable set of
-seams. This report focuses on where behavior belongs. Backward dependencies are useful evidence,
-but are not independently inventoried unless the code at that location actually implements
-Terraforming Mars behavior.
+### Bare numbers mean megacredits
 
-Terraforming Mars-flavored comments, examples, and tests are also excluded unless they affect
-runtime behavior.
+**Priority when boundary work is selected: P0.**
 
-## Outside `tfm` but game-specific
+`ScaledExpression` in `pets` treats an omitted scalar expression as megacredits. That makes a
+Terraforming Mars currency part of the generic AST.
 
-### P0: Bare numbers in Pets intrinsically mean megacredits
+A principled correction would either preserve omission in the AST until a configured transform
+resolves it or supply the implicit unit through a game language profile. Do not add a general
+profile system unless this seam is actually being fixed.
 
-`pets/src/commonMain/kotlin/dev/martianzoo/pets/ast/ScaledExpression.kt` imports `MEGACREDIT`; its
-default expression, constructors, and rendering all treat megacredits as the implicit unit.
+### Turn/action protocol is split across layers
 
-Thus `5`, `X`, effect payouts, costs, and similar syntax carry a Terraforming Mars meaning in the
-generic AST itself. Another game cannot define its own implicit currency, or have no implicit
-currency, without replacing this class's behavior.
+**Priority when boundary work is selected: P0.**
 
-The default should be supplied by a game-specific language profile, or omitted expressions should
-remain distinct in the AST until game-specific preprocessing.
+Generic Pets and engine code know `Action`, `UseAction1..3`, `NewTurn`, and turn-start
+translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
+documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
+under Terraforming Mars. The half-generic placement is the defect.
 
-### Resolved: The generic engine initializer no longer performs Terraforming Mars setup
+### `PROD[...]` is installed by generic pipelines
 
-`engine/src/commonMain/kotlin/dev/martianzoo/engine/Initializer.kt` now creates only `Engine` and
-singleton components, then commits the pre-setup baseline. The Terraforming Mars workflow owns
-creating `SetupPhase` and waiting for its ordinary effectful setup tasks.
+**Priority when boundary work is selected: P1.**
 
-### Resolved: Class reachability policy lives outside the generic class loader
+`Prod` belongs to Terraforming Mars and lives with the Terraforming Mars Pets data so both language
+and engine code can use the same syntax lowering. Generic input, class-effect, and custom-output
+processing still invoke it directly. If another configured transformer is needed, introduce one
+small Authority- or application-supplied pipeline. Do not build a general plugin framework
+preemptively.
 
-`Engine.loadClassTable` supplies the complete initial class-name roots chosen from the game setup.
-`ClassLoader` performs only generic transitive loading from those roots.
+### The script application is mostly REgo/Terraforming Mars
 
-### P0: Generic turn and action APIs encode the Terraforming Mars signaling protocol
+**Priority when boundary work is selected: P1.**
 
-The protocol is split across ostensibly generic code and Terraforming Mars canon data:
+The reusable command shell and completion framework live beside concrete Canon construction,
+`TfmWorkflow`, colors, phase behavior, map views, six resources, and Terraforming Mars setup
+syntax. A focused application profile or `TfmScriptSession` should own those contributions if this
+area is refactored.
 
-1. `pets/src/commonMain/kotlin/dev/martianzoo/pets/Transforming.kt` converts every `Action` into an
-   effect triggered by `UseAction1<This>`, `UseAction2<This>`, etc.
-2. `pets/src/commonMain/kotlin/dev/martianzoo/api/SystemClasses.kt` declares `USE_ACTION` as an
-   engine-significant name.
-3. `engine/src/commonMain/kotlin/dev/martianzoo/engine/Implementations.kt` implements generic
-   `startTurn()` as `NewTurn<Player>!`.
-4. `engine/src/commonMain/kotlin/dev/martianzoo/engine/ApiTranslation.kt` implements `turn` by
-   initiating `NewTurn`.
-5. The actual `UseAction1..3`, `NewTurn`, `SecondAction`, and `Pass` definitions live in
-   `canon/src/commonMain/resources/canon/bundles/TerraformingMars/actions.pets`.
+The REPL similarly combines reusable JLine/socket adapters with REgo construction, branding,
+history, and launcher commands. Keep executable wiring application-specific; extract adapters only
+when another caller needs them.
 
-There are two principled choices: make this a documented generic engine protocol and move its
-foundational declarations into the generic kernel, or move `TurnLayer`, action-to-effect
-translation, and these conventions under `tfm`. The current half-and-half placement is the
-problem.
+## Reusable behavior inside `tfm`
 
-### Resolved: Runtime player identities are canonical seats
+### `TfmAuthority` contains a generic Authority implementation
 
-`GameConfig` keeps one to five user-facing player names in a separate seat-ordered list. Premise
-resolution activates canonical `Player1` through `PlayerN` classes and Actors for those seats.
-Configured names are vocabulary aliases accepted in Pets input and used in Pets rendering; they do
-not create or rename Classes. Workflows and clients discover the participating canonical Actors
-from the world. Custom instructions use the same seat order through the game reader.
+**Priority when boundary work is selected: P1.**
 
-### P1: Terraforming Mars's `PROD[...]` extension is automatically installed by generic machinery
+Declaration aggregation, duplicate checking, core validation, definition lowering, indexes, custom
+lookup, and test providers are generic Authority responsibilities. Card, milestone, award, map,
+standard-action, and colony registries are Terraforming Mars responsibilities. Split them when work
+already touches Authority ownership; do not redesign premise resolution at the same time.
 
-`Prod` itself is correctly under `tfm`, but generic processing decides that every game and custom
-instruction passes through it:
+### Workflow runner mechanics are general
 
-1. `engine/src/commonMain/kotlin/dev/martianzoo/engine/ApiTranslation.kt` puts `Prod.deprodify` in
-   the standard input preprocessing chain.
-2. `engine/src/commonMain/kotlin/dev/martianzoo/engine/Instructor.kt` applies it to custom-class
-   output.
-3. `engine/src/commonMain/kotlin/dev/martianzoo/engine/Transformers.kt` applies it while preparing
-   class effects.
+**Priority when boundary work is selected: P1.**
 
-Because `Prod` returns a no-op transformer when the relevant classes are absent, this is less
-immediately obstructive than the earlier findings. Still, game-specific transform selection
-belongs in a configured preprocessing pipeline. That same extension point would let another game
-install its own syntax transforms.
+The phase sequence and victory conditions are Terraforming Mars. Coroutine lifecycle, single launch,
+queue-drained wakeup, checkpoint/rollback shutdown, and cancellation are engine mechanics. A native
+workflow project should extract those mechanics while moving phase topology to the domain; see
+[WORKFLOW.md](WORKFLOW.md).
 
-### P1: Most of the generic script application is actually the Terraforming Mars application
+### Minor presentation helpers
 
-`script/src/commonMain/kotlin/dev/martianzoo/script/ScriptSession.kt` hard-wires:
+**Priority when boundary work is selected: P3.**
 
-1. Canon's Authority data, premise defaults, and resolver.
-2. Terraforming Mars game-configuration syntax and premise resolution.
-3. `TfmWorkflow`.
-4. Terraforming Mars commands and board/map views.
-5. Terraforming Mars colors for generic access modes.
-6. Terraforming Mars bundle and phase information in the prompt.
+Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
+classes. They are too small to drive an architecture change. Move them only with nearby work.
 
-More Terraforming Mars behavior is spread through generic command/support packages:
+## Already-correct boundaries
 
-1. `script/src/commonMain/kotlin/dev/martianzoo/script/Access.kt` defines any phase change as
-   `${name}Phase FROM Phase`.
-2. `script/src/commonMain/kotlin/dev/martianzoo/script/commands/NewGameCommand.kt` understands
-   Terraforming Mars expansion letters and `GamePremise`.
-3. `script/src/commonMain/kotlin/dev/martianzoo/script/ScriptCompletionSources.kt` knows the six
-   Terraforming Mars resources, playable `CardDefinition`s, maps, expansion combinations, phases,
-   and `PROD`.
-4. `script/src/commonMain/kotlin/dev/martianzoo/script/commands/HelpCommand.kt` mixes the generic command
-   catalog and Terraforming Mars commands.
+Do not reopen these without new evidence:
 
-The reusable script shell, command dispatch, generic query/task commands, and completion engine
-belong where they are. A `TfmScriptSession` or injected application profile should supply setup
-creation, commands, completion sources, workflow, prompt metadata, and colors.
+- `system.pets` owns the runtime classes `Component`, `Class`, `Hidden`, `System`,
+  `Temporary`, `Signal`, `Ok`, `Die`, `Engine`, `AutoLoad`, `Custom`, `Atomized`, `Anyone`,
+  `Owner`, and `Owned`. Ownership is generic engine vocabulary; concrete owner kinds remain
+  game-specific.
+- `Initializer` creates only engine/singleton baseline state; Terraforming Mars workflow creates
+  `SetupPhase`.
+- Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
+  structural reachability.
+- Runtime players use canonical seat identities; configured names are Vocabulary aliases.
+- `World` is the generic live Game World and construction accepts a generic `GamePremise`.
 
-### P2: The non-`tfm` REPL mixes reusable JLine plumbing with REgo application behavior
+If a boundary change is selected, prefer deleting a backward dependency or moving one whole policy
+over adding adapters on both sides.
 
-`repl/src/main/kotlin/dev/martianzoo/repl/JlineRepl.kt` constructs the concrete `ScriptSession`,
-uses `.rego_history`, recognizes `rebuild` as a launcher protocol, and delegates
-Terraforming-Mars/application help.
+## Conditional extraction order
 
-`repl/src/main/kotlin/dev/martianzoo/repl/ScriptServer.kt` similarly constructs the concrete session
-and emits REgo-specific messages.
+**Aspirational and not currently scheduled.** If the project deliberately selects a boundary
+cleanup, the dependencies suggest this order:
 
-This is not specifically Terraforming Mars logic, but another game would not reuse it unchanged.
-The JLine loop, history adapter, socket server, and completion adapter are reusable; main-method
-wiring and product branding belong in an application package.
+1. Decide whether bare-number currency is preserved in the AST or supplied by one small
+   game-specific language profile.
+2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, then
+   colocate its code and declarations.
+3. Replace hard-coded `Prod` calls with the smallest configured transformer seam that the selected
+   design needs.
+4. Split generic Authority assembly/validation from Terraforming Mars registries.
+5. Separate the reusable script command shell from Terraforming Mars application wiring.
+6. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
+7. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
+8. Clean up dependency directions made visible by those moves.
 
-## Inside `tfm` but generally reusable
-
-### Resolved: the fundamental Pets/engine runtime classes now live in Pets
-
-`pets/src/commonMain/resources/pets/system.pets` defines:
-
-1. `Component`, the root of every game's component hierarchy.
-2. `Class`.
-3. `Hidden`, `System`, `Temporary`, and `Signal`.
-4. `Ok` and `Die`, which generic AST/task/engine code understands specially.
-5. `Engine`.
-6. `AutoLoad`, `Custom`, and `Atomized`, all consumed by generic engine/type logic.
-
-These are the Pets runtime prelude, not Terraforming Mars canon. The resource is loaded
-independently of canonical bundles, and Terraforming Mars canon extends it with `global.pets`,
-`player.pets`, and the rest.
-
-### P1: `TfmAuthority` conflates a generic Authority with Terraforming Mars registries
-
-`pets/src/commonMain/kotlin/dev/martianzoo/tfm/api/TfmAuthority.kt` mixes two categories:
-
-1. Generic behavior: declaration aggregation, duplicate detection, validation of `Component` and
-   `Class`, definition-to-declaration conversion, name indexes, custom-class lookup, and an empty
-   test provider.
-2. Terraforming Mars registries: cards, milestones, colony tiles, standard actions, and Mars maps.
-
-The generic half belongs in an `Authority` implementation. `TfmAuthority` can extend that API and
-contribute its game-specific definition collections, premise resolution, and indexes. Games retain
-the complete Authority while their class tables project its catalog.
-
-### Resolved: generic construction no longer depends on a setup Game World
-
-The live Component/Task/Event/Timeline machinery is the generic Game World represented by `World`. Construction accepts a
-generic `GamePremise`, and `GameReader` no longer exposes a Terraforming Mars setup object. The
-premise contains one Authority, Module selections, signed individual class selections, and exact
-one-per-type non-singleton initialization selections; Actors and the class-table projection derive
-from those facts. Configuration is not represented by a live Game World.
-
-### P1: The reusable asynchronous workflow driver is buried inside `TfmWorkflow.Auto`
-
-The phase sequence and end condition in
-`engine/src/commonMain/kotlin/dev/martianzoo/tfm/engine/TfmWorkflow.kt` are correctly
-Terraforming-Mars-specific. But the surrounding machinery is general:
-
-1. Workflow lifecycle and single-launch enforcement.
-2. Queue-drained signaling through `game.onAtomicComplete`.
-3. Suspending until player tasks drain.
-4. Checkpoint ownership and rollback during shutdown.
-5. Coroutine cancellation and cleanup.
-
-Extracting a generic workflow runner would let another game express its own sequence without
-rebuilding the subtle queue/coroutine/rollback integration.
-
-### P3: Small generic presentation helpers are trapped in Terraforming Mars UI classes
-
-1. `script/src/commonMain/kotlin/dev/martianzoo/tfm/script/TfmColor.kt` contains a generic hex-to-ANSI
-   foreground renderer inside a Terraforming Mars color enum.
-2. `script/src/commonMain/kotlin/dev/martianzoo/tfm/script/commands/TfmMapCommand.kt` contains a reusable
-   half-space centering writer.
-
-These are minor and should not drive the architecture, but they are the only clearly generic logic
-in the otherwise properly Terraforming-Mars-specific script commands.
-
-## Module-by-module result
-
-1. **`pets`** has the most fundamental boundary problem: megacredit semantics and fixed player
-   identities are generic, while the reusable Authority implementation remains under `tfm`.
-2. **`engine`** is mostly genuinely generic. Its misplaced logic is concentrated in initialization,
-   turn/action protocols, and automatic installation of `Prod`.
-3. **`canon`** is correctly Terraforming-Mars-specific except for the `System` prelude, which is
-   really the generic runtime prelude.
-4. **`script`** has a good generic command framework, but its central session, setup command,
-   completion sources, and phase handling are the Terraforming Mars/REgo application.
-5. **`repl`** contains reusable terminal and server integration, but its executable wiring and
-   branding are application-specific.
-
-## Suggested extraction order
-
-1. Move the `System` declarations into a generic runtime prelude and make their loading explicit.
-2. Introduce generic Authority and premise-resolution implementations, retaining a Terraforming
-   Mars Authority subtype for its typed registries.
-3. Replace generic initializer special cases with game-supplied initialization roots and hooks.
-4. Decide whether turn/action signaling is a generic protocol or a Terraforming Mars layer, then
-   colocate both its code and declarations.
-5. Replace hard-coded `Prod` calls with a game-configured transformer pipeline.
-6. Separate the reusable script session/command shell from Terraforming Mars application wiring.
-7. Separate reusable REPL/server adapters from REgo branding and launcher behavior.
-8. Clean up the resulting dependency directions and module/artifact boundaries.
+Do not perform this sequence merely to make an unrelated board game theoretically possible. Each
+step must be independently valuable to Solarnet.

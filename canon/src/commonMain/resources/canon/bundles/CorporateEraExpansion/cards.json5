@@ -16,7 +16,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "60",
-      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<Class<Megacredit>>" ],
     },
 
     // Asteroid Mining Consortium
@@ -71,7 +71,7 @@
       "cost": 10,
       "tags": [ "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -2 Owed",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>",
         "End: VictoryPoint"
       ],
     },
@@ -191,8 +191,7 @@
       "projectKind": "AUTOMATED",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "MiningAreaTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningAreaTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningAreaTile, MapBonus<Class<Titanium>>): Titanium)]",
-      "components": [ "CLASS MiningAreaTile : SpecialTile" ],
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} THEN PROD[(LandArea(HAS Card064_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card064_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
     },
 
     // Building Industries
@@ -236,7 +235,7 @@
       "cost": 23,
       "tags": [ "EarthTag" ],
       "effects": [
-        "PlayCard: -2 Owed",
+        "PlayCard: -2 Owed<Class<Megacredit>>",
         "End: 2 VictoryPoint"
       ],
     },
@@ -248,7 +247,7 @@
       "projectKind": "ACTIVE",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "effects": [ "Pay<Class<Metal>>:: -Owed" ],
+      "effects": [ "Pay<Class<Metal>>:: -Owed<Class<Megacredit>>" ],
     },
 
     // Mars University
@@ -283,7 +282,7 @@
       "cost": 13,
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[4 Energy]",
-      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>" ],
     },
 
     // Callisto Penal Mines
@@ -314,9 +313,8 @@
       "projectKind": "AUTOMATED",
       "cost": 16,
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], CdTile",
-      "effects": [ "End: VictoryPoint / Adjacency<CdTile, CityTile<Anyone>>" ],
-      "components": [ "CLASS CdTile : SpecialTile" ],
+      "immediate": "PROD[-Energy, 4], SpecialTile<> {}",
+      "effects": [ "End: VictoryPoint / Adjacency<Card085_SpecialTile, CityTile<Anyone>>" ],
     },
 
     // Robotic Workforce
@@ -372,7 +370,7 @@
       "cost": 8,
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[6 Energy]",
-      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>" ],
     },
 
     // Physics Complex
@@ -415,7 +413,7 @@
       "projectKind": "ACTIVE",
       "cost": 1,
       "tags": [ "EarthTag" ],
-      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<Class<Megacredit>>" ],
     },
 
     // Acquired Company
@@ -496,9 +494,8 @@
       "projectKind": "ACTIVE",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "IcTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)> {}",
       "actions": [ "7 -> PROD[Steel]" ],
-      "components": [ "CLASS IcTile : SpecialTile" ],
     },
 
     // Hired Raiders
@@ -560,7 +557,7 @@
       "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard: -2 Owed",
+        "PlayCard: -2 Owed<Class<Megacredit>>",
         "End: 3 VictoryPoint"
       ],
     },
@@ -642,7 +639,7 @@
       "projectKind": "AUTOMATED",
       "cost": 11,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-Energy, 3], CityTile",
+      "immediate": "PROD[-Energy, 3], CityTile<>",
       "effects": [ "End: -2 VictoryPoint" ],
     },
 
@@ -697,9 +694,8 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "Card195Effect",
+      "immediate": "NextCardEffect { PlayCard:: -8 Owed<Class<Megacredit>> }",
       "effects": [ "End: -VictoryPoint" ],
-      "components": [ "CLASS Card195Effect : NextCardEffect { PlayCard:: -8 Owed }" ],
     },
 
     // Lagrange Observatory
@@ -731,9 +727,8 @@
       "projectKind": "ACTIVE",
       "cost": 11,
       "tags": [ "ScienceTag" ],
-      "immediate": "RaTile",
+      "immediate": "SpecialTile<> {}",
       "actions": [ "2 -> ProjectCard" ],
-      "components": [ "CLASS RaTile : SpecialTile" ],
     },
 
     // Energy Tapping

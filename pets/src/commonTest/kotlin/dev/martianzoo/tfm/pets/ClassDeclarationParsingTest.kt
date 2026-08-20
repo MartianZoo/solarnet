@@ -1,16 +1,69 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.MetricType
+import dev.martianzoo.pets.ast.PropertyValue.MetricValue
+import dev.martianzoo.pets.ast.PropertyValue.NumberType
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
+import dev.martianzoo.pets.ast.PropertyValue.RequirementType
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
+import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 internal class ClassDeclarationParsingTest {
+  @Test
+  fun propertiesUseBoundsLiteralsMetricsAndRequirements() {
+    val declaration =
+        parseClasses(
+                """
+                ABSTRACT CLASS Area {
+                  HAS =1 This
+                  DEFAULT +Area
+                  row = Number
+                  column = 2
+                  score = Metric
+                  scoreBasis = COUNT TemperatureStep OR VenusScaleStep
+                  scaledScore = COUNT 8 TemperatureStep
+                  requirement = Requirement
+                  optionalRequirement = Requirement?
+                  specificRequirement = HAS 3 Plant, MAX 2 Steel
+                  This: Area
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    declaration.properties shouldBe
+        mapOf(
+            PropertyName("row") to NumberType,
+            PropertyName("column") to NumberValue(2),
+            PropertyName("score") to MetricType,
+            PropertyName("scoreBasis") to
+                MetricValue(parse<Metric>("TemperatureStep OR VenusScaleStep")),
+            PropertyName("scaledScore") to MetricValue(parse<Metric>("8 TemperatureStep")),
+            PropertyName("requirement") to RequirementType,
+            PropertyName("optionalRequirement") to OptionalRequirementType,
+            PropertyName("specificRequirement") to
+                RequirementValue(parse<Requirement>("3 Plant, MAX 2 Steel")),
+        )
+    declaration.properties.getValue(PropertyName("scoreBasis")).toString() shouldBe
+        "COUNT TemperatureStep OR VenusScaleStep"
+  }
+
   @Test
   fun invalidDeclarationSourceUsesThePetsSyntaxDomain() {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo : Bar, Bar") }
@@ -18,6 +71,18 @@ internal class ClassDeclarationParsingTest {
       parseClasses("CLASS Foo { DEFAULT Foo(HAS Bar) }")
     }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo @ CLASS Bar") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Foo { cost = -1 }") }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("CLASS Foo { score = TemperatureStep }")
+    }
+  }
+
+  @Test
+  fun ownerLocalClassesAreRejectedInsideOrdinaryClassDeclarations() {
+    val source = "CLASS Foo { Bar {}: Baz }"
+
+    shouldThrow<PetSyntaxException> { parseClasses(source) }
+    shouldThrow<PetSyntaxException> { parseOneLinerClass(source) }
   }
 
   @Test

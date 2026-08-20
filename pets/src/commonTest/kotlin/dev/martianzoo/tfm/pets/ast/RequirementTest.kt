@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
@@ -23,6 +24,7 @@ internal class RequirementTest {
       5 Foo
       =1 Foo
       =11 Xyz
+      EVAL Foo.requirement
       PROD[11]
       MAX 1 Abc
       MAX 11 Bar
@@ -93,6 +95,13 @@ internal class RequirementTest {
   }
 
   @Test
+  fun requirementTargetsAreNotPartOfTheirMetrics() {
+    val metric = Metric.Count(fooEx)
+    parse<Requirement>("8 Foo") shouldBe Min(8, metric)
+    parse<Requirement>("MAX 8 Foo") shouldBe Max(8, metric)
+  }
+
+  @Test
   fun simpleApiToSource() {
     Min(scaledEx(fooEx, 1)).toString() shouldBe "Foo"
     Min(scaledEx(fooEx, 3)).toString() shouldBe "3 Foo"
@@ -133,5 +142,12 @@ internal class RequirementTest {
     testRoundTrip("Steel, PROD[1]")
     testRoundTrip("PROD[Steel, 1]")
     testRoundTrip("PROD[Steel OR 1]")
+  }
+
+  @Test
+  fun unexpandedEvalIsAProgrammerError() {
+    kotlin.test.assertFailsWith<IllegalStateException> {
+      parse<Requirement>("EVAL Foo.requirement").isMetBy { 0 }
+    }
   }
 }

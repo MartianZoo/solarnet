@@ -26,7 +26,7 @@
     {
       "id": "CC4",
       "deck": "CORPORATION",
-      "immediate": "45, Colony",
+      "immediate": "45, Mandate { -> Colony<> }",
       "effects": [ "Colony<Anyone>: PROD[1]" ],
     },
 
@@ -82,9 +82,8 @@
       "requirement": "2 EarthTag",
       "cost": 5,
       "tags": [ "EarthTag" ],
-      "immediate": "CardC05Effect",
+      "immediate": "NextCardEffect { PlayCard:: -16 Owed<Class<Megacredit>> }",
       "effects": [ "End: -VictoryPoint" ],
-      "components": [ "CLASS CardC05Effect : NextCardEffect { PlayCard:: -16 Owed }" ],
     },
 
     // Corona Extractor
@@ -196,7 +195,7 @@
       "projectKind": "AUTOMATED",
       "cost": 23,
       "tags": [ "SpaceTag" ],
-      "immediate": "Colony, OceanTile",
+      "immediate": "Colony<>, OceanTile<>",
     },
 
     // Impactor Swarm
@@ -217,7 +216,7 @@
       "projectKind": "EVENT",
       "cost": 12,
       "tags": [ "EarthTag", "SpaceTag" ],
-      "immediate": "Colony",
+      "immediate": "Colony<>",
     },
 
     // Jovian Lanterns
@@ -314,7 +313,7 @@
       "projectKind": "AUTOMATED",
       "cost": 20,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[Titanium], Colony",
+      "immediate": "PROD[Titanium], Colony<>",
     },
 
     // Minority Refuge
@@ -324,7 +323,7 @@
       "projectKind": "AUTOMATED",
       "cost": 5,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[-2], Colony",
+      "immediate": "PROD[-2], Colony<>",
     },
 
     // Molecular Printing
@@ -357,7 +356,7 @@
       "requirement": "MAX 1 Colony",
       "cost": 13,
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[-2], Colony",
+      "immediate": "PROD[-2], Colony<>",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
@@ -445,7 +444,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "ReserveTradeFleet",
       "effects": [
-        "PlayCard: -Owed",
+        "PlayCard: -Owed<Class<Megacredit>>",
         "End: 2 VictoryPoint"
       ],
     },
@@ -479,7 +478,7 @@
       "requirement": "Colony",
       "cost": 22,
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "ReserveTradeFleet, CityTile, PROD[-Energy, 4]",
+      "immediate": "ReserveTradeFleet, CityTile<>, PROD[-Energy, 4]",
     },
 
     // Space Port Colony
@@ -502,7 +501,7 @@
       "cost": 10,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[2]",
-      "effects": [ "CardFront(HAS 20 CardCost): ProjectCard" ],
+      "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
     },
 
     // Sub-Zero Salt Fish
@@ -584,7 +583,7 @@
       "projectKind": "ACTIVE",
       "cost": 18,
       "tags": [ "SpaceTag" ],
-      "immediate": "Colony",
+      "immediate": "Colony<>",
       "effects": [
         "Trade<ColonyTile>:: TradeBarrier",
         "Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier",
@@ -611,7 +610,7 @@
       "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -4 Owed",
+        "PlayTag<Class<SpaceTag>>:: -4 Owed<Class<Megacredit>>",
         "End: 2 VictoryPoint"
       ],
     },

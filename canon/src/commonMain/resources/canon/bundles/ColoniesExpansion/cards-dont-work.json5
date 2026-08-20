@@ -5,11 +5,8 @@
     {
       "id": "CC1",
       "deck": "CORPORATION",
-      "immediate": "40, MandateCC1",
+      "immediate": "40, Mandate { -> AddColonyTile<Class<ColonyTile>> }",
       "effects": [ "Class<Tag>(HAS Tag<Owner, !EventCard>): PROD[1]" ],
-      "components": [
-        "CLASS MandateCC1 : Mandate { -> AddColonyTile<Class<ColonyTile>> }"
-      ],
     },
 
     // Stormcraft Incorporated

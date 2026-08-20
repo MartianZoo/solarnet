@@ -1,8 +1,11 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -10,10 +13,10 @@ class MergerTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    p1.playCorp("ValleyTrust", 5)
+    p1.playCorp(ValleyTrust, 5)
     engine.phase("Prelude")
-    p1.playPrelude("UnmiContractor")
-    p1.playPrelude("Merger") { doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>") }
+    p1.playPrelude(UnmiContractor)
+    p1.playPrelude(Merger) { doTask("PlayCard<Class<CorporationCard>, Class<$Celestic>>") }
   }
 
   @Test
@@ -36,7 +39,7 @@ class MergerTest : CardTest() {
           0 to "Heat",
       )
 
-      doTask("PlayCard<Class<PreludeCard>, Class<SocietySupport>>")
+      doTask("PlayCard<Class<PreludeCard>, Class<$SocietySupport>>")
       p1.assertProds(
           -1 to "Megacredit",
           0 to "Steel",
@@ -46,5 +49,25 @@ class MergerTest : CardTest() {
           1 to "Heat",
       )
     }
+  }
+
+  @Test
+  fun `may pay Merger's 42 before playing the second corporation`() {
+    newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
+    p1.playCorp(CrediCor, 0)
+    engine.phase("Prelude")
+    p1.manual("PreludeCard")
+    p1.autoExecMode = NONE
+
+    p1.playPrelude(Merger) {
+      doTask("$Merger FROM PreludeCard")
+      doTask("4 CorporationCard")
+      doTask("-3 CorporationCard")
+      doTask("-42 Megacredit")
+      doTask("PlayCard<Class<CorporationCard>, Class<$Celestic>>")
+      p1.autoExecMode = FIRST
+    }
+
+    p1.assertCounts(1 to "$Celestic")
   }
 }

@@ -8,11 +8,9 @@ import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.TfmClasses.STANDARD_ACTION
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_PROJECT
 
 public data class StandardActionDefinition(
     override val className: ClassName,
-    val project: Boolean,
     val actions: List<String>,
     private val setupRequirementText: String? = null,
 ) : Definition {
@@ -23,12 +21,11 @@ public data class StandardActionDefinition(
   override val setupRequirement: Requirement? = setupRequirementText?.let(::parse)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
-    val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION
     // TODO can share some of this across Definitions?
     ClassDeclaration(
         className = className,
         kind = CONCRETE,
-        supertypes = setOf(kind.expression),
+        supertypes = setOf(STANDARD_ACTION.expression),
         effects = actionListToEffects(actions.map(::parse)),
     )
   }

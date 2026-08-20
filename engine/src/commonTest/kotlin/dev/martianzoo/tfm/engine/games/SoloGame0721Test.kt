@@ -5,6 +5,7 @@ import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -40,13 +41,12 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me's titanium amount increased by 10
       // me played PhoboLog
       // me kept 4 project cards
-      playCorp("Phobolog", 4).expect("11, 10 T")
+      playCorp(Phobolog, 4).expect("11, 10 T")
 
       // You discarded Enceladus
 
       // me played Merger
-      val UnitedNationsMarsInitiative = "UnitedNationsMarsInitiative"
-      playPrelude("Merger") {
+      playPrelude(Merger) {
         // You drew Thorgate, Valley Trust, United Nations Mars Initiative and Robinson Industries
         // You drew Thorgate, Valley Trust, United Nations Mars Initiative and Robinson Industries
         // me played United Nations Mars Initiative
@@ -54,7 +54,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         // TODO playCorp
       }
       // me played Great Aquifer
-      playPrelude("GreatAquifer") {
+      playPrelude(GreatAquifer) {
         // me placed ocean tile on row 3 position 6
         doTask("OceanTile<Elysium_3_6>")
         // me placed ocean tile on row 4 position 7
@@ -67,11 +67,11 @@ class SoloGame0721Test : AbstractSoloTest() {
 
       // me played Callisto Penal Mines
       // me's megacredits production increased by 3
-      playProject("CallistoPenalMines", titanium = 6)
+      playProject(CallistoPenalMines, titanium = 6)
 
       // me played Sponsors
       // me's megacredits production increased by 2
-      playProject("Sponsors", 6)
+      playProject(Sponsors, 6)
 
       // me passed
       // me acted as World Government and increased Venus scale
@@ -81,7 +81,6 @@ class SoloGame0721Test : AbstractSoloTest() {
       nextRound("VenusStep", 1)
 
       // me played Atmo Collectors
-      val AtmoCollectors = "AtmoCollectors"
       playProject(AtmoCollectors, 15) {
         // me added 2 floater(s) to Atmo Collectors
         doTask("2 Floater<$AtmoCollectors>")
@@ -93,7 +92,6 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("2 Titanium")
       }
       // me played Rotator Impacts
-      val RotatorImpacts = "RotatorImpacts"
       playProject(RotatorImpacts, 2, titanium = 1)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
@@ -119,12 +117,12 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("2 Titanium")
       }
       // me played Project Inspection
-      playProject("ProjectInspection", 0) {
+      playProject(ProjectInspection, 0) {
         // me used United Nations Mars Initiative action with Project Inspection
         doTask("UseAction1<$UnitedNationsMarsInitiative>")
       }
       // me played Energy Tapping
-      playProject("EnergyTapping", 3)
+      playProject(EnergyTapping, 3)
 
       // me passed
       // me acted as World Government and increased temperature
@@ -149,7 +147,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Nuclear Power
       // me's megacredits production decreased by 2
       // me's energy production increased by 3
-      playProject("NuclearPower", 10).expect("PROD[-2, 3E]")
+      playProject(NuclearPower, 10).expect("PROD[-2, 3E]")
 
       // me passed
       // me acted as World Government and increased temperature
@@ -174,20 +172,20 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
       // me played Solar Reflectors
       // me's heat production increased by 5
-      playProject("SolarReflectors", titanium = 6) // "overpay" 1
+      playProject(SolarReflectors, titanium = 6) // "overpay" 1
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
       stdAction("TradeSA", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 8 Steel")
       // me played Deep Well Heating
       // me's energy production increased by 1
       // me's heat production increased by 1
-      playProject("DeepWellHeating", 1, steel = 6).expect("PROD[E, H], TR")
+      playProject(DeepWellHeating, 1, steel = 6).expect("PROD[E, H], TR")
       // me played Carbonate Processing
       // me's energy production decreased by 1
       // me's heat production increased by 3
-      playProject("CarbonateProcessing", 2, steel = 2)
+      playProject(CarbonateProcessing, 2, steel = 2)
       // me played Earth Office
-      playProject("EarthOffice", 1)
+      playProject(EarthOffice, 1)
 
       // me passed
       // me acted as World Government and increased temperature
@@ -212,7 +210,6 @@ class SoloGame0721Test : AbstractSoloTest() {
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("17")
       // me played Extractor Balloons
       // me added 3 floater(s) to Extractor Balloons
-      val ExtractorBalloons = "ExtractorBalloons"
       playProject(ExtractorBalloons, 21)
       // me used Extractor Balloons action
       // me removed 2 resource(s) from me's Extractor Balloons
@@ -223,7 +220,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       withAutoExecLoweredAfterOperation(
               NONE,
               operation = { lowerAutoExec ->
-                playProject("MiningExpedition", 12) {
+                playProject(MiningExpedition, 12) {
                   doTask("-2 Plant<SoloOpponent>")
                   lowerAutoExec()
                 }
@@ -235,7 +232,7 @@ class SoloGame0721Test : AbstractSoloTest() {
             // me's plants amount increased by 1
             godMode()
                 .manual(
-                    "-7 THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<Conscription>> FROM ProjectCard"
+                    "-7 THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<$Conscription>> FROM ProjectCard"
                 ) {
                   doTask("OceanTile<Elysium_4_6>!")
                   autoExecMode = FIRST
@@ -266,9 +263,9 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me added 1 floater(s) to Extractor Balloons
       cardAction1(ExtractorBalloons)
       // me played CEO's Favorite Project
-      playProject("CeosFavoriteProject", 1) {
+      playProject(CeosFavoriteProject, 1) {
         // me added 1 asteroid(s) to Rotator Impacts
-        doTask("Asteroid<RotatorImpacts>")
+        doTask("Asteroid<$RotatorImpacts>")
       }
       // me used Rotator Impacts action
       // me removed 1 resource(s) from me's Rotator Impacts
@@ -282,7 +279,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       }
       // me played Geothermal Power
       // me's energy production increased by 2
-      playProject("GeothermalPower", 7, steel = 2)
+      playProject(GeothermalPower, 7, steel = 2)
       // me spent 3 energy to trade with Triton
       // me's titanium amount increased by 5
       stdAction("TradeSA", 2) { doTask("Trade<Triton>") }.expect("5 T")
@@ -310,7 +307,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Interplanetary Colony Ship
       // me built a colony on Luna
       // me's megacredits production increased by 2
-      playProject("InterplanetaryColonyShip", 5, titanium = 1) { doTask("Colony<Luna>") }
+      playProject(InterplanetaryColonyShip, 5, titanium = 1) { doTask("Colony<Luna>") }
           .expect("PROD[2]")
       // me used Convert Heat standard action
       stdAction("ConvertHeatSA")
@@ -323,13 +320,13 @@ class SoloGame0721Test : AbstractSoloTest() {
       stdProject("GreenerySP") { doTask("GreeneryTile<Elysium_3_7>") }.expect("3 Card")
       // me played Solarnet
       // me drew 2 card(s)
-      playProject("Solarnet", 7)
+      playProject(Solarnet, 7)
       // You drew Giant Solar Shade and Luna Governor
       // me played Luna Governor
       // me's megacredits production increased by 2
-      playProject("LunaGovernor", 0)
+      playProject(LunaGovernor, 0)
       // me played Giant Solar Shade
-      playProject("GiantSolarShade", 3, titanium = 6)
+      playProject(GiantSolarShade, 3, titanium = 6)
 
       // me passed
       // me acted as World Government and increased oxygen level
@@ -358,7 +355,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(RotatorImpacts) { pay(6) }
       // me played Moss
       // me's plants production increased by 1
-      playProject("Moss", 4)
+      playProject(Moss, 4)
       // me used City standard project
       stdProject("CitySP") {
         // me placed city tile on row 5 position 6
@@ -391,7 +388,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       assertSidebar(gen = 10, temp = -10, oxygen = 6, oceans = 3, venus = 24)
 
       // me played Dust Seals
-      playProject("DustSeals", 2)
+      playProject(DustSeals, 2)
       // me used Convert Heat standard action
       stdAction("ConvertHeatSA")
       // me used Convert Heat standard action
@@ -409,7 +406,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me removed an asteroid resource to increase Venus scale 1 step
       cardAction2(RotatorImpacts)
       // me played Ice Moon Colony
-      playProject("IceMoonColony", 23) {
+      playProject(IceMoonColony, 23) {
         // me built a colony on Triton
         // me's titanium amount increased by 3
         doTask("Colony<Triton>")
@@ -424,14 +421,14 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("OceanTile<Elysium_5_4>")
       }
       // me used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         // me placed greenery tile on row 5 position 5
         // me's plants amount increased by 2
         doTask("GreeneryTile<Elysium_5_5>")
       }
       // me played Insects
       // me's plants production increased by 1
-      playProject("Insects", 9).expect("PROD[P]")
+      playProject(Insects, 9).expect("PROD[P]")
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
       stdAction("TradeSA", 2) { doTask("Trade<Ceres>") }.expect("8 Steel")
@@ -453,9 +450,9 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me raised the Venus scale 1 step(s)
       cardAction2(ExtractorBalloons)
       // me played Venus Waystation 2 1 &
-      playProject("VenusWaystation", 1, titanium = 2)
+      playProject(VenusWaystation, 1, titanium = 2)
       // me played Release of Inert Gases
-      playProject("ReleaseOfInertGases", 14)
+      playProject(ReleaseOfInertGases, 14)
       // me spent 3 energy to trade with Luna
       // me's megacredits amount increased by 7
       // me's megacredits amount increased by 2
@@ -471,7 +468,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Trees
       // me's plants production increased by 3
       // me's plants amount increased by 1
-      playProject("Trees", 13)
+      playProject(Trees, 13)
       // me used Aquifer standard project
       stdProject("AquiferSP") {
         // me placed ocean tile on row 3 position 5
@@ -479,7 +476,7 @@ class SoloGame0721Test : AbstractSoloTest() {
         doTask("OceanTile<Elysium_3_5>")
       }
       // me used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // me placed greenery tile on row 4 position 5
             // me's plants amount increased by 1
             doTask("GreeneryTile<Elysium_4_5>")
@@ -524,7 +521,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me removed an asteroid resource to increase Venus scale 1 step
       cardAction2(RotatorImpacts)
       // me used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         // me placed greenery tile on row 6 position 6
         // me's plants amount increased by 1
         doTask("GreeneryTile<Elysium_6_7>")
@@ -543,7 +540,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(ExtractorBalloons)
       // me played Solar Power
       // me's energy production increased by 1
-      playProject("SolarPower", 0, steel = 6) // "overpay" 1
+      playProject(SolarPower, 0, steel = 6) // "overpay" 1
       // me used Greenery standard project
       stdProject("GreenerySP") {
         // me placed greenery tile on row 5 position 8
@@ -571,31 +568,33 @@ class SoloGame0721Test : AbstractSoloTest() {
       has("Victory") shouldBe true
 
       // Final greenery placement
-      doTask("UseAction1<ConvertPlantsSA>")
-      // me placed greenery tile on row 8 position 5
-      // me's steel amount increased by 2
-      doTask("GreeneryTile<Elysium_8_8>")
+      convertPlants {
+        // me placed greenery tile on row 8 position 5
+        // me's steel amount increased by 2
+        doTask("GreeneryTile<Elysium_8_8>")
+      }
       doTask("Ok")
       // This game id was gf33a06d07a1c
       // herokuapp results image: https://tinyurl.com/39xerd7w
 
       assertProduction(m = 8, s = 0, t = 0, p = 5, e = 7, h = 10)
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
-      assertCounts(0 to "ProjectCard", 69 to "TR", 32 to "CardFront OR PlayedEvent")
+      assertCounts(0 to "ProjectCard", 70 to "TR", 32 to "CardFront OR PlayedEvent")
       assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
-      assertSidebar(gen = 12, temp = 4, oxygen = 12, oceans = 8, venus = 30)
+      assertSidebar(gen = 12, temp = 4, oxygen = 13, oceans = 8, venus = 30)
 
       assertTags(5, 7, 0, 5, 5, 1, 3, 2, 1, 0, 0)
 
       val sum = Summarizer(game)
-      assertCounts(69 to "TerraformRating")
+      assertCounts(70 to "TerraformRating")
       sum.net("GreeneryTile", "VictoryPoint<Me>") shouldBe 8
       sum.net("CityTile", "VictoryPoint<Me>") shouldBe 13
       sum.net("Card", "VictoryPoint<Me>") shouldBe 5
-      assertCounts(95 to "VictoryPoint")
+      assertCounts(96 to "VictoryPoint")
       assertCounts(82 to "Megacredit")
 
-      // it's really 99 but we faked Flooding. note herokuapp says 111.
+      // Under Solarnet's final-greenery variant it's really 100, but we faked Flooding. Note
+      // herokuapp says 111.
       sum.net("ActionPhase", "UseAction<Me>") shouldBe 98
     }
   }

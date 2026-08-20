@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmTest
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.canonicalPremise
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 
@@ -32,31 +33,31 @@ class FirstPartialGameTest : TfmTest() {
 
       val workflow = TfmWorkflow.Auto(game).launch()
 
-      p1.playCorp("LakefrontResorts", 3)
-      p2.playCorp("InterplanetaryCinematics", 8)
+      p1.playCorp(LakefrontResorts, 3)
+      p2.playCorp(InterplanetaryCinematics, 8)
 
       p1.turn {
-        playPrelude("MartianIndustries")
-        playPrelude("GalileanMining")
+        playPrelude(MartianIndustries)
+        playPrelude(GalileanMining)
       }
       p2.turn {
-        playPrelude("MiningOperations")
-        playPrelude("UnmiContractor")
+        playPrelude(MiningOperations)
+        playPrelude(UnmiContractor)
       }
 
       // Generation 1 (Player1 first)
       p1.turn {
-        playProject("AsteroidMining", 30)
+        playProject(AsteroidMining, 30)
       }
       p2.turn {
-        playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<Elysium_3_7>") }
+        playProject(NaturalPreserve, 1, steel = 4) { doTask("Card044_SpecialTile<Elysium_3_7>") }
       }
       p1.pass()
       p2.turn {
-        playProject("SpaceElevator", 1, steel = 13)
-        cardAction1("SpaceElevator")
-        playProject("InventionContest", 2)
-        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<Player1>]") }
+        playProject(SpaceElevator, 1, steel = 13)
+        cardAction1(SpaceElevator)
+        playProject(InventionContest, 2)
+        playProject(GreatEscarpmentConsortium, 6) { doTask("PROD[-S<Player1>]") }
       }
       p2.pass()
 
@@ -65,27 +66,27 @@ class FirstPartialGameTest : TfmTest() {
       p2.buyCards(1)
 
       p2.turn {
-        cardAction1("SpaceElevator")
-        playProject("EarthCatapult", 23)
+        cardAction1(SpaceElevator)
+        playProject(EarthCatapult, 23)
       }
 
       p1.turn {
-        playProject("TitaniumMine", 7)
-        playProject("RoboticWorkforce", 9) { doTask("CopyProductionBox<MartianIndustries>") }
+        playProject(TitaniumMine, 7)
+        playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$MartianIndustries>") }
       }
 
       p2.turn {
-        playProject("IndustrialMicrobes", steel = 5)
-        playProject("TechnologyDemonstration", titanium = 1)
+        playProject(IndustrialMicrobes, steel = 5)
+        playProject(TechnologyDemonstration, titanium = 1)
       }
 
       p1.turn {
-        playProject("Sponsors", 6)
+        playProject(Sponsors, 6)
       }
 
       p2.turn {
-        playProject("EnergyTapping", 1) { doTask("PROD[-E<Player1>]") }
-        playProject("BuildingIndustries", steel = 2)
+        playProject(EnergyTapping, 1) { doTask("PROD[-E<Player1>]") }
+        playProject(BuildingIndustries, steel = 2)
       }
 
       p1.pass()
@@ -96,29 +97,29 @@ class FirstPartialGameTest : TfmTest() {
       p2.buyCards(2)
 
       p1.turn {
-        playProject("Mine", 2, steel = 1)
+        playProject(Mine, 2, steel = 1)
       }
 
       p2.turn {
-        cardAction1("SpaceElevator")
-        playProject("ElectroCatapult", 5, steel = 5)
+        cardAction1(SpaceElevator)
+        playProject(ElectroCatapult, 5, steel = 5)
       }
 
       p1.pass()
 
       p2.turn {
-        cardAction1("ElectroCatapult")
-        playProject("SpaceHotels", 7, titanium = 1)
+        cardAction1(ElectroCatapult)
+        playProject(SpaceHotels, 7, titanium = 1)
 
-        playProject("MarsUniversity", 6) {
+        playProject(MarsUniversity, 6) {
           doTask("-ProjectCard")
         }
-        playProject("ArtificialPhotosynthesis", 10) {
+        playProject(ArtificialPhotosynthesis, 10) {
           doTask("PROD[2 Energy]")
           doTask("Ok")
         }
 
-        playProject("BribedCommittee", 5)
+        playProject(BribedCommittee, 5)
 
         pass()
       }
@@ -128,18 +129,18 @@ class FirstPartialGameTest : TfmTest() {
       p2.buyCards(2)
 
       p2.turn {
-        cardAction1("ElectroCatapult")
-        cardAction1("SpaceElevator")
+        cardAction1(ElectroCatapult)
+        cardAction1(SpaceElevator)
       }
 
       p1.turn {
-        playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
-        playProject("IoMiningIndustries", 1, titanium = 13)
+        playProject(ResearchOutpost, 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
+        playProject(IoMiningIndustries, 1, titanium = 13)
       }
 
       p2.turn {
-        playProject("TransNeptuneProbe", 1, titanium = 1) { doTask("Ok") }
-        playProject("Hackers", 1) { doTask("PROD[-2 M<Player1>]") }
+        playProject(TransNeptuneProbe, 1, titanium = 1) { doTask("Ok") }
+        playProject(Hackers, 1) { doTask("PROD[-2 M<Player1>]") }
       }
 
       p1.turn {
@@ -147,7 +148,7 @@ class FirstPartialGameTest : TfmTest() {
       }
 
       p2.turn {
-        playProject("SolarPower", 1, steel = 4)
+        playProject(SolarPower, 1, steel = 4)
         stdProject("CitySP") { doTask("CityTile<Elysium_6_5>") }
       }
 

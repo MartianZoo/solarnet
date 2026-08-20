@@ -9,13 +9,55 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.engine.CanonClassesTest
+import dev.martianzoo.tfm.engine.cardnames.MediaGroup
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class TypeTest {
+  @Test
+  fun getsInheritedConcretePropertyValues() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS TemperatureStep",
+            """
+            ABSTRACT CLASS Area {
+              row = Number
+              score = Metric
+              requirement = Requirement
+            }
+            """
+                .trimIndent(),
+            """
+            CLASS ConcreteArea : Area {
+              row = 8
+              score = COUNT TemperatureStep
+              requirement = HAS TemperatureStep
+            }
+            """
+                .trimIndent(),
+        )
+
+    val area = table.resolve(te("ConcreteArea"))
+    area.getNumberPropertyValue("row") shouldBe 8
+    area.getMetricPropertyValue("score") shouldBe parse<Metric>("TemperatureStep")
+    area.getRequirementPropertyValue("requirement") shouldBe parse<Requirement>("TemperatureStep")
+  }
+
+  @Test
+  fun getsAbsentOptionalRequirementPropertyValue() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Goal { requirement = Requirement? }",
+            "CLASS OptionalGoal : Goal",
+        )
+
+    table.resolve(te("OptionalGoal")).getRequirementPropertyValue("requirement") shouldBe null
+  }
+
   @Test
   fun classTablesCannotBeMixed() {
     fun universe() = loadTypes("ABSTRACT CLASS Foo", "CLASS Bar<Foo>")
@@ -44,14 +86,11 @@ internal class TypeTest {
     val table: ClassTable =
         loadTypes(
             """
-            ABSTRACT CLASS Anyone {
-              ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-            }
+            CLASS Player1 : Owner
+            CLASS Player2 : Owner
 
-            ABSTRACT CLASS Owned<Owner> {
-              ABSTRACT CLASS CardFront
-              ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
-            }
+            ABSTRACT CLASS CardFront : Owned<Owner>
+            ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
 
             // Treated as an extension of Cardbound<ResourceCard<Class<CardResource>>>, plus a rule
             ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> {
@@ -139,13 +178,8 @@ internal class TypeTest {
     val table =
         loadTypes(
             """
-            ABSTRACT CLASS Anyone {
-              ABSTRACT CLASS Owner {
-                CLASS SoloOpponent
-                ABSTRACT CLASS Player { CLASS Player1 }
-              }
-            }
-            ABSTRACT CLASS Owned<Anyone>
+            CLASS SoloOpponent : Owner
+            ABSTRACT CLASS Player : Owner { CLASS Player1 }
             ABSTRACT CLASS Card : Owned<Player> { CLASS Badge }
             ABSTRACT CLASS Resource : Owned<Owner> { CLASS Coin }
             """
@@ -298,10 +332,8 @@ internal class TypeTest {
     val table =
         loadTypes(
             """
-            ABSTRACT CLASS Anyone {
-              ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-            }
-            ABSTRACT CLASS Owned<Owner>
+            CLASS Player1 : Owner
+            CLASS Player2 : Owner
             """
                 .trimIndent()
         )
@@ -403,13 +435,14 @@ internal class TypeTest {
     val complementTable =
         loadTypes(
             """
-            ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-            CLASS Owned<Owner>
+            CLASS Player1 : Owner
+            CLASS Player2 : Owner
+            CLASS Possession<Owner>
             """
                 .trimIndent()
         )
-    complementTable.resolve(te("Owned<!Player1>")).singleConcreteSubtype(met) shouldBe
-        complementTable.resolve(te("Owned<Player2>"))
+    complementTable.resolve(te("Possession<!Player1>")).singleConcreteSubtype(met) shouldBe
+        complementTable.resolve(te("Possession<Player2>"))
 
     val incompatibleTable =
         loadTypes(
@@ -452,10 +485,10 @@ internal class TypeTest {
 
   @Test
   fun subs2() {
-    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<Card109>>"))
+    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<$MediaGroup>>"))
     findSubstitutions(pprod) shouldBe
         mapOf(
-            cn("CardFront") to cn("Card109").expression,
+            cn("CardFront") to MediaGroup.expression,
             OWNER to PLAYER1.expression,
         )
   }

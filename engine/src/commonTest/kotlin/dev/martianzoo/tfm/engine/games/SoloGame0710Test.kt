@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -25,28 +26,28 @@ class SoloGame0710Test : AbstractSoloTest() {
   @Test
   fun soloGame0710() {
     with(me) {
-      playCorp("PharmacyUnion", 10).expect("16, 11 ProjectCard")
+      playCorp(PharmacyUnion, 10).expect("16, 11 ProjectCard")
 
-      playPrelude("Merger") {
+      playPrelude(Merger) {
         // playCorp("Manutech", 0) - TODO this really should work
-        doTask("PlayCard<Class<CorporationCard>, Class<Manutech>>")
+        doTask("PlayCard<Class<CorporationCard>, Class<$Manutech>>")
       }
 
-      playPrelude("HeadStart") {
+      playPrelude(HeadStart) {
         doTask("UseAction1<PlayCardSA>")
-        doTask("PlayCard<Class<ProjectCard>, Class<OlympusConference>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>>")
         pay(4, steel = 3)
 
         doTask("UseAction1<PlayCardSA>")
-        doTask("PlayCard<Class<ProjectCard>, Class<StandardTechnology>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>")
         pay(6)
-        doTask("ProjectCard FROM Science<OlympusConference>")
+        doTask("ProjectCard FROM Science<$OlympusConference>")
       }
 
-      playProject("AdvancedAlloys", 9) {
-        doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
+      playProject(AdvancedAlloys, 9) {
+        doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
       }
-      playProject("IndustrialMicrobes", 12).expect("S, E, PROD[S, E]")
+      playProject(IndustrialMicrobes, 12).expect("S, E, PROD[S, E]")
 
       nextRound("VenusStep", 2)
 
@@ -60,7 +61,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertDashRight(events = 1, tagless = 2, cities = 0, colonies = 0)
       assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 2)
 
-      playProject("CarbonateProcessing", steel = 2).expect("3 Heat")
+      playProject(CarbonateProcessing, steel = 2).expect("3 Heat")
 
       nextRound("VenusStep", 1)
 
@@ -71,14 +72,14 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertDashRight(events = 1, tagless = 2, cities = 0, colonies = 0)
       assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 4)
 
-      playProject("DeepWellHeating", 4, steel = 3).expect("Energy, TR")
+      playProject(DeepWellHeating, 4, steel = 3).expect("Energy, TR")
       stdAction("ConvertHeatSA").expect("TR")
-      playProject("NoctisCity", 18).expect("CityTile<Tharsis_5_3>, 2 Plant")
-      playProject("FueledGenerators", 1)
+      playProject(NoctisCity, 18).expect("CityTile<Tharsis_5_3>, 2 Plant")
+      playProject(FueledGenerators, 1)
 
       nextRound("VenusStep", 1)
 
-      playProject("EnergySaving", 15)
+      playProject(EnergySaving, 15)
       stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }.expect("4 E")
 
       nextRound("OceanTile<Tharsis_5_5>", 1)
@@ -94,17 +95,20 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       stdProject("BuildColonySP") { doTask("Colony<Luna>") }
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15")
-      playProject("GiantSolarShade", 27).expect("Card")
-      playProject("GeothermalPower", 2, steel = 3)
+      playProject(GiantSolarShade, 27).expect("Card")
+      playProject(GeothermalPower, 2, steel = 3)
 
       nextRound("VenusStep", 2)
 
       stdAction("ConvertHeatSA").expect("PROD[Heat]")
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_6_3>") }.expect("-6 Plant, TR")
+      convertPlants {
+            doTask("GreeneryTile<Tharsis_6_3>")
+          }
+          .expect("-6 Plant, TR")
 
-      playProject("MineralDeposit", 5)
-      playProject("FieldCappedCity", 5, steel = 8) { doTask("CityTile<Tharsis_7_4>") }
+      playProject(MineralDeposit, 5)
+      playProject(FieldCappedCity, 5, steel = 8) { doTask("CityTile<Tharsis_7_4>") }
 
       nextRound("OceanTile<Tharsis_6_7>", 2)
 
@@ -115,13 +119,12 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertDashRight(events = 2, tagless = 2, cities = 2, colonies = 1)
       assertSidebar(gen = 7, temp = -20, oxygen = 1, oceans = 2, venus = 14)
 
-      val AsteroidRights = "AsteroidRights"
       playProject(AsteroidRights, 10)
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       stdAction("ConvertHeatSA")
-      playProject("ViralEnhancers", 9) { doTask("ProjectCard FROM Science<OlympusConference>") }
-      playProject("QuantumExtractor", 13)
-      playProject("SoilFactory", 3, steel = 2)
+      playProject(ViralEnhancers, 9) { doTask("ProjectCard FROM Science<$OlympusConference>") }
+      playProject(QuantumExtractor, 13)
+      playProject(SoilFactory, 3, steel = 2)
 
       nextRound("OxygenStep", 3)
 
@@ -130,13 +133,15 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
 
-      playProject("GiantIceAsteroid", 18, titanium = 4) {
+      playProject(GiantIceAsteroid, 18, titanium = 4) {
         doTask("-6 Plant<SoloOpponent>")
         doTask("OceanTile<Tharsis_5_4>")
         doTask("OceanTile<Tharsis_5_6>")
       }
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_6_4>") }
-      playProject("MagneticShield", 22)
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_6_4>")
+      }
+      playProject(MagneticShield, 22)
 
       nextRound("OxygenStep", 3)
 
@@ -148,11 +153,11 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertSidebar(gen = 9, temp = -10, oxygen = 4, oceans = 4, venus = 14)
 
       stdAction("ConvertHeatSA")
-      playProject("ResearchOutpost", 6, steel = 4) {
-        doTask("ProjectCard FROM Science<OlympusConference>")
+      playProject(ResearchOutpost, 6, steel = 4) {
+        doTask("ProjectCard FROM Science<$OlympusConference>")
         doTask("CityTile<Tharsis_8_6>")
       }
-      playProject("IceMoonColony", 20) {
+      playProject(IceMoonColony, 20) {
         doTask("Colony<Ganymede>")
         doTask("OceanTile<Tharsis_2_6>")
       }
@@ -160,18 +165,19 @@ class SoloGame0710Test : AbstractSoloTest() {
       cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       sellPatents(3)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_7>") }
-      playProject("PermafrostExtraction", 7) { doTask("OceanTile<Tharsis_9_9>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_8_7>")
+      }
+      playProject(PermafrostExtraction, 7) { doTask("OceanTile<Tharsis_9_9>") }
 
       nextRound("OxygenStep", 2)
 
-      playProject("MiningExpedition", 11) { doTask("-2 Plant<SoloOpponent>") }
+      playProject(MiningExpedition, 11) { doTask("-2 Plant<SoloOpponent>") }
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
-      playProject("StripMine", 12, steel = 4)
+      playProject(StripMine, 12, steel = 4)
       sellPatents(1)
 
-      val SubZeroSaltFish = "SubZeroSaltFish"
       playProject(SubZeroSaltFish, 4) {
         doTask("PROD[-Plant<SoloOpponent>]")
         doTask("Animal<$SubZeroSaltFish>") // Viral Enhancers
@@ -179,19 +185,19 @@ class SoloGame0710Test : AbstractSoloTest() {
       cardAction1(SubZeroSaltFish).expect("Animal")
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
-      val GhgProducingBacteria = "GhgProducingBacteria"
       playProject(GhgProducingBacteria, 7) { doTask("Plant") }
-      playProject("ImportedNitrogen", 0, titanium = 5) {
+      playProject(ImportedNitrogen, 0, titanium = 5) {
         doTask("3 Microbe<$GhgProducingBacteria>")
         doTask("2 Animal<$SubZeroSaltFish>")
       }
       cardAction2(GhgProducingBacteria) { doTask("OceanTile<Tharsis_1_2>") }
 
       // TODO: this ! really should not be necessary
-      playProject("ArtificialLake", 2, steel = 4) { doTask("OceanTile<Tharsis_6_6>!") }
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_5_2>") }
+      playProject(ArtificialLake, 2, steel = 4) { doTask("OceanTile<Tharsis_6_6>!") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_5_2>")
+      }
 
-      val RefugeeCamps = "RefugeeCamps"
       playProject(RefugeeCamps, 9)
       cardAction1(RefugeeCamps)
       stdAction("TradeSA", 2) { doTask("Trade<Callisto>") }
@@ -208,21 +214,23 @@ class SoloGame0710Test : AbstractSoloTest() {
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
       cardAction1(RefugeeCamps)
-      playProject("IceCapMelting", 4) { doTask("OceanTile<Tharsis_1_4>") }
+      playProject(IceCapMelting, 4) { doTask("OceanTile<Tharsis_1_4>") }
 
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
-      playProject("TransNeptuneProbe", 3) { doTask("ProjectCard FROM Science<OlympusConference>") }
+      playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science<$OlympusConference>") }
       stdProject("CitySP") { doTask("CityTile<Tharsis_6_5>") }
-      playProject("UrbanizedArea", steel = 3) { doTask("CityTile<Tharsis_7_5>") }
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_8_5>") }
+      playProject(UrbanizedArea, steel = 3) { doTask("CityTile<Tharsis_7_5>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_8_5>")
+      }
       cardAction1(SubZeroSaltFish)
       cardAction1(GhgProducingBacteria)
       cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_8_4>") }
-      playProject("JovianEmbassy", 4, steel = 3)
+      playProject(JovianEmbassy, 4, steel = 3)
       stdAction("ConvertHeatSA")
       sellPatents(2)
-      playProject("DawnCity", 8, titanium = 1)
+      playProject(DawnCity, 8, titanium = 1)
       stdProject("AirScrappingSP")
 
       nextRound("VenusStep", 2)
@@ -240,15 +248,17 @@ class SoloGame0710Test : AbstractSoloTest() {
       cardAction1(SubZeroSaltFish)
       cardAction1(RefugeeCamps)
       cardAction1(GhgProducingBacteria) // uselessly
-      playProject("MagneticFieldDome", 1, steel = 1)
+      playProject(MagneticFieldDome, 1, steel = 1)
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_9_6>") }
-      playProject("InterstellarColonyShip", 1, titanium = 5)
+      playProject(InterstellarColonyShip, 1, titanium = 5)
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
       stdProject("CitySP") { doTask("CityTile<Tharsis_9_5>") }
-      playProject("SpacePort", 3, steel = 6) { doTask("CityTile<Tharsis_6_2>") }
+      playProject(SpacePort, 3, steel = 6) { doTask("CityTile<Tharsis_6_2>") }
       sellPatents(1)
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_7_6>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_7_6>")
+      }
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_7_3>") }
       stdProject("AirScrappingSP")
 

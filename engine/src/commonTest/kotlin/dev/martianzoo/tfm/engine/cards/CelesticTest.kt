@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.engine.TestOption.*
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -10,7 +11,7 @@ class CelesticTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(VenusNextExpansion)
-    p1.playCorp("Celestic", 5)
+    p1.playCorp(Celestic, 5)
     p1.manual("10 Heat")
     engine.phase("Action")
   }
@@ -25,12 +26,12 @@ class CelesticTest : CardTest() {
   fun `after resolving its card draw, plays a project as Celestic`() {
     advanceToStartingCardDraw()
     p1.stdAction("HandleMandates")
-    p1.playProject("Mine", 4).expect("PROD[Steel]")
+    p1.playProject(Mine, 4).expect("PROD[Steel]")
   }
 
   @Test
   fun `before resolving its card draw, tries to play a project as Celestic`() {
-    shouldThrow<RequirementException> { p1.playProject("Mine", 4) }
+    shouldThrow<RequirementException> { p1.playProject(Mine, 4) }
   }
 
   @Test

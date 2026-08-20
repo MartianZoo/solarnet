@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Player
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -21,7 +22,7 @@ class FloodingTest : CardTest() {
   @Test
   fun `cannot charge a non-neighboring owner`() {
     arrangeFlooding()
-    p1.playProject("Flooding", 7) {
+    p1.playProject(Flooding, 7) {
       shouldThrow<NarrowingException> {
         doTask("OceanTile<Tharsis_5_4> THEN -4 Megacredit<Player4>!")
       }
@@ -35,7 +36,7 @@ class FloodingTest : CardTest() {
         owner?.let { "OceanTile<Tharsis_5_4> THEN -4 Megacredit<$it>!" } ?: "OceanTile<Tharsis_5_4>"
     val expected = listOfNotNull("OceanTile<Tharsis_5_4>", expectedCharge).joinToString()
 
-    p1.playProject("Flooding", 7) { doTask(task) }.expect(expected)
+    p1.playProject(Flooding, 7) { doTask(task) }.expect(expected)
   }
 
   private fun arrangeFlooding() {

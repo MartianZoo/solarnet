@@ -4,7 +4,8 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.data.Definition
-import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.DerivedClassLowerer
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.Transforming.immediateToEffect
@@ -13,9 +14,13 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.PropertyName
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
@@ -49,6 +54,11 @@ public class CardDefinition(data: CardData) : Definition {
 
   override val className: ClassName = cn("Card$id")
 
+  private val derivedClasses = DerivedClassLowerer(className)
+
+  private inline fun <reified P : PetNode> parseOwned(source: String): P =
+      Parsing.parse(P::class, source, derivedClasses)
+
   /**
    * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
    * property is public information even when the rest of the card data is hidden, then becomes
@@ -63,9 +73,14 @@ public class CardDefinition(data: CardData) : Definition {
   public val replaces: String? by data::replaces
 
   /** Configuration condition that must hold for this card to be active. */
-  override val setupRequirement: Requirement? = data.setupRequirement?.let(::parse)
+  override val setupRequirement: Requirement? = data.setupRequirement?.let(::parseOwned)
 
-  public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
+  public val projectInfo: ProjectInfo? =
+      if (deck == PROJECT) {
+        ProjectInfo(data, data.requirement?.let(::parseOwned))
+      } else {
+        null
+      }
 
   /**
    * The tags on the card. The list can contain duplicates (for example, Venus Governor has two
@@ -75,32 +90,35 @@ public class CardDefinition(data: CardData) : Definition {
   public val tags: Multiset<ClassName> = HashMultiset.of(data.tags.map(::cn))
 
   /** The card's immediate instruction, if any. */
-  public val immediate: Instruction? = data.immediate?.let(::parse)
+  public val immediate: InstructionGroup? =
+      data.immediate?.let {
+        InstructionGroup.of(parseOwned<InstructionTree>(it))
+      }
 
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val actions: List<Action> = data.actions.map(::parse)
+  public val actions: List<Action> = data.actions.map(::parseOwned)
 
   /**
    * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val effects: List<Effect> = data.effects.map(::parse)
+  public val effects: List<Effect> = data.effects.map(::parseOwned)
 
-  /** The card's requirement, if any. */
+  /** The card's printed play requirement, if any. */
   public val requirement: Requirement? = projectInfo?.requirement
 
   /** The card's non-negative cost in megacredits. */
   public val cost: Int = projectInfo?.cost ?: 0
 
   /** Extra information that only project cards have. */
-  public class ProjectInfo internal constructor(data: CardData) {
+  public class ProjectInfo internal constructor(data: CardData, requirement: Requirement?) {
     public val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
 
-    /** The card's requirement, if any. */
-    public val requirement: Requirement? = data.requirement?.let(::parse)
+    /** The card's printed play requirement, if any. */
+    public val requirement: Requirement? = requirement
 
     /** The card's non-negative cost in megacredits. */
     public val cost: Int by data::cost
@@ -125,10 +143,13 @@ public class CardDefinition(data: CardData) : Definition {
 
   /** Additional class declarations that come along with this card. */
   public val extraClasses: List<ClassDeclaration> =
-      data.components.map(::parseOneLinerClass) + listOfNotNull(resourceClassDeclaration())
+      data.components.map(::parseOneLinerClass) +
+          derivedClasses.declarations +
+          listOfNotNull(resourceClassDeclaration())
 
   override val asClassDeclaration: ClassDeclaration by lazy {
-    val createTags = Multi.create(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
+    val createTags =
+        InstructionGroup.createTree(tags.entries.map { (tag, count) -> gain(tag.of(THIS), count) })
 
     val automaticFx: List<Effect> = listOfNotNull(immediateToEffect(createTags, true))
 
@@ -151,8 +172,12 @@ public class CardDefinition(data: CardData) : Definition {
         supertypes = supertypes,
         effects = allEffects,
         invariants = setOf(Max(scaledEx(className.expression, 1))),
-        extraNodes =
-            setOfNotNull(requirement, deck?.className) + extraClasses.flatMap { it.allNodes },
+        properties =
+            buildMap {
+              put(COST_PROPERTY, NumberValue(cost))
+              requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
+            },
+        extraNodes = setOfNotNull(deck?.className) + extraClasses.flatMap { it.allNodes },
     )
   }
 
@@ -208,5 +233,10 @@ public class CardDefinition(data: CardData) : Definition {
 
   private fun resourceClassDeclaration(): ClassDeclaration? = resourceType?.let { type ->
     parseOneLinerClass("CLASS $type : CardResource<ResourceHolder<Class<$type>, Owner>>")
+  }
+
+  private companion object {
+    val COST_PROPERTY = PropertyName("cost")
+    val REQUIREMENT_PROPERTY = PropertyName("requirement")
   }
 }

@@ -46,7 +46,7 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  public fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
+  public fun playCorp(cardName: ClassName, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return inTurn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
@@ -57,9 +57,9 @@ public class TfmGameplay(
   public fun pass(): TaskResult = inTurn { doTask("Pass") }
 
   /**
-   * Performs the actions in one fixture-level turn, declining an unused second action when needed.
-   * If every other player has passed, the workflow offers `NewTurn` rather than a second action;
-   * that offer is deliberately left in place so this block can contain the rest of the generation.
+   * Performs the actions in one test-level turn, declining an unused second action when needed. If
+   * every other player has passed, the workflow offers `NewTurn` rather than a second action; that
+   * offer is deliberately left in place so this block can contain the rest of the generation.
    */
   public fun turn(body: TfmGameplay.() -> Unit) {
     body()
@@ -95,6 +95,14 @@ public class TfmGameplay(
     }
   }
 
+  public fun convertPlants(body: BodyLambda = {}): TaskResult {
+    return stdAction("ConvertPlantsSA") {
+      val plantsOwed = this@TfmGameplay.count("Owed<Class<Plant>>")
+      doTask("$plantsOwed Pay<Class<Plant>> FROM Plant")
+      body()
+    }
+  }
+
   public fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseStandardProjectSA") {
       doTask("UseAction1<$stdProject>")
@@ -102,7 +110,7 @@ public class TfmGameplay(
     }
   }
 
-  public fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
+  public fun playPrelude(cardName: ClassName, body: BodyLambda = {}): TaskResult {
     return inTurn {
       doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
       body()
@@ -111,11 +119,11 @@ public class TfmGameplay(
 
   // In the method after this, all the cost parameters are optional,
   // but you've gotta provide ONE of them.
-  public fun playProject(unused1: String, unused2: BodyLambda = {}): Nothing =
+  public fun playProject(unused1: ClassName, unused2: BodyLambda = {}): Nothing =
       error("you must specify some cost")
 
   public fun playProject(
-      cardName: String,
+      cardName: ClassName,
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
@@ -164,13 +172,13 @@ public class TfmGameplay(
     }
   }
 
-  public fun cardAction1(cardName: String, body: BodyLambda = {}): TaskResult =
+  public fun cardAction1(cardName: ClassName, body: BodyLambda = {}): TaskResult =
       cardAction(1, cardName, body)
 
-  public fun cardAction2(cardName: String, body: BodyLambda = {}): TaskResult =
+  public fun cardAction2(cardName: ClassName, body: BodyLambda = {}): TaskResult =
       cardAction(2, cardName, body)
 
-  private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
+  private fun cardAction(which: Int, cardName: ClassName, body: BodyLambda = {}): TaskResult {
     return stdAction("UseCardActionSA") {
       doTask("ActionUsedMarker<$cardName>")
       doTask("$USE_ACTION$which<$cardName>")

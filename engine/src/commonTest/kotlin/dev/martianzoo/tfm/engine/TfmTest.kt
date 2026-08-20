@@ -5,6 +5,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 abstract class TfmTest {
@@ -22,7 +23,7 @@ abstract class TfmTest {
     doTask(if (count == 0) "Ok" else "$count BuyCard")
   }
 
-  protected fun TfmGameplay.playCorp(cardName: String, body: BodyLambda): TaskResult = inTurn {
+  protected fun TfmGameplay.playCorp(cardName: ClassName, body: BodyLambda): TaskResult = inTurn {
     doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
     body()
   }

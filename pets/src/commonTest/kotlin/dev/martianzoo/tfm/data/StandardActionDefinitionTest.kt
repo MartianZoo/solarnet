@@ -12,7 +12,6 @@ internal class StandardActionDefinitionTest {
                 """
                 {
                   actions: [{ id: "ExampleSA", action: "-> Plant" }],
-                  projects: [],
                 }
                 """
             )

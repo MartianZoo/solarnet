@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.data.Player.Companion.PLAYER3
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -20,31 +21,31 @@ class CrashSiteCleanupTest : CardTest() {
   @Test
   fun `after p1 removes a p2 plant, plays Crash Site Cleanup`() {
     p1.manual("-Plant<Player2>")
-    p1.playProject("CrashSiteCleanup", 4) { doTask("Titanium") }.expect("Titanium")
+    p1.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
   }
 
   @Test
   fun `without a plant loss, tries to play Crash Site Cleanup`() {
-    shouldThrow<RequirementException> { p1.playProject("CrashSiteCleanup", 4) }
+    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
   fun `after losing an own plant, tries to play Crash Site Cleanup`() {
     p1.manual("Plant, -Plant")
-    shouldThrow<RequirementException> { p1.playProject("CrashSiteCleanup", 4) }
+    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
   fun `after p2 removes an own plant, tries to play Crash Site Cleanup`() {
     requireP2().manual("-Plant")
-    shouldThrow<RequirementException> { p1.playProject("CrashSiteCleanup", 4) }
+    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
   fun `a generation after removing a p2 plant, tries to play Crash Site Cleanup`() {
     p1.manual("-Plant<Player2>")
     engine.manual("Generation")
-    shouldThrow<RequirementException> { p1.playProject("CrashSiteCleanup", 4) }
+    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
@@ -58,7 +59,7 @@ class CrashSiteCleanupTest : CardTest() {
 
     p1.manual("-Plant<Player2>")
 
-    shouldThrow<RequirementException> { p3.playProject("CrashSiteCleanup", 4) }
-    p1.playProject("CrashSiteCleanup", 4) { doTask("2 Steel") }.expect("2 Steel")
+    shouldThrow<RequirementException> { p3.playProject(CrashSiteCleanup, 4) }
+    p1.playProject(CrashSiteCleanup, 4) { doTask("2 Steel") }.expect("2 Steel")
   }
 }

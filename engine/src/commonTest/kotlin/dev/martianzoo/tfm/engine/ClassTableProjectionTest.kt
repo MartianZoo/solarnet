@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
@@ -54,7 +55,7 @@ internal class ClassTableProjectionTest {
             "PreludeExpansion" to 272 + 45, // 47 minus Research Network/Coordination
             "ColoniesExpansion" to 317 + 52, // 54 minus Aridor and Stormcraft
             "TurmoilCardPack" to 369 + 4,
-            "PromoCardPack" to 373 + 85,
+            "PromoCardPack" to 373 + 86,
         )
     )
   }
@@ -99,15 +100,12 @@ internal class ClassTableProjectionTest {
   }
 
   @Test
-  fun `concrete award definitions and placement classes stay unloaded in solo`() {
+  fun `concrete award definitions stay unloaded in solo`() {
     baseSolo.classTable
         .getClass(cn("Award"))
         .allSubclasses()
         .map { it.className }
         .shouldContainExactly(cn("Award"))
-    assertNotLoaded("FirstPlace", baseSolo)
-    assertNotLoaded("SecondPlace", baseSolo)
-    assertNotLoaded("AssignAwardPlaces", baseSolo)
   }
 
   @Test
@@ -121,18 +119,21 @@ internal class ClassTableProjectionTest {
       assertNotLoaded("GenerationSetup", baseMultiplayer)
 
   @Test
-  fun `solo classes stay unloaded in multiplayer`() =
-      matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
+  fun `solo classes stay unloaded in multiplayer`() {
+    matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
+  }
 
   @Test
-  fun `abstract Award and its tallying machinery are incorrectly loaded in solo`() {
+  fun `abstract Award and its scoring machinery are incorrectly loaded in solo`() {
     matchingClasses("award", baseSolo)
         .shouldContainExactlyInAnyOrder(
             cn("Award"),
             cn("MeasureAward"),
-            cn("TallyAward"),
             cn("AwardTally"),
+            cn("AssignAwardPlaces"),
         )
+    baseSolo.classNames.shouldContain(cn("FirstPlace"))
+    baseSolo.classNames.shouldContain(cn("SecondPlace"))
   }
 
   @Test
@@ -141,9 +142,9 @@ internal class ClassTableProjectionTest {
     matchingClasses("award", projection)
         .shouldContainExactlyInAnyOrder(
             cn("MeasureAward"),
-            cn("TallyAward"),
             cn("AwardTally"),
             cn("Award"),
+            cn("AssignAwardPlaces"),
         )
     projection.classTable
         .getClass(cn("Award"))

@@ -31,8 +31,8 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.pets.ast.Effect.Trigger.WrappingTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 
 /** One specialized component effect ready for subscription matching and firing. */
@@ -42,6 +42,7 @@ private constructor(
     internal val effect: Effect,
     private val context: Component,
     private val triggerClass: ClassName?,
+    private val transformers: Transformers,
 ) {
   internal val automatic: Boolean
     get() = effect.automatic
@@ -83,10 +84,14 @@ private constructor(
     val assignee = assigneeForTriggeredWork(triggerEvent, effectOwner, changedComponentPlayer)
     val hit = subscription.checkForHit(triggerEvent, contextualOwner, isSelf, reader) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
+    val instruction =
+        transformers
+            .evaluateProperties(context.expression, contextualOwner)
+            .transformInstructionTree(hit.specialize(effect.instruction))
     return PendingTask(
         assignee = assignee,
         actor = effectOwner ?: triggerEvent.actor,
-        instruction = hit.specialize(effect.instruction),
+        instruction = InstructionGroup.of(instruction),
         cause = cause,
     )
   }
@@ -149,7 +154,7 @@ private constructor(
       val subscription = Subscription.from(effect.trigger, context, linkedSources)
       val triggerClass =
           subscription.classToCheck?.let(transformers.classTable::getClass)?.className
-      return LiveEffect(subscription, effect, context, triggerClass)
+      return LiveEffect(subscription, effect, context, triggerClass, transformers)
     }
 
     private fun specialize(component: Component, transformers: Transformers): List<Effect> {
@@ -171,7 +176,7 @@ private constructor(
                   thisBinding,
                   transformers.insertDeferredComplementDefaults(component.expression),
               )
-          val bound = checkedBinding.transform(effect)
+          val bound = checkedBinding.transformEffect(effect)
           try {
             component.type.classTable.checkAllTypes(bound)
             bound
@@ -191,7 +196,7 @@ private constructor(
                 transformers.insertDeferredComplementDefaults(component.expression),
             )
         transformers.classEffects(component.type.rootClass).mapNotNull { effect ->
-          val bound = uncheckedBinding.transform(effect)
+          val bound = uncheckedBinding.transformEffect(effect)
           try {
             component.type.classTable.checkAllTypes(bound)
             bound
@@ -201,7 +206,7 @@ private constructor(
             // starting tiles owned by SoloOpponent do not score VictoryPoint<Player> components.
             val sourceEffect =
                 replaceThisExpressionsWith(component.type.rootClass.className.expression)
-                    .transform(effect)
+                    .transformEffect(effect)
             component.type.classTable.checkAllTypes(sourceEffect)
             null
           }
@@ -349,8 +354,8 @@ private constructor(
 
       override fun transform(transformer: PetTransformer): Subscription =
           copy(
-              match = transformer.transform(match),
-              linkedSources = linkedSources.mapTo(mutableSetOf(), transformer::transform),
+              match = transformer.transformExpression(match),
+              linkedSources = linkedSources.mapTo(mutableSetOf(), transformer::transformExpression),
           )
     }
 
@@ -417,7 +422,7 @@ private constructor(
 
           var excluded = hit.specialize(selector.copy(complement = false))
           if (contextualOwner != null) {
-            excluded = replaceOwnerWith(contextualOwner).transform(excluded)
+            excluded = replaceOwnerWith(contextualOwner).transformExpression(excluded)
           }
           return excluded.copy(complement = true)
         }
@@ -471,7 +476,10 @@ private constructor(
       override val classToCheck = inner.classToCheck
 
       override fun transform(transformer: PetTransformer): Subscription =
-          copy(inner = inner.transform(transformer), selector = transformer.transform(selector))
+          copy(
+              inner = inner.transform(transformer),
+              selector = transformer.transformExpression(selector),
+          )
     }
 
     private data class Conditional(val inner: Subscription, val condition: Requirement) :
@@ -492,7 +500,7 @@ private constructor(
       override fun transform(transformer: PetTransformer): Subscription =
           copy(
               inner = inner.transform(transformer),
-              condition = transformer.transform(condition),
+              condition = transformer.transformRequirement(condition),
           )
     }
 
@@ -523,18 +531,24 @@ private constructor(
       private val transformers: List<PetTransformer>,
       private val count: Int,
   ) {
-    fun specialize(instruction: Instruction): Instruction = specializeNode(instruction) * count
+    fun specialize(instruction: InstructionTree): InstructionTree =
+        transformers.fold(instruction) { current, transformer ->
+          transformer.transformInstructionTree(current)
+        } * count
 
-    fun specialize(expression: Expression): Expression = specializeNode(expression)
+    fun specialize(expression: Expression): Expression =
+        transformers.fold(expression) { current, transformer ->
+          transformer.transformExpression(current)
+        }
 
-    fun specialize(requirement: Requirement): Requirement = specializeNode(requirement)
+    fun specialize(requirement: Requirement): Requirement =
+        transformers.fold(requirement) { current, transformer ->
+          transformer.transformRequirement(current)
+        }
 
     fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
 
     fun before(transformer: PetTransformer) =
         copy(transformers = listOf(transformer) + transformers)
-
-    private fun <P : PetNode> specializeNode(node: P): P =
-        transformers.fold(node) { current, transformer -> transformer.transform(current) }
   }
 }

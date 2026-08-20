@@ -113,6 +113,35 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `an OR with only one live grouped arm starts each grouped task`() {
+    initiate("(4 Heat, 2 Energy) OR Die")
+
+    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
+  }
+
+  @Test
+  fun `doing a task can select a grouped arm`() {
+    initiate("5 Plant OR (4 Heat, 2 Energy)")
+
+    writer.doTask("4 Heat, 2 Energy")
+
+    writer.count("Heat") shouldBe 4
+    writer.count("Energy") shouldBe 2
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun `trying a task can select a grouped arm`() {
+    initiate("5 Plant OR (4 Heat, 2 Energy)")
+
+    writer.tryTask("4 Heat, 2 Energy")
+
+    writer.count("Heat") shouldBe 4
+    writer.count("Energy") shouldBe 2
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   fun `narrowing an OR can narrow each instruction in a grouped arm`() {
     initiate("5 Plant OR (4 StandardResource, 2 StandardResource)")
 
@@ -166,6 +195,40 @@ class TaskRevisionTest {
     shouldThrow<LimitsException> { writer.prepareTask("-21 TerraformRating!") }
     shouldThrow<LimitsException> { writer.doTask("-21 TerraformRating!") }
     shouldThrow<LimitsException> { game.gameplay(PLAYER1).autoExecNow() }
+  }
+
+  @Test
+  fun `selecting an AMAP target early locks its domain and rejects a zero target`() {
+    writer.godMode().manual("OceanTile<Tharsis_1_2>")
+    initiate("OceanTile<>")
+
+    shouldThrow<NarrowingException> {
+      writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_2>")
+    }
+    writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_4>")
+
+    tasks.extract { it.next }.shouldContainExactly(true)
+    tasksAsText().shouldContainExactly("OceanTile<Tharsis_1_4>!")
+  }
+
+  @Test
+  fun `selecting a PER-wrapped AMAP target early locks the evaluated instruction`() {
+    writer.godMode().manual("Plant")
+    initiate("OceanTile<> / Plant")
+
+    writer.reviseTask("OceanTile<> / Plant", "OceanTile<Tharsis_1_4> / Plant")
+
+    tasks.extract { it.next }.shouldContainExactly(true)
+    tasksAsText().shouldContainExactly("OceanTile<Tharsis_1_4>!")
+  }
+
+  @Test
+  fun `selecting a PER-wrapped AMAP target with a zero metric resolves to NoOp`() {
+    initiate("OceanTile<> / Steel")
+
+    writer.reviseTask("OceanTile<> / Steel", "OceanTile<Tharsis_1_4> / Steel")
+
+    tasks.isEmpty() shouldBe true
   }
 
   @Test

@@ -70,7 +70,7 @@ class TilePlacingTest {
 
     // Player1 is 2 money short of what they need to place on the south pole
     assertFailsWith<LimitsException> { // do we care which step fails?
-      p1.godMode().manual("GreeneryTile") {
+      p1.godMode().manual("GreeneryTile<>") {
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OceanTile<Hellas_4_6>")
       }
@@ -79,13 +79,13 @@ class TilePlacingTest {
 
     // But too bad, they don't get permission to place elsewhere!
     assertFailsWith<NarrowingException> {
-      p1.godMode().manual("GreeneryTile") { doTask("GreeneryTile<Hellas_7_5>") }
+      p1.godMode().manual("GreeneryTile<>") { doTask("GreeneryTile<Hellas_7_5>") }
     }
 
     // That concludes our test. But for funsies,
     // Suppose there had already been an ocean to place next to - now it works
     p2.godMode().manual("OceanTile<Hellas_5_6>")
-    p1.godMode().manual("GreeneryTile") {
+    p1.godMode().manual("GreeneryTile<>") {
       doTask("GreeneryTile<Hellas_9_7>")
       doTask("OceanTile<Hellas_4_6>")
     }
