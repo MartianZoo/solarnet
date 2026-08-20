@@ -5,7 +5,7 @@
 - **Abstract Type:** A Type that is not fully specified. It can be counted or queried but cannot be the exact Type of a Component gained or removed. Antonym: Concrete Type.
 - **Action:** (1) A Pets element, written with `->`, that combines an optional cost with an Instruction and usually belongs to a card or Standard Action. (2) One of the actions granted to a Player on a turn: starting it seeds that Player's Task Queue, and it lasts until that queue drains.
 - **Activation Edge:** A reference from an Active Class to another Class that must also be active. Structural Dependencies and a Custom implementation's required Class Names create Activation Edges; merely mentioning a represented Class in a `Class<...>` Metric does not.
-- **Active Class:** A Class whose declarations and behavior participate in a particular Class Table. An Authority-known Class that is not active is represented there as a Phantom Class. Antonym: Phantom Class.
+- **Active Class:** A Class whose declaration and behavior participate in a particular game-specific Class-table Projection. Only Active Classes can contribute automatically created singleton Components, enumeration candidates, generated choices, and live Effects. An Authority-known Class that is not active is represented there as an Uninhabited Class. Antonym: Uninhabited Class.
 - **Actor:** The entity credited with performing a pending or completed change. The Actors are the Players and the administrative Engine.
 - **AMAP:** The `.` Quantifier, meaning “as much as possible.” Preparation calculates the greatest currently possible amount and makes that amount mandatory.
 - **Anyone:** The broad Pets Type used where an ownership expression does not constrain who the Owner is. More specific domain Types include `Owner` and `Actor`.
@@ -35,8 +35,8 @@
 - **Class Loading:** The process that validates Class Declarations and creates an immutable Type universe of mutually compatible Classes with Type-system behavior.
 - **Class Name:** A Class's sole stable engine identity within an Authority. Rule Classes may use semantic English names such as `GreeneryTile`, while Content Classes use language-neutral names such as `Card070` and `MilestoneHM6`. Configuration never changes the Declaration denoted by a given Class Name.
 - **Class Synonym:** A configured, input-only convenience spelling such as `TR` for `TerraformRating`. It is never rendered or stored.
-- **Class Table:** An immutable set of mutually compatible Classes that resolves Type Expressions into Types. An Authority has one universal catalog; each Game World uses a Class-table Projection containing Active Classes plus Authority-known Phantom Classes.
-- **Class-table Projection:** A game-specific Class Table derived from an Authority's universal Class catalog. Selected Classes carry behavior as Active Classes, while other Authority-known names remain resolvable as Phantom Classes.
+- **Class Table:** An immutable set of mutually compatible Classes that resolves Type Expressions into Types. An Authority has one universal catalog; each Game World uses a Class-table Projection containing Active Classes plus Authority-known Uninhabited Classes.
+- **Class-table Projection:** A game-specific Class Table derived from an Authority's universal Class catalog. Active Classes carry behavior and enumerate concrete possibilities, while other Authority-known identities remain resolvable as Uninhabited Classes.
 - **Complement Type:** A bound written like `!C`. It has meaning only within a known domain `B`, where it denotes the difference `B \ C`; the domain is part of the resolved Type even though Pets does not print it.
 - **Component:** One immutable occurrence of a Concrete Type in a Game World. Components have no identity or fields beyond their Type, so occurrences of the same Type differ only by multiplicity.
 - **Component Effect:** A Class Effect specialized for one concrete Component Type by binding inherited Dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
@@ -99,8 +99,8 @@
 - **Performer:** The Actor credited on an Instruction's State Changes. Normally this is the Gameplay Actor, but an Instruction-level `BY` can override the Performer without changing the Task's Assignee.
 - **Pets:** Solarnet's specification language for Component Types, rules, and Game World changes.
 - **Pets Name:**
-- **Phantom Class:** See **Active Class** (antonym).
-- **Phantom Type:** A Type whose root Class or a Dependency bound is phantom. It has no Components or behavior, counts zero, and remains resolvable so Authority-known but inactive content can appear safely in queries.
+- **Uninhabited Class:** An Authority-known Class whose domain is empty in one game-specific Class-table Projection. It retains its name, hierarchy, and Dependency shape for resolution and nominal subtyping, but contributes no Components, behavior, enumeration candidates, or generated choices. Antonym: Active Class.
+- **Uninhabited Type:** A Type whose root Class or a Dependency bound is uninhabited. It counts zero, cannot satisfy a Trigger or participate in automatic narrowing, and remains resolvable so inactive concepts can appear safely in queries. A Class Literal representing an Uninhabited Class is itself uninhabited and likewise counts zero.
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **Player-relative Observation:**
 - **Prepared Task:** A Task simplified using facts from the current Game World and therefore locked as the next Task to finish. It may still require narrowing that does not invalidate those facts.

@@ -20,7 +20,43 @@ As expected, we *declare* named classes (like `Player1`, `Animal`, or `Ecologica
 
 A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
-The Class Table is frozen before a game begins. Its Active Classes are the Types that *might* be needed in that game, and for any Active Class we know the complete set of its active subclasses. Authority-known names that are inactive in this game survive as Phantom Classes and Phantom Types, whose counts are zero. This explains, for example, how we can tell which five milestones are available to be claimed even though no `Milestone` Component exists in the Game World until one is claimed; we inspect the Active Classes. (This scheme works out well in many ways, while creating just one headache, called Aridor.)
+An Authority has one master Class Table containing every Class it knows. Before a game begins, that
+table is projected into the Class Table for this particular game and then frozen. The projection
+preserves every known Class identity but gives it one of two roles: active or uninhabited. Its
+Active Classes are the ones that might be needed in the game. For any Active Class, we know the
+complete set of its active subclasses.
+
+This explains, for example, how we can tell which five milestones are available to be claimed even
+though no `Milestone` Component exists in the Game World until one is claimed: we inspect the Active
+Classes. A milestone Class excluded from this game's pool is still known to the Authority, but it is
+uninhabited and does not appear among those choices. (This scheme works out well in many ways,
+while creating just one headache, called Aridor.)
+
+### Uninhabited classes: the jackalope example
+
+Imagine that the master Class Table contains `Jackalope : Rabbit`. A jackalope is not an unknown
+animal: the Authority understands the name and knows exactly what kind of animal it would be. But
+suppose the premise for one game makes `Jackalope` uninhabited. In that game we know something
+stronger than "we have not seen one yet": there cannot be a Jackalope Component at all.
+
+That lets the engine answer several questions exactly:
+
+* `Jackalope` and `Class<Jackalope>` still resolve; they are not spelling errors.
+* `Jackalope` is still a subtype of `Rabbit`.
+* The counts of both `Jackalope` and `Class<Jackalope>` are zero.
+* Enumerating the concrete possibilities below `Rabbit` or `Class<Rabbit>` does not list
+  `Jackalope`.
+* A trigger waiting for a `Jackalope` never fires.
+
+Once premise construction leaves a trigger Class uninhabited, this last rule lets declarations
+mention optional concepts without importing them into every game. An instruction guarded by "if a
+Jackalope ever appears" is perfectly safe: execution can never reach its body. Conversely, an
+instruction that actually tries to create an uninhabited Jackalope cannot succeed. Optional and
+AMAP changes to uninhabited Types become zero no-ops; mandatory changes are dead ends.
+
+An Uninhabited Class therefore preserves *meaning* while excluding *inhabitants, behavior, and
+choices*. Whether a reference should activate a Class or leave it uninhabited is
+premise-construction policy, not part of what the resulting Uninhabited Type means.
 
 ## Types and dependencies
 
@@ -120,7 +156,6 @@ CLASS Production<Class<StandardResource>> : Owned {
 
 ## TODO
 
-* Explain the full phantom-type rules, including where phantom types are and aren't legal.
 * Document dependency-target uniqueness and linked dependencies.
 * Cover effect declaration order, duplicate effects, and the full inherited meaning of `This`.
 * Incorporate the useful parts of the [agent-written type-system specification](agents/TYPES.md).
