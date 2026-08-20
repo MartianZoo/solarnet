@@ -1,9 +1,11 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
   HAS =1 MarsMap, =1 Mode
-  HAS =1 Class<Production>, =1 Class<PowerPlantSP>, =1 Class<AsteroidSP>, =1 Class<AquiferSP>, =1 Class<GreenerySP>, =1 Class<CitySP>
+  HAS =1 Class<Production>
   HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
-  defaultWhen = HAS MAX 0 TerraformingMars
+  autoSelectWhen = HAS MAX 0 TerraformingMars
+
+  This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
 
   SetupPhase IF 2 Player:: BeginGame
 
@@ -279,7 +281,7 @@ ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
 
 "A standard project, as the game defines it (but excluding Sell Patents)"
 ABSTRACT CLASS StandardProject : HasActions {
-  HAS =1 This
+  HAS MAX 1 This
   cost = Number
 }
 
@@ -415,7 +417,7 @@ CLASS StartToken : Owned<Player> {
 "An affirmative, immutable Module active in a playable game"
 ABSTRACT CLASS Module : System {
   HAS =1 This
-  defaultWhen = Requirement?
+  autoSelectWhen = Requirement?
   premiseRequirement = Requirement?
   -This:: Die!
 }
@@ -432,7 +434,7 @@ ABSTRACT CLASS Mode : Module {
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
-    defaultWhen = HAS 2 Player
+    autoSelectWhen = HAS 2 Player
 
     GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
     EndPhase: End THEN FinalScore
@@ -447,7 +449,7 @@ CLASS MultiplayerVictoryCheck : Custom
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
   HAS =1 SoloVariant, =1 Class<SoloOpponent>, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>
-  defaultWhen = HAS =1 Player
+  autoSelectWhen = HAS =1 Player
 
   SetupPhase:: GenerationSetup THEN BeginGame
   GenerationSetup: 14 SoloGenerationsLeft
@@ -463,14 +465,14 @@ ABSTRACT CLASS SoloVariant : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloVariant {
-    defaultWhen = HAS SoloMode, MAX 0 Tr63SoloVariant
+    autoSelectWhen = HAS SoloMode, MAX 0 Tr63SoloVariant
 
     SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloVariant {
-    HAS =1 BufferGasSP
+    This:: BufferGasSP
 
     SetupPhase: Tr63SoloObjective
     SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.

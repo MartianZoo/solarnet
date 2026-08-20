@@ -1,4 +1,4 @@
 "Uses the full project deck and asymmetric starting production"
 CLASS CorporateEraExpansion : Module {
-  defaultWhen = HAS TerraformingMars
+  autoSelectWhen = HAS TerraformingMars
 }

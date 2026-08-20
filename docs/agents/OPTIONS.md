@@ -43,11 +43,11 @@ Each Module selects classes to activate or deactivate. Selection may depend on t
 configuration. Structural reachability may activate dependencies, but it may not activate an
 unselected Module or defeat an explicit exclusion.
 
-Module premise policy is authored with ordinary Requirement-valued Pets properties. `defaultWhen`
-selects an unmentioned Module when its condition holds; defaults are resolved to a fixed point and
-an explicit exclusion wins. `premiseRequirement` is checked against the completed projection when
-that Module is selected. Module invariants provide the ordinary exact-count rules that are also
-meaningful in the live World.
+Module premise policy is authored with ordinary Requirement-valued Pets properties.
+`autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
+resolve to a fixed point and an explicit exclusion wins. `premiseRequirement` is checked against
+the completed projection when that Module is selected. Module invariants provide the ordinary
+exact-count rules that are also meaningful in the live World.
 
 ## Configuration and premise
 

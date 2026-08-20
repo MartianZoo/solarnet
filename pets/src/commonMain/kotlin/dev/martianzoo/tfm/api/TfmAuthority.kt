@@ -10,7 +10,7 @@ import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
-import dev.martianzoo.data.ModuleProperties.DEFAULT_WHEN
+import dev.martianzoo.data.ModuleProperties.AUTO_SELECT_WHEN
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName
@@ -75,7 +75,7 @@ public open class TfmAuthority : Authority {
       modules.keys
           .filter { moduleName -> moduleName !in included && moduleName !in explicitlyExcluded }
           .forEach { moduleName ->
-            val property = classTable.getClass(moduleName).properties[DEFAULT_WHEN]
+            val property = classTable.getClass(moduleName).properties[AUTO_SELECT_WHEN]
             val requirement = (property as? RequirementValue)?.value ?: return@forEach
             if (requirement.isMetBy { metric -> countConfigured(metric, included) }) {
               changed = included.add(moduleName) || changed

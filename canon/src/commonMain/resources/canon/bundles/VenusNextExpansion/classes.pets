@@ -1,6 +1,7 @@
 CLASS VenusNextExpansion : Module {
-  HAS =1 Class<AirScrappingSP>, =1 Class<VenusSolarPhase>
+  HAS =1 Class<VenusSolarPhase>
 
+  This:: AirScrappingSP
   SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
   SetupPhase IF SoloMode: SoloVictoryRequirement
   SoloVictoryCheck IF SoloMode, MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
@@ -13,7 +14,7 @@ CLASS AirScrappingSP : StandardProject {
 
 "Adds World Government Terraforming to the solar phase"
 CLASS WorldGovernmentOption : Module {
-  defaultWhen = HAS VenusNextExpansion
+  autoSelectWhen = HAS VenusNextExpansion
   premiseRequirement = HAS =1 VenusNextExpansion
 
   // A Venus game has four global parameters, so MAX 3 means at least one is still incomplete.

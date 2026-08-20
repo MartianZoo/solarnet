@@ -110,19 +110,18 @@ public object Engine {
         }
       }
 
-      fun countActiveClasses(metric: Metric): Int {
-        require(metric is Count) { "Module invariants must count classes: $metric" }
-        if (metric.expression.className == CLASS) {
-          val representedClass = metric.expression.arguments.singleOrNull()
+      fun countActiveClasses(count: Count): Int {
+        if (count.expression.className == CLASS) {
+          val representedClass = count.expression.arguments.singleOrNull()
           require(representedClass?.simple == true) {
-            "Module Class invariants must name one simple Class: $metric"
+            "Module Class invariants must name one simple Class: $count"
           }
           return if (classTable.isActive(representedClass.className)) 1 else 0
         }
-        require(metric.expression.simple) {
-          "Module invariants must count a simple class: $metric"
+        require(count.expression.simple) {
+          "Module invariants must count a simple class: $count"
         }
-        val type = classTable.findActiveClass(metric.expression.className)?.baseType ?: return 0
+        val type = classTable.findActiveClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
           !klass.abstract &&
               klass.baseType.isSubtypeOf(type) &&
@@ -133,7 +132,14 @@ public object Engine {
         }
       }
 
-      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::countActiveClasses)
+      fun evaluateActiveClasses(metric: Metric): Int =
+          metric.evaluate(
+              ::countActiveClasses,
+              { property -> error("Module premise metrics cannot read properties: $property") },
+              { union -> error("Module premise metrics cannot use OR: $union") },
+          )
+
+      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)
 
       premise.modules
           .flatMap { moduleName -> classTable.getClass(moduleName).invariants() }
