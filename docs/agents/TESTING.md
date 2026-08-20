@@ -15,6 +15,8 @@ Kotlin 2.2. Contributors do not need another JDK installed.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
 - `./gradlew :engine:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
+- `./gradlew :parity:jsNodeTest` runs the Node-facing parity facade scenario, including packaged
+  resource loading and semantic move execution.
 - `./gradlew jsBrowserTest` runs every module's full browser suite.
   `./gradlew build -PincludeBrowserTests=true` includes those suites in the normal repository-wide
   check.
@@ -159,5 +161,5 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   work with them, JS test runs may not.
 - Mocha owns the per-test timeout; Karma owns browser activity, disconnect, and reconnect
   timeouts. A long synchronous test can block the browser event loop long enough to hit either.
-- A Node test target is not a substitute for the browser suite while Canon resources are loaded
-  with browser `XMLHttpRequest`.
+- The parity Node test supplies an explicit packaged-resource reader. It is not a substitute for
+  the browser suite, which must continue proving Canon and Pets' default `XMLHttpRequest` path.

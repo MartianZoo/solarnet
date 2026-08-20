@@ -4,6 +4,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Prototype the dual-engine app described in
+  [`docs/agents/DUAL_ENGINE_APP.md`](docs/agents/DUAL_ENGINE_APP.md): let the existing app own chance
+  and hidden cards while every supported move also executes in Solarnet follow mode and the two
+  normalized public states are compared.
 - Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
   the ordinary unspecialized type name instead of an unresolved argument list.
 - Replace the `English` card-text data-file fallback incrementally with derivation from Pets
@@ -118,6 +122,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Investigate why the Kotlin/JS production executable misparses the valid Canon effect
+  `CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4` even though the development
+  executable and Node test pass; use development output for the parity prototype until this is
+  understood.
 - Present other pre-payment resource refunds, especially reduced trade costs, as player-facing
   discounts once their action effects become structurally derivable.
 - Revisit a Pets-element English fallback table only after making every host context that affects
