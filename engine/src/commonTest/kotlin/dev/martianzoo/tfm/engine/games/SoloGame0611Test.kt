@@ -117,7 +117,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       pass()
       buyCards(3)
 
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OceanTile<Hellas_5_6>")
       }
@@ -200,7 +200,9 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(AiCentral)
       cardAction1(SubCrustMeasurements)
       cardAction2(ForcedPrecipitation)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_6_6>") }
+      convertPlants {
+        doTask("GreeneryTile<Hellas_6_6>")
+      }
 
       playProject(WaterSplittingPlant, 5, steel = 3)
       cardAction1(WaterSplittingPlant)
@@ -233,7 +235,9 @@ class SoloGame0611Test : AbstractSoloTest() {
       stdProject("AirScrappingSP").expect("2 TR")
       sellPatents(3)
       playProject(TransNeptuneProbe, 1)
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_6_5>") }
+      convertPlants {
+        doTask("GreeneryTile<Hellas_6_5>")
+      }
 
       assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
       assertResources(m = 8, s = 1, t = 0, p = 0, e = 0, h = 1)

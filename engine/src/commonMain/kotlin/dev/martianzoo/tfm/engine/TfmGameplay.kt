@@ -95,6 +95,14 @@ public class TfmGameplay(
     }
   }
 
+  public fun convertPlants(body: BodyLambda = {}): TaskResult {
+    return stdAction("ConvertPlantsSA") {
+      val plantsOwed = this@TfmGameplay.count("Owed<Class<Plant>>")
+      doTask("$plantsOwed Pay<Class<Plant>> FROM Plant")
+      body()
+    }
+  }
+
   public fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseStandardProjectSA") {
       doTask("UseAction1<$stdProject>")

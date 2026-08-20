@@ -51,14 +51,15 @@ internal fun renderEffects(effects: List<Effect>, describers: Describers): Strin
 
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
   describers.renderOwedReduction(effect.instruction)?.let { reduction ->
-    val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+    val actionTrigger = describers.renderActionPaymentDiscountTrigger(effect.trigger)
+    val trigger = actionTrigger ?: describers.renderEventTrigger(effect.trigger) ?: return null
     return PaymentDiscount(
         trigger,
         reduction,
-        describers.paymentDiscountRefersToPlayedObject(effect.trigger),
+        actionTrigger != null || describers.paymentDiscountRefersToPlayedObject(effect.trigger),
     )
   }
-  val trigger = describers.renderActionRefundDiscountTrigger(effect.trigger) ?: return null
+  val trigger = describers.renderActionPaymentDiscountTrigger(effect.trigger) ?: return null
   val reduction = describers.renderPlainGainAmount(effect.instruction) ?: return null
   return PaymentDiscount(trigger, reduction, refersToObject = true)
 }
@@ -132,7 +133,7 @@ private fun Describers.renderSpentResource(trigger: Trigger): String? {
   return plainGainCategoryNoun(resource.className, 1)
 }
 
-private fun Describers.renderActionRefundDiscountTrigger(trigger: Trigger): EventTrigger? {
+private fun Describers.renderActionPaymentDiscountTrigger(trigger: Trigger): EventTrigger? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
   if (this[expression.className].usedActionTrigger != true) return null

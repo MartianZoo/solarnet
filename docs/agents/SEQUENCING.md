@@ -212,6 +212,9 @@ Current strong examples are:
 - `PlayCard<Class<CardBack>, Class<CardFront>>` is the broader precursor to moving that selected
   card into its `CardFront` state. Card-wide discounts and next-card effects modify `Owed` from this
   signal; gated card entry is mandatory in every successful play operation.
+- `UseAction<ConvertPlantsSA>` creates an eight-plant `Owed` payment before the gated greenery
+  placement. Ecoline reduces that debt by one, and the placement cannot proceed until the remaining
+  debt is paid through `Accept<Class<Plant>>` and `Pay<Class<Plant>>`.
 
 Two related families should not be described more strongly than the implementation supports:
 

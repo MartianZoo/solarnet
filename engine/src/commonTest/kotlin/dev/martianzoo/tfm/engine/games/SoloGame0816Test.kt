@@ -183,7 +183,9 @@ class SoloGame0816Test : AbstractSoloTest() {
       playProject(OlympusConference, steel = 5)
       playProject(StaticHarvesting, 5).expect("0 M")
       playProject(ProtectedGrowth, 2).expect("1 M")
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_4_8>") }
+      convertPlants {
+        doTask("GreeneryTile<Elysium_4_8>")
+      }
       playProject(AtalantaPlanitiaLab, 10) {
         draw(Trees, MinorityRefuge)
         doTask("ProjectCard FROM Science<$OlympusConference>")
@@ -223,7 +225,9 @@ class SoloGame0816Test : AbstractSoloTest() {
             doTask("-Microbe<$Extremophiles>")
           }
           .expect("-3 M")
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_8>") }
+      convertPlants {
+        doTask("GreeneryTile<Elysium_5_8>")
+      }
       sellPatents(FuelFactory)
       playProject(Thermophiles, 9)
       cardAction1(Thermophiles) { doTask("Microbe<$Thermophiles>") }
@@ -291,7 +295,10 @@ class SoloGame0816Test : AbstractSoloTest() {
       playProject(TowingAComet, 5, titanium = 6) { doTask("OceanTile<Elysium_4_6>") }.expect("0 M")
       playProject(LavaFlows, 18) { doTask("Card140_SpecialTile<Elysium_3_1>") }.expect("-15 M")
       stdProject("AsteroidSP") { doTask("OceanTile<Elysium_4_7>") }.expect("-10 M")
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_7>") }.expect("4 M")
+      convertPlants {
+            doTask("GreeneryTile<Elysium_5_7>")
+          }
+          .expect("4 M")
       cardAction1(BusinessNetwork) { buyCards(NuclearPower) }
       cardAction2(ForcedPrecipitation)
       cardAction1(RegolithEaters)
@@ -311,7 +318,10 @@ class SoloGame0816Test : AbstractSoloTest() {
       buyCards(InventorsGuild)
 
       stdAction("ConvertHeatSA")
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_6>") }.expect("2 M")
+      convertPlants {
+            doTask("GreeneryTile<Elysium_5_6>")
+          }
+          .expect("2 M")
       stdAction("ConvertHeatSA")
       stdAction("ConvertHeatSA")
       cardAction1(AiCentral) { draw(MartianRails, Supercapacitors) }
@@ -364,8 +374,14 @@ class SoloGame0816Test : AbstractSoloTest() {
       playProject(Algae, 10)
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       stdProject("AquiferSP") { doTask("OceanTile<Elysium_5_4>") }.expect("-16 M")
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_5_5>") }.expect("4 M")
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Elysium_3_4>") }.expect("4 M")
+      convertPlants {
+            doTask("GreeneryTile<Elysium_5_5>")
+          }
+          .expect("4 M")
+      convertPlants {
+            doTask("GreeneryTile<Elysium_3_4>")
+          }
+          .expect("4 M")
       stdProject("AsteroidSP")
       assertCounts(3 to "M")
       pass()

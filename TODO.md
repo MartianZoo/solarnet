@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
+  the ordinary unspecialized type name instead of an unresolved argument list.
 - Replace the `English` card-text data-file fallback incrementally with derivation from Pets
   instructions, reviewing each resulting wording change against the data-file characterization.
 - Settle and prototype the generic `EACH Type { ... }` fanout proposed in

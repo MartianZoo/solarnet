@@ -585,7 +585,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Convert Plants standard action
     p2.turn {
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         // Player2 placed greenery tile on row 8 position 4
         // Player2 drew 1 card(s)
         // You drew Medical Lab
@@ -962,7 +962,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 placed greenery tile on row 8 position 3
       // Player2 drew 1 card(s)
       // You drew Herbivores
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             doTask("GreeneryTile<Tharsis_8_6>") // r+c-5
           }
           .expect("-8 Plant, Card")
@@ -989,7 +989,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       stdAction("ConvertHeatSA")
       // Player1 used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         // Player1 placed greenery tile on row 3 position 5
         doTask("GreeneryTile<Tharsis_3_5>")
       }
@@ -1084,7 +1084,7 @@ class Game20230521Test : AbstractFullGameTest() {
         doTask("OceanTile<Tharsis_5_6>")
       }
       // Player2 used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         // Player2 placed greenery tile on row 9 position 3
         doTask("GreeneryTile<Tharsis_9_7>")
       }
@@ -1298,7 +1298,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Convert Plants standard action
     p2.turn {
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // Player2 placed greenery tile on row 9 position 2
             doTask("GreeneryTile<Tharsis_9_6>")
             // Player2's steel amount increased by 2
@@ -1363,7 +1363,9 @@ class Game20230521Test : AbstractFullGameTest() {
           .expect("3 Heat")
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile on row 3 position 3
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_3_3>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_3_3>")
+      }
     }
     // Player2 used Bio Printing Facility action
     // Player2 added 1 animal(s) to Ecological Zone
@@ -1492,7 +1494,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Convert Plants standard action
     // Player1 placed greenery tile on row 2 position 4
     p1.turn {
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_2_4>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_2_4>")
+      }
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
       // You drew no cards
@@ -1543,7 +1547,7 @@ class Game20230521Test : AbstractFullGameTest() {
         doTask("CityTile<Tharsis_8_5>")
       }
       // Player2 used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // Player2 placed greenery tile on row 8 position 1
             doTask("GreeneryTile<Tharsis_8_4>")
             // Player2's steel amount increased by 2
@@ -1561,7 +1565,7 @@ class Game20230521Test : AbstractFullGameTest() {
     }
     // Player2 used Convert Plants standard action
     p2.turn {
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // Player2 placed greenery tile on row 9 position 1
             doTask("GreeneryTile<Tharsis_9_5>")
             // Player2's steel amount increased by 1
@@ -1648,7 +1652,7 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject(RobotPollinators, 7).expect("PROD[Plant], 4 Plant")
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 7 position 2
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
         doTask("GreeneryTile<Tharsis_7_4>")
       }
     }
@@ -1671,13 +1675,15 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject(Greenhouses, 1, steel = 1).expect("6 Plant, Animal")
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 9 position 4
-      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_9_8>") }
+      convertPlants {
+        doTask("GreeneryTile<Tharsis_9_8>")
+      }
     }
     // Player1 funded Thermalist award
     p1.turn {
       stdAction("FundAwardSA") { doTask("Thermalist") }
       // Player1 used Convert Plants standard action
-      stdAction("ConvertPlantsSA") {
+      convertPlants {
             // Player1 placed greenery tile on row 4 position 4
             doTask("GreeneryTile<Tharsis_4_4>")
             // Player1's plants amount increased by 1
@@ -1713,14 +1719,16 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 passed
     p1.pass()
     // Final greenery placement
-    p1.doTask("UseAction1<ConvertPlantsSA>")
-    // Player1 placed greenery tile on row 6 position 4
-    p1.doTask("GreeneryTile<Tharsis_6_5>")
+    p1.convertPlants {
+      // Player1 placed greenery tile on row 6 position 4
+      doTask("GreeneryTile<Tharsis_6_5>")
+    }
     // Player1's plants amount increased by 1
     p1.doTask("Ok")
-    p2.doTask("UseAction1<ConvertPlantsSA>")
-    // Player2 placed greenery tile on row 8 position 5
-    p2.doTask("GreeneryTile<Tharsis_8_8>")
+    p2.convertPlants {
+      // Player2 placed greenery tile on row 8 position 5
+      doTask("GreeneryTile<Tharsis_8_8>")
+    }
     p2.doTask("Ok")
     // This game id was gf386a4cd5de1
 

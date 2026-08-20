@@ -208,7 +208,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         }
         .expect("P")
     mom.assertCounts(8 to "P")
-    mom.stdAction("ConvertPlantsSA") {
+    mom.convertPlants {
           doTask("GreeneryTile<Hellas_1_2>")
         }
         .expect("-6 P, TR")
@@ -244,7 +244,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           doTask("OceanTile<Hellas_2_1>")
         }
         .expect("TR, 2 P")
-    mom.stdAction("ConvertPlantsSA") {
+    mom.convertPlants {
           doTask("GreeneryTile<Hellas_3_3>")
         }
         .expect("S, TR")
@@ -333,7 +333,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.cardAction1(WeatherBalloons).expect("Floater")
 
     mom.playProject(TollStation, 12).expect("PROD[7 M]")
-    mom.stdAction("ConvertPlantsSA") {
+    mom.convertPlants {
           doTask("GreeneryTile<Hellas_4_4>")
         }
         .expect("2 S, TR")
@@ -358,7 +358,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     mom.pass()
     // (Ellie already passed early)
     ellie.pass()
-    dad.stdAction("ConvertPlantsSA") {
+    dad.convertPlants {
           doTask("GreeneryTile<Hellas_1_4>")
         }
         .expect("-7 P, S, TR")
@@ -397,7 +397,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         }
         .expect("2 TR, 2 P, -11")
     ellie
-        .stdAction("ConvertPlantsSA") {
+        .convertPlants {
           doTask("GreeneryTile<Hellas_8_7>")
         }
         .expect("2 H, TR")
@@ -422,7 +422,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.cardAction2(WeatherBalloons).expect("-Floater, 2")
 
     mom.cardAction1(Psychrophiles).expect("Microbe")
-    mom.stdAction("ConvertPlantsSA") {
+    mom.convertPlants {
           doTask("GreeneryTile<Hellas_3_6>")
         }
         .expect("-6 P, 2, TR")
@@ -450,7 +450,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           doTask("CityTile<Hellas_4_5>")
         }
         .expect("S, Disease")
-    mom.stdAction("ConvertPlantsSA") {
+    mom.convertPlants {
           doTask("GreeneryTile<Hellas_5_5>")
         }
         .expect("2 TR")
@@ -510,7 +510,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     mom.pass()
     ellie.pass()
-    dad.stdAction("ConvertPlantsSA") {
+    dad.convertPlants {
           doTask("GreeneryTile<Hellas_3_2>")
         }
         .expect("-7 P, 4, TR")
@@ -541,7 +541,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           mom.draw(ProjectInspection)
         }
         .expect("TR")
-    mom.stdAction("ConvertPlantsSA") {
+    mom.convertPlants {
           doTask("GreeneryTile<Hellas_6_6>")
         }
         .expect("2, TR")
@@ -593,7 +593,10 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.playProject(SaturnSurfing, 11).expect("3 Floater")
 
     dad.playProject(RobotPollinators, 9).expect("PROD[P], 3 P")
-    dad.stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Hellas_4_2>") }.expect("-7 P, 4, TR")
+    dad.convertPlants {
+          doTask("GreeneryTile<Hellas_4_2>")
+        }
+        .expect("-7 P, 4, TR")
 
     mom.playProject(InventionContest, 2) { mom.draw(WaterImportFromEuropa) }
     mom.playProject(ProjectInspection, megacredits = 0) {
@@ -640,12 +643,12 @@ class Game20260811Test : CardTrackingFullGameTest() {
           doTask("GreeneryTile<Hellas_2_5>")
         }
         .expect("P, TR")
-    dad.stdAction("ConvertPlantsSA") {
+    dad.convertPlants {
           doTask("GreeneryTile<Hellas_5_3>")
         }
         .expect("TR")
 
-    mom.stdAction("ConvertPlantsSA") {
+    mom.convertPlants {
           doTask("GreeneryTile<Hellas_7_6>")
           mom.draw(LightningHarvest)
         }
@@ -734,14 +737,11 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.pass()
 
     mom.doTask("Ok")
-    dad.doTask("UseAction1<ConvertPlantsSA>")
-    dad.doTask("GreeneryTile<Hellas_3_5>")
+    dad.convertPlants { doTask("GreeneryTile<Hellas_3_5>") }
     dad.doTask("Ok")
-    mom.doTask("UseAction1<ConvertPlantsSA>")
-    mom.doTask("GreeneryTile<Hellas_2_6>")
+    mom.convertPlants { doTask("GreeneryTile<Hellas_2_6>") }
     mom.doTask("Ok")
-    ellie.doTask("UseAction1<ConvertPlantsSA>")
-    ellie.doTask("GreeneryTile<Hellas_7_8>")
+    ellie.convertPlants { doTask("GreeneryTile<Hellas_7_8>") }
     ellie.doTask("Ok")
 
     assertCardTrackingComplete()
