@@ -132,6 +132,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   (the whole immediate group below) before expanding English card-resource removal derivation.
 - Rename the implementation's `phantom` vocabulary to the official `uninhabited` terminology,
   keeping that API migration separate from the documentation change that settled the model.
+- Extend deferred-payment English actions beyond placement results when the renderer can preserve
+  the accepted-resource parenthetical at the correct action scope; card-resource results such as
+  Rotator Impacts remain data-backed for now.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.

@@ -124,7 +124,7 @@ Card008	008	Capital	Requires 4 ocean tiles. Place this city tile. Decrease your 
 Card009	009	Asteroid	Raise temperature 1 step. Gain 2 titanium. Remove up to 3 plants from any player.	
 Card010	010	Comet	Raise temperature 1 step. Place an ocean tile. Remove up to 3 plants from any player.	
 Card011	011	Big Asteroid	Raise temperature 2 steps. Gain 4 titanium. Remove up to 4 plants from any player.	
-Card012	012	Water Import From Europa	1 VP for each Jovian tag you have.	Action: Spend 12 M€ to place an ocean tile. Titanium may be used.
+Card012	012	Water Import From Europa	1 VP for each Jovian tag you have.	Action: Spend 12 M€ (titanium may be used) to place an ocean tile.
 Card015	015	Equatorial Magnetizer		Action: Decrease your energy production 1 step to raise your terraform rating 1 step.
 Card016	016	Domed Crater	Oxygen must be 7% or less. Gain 3 plants. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps. 1 VP.	
 Card017	017	Noctis City	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile on the reserved area if one exists, otherwise place it without that restriction.	
@@ -240,7 +240,7 @@ Card179	179	Soil Factory	Decrease your energy production 1 step and increase you
 Card181	181	Ice Cap Melting	Requires +2°C or warmer. Place an ocean tile.	
 Card183	183	Biomass Combustors	Requires 6% oxygen. Decrease any player's plant production 1 step and increase your energy production 2 steps. -1 VP.	
 Card184	184	Livestock	Requires 9% oxygen. Decrease your plant production 1 step and increase your M€ production 2 steps. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
-Card187	187	Aquifer Pumping		Action: Spend 8 M€ to place an ocean tile. Steel may be used.
+Card187	187	Aquifer Pumping		Action: Spend 8 M€ (steel may be used) to place an ocean tile.
 Card188	188	Flooding	Place an ocean tile. If there are tiles adjacent to this ocean tile, you may remove up to 4 M€ from the owner of one of those tiles. -1 VP.	
 Card189	189	Energy Saving	Increase your energy production 1 step for each city tile.	
 Card190	190	Local Heat Trapping	Remove 5 heat. Gain 4 plants or add 2 animals to any card.	

@@ -4,7 +4,11 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
@@ -151,6 +155,45 @@ private fun Describers.renderLinkedProductionResourceAction(action: Action): Ren
   return RenderedAction(cost, result)
 }
 
+private fun Describers.renderDeferredPaymentPlacementAction(action: Action): RenderedAction? {
+  if (action.cost != null) return null
+  val sequence = action.instruction as? Then ?: return null
+  if (sequence.stages.size != 2) return null
+
+  val owed =
+      paymentResourceGain(sequence.stages.first(), ComponentDescriber.PaymentRole.OWED, this)
+          ?: return null
+  val acceptance =
+      paymentResourceGain(
+          sequence.stages.last(),
+          ComponentDescriber.PaymentRole.ACCEPTANCE,
+          this,
+      ) ?: return null
+  if (acceptance.count != 1) return null
+
+  val gated = sequence.continuation as? Gated ?: return null
+  val barrier = gated.gate as? Requirement.Max ?: return null
+  val barrierMetric = barrier.countedMetric as? Metric.Count ?: return null
+  if (
+      barrier.maximum != 0 ||
+          !barrierMetric.expression.simple ||
+          fact(barrierMetric.expression.className, ComponentDescriber::paymentRole) !=
+              ComponentDescriber.PaymentRole.BARRIER
+  ) {
+    return null
+  }
+  val placement = gated.inner as? Gain ?: return null
+  if (fact(placement.gaining.className, ComponentDescriber::placement) == null) return null
+  val result = renderInstructions(placement, this) ?: return null
+  val cost =
+      Predicate(
+          "spend",
+          Coordination.one(NounPhrase.text("${owed.count} ${owed.noun}")),
+          listOf(Modifier.Parenthetical("${acceptance.noun} may be used")),
+      )
+  return RenderedAction(cost, result)
+}
+
 private fun renderAction(
     action: Action,
     describers: Describers,
@@ -160,6 +203,9 @@ private fun renderAction(
     return it
   }
   describers.renderLinkedProductionResourceAction(lowered)?.let {
+    return it
+  }
+  describers.renderDeferredPaymentPlacementAction(lowered)?.let {
     return it
   }
   val cost = lowered.cost?.let { describers.renderCost(it) ?: return null }

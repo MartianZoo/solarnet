@@ -406,7 +406,11 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
-        klass("Owed") to ComponentDescriber(owedPayment = true),
+        klass("Owed") to ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.OWED),
+        klass("Accept") to
+            ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.ACCEPTANCE),
+        klass("Barrier") to
+            ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.BARRIER),
     )
   }
 

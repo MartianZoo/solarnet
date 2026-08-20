@@ -165,6 +165,9 @@ card-resource cost to one `X`-scaled concrete standard-resource gain; the action
 the shared quantity when it says the same number, that amount, or an explicit multiple. An action
 may instead link an abstract standard-resource production cost to a fixed gain of the same abstract
 resource type; the renderer retains the shared type as “resources of that kind.” A Describer may
+also identify the deferred-payment protocol: a fixed standard-resource amount owed, one accepted
+alternate standard resource, and a payment barrier guarding a supported placement. This renders as
+an ordinary fixed-cost action with the alternate resource noted parenthetically. A Describer may
 also supply the object phrase for gaining one chosen concrete member of an abstract component
 category. A supported action may also invoke a component described as the optional top-card purchase
 procedure.

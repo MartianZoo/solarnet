@@ -34,7 +34,7 @@ public data class ComponentDescriber(
     public val actionNumber: Int? = null,
     public val actionUse: ActionUse? = null,
     public val spentResourceTrigger: Boolean? = null,
-    public val owedPayment: Boolean? = null,
+    public val paymentRole: PaymentRole? = null,
 ) {
   public sealed interface Noun {
     public data object ClassName : Noun
@@ -184,5 +184,11 @@ public data class ComponentDescriber(
   public enum class PlayTrigger {
     CARD,
     TAG,
+  }
+
+  public enum class PaymentRole {
+    OWED,
+    ACCEPTANCE,
+    BARRIER,
   }
 }
