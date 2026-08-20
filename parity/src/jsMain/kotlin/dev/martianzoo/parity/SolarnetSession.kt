@@ -66,7 +66,7 @@ public class SolarnetSession(
         game.tfm(movePlayer(move)).playCorp(corporation, projectCards)
       }
       "playProject" -> {
-        val card = cn("Card${move.getValue("cardId").jsonPrimitive.content}")
+        val card = cardClassForPrintedId(move.getValue("cardId").jsonPrimitive.content)
         val payment = move.getValue("payment").jsonObject
         game
             .tfm(movePlayer(move))
@@ -78,7 +78,7 @@ public class SolarnetSession(
             )
       }
       "cardAction" -> {
-        val card = cn("Card${move.getValue("cardId").jsonPrimitive.content}")
+        val card = cardClassForPrintedId(move.getValue("cardId").jsonPrimitive.content)
         game.tfm(movePlayer(move)).cardAction1(card)
       }
       "standardProject" -> startStandardProject(move)
@@ -227,8 +227,15 @@ public class SolarnetSession(
         } else {
           component.className
         }
-    return game.reader.tfmAuthority.card(cardName).id
+    return printedCardId(game.reader.tfmAuthority.card(cardName).id)
   }
+
+  private fun cardClassForPrintedId(printedId: String): ClassName =
+      game.reader.tfmAuthority.cardDefinitions
+          .single { printedCardId(it.id) == printedId }
+          .className
+
+  private fun printedCardId(canonId: String): String = canonId.removeSuffix("F")
 
   private fun tilesSnapshot() = buildJsonArray {
     val areas = mapDefinition(game.reader).areas.rows().flatten().filterNotNull()
