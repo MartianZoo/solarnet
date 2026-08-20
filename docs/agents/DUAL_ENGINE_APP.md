@@ -251,6 +251,9 @@ project, Space Elevator card action, Aquifer, ocean-placement, end-turn, and pas
 suppresses construction events, advances its cursor after every command, and prints the same
 change-only, non-Hidden feed as the REPL's ordinary `log` command as
 `[solarnet <game-id>] <event>`. The complete event history never enters the HTTP model or browser.
+A printed app card ID is resolved through the active Canon definitions rather than assumed to equal
+the Solarnet class suffix; this preserves IDs such as `110` across simplified classes such as
+`Card110F`.
 A Solarnet rejection is reported after the already-accepted app input and freezes later inputs with
 a distinct server error rather than misreporting the original input as an app rejection.
 

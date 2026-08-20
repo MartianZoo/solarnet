@@ -266,6 +266,37 @@ internal class SolarnetSessionTest {
   }
 
   @Test
+  fun resolvesSimplifiedCanonCardFromPrintedId() {
+    val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
+    try {
+      session.apply(
+          """{"operation":"selectCorporation","player":1,"corporation":"InterplanetaryCinematics","projectCards":1}"""
+      )
+      session.apply(
+          """{"operation":"selectCorporation","player":2,"corporation":"CrediCor","projectCards":0}"""
+      )
+      val snapshot =
+          Json.parseToJsonElement(
+                  session.apply(
+                      """{"operation":"playProject","player":1,"cardId":"110","payment":{"megacredits":4,"steel":0,"titanium":0}}"""
+                  )
+              )
+              .jsonObject
+      val playedCardIds =
+          snapshot
+              .getValue("players")
+              .jsonArray[0]
+              .jsonObject
+              .getValue("playedCardIds")
+              .jsonArray
+              .map { it.jsonPrimitive.content }
+      assertEquals(listOf("110", "B04"), playedCardIds)
+    } finally {
+      session.close()
+    }
+  }
+
+  @Test
   fun endsOnlyAnOfferedSecondAction() {
     val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
     try {
