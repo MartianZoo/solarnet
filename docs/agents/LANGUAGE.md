@@ -191,6 +191,8 @@ discounts combine under one trigger sentence. Discounts triggered by playing a c
 while discounts triggered by playing a tag omit that pronoun because the tag is not the object being
 paid for. When actions and effects share a top region, actions are rendered first and their
 card-resource metrics name `this card` rather than the contextual `here`.
+A component may instead describe an ordinary purchase price and printed scope. A fixed mandatory
+resource gain or removal triggered by that component then derives the adjusted purchase price.
 
 `English` derives an empty region when the card definition has no element printed there. It derives
 minimum and maximum oxygen, temperature, ocean-count, and Venus requirements, plus minimum

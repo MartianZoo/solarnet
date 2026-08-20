@@ -28,13 +28,15 @@ internal data class Predicate(
 ) {
   fun withModifier(modifier: Modifier): Predicate = copy(modifiers = modifiers + modifier)
 
-  fun linearize(): String = buildList {
-    add(verb)
-    objects?.let { add(it.linearize(NounPhrase::linearize)) }
-    addAll(modifiers.map(Modifier::linearize))
+  fun linearize(): String {
+    val predicate =
+        listOfNotNull(verb, objects?.linearize(NounPhrase::linearize))
+            .filter(String::isNotEmpty)
+            .joinToString(" ")
+    return modifiers.fold(predicate) { rendered, modifier ->
+      rendered + modifier.separator + modifier.linearize()
+    }
   }
-      .filter(String::isNotEmpty)
-      .joinToString(" ")
 }
 
 /** Coordinates predicate objects only when the surrounding predicate structure is shared. */
@@ -84,6 +86,9 @@ internal data class NounPhrase(
  * A clause modifier kept separate so factoring cannot cross different destinations or conditions.
  */
 internal sealed interface Modifier {
+  val separator: String
+    get() = " "
+
   fun linearize(): String
 
   data class Phrase(val text: String) : Modifier {
@@ -92,6 +97,12 @@ internal sealed interface Modifier {
 
   data class Parenthetical(val text: String) : Modifier {
     override fun linearize(): String = "($text)"
+  }
+
+  data class Supplement(val text: String) : Modifier {
+    override val separator: String = ", "
+
+    override fun linearize(): String = text
   }
 }
 

@@ -267,6 +267,13 @@ internal object TerraformingMarsDescribers {
         klass("BuyCard") to
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.TopCardPurchase,
+                purchasePrice =
+                    ComponentDescriber.PurchasePrice(
+                        subject = "buying cards to hand",
+                        ordinaryCost = 3,
+                        resource = ComponentDescriber.Noun.Fixed("M€"),
+                        scope = "including your starting hand",
+                    ),
             ),
         klass("CopyPrelude") to
             ComponentDescriber(

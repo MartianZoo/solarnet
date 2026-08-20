@@ -23,10 +23,50 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? =
       renderEndEffect(effect, describers)
     } else {
       renderRemovalPrevention(effect, describers)
+          ?: renderPurchasePrice(effect, describers)
           ?: paymentDiscount(effect, describers)?.let { renderPaymentDiscount(listOf(it)) }
           ?: renderResourcePaymentValue(effect, describers)
           ?: renderTriggeredInstructions(effect, describers)
     }
+
+private fun renderPurchasePrice(effect: Effect, describers: Describers): String? {
+  val trigger = effect.trigger as? OnGainOf ?: return null
+  if (!trigger.expression.simple) return null
+  val price =
+      describers.fact(trigger.expression.className, ComponentDescriber::purchasePrice)
+          ?: return null
+  val change = effect.instruction as? Instruction.Change ?: return null
+  if (change.intensity != null && change.intensity != MANDATORY) return null
+  val expression = change.gaining ?: change.removing ?: return null
+  if (!expression.simple || !describers.concrete(expression.className)) return null
+  if (describers.fact(expression.className, ComponentDescriber::standardResource) != true) {
+    return null
+  }
+  val adjustment = (change.count as? ActualScalar)?.value ?: return null
+  val priceResource = describers.describedNoun(expression.className, price.resource, 1)
+  if (describers.componentNoun(expression.className, 1) != priceResource) return null
+  val adjustedCost =
+      when (change) {
+        is Gain -> price.ordinaryCost - adjustment
+        is Remove -> price.ordinaryCost + adjustment
+        is Instruction.Transmute -> return null
+      }
+  if (adjustedCost < 0) return null
+  val resource = describers.describedNoun(expression.className, price.resource, adjustedCost)
+  val modifiers = price.scope?.let { listOf(Modifier.Supplement(it)) }.orEmpty()
+  return Sentence(
+          Clause.Simple(
+              predicate =
+                  Predicate(
+                      "costs",
+                      Coordination.one(NounPhrase.text("$adjustedCost $resource")),
+                      modifiers,
+                  ),
+              subject = NounPhrase.text(price.subject),
+          )
+      )
+      .linearize()
+}
 
 private fun renderRemovalPrevention(effect: Effect, describers: Describers): String? {
   if (!effect.automatic || !isDeadEndInstruction(effect.instruction, describers)) return null
