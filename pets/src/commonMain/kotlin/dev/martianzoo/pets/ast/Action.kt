@@ -154,7 +154,7 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
 
           val perCost =
               atomCost and
-                  optional(skipChar('/') and Metric.atomParser()) map
+                  optional(skipChar('/') and Metric.subtractionParser()) map
                   { (cost, met) ->
                     if (met == null) cost else Per(cost, met)
                   }

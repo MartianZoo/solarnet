@@ -58,15 +58,28 @@ the type is missing, it defaults to `Megacredit`. At least one must be used.
 ### Metrics
 
 ```
-metric       := maxMetric ('OR' maxMetric)*
-maxMetric    := scaledMetric ['MAX' scalar]
-scaledMetric := [scalar] metricAtom
-metricAtom   := typeExpression | transform | '(' metric ')'
-transform    := allCapsWord '[' metric ']'
+metric           := subtractionMetric ('OR' subtractionMetric)*
+subtractionMetric := maxMetric ('-' subtractionOperand)*
+subtractionOperand := maxMetric | scalar
+maxMetric        := scaledMetric ['MAX' scalar]
+scaledMetric     := [scalar] metricAtom
+metricAtom       := typeExpression | transform | '(' metric ')'
+transform        := allCapsWord '[' metric ']'
 ```
 
-A metric computes a non-negative integer. A type expression counts matching components; a scalar counts complete groups
-of that size. `OR` counts the union of its alternatives, without double-counting a component that matches more than one.
+A metric computes a non-negative integer. A type expression counts matching components; a scalar preceding another
+metric counts complete groups of that size. `MAX` caps the value to its left. `-` subtracts the Metric or positive
+scalar to its right but stops at zero, so a Metric never becomes negative. Subtraction is left-associative and binds less
+tightly than complete-group scaling or `MAX`. A scalar by itself is not a Metric and may appear only as a subtrahend.
+
+`OR` counts the union of its alternatives, without double-counting a component that matches more than one. Its arms must
+be plain component counts: subtraction discards the component identity that union needs. `OR` binds less tightly than
+subtraction. Thus `A MAX 5 - B` caps `A` before subtracting `B`, while `(A - B) MAX 5` caps the difference.
+
+Where a Metric is nested, its container determines how much grouping is needed. A counting Requirement accepts one
+`metricAtom`, so subtraction and unions must be grouped: `9 (Plant - Steel)`. After `/` in an Instruction or Action cost,
+subtraction can be written directly (`Heat / Plant MAX 5 - Steel`), but a Metric union must be grouped because bare `OR`
+belongs to the surrounding Instruction or cost (`Heat / (Plant OR Steel)`).
 
 ## Requirements
 
@@ -104,7 +117,7 @@ baseAtomInst := groupedInst | prodInst | customInst
 prodInst     := perInst | ('PROD[' instruction ']')
 customInst   := '@' lowerCamelRE '(' [arguments] ')'
 arguments    := typeExpression (',' typeExpression)*
-perInst      := perableInst ['/' scalarAndType]
+perInst      := perableInst ['/' subtractionMetric]
 perableInst  := gainInst | removeInst | fromInst | ('(' fromInst ')')
 gainInst     := scalarAndType [quantifier]
 removeInst   := '-' scalarAndType [quantifier]
@@ -136,9 +149,9 @@ Custom instructions are supported because some cards would be extremely difficul
 example, Robotic Workforce includes the instruction `@copyProductionBox(CardFront(HAS BuildingTag))`. The player will
 have to choose a concrete type that satisfies `CardFront(HAS BuildingTag)`, such as the card Mine or Manutech.
 
-Certain instructions can be followed by a slash ('/') and a quantified expression, such as
-in `PROD[Titanium / 3 EarthTag]`. When this instruction is executed the player's EarthTags will be counted, and for
-every full three they will get a titanium production.
+A gain, removal, or transmutation instruction can be followed by a slash (`/`) and a Metric subtraction expression. Its
+quantity is multiplied by the Metric value; for example, `PROD[Titanium / 3 EarthTag]` grants one titanium production
+for every three complete EarthTags.
 
 ## Actions
 
@@ -147,7 +160,7 @@ action      := [cost] '->' instruction
 cost        := orCost (',' orCost)*
 orCost      := atomCost ('OR' atomCost)*
 atomCost    := perCost | groupedCost
-perCost     := prodCost ['/' scalarAndType]
+perCost     := prodCost ['/' subtractionMetric]
 prodCost    := spendCost | ('PROD[' cost ']')
 spendCost   := scalarAndType
 groupedCost := '(' cost ')'

@@ -5,6 +5,7 @@ import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
 import dev.martianzoo.api.Exceptions.abstractInstruction
@@ -27,6 +28,7 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
@@ -129,6 +131,94 @@ internal class Instructor(
    */
   internal fun prepare(unprepared: Instruction) = doPrepare(unprepared)
 
+  /**
+   * Validates a concrete target selected from an abstract pure AMAP gain or removal. Returns true
+   * when that kind of selection occurred, so an unprepared task can be locked to this world before
+   * retaining the selection.
+   */
+  internal fun validateAmApSelection(
+      wide: InstructionTree,
+      proposed: InstructionTree,
+  ): Boolean {
+    val pairs =
+        firstStageChanges(wide).flatMap { domain ->
+          firstStageChanges(proposed).mapNotNull { selection ->
+            if (selection.change.narrows(domain.change, reader)) domain to selection else null
+          }
+        }
+    val selections = pairs.filter { (domain, selection) ->
+      isAbstractPureAmAp(domain.change, selection.change)
+    }
+    selections.forEach { (domain, selection) ->
+      if (
+          domain.metricPositive &&
+              selection.metricPositive &&
+              hasPositiveExecution(domain.change) &&
+              !hasPositiveExecution(selection.change)
+      ) {
+        throw NarrowingException(
+            "AMAP target `${selection.change}` cannot execute while " +
+                "`${domain.change}` has a positive choice"
+        )
+      }
+    }
+    return selections.isNotEmpty()
+  }
+
+  private data class FirstStageChange(val change: Change, val metricPositive: Boolean = true)
+
+  private fun firstStageChanges(tree: InstructionTree): List<FirstStageChange> =
+      when (tree) {
+        is Change -> listOf(FirstStageChange(tree))
+        is By -> firstStageChanges(tree.inner)
+        is Gated -> firstStageChanges(tree.inner)
+        is Per ->
+            firstStageChanges(tree.inner).map {
+              it.copy(metricPositive = reader.count(tree.metric) > 0)
+            }
+        is Then -> firstStageChanges(tree.first)
+        is Or -> tree.instructions.flatMap(::firstStageChanges)
+        is InstructionGroup -> tree.instructions.flatMap(::firstStageChanges)
+        else -> emptyList()
+      }
+
+  private fun isAbstractPureAmAp(domain: Change, selection: Change): Boolean {
+    if (domain.intensity != AMAP) return false
+    val domainTarget = domain.gaining ?: domain.removing ?: return false
+    if (domain.gaining != null && domain.removing != null) return false
+    val selectionTarget = selection.gaining ?: selection.removing ?: return false
+    val domainType = reader.resolve(domainTarget)
+    return domainType.abstract &&
+        !domainType.rootClass.declaration.custom &&
+        !reader.resolve(selectionTarget).abstract
+  }
+
+  private fun hasPositiveExecution(change: Change): Boolean {
+    val gaining = change.gaining?.let(reader::resolve)
+    val removing = change.removing?.let(reader::resolve)
+    if (gaining?.phantom == true || removing?.phantom == true) return false
+    return when {
+      gaining != null && removing == null ->
+          if (gaining.abstract) {
+            !gaining.rootClass.declaration.custom &&
+                limiter.hasExecutableConcreteGain(gaining, minimum = 1, reader)
+          } else {
+            try {
+              limiter.findLimit(gaining.toComponent(), null) > 0
+            } catch (_: DependencyException) {
+              false
+            }
+          }
+      gaining == null && removing != null ->
+          if (removing.abstract) {
+            limiter.hasExecutableConcreteRemoval(removing, minimum = 1, reader)
+          } else {
+            limiter.findLimit(null, removing.toComponent()) > 0
+          }
+      else -> false
+    }
+  }
+
   private fun prepareTree(unprepared: InstructionTree): InstructionTree =
       if (unprepared is InstructionGroup) unprepared else doPrepare(unprepared as Instruction)
 
@@ -180,7 +270,14 @@ internal class Instructor(
     return try {
       prepareChangeWithoutDependencyFallback(change, intensity)
     } catch (e: DependencyException) {
-      if (intensity == MANDATORY) throw e else NoOp
+      val gaining = change.gaining
+      val canFallBackToZero =
+          intensity != MANDATORY &&
+              gaining != null &&
+              change.removing == null &&
+              (intensity == OPTIONAL || reader.resolve(gaining).abstract) &&
+              !classTable.getClass(gaining.className).declaration.custom
+      if (canFallBackToZero) NoOp else throw e
     }
   }
 
@@ -223,15 +320,40 @@ internal class Instructor(
 
     if (listOfNotNull(g, r).any { it.abstract }) {
       if (
-          intens == AMAP &&
-              g?.abstract == true &&
+          g?.abstract == true &&
               r == null &&
-              limiter.findAbstractGainLimit(g) == 0
+              intens != OPTIONAL &&
+              !g.rootClass.declaration.custom &&
+              !limiter.hasExecutableConcreteGain(
+                  g,
+                  minimum = if (intens == MANDATORY) count else 1,
+                  reader,
+              )
       ) {
+        if (intens == MANDATORY) {
+          throw LimitsException(
+              "Can't gain $count ${g.expression}: no concrete narrowing can execute"
+          )
+        }
         return NoOp
       }
-      if (intens != MANDATORY && g == null && r?.abstract == true && !reader.containsAny(r)) {
-        return NoOp
+      if (g == null && r?.abstract == true) {
+        val canRemove =
+            if (intens == OPTIONAL) {
+              reader.containsAny(r)
+            } else {
+              limiter.hasExecutableConcreteRemoval(
+                  r,
+                  minimum = if (intens == MANDATORY) count else 1,
+                  reader,
+              )
+            }
+        if (!canRemove) {
+          if (intens == MANDATORY) {
+            throw LimitsException("Can't remove $count ${r.expression}: max possible is 0")
+          }
+          return NoOp
+        }
       }
       // Still abstract, don't check limits yet
       return Change.change(g?.expression, r?.expression, count, intens)

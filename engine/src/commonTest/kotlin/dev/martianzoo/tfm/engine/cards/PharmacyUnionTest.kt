@@ -21,11 +21,30 @@ class PharmacyUnionTest : CardTest() {
   fun `a science tag must remove one disease and raise TR`() {
     newGame(PromoCardPack)
     p1.manual("$PharmacyUnion")
-    val trBefore = p1.count("TerraformRating")
 
     p1.manual("$PhysicsComplex").expect("-Disease<$PharmacyUnion>, TerraformRating")
+  }
 
-    p1.count("TerraformRating") shouldBe trBefore + 1
+  @Test
+  fun `two science tags with one disease remove it and then flip Pharmacy Union`() {
+    newGame(PromoCardPack)
+    p1.manual("$PharmacyUnion")
+    p1.manual("-Disease<$PharmacyUnion>")
+    val trBefore = p1.count("TerraformRating")
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+
+    manual.manual("$Research") {
+      doTask("TerraformRating FROM Disease<$PharmacyUnion>")
+      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
+      doTask("2 ProjectCard")
+    }
+
+    p1.count("TerraformRating") shouldBe trBefore + 4
+    p1.assertCounts(
+        0 to "Disease<$PharmacyUnion>",
+        0 to "$PharmacyUnion",
+        1 to "PlayedEvent<Class<$PharmacyUnion>>",
+    )
   }
 
   @Test
@@ -49,7 +68,7 @@ class PharmacyUnionTest : CardTest() {
   // FAQ: a microbe trigger that was already pending when Pharmacy Union flips still loses 4 M€,
   // but places no disease because the corporation is no longer in play.
   @Test
-  fun `pending disease placement disappears after Pharmacy Union flips`() {
+  fun `pending disease placement becomes its explicit fallback after Pharmacy Union flips`() {
     newGame(PromoCardPack)
     p1.manual("$PharmacyUnion")
     p1.manual("-2 Disease<$PharmacyUnion>")
@@ -60,7 +79,7 @@ class PharmacyUnionTest : CardTest() {
     manual.manual("$RegolithEaters") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
       doTask("-4 Megacredit")
-      doTask("Disease<$PharmacyUnion>")
+      doTask("Ok")
     }
 
     p1.count("Megacredit") shouldBe moneyBefore - 4

@@ -14,7 +14,7 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  fun `with Viral Enhancers, adds a bio-tag card choosing a plant`() {
+  fun `with Viral Enhancers, a bio card that cannot hold resources must take a plant`() {
     newGame()
     p1.manual("$ViralEnhancers")
     p1.manual("$IndustrialMicrobes").expect("Plant")

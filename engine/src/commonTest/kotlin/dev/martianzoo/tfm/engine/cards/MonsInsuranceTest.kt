@@ -115,7 +115,7 @@ class MonsInsuranceTest : CardTest() {
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
     p1.manual("$MonsInsurance")
-    p1.manual("-999 Megacredit.")
+    p1.manual("-Megacredit / Megacredit")
     p1.manual("2 Megacredit")
     p3.manual("Plant")
 

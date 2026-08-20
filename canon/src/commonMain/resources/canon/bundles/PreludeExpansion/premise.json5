@@ -1,0 +1,10 @@
+{
+  "moduleClassSelections": {
+    "PreludeExpansion": [
+      {
+        "className": "PreludeSoloGenerationAdjustment",
+        "requirement": "SoloMode",
+      },
+    ],
+  },
+}

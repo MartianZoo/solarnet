@@ -215,6 +215,7 @@ public abstract class PetTransformer protected constructor() {
       is Metric ->
           when (node) {
             is Metric.Count -> Metric.Count(transformExpression(node.expression))
+            is Metric.Constant -> node
             is Property ->
                 Property(
                     transformPropertyName(node.propertyName),
@@ -222,7 +223,12 @@ public abstract class PetTransformer protected constructor() {
                 )
             is Metric.Scaled -> Metric.scaled(transformMetric(node.inner), node.unit)
             is Metric.Max -> Metric.Max(transformMetric(node.inner), node.maximum)
-            is Metric.Or -> Metric.Or(metrics(node.metrics))
+            is Metric.Subtract ->
+                Metric.Subtract(
+                    transformMetric(node.minuend),
+                    transformMetric(node.subtrahend),
+                )
+            is Metric.Or -> Metric.Or.create(metrics(node.metrics))!!
             is Metric.Eval -> Metric.Eval(transformProperty(node.property))
             is Metric.Transform -> Metric.Transform(transformMetric(node.inner), node.transformKind)
           }

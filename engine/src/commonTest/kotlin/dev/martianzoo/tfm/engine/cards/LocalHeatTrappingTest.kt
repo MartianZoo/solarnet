@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -38,9 +39,20 @@ class LocalHeatTrappingTest : CardTest() {
   }
 
   @Test
-  fun `without Fish in play, its optional animals narrow to nothing`() {
+  fun `without an animal holder, chooses animals and gains nothing`() {
+    p1.manual("6 Heat")
+
+    p1.manual("$LocalHeatTrapping") { doTask("Ok") }.expect("-5 Heat, 0 Plant")
+  }
+
+  @Test
+  fun `with an animal holder, cannot evade it by selecting an absent holder`() {
     p1.manual("6 Heat, $Pets")
-    p1.manual("$LocalHeatTrapping") { doTask("2 Animal<$Fish>") }.expect("-5 Heat")
+    p1.manual("$LocalHeatTrapping") {
+          shouldThrow<NarrowingException> { doTask("2 Animal<$Fish>") }
+          doTask("2 Animal<$Pets>")
+        }
+        .expect("-5 Heat, 2 Animal<$Pets>")
   }
 
   @Test
