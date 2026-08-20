@@ -1,0 +1,6 @@
+{
+  "name": "solarnet-parity",
+  "private": true,
+  "main": "kotlin/solarnet-parity.js",
+  "types": "kotlin/solarnet-parity.d.ts"
+}
