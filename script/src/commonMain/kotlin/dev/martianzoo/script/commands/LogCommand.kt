@@ -1,6 +1,7 @@
 package dev.martianzoo.script.commands
 
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.engine.isHiddenFromLog
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
@@ -24,7 +25,7 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
   override fun noArgs() =
       repl.game.events
           .changesSinceSetup()
-          .filterNot { repl.isHidden(it, repl.game.reader) }
+          .filterNot(repl.game.reader::isHiddenFromLog)
           .map(repl.game.vocabulary::renderPets)
 
   override fun withArgs(args: String): List<String> {

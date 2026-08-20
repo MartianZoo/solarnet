@@ -3,11 +3,13 @@ package dev.martianzoo.parity
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
+import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
+import dev.martianzoo.engine.isHiddenFromLog
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
@@ -75,6 +77,10 @@ public class SolarnetSession(
                 titanium = paymentAmount(payment, "titanium"),
             )
       }
+      "cardAction" -> {
+        val card = cn("Card${move.getValue("cardId").jsonPrimitive.content}")
+        game.tfm(movePlayer(move)).cardAction1(card)
+      }
       "standardProject" -> startStandardProject(move)
       "placeTile" -> placeTile(move)
       "endTurn" -> game.tfm(movePlayer(move)).declineSecondAction()
@@ -112,12 +118,16 @@ public class SolarnetSession(
   }
 
   /**
-   * Returns every Pets-rendered event at or after [cursor], plus the cursor for the next poll. This
-   * complete developer diagnostic is not safe to expose to players.
+   * Returns the ordinary-log changes at or after [cursor], plus the cursor for the next poll. Task
+   * events and non-phase Hidden changes remain available in the World's complete event log.
    */
   public fun eventsSince(cursor: Int): String {
     val nextCursor = game.timeline.checkpoint().ordinal
-    val lines = game.events.entriesSince(Checkpoint(cursor))
+    val lines =
+        game.events
+            .entriesSince(Checkpoint(cursor))
+            .filterIsInstance<ChangeEvent>()
+            .filterNot(game.reader::isHiddenFromLog)
     return buildJsonObject {
       put("nextCursor", nextCursor)
       put(

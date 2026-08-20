@@ -1,5 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SystemClasses.HIDDEN
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
@@ -7,6 +9,17 @@ import dev.martianzoo.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+
+/**
+ * Whether [event] is omitted from the ordinary game log while remaining available in a full log.
+ */
+public fun GameReader.isHiddenFromLog(event: ChangeEvent): Boolean {
+  val changedTypes = listOfNotNull(event.change.gaining, event.change.removing).map(::resolve)
+  val hidden = resolve(HIDDEN.expression)
+  val phase = resolve(cn("Phase").expression)
+  return changedTypes.all { it.isSubtypeOf(hidden) } && changedTypes.none { it.isSubtypeOf(phase) }
+}
 
 /**
  * A complete record of everything that happened in a particular game (in progress or finished),

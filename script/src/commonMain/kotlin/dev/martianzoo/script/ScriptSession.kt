@@ -1,11 +1,8 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.HIDDEN
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.GameEvent.ChangeEvent
 import dev.martianzoo.data.Player
 import dev.martianzoo.data.Task
 import dev.martianzoo.data.Task.TaskId
@@ -13,6 +10,7 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
+import dev.martianzoo.engine.isHiddenFromLog
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -210,11 +208,9 @@ public class ScriptSession(
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
     val changes =
-        result.changes
-            .filterNot { isHidden(it, game.reader) }
-            .map { event ->
-              game.vocabulary.renderPets(event)
-            }
+        result.changes.filterNot(game.reader::isHiddenFromLog).map { event ->
+          game.vocabulary.renderPets(event)
+        }
 
     val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
@@ -245,17 +241,6 @@ public class ScriptSession(
   internal fun onlyTask(): Task =
       selectableTasks().singleOrNull()
           ?: throw UsageException("this requires exactly one pending task")
-
-  internal fun isHidden(event: ChangeEvent, game: GameReader): Boolean {
-    val g = event.change.gaining
-    val r = event.change.removing
-
-    val changedTypes = listOfNotNull(g, r).map(game::resolve)
-    val hidden = game.resolve(HIDDEN.expression)
-    val phase = game.resolve(cn("Phase").expression)
-    return changedTypes.all { it.isSubtypeOf(hidden) } &&
-        changedTypes.none { it.isSubtypeOf(phase) }
-  }
 
   public fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")

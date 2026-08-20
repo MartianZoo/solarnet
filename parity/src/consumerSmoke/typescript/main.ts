@@ -162,8 +162,8 @@ try {
     "app space 04 did not grant its steel bonus",
   );
   check(
-    tileEvents.lines.some((line) => line.includes("NewTurn<Player2>")),
-    "Player 1's second action did not rotate to Player 2",
+    !tileEvents.lines.some((line) => line.includes("Task") || line.includes("NewTurn<Player2>")),
+    "ordinary event feed included task or hidden turn-control changes",
   );
   const player1 = tileSnapshot.players.find((player) => player.seat === 1);
   check(player1 !== undefined, "the snapshot omitted Player 1");
@@ -183,8 +183,8 @@ try {
   const passEvents = printNewEvents();
   check(passEvents.lines.some((line) => line.includes("+Pass<Player2>")), "pass not logged");
   check(
-    passEvents.lines.some((line) => line.includes("NewTurn<Player1>")),
-    "Player 2's pass did not rotate to Player 1",
+    !passEvents.lines.some((line) => line.includes("Task") || line.includes("NewTurn<Player1>")),
+    "ordinary event feed included task or hidden turn-control changes",
   );
   check(finalSnapshot.passedPlayers.join() === "2", "the snapshot omitted Player 2's pass");
 } finally {
