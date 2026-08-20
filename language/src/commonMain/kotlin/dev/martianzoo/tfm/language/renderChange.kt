@@ -116,9 +116,30 @@ private fun renderDirectChange(
     }
     ComponentDescriber.DirectChange.NextPlayedCardDiscount ->
         renderNextPlayedCardDiscount(instruction, describers)
+    ComponentDescriber.DirectChange.ProductionBoxCopy ->
+        renderProductionBoxCopy(instruction, describers)
     ComponentDescriber.DirectChange.TopCardPurchase ->
         renderTopCardPurchase(instruction, describers)
   }
+}
+
+private fun renderProductionBoxCopy(
+    instruction: Instruction,
+    describers: Describers,
+): Clause? {
+  val gain = instruction as? Gain ?: return null
+  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (
+      !describers.concrete(gain.gaining.className) ||
+          gain.gaining.refinement != null ||
+          gain.gaining.complement ||
+          (gain.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val card = gain.gaining.arguments.singleOrNull() ?: return null
+  val holder = describers.renderOwnedCardResourceHolder(card) ?: return null
+  return clause("duplicate", NounPhrase.text("the production box of $holder"))
 }
 
 private fun renderNextPlayedCardDiscount(
@@ -391,6 +412,17 @@ private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, 
 }
 
 private fun Describers.renderCardResourceHolder(expression: Expression): String? {
+  return renderCardResourceHolder(expression, owned = false)
+}
+
+private fun Describers.renderOwnedCardResourceHolder(expression: Expression): String? {
+  return renderCardResourceHolder(expression, owned = true)
+}
+
+private fun Describers.renderCardResourceHolder(
+    expression: Expression,
+    owned: Boolean,
+): String? {
   if (expression.arguments.isNotEmpty() || expression.complement) return null
   val holder = fact(expression.className, ComponentDescriber::cardResourceHolder) ?: return null
   val refinement = expression.refinement ?: return null
@@ -400,7 +432,10 @@ private fun Describers.renderCardResourceHolder(expression: Expression): String?
   val metric = minimum.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
   val (tag) = tagName(metric.expression.className) ?: return null
-  return "${indefiniteArticle(holder)} $holder with ${indefiniteArticle(tag)} $tag tag"
+  val describedHolder =
+      if (owned) "one of your ${holder.plural}"
+      else "${indefiniteArticle(holder.singular)} ${holder.singular}"
+  return "$describedHolder with ${indefiniteArticle(tag)} $tag tag"
 }
 
 private fun clause(verb: String, noun: NounPhrase, vararg modifiers: Modifier): Clause.Simple =

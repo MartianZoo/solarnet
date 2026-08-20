@@ -6,7 +6,7 @@ public data class ComponentDescriber(
     public val discardable: Boolean? = null,
     public val standardResource: Boolean? = null,
     public val cardResource: CardResource? = null,
-    public val cardResourceHolder: String? = null,
+    public val cardResourceHolder: Noun.Counted? = null,
     public val metricLocation: String? = null,
     public val tag: Tag? = null,
     public val track: Track? = null,
@@ -140,6 +140,9 @@ public data class ComponentDescriber(
 
     /** Describes a gained component that discounts the next card played. */
     public data object NextPlayedCardDiscount : DirectChange
+
+    /** Describes copying the production box of the card selected by the gained expression. */
+    public data object ProductionBoxCopy : DirectChange
 
     /** Supplies the otherwise-unmodeled review, purchase, or discard procedure for the top card. */
     public data object TopCardPurchase : DirectChange

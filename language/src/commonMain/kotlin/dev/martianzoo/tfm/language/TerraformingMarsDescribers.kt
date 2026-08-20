@@ -44,7 +44,7 @@ internal object TerraformingMarsDescribers {
         klass("CardFront") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Fixed("card"),
-                cardResourceHolder = "card",
+                cardResourceHolder = ComponentDescriber.Noun.Counted("card", "cards"),
                 playedCard = true,
             ),
         klass("ProjectCard") to
@@ -275,6 +275,10 @@ internal object TerraformingMarsDescribers {
                         "copy",
                         "your other Prelude's direct effect",
                     )
+            ),
+        klass("CopyProductionBox") to
+            ComponentDescriber(
+                directChange = ComponentDescriber.DirectChange.ProductionBoxCopy,
             ),
         klass("GiveColonyBonuses") to
             ComponentDescriber(
