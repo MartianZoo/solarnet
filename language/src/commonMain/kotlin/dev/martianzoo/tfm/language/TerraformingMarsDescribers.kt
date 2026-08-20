@@ -67,7 +67,15 @@ internal object TerraformingMarsDescribers {
                 discardable = true,
             ),
         klass("EventCard") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
-        klass("MarsArea") to ComponentDescriber(metricLocation = "on Mars"),
+        klass("MarsArea") to
+            ComponentDescriber(
+                metricLocation = "on Mars",
+                placementSite =
+                    ComponentDescriber.PlacementSite(
+                        noun = ComponentDescriber.Noun.Counted("area", "areas"),
+                        forSubclasses = false,
+                    ),
+            ),
         klass("RemoteArea") to
             ComponentDescriber(
                 placementSite =
@@ -96,6 +104,17 @@ internal object TerraformingMarsDescribers {
                         phrase = "adjacent to",
                         countedPair = true,
                     )
+            ),
+        klass("MapBonus") to
+            ComponentDescriber(
+                placementBonus =
+                    ComponentDescriber.PlacementBonus(
+                        ComponentDescriber.Noun.Counted("placement bonus", "placement bonuses")
+                    )
+            ),
+        klass("Tile") to
+            ComponentDescriber(
+                placement = ComponentDescriber.Placement("a", "tile", "tiles"),
             ),
         klass("SpecialTile") to
             ComponentDescriber(

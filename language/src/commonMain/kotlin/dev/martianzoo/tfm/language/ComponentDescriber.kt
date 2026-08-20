@@ -12,6 +12,7 @@ public data class ComponentDescriber(
     public val track: Track? = null,
     public val placement: Placement? = null,
     public val placementSite: PlacementSite? = null,
+    public val placementBonus: PlacementBonus? = null,
     public val spatialRelation: SpatialRelation? = null,
     /** Whether a structurally empty direct subclass adds no English text of its own. */
     public val textNeutralSubclasses: Boolean = false,
@@ -68,7 +69,10 @@ public data class ComponentDescriber(
   public data class PlacementSite(
       public val noun: Noun,
       public val article: String? = null,
+      public val forSubclasses: Boolean = true,
   )
+
+  public data class PlacementBonus(public val noun: Noun.Counted)
 
   public data class SpatialRelation(
       public val phrase: String,

@@ -72,6 +72,8 @@ the placed component's site and supplies its noun and optional definite article,
 spatial-relation fact supplies the relation phrase and its implicit target noun. The placement
 renderer interprets strict counting refinements on that site structurally; neither fact contains a
 card or a complete instruction.
+A placement site may decline inheritance when its specialized sites have different printed
+semantics; those subclasses remain unsupported until they furnish their own site description.
 
 The same spatial-relation fact can instead mark a component as a counted pair. Metric and
 requirement renderers then obtain both participant nouns, articles, and ownership from those
@@ -171,7 +173,8 @@ change; it is not inferred from an ordinary optional gain. Supported non-End eff
 fixed M€ discount triggered by
 playing a card or one concrete tag, and a supported instruction consequence triggered by playing
 concrete tags or one described tag group,
-placing a supported tile, raising a supported track, or adding a concrete card resource. Trigger
+placing a supported tile, including on a described site with a described placement bonus, raising a
+supported track, or adding a concrete card resource. Trigger
 wording preserves whether the acting player is constrained. An unrestricted trigger uses passive
 voice and qualifies the event object with `any`, so it does not introduce or imply any triggering
 actor; this includes non-player mechanisms such as World Government Terraforming. Other non-End

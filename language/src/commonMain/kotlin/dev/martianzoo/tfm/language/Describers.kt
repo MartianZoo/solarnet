@@ -35,6 +35,13 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return values.singleOrNull()
   }
 
+  internal fun placementSite(className: ClassName): ComponentDescriber.PlacementSite? {
+    val site = fact(className, ComponentDescriber::placementSite) ?: return null
+    if (site.forSubclasses) return site
+    val direct = descriptions[classesByName.getValue(className)]?.placementSite
+    return site.takeIf { direct != null }
+  }
+
   internal fun hasBehaviorBearingExtraClass(card: CardDefinition): Boolean =
       card.extraClasses.any { !isTextNeutralExtraClass(it) && !directlyDescribesGain(it, card) }
 

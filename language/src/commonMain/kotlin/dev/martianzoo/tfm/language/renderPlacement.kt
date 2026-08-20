@@ -16,6 +16,7 @@ internal fun renderPlacement(
 ): Clause? {
   val gain = instruction as? Gain ?: return null
   if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (!describers.concrete(gain.gaining.className)) return null
   if (gain.gaining.refinement != null || gain.gaining.complement) return null
 
   val siteModifiers = renderPlacementSites(gain.gaining.arguments, describers) ?: return null
@@ -32,7 +33,7 @@ internal fun renderPlacement(
   return placementClause(noun, siteModifiers + listOfNotNull(consequence))
 }
 
-private fun renderPlacementSites(
+internal fun renderPlacementSites(
     arguments: List<Expression>,
     describers: Describers,
 ): List<Modifier>? {
@@ -40,7 +41,7 @@ private fun renderPlacementSites(
   if (arguments.isEmpty()) return emptyList()
 
   val describedSites = arguments.mapNotNull { expression ->
-    describers.fact(expression.className, ComponentDescriber::placementSite)?.let {
+    describers.placementSite(expression.className)?.let {
       expression to it
     }
   }
@@ -55,9 +56,35 @@ private fun renderPlacementSites(
   expression.refinement?.let { refinement ->
     if (refinement.forgiving) return null
     modifiers +=
-        Modifier.Phrase(renderSpatialRequirement(refinement.requirement, describers) ?: return null)
+        Modifier.Phrase(
+            renderPlacementSiteRequirement(refinement.requirement, describers) ?: return null
+        )
   }
   return modifiers
+}
+
+private fun renderPlacementSiteRequirement(
+    requirement: Requirement,
+    describers: Describers,
+): String? =
+    renderSpatialRequirement(requirement, describers)
+        ?: renderPlacementBonusRequirement(requirement, describers)
+
+private fun renderPlacementBonusRequirement(
+    requirement: Requirement,
+    describers: Describers,
+): String? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  val expression = (minimum.metric as? Metric.Count)?.expression ?: return null
+  if (expression.refinement != null || expression.complement) return null
+  val bonus =
+      describers.fact(expression.className, ComponentDescriber::placementBonus) ?: return null
+  val resource = describers.representedClass(expression) ?: return null
+  val resourceNoun = describers.componentNoun(resource.className, 1)
+  val count = minimum.target
+  val amount = if (count == 1) describers.indefiniteArticle(resourceNoun) else count.toString()
+  val bonusNoun = if (count == 1) bonus.noun.singular else bonus.noun.plural
+  return "with $amount $resourceNoun $bonusNoun"
 }
 
 private fun renderSpatialRequirement(

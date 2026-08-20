@@ -405,12 +405,12 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       )
     }
   }
+  placementEvent(expression, EventActor.YOU)?.let {
+    return it
+  }
   if (expression.simple) {
     tagName(expression.className)?.let { (name) ->
       return Event(EventKind.PLAY, EventActor.YOU, "${indefiniteArticle(name)} $name tag")
-    }
-    placementEvent(expression, EventActor.YOU)?.let {
-      return it
     }
     cardResourceNoun(expression.className, 1)?.let {
       return Event(EventKind.ADD_TO_CARD, EventActor.YOU, "${indefiniteArticle(it)} $it")
@@ -501,19 +501,24 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
 
 private fun Describers.placementEvent(expression: Expression, actor: EventActor): Event? {
   if (expression.refinement != null || expression.complement) return null
-  if (
-      actor == EventActor.UNRESTRICTED &&
-          !expression.simple &&
-          expression.arguments != listOf(anyoneExpression)
-  )
-      return null
+  val siteArguments =
+      when (actor) {
+        EventActor.YOU -> expression.arguments
+        EventActor.UNRESTRICTED ->
+            when (expression.arguments) {
+              emptyList<Expression>(),
+              listOf(anyoneExpression) -> emptyList()
+              else -> return null
+            }
+      }
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
+  val modifiers = renderPlacementSites(siteArguments, this) ?: return null
   val phrase =
       when (actor) {
         EventActor.YOU -> "${placement.article} ${placement.singular}"
         EventActor.UNRESTRICTED -> "any ${placement.singular}"
       }
-  return Event(EventKind.PLACE, actor, phrase)
+  return Event(EventKind.PLACE, actor, phrase, modifiers)
 }
 
 private fun Describers.renderScoringCondition(requirement: Requirement): String? {
