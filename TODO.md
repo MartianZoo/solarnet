@@ -62,9 +62,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Make Artificial Lake's concrete legal ocean placement refine and execute normally, without the solo whole-game test's mandatory `!` override.
 - Allow milestone and award sets to be selected independently of the map, so the 2026-06-19 whole-game test can claim Specialist normally instead of shutting down turn enforcement and manually exchanging 8 M€ for 5 VP.
 - Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
-- [#28: AMAP](https://github.com/MartianZoo/solarnet/issues/28) — Choose the greatest executable amount, including zero only when necessary. Apply this to optional card resources without permitting avoidable ocean placement.
 - Fix Public Plans so “any number” cannot be zero and the card is unavailable when the player has no other card to reveal; keep the current wrong behavior characterized in `BugsTest` until fixed.
-- Let a Pharmacy Union microbe trigger that was already pending at the flip finish its money loss without trying to place disease on the vanished corporation; keep the current dependency failure in `BugsTest` until fixed.
 - When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - Model the solo setup choice that selects four colony tiles and removes one before assembling the playable Game World.
 - [#2: Solo mode](https://github.com/MartianZoo/solarnet/issues/2) — Support removing the opponent's card resources.
@@ -83,7 +81,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Add a diagnostic engine/test mode that chooses otherwise executable tasks in reverse or reproducibly randomized order, then run the suites under it to expose accidental queue-order dependencies.
 - Reduce the remaining custom Pets instructions only where behavior can become hand-authored Pets; start with the candidates and constraints in [`docs/agents/REDUCE_CUSTOM.md`](docs/agents/REDUCE_CUSTOM.md).
 - Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return and colony-track advancement from Production into its Solar subphase after the game-end check.
-- Consolidate exception cleanup ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain boundaries, narrow `Instruction.narrows`, and start unavailable-operation coverage with Predators lacking a target.
+- Consolidate exception cleanup ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain boundaries, and narrow `Instruction.narrows`.
 - [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54) — Resolve contextual ownership correctly and display the resolved player.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
 - Model Prelude plays as explicit first and second turns.

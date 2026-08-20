@@ -1,14 +1,9 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
@@ -30,20 +25,6 @@ class BugsTest : CardTest() {
     }
   }
 
-  // FAQ: "If you do not have cards that hold those resources, you may still play the card and
-  // ignore that effect."
-  @Test
-  fun `Local Heat Trapping incorrectly cannot discard its optional animal gain`() {
-    newGame()
-    p1.manual("6 Heat, 2 ProjectCard")
-
-    p1.manual("$LocalHeatTrapping") {
-      doTask("4 Plant")
-      shouldThrow<TaskException> { doTask("Ok") }
-      abort()
-    }
-  }
-
   // Solar Probe should count its own science tag and draw one card for all three tags.
   @Test
   fun `Solar Probe incorrectly loses its card draw during normal play`() {
@@ -52,27 +33,6 @@ class BugsTest : CardTest() {
     p1.manual("9, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
 
     p1.playProject(SolarProbe, 9).expect("-9, -ProjectCard")
-  }
-
-  @Test
-  fun `Predators incorrectly remains abstract instead of unavailable without an animal`() {
-    newGame()
-    p1.manual("$Predators")
-    engine.phase("Action")
-    shouldThrow<AbstractException> { p1.cardAction1(Predators) }
-  }
-
-  @Test
-  fun `Artificial Lake incorrectly remains abstract instead of unavailable without an area`() {
-    newGame()
-    engine.phase("Action")
-    val landAreas =
-        p1.list("LandArea").filterNot { it.toString() == "VolcanicArea" } + p1.list("VolcanicArea")
-    p1.manual(
-        "15, ProjectCard, 12 TemperatureStep, " + landAreas.joinToString { "GreeneryTile<$it>" }
-    )
-
-    shouldThrow<AbstractException> { p1.playProject(ArtificialLake, 15) }
   }
 
   @Test
@@ -107,22 +67,5 @@ class BugsTest : CardTest() {
     p1.playProject(PublicPlans, 7) { doTask("Ok") }
 
     p1.assertCounts(0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
-  }
-
-  // FAQ: a microbe trigger that was already pending when Pharmacy Union flips still loses 4 M€,
-  // but places no disease because the corporation is no longer in play.
-  @Test
-  fun `Pharmacy Union incorrectly strands a pending disease placement after it flips`() {
-    newGame(PromoCardPack)
-    p1.manual("$PharmacyUnion")
-    p1.manual("-2 Disease<$PharmacyUnion>")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
-
-    manual.manual("$RegolithEaters") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
-      doTask("-4 Megacredit")
-      shouldThrow<DependencyException> { doTask("Disease<$PharmacyUnion>") }
-      abort()
-    }
   }
 }

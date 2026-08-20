@@ -38,6 +38,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
 | Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |
 | Remaining implicit-variable work | [LINKAGES.md](LINKAGES.md) | Focused implementation note |
+| Integrating the `work1` AMAP model with `wildtag` | [WILDTAG_INTEGRATION.md](WILDTAG_INTEGRATION.md) | Temporary branch integration record |
 | Candidates for eliminating custom instructions | [REDUCE_CUSTOM.md](REDUCE_CUSTOM.md) | Audit |
 | Shuffle, physical cards, hidden information, and chance | [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md) | Proposal |
 | Monotonicity in optimal TR63 solo play | [OPTIMAL_SOLO.md](OPTIMAL_SOLO.md) | Research note |
