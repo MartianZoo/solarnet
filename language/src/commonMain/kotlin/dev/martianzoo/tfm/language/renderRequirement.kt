@@ -142,18 +142,24 @@ private fun Describers.renderRequirementBound(
       }
     }
     is ComponentDescriber.Requirement.Bound.Count -> {
+      val unrestricted =
+          expression.arguments == listOf(anyoneExpression) &&
+              expression.refinement == null &&
+              !expression.complement
       val syntax =
           when {
             expression.simple -> bound.syntax
-            expression.arguments == listOf(anyoneExpression) &&
-                expression.refinement == null &&
-                !expression.complement -> bound.anyoneSyntax ?: return null
+            unrestricted -> bound.anyoneSyntax ?: return null
             else -> return null
           }
       val noun = if (target == 1) bound.noun.singular else bound.noun.plural
       when (syntax) {
         ComponentDescriber.Requirement.CountSyntax.REQUIRES_COUNT ->
-            requirementClause("requires", "$target $noun")
+            requirementClause(
+                "requires",
+                if (unrestricted) "any ${if (target == 1) "" else "$target "}$noun"
+                else "$target $noun",
+            )
         ComponentDescriber.Requirement.CountSyntax.REQUIRES_OWNED_COUNT ->
             requirementClause("requires", "that you have $target $noun")
         ComponentDescriber.Requirement.CountSyntax.THERE_MUST_BE_COUNT_OR_FEWER ->

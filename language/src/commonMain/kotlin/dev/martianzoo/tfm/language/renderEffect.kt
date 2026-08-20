@@ -301,12 +301,15 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
 }
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
-  if (
-      expression.arguments.isNotEmpty() ||
-          fact(expression.className, ComponentDescriber::playedCard) != true
-  )
-      return null
+  if (fact(expression.className, ComponentDescriber::playedCard) != true) return null
+  val kind =
+      when (expression.arguments) {
+        emptyList<Expression>() -> EventKind.PLAY
+        listOf(anyoneExpression) -> EventKind.PLAY_ANY
+        else -> return null
+      }
   val card = componentNoun(expression.className, 1)
+  val article = if (kind == EventKind.PLAY_ANY) "any" else indefiniteArticle(card)
   val phrase =
       expression.refinement?.let { refinement ->
         if (refinement.forgiving) return null
@@ -314,17 +317,26 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
         when (val metric = minimum.metric) {
           is Metric.Count -> {
             if (minimum.target != 1) return null
-            val tag = tagName(minimum)?.first ?: return null
-            "${indefiniteArticle(tag)} $tag $card"
+            val tagExpression = metric.expression
+            if (
+                tagExpression.refinement != null ||
+                    tagExpression.complement ||
+                    (tagExpression.arguments.isNotEmpty() &&
+                        tagExpression.arguments != listOf(anyoneExpression))
+            ) {
+              return null
+            }
+            val tag = tagName(tagExpression.className)?.first ?: return null
+            "${if (kind == EventKind.PLAY_ANY) "any" else indefiniteArticle(tag)} $tag $card"
           }
           is Property -> {
             if (metric.receiver != null || metric.propertyName.value != "cost") return null
-            "${indefiniteArticle(card)} $card with a printed cost of ${minimum.target} M€ or more"
+            "$article $card with a printed cost of ${minimum.target} M€ or more"
           }
           else -> return null
         }
-      } ?: "${indefiniteArticle(card)} $card"
-  return Event(EventKind.PLAY, phrase)
+      } ?: "$article $card"
+  return Event(kind, phrase)
 }
 
 private fun Describers.placementEvent(expression: Expression, kind: EventKind): Event? {

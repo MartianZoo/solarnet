@@ -173,8 +173,9 @@ playing a card or one concrete tag, and a supported instruction consequence trig
 concrete tags or one described tag group,
 placing a supported tile, raising a supported track, or adding a concrete card resource. Trigger
 wording preserves whether the acting player is constrained. An unrestricted trigger uses passive
-voice so it does not introduce or imply any triggering actor; this includes non-player mechanisms
-such as World Government Terraforming. Other non-End effects keep the whole top region data-backed.
+voice and qualifies the event object with `any`, so it does not introduce or imply any triggering
+actor; this includes non-player mechanisms such as World Government Terraforming. Other non-End
+effects keep the whole top region data-backed.
 An automatic removal trigger whose described consequence is a dead end renders as a prohibition
 when the trigger structurally identifies resources on this card or resources an opponent removes.
 A fixed M€ increase in the payment value of a standard resource or resource category is also derived
@@ -253,9 +254,10 @@ An unrestricted gain says `any card`. The `<name> card` contraction applies when
 a minimum threshold of one tag; wording whose meaning depends on tag cardinality retains that
 cardinality explicitly.
 
-Any-player city-tile requirements name the required tiles without `in play`; a compound owned
-city-and-colony requirement says that you have those components. Solarnet components outside the
-game do not exist, so the published `in play` wording adds no existence state or scope.
+Any-player city-tile requirements use `any` to distinguish them from the player's own tiles and name
+the required tiles without `in play`; a compound owned city-and-colony requirement says that you
+have those components. Solarnet components outside the game do not exist, so the published `in
+play` wording adds no existence state or scope.
 
 Use an indefinite article rather than the numeral `1` for one placed object: `a city tile` and `an
 ocean tile`. Counts above one remain numeric. Resource quantities and track or production steps
