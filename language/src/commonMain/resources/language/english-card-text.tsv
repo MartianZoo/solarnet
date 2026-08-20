@@ -34,7 +34,7 @@ CardTC4	TC4	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.
 CardTC5	TC5	Utopia Invest	Gain 40 M€. Increase your steel production 1 step and your titanium production 1 step.	Action: Decrease one of your productions 1 step to gain 4 resources of that kind.
 CardXC1	XC1	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, place a community on a non-reserved area.	Action: Place a community (player marker) on a non-reserved area adjacent to one of your tiles or marked areas. / Effect: Marked areas are reserved for you. When you place a tile there, gain 3 M€.
 CardXC02	XC2	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card, or remove 2 microbes and increase your plant production 1 step.
-CardXC03F	XC3	Splice Tactical Genomics	Gain 44 M€. As your first action, draw 1 card with a microbe tag.	Effect: When a microbe tag is played, that player gains 2 M€, or adds a microbe to that card, and you gain 2 M€.
+CardXC03F	XC3	Splice Tactical Genomics	Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When a microbe tag is played, that player gains 2 M€, or adds a microbe to that card, and you gain 2 M€.
 CardXC04F	XC4	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: Increase your energy production 1 step if you have no energy resources, or spend 3 M€ to draw a building card.
 CardXC05	XC5	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. All opponents decrease their M€ production 2 steps. This does not trigger the effect below.	Effect: When any player has their resources removed or production decreased by another player (including you), pay 3 M€ to the victim, or as much as possible.
 CardXC06	XC6	Philares	Gain 47 M€. As your first action, place a greenery tile (and raise oxygen 1 step).	Effect: Each new adjacency between your tile and an opponent's tile gives you a standard resource of your choice (regardless of who just placed a tile).
@@ -138,7 +138,7 @@ Card024	024	Predators	Requires 11% oxygen. 1 VP for each animal on this card.	Ac
 Card026	026	Eos Chasma National Park	Requires -12°C or warmer. Add 1 animal to any card. Gain 3 plants. Increase your M€ production 2 steps. 1 VP.	
 Card029	029	Cupola City	Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps.	
 Card030	030	Lunar Beam	Decrease your M€ production 2 steps and increase your heat production 2 steps and your energy production 2 steps.	
-Card031	031	Optimal Aerobraking		Effect: When you play an event card with a space tag, gain 3 M€ and 3 heat.
+Card031	031	Optimal Aerobraking		Effect: When you play a space event card, gain 3 M€ and 3 heat.
 Card032	032	Underground City	Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.	
 Card033	033	Regolith Eaters		Action: Add 1 microbe to this card, or remove 2 microbes from this card to raise oxygen 1 step.
 Card034	034	GHG Producing Bacteria	Requires 4% oxygen.	Action: Add 1 microbe to this card, or remove 2 microbes from this card to raise temperature 1 step.
@@ -280,7 +280,7 @@ Card079	079	Quantum Extractor	Requires 4 science tags. Increase your energy prod
 Card082	082	Callisto Penal Mines	Increase your M€ production 3 steps. 2 VPs.	
 Card084	084	Trans-Neptune Probe	1 VP.	
 Card085	085	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP for each city tile adjacent to this tile.	
-Card086	086	Robotic Workforce	Duplicate the production box of one of your cards with a building tag.	
+Card086	086	Robotic Workforce	Duplicate the production box of one of your building cards.	
 Card090	090	Research	Counts as playing 2 science tags. Draw 2 cards. 1 VP.	
 Card091	091	Gene Repair	Requires 3 science tags. Increase your M€ production 2 steps. 2 VPs.	
 Card092	092	Io Mining Industries	Increase your titanium production 2 steps and your M€ production 2 steps. 1 VP for each Jovian tag you have.	
@@ -329,11 +329,11 @@ Card211	211	Snow Algae	Requires 2 ocean tiles. Increase your plant production 1 
 Card212	212	Penguins	Requires 8 ocean tiles. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card213	213	Aerial Mappers	1 VP.	Action: Add 1 floater to any card, or remove 1 floater from this card to draw 1 card.
 Card214	214	Aerosport Tournament	Requires that you have 5 floaters. Gain 1 M€ for each city tile. 1 VP.	
-Card215	215	Air-Scrapping Expedition	Raise Venus 1 step. Add 3 floaters to a card with a Venus tag.	
+Card215	215	Air-Scrapping Expedition	Raise Venus 1 step. Add 3 floaters to a Venus card.	
 Card216	216	Atalanta Planitia Lab	Requires 3 science tags. Draw 2 cards. 2 VPs.	
 Card217	217	Atmoscoop	Requires 3 science tags. Raise temperature 2 steps or Venus 2 steps. Add 2 floaters to any card. 1 VP.	
 Card218	218	Comet For Venus	Raise Venus 1 step. Remove up to 4 M€ from a player with a Venus tag in play.	
-Card219	219	Corroder Suits	Increase your M€ production 2 steps. Add 1 resource to a card with a Venus tag.	
+Card219	219	Corroder Suits	Increase your M€ production 2 steps. Add 1 resource to a Venus card.	
 Card220	220	Dawn City	Requires 4 science tags. Decrease your energy production 1 step and increase your titanium production 1 step. Place a city tile on the reserved area outside Mars. 3 VPs.	
 Card221	221	Deuterium Export		Action: Add 1 floater to this card, or remove 1 floater from this card to increase your energy production 1 step.
 Card222	222	Dirigibles		Action: Add 1 floater to any card. / Effect: When you play a Venus tag, floaters here may be used as payment, and are worth 3 M€ each.
@@ -341,18 +341,18 @@ Card223	223	Extractor Balloons	Add 3 floaters to this card.	Action: Add 1 floate
 Card224	224	Extremophiles	Requires 2 science tags. 1 VP for every 3 microbes on this card.	Action: Add 1 microbe to any card.
 Card225	225	Floating Habs	Requires 2 science tags. 1 VP for every 2 floaters on this card.	Action: Spend 2 M€ to add 1 floater to any card.
 Card226	226	Forced Precipitation		Action: Spend 2 M€ to add 1 floater to this card, or remove 2 floaters from this card to raise Venus 1 step.
-Card227	227	Freyja Biodomes	Requires Venus 10%. Add 2 microbes or 2 animals to a card with a Venus tag. Decrease your energy production 1 step and increase your M€ production 2 steps. 2 VPs.	
+Card227	227	Freyja Biodomes	Requires Venus 10%. Add 2 microbes or 2 animals to a Venus card. Decrease your energy production 1 step and increase your M€ production 2 steps. 2 VPs.	
 Card228	228	GHG Import From Venus	Raise Venus 1 step. Increase your heat production 3 steps.	
 Card229	229	Giant Solar Shade	Raise Venus 3 steps.	
 Card230	230	Gyropolis	Decrease your energy production 2 steps. Increase your M€ production 1 step for each Venus tag you have. Increase your M€ production 1 step for each Earth tag you have. Place a city tile.	
-Card231	231	Hydrogen To Venus	Raise Venus 1 step. Add 1 floater to a card with a Venus tag for each Jovian tag you have.	
+Card231	231	Hydrogen To Venus	Raise Venus 1 step. Add 1 floater to a Venus card for each Jovian tag you have.	
 Card232	232	Io Sulphur Research	Draw 1 card, or draw 3 cards if you have 3 or more Venus tags. 2 VPs.	
 Card233	233	Ishtar Mining	Requires Venus 8%. Increase your titanium production 1 step.	
 Card234	234	Jet Stream Microscrappers		Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters from this card to raise Venus 1 step.
 Card235	235	Local Shading		Action: Add 1 floater to this card, or remove 1 floater from this card to increase your M€ production 1 step.
 Card236	236	Luna Metropolis	Increase your M€ production 1 step for each Earth tag you have. Place a city tile on the reserved area outside Mars. 2 VPs.	
 Card237	237	Luxury Foods	Requires Venus, Earth, and Jovian tags. 2 VPs.	
-Card238	238	Maxwell Base	Requires Venus 12%. Decrease your energy production 1 step. Place a city tile on the reserved area outside Mars. 3 VPs.	Action: Add 1 resource to a card with a Venus tag.
+Card238	238	Maxwell Base	Requires Venus 12%. Decrease your energy production 1 step. Place a city tile on the reserved area outside Mars. 3 VPs.	Action: Add 1 resource to a Venus card.
 Card239	239	Mining Quota	Requires Venus, Earth, and Jovian tags. Increase your steel production 2 steps.	
 Card240	240	Neutralizer Factory	Requires Venus 10%. Raise Venus 1 step.	
 Card241	241	Omnicourt	Requires Venus, Earth, and Jovian tags. Raise your terraform rating 2 steps.	
@@ -362,12 +362,12 @@ Card244	244	Sister Planet Support	Requires Venus and Earth tags. Increase your M
 Card245	245	Solarnet	Requires Venus, Earth, and Jovian tags. Draw 2 cards. 1 VP.	
 Card246	246	Spin-Inducing Asteroid	Venus must be 10% or less. Raise Venus 2 steps.	
 Card247	247	Sponsored Academies	Discard 1 card from hand and then draw 3 cards. All opponents draw 1 card. 1 VP.	
-Card248	248	Stratopolis	Requires 2 science tags. Increase your M€ production 2 steps. Place a city tile on the reserved area outside Mars. 1 VP for every 3 floaters on this card.	Action: Add 2 floaters to a card with a Venus tag.
+Card248	248	Stratopolis	Requires 2 science tags. Increase your M€ production 2 steps. Place a city tile on the reserved area outside Mars. 1 VP for every 3 floaters on this card.	Action: Add 2 floaters to a Venus card.
 Card249	249	Stratospheric Birds	Requires Venus 12%. Remove 1 floater from any card. 1 VP for each animal on this card.	Action: Add 1 animal to this card.
 Card250	250	Sulphur Exports	Raise Venus 1 step. Increase your M€ production 1 step for each Venus tag you have.	
 Card251	251	Sulphur-Eating Bacteria	Requires Venus 6%.	Action: Add 1 microbe to this card, or remove one or more microbes from this card to gain triple that amount of M€.
 Card252	252	Terraforming Contract	Requires that you have a terraform rating of 25 or more. Increase your M€ production 4 steps.	
-Card253	253	Thermophiles	Requires Venus 6%.	Action: Add 1 microbe to a card with a Venus tag, or remove 2 microbes from this card to raise Venus 1 step.
+Card253	253	Thermophiles	Requires Venus 6%.	Action: Add 1 microbe to a Venus card, or remove 2 microbes from this card to raise Venus 1 step.
 Card254	254	Water To Venus	Raise Venus 1 step.	
 Card255	255	Venus Governor	Requires 2 Venus tags. Increase your M€ production 2 steps.	
 Card256	256	Venus Magnetizer	Requires Venus 10%.	Action: Decrease your energy production 1 step to raise Venus 1 step.
@@ -375,7 +375,7 @@ Card257	257	Venus Soils	Raise Venus 1 step. Increase your plant production 1 ste
 Card258	258	Venus Waystation	1 VP.	Effect: When you play a Venus tag, you pay 2 M€ less.
 Card259	259	Venusian Animals	Requires Venus 18%. 1 VP for each animal on this card.	Effect: When you play a science tag, add 1 animal to this card.
 Card260	260	Venusian Insects	Requires Venus 12%. 1 VP for every 2 microbes on this card.	Action: Add 1 microbe to this card.
-Card261	261	Venusian Plants	Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to a card with a Venus tag. 1 VP.	
+Card261	261	Venusian Plants	Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to a Venus card. 1 VP.	
 CardP36	P36	House Printing	Increase your steel production 1 step. 1 VP.	
 CardP37	P37	Lava Tube Settlement	Decrease your energy production 1 step. Increase your M€ production 2 steps. Place a city tile; if using a board with volcanic areas, this tile MUST be placed on one, but may ignore adjacent cities.	
 CardP38	P38	Martian Survey	Oxygen must be 4% or less. Draw 2 cards. 1 VP.	
@@ -401,7 +401,7 @@ CardC15	C15	Ice Moon Colony	Place a colony. Place an ocean tile.
 CardC16	C16	Impactor Swarm	Requires 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.	
 CardC17	C17	Interplanetary Colony Ship	Place a colony.	
 CardC18	C18	Jovian Lanterns	Requires a Jovian tag. Raise your terraform rating 1 step. Add 2 floaters to any card. 1 VP for every 2 floaters on this card.	Action: Spend 1 titanium to add 2 floaters to this card.
-CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 1 floater to a card with a Jovian tag, or gain 1 M€ for each floater on this card (max 4).
+CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 1 floater to a Jovian card, or gain 1 M€ for each floater on this card (max 4).
 CardC20	C20	Luna Governor	Requires 3 Earth tags. Increase your M€ production 2 steps.	
 CardC21	C21	Lunar Exports	Increase your plant production 2 steps or your M€ production 5 steps.	
 CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have.	
@@ -410,7 +410,7 @@ CardC24	C24	Martian Zoo	Requires 2 city tiles. 1 VP.	Action: Gain 1 M€ for eac
 CardC25	C25	Mining Colony	Increase your titanium production 1 step. Place a colony.	
 CardC26	C26	Minority Refuge	Decrease your M€ production 2 steps. Place a colony.	
 CardC27	C27	Molecular Printing	Gain 1 M€ for each city tile. Gain 1 M€ for each colony. 1 VP.	
-CardC28	C28	Nitrogen From Titan	Raise your terraform rating 2 steps. Add 2 floaters to a card with a Jovian tag. 1 VP.	
+CardC28	C28	Nitrogen From Titan	Raise your terraform rating 2 steps. Add 2 floaters to a Jovian card. 1 VP.	
 CardC29	C29	Pioneer Settlement	You must have no more than 1 colony. Decrease your M€ production 2 steps. Place a colony. 2 VPs.	
 CardC30	C30	Productive Outpost	Gain all your colony bonuses.	
 CardC31	C31	Quantum Communications	Requires 4 science tags. Increase your M€ production 1 step for each colony. 1 VP.	
@@ -426,8 +426,8 @@ CardC40	C40	Space Port Colony	Requires a colony. Place a colony. May be placed o
 CardC41	C41	Spin-Off Department	Increase your M€ production 2 steps.	Effect: When you play a card with a basic cost of 20 M€ or more, draw 1 card.
 CardC42	C42	Sub-Zero Salt Fish	Requires -6°C or warmer. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Action: Add 1 animal to this card.
 CardC43	C43	Titan Air-Scrapping	2 VPs.	Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters from this card to raise your terraform rating 1 step.
-CardC44	C44	Titan Floating Launch-Pad	Add 2 floaters to a card with a Jovian tag. 1 VP.	Action: Add 1 floater to ANY JOVIAN CARD, or remove 1 floater from this card to trade for free.
-CardC45	C45	Titan Shuttles	1 VP.	Action: Add 2 floaters to a card with a Jovian tag, or remove one or more floaters from this card to gain the same number of titanium.
+CardC44	C44	Titan Floating Launch-Pad	Add 2 floaters to a Jovian card. 1 VP.	Action: Add 1 floater to ANY JOVIAN CARD, or remove 1 floater from this card to trade for free.
+CardC45	C45	Titan Shuttles	1 VP.	Action: Add 2 floaters to a Jovian card, or remove one or more floaters from this card to gain the same number of titanium.
 CardC46	C46	Trade Envoys		Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC47	C47	Trading Colony	Place a colony.	Effect: When you trade, you may first increase that Colony Tile track 1 step.
 CardC48	C48	Urban Decomposers	Requires that you have 1 city tile and 1 colony. Increase your plant production 1 step. Add 2 microbes to any card.	
@@ -493,7 +493,7 @@ CardX40	X40	Double Down	Copy your other Prelude's direct effect.
 CardX43	X43	Head Start	Gain 2 steel. Gain 2 M€ for each project card you have in hand. Immediately take 2 actions.	
 CardX44	X44	16 Psyche	Increase your titanium production 2 steps. Gain 3 titanium. 2 VPs.	
 CardX45	X45	Robot Pollinators	Requires 4% oxygen. Increase your plant production 1 step. Gain 1 plant for each plant tag you have.	
-CardX50	X50	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 cards with a building tag. 1 VP.	
+CardX50	X50	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 building cards. 1 VP.	
 CardX52	X52	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space or city tag, graphene resources on this card may be used as 4 M€ each.
 CardX61	X61	Neptunian Power Consultants	1 VP for each hydroelectric resource on this card.	Effect: When any ocean tile is placed, you may pay 5 M€ (steel may be used) to increase your energy production 1 step and add 1 hydroelectric resource to this card.
 CardX63	X63	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, you pay 2 M€ less. When any space event is played, draw 1 card.

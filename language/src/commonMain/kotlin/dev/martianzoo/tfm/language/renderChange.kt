@@ -432,10 +432,8 @@ private fun Describers.renderCardResourceHolder(
   val metric = minimum.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
   val (tag) = tagName(metric.expression.className) ?: return null
-  val describedHolder =
-      if (owned) "one of your ${holder.plural}"
-      else "${indefiniteArticle(holder.singular)} ${holder.singular}"
-  return "$describedHolder with ${indefiniteArticle(tag)} $tag tag"
+  return if (owned) "one of your $tag ${holder.plural}"
+  else "${indefiniteArticle(tag)} $tag ${holder.singular}"
 }
 
 private fun clause(verb: String, noun: NounPhrase, vararg modifiers: Modifier): Clause.Simple =

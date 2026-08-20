@@ -311,20 +311,18 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
       expression.refinement?.let { refinement ->
         if (refinement.forgiving) return null
         val minimum = refinement.requirement as? Requirement.Min ?: return null
-        val qualifier =
-            when (val metric = minimum.metric) {
-              is Metric.Count -> {
-                if (minimum.target != 1) return null
-                val tag = tagName(minimum)?.first ?: return null
-                "with ${indefiniteArticle(tag)} $tag tag"
-              }
-              is Property -> {
-                if (metric.receiver != null || metric.propertyName.value != "cost") return null
-                "with a printed cost of ${minimum.target} M€ or more"
-              }
-              else -> return null
-            }
-        "${indefiniteArticle(card)} $card $qualifier"
+        when (val metric = minimum.metric) {
+          is Metric.Count -> {
+            if (minimum.target != 1) return null
+            val tag = tagName(minimum)?.first ?: return null
+            "${indefiniteArticle(tag)} $tag $card"
+          }
+          is Property -> {
+            if (metric.receiver != null || metric.propertyName.value != "cost") return null
+            "${indefiniteArticle(card)} $card with a printed cost of ${minimum.target} M€ or more"
+          }
+          else -> return null
+        }
       } ?: "${indefiniteArticle(card)} $card"
   return Event(EventKind.PLAY, phrase)
 }

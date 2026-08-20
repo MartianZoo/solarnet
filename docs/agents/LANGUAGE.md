@@ -241,15 +241,17 @@ A mandatory removal of concrete project cards renders as discarding cards. A sup
 also be triggered specifically by adding a concrete card resource to the effect's own card or by a
 directly described operation such as trading.
 
-A tag-narrowed card-resource destination renders as `a card with a <name> tag`, independently of
+A tag-narrowed card-resource destination renders as `a <name> card`, independently of
 whether the played card itself qualifies. This canonical wording replaces the data file's
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
 policy. Every card-resource instruction that moves a resource names a card location: `This` becomes
-`this card`, a tag-narrowed holder becomes `a card with a <name> tag`, and an unqualified removal
+`this card`, a tag-narrowed holder becomes `a <name> card`, and an unqualified removal
 says `from any card`. Aggregate requirements and metrics omit the redundant card location while
 retaining ownership; an unqualified card-resource metric says that the player has those resources.
-An unrestricted gain says `any card`.
+An unrestricted gain says `any card`. The `<name> card` contraction applies when the refinement has
+a minimum threshold of one tag; wording whose meaning depends on tag cardinality retains that
+cardinality explicitly.
 
 Any-player city-tile requirements name the required tiles without `in play`; a compound owned
 city-and-colony requirement says that you have those components. Solarnet components outside the
