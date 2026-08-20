@@ -279,7 +279,7 @@ Card074	074	Viral Enhancers		Effect: When you play a plant, microbe, or an anima
 Card079	079	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space tag, you pay 2 M€ less.
 Card082	082	Callisto Penal Mines	Increase your M€ production 3 steps. 2 VPs.	
 Card084	084	Trans-Neptune Probe	1 VP.	
-Card085	085	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP for each adjacent city tile.	
+Card085	085	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP for each city tile adjacent to this tile.	
 Card086	086	Robotic Workforce	Duplicate only the production box of one of your building cards.	
 Card090	090	Research	Counts as playing 2 science tags. Draw 2 cards. 1 VP.	
 Card091	091	Gene Repair	Requires 3 science tags. Increase your M€ production 2 steps. 2 VPs.	
@@ -485,7 +485,7 @@ CardX34	X34	Asteroid Rights	Add 2 asteroids to this card.	Action: Spend 1 M€ t
 CardX36	X36	Bio Printing Facility		Action: Spend 2 energy to gain 2 plants or add 1 animal to any card.
 CardX35	X35	Bactoviral Research	Draw 1 card. Choose 1 of your played cards and add 1 microbe to it for each science tag you have.	
 CardX37	X37	Harvest	Requires that you have 3 greenery tiles. Gain 12 M€.	
-CardX38	X38	Outdoor Sports	Requires any city adjacent to an ocean. Increase your M€ production 2 steps.	
+CardX38	X38	Outdoor Sports	Requires any city tile adjacent to an ocean tile. Increase your M€ production 2 steps.	
 CardX42	X42	New Partner	Increase your M€ production 1 step. Draw 2 Prelude cards. Discard 1 of them, then play the remaining card.	
 CardX41	X41	Merger	Draw 4 corporation cards. Discard 3 of them, then play the remaining card. Then pay 42 M€.	
 CardX39F	X39	Corporate Archives	Gain 13 M€. Look at the top 7 cards from the deck. Draw 2 of them and discard the other 5.	

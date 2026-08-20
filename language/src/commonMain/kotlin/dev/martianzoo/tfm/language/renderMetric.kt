@@ -30,6 +30,9 @@ private fun renderScaledCountPhrase(metric: Metric.Scaled, describers: Describer
 internal fun Describers.renderMetric(expression: Expression, unit: Int? = null): String? {
   val count = unit ?: 1
   val prefix = unit?.let { "every $it" } ?: "each"
+  renderCountedRelation(expression, this)?.let { relation ->
+    return "$prefix ${relation.countedObject(count)}"
+  }
   renderTagMetric(expression, prefix, unit, this)?.let {
     return it
   }

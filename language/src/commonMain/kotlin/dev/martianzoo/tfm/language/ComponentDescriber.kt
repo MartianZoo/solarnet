@@ -70,8 +70,15 @@ public data class ComponentDescriber(
 
   public data class SpatialRelation(
       public val phrase: String,
-      public val defaultTarget: Noun.Counted,
-  )
+      public val defaultTarget: Noun.Counted? = null,
+      public val countedPair: Boolean = false,
+  ) {
+    init {
+      require((defaultTarget != null) != countedPair) {
+        "A spatial relation must describe either an implicit target or a counted pair"
+      }
+    }
+  }
 
   public enum class MetricOwner {
     YOU,

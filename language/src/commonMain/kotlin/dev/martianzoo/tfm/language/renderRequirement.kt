@@ -30,6 +30,17 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
   val metric = requirement.metric as? Metric.Count ?: return null
   val expression = metric.expression
   val target = requirement.target
+  renderCountedRelation(expression, this)?.let { relation ->
+    if (target != 1) return null
+    val objectPhrase =
+        if (relation.source.ownedByYou) {
+          "that you have ${indefiniteArticle(relation.source.singular)} ${relation.source.singular} " +
+              "${relation.phrase} ${relation.target.linearize()}"
+        } else {
+          relation.asRequirement()
+        }
+    return requirementClause("requires", objectPhrase)
+  }
   fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
     return renderRequirementBound(expression, target, bound)
   }

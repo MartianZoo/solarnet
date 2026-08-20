@@ -73,6 +73,11 @@ spatial-relation fact supplies the relation phrase and its implicit target noun.
 renderer interprets strict counting refinements on that site structurally; neither fact contains a
 card or a complete instruction.
 
+The same spatial-relation fact can instead mark a component as a counted pair. Metric and
+requirement renderers then obtain both participant nouns, articles, and ownership from those
+participants' placement and requirement facts. Refined participants remain unsupported until their
+refinement itself has a structural description.
+
 Each nullable language fact is inherited independently: a declaration on a more
 specific Class overrides the same fact from its superclass, facts from incomparable branches
 compose, and differing values for the same fact from incomparable nearest providers are rejected.
@@ -186,7 +191,8 @@ concrete-tag requirements, same-category groups of one-count tags, minimum terra
 owned-greenery requirements, minimum owned or any-player city tiles, compound owned city-and-colony
 requirements, and a requirement that the player have a standard-resource production.
 It also derives minimum concrete card-resource requirements and minimum and maximum owned-colony
-requirements. It derives bottom text when every immediate instruction is one of: a concrete
+requirements, plus a minimum counted spatial relationship between two described placed components.
+It derives bottom text when every immediate instruction is one of: a concrete
 mandatory gain or removal of a standard resource; an optional removal of up to a concrete number of
 standard resources or one concrete card resource from any player; an optional transfer of one
 concrete standard-resource type from any player to the acting player; a gain of one reserve Trade
@@ -223,9 +229,9 @@ a shared predicate only when its verb, destination, and modifiers agree; otherwi
 alternative retains its own scalar. A concrete fixed VP gain or
 penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or
-complete concrete group of one card-resource type on the scoring card. An unscaled fixed VP gain or
-penalty may be conditional on the player having a concrete minimum number of one resource type on
-the scoring card.
+complete concrete group of one card-resource type on the scoring card, or each described component
+in one counted spatial relationship. An unscaled fixed VP gain or penalty may be conditional on the
+player having a concrete minimum number of one resource type on the scoring card.
 
 A mandatory removal of concrete project cards renders as discarding cards. A supported effect may
 also be triggered specifically by adding a concrete card resource to the effect's own card or by a

@@ -75,6 +75,14 @@ internal object TerraformingMarsDescribers {
                         ComponentDescriber.Noun.Counted("other tile", "other tiles"),
                     )
             ),
+        klass("Adjacency") to
+            ComponentDescriber(
+                spatialRelation =
+                    ComponentDescriber.SpatialRelation(
+                        phrase = "adjacent to",
+                        countedPair = true,
+                    )
+            ),
         klass("SpecialTile") to
             ComponentDescriber(
                 placement =
