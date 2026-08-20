@@ -105,24 +105,36 @@ try {
       operation: "standardProject",
       player: 1,
       project: "aquifer",
-      target: { spaceId: "04" },
     }),
   );
   const standardProjectEvents = printNewEvents();
   check(
-    standardProjectEvents.lines.some((line) => line.includes("+OceanTile<Tharsis_1_2")),
+    standardProjectEvents.lines.some((line) => line.includes("-18 Megacredit<Player1>")),
+    "Aquifer did not charge Player 1",
+  );
+  check(
+    !standardProjectEvents.lines.some((line) => line.includes(": +OceanTile<")),
+    "Aquifer placed its ocean before the app selected a space",
+  );
+
+  session.apply(
+    JSON.stringify({ operation: "placeTile", player: 1, tile: "ocean", spaceId: "04" }),
+  );
+  const tileEvents = printNewEvents();
+  check(
+    tileEvents.lines.some((line) => line.includes("+OceanTile<Tharsis_1_2")),
     "Aquifer did not place its ocean at app space 04",
   );
   check(
-    standardProjectEvents.lines.some((line) => line.includes("+TerraformRating<Player1>")),
+    tileEvents.lines.some((line) => line.includes("+TerraformRating<Player1>")),
     "Aquifer did not raise Player 1's TR",
   );
   check(
-    standardProjectEvents.lines.some((line) => line.includes("+2 Steel<Player1>")),
+    tileEvents.lines.some((line) => line.includes("+2 Steel<Player1>")),
     "app space 04 did not grant its steel bonus",
   );
   check(
-    standardProjectEvents.lines.some((line) => line.includes("NewTurn<Player2>")),
+    tileEvents.lines.some((line) => line.includes("NewTurn<Player2>")),
     "Player 1's second action did not rotate to Player 2",
   );
 

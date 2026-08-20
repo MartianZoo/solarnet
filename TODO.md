@@ -122,9 +122,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Reconcile Gate 2's compound Aquifer project-and-target message with the app's accepted-input
-  granularity before broadening target support; splitting it across `apply` calls requires an honest
-  continuation boundary instead of leaving `TfmGameplay.stdProject` half-finished.
 - Before broadening the parity payment protocol beyond its Earth Office proof, define and test
   client-level rejection and rollback for underpayment, overpayment, and illegal steel/titanium;
   nonnegative JSON fields and `TfmGameplay.pay` do not constitute a complete payment contract.

@@ -185,12 +185,13 @@ Office and observes the workflow rotate to Player 2. The main scenario passes Pl
 1's two actions and observes the workflow return to Player 1. Negative tests prove that `pass` is
 rejected during a second-action offer and `endTurn` is rejected during a first-action offer.
 
-The `standardProject` proof performs Aquifer as Player 1's second action and carries the app's
-row-major space ID `04`, not a Pets instruction or Solarnet coordinate. The facade translates that
-ID through the active map definition, places an ocean on `Tharsis_1_2`, applies the intrinsic TR and
-the area's two-steel bonus, and rotates to Player 2. Project and target remain one semantic message
-in this prototype because the transitional `TfmGameplay.stdProject` operation must finish within one
-`apply` call.
+The `standardProject` proof performs Aquifer as Player 1's second action at the app's actual input
+granularity. The first message selects Aquifer, pays 18 M€, and leaves Solarnet waiting on its real
+ocean-placement task. A following `placeTile` message carries the app's row-major space ID `04`, not
+a Pets instruction or Solarnet coordinate. The facade translates that ID through the active map
+definition, places an ocean on `Tharsis_1_2`, applies the intrinsic TR and the area's two-steel
+bonus, and rotates to Player 2. Each accepted app input is one failure-atomic Solarnet command;
+together the two commands continue and finish one resumable operation.
 
 **Pass condition:** a short scenario covers setup, a paid project, a target choice, a tile placement,
 an automatic effect, a second action, and pass without parsing display text.

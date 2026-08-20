@@ -83,9 +83,7 @@ internal class SolarnetSessionTest {
       assertFailsWith<NarrowingException> {
         session.apply("""{"operation":"pass","player":1}""")
       }
-      session.apply(
-          """{"operation":"standardProject","player":1,"project":"aquifer","target":{"spaceId":"04"}}"""
-      )
+      session.apply("""{"operation":"standardProject","player":1,"project":"aquifer"}""")
       val standardProjectEvents =
           Json.parseToJsonElement(
                   session.eventsSince(
@@ -98,17 +96,24 @@ internal class SolarnetSessionTest {
       val standardProjectLines =
           standardProjectEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
       assertTrue(standardProjectLines.any { "-18 Megacredit<Player1>" in it })
-      assertTrue(standardProjectLines.any { "+OceanTile<Tharsis_1_2" in it })
-      assertTrue(standardProjectLines.any { "+TerraformRating<Player1>" in it })
-      assertTrue(standardProjectLines.any { "+2 Steel<Player1>" in it })
-      assertTrue(standardProjectLines.any { "NewTurn<Player2>" in it })
+      assertTrue(standardProjectLines.none { ": +OceanTile<" in it })
+      assertTrue(standardProjectLines.none { "NewTurn<Player2>" in it })
+
+      session.apply("""{"operation":"placeTile","player":1,"tile":"ocean","spaceId":"04"}""")
+      val tileEvents =
+          Json.parseToJsonElement(session.eventsSince(standardProjectCursor)).jsonObject
+      val tileCursor = tileEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+      val tileLines = tileEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
+      assertTrue(tileLines.any { "+OceanTile<Tharsis_1_2" in it })
+      assertTrue(tileLines.any { "+TerraformRating<Player1>" in it })
+      assertTrue(tileLines.any { "+2 Steel<Player1>" in it })
+      assertTrue(tileLines.any { "NewTurn<Player2>" in it })
 
       assertFailsWith<TaskException> {
         session.apply("""{"operation":"endTurn","player":2}""")
       }
       session.apply("""{"operation":"pass","player":2}""")
-      val passEvents =
-          Json.parseToJsonElement(session.eventsSince(standardProjectCursor)).jsonObject
+      val passEvents = Json.parseToJsonElement(session.eventsSince(tileCursor)).jsonObject
       val passLines = passEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
       assertTrue(passLines.any { "+Pass<Player2>" in it })
       assertTrue(passLines.any { "NewTurn<Player1>" in it })
