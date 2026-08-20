@@ -426,6 +426,7 @@ private enum class EventKind(
   BUY(activeVerb = "buy"),
   USE_ACTION(activeVerb = "use"),
   PLACE(activeVerb = "place", passiveVerb = "is placed"),
+  CREATE(activeVerb = "create", passiveVerb = "is created"),
   INCREASE_PRODUCTION(activeVerb = "increase", activeModifier = "1 step"),
   RAISE(passiveVerb = "is raised", passiveModifier = "1 step"),
   ADD_TO_CARD(activeVerb = "add", activeModifier = "to any card"),
@@ -478,6 +479,9 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (trigger is ByTrigger) {
     if (trigger.by != anyoneExpression) return null
     val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
+    relationshipEvent(expression, EventActor.UNRESTRICTED)?.let {
+      return it
+    }
     placementEvent(expression, EventActor.UNRESTRICTED)?.let {
       return it
     }
@@ -492,6 +496,9 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     if (expression.refinement == null && expression.arguments.all(Expression::simple)) {
       return Event(EventKind.PERFORM_OPERATION, EventActor.YOU, it)
     }
+  }
+  relationshipEvent(expression, EventActor.YOU)?.let {
+    return it
   }
   productionEvent(expression)?.let {
     return it
@@ -562,6 +569,33 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     }
   }
   return null
+}
+
+private fun Describers.relationshipEvent(
+    expression: Expression,
+    actor: EventActor,
+): Event? {
+  if (expression.refinement != null || expression.complement) return null
+  val relation = fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
+  val noun = relation.eventNoun ?: return null
+  val participants = expression.arguments.map { relationshipParticipant(it) ?: return null }
+  if (participants.size != 2) return null
+  return Event(
+      EventKind.CREATE,
+      actor,
+      "${indefiniteArticle(noun)} $noun between ${participants[0]} and ${participants[1]}",
+  )
+}
+
+private fun Describers.relationshipParticipant(expression: Expression): String? {
+  if (expression.refinement != null || expression.complement) return null
+  val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
+  return when (expression.arguments) {
+    emptyList<Expression>() -> "${indefiniteArticle(placement.singular)} ${placement.singular}"
+    listOf(ownerExpression) -> "one of your ${placement.plural}"
+    listOf(notOwnerExpression) -> "an opponent's ${placement.singular}"
+    else -> null
+  }
 }
 
 private fun Describers.renderActionUse(expression: Expression): String? {

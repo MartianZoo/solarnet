@@ -144,6 +144,7 @@ internal object TerraformingMarsDescribers {
                     ComponentDescriber.SpatialRelation(
                         phrase = "adjacent to",
                         countedPair = true,
+                        eventNoun = "adjacency",
                     )
             ),
         klass("MapBonus") to

@@ -269,6 +269,8 @@ expression argument; the Describer does not contain that tag or a complete instr
 Ownership and location remain independent renderer facts. Because a component outside the game
 does not exist in Solarnet's model, generated metric phrases do not say `in play`; the published
 cards use that phrase to contrast any player's components with the acting player's own components.
+A counted spatial relation may also name the event created between its two described placement
+participants, retaining contextual ownership of each participant.
 One supported clause may be gated by a concrete minimum number of a tag the player owns.
 Supported instructions are rendered in authored order. Adjacent standard-resource gains coalesce,
 and adjacent production changes remain coordinated in one sentence. Separate card-resource gains

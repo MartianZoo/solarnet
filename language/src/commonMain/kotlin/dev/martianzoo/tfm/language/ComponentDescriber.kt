@@ -89,10 +89,14 @@ public data class ComponentDescriber(
       public val phrase: String,
       public val defaultTarget: Noun.Counted? = null,
       public val countedPair: Boolean = false,
+      public val eventNoun: String? = null,
   ) {
     init {
       require((defaultTarget != null) != countedPair) {
         "A spatial relation must describe either an implicit target or a counted pair"
+      }
+      require(eventNoun == null || countedPair) {
+        "Only a relation between two explicit participants can describe its creation"
       }
     }
   }
