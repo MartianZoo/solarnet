@@ -67,7 +67,7 @@ private fun Describers.renderResourceSpend(
       val holder =
           when (expression.arguments) {
             listOf(thisExpression) -> "this card"
-            listOf(anyoneExpression) -> "ANY PLAYER'S CARD"
+            listOf(anyoneExpression) -> "any player's card"
             emptyList<Expression>() -> "any of your cards"
             else -> return null
           }

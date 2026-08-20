@@ -134,7 +134,7 @@ Card020	020	Research Outpost	Place a city tile on a land area not adjacent to an
 Card021	021	Phobos Space Haven	Increase your titanium production 1 step. Place a city tile on the reserved area outside Mars. 3 VPs.	
 Card022	022	Black Polar Dust	Place an ocean tile. Decrease your M€ production 2 steps and increase your heat production 3 steps.	
 Card023	023	Arctic Algae	Temperature must be -12°C or colder. Gain 1 plant.	Effect: When any ocean tile is placed, gain 2 plants.
-Card024	024	Predators	Requires 11% oxygen. 1 VP for each animal on this card.	Action: Remove 1 animal from ANY PLAYER'S CARD to add 1 animal to this card.
+Card024	024	Predators	Requires 11% oxygen. 1 VP for each animal on this card.	Action: Remove 1 animal from any player's card to add 1 animal to this card.
 Card026	026	Eos Chasma National Park	Requires -12°C or warmer. Add 1 animal to any card. Gain 3 plants. Increase your M€ production 2 steps. 1 VP.	
 Card029	029	Cupola City	Oxygen must be 9% or less. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps.	
 Card030	030	Lunar Beam	Decrease your M€ production 2 steps and increase your heat production 2 steps and your energy production 2 steps.	
@@ -142,7 +142,7 @@ Card031	031	Optimal Aerobraking		Effect: When you play a space event card, gain 
 Card032	032	Underground City	Place a city tile. Decrease your energy production 2 steps and increase your steel production 2 steps.	
 Card033	033	Regolith Eaters		Action: Add 1 microbe to this card, or remove 2 microbes from this card to raise oxygen 1 step.
 Card034	034	GHG Producing Bacteria	Requires 4% oxygen.	Action: Add 1 microbe to this card, or remove 2 microbes from this card to raise temperature 1 step.
-Card035	035	Ants	Requires 4% oxygen. 1 VP for every 2 microbes on this card.	Action: Remove 1 microbe from ANY PLAYER'S CARD to add 1 microbe to this card.
+Card035	035	Ants	Requires 4% oxygen. 1 VP for every 2 microbes on this card.	Action: Remove 1 microbe from any player's card to add 1 microbe to this card.
 Card036	036	Release Of Inert Gases	Raise your terraform rating 2 steps.	
 Card037	037	Nitrogen-Rich Asteroid	Raise your terraform rating 2 steps. Raise temperature 1 step. Increase your plant production 1 step or increase your plant production 4 steps if you have 3 plant tags.	
 Card038	038	Rover Construction	1 VP.	Effect: When any city tile is placed, gain 2 M€.
