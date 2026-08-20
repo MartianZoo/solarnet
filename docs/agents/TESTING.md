@@ -17,6 +17,8 @@ Kotlin 2.2. Contributors do not need another JDK installed.
 - `./gradlew :engine:jsBrowserSmokeTest` runs only the representative browser smoke scenario.
 - `./gradlew :parity:jsNodeTest` runs the Node-facing parity facade scenario, including packaged
   resource loading and semantic move execution.
+- `./gradlew :parity:typescriptConsumerSmoke` compiles a checked-in external TypeScript consumer
+  against the generated development package, runs it, and prints each semantic move's new events.
 - `./gradlew jsBrowserTest` runs every module's full browser suite.
   `./gradlew build -PincludeBrowserTests=true` includes those suites in the normal repository-wide
   check.

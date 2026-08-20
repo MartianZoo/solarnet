@@ -3,6 +3,7 @@ package dev.martianzoo.parity
 import kotlin.js.JsNonModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -21,9 +22,25 @@ internal class SolarnetSessionTest {
           snapshot.getValue("players").jsonArray.map { it.jsonPrimitive.content },
       )
 
+      val initialEvents = Json.parseToJsonElement(session.eventsSince(0)).jsonObject
+      val initialCursor = initialEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+      assertTrue(initialEvents.getValue("lines").jsonArray.isNotEmpty())
+      assertTrue(
+          Json.parseToJsonElement(session.eventsSince(initialCursor))
+              .jsonObject
+              .getValue("lines")
+              .jsonArray
+              .isEmpty()
+      )
+
       session.apply(
           """{"operation":"selectCorporation","player":1,"corporation":"InterplanetaryCinematics","projectCards":0}"""
       )
+      val firstMoveEvents = Json.parseToJsonElement(session.eventsSince(initialCursor)).jsonObject
+      val firstMoveCursor = firstMoveEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+      assertTrue(firstMoveCursor > initialCursor)
+      assertTrue(firstMoveEvents.getValue("lines").jsonArray.isNotEmpty())
+
       val afterBoth =
           Json.parseToJsonElement(
                   session.apply(
@@ -32,6 +49,13 @@ internal class SolarnetSessionTest {
               )
               .jsonObject
       assertEquals("ActionPhase", afterBoth.getValue("phase").jsonPrimitive.content)
+
+      val secondMoveEvents =
+          Json.parseToJsonElement(session.eventsSince(firstMoveCursor)).jsonObject
+      assertTrue(
+          secondMoveEvents.getValue("nextCursor").jsonPrimitive.content.toInt() > firstMoveCursor
+      )
+      assertTrue(secondMoveEvents.getValue("lines").jsonArray.isNotEmpty())
     } finally {
       session.close()
     }

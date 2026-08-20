@@ -4,6 +4,7 @@ import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -70,6 +71,23 @@ public class SolarnetSession(
       put(
           "players",
           buildJsonArray { players.forEach { add(it.className.toString()) } },
+      )
+    }
+        .toString()
+  }
+
+  /**
+   * Returns every Pets-rendered event at or after [cursor], plus the cursor for the next poll. This
+   * complete developer diagnostic is not safe to expose to players.
+   */
+  public fun eventsSince(cursor: Int): String {
+    val nextCursor = game.timeline.checkpoint().ordinal
+    val lines = game.events.entriesSince(Checkpoint(cursor))
+    return buildJsonObject {
+      put("nextCursor", nextCursor)
+      put(
+          "lines",
+          buildJsonArray { lines.forEach { add(game.vocabulary.renderPets(it)) } },
       )
     }
         .toString()

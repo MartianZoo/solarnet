@@ -1,7 +1,8 @@
 # Dual-engine Terraforming Mars app
 
-**Status: Gate 1 prototype in progress.** This records the smallest promising design, verified
-runtime facts, and the proof gates that should precede broad integration.
+**Status: the Gate 1 development runtime boundary is proven; Gate 2 is next.** This records the
+smallest promising design, verified runtime facts, and the proof gates that should precede broad
+integration.
 
 ## Goal
 
@@ -85,7 +86,9 @@ deferred actions; `Game.deserialize()` reconstructs the next input from the phas
 Solarnet exposes actor-scoped `Gameplay`, pending tasks, an event-backed `Timeline`, and
 `TfmWorkflow.Auto`. Commands are failure-atomic and automatic effects are drained before the outer
 command completes. The new JavaScript-only `parity` module exports the first deliberately narrow
-external snapshot and command facade; it is a probe, not yet a stable public API.
+external snapshot and command facade; it is a probe, not yet a stable public API. Its pull-based
+`eventsSince(cursor)` diagnostic returns a new cursor and the full Pets-rendered event lines in that
+range. Consumers poll only after a completed command; the engine has no parallel observer path.
 
 Canon and Pets still use browser XHR by default. Their JS loaders now accept one optional host
 resource-reader function, allowing the parity module to load the same packaged resources in Node.
@@ -129,8 +132,9 @@ option and card.
 ### Gate 1: Prove the runtime boundary
 
 Prefer one in-process Node-facing Kotlin/JS facade with string-in/string-out JSON methods. Its
-surface is deliberately tiny: create session, apply semantic move, get snapshot, and close session.
-First prove resource loading, one exported facade, one game, and one command in Node.
+surface is deliberately tiny: create session, apply semantic move, get snapshot, read diagnostic
+events, and close session. First prove resource loading, one exported facade, one game, and one
+command in Node.
 
 If browser/Node resource sharing makes that proof disproportionate, fall back to one managed JVM
 child process with the same JSON protocol and multiple session IDs. Do not expand the human Rego
@@ -139,14 +143,15 @@ protocol into an application API.
 **Pass condition:** a TypeScript test creates Solarnet, performs one ordinary task, reads a snapshot,
 and tears down cleanly with no app server involved.
 
-**Verified so far:** `SolarnetSession` is emitted to TypeScript with `apply(moveJson)`, `snapshot()`,
-and `close()`. Its Node integration test creates a two-player Corporate Era game, uses semantic
-`selectCorporation` messages for both players, advances from corporation selection to the action
-phase through ordinary `TfmGameplay` operations, reads JSON snapshots, and shuts down. A plain Node
-process also imports and runs the standalone development package. The optimized production package
-currently misparses a valid Canon effect, so development output is the honest provisional artifact.
-Remaining Gate 1 work is a checked-in TypeScript consumer smoke test and resolution or deliberate
-deferral of that production-linker defect.
+**Verified:** `SolarnetSession` is emitted to TypeScript with `apply(moveJson)`, `snapshot()`,
+`eventsSince(cursor)`, and `close()`. Its Node integration test creates a two-player Corporate Era
+game, uses semantic `selectCorporation` messages for both players, advances from corporation
+selection to the action phase through ordinary `TfmGameplay` operations, reads JSON snapshots and
+incremental event batches, and shuts down. The checked-in external TypeScript consumer compiles
+against the generated declarations, imports and runs the standalone development package, reads its
+packaged resources, applies both moves, and prints each move's new events without replaying old
+ones. The optimized production package currently misparses a valid Canon effect; resolving that is
+deliberately deferred, and the development package is the Gate 1 artifact.
 
 ### Gate 2: Define the semantic move protocol
 
@@ -226,6 +231,10 @@ generated parity run, and each selected product has a complete-game run.
 Add a Spartan compatibility notice at game creation and a parity status/diff view for development
 games. Export a sanitized replay bundle containing configuration, semantic moves, normalized
 snapshots, and version pins. Never expose hidden app state through diagnostics visible to players.
+
+The first live event view belongs in the development app server's terminal: after each translated
+input completes, poll `eventsSince(cursor)` and print the returned lines. The full task and change
+history can expose hidden information, so do not send this feed to an ordinary player's browser.
 
 Only after the diagnostic system is trustworthy should we consider speculative dual execution that
 blocks a move before either live state changes. That requires disposable Solarnet worlds or another
