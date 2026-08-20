@@ -58,7 +58,7 @@ CardP54	P54	Nobel Prize	Gain 5 M€. Draw 2 cards with requirements. 2 VPs.
 CardP55	P55	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.	
 CardP56	P56	Planetary Alliance	Raise your terraform rating 2 steps. Draw 1 Jovian-tag card and 1 Venus-tag card.	
 CardP57	P57	Preservation Program	Raise your terraform rating 5 steps.	Effect: Skip the first terraform rating you gain in each generation's action phase.
-CardP58	P58	Project Eden	Place 1 ocean tile, 1 city tile, and 1 greenery tile. Discard 3 cards.	
+CardP58	P58	Project Eden	Place an ocean tile. Place a city tile. Place a greenery tile (and raise oxygen 1 step). Discard 3 cards.	
 CardP59	P59	Recession	All opponents lose 5 M€ and decrease their M€ production 1 step. Gain 10 M€.	
 CardP61	P61	Soil Bacteria	Draw 2 microbe-tag cards. Gain 3 plants.	Effect: When you play a plant tag or a microbe tag, gain 1 plant.
 CardP62	P62	Space Lanes	Gain 3 titanium.	Effect: When you play a Jovian tag, an Earth tag, or a Venus tag, you pay 2 M€ less.
@@ -75,7 +75,7 @@ CardP78	P78	L1 Trade Terminal	Add 1 resource to up to 3 different cards that alr
 CardP79	P79	Microgravity Nutrition	Increase your M€ production 1 step for each colony you own. 1 VP.	
 CardP81	P81	Soil Studies	Temperature must be -4°C or colder. Gain 1 plant for each Venus tag you have. Gain 1 plant for each plant tag you have. Gain 1 plant for each colony you own.	
 CardP84	P84	Stratospheric Expedition	Add 2 floaters to any card. Draw 2 Venus-tag cards. 1 VP.	
-CardP86	P86	Unexpected Application	Discard 1 card to raise Venus 1 step.	
+CardP86	P86	Unexpected Application	Discard 1 card. Raise Venus 1 step.	
 CardP87	P87	Venus Allies	Raise Venus 2 steps. Gain 4 M€ for each colony you own. 2 VPs.	
 CardP88	P88	Venus Orbital Survey		Action: Reveal the top 2 cards. Take any Venus-tag cards into your hand for free. Buy or discard each other card.
 CardP89	P89	Venus Shuttles	Add 2 floaters to any card with a Venus tag.	Action: Spend 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ for each Venus tag you have.

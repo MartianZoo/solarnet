@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.language
 /** Sparse English-language facts declared for one component Class. */
 public data class ComponentDescriber(
     public val noun: Noun? = null,
+    public val discardable: Boolean? = null,
     public val standardResource: Boolean? = null,
     public val cardResource: CardResource? = null,
     public val cardResourceHolder: String? = null,
@@ -18,6 +19,7 @@ public data class ComponentDescriber(
     public val playTrigger: PlayTrigger? = null,
     public val playedCard: Boolean? = null,
     public val playedTagPhrase: String? = null,
+    public val operationTrigger: String? = null,
     public val usedActionTrigger: Boolean? = null,
     public val actionUse: ActionUse? = null,
     public val spentResourceTrigger: Boolean? = null,

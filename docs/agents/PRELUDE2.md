@@ -17,11 +17,10 @@ The English data file contains all 40 cards that do not require Turmoil. Per the
 
 ## Current boundary
 
-The executable manifest contains 28 cards: 2 corporations, 9 projects, and 17 Preludes. The
-remaining 12 non-Turmoil definitions stay in `cards-dont-work.json5` so their accurate data and
+The executable manifest contains 30 cards: 2 corporations, 9 projects, and 19 Preludes. The
+remaining 10 non-Turmoil definitions stay in `cards-dont-work.json5` so their accurate data and
 specific blockers remain reviewable without loading incorrect behavior:
 
-- `P43` Applied Science and `P54` Nobel Prize need Wild tags.
 - `P48` Early Colonization needs an operation over every colony track.
 - `P52` Industrial Complex needs production floors across all six resources.
 - `P59` Recession needs one effect applied independently to every opponent.
@@ -38,6 +37,6 @@ rulebook's failed-Prelude fallback as discard plus 15 M€. Active Preludes comp
 action-card machinery. `Prelude2NoImmediate` is a hidden signal for active/effect-only Preludes
 whose printed immediate region is empty.
 
-The focused card tests cover the genuinely new behavior: active Prelude play, once-per-action
-reset, first-TR cancellation per action phase, World Government terraforming by Engine, and
-EcoTec's rewards for its own starting tags.
+The focused card tests cover the genuinely new behavior: Wild-tag Preludes, active Prelude play,
+once-per-action reset, first-TR cancellation per action phase, World Government terraforming by
+Engine, and EcoTec's rewards for its own starting tags.

@@ -8,10 +8,10 @@ Most of the published game content is working... and mostly correctly.
 | Corporate Era | 2 / 2 | 70 / 71 | - | - | 4 / 4 | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Venus Next | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | 2 / 2 | 1 / 1 | - | 1 / 1 | - |
-| Prelude | 5 / 5 | 6 / 7 | 34 / 35 | - | - | - | - | - | - | 1 / 1 | - |
+| Prelude | 5 / 5 | 7 / 7 | 35 / 35 | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 3 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | 1 / 1 | 11 / 11 colony tiles |
 | Turmoil | 4 / 5 | 0 / 16 | - | - | - | 0 / 1 | 0 / 1 | - | 0 / 31 | 0 / 1 | 0 / 6 parties |
-| Prelude 2 | 2 / 5 | 9 / 24 | 17 / 25 | - | - | - | - | - | - | - | - |
+| Prelude 2 | 2 / 5 | 9 / 24 | 19 / 25 | - | - | - | - | - | - | - | - |
 | Amazonis & Vastitas | - | - | - | 0 / 2 | - | - | 0 / 20 | 0 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | the whole thing |
@@ -30,8 +30,6 @@ Most of the published game content is working... and mostly correctly.
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Ready |
 | Amazonis & Vastitas | Milestones / awards | (maybe we do have them?) | (investigate) |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
-| Prelude | Project | Research Coordination (`P40`) | (Works on wildtag branch) |
-| Prelude | Prelude | Research Network (`P28`) | (Works on wildtag branch) |
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
 | Colonies | Corporation | Stormcraft Incorporated (`CC5`) | Payment rewrites |
 | Promos through 2026-08 | Corporation | Kuiper Cooperative | Payment rewrites |
@@ -39,7 +37,7 @@ Most of the published game content is working... and mostly correctly.
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |
 | Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
 | Amazonis & Vastitas | Global parameter | Extended tracks | Core replacement |
-| Prelude 2 | Non-Turmoil cards | 3 corporations, 4 projects, and 5 preludes | Unmodeled unusual mechanics |
+| Prelude 2 | Non-Turmoil cards | 3 corporations, 4 projects, and 3 preludes | Unmodeled unusual mechanics |
 | Prelude 2 | Turmoil-linked cards | 11 projects and 3 preludes | Turmoil |
 | Turmoil | everything | all of it | Turmoil |
 | Automa | Other | entire Automa rules | Wow that's a lot |

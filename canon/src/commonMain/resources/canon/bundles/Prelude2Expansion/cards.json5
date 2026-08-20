@@ -17,7 +17,17 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "PlantTag" ],
       "immediate": "42, PROD[Plant]",
-      "effects": [ "AnimalTag OR PlantTag OR MicrobeTag: Plant OR Microbe" ],
+      "effects": [ "AnimalTag<> OR PlantTag<> OR MicrobeTag<>: Plant OR Microbe" ],
+    },
+
+    // Applied Science
+    {
+      "id": "P43",
+      "deck": "PRELUDE",
+      "tags": [ "WildTag" ],
+      "resourceType": "Science",
+      "immediate": "6 Science<This>",
+      "actions": [ "Science<This> -> CardResource OR StandardResource" ],
     },
 
     // Atmospheric Enhancers
@@ -90,6 +100,16 @@
       ],
     },
 
+    // Nobel Prize
+    {
+      "id": "P54",
+      "deck": "PRELUDE",
+      "tags": [ "WildTag" ],
+      // Named draws supply cards with requirements, as with the original Prelude's filtered draws.
+      "immediate": "5, 2 ProjectCard",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
     // Old Mining Colony
     {
       "id": "P55",
@@ -135,7 +155,7 @@
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag" ],
       "immediate": "2 ProjectCard, 3 Plant",
-      "effects": [ "PlantTag OR MicrobeTag: Plant" ],
+      "effects": [ "PlantTag<> OR MicrobeTag<>: Plant" ],
     },
 
     // Space Lanes

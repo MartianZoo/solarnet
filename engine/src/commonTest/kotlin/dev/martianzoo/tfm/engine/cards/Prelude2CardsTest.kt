@@ -7,6 +7,32 @@ import kotlin.test.Test
 
 class Prelude2CardsTest : CardTest() {
   @Test
+  fun `Applied Science supplies a wild tag and converts its science`() {
+    newGame(Prelude2Expansion)
+    p1.manual("$AppliedScience")
+
+    p1.count("WildTag") shouldBe 1
+    p1.count("Science<$AppliedScience>") shouldBe 6
+
+    engine.phase("Action")
+    p1.startTurn()
+    p1.doTask("PlantTag<WildTagUse<$AppliedScience>>")
+    p1.cardAction1(AppliedScience) { doTask("Plant") }.expect("Plant")
+
+    p1.count("Science<$AppliedScience>") shouldBe 5
+  }
+
+  @Test
+  fun `Nobel Prize supplies its wild tag and immediate gains`() {
+    newGame(Prelude2Expansion)
+    p1.manual("$NobelPrize")
+
+    p1.count("WildTag") shouldBe 1
+    p1.count("Megacredit") shouldBe 5
+    p1.count("ProjectCard") shouldBe 2
+  }
+
+  @Test
   fun `Board of Directors remains in play and can play another prelude`() {
     newGame(Prelude2Expansion)
     engine.phase("Prelude")

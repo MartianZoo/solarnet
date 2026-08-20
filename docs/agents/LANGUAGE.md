@@ -184,6 +184,10 @@ complete concrete group of one card-resource type on the scoring card. An unscal
 penalty may be conditional on the player having a concrete minimum number of one resource type on
 the scoring card.
 
+A mandatory removal of concrete project cards renders as discarding cards. A supported effect may
+also be triggered specifically by adding a concrete card resource to the effect's own card or by a
+directly described operation such as trading.
+
 A tag-narrowed card-resource destination renders as `a card with a <name> tag`, independently of
 whether the played card itself qualifies. This canonical wording replaces the data file's
 semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic `CardResource`

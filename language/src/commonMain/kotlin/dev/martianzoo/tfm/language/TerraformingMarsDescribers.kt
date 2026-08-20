@@ -37,6 +37,11 @@ internal object TerraformingMarsDescribers {
                 cardResourceHolder = "card",
                 playedCard = true,
             ),
+        klass("ProjectCard") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                discardable = true,
+            ),
         klass("EventCard") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
         klass("MarsArea") to ComponentDescriber(metricLocation = "on Mars"),
         klass("Animal") to
@@ -216,6 +221,7 @@ internal object TerraformingMarsDescribers {
         klass("End") to ComponentDescriber(endTrigger = true),
         klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
+        klass("Trade") to ComponentDescriber(operationTrigger = "trade"),
         klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
         klass("StandardProject") to
             ComponentDescriber(actionUse = ComponentDescriber.ActionUse("a standard project")),
@@ -243,6 +249,7 @@ internal object TerraformingMarsDescribers {
   private fun resolve(componentClass: Class): ComponentDescriber =
       ComponentDescriber(
           noun = resolveFact(componentClass, ComponentDescriber::noun),
+          discardable = resolveFact(componentClass, ComponentDescriber::discardable),
           standardResource = resolveFact(componentClass, ComponentDescriber::standardResource),
           cardResource = resolveFact(componentClass, ComponentDescriber::cardResource),
           cardResourceHolder = resolveFact(componentClass, ComponentDescriber::cardResourceHolder),
@@ -258,6 +265,7 @@ internal object TerraformingMarsDescribers {
           playTrigger = resolveFact(componentClass, ComponentDescriber::playTrigger),
           playedCard = resolveFact(componentClass, ComponentDescriber::playedCard),
           playedTagPhrase = resolveFact(componentClass, ComponentDescriber::playedTagPhrase),
+          operationTrigger = resolveFact(componentClass, ComponentDescriber::operationTrigger),
           usedActionTrigger = resolveFact(componentClass, ComponentDescriber::usedActionTrigger),
           actionUse = resolveFact(componentClass, ComponentDescriber::actionUse),
           spentResourceTrigger =

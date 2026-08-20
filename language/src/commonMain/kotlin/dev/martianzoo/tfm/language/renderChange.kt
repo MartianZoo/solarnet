@@ -25,6 +25,7 @@ internal fun renderChange(
   val description = describers[expression.className]
   return when {
     description.directGain != null -> renderDirectGain(instruction, description.directGain)
+    description.discardable == true -> renderDiscard(instruction, describers)
     description.cardResource != null -> renderCardResourceChange(instruction, describers)
     description.production == true -> renderProductionChange(instruction, describers)
     description.track != null -> renderTrackChange(instruction, description.track)
@@ -32,6 +33,17 @@ internal fun renderChange(
     description.standardResource == true -> renderStandardResourceChange(instruction, describers)
     else -> null
   }
+}
+
+private fun renderDiscard(
+    instruction: Instruction,
+    describers: Describers,
+): Clause? {
+  val removal = instruction as? Remove ?: return null
+  if (removal.intensity != null && removal.intensity != MANDATORY) return null
+  if (!removal.removing.simple) return null
+  val count = (removal.count as? ActualScalar)?.value ?: return null
+  return clause("discard", describers.componentNounPhrase(removal.removing.className, count))
 }
 
 internal fun isProductionChange(instruction: Instruction, describers: Describers): Boolean {

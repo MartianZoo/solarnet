@@ -1,16 +1,6 @@
 {
   "cards": [
 
-    // Applied Science: WildTag is not yet modeled.
-    {
-      "id": "P43",
-      "deck": "PRELUDE",
-      "tags": [ "WildTag" ],
-      "resourceType": "Science",
-      "immediate": "6 Science<This>",
-      "actions": [ "Science<This> -> CardResource OR StandardResource" ],
-    },
-
     // Early Colonization: no declarative operation applies two track steps to every colony tile.
     {
       "id": "P48",
@@ -26,15 +16,6 @@
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "-18",
-    },
-
-    // Nobel Prize: WildTag is not yet modeled.
-    {
-      "id": "P54",
-      "deck": "PRELUDE",
-      "tags": [ "WildTag" ],
-      "immediate": "5, 2 ProjectCard",
-      "effects": [ "End: 2 VictoryPoint" ],
     },
 
     // Recession: one instruction cannot target every opponent independently.

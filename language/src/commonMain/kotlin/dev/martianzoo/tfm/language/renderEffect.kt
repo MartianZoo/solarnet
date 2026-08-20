@@ -117,11 +117,13 @@ private fun Describers.renderEventTrigger(trigger: Trigger): EventTrigger? {
   return when (kind) {
     EventKind.PLAY -> EventTrigger("you", "play $objects")
     EventKind.PLAY_ANY -> EventTrigger(null, "$objects is played")
+    EventKind.PERFORM_OPERATION -> EventTrigger("you", objects)
     EventKind.USE_ACTION -> EventTrigger("you", "use $objects")
     EventKind.PLACE -> EventTrigger("you", "place $objects")
     EventKind.PLACE_ANY -> EventTrigger(null, "$objects is placed")
     EventKind.RAISE_ANY -> EventTrigger(null, "$objects is raised 1 step")
     EventKind.ADD_TO_CARD -> EventTrigger("you", "add $objects to any card")
+    EventKind.ADD_TO_THIS_CARD -> EventTrigger("you", "add $objects to this card")
   }
 }
 
@@ -170,11 +172,13 @@ private data class Event(val kind: EventKind, val objectPhrase: String)
 private enum class EventKind {
   PLAY,
   PLAY_ANY,
+  PERFORM_OPERATION,
   USE_ACTION,
   PLACE,
   PLACE_ANY,
   RAISE_ANY,
   ADD_TO_CARD,
+  ADD_TO_THIS_CARD,
 }
 
 private fun Describers.renderEvent(trigger: Trigger): Event? {
@@ -189,6 +193,11 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.complement) return null
+  this[expression.className].operationTrigger?.let {
+    if (expression.refinement == null && expression.arguments.all(Expression::simple)) {
+      return Event(EventKind.PERFORM_OPERATION, it)
+    }
+  }
   playedCardEvent(expression)?.let {
     return it
   }
@@ -215,6 +224,11 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
         EventKind.USE_ACTION,
         this[action.className].actionUse?.objectPhrase ?: return null,
     )
+  }
+  if (expression.arguments == listOf(thisExpression)) {
+    cardResourceNoun(expression.className, 1)?.let {
+      return Event(EventKind.ADD_TO_THIS_CARD, "${indefiniteArticle(it)} $it")
+    }
   }
   if (expression.simple) {
     tagName(expression.className)?.let { (name) ->
