@@ -475,12 +475,17 @@ private fun Describers.renderCardResourceHolder(
   val refinement = expression.refinement ?: return null
   if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
-  if (minimum.target != 1) return null
   val metric = minimum.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null
-  val (tag) = tagName(metric.expression.className) ?: return null
-  return if (owned) "one of your $tag ${holder.plural}"
-  else "${indefiniteArticle(tag)} $tag ${holder.singular}"
+  tagName(metric.expression.className)?.let { (tag) ->
+    if (minimum.target != 1) return null
+    return if (owned) "one of your $tag ${holder.plural}"
+    else "${indefiniteArticle(tag)} $tag ${holder.singular}"
+  }
+  val resource =
+      cardResourceNoun(metric.expression.className, maxOf(2, minimum.target)) ?: return null
+  val subject = if (owned) "one of your ${holder.plural}" else "a ${holder.singular}"
+  return "$subject with ${minimum.target} or more $resource on it"
 }
 
 private fun clause(verb: String, noun: NounPhrase, vararg modifiers: Modifier): Clause.Simple =

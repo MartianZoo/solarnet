@@ -224,7 +224,8 @@ mandatory gain or removal of a standard resource; an optional removal of up to a
 standard resources or one concrete card resource from any player; an optional transfer of one
 concrete standard-resource type from any player to the acting player; a gain of one reserve Trade
 Fleet; a mandatory gain of a generic or concrete card resource on the played card, an unrestricted
-card, or a card narrowed to one concrete tag; a group of concrete
+card, a card narrowed to one concrete tag, or a card with a concrete minimum card-resource count;
+a group of concrete
 mandatory standard-resource production gains or decreases; a mandatory one-for-one conversion of
 one or more steps of the player's production from one concrete standard resource to another;
 a mandatory transfer of a fixed number of steps between two selected instances of one described
