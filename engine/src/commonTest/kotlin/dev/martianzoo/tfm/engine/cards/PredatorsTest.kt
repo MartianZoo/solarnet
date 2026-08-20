@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
+import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -14,6 +15,11 @@ class PredatorsTest : CardTest() {
     newGame()
     p1.manual("$Predators")
     engine.phase("Action")
+  }
+
+  @Test
+  fun `without an animal, Predators is unavailable`() {
+    shouldThrow<LimitsException> { p1.cardAction1(Predators) }
   }
 
   @Test

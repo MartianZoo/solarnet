@@ -198,6 +198,40 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `selecting an AMAP target early locks its domain and rejects a zero target`() {
+    writer.godMode().manual("OceanTile<Tharsis_1_2>")
+    initiate("OceanTile<>")
+
+    shouldThrow<NarrowingException> {
+      writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_2>")
+    }
+    writer.reviseTask("OceanTile<>", "OceanTile<Tharsis_1_4>")
+
+    tasks.extract { it.next }.shouldContainExactly(true)
+    tasksAsText().shouldContainExactly("OceanTile<Tharsis_1_4>!")
+  }
+
+  @Test
+  fun `selecting a PER-wrapped AMAP target early locks the evaluated instruction`() {
+    writer.godMode().manual("Plant")
+    initiate("OceanTile<> / Plant")
+
+    writer.reviseTask("OceanTile<> / Plant", "OceanTile<Tharsis_1_4> / Plant")
+
+    tasks.extract { it.next }.shouldContainExactly(true)
+    tasksAsText().shouldContainExactly("OceanTile<Tharsis_1_4>!")
+  }
+
+  @Test
+  fun `selecting a PER-wrapped AMAP target with a zero metric resolves to NoOp`() {
+    initiate("OceanTile<> / Steel")
+
+    writer.reviseTask("OceanTile<> / Steel", "OceanTile<Tharsis_1_4> / Steel")
+
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   fun `narrowing to NoOp enqueues the THEN instructions`() {
     initiate("Plant? THEN (Steel, Heat)")
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("Plant<Player1>?")
