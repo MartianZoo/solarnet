@@ -357,7 +357,7 @@ Card239	239	Mining Quota	Requires Venus, Earth, and Jovian tags. Increase your s
 Card240	240	Neutralizer Factory	Requires Venus 10%. Raise Venus 1 step.	
 Card241	241	Omnicourt	Requires Venus, Earth, and Jovian tags. Raise your terraform rating 2 steps.	
 Card242	242	Orbital Reflectors	Raise Venus 2 steps. Increase your heat production 2 steps.	
-Card243	243	Rotator Impacts	Venus must be 14% or less.	Action: Spend 6 M€ to add 1 asteroid to this card (titanium may be used), or remove 1 asteroid from this card to raise Venus 1 step.
+Card243	243	Rotator Impacts	Venus must be 14% or less.	Action: Spend 6 M€ (titanium may be used) to add 1 asteroid to this card, or remove 1 asteroid from this card to raise Venus 1 step.
 Card244	244	Sister Planet Support	Requires Venus and Earth tags. Increase your M€ production 3 steps.	
 Card245	245	Solarnet	Requires Venus, Earth, and Jovian tags. Draw 2 cards. 1 VP.	
 Card246	246	Spin-Inducing Asteroid	Venus must be 10% or less. Raise Venus 2 steps.	
@@ -466,7 +466,7 @@ CardX15	X15	Asteroid Hollowing	1 VP for every 2 asteroids on this card.	Action: 
 CardX16	X16	Comet Aiming		Action: Spend 1 titanium to add 1 asteroid to any card, or remove 1 asteroid from this card to place an ocean tile.
 CardX17	X17	Crash Site Cleanup	Requires that a player removed another player's plants this generation. Gain 1 titanium or 2 steel. 1 VP.	
 CardX18	X18	Cutting Edge Technology	1 VP.	Effect: When you play a card with a requirement, you pay 2 M€ less for it.
-CardX19	X19	Directed Impactors		Action: Spend 6 M€ to add 1 asteroid to ANY CARD (titanium may be used), or remove 1 asteroid from this card to raise temperature 1 step.
+CardX19	X19	Directed Impactors		Action: Spend 6 M€ (titanium may be used) to add 1 asteroid to any card, or remove 1 asteroid from this card to raise temperature 1 step.
 CardX20	X20	Diversity Support	Requires that you have 9 different types of resources. Raise your terraform rating 1 step.	
 CardX21	X21	Field-Capped City	Increase your M€ production 2 steps and your energy production 1 step. Gain 3 plants. Place a city tile.	
 CardX22	X22	Imported Nutrients	Gain 4 plants. Add 4 microbes to any card.	

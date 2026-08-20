@@ -155,7 +155,7 @@ private fun Describers.renderLinkedProductionResourceAction(action: Action): Ren
   return RenderedAction(cost, result)
 }
 
-private fun Describers.renderDeferredPaymentPlacementAction(action: Action): RenderedAction? {
+private fun Describers.renderDeferredPaymentAction(action: Action): RenderedAction? {
   if (action.cost != null) return null
   val sequence = action.instruction as? Then ?: return null
   if (sequence.stages.size != 2) return null
@@ -182,9 +182,7 @@ private fun Describers.renderDeferredPaymentPlacementAction(action: Action): Ren
   ) {
     return null
   }
-  val placement = gated.inner as? Gain ?: return null
-  if (fact(placement.gaining.className, ComponentDescriber::placement) == null) return null
-  val result = renderInstructions(placement, this) ?: return null
+  val result = renderInstructions(gated.inner, this) ?: return null
   val cost =
       Predicate(
           "spend",
@@ -205,7 +203,7 @@ private fun renderAction(
   describers.renderLinkedProductionResourceAction(lowered)?.let {
     return it
   }
-  describers.renderDeferredPaymentPlacementAction(lowered)?.let {
+  describers.renderDeferredPaymentAction(lowered)?.let {
     return it
   }
   val cost = lowered.cost?.let { describers.renderCost(it) ?: return null }
