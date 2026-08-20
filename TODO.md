@@ -4,10 +4,11 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
-- Prototype the dual-engine app described in
-  [`docs/agents/DUAL_ENGINE_APP.md`](docs/agents/DUAL_ENGINE_APP.md): let the existing app own chance
-  and hidden cards while every supported move also executes in Solarnet follow mode and the two
-  normalized public states are compared.
+- Continue the dual-engine app described in
+  [`docs/agents/DUAL_ENGINE_APP.md`](docs/agents/DUAL_ENGINE_APP.md). The first unpublished app-side
+  slice now executes its supported moves in Solarnet follow mode and streams the event feed; add the
+  independent app projector and comparison next while the app continues owning chance and hidden
+  cards.
 - Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
   the ordinary unspecialized type name instead of an unresolved argument list.
 - Replace the `English` card-text data-file fallback incrementally with derivation from Pets

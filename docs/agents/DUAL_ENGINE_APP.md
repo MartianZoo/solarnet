@@ -241,17 +241,22 @@ replay avoids inventing Solarnet serialization before its state model calls for 
 Undo restores the transcript cursor associated with the app save point and rebuilds Solarnet. Game
 cloning creates a new parity session by replaying the cloned transcript.
 
-**Next implementation boundary (verified, not implemented):** keep a server-only registry keyed by
-app game ID, initially containing a Solarnet session and event cursor. Make the local prototype
-opt-in through an explicit path to Solarnet's standalone development package; absence of that path
-leaves the ordinary app unchanged. Initialize the cursor from `eventsSince(0)` after session
-creation so construction noise is not replayed. After each successfully translated app input,
-apply the corresponding Solarnet command, compare the available snapshot slice, call
-`eventsSince(cursor)`, advance the cursor, and print every line as
-`[solarnet <game-id>] <event>`. Never add these events to the HTTP model or browser because they may
-contain hidden information. A shadow rejection or mismatch occurs after the app has already
-accepted its input, so it needs its own diagnostic/freeze path and must not fall through the route's
-existing 400 response as though the app rejected the move.
+**Verified app-side prototype:** unpublished app commit `5c4c37392` keeps a server-only registry
+containing one Solarnet session and event cursor per app game. `SOLARNET_PARITY_PATH` opts the server
+into loading the standalone development package; its absence leaves the ordinary app unchanged.
+The route captures the old `waitingFor`, calls `Player.process`, and observes only a successfully
+accepted input. Structured server-side input metadata translates the currently supported setup,
+project, Aquifer, ocean-placement, end-turn, and pass inputs. The bridge suppresses construction
+events, advances its cursor after every command, and prints every new line as
+`[solarnet <game-id>] <event>`. The full feed never enters the HTTP model or browser. A Solarnet
+rejection is reported after the already-accepted app input and freezes later inputs with a distinct
+server error rather than misreporting the original input as an app rejection.
+
+The app's complete server suite and an end-to-end smoke against the real generated Solarnet package
+pass. The smoke covers both corporation selections, Earth Office, Aquifer payment, ocean placement,
+the automatic TR and two-steel area bonus, turn rotation, and pass, while visibly printing the
+incremental event feed. The app projector, snapshot comparison, transcript persistence/replay,
+reload and undo handling, and session cleanup remain unimplemented.
 
 **Pass condition:** create, play, save, reload, undo, and continue one short game with parity checked
 after every accepted input.
