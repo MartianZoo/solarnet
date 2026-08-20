@@ -6,7 +6,9 @@ import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -67,6 +69,7 @@ public class SolarnetSession(
                 titanium = paymentAmount(payment, "titanium"),
             )
       }
+      "standardProject" -> playStandardProject(move)
       "endTurn" -> game.tfm(movePlayer(move)).declineSecondAction()
       "pass" -> game.tfm(movePlayer(move)).doTask("Pass")
       else -> error("Unknown parity operation: ${move.getValue("operation")}")
@@ -126,5 +129,29 @@ public class SolarnetSession(
     val amount = payment.getValue(resource).jsonPrimitive.int
     require(amount >= 0) { "Negative $resource payment: $amount" }
     return amount
+  }
+
+  private fun playStandardProject(move: JsonObject) {
+    when (val project = move.getValue("project").jsonPrimitive.content) {
+      "aquifer" -> {
+        val area = moveArea(move.getValue("target").jsonObject)
+        game.tfm(movePlayer(move)).stdProject("AquiferSP") { doTask("OceanTile<$area>") }
+      }
+      else -> error("Unknown standard project: $project")
+    }
+  }
+
+  private fun moveArea(target: JsonObject): ClassName {
+    val spaceId = target.getValue("spaceId").jsonPrimitive.content
+    require(spaceId.length == 2 && spaceId.all { it in '0'..'9' }) {
+      "Malformed app space ID: $spaceId"
+    }
+    val areas = mapDefinition(game.reader).areas.rows().flatten().filterNotNull()
+    return areas.getOrNull(spaceId.toInt() - FIRST_APP_SPACE_ID)?.className
+        ?: error("Unknown app space ID: $spaceId")
+  }
+
+  private companion object {
+    const val FIRST_APP_SPACE_ID = 3
   }
 }

@@ -83,26 +83,72 @@ internal class SolarnetSessionTest {
       assertFailsWith<NarrowingException> {
         session.apply("""{"operation":"pass","player":1}""")
       }
-      session.apply("""{"operation":"endTurn","player":1}""")
-      val endTurnEvents =
+      session.apply(
+          """{"operation":"standardProject","player":1,"project":"aquifer","target":{"spaceId":"04"}}"""
+      )
+      val standardProjectEvents =
           Json.parseToJsonElement(
                   session.eventsSince(
                       projectEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
                   )
               )
               .jsonObject
-      val endTurnCursor = endTurnEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
-      val endTurnLines = endTurnEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
-      assertTrue(endTurnLines.any { "NewTurn<Player2>" in it })
+      val standardProjectCursor =
+          standardProjectEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+      val standardProjectLines =
+          standardProjectEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
+      assertTrue(standardProjectLines.any { "-18 Megacredit<Player1>" in it })
+      assertTrue(standardProjectLines.any { "+OceanTile<Tharsis_1_2" in it })
+      assertTrue(standardProjectLines.any { "+TerraformRating<Player1>" in it })
+      assertTrue(standardProjectLines.any { "+2 Steel<Player1>" in it })
+      assertTrue(standardProjectLines.any { "NewTurn<Player2>" in it })
 
       assertFailsWith<TaskException> {
         session.apply("""{"operation":"endTurn","player":2}""")
       }
       session.apply("""{"operation":"pass","player":2}""")
-      val passEvents = Json.parseToJsonElement(session.eventsSince(endTurnCursor)).jsonObject
+      val passEvents =
+          Json.parseToJsonElement(session.eventsSince(standardProjectCursor)).jsonObject
       val passLines = passEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
       assertTrue(passLines.any { "+Pass<Player2>" in it })
       assertTrue(passLines.any { "NewTurn<Player1>" in it })
+    } finally {
+      session.close()
+    }
+  }
+
+  @Test
+  fun endsOnlyAnOfferedSecondAction() {
+    val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
+    try {
+      session.apply(
+          """{"operation":"selectCorporation","player":1,"corporation":"InterplanetaryCinematics","projectCards":1}"""
+      )
+      session.apply(
+          """{"operation":"selectCorporation","player":2,"corporation":"CrediCor","projectCards":0}"""
+      )
+      session.apply(
+          """{"operation":"playProject","player":1,"cardId":"105","payment":{"megacredits":1,"steel":0,"titanium":0}}"""
+      )
+      val beforeEndTurn =
+          Json.parseToJsonElement(session.eventsSince(0))
+              .jsonObject
+              .getValue("nextCursor")
+              .jsonPrimitive
+              .content
+              .toInt()
+
+      session.apply("""{"operation":"endTurn","player":1}""")
+      val endTurnLines =
+          Json.parseToJsonElement(session.eventsSince(beforeEndTurn))
+              .jsonObject
+              .getValue("lines")
+              .jsonArray
+              .map { it.jsonPrimitive.content }
+      assertTrue(endTurnLines.any { "NewTurn<Player2>" in it })
+      assertFailsWith<TaskException> {
+        session.apply("""{"operation":"endTurn","player":2}""")
+      }
     } finally {
       session.close()
     }

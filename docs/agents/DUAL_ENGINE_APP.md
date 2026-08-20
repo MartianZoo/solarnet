@@ -1,8 +1,8 @@
 # Dual-engine Terraforming Mars app
 
-**Status: the Gate 1 development runtime boundary is proven; Gate 2 covers its first paid project
-and turn boundary.** This records the smallest promising design, verified runtime facts, and the
-proof gates that should precede broad integration.
+**Status: the Gate 1 development runtime boundary is proven; Gate 2 covers its first paid project,
+turn boundary, standard project, and map target.** This records the smallest promising design,
+verified runtime facts, and the proof gates that should precede broad integration.
 
 ## Goal
 
@@ -175,15 +175,22 @@ already in that Player's follow-mode hand and executes the ordinary project-play
 This is evidence for the message shape and underlying task path, not yet the settled generic
 interpreter. The Node and external TypeScript scenarios buy one generic card during setup, play card
 105 (Earth Office) for 1 M€, and observe both the play and payment in the diagnostic event feed;
-normalized public-state comparison remains Gate 3. Targets, follow-up choices, other payment media,
-and performing a second action remain unimplemented protocol families.
+normalized public-state comparison remains Gate 3. Other target kinds, follow-up choices, and other
+payment media remain unimplemented protocol families.
 
 `endTurn` and `pass` are separate semantic moves. `endTurn` declines only the optional second-action
 offer, leaving that Player active in the generation; `pass` executes the ordinary offered `Pass`
-task and removes that Player from the action rotation. The scenarios end Player 1's turn after Earth
-Office, pass Player 2, and observe the workflow return to Player 1. Negative tests prove that
-`pass` is rejected during a second-action offer and `endTurn` is rejected during a first-action
-offer.
+task and removes that Player from the action rotation. One scenario ends Player 1's turn after Earth
+Office and observes the workflow rotate to Player 2. The main scenario passes Player 2 after Player
+1's two actions and observes the workflow return to Player 1. Negative tests prove that `pass` is
+rejected during a second-action offer and `endTurn` is rejected during a first-action offer.
+
+The `standardProject` proof performs Aquifer as Player 1's second action and carries the app's
+row-major space ID `04`, not a Pets instruction or Solarnet coordinate. The facade translates that
+ID through the active map definition, places an ocean on `Tharsis_1_2`, applies the intrinsic TR and
+the area's two-steel bonus, and rotates to Player 2. Project and target remain one semantic message
+in this prototype because the transitional `TfmGameplay.stdProject` operation must finish within one
+`apply` call.
 
 **Pass condition:** a short scenario covers setup, a paid project, a target choice, a tile placement,
 an automatic effect, a second action, and pass without parsing display text.

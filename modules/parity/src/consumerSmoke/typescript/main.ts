@@ -100,11 +100,30 @@ try {
     "project payment not logged",
   );
 
-  session.apply(JSON.stringify({ operation: "endTurn", player: 1 }));
-  const endTurnEvents = printNewEvents();
+  session.apply(
+    JSON.stringify({
+      operation: "standardProject",
+      player: 1,
+      project: "aquifer",
+      target: { spaceId: "04" },
+    }),
+  );
+  const standardProjectEvents = printNewEvents();
   check(
-    endTurnEvents.lines.some((line) => line.includes("NewTurn<Player2>")),
-    "ending Player 1's turn did not rotate to Player 2",
+    standardProjectEvents.lines.some((line) => line.includes("+OceanTile<Tharsis_1_2")),
+    "Aquifer did not place its ocean at app space 04",
+  );
+  check(
+    standardProjectEvents.lines.some((line) => line.includes("+TerraformRating<Player1>")),
+    "Aquifer did not raise Player 1's TR",
+  );
+  check(
+    standardProjectEvents.lines.some((line) => line.includes("+2 Steel<Player1>")),
+    "app space 04 did not grant its steel bonus",
+  );
+  check(
+    standardProjectEvents.lines.some((line) => line.includes("NewTurn<Player2>")),
+    "Player 1's second action did not rotate to Player 2",
   );
 
   session.apply(JSON.stringify({ operation: "pass", player: 2 }));
