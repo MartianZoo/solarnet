@@ -83,20 +83,10 @@ private fun renderAlternatives(
       instruction.instructions.map { option ->
         renderLoweredInstructions(option, describers)?.clauses?.singleOrNull() ?: return null
       }
-  val predicates = alternatives.map { (it as? Clause.Simple)?.predicate }
-  if (predicates.all { it != null }) {
-    val present = predicates.filterNotNull()
-    val first = present.first()
-    if (present.all { it.verb == first.verb && it.modifiers == first.modifiers }) {
-      return Clause.Simple(
-          first.copy(
-              objects =
-                  Coordination(
-                      present.flatMap { it.objects.members },
-                      Conjunction.OR,
-                  )
-          )
-      )
+  val simpleAlternatives = alternatives.map { it as? Clause.Simple }
+  if (simpleAlternatives.all { it != null }) {
+    coordinateClauseObjects(simpleAlternatives.filterNotNull(), Conjunction.OR)?.let {
+      return it
     }
   }
   return Clause.Coordinated(Coordination(alternatives, Conjunction.OR))
@@ -143,22 +133,14 @@ private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
   clauses.forEach { clause ->
     val previous = result.lastOrNull() as? Clause.Simple
     val current = clause as? Clause.Simple
-    if (
-        previous != null &&
-            current != null &&
-            previous.predicate.verb == current.predicate.verb &&
-            previous.predicate.modifiers == current.predicate.modifiers
-    ) {
-      result[result.lastIndex] =
-          Clause.Simple(
-              previous.predicate.copy(
-                  objects =
-                      Coordination(
-                          previous.predicate.objects.members + current.predicate.objects.members,
-                          Conjunction.AND,
-                      )
-              )
-          )
+    val factored =
+        if (previous != null && current != null) {
+          coordinateClauseObjects(listOf(previous, current), Conjunction.AND)
+        } else {
+          null
+        }
+    if (factored != null) {
+      result[result.lastIndex] = factored
     } else {
       result += clause
     }

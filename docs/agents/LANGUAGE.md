@@ -176,6 +176,8 @@ wording preserves whether the acting player is constrained. An unrestricted trig
 voice and qualifies the event object with `any`, so it does not introduce or imply any triggering
 actor; this includes non-player mechanisms such as World Government Terraforming. Other non-End
 effects keep the whole top region data-backed.
+Event interpretation retains the event kind and actor constraint independently; the actor
+constraint selects active `you` wording or unrestricted passive wording at linearization.
 An automatic removal trigger whose described consequence is a dead end renders as a prohibition
 when the trigger structurally identifies resources on this card or resources an opponent removes.
 A fixed M€ increase in the payment value of a standard resource or resource category is also derived
@@ -230,8 +232,10 @@ One supported clause may be gated by a concrete minimum number of a tag the play
 Supported instructions are rendered in authored order. Adjacent standard-resource gains coalesce,
 and adjacent production changes remain coordinated in one sentence. Separate card-resource gains
 retain separate clauses because each may choose a different destination card. Alternatives factor
-a shared predicate only when its verb, destination, and modifiers agree; otherwise each alternative retains its whole clause. Each
-alternative retains its own scalar. A concrete fixed VP gain or
+a shared predicate only when its subject, verb, destination, and modifiers agree; otherwise each
+alternative retains its whole clause. The same predicate-object compatibility rule governs
+instruction aggregation and alternative action costs. Each alternative retains its own scalar. A
+concrete fixed VP gain or
 penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or
 complete concrete group of one card-resource type on the scoring card, or each described component

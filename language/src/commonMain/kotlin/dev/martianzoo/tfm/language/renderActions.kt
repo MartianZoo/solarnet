@@ -31,11 +31,7 @@ private fun Describers.renderCost(cost: Cost): Predicate? =
 
 private fun Describers.renderAlternativeCosts(costs: Set<Cost>): Predicate? {
   val alternatives = costs.map { renderCost(it) ?: return null }
-  val first = alternatives.first()
-  if (alternatives.any { it.verb != first.verb || it.modifiers != first.modifiers }) return null
-  return first.copy(
-      objects = Coordination(alternatives.flatMap { it.objects.members }, Conjunction.OR)
-  )
+  return coordinatePredicateObjects(alternatives, Conjunction.OR)
 }
 
 private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {

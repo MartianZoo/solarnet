@@ -37,6 +37,30 @@ internal data class Predicate(
       .joinToString(" ")
 }
 
+/** Coordinates predicate objects only when the surrounding predicate structure is shared. */
+internal fun coordinatePredicateObjects(
+    predicates: List<Predicate>,
+    conjunction: Conjunction,
+): Predicate? {
+  val first = predicates.firstOrNull() ?: return null
+  if (predicates.any { it.verb != first.verb || it.modifiers != first.modifiers }) return null
+  return first.copy(
+      objects = Coordination(predicates.flatMap { it.objects.members }, conjunction),
+  )
+}
+
+/** Coordinates clause objects without discarding a subject owned by each alternative. */
+internal fun coordinateClauseObjects(
+    clauses: List<Clause.Simple>,
+    conjunction: Conjunction,
+): Clause.Simple? {
+  val first = clauses.firstOrNull() ?: return null
+  if (clauses.any { it.subject != first.subject }) return null
+  val predicate =
+      coordinatePredicateObjects(clauses.map(Clause.Simple::predicate), conjunction) ?: return null
+  return first.copy(predicate = predicate)
+}
+
 /** A noun phrase whose number agreement is decided only by the final linearizer. */
 internal data class NounPhrase(
     val singular: String,

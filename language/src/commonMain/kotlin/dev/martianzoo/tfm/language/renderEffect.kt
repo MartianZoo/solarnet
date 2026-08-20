@@ -163,23 +163,14 @@ private fun Describers.renderEventTrigger(trigger: Trigger): EventTrigger? {
         else -> listOf(renderEvent(trigger) ?: return null)
       }
   val kind = events.map { it.kind }.distinct().singleOrNull() ?: return null
+  val actor = events.map { it.actor }.distinct().singleOrNull() ?: return null
   val objects =
       events
           .map { it.objectPhrase }
           .let {
             if (it.size == 1) it.single() else englishAlternatives(it)
           }
-  return when (kind) {
-    EventKind.PLAY -> EventTrigger("you", "play $objects")
-    EventKind.PLAY_ANY -> EventTrigger(null, "$objects is played")
-    EventKind.PERFORM_OPERATION -> EventTrigger("you", objects)
-    EventKind.USE_ACTION -> EventTrigger("you", "use $objects")
-    EventKind.PLACE -> EventTrigger("you", "place $objects")
-    EventKind.PLACE_ANY -> EventTrigger(null, "$objects is placed")
-    EventKind.RAISE_ANY -> EventTrigger(null, "$objects is raised 1 step")
-    EventKind.ADD_TO_CARD -> EventTrigger("you", "add $objects to any card")
-    EventKind.ADD_TO_THIS_CARD -> EventTrigger("you", "add $objects to this card")
-  }
+  return kind.renderTrigger(actor, objects)
 }
 
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
@@ -213,37 +204,58 @@ private fun Describers.paymentDiscountRefersToPlayedObject(trigger: Trigger): Bo
       fact(expression.className, ComponentDescriber::playedCard) == true
 }
 
-private data class Event(val kind: EventKind, val objectPhrase: String)
+private data class Event(
+    val kind: EventKind,
+    val actor: EventActor,
+    val objectPhrase: String,
+)
 
-private enum class EventKind {
-  PLAY,
-  PLAY_ANY,
-  PERFORM_OPERATION,
-  USE_ACTION,
-  PLACE,
-  PLACE_ANY,
-  RAISE_ANY,
-  ADD_TO_CARD,
-  ADD_TO_THIS_CARD,
+private enum class EventActor {
+  YOU,
+  UNRESTRICTED,
+}
+
+private enum class EventKind(
+    private val activeVerb: String? = null,
+    private val activeSuffix: String = "",
+    private val passiveVerb: String? = null,
+    private val passiveSuffix: String = "",
+) {
+  PLAY(activeVerb = "play", passiveVerb = "is played"),
+  PERFORM_OPERATION(activeVerb = ""),
+  USE_ACTION(activeVerb = "use"),
+  PLACE(activeVerb = "place", passiveVerb = "is placed"),
+  RAISE(passiveVerb = "is raised", passiveSuffix = " 1 step"),
+  ADD_TO_CARD(activeVerb = "add", activeSuffix = " to any card"),
+  ADD_TO_THIS_CARD(activeVerb = "add", activeSuffix = " to this card"),
+  ;
+
+  fun renderTrigger(actor: EventActor, objects: String): EventTrigger? =
+      when (actor) {
+        EventActor.YOU ->
+            activeVerb?.let { EventTrigger("you", "$it $objects$activeSuffix".trimStart()) }
+        EventActor.UNRESTRICTED ->
+            passiveVerb?.let { EventTrigger(null, "$objects $it$passiveSuffix") }
+      }
 }
 
 private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (trigger is ByTrigger) {
     if (trigger.by != anyoneExpression) return null
     val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
-    placementEvent(expression, EventKind.PLACE_ANY)?.let {
+    placementEvent(expression, EventActor.UNRESTRICTED)?.let {
       return it
     }
     if (!expression.simple) return null
     return fact(expression.className, ComponentDescriber::track)?.let {
-      Event(EventKind.RAISE_ANY, it.subject)
+      Event(EventKind.RAISE, EventActor.UNRESTRICTED, it.subject)
     }
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.complement) return null
-  this[expression.className].operationTrigger?.let {
+  fact(expression.className, ComponentDescriber::operationTrigger)?.let {
     if (expression.refinement == null && expression.arguments.all(Expression::simple)) {
-      return Event(EventKind.PERFORM_OPERATION, it)
+      return Event(EventKind.PERFORM_OPERATION, EventActor.YOU, it)
     }
   }
   playedCardEvent(expression)?.let {
@@ -253,47 +265,52 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   when (fact(expression.className, ComponentDescriber::playTrigger)) {
     ComponentDescriber.PlayTrigger.CARD -> {
       if (!expression.simple) return null
-      return Event(EventKind.PLAY, "a card")
+      return Event(EventKind.PLAY, EventActor.YOU, "a card")
     }
     ComponentDescriber.PlayTrigger.TAG -> {
       val tag = representedClass(expression) ?: return null
       val name = tagName(tag.className)?.first ?: return null
-      return Event(EventKind.PLAY, "${indefiniteArticle(name)} $name tag")
+      return Event(EventKind.PLAY, EventActor.YOU, "${indefiniteArticle(name)} $name tag")
     }
     null -> Unit
   }
   fact(expression.className, ComponentDescriber::playedTagPhrase)?.let {
     if (!expression.simple) return null
-    return Event(EventKind.PLAY, it)
+    return Event(EventKind.PLAY, EventActor.YOU, it)
   }
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) == true) {
     val action = expression.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
     return Event(
         EventKind.USE_ACTION,
+        EventActor.YOU,
         fact(action.className, ComponentDescriber::actionUse)?.objectPhrase ?: return null,
     )
   }
   if (expression.arguments == listOf(thisExpression)) {
     cardResourceNoun(expression.className, 1)?.let {
-      return Event(EventKind.ADD_TO_THIS_CARD, "${indefiniteArticle(it)} $it")
+      return Event(
+          EventKind.ADD_TO_THIS_CARD,
+          EventActor.YOU,
+          "${indefiniteArticle(it)} $it",
+      )
     }
   }
   if (expression.simple) {
     tagName(expression.className)?.let { (name) ->
-      return Event(EventKind.PLAY, "${indefiniteArticle(name)} $name tag")
+      return Event(EventKind.PLAY, EventActor.YOU, "${indefiniteArticle(name)} $name tag")
     }
-    placementEvent(expression, EventKind.PLACE)?.let {
+    placementEvent(expression, EventActor.YOU)?.let {
       return it
     }
     cardResourceNoun(expression.className, 1)?.let {
-      return Event(EventKind.ADD_TO_CARD, "${indefiniteArticle(it)} $it")
+      return Event(EventKind.ADD_TO_CARD, EventActor.YOU, "${indefiniteArticle(it)} $it")
     }
   }
   if (expression.arguments == listOf(anyoneExpression)) {
     tagName(expression.className)?.let { (name) ->
-      return Event(EventKind.PLAY_ANY, "any $name tag")
+      return Event(EventKind.PLAY, EventActor.UNRESTRICTED, "any $name tag")
     }
-    placementEvent(expression, EventKind.PLACE_ANY)?.let {
+    placementEvent(expression, EventActor.UNRESTRICTED)?.let {
       return it
     }
   }
@@ -302,14 +319,14 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
   if (fact(expression.className, ComponentDescriber::playedCard) != true) return null
-  val kind =
+  val actor =
       when (expression.arguments) {
-        emptyList<Expression>() -> EventKind.PLAY
-        listOf(anyoneExpression) -> EventKind.PLAY_ANY
+        emptyList<Expression>() -> EventActor.YOU
+        listOf(anyoneExpression) -> EventActor.UNRESTRICTED
         else -> return null
       }
   val card = componentNoun(expression.className, 1)
-  val article = if (kind == EventKind.PLAY_ANY) "any" else indefiniteArticle(card)
+  val article = if (actor == EventActor.UNRESTRICTED) "any" else indefiniteArticle(card)
   val phrase =
       expression.refinement?.let { refinement ->
         if (refinement.forgiving) return null
@@ -327,7 +344,7 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
               return null
             }
             val tag = tagName(tagExpression.className)?.first ?: return null
-            "${if (kind == EventKind.PLAY_ANY) "any" else indefiniteArticle(tag)} $tag $card"
+            "${if (actor == EventActor.UNRESTRICTED) "any" else indefiniteArticle(tag)} $tag $card"
           }
           is Property -> {
             if (metric.receiver != null || metric.propertyName.value != "cost") return null
@@ -336,25 +353,24 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
           else -> return null
         }
       } ?: "$article $card"
-  return Event(kind, phrase)
+  return Event(EventKind.PLAY, actor, phrase)
 }
 
-private fun Describers.placementEvent(expression: Expression, kind: EventKind): Event? {
+private fun Describers.placementEvent(expression: Expression, actor: EventActor): Event? {
   if (expression.refinement != null || expression.complement) return null
   if (
-      kind == EventKind.PLACE_ANY &&
+      actor == EventActor.UNRESTRICTED &&
           !expression.simple &&
           expression.arguments != listOf(anyoneExpression)
   )
       return null
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
   val phrase =
-      when (kind) {
-        EventKind.PLACE -> "${placement.article} ${placement.singular}"
-        EventKind.PLACE_ANY -> "any ${placement.singular}"
-        else -> return null
+      when (actor) {
+        EventActor.YOU -> "${placement.article} ${placement.singular}"
+        EventActor.UNRESTRICTED -> "any ${placement.singular}"
       }
-  return Event(kind, phrase)
+  return Event(EventKind.PLACE, actor, phrase)
 }
 
 private fun Describers.renderScoringCondition(requirement: Requirement): String? {
