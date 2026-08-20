@@ -8,9 +8,10 @@ internal fun renderMetricPhrase(metric: Metric, describers: Describers): String?
   return when (metric) {
     is Metric.Count -> renderCountPhrase(metric, describers)
     is Metric.Scaled -> renderScaledCountPhrase(metric, describers)
+    is Metric.Max ->
+        renderMetricPhrase(metric.inner, describers)?.let { "$it (max ${metric.maximum})" }
     is Metric.Constant,
     is Metric.Eval,
-    is Metric.Max,
     is Metric.Or,
     is Metric.Subtract,
     is Metric.Transform,

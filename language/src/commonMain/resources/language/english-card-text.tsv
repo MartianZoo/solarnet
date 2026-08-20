@@ -401,7 +401,7 @@ CardC15	C15	Ice Moon Colony	Place a colony. Place an ocean tile.
 CardC16	C16	Impactor Swarm	Requires 2 Jovian tags. Gain 12 heat. Remove up to 2 plants from any player.	
 CardC17	C17	Interplanetary Colony Ship	Place a colony.	
 CardC18	C18	Jovian Lanterns	Requires a Jovian tag. Raise your terraform rating 1 step. Add 2 floaters to any card. 1 VP for every 2 floaters on this card.	Action: Spend 1 titanium to add 2 floaters to this card.
-CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 1 floater to a JOVIAN CARD, or gain 1 M€ for every floater here (max 4).
+CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 1 floater to a card with a Jovian tag, or gain 1 M€ for each floater on this card (max 4).
 CardC20	C20	Luna Governor	Requires 3 Earth tags. Increase your M€ production 2 steps.	
 CardC21	C21	Lunar Exports	Increase your plant production 2 steps or your M€ production 5 steps.	
 CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have.	
@@ -458,7 +458,7 @@ CardX07	X07	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you 
 CardX08	X08	Orbital Cleanup	Decrease your M€ production 2 steps. 2 VPs.	Action: Gain 1 M€ for each science tag you have.
 CardX09	X09	Political Alliance	Requires that you have 2 Party Leaders. Raise your terraform rating 1 step.	
 CardX10	X10	Rego Plastics	1 VP.	Effect: Each steel you spend is worth 1 M€ extra.
-CardX11	X11	Saturn Surfing	Add 1 floater to this card for each Earth tag you have. 1 VP.	Action: Remove 1 floater from this card to gain 1 M€ for each floater here, including the removed floater (max 5).
+CardX11	X11	Saturn Surfing	Add 1 floater to this card for each Earth tag you have. 1 VP.	Action: Remove 1 floater from this card to gain 1 M€ for each floater on this card (max 4) and gain 1 M€.
 CardX12	X12	Stanford Torus	Place a city tile on the reserved area outside Mars. 2 VPs.	
 CardX13	X13	Advertising		Effect: When you play a card with a printed cost of 20 M€ or more, increase your M€ production 1 step.
 CardX14F	X14	Asteroid Deflection System	Decrease your energy production 1 step. 1 VP for each asteroid on this card.	Action: Reveal and discard the top card of the deck. If it has a space tag, add 1 asteroid to this card. / Opponents may not remove your plants.
