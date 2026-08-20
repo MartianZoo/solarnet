@@ -56,14 +56,12 @@ internal object TerraformingMarsDescribers {
                         minimumProperties =
                             mapOf(
                                 "cost" to
-                                    ComponentDescriber.PlayedCard.MinimumProperty.Threshold(
-                                        "printed cost",
+                                    ComponentDescriber.MinimumProperty.Threshold(
+                                        "basic cost",
                                         "M€",
                                     ),
                                 "requirement" to
-                                    ComponentDescriber.PlayedCard.MinimumProperty.Presence(
-                                        "requirement"
-                                    ),
+                                    ComponentDescriber.MinimumProperty.Presence("requirement"),
                             )
                     ),
             ),
@@ -400,7 +398,20 @@ internal object TerraformingMarsDescribers {
         klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
         klass("UseAction1") to ComponentDescriber(actionNumber = 1),
         klass("StandardProject") to
-            ComponentDescriber(actionUse = ComponentDescriber.ActionUse("a standard project")),
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        "a standard project",
+                        minimumProperties =
+                            mapOf(
+                                "cost" to
+                                    ComponentDescriber.MinimumProperty.Threshold(
+                                        "basic cost",
+                                        "M€",
+                                    )
+                            ),
+                    )
+            ),
         klass("ConvertPlantsSA") to
             ComponentDescriber(
                 actionUse =

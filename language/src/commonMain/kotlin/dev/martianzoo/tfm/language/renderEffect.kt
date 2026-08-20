@@ -187,7 +187,8 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
   owedReduction(effect.instruction, describers)?.let { reduction ->
     val actionTrigger = describers.renderActionPaymentDiscountTrigger(effect.trigger)
     val trigger =
-        actionTrigger?.clause ?: describers.renderEventTrigger(effect.trigger) ?: return null
+        actionTrigger?.clause
+            ?: (describers.renderEventTrigger(effect.trigger) as? Clause.Simple ?: return null)
     return PaymentDiscount(
         trigger,
         reduction,
@@ -246,15 +247,16 @@ private fun renderResourcePaymentValue(effect: Effect, describers: Describers): 
   return "Each $spent you spend is worth ${reduction.count} ${reduction.noun} extra."
 }
 
-private fun Describers.renderEventTrigger(trigger: Trigger): Clause.Simple? {
+private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
   val events =
       when (trigger) {
         is Trigger.Or -> trigger.triggers.map { renderEvent(it) ?: return null }
         else -> listOf(renderEvent(trigger) ?: return null)
       }
   val clauses = events.map { it.renderTrigger() ?: return null }
-  return if (clauses.size == 1) clauses.single()
-  else coordinateClauseObjects(clauses, Conjunction.OR)
+  if (clauses.size == 1) return clauses.single()
+  return coordinateClauseObjects(clauses, Conjunction.OR)
+      ?: Clause.Coordinated(Coordination(clauses, Conjunction.OR))
 }
 
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
@@ -425,11 +427,11 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     return Event(EventKind.PLAY, EventActor.YOU, it)
   }
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) == true) {
-    val action = expression.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
+    val action = expression.arguments.singleOrNull() ?: return null
     return Event(
         EventKind.USE_ACTION,
         EventActor.YOU,
-        fact(action.className, ComponentDescriber::actionUse)?.objectPhrase ?: return null,
+        renderActionUse(action) ?: return null,
     )
   }
   if (expression.arguments == listOf(thisExpression)) {
@@ -466,6 +468,20 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     }
   }
   return null
+}
+
+private fun Describers.renderActionUse(expression: Expression): String? {
+  if (expression.arguments.isNotEmpty() || expression.complement) return null
+  val use = fact(expression.className, ComponentDescriber::actionUse) ?: return null
+  val refinement = expression.refinement ?: return use.objectPhrase
+  if (refinement.forgiving) return null
+  val minimum = refinement.requirement as? Requirement.Min ?: return null
+  val propertyMetric = minimum.metric as? Property ?: return null
+  if (propertyMetric.receiver != null) return null
+  val property = use.minimumProperties[propertyMetric.propertyName.value] ?: return null
+  val unit = property.unit?.let { " $it" }.orEmpty()
+  val article = indefiniteArticle(property.noun)
+  return "${use.objectPhrase} with $article ${property.noun} of ${minimum.target}$unit or more"
 }
 
 private fun Describers.purchaseEvent(expression: Expression): Event? {
@@ -522,12 +538,12 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
             if (metric.receiver != null) return null
             val property = description.minimumProperties[metric.propertyName.value] ?: return null
             when (property) {
-              is ComponentDescriber.PlayedCard.MinimumProperty.Threshold -> {
+              is ComponentDescriber.MinimumProperty.Threshold -> {
                 val unit = property.unit?.let { " $it" }.orEmpty()
                 val propertyArticle = indefiniteArticle(property.noun)
                 "$article $card with $propertyArticle ${property.noun} of ${minimum.target}$unit or more"
               }
-              is ComponentDescriber.PlayedCard.MinimumProperty.Presence -> {
+              is ComponentDescriber.MinimumProperty.Presence -> {
                 if (minimum.target != 1) return null
                 val propertyArticle = indefiniteArticle(property.noun)
                 "$article $card with $propertyArticle ${property.noun}"

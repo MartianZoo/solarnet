@@ -174,17 +174,18 @@ public data class ComponentDescriber(
       public val objectPhrase: String,
       public val refundDiscountPredicate: String? = null,
       public val refundDiscountNoun: Noun.Counted? = null,
+      public val minimumProperties: Map<String, MinimumProperty.Threshold> = emptyMap(),
   )
 
   public data class PlayedCard(
       public val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
-  ) {
-    public sealed interface MinimumProperty {
-      public data class Threshold(public val noun: String, public val unit: String? = null) :
-          MinimumProperty
+  )
 
-      public data class Presence(public val noun: String) : MinimumProperty
-    }
+  public sealed interface MinimumProperty {
+    public data class Threshold(public val noun: String, public val unit: String? = null) :
+        MinimumProperty
+
+    public data class Presence(public val noun: String) : MinimumProperty
   }
 
   public enum class PlayTrigger {

@@ -1,6 +1,6 @@
 class_name	id	english_name	bottom_text	top_text
 CardB00	B00	Beginner Corporation	Gain 42 M€. Keep all 10 project cards you received in setup for free.	*To begin setup, any player may take this card instead of drawing any face-down Corporations.
-CardB01	B01	CrediCor	Gain 57 M€.	Effect: After you pay for a card or standard project with a basic cost of 20 M€ or more, you gain 4 M€.
+CardB01	B01	CrediCor	Gain 57 M€.	Effect: When you play a card with a basic cost of 20 M€ or more or you use a standard project with a basic cost of 20 M€ or more, gain 4 M€.
 CardB02	B02	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less for it.
 CardB03	B03	Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: You may use heat as M€. You may not use M€ as heat.
 CardB04	B04	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
@@ -460,7 +460,7 @@ CardX09	X09	Political Alliance	Requires that you have 2 Party Leaders. Raise you
 CardX10	X10	Rego Plastics	1 VP.	Effect: Each steel you spend is worth 1 M€ extra.
 CardX11	X11	Saturn Surfing	Add 1 floater to this card for each Earth tag you have. 1 VP.	Action: Remove 1 floater from this card to gain 1 M€ for each floater on this card (max 4) and gain 1 M€.
 CardX12	X12	Stanford Torus	Place a city tile on the reserved area outside Mars. 2 VPs.	
-CardX13	X13	Advertising		Effect: When you play a card with a printed cost of 20 M€ or more, increase your M€ production 1 step.
+CardX13	X13	Advertising		Effect: When you play a card with a basic cost of 20 M€ or more, increase your M€ production 1 step.
 CardX14F	X14	Asteroid Deflection System	Decrease your energy production 1 step. 1 VP for each asteroid on this card.	Action: Reveal and discard the top card of the deck. If it has a space tag, add 1 asteroid to this card. / Opponents may not remove your plants.
 CardX15	X15	Asteroid Hollowing	1 VP for every 2 asteroids on this card.	Action: Spend 1 titanium to add 1 asteroid to this card and increase your M€ production 1 step.
 CardX16	X16	Comet Aiming		Action: Spend 1 titanium to add 1 asteroid to any card, or remove 1 asteroid from this card to place an ocean tile.

@@ -185,6 +185,7 @@ actor; this includes non-player mechanisms such as World Government Terraforming
 effects keep the whole top region data-backed.
 Event interpretation retains the event kind and actor constraint independently; the actor
 constraint selects active `you` wording or unrestricted passive wording at linearization.
+Alternative event clauses with different verbs remain coordinated as complete clauses.
 Event triggers use the same structured clauses, predicates, noun phrases, and modifiers as
 instructions and requirements rather than assembling a separate partial-string representation.
 An abstract production-resource trigger linked to a gain of the same resource renders as a per-step
