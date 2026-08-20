@@ -21,7 +21,7 @@ public data class ComponentDescriber(
     public val requirement: Requirement? = null,
     public val directChange: DirectChange? = null,
     public val draw: Boolean? = null,
-    public val purchasePrice: PurchasePrice? = null,
+    public val purchase: Purchase? = null,
     public val score: Score? = null,
     public val deadEndSignal: Boolean? = null,
     public val endTrigger: Boolean? = null,
@@ -155,16 +155,10 @@ public data class ComponentDescriber(
 
   public data class Score(public val singular: String, public val plural: String)
 
-  public data class PurchasePrice(
-      public val subject: String,
-      public val ordinaryCost: Int,
-      public val resource: Noun,
-      public val scope: String? = null,
-  ) {
-    init {
-      require(ordinaryCost >= 0)
-    }
-  }
+  public data class Purchase(
+      public val noun: Noun.Counted,
+      public val destination: String? = null,
+  )
 
   public data class ActionUse(
       public val objectPhrase: String,

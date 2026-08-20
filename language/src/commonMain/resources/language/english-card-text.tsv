@@ -24,13 +24,13 @@ CardPC4	PC4	Valley Trust	Gain 37 M€. As your first action, draw 3 Prelude card
 CardPC5	PC5	Vitor	Gain 45 M€. As your first action, fund an award for free.	Effect: When you play a card with a NON-NEGATIVE VP icon, gain 3 M€.
 CardCC1	CC1	Aridor	Gain 40 M€. As your first action, put an additional Colony Tile of your choice into play.	Effect: When you get a new type of tag in play (event cards do not count), increase your M€ production 1 step.
 CardCC2	CC2	Arklight	Gain 45 M€. Increase your M€ production 2 steps. 1 VP for every 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
-CardCC3	CC3	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: Buying cards to hand costs 5 M€, including your starting hand.
+CardCC3	CC3	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: When you buy a card to hand, pay 2 M€ extra.
 CardCC4	CC4	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: When any colony is placed, increase your M€ production 1 step.
 CardCC5	CC5	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to any card. / Effect: Floaters on this card may be used as 2 heat each.
 CardTC1	TC1	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean is placed, increase your M€ production 1 step. / Your bonus for placing adjacent to oceans is 3 M€ instead of 2 M€.
 CardTC2	TC2	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP for each preservation resource on this card.	Effect: When a production phase begins, if you did not raise your terraform rating so far this generation, add 1 preservation resource to this card and gain 6 M€.
 CardTC3	TC3	Septem Tribus	Gain 36 M€. When you perform an action, the wild tag counts as any tag of your choice.	Action: Gain 2 M€ for each party where you have 1 or more delegates.
-CardTC4	TC4	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: Buying cards to hand costs 1 M€, including your starting hand.
+CardTC4	TC4	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card to hand, pay 2 M€ less.
 CardTC5	TC5	Utopia Invest	Gain 40 M€. Increase your steel production 1 step and your titanium production 1 step.	Action: Decrease one of your productions 1 step to gain 4 resources of that kind.
 CardXC1	XC1	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, place a community on a non-reserved area.	Action: Place a community (player marker) on a non-reserved area adjacent to one of your tiles or marked areas. / Effect: Marked areas are reserved for you. When you place a tile there, gain 3 M€.
 CardXC02	XC2	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card, or remove 2 microbes and increase your plant production 1 step.

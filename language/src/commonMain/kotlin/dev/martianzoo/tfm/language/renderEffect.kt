@@ -24,7 +24,7 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? {
     renderEndEffect(lowered, describers)
   } else {
     renderRemovalPrevention(lowered, describers)
-        ?: renderPurchasePrice(lowered, describers)
+        ?: renderPurchaseAdjustment(lowered, describers)
         ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
         ?: renderResourcePaymentValue(lowered, describers)
         ?: renderLinkedProductionReward(lowered, describers)
@@ -32,12 +32,12 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? {
   }
 }
 
-private fun renderPurchasePrice(effect: Effect, describers: Describers): String? {
+private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): String? {
   val trigger = effect.trigger as? OnGainOf ?: return null
   if (!trigger.expression.simple) return null
-  val price =
-      describers.fact(trigger.expression.className, ComponentDescriber::purchasePrice)
-          ?: return null
+  if (describers.fact(trigger.expression.className, ComponentDescriber::purchase) == null)
+      return null
+  val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   val change = effect.instruction as? Instruction.Change ?: return null
   if (change.intensity != null && change.intensity != MANDATORY) return null
   val expression = change.gaining ?: change.removing ?: return null
@@ -46,26 +46,23 @@ private fun renderPurchasePrice(effect: Effect, describers: Describers): String?
     return null
   }
   val adjustment = (change.count as? ActualScalar)?.value ?: return null
-  val priceResource = describers.describedNoun(expression.className, price.resource, 1)
-  if (describers.componentNoun(expression.className, 1) != priceResource) return null
-  val adjustedCost =
+  val direction =
       when (change) {
-        is Gain -> price.ordinaryCost - adjustment
-        is Remove -> price.ordinaryCost + adjustment
+        is Gain -> "less"
+        is Remove -> "extra"
         is Instruction.Transmute -> return null
       }
-  if (adjustedCost < 0) return null
-  val resource = describers.describedNoun(expression.className, price.resource, adjustedCost)
-  val modifiers = price.scope?.let { listOf(Modifier.Supplement(it)) }.orEmpty()
+  val resource = describers.componentNoun(expression.className, adjustment)
   return Sentence(
-          Clause.Simple(
-              predicate =
-                  Predicate(
-                      "costs",
-                      Coordination.one(NounPhrase.text("$adjustedCost $resource")),
-                      modifiers,
-                  ),
-              subject = NounPhrase.text(price.subject),
+          Clause.Prefaced(
+              "when ${triggerClause.linearize()}",
+              Clause.Simple(
+                  predicate =
+                      Predicate(
+                          "pay",
+                          Coordination.one(NounPhrase.text("$adjustment $resource $direction")),
+                      ),
+              ),
           )
       )
       .linearize()
@@ -294,6 +291,7 @@ private enum class EventKind(
 ) {
   PLAY(activeVerb = "play", passiveVerb = "is played"),
   PERFORM_OPERATION(activeVerb = ""),
+  BUY(activeVerb = "buy"),
   USE_ACTION(activeVerb = "use"),
   PLACE(activeVerb = "place", passiveVerb = "is placed"),
   INCREASE_PRODUCTION(activeVerb = "increase", activeModifier = "1 step"),
@@ -366,6 +364,9 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   productionEvent(expression)?.let {
     return it
   }
+  purchaseEvent(expression)?.let {
+    return it
+  }
   playedCardEvent(expression)?.let {
     return it
   }
@@ -424,6 +425,18 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     }
   }
   return null
+}
+
+private fun Describers.purchaseEvent(expression: Expression): Event? {
+  if (!expression.simple) return null
+  val purchase = fact(expression.className, ComponentDescriber::purchase) ?: return null
+  val noun = purchase.noun.singular
+  return Event(
+      EventKind.BUY,
+      EventActor.YOU,
+      "${indefiniteArticle(noun)} $noun",
+      listOfNotNull(purchase.destination?.let(Modifier::Phrase)),
+  )
 }
 
 private fun Describers.productionEvent(expression: Expression): Event? {
