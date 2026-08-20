@@ -441,6 +441,11 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       )
     }
   }
+  if (expression.arguments.firstOrNull() == anyoneExpression) {
+    placementEvent(expression, EventActor.UNRESTRICTED)?.let {
+      return it
+    }
+  }
   placementEvent(expression, EventActor.YOU)?.let {
     return it
   }
@@ -541,14 +546,24 @@ private fun Describers.placementEvent(expression: Expression, actor: EventActor)
       when (actor) {
         EventActor.YOU -> expression.arguments
         EventActor.UNRESTRICTED ->
-            when (expression.arguments) {
-              emptyList<Expression>(),
-              listOf(anyoneExpression) -> emptyList()
+            when {
+              expression.arguments.isEmpty() -> emptyList()
+              expression.arguments.first() == anyoneExpression -> expression.arguments.drop(1)
               else -> return null
             }
       }
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
-  val modifiers = renderPlacementSites(siteArguments, this) ?: return null
+  val location =
+      siteArguments
+          .singleOrNull()
+          ?.takeIf { it.simple }
+          ?.let {
+            fact(it.className, ComponentDescriber::metricLocation)
+          }
+  val modifiers =
+      location?.let { listOf(Modifier.Phrase(it)) }
+          ?: renderPlacementSites(siteArguments, this)
+          ?: return null
   val phrase =
       when (actor) {
         EventActor.YOU -> "${placement.article} ${placement.singular}"

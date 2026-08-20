@@ -177,8 +177,9 @@ fixed M€ discount triggered by
 playing a card or one concrete tag, and a supported instruction consequence triggered by playing
 concrete tags or one described tag group,
 placing a supported tile, including on a described site with a described placement bonus, raising a
-supported track, or adding a concrete card resource. Trigger
-wording preserves whether the acting player is constrained. An unrestricted trigger uses passive
+supported track, or adding a concrete card resource. Trigger wording preserves whether the acting
+player is constrained and retains a separately described
+placement location. An unrestricted trigger uses passive
 voice and qualifies the event object with `any`, so it does not introduce or imply any triggering
 actor; this includes non-player mechanisms such as World Government Terraforming. Other non-End
 effects keep the whole top region data-backed.
