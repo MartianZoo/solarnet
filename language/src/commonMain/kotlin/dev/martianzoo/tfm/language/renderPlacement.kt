@@ -128,7 +128,7 @@ private fun renderSpatialTarget(
   if (relationExpression.arguments.isEmpty()) return relation.defaultTarget
   val target = relationExpression.arguments.singleOrNull() ?: return null
   if (
-      target.arguments != listOf(describers.anyoneExpression) ||
+      (target.arguments.isNotEmpty() && target.arguments != listOf(describers.anyoneExpression)) ||
           target.refinement != null ||
           target.complement
   ) {
