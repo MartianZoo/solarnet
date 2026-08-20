@@ -1,8 +1,11 @@
 package dev.martianzoo.parity
 
+import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.Exceptions.TaskException
 import kotlin.js.JsNonModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -76,6 +79,30 @@ internal class SolarnetSessionTest {
             "Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>" in it
           }
       )
+
+      assertFailsWith<NarrowingException> {
+        session.apply("""{"operation":"pass","player":1}""")
+      }
+      session.apply("""{"operation":"endTurn","player":1}""")
+      val endTurnEvents =
+          Json.parseToJsonElement(
+                  session.eventsSince(
+                      projectEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+                  )
+              )
+              .jsonObject
+      val endTurnCursor = endTurnEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+      val endTurnLines = endTurnEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
+      assertTrue(endTurnLines.any { "NewTurn<Player2>" in it })
+
+      assertFailsWith<TaskException> {
+        session.apply("""{"operation":"endTurn","player":2}""")
+      }
+      session.apply("""{"operation":"pass","player":2}""")
+      val passEvents = Json.parseToJsonElement(session.eventsSince(endTurnCursor)).jsonObject
+      val passLines = passEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
+      assertTrue(passLines.any { "+Pass<Player2>" in it })
+      assertTrue(passLines.any { "NewTurn<Player1>" in it })
     } finally {
       session.close()
     }
