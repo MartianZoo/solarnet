@@ -6,54 +6,46 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
 
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
-    card: CardDefinition? = null,
     describers: Describers,
-): String? = renderInstructions(instructionTree, card, describers)?.asSentences()
+): String? = renderInstructions(instructionTree, describers)?.asSentences()
 
 internal fun renderInstructions(
     instructionTree: InstructionTree,
-    card: CardDefinition? = null,
     describers: Describers,
 ): RenderedInstructions? =
-    renderLoweredInstructions(lowerProductionSyntax(instructionTree), card, describers)
+    renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,
-    card: CardDefinition?,
     describers: Describers,
 ): RenderedInstructions? {
   val instructions = InstructionGroup.of(instructionTree).instructions
-  if (instructions.isEmpty()) return RenderedInstructions(listOf("do nothing"))
-  val clauses = mutableListOf<String>()
-  var index = 0
-  while (index < instructions.size) {
-    val run = describers.renderInstructionRun(instructions.drop(index))
-    if (run != null) {
-      clauses += run.clause
-      index += run.count
-      continue
-    }
-    clauses += renderInstruction(instructions[index], card, describers) ?: return null
-    index++
+  if (instructions.isEmpty()) {
+    return RenderedInstructions(
+        listOf(Clause.Simple(Predicate("do", Coordination.one(NounPhrase.text("nothing")))))
+    )
   }
-  return RenderedInstructions(clauses)
+  val rendered = instructions.map { instruction ->
+    instruction to (renderInstruction(instruction, describers) ?: return null)
+  }
+  return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
 
 private fun renderInstruction(
     instruction: Instruction,
-    card: CardDefinition?,
     describers: Describers,
-): String? =
+): Clause? =
     when (instruction) {
       is Gain,
-      is Remove -> describers.renderChange(instruction, card)
-      is Instruction.Or -> renderAlternatives(instruction, card, describers)
-      is Instruction.Per -> renderPer(instruction, card, describers)
-      is Instruction.Gated -> renderGated(instruction, card, describers)
+      is Remove -> renderChange(instruction, describers)
+      is Instruction.Or -> renderAlternatives(instruction, describers)
+      is Instruction.Per -> renderPer(instruction, describers)
+      is Instruction.Gated -> renderGated(instruction, describers)
       is NoOp,
       is Instruction.By,
       is Instruction.Then,
@@ -63,45 +55,122 @@ private fun renderInstruction(
 
 private fun renderGated(
     instruction: Instruction.Gated,
-    card: CardDefinition?,
     describers: Describers,
-): String? {
+): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, card, describers)?.clauses?.singleOrNull()
+      renderLoweredInstructions(instruction.inner, describers)?.clauses?.singleOrNull()
           ?: return null
   val condition = describers.renderGateCondition(instruction.gate) ?: return null
-  return "$clause $condition"
+  return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase(condition))
 }
 
 private fun renderPer(
     instruction: Instruction.Per,
-    card: CardDefinition?,
     describers: Describers,
-): String? {
+): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, card, describers)?.clauses?.singleOrNull()
+      renderLoweredInstructions(instruction.inner, describers)?.clauses?.singleOrNull()
           ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
-  return "$clause for $metric"
+  return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
 }
 
 private fun renderAlternatives(
     instruction: Instruction.Or,
-    card: CardDefinition?,
     describers: Describers,
-): String? {
-  val singleInstructions =
-      instruction.instructions.map { option ->
-        InstructionGroup.of(option).instructions.singleOrNull()
-      }
-  if (singleInstructions.all { it != null }) {
-    describers.renderGainAlternatives(singleInstructions.filterNotNull(), card)?.let {
-      return it
-    }
-  }
+): Clause? {
   val alternatives =
       instruction.instructions.map { option ->
-        renderLoweredInstructions(option, card, describers)?.clauses?.singleOrNull() ?: return null
+        renderLoweredInstructions(option, describers)?.clauses?.singleOrNull() ?: return null
       }
-  return englishAlternatives(alternatives)
+  val predicates = alternatives.map { (it as? Clause.Simple)?.predicate }
+  if (predicates.all { it != null }) {
+    val present = predicates.filterNotNull()
+    val first = present.first()
+    if (present.all { it.verb == first.verb && it.modifiers == first.modifiers }) {
+      return Clause.Simple(
+          first.copy(
+              objects =
+                  Coordination(
+                      present.flatMap { it.objects.members },
+                      Conjunction.OR,
+                  )
+          )
+      )
+    }
+  }
+  return Clause.Coordinated(Coordination(alternatives, Conjunction.OR))
+}
+
+private fun coalesceAdjacentChanges(
+    rendered: List<Pair<Instruction, Clause>>,
+    describers: Describers,
+): List<Clause> {
+  val result = mutableListOf<Clause>()
+  var index = 0
+  while (index < rendered.size) {
+    val (instruction, renderedClause) = rendered[index]
+    if (isProductionChange(instruction, describers)) {
+      val run =
+          rendered.drop(index).takeWhile { (candidate) ->
+            isProductionChange(candidate, describers)
+          }
+      val clauses = factorAdjacentPredicates(run.map { it.second })
+      result +=
+          if (clauses.size == 1) clauses.single()
+          else Clause.Coordinated(Coordination(clauses, Conjunction.AND))
+      index += run.size
+      continue
+    }
+    if (isCoalescibleStandardResourceGain(instruction, describers)) {
+      val run =
+          rendered.drop(index).takeWhile { (candidate) ->
+            isCoalescibleStandardResourceGain(candidate, describers)
+          }
+      val clauses = factorAdjacentPredicates(run.map { it.second })
+      result += clauses
+      index += run.size
+      continue
+    }
+    result += renderedClause
+    index++
+  }
+  return result
+}
+
+private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
+  val result = mutableListOf<Clause>()
+  clauses.forEach { clause ->
+    val previous = result.lastOrNull() as? Clause.Simple
+    val current = clause as? Clause.Simple
+    if (
+        previous != null &&
+            current != null &&
+            previous.predicate.verb == current.predicate.verb &&
+            previous.predicate.modifiers == current.predicate.modifiers
+    ) {
+      result[result.lastIndex] =
+          Clause.Simple(
+              previous.predicate.copy(
+                  objects =
+                      Coordination(
+                          previous.predicate.objects.members + current.predicate.objects.members,
+                          Conjunction.AND,
+                      )
+              )
+          )
+    } else {
+      result += clause
+    }
+  }
+  return result
+}
+
+private fun Describers.renderGateCondition(requirement: Requirement): String? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple) return null
+  val (name) = tagName(metric.expression.className) ?: return null
+  val tags = if (minimum.target == 1) "tag" else "tags"
+  return "if you have ${minimum.target} $name $tags"
 }

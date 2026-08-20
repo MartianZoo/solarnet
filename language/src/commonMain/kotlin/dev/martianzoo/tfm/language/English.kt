@@ -20,7 +20,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
 
   /** Returns complete English sentences describing [actions] as actions on [card]. */
   public fun describe(actions: List<Action>, card: CardDefinition): String =
-      describeOrNull(actions, card) ?: unsupported(actions)
+      describeOrNull(actions) ?: unsupported(actions)
 
   /** Returns complete, context-neutral English sentences describing [instructionTree]. */
   public fun describe(instructionTree: InstructionTree): String =
@@ -30,7 +30,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
    * Returns complete English sentences describing [instructionTree] as an instruction on [card].
    */
   public fun describe(instructionTree: InstructionTree, card: CardDefinition): String =
-      describeOrNull(instructionTree, card) ?: unsupported(instructionTree)
+      describeOrNull(instructionTree) ?: unsupported(instructionTree)
 
   /** Returns complete English sentences describing [requirement]. */
   public fun describe(requirement: Requirement): String =
@@ -58,7 +58,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
       return null
     }
     val requirement = card.requirement?.let { describeOrNull(it) ?: return null }
-    val instructions = card.immediate?.let { describeOrNull(it, card) ?: return null }
+    val instructions = card.immediate?.let { describeOrNull(it) ?: return null }
     val scoring =
         card.effects
             .filter { isEndEffect(it, describers) }
@@ -76,30 +76,24 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
         card.actions
             .takeIf { it.isNotEmpty() }
             ?.let {
-              "Action: ${describeOrNull(it, card) ?: return null}"
+              "Action: ${describeOrNull(it) ?: return null}"
             }
     val effects =
         card.effects
             .filterNot { isEndEffect(it, describers) }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
-              val rendered = list.map { describeOrNull(it) ?: return null }
-              "Effect: ${rendered.joinToString(" ")}"
+              "Effect: ${renderEffects(list, describers) ?: return null}"
             }
     return listOfNotNull(actions, effects).joinToString(" / ")
   }
 
   private fun describeOrNull(effect: Effect): String? = renderEffect(effect, describers)
 
-  private fun describeOrNull(
-      actions: List<Action>,
-      card: CardDefinition? = null,
-  ): String? = renderActions(actions, card, describers)
+  private fun describeOrNull(actions: List<Action>): String? = renderActions(actions, describers)
 
-  private fun describeOrNull(
-      instructionTree: InstructionTree,
-      card: CardDefinition? = null,
-  ): String? = renderInstructionTree(instructionTree, card, describers)
+  private fun describeOrNull(instructionTree: InstructionTree): String? =
+      renderInstructionTree(instructionTree, describers)
 
   private fun describeOrNull(requirement: Requirement): String? =
       renderRequirement(requirement, describers)
