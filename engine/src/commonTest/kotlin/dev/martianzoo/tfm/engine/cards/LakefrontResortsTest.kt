@@ -27,4 +27,15 @@ class LakefrontResortsTest : CardTest() {
     p1.manual("OceanTile<Tharsis_1_2>").expect("PROD[M<Player2>]")
     p1.manual("CityTile<Tharsis_2_2>").expect("2")
   }
+
+  @Test
+  fun `pays once for each ocean adjacency`() {
+    newGame(TurmoilCardPack)
+    engine.phase("Action")
+    p1.manual("$LakefrontResorts, 54")
+    p1.manual("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")
+
+    // Four is the ordinary bonus for two oceans; Lakefront adds one per adjacency.
+    p1.manual("CityTile<Tharsis_2_2>").expect("6")
+  }
 }
