@@ -405,7 +405,7 @@ CardC19	C19	Jupiter Floating Station	Requires 3 science tags. 1 VP.	Action: Add 
 CardC20	C20	Luna Governor	Requires 3 Earth tags. Increase your M€ production 2 steps.	
 CardC21	C21	Lunar Exports	Increase your plant production 2 steps or your M€ production 5 steps.	
 CardC22	C22	Lunar Mining	Increase your titanium production 1 step for every 2 Earth tags you have.	
-CardC23	C23	Market Manipulation	Increase one colony tile track 1 step. Decrease another colony tile track 1 step.	
+CardC23	C23	Market Manipulation	Increase one colony tile track 1 step and decrease another colony tile track 1 step.	
 CardC24	C24	Martian Zoo	Requires any 2 city tiles. 1 VP.	Action: Gain 1 M€ for each animal on this card. / Effect: When you play an Earth tag, add 1 animal to this card.
 CardC25	C25	Mining Colony	Increase your titanium production 1 step. Place a colony.	
 CardC26	C26	Minority Refuge	Decrease your M€ production 2 steps. Place a colony.	

@@ -132,7 +132,7 @@ private fun renderTrackTransfer(
 ): Clause? {
   val transmute = instruction as? Transmute ?: return null
   if (
-      transmute.intensity != MANDATORY ||
+      (transmute.intensity != null && transmute.intensity != MANDATORY) ||
           !transmute.gaining.simple ||
           transmute.removing != transmute.gaining
   ) {

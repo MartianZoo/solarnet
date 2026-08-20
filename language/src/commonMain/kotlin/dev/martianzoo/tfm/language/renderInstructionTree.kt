@@ -75,7 +75,7 @@ private fun renderCardPlaySequence(
           val removal = continuation.inner as? Remove ?: return null
           val counted = continuation.metric as? Metric.Count ?: return null
           if (
-              removal.intensity != MANDATORY ||
+              (removal.intensity != null && removal.intensity != MANDATORY) ||
                   !removal.removing.simple ||
                   removal.removing != counted.expression ||
                   (removal.count as? ActualScalar)?.value != 1 ||
