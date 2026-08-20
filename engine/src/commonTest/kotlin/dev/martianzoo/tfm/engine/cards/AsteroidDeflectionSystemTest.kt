@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class AsteroidDeflectionSystemTest : CardTest() {
   @Test
-  fun `with protected plants, reveals cards using Asteroid Deflection System`() {
+  fun `Reveals cards through Asteroid Deflection System when plants are protected`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     engine.phase("Action")

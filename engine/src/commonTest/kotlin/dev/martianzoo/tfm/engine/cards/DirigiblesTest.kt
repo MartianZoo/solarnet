@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class DirigiblesTest : CardTest() {
   @Test
-  fun `with two floaters, pays for a Venus card using Dirigibles`() {
+  fun `Can pay for a Venus card with two floaters`() {
     newGame(VenusNextExpansion)
 
     engine.phase("Action")

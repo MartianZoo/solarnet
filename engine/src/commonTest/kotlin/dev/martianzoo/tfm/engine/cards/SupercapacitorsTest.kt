@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 class SupercapacitorsTest : CardTest() {
   @Test
-  fun `can preserve some energy`() {
+  fun `Can preserve some energy`() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
@@ -18,7 +18,7 @@ class SupercapacitorsTest : CardTest() {
   }
 
   @Test
-  fun `can preserve no energy`() {
+  fun `Can preserve no energy`() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
@@ -28,7 +28,7 @@ class SupercapacitorsTest : CardTest() {
   }
 
   @Test
-  fun `can preserve all existing energy but not newly produced energy`() {
+  fun `Can preserve all existing energy but not newly produced energy`() {
     newGame(PromoCardPack)
     p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 

@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 class AdvertisingTest : CardTest() {
   @Test
-  fun `with Advertising, adds cards costing twenty and nineteen`() {
+  fun `Triggers on a 20-cost card but not a 19-cost card`() {
     newGame(
         ColoniesExpansion,
         PromoCardPack,

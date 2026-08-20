@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class TfmGameplayTest : CardTest() {
   @Test
-  fun `declining a second action rejects an unrelated optional task`() {
+  fun `Declining a second action rejects an unrelated optional task`() {
     newGame()
 
     p1.manual("UseAction<StandardAction>?") {
@@ -20,7 +20,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `payment rejects leaving steel unspent at full value`() {
+  fun `Payment rejects leaving steel unspent at full value`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
@@ -42,7 +42,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `underpayment permission applies to only one payment`() {
+  fun `Underpayment permission applies to only one payment`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
@@ -55,7 +55,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `payment rejects steel that cannot receive full value`() {
+  fun `Payment rejects steel that cannot receive full value`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")
@@ -72,7 +72,7 @@ class TfmGameplayTest : CardTest() {
   }
 
   @Test
-  fun `overpayment permission applies to only one payment`() {
+  fun `Overpayment permission applies to only one payment`() {
     newGame()
     p1.requireExplicitPaymentChoices()
     engine.phase("Action")

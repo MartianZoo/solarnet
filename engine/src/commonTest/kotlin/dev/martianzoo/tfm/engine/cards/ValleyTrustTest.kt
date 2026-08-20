@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 class ValleyTrustTest : CardTest() {
   @Test
-  fun `resolves Valley Trust's starting prelude`() {
+  fun `Resolves Valley Trust's starting prelude`() {
     newGame(PreludeExpansion)
     p1.playCorp(ValleyTrust, 5).expect("5 ProjectCard, 22")
 
@@ -20,7 +20,7 @@ class ValleyTrustTest : CardTest() {
   }
 
   @Test
-  fun `must resolve mandate before another standard action`() {
+  fun `Must resolve mandate before another standard action`() {
     newGame(PreludeExpansion)
     p1.playCorp(ValleyTrust, 5)
     engine.phase("Action")

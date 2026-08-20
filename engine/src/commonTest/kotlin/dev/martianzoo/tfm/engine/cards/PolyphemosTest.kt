@@ -8,7 +8,7 @@ import kotlin.test.Test
 class PolyphemosTest : CardTest() {
 
   @Test
-  fun `with Polyphemos, buys a card from Inventors Guild`() {
+  fun `Applies its card-purchase surcharge to Inventors Guild`() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),

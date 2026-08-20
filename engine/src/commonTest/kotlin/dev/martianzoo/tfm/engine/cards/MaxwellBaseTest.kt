@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class MaxwellBaseTest : CardTest() {
   @Test
-  fun `with another Venus card, uses Maxwell Base`() {
+  fun `Can add a floater to another Venus card`() {
     newGame(VenusNextExpansion)
     engine.phase("Action")
     p1.manual("PROD[Energy], $ForcedPrecipitation")

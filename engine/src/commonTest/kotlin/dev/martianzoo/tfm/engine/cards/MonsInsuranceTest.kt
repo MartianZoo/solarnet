@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 class MonsInsuranceTest : CardTest() {
   @Test
-  fun `starting production loss reaches every opponent but not its owner`() {
+  fun `Starting production loss reaches every opponent but not its owner`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
 
@@ -27,7 +27,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `starting production loss does not target the solo opponent`() {
+  fun `Starting production loss does not target the solo opponent`() {
     newGame(PromoCardPack, players = 1)
 
     p1.playCorp(MonsInsurance, 0)
@@ -35,7 +35,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `played by Merger after Manutech, its owner gains only four megacredits`() {
+  fun `Gains only four megacredits when Merger plays it after Manutech`() {
     newGame(PromoCardPack, PreludeExpansion, VenusNextExpansion)
     val p2 = requireP2()
     p1.playCorp(Manutech, 0)
@@ -72,7 +72,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `an attack during the Prelude phase requires compensation`() {
+  fun `An attack during the Prelude phase requires compensation`() {
     newGame(PromoCardPack, PreludeExpansion)
     val p2 = requireP2()
     p1.manual("$MonsInsurance, 10 Megacredit")
@@ -95,7 +95,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `self-inflicted losses and Engine-run Global Events cause no payout`() {
+  fun `Self-inflicted losses and Engine-run Global Events cause no payout`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$MonsInsurance")
@@ -110,7 +110,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `payment is limited to the Mons owner's available megacredits`() {
+  fun `Payment is limited to the Mons owner's available megacredits`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -124,7 +124,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `zero payout is settled before the Mons owner gains money later in the action`() {
+  fun `Zero payout is settled before the Mons owner gains money later in the action`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$MonsInsurance")
@@ -167,7 +167,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `declining an optional removal avoids compensation`() {
+  fun `Declining an optional removal avoids compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$MonsInsurance, 10 Megacredit")
@@ -178,7 +178,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `solo steals and production attacks make Mons pay the general supply`() {
+  fun `Solo steals and production attacks make Mons pay the general supply`() {
     newGame(PromoCardPack, players = 1)
     engine.phase("Action")
     p1.manual("$MonsInsurance, ProjectCard")
@@ -191,7 +191,7 @@ class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  fun `an attack on the Mons owner requires no transfer`() {
+  fun `An attack on the Mons owner requires no transfer`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$MonsInsurance, Plant, 10 Megacredit")

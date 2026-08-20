@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class CapitalTest : CardTest() {
   @Test
-  fun `places a regular city and scores its adjacent oceans`() {
+  fun `Places a city under normal restrictions and scores adjacent oceans`() {
     newGame()
     p1.manual(
         "26 Megacredit, ProjectCard, PROD[2 Energy], " +
@@ -29,7 +29,7 @@ class CapitalTest : CardTest() {
   }
 
   @Test
-  fun `does not qualify as a special tile for the Manager milestone`() {
+  fun `Does not count toward the Manager milestone`() {
     newGame(UtopiaPlanitiaMapOption)
     p1.manual("8, PROD[2 Energy]")
     p1.manual("Card128_SpecialTile<Utopia_2_2>, Card044_SpecialTile<Utopia_3_3>")

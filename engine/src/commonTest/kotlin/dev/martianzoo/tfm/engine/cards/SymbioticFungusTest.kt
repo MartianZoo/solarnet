@@ -6,7 +6,7 @@ import kotlin.test.Test
 class SymbioticFungusTest : CardTest() {
   // FAQ: "the microbe obtained would be discarded"
   @Test
-  fun `without an eligible card, uses Symbiotic Fungus`() {
+  fun `Can use its action without an eligible target`() {
     newGame()
     p1.manual("$SymbioticFungus")
     engine.phase("Action")

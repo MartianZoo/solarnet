@@ -17,30 +17,30 @@ class CelesticTest : CardTest() {
   }
 
   @Test
-  fun `after a generation, Celestic draws two extra project cards`() {
+  fun `Can pass the first generation and draw two cards in the second`() {
     advanceToStartingCardDraw()
     p1.stdAction("HandleMandates").expect("2 ProjectCard")
   }
 
   @Test
-  fun `after resolving its card draw, plays a project as Celestic`() {
+  fun `Can play a project after resolving its mandatory card draw`() {
     advanceToStartingCardDraw()
     p1.stdAction("HandleMandates")
     p1.playProject(Mine, 4).expect("PROD[Steel]")
   }
 
   @Test
-  fun `before resolving its card draw, tries to play a project as Celestic`() {
+  fun `Cannot play a project before resolving its mandatory card draw`() {
     shouldThrow<RequirementException> { p1.playProject(Mine, 4) }
   }
 
   @Test
-  fun `before resolving its card draw, tries a standard project as Celestic`() {
+  fun `Cannot buy a standard project before resolving its mandatory card draw`() {
     shouldThrow<RequirementException> { p1.stdProject("AsteroidSP") }
   }
 
   @Test
-  fun `before resolving its card draw, tries a standard action as Celestic`() {
+  fun `Cannot use a standard action before resolving its mandatory card draw`() {
     shouldThrow<RequirementException> { p1.convertHeat() }
   }
 

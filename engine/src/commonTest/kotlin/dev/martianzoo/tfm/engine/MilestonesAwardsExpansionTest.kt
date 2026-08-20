@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
-  fun geologistUsesDeclarativeTileAndNeighborRelationships() {
+  fun `Geologist counts owned tiles with owned neighbors`() {
     newGame(TestOption.MilestonesAwardsExpansion)
     p1.manual("Card085_SpecialTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_1>")
 
@@ -20,7 +20,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  fun landscaperCountsOnlyTheLargestContiguousGroupOwnedByThePlayer() {
+  fun `Landscaper counts only the largest contiguous group owned by the player`() {
     newGame(TestOption.MilestonesAwardsExpansion)
     val p2 = requireP2()
     p1.manual(
@@ -44,7 +44,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  fun merchantChecksResourcesAfterTheNormalClaimCost() {
+  fun `Merchant checks resources after the normal claim cost`() {
     newGame(TestOption.MilestonesAwardsExpansion)
     p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
     engine.phase("Action")

@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 class IceAsteroidTest : CardTest() {
   @Test
-  fun `with eight oceans, Ice Asteroid cannot select an occupied area`() {
+  fun `Cannot select an occupied area when eight oceans are in play`() {
     newGame()
     val waterAreas = p1.list("WaterArea")
     val existingOceans = waterAreas.take(8).joinToString { "OceanTile<$it>" }

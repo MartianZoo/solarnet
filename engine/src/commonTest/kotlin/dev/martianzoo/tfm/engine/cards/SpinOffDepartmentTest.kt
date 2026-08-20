@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 class SpinOffDepartmentTest : CardTest() {
   @Test
-  fun `with Spin-Off Department, adds cards costing twenty and less`() {
+  fun `Triggers on a 20-cost card but not cheaper cards`() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),

@@ -20,17 +20,17 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `starts with money and titanium production`() {
+  fun `Starts with money and titanium production`() {
     p1.assertCounts(33 to "Megacredit", 1 to "PROD[Titanium]")
   }
 
   @Test
-  fun `action adds one asteroid per space tag`() {
+  fun `Action adds one asteroid per space tag`() {
     p1.cardAction1(KuiperCooperative).expect("2 Asteroid<$KuiperCooperative>")
   }
 
   @Test
-  fun `asteroids can help pay for an asteroid standard project`() {
+  fun `Asteroids can help pay for an asteroid standard project`() {
     p1.cardAction1(KuiperCooperative)
 
     p1.stdProject(
@@ -41,7 +41,7 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `asteroids can help pay for an aquifer standard project`() {
+  fun `Asteroids can help pay for an aquifer standard project`() {
     p1.cardAction1(KuiperCooperative)
 
     p1.stdProject("AquiferSP", payment = { payWithKuiperAsteroids(this) }) {
@@ -51,7 +51,7 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `asteroids cannot pay for another standard project`() {
+  fun `Asteroids cannot pay for another standard project`() {
     p1.cardAction1(KuiperCooperative)
 
     shouldThrow<NarrowingException> {
@@ -60,7 +60,7 @@ class KuiperCooperativeTest : CardTest() {
   }
 
   @Test
-  fun `an asteroid on another card cannot make a Kuiper payment`() {
+  fun `An asteroid on another card cannot make a Kuiper payment`() {
     p1.manual("$AstroDrill, Asteroid<$AstroDrill>")
 
     shouldThrow<TaskException> {

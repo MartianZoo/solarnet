@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class RoboticWorkforceTest : CardTest() {
   @Test
-  fun `with Strip Mine in play, adds Robotic Workforce`() {
+  fun `Can copy Strip Mine's production box`() {
     newGame()
     p1.manual("PROD[4 Energy], $StripMine")
     p1.assertProds(2 to "Steel", 1 to "Titanium", 2 to "Energy")
@@ -18,7 +18,7 @@ class RoboticWorkforceTest : CardTest() {
   }
 
   @Test
-  fun `with a non-building card, tries to copy it using Robotic Workforce`() {
+  fun `Cannot copy a non-building card`() {
     newGame()
     p1.manual("PROD[Energy], $Mine, $MassConverter")
     p1.manual("$RoboticWorkforce") {
@@ -28,7 +28,7 @@ class RoboticWorkforceTest : CardTest() {
   }
 
   @Test
-  fun `with a p2 building card, tries to copy it using Robotic Workforce`() {
+  fun `Cannot copy another player's building card`() {
     newGame()
     val p2 = requireP2()
     p1.manual("$IndustrialMicrobes")
@@ -41,7 +41,7 @@ class RoboticWorkforceTest : CardTest() {
   }
 
   @Test
-  fun `without owning Mine, tries to copy it using Robotic Workforce`() {
+  fun `Cannot copy a building card its player does not own`() {
     newGame()
     p1.manual("$IndustrialMicrobes")
     p1.manual("$RoboticWorkforce") {

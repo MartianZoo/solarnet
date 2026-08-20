@@ -17,7 +17,7 @@ class ThorgateTest : CardTest() {
   }
 
   @Test
-  fun `with Thorgate, buys power production`() {
+  fun `Discounts power-production standard projects`() {
     val result = p1.stdProject("PowerPlantSP")
     result.expect("-8, PROD[Energy]")
 
@@ -33,7 +33,7 @@ class ThorgateTest : CardTest() {
   }
 
   @Test
-  fun `with seven megacredits, tries to buy power production as Thorgate`() {
+  fun `Cannot buy power production with only seven megacredits`() {
     p1.manual("-Megacredit")
     shouldThrow<LimitsException> { p1.stdProject("PowerPlantSP") }
   }

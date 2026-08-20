@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 class FactorumTest : CardTest() {
   @Test
-  fun `without energy, raises energy production`() {
+  fun `Can raise energy production when it has no energy`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$Factorum")
@@ -17,7 +17,7 @@ class FactorumTest : CardTest() {
   }
 
   @Test
-  fun `with energy, cannot raise energy production`() {
+  fun `Cannot raise energy production while it has energy`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$Factorum, Energy")

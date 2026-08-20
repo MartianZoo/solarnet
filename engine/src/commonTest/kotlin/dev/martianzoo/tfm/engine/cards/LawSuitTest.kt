@@ -19,7 +19,7 @@ class LawSuitTest : CardTest() {
   }
 
   @Test
-  fun `after p2 lowers p1 production, p1 pays two to play Law Suit`() {
+  fun `Can be played after an opponent lowers the owner's production`() {
     val p2 = requireP2()
     p2.manual("5 Megacredit, PROD[-Plant<Player1>]")
     p2.assertCounts(5 to "Megacredit")
@@ -30,7 +30,7 @@ class LawSuitTest : CardTest() {
   }
 
   @Test
-  fun `an opponent removing p1 resources also permits Law Suit`() {
+  fun `Can be played after an opponent removes the owner's resources`() {
     val p2 = requireP2()
     p1.manual("Plant")
     p2.manual("5 Megacredit, -Plant<Player1>")
@@ -40,13 +40,13 @@ class LawSuitTest : CardTest() {
   }
 
   @Test
-  fun `without an opponent attack, p1 cannot complete Law Suit`() {
+  fun `Cannot be played without an opponent's attack`() {
     requireP2().manual("3 Megacredit")
     shouldThrow<RequirementException> { p1.playProject(LawSuit, 2) { choosePlayer2() } }
   }
 
   @Test
-  fun `p1 lowering own production does not qualify`() {
+  fun `Its player lowering their own production does not qualify`() {
     p1.manual("PROD[-Plant]")
     requireP2().manual("3 Megacredit")
 
@@ -54,7 +54,7 @@ class LawSuitTest : CardTest() {
   }
 
   @Test
-  fun `qualification expires at the next generation`() {
+  fun `Qualification expires at the next generation`() {
     requireP2().manual("3 Megacredit, PROD[-Plant<Player1>]")
     engine.manual("Generation")
 
@@ -62,7 +62,7 @@ class LawSuitTest : CardTest() {
   }
 
   @Test
-  fun `steals only the money the responsible player has`() {
+  fun `Steals only the money the responsible player has`() {
     requireP2().manual("2 Megacredit, PROD[-Plant<Player1>]")
 
     p1.playProject(LawSuit, 2) { choosePlayer2() }
@@ -70,7 +70,7 @@ class LawSuitTest : CardTest() {
   }
 
   @Test
-  fun `a penniless attacker remains selectable when another player has money`() {
+  fun `A penniless attacker remains selectable when another player has money`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
@@ -88,7 +88,7 @@ class LawSuitTest : CardTest() {
   }
 
   @Test
-  fun `with multiple responsible players, p1 chooses which one to sue`() {
+  fun `Can choose among multiple responsible players`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)

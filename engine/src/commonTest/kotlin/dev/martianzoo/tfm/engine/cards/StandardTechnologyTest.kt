@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class StandardTechnologyTest : CardTest() {
   @Test
-  fun `rebates three megacredits without reducing the standard project payment`() {
+  fun `Rebates three megacredits without reducing the standard project payment`() {
     newGame()
     engine.phase("Action")
     p1.manual("8 Megacredit, $StandardTechnology")

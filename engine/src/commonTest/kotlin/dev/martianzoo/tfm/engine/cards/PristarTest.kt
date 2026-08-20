@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class PristarTest : CardTest() {
   @Test
-  fun `without a TR increase, runs Pristar production`() {
+  fun `Pays its production bonus when TR did not increase`() {
     newGame(TurmoilCardPack)
     p1.manual("$Pristar")
     engine.phase("Production")
@@ -15,7 +15,7 @@ class PristarTest : CardTest() {
   }
 
   @Test
-  fun `after a TR increase, runs Pristar production`() {
+  fun `Does not pay its production bonus after a TR increase`() {
     newGame(TurmoilCardPack)
     p1.manual("$Pristar, TerraformRating")
     engine.phase("Production")
