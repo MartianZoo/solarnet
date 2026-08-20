@@ -135,6 +135,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
+- Derive ocean-reserved greenery placements only after the language model can express the waiver of
+  a placed component's normal restrictions as a relationship between that component and its site;
+  do not attach a generic "disregard restrictions" phrase to `WaterArea`.
 - Present other pre-payment resource refunds, especially reduced trade costs, as player-facing
   discounts once their action effects become structurally derivable.
 - Revisit a Pets-element English fallback table only after making every host context that affects
