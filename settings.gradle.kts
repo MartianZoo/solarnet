@@ -30,6 +30,7 @@ val modules =
         "tfm-fake",
         "web",
         "game-viewer",
+        "parity",
         "tools",
         "benchmarks",
     )
