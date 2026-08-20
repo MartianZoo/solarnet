@@ -1,0 +1,5 @@
+"Expansion adding active preludes and cards that combine Prelude with other expansions"
+CLASS Prelude2Expansion : Module
+
+"A hidden no-op used by Prelude cards whose entire behavior remains in play"
+CLASS Prelude2NoImmediate : Signal, Hidden

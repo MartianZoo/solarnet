@@ -26,6 +26,7 @@ public object Canon :
             "PreludeExpansion",
             preludeCustomClasses,
         ),
+        StandardFormBundle("Prelude2Expansion"),
         StandardFormBundle(
             "ColoniesExpansion",
             coloniesCustomClasses,

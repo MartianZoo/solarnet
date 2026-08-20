@@ -417,6 +417,9 @@ CLASS End : Signal, System
 "Signals that the final score is available"
 CLASS FinalScore : Signal, System
 
+"Asks the first player to choose one mandatory global-parameter increase performed by Engine"
+CLASS WorldGovernmentTerraforming : Signal, System
+
 "Marks the player who takes the first turn; passes one seat left with each new generation"
 CLASS StartToken : Owned<Player> {
   HAS MAX 1 StartToken

@@ -1,0 +1,322 @@
+{
+  "cards": [
+
+    // Palladin Shipping
+    {
+      "id": "PC02",
+      "deck": "CORPORATION",
+      "tags": [ "SpaceTag" ],
+      "immediate": "36, 5 Titanium",
+      "actions": [ "2 Titanium -> TemperatureStep" ],
+      "effects": [ "EventCard(HAS SpaceTag): Titanium" ],
+    },
+
+    // EcoTec
+    {
+      "id": "PC04",
+      "deck": "CORPORATION",
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "42, PROD[Plant]",
+      "effects": [ "PlantTag OR MicrobeTag OR AnimalTag: Plant OR Microbe" ],
+    },
+
+    // Atmospheric Enhancers
+    {
+      "id": "P44",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "VenusTag" ],
+      // Project card backs do not reveal whether their fronts carry floater icons; named play
+      // supplies the two legal cards, as with the original Prelude's filtered draws.
+      "immediate": "(2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), 2 ProjectCard",
+    },
+
+    // Board of Directors
+    {
+      "id": "P45",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag" ],
+      "resourceType": "Director",
+      "immediate": "4 Director<This>",
+      "actions": [
+        "-> PreludeCard THEN (-PreludeCard OR (-12 THEN -Director<This> THEN PlayCard<Class<PreludeCard>>))",
+      ],
+    },
+
+    // Colony Trade Hub
+    {
+      "id": "P46",
+      "setupRequirement": "ColoniesExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[Energy], 2 Titanium",
+      "effects": [ "Colony<Anyone>: 2" ],
+    },
+
+    // Floating Trade Hub
+    {
+      "id": "P49",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "resourceType": "Floater",
+      "immediate": "Prelude2NoImmediate",
+      "actions": [
+        "-> 2 Floater",
+        "X Floater<This> -> X StandardResource",
+      ],
+    },
+
+    // Focused Organization
+    {
+      "id": "P50",
+      "deck": "PRELUDE",
+      "immediate": "ProjectCard, StandardResource",
+      "actions": [
+        "-> -ProjectCard THEN -StandardResource THEN ProjectCard THEN StandardResource",
+      ],
+    },
+
+    // Main Belt Asteroids
+    {
+      "id": "P53",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "resourceType": "Asteroid",
+      "immediate": "-5",
+      "actions": [ "-> Asteroid" ],
+      "effects": [
+        "Asteroid<This>: Titanium",
+        "End: VictoryPoint / 2 Asteroid<This>",
+      ],
+    },
+
+    // Old Mining Colony
+    {
+      "id": "P55",
+      "setupRequirement": "ColoniesExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[Titanium], Colony<>, -ProjectCard",
+    },
+
+    // Planetary Alliance
+    {
+      "id": "P56",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
+      "immediate": "2 TerraformRating, 2 ProjectCard",
+    },
+
+    // Preservation Program
+    {
+      "id": "P57",
+      "deck": "PRELUDE",
+      "immediate": "5 TerraformRating",
+      "effects": [
+        "TerraformRating IF ActionPhase, MAX 0 PreservationProgramSkip: -TerraformRating, PreservationProgramSkip",
+      ],
+      "components": [
+        "CLASS PreservationProgramSkip : Owned<Player>, Generational, Hidden { HAS MAX 1 This }",
+      ],
+    },
+
+    // Project Eden
+    {
+      "id": "P58",
+      "deck": "PRELUDE",
+      "tags": [ "CityTag", "PlantTag" ],
+      "immediate": "OceanTile<>, CityTile<>, GreeneryTile<>, -3 ProjectCard",
+    },
+
+    // Soil Bacteria
+    {
+      "id": "P61",
+      "deck": "PRELUDE",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "2 ProjectCard, 3 Plant",
+      "effects": [ "PlantTag OR MicrobeTag: Plant" ],
+    },
+
+    // Space Lanes
+    {
+      "id": "P62",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "3 Titanium",
+      "effects": [
+        "PlayTag<Class<JovianTag>> OR PlayTag<Class<EarthTag>> OR PlayTag<Class<VenusTag>>:: -2 Owed<Class<Megacredit>>",
+      ],
+    },
+
+    // Suitable Infrastructure
+    {
+      "id": "P63",
+      "deck": "PRELUDE",
+      "tags": [ "BuildingTag" ],
+      "immediate": "5 Steel",
+      "effects": [
+        "PROD[StandardResource] IF ActionPhase: SuitableInfrastructureUsed",
+        "PROD[StandardResource] IF PreludePhase: SuitableInfrastructureUsed",
+      ],
+      "components": [
+        "CLASS SuitableInfrastructureUsed : Owned<Player>, Hidden, Atomized { This IF =1 This:: 2; UseAction<StandardAction>:: -SuitableInfrastructureUsed.; NewTurn IF PreludePhase:: -SuitableInfrastructureUsed. }",
+      ],
+    },
+
+    // Terraforming Deal
+    {
+      "id": "P64",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag" ],
+      "immediate": "Prelude2NoImmediate",
+      "effects": [
+        "TerraformRating IF ActionPhase: 2",
+        "TerraformRating IF PreludePhase: 2",
+      ],
+    },
+
+    // Venus Contract
+    {
+      "id": "P65",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "VenusTag" ],
+      "immediate": "ProjectCard, TerraformRating",
+      "effects": [ "VenusStep: 3" ],
+    },
+
+    // Venus L1 Shade
+    {
+      "id": "P66",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PRELUDE",
+      "tags": [ "SpaceTag" ],
+      "immediate": "3 VenusStep",
+    },
+
+    // World Government Advisor
+    {
+      "id": "P67",
+      "deck": "PRELUDE",
+      "tags": [ "EarthTag" ],
+      "immediate": "2 TerraformRating, ProjectCard",
+      "actions": [ "-> WorldGovernmentTerraforming BY Engine" ],
+    },
+
+    // Ceres Tech Market
+    {
+      "id": "P68",
+      "setupRequirement": "ColoniesExpansion",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 12,
+      "tags": [ "ScienceTag", "SpaceTag" ],
+      "immediate": "2 / Colony",
+      "actions": [ "X ProjectCard -> 2X" ],
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    // Floating Refinery
+    {
+      "id": "P73",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "cost": 7,
+      "tags": [ "VenusTag" ],
+      "resourceType": "Floater",
+      "immediate": "Floater<This> / VenusTag",
+      "actions": [
+        "-> Floater<This>",
+        "2 Floater -> Titanium, 2",
+      ],
+    },
+
+    // Ishtar Expedition
+    {
+      "id": "P76",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "5 VenusStep",
+      "cost": 6,
+      "tags": [ "VenusTag" ],
+      "immediate": "3 Titanium, 2 ProjectCard",
+    },
+
+    // Microgravity Nutrition
+    {
+      "id": "P79",
+      "setupRequirement": "ColoniesExpansion",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 11,
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "PROD[1 / Colony]",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    // Soil Studies
+    {
+      "id": "P81",
+      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "requirement": "MAX 13 TemperatureStep",
+      "cost": 13,
+      "tags": [ "MicrobeTag", "PlantTag" ],
+      "immediate": "Plant / VenusTag, Plant / PlantTag, Plant / Colony",
+    },
+
+    // Stratospheric Expedition
+    {
+      "id": "P84",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 12,
+      "tags": [ "VenusTag", "SpaceTag" ],
+      "immediate": "2 Floater, 2 ProjectCard",
+      "effects": [ "End: VictoryPoint" ],
+    },
+
+    // Unexpected Application
+    {
+      "id": "P86",
+      "setupRequirement": "VenusNextExpansion",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 4,
+      "tags": [ "VenusTag" ],
+      "immediate": "-ProjectCard, VenusStep",
+    },
+
+    // Venus Allies
+    {
+      "id": "P87",
+      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
+      "deck": "PROJECT",
+      "projectKind": "AUTOMATED",
+      "cost": 30,
+      "tags": [ "VenusTag", "SpaceTag" ],
+      "immediate": "2 VenusStep, 4 / Colony",
+      "effects": [ "End: 2 VictoryPoint" ],
+    },
+
+    // Venus Trade Hub
+    {
+      "id": "P90",
+      "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
+      "deck": "PROJECT",
+      "projectKind": "ACTIVE",
+      "requirement": "2 VenusTag",
+      "cost": 12,
+      "tags": [ "VenusTag", "SpaceTag" ],
+      "effects": [
+        "Trade<ColonyTile>: 3",
+        "End: VictoryPoint",
+      ],
+    },
+  ],
+}

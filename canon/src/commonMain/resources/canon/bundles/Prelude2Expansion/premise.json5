@@ -1,0 +1,8 @@
+{
+  "configurationImplications": [
+    {
+      "present": ["Prelude2Expansion"],
+      "include": ["PreludeExpansion"],
+    },
+  ],
+}

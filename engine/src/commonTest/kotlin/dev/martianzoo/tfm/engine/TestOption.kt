@@ -18,6 +18,7 @@ public enum class TestOption : TestSelection {
   VenusNextExpansion,
   MilestonesAwardsExpansion,
   PreludeExpansion,
+  Prelude2Expansion,
   ColoniesExpansion,
   TurmoilCardPack,
   PromoCardPack,

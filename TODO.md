@@ -48,7 +48,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Extend the standard-resource monotonicity scan from premise-wide candidates to state-conditional
   certificates; classify triggered consequences and define contracts or simulations for relevant
   custom operations.
-- Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and Prelude 2; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
+- Complete the rules/content needed by the chosen research configurations, especially unsupported unusual mechanics, Turmoil, and the remaining Prelude 2 cards; maintain explicit supported-content manifests so experiments cannot silently use incomplete games.
 
 ### Soon
 
