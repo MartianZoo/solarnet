@@ -119,6 +119,7 @@ operation. Preparation reads the current World and:
 - recursively prepares `OR` arms and removes locally impossible ones;
 - narrows Types when exactly one concrete choice remains;
 - resolves AMAP quantities;
+- makes dependency-blocked optional and AMAP changes no-ops;
 - rejects limits;
 - makes a reflexive nonmandatory transfer a no-op; and
 - translates a valid concrete custom instruction.

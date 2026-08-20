@@ -176,21 +176,27 @@ internal class Instructor(
 
   // TODO: Split narrowing, limit calculation, and custom-class translation into focused helpers.
   private fun prepareChange(change: Change): InstructionTree {
+    val intensity = change.intensity ?: error("missing intensity: $change")
+    return try {
+      prepareChangeWithoutDependencyFallback(change, intensity)
+    } catch (e: DependencyException) {
+      if (intensity == MANDATORY) throw e else NoOp
+    }
+  }
+
+  private fun prepareChangeWithoutDependencyFallback(
+      change: Change,
+      intens: Instruction.Intensity,
+  ): InstructionTree {
     // can't prepare at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
-    val intens = change.intensity ?: error("missing intensity: $change")
 
     val (g: Type?, r: Type?) =
-        try {
-          autoNarrowTypes(
-              change.gaining,
-              change.removing,
-              preserveAbstractActor = intens == AMAP,
-          )
-        } catch (e: DependencyException) {
-          if (intens == AMAP && change.gaining != null && change.removing == null) return NoOp
-          throw e
-        }
+        autoNarrowTypes(
+            change.gaining,
+            change.removing,
+            preserveAbstractActor = intens == AMAP,
+        )
     if (
         change is Transmute &&
             !Change.change(g?.expression, r?.expression, count, intens).narrows(change, reader)
@@ -224,7 +230,7 @@ internal class Instructor(
       ) {
         return NoOp
       }
-      if (intens == AMAP && g == null && r?.abstract == true && !reader.containsAny(r)) {
+      if (intens != MANDATORY && g == null && r?.abstract == true && !reader.containsAny(r)) {
         return NoOp
       }
       // Still abstract, don't check limits yet
@@ -309,8 +315,6 @@ internal class Instructor(
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
       val missing = dependencyComponents.filterNot(reader::containsAny)
-
-      // TODO this needs to not happen (or be intercepted) if the instruction is non-mandatory!
       if (missing.any()) throw DependencyException(missing)
 
       g = g.singleConcreteSubtype(reader) ?: g

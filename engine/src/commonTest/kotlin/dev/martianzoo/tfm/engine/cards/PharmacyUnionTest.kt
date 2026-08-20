@@ -45,4 +45,30 @@ class PharmacyUnionTest : CardTest() {
     p1.count("TerraformRating") shouldBe trBefore + 3
     p1.assertCounts(0 to "$PharmacyUnion", 1 to "PlayedEvent<Class<$PharmacyUnion>>")
   }
+
+  // FAQ: a microbe trigger that was already pending when Pharmacy Union flips still loses 4 M€,
+  // but places no disease because the corporation is no longer in play.
+  @Test
+  fun `pending disease placement disappears after Pharmacy Union flips`() {
+    newGame(PromoCardPack)
+    p1.manual("$PharmacyUnion")
+    p1.manual("-2 Disease<$PharmacyUnion>")
+    val moneyBefore = p1.count("Megacredit")
+    val trBefore = p1.count("TerraformRating")
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+
+    manual.manual("$RegolithEaters") {
+      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
+      doTask("-4 Megacredit")
+      doTask("Disease<$PharmacyUnion>")
+    }
+
+    p1.count("Megacredit") shouldBe moneyBefore - 4
+    p1.count("TerraformRating") shouldBe trBefore + 3
+    p1.assertCounts(
+        0 to "Disease<$PharmacyUnion>",
+        0 to "$PharmacyUnion",
+        1 to "PlayedEvent<Class<$PharmacyUnion>>",
+    )
+  }
 }

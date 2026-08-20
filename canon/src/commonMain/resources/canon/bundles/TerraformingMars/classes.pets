@@ -210,7 +210,8 @@ ABSTRACT CLASS Resource : Owned {
   }
 
   "A resource cube living on a compatible card or neutral holder, such as `Animal<Card172>`"
-  ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>> {
+  // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
+  ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>> : Owned<Owner> {
     DEFAULT +CardResource.
   }
 }

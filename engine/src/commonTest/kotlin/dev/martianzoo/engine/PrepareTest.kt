@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.ExpressionException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
@@ -73,6 +74,11 @@ internal class PrepareTest {
     checkPrepare("9 Heat FROM Plant?", "Heat<Player1> FROM Plant<Player1>?")
     checkPrepare("Plant FROM Heat.", "Ok")
     checkPrepare("Plant FROM Heat?", "Ok")
+    checkPrepare("3 Microbe.", "Ok")
+    checkPrepare("3 Microbe?", "Ok")
+    checkPrepare("-3 Microbe.", "Ok")
+    checkPrepare("-3 Microbe?", "Ok")
+    shouldThrow<DependencyException> { preprocessAndPrepare("3 Microbe!") }
     // shouldThrow<LimitsException> { preprocessAndPrepare("15 OxygenStep!") }
     shouldThrow<LimitsException> { preprocessAndPrepare("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndPrepare("Plant FROM Heat") }

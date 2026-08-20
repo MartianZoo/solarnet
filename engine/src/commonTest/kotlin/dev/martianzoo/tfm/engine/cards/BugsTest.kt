@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.TaskException
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
@@ -129,22 +127,5 @@ class BugsTest : CardTest() {
     p1.playProject(PublicPlans, 7)
 
     p1.assertCounts(0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
-  }
-
-  // FAQ: a microbe trigger that was already pending when Pharmacy Union flips still loses 4 M€,
-  // but places no disease because the corporation is no longer in play.
-  @Test
-  fun `Pharmacy Union incorrectly strands a pending disease placement after it flips`() {
-    newGame(PromoCardPack)
-    p1.manual("$PharmacyUnion")
-    p1.manual("-2 Disease<$PharmacyUnion>")
-    val manual = p1.godMode().also { it.autoExecMode = NONE }
-
-    manual.manual("$RegolithEaters") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
-      doTask("-4 Megacredit")
-      shouldThrow<DependencyException> { doTask("Disease<$PharmacyUnion>") }
-      abort()
-    }
   }
 }

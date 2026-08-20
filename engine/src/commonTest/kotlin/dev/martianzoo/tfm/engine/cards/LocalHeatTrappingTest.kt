@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
-import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -39,12 +38,9 @@ class LocalHeatTrappingTest : CardTest() {
   }
 
   @Test
-  fun `without Fish in play, tries to add animals to it from Local Heat Trapping`() {
+  fun `without Fish in play, its optional animals narrow to nothing`() {
     p1.manual("6 Heat, $Pets")
-    p1.manual("$LocalHeatTrapping") {
-      shouldThrow<DependencyException> { doTask("2 Animal<$Fish>") }
-      abort()
-    }
+    p1.manual("$LocalHeatTrapping") { doTask("2 Animal<$Fish>") }.expect("-5 Heat")
   }
 
   @Test
