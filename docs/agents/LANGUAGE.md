@@ -239,6 +239,9 @@ One mandatory concrete gain may instead use an imperative verb and object phrase
 component's Describer when its procedure is absent from the Pets change itself.
 Another supported direct-change construction gains a temporary component whose declaration says
 that the next card played receives one fixed standard-resource payment discount.
+A two-stage immediate instruction may instead play a card and then remove every generated global-
+requirement shortfall or remove up to one fixed owed amount, rendering the requirement waiver or
+card discount at the scope of that play.
 A gained component may instead declare exactly one described first action; its consequence is
 rendered through the ordinary instruction renderer, while unsupported consequences remain
 data-backed.

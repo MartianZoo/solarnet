@@ -35,6 +35,7 @@ public data class ComponentDescriber(
     public val actionUse: ActionUse? = null,
     public val spentResourceTrigger: Boolean? = null,
     public val paymentRole: PaymentRole? = null,
+    public val requirementShortfall: Boolean? = null,
 ) {
   public sealed interface Noun {
     public data object ClassName : Noun

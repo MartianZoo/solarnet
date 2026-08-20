@@ -411,6 +411,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.ACCEPTANCE),
         klass("Barrier") to
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.BARRIER),
+        klass("Required") to ComponentDescriber(requirementShortfall = true),
     )
   }
 

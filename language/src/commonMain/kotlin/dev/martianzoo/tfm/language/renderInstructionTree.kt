@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -48,11 +49,58 @@ private fun renderInstruction(
       is Instruction.Or -> renderAlternatives(instruction, describers)
       is Instruction.Per -> renderPer(instruction, describers)
       is Instruction.Gated -> renderGated(instruction, describers)
+      is Instruction.Then -> renderCardPlaySequence(instruction, describers)
       is NoOp,
       is Instruction.By,
-      is Instruction.Then,
       is Instruction.Transform -> null
     }
+
+private fun renderCardPlaySequence(
+    instruction: Instruction.Then,
+    describers: Describers,
+): Clause.Simple? {
+  val play = instruction.stages.singleOrNull() as? Gain ?: return null
+  if (
+      (play.intensity != null && play.intensity != MANDATORY) ||
+          !play.gaining.simple ||
+          (play.count as? ActualScalar)?.value != 1 ||
+          describers.fact(play.gaining.className, ComponentDescriber::playTrigger) !=
+              ComponentDescriber.PlayTrigger.CARD
+  ) {
+    return null
+  }
+  val modifier =
+      when (val continuation = instruction.continuation) {
+        is Instruction.Per -> {
+          val removal = continuation.inner as? Remove ?: return null
+          val counted = continuation.metric as? Metric.Count ?: return null
+          if (
+              removal.intensity != MANDATORY ||
+                  !removal.removing.simple ||
+                  removal.removing != counted.expression ||
+                  (removal.count as? ActualScalar)?.value != 1 ||
+                  describers.fact(
+                      removal.removing.className,
+                      ComponentDescriber::requirementShortfall,
+                  ) != true
+          ) {
+            return null
+          }
+          "ignoring global requirements"
+        }
+        else -> {
+          val reduction = maximumOwedReduction(continuation, describers) ?: return null
+          "reducing its cost by ${reduction.count} ${reduction.noun}"
+        }
+      }
+  return Clause.Simple(
+      Predicate(
+          "play",
+          Coordination.one(NounPhrase.text("a card from hand")),
+          listOf(Modifier.Supplement(modifier)),
+      )
+  )
+}
 
 private fun renderGated(
     instruction: Instruction.Gated,
