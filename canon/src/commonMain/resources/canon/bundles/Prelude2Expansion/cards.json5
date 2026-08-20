@@ -17,7 +17,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "PlantTag" ],
       "immediate": "42, PROD[Plant]",
-      "effects": [ "PlantTag OR MicrobeTag OR AnimalTag: Plant OR Microbe" ],
+      "effects": [ "AnimalTag OR PlantTag OR MicrobeTag: Plant OR Microbe" ],
     },
 
     // Atmospheric Enhancers
