@@ -169,8 +169,10 @@ standard resources or one concrete card resource from any player; an optional tr
 concrete standard-resource type from any player to the acting player; a gain of one reserve Trade
 Fleet; a mandatory gain of a generic or concrete card resource on the played card, an unrestricted
 card, or a card narrowed to one concrete tag; a group of concrete
-mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
-placement using the type's default arguments; one plain greenery-tile placement; one city or
+mandatory standard-resource production gains or decreases; a mandatory one-for-one conversion of
+one or more steps of the player's production from one concrete standard resource to another; a
+city-tile, colony, or ocean-tile placement using the type's default arguments; one plain
+greenery-tile placement; one city or
 greenery placement on a described land site, optionally narrowed by a supported minimum or
 zero-maximum adjacency refinement; a concrete
 mandatory removal of a concrete card resource; a mandatory exchange of a concrete number of card

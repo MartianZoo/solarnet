@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 /** Interprets one Pets state change from passive component construction facts. */
 internal fun renderChange(
@@ -223,8 +224,12 @@ private fun renderProductionChange(
 ): Clause? {
   val change = instruction as? Instruction.Change ?: return null
   if (change.intensity != null && change.intensity != MANDATORY) return null
-  val gaining = change is Gain
-  if (!gaining && change !is Remove) return null
+  val gaining =
+      when (change) {
+        is Gain -> true
+        is Remove -> false
+        is Transmute -> return renderProductionConversion(change, describers)
+      }
   val expression = change.gaining ?: change.removing ?: return null
   val (ownerArguments, resourceClassName) =
       describers.productionExpression(expression) ?: return null
@@ -239,6 +244,40 @@ private fun renderProductionChange(
   val production =
       "$owner ${describers.componentNoun(resourceClassName, 1)} production $count $steps"
   return clause(if (gaining) "increase" else "decrease", NounPhrase.text(production))
+}
+
+private fun renderProductionConversion(
+    transmute: Transmute,
+    describers: Describers,
+): Clause? {
+  val scalar = transmute.count as? XScalar ?: return null
+  if (scalar.multiple != 1) return null
+  val (gainingOwners, gainingResource) =
+      describers.productionExpression(transmute.gaining) ?: return null
+  val (removingOwners, removingResource) =
+      describers.productionExpression(transmute.removing) ?: return null
+  if (
+      gainingOwners.isNotEmpty() ||
+          removingOwners.isNotEmpty() ||
+          gainingResource == removingResource
+  ) {
+    return null
+  }
+  val decrease =
+      clause(
+          "decrease",
+          NounPhrase.text(
+              "your ${describers.componentNoun(removingResource, 1)} production one or more steps"
+          ),
+      )
+  val increase =
+      clause(
+          "increase",
+          NounPhrase.text(
+              "your ${describers.componentNoun(gainingResource, 1)} production the same number of steps"
+          ),
+      )
+  return Clause.Coordinated(Coordination(listOf(decrease, increase), Conjunction.AND))
 }
 
 private fun renderTrackChange(
