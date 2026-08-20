@@ -221,7 +221,8 @@ requirements, minimum counts of described distinct component kinds the player ow
 counted spatial relationship between two described placed components.
 It derives bottom text when every immediate instruction is one of: a concrete
 mandatory gain or removal of a standard resource; an optional removal of up to a concrete number of
-standard resources or one concrete card resource from any player; an optional transfer of one
+standard resources from any player or a player with one concrete tag, or one concrete card resource
+from any player; an optional transfer of one
 concrete standard-resource type from any player to the acting player; a gain of one reserve Trade
 Fleet; a mandatory gain of a generic or concrete card resource on the played card, an unrestricted
 card, a card narrowed to one concrete tag, or a card with a concrete minimum card-resource count;

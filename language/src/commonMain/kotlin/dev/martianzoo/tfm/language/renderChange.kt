@@ -290,17 +290,35 @@ private fun renderStandardResourceChange(
   if (expression.simple && (removal.intensity == null || removal.intensity == MANDATORY)) {
     return clause("remove", describers.componentNounPhrase(expression.className, count))
   }
-  if (
-      expression.arguments == listOf(describers.anyoneExpression) && removal.intensity == OPTIONAL
-  ) {
+  val player = expression.arguments.singleOrNull()?.let { describers.renderEligiblePlayer(it) }
+  if (player != null && removal.intensity == OPTIONAL) {
     val noun = describers.componentNoun(expression.className, count)
     return clause(
         "remove",
         NounPhrase.text("up to $count $noun"),
-        Modifier.Phrase("from any player"),
+        Modifier.Phrase("from $player"),
     )
   }
   return null
+}
+
+private fun Describers.renderEligiblePlayer(expression: Expression): String? {
+  if (expression == anyoneExpression) return "any player"
+  if (
+      expression.className != anyoneExpression.className ||
+          expression.arguments.isNotEmpty() ||
+          expression.complement
+  ) {
+    return null
+  }
+  val refinement = expression.refinement ?: return null
+  if (refinement.forgiving) return null
+  val minimum = refinement.requirement as? Requirement.Min ?: return null
+  if (minimum.target != 1) return null
+  val tagExpression = (minimum.metric as? Metric.Count)?.expression ?: return null
+  if (!tagExpression.simple) return null
+  val tag = tagName(tagExpression.className)?.first ?: return null
+  return "a player with ${indefiniteArticle(tag)} $tag tag"
 }
 
 private fun renderStandardResourceTransfer(
