@@ -201,9 +201,11 @@ concrete tag or a described minimum or present property. A trigger on using a de
 action or standard project composes with the same supported consequences. An as-much-as-possible
 removal of generated requirement shortfalls after a card play renders as permission to treat that
 card's described global-parameter requirement as lower or higher by the fixed amount.
+A two-branch optional linked exchange may present card resources removed from this card as a fixed
+M€ payment value per resource.
 A pre-payment resource gain for an explicitly described action may be presented as the discount it
-implements; adjacent equal
-discounts combine under one trigger sentence. The action description may supply a shared counted
+implements; adjacent equal discounts combine under one trigger sentence. The action description
+may supply a shared counted
 noun for alternative standard-resource refunds, allowing those equal amounts to combine as one
 discount. Discounts triggered by playing a card retain `for it`,
 while discounts triggered by playing a tag omit that pronoun because the tag is not the object being

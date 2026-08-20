@@ -336,7 +336,7 @@ Card218	218	Comet For Venus	Raise Venus 1 step. Remove up to 4 M€ from a playe
 Card219	219	Corroder Suits	Increase your M€ production 2 steps. Add 1 resource to a Venus card.	
 Card220	220	Dawn City	Requires 4 science tags. Decrease your energy production 1 step and increase your titanium production 1 step. Place a city tile on the reserved area outside Mars. 3 VPs.	
 Card221	221	Deuterium Export		Action: Add 1 floater to this card, or remove 1 floater from this card to increase your energy production 1 step.
-Card222	222	Dirigibles		Action: Add 1 floater to any card. / Effect: When you play a Venus tag, floaters here may be used as payment, and are worth 3 M€ each.
+Card222	222	Dirigibles		Action: Add 1 floater to any card. / Effect: When you play a Venus tag, floaters on this card may be used as 3 M€ each.
 Card223	223	Extractor Balloons	Add 3 floaters to this card.	Action: Add 1 floater to this card, or remove 2 floaters from this card to raise Venus 1 step.
 Card224	224	Extremophiles	Requires 2 science tags. 1 VP for every 3 microbes on this card.	Action: Add 1 microbe to any card.
 Card225	225	Floating Habs	Requires 2 science tags. 1 VP for every 2 floaters on this card.	Action: Spend 2 M€ to add 1 floater to any card.
@@ -379,7 +379,7 @@ Card261	261	Venusian Plants	Requires Venus 16%. Raise Venus 1 step. Add 1 microb
 CardP36	P36	House Printing	Increase your steel production 1 step. 1 VP.	
 CardP37	P37	Lava Tube Settlement	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile on a volcanic area if using a board that has one, otherwise place it normally.	
 CardP38	P38	Martian Survey	Oxygen must be 4% or less. Draw 2 cards. 1 VP.	
-CardP39	P39	Psychrophiles	Temperature must be -20°C or colder.	Action: Add 1 microbe to this card. / Effect: When you pay for a plant card, microbes here may be used as 2 M€ each.
+CardP39	P39	Psychrophiles	Temperature must be -20°C or colder.	Action: Add 1 microbe to this card. / Effect: When you play a plant tag, microbes on this card may be used as 2 M€ each.
 CardP40	P40	Research Coordination	After being played, when you perform an action, the wild tag counts as any tag of your choice.	
 CardP41	P41	SF Memorial	Draw 1 card. 1 VP.	
 CardP42	P42	Space Hotels	Requires 2 Earth tags. Increase your M€ production 4 steps.	
@@ -494,7 +494,7 @@ CardX43	X43	Head Start	Gain 2 steel. Gain 2 M€ for each project card you have 
 CardX44	X44	16 Psyche	Increase your titanium production 2 steps. Gain 3 titanium. 2 VPs.	
 CardX45	X45	Robot Pollinators	Requires 4% oxygen. Increase your plant production 1 step. Gain 1 plant for each plant tag you have.	
 CardX50	X50	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 building cards. 1 VP.	
-CardX52	X52	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space or city tag, graphene resources on this card may be used as 4 M€ each.
+CardX52	X52	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space tag or a city tag, graphene resources on this card may be used as 4 M€ each.
 CardX61	X61	Neptunian Power Consultants	1 VP for each hydroelectric resource on this card.	Effect: When any ocean tile is placed, you may pay 5 M€ (steel may be used) to increase your energy production 1 step and add 1 hydroelectric resource to this card.
 CardX63	X63	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, you pay 2 M€ less. When any space event card is played, draw 1 card.
 CardX68	X68	Supermarkets	Requires any 2 city tiles. Increase your M€ production 2 steps. 1 VP.	

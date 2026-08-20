@@ -11,14 +11,17 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 internal fun renderEffect(effect: Effect, describers: Describers): String? {
   val lowered = lowerProductionSyntax(effect)
@@ -29,11 +32,54 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? {
         ?: renderPurchaseAdjustment(lowered, describers)
         ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
         ?: renderResourcePaymentValue(lowered, describers)
+        ?: renderCardResourcePaymentValue(lowered, describers)
         ?: renderRequirementFlexibility(lowered, describers)
         ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
         ?: renderLinkedProductionReward(lowered, describers)
         ?: renderTriggeredInstructions(lowered, describers)
   }
+}
+
+private fun renderCardResourcePaymentValue(effect: Effect, describers: Describers): String? {
+  val choice = effect.instruction as? Instruction.Or ?: return null
+  if (choice.instructions.size != 2) return null
+  val sequence = choice.instructions.filterIsInstance<Then>().singleOrNull() ?: return null
+  val decline = choice.instructions.singleOrNull { it !== sequence } ?: return null
+  if (InstructionGroup.of(decline).instructions.singleOrNull() !is NoOp) return null
+  val resourceRemoval = sequence.stages.singleOrNull() as? Remove ?: return null
+  if (
+      resourceRemoval.intensity != MANDATORY ||
+          resourceRemoval.removing.arguments != listOf(describers.thisExpression) ||
+          resourceRemoval.removing.refinement != null ||
+          resourceRemoval.removing.complement ||
+          describers.fact(
+              resourceRemoval.removing.className,
+              ComponentDescriber::cardResource,
+          ) == null
+  ) {
+    return null
+  }
+  val resourceScalar = resourceRemoval.count as? XScalar ?: return null
+  if (resourceScalar.multiple != 1) return null
+  val owed = sequence.continuation as? Remove ?: return null
+  if (owed.intensity != AMAP || owed.removing.refinement != null || owed.removing.complement) {
+    return null
+  }
+  if (
+      describers.fact(owed.removing.className, ComponentDescriber::paymentRole) !=
+          ComponentDescriber.PaymentRole.OWED
+  ) {
+    return null
+  }
+  val currency = describers.representedClass(owed.removing) ?: return null
+  val rate = (owed.count as? XScalar)?.multiple ?: return null
+  val currencyNoun = describers.plainGainNoun(currency.className, rate) ?: return null
+  val resources = describers.cardResourceNoun(resourceRemoval.removing.className, 2) ?: return null
+  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+  return completeSentence(
+      "when ${trigger.linearize()}, $resources on this card may be used as " +
+          "$rate $currencyNoun each"
+  )
 }
 
 private fun renderLinkedPlayedTagResourceChoice(
