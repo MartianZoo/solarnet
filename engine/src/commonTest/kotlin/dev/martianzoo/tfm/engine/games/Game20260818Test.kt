@@ -486,11 +486,6 @@ class Game20260818Test : AbstractFullGameTest() {
     // absent from the generation-seven photograph and ledger.
     dad.exMachina("PROD[-S, -E]")
 
-    // Ellie's app ledger records a 20 M€ charge followed by a 12 M€ refund during Dad's
-    // Industrial Microbes/Ecologist turn. The unexplained net charge remains in the photographed
-    // generation-seven balance.
-    // ellie.exMachina("-8 M")
-
     ellie.turn {
       // "Forced Precipitation and Extractor Balloons. Remove two off both of them to raise Venus
       // by two. Oh, it is at 16, which means I get an extra TR."
