@@ -561,10 +561,15 @@ private fun renderLinkedProductionReward(effect: Effect, describers: Describers)
   if (gain.intensity != null && gain.intensity != MANDATORY) return null
   if (!gain.gaining.simple || gain.gaining.className != resource) return null
   val count = (gain.count as? ActualScalar)?.value ?: return null
-  val objectPhrase = if (count == 1) "that resource" else "$count resources of that kind"
+  val objectPhrase = "$count ${if (count == 1) "resource" else "resources"} of that type"
   val result = Clause.Simple(Predicate("gain", Coordination.one(NounPhrase.text(objectPhrase))))
-  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
-  return completeSentence("when ${trigger.linearize()}, ${result.linearize()}")
+  val trigger =
+      eventTrigger(
+          subject = NounPhrase.text("you"),
+          verb = "increase",
+          objectPhrase = NounPhrase.text("one of your productions"),
+      )
+  return Sentence(Clause.Prefaced("for each step ${trigger.linearize()}", result)).linearize()
 }
 
 internal fun renderEndEffect(effect: Effect, describers: Describers): String? {
