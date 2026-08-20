@@ -41,6 +41,7 @@ internal class ActionTest {
       5X Abc<Foo> -> 1, 5?
       -> -1. OR Ok OR 2 Abc
       2 Eep / Bar MAX 5 -> 1
+      Foo / Bar MAX 5 - Qux -> Ok
       PROD[PROD[Ooh]] -> -Eep
       PROD[Foo] -> Bar / 2 Foo
       Qux -> 1 OR Qux<Bar, Xyz>
@@ -57,7 +58,7 @@ internal class ActionTest {
       PROD[MAX 0 Megacredit: (1, 1)] -> 5?
       Eep, Qux -> PROD[Xyz FROM Qux], -!Qux
       PROD[1] -> (-Abc, Foo) OR -2 OR (1, 1)
-      PROD[1] -> -2 Qux / (Qux OR Qux) OR Abc
+      PROD[1] -> -2 Qux / (Qux OR Foo) OR Abc
       PROD[X Ooh<Foo> / Bar] -> 11 Bar(HAS 1)!
       PROD[Ahh / 2 Foo MAX 11] -> -1 / Xyz<Qux>
       5 Ahh<Bar, Ooh, Foo> -> 1, Foo<Foo> BY Eep

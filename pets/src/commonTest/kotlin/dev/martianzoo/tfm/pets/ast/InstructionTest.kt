@@ -97,6 +97,7 @@ internal class InstructionTest {
       !Abc<Foo<Bar<Foo>>>
       Ok BY Eep<!Qux<Qux>>
       -1 / 2 Foo MAX 5, Bar
+      Foo / Bar MAX 5 - Qux
       -11X?, PROD[Bar] OR Ok
       Ahh<Bar, Abc<Bar<Eep>>>
       (Foo: Xyz) OR -Bar / Foo

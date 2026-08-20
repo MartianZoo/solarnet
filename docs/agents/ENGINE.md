@@ -195,8 +195,11 @@ decide whether the engine can express the uniquely implied cleanup more directly
 
 `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
 multiset union: for each exact component Type, keep the greatest matching multiplicity so overlapping
-arms do not double count. Virtual custom counts cannot participate because they have no component
-identity.
+arms do not double count. Its arms must be distinct component counts; capped, scaled, subtractive,
+property, and virtual custom counts cannot participate because they have no component identity.
+Numeric Metrics may also subtract Metrics or positive scalar operands, saturating at zero; a scalar
+by itself is not a Metric. Complete-group scaling and `MAX` bind before subtraction, which binds
+before union.
 
 An abstract custom metric enumerates satisfying concrete subtypes and sums their implementations.
 Every Kotlin invocation receives concrete dependency arguments.

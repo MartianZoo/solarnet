@@ -127,7 +127,7 @@
       "id": "P10",
       "deck": "PRELUDE",
       "tags": [ "PlantTag", "MicrobeTag" ],
-      "immediate": "PROD[Plant], PlayCard THEN -99 Required<Class<GlobalParameter>>.",
+      "immediate": "PROD[Plant], PlayCard THEN -Required / Required",
     },
 
     // Excentric Sponsor

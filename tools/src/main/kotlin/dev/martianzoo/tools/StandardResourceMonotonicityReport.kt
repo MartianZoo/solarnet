@@ -400,6 +400,7 @@ internal object StandardResourceMonotonicityReport {
     if (upperBound == Int.MAX_VALUE) return false
     return when (metric) {
       is Metric.Eval -> true
+      is Metric.Constant -> false
       is Metric.Count -> expressionCouldCount(metric.expression, quantity, subjectClass, table)
       is Property -> false
       is Metric.Scaled ->
@@ -413,6 +414,9 @@ internal object StandardResourceMonotonicityReport {
       is Metric.Max ->
           (upperBound == null || metric.maximum > upperBound) &&
               metricCouldCount(metric.inner, quantity, subjectClass, table, upperBound)
+      is Metric.Subtract ->
+          metricCouldCount(metric.minuend, quantity, subjectClass, table) ||
+              metricCouldCount(metric.subtrahend, quantity, subjectClass, table)
       is Metric.Or -> metric.metrics.any { metricCouldCount(it, quantity, subjectClass, table) }
       is Metric.Transform ->
           metricCouldCount(metric.inner, quantity, subjectClass, table, upperBound)
@@ -429,6 +433,7 @@ internal object StandardResourceMonotonicityReport {
     if (upperBound == Int.MAX_VALUE) return false
     return when (metric) {
       is Metric.Eval -> true
+      is Metric.Constant -> false
       is Metric.Count ->
           baseExpressionCouldCount(
               metric.expression,
@@ -454,10 +459,11 @@ internal object StandardResourceMonotonicityReport {
                   table,
                   upperBound,
               )
+      is Metric.Subtract ->
+          metricCouldCountAsResource(metric.minuend, quantity, subjectClass, table) ||
+              metricCouldCountAsResource(metric.subtrahend, quantity, subjectClass, table)
       is Metric.Or ->
-          metric.metrics.any {
-            metricCouldCountAsResource(it, quantity, subjectClass, table)
-          }
+          metric.metrics.any { metricCouldCountAsResource(it, quantity, subjectClass, table) }
       is Metric.Transform ->
           metricCouldCountAsResource(metric.inner, quantity, subjectClass, table, upperBound)
     }
