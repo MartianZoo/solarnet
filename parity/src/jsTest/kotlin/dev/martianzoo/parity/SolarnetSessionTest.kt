@@ -19,11 +19,8 @@ internal class SolarnetSessionTest {
     try {
       val snapshot = Json.parseToJsonElement(session.snapshot()).jsonObject
       assertEquals(1, snapshot.getValue("generation").jsonPrimitive.content.toInt())
-      assertEquals("CorporationPhase", snapshot.getValue("phase").jsonPrimitive.content)
-      assertEquals(
-          listOf("Player1", "Player2"),
-          snapshot.getValue("players").jsonArray.map { it.jsonPrimitive.content },
-      )
+      assertEquals("corporation", snapshot.getValue("phase").jsonPrimitive.content)
+      assertEquals(1, snapshot.getValue("firstPlayer").jsonPrimitive.content.toInt())
 
       val initialEvents = Json.parseToJsonElement(session.eventsSince(0)).jsonObject
       val initialCursor = initialEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
@@ -51,7 +48,7 @@ internal class SolarnetSessionTest {
                   )
               )
               .jsonObject
-      assertEquals("ActionPhase", afterBoth.getValue("phase").jsonPrimitive.content)
+      assertEquals("action", afterBoth.getValue("phase").jsonPrimitive.content)
 
       val secondMoveEvents =
           Json.parseToJsonElement(session.eventsSince(firstMoveCursor)).jsonObject
@@ -66,7 +63,7 @@ internal class SolarnetSessionTest {
                   )
               )
               .jsonObject
-      assertEquals("ActionPhase", afterProject.getValue("phase").jsonPrimitive.content)
+      assertEquals("action", afterProject.getValue("phase").jsonPrimitive.content)
 
       val projectEvents = Json.parseToJsonElement(session.eventsSince(secondMoveCursor)).jsonObject
       assertTrue(
@@ -112,11 +109,105 @@ internal class SolarnetSessionTest {
       assertFailsWith<TaskException> {
         session.apply("""{"operation":"endTurn","player":2}""")
       }
-      session.apply("""{"operation":"pass","player":2}""")
+      val afterPass =
+          Json.parseToJsonElement(session.apply("""{"operation":"pass","player":2}""")).jsonObject
+      assertEquals(
+          Json.parseToJsonElement(
+              """
+              {
+                "generation": 1,
+                "phase": "action",
+                "firstPlayer": 1,
+                "passedPlayers": [2],
+                "players": [
+                  {
+                    "seat": 1,
+                    "terraformRating": 21,
+                    "resources": {
+                      "megacredits": 8,
+                      "steel": 22,
+                      "titanium": 0,
+                      "plants": 0,
+                      "energy": 0,
+                      "heat": 0
+                    },
+                    "production": {
+                      "megacredits": 0,
+                      "steel": 0,
+                      "titanium": 0,
+                      "plants": 0,
+                      "energy": 0,
+                      "heat": 0
+                    },
+                    "handCount": 0,
+                    "playedCardIds": ["105", "B04"]
+                  },
+                  {
+                    "seat": 2,
+                    "terraformRating": 20,
+                    "resources": {
+                      "megacredits": 57,
+                      "steel": 0,
+                      "titanium": 0,
+                      "plants": 0,
+                      "energy": 0,
+                      "heat": 0
+                    },
+                    "production": {
+                      "megacredits": 0,
+                      "steel": 0,
+                      "titanium": 0,
+                      "plants": 0,
+                      "energy": 0,
+                      "heat": 0
+                    },
+                    "handCount": 0,
+                    "playedCardIds": ["B01"]
+                  }
+                ],
+                "globalParameters": {"temperature": -30, "oxygen": 0, "oceans": 1},
+                "tiles": [{"row": 1, "column": 2, "kind": "ocean", "owner": null}]
+              }
+              """
+          ),
+          afterPass,
+      )
       val passEvents = Json.parseToJsonElement(session.eventsSince(tileCursor)).jsonObject
       val passLines = passEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
       assertTrue(passLines.any { "+Pass<Player2>" in it })
       assertTrue(passLines.any { "NewTurn<Player1>" in it })
+    } finally {
+      session.close()
+    }
+  }
+
+  @Test
+  fun projectsPlayedEventIdFromItsTypedCardDependency() {
+    val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
+    try {
+      session.apply(
+          """{"operation":"selectCorporation","player":1,"corporation":"CrediCor","projectCards":1}"""
+      )
+      session.apply(
+          """{"operation":"selectCorporation","player":2,"corporation":"InterplanetaryCinematics","projectCards":0}"""
+      )
+      val snapshot =
+          Json.parseToJsonElement(
+                  session.apply(
+                      """{"operation":"playProject","player":1,"cardId":"112","payment":{"megacredits":7,"steel":0,"titanium":0}}"""
+                  )
+              )
+              .jsonObject
+      val player1 =
+          snapshot
+              .getValue("players")
+              .jsonArray
+              .map { it.jsonObject }
+              .single { it.getValue("seat").jsonPrimitive.content.toInt() == 1 }
+      assertEquals(
+          listOf("112", "B01"),
+          player1.getValue("playedCardIds").jsonArray.map { it.jsonPrimitive.content },
+      )
     } finally {
       session.close()
     }

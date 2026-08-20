@@ -10,6 +10,32 @@ type EventBatch = {
   lines: string[];
 };
 
+type Resources = {
+  megacredits: number;
+  steel: number;
+  titanium: number;
+  plants: number;
+  energy: number;
+  heat: number;
+};
+
+type Snapshot = {
+  generation: number;
+  phase: string;
+  firstPlayer: number;
+  passedPlayers: number[];
+  players: Array<{
+    seat: number;
+    terraformRating: number;
+    resources: Resources;
+    production: Resources;
+    handCount: number;
+    playedCardIds: string[];
+  }>;
+  globalParameters: { temperature: number; oxygen: number; oceans: number };
+  tiles: Array<{ row: number; column: number; kind: "ocean"; owner: null }>;
+};
+
 type FileSystem = {
   readFileSync(path: string, encoding: "utf8"): string;
 };
@@ -75,9 +101,9 @@ try {
         projectCards: 0,
       }),
     ),
-  ) as { phase: string };
+  ) as Snapshot;
   check(printNewEvents().lines.length > 0, "the second move produced no events");
-  check(snapshot.phase === "ActionPhase", "the session did not reach the action phase");
+  check(snapshot.phase === "action", "the session did not reach the action phase");
   check(printNewEvents().lines.length === 0, "an unchanged cursor replayed events");
 
   const projectSnapshot = JSON.parse(
@@ -89,9 +115,9 @@ try {
         payment: { megacredits: 1, steel: 0, titanium: 0 },
       }),
     ),
-  ) as { phase: string };
+  ) as Snapshot;
   const projectEvents = printNewEvents();
-  check(projectSnapshot.phase === "ActionPhase", "the project ended the action phase");
+  check(projectSnapshot.phase === "action", "the project ended the action phase");
   check(projectEvents.lines.some((line) => line.includes("EarthOffice")), "project not logged");
   check(
     projectEvents.lines.some((line) =>
@@ -117,9 +143,11 @@ try {
     "Aquifer placed its ocean before the app selected a space",
   );
 
-  session.apply(
-    JSON.stringify({ operation: "placeTile", player: 1, tile: "ocean", spaceId: "04" }),
-  );
+  const tileSnapshot = JSON.parse(
+    session.apply(
+      JSON.stringify({ operation: "placeTile", player: 1, tile: "ocean", spaceId: "04" }),
+    ),
+  ) as Snapshot;
   const tileEvents = printNewEvents();
   check(
     tileEvents.lines.some((line) => line.includes("+OceanTile<Tharsis_1_2")),
@@ -137,14 +165,28 @@ try {
     tileEvents.lines.some((line) => line.includes("NewTurn<Player2>")),
     "Player 1's second action did not rotate to Player 2",
   );
+  const player1 = tileSnapshot.players.find((player) => player.seat === 1);
+  check(player1 !== undefined, "the snapshot omitted Player 1");
+  check(player1.resources.megacredits === 8, "the snapshot has the wrong Player 1 M€");
+  check(player1.resources.steel === 22, "the snapshot omitted the space bonus");
+  check(player1.terraformRating === 21, "the snapshot omitted the ocean TR");
+  check(
+    tileSnapshot.tiles.some(
+      (tile) => tile.row === 1 && tile.column === 2 && tile.kind === "ocean" && tile.owner === null,
+    ),
+    "the snapshot omitted the normalized ocean tile",
+  );
 
-  session.apply(JSON.stringify({ operation: "pass", player: 2 }));
+  const finalSnapshot = JSON.parse(
+    session.apply(JSON.stringify({ operation: "pass", player: 2 })),
+  ) as Snapshot;
   const passEvents = printNewEvents();
   check(passEvents.lines.some((line) => line.includes("+Pass<Player2>")), "pass not logged");
   check(
     passEvents.lines.some((line) => line.includes("NewTurn<Player1>")),
     "Player 2's pass did not rotate to Player 1",
   );
+  check(finalSnapshot.passedPlayers.join() === "2", "the snapshot omitted Player 2's pass");
 } finally {
   session.close();
 }
