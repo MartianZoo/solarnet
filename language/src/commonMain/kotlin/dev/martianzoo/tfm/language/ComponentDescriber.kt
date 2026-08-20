@@ -39,6 +39,7 @@ public data class ComponentDescriber(
     public val requirementKind: String? = null,
     public val distinctKinds: Noun.Counted? = null,
     public val countNoun: Noun.Counted? = null,
+    public val metricCount: MetricCount? = null,
 ) {
   public sealed interface Noun {
     public data object ClassName : Noun
@@ -77,6 +78,12 @@ public data class ComponentDescriber(
   )
 
   public data class PlacementBonus(public val noun: Noun.Counted)
+
+  public data class MetricCount(
+      public val noun: Noun.Counted,
+      public val unqualifiedSuffix: String? = null,
+      public val anyoneSuffix: String? = null,
+  )
 
   public data class SpatialRelation(
       public val phrase: String,

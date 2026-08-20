@@ -40,6 +40,9 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   renderZeroMaximumFilter(expression, prefix, count)?.let {
     return it
   }
+  renderComponentCount(expression, prefix, count)?.let {
+    return it
+  }
   renderTagMetric(expression, prefix, unit, this)?.let {
     return it
   }
@@ -64,6 +67,23 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   }
   val noun = cardResourceNoun(expression.className, count) ?: return null
   return "$prefix $noun on this card"
+}
+
+private fun Describers.renderComponentCount(
+    expression: Expression,
+    prefix: String,
+    count: Int,
+): String? {
+  if (expression.refinement != null || expression.complement) return null
+  val description = fact(expression.className, ComponentDescriber::metricCount) ?: return null
+  val suffix =
+      when (expression.arguments) {
+        emptyList<Expression>() -> description.unqualifiedSuffix
+        listOf(anyoneExpression) -> description.anyoneSuffix
+        else -> return null
+      } ?: return null
+  val noun = if (count == 1) description.noun.singular else description.noun.plural
+  return "$prefix $noun $suffix"
 }
 
 private fun Describers.renderZeroMaximumFilter(

@@ -244,6 +244,7 @@ Tag metrics may instead count tags among all players or only tags the player's o
 An instruction metric may count described distinct component kinds the player owns.
 It may also count a described component refined by a strict zero maximum of another described
 component.
+It may count a described component collection with an explicit ownership-sensitive suffix.
 An instruction metric may cap any otherwise supported count with a parenthetical maximum.
 One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
 component's Describer when its procedure is absent from the Pets change itself.

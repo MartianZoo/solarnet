@@ -35,6 +35,14 @@ internal object TerraformingMarsDescribers {
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
                 draw = true,
             ),
+        klass("PlayedEvent") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                        anyoneSuffix = "in all players' event piles",
+                    )
+            ),
         klass("GlobalParameter") to ComponentDescriber(requirementKind = "global parameter"),
         klass("CardResource") to
             ComponentDescriber(
