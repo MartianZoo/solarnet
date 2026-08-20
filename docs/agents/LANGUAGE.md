@@ -68,15 +68,22 @@ their minimum, maximum, and compound-owned wording rather than exposing a centra
 component-category value for `Describers` to switch over.
 
 Restricted placements follow the same rule. A placement-site fact marks an expression argument as
-the placed component's site and supplies its noun, while a spatial-relation fact supplies the
-relation phrase and its implicit target noun. The placement renderer interprets strict counting
-refinements on that site structurally; neither fact contains a card or a complete instruction.
+the placed component's site and supplies its noun and optional definite article, while a
+spatial-relation fact supplies the relation phrase and its implicit target noun. The placement
+renderer interprets strict counting refinements on that site structurally; neither fact contains a
+card or a complete instruction.
 
-Each current sparse fact is inherited independently: a declaration on a more
+Each nullable language fact is inherited independently: a declaration on a more
 specific Class overrides the same fact from its superclass, facts from incomparable branches
 compose, and differing values for the same fact from incomparable nearest providers are rejected.
 Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
 shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
+
+The `textNeutralSubclasses` capability is deliberately direct rather than inherited. It permits an
+extra component declaration only when its one exact superclass opts in and the subclass is concrete
+and declares no dependency, invariant, effect, default, property, refinement, or other supertype.
+This replaces category-name exemptions without allowing a behavior-bearing intermediate class to
+inherit permission accidentally.
 
 Instruction changes and requirements are retained as internal clauses, predicates, noun phrases,
 modifiers, and coordinations until their enclosing sentence or action has made its structural
@@ -171,10 +178,10 @@ Fleet; a mandatory gain of a generic or concrete card resource on the played car
 card, or a card narrowed to one concrete tag; a group of concrete
 mandatory standard-resource production gains or decreases; a mandatory one-for-one conversion of
 one or more steps of the player's production from one concrete standard resource to another; a
-city-tile, colony, or ocean-tile placement using the type's default arguments; one plain
-greenery-tile placement; one city or
-greenery placement on a described land site, optionally narrowed by a supported minimum or
-zero-maximum adjacency refinement; a concrete
+city-tile, colony, ocean-tile, or described special-tile placement using the type's default
+arguments; one plain greenery-tile placement; one city, greenery, or special-tile placement on a
+described land site, optionally narrowed by a supported minimum or zero-maximum adjacency
+refinement; one city placement on a definite described site outside Mars; a concrete
 mandatory removal of a concrete card resource; a mandatory exchange of a concrete number of card
 resources on this card to draw that number of a component declared as drawable; or a concrete
 mandatory temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production
@@ -208,8 +215,9 @@ semantically redundant `ANY`, `ANOTHER`, and bare-article variants. The generic 
 class renders as `resource`, while concrete card-resource subclasses retain their inherited noun
 policy. Every card-resource instruction that moves a resource names a card location: `This` becomes
 `this card`, a tag-narrowed holder becomes `a card with a <name> tag`, and an unqualified removal
-says `from any card`. Aggregate requirements and metrics omit the redundant card location. An
-unrestricted gain says `any card`.
+says `from any card`. Aggregate requirements and metrics omit the redundant card location while
+retaining ownership; an unqualified card-resource metric says that the player has those resources.
+An unrestricted gain says `any card`.
 
 Any-player city-tile requirements name the required tiles without `in play`; a compound owned
 city-and-colony requirement says that you have those components. Solarnet components outside the
@@ -220,12 +228,12 @@ ocean tile`. Counts above one remain numeric. Resource quantities and track or p
 remain numeric even when the count is one. Attach a step count to every production named; do not
 move a shared count after several productions with `each`.
 
-An unsupported requirement, unsupported End-triggered scoring effect, behavior-bearing extra component declaration, or
-unsupported immediate-instruction shape keeps the whole region data-backed. Component declarations can
-encode printed setup behavior that is absent from `immediate`, so deriving only that group could omit
-bottom text. A card's generated declaration of its ordinary card-resource type is not behavior-bearing
-and does not prevent derivation. Actions and non-End effects are top elements and do not prevent
-bottom derivation.
+An unsupported requirement, unsupported End-triggered scoring effect, behavior-bearing extra
+component declaration, or unsupported immediate-instruction shape keeps the whole region
+data-backed. Component declarations can encode printed setup behavior that is absent from
+`immediate`, so deriving only that group could omit bottom text. A strictly empty direct subclass of
+CardResource, SpecialTile, or RemoteArea is declared text-neutral and does not prevent derivation.
+Actions and non-End effects are top elements and do not prevent bottom derivation.
 
 ## Known layout boundaries
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -34,7 +35,26 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun hasBehaviorBearingExtraClass(card: CardDefinition): Boolean =
-      card.extraClasses.any { it.className != card.resourceType }
+      card.extraClasses.any { !isTextNeutralExtraClass(it) }
+
+  private fun isTextNeutralExtraClass(declaration: ClassDeclaration): Boolean {
+    val superclass = declaration.supertypes.singleOrNull() ?: return false
+    if (
+        declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||
+            declaration.custom ||
+            declaration.dependencies.isNotEmpty() ||
+            declaration.invariants.isNotEmpty() ||
+            declaration.effects.isNotEmpty() ||
+            declaration.defaultsDeclaration != ClassDeclaration.DefaultsDeclaration() ||
+            declaration.properties.isNotEmpty() ||
+            superclass.refinement != null ||
+            superclass.complement
+    ) {
+      return false
+    }
+    val superclassDescription = descriptions.getValue(classesByName.getValue(superclass.className))
+    return superclassDescription.textNeutralSubclasses
+  }
 
   internal fun componentNoun(className: ClassName, count: Int): String =
       describedNoun(className, fact(className, ComponentDescriber::noun), count)

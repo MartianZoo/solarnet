@@ -35,6 +35,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
                 cardResource = ComponentDescriber.CardResource.SUFFIXED,
+                textNeutralSubclasses = true,
             ),
         klass("CardFront") to
             ComponentDescriber(
@@ -49,6 +50,15 @@ internal object TerraformingMarsDescribers {
             ),
         klass("EventCard") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
         klass("MarsArea") to ComponentDescriber(metricLocation = "on Mars"),
+        klass("RemoteArea") to
+            ComponentDescriber(
+                placementSite =
+                    ComponentDescriber.PlacementSite(
+                        noun = ComponentDescriber.Noun.Fixed("reserved area outside Mars"),
+                        article = "the",
+                    ),
+                textNeutralSubclasses = true,
+            ),
         klass("LandArea") to
             ComponentDescriber(
                 placementSite = ComponentDescriber.PlacementSite(ComponentDescriber.Noun.ClassName)
@@ -60,6 +70,17 @@ internal object TerraformingMarsDescribers {
                         "adjacent to",
                         ComponentDescriber.Noun.Counted("other tile", "other tiles"),
                     )
+            ),
+        klass("SpecialTile") to
+            ComponentDescriber(
+                placement =
+                    ComponentDescriber.Placement(
+                        article = "this",
+                        singular = "tile",
+                        plural = "tiles",
+                        allowsMultiple = false,
+                    ),
+                textNeutralSubclasses = true,
             ),
         klass("Animal") to
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),

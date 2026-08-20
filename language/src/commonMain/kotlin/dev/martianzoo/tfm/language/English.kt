@@ -46,7 +46,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
 
   // Of the card's Effects, only endgame scoring is printed below the artwork.
   private fun hasTopTextElement(card: CardDefinition): Boolean =
-      card.actions.isNotEmpty() || card.effects.isNotEmpty()
+      card.actions.isNotEmpty() || card.effects.any { !isEndEffect(it, describers) }
 
   private fun hasBottomTextElement(card: CardDefinition): Boolean =
       card.requirement != null ||

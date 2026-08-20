@@ -34,7 +34,7 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
       return "$prefix $name ${if (unit == null) "tag" else "tags"} you have"
     }
     cardResourceNoun(expression.className, count)?.let { noun ->
-      return "$prefix $noun"
+      return "$prefix $noun you have"
     }
     placementCountPhrase(expression, count)?.let { phrase ->
       return "$prefix $phrase"

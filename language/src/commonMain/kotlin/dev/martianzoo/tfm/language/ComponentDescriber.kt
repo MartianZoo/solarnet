@@ -13,6 +13,8 @@ public data class ComponentDescriber(
     public val placement: Placement? = null,
     public val placementSite: PlacementSite? = null,
     public val spatialRelation: SpatialRelation? = null,
+    /** Whether a structurally empty direct subclass adds no English text of its own. */
+    public val textNeutralSubclasses: Boolean = false,
     public val production: Boolean? = null,
     public val requirement: Requirement? = null,
     public val directGain: DirectGain? = null,
@@ -58,7 +60,10 @@ public data class ComponentDescriber(
       public val anyoneMetricOwner: MetricOwner? = null,
   )
 
-  public data class PlacementSite(public val noun: Noun)
+  public data class PlacementSite(
+      public val noun: Noun,
+      public val article: String? = null,
+  )
 
   public data class SpatialRelation(
       public val phrase: String,

@@ -50,8 +50,8 @@ private fun renderPlacementSites(
   if (expression.arguments.isNotEmpty() || expression.complement) return null
 
   val siteNoun = describers.describedNoun(expression.className, site.noun, 1)
-  val modifiers =
-      mutableListOf(Modifier.Phrase("on ${describers.indefiniteArticle(siteNoun)} $siteNoun"))
+  val article = site.article ?: describers.indefiniteArticle(siteNoun)
+  val modifiers = mutableListOf(Modifier.Phrase("on $article $siteNoun"))
   expression.refinement?.let { refinement ->
     if (refinement.forgiving) return null
     modifiers +=
