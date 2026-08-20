@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.data.BundleMetadata
-import dev.martianzoo.data.BundleMetadata.ConfigurationImplication
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition.CardData
@@ -14,64 +12,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 public object JsonReader {
-
-  /**
-   * Reads configuration implications and bootstrap validation alternatives stored with one bundle.
-   */
-  public fun readBundleMetadata(json5: String): BundleMetadata =
-      fromJson5<BundleMetadataImport>(json5).complete()
-
-  @Serializable
-  private data class BundleMetadataImport(
-      val configurationImplications: List<ConfigurationImplicationImport> = emptyList(),
-      val moduleClassSelections: Map<String, List<ClassSelectionImport>> = emptyMap(),
-      val bootstrapValidations: List<List<String>> = emptyList(),
-  ) {
-    fun complete(): BundleMetadata =
-        BundleMetadata(
-            configurationImplications.mapTo(
-                linkedSetOf(),
-                ConfigurationImplicationImport::complete,
-            ),
-            moduleClassSelections
-                .map { (moduleName, selections) ->
-                  cn(moduleName) to selections.mapTo(linkedSetOf(), ClassSelectionImport::complete)
-                }
-                .toMap(),
-            bootstrapValidations.map { alternatives ->
-              require(alternatives.isNotEmpty())
-              alternatives.mapTo(linkedSetOf(), ::parse)
-            },
-        )
-  }
-
-  @Serializable
-  private data class ClassSelectionImport(
-      val className: String,
-      val included: Boolean = true,
-      val requirement: String? = null,
-  ) {
-    fun complete(): dev.martianzoo.data.ClassSelection =
-        dev.martianzoo.data.ClassSelection(
-            className = cn(className),
-            included = included,
-            requirement = requirement?.let(::parse),
-        )
-  }
-
-  @Serializable
-  private data class ConfigurationImplicationImport(
-      val present: Set<String>,
-      val absent: Set<String> = emptySet(),
-      val include: Set<String>,
-  ) {
-    fun complete(): ConfigurationImplication =
-        ConfigurationImplication(
-            present.mapTo(linkedSetOf(), ::cn),
-            absent.mapTo(linkedSetOf(), ::cn),
-            include.mapTo(linkedSetOf(), ::cn),
-        )
-  }
 
   /** Reads one bundle language file keyed by canonical class name. */
   public fun readDisplayNames(json5: String): Map<dev.martianzoo.pets.ast.ClassName, String> =

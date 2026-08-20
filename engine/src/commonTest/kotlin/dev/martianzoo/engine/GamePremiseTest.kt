@@ -30,7 +30,7 @@ internal class GamePremiseTest {
   }
 
   @Test
-  fun configCookingAppliesDefaultsAndImplications() {
+  fun configCookingAppliesPetsAuthoredModuleDefaults() {
     val premise = Canon.gamePremise(GameConfig("VenusNextExpansion", "Player1", "Player2"))
 
     premise.modules shouldContain cn("TerraformingMars")
@@ -87,6 +87,12 @@ internal class GamePremiseTest {
   fun invalidConfigurationFailsWhileBootstrappingAWorld() {
     shouldThrow<IllegalArgumentException> {
       Engine.newGame(Canon.gamePremise(GameConfig("WorldGovernmentOption", "Player1", "Player2")))
+    }
+    shouldThrow<IllegalArgumentException> {
+      Engine.newGame(Canon.gamePremise(GameConfig("ColoniesExpansion", "Player1", "Player2")))
+    }
+    shouldThrow<IllegalArgumentException> {
+      Engine.newGame(Canon.gamePremise(GameConfig("-TerraformingMars", "Player1", "Player2")))
     }
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("TypoOption, VenusNextExpansion", "Player1"))

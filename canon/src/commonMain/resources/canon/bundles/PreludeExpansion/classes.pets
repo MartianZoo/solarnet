@@ -1,10 +1,6 @@
 "Expansion giving each player two prelude cards to accelerate the opening game"
-CLASS PreludeExpansion : Module
-
-"Shortens a solo game when Prelude is selected"
-CLASS PreludeSoloGenerationAdjustment : System {
-  HAS =1 This
-  Generation IF =1 Generation: -2 SoloGenerationsLeft.
+CLASS PreludeExpansion : Module {
+  Generation IF =1 Generation, SoloMode: -2 SoloGenerationsLeft.
 }
 
 "Deals each player the two generic card backs consumed during PreludePhase"

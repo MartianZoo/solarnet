@@ -11,11 +11,14 @@ import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.ModuleProperties.DEFAULT_WHEN
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.tfm.api.BundleContentSelection.Kind
 import dev.martianzoo.tfm.data.AwardDefinition
@@ -44,7 +47,7 @@ public open class TfmAuthority : Authority {
 
   /**
    * Cooks user-facing Module and setup selections into an exact game premise by applying Authority
-   * defaults, implications, and selection policies.
+   * defaults and selection policies.
    *
    * Structured definitions may use unambiguous English Pets names. Naming any milestones or awards
    * selects the exact configured pool for that category. A playable Terraforming Mars Authority
@@ -67,14 +70,17 @@ public open class TfmAuthority : Authority {
     }
 
     val included = explicitlyIncluded.toMutableSet()
-    val implications = bundles.flatMap { it.metadata.configurationImplications }
     var changed: Boolean
     do {
       changed = false
-      implications
-          .filter { it.appliesTo(included) }
-          .forEach { implication ->
-            changed = included.addAll(implication.included - explicitlyExcluded) || changed
+      modules.keys
+          .filter { moduleName -> moduleName !in included && moduleName !in explicitlyExcluded }
+          .forEach { moduleName ->
+            val property = classTable.getClass(moduleName).properties[DEFAULT_WHEN]
+            val requirement = (property as? RequirementValue)?.value ?: return@forEach
+            if (requirement.isMetBy { metric -> countConfigured(metric, included) }) {
+              changed = included.add(moduleName) || changed
+            }
           }
     } while (changed)
 
@@ -113,6 +119,14 @@ public open class TfmAuthority : Authority {
                 DELAYED_COLONY_TILE.of(className.classExpression(), resourceType.classExpression())
               }
             }
+    val selectedByModules =
+        moduleNames
+            .flatMap { modules.getValue(it) }
+            .filter { it.included && it.appliesTo(included) }
+            .mapTo(hashSetOf(), ClassSelection::className)
+    require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
+      "initial ColonyTiles must be provided by a selected Module"
+    }
     return GamePremise(
         this,
         moduleNames,
@@ -120,6 +134,16 @@ public open class TfmAuthority : Authority {
         initialTypes,
         configuredPlayerNames,
     )
+  }
+
+  private fun countConfigured(metric: Metric, configuredClassNames: Set<ClassName>): Int {
+    require(metric is Count && metric.expression.simple) {
+      "Module defaults must count simple classes: $metric"
+    }
+    val countedClass = classTable.getClass(metric.expression.className)
+    return configuredClassNames.count { configuredName ->
+      classTable.getClass(configuredName).isSubtypeOf(countedClass)
+    }
   }
 
   private fun resolveConfigurationNames(names: Iterable<ClassName>): Set<ClassName> =
@@ -231,7 +255,6 @@ public open class TfmAuthority : Authority {
           }
           selectionsFrom(bundlesByName.getValue(content.bundleName), content.kinds)
         }
-    selections += owner.metadata.moduleClassSelections[moduleName].orEmpty()
     return selections
   }
 
@@ -437,10 +460,6 @@ public open class TfmAuthority : Authority {
     public val authorities: List<TfmAuthority> = authorities.toList()
 
     final override val bundles: List<Bundle> = authorities.flatMap(TfmAuthority::bundles)
-
-    override val bootstrapValidations: List<Set<Requirement>> by lazy {
-      authorities.flatMap(Authority::bootstrapValidations)
-    }
 
     override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
       val combined = mutableMapOf<String, MutableMap<ClassName, String>>()

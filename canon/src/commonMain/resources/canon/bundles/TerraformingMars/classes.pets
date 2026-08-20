@@ -1,6 +1,7 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
-  HAS =1 MarsMap
+  HAS =1 MarsMap, =1 Mode
+  defaultWhen = HAS MAX 0 TerraformingMars
 
   SetupPhase IF 2 Player:: BeginGame
 
@@ -412,15 +413,25 @@ CLASS StartToken : Owned<Player> {
 "An affirmative, immutable Module active in a playable game"
 ABSTRACT CLASS Module : System {
   HAS =1 This
+  defaultWhen = Requirement?
+  premiseRequirement = Requirement?
   -This:: Die!
+}
+
+"A mutually exclusive board selection Module"
+ABSTRACT CLASS MarsMapOption : Module {
+  premiseRequirement = HAS =1 TerraformingMars
 }
 
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS Mode : Module {
   HAS MAX 1 Mode
+  premiseRequirement = HAS =1 TerraformingMars
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
+    defaultWhen = HAS 2 Player
+
     GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
     EndPhase: End THEN FinalScore
     FinalScore: MultiplayerVictoryCheck
@@ -433,6 +444,9 @@ CLASS MultiplayerVictoryCheck : Custom
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
+  HAS =1 SoloVariant, =1 Class<SoloOpponent>, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>
+  defaultWhen = HAS =1 Player
+
   SetupPhase:: GenerationSetup THEN BeginGame
   GenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
@@ -447,6 +461,8 @@ ABSTRACT CLASS SoloVariant : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloVariant {
+    defaultWhen = HAS SoloMode, MAX 0 Tr63SoloVariant
+
     SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
   }
 

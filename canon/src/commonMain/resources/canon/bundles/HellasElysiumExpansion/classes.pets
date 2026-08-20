@@ -1,5 +1,5 @@
 "Uses the Hellas board and its map-specific rules and content"
-CLASS HellasMapOption : Module
+CLASS HellasMapOption : MarsMapOption
 
 "Uses the Elysium board and its map-specific rules and content"
-CLASS ElysiumMapOption : Module
+CLASS ElysiumMapOption : MarsMapOption

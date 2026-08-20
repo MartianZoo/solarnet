@@ -68,7 +68,7 @@
 - **Expression:** A Pets source or AST representation of a Type. Distinct Expressions may resolve to the same Type, and one Expression may resolve differently in different Contexts.
 - **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A Definition whose implementation specifically depends on that trust model has an identifier ending in `F`.
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
-- **Game Config:** An unresolved, signed expression of user intent from which defaults, implications, selection policies, and validation produce one exact Game Premise.
+- **Game Config:** An unresolved, signed expression of user intent from which defaults, selection policies, and validation produce one exact Game Premise.
 - **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Authority, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
 - **Game Reader:** The read-only interface for querying a Game World.
 - **Game World:** The complete live state of a game: its Component Graph, Task Queues, Event Log, Timeline, Class Table, Vocabulary, and Actor-scoped Gameplay, together with the Authority and immutable premise behind them.
