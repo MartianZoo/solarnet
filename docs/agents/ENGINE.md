@@ -24,7 +24,10 @@ exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 
 Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
 are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
-`Player1` through `PlayerN`; configured player names are Vocabulary aliases.
+`Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
+an explicit projection root. Trigger protocols with inhabited arguments currently remain activation
+edges because external workflow creates signals such as `NewTurn`, concrete `UseAction` Types, and
+`SoloVictoryCheck`; Module ownership should eventually replace that compatibility rule.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.

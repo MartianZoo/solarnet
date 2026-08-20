@@ -479,6 +479,85 @@ internal class ClassTest {
   }
 
   @Test
+  fun `reachable constructive instructions activate their destination`() {
+    val authority =
+        bundle(
+            "Bundle",
+            """
+            CLASS Active { This:: Constructed }
+            CLASS Constructed
+            """,
+        )
+
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Constructed")).phantom shouldBe false
+  }
+
+  @Test
+  fun `bare trigger activates its externally issued protocol`() {
+    val authority =
+        bundle(
+            "Bundle",
+            """
+            CLASS Active { Protocol: Constructed }
+            CLASS Protocol
+            CLASS Constructed
+            """,
+        )
+
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Protocol")).phantom shouldBe false
+    table.getClass(cn("Constructed")).phantom shouldBe false
+  }
+
+  @Test
+  fun `positive invariants activate their required inhabitants`() {
+    val authority = bundle("Bundle", "CLASS Active { HAS =1 Required }\nCLASS Required")
+
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Required")).phantom shouldBe false
+  }
+
+  @Test
+  fun `constructive instructions activate only when their trigger and gate can be reached`() {
+    val authority =
+        bundle(
+            "Bundle",
+            """
+            CLASS Active {
+              InactiveTrigger<InactiveTriggerArgument>: Triggered
+              This:: (Class<InactiveGate>: Gated)
+            }
+            CLASS InactiveTrigger<InactiveTriggerArgument>
+            CLASS InactiveTriggerArgument
+            CLASS Triggered
+            CLASS InactiveGate
+            CLASS Gated
+            """,
+        )
+
+    val dormant = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val reachable =
+        ClassLoader(authority)
+            .apply {
+              load(cn("Active"))
+              load(cn("InactiveTriggerArgument"))
+              load(cn("InactiveGate"))
+            }
+            .freeze()
+
+    dormant.getClass(cn("Triggered")).phantom shouldBe true
+    dormant.getClass(cn("Gated")).phantom shouldBe true
+    dormant.getClass(cn("InactiveTrigger")).phantom shouldBe true
+    reachable.getClass(cn("Triggered")).phantom shouldBe false
+    reachable.getClass(cn("Gated")).phantom shouldBe false
+    reachable.getClass(cn("InactiveTrigger")).phantom shouldBe false
+  }
+
+  @Test
   fun `structural supertypes become active`() {
     val activeBundle = bundle("ActiveBundle", "CLASS Active : Inactive")
     val inactiveBundle = bundle("InactiveBundle", "ABSTRACT CLASS Inactive")
