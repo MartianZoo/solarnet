@@ -84,6 +84,13 @@ current `waitingFor`, processes the selected input, drains synchronous deferred 
 the next `waitingFor`. `Game.serialize()` persists public game state but deliberately writes no
 deferred actions; `Game.deserialize()` reconstructs the next input from the phase and state.
 
+At the pinned app revision, the sole production HTTP call to that boundary is in
+`src/server/routes/PlayerInput.ts`: `processInput` parses and validates the response, handles undo
+separately, calls `player.process(entity)`, and immediately writes the player model. A route-local
+prototype must capture the old `waitingFor` before that call because successful processing replaces
+it, then invoke the shadow bridge only after the call returns. Rejected app inputs and undo must not
+reach Solarnet. Direct test callers of `Player.process` are intentionally outside this first hook.
+
 Solarnet exposes actor-scoped `Gameplay`, pending tasks, an event-backed `Timeline`, and
 `TfmWorkflow.Auto`. Commands are failure-atomic and automatic effects are drained before the outer
 command completes. The new JavaScript-only `parity` module exports the first deliberately narrow
@@ -233,6 +240,18 @@ replay avoids inventing Solarnet serialization before its state model calls for 
 
 Undo restores the transcript cursor associated with the app save point and rebuilds Solarnet. Game
 cloning creates a new parity session by replaying the cloned transcript.
+
+**Next implementation boundary (verified, not implemented):** keep a server-only registry keyed by
+app game ID, initially containing a Solarnet session and event cursor. Make the local prototype
+opt-in through an explicit path to Solarnet's standalone development package; absence of that path
+leaves the ordinary app unchanged. Initialize the cursor from `eventsSince(0)` after session
+creation so construction noise is not replayed. After each successfully translated app input,
+apply the corresponding Solarnet command, compare the available snapshot slice, call
+`eventsSince(cursor)`, advance the cursor, and print every line as
+`[solarnet <game-id>] <event>`. Never add these events to the HTTP model or browser because they may
+contain hidden information. A shadow rejection or mismatch occurs after the app has already
+accepted its input, so it needs its own diagnostic/freeze path and must not fall through the route's
+existing 400 response as though the app rejected the move.
 
 **Pass condition:** create, play, save, reload, undo, and continue one short game with parity checked
 after every accepted input.
