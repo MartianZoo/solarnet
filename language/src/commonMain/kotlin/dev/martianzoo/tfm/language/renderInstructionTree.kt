@@ -134,8 +134,8 @@ private fun renderPlacementSiteFallback(
   val preferredClause = renderChange(preferred, describers) as? Clause.Simple ?: return null
   if (renderChange(unrestricted, describers) !is Clause.Simple) return null
   return preferredClause
-      .withModifier(Modifier.Phrase("if one exists"))
-      .withModifier(Modifier.Supplement("otherwise place it without that restriction"))
+      .withModifier(Modifier.Phrase("if using a board that has one"))
+      .withModifier(Modifier.Supplement("otherwise place it normally"))
 }
 
 private fun coalesceAdjacentChanges(

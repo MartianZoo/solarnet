@@ -318,8 +318,9 @@ its relation target may be implicit or one described placed-component type expli
 ocean. The resulting placement is derived, but any printed waiver of normal placement restrictions
 is omitted because Pets does not represent that waiver. A two-branch alternative can prefer one
 described site and repeat the same consequence-free, one-component placement behind a `MAX 0` gate
-for that site; it renders as placing there if one exists and otherwise placing without that site
-restriction.
+for that site; it renders as placing there when using a board that has such a site and otherwise
+placing normally. This board-qualified wording does not imply that occupied sites permit the
+fallback.
 Experimental Forest remains data-backed
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
