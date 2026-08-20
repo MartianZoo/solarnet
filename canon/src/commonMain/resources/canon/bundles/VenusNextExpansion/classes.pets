@@ -1,10 +1,12 @@
 CLASS VenusNextExpansion : Module {
+  HAS =1 Class<AirScrappingSP>, =1 Class<VenusSolarPhase>
+
   SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
   SetupPhase IF SoloMode: SoloVictoryRequirement
   SoloVictoryCheck IF SoloMode, MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
 }
 
-CLASS AirScrappingSP : StandardProject, AutoLoad {
+CLASS AirScrappingSP : StandardProject {
   cost = 15
   1 / This.cost -> VenusStep
 }

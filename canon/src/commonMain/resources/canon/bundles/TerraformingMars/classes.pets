@@ -1,6 +1,8 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
   HAS =1 MarsMap, =1 Mode
+  HAS =1 Class<Production>, =1 Class<PowerPlantSP>, =1 Class<AsteroidSP>, =1 Class<AquiferSP>, =1 Class<GreenerySP>, =1 Class<CitySP>
+  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
   defaultWhen = HAS MAX 0 TerraformingMars
 
   SetupPhase IF 2 Player:: BeginGame
@@ -201,7 +203,7 @@ ABSTRACT CLASS Resource : Owned {
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
 // IMPL: This should narrow ownership to Owner, but bare production uses the same contextual
 // Owner binding as Resource and becomes incorrectly unbound when Owner is the declared bound.
-CLASS Production<Class<StandardResource>> : Owned, AutoLoad {
+CLASS Production<Class<StandardResource>> : Owned {
   ProductionPhase: StandardResource
 }
 
@@ -281,12 +283,12 @@ ABSTRACT CLASS StandardProject : HasActions {
   cost = Number
 }
 
-CLASS PowerPlantSP : StandardProject, AutoLoad {
+CLASS PowerPlantSP : StandardProject {
   cost = 11
   1 / This.cost -> PROD[Energy]
 }
 
-CLASS AsteroidSP : StandardProject, AutoLoad {
+CLASS AsteroidSP : StandardProject {
   cost = 14
   1 / This.cost -> TemperatureStep
 }
@@ -296,17 +298,17 @@ CLASS BufferGasSP : StandardProject {
   1 / This.cost -> TerraformRating
 }
 
-CLASS AquiferSP : StandardProject, AutoLoad {
+CLASS AquiferSP : StandardProject {
   cost = 18
   1 / This.cost -> OceanTile<>
 }
 
-CLASS GreenerySP : StandardProject, AutoLoad {
+CLASS GreenerySP : StandardProject {
   cost = 23
   1 / This.cost -> GreeneryTile<>
 }
 
-CLASS CitySP : StandardProject, AutoLoad {
+CLASS CitySP : StandardProject {
   cost = 25
   1 / This.cost -> PROD[1], CityTile<>
 }
@@ -353,7 +355,7 @@ ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
 // PHASES
 
 "The current game phase; exactly one exists from the start of SetupPhase onward"
-ABSTRACT CLASS Phase : AutoLoad, System {
+ABSTRACT CLASS Phase : System {
   HAS =1 Phase
 
   CLASS SetupPhase

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.api.SystemClasses.AUTO_LOAD
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.data.Authority
@@ -259,11 +258,6 @@ public open class TfmAuthority : Authority {
   }
 
   private fun selectionsFrom(bundle: Bundle, kinds: Set<Kind>): Set<ClassSelection> = buildSet {
-    if (Kind.AUTO_LOAD_CLASSES in kinds) {
-      bundle.explicitClassDeclarations
-          .filter { isSubtypeOf(it.className, AUTO_LOAD) }
-          .mapTo(this) { ClassSelection(it.className) }
-    }
     if (Kind.CARDS in kinds) {
       addDefinitions(bundle.cardDefinitions)
       addReplacementExclusions(

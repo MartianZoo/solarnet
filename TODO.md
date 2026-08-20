@@ -19,8 +19,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   extending `CardFront<Class<ProjectCard>>`, so the front-to-back relationship is represented in
   the type model and may subsume the separate deck check.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
-- Let Modules directly own the protocol Classes currently kept active by AutoLoad or compatibility
-  Trigger roots, then delete the AutoLoad marker and bundle selection kind.
+- Let Modules directly own the protocol Classes currently kept active by compatibility Trigger
+  roots, then delete that compatibility activation edge.
 - After the first projection-policy change in
   [`docs/agents/OPTIONS.md`](docs/agents/OPTIONS.md#settled-projection-policy-direction) is coherent,
   extend premise viability beyond exact uninhabited-domain facts; Law Suit in solo is the canonical
