@@ -1,7 +1,7 @@
 # Authorities, Modules, and game premises
 
-**Status: current model through "Invariants"; the final section records settled direction that is
-not yet implemented.**
+**Status: current model through "Invariants". Projection closure now implements the first slice of
+the settled direction below; class policies and premise viability remain future work.**
 
 ## Authority
 
@@ -92,8 +92,10 @@ no game semantics.
 
 ## Settled projection-policy direction
 
-**Status: settled target semantics, not current implementation.** Names used for the two policies
-below are descriptive and do not commit the public API.
+**Status: constructive roles and exact-uninhabited reachability are current. Trigger protocol roots
+remain compatibility activation edges until Modules own them directly. The two Class policies and
+premise-viability rules remain settled target semantics.** Names used for the two policies below
+are descriptive and do not commit the public API.
 
 ### Goals
 
@@ -169,8 +171,12 @@ For **projection closure**, classify references by what execution demands:
   of uninhabited Types is harmless; execution cannot reach it. A conservative analysis may treat
   anything it cannot prove unreachable as reachable.
 
-The resulting model replaces the loader's current special case for `Class<X>` Metrics with one
-systemic rule based on semantic role and reachability.
+The loader now applies this systemic role-and-reachability rule instead of treating every mention as
+an activation edge. It rechecks the closure as Classes activate, and currently proves false gates
+from exact zero counts over uninhabited Types. As a temporary exception, a Trigger whose arguments
+are inhabited activates its root protocol Class; this preserves externally issued workflow signals
+until Modules own them without bundle metadata. Activation requirements and viability diagnostics
+are not yet implemented.
 
 The important cases then fall out without card-specific rules:
 

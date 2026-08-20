@@ -19,10 +19,11 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CanonEffectsTest {
-  private fun classEffectsOf(name: ClassName): List<String> {
+  private fun classEffectsOf(name: ClassName, vararg supportingClasses: ClassName): List<String> {
     val loader = ClassLoader(Canon)
     loader.load(OK)
     loader.load(name)
+    supportingClasses.forEach(loader::load)
     return classEffectsOf(name, loader.freeze())
   }
 
@@ -113,7 +114,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun teractor() {
-    classEffectsOf(Teractor)
+    classEffectsOf(Teractor, cn("Owed"))
         .shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!",
             "This: 60 Megacredit<Owner>!",

@@ -2,6 +2,7 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.TypeInfo
+import dev.martianzoo.data.Actor
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
@@ -54,7 +55,7 @@ public abstract class ClassTable {
           premise.modules +
               ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
               initialClassNames +
-              premise.playerClassNames
+              premise.actors.map(Actor::className)
 
       val table = ClassLoader.projection(premise.authority).apply { roots.forEach(::load) }.freeze()
       val unexpectedModules =
