@@ -136,6 +136,14 @@ Whole-game tests are high-value integration evidence. When translating a supplie
 - Logs may not indicate how much steel/titanium/etc. was used toward a purchase. A reasonable
   default assumption to start with is that they probably spent as much of it as they could get full
   value for. Later events may reveal that your assumption needs to be revised.
+- Source-backed full-game fixtures enforce that assumption. A payment that leaves an accepted
+  non-money resource unused despite its still receiving full value fails unless the player calls
+  `intentionalUnderpay()` immediately before that payment. A payment that spends a non-money
+  resource beyond the remaining owed amount likewise requires `intentionalOverpay()`. Each call is
+  permission for one payment only; explain the sourced later payment or checkpoint that requires an
+  underpayment, and prefer correcting an unsupported allocation over declaring intent. For a
+  recorded physical game, first search the transcript and player-board logs for an explicit payment
+  composition; prefer that direct evidence to inference from a later balance.
 - The herokuapp and Solarnet map coordinates differ: herokuapp counts from the first tile whereas
   Solarnet uses slant-columns.
 - Prefer supplied logs, images, and local map data over investigating another application's

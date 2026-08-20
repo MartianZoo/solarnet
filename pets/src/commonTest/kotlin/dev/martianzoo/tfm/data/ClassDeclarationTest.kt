@@ -45,6 +45,7 @@ internal class ClassDeclarationTest {
           HAS =1 This
           DEFAULT +Foo<Abc>?
           DEFAULT Foo<Xyz>
+          DEFAULT Foo<Trigger>:
 
           This: DoStuff
           Steel -> 5
@@ -63,6 +64,7 @@ internal class ClassDeclarationTest {
     val act = actionToEffect(parse("Steel -> 5"), 1)
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
+    val trigger = cn("Trigger").expression
 
     decl.className shouldBe foo
     decl.abstract shouldBe true
@@ -72,11 +74,12 @@ internal class ClassDeclarationTest {
     decl.effects.shouldContainExactlyInAnyOrder(eff, act)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
+    decl.defaultsDeclaration.triggerOnly.specs.shouldContainExactlyInAnyOrder(trigger)
     decl.defaultsDeclaration.gainOnly.intensity shouldBe Intensity.OPTIONAL
     decl.extraNodes.shouldBeEmpty()
 
     decl.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("Baz"))
 
-    decl.allNodes.shouldContainExactlyInAnyOrder(foo, dep, sup, inv, eff, act, gain, univ)
+    decl.allNodes.shouldContainExactlyInAnyOrder(foo, dep, sup, inv, eff, act, gain, univ, trigger)
   }
 }

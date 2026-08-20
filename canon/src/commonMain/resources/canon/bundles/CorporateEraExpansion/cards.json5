@@ -7,7 +7,7 @@
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
       "immediate": "42, PROD[Titanium]",
-      "effects": [ "JovianTag<Anyone>: PROD[1]" ],
+      "effects": [ "JovianTag<Anyone, CardFront<Anyone>>: PROD[1]" ],
     },
 
     // Teractor
@@ -258,7 +258,7 @@
       "cost": 8,
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok",
+        "ScienceTag<>: (-ProjectCard THEN ProjectCard) OR Ok",
         "End: VictoryPoint"
       ],
     },
@@ -324,7 +324,7 @@
       "projectKind": "AUTOMATED",
       "cost": 9,
       "tags": [ "ScienceTag" ],
-      "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
+      "immediate": "CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>",
     },
 
     // Research
@@ -652,7 +652,7 @@
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "resourceType": "Science",
       "effects": [
-        "ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)",
+        "ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)",
         "End: VictoryPoint"
       ],
     },

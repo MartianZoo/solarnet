@@ -21,6 +21,8 @@ import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
@@ -259,7 +261,34 @@ public class Transformers(public val classTable: ClassTable) {
   internal fun insertDefaults() = insertDefaults(THIS.expression)
 
   internal fun insertDefaults(context: Expression) =
-      chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
+      chain(
+          insertTriggerDefaults(context),
+          insertGainRemoveDefaults(context),
+          insertExpressionDefaults(context),
+      )
+
+  private fun insertTriggerDefaults(context: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun transformNode(node: PetNode): PetNode =
+          when (node) {
+            is OnGainOf -> applyTriggerDefault(node, node.expression)
+            is OnRemoveOf -> applyTriggerDefault(node, node.expression)
+            else -> transformChildren(node)
+          }
+
+      private fun applyTriggerDefault(node: Effect.Trigger, original: Expression): Effect.Trigger {
+        val default = classTable.getClass(original.className).defaults.triggerOnly
+        requireExplicitDependencyDefaults(original, default, "trigger")
+        val fixed = insertDefaultsIntoExpr(original, default.dependencies, context, classTable)
+        val replacer =
+            object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (node === original) fixed else transformChildren(node)
+            }
+        return replacer.transformTrigger(node)
+      }
+    }
+  }
 
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
@@ -293,7 +322,7 @@ public class Transformers(public val classTable: ClassTable) {
           node // don't descend
         } else {
           val spec: DefaultSpec = extractor(classTable.getClass(original.className).defaults)
-          requireExplicitDependencyDefaults(original, spec, node is Gain)
+          requireExplicitDependencyDefaults(original, spec, if (node is Gain) "gain" else "removal")
           val fixed =
               insertDefaultsIntoExpr(
                   original,
@@ -329,26 +358,8 @@ public class Transformers(public val classTable: ClassTable) {
       ): DefaultSpec? {
         if (leaveItAlone(expression)) return null
         val default = extractor(classTable.getClass(expression.className).defaults)
-        requireExplicitDependencyDefaults(expression, default, gain)
+        requireExplicitDependencyDefaults(expression, default, if (gain) "gain" else "removal")
         return default
-      }
-
-      private fun requireExplicitDependencyDefaults(
-          expression: Expression,
-          default: DefaultSpec,
-          gain: Boolean,
-      ) {
-        if (
-            default.dependencies.keys.isNotEmpty() &&
-                expression.arguments.isEmpty() &&
-                !expression.argumentsSpecified
-        ) {
-          val kind = if (gain) "gain" else "removal"
-          throw PetSyntaxException(
-              "`${expression.className}` has $kind dependency defaults; write " +
-                  "`${expression.className}<>` to accept them or provide dependency arguments"
-          )
-        }
       }
 
       private fun applyDefault(
@@ -373,6 +384,23 @@ public class Transformers(public val classTable: ClassTable) {
                 removeIntensity == Instruction.Intensity.AMAP -> Instruction.Intensity.AMAP
             else -> Instruction.Intensity.OPTIONAL
           }
+    }
+  }
+
+  private fun requireExplicitDependencyDefaults(
+      expression: Expression,
+      default: DefaultSpec,
+      kind: String,
+  ) {
+    if (
+        default.dependencies.keys.isNotEmpty() &&
+            expression.arguments.isEmpty() &&
+            !expression.argumentsSpecified
+    ) {
+      throw PetSyntaxException(
+          "`${expression.className}` has $kind dependency defaults; write " +
+              "`${expression.className}<>` to accept them or provide dependency arguments"
+      )
     }
   }
 

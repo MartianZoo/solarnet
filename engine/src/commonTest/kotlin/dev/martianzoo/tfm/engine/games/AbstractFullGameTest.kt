@@ -28,9 +28,9 @@ abstract class AbstractFullGameTest : TfmTest() {
   open fun commonSetup() {
     game = Engine.newGame(Canon.gamePremise(config), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
     val players = game.actors.filterIsInstance<Player>()
-    p1 = game.tfm(players[0])
-    if (players.size > 1) p2 = game.tfm(players[1])
-    if (players.size > 2) p3 = game.tfm(players[2])
+    p1 = game.tfm(players[0]).requireExplicitPaymentChoices()
+    if (players.size > 1) p2 = game.tfm(players[1]).requireExplicitPaymentChoices()
+    if (players.size > 2) p3 = game.tfm(players[2]).requireExplicitPaymentChoices()
   }
 
   fun copyThis() {

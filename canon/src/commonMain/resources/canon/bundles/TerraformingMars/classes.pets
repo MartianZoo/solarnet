@@ -131,13 +131,16 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 
 // CARD STATES
 
+"Anything that can hold tags"
+ABSTRACT CLASS TagHolder : Owned<Player>
+
 // Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard
 ABSTRACT CLASS Card : Owned<Player> {
   // A generic card in your hand
   ABSTRACT CLASS CardBack { CLASS CorporationCard, ProjectCard }
 
   // A card in play: face-up on the table
-  ABSTRACT CLASS CardFront {
+  ABSTRACT CLASS CardFront : TagHolder {
     cost = Number
     requirement = Requirement?
 
@@ -168,8 +171,24 @@ ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
 "Indicates that an action card has already been used this generation"
 CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
 
-ABSTRACT CLASS Tag : Cardbound, Atomized {
+"A printed wild tag creates one temporary holder for each action slot"
+CLASS WildTag : Cardbound {
+  HAS MAX 1 This
+  // In the closed phase set, only Corporation and Final Greenery have non-wild NewTurns.
+  NewTurn<Owner> IF MAX 0 CorporationPhase, MAX 0 FinalGreeneryPhase:: WildTagUse<CardFront>
+  SecondAction<Owner>:: WildTagUse<CardFront>
+}
+
+"The action-scoped meaning chosen for one printed wild tag"
+CLASS WildTagUse<CardFront<Player>> : TagHolder<Player>, Temporary {
+  HAS MAX 1 This
+  HAS MAX 1 Tag<This>
+  This: Tag<This>?
+}
+
+ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
   HAS MAX 2 This
+  DEFAULT Tag<CardFront>:
 
   CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
   ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }

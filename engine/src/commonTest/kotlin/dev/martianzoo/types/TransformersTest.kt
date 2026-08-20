@@ -87,6 +87,17 @@ class TransformersTest {
     checkApplyDefaults("-OceanTile", "-OceanTile.")
   }
 
+  @Test
+  fun triggerDependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
+    applyEffectDefaults("ScienceTag<>: Heat") shouldBe
+        applyEffectDefaults("ScienceTag<CardFront>: Heat")
+    applyEffectDefaults("-ScienceTag<>: Heat") shouldBe
+        applyEffectDefaults("-ScienceTag<CardFront>: Heat")
+
+    shouldThrow<PetSyntaxException> { applyEffectDefaults("ScienceTag: Heat") }.message shouldBe
+        "`ScienceTag` has trigger dependency defaults; write `ScienceTag<>` to accept them or provide dependency arguments"
+  }
+
   private companion object {
     val transformers = Transformers(CanonClassesTest.table)
   }
@@ -103,6 +114,9 @@ class TransformersTest {
       original: String,
       context: Expression = THIS.expression,
   ): Instruction = transformers.insertDefaults(context).transformInstruction(parse(original))
+
+  private fun applyEffectDefaults(original: String): Effect =
+      transformers.insertDefaults().transformEffect(parse(original))
 
   @Test
   fun testDeprodify_noProd() {
