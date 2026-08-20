@@ -118,6 +118,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
+  suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
+  successful spec's console result and terminate the full run.
 - Present other pre-payment resource refunds, especially reduced trade costs, as player-facing
   discounts once their action effects become structurally derivable.
 - Revisit a Pets-element English fallback table only after making every host context that affects

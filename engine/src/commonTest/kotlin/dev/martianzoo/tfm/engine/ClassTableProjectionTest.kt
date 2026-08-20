@@ -119,8 +119,9 @@ internal class ClassTableProjectionTest {
       assertNotLoaded("GenerationSetup", baseMultiplayer)
 
   @Test
-  fun `solo classes stay unloaded in multiplayer`() =
-      matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
+  fun `solo classes stay unloaded in multiplayer`() {
+    matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
+  }
 
   @Test
   fun `abstract Award and its scoring machinery are incorrectly loaded in solo`() {
