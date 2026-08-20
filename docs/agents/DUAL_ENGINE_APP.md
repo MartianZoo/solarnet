@@ -241,7 +241,8 @@ replay avoids inventing Solarnet serialization before its state model calls for 
 Undo restores the transcript cursor associated with the app save point and rebuilds Solarnet. Game
 cloning creates a new parity session by replaying the cloned transcript.
 
-**Verified app-side prototype:** unpublished app commit `5c4c37392` keeps a server-only registry
+**Verified app-side prototype:** private repository `MartianZoo/terraforming-mars-solarnet`, branch
+`codex/solarnet-terminal-feed`, commit `5c4c37392` keeps a server-only registry
 containing one Solarnet session and event cursor per app game. `SOLARNET_PARITY_PATH` opts the server
 into loading the standalone development package; its absence leaves the ordinary app unchanged.
 The route captures the old `waitingFor`, calls `Player.process`, and observes only a successfully
