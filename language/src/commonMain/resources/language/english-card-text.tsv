@@ -452,7 +452,7 @@ CardX01	X01	Dusk Laser Mining	Requires 2 science tags. Decrease your energy prod
 CardX02	X02	Project Inspection	Use an action from a card that has already been used this generation.	
 CardX03	X03	Energy Market		Action: Spend 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
 CardX04F	X04	Hi-Tech Lab	1 VP.	Action: Spend one or more energy to reveal the same number of cards. Draw 1 of them and discard the rest.
-CardX05	X05	Interplanetary Trade	Increase your M€ production 1 step for each different tag you have in play. 1 VP.	
+CardX05	X05	Interplanetary Trade	Increase your M€ production 1 step for each different tag you have. 1 VP.	
 CardX06	X06	Law Suit	Steal 3 M€ from a player that removed your resources or decreased your production this generation. Place this card face down in that player's event pile. -1 VP.	
 CardX07	X07	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you spend is worth 1 M€ extra.
 CardX08	X08	Orbital Cleanup	Decrease your M€ production 2 steps. 2 VPs.	Action: Gain 1 M€ for each science tag you have.

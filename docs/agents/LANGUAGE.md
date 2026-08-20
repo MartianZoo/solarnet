@@ -215,7 +215,8 @@ concrete-tag requirements, same-category groups of one-count tags, minimum terra
 owned-greenery requirements, minimum owned or any-player city tiles, compound owned city-and-colony
 requirements, and a requirement that the player have a standard-resource production.
 It also derives minimum concrete card-resource requirements and minimum and maximum owned-colony
-requirements, plus a minimum counted spatial relationship between two described placed components.
+requirements, minimum counts of described distinct component kinds the player owns, plus a minimum
+counted spatial relationship between two described placed components.
 It derives bottom text when every immediate instruction is one of: a concrete
 mandatory gain or removal of a standard resource; an optional removal of up to a concrete number of
 standard resources or one concrete card resource from any player; an optional transfer of one
@@ -238,6 +239,7 @@ instruction may be scaled by the number of a concrete tag or card resource the p
 complete groups of that tag or resource. It may also be scaled by the player's colonies, by city
 tiles or colonies owned by any player, or specifically by any player's city tiles on Mars.
 Tag metrics may instead count tags among all players or only tags the player's opponents have.
+An instruction metric may count described distinct component kinds the player owns.
 An instruction metric may cap any otherwise supported count with a parenthetical maximum.
 One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
 component's Describer when its procedure is absent from the Pets change itself.

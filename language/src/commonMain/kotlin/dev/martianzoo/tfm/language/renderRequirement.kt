@@ -47,6 +47,16 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
   return renderProductionRequirement(requirement)
       ?: renderCardResourceRequirement(requirement)
       ?: renderTagRequirement(requirement)
+      ?: renderDistinctKindsRequirement(requirement)
+}
+
+private fun Describers.renderDistinctKindsRequirement(
+    requirement: Requirement.Min,
+): Clause? {
+  val metric = requirement.metric as? Metric.Count ?: return null
+  val noun = distinctOwnedKinds(metric.expression) ?: return null
+  val kinds = if (requirement.target == 1) noun.singular else noun.plural
+  return requirementClause("requires", "that you have ${requirement.target} $kinds")
 }
 
 private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {

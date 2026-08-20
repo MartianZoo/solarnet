@@ -37,6 +37,7 @@ public data class ComponentDescriber(
     public val paymentRole: PaymentRole? = null,
     public val requirementShortfall: Boolean? = null,
     public val requirementKind: String? = null,
+    public val distinctKinds: Noun.Counted? = null,
 ) {
   public sealed interface Noun {
     public data object ClassName : Noun

@@ -234,6 +234,28 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return represented.copy(refinement = represented.refinement ?: classExpression.refinement)
   }
 
+  internal fun distinctOwnedKinds(expression: Expression): ComponentDescriber.Noun.Counted? {
+    if (expression.className != CLASS || expression.arguments.size != 1 || expression.complement) {
+      return null
+    }
+    val kind = expression.arguments.single()
+    if (!kind.simple) return null
+    val refinement = expression.refinement ?: return null
+    if (refinement.forgiving) return null
+    val minimum = refinement.requirement as? Requirement.Min ?: return null
+    if (minimum.target != 1) return null
+    val member = (minimum.metric as? Metric.Count)?.expression ?: return null
+    if (
+        member.className != kind.className ||
+            member.arguments != listOf(ownerExpression) ||
+            member.refinement != null ||
+            member.complement
+    ) {
+      return null
+    }
+    return fact(kind.className, ComponentDescriber::distinctKinds)
+  }
+
   internal fun concrete(className: ClassName): Boolean {
     val componentClass = classesByName[className] ?: return false
     return !componentClass.abstract

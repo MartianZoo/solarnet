@@ -33,6 +33,9 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   renderCountedRelation(expression, this)?.let { relation ->
     return "$prefix ${relation.countedObject(count)}"
   }
+  distinctOwnedKinds(expression)?.let { noun ->
+    return "$prefix ${if (count == 1) noun.singular else noun.plural} you have"
+  }
   renderTagMetric(expression, prefix, unit, this)?.let {
     return it
   }
