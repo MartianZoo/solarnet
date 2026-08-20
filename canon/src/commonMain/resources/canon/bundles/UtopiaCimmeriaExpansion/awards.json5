@@ -21,7 +21,7 @@
         // Electrician
         { "id": "UA5", "metric": "PowerTag" },
         // Founder
-        { "id": "UA6", "metric": "OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>" },
+        { "id": "UA6", "metric": "OwnedTile<MarsArea(HAS Neighbor<SpecialTile<Anyone>>)>" },
         // Mogul
         { "id": "UA7", "metric": "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" },
         // Zoologist

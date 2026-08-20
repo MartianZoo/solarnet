@@ -172,6 +172,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
       // me played Solar Reflectors
       // me's heat production increased by 5
+      intentionalOverpay()
       playProject(SolarReflectors, titanium = 6) // "overpay" 1
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
@@ -307,7 +308,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me played Interplanetary Colony Ship
       // me built a colony on Luna
       // me's megacredits production increased by 2
-      playProject(InterplanetaryColonyShip, 5, titanium = 1) { doTask("Colony<Luna>") }
+      playProject(InterplanetaryColonyShip, 1, titanium = 2) { doTask("Colony<Luna>") }
           .expect("PROD[2]")
       // me used Convert Heat standard action
       stdAction("ConvertHeatSA")
@@ -326,7 +327,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       // me's megacredits production increased by 2
       playProject(LunaGovernor, 0)
       // me played Giant Solar Shade
-      playProject(GiantSolarShade, 3, titanium = 6)
+      playProject(GiantSolarShade, 7, titanium = 5)
 
       // me passed
       // me acted as World Government and increased oxygen level
@@ -540,6 +541,7 @@ class SoloGame0721Test : AbstractSoloTest() {
       cardAction1(ExtractorBalloons)
       // me played Solar Power
       // me's energy production increased by 1
+      intentionalOverpay()
       playProject(SolarPower, 0, steel = 6) // "overpay" 1
       // me used Greenery standard project
       stdProject("GreenerySP") {

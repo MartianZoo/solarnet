@@ -166,6 +166,15 @@
       "immediate": "3, PROD[Plant, Steel]",
     },
 
+    // NOTE: Fake Established Methods
+    // NOTE: Omits the card's fallback note for players unable to afford two standard projects.
+    {
+      "id": "X54F",
+      "setupRequirement": "PreludeExpansion",
+      "deck": "PRELUDE",
+      "immediate": "30, UseAction<StandardAction>!, UseAction<StandardAction>!",
+    },
+
     // Giant Solar Collector
     {
       "id": "X55",
@@ -993,10 +1002,10 @@
     {
       "id": "X77F",
       "deck": "PROJECT",
-      // The player chooses how many cards to reveal and gains that much, up to seven.
+      // NOTE: The player chooses how many cards to reveal and gains that much.
       "projectKind": "EVENT",
       "cost": 7,
-      "immediate": "7?",
+      "immediate": "1? / ProjectCard",
       "effects": [ "End: VictoryPoint" ],
     },
 

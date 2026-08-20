@@ -1077,6 +1077,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Aquifer Pumping action
     p2.turn {
       cardAction1(AquiferPumping) {
+        p2.intentionalOverpay()
         p2.pay(steel = 3)
         // Player2 placed ocean tile on row 5 position 6
         // Player2's plants amount increased by 2
@@ -1092,6 +1093,8 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 played Rego Plastics
     p1.turn {
+      // Reason 3: Rego Plastics makes the retained steel worth more for SF Memorial below.
+      intentionalUnderpay()
       playProject(RegoPlastics, 10)
       // Player1 played SF Memorial
       // Player1 drew 1 card(s)
@@ -1441,10 +1444,12 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2's megacredits production decreased by 2
     // Player2's energy production increased by 3
     p2.turn {
+      intentionalOverpay()
       playProject(NuclearPower, steel = 3)
       // Player2 played Biomass Combustors
       // Player2's energy production increased by 2
       // Player1's plants production decreased by 1 by Player2
+      intentionalOverpay()
       playProject(BiomassCombustors, steel = 1) { doTask("PROD[-Plant<Player1>]") }
     }
     // Player1 passed
@@ -1470,7 +1475,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 added 3 microbe(s) to Venusian Insects
     // Player1 added 2 animal(s) to Stratospheric Birds
     p1.turn {
-      playProject(ImportedNitrogen, 18) {
+      playProject(ImportedNitrogen, 15, titanium = 1) {
         doTask("3 Microbe<$VenusianInsects>")
         doTask("2 Animal<$StratosphericBirds>")
       }
@@ -1584,7 +1589,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2's plants production increased by 2
     // Player2's energy production decreased by 4
     p2.turn {
-      playProject(MagneticFieldGenerators, 5, steel = 5) {
+      playProject(MagneticFieldGenerators, 2, steel = 6) {
             // Player2 placed Magnetic Field Generators tile on row 6 position 5
             doTask("CardX33_SpecialTile<Tharsis_6_6>")
             // Player2's plants amount increased by 1
@@ -1634,7 +1639,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     // Player1 added 4 animal(s) to Stratospheric Birds
     p1.turn {
-      playProject(LargeConvoy, 28, titanium = 1) {
+      playProject(LargeConvoy, 31) {
             doTask("4 Animal<$StratosphericBirds>")
           }
           .expect("ProjectCard, 3 Heat, 4 Animal")
@@ -1668,7 +1673,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2's plants amount increased by 6
     // Player2 added 1 animal(s) to Ecological Zone
     p2.turn {
-      playProject(Greenhouses, 1, steel = 1).expect("6 Plant, Animal")
+      playProject(Greenhouses, 4).expect("6 Plant, Animal")
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 9 position 4
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<Tharsis_9_8>") }

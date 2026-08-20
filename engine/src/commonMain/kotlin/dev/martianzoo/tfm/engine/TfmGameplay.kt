@@ -31,7 +31,14 @@ public class TfmGameplay(
 ) : TurnLayer by gameplay {
   public val reader: GameReader by game::reader
 
-  internal fun asActor(actor: Actor) = TfmGameplay(game, actor)
+  private var explicitPaymentChoicesRequired = false
+  private var allowUnderpayment = false
+  private var allowOverpayment = false
+
+  internal fun asActor(actor: Actor) =
+      TfmGameplay(game, actor).also {
+        if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
+      }
 
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
@@ -170,29 +177,88 @@ public class TfmGameplay(
       steel: Int = 0,
       titanium: Int = 0,
   ): TaskResult {
+    val underpaymentAllowed = allowUnderpayment
+    val overpaymentAllowed = allowOverpayment
+    allowUnderpayment = false
+    allowOverpayment = false
+
     return godMode().continueManual {
-      fun pay(cost: Int, currency: String) {
+      fun payNonMoneyResource(cost: Int, currency: String) {
+        val accepted =
+            tasks
+                .extract { it }
+                .any {
+                  val context = it.cause?.context
+                  context?.className == cn("Accept") && "Class<$currency>" in context.toString()
+                }
+        if (!accepted) {
+          if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
+          return@payNonMoneyResource
+        }
+
+        val value = paymentValue(currency)
+        val owed = count("Owed")
+        val available = count(currency)
+        val maximumFullValuePayment = minOf(available, owed / value)
+        if (
+            explicitPaymentChoicesRequired && cost < maximumFullValuePayment && !underpaymentAllowed
+        ) {
+          throw IllegalArgumentException(
+              "$actor paid $cost $currency but could pay $maximumFullValuePayment at full value; " +
+                  "call intentionalUnderpay() immediately before paying if this is sourced"
+          )
+        }
+        if (explicitPaymentChoicesRequired && cost * value > owed && !overpaymentAllowed) {
+          throw IllegalArgumentException(
+              "$actor paid $cost $currency worth ${cost * value} against $owed owed; " +
+                  "call intentionalOverpay() immediately before paying if this is sourced"
+          )
+        }
         if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
       }
 
-      // Should prevent overpayment in actual game rules somehow (#19)
-      pay(titanium, "Titanium")
-      pay(steel, "Steel")
+      payNonMoneyResource(titanium, "Titanium")
+      payNonMoneyResource(steel, "Steel")
 
       val owed = count("Owed")
-
-      // MC really should be equal to owed, but if it's less we might be legitimately testing how
-      // the engine responds. We know it doesn't respond usefully to an overage so we check that.
       if (megacredits > owed) {
         throw LimitsException("Overpaying $megacredits MC when only $owed is owed")
       }
-      pay(megacredits, "Megacredit")
+      if (megacredits > 0) {
+        doTask("$megacredits Pay<Class<Megacredit>> FROM Megacredit")
+      }
 
       // Take care of other Accepts we didn't need
       tasks
           .matching { it.cause?.context?.className == cn("Accept") }
           .forEach { reviseTask(it, "Ok") } // "executes" automatically
       autoExecNow()
+    }
+  }
+
+  /** Allows the next [pay] call to leave usable accepted non-money resources unspent. */
+  public fun intentionalUnderpay() {
+    allowUnderpayment = true
+  }
+
+  /** Allows the next [pay] call to spend a non-money resource for less than its full value. */
+  public fun intentionalOverpay() {
+    allowOverpayment = true
+  }
+
+  internal fun requireExplicitPaymentChoices(): TfmGameplay = apply {
+    explicitPaymentChoicesRequired = true
+  }
+
+  private fun paymentValue(currency: String): Int {
+    val checkpoint = game.timeline.checkpoint()
+    return try {
+      godMode().sneak("100 Owed<Class<Megacredit>>, $currency")
+      val owed = count("Owed")
+      doTask("Pay<Class<$currency>> FROM $currency")
+      owed - count("Owed")
+    } finally {
+      game.timeline.rollBack(checkpoint)
     }
   }
 

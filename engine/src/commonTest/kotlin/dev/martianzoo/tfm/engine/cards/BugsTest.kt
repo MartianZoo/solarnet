@@ -7,10 +7,32 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 class BugsTest : CardTest() {
+  // NOTE: Established Methods says that an unaffordable second standard project is replaced by
+  // NOTE: losing 10 M€ (or as much as possible). Fake Established Methods intentionally omits
+  // NOTE: that fallback.
+  @Test
+  fun `Established Methods without its note dead-ends when no second project is affordable`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    p1.phase("Prelude")
+    p1.manual("PreludeCard")
+
+    val deadEnd =
+        shouldThrow<AbstractException> {
+          p1.playPrelude(FakeEstablishedMethods) {
+            p1.manual("-20")
+            doTask("UseAction1<UseStandardProjectSA>")
+            doTask("UseAction1<GreenerySP>")
+            p1.autoExecNow()
+          }
+        }
+    deadEnd.message shouldContain "CardX54F"
+  }
+
   // FAQ: "Those actions are considered distinct actions, but within the action of playing Head
   // Start."
   @Test

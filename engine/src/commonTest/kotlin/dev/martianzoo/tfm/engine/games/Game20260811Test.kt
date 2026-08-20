@@ -144,7 +144,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         }
         .expect("PROD[2 P, -2 E]")
 
-    ellie.playProject(SolarWindPower, 9).expect("PROD[E], 2 T")
+    ellie.playProject(SolarWindPower, 6, titanium = 1).expect("PROD[E], T")
     ellie
         .playProject(HiredRaiders, 0) {
           doTask("3 M<Player2> FROM M<Player3>")
@@ -155,7 +155,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.declineSecondAction()
     mom.pass()
 
-    ellie.playProject(LagrangeObservatory, 7) { ellie.draw(CloudSeeding) }
+    ellie.playProject(LagrangeObservatory, 1, titanium = 2) { ellie.draw(CloudSeeding) }
     ellie.cardAction1(RobinsonIndustries) { doTask("PROD[T]") }
     // (Dad already passed early)
     dad.pass()
@@ -164,9 +164,9 @@ class Game20260811Test : CardTrackingFullGameTest() {
           doTask("Card067_SpecialTile<Hellas_8_8>")
         }
         .expect("PROD[T], T")
-    ellie.playProject(DirectedImpactors, titanium = 2)
+    ellie.playProject(DirectedImpactors, 3, titanium = 1)
     ellie.cardAction1(DirectedImpactors) {
-      ellie.pay(titanium = 2)
+      ellie.pay(6)
       doTask("Asteroid<$DirectedImpactors>")
     }
     ellie.doTask("Pass")
@@ -281,6 +281,9 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.playProject(Soletta, 21, titanium = 4).expect("PROD[7 H]")
 
     dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
+    // Reason 3: Mercurian Alloys makes Dad's retained titanium worth more after this payment; the
+    // next authoritative dashboard confirms that he retained all four.
+    dad.intentionalUnderpay()
     dad.playProject(MercurianAlloys, 3)
 
     mom.cardAction1(Hospitals).expect("-Disease, 1")
@@ -456,7 +459,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("2 TR")
 
     ellie.cardAction1(RobinsonIndustries).expect("PROD[E]")
-    ellie.playProject(DuskLaserMining, 6).expect("PROD[T, -E], 4 T")
+    ellie.playProject(DuskLaserMining, titanium = 2).expect("PROD[T, -E], 2 T")
 
     dad.cardAction1(Ants) {
           doTask("-Microbe<Player1, $Recyclon<Player1>>")
@@ -465,15 +468,15 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.cardAction2(AsteroidRights) { doTask("2 T") }.expect("-Asteroid")
 
     mom.cardAction1(Psychrophiles).expect("Microbe")
-    mom.playProject(BioPrintingFacility, 3, steel = 2).expect("Microbe")
+    mom.playProject(BioPrintingFacility, 1, steel = 3).expect("Microbe")
 
     ellie.stdAction("FundAwardSA") { doTask("SpaceBaron") }
     ellie
-        .playProject(AsteroidCard, 6, titanium = 2) {
+        .playProject(AsteroidCard, titanium = 4) {
           dad.draw(SterlingVents)
           doTask("-3 P<Player3>")
         }
-        .expect("0 T, -3")
+        .expect("-2 T, -3 P<Player3>")
     dad.stdProject("AsteroidSP").expect("TR")
     dad.stdAction("ConvertHeatSA") {
           doTask("OceanTile<Hellas_3_1>")
@@ -492,15 +495,15 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.playProject(SterlingVents, 1, steel = 2).expect("PROD[2 E, -2 H]")
     dad.playProject(Algae, 10).expect("PROD[2 P], 2 P")
 
-    mom.playProject(Supercapacitors, 2, steel = 1) {
+    mom.playProject(Supercapacitors, 4) {
           doTask("-2 Microbe<$Recyclon>")
         }
         .expect("PROD[M, P]")
     mom.cardAction1(Hospitals).expect("-Disease, 3")
 
-    ellie.playProject(IoMiningIndustries, 6, titanium = 11).expect("PROD[2 M, 2 T]")
+    ellie.playProject(IoMiningIndustries, 12, titanium = 9).expect("PROD[2 M, 2 T]")
     ellie.cardAction1(DirectedImpactors) {
-      ellie.pay(titanium = 2)
+      ellie.pay(6)
       doTask("Asteroid<$DirectedImpactors>")
     }
 
@@ -574,13 +577,13 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("PROD[2 M, E, P], 3 P, Disease")
 
     ellie
-        .playProject(ConvoyFromEuropa, 7, titanium = 2) {
+        .playProject(ConvoyFromEuropa, 1, titanium = 4) {
           ellie.draw(MagneticFieldGenerators)
           dad.draw(LocalHeatTrapping)
           doTask("OceanTile<Hellas_5_8>")
         }
-        .expect("TR, 0 M")
-    ellie.playProject(VestaShipyard, 1, titanium = 4).expect("PROD[T]")
+        .expect("TR, 6 M")
+    ellie.playProject(VestaShipyard, 7, titanium = 2).expect("PROD[T]")
 
     dad.cardAction2(WeatherBalloons).expect("-Floater, 4")
     // Fixture inference: the log gives only the count; Medical Lab is never played later.

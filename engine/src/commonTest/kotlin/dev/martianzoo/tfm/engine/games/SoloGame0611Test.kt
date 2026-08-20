@@ -209,8 +209,8 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject(QuantumExtractor, 10)
 
       cardAction1(EquatorialMagnetizer)
-      playProject(ImportedGhg, 4)
-      playProject(NitrogenRichAsteroid, 7, titanium = 7)
+      playProject(ImportedGhg, 1, titanium = 1)
+      playProject(NitrogenRichAsteroid, 10, titanium = 6)
       stdProject("GreenerySP") { doTask("GreeneryTile<Hellas_7_7>") }
       cardAction1(RegolithEaters)
 
