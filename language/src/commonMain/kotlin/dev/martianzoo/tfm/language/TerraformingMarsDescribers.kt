@@ -50,6 +50,7 @@ internal object TerraformingMarsDescribers {
         klass("CardFront") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Fixed("card"),
+                countNoun = ComponentDescriber.Noun.Counted("card", "cards"),
                 cardResourceHolder = ComponentDescriber.Noun.Counted("card", "cards"),
                 playedCard =
                     ComponentDescriber.PlayedCard(
@@ -170,6 +171,7 @@ internal object TerraformingMarsDescribers {
         klass("Tag") to
             ComponentDescriber(
                 tag = ComponentDescriber.Tag.ORDINARY,
+                countNoun = ComponentDescriber.Noun.Counted("tag", "tags"),
                 distinctKinds = ComponentDescriber.Noun.Counted("different tag", "different tags"),
             ),
         klass("Resource") to

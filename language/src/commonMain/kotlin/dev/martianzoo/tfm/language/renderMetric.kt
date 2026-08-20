@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.language
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
+import dev.martianzoo.pets.ast.Requirement
 
 internal fun renderMetricPhrase(metric: Metric, describers: Describers): String? {
   return when (metric) {
@@ -36,6 +37,9 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   distinctOwnedKinds(expression)?.let { noun ->
     return "$prefix ${if (count == 1) noun.singular else noun.plural} you have"
   }
+  renderZeroMaximumFilter(expression, prefix, count)?.let {
+    return it
+  }
   renderTagMetric(expression, prefix, unit, this)?.let {
     return it
   }
@@ -60,6 +64,24 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   }
   val noun = cardResourceNoun(expression.className, count) ?: return null
   return "$prefix $noun on this card"
+}
+
+private fun Describers.renderZeroMaximumFilter(
+    expression: Expression,
+    prefix: String,
+    count: Int,
+): String? {
+  if (expression.arguments.isNotEmpty() || expression.complement) return null
+  val outer = fact(expression.className, ComponentDescriber::countNoun) ?: return null
+  val refinement = expression.refinement ?: return null
+  if (refinement.forgiving) return null
+  val maximum = refinement.requirement as? Requirement.Max ?: return null
+  if (maximum.target != 0) return null
+  val excluded = (maximum.metric as? Metric.Count)?.expression ?: return null
+  if (!excluded.simple) return null
+  val inner = fact(excluded.className, ComponentDescriber::countNoun) ?: return null
+  val outerNoun = if (count == 1) outer.singular else outer.plural
+  return "$prefix $outerNoun with no ${inner.plural}"
 }
 
 private fun renderTagMetric(
