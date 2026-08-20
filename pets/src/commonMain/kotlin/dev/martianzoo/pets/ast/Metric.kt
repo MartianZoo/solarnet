@@ -27,6 +27,9 @@ public sealed class Metric : PetElement() {
 
     internal fun parser(): Parser<Metric> = Parsers.parser()
 
+    /** Parses Metric subtraction but leaves a top-level `OR` to the enclosing Pets kind. */
+    internal fun subtractionParser(): Parser<Metric> = Parsers.subtractionParser()
+
     internal fun atomParser(): Parser<Metric> = Parsers.atomParser()
   }
 
@@ -46,9 +49,16 @@ public sealed class Metric : PetElement() {
   ): Int =
       when (this) {
         is Count -> count(this)
+        is Constant -> value
         is Property -> readProperty(this)
         is Scaled -> inner.evaluate(count, readProperty, countUnion) / unit
         is Max -> min(inner.evaluate(count, readProperty, countUnion), maximum)
+        is Subtract ->
+            maxOf(
+                minuend.evaluate(count, readProperty, countUnion) -
+                    subtrahend.evaluate(count, readProperty, countUnion),
+                0,
+            )
         is Or -> countUnion(this)
         is Eval -> error("metric property evaluation was not expanded: $this")
         is Transform -> throw ExpressionException("unhandled metric transform: $this")
@@ -71,6 +81,20 @@ public sealed class Metric : PetElement() {
     override fun precedence(): Int = 12
   }
 
+  /** A fixed positive subtrahend. */
+  @ConsistentCopyVisibility
+  public data class Constant internal constructor(val value: Int) : Metric() {
+    init {
+      if (value < 1) throw PetSyntaxException("metric constant can't be zero")
+    }
+
+    override fun visitChildren(visitor: Visitor): Unit = Unit
+
+    override fun toString(): String = "$value"
+
+    override fun precedence(): Int = 12
+  }
+
   /** Counts one unit for each complete group of [unit] counted by [inner]. */
   @ConsistentCopyVisibility
   public data class Scaled internal constructor(val inner: Metric, val unit: Int) : Metric() {
@@ -87,6 +111,7 @@ public sealed class Metric : PetElement() {
 
   public data class Max(val inner: Metric, val maximum: Int) : Metric() {
     init {
+      require(maximum >= 0)
       if (inner is Max) throw PetSyntaxException("what are you even doing")
     }
 
@@ -97,29 +122,52 @@ public sealed class Metric : PetElement() {
     override fun precedence(): Int = 10
   }
 
-  @ConsistentCopyVisibility
-  public data class Or internal constructor(val metrics: List<Metric>) : Metric() {
+  /** Subtracts two Metric values, saturating at zero so Metrics remain non-negative. */
+  public data class Subtract(val minuend: Metric, val subtrahend: Metric) : Metric() {
     init {
-      if (metrics.any { it is Or }) {
-        throw PetSyntaxException("Nested metric OR must be flattened")
-      }
+      if (minuend is Constant) throw PetSyntaxException("metric constant can only be subtracted")
+    }
+
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(minuend, subtrahend)
+
+    override fun toString(): String {
+      val left =
+          when (minuend) {
+            is Subtract -> "$minuend"
+            else -> groupPartIfNeeded(minuend)
+          }
+      return "$left - ${groupPartIfNeeded(subtrahend)}"
+    }
+
+    override fun precedence(): Int = 9
+  }
+
+  @ConsistentCopyVisibility
+  public data class Or internal constructor(val metrics: List<Count>) : Metric() {
+    init {
+      require(metrics.size > 1)
+      require(metrics.distinct().size == metrics.size)
     }
 
     public companion object {
-      public fun create(metrics: List<Metric>): Metric? {
-        return when (metrics.size) {
+      public fun create(metrics: Iterable<Metric>): Metric? {
+        val flattened = metrics.flatMap { if (it is Or) it.metrics else listOf(it) }
+        val counted = flattened.map {
+          it as? Count
+              ?: throw PetSyntaxException(
+                  "OR metric alternatives must identify components, but found: $it"
+              )
+        }
+        val distinct = counted.distinct()
+        return when (distinct.size) {
           0 -> null
-          1 -> metrics.single()
-          else -> Or(metrics.flatMap { if (it is Or) it.metrics else listOf(it) }.toList())
+          1 -> distinct.single()
+          else -> Or(distinct)
         }
       }
 
       internal fun create(first: Metric, vararg rest: Metric) =
           if (rest.none()) first else create(listOf(first) + rest)
-    }
-
-    init {
-      require(metrics.size > 1)
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(metrics)
@@ -141,16 +189,32 @@ public sealed class Metric : PetElement() {
   private object Parsers : PetTokenizer() {
     fun parser(): Parser<Metric> {
       return parser {
-        val atom = atomParser()
-        atom and
-            zeroOrMore(skip(_or) and atom) map
+        val subtraction = subtractionParser()
+        subtraction and
+            zeroOrMore(skip(_or) and subtraction) map
             { (met, addon) ->
-              if (addon.any()) Or.create(listOf(met) + addon)!! else met
+              val authored = listOf(met) + addon
+              val flattened = authored.flatMap { if (it is Or) it.metrics else listOf(it) }
+              if (flattened.distinct().size != flattened.size) {
+                throw PetSyntaxException("duplicate metric OR alternative: $flattened")
+              }
+              if (addon.any()) Or.create(authored)!! else met
             }
       }
     }
 
-    /** A metric suitable for being nested directly after `/` in an instruction or cost. */
+    fun subtractionParser(): Parser<Metric> {
+      return parser {
+        val subtrahend = atomParser() or (rawScalar map ::Constant)
+        atomParser() and
+            zeroOrMore(skipChar('-') and subtrahend) map
+            { (first, rest) ->
+              rest.fold(first, ::Subtract)
+            }
+      }
+    }
+
+    /** One capped/scaled Metric operand; composites require their own delimiters here. */
     fun atomParser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map Metric::Count
@@ -160,18 +224,16 @@ public sealed class Metric : PetElement() {
 
         val eval: Parser<Metric> = skip(_eval) and Property.parser() map ::Eval
 
-        val atom: Parser<Metric> =
+        val nonconstant: Parser<Metric> =
             eval or transform or Property.parser() or count or group(parser())
 
         val scaled: Parser<Metric> =
-            optional(rawScalar) and
-                atom map
-                { (scal, met) ->
-                  scal?.let { scaled(met, it) } ?: met
-                }
+            rawScalar and nonconstant map { (unit, met) -> scaled(met, unit) }
+
+        val primary: Parser<Metric> = scaled or nonconstant
 
         val max: Parser<Metric> =
-            scaled and
+            primary and
                 optional(skip(_max) and rawScalar) map
                 { (met, limit) ->
                   limit?.let { Max(met, it) } ?: met

@@ -98,8 +98,8 @@ internal class CanonEffectsTest {
     classEffectsOf(VenusianAnimals)
         .shouldContainExactlyInAnyOrder(
             "This:: VenusTag<Owner, This>!, ScienceTag<Owner, This>!, AnimalTag<Owner, This>!",
-            "ScienceTag<Owner, CardFront<Owner>>: Animal<Owner, This>.",
-            "End: VictoryPoint<Owner>! / Animal<Owner, This>",
+            "ScienceTag<Owner, CardFront<Owner>>: Animal<This>.",
+            "End: VictoryPoint<Owner>! / Animal<This>",
         )
   }
 
@@ -137,8 +137,8 @@ internal class CanonEffectsTest {
     classEffectsOf(TitanAirScrapping)
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
-            "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
-            "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!",
+            "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<This>.",
+            "UseAction2<Owner, This>: -2 Floater<This>! THEN TerraformRating<Owner>!",
             "End: 2 VictoryPoint<Owner>!",
         )
   }
@@ -158,10 +158,10 @@ internal class CanonEffectsTest {
     classEffectsOf(Pets)
         .shouldContainExactlyInAnyOrder(
             "This:: EarthTag<Owner, This>!, AnimalTag<Owner, This>!",
-            "This: Animal<Owner, This>.",
-            "-Animal<Owner, This>:: Die!",
-            "CityTile<Anyone>: Animal<Owner, This>.",
-            "End: VictoryPoint<Owner>! / 2 Animal<Owner, This>",
+            "This: Animal<This>.",
+            "-Animal<This>:: Die!",
+            "CityTile<Anyone>: Animal<This>.",
+            "End: VictoryPoint<Owner>! / 2 Animal<This>",
         )
   }
 }

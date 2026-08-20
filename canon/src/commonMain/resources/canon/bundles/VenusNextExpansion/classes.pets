@@ -1,7 +1,12 @@
 CLASS VenusNextExpansion : Module {
+  SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
+}
+
+"Adds Venus to the standard solo objective"
+CLASS VenusNextSoloAdjustment : System {
+  HAS =1 This
   SetupPhase: SoloVictoryRequirement
   SoloVictoryCheck IF MAX 0 Tr63SoloObjective, GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>: Victory<Player1>.
-  SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
 }
 
 CLASS AirScrappingSP : StandardProject, AutoLoad {

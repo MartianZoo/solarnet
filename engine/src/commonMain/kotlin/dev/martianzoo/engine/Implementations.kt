@@ -229,13 +229,31 @@ internal class Implementations(
         if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, revised)
     if (selectedThen == null) revised.ensureNarrows(task.instruction, reader)
 
-    // A selected group must split before its children are prepared against successive worlds.
-    val replacement =
-        if (task.next && revised is Instruction) instructor.prepare(revised) else revised
     if (selectedThen != null && task.then != null) {
       throw TaskException("can't select the first stage of a THEN with an outer continuation")
     }
     val continuation = selectedThen?.continuationAfterFirst() ?: task.then
+
+    val selectsAmApTarget = instructor.validateAmApSelection(task.instruction, revised)
+    if (selectsAmApTarget && !task.next) {
+      if (revised is Instruction) {
+        replace1WithN(
+            tasks,
+            task,
+            instructor.prepare(revised),
+            next = true,
+            then = continuation,
+        )
+        return
+      }
+      val prepared = prepareTask(taskId) ?: return
+      reviseTask(prepared, revised)
+      return
+    }
+
+    // A selected group must split before its children are prepared against successive worlds.
+    val replacement =
+        if (task.next && revised is Instruction) instructor.prepare(revised) else revised
     replace1WithN(tasks, task, replacement, task.next, continuation)
   }
 

@@ -48,7 +48,7 @@ internal class EffectTest {
       This OR PROD[X This]: Bar FROM !Ooh
       -Bar: 11 Ahh<Foo, Foo> FROM Eep<Qux>
       Bar<Foo<Bar<Bar<Bar>>, Eep>, Bar>: -1
-      X This: Abc / (2 Bar<Bar, Ooh> OR Qux)
+      X This: Abc / 2 Bar<Bar, Ooh> - Qux
       PROD[Abc]: -X Qux, 11 Abc<Xyz> FROM Xyz
       This OR This: 2 Xyz<Ooh<Foo>(HAS 5 Xyz)>
       PROD[-Ooh<Qux<Bar>, Bar>]: -1 / PROD[Foo]

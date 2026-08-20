@@ -585,5 +585,346 @@ class Game20260818Test : AbstractFullGameTest() {
       )
     }
     assertSidebar(gen = 7, temp = -16, oxygen = 2, oceans = 4, venus = 16)
+
+    // The resumed Generation 7 Research phase requires Dad's correction of yesterday's extra TR
+    // and resulting M€, plus Industrial Microbes' omitted production and Generation 7 resources.
+    dad.exMachina("-TR, -1, PROD[S, E], S, E")
+
+    // The Generation 7 action ledger requires Dad to retain the six M€ he did not pay for these
+    // cards until the following Research phase.
+    dad.buyCards(2)
+    dad.exMachina("6")
+    ellie.buyCards(3)
+
+    dad.turn {
+      // Dad: "Sure. Let's pay eight to fund Traveller. I have funded the Traveller award."
+      stdAction("FundAwardSA") { doTask("Traveller") }
+    }
+
+    ellie.turn {
+      // Ellie: "I pay one for Market Manipulation. Increase the colony track one step."
+      // Dad: "So she's increasing Pluto." Ellie: "Yes. Decrease Io."
+      playProject(MarketManipulation, 1) {
+        doTask("ColonyProduction<Pluto> FROM ColonyProduction<Io>")
+      }
+      // Ellie: "Then I will spend three energy to trade with Pluto, which now gives me three
+      // cards." Dad: "Nice. Three cards free and clear."
+      stdAction("TradeSA", 2) { doTask("Trade<Pluto>") }.expect("-3 E, 3 ProjectCard")
+    }
+
+    dad.turn {
+      // Dad: "I guess I'll play a Martian Zoo. I believe that cost me full price. I want to pay
+      // 12."
+      playProject(MartianZoo, 12)
+    }
+
+    ellie.turn {
+      // Ellie: "Io Sulphur Research for 17. I have three Venus tags from the two floater cards and
+      // Strata Birds, so three cards."
+      playProject(IoSulphurResearch, 15) { doTask("3 ProjectCard") }
+    }
+
+    // Ellie's Generation 8 ledger requires the narrated 17-M€ payment, which omitted Valley
+    // Trust's science-tag discount.
+    ellie.exMachina("-2")
+
+    dad.turn {
+      // Dad: "I'm going to play Nuclear Power. That cost me ten. I lose two money production. I
+      // gain three energy production."
+      playProject(NuclearPower, 10).expect("PROD[-2 M, 3 E]")
+    }
+
+    ellie.turn {
+      // Ellie: "Air-Scrapping Expedition for 13. Raise Venus one step, and I get a TR. Add three
+      // floaters to a Venus card. That'll be Forced Precipitation."
+      playProject(AirScrappingExpedition, 13) {
+            doTask("3 Floater<$ForcedPrecipitation>")
+          }
+          .expect("VenusStep, TR, 3 Floater")
+    }
+
+    dad.turn {
+      // Dad: "I am going to play Miranda—Miranda Resort. I guess it costs me three titanium. And I
+      // get one, two, three, four, five, six, seven money production."
+      doTask("EarthTag<WildTagUse<$ResearchCoordination>>")
+      playProject(MirandaResort, titanium = 3).expect("PROD[7 M]")
+    }
+
+    ellie.turn {
+      // Ellie: "I used Forced Precipitation. Remove two floaters to increase Venus."
+      cardAction2(ForcedPrecipitation).expect("-2 Floater, VenusStep, TR")
+    }
+
+    dad.turn {
+      cardAction1(FloatingHabs) { doTask("Floater<$AerialMappers>") }.expect("-2, Floater")
+    }
+
+    ellie.turn { cardAction1(ExtractorBalloons).expect("Floater") }
+
+    dad.turn { cardAction2(AerialMappers).expect("-Floater, ProjectCard") }
+
+    ellie.turn { cardAction1(StratosphericBirds).expect("Animal") }
+
+    dad.turn {
+      // Dad: "I'm going to play Business Contactos, which cost me seven of my nine money. I look at
+      // the top four cards and I pick two of them. Then, because I played an Earth tag, I draw a
+      // card and I get a little aminal on Martian Zoo."
+      playProject(BusinessContacts, 7).expect("2 ProjectCard, Animal")
+    }
+
+    ellie.turn { cardAction1(Psychrophiles).expect("Microbe") }
+
+    dad.turn {
+      // Dad: "I'm going to import some Nitrogen. I'm going to slightly overspend by spending six
+      // titanium. I will draw the card for the Earth tag. I'll get a TR. I'll get four plants. I
+      // don't have a microbe card. And I think I'm going to take two animals on Martian Zoo."
+      playProject(ImportedNitrogen, titanium = 6) {
+            doTask("2 Animal<$MartianZoo>")
+          }
+          .expect("TR, 4 P, 3 Animal, 0 ProjectCard")
+    }
+
+    // Dad's later three-M€ Martian Zoo action requires the omitted animal from Imported
+    // Nitrogen's Earth tag to be removed.
+    dad.exMachina("-Animal<$MartianZoo>")
+
+    ellie.turn {
+      // Ellie: "Nitrite Reducing Bacteria. I remove three and get a TR."
+      cardAction2(NitriteReducingBacteria).expect("-3 Microbe, TR")
+    }
+
+    // Ellie's Generation 8 ledger remains one TR below the narrated Nitrite Reducing Bacteria
+    // result, so the physical game did not retain that TR.
+    ellie.exMachina("-TR")
+
+    dad.turn {
+      // Dad: "Now I'm going to use Asteroid Rights to remove an asteroid from Asteroid Rights. And
+      // honestly, I think I'll take the money production."
+      cardAction2(AsteroidRights) { doTask("PROD[Megacredit]") }.expect("-Asteroid, PROD[M]")
+    }
+
+    ellie.turn { stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, TR") }
+
+    dad.turn {
+      // Dad: "I'll take the Martian Zoo action to take three money."
+      cardAction1(MartianZoo).expect("3")
+    }
+
+    ellie.turn {
+      // Ellie: "Neutralizer Factory. Pay seven. We've definitely met the ten percent Venus
+      // requirement. Increase Venus one step."
+      playProject(NeutralizerFactory, 7).expect("VenusStep, TR")
+    }
+
+    dad.turn {
+      // Dad: "Venusian Insects is the card that I played and spent five on."
+      playProject(VenusianInsects, 5)
+    }
+
+    ellie.pass()
+    dad.turn {
+      // Dad: "Now I'm taking its action, putting a microbe on it. On it like a bonnet."
+      cardAction1(VenusianInsects).expect("Microbe")
+      // Dad: "I think I will use Energy Market to reduce my energy production by one and get eight
+      // money."
+      cardAction2(EnergyMarket).expect("PROD[-E], 8")
+      // Dad: "Then I have enough money for Nitrophilic Moss. We do have the three-ocean
+      // requirement. And I will lose two plants and gain two plant production. And that costs the
+      // eight money."
+      playProject(NitrophilicMoss, 8).expect("-2 P, PROD[2 P]")
+      pass()
+    }
+
+    // Dad uses World Government Terraforming to increase Venus.
+    dad.doTask("VenusStep! BY Engine").expect("0 TR")
+
+    // Both player ledgers: after Generation 7 transition, before Research.
+    with(dad) {
+      assertProduction(m = 18, s = 1, t = 6, p = 3, e = 3, h = 3)
+      assertResources(m = 44, s = 2, t = 8, p = 7, e = 3, h = 12)
+      assertCounts(26 to "TR", 3 to "Animal<$MartianZoo>", 1 to "Microbe<$VenusianInsects>")
+    }
+    with(ellie) {
+      assertProduction(m = 7, s = 3, t = 1, p = 0, e = 7, h = 4)
+      assertResources(m = 52, s = 6, t = 3, p = 0, e = 7, h = 14)
+      assertCounts(37 to "TR")
+    }
+    assertSidebar(gen = 8, temp = -14, oxygen = 2, oceans = 4, venus = 24)
+
+    dad.buyCards(2)
+    // The following action phase and Generation 9 photo require Dad's Generation 8 repayment and
+    // removal of the Venusian Insects microbe from the action he could not have afforded in time.
+    dad.exMachina("-6, -Microbe<$VenusianInsects>")
+    ellie.buyCards(1)
+
+    ellie.turn {
+      // Ellie: "Ice Moon Colony. I will pay two of my three titanium for six money, and then 17
+      // real. I will place on Miranda. And it gives me an animal to my Strata Birds. I place an
+      // ocean tile." Dad: "It's row eight." Ellie: "Four. Eight-four."
+      playProject(IceMoonColony, 17, titanium = 2) {
+            doTask("Colony<Miranda>")
+            doTask("Animal<$StratosphericBirds>")
+            doTask("OceanTile<Utopia_8_7>")
+          }
+          .expect("Animal, OceanTile, TR, -15 M, 2 P")
+      // Ellie: "And for my second action, three energy to trade with Miranda. I get two aminals and
+      // a card."
+      stdAction("TradeSA", 2) {
+            doTask("Trade<Miranda>")
+            doTask("2 Animal<$StratosphericBirds>")
+          }
+          .expect("-3 E, 2 Animal, ProjectCard")
+    }
+
+    dad.turn {
+      cardAction1(FloatingHabs) { doTask("Floater<$AerialMappers>") }.expect("-2, Floater")
+    }
+
+    ellie.turn {
+      // Ellie: "I remembered why I left a titanium, and that is so I can play Diversity Support.
+      // I've got all six standard resources and microbes, animals, floaters. So pay one money, get
+      // one TR."
+      playProject(DiversitySupport, 1).expect("TR")
+    }
+
+    dad.turn {
+      // Dad: "It'll involve the playing of Plantation, which I can do because I have a science tag
+      // and a wild tag. I've gotten so much use out of this wild tag. So that costs me 15 entire
+      // money. And then I place a greenery tile, which I'm going to place at five-three."
+      doTask("ScienceTag<WildTagUse<$ResearchCoordination>>")
+      playProject(Plantation, 15) { doTask("GreeneryTile<Utopia_5_3>") }
+          .expect("GreeneryTile, OxygenStep, TR, -13 M")
+      // Dad: "Then I'm going to Kaguya its ass. I'm playing Kaguya Tech for ten full money. I get
+      // two money production. I get a card. I swap this greenery tile. I flip it, basically."
+      playProject(KaguyaTech, 10) {
+            doTask("CityTile<Utopia_5_3> FROM GreeneryTile<Utopia_5_3>")
+          }
+          .expect("PROD[2 M], 0 ProjectCard, -GreeneryTile, CityTile, -8 M")
+    }
+
+    ellie.turn {
+      // Ellie: "Right. Venusian Animals." Dad: "Oh my god." Ellie: "Yep. It immediately adds an
+      // animal to itself."
+      playProject(VenusianAnimals, 13).expect("Animal")
+    }
+
+    // Ellie's Generation 9 ledger requires her printed-cost payment without Valley Trust's two-M€
+    // science discount.
+    ellie.exMachina("-2")
+
+    dad.turn {
+      // Dad: "I'm gonna go ahead and use three real and seven titanium. And I'm going to get four
+      // plant production, two TR plus another TR for raising temp to minus 12."
+      playProject(NitrogenRichAsteroid, 3, titanium = 7) { doTask("PROD[4 Plant]") }
+          .expect("PROD[4 P], 3 TR, TemperatureStep")
+    }
+
+    ellie.turn { cardAction2(ForcedPrecipitation).expect("-2 Floater, VenusStep, TR") }
+
+    dad.turn { cardAction2(AerialMappers).expect("-Floater, ProjectCard") }
+
+    ellie.turn { cardAction1(ExtractorBalloons).expect("Floater") }
+
+    dad.turn {
+      // Dad: "Business Network. Cost me four. I lose a money production. Aw, I only have 19 money
+      // production now. And I get an animal on Martian Zoo and a card."
+      playProject(BusinessNetwork, 4).expect("PROD[-M], Animal, 0 ProjectCard")
+    }
+
+    ellie.turn { cardAction1(Psychrophiles).expect("Microbe") }
+
+    dad.turn {
+      cardAction2(EnergyMarket).expect("PROD[-E], 8")
+    }
+
+    ellie.turn { stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, TR") }
+
+    dad.turn {
+      // Dad: "I lose two steel and I get four money back. All right, so in the end what happened is
+      // I paid two steel and two real. I gain an energy production and you lose two heat
+      // production."
+      playProject(HeatTrappers, 2, steel = 2) { doTask("PROD[-2 H<Ellie>]") }
+          .expect("PROD[E<Dad>, -2 H<Ellie>]")
+    }
+
+    ellie.turn {
+      // Ellie: "Luckily I have this power tag so I can play Power Supply Consortium."
+      // Dad: "I lose an energy production." Ellie: "I pay five and I gain an energy production."
+      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-E<Dad>]") }
+          .expect("PROD[-E<Dad>, E<Ellie>]")
+    }
+
+    dad.turn {
+      // Dad: "I guess that means if I want to trade, I better do it now. I'll trade for three
+      // energy and I'll do Europa. So I get a plant production."
+      stdAction("TradeSA", 2) { doTask("Trade<Europa>") }.expect("-3 E, PROD[P]")
+    }
+
+    ellie.turn { cardAction1(StratosphericBirds).expect("Animal") }
+
+    dad.turn {
+      // Dad: "All right, I am going to import some zhuzh. This time it's just Imported Zhuzh. I'm
+      // going to pay seven real for it. I get one heat production, three heat. I get a silver
+      // animal on Martian Zoo. I get a card."
+      playProject(ImportedGhg, 7).expect("PROD[H], 3 H, Animal, 0 ProjectCard")
+    }
+
+    ellie.turn {
+      // Ellie: "Imported Nutrients. I pay a titanium and 11 real, gain four plants, and add four
+      // microbes to Nitrite-Reducing Bacteria." Dad: "Man, you're just churning that thing."
+      playProject(ImportedNutrients, 11, titanium = 1) {
+            doTask("4 Microbe<$NitriteReducingBacteria>")
+          }
+          .expect("4 P, 4 Microbe")
+    }
+
+    dad.turn { cardAction1(VenusianInsects).expect("Microbe") }
+
+    ellie.turn {
+      cardAction2(NitriteReducingBacteria).expect("-3 Microbe, TR")
+    }
+
+    dad.turn {
+      cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }.expect("-1, Asteroid")
+    }
+
+    ellie.pass()
+    dad.turn {
+      // Dad: "I will use Martian Zoo to take five money."
+      cardAction1(MartianZoo).expect("5")
+      // Dad: "It appears I never used Business Network. So I'm going to use Business Network to
+      // look at a card. I think that makes me want to take it more, so I will pay three for it."
+      cardAction1(BusinessNetwork) { buyCards(1) }.expect("-3, ProjectCard")
+      pass()
+    }
+
+    // Ellie uses World Government Terraforming to increase oxygen.
+    ellie.doTask("OxygenStep! BY Engine").expect("0 TR")
+
+    // board-21-14-23.jpg and both player ledgers: after Generation 8 transition.
+    with(dad) {
+      assertProduction(m = 19, s = 1, t = 6, p = 8, e = 2, h = 4)
+      assertResources(m = 51, s = 1, t = 7, p = 15, e = 2, h = 19)
+      assertCounts(
+          30 to "TR",
+          5 to "Animal<$MartianZoo>",
+          1 to "Microbe<$VenusianInsects>",
+          1 to "Asteroid<$AsteroidRights>",
+      )
+    }
+    with(ellie) {
+      assertProduction(m = 7, s = 3, t = 1, p = 0, e = 8, h = 2)
+      assertResources(m = 51, s = 9, t = 1, p = 6, e = 8, h = 12)
+      assertCounts(
+          42 to "TR",
+          10 to "Animal<$StratosphericBirds>",
+          1 to "Animal<$VenusianAnimals>",
+          1 to "Microbe<$NitriteReducingBacteria>",
+          7 to "Microbe<$Psychrophiles>",
+          0 to "Floater<$ForcedPrecipitation>",
+          2 to "Floater<$ExtractorBalloons>",
+      )
+    }
+    assertSidebar(gen = 9, temp = -10, oxygen = 4, oceans = 5, venus = 26)
   }
 }
