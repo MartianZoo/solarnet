@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.types.Class
+
+private typealias RequirementCount = ComponentDescriber.Requirement.CountSyntax
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
@@ -57,70 +58,92 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 track = ComponentDescriber.Track("oxygen"),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          ifSimple(expression) { "Requires $target% oxygen." }
-                        },
-                        maximum = { expression, target ->
-                          ifSimple(expression) { "Oxygen must be $target% or less." }
-                        },
+                    ComponentDescriber.Requirement(
+                        minimum =
+                            threshold(
+                                "oxygen",
+                                ComponentDescriber.Requirement.Value.PERCENT,
+                                ComponentDescriber.Requirement.ThresholdSyntax
+                                    .REQUIRES_VALUE_SUBJECT,
+                            ),
+                        maximum =
+                            threshold(
+                                "Oxygen",
+                                ComponentDescriber.Requirement.Value.PERCENT,
+                                ComponentDescriber.Requirement.ThresholdSyntax
+                                    .SUBJECT_MUST_BE_VALUE_OR_LESS,
+                            ),
                     ),
             ),
         klass("TemperatureStep") to
             ComponentDescriber(
                 track = ComponentDescriber.Track("temperature"),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          ifSimple(expression) { "Requires ${temperature(target)} or warmer." }
-                        },
-                        maximum = { expression, target ->
-                          ifSimple(expression) {
-                            "Temperature must be ${temperature(target)} or colder."
-                          }
-                        },
+                    ComponentDescriber.Requirement(
+                        minimum =
+                            threshold(
+                                "temperature",
+                                ComponentDescriber.Requirement.Value.TEMPERATURE,
+                                ComponentDescriber.Requirement.ThresholdSyntax
+                                    .REQUIRES_VALUE_OR_WARMER,
+                            ),
+                        maximum =
+                            threshold(
+                                "Temperature",
+                                ComponentDescriber.Requirement.Value.TEMPERATURE,
+                                ComponentDescriber.Requirement.ThresholdSyntax
+                                    .SUBJECT_MUST_BE_VALUE_OR_COLDER,
+                            ),
                     ),
             ),
         klass("VenusStep") to
             ComponentDescriber(
                 track = ComponentDescriber.Track("Venus"),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          ifSimple(expression) { "Requires Venus ${target * 2}%." }
-                        },
-                        maximum = { expression, target ->
-                          ifSimple(expression) { "Venus must be ${target * 2}% or less." }
-                        },
+                    ComponentDescriber.Requirement(
+                        minimum =
+                            threshold(
+                                "Venus",
+                                ComponentDescriber.Requirement.Value.DOUBLE_PERCENT,
+                                ComponentDescriber.Requirement.ThresholdSyntax
+                                    .REQUIRES_SUBJECT_VALUE,
+                            ),
+                        maximum =
+                            threshold(
+                                "Venus",
+                                ComponentDescriber.Requirement.Value.DOUBLE_PERCENT,
+                                ComponentDescriber.Requirement.ThresholdSyntax
+                                    .SUBJECT_MUST_BE_VALUE_OR_LESS,
+                            ),
                     ),
             ),
         klass("TerraformRating") to
             ComponentDescriber(
                 track = ComponentDescriber.Track("your terraform rating"),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          ifSimple(expression) {
-                            "Requires that you have a terraform rating of $target or more."
-                          }
-                        }
+                    ComponentDescriber.Requirement(
+                        minimum =
+                            threshold(
+                                "a terraform rating",
+                                syntax =
+                                    ComponentDescriber.Requirement.ThresholdSyntax
+                                        .REQUIRES_HAVE_SUBJECT_OF_VALUE_OR_MORE,
+                            )
                     ),
             ),
         klass("OceanTile") to
             ComponentDescriber(
                 placement = ComponentDescriber.Placement("an", "ocean tile", "ocean tiles"),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          ifSimple(expression) {
-                            "Requires $target ocean ${if (target == 1) "tile" else "tiles"}."
-                          }
-                        },
-                        maximum = { expression, target ->
-                          ifSimple(expression) {
-                            "There must be $target or fewer ocean tiles."
-                          }
-                        },
+                    ComponentDescriber.Requirement(
+                        minimum =
+                            count("ocean tile", "ocean tiles", RequirementCount.REQUIRES_COUNT),
+                        maximum =
+                            count(
+                                "ocean tile",
+                                "ocean tiles",
+                                RequirementCount.THERE_MUST_BE_COUNT_OR_FEWER,
+                            ),
                     ),
             ),
         klass("GreeneryTile") to
@@ -134,12 +157,13 @@ internal object TerraformingMarsDescribers {
                         allowsMultiple = false,
                     ),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          ifSimple(expression) {
-                            "Requires that you have $target greenery ${if (target == 1) "tile" else "tiles"}."
-                          }
-                        }
+                    ComponentDescriber.Requirement(
+                        minimum =
+                            count(
+                                "greenery tile",
+                                "greenery tiles",
+                                RequirementCount.REQUIRES_OWNED_COUNT,
+                            )
                     ),
             ),
         klass("CityTile") to
@@ -152,18 +176,15 @@ internal object TerraformingMarsDescribers {
                         anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
                     ),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          val tiles = "$target city ${if (target == 1) "tile" else "tiles"}"
-                          when {
-                            ownedByAnyPlayer(expression) -> "Requires $tiles."
-                            expression.simple -> "Requires that you have $tiles."
-                            else -> null
-                          }
-                        },
-                        ownedCount = { target ->
-                          "$target city ${if (target == 1) "tile" else "tiles"}"
-                        },
+                    ComponentDescriber.Requirement(
+                        minimum =
+                            count(
+                                "city tile",
+                                "city tiles",
+                                RequirementCount.REQUIRES_OWNED_COUNT,
+                                RequirementCount.REQUIRES_COUNT,
+                            ),
+                        ownedCount = ComponentDescriber.Noun.Counted("city tile", "city tiles"),
                     ),
             ),
         klass("Colony") to
@@ -177,24 +198,20 @@ internal object TerraformingMarsDescribers {
                         anyoneMetricOwner = ComponentDescriber.MetricOwner.ANY_PLAYER,
                     ),
                 requirement =
-                    requirement(
-                        minimum = { expression, target ->
-                          ifSimple(expression) {
-                            "Requires $target ${if (target == 1) "colony" else "colonies"}."
-                          }
-                        },
-                        maximum = { expression, target ->
-                          ifSimple(expression) {
-                            "You must have no more than $target ${if (target == 1) "colony" else "colonies"}."
-                          }
-                        },
-                        ownedCount = { target ->
-                          "$target ${if (target == 1) "colony" else "colonies"}"
-                        },
+                    ComponentDescriber.Requirement(
+                        minimum = count("colony", "colonies", RequirementCount.REQUIRES_COUNT),
+                        maximum =
+                            count(
+                                "colony",
+                                "colonies",
+                                RequirementCount.YOU_MUST_HAVE_NO_MORE_THAN_COUNT,
+                            ),
+                        ownedCount = ComponentDescriber.Noun.Counted("colony", "colonies"),
                     ),
             ),
         klass("ReserveTradeFleet") to
             ComponentDescriber(directGain = ComponentDescriber.DirectGain("Trade Fleet", 1)),
+        klass("Production") to ComponentDescriber(production = true),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("End") to ComponentDescriber(endTrigger = true),
         klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
@@ -207,7 +224,7 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Convert Plants standard action",
-                        refundDiscountTrigger = "you convert plants to greenery",
+                        refundDiscountPredicate = "convert plants to greenery",
                     )
             ),
         klass("PowerPlantSP") to
@@ -215,7 +232,7 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Power Plant standard project",
-                        refundDiscountTrigger = "you use the Power Plant standard project",
+                        refundDiscountPredicate = "use the Power Plant standard project",
                     )
             ),
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
@@ -233,6 +250,7 @@ internal object TerraformingMarsDescribers {
           tag = resolveFact(componentClass, ComponentDescriber::tag),
           track = resolveFact(componentClass, ComponentDescriber::track),
           placement = resolveFact(componentClass, ComponentDescriber::placement),
+          production = resolveFact(componentClass, ComponentDescriber::production),
           requirement = resolveFact(componentClass, ComponentDescriber::requirement),
           directGain = resolveFact(componentClass, ComponentDescriber::directGain),
           score = resolveFact(componentClass, ComponentDescriber::score),
@@ -268,33 +286,22 @@ internal object TerraformingMarsDescribers {
 
   private fun klass(name: String): Class = Canon.classTable.getClass(cn(name))
 
-  private fun requirement(
-      minimum: (Expression, Int) -> String?,
-      maximum: (Expression, Int) -> String? = { _, _ -> null },
-      ownedCount: ((Int) -> String)? = null,
-  ): ComponentDescriber.Requirement =
-      object : ComponentDescriber.Requirement {
-        override fun renderMinimum(expression: Expression, target: Int): String? =
-            minimum(expression, target)
+  private fun threshold(
+      subject: String,
+      value: ComponentDescriber.Requirement.Value = ComponentDescriber.Requirement.Value.PLAIN,
+      syntax: ComponentDescriber.Requirement.ThresholdSyntax,
+  ): ComponentDescriber.Requirement.Bound =
+      ComponentDescriber.Requirement.Bound.Threshold(subject, value, syntax)
 
-        override fun renderMaximum(expression: Expression, target: Int): String? =
-            maximum(expression, target)
-
-        override fun renderOwnedCount(target: Int): String? = ownedCount?.invoke(target)
-      }
-
-  private fun ifSimple(expression: Expression, render: () -> String): String? =
-      if (expression.simple) render() else null
-
-  private fun ownedByAnyPlayer(expression: Expression): Boolean =
-      expression.arguments == listOf(anyoneExpression) &&
-          expression.refinement == null &&
-          !expression.complement
-
-  private fun temperature(steps: Int): String {
-    val degreesCelsius = -30 + 2 * steps
-    return "${if (degreesCelsius > 0) "+" else ""}${degreesCelsius}°C"
-  }
-
-  private val anyoneExpression = cn("Anyone").expression
+  private fun count(
+      singular: String,
+      plural: String,
+      syntax: RequirementCount,
+      anyoneSyntax: RequirementCount? = null,
+  ): ComponentDescriber.Requirement.Bound =
+      ComponentDescriber.Requirement.Bound.Count(
+          ComponentDescriber.Noun.Counted(singular, plural),
+          syntax,
+          anyoneSyntax,
+      )
 }

@@ -52,7 +52,7 @@ internal class EnglishTest {
             )
         )
     english.describe(parse<InstructionTree>("Animal"), animalCard) shouldBe
-        "Add 1 animal to ANY card."
+        "Add 1 animal to any card."
   }
 
   @Test

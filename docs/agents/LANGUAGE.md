@@ -49,10 +49,9 @@ elements compositionally. Keep lexical policy, such as component nouns and chang
 than the structural rendering rules.
 
 `English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
-`InstructionTree`, or a `Requirement`. An instruction or action can also be described with its host
-`CardDefinition`, which supplies context such as whether an unqualified card-resource gain may go
-on this card. Unsupported valid Pets shapes currently fail rather than falling back to a whole-card
-row.
+`InstructionTree`, or a `Requirement`. The public instruction and action overloads that accept a
+host `CardDefinition` remain, but current canonical wording does not vary by host card. Unsupported
+valid Pets shapes currently fail rather than falling back to a whole-card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
 It has no canonical component registry or implicit Terraforming Mars description source; it only
@@ -72,11 +71,10 @@ compose, and differing values for the same fact from incomparable nearest provid
 Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
 shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
 
-Produce strings directly while that remains clear. If agreement, conjunction, scope, and
-punctuation begin to couple otherwise independent renderers, introduce only the smallest useful
-phrase representation rather than a general English grammar framework. A growing collection of
-whole-card shape tests in `English` is a signal to extract the appropriate family renderer, not an
-acceptable final architecture.
+Instruction changes are retained as internal clauses, predicates, noun phrases, modifiers, and
+coordinations until the enclosing instruction or action has made its structural decisions. One
+linearizer owns capitalization, punctuation, number agreement, and final text assembly. This is a
+small renderer representation rather than a general English grammar framework.
 
 Instruction rendering retains its ordered clauses until the enclosing instruction or action chooses
 whether to make them separate sentences or coordinate them under one action cost. This small
@@ -84,9 +82,10 @@ representation keeps punctuation out of structural decisions without attempting 
 English grammar.
 
 Instruction and requirement rendering lower `PROD[...]` through the shared Terraforming Mars Pets
-transformer before inspection. Only `Describers` interprets the resulting ordinary `Production`
-expressions, so production boxes do not need parallel renderers for every Pets wrapper and the
-structural renderers do not know the production component's representation.
+transformer before inspection. Their family renderers interpret the resulting ordinary
+`Production` expressions using passive component facts, so production boxes do not need parallel
+renderers for every Pets wrapper. `Describers` is limited to lookup and lexical access; it does not
+render Pets families.
 
 ## Transitional derivation
 
@@ -174,10 +173,11 @@ remain independent renderer facts. Because a component outside the game does not
 Solarnet's model, generated metric phrases do not say `in play`; the published cards use that phrase
 to contrast any player's components with the acting player's own components. One supported clause
 may be gated by a concrete minimum number of a tag the player owns.
-Supported instructions are rendered in authored order, with adjacent standard-resource gains
-coalesced into one sentence. Alternatives that are all concrete standard-resource gains share one
-`gain`; alternatives that are all concrete card-resource gains share one `add` when their card
-destination is the same. Each alternative retains its own scalar. A concrete fixed VP gain or
+Supported instructions are rendered in authored order. Adjacent standard-resource gains coalesce,
+and adjacent production changes remain coordinated in one sentence. Separate card-resource gains
+retain separate clauses because each may choose a different destination card. Alternatives factor
+a shared predicate only when its verb, destination, and modifiers agree; otherwise each alternative retains its whole clause. Each
+alternative retains its own scalar. A concrete fixed VP gain or
 penalty triggered by `End` is also derived,
 either unscaled or for each simple tag the player owns, card resource on the scoring card, or
 complete concrete group of one card-resource type on the scoring card. An unscaled fixed VP gain or
@@ -191,8 +191,7 @@ class renders as `resource`, while concrete card-resource subclasses retain thei
 policy. Every card-resource instruction that moves a resource names a card location: `This` becomes
 `this card`, a tag-narrowed holder becomes `a card with a <name> tag`, and an unqualified removal
 says `from any card`. Aggregate requirements and metrics omit the redundant card location. An
-unrestricted gain says `ANY card` when the played card can hold that resource and `ANOTHER card`
-when it cannot.
+unrestricted gain says `any card`.
 
 Any-player city-tile requirements name the required tiles without `in play`; a compound owned
 city-and-colony requirement says that you have those components. Solarnet components outside the
@@ -227,8 +226,8 @@ A plain mandatory placement of one greenery tile renders its implicit oxygen inc
 greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
-An unrestricted gain of a concrete card resource says `ANY card` when the played card can hold that
-resource and `ANOTHER card` when it cannot. Other narrowed card-resource targets remain data-backed.
+An unrestricted gain of a concrete card resource says `any card`. Other narrowed card-resource
+targets remain data-backed.
 
 Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
 `Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; counts above

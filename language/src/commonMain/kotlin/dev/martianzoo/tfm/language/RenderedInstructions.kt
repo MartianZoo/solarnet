@@ -1,18 +1,18 @@
 package dev.martianzoo.tfm.language
 
 /** Ordered English clauses describing one instruction tree. */
-internal data class RenderedInstructions(val clauses: List<String>) {
+internal data class RenderedInstructions(val clauses: List<Clause>) {
   init {
     require(clauses.isNotEmpty())
   }
 
-  internal fun asSentences(): String = clauses.joinToString(" ") { completeSentence(it) }
+  internal fun asSentences(): String = clauses.joinToString(" ") { Sentence(it).linearize() }
 
-  internal fun asCoordinatedClause(): String = clauses.joinToString(" and ")
+  internal fun asCoordinatedClause(): String = clauses.joinToString(" and ") { it.linearize() }
 }
 
-internal fun completeSentence(clause: String): String =
-    clause.replaceFirstChar(Char::uppercaseChar) + "."
+internal fun completeSentence(clause: String, punctuation: String = "."): String =
+    clause.replaceFirstChar(Char::uppercaseChar) + punctuation
 
 internal fun englishList(parts: List<String>): String =
     when (parts.size) {
