@@ -185,8 +185,8 @@ An abstract production-resource trigger linked to a gain of the same resource re
 An automatic removal trigger whose described consequence is a dead end renders as a prohibition
 when the trigger structurally identifies resources on this card or resources an opponent removes.
 A fixed M€ increase in the payment value of a standard resource or resource category is also derived
-from its spent-resource trigger. A direct trigger on a played-card type is derived, including a type
-narrowed to one concrete tag or a minimum printed card cost. A trigger on using a described standard
+from its spent-resource trigger. A played-card trigger is derived, including a type narrowed to one
+concrete tag or a described minimum or present property. A trigger on using a described standard
 action or standard project composes with the same supported consequences. A pre-payment resource gain
 for an explicitly described action may be presented as the discount it implements; adjacent equal
 discounts combine under one trigger sentence. The action description may supply a shared counted

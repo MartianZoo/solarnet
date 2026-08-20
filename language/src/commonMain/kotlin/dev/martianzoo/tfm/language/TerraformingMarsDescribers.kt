@@ -45,7 +45,21 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Fixed("card"),
                 cardResourceHolder = ComponentDescriber.Noun.Counted("card", "cards"),
-                playedCard = true,
+                playedCard =
+                    ComponentDescriber.PlayedCard(
+                        minimumProperties =
+                            mapOf(
+                                "cost" to
+                                    ComponentDescriber.PlayedCard.MinimumProperty.Threshold(
+                                        "printed cost",
+                                        "M€",
+                                    ),
+                                "requirement" to
+                                    ComponentDescriber.PlayedCard.MinimumProperty.Presence(
+                                        "requirement"
+                                    ),
+                            )
+                    ),
             ),
         klass("ProjectCard") to
             ComponentDescriber(

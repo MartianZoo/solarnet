@@ -189,17 +189,22 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun representedClass(expression: Expression): Expression? {
+    return representedExpression(expression)?.takeIf { it.simple }
+  }
+
+  internal fun representedExpression(expression: Expression): Expression? {
     if (expression.arguments.size != 1) return null
     val classExpression = expression.arguments.single()
     if (
         classExpression.className != CLASS ||
             classExpression.arguments.size != 1 ||
-            classExpression.refinement != null ||
             classExpression.complement
     ) {
       return null
     }
-    return classExpression.arguments.single().takeIf { it.simple }
+    val represented = classExpression.arguments.single()
+    if (represented.refinement != null && classExpression.refinement != null) return null
+    return represented.copy(refinement = represented.refinement ?: classExpression.refinement)
   }
 
   internal fun concrete(className: ClassName): Boolean {

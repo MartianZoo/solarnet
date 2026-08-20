@@ -26,7 +26,7 @@ public data class ComponentDescriber(
     public val deadEndSignal: Boolean? = null,
     public val endTrigger: Boolean? = null,
     public val playTrigger: PlayTrigger? = null,
-    public val playedCard: Boolean? = null,
+    public val playedCard: PlayedCard? = null,
     public val playedTagPhrase: String? = null,
     public val operationTrigger: String? = null,
     public val usedActionTrigger: Boolean? = null,
@@ -167,6 +167,17 @@ public data class ComponentDescriber(
       public val refundDiscountPredicate: String? = null,
       public val refundDiscountNoun: Noun.Counted? = null,
   )
+
+  public data class PlayedCard(
+      public val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
+  ) {
+    public sealed interface MinimumProperty {
+      public data class Threshold(public val noun: String, public val unit: String? = null) :
+          MinimumProperty
+
+      public data class Presence(public val noun: String) : MinimumProperty
+    }
+  }
 
   public enum class PlayTrigger {
     CARD,

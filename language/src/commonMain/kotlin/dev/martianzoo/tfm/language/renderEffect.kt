@@ -268,7 +268,7 @@ private fun Describers.paymentDiscountRefersToPlayedObject(trigger: Trigger): Bo
   val expression = (trigger as? OnGainOf)?.expression ?: return false
   return fact(expression.className, ComponentDescriber::playTrigger) ==
       ComponentDescriber.PlayTrigger.CARD ||
-      fact(expression.className, ComponentDescriber::playedCard) == true
+      fact(expression.className, ComponentDescriber::playedCard) != null
 }
 
 private data class Event(
@@ -364,8 +364,9 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   if (expression.refinement != null) return null
   when (fact(expression.className, ComponentDescriber::playTrigger)) {
     ComponentDescriber.PlayTrigger.CARD -> {
-      if (!expression.simple) return null
-      return Event(EventKind.PLAY, EventActor.YOU, "a card")
+      if (expression.simple) return Event(EventKind.PLAY, EventActor.YOU, "a card")
+      val represented = representedExpression(expression) ?: return null
+      return playedCardEvent(represented)
     }
     ComponentDescriber.PlayTrigger.TAG -> {
       val tag = representedClass(expression) ?: return null
@@ -427,7 +428,7 @@ private fun Describers.productionEvent(expression: Expression): Event? {
 }
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
-  if (fact(expression.className, ComponentDescriber::playedCard) != true) return null
+  val description = fact(expression.className, ComponentDescriber::playedCard) ?: return null
   val actor =
       when (expression.arguments) {
         emptyList<Expression>() -> EventActor.YOU
@@ -456,8 +457,20 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
             "${if (actor == EventActor.UNRESTRICTED) "any" else indefiniteArticle(tag)} $tag $card"
           }
           is Property -> {
-            if (metric.receiver != null || metric.propertyName.value != "cost") return null
-            "$article $card with a printed cost of ${minimum.target} M€ or more"
+            if (metric.receiver != null) return null
+            val property = description.minimumProperties[metric.propertyName.value] ?: return null
+            when (property) {
+              is ComponentDescriber.PlayedCard.MinimumProperty.Threshold -> {
+                val unit = property.unit?.let { " $it" }.orEmpty()
+                val propertyArticle = indefiniteArticle(property.noun)
+                "$article $card with $propertyArticle ${property.noun} of ${minimum.target}$unit or more"
+              }
+              is ComponentDescriber.PlayedCard.MinimumProperty.Presence -> {
+                if (minimum.target != 1) return null
+                val propertyArticle = indefiniteArticle(property.noun)
+                "$article $card with $propertyArticle ${property.noun}"
+              }
+            }
           }
           else -> return null
         }
