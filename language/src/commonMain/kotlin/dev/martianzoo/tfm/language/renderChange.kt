@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -20,6 +21,7 @@ internal fun renderChange(
       when (instruction) {
         is Gain -> instruction.gaining
         is Remove -> instruction.removing
+        is Transmute -> instruction.gaining
         else -> return null
       }
   describers.fact(expression.className, ComponentDescriber::directGain)?.let {
@@ -94,6 +96,9 @@ private fun renderStandardResourceChange(
   standardResourceGain(instruction, describers)?.let { (className, count) ->
     return clause("gain", describers.componentNounPhrase(className, count))
   }
+  (instruction as? Transmute)?.let {
+    return renderStandardResourceTransfer(it, describers)
+  }
   val removal = instruction as? Remove ?: return null
   val expression = removal.removing
   if (expression.refinement != null || expression.complement) return null
@@ -117,20 +122,58 @@ private fun renderStandardResourceChange(
   return null
 }
 
+private fun renderStandardResourceTransfer(
+    transmute: Transmute,
+    describers: Describers,
+): Clause? {
+  if (transmute.intensity != OPTIONAL) return null
+  val gaining = transmute.gaining
+  val removing = transmute.removing
+  if (gaining.className != removing.className) return null
+  if (
+      gaining.arguments != listOf(describers.ownerExpression) ||
+          removing.arguments != listOf(describers.anyoneExpression) ||
+          gaining.refinement != null ||
+          removing.refinement != null ||
+          gaining.complement ||
+          removing.complement
+  ) {
+    return null
+  }
+  if (!describers.concrete(gaining.className)) return null
+  if (describers.fact(gaining.className, ComponentDescriber::standardResource) != true) return null
+  val count = (transmute.count as? ActualScalar)?.value ?: return null
+  val noun = describers.componentNoun(gaining.className, count)
+  return clause(
+      "steal",
+      NounPhrase.text("up to $count $noun"),
+      Modifier.Phrase("from any player"),
+  )
+}
+
 private fun renderCardResourceChange(
     instruction: Instruction,
     describers: Describers,
 ): Clause? {
   val change = instruction as? Instruction.Change ?: return null
-  if (change.intensity != null && change.intensity != MANDATORY) return null
   val expression = change.gaining ?: change.removing ?: return null
   if (expression.refinement != null || expression.complement) return null
   val count = (change.count as? ActualScalar)?.value ?: return null
   val noun = describers.cardResourceNounPhrase(expression.className, count) ?: return null
   if (instruction is Remove) {
-    if (!expression.simple) return null
-    return clause("remove", noun, Modifier.Phrase("from any card"))
+    return when {
+      expression.simple && (change.intensity == null || change.intensity == MANDATORY) ->
+          clause("remove", noun, Modifier.Phrase("from any card"))
+      expression.arguments == listOf(describers.anyoneExpression) && change.intensity == OPTIONAL ->
+          clause(
+              "remove",
+              NounPhrase.text("up to $count ${noun.noun()}"),
+              Modifier.Phrase("from any player"),
+          )
+      else -> null
+    }
   }
+  if (change.intensity != null && change.intensity != MANDATORY) return null
   val target =
       when {
         expression.arguments == listOf(describers.thisExpression) -> "this card"

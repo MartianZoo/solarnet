@@ -261,7 +261,7 @@ Card027	027	Interstellar Colony Ship	Requires 5 science tags. 4 VPs.
 Card028	028	Security Fleet	1 VP for each fighter resource on this card.	Action: Spend 1 titanium to add 1 fighter resource to this card.
 Card046	046	Lightning Harvest	Requires 3 science tags. Increase your energy production 1 step and your M€ production 1 step. 1 VP.	
 Card049	049	Tardigrades	1 VP for every 4 microbes on this card.	Action: Add 1 microbe to this card.
-Card050	050	Virus	Remove up to 2 animals or 5 plants from any player.	
+Card050	050	Virus	Remove up to 2 animals or up to 5 plants from any player.	
 Card051	051	Miranda Resort	Increase your M€ production 1 step for each Earth tag you have. 1 VP.	
 Card056	056	Mine	Increase your steel production 1 step.	
 Card057	057	Vesta Shipyard	Increase your titanium production 1 step. 1 VP.	
@@ -297,7 +297,7 @@ Card111F	111	Business Contacts	Look at the top 4 cards from the deck. Draw 2 of 
 Card112	112	Bribed Committee	Raise your terraform rating 2 steps. -2 VPs.	
 Card121	121	Sabotage	Remove up to 3 titanium, up to 4 steel, or up to 7 M€ from any player.	
 Card123	123	Industrial Center	Place this tile ADJACENT TO A CITY TILE.	Action: Spend 7 M€ to increase your steel production 1 step.
-Card124	124	Hired Raiders	Steal up to 2 steel, or 3 M€ from any player.	
+Card124	124	Hired Raiders	Steal up to 2 steel or up to 3 M€ from any player.	
 Card125	125	Hackers	Decrease your energy production 1 step and any player's M€ production 2 steps and increase your M€ production 2 steps. -1 VP.	
 Card137	137	Cartel	Increase your M€ production 1 step for each Earth tag you have.	
 Card144	144	Titanium Mine	Increase your titanium production 1 step.	

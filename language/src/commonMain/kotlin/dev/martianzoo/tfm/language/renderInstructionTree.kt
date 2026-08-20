@@ -42,15 +42,15 @@ private fun renderInstruction(
 ): Clause? =
     when (instruction) {
       is Gain,
-      is Remove -> renderChange(instruction, describers)
+      is Remove,
+      is Instruction.Transmute -> renderChange(instruction, describers)
       is Instruction.Or -> renderAlternatives(instruction, describers)
       is Instruction.Per -> renderPer(instruction, describers)
       is Instruction.Gated -> renderGated(instruction, describers)
       is NoOp,
       is Instruction.By,
       is Instruction.Then,
-      is Instruction.Transform,
-      is Instruction.Transmute -> null
+      is Instruction.Transform -> null
     }
 
 private fun renderGated(

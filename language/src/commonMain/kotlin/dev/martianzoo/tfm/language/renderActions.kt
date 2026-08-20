@@ -19,12 +19,27 @@ internal fun renderActions(
   return completeSentence(joined)
 }
 
-private fun Describers.renderCost(cost: Cost): String? {
-  val spend = cost as? Cost.Spend ?: return null
+private fun Describers.renderCost(cost: Cost): Predicate? =
+    when (cost) {
+      is Cost.Or -> renderAlternativeCosts(cost.costs)
+      is Cost.Spend -> renderSpendCost(cost)
+      else -> null
+    }
+
+private fun Describers.renderAlternativeCosts(costs: Set<Cost>): Predicate? {
+  val alternatives = costs.map { renderCost(it) ?: return null }
+  val first = alternatives.first()
+  if (alternatives.any { it.verb != first.verb || it.modifiers != first.modifiers }) return null
+  return first.copy(
+      objects = Coordination(alternatives.flatMap { it.objects.members }, Conjunction.OR)
+  )
+}
+
+private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
   val expression = spend.scaledEx.expression
   val count = (spend.scaledEx.scalar as? ActualScalar)?.value ?: return null
   if (expression.refinement == null && !expression.complement) {
-    cardResourceNoun(expression.className, count)?.let { noun ->
+    cardResourceNounPhrase(expression.className, count)?.let { noun ->
       val holder =
           when (expression.arguments) {
             listOf(thisExpression) -> "this card"
@@ -32,17 +47,26 @@ private fun Describers.renderCost(cost: Cost): String? {
             emptyList<Expression>() -> "any of your cards"
             else -> return null
           }
-      return "remove $count $noun from $holder"
+      return Predicate(
+          "remove",
+          Coordination.one(noun),
+          listOf(Modifier.Phrase("from $holder")),
+      )
     }
   }
   productionExpression(expression)?.let { (ownerArguments, resourceClassName) ->
     if (ownerArguments.isNotEmpty()) return null
     val steps = if (count == 1) "step" else "steps"
-    return "decrease your ${componentNoun(resourceClassName, 1)} production $count $steps"
+    return Predicate(
+        "decrease",
+        Coordination.one(
+            NounPhrase.text("your ${componentNoun(resourceClassName, 1)} production $count $steps")
+        ),
+    )
   }
   if (!expression.simple) return null
-  val noun = plainGainNoun(expression.className, count) ?: return null
-  return "spend $count $noun"
+  if (plainGainNoun(expression.className, count) == null) return null
+  return Predicate("spend", Coordination.one(componentNounPhrase(expression.className, count)))
 }
 
 private fun renderAction(
@@ -56,14 +80,14 @@ private fun renderAction(
 }
 
 private data class RenderedAction(
-    val cost: String?,
+    val cost: Predicate?,
     val result: RenderedInstructions,
 ) {
   fun asSentences(): String =
-      cost?.let { completeSentence("$it to ${result.asCoordinatedClause()}") }
+      cost?.let { completeSentence("${it.linearize()} to ${result.asCoordinatedClause()}") }
           ?: result.asSentences()
 
   fun asAlternative(): String? =
-      cost?.let { "$it to ${result.asCoordinatedClause()}" }
+      cost?.let { "${it.linearize()} to ${result.asCoordinatedClause()}" }
           ?: result.clauses.singleOrNull()?.linearize()
 }

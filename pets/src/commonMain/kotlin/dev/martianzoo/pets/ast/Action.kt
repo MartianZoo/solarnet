@@ -101,18 +101,19 @@ public data class Action(val cost: Cost?, val instruction: InstructionTree) : Pe
           Instruction.Per(cost.toInstruction() as Instruction, metric)
     }
 
-    internal data class Or(var costs: Set<Cost>) : Cost() {
+    @ConsistentCopyVisibility
+    public data class Or internal constructor(val costs: Set<Cost>) : Cost() {
       internal constructor(vararg costs: Cost) : this(costs.toSet())
 
       init {
         require(costs.size >= 2)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(costs)
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(costs)
 
-      override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
+      override fun toString(): String = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
 
-      override fun precedence() = 3
+      override fun precedence(): Int = 3
 
       override fun toInstruction() = Or(costs.map { it.toInstruction() })
     }

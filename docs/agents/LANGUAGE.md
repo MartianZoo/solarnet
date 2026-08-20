@@ -133,9 +133,11 @@ one standard resource, and actions that decrease one concrete standard-resource 
 fixed number of steps, provided the result uses the supported instruction shapes below. An action
 may instead remove a concrete number of one card resource from this card, `ANY PLAYER'S CARD`, or
 any of the player's own cards, as specified by the cost expression. Multiple authored actions render
-as alternatives, with a comma before `or` to distinguish their operation boundaries. Supported
-non-End effects include a fixed M€ discount triggered by playing a card or one concrete tag, and a
-supported instruction consequence triggered by playing concrete tags or one described tag group,
+as alternatives, with a comma before `or` to distinguish their operation boundaries. Alternative
+costs share one verb only when their verb and modifiers agree; other mixes remain data-backed rather
+than risking a change in scope. Supported non-End effects include a fixed M€ discount triggered by
+playing a card or one concrete tag, and a supported instruction consequence triggered by playing
+concrete tags or one described tag group,
 placing a supported tile, raising a supported track, or adding a concrete card resource. Trigger
 wording preserves whether the acting player is constrained. An unrestricted trigger uses passive
 voice so it does not introduce or imply any triggering actor; this includes non-player mechanisms
@@ -156,12 +158,12 @@ concrete-tag requirements, same-category groups of one-count tags, minimum terra
 owned-greenery requirements, minimum owned or any-player city tiles, compound owned city-and-colony
 requirements, and a requirement that the player have a standard-resource production.
 It also derives minimum concrete card-resource requirements and minimum and maximum owned-colony
-requirements. It derives bottom text when every
-immediate instruction is one of: a concrete mandatory
-gain or removal of a standard resource; an optional removal of up to a concrete number of standard
-resources from any player; a gain of one reserve Trade Fleet; a mandatory gain of a generic or
-concrete card resource on the played card, an unrestricted card, or a card narrowed to one concrete
-tag; a group of concrete
+requirements. It derives bottom text when every immediate instruction is one of: a concrete
+mandatory gain or removal of a standard resource; an optional removal of up to a concrete number of
+standard resources or one concrete card resource from any player; an optional transfer of one
+concrete standard-resource type from any player to the acting player; a gain of one reserve Trade
+Fleet; a mandatory gain of a generic or concrete card resource on the played card, an unrestricted
+card, or a card narrowed to one concrete tag; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
 placement using the type's default arguments; one plain greenery-tile placement; a concrete
 mandatory removal of a concrete card resource; or a concrete mandatory
