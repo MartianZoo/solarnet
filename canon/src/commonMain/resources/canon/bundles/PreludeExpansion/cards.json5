@@ -356,7 +356,8 @@
       "resourceType": "Microbe",
       "actions": [ "-> Microbe<This>" ],
       "effects": [
-        "PlayTag<Class<PlantTag>>: (-X Microbe<This>! THEN -2X Owed<Class<Megacredit>>.) OR Ok"
+        "PlayTag<Class<PlantTag>>: AcceptFromCard<This>",
+        "PayFromCard<This>:: -2 Owed"
       ],
     },
 

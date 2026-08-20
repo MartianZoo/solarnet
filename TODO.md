@@ -85,7 +85,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54) — Resolve contextual ownership correctly and display the resolved player.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
 - Model Prelude plays as explicit first and second turns.
-- Rewrite removals as payments, covering standard projects and Kuiper Cooperative, Stormcraft, Water Import from Europa, and similar mechanics.
+- Derive `Owed` / `Payment` / `CostPaid` flows automatically from paid action instructions before applying that protocol to Water Import from Europa and similar cards; rewrite the resource removals needed before enabling Helion or Stormcraft.
 - Rethink task selection holistically; queue order has no domain meaning, so require an id or explicit match unless exactly one task applies.
 - Rethink autoexec as a coherent project: distinguish expected domain failures from defects and simplify `autoExecNext`.
 - Separate Authority data from premise resolution, and split `TfmAuthority`'s generic declaration aggregation/validation into `Authority` from the Terraforming Mars registries in `TfmAuthority`.

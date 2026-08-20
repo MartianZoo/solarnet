@@ -96,7 +96,7 @@ class NewPromoCardsTest : CardTest() {
     p1.playProject(CarbonNanosystems, 14).expect("Graphene<$CarbonNanosystems>")
 
     p1.playProject(IcyImpactors, 11) {
-          doTask("-Graphene<$CarbonNanosystems>! THEN -4 Owed<Class<Megacredit>>.")
+          doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
         }
         .expect("-Graphene<$CarbonNanosystems>")
   }

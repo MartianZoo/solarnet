@@ -468,14 +468,16 @@ public class Transformers(public val classTable: ClassTable) {
       override fun transformNode(node: PetNode): PetNode {
         if (node is Expression && node in preserved) return node
         if (node is Expression) {
-          val replacement: Expression? = subs[node.className]
+          val transformed = transformChildren(node) as Expression
+          val replacement: Expression? = subs[transformed.className]
           if (replacement != null) {
             val expr: Expression =
                 replacement
-                    .appendArguments(node.arguments)
-                    .copy(refinement = node.refinement, complement = node.complement)
+                    .appendArguments(transformed.arguments)
+                    .copy(refinement = transformed.refinement, complement = transformed.complement)
             return expr
           }
+          return transformed
         }
         return transformChildren(node)
       }

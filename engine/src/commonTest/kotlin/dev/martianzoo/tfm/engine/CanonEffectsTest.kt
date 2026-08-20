@@ -107,7 +107,7 @@ internal class CanonEffectsTest {
   fun convertHeat() {
     classEffectsOf(cn("ConvertHeatSA"))
         .shouldContainExactlyInAnyOrder(
-            "UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep."
+            "UseAction1<Owner, This>: 8 Owed<Owner, Class<Heat>>! THEN Payment<Owner, Class<This>>!"
         )
   }
 

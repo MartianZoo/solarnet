@@ -221,14 +221,25 @@ internal class ScriptSessionTest {
         """
             .trimIndent(),
     )
-    command("task UseAction1<ConvertHeatSA>", "Can't remove 8 Heat<Player2>: max possible is 6")
-    command("mode red", "Mode RED: Change integrity: make changes without triggered effects")
-    command("exec 2 Heat", "0000: +2 Heat<Player2> BY Player2 (manual)")
     command(
         "task UseAction1<ConvertHeatSA>",
         """
-        0000: -8 Heat<Player2> BY Player2 VIA ConvertHeatSA BECAUSE 0000
-        0000: +TemperatureStep BY Player2 VIA ConvertHeatSA BECAUSE 0000
+        New tasks pending:
+        * [Player2] X Pay<Player2, Class<Heat>> FROM Heat<Player2>? (abstract)
+        """
+            .trimIndent(),
+    )
+    command(
+        "tfm_pay 8 Heat",
+        "Can't transmute 8 Heat<Player2> into Pay<Player2, Class<Heat>>: max possible is 6",
+    )
+    command("mode red", "Mode RED: Change integrity: make changes without triggered effects")
+    command("exec 2 Heat", "0000: +2 Heat<Player2> BY Player2 (manual)")
+    command(
+        "tfm_pay 8 Heat",
+        """
+        0000: +8 Pay<Player2, Class<Heat>> FROM Heat<Player2> BY Player2 VIA Accept<Player2, Class<Heat>> BECAUSE 0000
+        0000: +TemperatureStep BY Player2 VIA TerraformingMars BECAUSE 0000
         0000: +TerraformRating<Player2> BY Player2 VIA TemperatureStep BECAUSE 0000
         """
             .trimIndent(),

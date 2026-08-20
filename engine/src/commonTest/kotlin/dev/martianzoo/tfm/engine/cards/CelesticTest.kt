@@ -41,7 +41,7 @@ class CelesticTest : CardTest() {
 
   @Test
   fun `before resolving its card draw, tries a standard action as Celestic`() {
-    shouldThrow<RequirementException> { p1.stdAction("ConvertHeatSA") }
+    shouldThrow<RequirementException> { p1.convertHeat() }
   }
 
   private fun advanceToStartingCardDraw() {
