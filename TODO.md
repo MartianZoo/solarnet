@@ -114,6 +114,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
+  suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
+  successful spec's console result and terminate the full run.
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.
