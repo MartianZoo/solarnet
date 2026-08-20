@@ -219,15 +219,9 @@ private fun Describers.renderEventTrigger(trigger: Trigger): Clause.Simple? {
         is Trigger.Or -> trigger.triggers.map { renderEvent(it) ?: return null }
         else -> listOf(renderEvent(trigger) ?: return null)
       }
-  val kind = events.map { it.kind }.distinct().singleOrNull() ?: return null
-  val actor = events.map { it.actor }.distinct().singleOrNull() ?: return null
-  val objects =
-      events
-          .map { it.objectPhrase }
-          .let {
-            if (it.size == 1) it.single() else englishAlternatives(it)
-          }
-  return kind.renderTrigger(actor, objects)
+  val clauses = events.map { it.renderTrigger() ?: return null }
+  return if (clauses.size == 1) clauses.single()
+  else coordinateClauseObjects(clauses, Conjunction.OR)
 }
 
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
@@ -253,7 +247,7 @@ private fun Describers.renderActionPaymentDiscountTrigger(
   val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
   val predicate = use.refundDiscountPredicate ?: return null
   return ActionPaymentDiscountTrigger(
-      eventTrigger(subject = "you", verb = predicate),
+      eventTrigger(subject = NounPhrase.text("you"), verb = predicate),
       use.refundDiscountNoun,
   )
 }
@@ -274,8 +268,18 @@ private fun Describers.paymentDiscountRefersToPlayedObject(trigger: Trigger): Bo
 private data class Event(
     val kind: EventKind,
     val actor: EventActor,
-    val objectPhrase: String,
-)
+    val objectPhrase: NounPhrase,
+    val modifiers: List<Modifier> = emptyList(),
+) {
+  constructor(
+      kind: EventKind,
+      actor: EventActor,
+      objectPhrase: String,
+      modifiers: List<Modifier> = emptyList(),
+  ) : this(kind, actor, NounPhrase.text(objectPhrase), modifiers)
+
+  fun renderTrigger(): Clause.Simple? = kind.renderTrigger(actor, objectPhrase, modifiers)
+}
 
 private enum class EventActor {
   YOU,
@@ -298,42 +302,46 @@ private enum class EventKind(
   ADD_TO_THIS_CARD(activeVerb = "add", activeModifier = "to this card"),
   ;
 
-  fun renderTrigger(actor: EventActor, objects: String): Clause.Simple? =
+  fun renderTrigger(
+      actor: EventActor,
+      objectPhrase: NounPhrase,
+      modifiers: List<Modifier>,
+  ): Clause.Simple? =
       when (actor) {
         EventActor.YOU ->
             activeVerb?.let { verb ->
               eventTrigger(
-                  subject = "you",
+                  subject = NounPhrase.text("you"),
                   verb = verb,
-                  objectPhrase = objects,
-                  modifierPhrase = activeModifier,
+                  objectPhrase = objectPhrase,
+                  modifiers = modifiers + listOfNotNull(activeModifier?.let(Modifier::Phrase)),
               )
             }
         EventActor.UNRESTRICTED ->
             passiveVerb?.let { verb ->
               eventTrigger(
-                  subject = objects,
+                  subject = objectPhrase,
                   verb = verb,
-                  modifierPhrase = passiveModifier,
+                  modifiers = modifiers + listOfNotNull(passiveModifier?.let(Modifier::Phrase)),
               )
             }
       }
 }
 
 private fun eventTrigger(
-    subject: String,
+    subject: NounPhrase,
     verb: String,
-    objectPhrase: String? = null,
-    modifierPhrase: String? = null,
+    objectPhrase: NounPhrase? = null,
+    modifiers: List<Modifier> = emptyList(),
 ): Clause.Simple =
     Clause.Simple(
         predicate =
             Predicate(
                 verb,
-                objectPhrase?.let { Coordination.one(NounPhrase.text(it)) },
-                listOfNotNull(modifierPhrase?.let(Modifier::Phrase)),
+                objectPhrase?.let { Coordination.one(it) },
+                modifiers,
             ),
-        subject = NounPhrase.text(subject),
+        subject = subject,
     )
 
 private fun Describers.renderEvent(trigger: Trigger): Event? {
