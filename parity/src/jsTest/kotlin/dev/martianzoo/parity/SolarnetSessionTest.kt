@@ -34,7 +34,7 @@ internal class SolarnetSessionTest {
       )
 
       session.apply(
-          """{"operation":"selectCorporation","player":1,"corporation":"InterplanetaryCinematics","projectCards":0}"""
+          """{"operation":"selectCorporation","player":1,"corporation":"InterplanetaryCinematics","projectCards":1}"""
       )
       val firstMoveEvents = Json.parseToJsonElement(session.eventsSince(initialCursor)).jsonObject
       val firstMoveCursor = firstMoveEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
@@ -52,10 +52,30 @@ internal class SolarnetSessionTest {
 
       val secondMoveEvents =
           Json.parseToJsonElement(session.eventsSince(firstMoveCursor)).jsonObject
-      assertTrue(
-          secondMoveEvents.getValue("nextCursor").jsonPrimitive.content.toInt() > firstMoveCursor
-      )
+      val secondMoveCursor = secondMoveEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
+      assertTrue(secondMoveCursor > firstMoveCursor)
       assertTrue(secondMoveEvents.getValue("lines").jsonArray.isNotEmpty())
+
+      val afterProject =
+          Json.parseToJsonElement(
+                  session.apply(
+                      """{"operation":"playProject","player":1,"cardId":"105","payment":{"megacredits":1,"steel":0,"titanium":0}}"""
+                  )
+              )
+              .jsonObject
+      assertEquals("ActionPhase", afterProject.getValue("phase").jsonPrimitive.content)
+
+      val projectEvents = Json.parseToJsonElement(session.eventsSince(secondMoveCursor)).jsonObject
+      assertTrue(
+          projectEvents.getValue("nextCursor").jsonPrimitive.content.toInt() > secondMoveCursor
+      )
+      val projectLines = projectEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
+      assertTrue(projectLines.any { "EarthOffice" in it })
+      assertTrue(
+          projectLines.any {
+            "Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>" in it
+          }
+      )
     } finally {
       session.close()
     }

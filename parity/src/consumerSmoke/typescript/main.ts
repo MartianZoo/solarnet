@@ -61,7 +61,7 @@ try {
       operation: "selectCorporation",
       player: 1,
       corporation: "InterplanetaryCinematics",
-      projectCards: 0,
+      projectCards: 1,
     }),
   );
   check(printNewEvents().lines.length > 0, "the first move produced no events");
@@ -79,6 +79,26 @@ try {
   check(printNewEvents().lines.length > 0, "the second move produced no events");
   check(snapshot.phase === "ActionPhase", "the session did not reach the action phase");
   check(printNewEvents().lines.length === 0, "an unchanged cursor replayed events");
+
+  const projectSnapshot = JSON.parse(
+    session.apply(
+      JSON.stringify({
+        operation: "playProject",
+        player: 1,
+        cardId: "105",
+        payment: { megacredits: 1, steel: 0, titanium: 0 },
+      }),
+    ),
+  ) as { phase: string };
+  const projectEvents = printNewEvents();
+  check(projectSnapshot.phase === "ActionPhase", "the project ended the action phase");
+  check(projectEvents.lines.some((line) => line.includes("EarthOffice")), "project not logged");
+  check(
+    projectEvents.lines.some((line) =>
+      line.includes("Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>"),
+    ),
+    "project payment not logged",
+  );
 } finally {
   session.close();
 }

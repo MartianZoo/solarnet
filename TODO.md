@@ -122,6 +122,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Before broadening the parity payment protocol beyond its Earth Office proof, define and test
+  client-level rejection and rollback for underpayment, overpayment, and illegal steel/titanium;
+  nonnegative JSON fields and `TfmGameplay.pay` do not constitute a complete payment contract.
 - Investigate why the Kotlin/JS production executable misparses the valid Canon effect
   `CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4` even though the development
   executable and Node test pass; use development output for the parity prototype until this is
