@@ -1,44 +1,29 @@
 {
   "cards": [
 
-    // Early Colonization: no declarative operation applies two track steps to every colony tile.
+    // Nirgal Enterprises cannot bypass the up-front affordability check of the standard actions.
     {
-      "id": "P48",
-      "setupRequirement": "ColoniesExpansion",
-      "deck": "PRELUDE",
-      "tags": [ "SpaceTag" ],
-      "immediate": "Colony<>, 3 Energy",
+      "id": "PC01",
+      "deck": "CORPORATION",
+      "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
+      "immediate": "30, PROD[Energy, Plant, Steel]",
+      "actions": [ "-> Milestone", "-> Award" ],
     },
 
-    // Industrial Complex: production can be changed relatively, but not set to a floor of 1.
+    // Spire needs payment restricted to standard projects.
     {
-      "id": "P52",
-      "deck": "PRELUDE",
-      "tags": [ "BuildingTag" ],
-      "immediate": "-18",
+      "id": "PC05",
+      "deck": "CORPORATION",
+      "tags": [ "CityTag", "EarthTag" ],
+      "resourceType": "Science",
+      "immediate": "50, Mandate { -> 4 ProjectCard THEN -3 ProjectCard }",
+      "effects": [
+        "CardFront(HAS 2 Tag) OR EventCard(HAS Tag): Science<This>",
+        "Pay<Class<Science>>:: -Owed<Class<Megacredit>>",
+      ],
     },
 
-    // Recession: one instruction cannot target every opponent independently.
-    {
-      "id": "P59",
-      "deck": "PRELUDE",
-      "immediate": "10",
-    },
-
-    // Cloud Tourism cannot express the minimum of the Earth- and Venus-tag counts.
-    {
-      "id": "P69",
-      "setupRequirement": "VenusNextExpansion",
-      "deck": "PROJECT",
-      "projectKind": "ACTIVE",
-      "cost": 11,
-      "tags": [ "JovianTag", "VenusTag" ],
-      "resourceType": "Floater",
-      "actions": [ "-> Floater<This>" ],
-      "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
-    },
-
-    // L1 Trade Terminal cannot require three different resource-holding cards.
+    // L1 Trade Terminal needs a clean way to select up to three distinct resource-holding cards.
     {
       "id": "P78",
       "setupRequirement": "ColoniesExpansion",
@@ -50,62 +35,6 @@
       "effects": [
         "Trade<ColonyTile>: (2 ColonyProduction<ColonyTile>) OR Ok",
         "End: 2 VictoryPoint",
-      ],
-    },
-
-    // Venus Orbital Survey needs reveal-and-conditionally-buy deck operations.
-    {
-      "id": "P88",
-      "setupRequirement": "VenusNextExpansion",
-      "deck": "PROJECT",
-      "projectKind": "ACTIVE",
-      "cost": 18,
-      "tags": [ "VenusTag", "SpaceTag" ],
-      "actions": [ "-> 2 ProjectCard" ],
-    },
-
-    // Venus Shuttles has a dynamic action cost reduced by the player's Venus tags.
-    {
-      "id": "P89",
-      "setupRequirement": "VenusNextExpansion",
-      "deck": "PROJECT",
-      "projectKind": "ACTIVE",
-      "cost": 9,
-      "tags": [ "VenusTag" ],
-      "immediate": "2 Floater<CardFront(HAS VenusTag)>",
-      "actions": [ "12 -> VenusStep" ],
-    },
-
-    // Nirgal Enterprises cannot bypass the up-front affordability check of the standard actions.
-    {
-      "id": "PC01",
-      "deck": "CORPORATION",
-      "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
-      "immediate": "30, PROD[Energy, Plant, Steel]",
-      "actions": [ "-> Milestone", "-> Award" ],
-    },
-
-    // Sagitta counts an event icon as a tag, which is not a Tag component in the current model.
-    {
-      "id": "PC03",
-      "deck": "CORPORATION",
-      "immediate": "31, PROD[Energy, 2], ProjectCard",
-      "effects": [
-        "CardFront(HAS MAX 0 Tag): 4",
-        "CardFront(HAS =1 Tag): 1",
-      ],
-    },
-
-    // Spire needs both event-aware tag counting and payment restricted to standard projects.
-    {
-      "id": "PC05",
-      "deck": "CORPORATION",
-      "tags": [ "CityTag", "EarthTag" ],
-      "resourceType": "Science",
-      "immediate": "50, Mandate { -> 4 ProjectCard THEN -3 ProjectCard }",
-      "effects": [
-        "CardFront(HAS 2 Tag) OR EventCard(HAS Tag): Science<This>",
-        "Pay<Class<Science>>:: -Owed<Class<Megacredit>>",
       ],
     },
   ],

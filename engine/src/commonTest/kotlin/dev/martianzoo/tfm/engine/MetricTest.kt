@@ -39,6 +39,17 @@ internal class MetricTest {
   }
 
   @Test
+  fun metricsSupportConstantMinuendsAndDynamicCaps() {
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    p1.godMode().manual("7 Plant, 2 Steel")
+
+    p1.count("6 - Plant") shouldBe 0
+    p1.count("6 - Steel") shouldBe 4
+    p1.count("Plant MAX Steel") shouldBe 2
+    p1.count("Steel MAX Plant") shouldBe 2
+  }
+
+  @Test
   fun orCountsTheUnionOfMatchingComponents() {
     val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
     p1.godMode()

@@ -1,5 +1,5 @@
 "Expansion adding active preludes and cards that combine Prelude with other expansions"
 CLASS Prelude2Expansion : Module
 
-"A hidden no-op used by Prelude cards whose entire behavior remains in play"
-CLASS Prelude2NoImmediate : Signal, Hidden
+"Records that Preservation Program has skipped this generation's first action-phase TR"
+CLASS HasSkippedTr : Owned<Player>, Generational, Hidden { HAS MAX 1 This }

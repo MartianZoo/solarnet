@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -68,6 +69,17 @@ internal class CardDefinitionTest {
         )
 
     card.asClassDeclaration.properties.containsKey(PropertyName("requirement")) shouldBe false
+  }
+
+  @Test
+  fun nonEventCardsHaveTheMarkerWithoutLosingTheirOrdinaryCardSupertype() {
+    val prelude = CardDefinition(CardData(id = "P00", deck = "PRELUDE"))
+    val event = CardDefinition(CardData(id = "E00", deck = "PROJECT", projectKind = "EVENT"))
+
+    prelude.immediate shouldBe null
+    prelude.asClassDeclaration.supertypes.shouldContain(parse<Expression>("CardFront"))
+    prelude.asClassDeclaration.supertypes.shouldContain(parse<Expression>("NonEventCard"))
+    event.asClassDeclaration.supertypes.shouldContainExactly(parse<Expression>("EventCard"))
   }
 
   @Test

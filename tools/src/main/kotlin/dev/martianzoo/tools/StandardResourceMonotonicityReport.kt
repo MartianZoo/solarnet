@@ -412,8 +412,9 @@ internal object StandardResourceMonotonicityReport {
               scaledUpperBound(upperBound, metric.unit),
           )
       is Metric.Max ->
-          (upperBound == null || metric.maximum > upperBound) &&
-              metricCouldCount(metric.inner, quantity, subjectClass, table, upperBound)
+          (maximumCanExceed(metric.maximum, upperBound) &&
+              metricCouldCount(metric.inner, quantity, subjectClass, table, upperBound)) ||
+              metricCouldCount(metric.maximum, quantity, subjectClass, table)
       is Metric.Subtract ->
           metricCouldCount(metric.minuend, quantity, subjectClass, table) ||
               metricCouldCount(metric.subtrahend, quantity, subjectClass, table)
@@ -451,14 +452,14 @@ internal object StandardResourceMonotonicityReport {
               scaledUpperBound(upperBound, metric.unit),
           )
       is Metric.Max ->
-          (upperBound == null || metric.maximum > upperBound) &&
+          (maximumCanExceed(metric.maximum, upperBound) &&
               metricCouldCountAsResource(
                   metric.inner,
                   quantity,
                   subjectClass,
                   table,
                   upperBound,
-              )
+              )) || metricCouldCountAsResource(metric.maximum, quantity, subjectClass, table)
       is Metric.Subtract ->
           metricCouldCountAsResource(metric.minuend, quantity, subjectClass, table) ||
               metricCouldCountAsResource(metric.subtrahend, quantity, subjectClass, table)
@@ -471,6 +472,12 @@ internal object StandardResourceMonotonicityReport {
 
   private fun scaledUpperBound(upperBound: Int?, unit: Int): Int? = upperBound?.let {
     (((it.toLong() + 1) * unit) - 1).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+  }
+
+  private fun maximumCanExceed(maximum: Metric, upperBound: Int?): Boolean {
+    if (upperBound == null) return true
+    val constant = maximum as? Metric.Constant ?: return true
+    return constant.value > upperBound
   }
 
   private fun expressionCouldCount(

@@ -28,7 +28,7 @@ internal class WorldGovernmentTerraformingTest {
 
     TfmWorkflow.Manual(game).solarPhase()
 
-    engine.count("VenusSolarPhase") shouldBe 1
+    engine.count("SolarPhase") shouldBe 1
     game.tasks
         .extract { it.assignee to it.instruction.toString() }
         .shouldContainExactly(PLAYER2 to "GlobalParameter! BY Engine")
@@ -98,15 +98,14 @@ internal class WorldGovernmentTerraformingTest {
   }
 
   @Test
-  fun `Venus Solar phase is skipped when the universal Solar phase ends the game`() {
+  fun `Solar phase is skipped when production ends the game`() {
     val game = setUpGame(VenusNextExpansion)
     val engine = game.tfm(ENGINE)
     engine.godMode().sneak("LastCall")
 
     TfmWorkflow.Manual(game).solarPhase()
 
-    engine.count("SolarPhase") shouldBe 1
-    engine.count("VenusSolarPhase") shouldBe 0
+    engine.count("SolarPhase") shouldBe 0
     game.tasks.ids() shouldBe emptySet()
   }
 }

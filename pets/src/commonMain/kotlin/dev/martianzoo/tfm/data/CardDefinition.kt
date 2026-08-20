@@ -33,6 +33,7 @@ import dev.martianzoo.tfm.data.TfmClasses.CARD_FRONT
 import dev.martianzoo.tfm.data.TfmClasses.CORPORATION_CARD
 import dev.martianzoo.tfm.data.TfmClasses.END
 import dev.martianzoo.tfm.data.TfmClasses.EVENT_CARD
+import dev.martianzoo.tfm.data.TfmClasses.NON_EVENT_CARD
 import dev.martianzoo.tfm.data.TfmClasses.PRELUDE_CARD
 import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
 import dev.martianzoo.tfm.data.TfmClasses.RESOURCE_CARD
@@ -158,13 +159,17 @@ public class CardDefinition(data: CardData) : Definition {
 
     val allEffects: List<Effect> = automaticFx + onPlayFx + effects + actionListToEffects(actions)
 
-    val supertypes =
+    val cardSupertypes =
         setOfNotNull(
-                projectInfo?.kind?.className?.expression,
-                resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
-                if (actions.any()) ACTION_CARD.expression else null,
+            projectInfo?.kind?.className?.expression,
+            resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
+            if (actions.any()) ACTION_CARD.expression else null,
+        )
+    val supertypes =
+        cardSupertypes.ifEmpty { setOf(CARD_FRONT.expression) } +
+            setOfNotNull(
+                if (projectInfo?.kind != ProjectKind.EVENT) NON_EVENT_CARD.expression else null
             )
-            .ifEmpty { setOf(CARD_FRONT.expression) }
 
     ClassDeclaration(
         className = className,
@@ -223,7 +228,6 @@ public class CardDefinition(data: CardData) : Definition {
       if (deck == "PROJECT") {
         require(projectKind != null)
       } else {
-        if (deck == "PRELUDE") require(immediate != null) { "Prelude $id has no immediate effect" }
         require(projectKind == null) { "not a project: $id" }
         require(requirement == null) { "can't have requirement: $id" }
         require(cost == 0) { "can't have nonzero cost: $id" }

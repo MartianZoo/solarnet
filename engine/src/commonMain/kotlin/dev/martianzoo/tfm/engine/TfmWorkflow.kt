@@ -49,8 +49,9 @@ public object TfmWorkflow {
 
     public fun productionPhase(): TaskResult = engineOps.manual("ProductionPhase FROM Phase")
 
-    /** Enters the universal Solar phase. */
-    public fun solarPhase(): TaskResult = engineOps.beginManual("SolarPhase FROM Phase")
+    /** Enters the universal Solar phase unless the game ended after production. */
+    public fun solarPhase(): TaskResult? =
+        if (engineOps.has("LastCall")) null else engineOps.beginManual("SolarPhase FROM Phase")
 
     public fun generation(): TaskResult = engineOps.beginManual("Generation")
 
@@ -182,8 +183,7 @@ public object TfmWorkflow {
     }
 
     private suspend fun solarPhase(): Boolean {
-      m.solarPhase()
-      if (engineOps.has("LastCall")) return false
+      if (m.solarPhase() == null) return false
       letPlayerFinish()
       return true
     }

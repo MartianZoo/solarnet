@@ -222,7 +222,7 @@ public abstract class PetTransformer protected constructor() {
                     node.receiver?.let(::transformExpression),
                 )
             is Metric.Scaled -> Metric.scaled(transformMetric(node.inner), node.unit)
-            is Metric.Max -> Metric.Max(transformMetric(node.inner), node.maximum)
+            is Metric.Max -> Metric.Max(transformMetric(node.inner), transformMetric(node.maximum))
             is Metric.Subtract ->
                 Metric.Subtract(
                     transformMetric(node.minuend),

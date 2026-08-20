@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Introduce a real `EventTag` for the printed event icon, then remove Sagitta Frontier Services'
+  temporary `NonEventCard` / `EventCard` partition.
 - Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
   the ordinary unspecialized type name instead of an unresolved argument list.
 - Replace the `English` card-text data-file fallback incrementally with derivation from Pets
@@ -77,7 +79,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Add a diagnostic engine/test mode that chooses otherwise executable tasks in reverse or reproducibly randomized order, then run the suites under it to expose accidental queue-order dependencies.
 - Reduce the remaining custom Pets instructions only where behavior can become hand-authored Pets; start with the candidates and constraints in [`docs/agents/REDUCE_CUSTOM.md`](docs/agents/REDUCE_CUSTOM.md).
-- Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return and colony-track advancement from Production into its Solar subphase after the game-end check.
+- Revamp workflow behavior. Head Start must allow any first action and then grant an additional second action; move Colonies fleet return from Generation into the Solar phase.
 - Consolidate exception cleanup ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain boundaries, and narrow `Instruction.narrows`.
 - [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54) — Resolve contextual ownership correctly and display the resolved player.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.

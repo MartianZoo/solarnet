@@ -18,6 +18,7 @@ public object TfmClasses {
   internal val PRELUDE_CARD = cn("PreludeCard")
   internal val PROJECT_CARD = cn("ProjectCard")
   internal val CARD_FRONT = cn("CardFront")
+  internal val NON_EVENT_CARD = cn("NonEventCard")
   internal val ACTIVE_CARD = cn("ActiveCard")
   internal val AUTOMATED_CARD = cn("AutomatedCard")
   internal val EVENT_CARD = cn("EventCard")

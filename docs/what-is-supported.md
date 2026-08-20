@@ -11,7 +11,7 @@ Most of the published game content is working... and mostly correctly.
 | Prelude | 5 / 5 | 7 / 7 | 35 / 35 | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 3 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | 1 / 1 | 11 / 11 colony tiles |
 | Turmoil | 4 / 5 | 0 / 16 | - | - | - | 0 / 1 | 0 / 1 | - | 0 / 31 | 0 / 1 | 0 / 6 parties |
-| Prelude 2 | 2 / 5 | 9 / 24 | 19 / 25 | - | - | - | - | - | - | - | - |
+| Prelude 2 | 3 / 5 | 12 / 24 | 22 / 25 | - | - | - | - | - | - | - | - |
 | Amazonis & Vastitas | - | - | - | 0 / 2 | - | - | 0 / 20 | 0 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | the whole thing |
@@ -37,7 +37,9 @@ Most of the published game content is working... and mostly correctly.
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |
 | Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
 | Amazonis & Vastitas | Global parameter | Extended tracks | Core replacement |
-| Prelude 2 | Non-Turmoil cards | 3 corporations, 4 projects, and 3 preludes | Unmodeled unusual mechanics |
+| Prelude 2 | Corporation | Nirgal Enterprises (`PC01`) | Payment rewrites: deferred milestone and award affordability |
+| Prelude 2 | Corporation | Spire (`PC05`) | Payment rewrites: science restricted to standard-project payments |
+| Prelude 2 | Project | L1 Trade Terminal (`P78`) | Selecting up to three distinct resource-bearing cards |
 | Prelude 2 | Turmoil-linked cards | 11 projects and 3 preludes | Turmoil |
 | Turmoil | everything | all of it | Turmoil |
 | Automa | Other | entire Automa rules | Wow that's a lot |
@@ -62,3 +64,4 @@ We don't think these interpretations are wrong, but we don't know for certain.
 * We follow the convention that the "X" icon and the phrase "any number" *exclude* zero as a choice, but the phrase "up to" *includes* zero as a valid choice. Exception: a STEAL effect is not allowed to "steal zero". If you are the only player with money, you can't play Air Raid. If your hand is empty you can't play Public Plans.
 * If your MiningRights tile is somewhere with both steel and titanium bonuses, and then you RoboticWorkforce it, the game doesn't "remember" your original choice; you get to choose again.
 * TharsisRepublic always gets +2 M€ production in any solo game, even if played much later in the game.
+* Recession's losses and M€ production decreases are performed by each opponent, not by the card owner. The printed wording does not make the actor explicit; this interpretation means Mons Insurance does not compensate an opponent for their Recession loss.

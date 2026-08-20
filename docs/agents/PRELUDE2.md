@@ -17,26 +17,22 @@ The English data file contains all 40 cards that do not require Turmoil. Per the
 
 ## Current boundary
 
-The executable manifest contains 30 cards: 2 corporations, 9 projects, and 19 Preludes. The
-remaining 10 non-Turmoil definitions stay in `cards-dont-work.json5` so their accurate data and
+The executable manifest contains 37 cards: 3 corporations, 12 projects, and 22 Preludes. The three
+remaining non-Turmoil definitions stay in `cards-dont-work.json5` so their accurate data and
 specific blockers remain reviewable without loading incorrect behavior:
 
-- `P48` Early Colonization needs an operation over every colony track.
-- `P52` Industrial Complex needs production floors across all six resources.
-- `P59` Recession needs one effect applied independently to every opponent.
-- `P69` Cloud Tourism needs the minimum of two tag counts.
-- `P78` L1 Trade Terminal needs three distinct resource-holding cards.
-- `P88` Venus Orbital Survey needs reveal-and-conditionally-buy deck operations.
-- `P89` Venus Shuttles needs an action cost reduced dynamically by Venus tags.
-- `PC01` Nirgal Enterprises needs deferred milestone and award affordability.
-- `PC03` Sagitta Frontier Services needs its printed event icon counted with tags.
-- `PC05` Spire needs event-aware tag counts and standard-project-only payment.
+- `PC01` Nirgal Enterprises needs milestone and award payments to bypass the standard actions'
+  up-front affordability checks.
+- `PC05` Spire needs its science resources to rewrite payment for standard projects only.
+- `P78` L1 Trade Terminal needs a clean way to select up to three distinct resource-bearing cards.
 
 Prelude 2 implies the original Prelude module. The ordinary Prelude phase already models the
 rulebook's failed-Prelude fallback as discard plus 15 M€. Active Preludes compose with the existing
-action-card machinery. `Prelude2NoImmediate` is a hidden signal for active/effect-only Preludes
-whose printed immediate region is empty.
+action-card machinery, and active/effect-only Preludes may naturally omit an immediate instruction.
+Identifiers ending in `F` mark follow-mode cards whose hidden filtered draw or reveal result must be
+supplied by the client.
 
-The focused card tests cover the genuinely new behavior: Wild-tag Preludes, active Prelude play,
-once-per-action reset, first-TR cancellation per action phase, World Government terraforming by
-Engine, and EcoTec's rewards for its own starting tags.
+The focused card tests cover the genuinely new behavior, including multi-step TR cancellation,
+World Government option combinations, production floors, all-colony-track advancement, minimum
+tag metrics, event-icon tag counting, opponent-authored Recession losses, and the two follow-mode
+Venus Orbital Survey outcomes.

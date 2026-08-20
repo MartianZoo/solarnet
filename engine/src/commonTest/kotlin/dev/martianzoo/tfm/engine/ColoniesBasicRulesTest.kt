@@ -198,7 +198,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
     // When the generation ends, all trade fleets move back from the Colony Tiles to the Trade
     // Fleets Tile, and all white markers moves 1 step up the Colony track.
-    engine.nextGeneration(0, 0, 0, 0)
+    engine.phase("Production")
+    TfmWorkflow.Manual(game).solarPhase()
+    engine.godMode().manual("Generation")
     engine.assertCounts(
         0 to "FlownTradeFleet",
         4 to "ReserveTradeFleet",

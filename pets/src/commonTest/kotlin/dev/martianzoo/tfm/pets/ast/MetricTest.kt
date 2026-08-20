@@ -111,17 +111,17 @@ internal class MetricTest {
   }
 
   @Test
-  fun constantsArePositiveSubtrahendsOnly() {
-    shouldThrow<PetSyntaxException> { parse<Metric>("5") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("PROD[5]") }
+  fun constantsAreMetricValuesAndMinuends() {
     shouldThrow<PetSyntaxException> { parse<Metric>("2 5") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("Foo - 0") }
     shouldThrow<PetSyntaxException> { parse<Metric>("0 Foo") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("1 - Foo") }
     shouldThrow<PetSyntaxException> { parse<Metric>("Foo + Bar") }
-    shouldThrow<PetSyntaxException> { parse<Metric>("3 (11 - Foo)") }
 
+    parse<Metric>("0").toString() shouldBe "0"
+    parse<Metric>("5").toString() shouldBe "5"
+    parse<Metric>("PROD[5]").toString() shouldBe "PROD[5]"
     parse<Metric>("Foo - 5").toString() shouldBe "Foo - 5"
+    parse<Metric>("1 - Foo").toString() shouldBe "1 - Foo"
+    parse<Metric>("3 (11 - Foo)").toString() shouldBe "3 (11 - Foo)"
   }
 
   @Test

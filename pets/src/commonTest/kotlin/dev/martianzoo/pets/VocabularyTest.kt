@@ -19,6 +19,7 @@ internal class VocabularyTest {
     petsClassName("UNMI Contractor") shouldBe cn("UnmiContractor")
     petsClassName("PolderTECH Dutch") shouldBe cn("PolderTechDutch")
     petsClassName("Asteroid (Card)") shouldBe cn("AsteroidCard")
+    petsClassName("L1 Trade Terminal") shouldBe cn("L_1TradeTerminal")
   }
 
   @Test

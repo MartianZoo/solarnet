@@ -2,6 +2,7 @@
 CLASS ColoniesExpansion : Module {
   SetupPhase: ColoniesSetup
   SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
+  SolarPhase: AdvanceColonyTracks
 }
 
 CLASS BuildColonySP : StandardProject, AutoLoad {
@@ -19,7 +20,7 @@ ABSTRACT CLASS ColonyTile {
   This:: ColonyProduction<This>
   Colony<This>: ColonyProduction<This> / Colony<This> - ColonyProduction<This>
   ResetColonyProduction<This>: -ColonyProduction<This>. / ColonyProduction<This> - Colony<This, Anyone>
-  ProductionPhase: ColonyProduction<This>.
+  AdvanceColonyTracks: ColonyProduction<This>.
 }
 
 "One of the up-to-three colonies players can own on a ColonyTile"
@@ -46,6 +47,9 @@ CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
 
 "An implementation detail used to trigger colony bonuses to be paid out"
 CLASS GiveColonyBonus<ColonyTile> : Owned<Player>, Signal
+
+"Advances every colony tile track one step, as in production and Early Colonization"
+CLASS AdvanceColonyTracks : Signal
 
 "Requests one colony bonus payment for each colony the player owns"
 CLASS GiveColonyBonuses : Owned<Player>, Signal

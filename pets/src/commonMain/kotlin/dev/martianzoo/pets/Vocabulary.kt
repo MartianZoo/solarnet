@@ -255,7 +255,13 @@ private constructor(
         }
       }
       require(result.isNotEmpty()) { "Display name has no identifier characters: $displayName" }
-      return cn(result)
+      val validResult =
+          if (result.length > 6 && result[1] !in 'a'..'z' && result[1] != '_') {
+            result.substring(0, 1) + "_" + result.substring(1)
+          } else {
+            result
+          }
+      return cn(validResult)
     }
 
     private fun requireAscii(value: String) {

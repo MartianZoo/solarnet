@@ -1,6 +1,4 @@
-CLASS VenusNextExpansion : Module {
-  SolarPhase IF MAX 0 LastCall:: VenusSolarPhase FROM Phase
-}
+CLASS VenusNextExpansion : Module
 
 "Adds Venus to the standard solo objective"
 CLASS VenusNextSoloAdjustment : System {
@@ -17,11 +15,8 @@ CLASS AirScrappingSP : StandardProject, AutoLoad {
 "Adds World Government Terraforming to the solar phase"
 CLASS WorldGovernmentOption : Module {
   // A Venus game has four global parameters, so MAX 3 means at least one is still incomplete.
-  VenusSolarPhase IF MAX 3 GpComplete:: WorldGovernmentTerraforming
+  SolarPhase IF MAX 3 GpComplete:: WorldGovernmentTerraforming
 }
-
-"The Venus Next contribution to the Solar phase"
-CLASS VenusSolarPhase : Phase
 
 "Represents a 2% increase in Venus... terraformedness"
 CLASS VenusStep : GlobalParameter {

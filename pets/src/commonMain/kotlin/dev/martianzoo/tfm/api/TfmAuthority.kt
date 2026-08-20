@@ -12,6 +12,7 @@ import dev.martianzoo.data.Definition
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -27,6 +28,8 @@ import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.types.ClassLoader
 import dev.martianzoo.types.ClassTable
 import dev.martianzoo.util.associateByStrict
+
+private val tfmClassDeclarations = listOf(parseOneLinerClass("ABSTRACT CLASS NonEventCard"))
 
 /** A Terraforming Mars Authority with typed registries for its structured definitions. */
 public open class TfmAuthority : Authority {
@@ -167,7 +170,7 @@ public open class TfmAuthority : Authority {
     )
     validateReplacements(awardDefinitions, AwardDefinition::id, AwardDefinition::replaces)
     try {
-      (systemClassDeclarations.toList() + contributedClassDeclarations)
+      (systemClassDeclarations.toList() + tfmClassDeclarations + contributedClassDeclarations)
           .distinct()
           .associateByStrict { declaration ->
             validateSystemDeclaration(declaration)
