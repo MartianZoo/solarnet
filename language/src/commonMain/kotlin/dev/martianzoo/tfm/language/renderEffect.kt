@@ -18,16 +18,19 @@ import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
-internal fun renderEffect(effect: Effect, describers: Describers): String? =
-    if (isEndEffect(effect, describers)) {
-      renderEndEffect(effect, describers)
-    } else {
-      renderRemovalPrevention(effect, describers)
-          ?: renderPurchasePrice(effect, describers)
-          ?: paymentDiscount(effect, describers)?.let { renderPaymentDiscount(listOf(it)) }
-          ?: renderResourcePaymentValue(effect, describers)
-          ?: renderTriggeredInstructions(effect, describers)
-    }
+internal fun renderEffect(effect: Effect, describers: Describers): String? {
+  val lowered = lowerProductionSyntax(effect)
+  return if (isEndEffect(lowered, describers)) {
+    renderEndEffect(lowered, describers)
+  } else {
+    renderRemovalPrevention(lowered, describers)
+        ?: renderPurchasePrice(lowered, describers)
+        ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
+        ?: renderResourcePaymentValue(lowered, describers)
+        ?: renderLinkedProductionReward(lowered, describers)
+        ?: renderTriggeredInstructions(lowered, describers)
+  }
+}
 
 private fun renderPurchasePrice(effect: Effect, describers: Describers): String? {
   val trigger = effect.trigger as? OnGainOf ?: return null
@@ -289,6 +292,7 @@ private enum class EventKind(
   PERFORM_OPERATION(activeVerb = ""),
   USE_ACTION(activeVerb = "use"),
   PLACE(activeVerb = "place", passiveVerb = "is placed"),
+  INCREASE_PRODUCTION(activeVerb = "increase", activeModifier = "1 step"),
   RAISE(passiveVerb = "is raised", passiveModifier = "1 step"),
   ADD_TO_CARD(activeVerb = "add", activeModifier = "to any card"),
   ADD_TO_THIS_CARD(activeVerb = "add", activeModifier = "to this card"),
@@ -351,6 +355,9 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       return Event(EventKind.PERFORM_OPERATION, EventActor.YOU, it)
     }
   }
+  productionEvent(expression)?.let {
+    return it
+  }
   playedCardEvent(expression)?.let {
     return it
   }
@@ -408,6 +415,15 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     }
   }
   return null
+}
+
+private fun Describers.productionEvent(expression: Expression): Event? {
+  val (owners, resource) = productionCategoryExpression(expression) ?: return null
+  if (owners.isNotEmpty()) return null
+  val objectPhrase =
+      if (concrete(resource)) "your ${componentNoun(resource, 1)} production"
+      else "one of your productions"
+  return Event(EventKind.INCREASE_PRODUCTION, EventActor.YOU, objectPhrase)
 }
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
@@ -514,6 +530,20 @@ private fun renderTriggeredInstructions(effect: Effect, describers: Describers):
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val result = renderInstructions(effect.instruction, describers = describers) ?: return null
   return completeSentence("when ${trigger.linearize()}, ${result.asCoordinatedClause()}")
+}
+
+private fun renderLinkedProductionReward(effect: Effect, describers: Describers): String? {
+  val expression = (effect.trigger as? OnGainOf)?.expression ?: return null
+  val (owners, resource) = describers.productionCategoryExpression(expression) ?: return null
+  if (owners.isNotEmpty() || describers.concrete(resource)) return null
+  val gain = effect.instruction as? Gain ?: return null
+  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (!gain.gaining.simple || gain.gaining.className != resource) return null
+  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val objectPhrase = if (count == 1) "that resource" else "$count resources of that kind"
+  val result = Clause.Simple(Predicate("gain", Coordination.one(NounPhrase.text(objectPhrase))))
+  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+  return completeSentence("when ${trigger.linearize()}, ${result.linearize()}")
 }
 
 internal fun renderEndEffect(effect: Effect, describers: Describers): String? {

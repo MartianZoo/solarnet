@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
@@ -11,6 +12,9 @@ internal fun lowerProductionSyntax(instructionTree: InstructionTree): Instructio
 
 internal fun lowerProductionSyntax(action: Action): Action =
     productionSyntaxLowerer.transformAction(action)
+
+internal fun lowerProductionSyntax(effect: Effect): Effect =
+    productionSyntaxLowerer.transformEffect(effect)
 
 internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
     productionSyntaxLowerer.transformRequirement(requirement)

@@ -106,8 +106,8 @@ whether to make them separate sentences or coordinate them under one action cost
 representation keeps punctuation out of structural decisions without attempting to model general
 English grammar.
 
-Instruction and requirement rendering lower `PROD[...]` through the shared Terraforming Mars Pets
-transformer before inspection. Their family renderers interpret the resulting ordinary
+Instruction, requirement, and effect rendering lower `PROD[...]` through the shared Terraforming
+Mars Pets transformer before inspection. Their family renderers interpret the resulting ordinary
 `Production` expressions using passive component facts, so production boxes do not need parallel
 renderers for every Pets wrapper. `Describers` is limited to lookup and lexical access; it does not
 render Pets families.
@@ -180,6 +180,8 @@ Event interpretation retains the event kind and actor constraint independently; 
 constraint selects active `you` wording or unrestricted passive wording at linearization.
 Event triggers use the same structured clauses, predicates, noun phrases, and modifiers as
 instructions and requirements rather than assembling a separate partial-string representation.
+An abstract production-resource trigger linked to a gain of the same resource retains that type as
+`that resource` rather than presenting it as a new choice.
 An automatic removal trigger whose described consequence is a dead end renders as a prohibition
 when the trigger structurally identifies resources on this card or resources an opponent removes.
 A fixed M€ increase in the payment value of a standard resource or resource category is also derived

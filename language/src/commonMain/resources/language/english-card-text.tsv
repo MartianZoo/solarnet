@@ -14,7 +14,7 @@ CardB11	B11	Saturn Systems	Gain 42 M€. Increase your titanium production 1 ste
 CardB12	B12	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, you pay 3 M€ less.
 CardVC1	V01	Aphrodite	Gain 47 M€. Increase your plant production 1 step.	Effect: When Venus is raised 1 step, gain 2 M€.
 CardVC2F	V02	Celestic	Gain 42 M€. As your first action, draw 2 cards with floater icons. 1 VP for every 3 floaters on this card.	Action: Add 1 floater to any card.
-CardVC3	V03	Manutech	Gain 35 M€. Increase your steel production 1 step.	Effect: For each step you increase one of your productions, you also gain that resource.
+CardVC3	V03	Manutech	Gain 35 M€. Increase your steel production 1 step.	Effect: When you increase one of your productions 1 step, gain that resource.
 CardVC4F	V04	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 Venus-tag cards.	Effect: Your Venus requirements are +2 or -2 steps, your choice in each case.
 CardVC5	V05	Viron	Gain 48 M€.	Action: Use an action from a blue card that has already been used this generation.
 CardPC1	PC1	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 steps.	Effect: When you play a building tag, you pay 2 M€ less.
