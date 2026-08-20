@@ -260,6 +260,22 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.TopCardPurchase,
             ),
+        klass("CopyPrelude") to
+            ComponentDescriber(
+                directChange =
+                    ComponentDescriber.DirectChange.Imperative(
+                        "copy",
+                        "your other Prelude's direct effect",
+                    )
+            ),
+        klass("GiveColonyBonuses") to
+            ComponentDescriber(
+                directChange =
+                    ComponentDescriber.DirectChange.Imperative(
+                        "gain",
+                        "all your colony bonuses",
+                    )
+            ),
         klass("ReserveTradeFleet") to
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)

@@ -202,6 +202,8 @@ complete groups of that tag or resource. It may also be scaled by the player's c
 tiles or colonies owned by any player, or specifically by any player's city tiles on Mars.
 Tag metrics may instead count tags among all players or only tags the player's opponents have.
 An instruction metric may cap any otherwise supported count with a parenthetical maximum.
+One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
+component's Describer when its procedure is absent from the Pets change itself.
 Ownership and location remain independent renderer facts. Because a component outside the game
 does not exist in Solarnet's model, generated metric phrases do not say `in play`; the published
 cards use that phrase to contrast any player's components with the acting player's own components.
@@ -240,10 +242,11 @@ ocean tile`. Counts above one remain numeric. Resource quantities and track or p
 remain numeric even when the count is one. Attach a step count to every production named; do not
 move a shared count after several productions with `each`.
 
-An unsupported requirement, unsupported End-triggered scoring effect, behavior-bearing extra
-component declaration, or unsupported immediate-instruction shape keeps the whole region
+An unsupported requirement, unsupported End-triggered scoring effect, unaccounted behavior-bearing
+extra component declaration, or unsupported immediate-instruction shape keeps the whole region
 data-backed. Component declarations can encode printed setup behavior that is absent from
-`immediate`, so deriving only that group could omit bottom text. A strictly empty direct subclass of
+`immediate`, so deriving only that group could omit bottom text. An exact direct-change declaration
+accounts for a gained extra component's printed procedure. A strictly empty direct subclass of
 CardResource, SpecialTile, or RemoteArea is declared text-neutral and does not prevent derivation.
 Actions and non-End effects are top elements and do not prevent bottom derivation.
 

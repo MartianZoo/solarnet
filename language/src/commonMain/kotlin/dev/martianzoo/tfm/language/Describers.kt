@@ -5,6 +5,7 @@ import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
@@ -35,7 +36,18 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun hasBehaviorBearingExtraClass(card: CardDefinition): Boolean =
-      card.extraClasses.any { !isTextNeutralExtraClass(it) }
+      card.extraClasses.any { !isTextNeutralExtraClass(it) && !directlyDescribesGain(it, card) }
+
+  private fun directlyDescribesGain(
+      declaration: ClassDeclaration,
+      card: CardDefinition,
+  ): Boolean {
+    val componentClass = classesByName.getValue(declaration.className)
+    if (descriptions.getValue(componentClass).directChange == null) return false
+    return card.immediate?.descendantsOfType<Gain>()?.any {
+      it.gaining.className == declaration.className
+    } == true
+  }
 
   private fun isTextNeutralExtraClass(declaration: ClassDeclaration): Boolean {
     val superclass = declaration.supertypes.singleOrNull() ?: return false

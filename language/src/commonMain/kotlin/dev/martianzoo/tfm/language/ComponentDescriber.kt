@@ -125,6 +125,10 @@ public data class ComponentDescriber(
     /** Describes gaining one abstract component whose concrete subtype is chosen by the player. */
     public data class GainChoice(public val objectPhrase: String) : DirectChange
 
+    /** Supplies an imperative construction for one otherwise-unmodeled concrete gain. */
+    public data class Imperative(public val verb: String, public val objectPhrase: String) :
+        DirectChange
+
     /** Supplies the otherwise-unmodeled review, purchase, or discard procedure for the top card. */
     public data object TopCardPurchase : DirectChange
   }
