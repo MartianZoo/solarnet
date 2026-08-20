@@ -247,11 +247,12 @@ containing one Solarnet session and event cursor per app game. `SOLARNET_PARITY_
 into loading the standalone development package; its absence leaves the ordinary app unchanged.
 The route captures the old `waitingFor`, calls `Player.process`, and observes only a successfully
 accepted input. Structured server-side input metadata translates the currently supported setup,
-project, Aquifer, ocean-placement, end-turn, and pass inputs. The bridge suppresses construction
-events, advances its cursor after every command, and prints every new line as
-`[solarnet <game-id>] <event>`. The full feed never enters the HTTP model or browser. A Solarnet
-rejection is reported after the already-accepted app input and freezes later inputs with a distinct
-server error rather than misreporting the original input as an app rejection.
+project, Space Elevator card action, Aquifer, ocean-placement, end-turn, and pass inputs. The bridge
+suppresses construction events, advances its cursor after every command, and prints the same
+change-only, non-Hidden feed as the REPL's ordinary `log` command as
+`[solarnet <game-id>] <event>`. The complete event history never enters the HTTP model or browser.
+A Solarnet rejection is reported after the already-accepted app input and freezes later inputs with
+a distinct server error rather than misreporting the original input as an app rejection.
 
 The app's complete server suite and an end-to-end smoke against the real generated Solarnet package
 pass. The smoke covers both corporation selections, Earth Office, Aquifer payment, ocean placement,
@@ -295,8 +296,9 @@ games. Export a sanitized replay bundle containing configuration, semantic moves
 snapshots, and version pins. Never expose hidden app state through diagnostics visible to players.
 
 The first live event view belongs in the development app server's terminal: after each translated
-input completes, poll `eventsSince(cursor)` and print the returned lines. The full task and change
-history can expose hidden information, so do not send this feed to an ordinary player's browser.
+input completes, poll `eventsSince(cursor)` and print the returned ordinary-log lines. The full task
+and change history can expose hidden information, so do not send either feed to an ordinary player's
+browser.
 
 Only after the diagnostic system is trustworthy should we consider speculative dual execution that
 blocks a move before either live state changes. That requires disposable Solarnet worlds or another

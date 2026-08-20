@@ -40,6 +40,13 @@ internal class SolarnetSessionTest {
       val firstMoveCursor = firstMoveEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
       assertTrue(firstMoveCursor > initialCursor)
       assertTrue(firstMoveEvents.getValue("lines").jsonArray.isNotEmpty())
+      assertTrue(
+          firstMoveEvents
+              .getValue("lines")
+              .jsonArray
+              .map { it.jsonPrimitive.content }
+              .none { "Task" in it }
+      )
 
       val afterBoth =
           Json.parseToJsonElement(
@@ -104,7 +111,7 @@ internal class SolarnetSessionTest {
       assertTrue(tileLines.any { "+OceanTile<Tharsis_1_2" in it })
       assertTrue(tileLines.any { "+TerraformRating<Player1>" in it })
       assertTrue(tileLines.any { "+2 Steel<Player1>" in it })
-      assertTrue(tileLines.any { "NewTurn<Player2>" in it })
+      assertTrue(tileLines.none { "NewTurn<Player2>" in it })
 
       assertFailsWith<TaskException> {
         session.apply("""{"operation":"endTurn","player":2}""")
@@ -175,7 +182,52 @@ internal class SolarnetSessionTest {
       val passEvents = Json.parseToJsonElement(session.eventsSince(tileCursor)).jsonObject
       val passLines = passEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
       assertTrue(passLines.any { "+Pass<Player2>" in it })
-      assertTrue(passLines.any { "NewTurn<Player1>" in it })
+      assertTrue(passLines.none { "NewTurn<Player1>" in it })
+    } finally {
+      session.close()
+    }
+  }
+
+  @Test
+  fun executesVerifiedCardActionAndFiltersItsLog() {
+    val session = SolarnetSession("CorporateEraExpansion", 2, NodeFiles::readUtf8)
+    try {
+      session.apply(
+          """{"operation":"selectCorporation","player":1,"corporation":"InterplanetaryCinematics","projectCards":1}"""
+      )
+      session.apply(
+          """{"operation":"selectCorporation","player":2,"corporation":"CrediCor","projectCards":0}"""
+      )
+      session.apply(
+          """{"operation":"playProject","player":1,"cardId":"013","payment":{"megacredits":1,"steel":13,"titanium":0}}"""
+      )
+      val cursor =
+          Json.parseToJsonElement(session.eventsSince(0))
+              .jsonObject
+              .getValue("nextCursor")
+              .jsonPrimitive
+              .content
+              .toInt()
+
+      val snapshot =
+          Json.parseToJsonElement(
+                  session.apply("""{"operation":"cardAction","player":1,"cardId":"013"}""")
+              )
+              .jsonObject
+      val player1 = snapshot.getValue("players").jsonArray[0].jsonObject
+      val resources = player1.getValue("resources").jsonObject
+      assertEquals(31, resources.getValue("megacredits").jsonPrimitive.content.toInt())
+      assertEquals(6, resources.getValue("steel").jsonPrimitive.content.toInt())
+
+      val lines =
+          Json.parseToJsonElement(session.eventsSince(cursor))
+              .jsonObject
+              .getValue("lines")
+              .jsonArray
+              .map { it.jsonPrimitive.content }
+      assertTrue(lines.any { "-Steel<Player1>" in it })
+      assertTrue(lines.any { "+5 Megacredit<Player1>" in it })
+      assertTrue(lines.none { "Task" in it })
     } finally {
       session.close()
     }
@@ -241,7 +293,7 @@ internal class SolarnetSessionTest {
               .getValue("lines")
               .jsonArray
               .map { it.jsonPrimitive.content }
-      assertTrue(endTurnLines.any { "NewTurn<Player2>" in it })
+      assertTrue(endTurnLines.none { "NewTurn<Player2>" in it })
       assertFailsWith<TaskException> {
         session.apply("""{"operation":"endTurn","player":2}""")
       }
