@@ -37,7 +37,7 @@ internal fun renderChange(
     return renderTrackChange(instruction, it)
   }
   describers.fact(expression.className, ComponentDescriber::placement)?.let {
-    return renderPlacement(instruction, it)
+    return renderPlacement(instruction, it, describers)
   }
   if (describers.fact(expression.className, ComponentDescriber::standardResource) == true)
       return renderStandardResourceChange(instruction, describers)
@@ -221,32 +221,6 @@ private fun renderTrackChange(
       if (gain != null) "raise" else "lower",
       NounPhrase.text("${description.subject} $count $steps"),
   )
-}
-
-private fun renderPlacement(
-    instruction: Instruction,
-    description: ComponentDescriber.Placement,
-): Clause? {
-  val gain = instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
-  // Explicit <> accepts placement defaults and does not narrow the placed component.
-  if (
-      gain.gaining.arguments.isNotEmpty() ||
-          gain.gaining.refinement != null ||
-          gain.gaining.complement
-  ) {
-    return null
-  }
-  val count = (gain.count as? ActualScalar)?.value ?: return null
-  if (count != 1 && !description.allowsMultiple) return null
-  val noun =
-      if (count == 1) {
-        NounPhrase(description.singular, description.plural, determiner = description.article)
-      } else {
-        NounPhrase(description.singular, description.plural, count = count)
-      }
-  val consequence = description.consequence?.let(Modifier::Parenthetical)
-  return clause("place", noun, *listOfNotNull(consequence).toTypedArray())
 }
 
 private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {

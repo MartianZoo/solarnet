@@ -130,7 +130,7 @@ Card016	016	Domed Crater	Oxygen must be 7% or less. Gain 3 plants. Place a city 
 Card017	017	Noctis City	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile ON THE RESERVED AREA, disregarding normal placement restrictions.	
 Card018	018	Methane From Titan	Requires 2% oxygen. Increase your heat production 2 steps and your plant production 2 steps. 2 VPs.	
 Card019	019	Imported Hydrogen	Gain 3 plants, add 3 microbes to any card, or add 2 animals to any card. Place an ocean tile.	
-Card020	020	Research Outpost	Place a city tile NEXT TO NO OTHER TILE.	Effect: When you play a card, you pay 1 M€ less for it.
+Card020	020	Research Outpost	Place a city tile on a land area not adjacent to any other tile.	Effect: When you play a card, you pay 1 M€ less for it.
 Card021	021	Phobos Space Haven	Increase your titanium production 1 step and place a city tile ON THE RESERVED AREA. 3 VPs.	
 Card022	022	Black Polar Dust	Place an ocean tile. Decrease your M€ production 2 steps and increase your heat production 3 steps.	
 Card023	023	Arctic Algae	Temperature must be -12°C or colder. Gain 1 plant.	Effect: When any ocean tile is placed, gain 2 plants.
@@ -191,7 +191,7 @@ Card116	116	Artificial Lake	Requires -6°C or warmer. Place an ocean tile ON AN 
 Card117	117	Geothermal Power	Increase your energy production 2 steps.	
 Card118	118	Farming	Requires +4°C or warmer. Increase your M€ production 2 steps and your plant production 2 steps. Gain 2 plants. 2 VPs.	
 Card119	119	Dust Seals	There must be 3 or fewer ocean tiles. 1 VP.	
-Card120	120	Urbanized Area	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile ADJACENT TO 2 OR MORE OTHER CITY TILES.	
+Card120	120	Urbanized Area	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile on a land area adjacent to 2 or more city tiles.	
 Card122	122	Moss	Requires 3 ocean tiles. Increase your plant production 1 step. Remove 1 plant.	
 Card126	126	GHG Factories	Decrease your energy production 1 step and increase your heat production 4 steps.	
 Card127	127	Subterranean Reservoir	Place an ocean tile.	

@@ -67,6 +67,11 @@ enumerate categories such as city tiles and colonies. In particular, requirement
 their minimum, maximum, and compound-owned wording rather than exposing a centralized
 component-category value for `Describers` to switch over.
 
+Restricted placements follow the same rule. A placement-site fact marks an expression argument as
+the placed component's site and supplies its noun, while a spatial-relation fact supplies the
+relation phrase and its implicit target noun. The placement renderer interprets strict counting
+refinements on that site structurally; neither fact contains a card or a complete instruction.
+
 Each current sparse fact is inherited independently: a declaration on a more
 specific Class overrides the same fact from its superclass, facts from incomparable branches
 compose, and differing values for the same fact from incomparable nearest providers are rejected.
@@ -165,7 +170,9 @@ concrete standard-resource type from any player to the acting player; a gain of 
 Fleet; a mandatory gain of a generic or concrete card resource on the played card, an unrestricted
 card, or a card narrowed to one concrete tag; a group of concrete
 mandatory standard-resource production gains or decreases; a city-tile, colony, or ocean-tile
-placement using the type's default arguments; one plain greenery-tile placement; a concrete
+placement using the type's default arguments; one plain greenery-tile placement; one city or
+greenery placement on a described land site, optionally narrowed by a supported minimum or
+zero-maximum adjacency refinement; a concrete
 mandatory removal of a concrete card resource; or a concrete mandatory
 temperature, oxygen, Venus-step, or terraform-rating gain or removal. A production decrease may
 target any player. A choice is derived when every alternative is one supported clause, including a
@@ -230,8 +237,11 @@ do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets sh
 draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
 not structurally sufficient.
 
-A plain mandatory placement of one greenery tile renders its implicit oxygen increase. Restricted
-greenery expressions such as `GreeneryTile<WaterArea>` remain data-backed, as does Experimental Forest
+A plain mandatory placement of one greenery tile renders its implicit oxygen increase. A strict
+placement-site refinement can express a minimum adjacency count or the absence of adjacent tiles;
+its relation target may be implicit or one described placed-component type explicitly qualified by
+`Anyone`. Ocean-reserved greenery placement remains data-backed because its printed waiver of
+normal placement restrictions is not yet represented. Experimental Forest remains data-backed
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
 An unrestricted gain of a concrete card resource says `any card`. Other narrowed card-resource

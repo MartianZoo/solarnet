@@ -37,7 +37,14 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       card.extraClasses.any { it.className != card.resourceType }
 
   internal fun componentNoun(className: ClassName, count: Int): String =
-      when (val noun = fact(className, ComponentDescriber::noun)) {
+      describedNoun(className, fact(className, ComponentDescriber::noun), count)
+
+  internal fun describedNoun(
+      className: ClassName,
+      noun: ComponentDescriber.Noun?,
+      count: Int,
+  ): String =
+      when (noun) {
         is ComponentDescriber.Noun.Counted -> if (count == 1) noun.singular else noun.plural
         is ComponentDescriber.Noun.Fixed -> noun.text
         ComponentDescriber.Noun.ClassName,

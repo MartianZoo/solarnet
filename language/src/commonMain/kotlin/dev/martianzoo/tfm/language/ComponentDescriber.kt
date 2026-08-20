@@ -11,6 +11,8 @@ public data class ComponentDescriber(
     public val tag: Tag? = null,
     public val track: Track? = null,
     public val placement: Placement? = null,
+    public val placementSite: PlacementSite? = null,
+    public val spatialRelation: SpatialRelation? = null,
     public val production: Boolean? = null,
     public val requirement: Requirement? = null,
     public val directGain: DirectGain? = null,
@@ -53,6 +55,13 @@ public data class ComponentDescriber(
       public val allowsMultiple: Boolean = true,
       public val unqualifiedMetricOwner: MetricOwner? = null,
       public val anyoneMetricOwner: MetricOwner? = null,
+  )
+
+  public data class PlacementSite(public val noun: Noun)
+
+  public data class SpatialRelation(
+      public val phrase: String,
+      public val defaultTarget: Noun.Counted,
   )
 
   public enum class MetricOwner {
