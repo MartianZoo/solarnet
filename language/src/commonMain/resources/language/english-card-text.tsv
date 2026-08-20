@@ -1,6 +1,6 @@
 class_name	id	english_name	bottom_text	top_text
 CardB00	B00	Beginner Corporation	Gain 42 M€. Keep all 10 project cards you received in setup for free.	*To begin setup, any player may take this card instead of drawing any face-down Corporations.
-CardB01	B01	CrediCor	Gain 57 M€.	Effect: When you play a card with a basic cost of 20 M€ or more or you use a standard project with a basic cost of 20 M€ or more, gain 4 M€.
+CardB01	B01	CrediCor	Gain 57 M€.	Effect: When you play a card with a printed cost of 20 M€ or more or you use a standard project with a printed cost of 20 M€ or more, gain 4 M€.
 CardB02	B02	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less for it.
 CardB03	B03	Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: You may use heat as M€. You may not use M€ as heat.
 CardB04	B04	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
@@ -198,7 +198,7 @@ Card127	127	Subterranean Reservoir	Place an ocean tile.
 Card128	128	Ecological Zone	Requires that you have 1 greenery tile. Place this tile on a land area adjacent to one or more greenery tiles. 1 VP for every 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
 Card129	129	Zeppelins	Requires 5% oxygen. Increase your M€ production 1 step for each city tile on Mars. 1 VP.	
 Card130	130	Worms	Requires 4% oxygen. Increase your plant production 1 step for every 2 microbe tags you have.	
-Card131	131	Decomposers	Requires 3% oxygen. 1 VP for every 3 microbes on this card.	Effect: When you play an animal tag, a plant tag, or a microbe tag, add 1 microbe to this card.
+Card131	131	Decomposers	Requires 3% oxygen. 1 VP for every 3 microbes on this card.	Effect: When you play a bio tag, add 1 microbe to this card.
 Card132	132	Fusion Power	Requires 2 power tags. Increase your energy production 3 steps.	
 Card133	133	Symbiotic Fungus	Requires -14°C or warmer.	Action: Add 1 microbe to any card.
 Card134	134	Extreme-Cold Fungus	Temperature must be -10°C or colder.	Action: Gain 1 plant, or add 2 microbes to any card.
@@ -275,7 +275,7 @@ Card069	069	Electro Catapult	Oxygen must be 8% or less. Decrease your energy pro
 Card070	070	Earth Catapult	2 VPs.	Effect: When you play a card, you pay 2 M€ less for it.
 Card071	071	Advanced Alloys		Effect: Each titanium or steel you spend is worth 1 M€ extra.
 Card073	073	Mars University	1 VP.	Effect: When you play a science tag, you may discard a card from hand to draw 1 card.
-Card074	074	Viral Enhancers		Effect: When you play an animal tag, a plant tag, or a microbe tag, gain 1 plant or add 1 resource to that card.
+Card074	074	Viral Enhancers		Effect: When you play a bio tag, gain 1 plant or add 1 resource to that card.
 Card079	079	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space tag, you pay 2 M€ less.
 Card082	082	Callisto Penal Mines	Increase your M€ production 3 steps. 2 VPs.	
 Card084	084	Trans-Neptune Probe	1 VP.	
@@ -423,7 +423,7 @@ CardC37	C37	Solar Probe	Draw 1 card for every 3 science tags you have. 1 VP.
 CardC38	C38	Solar Reflectors	Increase your heat production 5 steps.	
 CardC39	C39	Space Port	Requires 1 colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step and increase your M€ production 4 steps.	
 CardC40	C40	Space Port Colony	Requires a colony. Place a colony. May be placed on a colony tile where you already have a colony. Gain 1 Trade Fleet. 1 VP for every 2 colonies in play.	
-CardC41	C41	Spin-Off Department	Increase your M€ production 2 steps.	Effect: When you play a card with a basic cost of 20 M€ or more, draw 1 card.
+CardC41	C41	Spin-Off Department	Increase your M€ production 2 steps.	Effect: When you play a card with a printed cost of 20 M€ or more, draw 1 card.
 CardC42	C42	Sub-Zero Salt Fish	Requires -6°C or warmer. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Action: Add 1 animal to this card.
 CardC43	C43	Titan Air-Scrapping	2 VPs.	Action: Spend 1 titanium to add 2 floaters to this card, or remove 2 floaters from this card to raise your terraform rating 1 step.
 CardC44	C44	Titan Floating Launch-Pad	Add 2 floaters to a Jovian card. 1 VP.	Action: Add 1 floater to ANY JOVIAN CARD, or remove 1 floater from this card to trade for free.
@@ -460,7 +460,7 @@ CardX09	X09	Political Alliance	Requires that you have 2 Party Leaders. Raise you
 CardX10	X10	Rego Plastics	1 VP.	Effect: Each steel you spend is worth 1 M€ extra.
 CardX11	X11	Saturn Surfing	Add 1 floater to this card for each Earth tag you have. 1 VP.	Action: Remove 1 floater from this card to gain 1 M€ for each floater on this card (max 4) and gain 1 M€.
 CardX12	X12	Stanford Torus	Place a city tile on the reserved area outside Mars. 2 VPs.	
-CardX13	X13	Advertising		Effect: When you play a card with a basic cost of 20 M€ or more, increase your M€ production 1 step.
+CardX13	X13	Advertising		Effect: When you play a card with a printed cost of 20 M€ or more, increase your M€ production 1 step.
 CardX14F	X14	Asteroid Deflection System	Decrease your energy production 1 step. 1 VP for each asteroid on this card.	Action: Reveal and discard the top card of the deck. If it has a space tag, add 1 asteroid to this card. / Opponents may not remove your plants.
 CardX15	X15	Asteroid Hollowing	1 VP for every 2 asteroids on this card.	Action: Spend 1 titanium to add 1 asteroid to this card and increase your M€ production 1 step.
 CardX16	X16	Comet Aiming		Action: Spend 1 titanium to add 1 asteroid to any card, or remove 1 asteroid from this card to place an ocean tile.

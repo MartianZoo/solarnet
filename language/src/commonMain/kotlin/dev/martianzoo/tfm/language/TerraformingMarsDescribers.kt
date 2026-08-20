@@ -66,7 +66,7 @@ internal object TerraformingMarsDescribers {
                             mapOf(
                                 "cost" to
                                     ComponentDescriber.MinimumProperty.Threshold(
-                                        "basic cost",
+                                        "printed cost",
                                         "M€",
                                     ),
                                 "requirement" to
@@ -202,8 +202,7 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("PlanetTag") to ComponentDescriber(tag = ComponentDescriber.Tag.PLANET),
-        klass("BioTag") to
-            ComponentDescriber(playedTagPhrase = "an animal tag, a plant tag, or a microbe tag"),
+        klass("BioTag") to ComponentDescriber(playedTagPhrase = "a bio tag"),
         klass("AnimalTag") to ComponentDescriber(playedTagPhrase = "an animal tag"),
         klass("PlantTag") to ComponentDescriber(playedTagPhrase = "a plant tag"),
         klass("MicrobeTag") to ComponentDescriber(playedTagPhrase = "a microbe tag"),
@@ -427,7 +426,7 @@ internal object TerraformingMarsDescribers {
                             mapOf(
                                 "cost" to
                                     ComponentDescriber.MinimumProperty.Threshold(
-                                        "basic cost",
+                                        "printed cost",
                                         "M€",
                                     )
                             ),
