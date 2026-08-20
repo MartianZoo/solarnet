@@ -152,6 +152,20 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun productionExpression(
       expression: Expression,
+  ): Pair<List<Expression>, ClassName>? =
+      parseProductionExpression(expression)?.takeIf { (_, resource) ->
+        plainGainNoun(resource, 1) != null
+      }
+
+  internal fun productionCategoryExpression(
+      expression: Expression,
+  ): Pair<List<Expression>, ClassName>? =
+      parseProductionExpression(expression)?.takeIf { (_, resource) ->
+        plainGainCategoryNoun(resource, 1) != null
+      }
+
+  private fun parseProductionExpression(
+      expression: Expression,
   ): Pair<List<Expression>, ClassName>? {
     if (
         fact(expression.className, ComponentDescriber::production) != true ||
@@ -170,7 +184,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       return null
     }
     val resource = resourceDependency.arguments.single()
-    if (!resource.simple || plainGainNoun(resource.className, 1) == null) return null
+    if (!resource.simple) return null
     return expression.arguments.dropLast(1) to resource.className
   }
 
