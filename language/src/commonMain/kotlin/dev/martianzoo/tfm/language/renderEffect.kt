@@ -138,7 +138,8 @@ internal fun renderEffects(effects: List<Effect>, describers: Describers): Strin
             .drop(index)
             .map { paymentDiscount(it, describers) }
             .takeWhile {
-              it?.reduction == discount.reduction
+              it?.reduction == discount.reduction &&
+                  it?.categoryReduction == discount.categoryReduction
             }
     sentences += renderPaymentDiscount(run.filterNotNull())
     index += run.size
@@ -149,7 +150,8 @@ internal fun renderEffects(effects: List<Effect>, describers: Describers): Strin
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
   owedReduction(effect.instruction, describers)?.let { reduction ->
     val actionTrigger = describers.renderActionPaymentDiscountTrigger(effect.trigger)
-    val trigger = actionTrigger ?: describers.renderEventTrigger(effect.trigger) ?: return null
+    val trigger =
+        actionTrigger?.clause ?: describers.renderEventTrigger(effect.trigger) ?: return null
     return PaymentDiscount(
         trigger,
         reduction,
@@ -157,12 +159,24 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
     )
   }
   val trigger = describers.renderActionPaymentDiscountTrigger(effect.trigger) ?: return null
-  val reduction = describers.renderPlainGainAmount(effect.instruction) ?: return null
-  return PaymentDiscount(trigger, reduction, refersToObject = true)
+  val actualReduction = describers.renderPlainGainAmount(effect.instruction) ?: return null
+  val reduction =
+      trigger.refundDiscountNoun?.let { noun ->
+        ResourceAmount(
+            actualReduction.count,
+            if (actualReduction.count == 1) noun.singular else noun.plural,
+        )
+      } ?: actualReduction
+  return PaymentDiscount(
+      trigger.clause,
+      reduction,
+      refersToObject = true,
+      categoryReduction = trigger.refundDiscountNoun != null,
+  )
 }
 
 private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
-  val clauses = discounts.map { it.trigger }
+  val clauses = discounts.map { it.trigger }.distinct()
   fun joinAlternatives(parts: List<String>): String =
       if (parts.size == 1) parts.single() else englishAlternatives(parts)
   val actingPlayer = NounPhrase.text("you")
@@ -174,15 +188,20 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
       }
   val reduction = discounts.first().reduction
   val objectReference = if (discounts.all { it.refersToObject }) " for it" else ""
-  return completeSentence(
-      "when $trigger, you pay ${reduction.count} ${reduction.noun} less$objectReference"
-  )
+  val reductionPhrase =
+      if (discounts.first().categoryReduction) {
+        "${reduction.count} less ${reduction.noun}"
+      } else {
+        "${reduction.count} ${reduction.noun} less"
+      }
+  return completeSentence("when $trigger, you pay $reductionPhrase$objectReference")
 }
 
 private data class PaymentDiscount(
     val trigger: Clause.Simple,
     val reduction: ResourceAmount,
     val refersToObject: Boolean,
+    val categoryReduction: Boolean = false,
 )
 
 private fun renderResourcePaymentValue(effect: Effect, describers: Describers): String? {
@@ -216,14 +235,24 @@ private fun Describers.renderSpentResource(trigger: Trigger): String? {
   return plainGainCategoryNoun(resource.className, 1)
 }
 
-private fun Describers.renderActionPaymentDiscountTrigger(trigger: Trigger): Clause.Simple? {
+private data class ActionPaymentDiscountTrigger(
+    val clause: Clause.Simple,
+    val refundDiscountNoun: ComponentDescriber.Noun.Counted?,
+)
+
+private fun Describers.renderActionPaymentDiscountTrigger(
+    trigger: Trigger,
+): ActionPaymentDiscountTrigger? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
   val action = expression.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
-  val predicate =
-      fact(action.className, ComponentDescriber::actionUse)?.refundDiscountPredicate ?: return null
-  return eventTrigger(subject = "you", verb = predicate)
+  val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
+  val predicate = use.refundDiscountPredicate ?: return null
+  return ActionPaymentDiscountTrigger(
+      eventTrigger(subject = "you", verb = predicate),
+      use.refundDiscountNoun,
+  )
 }
 
 private fun Describers.renderPlainGainAmount(instruction: InstructionTree): ResourceAmount? {

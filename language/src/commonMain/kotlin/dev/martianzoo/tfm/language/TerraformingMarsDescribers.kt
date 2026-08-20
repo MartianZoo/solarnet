@@ -330,6 +330,16 @@ internal object TerraformingMarsDescribers {
                         refundDiscountPredicate = "use the Power Plant standard project",
                     )
             ),
+        klass("TradeSA") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        objectPhrase = "the Trade standard action",
+                        refundDiscountPredicate = "use the Trade standard action",
+                        refundDiscountNoun =
+                            ComponentDescriber.Noun.Counted("resource", "resources"),
+                    )
+            ),
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
         klass("Owed") to ComponentDescriber(owedPayment = true),
     )

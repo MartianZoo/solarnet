@@ -187,7 +187,9 @@ from its spent-resource trigger. A direct trigger on a played-card type is deriv
 narrowed to one concrete tag or a minimum printed card cost. A trigger on using a described standard
 action or standard project composes with the same supported consequences. A pre-payment resource gain
 for an explicitly described action may be presented as the discount it implements; adjacent equal
-discounts combine under one trigger sentence. Discounts triggered by playing a card retain `for it`,
+discounts combine under one trigger sentence. The action description may supply a shared counted
+noun for alternative standard-resource refunds, allowing those equal amounts to combine as one
+discount. Discounts triggered by playing a card retain `for it`,
 while discounts triggered by playing a tag omit that pronoun because the tag is not the object being
 paid for. When actions and effects share a top region, actions are rendered first and their
 card-resource metrics name `this card` rather than the contextual `here`.

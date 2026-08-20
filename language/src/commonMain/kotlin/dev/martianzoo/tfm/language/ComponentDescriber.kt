@@ -165,6 +165,7 @@ public data class ComponentDescriber(
   public data class ActionUse(
       public val objectPhrase: String,
       public val refundDiscountPredicate: String? = null,
+      public val refundDiscountNoun: Noun.Counted? = null,
   )
 
   public enum class PlayTrigger {
