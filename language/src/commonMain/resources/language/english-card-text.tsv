@@ -127,7 +127,7 @@ Card011	011	Big Asteroid	Raise temperature 2 steps. Gain 4 titanium. Remove up t
 Card012	012	Water Import From Europa	1 VP for each Jovian tag you have.	Action: Spend 12 M€ to place an ocean tile. Titanium may be used.
 Card015	015	Equatorial Magnetizer		Action: Decrease your energy production 1 step to raise your terraform rating 1 step.
 Card016	016	Domed Crater	Oxygen must be 7% or less. Gain 3 plants. Place a city tile. Decrease your energy production 1 step and increase your M€ production 3 steps. 1 VP.	
-Card017	017	Noctis City	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile ON THE RESERVED AREA, disregarding normal placement restrictions.	
+Card017	017	Noctis City	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile on the reserved area if one exists, otherwise place it without that restriction.	
 Card018	018	Methane From Titan	Requires 2% oxygen. Increase your heat production 2 steps and your plant production 2 steps. 2 VPs.	
 Card019	019	Imported Hydrogen	Gain 3 plants, add 3 microbes to any card, or add 2 animals to any card. Place an ocean tile.	
 Card020	020	Research Outpost	Place a city tile on a land area not adjacent to any other tile.	Effect: When you play a card, you pay 1 M€ less for it.
@@ -206,7 +206,7 @@ Card135	135	Advanced Ecosystems	Requires a plant tag, a microbe tag, and an anim
 Card136	136	Great Dam	Requires 4 ocean tiles. Increase your energy production 2 steps. 1 VP.	
 Card138	138	Strip Mine	Decrease your energy production 2 steps and increase your steel production 2 steps and your titanium production 1 step. Raise oxygen 2 steps.	
 Card139	139	Wave Power	Requires 3 ocean tiles. Increase your energy production 1 step. 1 VP.	
-Card140	140	Lava Flows	Raise temperature 2 steps and place this tile; if using a board with volcanic areas, this tile MUST be placed on one.	
+Card140	140	Lava Flows	Raise temperature 2 steps. Place this tile on a volcanic area if one exists, otherwise place it without that restriction.	
 Card141	141	Power Plant	Increase your energy production 1 step.	
 Card142	142	Mohole Area	Increase your heat production 4 steps. Place this tile on an area reserved for ocean.	
 Card143	143	Large Convoy	Place an ocean tile and draw 2 cards. Gain 5 plants, or add 4 animals to any card. 2 VPs.	
@@ -377,7 +377,7 @@ Card259	259	Venusian Animals	Requires Venus 18%. 1 VP for each animal on this ca
 Card260	260	Venusian Insects	Requires Venus 12%. 1 VP for every 2 microbes on this card.	Action: Add 1 microbe to this card.
 Card261	261	Venusian Plants	Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to a Venus card. 1 VP.	
 CardP36	P36	House Printing	Increase your steel production 1 step. 1 VP.	
-CardP37	P37	Lava Tube Settlement	Decrease your energy production 1 step. Increase your M€ production 2 steps. Place a city tile; if using a board with volcanic areas, this tile MUST be placed on one, but may ignore adjacent cities.	
+CardP37	P37	Lava Tube Settlement	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile on a volcanic area if one exists, otherwise place it without that restriction.	
 CardP38	P38	Martian Survey	Oxygen must be 4% or less. Draw 2 cards. 1 VP.	
 CardP39	P39	Psychrophiles	Temperature must be -20°C or colder.	Action: Add 1 microbe to this card. / Effect: When you pay for a plant card, microbes here may be used as 2 M€ each.
 CardP40	P40	Research Coordination	After being played, when you perform an action, the wild tag counts as any tag of your choice.	

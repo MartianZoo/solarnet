@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
@@ -79,6 +80,9 @@ private fun renderAlternatives(
     instruction: Instruction.Or,
     describers: Describers,
 ): Clause? {
+  renderPlacementSiteFallback(instruction, describers)?.let {
+    return it
+  }
   val alternatives =
       instruction.instructions.map { option ->
         renderLoweredInstructions(option, describers)?.clauses?.singleOrNull() ?: return null
@@ -90,6 +94,48 @@ private fun renderAlternatives(
     }
   }
   return Clause.Coordinated(Coordination(alternatives, Conjunction.OR))
+}
+
+private fun renderPlacementSiteFallback(
+    instruction: Instruction.Or,
+    describers: Describers,
+): Clause.Simple? {
+  if (instruction.instructions.size != 2) return null
+  val preferred =
+      InstructionGroup.of(instruction.instructions.first()).instructions.singleOrNull() as? Gain
+          ?: return null
+  val fallback =
+      InstructionGroup.of(instruction.instructions.last()).instructions.singleOrNull()
+          as? Instruction.Gated ?: return null
+  val unrestricted =
+      InstructionGroup.of(fallback.inner).instructions.singleOrNull() as? Gain ?: return null
+  if (
+      preferred.gaining.refinement != null ||
+          preferred.gaining.complement ||
+          preferred.gaining.className != unrestricted.gaining.className ||
+          unrestricted.gaining.arguments.isNotEmpty() ||
+          unrestricted.gaining.refinement != null ||
+          unrestricted.gaining.complement ||
+          preferred.intensity != unrestricted.intensity ||
+          preferred.count != unrestricted.count ||
+          (preferred.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val site = preferred.gaining.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
+  if (describers.placementSite(site.className) == null) return null
+  val placement =
+      describers.fact(preferred.gaining.className, ComponentDescriber::placement) ?: return null
+  if (placement.consequence != null) return null
+  val absence = fallback.gate as? Requirement.Max ?: return null
+  val countedSite = absence.countedMetric as? Metric.Count ?: return null
+  if (absence.maximum != 0 || countedSite.expression != site) return null
+
+  val preferredClause = renderChange(preferred, describers) as? Clause.Simple ?: return null
+  if (renderChange(unrestricted, describers) !is Clause.Simple) return null
+  return preferredClause
+      .withModifier(Modifier.Phrase("if one exists"))
+      .withModifier(Modifier.Supplement("otherwise place it without that restriction"))
 }
 
 private fun coalesceAdjacentChanges(

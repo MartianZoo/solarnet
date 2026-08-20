@@ -313,7 +313,11 @@ placement-site refinement can express a minimum adjacency count or the absence o
 its relation target may be implicit or one described placed-component type explicitly qualified by
 `Anyone`. A Describer can also identify a specialized placement site such as an area reserved for
 ocean. The resulting placement is derived, but any printed waiver of normal placement restrictions
-is omitted because Pets does not represent that waiver. Experimental Forest remains data-backed
+is omitted because Pets does not represent that waiver. A two-branch alternative can prefer one
+described site and repeat the same consequence-free, one-component placement behind a `MAX 0` gate
+for that site; it renders as placing there if one exists and otherwise placing without that site
+restriction.
+Experimental Forest remains data-backed
 because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
 
 An unrestricted gain of a concrete card resource says `any card`. Other narrowed card-resource

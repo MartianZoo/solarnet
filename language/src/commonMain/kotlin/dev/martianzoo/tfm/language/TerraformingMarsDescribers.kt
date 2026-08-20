@@ -93,6 +93,26 @@ internal object TerraformingMarsDescribers {
                         article = "an",
                     ),
             ),
+        klass("NoctisArea") to
+            ComponentDescriber(
+                placementSite =
+                    ComponentDescriber.PlacementSite(
+                        noun = ComponentDescriber.Noun.Fixed("reserved area"),
+                        article = "the",
+                    ),
+            ),
+        klass("VolcanicArea") to
+            ComponentDescriber(
+                placementSite =
+                    ComponentDescriber.PlacementSite(
+                        noun =
+                            ComponentDescriber.Noun.Counted(
+                                "volcanic area",
+                                "volcanic areas",
+                            ),
+                        article = "a",
+                    ),
+            ),
         klass("LandArea") to
             ComponentDescriber(
                 placementSite = ComponentDescriber.PlacementSite(ComponentDescriber.Noun.ClassName)
