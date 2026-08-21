@@ -165,7 +165,7 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
           ?: return null
   val steps = if (count == 1) "step" else "steps"
   return completeSentence(
-      "when you play a card, you may treat its $requirementKind requirement as if it were " +
+      "when you play a card, you may treat a $requirementKind requirement as if it is " +
           "$count $steps lower or higher"
   )
 }
@@ -425,7 +425,6 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
     return PaymentDiscount(
         trigger,
         reduction,
-        actionTrigger != null || describers.paymentDiscountRefersToPlayedObject(effect.trigger),
     )
   }
   val trigger = describers.renderActionPaymentDiscountTrigger(effect.trigger) ?: return null
@@ -440,7 +439,6 @@ private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDisc
   return PaymentDiscount(
       trigger.clause,
       reduction,
-      refersToObject = true,
       categoryReduction = trigger.refundDiscountNoun != null,
   )
 }
@@ -457,20 +455,18 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): String {
         joinAlternatives(clauses.map(Clause.Simple::linearize))
       }
   val reduction = discounts.first().reduction
-  val objectReference = if (discounts.all { it.refersToObject }) " for it" else ""
   val reductionPhrase =
       if (discounts.first().categoryReduction) {
         "${reduction.count} less ${reduction.noun}"
       } else {
         "${reduction.count} ${reduction.noun} less"
       }
-  return completeSentence("when $trigger, you pay $reductionPhrase$objectReference")
+  return completeSentence("when $trigger, pay $reductionPhrase")
 }
 
 private data class PaymentDiscount(
     val trigger: Clause.Simple,
     val reduction: ResourceAmount,
-    val refersToObject: Boolean,
     val categoryReduction: Boolean = false,
 )
 
@@ -535,13 +531,6 @@ private fun Describers.renderPlainGainAmount(instruction: InstructionTree): Reso
   val change = instruction as? Instruction ?: return null
   val (className, count) = standardResourceGain(change, this) ?: return null
   return ResourceAmount(count, componentNoun(className, count))
-}
-
-private fun Describers.paymentDiscountRefersToPlayedObject(trigger: Trigger): Boolean {
-  val expression = (trigger as? OnGainOf)?.expression ?: return false
-  return fact(expression.className, ComponentDescriber::playTrigger) ==
-      ComponentDescriber.PlayTrigger.CARD ||
-      fact(expression.className, ComponentDescriber::playedCard) != null
 }
 
 private data class Event(
@@ -783,7 +772,6 @@ private fun Describers.purchaseEvent(expression: Expression): Event? {
       EventKind.BUY,
       EventActor.YOU,
       "${indefiniteArticle(noun)} $noun",
-      listOfNotNull(purchase.destination?.let(Modifier::Phrase)),
   )
 }
 

@@ -185,10 +185,7 @@ public data class ComponentDescriber(
 
   public data class Score(public val singular: String, public val plural: String)
 
-  public data class Purchase(
-      public val noun: Noun.Counted,
-      public val destination: String? = null,
-  )
+  public data class Purchase(public val noun: Noun.Counted)
 
   public data class ActionUse(
       public val objectPhrase: String,

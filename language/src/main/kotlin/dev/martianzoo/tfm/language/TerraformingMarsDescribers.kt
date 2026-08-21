@@ -25,7 +25,7 @@ internal object TerraformingMarsDescribers {
         klass("StandardResource") to
             ComponentDescriber(
                 standardResource = true,
-                directChange = ComponentDescriber.DirectChange.GainChoice("any standard resource"),
+                directChange = ComponentDescriber.DirectChange.GainChoice("a standard resource"),
             ),
         klass("Metal") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("titanium or steel")),
@@ -36,7 +36,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),
         klass("ProjectCard") to
             ComponentDescriber(
-                noun = ComponentDescriber.Noun.Counted("project card", "project cards"),
+                noun = ComponentDescriber.Noun.Counted("card", "cards"),
                 discardable = true,
                 draw = true,
             ),
@@ -369,8 +369,7 @@ internal object TerraformingMarsDescribers {
                 directChange = ComponentDescriber.DirectChange.TopCardPurchase,
                 purchase =
                     ComponentDescriber.Purchase(
-                        noun = ComponentDescriber.Noun.Counted("card", "cards"),
-                        destination = "to hand",
+                        noun = ComponentDescriber.Noun.Counted("card", "cards")
                     ),
             ),
         klass("CopyPrelude") to

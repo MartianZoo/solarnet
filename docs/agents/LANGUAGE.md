@@ -219,11 +219,10 @@ A pre-payment resource gain for an explicitly described action may be presented 
 implements; adjacent equal discounts combine under one trigger sentence. The action description
 may supply a shared counted
 noun for alternative standard-resource refunds, allowing those equal amounts to combine as one
-discount. Discounts triggered by playing a card retain `for it`,
-while discounts triggered by playing a tag omit that pronoun because the tag is not the object being
-paid for. When actions and effects share a top region, actions are rendered first and their
+discount. Discounts use imperative `pay` without restating the acting player or payment object.
+When actions and effects share a top region, actions are rendered first and their
 card-resource metrics name `this card` rather than the contextual `here`.
-A component may instead describe a purchase object and destination. A fixed mandatory resource gain
+A component may instead describe a purchase object. A fixed mandatory resource gain
 or removal triggered by that component then derives the payment adjustment without assuming an
 ordinary price absent from the Pets effect.
 

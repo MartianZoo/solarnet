@@ -1,51 +1,51 @@
 class_name	english_name	bottom_text	top_text
-BeginnerCorporation	Beginner Corporation	Gain 42 M€. Keep all 10 project cards you received in setup for free.	*To begin setup, any player may take this card instead of drawing any face-down Corporations.
-CrediCor	CrediCor	Gain 57 M€.	Effect: When you play a card with a printed cost of 20 M€ or more or you use a standard project with a printed cost of 20 M€ or more, gain 4 M€.
-Ecoline	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less for it.
-Helion	Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: You may use heat as M€. You may not use M€ as heat.
+BeginnerCorporation	Beginner Corporation	Gain 42 M€. Put 10 project cards from initial research into your hand.	*To begin setup, any player may take this card instead of drawing any face-down Corporations.
+CrediCor	CrediCor	Gain 57 M€.	Effect: When you play a card with a printed cost of 20 M€ or more, or use a standard project with a printed cost of 20 M€ or more, gain 4 M€.
+Ecoline	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, pay 1 plant less.
+Helion	Helion	Gain 42 M€. Increase your heat production 3 steps.	Effect: At any time, you may use heat as M€.
 InterplanetaryCinematics	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
-Inventrix	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: When you play a card, you may treat its global parameter requirement as if it were 2 steps lower or higher.
+Inventrix	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: When you play a card, you may treat a global parameter requirement as if it is 2 steps lower or higher.
 MiningGuild	Mining Guild	Gain 30 M€ and 5 steel. Increase your steel production 1 step.	Effect: When you place a tile on an area with a titanium or steel placement bonus, increase your steel production 1 step.
-Phobolog	PhoboLog	Gain 23 M€ and 10 titanium.	Effect: Each titanium you spend is worth 1 M€ extra.
+Phobolog	PhoboLog	Gain 23 M€ and 10 titanium.	Effect: When you use titanium as money, it is worth 1 M€ more.
 TharsisRepublic	Tharsis Republic	Gain 40 M€. As your first action, place a city tile.	Effect: When any city tile is placed on Mars, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
-ThorGate	ThorGate	Gain 48 M€. Increase your energy production 1 step.	Effect: When you play a power tag or use the Power Plant standard project, you pay 3 M€ less.
-UnitedNationsMarsInitiative	United Nations Mars Initiative	Gain 40 M€.	Action: If your terraform rating was raised this generation, you may spend 3 M€ to raise your terraform rating 1 step more.
+ThorGate	ThorGate	Gain 48 M€. Increase your energy production 1 step.	Effect: When you play a power tag or use the Power Plant standard project, pay 3 M€ less.
+UnitedNationsMarsInitiative	United Nations Mars Initiative	Gain 40 M€.	Action: (Your terraform rating must have been raised this generation.) Spend 3 M€ to raise your terraform rating 1 step.
 SaturnSystems	Saturn Systems	Gain 42 M€. Increase your titanium production 1 step.	Effect: When any Jovian tag is played, increase your M€ production 1 step.
-Teractor	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, you pay 3 M€ less.
+Teractor	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, pay 3 M€ less.
 Aphrodite	Aphrodite	Gain 47 M€. Increase your plant production 1 step.	Effect: When Venus is raised 1 step, gain 2 M€.
 Celestic	Celestic	Gain 42 M€. As your first action, draw 2 cards with floater icons. 1 VP for every 3 floaters on this card.	Action: Add 1 floater to any card.
 Manutech	Manutech	Gain 35 M€. Increase your steel production 1 step.	Effect: For each step you increase one of your productions, gain 1 resource of that type.
-MorningStarInc	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 cards with a Venus tag.	Effect: When you play a card, you may treat its Venus requirement as if it were 2 steps lower or higher.
-Viron	Viron	Gain 48 M€.	Action: Use an action from a blue card that has already been used this generation.
-CheungShingMars	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 steps.	Effect: When you play a building tag, you pay 2 M€ less.
+MorningStarInc	Morning Star Inc.	Gain 50 M€. As your first action, draw 3 Venus cards.	Effect: When you play a card, you may treat a Venus requirement as if it is 2 steps lower or higher.
+Viron	Viron	Gain 48 M€.	Action: Use an action from a card with an action-used marker.
+CheungShingMars	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 steps.	Effect: When you play a building tag, pay 2 M€ less.
 PointLuna	Point Luna	Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag, draw 1 card.
 RobinsonIndustries	Robinson Industries	Gain 47 M€.	Action: Spend 4 M€ to increase one of your lowest productions 1 step.
-ValleyTrust	Valley Trust	Gain 37 M€. As your first action, draw 3 Prelude cards. Discard 2 of them, then play the remaining card.	Effect: When you play a science tag, you pay 2 M€ less.
+ValleyTrust	Valley Trust	Gain 37 M€. As your first action, draw 3 Prelude cards. Discard 2 of them, then play the remaining card.	Effect: When you play a science tag, pay 2 M€ less.
 Vitor	Vitor	Gain 45 M€. As your first action, fund an award for free.	Effect: When you play a card with a NON-NEGATIVE VP icon, gain 3 M€.
-Aridor	Aridor	Gain 40 M€. As your first action, put an additional Colony Tile of your choice into play.	Effect: When you get a new type of tag in play (event cards do not count), increase your M€ production 1 step.
+Aridor	Aridor	Gain 40 M€. As your first action, put an additional Colony Tile of your choice into play.	Effect: When you play your first tag of its type, which is not on an event card, increase your M€ production 1 step.
 Arklight	Arklight	Gain 45 M€. Increase your M€ production 2 steps. 1 VP for every 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
-Polyphemos	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: When you buy a card to hand, pay 2 M€ extra.
+Polyphemos	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: When you buy a card, pay 2 M€ extra.
 Poseidon	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: When any colony is placed, increase your M€ production 1 step.
 StormcraftIncorporated	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to any card. / Effect: Floaters on this card may be used as 2 heat each.
-LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you create an adjacency between an ocean tile and a tile, gain 1 M€.
-Pristar	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP for each preservation resource on this card.	Effect: When a production phase begins, if you did not raise your terraform rating so far this generation, add 1 preservation resource to this card and gain 6 M€.
+LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you create an adjacency between a tile and an existing ocean tile, gain 1 M€.
+Pristar	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP for each preservation resource on this card.	Effect: In the production phase, if your terraform rating has not been raised this generation, add 1 preservation resource to this card and gain 6 M€.
 SeptemTribus	Septem Tribus	Gain 36 M€. When you perform an action, the wild tag counts as any tag of your choice.	Action: Gain 2 M€ for each party where you have 1 or more delegates.
-TerraLabsResearch	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card to hand, pay 2 M€ less.
+TerraLabsResearch	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card, pay 2 M€ less.
 UtopiaInvest	Utopia Invest	Gain 40 M€. Increase your steel production 1 step and your titanium production 1 step.	Action: Decrease one of your productions 1 step to gain 4 resources of that kind.
 ArcadianCommunities	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, place a community on a non-reserved area.	Action: Place a community (player marker) on a non-reserved area adjacent to one of your tiles or marked areas. / Effect: Marked areas are reserved for you. When you place a tile there, gain 3 M€.
 Recyclon	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card or remove 2 microbes from this card to increase your plant production 1 step.
-SpliceTacticalGenomics	Splice Tactical Genomics	Gain 44 M€. As your first action, draw 1 card with a microbe tag.	Effect: When any microbe tag is played, that player gains 2 M€, or adds a microbe to that card, and you gain 2 M€.
-Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: Increase your energy production 1 step if you have no energy resources, or spend 3 M€ to draw 1 card with a building tag.
+SpliceTacticalGenomics	Splice Tactical Genomics	Gain 44 M€. As your first action, draw a microbe card.	Effect: When any microbe tag is played, that player gains 2 M€, or adds a microbe to that card, and you gain 2 M€.
+Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: Increase your energy production 1 step (you must have no energy resources), or spend 3 M€ to draw a building card.
 MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. All opponents decrease their M€ production 2 steps. This does not trigger the effect below.	Effect: When any player has their resources removed or production decreased by another player (including you), pay 3 M€ to the victim, or as much as possible.
-Philares	Philares	Gain 47 M€. As your first action, place a greenery tile (and raise oxygen 1 step).	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain any standard resource.
-AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain any standard resource, or remove 1 asteroid from this card to gain 3 titanium.
-PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 card with a science tag.	Effect: When ANY microbe tag is played, including these 2, add 1 disease to this card and lose 4 M€ or as much as possible. When you play a science tag, remove 1 disease and raise your terraform rating 1 step, or, if there are no diseases here, you may raise your terraform rating 3 steps and place this card in your event pile. It now counts as a played event.
-NirgalEnterprises	Nirgal Enterprises	Gain 30 M€. Increase your energy production 1 step, your plant production 1 step, and your steel production 1 step.	Effect: You always pay 0 M€ for awards and milestones.
+Philares	Philares	Gain 47 M€. As your first action, place a greenery tile (and raise oxygen 1 step).	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain a standard resource.
+AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain a standard resource, or remove 1 asteroid from this card to gain 3 titanium.
+PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw a science card.	Effect: When any microbe tag is played, add 1 disease to this card and lose 4 M€ or as much as possible. When you play a science tag, remove 1 disease and raise your terraform rating 1 step, or, if there are no diseases here, you may either raise your terraform rating 3 steps and place this card in your event pile, or do nothing.
+NirgalEnterprises	Nirgal Enterprises	Gain 30 M€. Increase your energy production 1 step, your plant production 1 step, and your steel production 1 step.	Effect: When you fund an award or claim a milestone, the cost is 0 M€.
 PalladinShipping	Palladin Shipping	Gain 36 M€ and 5 titanium.	Action: Spend 2 titanium to raise temperature 1 step. / Effect: When you play a space event card, gain 1 titanium.
 SagittaFrontierServices	Sagitta Frontier Services	Gain 31 M€. Increase your energy production 1 step and your M€ production 2 steps. Draw 1 card with no tags.	Effect: When you play a card with no tags, including this, gain 4 M€. When you play a card with exactly 1 tag, gain 1 M€. Event cards count as having an event tag.
 EcoTec	EcoTec	Gain 42 M€. Increase your plant production 1 step.	Effect: When you play an animal tag, a plant tag, or a microbe tag, gain 1 plant or add 1 microbe to any card.
 Spire	Spire	Gain 50 M€. As your first action, draw 4 cards, then discard 3 cards.	Effect: When you play a card with at least 2 tags, including the event tag, add 1 science resource to this card. Science resources on this card may be used as 2 M€ each when you pay for a standard project.
-AppliedScience	Applied Science	Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain any standard resource.
+AppliedScience	Applied Science	Add 6 science resources to this card.	Action: Remove 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain a standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, raise oxygen 2 steps, or raise Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 Prelude card. Either discard it, or spend 12 M€ and remove 1 director resource from this card to play it.
 ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 titanium.	Effect: When any colony is placed, gain 2 M€.
@@ -56,27 +56,27 @@ IndustrialComplex	Industrial Complex	Remove 18 M€. Increase each of your produ
 MainBeltAsteroids	Main Belt Asteroids	Remove 5 M€. 1 VP for every 2 asteroids on this card.	Action: Add 1 asteroid to any card. / Effect: When you add an asteroid to this card, gain 1 titanium.
 NobelPrize	Nobel Prize	Gain 5 M€. Draw 2 cards with requirements. 2 VPs.
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.
-PlanetaryAlliance	Planetary Alliance	Raise your terraform rating 2 steps. Draw 1 Jovian-tag card and 1 Venus-tag card.
+PlanetaryAlliance	Planetary Alliance	Raise your terraform rating 2 steps. Draw a Jovian card and a Venus card.
 ProjectEden	Project Eden	Place an ocean tile. Place a city tile. Place a greenery tile (and raise oxygen 1 step). Discard 3 cards.
 Recession	Recession	All opponents lose 5 M€ and decrease their M€ production 1 step. Gain 10 M€.
-SoilBacteria	Soil Bacteria	Draw 2 microbe-tag cards. Gain 3 plants.	Effect: When you play a plant tag or a microbe tag, gain 1 plant.
-SpaceLanes	Space Lanes	Gain 3 titanium.	Effect: When you play a Jovian tag, an Earth tag, or a Venus tag, you pay 2 M€ less.
+SoilBacteria	Soil Bacteria	Draw 2 microbe cards. Gain 3 plants.	Effect: When you play a plant tag or a microbe tag, gain 1 plant.
+SpaceLanes	Space Lanes	Gain 3 titanium.	Effect: When you play a Jovian tag, an Earth tag, or a Venus tag, pay 2 M€ less.
 SuitableInfrastructure	Suitable Infrastructure	Gain 5 steel.	Effect: Once per action you take, gain 2 M€ if you increase any production.
 TerraformingDeal	Terraforming Deal		Effect: Each step your terraform rating is raised, gain 2 M€.
-VenusContract	Venus Contract	Draw 1 Venus-tag card. Raise your terraform rating 1 step.	Effect: When you raise Venus 1 step, gain 3 M€.
+VenusContract	Venus Contract	Draw a Venus card. Raise your terraform rating 1 step.	Effect: When you raise Venus 1 step, gain 3 M€.
 VenusL1Shade	Venus L1 Shade	Raise Venus 3 steps.
 WorldGovernmentAdvisor	World Government Advisor	Raise your terraform rating 2 steps. Draw 1 card.	Action: Raise 1 global parameter without gaining terraform rating or other bonuses.
 CeresTechMarket	Ceres Tech Market	Gain 2 M€ for each colony you own. 1 VP.	Action: Discard any number of cards from your hand to gain 2 M€ for each discarded card.
 CloudTourism	Cloud Tourism	Increase your M€ production 1 step for each pair of Earth and Venus tags you have. 1 VP for every 3 floaters on this card.	Action: Add 1 floater to this card.
 FloatingRefinery	Floating Refinery	Add 1 floater to this card for each Venus tag you have.	Action: Add 1 floater to this card, or remove 2 floaters from any of your cards to gain 1 titanium and 2 M€.
-IshtarExpedition	Ishtar Expedition	Requires Venus 10%. Gain 3 titanium and draw 2 Venus-tag cards.
+IshtarExpedition	Ishtar Expedition	Requires Venus 10%. Gain 3 titanium and draw 2 Venus cards.
 LagrangeOneTradeTerminal	L1 Trade Terminal	Add 1 resource to up to 3 different cards that already have resources. 2 VPs.	Effect: When you trade, you may first increase that colony tile track 2 steps.
 MicrogravityNutrition	Microgravity Nutrition	Increase your M€ production 1 step for each colony you own. 1 VP.
 SoilStudies	Soil Studies	Temperature must be -4°C or colder. Gain 1 plant for each Venus tag you have. Gain 1 plant for each plant tag you have. Gain 1 plant for each colony you own.
-StratosphericExpedition	Stratospheric Expedition	Add 2 floaters to any card. Draw 2 Venus-tag cards. 1 VP.
+StratosphericExpedition	Stratospheric Expedition	Add 2 floaters to any card. Draw 2 Venus cards. 1 VP.
 UnexpectedApplication	Unexpected Application	Discard 1 card. Raise Venus 1 step.
 VenusAllies	Venus Allies	Raise Venus 2 steps. Gain 4 M€ for each colony you own. 2 VPs.
-VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal the top 2 cards. Take any Venus-tag cards into your hand for free. Buy or discard each other card.
+VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal the top 2 cards. Take any Venus cards into your hand for free. Buy or discard each other card.
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: Spend 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ for each Venus tag you have.
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags. 1 VP.	Effect: When you trade, gain 3 M€.
 AlliedBank	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
@@ -90,7 +90,7 @@ Donation	Donation	Gain 21 M€.
 EarlySettlement	Early Settlement	Place a city tile. Increase your plant production 1 step.
 EcologyExperts	Ecology Experts	Increase your plant production 1 step. Play a card from hand, ignoring global requirements.
 ExcentricSponsor	Excentric Sponsor	Play a card from hand, reducing its cost by 25 M€.
-ExperimentalForest	Experimental Forest	Place a greenery tile (and raise oxygen 1 step). Draw 2 cards with a plant tag.
+ExperimentalForest	Experimental Forest	Place a greenery tile (and raise oxygen 1 step). Draw 2 plant cards.
 GalileanMining	Galilean Mining	Increase your titanium production 2 steps. Remove 5 M€.
 GreatAquifer	Great Aquifer	Place 2 ocean tiles.
 HugeAsteroid	Huge Asteroid	Raise temperature 3 steps. Remove 5 M€.
@@ -113,7 +113,7 @@ SocietySupport	Society Support	Decrease your M€ production 1 step and increase
 Supplier	Supplier	Increase your energy production 2 steps. Gain 4 steel.
 SupplyDrop	Supply Drop	Gain 3 titanium, 8 steel, and 3 plants.
 UnmiContractor	UNMI Contractor	Raise your terraform rating 3 steps. Draw 1 card.
-AcquiredSpaceAgency	Acquired Space Agency	Gain 6 titanium. Draw 2 cards with a space tag.
+AcquiredSpaceAgency	Acquired Space Agency	Gain 6 titanium. Draw 2 space cards.
 ColonizerTrainingCamp	Colonizer Training Camp	Oxygen must be 5% or less. 2 VPs.
 DeepWellHeating	Deep Well Heating	Increase your energy production 1 step. Raise temperature 1 step.
 CloudSeeding	Cloud Seeding	Requires 3 ocean tiles. Decrease your M€ production 1 step and any player's heat production 1 step and increase your plant production 2 steps.
@@ -129,7 +129,7 @@ DomedCrater	Domed Crater	Oxygen must be 7% or less. Gain 3 plants. Place a city 
 NoctisCity	Noctis City	Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile on the reserved area if using a board that has one, otherwise place it normally.
 MethaneFromTitan	Methane From Titan	Requires 2% oxygen. Increase your heat production 2 steps and your plant production 2 steps. 2 VPs.
 ImportedHydrogen	Imported Hydrogen	Gain 3 plants, add 3 microbes to any card, or add 2 animals to any card. Place an ocean tile.
-ResearchOutpost	Research Outpost	Place a city tile on a land area not adjacent to any other tile.	Effect: When you play a card, you pay 1 M€ less for it.
+ResearchOutpost	Research Outpost	Place a city tile on a land area not adjacent to any other tile.	Effect: When you play a card, pay 1 M€ less.
 PhobosSpaceHaven	Phobos Space Haven	Increase your titanium production 1 step. Place a city tile on the reserved area outside Mars. 3 VPs.
 BlackPolarDust	Black Polar Dust	Place an ocean tile. Decrease your M€ production 2 steps and increase your heat production 3 steps.
 ArcticAlgae	Arctic Algae	Temperature must be -12°C or colder. Gain 1 plant.	Effect: When any ocean tile is placed, gain 2 plants.
@@ -214,7 +214,7 @@ NitrophilicMoss	Nitrophilic Moss	Requires 3 ocean tiles. Increase your plant pro
 Herbivores	Herbivores	Requires 8% oxygen. Add 1 animal to this card. Decrease any player's plant production 1 step. 1 VP for every 2 animals on this card.	Effect: When you place a greenery tile, add 1 animal to this card.
 Insects	Insects	Requires 6% oxygen. Increase your plant production 1 step for each plant tag you have.
 Insulation	Insulation	Decrease your heat production one or more steps and increase your M€ production the same number of steps.
-AdaptationTechnology	Adaptation Technology	1 VP.	Effect: When you play a card, you may treat its global parameter requirement as if it were 2 steps lower or higher.
+AdaptationTechnology	Adaptation Technology	1 VP.	Effect: When you play a card, you may treat a global parameter requirement as if it is 2 steps lower or higher.
 DesignedMicroorganisms	Designed Microorganisms	Temperature must be -14°C or colder. Increase your plant production 2 steps.
 NitriteReducingBacteria	Nitrite Reducing Bacteria	Add 3 microbes to this card.	Action: Add 1 microbe to this card, or remove 3 microbes from this card to raise your terraform rating 1 step.
 IndustrialMicrobes	Industrial Microbes	Increase your energy production 1 step and your steel production 1 step.
@@ -224,7 +224,7 @@ ImportedGhg	Imported GHG	Increase your heat production 1 step. Gain 3 heat.
 ImportedNitrogen	Imported Nitrogen	Raise your terraform rating 1 step. Gain 4 plants. Add 3 microbes to any card. Add 2 animals to any card.
 MicroMills	Micro-Mills	Increase your heat production 1 step.
 MagneticFieldGenerators	Magnetic Field Generators	Decrease your energy production 4 steps and increase your plant production 2 steps. Raise your terraform rating 3 steps.
-Shuttles	Shuttles	Requires 5% oxygen. Decrease your energy production 1 step and increase your M€ production 2 steps. 1 VP.	Effect: When you play a space tag, you pay 2 M€ less.
+Shuttles	Shuttles	Requires 5% oxygen. Decrease your energy production 1 step and increase your M€ production 2 steps. 1 VP.	Effect: When you play a space tag, pay 2 M€ less.
 ImportOfAdvancedGhg	Import Of Advanced GHG	Increase your heat production 2 steps.
 Windmills	Windmills	Requires 7% oxygen. Increase your energy production 1 step. 1 VP.
 TundraFarming	Tundra Farming	Requires -6°C or warmer. Increase your plant production 1 step and your M€ production 2 steps. Gain 1 plant. 2 VPs.
@@ -250,12 +250,12 @@ ImmigrantCity	Immigrant City	Decrease your energy production 1 step and your M�
 UndergroundDetonations	Underground Detonations		Action: Spend 10 M€ to increase your heat production 2 steps.
 Soletta	Soletta	Increase your heat production 7 steps.
 RadChemFactory	Rad-Chem Factory	Decrease your energy production 1 step. Raise your terraform rating 2 steps.
-SpecialDesign	Special Design	You may treat the global parameter requirement of the next card you play this generation as if it were 2 steps lower or higher.
+SpecialDesign	Special Design	You may treat the global parameter requirement of the next card you play this generation as if it is 2 steps lower or higher.
 AsteroidMiningConsortium	Asteroid Mining Consortium	Requires that you have titanium production. Decrease any player's titanium production 1 step and increase your titanium production 1 step. 1 VP.
 InventorsGuild	Inventors' Guild		Action: Look at the top card and either buy it or discard it.
 SpaceElevator	Space Elevator	Increase your titanium production 1 step. 2 VPs.	Action: Spend 1 steel to gain 5 M€.
 DevelopmentCenter	Development Center		Action: Spend 1 energy to draw 1 card.
-SpaceStation	Space Station	1 VP.	Effect: When you play a space tag, you pay 2 M€ less.
+SpaceStation	Space Station	1 VP.	Effect: When you play a space tag, pay 2 M€ less.
 InterstellarColonyShip	Interstellar Colony Ship	Requires 5 science tags. 4 VPs.
 SecurityFleet	Security Fleet	1 VP for each fighter resource on this card.	Action: Spend 1 titanium to add 1 fighter resource to this card.
 LightningHarvest	Lightning Harvest	Requires 3 science tags. Increase your energy production 1 step and your M€ production 1 step. 1 VP.
@@ -271,11 +271,11 @@ BuildingIndustries	Building Industries	Decrease your energy production 1 step an
 LandClaim	Land Claim	Place your marker on a non-reserved area. Only you may place a tile here.
 Sponsors	Sponsors	Increase your M€ production 2 steps.
 ElectroCatapult	Electro Catapult	Oxygen must be 8% or less. Decrease your energy production 1 step. 1 VP.	Action: Spend 1 plant or 1 steel to gain 7 M€.
-EarthCatapult	Earth Catapult	2 VPs.	Effect: When you play a card, you pay 2 M€ less for it.
+EarthCatapult	Earth Catapult	2 VPs.	Effect: When you play a card, pay 2 M€ less.
 AdvancedAlloys	Advanced Alloys		Effect: Each titanium or steel you spend is worth 1 M€ extra.
 MarsUniversity	Mars University	1 VP.	Effect: When you play a science tag, you may discard a card from hand to draw 1 card.
 ViralEnhancers	Viral Enhancers		Effect: When you play a bio tag, gain 1 plant or add 1 resource to that card.
-QuantumExtractor	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space tag, you pay 2 M€ less.
+QuantumExtractor	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space tag, pay 2 M€ less.
 CallistoPenalMines	Callisto Penal Mines	Increase your M€ production 3 steps. 2 VPs.
 TransNeptuneProbe	Trans-Neptune Probe	1 VP.
 CommercialDistrict	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP for each city tile adjacent to this tile.
@@ -283,11 +283,11 @@ RoboticWorkforce	Robotic Workforce	Duplicate the production box of one of your b
 Research	Research	Counts as playing 2 science tags. Draw 2 cards. 1 VP.
 GeneRepair	Gene Repair	Requires 3 science tags. Increase your M€ production 2 steps. 2 VPs.
 IoMiningIndustries	Io Mining Industries	Increase your titanium production 2 steps and your M€ production 2 steps. 1 VP for each Jovian tag you have.
-MassConverter	Mass Converter	Requires 5 science tags. Increase your energy production 6 steps.	Effect: When you play a space tag, you pay 2 M€ less.
+MassConverter	Mass Converter	Requires 5 science tags. Increase your energy production 6 steps.	Effect: When you play a space tag, pay 2 M€ less.
 PhysicsComplex	Physics Complex	2 VPs for each science resource on this card.	Action: Spend 6 energy to add 1 science resource to this card.
 TropicalResort	Tropical Resort	Decrease your heat production 2 steps and increase your M€ production 3 steps. 2 VPs.
 TollStation	Toll Station	Increase your M€ production 1 step for each space tag your opponents have.
-EarthOffice	Earth Office		Effect: When you play an Earth tag, you pay 3 M€ less.
+EarthOffice	Earth Office		Effect: When you play an Earth tag, pay 3 M€ less.
 AcquiredCompany	Acquired Company	Increase your M€ production 3 steps.
 MediaArchives	Media Archives	Gain 1 M€ for each card in all players' event piles.
 MediaGroup	Media Group		Effect: When you play an event card, gain 3 M€.
@@ -301,7 +301,7 @@ Hackers	Hackers	Decrease your energy production 1 step and any player's M€ pro
 Cartel	Cartel	Increase your M€ production 1 step for each Earth tag you have.
 TitaniumMine	Titanium Mine	Increase your titanium production 1 step.
 CeosFavoriteProject	CEO's Favorite Project	Add 1 resource to a card with 1 or more resources on it.
-AntiGravityTechnology	Anti-Gravity Technology	Requires 7 science tags. 3 VPs.	Effect: When you play a card, you pay 2 M€ less for it.
+AntiGravityTechnology	Anti-Gravity Technology	Requires 7 science tags. 3 VPs.	Effect: When you play a card, pay 2 M€ less.
 InvestmentLoan	Investment Loan	Decrease your M€ production 1 step. Gain 10 M€.
 CaretakerContract	Caretaker Contract	Requires 0°C or warmer.	Action: Spend 8 heat to raise your terraform rating 1 step.
 StandardTechnology	Standard Technology		Effect: When you use a standard project, gain 3 M€.
@@ -371,7 +371,7 @@ WaterToVenus	Water To Venus	Raise Venus 1 step.
 VenusGovernor	Venus Governor	Requires 2 Venus tags. Increase your M€ production 2 steps.
 VenusMagnetizer	Venus Magnetizer	Requires Venus 10%.	Action: Decrease your energy production 1 step to raise Venus 1 step.
 VenusSoils	Venus Soils	Raise Venus 1 step. Increase your plant production 1 step. Add 2 microbes to any card.
-VenusWaystation	Venus Waystation	1 VP.	Effect: When you play a Venus tag, you pay 2 M€ less.
+VenusWaystation	Venus Waystation	1 VP.	Effect: When you play a Venus tag, pay 2 M€ less.
 VenusianAnimals	Venusian Animals	Requires Venus 18%. 1 VP for each animal on this card.	Effect: When you play a science tag, add 1 animal to this card.
 VenusianInsects	Venusian Insects	Requires Venus 12%. 1 VP for every 2 microbes on this card.	Action: Add 1 microbe to this card.
 VenusianPlants	Venusian Plants	Requires Venus 16%. Raise Venus 1 step. Add 1 microbe or 1 animal to a Venus card. 1 VP.
@@ -388,7 +388,7 @@ AtmoCollectors	Atmo Collectors	Add 2 floaters to any card.	Action: Add 1 floater
 CommunityServices	Community Services	Increase your M€ production 1 step for each card with no tags. 1 VP.
 Conscription	Conscription	Requires 2 Earth tags. The next card you play this generation costs 16 M€ less. -1 VP.
 CoronaExtractor	Corona Extractor	Requires 4 science tags. Increase your energy production 4 steps.
-CryoSleep	Cryo-Sleep	1 VP.	Effect: When you use the Trade standard action, you pay 1 less resource for it.
+CryoSleep	Cryo-Sleep	1 VP.	Effect: When you use the Trade standard action, pay 1 less resource.
 EarthElevator	Earth Elevator	Increase your titanium production 3 steps. 4 VPs.
 EcologyResearch	Ecology Research	Increase your plant production 1 step for each colony you own. Add 1 animal to any card. Add 2 microbes to any card. 1 VP.
 FloaterLeasing	Floater Leasing	Increase your M€ production 1 step for every 3 floaters you have.
@@ -416,8 +416,8 @@ QuantumCommunications	Quantum Communications	Requires 4 science tags. Increase y
 RedSpotObservatory	Red Spot Observatory	Requires 3 science tags. Draw 2 cards. 2 VPs.	Action: Add 1 floater to this card, or remove 1 floater from this card to draw 1 card.
 RefugeeCamps	Refugee Camps	1 VP for each camp resource on this card.	Action: Decrease your M€ production 1 step to add 1 camp resource to this card.
 ResearchColony	Research Colony	Place a colony. May be placed where you already have a colony. Draw 2 cards.
-RimFreighters	Rim Freighters		Effect: When you use the Trade standard action, you pay 1 less resource for it.
-SkyDocks	Sky Docks	Requires 2 Earth tags. Gain 1 Trade Fleet. 2 VPs.	Effect: When you play a card, you pay 1 M€ less for it.
+RimFreighters	Rim Freighters		Effect: When you use the Trade standard action, pay 1 less resource.
+SkyDocks	Sky Docks	Requires 2 Earth tags. Gain 1 Trade Fleet. 2 VPs.	Effect: When you play a card, pay 1 M€ less.
 SolarProbe	Solar Probe	Draw 1 card for every 3 science tags you have. 1 VP.
 SolarReflectors	Solar Reflectors	Increase your heat production 5 steps.
 SpacePort	Space Port	Requires 1 colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step and increase your M€ production 4 steps.
@@ -430,7 +430,7 @@ TitanShuttles	Titan Shuttles	1 VP.	Action: Add 2 floaters to a Jovian card, or r
 TradeEnvoys	Trade Envoys		Effect: When you trade, you may first increase that colony tile track 1 step.
 TradingColony	Trading Colony	Place a colony.	Effect: When you trade, you may first increase that colony tile track 1 step.
 UrbanDecomposers	Urban Decomposers	Requires that you have 1 city tile and 1 colony. Increase your plant production 1 step. Add 2 microbes to any card.
-WarpDrive	Warp Drive	Requires 5 science tags. 2 VPs.	Effect: When you play a space tag, you pay 4 M€ less.
+WarpDrive	Warp Drive	Requires 5 science tags. 2 VPs.	Effect: When you play a space tag, pay 4 M€ less.
 AerialLenses	Aerial Lenses	Requires that Kelvinists are ruling or that you have 2 delegates there. Remove up to 2 plants from any player. Increase your heat production 2 steps.
 BannedDelegate	Banned Delegate	Requires that you are Chairman. Remove any NON-LEADER delegate.
 CulturalMetropolis	Cultural Metropolis	Requires that Unity is ruling or that you have 2 delegates there. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. Place 2 delegates in 1 party.
@@ -448,7 +448,7 @@ SupportedResearch	Supported Research	Requires that Scientists are ruling or that
 WildlifeDome	Wildlife Dome	Requires that Greens are ruling or that you have 2 delegates there. Place a greenery tile (and raise oxygen 1 step).
 VoteOfNoConfidence	Vote Of No Confidence	Requires that you have a Party Leader in any party and that the sitting Chairman is neutral. Remove the NEUTRAL Chairman and move your own delegate (from the reserve) there instead. Raise your terraform rating 1 step.
 DuskLaserMining	Dusk Laser Mining	Requires 2 science tags. Decrease your energy production 1 step and increase your titanium production 1 step. Gain 4 titanium.
-ProjectInspection	Project Inspection	Use an action from a card that has already been used this generation.
+ProjectInspection	Project Inspection	Use an action from a card with an action-used marker.
 EnergyMarket	Energy Market		Action: Spend 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
 HiTechLab	Hi-Tech Lab	1 VP.	Action: Spend one or more energy to reveal the same number of cards. Draw 1 of them and discard the rest.
 InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step for each different tag you have. 1 VP.
@@ -464,7 +464,7 @@ AsteroidDeflectionSystem	Asteroid Deflection System	Decrease your energy product
 AsteroidHollowing	Asteroid Hollowing	1 VP for every 2 asteroids on this card.	Action: Spend 1 titanium to add 1 asteroid to this card and increase your M€ production 1 step.
 CometAiming	Comet Aiming		Action: Spend 1 titanium to add 1 asteroid to any card, or remove 1 asteroid from this card to place an ocean tile.
 CrashSiteCleanup	Crash Site Cleanup	Requires that a player removed another player's plants this generation. Gain 1 titanium or 2 steel. 1 VP.
-CuttingEdgeTechnology	Cutting Edge Technology	1 VP.	Effect: When you play a card with a requirement, you pay 2 M€ less for it.
+CuttingEdgeTechnology	Cutting Edge Technology	1 VP.	Effect: When you play a card with a requirement, pay 2 M€ less.
 DirectedImpactors	Directed Impactors		Action: Spend 6 M€ (titanium may be used) to add 1 asteroid to any card, or remove 1 asteroid from this card to raise temperature 1 step.
 DiversitySupport	Diversity Support	Requires that you have 9 different types of resources. Raise your terraform rating 1 step.
 FieldCappedCity	Field-Capped City	Increase your M€ production 2 steps and your energy production 1 step. Gain 3 plants. Place a city tile.
@@ -492,10 +492,10 @@ DoubleDown	Double Down	Copy your other Prelude's direct effect.
 HeadStart	Head Start	Gain 2 steel. Gain 2 M€ for each project card you have in hand. Immediately take 2 actions.
 SixteenPsyche	16 Psyche	Increase your titanium production 2 steps. Gain 3 titanium. 2 VPs.
 RobotPollinators	Robot Pollinators	Requires 4% oxygen. Increase your plant production 1 step. Gain 1 plant for each plant tag you have.
-AqueductSystems	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 cards with a building tag. 1 VP.
+AqueductSystems	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 building cards. 1 VP.
 CarbonNanosystems	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space tag or a city tag, graphene resources on this card may be used as 4 M€ each.
 NeptunianPowerConsultants	Neptunian Power Consultants	1 VP for each hydroelectric resource on this card.	Effect: When any ocean tile is placed, you may pay 5 M€ (steel may be used) to increase your energy production 1 step and add 1 hydroelectric resource to this card.
-SolarLogistics	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, you pay 2 M€ less. When any space event card is played, draw 1 card.
+SolarLogistics	Solar Logistics	Gain 2 titanium. 1 VP.	Effect: When you play an Earth tag, pay 2 M€ less. When any space event card is played, draw 1 card.
 Supermarkets	Supermarkets	Requires any 2 city tiles. Increase your M€ production 2 steps. 1 VP.
 Hospitals	Hospitals	Decrease your energy production 1 step. 1 VP.	Action: Remove 1 disease resource from any of your cards to gain 1 M€ for each city tile. / Effect: When any city tile is placed, add 1 disease resource to this card.
 PublicBaths	Public Baths	Requires 6 ocean tiles. Gain 6 M€. 1 VP.

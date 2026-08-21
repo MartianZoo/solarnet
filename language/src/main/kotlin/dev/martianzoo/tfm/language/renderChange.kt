@@ -338,7 +338,7 @@ private fun renderNextPlayedCardAdjustment(
               Coordination.one(
                   NounPhrase.text("the $kind requirement of the next card you play this generation")
               ),
-              listOf(Modifier.Phrase("as if it were $adjustment $steps lower or higher")),
+              listOf(Modifier.Phrase("as if it is $adjustment $steps lower or higher")),
           ),
       subject = NounPhrase.text("you"),
   )
