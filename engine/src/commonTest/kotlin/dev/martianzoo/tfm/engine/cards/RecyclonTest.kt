@@ -6,20 +6,20 @@ import kotlin.test.Test
 
 class RecyclonTest : CardTest() {
   @Test
-  fun `when Recyclon enters play, adds a microbe`() {
+  fun `Adds a microbe when it enters play`() {
     newGame(PromoCardPack)
     p1.manual("$Recyclon").expect("Microbe<$Recyclon>")
   }
 
   @Test
-  fun `with Recyclon, adds a building card`() {
+  fun `Gains a microbe when its owner plays a building card`() {
     newGame(PromoCardPack)
     p1.manual("$Recyclon")
     p1.manual("$Mine").expect("Microbe<$Recyclon>")
   }
 
   @Test
-  fun `with three microbes on Recyclon, adds a building card`() {
+  fun `Converts its accumulated microbes into plant production`() {
     newGame(PromoCardPack)
     p1.manual("$Recyclon")
     p1.manual("2 Microbe<$Recyclon>")

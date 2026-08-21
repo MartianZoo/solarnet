@@ -232,6 +232,17 @@ class TaskRevisionTest {
   }
 
   @Test
+  fun `doing a task evaluates a PER revision before matching`() {
+    writer.godMode().manual("3 Heat")
+    initiate("X Plant?")
+
+    writer.doTask("Plant / Heat")
+
+    writer.count("Plant") shouldBe 3
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   fun `narrowing to NoOp enqueues the THEN instructions`() {
     initiate("Plant? THEN (Steel, Heat)")
     tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("Plant<Player1>?")

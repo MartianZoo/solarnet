@@ -11,6 +11,7 @@ public data class Defaults(
     val allUsages: DefaultSpec,
     val gainOnly: DefaultSpec,
     val removeOnly: DefaultSpec,
+    val triggerOnly: DefaultSpec,
 ) {
   internal companion object {
     /**
@@ -21,6 +22,7 @@ public data class Defaults(
       val allUsagesDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.ALL_USAGES)
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
       val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
+      val triggerDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.TRIGGER_ONLY)
 
       val gainIntensity = inheritDefault(klass, { it.defaultsDecl.gainOnly.intensity })!!
       val removeIntensity = inheritDefault(klass, { it.defaultsDecl.removeOnly.intensity })!!
@@ -29,6 +31,7 @@ public data class Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
           gainOnly = DefaultSpec(gainDeps, gainIntensity),
           removeOnly = DefaultSpec(removeDeps, removeIntensity),
+          triggerOnly = DefaultSpec(triggerDeps, null),
       )
     }
 

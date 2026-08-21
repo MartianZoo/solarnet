@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class SearchForLifeTest : CardTest() {
   @Test
-  fun `with science on Search for Life, ends the game`() {
+  fun `Scores three points when it has a science resource`() {
     newGame()
     engine.phase("Action")
     p1.manual("$SearchForLife, 1")

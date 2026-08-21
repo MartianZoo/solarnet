@@ -23,6 +23,7 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -367,14 +368,18 @@ internal class Implementations(
   }
 
   internal fun doTask(revised: InstructionTree, taskNumber: Int? = null) {
-    val id = matchingTask(revised, taskNumber)
+    val evaluated = evaluatePer(revised)
+    val id = matchingTask(evaluated, taskNumber)
     val selectsLinkedFirstStage =
-        selectFirstStageOrNull(tasks.getTaskData(id).instruction, revised) != null
-    if (selectsLinkedFirstStage) reviseTask(id, revised)
+        selectFirstStageOrNull(tasks.getTaskData(id).instruction, evaluated) != null
+    if (selectsLinkedFirstStage) reviseTask(id, evaluated)
     if (id in tasks) prepareTask(id)
-    if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, revised)
+    if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, evaluated)
     if (id in tasks) doTask(id)
   }
+
+  private fun evaluatePer(instruction: InstructionTree): InstructionTree =
+      if (instruction is Per) instructor.prepare(instruction) else instruction
 
   private fun matchingTask(revised: InstructionTree, taskNumber: Int? = null): TaskId {
     tasks.preparedTask()?.let {
@@ -467,9 +472,10 @@ internal class Implementations(
   }
 
   internal fun tryTask(revised: InstructionTree, taskNumber: Int? = null) {
-    val id = matchingTask(revised, taskNumber)
+    val evaluated = evaluatePer(revised)
+    val id = matchingTask(evaluated, taskNumber)
     try {
-      doTask(revised, taskNumber)
+      doTask(evaluated, taskNumber)
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {

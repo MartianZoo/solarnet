@@ -3,7 +3,6 @@ package dev.martianzoo.types
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.data.BundleMetadata
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
@@ -24,6 +23,7 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -441,27 +441,16 @@ internal class ClassTest {
               parseClasses(
                       """
                       ABSTRACT CLASS Module
-                      CLASS Requested : Module
-                      CLASS Active<Conditional> : AutoLoad
-                      CLASS Conditional
+                      ABSTRACT CLASS StandardAction
+                      CLASS Requested : Module { This:: Active }
+                      CLASS Active<ConditionalAction>
                       CLASS Flag
                       """
                           .trimIndent()
                   )
                   .toSetStrict()
-          override val metadata =
-              BundleMetadata(
-                  moduleClassSelections =
-                      mapOf(
-                          cn("Requested") to
-                              setOf(
-                                  ClassSelection(
-                                      cn("Conditional"),
-                                      requirement = parse("Flag"),
-                                  )
-                              )
-                      )
-              )
+          override val standardActionDefinitions =
+              setOf(StandardActionDefinition(cn("ConditionalAction"), emptyList(), "Flag"))
         }
     val premise = authority.gamePremise(GameConfig("Requested"))
 
@@ -476,6 +465,85 @@ internal class ClassTest {
     val table = ClassLoader(authority).apply { load(cn("Querying")) }.freeze()
 
     table.getClass(cn("Inactive")).phantom shouldBe true
+  }
+
+  @Test
+  fun `reachable constructive instructions activate their destination`() {
+    val authority =
+        bundle(
+            "Bundle",
+            """
+            CLASS Active { This:: Constructed }
+            CLASS Constructed
+            """,
+        )
+
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Constructed")).phantom shouldBe false
+  }
+
+  @Test
+  fun `bare trigger activates its externally issued protocol`() {
+    val authority =
+        bundle(
+            "Bundle",
+            """
+            CLASS Active { Protocol: Constructed }
+            CLASS Protocol
+            CLASS Constructed
+            """,
+        )
+
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Protocol")).phantom shouldBe false
+    table.getClass(cn("Constructed")).phantom shouldBe false
+  }
+
+  @Test
+  fun `positive invariants activate their required inhabitants`() {
+    val authority = bundle("Bundle", "CLASS Active { HAS =1 Required }\nCLASS Required")
+
+    val table = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+
+    table.getClass(cn("Required")).phantom shouldBe false
+  }
+
+  @Test
+  fun `constructive instructions activate only when their trigger and gate can be reached`() {
+    val authority =
+        bundle(
+            "Bundle",
+            """
+            CLASS Active {
+              InactiveTrigger<InactiveTriggerArgument>: Triggered
+              This:: (Class<InactiveGate>: Gated)
+            }
+            CLASS InactiveTrigger<InactiveTriggerArgument>
+            CLASS InactiveTriggerArgument
+            CLASS Triggered
+            CLASS InactiveGate
+            CLASS Gated
+            """,
+        )
+
+    val dormant = ClassLoader(authority).apply { load(cn("Active")) }.freeze()
+    val reachable =
+        ClassLoader(authority)
+            .apply {
+              load(cn("Active"))
+              load(cn("InactiveTriggerArgument"))
+              load(cn("InactiveGate"))
+            }
+            .freeze()
+
+    dormant.getClass(cn("Triggered")).phantom shouldBe true
+    dormant.getClass(cn("Gated")).phantom shouldBe true
+    dormant.getClass(cn("InactiveTrigger")).phantom shouldBe true
+    reachable.getClass(cn("Triggered")).phantom shouldBe false
+    reachable.getClass(cn("Gated")).phantom shouldBe false
+    reachable.getClass(cn("InactiveTrigger")).phantom shouldBe false
   }
 
   @Test

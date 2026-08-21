@@ -17,7 +17,7 @@ class ArtificialLakeTest : CardTest() {
   }
 
   @Test
-  fun `without an empty land area, Artificial Lake is unavailable`() {
+  fun `Cannot be played when every land area is occupied`() {
     val landAreas =
         p1.list("LandArea").filterNot { it.toString() == "VolcanicArea" } + p1.list("VolcanicArea")
     seedGame(
@@ -29,20 +29,20 @@ class ArtificialLakeTest : CardTest() {
   }
 
   @Test
-  fun `with eight oceans, plays Artificial Lake`() {
+  fun `Can be played with eight oceans`() {
     seedGame("12 TemperatureStep", oceanTiles(8))
     p1.playProject(ArtificialLake, 15) { doTask("OceanTile<Tharsis_2_3>!") }.expect("Tile")
   }
 
   @Test
-  fun `with nine oceans, plays Artificial Lake`() {
+  fun `Can be played with nine oceans without placing another ocean`() {
     seedGame("12 TemperatureStep", oceanTiles(9))
     p1.playProject(ArtificialLake, 15)
     p1.assertCounts(9 to "OceanTile")
   }
 
   @Test
-  fun `with a water area selected, places the Artificial Lake ocean`() {
+  fun `Cannot place its ocean on a water area`() {
     seedGame("12 TemperatureStep")
     p1.playProject(ArtificialLake, 15) {
       shouldThrow<NarrowingException> { doTask("OceanTile<Tharsis_1_2>!") }
@@ -51,7 +51,7 @@ class ArtificialLakeTest : CardTest() {
   }
 
   @Test
-  fun `below twelve temperature steps, tries to play Artificial Lake`() {
+  fun `Cannot be played below -6 °C`() {
     seedGame("11 TemperatureStep")
     shouldThrow<RequirementException> { p1.playProject(ArtificialLake, 15) }
   }

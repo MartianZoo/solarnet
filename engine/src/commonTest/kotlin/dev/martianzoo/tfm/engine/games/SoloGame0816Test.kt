@@ -173,7 +173,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       doTask("OceanTile<Elysium_2_4>! BY Engine")
       buyCards(RegolithEaters, Satellites)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       cardAction1(AiCentral) { draw(ImportedGhg, OlympusConference) }
       cardAction1(RestrictedArea) { draw(AtalantaPlanitiaLab) }
       cardAction2(ForcedPrecipitation)
@@ -205,7 +205,7 @@ class SoloGame0816Test : AbstractSoloTest() {
       doTask("TemperatureStep! BY Engine")
       buyCards(MineralDeposit, BusinessNetwork, FuelFactory)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       cardAction1(AiCentral) { draw(TradeEnvoys, RegoPlastics) }
       cardAction1(RestrictedArea) { draw(ExtractorBalloons) }
       cardAction1(Steelworks)
@@ -242,8 +242,8 @@ class SoloGame0816Test : AbstractSoloTest() {
           InterstellarColonyShip,
       )
 
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       cardAction1(AiCentral) { draw(Windmills, AdaptationTechnology) }
       cardAction1(RestrictedArea) { draw(SpaceMirrors) }
       cardAction1(BusinessNetwork) { buyCards(FusionPower) }
@@ -285,7 +285,7 @@ class SoloGame0816Test : AbstractSoloTest() {
 
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("7 M")
       cardAction1(RestrictedArea) { draw(ReleaseOfInertGases) }
-      stdAction("ConvertHeatSA")
+      convertHeat()
       cardAction1(AiCentral) { draw(AtmoCollectors, InventionContest) }
       playProject(InventionContest, 2) {
             doTask("ProjectCard FROM Science<$OlympusConference>")
@@ -317,13 +317,13 @@ class SoloGame0816Test : AbstractSoloTest() {
       doTask("OceanTile<Elysium_4_4>! BY Engine")
       buyCards(InventorsGuild)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       convertPlants {
             doTask("GreeneryTile<Elysium_5_6>")
           }
           .expect("2 M")
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       cardAction1(AiCentral) { draw(MartianRails, Supercapacitors) }
       cardAction1(RestrictedArea) { draw(HydrogenToVenus) }
       cardAction1(BusinessNetwork) { buyCards(Algae) }

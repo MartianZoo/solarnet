@@ -234,7 +234,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // KB used Convert Heat standard action
     // KB ended turn
     KB.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
     }
 
     // ER played Nuclear Zone
@@ -395,11 +395,11 @@ class Game20260619Test : AbstractFullGameTest() {
 
     // KB used Convert Heat standard action
     KB.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
 
       // KB used Convert Heat standard action
       // KB gained 1 heat production
-      stdAction("ConvertHeatSA")
+      convertHeat()
     }
 
     // ER used Restricted Area action
@@ -437,7 +437,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER used Convert Heat standard action
     // ER ended turn
     ER.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
     }
 
     // KB used Regolith Eaters action
@@ -450,7 +450,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER used Convert Heat standard action
     // ER ended turn
     ER.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
     }
 
     // KB played Investment Loan
@@ -466,7 +466,7 @@ class Game20260619Test : AbstractFullGameTest() {
 
     // KB used Convert Heat standard action
     KB.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
 
       // KB played Soil Factory
       // KB gained 1 plant production

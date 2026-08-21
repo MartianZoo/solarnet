@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class NitrogenRichAsteroidTest : CardTest() {
   @Test
-  fun `may choose the lesser production branch with three plant tags`() {
+  fun `May choose the lesser production branch with three plant tags`() {
     newGame(CorporateEraExpansion)
     engine.phase("Action")
     p1.manual("$Ecoline, $AdaptedLichen, $Lichen")

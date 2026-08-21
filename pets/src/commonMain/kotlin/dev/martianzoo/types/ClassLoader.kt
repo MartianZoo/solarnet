@@ -10,9 +10,24 @@ import dev.martianzoo.data.Authority
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.Or
+import dev.martianzoo.pets.ast.Effect.Trigger.SelfTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.Transform
+import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement
 
 /**
  * Builds a master [ClassTable] from an [Authority], or internally forms a projection from that
@@ -102,12 +117,37 @@ private constructor(
 
   private val queue = ArrayDeque<ClassName>()
 
+  private enum class Truth {
+    TRUE,
+    FALSE,
+    UNKNOWN,
+  }
+
+  private fun truthOfAll(values: Collection<Truth>): Truth =
+      when {
+        Truth.FALSE in values -> Truth.FALSE
+        values.all { it == Truth.TRUE } -> Truth.TRUE
+        else -> Truth.UNKNOWN
+      }
+
+  private fun truthOfAny(values: Collection<Truth>): Truth =
+      when {
+        Truth.TRUE in values -> Truth.TRUE
+        values.all { it == Truth.FALSE } -> Truth.FALSE
+        else -> Truth.UNKNOWN
+      }
+
   /** Equivalent to calling [load] on every canonical class name in [names]. */
   private fun loadAll(names: Collection<ClassName>) {
-    queue += names
+    enqueue(names)
     while (queue.isNotEmpty()) {
       loadRelated(queue.removeFirst(), active = true)
+      enqueueReachableActivationEdges()
     }
+  }
+
+  private fun enqueue(names: Collection<ClassName>) {
+    queue += names - loadedClasses.keys - queue
   }
 
   internal fun loadRelated(next: ClassName, active: Boolean): Class {
@@ -119,42 +159,167 @@ private constructor(
       return loaded
     }
     val declaration = knownDeclaration(next)
+    validateClassLiterals(declaration)
     val phantom = !active
-    return construct(declaration, phantom).also {
-      if (phantom) return@also
-      queue.addAll(activationEdges(declaration) - loadedClasses.keys - THIS)
-    }
+    return construct(declaration, phantom)
   }
 
-  /**
-   * The class names that loading [declaration] as active demands also be loaded as active. Today
-   * this is every name the declaration mentions anywhere, no matter how it is mentioned; only the
-   * argument of a `Class<...>` metric gets narrower treatment.
-   */
-  private fun activationEdges(declaration: ClassDeclaration): Set<ClassName> = buildSet {
-    fun collectRelated(node: PetNode) {
+  private fun validateClassLiterals(declaration: ClassDeclaration) {
+    fun validateClassLiterals(node: PetNode) {
       node.visitDescendants {
-        when {
-          it is Count && it.expression.className == CLASS -> {
-            add(CLASS)
-            val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
-            argument?.let { expression ->
-              if (expression.className !in knownClassNames) {
-                throw Exceptions.classNotFound(expression.className)
-              }
+        if (it is Count && it.expression.className == CLASS) {
+          val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
+          argument?.let { expression ->
+            if (expression.className !in knownClassNames) {
+              throw Exceptions.classNotFound(expression.className)
             }
-            it.expression.refinement?.let(::collectRelated)
-            false
           }
-          it is ClassName -> {
-            add(it)
-            false
-          }
-          else -> true
+          it.expression.refinement?.let(::validateClassLiterals)
+          false
+        } else {
+          true
         }
       }
     }
-    declaration.allNodes.forEach(::collectRelated)
+    declaration.allNodes.forEach(::validateClassLiterals)
+  }
+
+  /**
+   * Rechecks every live declaration because activating one Class can make a previously impossible
+   * Trigger or gate reachable. The closure is monotone: Classes only become active.
+   */
+  private fun enqueueReachableActivationEdges() {
+    val activeNames =
+        loadedClasses.values
+            .mapNotNull { klass ->
+              klass?.takeUnless(Class::phantom)?.className
+            }
+            .toSet()
+    val edges =
+        (activeNames - COMPONENT - CLASS).flatMapTo(linkedSetOf()) { name ->
+          activationEdges(knownDeclaration(name), activeNames)
+        }
+    enqueue(edges - THIS)
+  }
+
+  /** Returns the structurally or constructively required Classes in one live declaration. */
+  private fun activationEdges(
+      declaration: ClassDeclaration,
+      activeNames: Set<ClassName>,
+  ): Set<ClassName> = buildSet {
+    fun collectStructural(expression: Expression) {
+      if (!expression.complement) add(expression.className)
+      expression.arguments.forEach(::collectStructural)
+    }
+
+    fun isUninhabited(expression: Expression): Boolean {
+      if (expression.className == THIS) return false
+      if (!expression.complement && expression.className !in activeNames) return true
+      return expression.arguments.any(::isUninhabited)
+    }
+
+    fun truthOf(requirement: Requirement): Truth =
+        when (requirement) {
+          is Requirement.Counting -> {
+            val metric = requirement.metric
+            if (metric is Metric.Count && isUninhabited(metric.expression)) {
+              if (0 in requirement.range) Truth.TRUE else Truth.FALSE
+            } else {
+              Truth.UNKNOWN
+            }
+          }
+          is Requirement.And -> truthOfAll(requirement.requirements.map(::truthOf))
+          is Requirement.Or -> truthOfAny(requirement.requirements.map(::truthOf))
+          is Requirement.Eval,
+          is Requirement.Transform -> Truth.UNKNOWN
+        }
+
+    fun triggerReachable(trigger: Trigger): Boolean =
+        when (trigger) {
+          is SelfTrigger -> true
+          is OnGainOf -> !isUninhabited(trigger.expression)
+          is OnRemoveOf -> !isUninhabited(trigger.expression)
+          is Or -> trigger.triggers.any(::triggerReachable)
+          is ByTrigger -> triggerReachable(trigger.inner) && !isUninhabited(trigger.by)
+          is IfTrigger ->
+              triggerReachable(trigger.inner) && truthOf(trigger.condition) != Truth.FALSE
+          is XTrigger -> triggerReachable(trigger.inner)
+          is Transform -> triggerReachable(trigger.inner)
+        }
+
+    fun collectTriggerProtocols(trigger: Trigger) {
+      fun collectProtocol(expression: Expression) {
+        if (expression.className in knownClassNames && expression.arguments.none(::isUninhabited)) {
+          add(expression.className)
+        }
+      }
+
+      when (trigger) {
+        is SelfTrigger -> Unit
+        is OnGainOf -> collectProtocol(trigger.expression)
+        is OnRemoveOf -> collectProtocol(trigger.expression)
+        is Or -> trigger.triggers.forEach(::collectTriggerProtocols)
+        is ByTrigger -> collectTriggerProtocols(trigger.inner)
+        is IfTrigger -> {
+          if (truthOf(trigger.condition) != Truth.FALSE) {
+            collectTriggerProtocols(trigger.inner)
+          }
+        }
+        is XTrigger -> collectTriggerProtocols(trigger.inner)
+        is Transform -> collectTriggerProtocols(trigger.inner)
+      }
+    }
+
+    fun collectRequiredInhabitants(requirement: Requirement) {
+      when (requirement) {
+        is Requirement.Counting -> {
+          val metric = requirement.metric
+          if (requirement.range.first > 0 && metric is Metric.Count) {
+            collectStructural(metric.expression)
+          }
+        }
+        is Requirement.And -> requirement.requirements.forEach(::collectRequiredInhabitants)
+        is Requirement.Or -> requirement.requirements.forEach(::collectRequiredInhabitants)
+        is Requirement.Eval,
+        is Requirement.Transform -> Unit
+      }
+    }
+
+    fun collectInstruction(tree: InstructionTree) {
+      when (tree) {
+        is Gain -> collectStructural(tree.gaining)
+        is Transmute -> collectStructural(tree.gaining)
+        is Gated -> {
+          if (truthOf(tree.gate) != Truth.FALSE) collectInstruction(tree.inner)
+        }
+        else ->
+            tree
+                .immediateChildren()
+                .filterIsInstance<InstructionTree>()
+                .forEach(::collectInstruction)
+      }
+    }
+
+    declaration.supertypes.forEach(::collectStructural)
+    declaration.dependencies.forEach(::collectStructural)
+    declaration.defaultsDeclaration.allNodes
+        .filterIsInstance<Expression>()
+        .forEach(::collectStructural)
+    declaration.defaultsDeclaration.forClass?.let(::add)
+    declaration.invariants.forEach(::collectRequiredInhabitants)
+    declaration.effects.forEach { collectTriggerProtocols(it.trigger) }
+    declaration.effects
+        .filter { triggerReachable(it.trigger) }
+        .forEach {
+          collectInstruction(it.instruction)
+        }
+    declaration.allNodes
+        .flatMap { it.descendantsOfType<ClassName>() }
+        .filter { it != THIS && it in knownClassNames && knownDeclaration(it).custom }
+        .forEach(::add)
+    declaration.extraNodes.forEach { node ->
+      node.descendantsOfType<ClassName>().forEach(::add)
+    }
     if (declaration.custom) {
       addAll(authority.customClass(declaration.className).requiredClassNames)
     }

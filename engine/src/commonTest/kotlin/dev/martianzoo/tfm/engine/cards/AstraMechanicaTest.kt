@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class AstraMechanicaTest : CardTest() {
   @Test
-  fun `may return zero played events`() {
+  fun `Can choose zero played events`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("7 Megacredit, ProjectCard")

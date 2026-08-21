@@ -73,7 +73,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 4)
 
       playProject(DeepWellHeating, 4, steel = 3).expect("Energy, TR")
-      stdAction("ConvertHeatSA").expect("TR")
+      convertHeat().expect("TR")
       playProject(NoctisCity, 18).expect("CityTile<Tharsis_5_3>, 2 Plant")
       playProject(FueledGenerators, 1)
 
@@ -91,8 +91,8 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertDashRight(events = 1, tagless = 2, cities = 1, colonies = 0)
       assertSidebar(gen = 5, temp = -26, oxygen = 0, oceans = 1, venus = 6)
 
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       stdProject("BuildColonySP") { doTask("Colony<Luna>") }
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15")
       playProject(GiantSolarShade, 27).expect("Card")
@@ -100,7 +100,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       nextRound("VenusStep", 2)
 
-      stdAction("ConvertHeatSA").expect("PROD[Heat]")
+      convertHeat().expect("PROD[Heat]")
       stdAction("TradeSA", 2) { doTask("Trade<Ganymede>") }
       convertPlants {
             doTask("GreeneryTile<Tharsis_6_3>")
@@ -121,7 +121,7 @@ class SoloGame0710Test : AbstractSoloTest() {
 
       playProject(AsteroidRights, 10)
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
-      stdAction("ConvertHeatSA")
+      convertHeat()
       playProject(ViralEnhancers, 9) { doTask("ProjectCard FROM Science<$OlympusConference>") }
       playProject(QuantumExtractor, 13)
       playProject(SoilFactory, 3, steel = 2)
@@ -129,8 +129,8 @@ class SoloGame0710Test : AbstractSoloTest() {
       nextRound("OxygenStep", 3)
 
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       stdAction("TradeSA", 2) { doTask("Trade<Luna>") }
 
       playProject(GiantIceAsteroid, 18, titanium = 4) {
@@ -152,7 +152,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertDashRight(events = 3, tagless = 2, cities = 2, colonies = 1)
       assertSidebar(gen = 9, temp = -10, oxygen = 4, oceans = 4, venus = 14)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       playProject(ResearchOutpost, 6, steel = 4) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
         doTask("CityTile<Tharsis_8_6>")
@@ -173,8 +173,8 @@ class SoloGame0710Test : AbstractSoloTest() {
       nextRound("OxygenStep", 2)
 
       playProject(MiningExpedition, 11) { doTask("-2 Plant<SoloOpponent>") }
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       playProject(StripMine, 12, steel = 4)
       sellPatents(1)
 
@@ -211,8 +211,8 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertDashRight(events = 6, tagless = 2, cities = 3, colonies = 2)
       assertSidebar(gen = 11, temp = 0, oxygen = 10, oceans = 8, venus = 18)
 
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       cardAction1(RefugeeCamps)
       playProject(IceCapMelting, 4) { doTask("OceanTile<Tharsis_1_4>") }
 
@@ -228,7 +228,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
       stdProject("GreenerySP") { doTask("GreeneryTile<Tharsis_8_4>") }
       playProject(JovianEmbassy, 4, steel = 3)
-      stdAction("ConvertHeatSA")
+      convertHeat()
       sellPatents(2)
       playProject(DawnCity, 8, titanium = 1)
       stdProject("AirScrappingSP")
@@ -243,7 +243,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       assertDashRight(events = 7, tagless = 2, cities = 6, colonies = 2)
       assertSidebar(gen = 12, temp = 6, oxygen = 12, oceans = 9, venus = 22)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       cardAction1(SubZeroSaltFish)
       cardAction1(RefugeeCamps)

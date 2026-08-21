@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class HermeticOrderOfMarsTest : CardTest() {
   @Test
-  fun `gains money for each empty area adjacent to its own tiles`() {
+  fun `Gains money for each empty area adjacent to its own tiles`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual(

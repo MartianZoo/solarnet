@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class EcologyExpertsTest : CardTest() {
   @Test
-  fun `plays Decomposers while ignoring its global requirement`() {
+  fun `Plays Decomposers while ignoring its global requirement`() {
     newGame(PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("10 Megacredit, ProjectCard, PreludeCard")
@@ -44,7 +44,7 @@ class EcologyExpertsTest : CardTest() {
   }
 
   @Test
-  fun `can play a card without a bio tag`() {
+  fun `Can play a card without a bio tag`() {
     newGame(PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("2 Megacredit, ProjectCard, PreludeCard")

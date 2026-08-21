@@ -7,7 +7,7 @@ import kotlin.test.Test
 class MartianRailsTest : CardTest() {
   // FAQ: "even if there are NO cities on Mars (earning you 0 M€)."
   @Test
-  fun `with only an off-Mars city, uses Martian Rails`() {
+  fun `Can be used when every city is off Mars`() {
     newGame()
     p1.manual("$MartianRails, Energy")
     p1.manual("$GanymedeColony").expect("CityTile<Card081_RemoteArea>")

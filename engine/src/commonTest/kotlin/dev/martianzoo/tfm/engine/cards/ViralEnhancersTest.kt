@@ -8,20 +8,20 @@ import kotlin.test.Test
 
 class ViralEnhancersTest : CardTest() {
   @Test
-  fun `when Viral Enhancers enters play, adds a plant`() {
+  fun `When Viral Enhancers enters play, adds a plant`() {
     newGame()
     p1.manual("$ViralEnhancers").expect("Plant")
   }
 
   @Test
-  fun `with Viral Enhancers, a bio card that cannot hold resources must take a plant`() {
+  fun `Forces a plant when a bio card cannot hold resources`() {
     newGame()
     p1.manual("$ViralEnhancers")
     p1.manual("$IndustrialMicrobes").expect("Plant")
   }
 
   @Test
-  fun `with Viral Enhancers, reacts once to each bio tag on a card`() {
+  fun `Triggers once for each bio tag on a card`() {
     newGame()
     p1.manual("$ViralEnhancers")
 
@@ -29,7 +29,7 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  fun `with Viral Enhancers, adds a microbe card choosing a microbe`() {
+  fun `Can choose a microbe when the entering card can hold it`() {
     newGame()
     p1.manual("$ViralEnhancers")
     p1.manual("$NitriteReducingBacteria") { doTask("Microbe<$NitriteReducingBacteria>") }
@@ -37,7 +37,7 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  fun `with Viral Enhancers, tries to add a microbe to another card`() {
+  fun `Cannot add a microbe to a different card`() {
     initializeExistingMicrobeCard()
     p1.manual("$RegolithEaters") {
       shouldThrow<NarrowingException> { doTask("Microbe<$NitriteReducingBacteria>") }
@@ -46,7 +46,7 @@ class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  fun `with Viral Enhancers, adds a microbe to the entering card`() {
+  fun `Adds the chosen microbe to the entering card`() {
     initializeExistingMicrobeCard()
     p1.manual("$RegolithEaters") { doTask("Microbe<$RegolithEaters>") }
         .expect("Microbe<$RegolithEaters>")

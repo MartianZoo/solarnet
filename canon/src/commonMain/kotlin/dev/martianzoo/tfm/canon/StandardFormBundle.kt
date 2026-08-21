@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
-import dev.martianzoo.data.BundleMetadata
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
@@ -42,11 +41,6 @@ public class StandardFormBundle(
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
     readIfPresent(CLASSES_FILENAME, ::parseClasses).toSetStrict()
-  }
-
-  override val metadata: BundleMetadata by lazy {
-    if (PREMISE_FILENAME in resourceFilenames) JsonReader.readBundleMetadata(read(PREMISE_FILENAME))
-    else BundleMetadata()
   }
 
   override val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
@@ -107,7 +101,6 @@ public class StandardFormBundle(
     public const val MAPS_FILENAME: String = "maps.json5"
     public const val MILESTONES_FILENAME: String = "milestones.json5"
     public const val AWARDS_FILENAME: String = "awards.json5"
-    public const val PREMISE_FILENAME: String = "premise.json5"
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CLASSES_FILENAME = "classes.pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
@@ -119,7 +112,6 @@ public class StandardFormBundle(
             COLONIES_FILENAME,
             MAPS_FILENAME,
             MILESTONES_FILENAME,
-            PREMISE_FILENAME,
         )
   }
 }

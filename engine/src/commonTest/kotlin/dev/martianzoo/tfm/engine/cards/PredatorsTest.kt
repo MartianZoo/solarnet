@@ -18,18 +18,18 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `without an animal, Predators is unavailable`() {
+  fun `Cannot act when no animal can be removed`() {
     shouldThrow<LimitsException> { p1.cardAction1(Predators) }
   }
 
   @Test
-  fun `with an animal on a p2 card, p1 uses Predators`() {
+  fun `Can remove an opponent's animal`() {
     addBirdForP2()
     p1.cardAction1(Predators).expect("Animal<$Predators>, -Animal<Player2, $Birds<Player2>>")
   }
 
   @Test
-  fun `with two animals on one p2 card, Predators removes exactly one`() {
+  fun `Removes exactly one of two animals on the target card`() {
     addBirdForP2()
     requireP2().manual("Animal<$Birds>")
 
@@ -40,7 +40,7 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `p1 cannot decline to remove an animal from p2`() {
+  fun `Cannot decline to remove an opponent's animal`() {
     addBirdForP2()
     p1.manual("Animal<$Predators>")
 
@@ -51,7 +51,7 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `with an animal on another p1 card, p1 can use Predators`() {
+  fun `Can remove an animal from another card its player owns`() {
     p1.manual("PROD[2 Plant], $Birds")
     p1.manual("Animal<$Birds>")
     p1.manual("Animal<$Predators>")
@@ -61,7 +61,7 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `with an animal only on Predators, p1 uses its action`() {
+  fun `Can remove and replace its own animal`() {
     p1.manual("Animal<$Predators>")
     p1.cardAction1(Predators).expect("0 Animal<$Predators>")
   }
@@ -76,7 +76,7 @@ class PredatorsTest : CardTest() {
   }
 
   @Test
-  fun `in solo play Predators takes an animal from the neutral holder`() {
+  fun `Takes an animal from the neutral holder in solo play`() {
     newGame(players = 1)
     p1.manual("$Predators")
     engine.phase("Action")

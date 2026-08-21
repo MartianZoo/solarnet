@@ -11,7 +11,6 @@ public data class BundleContentSelection(
 ) {
   /** Independently selectable kinds of content contributed by a bundle. */
   public enum class Kind {
-    AUTO_LOAD_CLASSES,
     CARDS,
     STANDARD_ACTIONS,
     MAPS,

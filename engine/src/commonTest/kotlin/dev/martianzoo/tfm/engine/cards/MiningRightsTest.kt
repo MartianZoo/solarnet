@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 class MiningRightsTest : CardTest() {
   @Test
-  fun `links production to its prior area choice without prioritizing it`() {
+  fun `Links production to its prior area choice without prioritizing it`() {
     newGame()
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
@@ -40,14 +40,14 @@ class MiningRightsTest : CardTest() {
     val manual = p1.godMode().also { it.autoExecMode = NONE }
     manual.beginManual("$RoboticWorkforce")
     manual.reviseTask(
-        "CopyProductionBox<CardFront(HAS BuildingTag)>",
+        "CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>",
         "CopyProductionBox<$MiningRights>",
     )
     manual.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 
   @Test
-  fun `with a card-bonus area selected, tries to play Mining Rights`() {
+  fun `Cannot select a card-bonus area`() {
     newGame()
     shouldThrow<NotNowException> {
       p1.manual("$MiningRights") { doTask("Card067_SpecialTile<Tharsis_2_1>") }

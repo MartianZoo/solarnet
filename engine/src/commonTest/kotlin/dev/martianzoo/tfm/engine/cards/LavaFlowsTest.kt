@@ -9,21 +9,21 @@ import kotlin.test.Test
 
 class LavaFlowsTest : CardTest() {
   @Test
-  fun `on Tharsis, resolves Lava Flows`() {
+  fun `Can place its tile on Tharsis`() {
     newGame()
     p1.manual("$LavaFlows") { doTask("Card140_SpecialTile<Tharsis_2_2>") }
         .expect("2 TemperatureStep")
   }
 
   @Test
-  fun `on Hellas, resolves Lava Flows`() {
+  fun `Can place its tile on Hellas`() {
     newGame(HellasMapOption)
     p1.manual("$LavaFlows") { doTask("Card140_SpecialTile<Hellas_1_5>") }
         .expect("2 TemperatureStep")
   }
 
   @Test
-  fun `with every volcanic area occupied, tries to place Lava Flows`() {
+  fun `Cannot be played when every volcanic area is occupied`() {
     newGame()
     p1.manual(
         "GreeneryTile<Tharsis_2_2>, GreeneryTile<Tharsis_3_1>, " +

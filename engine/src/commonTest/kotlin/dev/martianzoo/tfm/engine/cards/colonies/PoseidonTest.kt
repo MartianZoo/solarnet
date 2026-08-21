@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class PoseidonTest : CardTest() {
   @Test
-  fun `places its colony as the first action`() {
+  fun `Places its colony as the first action`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.playCorp(Poseidon, 0).expect("45")
     p1.assertCounts(1 to "Mandate", 0 to "Colony")

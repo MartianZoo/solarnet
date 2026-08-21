@@ -7,7 +7,7 @@ import kotlin.test.Test
 class AtmoscoopTest : CardTest() {
   // FAQ: "you can choose to raise Temperature or Venus even if that parameter is maxed"
   @Test
-  fun `with Venus maxed, resolves Atmoscoop`() {
+  fun `Can choose Venus when it is already maxed`() {
     newGame(VenusNextExpansion)
     p1.manual("15 VenusStep, $AerialMappers")
 
@@ -19,7 +19,7 @@ class AtmoscoopTest : CardTest() {
   }
 
   @Test
-  fun `at twenty-eight percent, raises Venus only once`() {
+  fun `Can raise Venus once when it is at 28 percent`() {
     newGame(VenusNextExpansion)
     p1.manual("14 VenusStep, $AerialMappers")
 
@@ -31,7 +31,7 @@ class AtmoscoopTest : CardTest() {
   }
 
   @Test
-  fun `raises Venus two atomized steps`() {
+  fun `Can raise Venus two steps`() {
     newGame(VenusNextExpansion)
     p1.manual("$AerialMappers")
 

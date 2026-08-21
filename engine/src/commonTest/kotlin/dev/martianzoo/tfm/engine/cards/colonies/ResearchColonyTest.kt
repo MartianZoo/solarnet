@@ -8,13 +8,13 @@ import kotlin.test.Test
 
 class ResearchColonyTest : ColoniesCardTest() {
   @Test
-  fun `with a colony on Luna, plays Research Colony`() {
+  fun `Can be played when its player already has a colony on Luna`() {
     p1.manual("ProjectCard, 20, Colony<Luna>")
     p1.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }.expect("-20, Colony<Luna>")
   }
 
   @Test
-  fun `with a colony on Luna, tries to build another using a standard project`() {
+  fun `Cannot build a second colony on the same colony tile`() {
     p1.manual("17, Colony<Luna>")
     shouldThrow<NarrowingException> {
       p1.stdProject("BuildColonySP") { doTask("Colony<Luna>") }
@@ -22,7 +22,7 @@ class ResearchColonyTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with three colonies on Luna, tries to play Research Colony`() {
+  fun `Cannot be played on a colony tile that already has three colonies`() {
     p1.manual("ProjectCard, 20, Colony<Luna>, 2 Colony<Player2, Luna>")
     shouldThrow<LimitsException> {
       p1.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }

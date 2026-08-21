@@ -17,18 +17,31 @@ A live Game World is a `World` containing:
 | `ClassTable` | The closed vocabulary and type relationships |
 | Actor-scoped `Gameplay` | The supported mutation/query facade |
 
-`GameConfig` is unresolved user intent. Authority-specific resolution applies defaults,
-implications, selection policy, and validation to produce an immutable `GamePremise`. The premise
+`GameConfig` is unresolved user intent. Authority-specific resolution applies defaults, selection
+policy, and validation to produce an immutable `GamePremise`. The premise
 contains one Authority, selected Modules, signed class selections, seat-ordered display names, and
 exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 
 Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
 are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
-`Player1` through `PlayerN`; configured player names are Vocabulary aliases.
+`Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
+an explicit projection root. Trigger protocols with inhabited arguments currently remain activation
+edges because external workflow creates signals such as `NewTurn`, concrete `UseAction` Types, and
+`SoloVictoryCheck`; Module ownership should eventually replace that compatibility rule.
+
+Module defaults and premise requirements are authored as Requirement-valued Pets properties. The
+Authority resolves defaults to a fixed point; the engine checks each selected Module's premise
+requirement and configuration-facing invariants against the resolved projection before creating the
+World.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.
 Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful operation.
+
+In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
+selected data families, Class representatives, and generic specialization fanout. A concrete
+component introduced by a live Module is instead created by that Module's effect and ordinarily has
+a maximum-one invariant; its event history then records the Module as its cause.
 
 ## Component graph
 
@@ -166,31 +179,26 @@ instruction positions without rewriting coincidental equal Class Names.
 admitted. `:` effects become tasks. Use [SEQUENCING.md](SEQUENCING.md) before depending on that
 difference.
 
-### Proposed Terraforming Mars wild-tag model
+### Terraforming Mars wild tags
 
-This model is an aspiration preserved from the `wildtag` branch, not current `work4` behavior.
-Today `Tag` is `Cardbound`, so every live tag depends directly on a `CardFront`; Research Network
-and Research Coordination remain in `cards-dont-work.json5`, and neither `TagHolder` nor
-`WildTagUse` exists.
+`Tag` depends on `TagHolder`; `CardFront` is one such holder. Printed tags therefore remain ordinary
+components such as `PlantTag<CardFront>`. A `WildTag` creates a distinct `WildTagUse` holder for
+each `NewTurn` in Action or Prelude and each action-phase `SecondAction`. The temporary holder offers
+the owner `Tag<This>?`, so a chosen wild meaning is an ordinary tag and participates in bare tag
+metrics and requirements.
 
-The proposed model would make `Tag` depend on a more general `TagHolder`, with `CardFront` as one
-such holder. Printed tags would remain ordinary components such as `PlantTag<CardFront>`. A
-`WildTag` would create a distinct `WildTagUse` holder for each `NewTurn` in Action or Prelude and
-each action-phase `SecondAction`. The temporary holder would offer the owner `Tag<This>?`, making a
-chosen wild meaning an ordinary tag that participates in bare tag metrics and requirements.
-
-The holder distinction would also be the trigger distinction. An effect reacting only to printed
-tags would subscribe explicitly, for example `PlantTag<CardFront>:`; it would not see
-`PlantTag<WildTagUse<...>>`, without needing a dispatch filter or special change kind. Refinements
-could follow the dependency graph when card identity matters. Robotic Workforce could use
-`CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, accepting only the card whose
+The holder distinction is also the trigger distinction. `Tag` has the trigger default
+`Tag<CardFront>:`, so an effect that reacts only to printed tags can explicitly accept it with
+`PlantTag<>:` or spell out `PlantTag<CardFront>:`. It will not see
+`PlantTag<WildTagUse<...>>`; there is no dispatch filter or special change kind. Refinements can
+follow the dependency graph when card identity matters. Robotic Workforce uses
+`CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))`, which accepts only the card whose
 action-scoped wild holder received the Building interpretation.
 
-Because each proposed `WildTagUse` would be `Temporary`, an action could not finish while one
-remained. The parked implementation made `TfmGameplay` decline unchosen offers and remove the
-acting player's uses after the action body drained, relying on ordinary dependency cascade to
-remove their tags. That convenience-layer settlement is not part of `work4`; a future design should
-decide whether the engine can express the uniquely implied cleanup more directly.
+`WildTagUse` is `Temporary`, so the action cannot finish while it remains. `TfmGameplay` declines
+unchosen offers and removes all of the acting player's uses after the action body has drained; the
+dependent tags disappear through ordinary dependency cascade. A different client must perform the
+same uniquely implied settlement before completing the operation.
 
 ## Metrics, refinements, and limits
 

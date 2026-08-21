@@ -69,18 +69,25 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `Founder counts an owned tile once when it neighbors multiple special tiles`() {
+  fun `Founder counts a tile once when it neighbors multiple opponents' special tiles`() {
     newGame(TerraCimmeriaMapOption)
-    p1.manual(
-        "CityTile<Cimmeria_3_3>, Card067_SpecialTile<Cimmeria_3_2>, " +
-            "Card044_SpecialTile<Cimmeria_3_4>"
-    )
+    val p2 = requireP2()
+    p1.manual("8, CityTile<Cimmeria_3_3>")
+    p2.manual("Card067_SpecialTile<Cimmeria_3_2>, Card044_SpecialTile<Cimmeria_3_4>")
+    engine.phase("Action")
 
-    p1.count("OwnedTile<MarsArea(HAS Neighbor<SpecialTile>)>") shouldBe 1
+    p1.stdAction("FundAwardSA") { doTask("Founder") }
+    engine.phase("End")
+
+    p1.assertCounts(
+        1 to "AwardTally<Player1, Founder>",
+        1 to "FirstPlace<Player1, Founder>",
+    )
+    p2.assertCounts(0 to "AwardTally<Player2, Founder>")
   }
 
   @Test
-  fun `claims Metallurgist for combined metal production and Trader for three resource types`() {
+  fun `Claims Metallurgist for combined metal production and Trader for three resource types`() {
     newGame(UtopiaPlanitiaMapOption)
     p1.manual(
         "16, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +

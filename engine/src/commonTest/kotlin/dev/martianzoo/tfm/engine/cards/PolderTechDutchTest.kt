@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class PolderTechDutchTest : CardTest() {
   @Test
-  fun `initial action places adjacent ocean and greenery without an existing owned tile`() {
+  fun `Initial action places adjacent ocean and greenery without an existing owned tile`() {
     newGame(PromoCardPack)
     p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")
@@ -26,7 +26,7 @@ class PolderTechDutchTest : CardTest() {
   }
 
   @Test
-  fun `later ocean and greenery placements grant their resources`() {
+  fun `Later ocean and greenery placements grant their resources`() {
     newGame(PromoCardPack)
     p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")

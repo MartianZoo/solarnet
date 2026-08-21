@@ -18,8 +18,10 @@ class HeadStartTest : CardTest() {
 
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<PowerPlantSP>")
+      doTask("11 Pay<Class<Megacredit>> FROM Megacredit")
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<PowerPlantSP>")
+      doTask("11 Pay<Class<Megacredit>> FROM Megacredit")
 
       p1.assertCounts(2 to "Megacredit")
       p1.production(cn("Energy")) shouldBe 2
@@ -38,6 +40,7 @@ class HeadStartTest : CardTest() {
       doTask("PlayCard<Class<PreludeCard>, Class<$MartianIndustries>>")
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<PowerPlantSP>")
+      doTask("11 Pay<Class<Megacredit>> FROM Megacredit")
     }
   }
 }

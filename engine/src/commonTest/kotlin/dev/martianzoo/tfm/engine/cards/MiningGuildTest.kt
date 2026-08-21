@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class MiningGuildTest : CardTest() {
   @Test
-  fun `with Mining Guild, places tiles on steel and card bonuses`() {
+  fun `Raises steel production for metal areas but not card-bonus areas`() {
     newGame()
     p1.manual("$MiningGuild")
     p1.count("PROD[Steel]") shouldBe 1

@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class MarketManipulationTest : ColoniesCardTest() {
   @Test
-  fun `with movable tracks, plays Market Manipulation`() {
+  fun `Can raise one colony track and lower another`() {
     p1.manual("ProjectCard, Megacredit")
     p1.playProject(MarketManipulation, 1) {
           doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
@@ -18,7 +18,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with a track at the bottom, tries to lower it`() {
+  fun `Cannot lower a colony track already at its minimum`() {
     p1.manual("ProjectCard, Megacredit")
     engine.manual("-ColonyProduction<Triton>")
     p1.playProject(MarketManipulation, 1) {
@@ -30,7 +30,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with a track at the top, tries to raise it`() {
+  fun `Cannot raise a maxed colony track`() {
     p1.manual("ProjectCard, Megacredit")
     engine.manual("5 ColonyProduction<Luna>")
     p1.playProject(MarketManipulation, 1) {
@@ -42,7 +42,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with one track selected twice, tries to play Market Manipulation`() {
+  fun `Cannot select the same colony track twice`() {
     p1.manual("ProjectCard, Megacredit")
     p1.playProject(MarketManipulation, 1) {
       shouldThrow<ExpressionException> {
@@ -53,7 +53,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with Titan delayed, tries to raise its track`() {
+  fun `Cannot raise Titan's delayed colony track`() {
     p1.manual("ProjectCard, Megacredit")
     p1.playProject(MarketManipulation, 1) {
       shouldThrow<NotNowException> {
@@ -64,7 +64,7 @@ class MarketManipulationTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with Titan delayed, tries to lower its track`() {
+  fun `Cannot lower Titan's delayed colony track`() {
     p1.manual("ProjectCard, Megacredit")
     p1.playProject(MarketManipulation, 1) {
       shouldThrow<NotNowException> {

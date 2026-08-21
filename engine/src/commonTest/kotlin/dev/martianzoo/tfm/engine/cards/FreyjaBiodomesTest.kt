@@ -8,7 +8,7 @@ import kotlin.test.Test
 class FreyjaBiodomesTest : CardTest() {
   // FAQ: "you can still choose to take microbes"
   @Test
-  fun `without an eligible Venus card, resolves Freyja Biodomes`() {
+  fun `Can be played without another eligible Venus card`() {
     newGame(VenusNextExpansion)
     p1.manual("PROD[Energy]")
     p1.manual("$VenusianAnimals")

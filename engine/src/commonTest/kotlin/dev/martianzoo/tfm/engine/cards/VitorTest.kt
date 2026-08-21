@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class VitorTest : CardTest() {
   @Test
-  fun `funds an award for free in multiplayer`() {
+  fun `Funds an award for free in multiplayer`() {
     val game = newGame(PreludeExpansion, players = 2)
     val p1 = game.tfm(PLAYER1)
 
@@ -23,20 +23,20 @@ class VitorTest : CardTest() {
   }
 
   @Test
-  fun `in solo mode, plays Vitor without award funding`() {
+  fun `In solo mode, plays Vitor without award funding`() {
     newGame(PreludeExpansion, players = 1)
     p1.playCorp(Vitor, 5).expect("5 ProjectCard, 33")
     p1.assertCounts(0 to "Award")
   }
 
   @Test
-  fun `with Vitor in solo mode, adds a card with a positive VP`() {
+  fun `Rebates a card with positive victory points`() {
     initializeVitor()
     p1.manual("$SearchForLife").expect("3")
   }
 
   @Test
-  fun `with Vitor in solo mode, adds a card without VP`() {
+  fun `Does not rebate a card without victory points`() {
     initializeVitor()
     p1.count("Megacredit") shouldBe 48
     p1.manual("$Mine")
@@ -44,7 +44,7 @@ class VitorTest : CardTest() {
   }
 
   @Test
-  fun `with Vitor in solo mode, adds a card with negative VP`() {
+  fun `Does not rebate a card with negative victory points`() {
     initializeVitor()
     p1.count("Megacredit") shouldBe 48
     p1.manual("$BribedCommittee")

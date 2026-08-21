@@ -16,7 +16,7 @@ class EcolineTest : CardTest() {
   }
 
   @Test
-  fun `with seven plants, converts plants as Ecoline`() {
+  fun `Can convert seven plants into greenery`() {
     p1.manual("4 Plant")
     p1.assertCounts(7 to "Plant")
     p1.convertPlants {
@@ -27,7 +27,7 @@ class EcolineTest : CardTest() {
   }
 
   @Test
-  fun `with six plants, tries to convert plants as Ecoline`() {
+  fun `Cannot convert only six plants into greenery`() {
     p1.manual("3 Plant")
     shouldThrow<LimitsException> {
       p1.convertPlants()

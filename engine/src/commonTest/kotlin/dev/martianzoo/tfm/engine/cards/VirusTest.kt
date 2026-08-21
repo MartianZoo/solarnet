@@ -20,7 +20,7 @@ class VirusTest : CardTest() {
 
   // FAQ: "you must choose a single card from which to remove animals."
   @Test
-  fun `with animals on two cards, p1 tries to remove from both using Virus`() {
+  fun `Cannot split animal removal across two cards`() {
     shouldThrow<NarrowingException> {
       p1.manual("$Virus") {
         doTask("-Animal<Player2, $Birds<Player2>>, -Animal<Player2, $Fish<Player2>>")
@@ -29,7 +29,7 @@ class VirusTest : CardTest() {
   }
 
   @Test
-  fun `with animals on two cards, p1 removes from one using Virus`() {
+  fun `Can remove animals from one of multiple eligible cards`() {
     p1.manual("$Virus") { doTask("-Animal<Player2, $Birds<Player2>>") }
         .expect("-Animal<Player2, $Birds<Player2>>")
     requireP2().assertCounts(0 to "Animal<$Birds>", 1 to "Animal<$Fish>")

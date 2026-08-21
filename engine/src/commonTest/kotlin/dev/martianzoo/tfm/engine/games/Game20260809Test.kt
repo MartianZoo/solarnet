@@ -552,8 +552,8 @@ class Game20260809Test : AbstractFullGameTest() {
     // "I raise the temperature twice because I have 16 heat."
     // "The temperature is now −24°C. I get two TR."
     ellie.turn {
-      stdAction("ConvertHeatSA").expect("TemperatureStep, TR")
-      stdAction("ConvertHeatSA").expect("TemperatureStep, PROD[H], TR")
+      convertHeat().expect("TemperatureStep, TR")
+      convertHeat().expect("TemperatureStep, PROD[H], TR")
     }
 
     // "I'm gonna use Venusian Insects to give myself a microbe."
@@ -694,7 +694,7 @@ class Game20260809Test : AbstractFullGameTest() {
 
       // "My second action is to raise the temperature with my eight heat."
       // "That gives me an extra TR."
-      stdAction("ConvertHeatSA").expect("TemperatureStep, TR")
+      convertHeat().expect("TemperatureStep, TR")
     }
 
     // (1:12 pm) "Why do I play badly?" "Temp is at minus 20, and oxygen is at eight."
@@ -1121,7 +1121,7 @@ class Game20260809Test : AbstractFullGameTest() {
     dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile<>") }
 
     // (8:12 pm) "I raise the temperature to −8°C with eight heat. I get a TR."
-    ellie.turn { stdAction("ConvertHeatSA").expect("TR") }
+    ellie.turn { convertHeat().expect("TR") }
     engine.assertCounts(11 to "TemperatureStep")
 
     // "I use Maxwell Base to add a Stratospheric Bird."
@@ -1171,7 +1171,7 @@ class Game20260809Test : AbstractFullGameTest() {
       cardAction1(SearchForLife) { doTask("Ok") }.expect("0 Science")
 
       // "I do a heat raise to −6°C. That gives me a TR, so I'm at 36 TR."
-      stdAction("ConvertHeatSA").expect("TR")
+      convertHeat().expect("TR")
       engine.assertCounts(12 to "TemperatureStep")
 
       // "We do production. You get to do World Government Terraforming."
@@ -1410,8 +1410,8 @@ class Game20260809Test : AbstractFullGameTest() {
 
     // "I'm gonna heat boop twice. So we're at two temp."
     ellie.turn {
-      stdAction("ConvertHeatSA").expect("TR")
-      stdAction("ConvertHeatSA").expect("TR")
+      convertHeat().expect("TR")
+      convertHeat().expect("TR")
       engine.assertCounts(16 to "TemperatureStep")
     }
 
@@ -1489,7 +1489,7 @@ class Game20260809Test : AbstractFullGameTest() {
       assertCounts(17 to "M") // ledger entry 260
 
       // "Since you haven't done anything, I'mma go ahead and do a heat boop."
-      stdAction("ConvertHeatSA").expect("TR")
+      convertHeat().expect("TR")
     }
 
     // "I will play Molecular Printing for 11. I get 8 money for the 8 cities."

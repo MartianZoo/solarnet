@@ -19,37 +19,37 @@ class CrashSiteCleanupTest : CardTest() {
   }
 
   @Test
-  fun `after p1 removes a p2 plant, plays Crash Site Cleanup`() {
+  fun `Can be played after removing an opponent's plant`() {
     p1.manual("-Plant<Player2>")
     p1.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
   }
 
   @Test
-  fun `without a plant loss, tries to play Crash Site Cleanup`() {
+  fun `Cannot be played without removing a plant`() {
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `after losing an own plant, tries to play Crash Site Cleanup`() {
+  fun `Cannot be played after losing one of its own plants`() {
     p1.manual("Plant, -Plant")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `after p2 removes an own plant, tries to play Crash Site Cleanup`() {
+  fun `Cannot be played after an opponent removes its own plant`() {
     requireP2().manual("-Plant")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `a generation after removing a p2 plant, tries to play Crash Site Cleanup`() {
+  fun `Cannot be played if the plant removal was in a previous generation`() {
     p1.manual("-Plant<Player2>")
     engine.manual("Generation")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  fun `only the player who removed the plant qualifies`() {
+  fun `Only the player who removed the plant qualifies`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     engine.phase("Action")

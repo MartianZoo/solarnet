@@ -15,7 +15,7 @@ class CyberiaSystemsTest : CardTest() {
   }
 
   @Test
-  fun `copies production boxes from two different building cards`() {
+  fun `Copies production boxes from two different building cards`() {
     p1.manual("$CyberiaSystems") {
           doTask("CopyProductionBox<$Mine>")
           doTask("CopyProductionBox<$IndustrialMicrobes>")
@@ -24,7 +24,7 @@ class CyberiaSystemsTest : CardTest() {
   }
 
   @Test
-  fun `tries to copy the same card twice`() {
+  fun `Cannot copy the same card twice`() {
     p1.manual("$CyberiaSystems") {
       doTask("CopyProductionBox<$Mine>")
       shouldThrow<NarrowingException> { doTask("CopyProductionBox<$Mine>") }
@@ -33,7 +33,7 @@ class CyberiaSystemsTest : CardTest() {
   }
 
   @Test
-  fun `tries to copy itself`() {
+  fun `Cannot copy itself`() {
     p1.manual("$CyberiaSystems") {
       shouldThrow<NarrowingException> { doTask("CopyProductionBox<$CyberiaSystems>") }
       abort()

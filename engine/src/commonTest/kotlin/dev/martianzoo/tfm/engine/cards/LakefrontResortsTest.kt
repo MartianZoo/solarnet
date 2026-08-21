@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class LakefrontResortsTest : CardTest() {
   @Test
-  fun `with Lakefront Resorts and an ocean, p1 places an adjacent tile`() {
+  fun `Pays when its owner places a tile adjacent to an ocean`() {
     newGame(TurmoilCardPack)
     val p2 = requireP2()
 
@@ -19,7 +19,7 @@ class LakefrontResortsTest : CardTest() {
   }
 
   @Test
-  fun `with Lakefront Resorts owned by p2, p1 places an adjacent tile`() {
+  fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
     newGame(TurmoilCardPack)
     val p2 = requireP2()
     engine.phase("Action")
@@ -29,7 +29,7 @@ class LakefrontResortsTest : CardTest() {
   }
 
   @Test
-  fun `pays once for each ocean adjacency`() {
+  fun `Pays once for each ocean adjacency`() {
     newGame(TurmoilCardPack)
     engine.phase("Action")
     p1.manual("$LakefrontResorts, 54")

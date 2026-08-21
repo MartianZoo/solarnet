@@ -16,13 +16,13 @@ class OutdoorSportsTest : CardTest() {
   }
 
   @Test
-  fun `with a p2 city beside an ocean, plays Outdoor Sports`() {
+  fun `Can be played with an opponent's city beside an ocean`() {
     requireP2().manual("CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
     p1.playProject(OutdoorSports, 8).expect("PROD[2 Megacredit]")
   }
 
   @Test
-  fun `without city-ocean adjacency, tries to play Outdoor Sports`() {
+  fun `Cannot be played without city-ocean adjacency`() {
     requireP2().manual("CityTile<Tharsis_1_3>")
     p1.manual("OceanTile<Tharsis_1_5>")
     shouldThrow<RequirementException> { p1.playProject(OutdoorSports, 8) }

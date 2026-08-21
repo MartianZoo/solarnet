@@ -14,7 +14,7 @@ class PetsTest : CardTest() {
   }
 
   @Test
-  fun `with an animal protected by Pets, p1 uses Predators`() {
+  fun `Prevents Predators from removing its animal when another target exists`() {
     val p2 = requireP2()
     p2.manual("$Pets")
     p1.manual("$Predators, Animal<$Predators>")
@@ -26,7 +26,7 @@ class PetsTest : CardTest() {
   }
 
   @Test
-  fun `with only an animal protected by Pets, p1 tries to use Predators`() {
+  fun `Prevents Predators from acting when its animal is the only target`() {
     val p2 = requireP2()
     p2.manual("$Pets")
     p1.manual("$Predators")

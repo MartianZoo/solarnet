@@ -2,8 +2,10 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
+import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -38,6 +40,16 @@ internal class BootstrapLifecycleTest {
         .message
         .orEmpty()
         .shouldInclude("committed through")
+  }
+
+  @Test
+  fun soloModeCreatesItsOpponent() {
+    val game = Engine.newGame(canonicalPremise(players = 1))
+    val changes = game.events.entriesSince(Checkpoint(0)).filterIsInstance<ChangeEvent>()
+    val soloMode = changes.single { it.change.gaining?.className == cn("SoloMode") }
+    val soloOpponent = changes.single { it.change.gaining?.className == cn("SoloOpponent") }
+
+    soloOpponent.cause shouldBe Cause(cn("SoloMode").expression, soloMode.ordinal)
   }
 
   @Test

@@ -2,4 +2,4 @@
 CLASS MilestonesAwardsExpansion : Module
 
 "Counts the tiles in a player's largest contiguous group of owned tiles"
-CLASS TileInLargestGroup : Owned<Player>, Custom, AutoLoad
+CLASS TileInLargestGroup : Owned<Player>, Custom

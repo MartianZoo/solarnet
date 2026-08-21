@@ -7,7 +7,7 @@ import kotlin.test.Test
 class SteelworksTest : CardTest() {
   // FAQ: "used even after the oxygen has been maxed out"
   @Test
-  fun `with oxygen maxed, uses Steelworks`() {
+  fun `Can be used when oxygen is already maxed`() {
     newGame()
     p1.manual("$Steelworks, 4 Energy")
     engine.manual("14 OxygenStep")

@@ -14,7 +14,6 @@
 - **Atomize:** To split one counted Instruction into one Instruction per unit so that each unit is handled and triggers Effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not.
 - **Authority:** One coherent rule universe: the Class Declarations, Definitions, Vocabulary, premise rules, and exceptional Custom implementations available to a game. A game selects exactly one Authority. `Canon` is the Authority for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different Authority.
 - **Autoexec:** A convenience policy that prepares and executes pending work when permitted. It trades some opportunity to exercise choices manually for relief from repetitive play.
-- **AutoLoad:** A marker by which a Module's bundle-content selection recognizes Classes for activation even when its other selected content does not refer to them. It does not globally activate every AutoLoad Declaration known to the Authority.
 - **Automatic Effect:** An Effect written with `::`. Its Triggered Instruction executes inline instead of becoming a queued Task. Antonym: Queued Effect.
 - **Automatic Narrowing:** Narrowing performed by the engine because only one valid choice remains, rather than selected by the Assignee.
 - **Barrier:** A Temporary Component that must be removed before gated work can continue. A Barrier is a common modeling pattern in Pets declarations, not a distinct engine mechanism.
@@ -68,7 +67,7 @@
 - **Expression:** A Pets source or AST representation of a Type. Distinct Expressions may resolve to the same Type, and one Expression may resolve differently in different Contexts.
 - **Follow mode:** The currently supported mode, in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays. A Definition whose implementation specifically depends on that trust model has an identifier ending in `F`.
 - **Forgiving Refinement:** A Refinement ignored when no currently available Component Type can satisfy it. `GreeneryTile` is the sole current use.
-- **Game Config:** An unresolved, signed expression of user intent from which defaults, implications, selection policies, and validation produce one exact Game Premise.
+- **Game Config:** An unresolved, signed expression of user intent from which defaults, selection policies, and validation produce one exact Game Premise.
 - **Game Premise:** The complete immutable facts needed to create equivalent Game Worlds: one Authority, the Module Classes, signed inclusion or exclusion of other Classes, and the non-singleton Types initialized once. Real-card mode would also require exact deck orders or reproducible seeds.
 - **Game Reader:** The read-only interface for querying a Game World.
 - **Game World:** The complete live state of a game: its Component Graph, Task Queues, Event Log, Timeline, Class Table, Vocabulary, and Actor-scoped Gameplay, together with the Authority and immutable premise behind them.

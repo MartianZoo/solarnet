@@ -106,7 +106,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       assertDashRight(events = 3, tagless = 2, cities = 0)
       assertSidebar(gen = 6, temp = -24, oxygen = 0, oceans = 0, venus = 2)
 
-      stdAction("ConvertHeatSA").expect("-8 Resource, TR")
+      convertHeat().expect("-8 Resource, TR")
       cardAction1(SubCrustMeasurements).expect("ProjectCard")
       cardAction2(RegolithEaters).expect("OxygenStep, TR")
       playProject(FueledGenerators, 1)
@@ -157,7 +157,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       doTask("5 Energy FROM Heat!")
       buyCards(2)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       cardAction1(SubCrustMeasurements)
       cardAction2(RegolithEaters)
       playProject(Archaebacteria, 5)
@@ -181,7 +181,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       cardAction1(AiCentral)
       cardAction1(SubCrustMeasurements)
       cardAction1(EquatorialMagnetizer)
-      stdAction("ConvertHeatSA")
+      convertHeat()
       playProject(StripMine, 22, steel = 1)
       playProject(Potatoes, 1)
       playProject(MirandaResort, 2, titanium = 3)
@@ -196,7 +196,7 @@ class SoloGame0611Test : AbstractSoloTest() {
       doTask("3 Energy FROM Heat!")
       buyCards(3)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       cardAction1(AiCentral)
       cardAction1(SubCrustMeasurements)
       cardAction2(ForcedPrecipitation)
@@ -211,15 +211,15 @@ class SoloGame0611Test : AbstractSoloTest() {
       playProject(QuantumExtractor, 10)
 
       cardAction1(EquatorialMagnetizer)
-      playProject(ImportedGhg, 4)
-      playProject(NitrogenRichAsteroid, 7, titanium = 7)
+      playProject(ImportedGhg, 1, titanium = 1)
+      playProject(NitrogenRichAsteroid, 10, titanium = 6)
       stdProject("GreenerySP") { doTask("GreeneryTile<Hellas_7_7>") }
       cardAction1(RegolithEaters)
 
       pass()
       buyCards(0)
 
-      stdAction("ConvertHeatSA")
+      convertHeat()
       cardAction1(AiCentral)
       cardAction1(SubCrustMeasurements)
       cardAction1(WaterSplittingPlant)

@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class ArcticAlgaeTest : CardTest() {
   @Test
-  fun `with Arctic Algae owned by p2, p1 places an ocean`() {
+  fun `Triggers when an opponent places an ocean`() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae")
@@ -18,7 +18,7 @@ class ArcticAlgaeTest : CardTest() {
   }
 
   @Test
-  fun `Giant Ice Asteroid can resolve oceans and their Arctic Algae reactions before its attack`() {
+  fun `Can resolve ocean placements and Arctic Algae before removing plants`() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae, Plant")
@@ -42,7 +42,7 @@ class ArcticAlgaeTest : CardTest() {
   }
 
   @Test
-  fun `Giant Ice Asteroid can attack before its oceans and Arctic Algae reactions`() {
+  fun `Can remove plants before resolving ocean placements and Arctic Algae`() {
     newGame()
     val p2 = requireP2()
     p2.manual("$ArcticAlgae, Plant")

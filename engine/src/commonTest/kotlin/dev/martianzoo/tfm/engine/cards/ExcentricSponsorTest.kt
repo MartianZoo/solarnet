@@ -14,13 +14,13 @@ class ExcentricSponsorTest : CardTest() {
   }
 
   @Test
-  fun `with enough owed, plays a card after Excentric Sponsor`() {
+  fun `Can apply its full discount to the next card`() {
     p1.playPrelude(ExcentricSponsor) { p1.playProject(NitrogenRichAsteroid, 6) }
         .expect("-6 Megacredit, PROD[Plant], 3 TerraformRating")
   }
 
   @Test
-  fun `with less owed, plays a card after Excentric Sponsor`() {
+  fun `Can play a card costing less than its full discount`() {
     p1.playPrelude(ExcentricSponsor) { p1.playProject(GhgImportFromVenus, 0) }
         .expect("PROD[3 Heat], TerraformRating")
   }

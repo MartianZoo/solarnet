@@ -8,7 +8,7 @@ import kotlin.test.Test
 
 internal class HellasElysiumExpansionTest : CardTest() {
   @Test
-  fun specialistUsesPrintedMegacreditProduction() {
+  fun `Specialist uses printed megacredit production`() {
     newGame(TestOption.ElysiumMapOption)
     p1.manual("PROD[9 Megacredit]")
     shouldThrow<RequirementException> { p1.manual("Specialist") }

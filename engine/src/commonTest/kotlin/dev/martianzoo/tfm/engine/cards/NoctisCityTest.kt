@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class NoctisCityTest : CardTest() {
   @Test
-  fun `on Hellas, plays Noctis City`() {
+  fun `Can be placed anywhere on Hellas`() {
     newGame(HellasMapOption)
     p1.manual("PROD[Energy]")
     p1.manual("$NoctisCity") {
@@ -19,7 +19,7 @@ class NoctisCityTest : CardTest() {
   }
 
   @Test
-  fun `on Tharsis, tries to place Noctis City off Noctis`() {
+  fun `Must be placed on Noctis on Tharsis`() {
     newGame()
     p1.manual("PROD[Energy]")
 

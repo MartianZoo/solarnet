@@ -5,7 +5,7 @@ import kotlin.test.Test
 
 class CredicorTest : CardTest() {
   @Test
-  fun `with Credicor, buys an expensive card and standard project`() {
+  fun `Discounts both an expensive card and an expensive standard project`() {
     newGame()
     engine.phase("Action")
     p1.manual("40, 2 ProjectCard, $CrediCor")

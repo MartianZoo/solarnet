@@ -20,7 +20,7 @@ internal class AuthorityCompositionTest {
     val extension =
         object : TfmAuthority() {
           override val explicitClassDeclarations =
-              setOf(parseOneLinerClass("CLASS CompositionProbe : AutoLoad"))
+              setOf(parseOneLinerClass("CLASS CompositionProbe"))
         }
     val authority = TfmAuthority.compose(Canon, extension)
 
@@ -37,8 +37,8 @@ internal class AuthorityCompositionTest {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS DependentBootstrap<BootstrapDependency> : AutoLoad { HAS =1 This }
-                      CLASS BootstrapDependency : AutoLoad { HAS =1 This }
+                      CLASS DependentBootstrap<BootstrapDependency> { HAS =1 This }
+                      CLASS BootstrapDependency { HAS =1 This }
                       """
                           .trimIndent()
                   )
@@ -59,8 +59,8 @@ internal class AuthorityCompositionTest {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS MissingBootstrapDependency : AutoLoad { HAS MAX 1 This }
-                      CLASS BlockedBootstrap<MissingBootstrapDependency> : AutoLoad {
+                      CLASS MissingBootstrapDependency { HAS MAX 1 This }
+                      CLASS BlockedBootstrap<MissingBootstrapDependency> {
                         HAS =1 This
                       }
                       """

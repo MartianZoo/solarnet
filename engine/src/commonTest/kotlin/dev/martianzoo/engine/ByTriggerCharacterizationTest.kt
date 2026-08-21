@@ -181,32 +181,32 @@ private object ProbeDeclarations : TfmAuthority() {
   override val explicitClassDeclarations =
       parseClasses(
               """
-              CLASS ActorTriggerSignal : AutoLoad
-              CLASS OwnedActorTrigger : Owned, AutoLoad
+              CLASS ActorTriggerSignal
+              CLASS OwnedActorTrigger : Owned
 
-              CLASS ActorTriggerProbe : AutoLoad {
+              CLASS ActorTriggerProbe {
                 ActorTriggerSignal BY Anyone: Plant<Player1>
                 -ActorTriggerSignal BY Player: Steel<Player1>
               }
 
-              CLASS ActorBindingProbe : AutoLoad {
+              CLASS ActorBindingProbe {
                 -OwnedActorTrigger<!Player> BY Player: Steel<Player>, Heat<!Player>
               }
 
-              CLASS RepeatedOwnerProbe : Owned, AutoLoad {
+              CLASS RepeatedOwnerProbe : Owned {
                 ActorTriggerSignal: Plant<Owner>, Steel<Owner>
               }
 
-              CLASS OwnedByProbe : Owned, AutoLoad {
+              CLASS OwnedByProbe : Owned {
                 ActorTriggerSignal BY Owner: Heat<Owner>
                 -ActorTriggerSignal BY Owner: Heat<Owner>
               }
 
-              CLASS OwnedTriggerProbe : Owned, AutoLoad {
+              CLASS OwnedTriggerProbe : Owned {
                 OwnedActorTrigger<Anyone>: Plant<Owner>
               }
 
-              CLASS OpponentByProbe : Owned, AutoLoad {
+              CLASS OpponentByProbe : Owned {
                 ActorTriggerSignal OR -ActorTriggerSignal BY !Owner: Heat<Owner>
               }
 

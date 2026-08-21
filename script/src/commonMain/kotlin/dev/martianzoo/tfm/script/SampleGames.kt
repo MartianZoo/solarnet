@@ -96,7 +96,7 @@ internal object SampleGames {
     p1.playProject(cn("TectonicStressPower"), 12, steel = 3)
     p2.cardAction2(cn("RotatorImpacts"))
     p2.cardAction1(cn("SearchForLife")) { doTask("Ok") }
-    p1.stdAction("ConvertHeatSA")
+    p1.convertHeat()
     p1.stdProject("AsteroidSP")
     p1.sellPatents(1)
     p1.playProject(cn("SpinInducingAsteroid"), 16)
@@ -104,7 +104,7 @@ internal object SampleGames {
     if (gens-- == 0) return game
     engine.nextGeneration(3, 3)
 
-    p1.stdAction("ConvertHeatSA")
+    p1.convertHeat()
     p1.playProject(cn("SmallAsteroid"), 10) { doTask("-2 Plant<Player2>") }
     p2.cardAction2(cn("Factorum"))
     p2.playProject(cn("DirectedImpactors"), 2, titanium = 2)
@@ -119,7 +119,7 @@ internal object SampleGames {
     }
     p2.cardAction2(cn("RotatorImpacts"))
     p1.playProject(cn("FueledGenerators"), 1)
-    p2.stdAction("ConvertHeatSA")
+    p2.convertHeat()
     p2.cardAction1(cn("AquiferPumping")) {
       p2.pay(6, steel = 1)
       doTask("OceanTile<Tharsis_1_4>")
@@ -152,8 +152,8 @@ internal object SampleGames {
     p2.cardAction1(cn("SearchForLife")) { doTask("Ok") }
     p1.playProject(cn("Solarnet"), 7)
     p1.playProject(cn("MiningQuota"), 5)
-    p2.stdAction("ConvertHeatSA")
-    p1.stdAction("ConvertHeatSA")
+    p2.convertHeat()
+    p1.convertHeat()
     p1.cardAction1(cn("DeuteriumExport"))
     p1.playProject(cn("LagrangeObservatory"), 6, titanium = 1) {
       doTask("ProjectCard FROM Science<OlympusConference>")
@@ -182,7 +182,7 @@ internal object SampleGames {
     p1.playProject(cn("FloatingHabs"), 5)
     p1.cardAction1(cn("FloatingHabs")) { doTask("Floater<DeuteriumExport>") }
     p2.playProject(cn("TitaniumMine"), 5)
-    p1.stdAction("ConvertHeatSA")
+    p1.convertHeat()
     p1.playProject(cn("StratosphericBirds"), 12)
     p1.cardAction1(cn("StratosphericBirds"))
 
@@ -208,14 +208,14 @@ internal object SampleGames {
     p2.playProject(cn("IshtarMining"), 3)
     p1.playProject(cn("MoholeLake"), 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
     p1.stdAction("ClaimMilestoneSA") { doTask("Terraformer") }
-    p2.stdAction("ConvertHeatSA")
+    p2.convertHeat()
     p2.convertPlants {
       doTask("GreeneryTile<Tharsis_8_6>")
     }
     p1.cardAction1(cn("InventorsGuild")) { doTask("BuyCard") }
     p1.cardAction1(cn("DeuteriumExport"))
     p2.cardAction1(cn("BioPrintingFacility")) { doTask("2 Plant") }
-    p1.stdAction("ConvertHeatSA")
+    p1.convertHeat()
     p1.convertPlants {
       doTask("GreeneryTile<Tharsis_3_5>")
     }
@@ -233,8 +233,8 @@ internal object SampleGames {
       p2.doTask("-4 Plant<Player1>")
     }
     p2.cardAction1(cn("AiCentral"))
-    p1.stdAction("ConvertHeatSA")
-    p1.stdAction("ConvertHeatSA")
+    p1.convertHeat()
+    p1.convertHeat()
     p2.cardAction1(cn("AquiferPumping")) {
       p2.pay(steel = 3)
       doTask("OceanTile<Tharsis_5_6>")

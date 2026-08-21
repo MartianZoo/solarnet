@@ -10,14 +10,14 @@ import kotlin.test.Test
 
 class VironTest : CardTest() {
   @Test
-  fun `after using Atmo Collectors, uses it again through Viron`() {
+  fun `Can repeat an action used earlier in the generation`() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
     p1.cardAction1(Viron) { doTask("UseAction1<$AtmoCollectors>") }.expect("Floater")
   }
 
   @Test
-  fun `after using Atmo Collectors, chooses its other action through Viron`() {
+  fun `Can choose a different action on the previously used card`() {
     initializeGame()
 
     p1.cardAction1(AtmoCollectors)
@@ -30,7 +30,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `after using another card, tries to choose Viron through itself`() {
+  fun `Cannot use Viron to repeat Viron's own action`() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
     p1.cardAction1(Viron) {
@@ -40,7 +40,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `with an unused action card, tries to choose it through Viron`() {
+  fun `Cannot choose an action card that has not been used`() {
     initializeGame()
     p1.manual("$ExtractorBalloons")
     p1.cardAction1(AtmoCollectors)
@@ -52,7 +52,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `after p2 uses a card, p1 tries to choose it through Viron`() {
+  fun `Cannot repeat another player's action`() {
     newGame(
         VenusNextExpansion,
         ColoniesExpansion,
@@ -72,7 +72,7 @@ class VironTest : CardTest() {
   }
 
   @Test
-  fun `repeats an action on another corporation`() {
+  fun `Repeats an action on another corporation`() {
     newGame(VenusNextExpansion)
     engine.phase("Action")
     p1.manual("$Viron, $Celestic")

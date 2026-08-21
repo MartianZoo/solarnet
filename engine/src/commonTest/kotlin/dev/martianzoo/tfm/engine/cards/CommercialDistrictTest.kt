@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 class CommercialDistrictTest : CardTest() {
   @Test
-  fun `between two cities, places Commercial District`() {
+  fun `Can be placed between two cities`() {
     newGame()
     val p2 = requireP2()
 
@@ -25,7 +25,7 @@ class CommercialDistrictTest : CardTest() {
   }
 
   @Test
-  fun `cannot place Commercial District on a water area`() {
+  fun `Cannot be placed on a water area`() {
     newGame()
     p1.manual("PROD[Energy]")
 
@@ -40,7 +40,7 @@ class CommercialDistrictTest : CardTest() {
   }
 
   @Test
-  fun `cannot place Commercial District on a remote area`() {
+  fun `Cannot be placed in a nonadjacent area`() {
     newGame()
     p1.manual("PROD[Energy]")
 

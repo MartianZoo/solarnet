@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class CardXC3Test : CardTest() {
   @Test
-  fun `when Splice enters play, receives both benefits for its own microbe tag`() {
+  fun `Splice pays itself four megacredits`() {
     newGame(PromoCardPack)
 
     p1.playCorp(SpliceTacticalGenomics, 0) {
@@ -22,7 +22,7 @@ class CardXC3Test : CardTest() {
   }
 
   @Test
-  fun `when another player plays a microbe tag, pays both players`() {
+  fun `When another player plays a microbe tag, Splice pays both players`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
@@ -32,7 +32,7 @@ class CardXC3Test : CardTest() {
   }
 
   @Test
-  fun `Pharmacy Union triggers Splice once for each of its two microbe tags`() {
+  fun `Pharmacy Union triggers Splice twice`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
@@ -44,7 +44,7 @@ class CardXC3Test : CardTest() {
   }
 
   @Test
-  fun `microbe-tag player can take a microbe instead of money`() {
+  fun `Can take a microbe instead of megacredits`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }
@@ -54,7 +54,7 @@ class CardXC3Test : CardTest() {
   }
 
   @Test
-  fun `cannot add the microbe to a different card`() {
+  fun `Must add the microbe to the card just played`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$SpliceTacticalGenomics") { doTask("2 Megacredit") }

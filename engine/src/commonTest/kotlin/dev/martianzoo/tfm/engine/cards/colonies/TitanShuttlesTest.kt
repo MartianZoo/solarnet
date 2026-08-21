@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class TitanShuttlesTest : ColoniesCardTest() {
   @Test
-  fun `with seven floaters, uses Titan Shuttles`() {
+  fun `Can convert five floaters into five titanium`() {
     initializeCard()
     p1.cardAction2(TitanShuttles) {
           doTask("-5 Floater<$TitanShuttles> THEN 5 Titanium")
@@ -16,7 +16,7 @@ class TitanShuttlesTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with seven floaters, tries an underpayment using Titan Shuttles`() {
+  fun `Cannot underpay its floater cost`() {
     initializeCard()
 
     p1.cardAction2(TitanShuttles) {

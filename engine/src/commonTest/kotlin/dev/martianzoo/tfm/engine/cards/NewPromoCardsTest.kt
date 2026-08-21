@@ -87,7 +87,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `with Carbon Nanosystems in hand, plays a space card`() {
+  fun `Carbon Nanosystems graphene can pay for a space card`() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
@@ -96,13 +96,13 @@ class NewPromoCardsTest : CardTest() {
     p1.playProject(CarbonNanosystems, 14).expect("Graphene<$CarbonNanosystems>")
 
     p1.playProject(IcyImpactors, 11) {
-          doTask("-Graphene<$CarbonNanosystems>! THEN -4 Owed<Class<Megacredit>>.")
+          doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
         }
         .expect("-Graphene<$CarbonNanosystems>")
   }
 
   @Test
-  fun `with Martian Lumber Corporation, plays a building card`() {
+  fun `Martian Lumber Corporation plants can pay for a building card`() {
     newGame(PromoCardPack)
 
     engine.phase("Action")
@@ -114,7 +114,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `with Homeostasis Bureau, each actor raises temperature`() {
+  fun `Homeostasis Bureau lets each actor raise temperature`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$HomeostasisBureau")
@@ -128,7 +128,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `with a greenery selected, plays Kaguya Tech`() {
+  fun `Kaguya Tech can replace a greenery with its city`() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("10, ProjectCard, GreeneryTile<Tharsis_4_2>")
@@ -142,7 +142,7 @@ class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  fun `with a p2 city, p1 builds a cathedral`() {
+  fun `St Joseph of Cupertino Mission scores beside an opponent's city`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.autoExecMode = NONE

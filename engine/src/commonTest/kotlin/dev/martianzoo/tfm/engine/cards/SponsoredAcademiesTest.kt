@@ -18,7 +18,7 @@ class SponsoredAcademiesTest : CardTest() {
   }
 
   @Test
-  fun `owner discards one and draws two while every opponent draws one`() {
+  fun `Owner discards one and draws two while every opponent draws one`() {
     p1.manual("ProjectCard")
 
     p1.playProject(SponsoredAcademies, 9)
@@ -26,7 +26,7 @@ class SponsoredAcademiesTest : CardTest() {
   }
 
   @Test
-  fun `with one card in hand, tries to play Sponsored Academies`() {
+  fun `Cannot be played with only one card in hand`() {
     shouldThrow<LimitsException> { p1.playProject(SponsoredAcademies, 9) }
   }
 }

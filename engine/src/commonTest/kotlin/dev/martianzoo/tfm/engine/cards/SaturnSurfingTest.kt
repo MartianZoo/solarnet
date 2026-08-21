@@ -6,37 +6,37 @@ import kotlin.test.Test
 
 class SaturnSurfingTest : CardTest() {
   @Test
-  fun `with six floaters, uses Saturn Surfing`() {
+  fun `Converts one of six floaters into five megacredits`() {
     initializeSaturnSurfing()
     p1.cardAction1(SaturnSurfing).expect("-Floater, 5 Megacredit")
   }
 
   @Test
-  fun `with five floaters, uses Saturn Surfing`() {
+  fun `Converts one of five floaters into five megacredits`() {
     initializeSaturnSurfing(floatersRemoved = 1)
     p1.cardAction1(SaturnSurfing).expect("-Floater, 5 Megacredit")
   }
 
   @Test
-  fun `with four floaters, uses Saturn Surfing`() {
+  fun `Converts one of four floaters into four megacredits`() {
     initializeSaturnSurfing(floatersRemoved = 2)
     p1.cardAction1(SaturnSurfing).expect("-Floater, 4 Megacredit")
   }
 
   @Test
-  fun `with three floaters, uses Saturn Surfing`() {
+  fun `Converts one of three floaters into three megacredits`() {
     initializeSaturnSurfing(floatersRemoved = 3)
     p1.cardAction1(SaturnSurfing).expect("-Floater, 3 Megacredit")
   }
 
   @Test
-  fun `with two floaters, uses Saturn Surfing`() {
+  fun `Converts one of two floaters into two megacredits`() {
     initializeSaturnSurfing(floatersRemoved = 4)
     p1.cardAction1(SaturnSurfing).expect("-Floater, 2 Megacredit")
   }
 
   @Test
-  fun `with one floater, uses Saturn Surfing`() {
+  fun `Converts its last floater into one megacredit`() {
     initializeSaturnSurfing(floatersRemoved = 5)
     p1.cardAction1(SaturnSurfing).expect("-Floater, Megacredit")
   }

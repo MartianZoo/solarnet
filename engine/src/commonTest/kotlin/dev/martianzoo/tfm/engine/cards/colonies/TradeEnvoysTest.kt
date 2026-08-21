@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class TradeEnvoysTest : ColoniesCardTest() {
   @Test
-  fun `raises the track before trade income`() {
+  fun `Raises the track before trade income`() {
     p1.manual("ProjectCard, 15")
     p1.playProject(TradeEnvoys, 6)
     engine.manual("3 ColonyProduction<Luna>")
@@ -24,7 +24,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `raises the track when Titan Floating Launch-Pad trades`() {
+  fun `Raises the track when Titan Floating Launch-Pad trades`() {
     p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") {
       doTask("2 Floater<$TitanFloatingLaunchPad>")
     }
@@ -42,7 +42,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `does not increase a maxed track`() {
+  fun `Does not increase a maxed track`() {
     p1.manual("$TradeEnvoys, 9")
     engine.manual("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
@@ -76,7 +76,7 @@ class TradeEnvoysTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `all track decisions precede the trade when both cards are active`() {
+  fun `All track decisions precede the trade when both cards are active`() {
     p1.manual("2 ProjectCard, 50")
     p1.playProject(TradeEnvoys, 6)
     p1.playProject(TradingColony, 18) {

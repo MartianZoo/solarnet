@@ -19,14 +19,14 @@ class AirScrappingExpeditionTest : CardTest() {
   }
 
   @Test
-  fun `with an eligible floater card, adds Air Scrapping Expedition`() {
+  fun `Can add floaters to another floater card`() {
     p1.manual("$ForcedPrecipitation")
     p1.manual("$AirScrappingExpedition") { doTask("3 Floater<$ForcedPrecipitation>") }
         .expect("3 Floater")
   }
 
   @Test
-  fun `with two floaters on Atmo Collectors, tries to add three more`() {
+  fun `Cannot add more floaters than the target card can hold`() {
     p1.manual("$ForcedPrecipitation")
     p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
     shouldThrow<NarrowingException> {

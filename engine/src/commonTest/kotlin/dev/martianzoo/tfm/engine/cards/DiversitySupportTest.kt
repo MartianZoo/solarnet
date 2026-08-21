@@ -10,14 +10,14 @@ import kotlin.test.Test
 
 class DiversitySupportTest : CardTest() {
   @Test
-  fun `with nine resource types, plays Diversity Support`() {
+  fun `Can be played with nine resource types`() {
     seedResources()
     p1.manual("$ForcedPrecipitation, Floater<$ForcedPrecipitation>")
     p1.playProject(DiversitySupport, 1).expect("TerraformRating")
   }
 
   @Test
-  fun `with eight resource types, tries to play Diversity Support`() {
+  fun `Cannot be played with only eight resource types`() {
     seedResources()
     p1.count("TerraformRating") shouldBe 20
     shouldThrow<RequirementException> { p1.playProject(DiversitySupport, 1) }
