@@ -142,7 +142,8 @@ internal class Implementations(
       0 -> prepareAnyTask(allTasks.ids().first()).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
-        prepareAnyTask(taskId) ?: return true
+        val queue = queueForAnyTask(taskId)
+        doPrepare(queue, queue.getTaskData(taskId)) ?: return true
         try {
           if (tryPreparedAnyTask()) return true // if this fails we should fail too
         } catch (e: DeadEndException) {
@@ -327,6 +328,8 @@ internal class Implementations(
 
   private fun doPrepare(queue: TaskQueue, task: Task): TaskId? {
     dontCutTheLine(task.id)
+    // A prepared task owns the next World mutation, so its instruction remains authoritative.
+    if (task.next) return task.id
     val replacement = instructor.prepare(task.instruction)
     replace1WithN(queue, task, replacement, next = true, then = task.then)
     return queue.preparedTask()
@@ -358,7 +361,11 @@ internal class Implementations(
     val prepared = doPrepare(queue, queue.getTaskData(taskId)) ?: return
     val preparedTask = queue.getTaskData(prepared)
     val newTasks =
-        instructor.execute(preparedTask.instruction, preparedTask.cause, preparedTask.actor)
+        instructor.executePrepared(
+            preparedTask.instruction,
+            preparedTask.cause,
+            preparedTask.actor,
+        )
     newTasks.forEach { queue.queueFor(it.assignee).addTasks(it) }
     handleTask(queue, queue.getTaskData(taskId))
   }
@@ -373,7 +380,7 @@ internal class Implementations(
     val selectsLinkedFirstStage =
         selectFirstStageOrNull(tasks.getTaskData(id).instruction, evaluated) != null
     if (selectsLinkedFirstStage) reviseTask(id, evaluated)
-    if (id in tasks) prepareTask(id)
+    if (id in tasks) doPrepare(tasks, tasks.getTaskData(id))
     if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, evaluated)
     if (id in tasks) doTask(id)
   }
@@ -461,8 +468,7 @@ internal class Implementations(
   internal fun tryTask(id: TaskId) {
     try {
       timeline.atomic {
-        prepareTask(id)
-        if (id in tasks) doTask(id)
+        doTask(id)
       }
     } catch (_: AbstractException) {
       explainTask(id, "abstract")

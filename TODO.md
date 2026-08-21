@@ -149,7 +149,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#64: Multiple tiles](https://github.com/MartianZoo/solarnet/issues/64) — Decompose `2 CityTile` into two placement choices; consider making `Tile` atomized.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are unrepresentable.
 - [#22: `ELSE`](https://github.com/MartianZoo/solarnet/issues/22) — Use the fallback only when no complete narrowing of the first branch works; target WGT and Pharmacy Union first.
-- After `OverlayWorld`, revisit Task preparation so a Prepared Task remains authoritative for its Game World revision instead of being repeatedly prepared, executed speculatively, rolled back, and prepared again.
+- After `OverlayWorld`, consider retaining standalone Task preparation's successful speculative
+  event suffix so later execution can fast-forward it when the backing Game World has not changed.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether self-removal should default to mandatory.
 - [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Explain or remove `Initializer`'s synthetic mandatory Quantifier.
