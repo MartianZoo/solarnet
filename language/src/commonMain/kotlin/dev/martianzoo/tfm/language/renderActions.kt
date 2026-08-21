@@ -187,7 +187,7 @@ private fun Describers.renderDeferredPaymentAction(
   ) {
     return null
   }
-  val result = renderInstructions(gated.inner, this, drawFilter) ?: return null
+  val result = renderInstructions(gated.inner, this, drawFilter)
   val cost =
       Predicate(
           "spend",
@@ -213,7 +213,7 @@ private fun renderAction(
     return it
   }
   val cost = lowered.cost?.let { describers.renderCost(it) ?: return null }
-  val result = renderInstructions(lowered.instruction, describers, drawFilter) ?: return null
+  val result = renderInstructions(lowered.instruction, describers, drawFilter)
   return RenderedAction(cost, result)
 }
 

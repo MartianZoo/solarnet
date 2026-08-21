@@ -42,8 +42,8 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return site.takeIf { direct != null }
   }
 
-  internal fun hasBehaviorBearingExtraClass(card: CardDefinition): Boolean =
-      card.extraClasses.any {
+  internal fun behaviorBearingExtraClasses(card: CardDefinition): List<ClassDeclaration> =
+      card.extraClasses.filter {
         !isTextNeutralExtraClass(it) &&
             !directlyDescribesGain(it, card) &&
             !isDescribedProductionSelection(it)

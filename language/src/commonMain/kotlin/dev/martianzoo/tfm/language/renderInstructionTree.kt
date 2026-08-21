@@ -16,20 +16,20 @@ internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
     drawFilter: ClassName? = null,
-): String? = renderInstructions(instructionTree, describers, drawFilter)?.asSentences()
+): String = renderInstructions(instructionTree, describers, drawFilter).asSentences()
 
 internal fun renderInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
     drawFilter: ClassName? = null,
-): RenderedInstructions? =
+): RenderedInstructions =
     renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers, drawFilter)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
     drawFilter: ClassName?,
-): RenderedInstructions? {
+): RenderedInstructions {
   val instructions = InstructionGroup.of(instructionTree).instructions
   if (instructions.isEmpty()) {
     return RenderedInstructions(
@@ -37,7 +37,9 @@ private fun renderLoweredInstructions(
     )
   }
   val rendered = instructions.map { instruction ->
-    instruction to (renderInstruction(instruction, describers, drawFilter) ?: return null)
+    instruction to
+        (renderInstruction(instruction, describers, drawFilter)
+            ?: Clause.RawPets(instruction.toString()))
   }
   return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
@@ -181,8 +183,8 @@ private fun renderCardResourceCostSequence(
   val resource = describers.cardResourceNounPhrase(removal.removing.className, count) ?: return null
   val result =
       renderLoweredInstructions(instruction.continuation, describers, drawFilter)
-          ?.clauses
-          ?.singleOrNull() ?: return null
+          .clauses
+          .singleOrNull() ?: return null
   return Clause.Simple(
       Predicate(
           "remove",
@@ -248,7 +250,7 @@ private fun renderGated(
     drawFilter: ClassName?,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers, drawFilter)?.clauses?.singleOrNull()
+      renderLoweredInstructions(instruction.inner, describers, drawFilter).clauses.singleOrNull()
           ?: return null
   val condition = describers.renderGateCondition(instruction.gate) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase(condition))
@@ -260,7 +262,7 @@ private fun renderPer(
     drawFilter: ClassName?,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers, drawFilter)?.clauses?.singleOrNull()
+      renderLoweredInstructions(instruction.inner, describers, drawFilter).clauses.singleOrNull()
           ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
@@ -276,7 +278,7 @@ private fun renderAlternatives(
   }
   val alternatives =
       instruction.instructions.map { option ->
-        renderLoweredInstructions(option, describers, drawFilter)?.clauses?.singleOrNull()
+        renderLoweredInstructions(option, describers, drawFilter).clauses.singleOrNull()
             ?: return null
       }
   val simpleAlternatives = alternatives.map { it as? Clause.Simple }

@@ -103,7 +103,7 @@ private fun renderLinkedPlayedTagResourceChoice(
     renderLinkedCardResourceGain(alternative, holder, describers)?.also {
       linkedDestination = true
     }
-        ?: renderInstructions(alternative, describers, drawFilter)?.clauses?.singleOrNull()
+        ?: renderInstructions(alternative, describers, drawFilter).clauses.singleOrNull()
         ?: return null
   }
   if (!linkedDestination) return null
@@ -265,7 +265,7 @@ internal fun renderEffects(
     effects: List<Effect>,
     describers: Describers,
     drawFilter: ClassName? = null,
-): String? {
+): String {
   val sentences = mutableListOf<String>()
   var index = 0
   while (index < effects.size) {
@@ -277,7 +277,8 @@ internal fun renderEffects(
     }
     val discount = paymentDiscount(effects[index], describers)
     if (discount == null) {
-      sentences += renderEffect(effects[index], describers, drawFilter) ?: return null
+      val effect = effects[index]
+      sentences += renderEffect(effect, describers, drawFilter) ?: completeSentence("[$effect]")
       index++
       continue
     }
@@ -843,7 +844,7 @@ private fun renderTriggeredInstructions(
     drawFilter: ClassName?,
 ): String? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
-  val result = renderInstructions(effect.instruction, describers, drawFilter) ?: return null
+  val result = renderInstructions(effect.instruction, describers, drawFilter)
   return completeSentence("when ${trigger.linearize()}, ${result.asCoordinatedClause()}")
 }
 

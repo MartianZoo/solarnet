@@ -5,37 +5,37 @@
 
 ## Direction and pace
 
-The eventual goal is for `English` to render any instruction expressed in Pets, without depending
-on whole-card text data. That is a direction, not a near-term completeness requirement. Progress
-slowly, one well-bounded instruction shape at a time, while retaining the data file as a golden
-characterization and fallback. The file is fallible, not authoritative: compare every affected
-canonical card with it, but correct a row when the card data or a systemic rule shows that the row
-is mistaken. An incremental approach that leaves most shapes data-backed is expected and acceptable.
+The eventual goal is for `English` to render any instruction expressed in Pets. It now makes a
+best effort without consulting whole-card text data. When a renderer cannot safely describe a Pets
+node, it emits that node's canonical Pets source in square brackets at the narrowest safe structural
+boundary. An incremental result containing bracketed regions is expected and honest.
+
+`english-card-text-goals.tsv` is fallible, reviewed target text. `english-card-text-current.tsv` is
+generated characterization of what the renderer produces for canonical cards that have a
+`CardDefinition`. Neither file is an answer source for production code. Run
+`./gradlew :language:writeEnglishCardTextCurrent` after an intentional renderer change, then review
+the current-versus-goal diff. Correct a goal row when card data or a systemic rule shows that it is
+mistaken.
 
 ## Verification while replacing the data file
 
-Do not add a test merely to prove that a newly supported shape bypasses the fallback. Such a test
-would restate the implementation boundary without protecting card behavior, and every incremental
-step would require another synthetic test. The existing all-card comparison is the behavioral
-check: a derivation expansion is valid when every affected canonical card renders the reviewed
-golden text. A mismatch is a review prompt, not an instruction to preserve the row. Review the
-production diff to establish that the fallback boundary actually moved; the code is clearer
-evidence of that progress than a change-detector test.
+Do not add a test merely to prove that a newly supported shape removes brackets. Such a test would
+restate the implementation boundary, and every incremental step would require another synthetic
+test. The all-card comparison against the generated current snapshot is the behavioral
+characterization. Review the production diff and the regenerated snapshot together to establish
+that the raw boundary moved intentionally.
 
-The two explicit fallback tests for absent regions remain useful because emptiness is not represented
-by a row's wording: they establish that a structurally empty region succeeds without any card-text
-record. New derivation shapes do not need analogous tests while their canonical examples are covered
-by the all-card comparison. If a renderer gains behavior not exercised by any canonical card, add a
-behavioral test for that behavior or defer the generalization; do not add a test whose only assertion
-is that the data file was not consulted.
+The explicit empty-region tests establish that structurally absent top or bottom content renders as
+empty text. If a renderer gains behavior not exercised by any canonical card, add a behavioral test
+for that behavior or defer the generalization.
 
 `english-filtered-draws.tsv` is a narrow transitional supplement for information that canonical Pets
 does not yet carry. It maps a card's Class name to the tag or card-resource icon required by that card's draw.
-Only mapped `ProjectCard` gains are derived: an unqualified gain remains data-backed because the same
+Only mapped `ProjectCard` gains are derived: an unqualified gain remains bracketed because the same
 Pets shape also stands in for top-card selection and other printed draw procedures.
 
-Keep every structurally supported End-scoring sentence canonical in the card-text data even when
-another part of that card keeps the whole region data-backed. The golden row should already contain
+Keep every structurally supported End-scoring sentence canonical in the goal data even when
+another part of that card remains bracketed. The goal row should already contain
 the complete scoring text before an unrelated instruction shape becomes derivable.
 
 ## Expected renderer architecture
@@ -56,7 +56,7 @@ than the structural rendering rules.
 `English.describe` exposes the same family renderers for one `Effect`, a list of `Action`s, an
 `InstructionTree`, or a `Requirement`. The public instruction and action overloads that accept a
 host `CardDefinition` remain, but current canonical wording does not vary by host card. Unsupported
-valid Pets shapes currently fail rather than falling back to a whole-card row.
+valid Pets shapes return bracketed canonical Pets rather than failing or consulting a card row.
 
 `English` is constructed with a complete `Map<Class, ComponentDescriber>` supplied by its client.
 It has no canonical component registry or implicit Terraforming Mars description source; it only
@@ -131,7 +131,7 @@ they need not solve the general case immediately.
 Do not automatically populate such a table from card regions keyed only by the Pets element. Equal
 syntax trees currently occur in card rows with context-specific variants such as “including this.”
 Either derive such wording from explicit host context or canonicalize the redundant variant away. A
-granular fallback must remain valid independently of whichever whole-card row happened to teach it.
+granular raw boundary must remain valid independently of whichever whole-card row happened to teach it.
 
 ## Canonical wording versus rules
 
@@ -164,7 +164,7 @@ fixed number of steps, provided the result uses the supported instruction shapes
 may instead remove a concrete number of one card resource from this card, `ANY PLAYER'S CARD`, or
 any of the player's own cards, as specified by the cost expression. Multiple authored actions render
 as alternatives, with a comma before `or` to distinguish their operation boundaries. Alternative
-costs share one verb only when their verb and modifiers agree; other mixes remain data-backed rather
+costs share one verb only when their verb and modifiers agree; other mixes remain bracketed rather
 than risking a change in scope. An action may also link an `X`-scaled standard-resource or
 card-resource cost to one `X`-scaled concrete standard-resource gain; the action renderer retains
 the shared quantity when it says the same number, that amount, or an explicit multiple. An action
@@ -194,7 +194,7 @@ player is constrained and retains a separately described
 placement location. An unrestricted trigger uses passive
 voice and qualifies the event object with `any`, so it does not introduce or imply any triggering
 actor; this includes non-player mechanisms such as World Government Terraforming. Other non-End
-effects keep the whole top region data-backed.
+effects retain bracketed Pets at the narrowest safe effect boundary.
 Event interpretation retains the event kind and actor constraint independently; the actor
 constraint selects active `you` wording or unrestricted passive wording at linearization.
 Alternative event clauses with different verbs remain coordinated as complete clauses.
@@ -264,7 +264,7 @@ It may also count a described component refined by a strict zero maximum of anot
 component.
 It may count a described component collection with an explicit ownership-sensitive suffix.
 An instruction metric may cap any otherwise supported count with a parenthetical literal numeric
-maximum. A cap supplied by another metric remains data-backed.
+maximum. A cap supplied by another metric remains bracketed.
 One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
 component's Describer when its procedure is absent from the Pets change itself.
 Another supported direct-change construction gains a temporary component whose declaration says
@@ -281,7 +281,7 @@ A two-stage placement may instead link one of several described placement bonuse
 site to a one-step increase of the matching production.
 A gained component may instead declare exactly one described first action; its consequence is
 rendered through the ordinary instruction renderer, while unsupported consequences remain
-data-backed.
+bracketed.
 A described production-box-copy component obtains the selected card and its concrete tag from its
 expression argument; the Describer does not contain that tag or a complete instruction.
 Ownership and location remain independent renderer facts. Because a component outside the game
@@ -329,10 +329,11 @@ ocean tile`. Counts above one remain numeric. Resource quantities and track or p
 remain numeric even when the count is one. Attach a step count to every production named; do not
 move a shared count after several productions with `each`.
 
-An unsupported requirement, unsupported End-triggered scoring effect, unaccounted behavior-bearing
-extra component declaration, or unsupported immediate-instruction shape keeps the whole region
-data-backed. Component declarations can encode printed setup behavior that is absent from
-`immediate`, so deriving only that group could omit bottom text. An exact direct-change declaration,
+An unsupported requirement or End-triggered scoring effect renders as one bracketed Pets element.
+Within instruction groups, supported siblings remain English while each unsupported instruction is
+bracketed independently. An unaccounted behavior-bearing extra component declaration adds a
+bracketed class marker to the bottom region because component declarations can encode printed setup
+behavior that is absent from `immediate`. An exact direct-change declaration,
 or an exact superclass's explicit and validated subclass construction, accounts for a gained extra
 component's printed procedure. A strictly empty direct subclass of
 CardResource, SpecialTile, or RemoteArea is declared text-neutral and does not prevent derivation.
@@ -340,13 +341,13 @@ Actions and non-End effects are top elements and do not prevent bottom derivatio
 
 ## Known layout boundaries
 
-Immediate instructions are printed below the artwork. The golden rows that split Potatoes, Air
+Immediate instructions are printed below the artwork. The goal rows that split Potatoes, Air
 Raid, or Stratospheric Birds across regions were data errors, not evidence for a layout distinction
 in `CardDefinition` or for dividing one authored immediate group.
 
-Continue treating cards with behavior-bearing extra component declarations as data-backed. Mons
-Insurance shows why: its component declarations encode printed setup behavior that is absent from
-`immediate`. Likewise,
+Keep an explicit bracketed marker for behavior-bearing extra component declarations. Mons Insurance
+shows why: its component declarations encode printed setup behavior that is absent from `immediate`.
+Likewise,
 do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
 draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
 not structurally sufficient. A mandatory transmutation can say that card resources are removed from
@@ -362,7 +363,7 @@ is omitted because Pets does not represent that waiver. A two-branch alternative
 described site and repeat the same consequence-free, one-component placement behind a `MAX 0` gate
 for that site; it renders as placing there when using a board that has such a site and otherwise
 placing normally. This board-qualified wording does not imply that occupied sites permit the
-fallback.
+normal-placement alternative.
 Filtered draws such as Experimental Forest obtain only their missing filter from the transitional
 card-Class mapping. The ordinary instruction shape still supplies the count and draw operation.
 
@@ -371,11 +372,11 @@ region rather than its persistent effect region. Its supported instruction is re
 card's authored immediate instruction, matching corporation setup order.
 
 An unrestricted gain of a concrete card resource says `any card`. Other narrowed card-resource
-targets remain data-backed.
+targets remain bracketed.
 
 Poseidon's delayed first-action colony placement is authored as `Mandate { -> Colony }`, so a plain
 `Colony` gain unambiguously means immediate placement and is derived. One uses `a colony`; counts above
-one use `colonies`. A placement narrowed to a colony tile remains data-backed because Research Colony
+one use `colonies`. A placement narrowed to a colony tile remains bracketed because Research Colony
 and Space Port Colony print additional permission to reuse an occupied colony tile.
 
 ## Review cadence
@@ -383,7 +384,7 @@ and Space Port Colony print additional permission to reuse an occupied colony ti
 Commit bounded renderer iterations autonomously. Stop autonomous rounds after accumulating roughly
 25 modified cards, then provide an old-versus-new comparison roundup grouped by the
 systemic wording rule that caused them. If one renderer shape would itself change materially more
-than 25 cards, report that scope before updating the golden data or committing it. The golden file may be
+than 25 cards, report that scope before regenerating current data or committing it. Snapshot changes may be
 committed along the way; reconstruct the roundup from the commit-range diff rather than expecting
 review of each historical commit.
 

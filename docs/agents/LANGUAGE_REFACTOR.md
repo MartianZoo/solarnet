@@ -2,8 +2,8 @@
 
 > **Status:** Implemented. `docs/agents/LANGUAGE.md` describes the resulting current model.
 
-> **Agent plan:** Refactor the current converter in place. Preserve `English`, its fallback behavior,
-> the Pets-family dispatchers, canonical Describer lookup, and the golden comparison.
+> **Agent plan:** Refactor the current converter in place. Preserve `English`, the Pets-family
+> dispatchers, canonical Describer lookup, and visible raw-Pets escape boundaries.
 
 ## Target boundaries
 
@@ -34,7 +34,7 @@ Introduce only the structure required by current changes:
 
 These are internal values, not a general English framework. Existing public methods continue to
 return `String`; one final linearizer performs capitalization, punctuation, agreement, and text
-assembly. Raw strings remain appropriate for lexemes and explicit fallback fragments, not partially
+assembly. Raw strings remain appropriate for lexemes and explicit raw-Pets fragments, not partially
 assembled clauses.
 
 ## First vertical slice: Gain and Remove
@@ -83,8 +83,8 @@ The refactoring is succeeding when:
 - `Describers` is essentially lookup, inheritance, and lexical access;
 - no structural renderer names Foo or any canonical component;
 - parents can transform children without parsing strings;
-- unsupported Pets still cleanly reach the existing fallback;
-- current golden output remains stable unless deliberately reviewed;
+- unsupported Pets remain visible in square brackets at a safe structural boundary;
+- current snapshot output remains stable unless deliberately reviewed;
 - each round removes a responsibility from the current 864-line `Describers`.
 
 Add integration coverage only for structural distinctions not already exercised canonically,

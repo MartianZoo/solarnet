@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
@@ -15,19 +16,22 @@ import kotlin.test.Test
 internal class EnglishTest {
   private val english = English(TerraformingMarsDescribers.descriptions)
   private val cardsByClassName = Canon.cardDefinitions.associateBy { it.className }
+  private val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
+  private val current =
+      EnglishCardTextData.parse(readEnglishCardText("english-card-text-current.tsv"))
 
-  // This fallible golden characterization is deliberately the sole wording test for every
-  // derivation shape. Do not add shape-specific expected text. The two tests below it only prove
-  // that an absent region does not consult the golden data at all.
+  // This characterization is deliberately the sole wording test for every canonical derivation
+  // shape. The separate goals file is reviewed target text, not an answer source or test oracle.
   @Test
-  fun allCardTextMatchesDataFile() {
-    EnglishCardTextData.byCardFront.forEach { (cardFront, expected) ->
+  fun allCardTextMatchesCurrentSnapshot() {
+    current.keys shouldBe cardsByClassName.keys
+    current.forEach { (cardFront, expected) ->
       withClue(cardFront.toString()) {
-        val card = cardsByClassName[cardFront]
-        val top = card?.let { english.topText(it) { expected.top } } ?: expected.top
-        val bottom = card?.let { english.bottomText(it) { expected.bottom } } ?: expected.bottom
-        top shouldBe expected.top
-        bottom shouldBe expected.bottom
+        val card = requireNotNull(cardsByClassName[cardFront])
+        expected.englishName shouldBe
+            (goals[cardFront]?.englishName ?: defaultEnglishDisplayName(cardFront))
+        english.topText(card) shouldBe expected.top
+        english.bottomText(card) shouldBe expected.bottom
       }
     }
   }
@@ -56,7 +60,7 @@ internal class EnglishTest {
   }
 
   @Test
-  fun noTopTextElementsDoesNotConsultDataFile() {
+  fun cardWithoutTopElementsHasEmptyTopText() {
     val requirementOnly =
         CardDefinition(
             CardData(
@@ -67,11 +71,11 @@ internal class EnglishTest {
             )
         )
 
-    english.topText(requirementOnly) { error("consulted card-text data") } shouldBe ""
+    english.topText(requirementOnly) shouldBe ""
   }
 
   @Test
-  fun noBottomTextElementsDoesNotConsultDataFile() {
+  fun cardWithoutBottomElementsHasEmptyBottomText() {
     val actionOnly =
         CardDefinition(
             CardData(
@@ -82,6 +86,12 @@ internal class EnglishTest {
             )
         )
 
-    english.bottomText(actionOnly) { error("consulted card-text data") } shouldBe ""
+    english.bottomText(actionOnly) shouldBe ""
+  }
+
+  @Test
+  fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
+    english.describe(parse<InstructionTree>("2 Steel, 3 ProjectCard")) shouldBe
+        "Gain 2 steel. [3 ProjectCard]."
   }
 }

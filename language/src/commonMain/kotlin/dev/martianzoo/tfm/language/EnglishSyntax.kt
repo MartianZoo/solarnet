@@ -4,6 +4,11 @@ package dev.martianzoo.tfm.language
 internal sealed interface Clause {
   fun linearize(): String
 
+  /** Pets source retained visibly when this renderer does not understand the node. */
+  data class RawPets(val source: String) : Clause {
+    override fun linearize(): String = "[$source]"
+  }
+
   data class Simple(
       val predicate: Predicate,
       val subject: NounPhrase? = null,

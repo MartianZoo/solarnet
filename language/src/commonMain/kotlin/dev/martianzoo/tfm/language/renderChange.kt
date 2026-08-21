@@ -226,7 +226,7 @@ private fun renderFirstAction(
     return null
   }
   val result =
-      renderInstructions(effect.instruction, describers, drawFilter)?.clauses?.singleOrNull()
+      renderInstructions(effect.instruction, describers, drawFilter).clauses.singleOrNull()
           ?: return null
   return Clause.Prefaced("as your first action", result)
 }
