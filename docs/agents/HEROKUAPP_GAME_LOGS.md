@@ -85,6 +85,16 @@ consistently for ordinary turns instead of scattering many `declineSecondAction(
 test. Once every other player has passed, keep the remaining player's actions through `pass()` in one
 turn block when the workflow permits. Play both of a player's Preludes in the same turn block.
 
+A Herokuapp `Player passed` log line does not always mean that the pass happened at that point in turn
+order. After taking one action, a player can combine three declarations in one request: forgo the
+second action, end the current turn, and commit to passing when their next turn arrives. Herokuapp logs
+the pass immediately to save a later client/server round trip. When such a line follows a player's
+first action, determine whether it is this early declaration before translating it. In Solarnet, let
+the one-action turn end normally and call `pass()` only when that player's next turn is actually
+prepared; the executable pass-call order can therefore differ from the source log order. Preserve the
+verbatim log lines in their source order near the relevant boundary, but do not treat every logged
+pass as an immediate gameplay event.
+
 Keep each log comment directly above its representing statement. Put a consequence inside an action
 lambda only when that action genuinely causes it. Do not use an unrelated executable context as a place
 to hide a manual adjustment.
