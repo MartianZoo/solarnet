@@ -622,8 +622,7 @@ class Game20260820Test : CardTrackingFullGameTest() {
       // Pink played Lagrange Observatory
       // Pink drew 1 card(s)
       // You drew Gyropolis
-      playProject(LagrangeObservatory, 7) { draw(Gyropolis) }
-          .expect("0 ProjectCard")
+      playProject(LagrangeObservatory, 7) { draw(Gyropolis) }.expect("0 ProjectCard")
       // Pink ended turn
     }
     green.turn {
@@ -882,8 +881,7 @@ class Game20260820Test : CardTrackingFullGameTest() {
       // Pink lost 1 energy production
       // Pink gained 3 M€
       // Pink gained 1 M€ production
-      playProject(DawnCity, 4, titanium = 3)
-          .expect("PROD[Titanium, -Energy, 1], -1")
+      playProject(DawnCity, 4, titanium = 3).expect("PROD[Titanium, -Energy, 1], -1")
       // Pink ended turn
     }
     green.turn {
@@ -932,8 +930,7 @@ class Game20260820Test : CardTrackingFullGameTest() {
       // Green played Land Claim
       // Green placed land claim at 11
       // Green gained 3 M€
-      playProject(LandClaim, 1) { doTask("LandClaimMarker<Hellas_2_4>") }
-          .expect("2")
+      playProject(LandClaim, 1) { doTask("LandClaimMarker<Hellas_2_4>") }.expect("2")
       // Green ended turn
     }
     // Pink passed
