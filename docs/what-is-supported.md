@@ -5,7 +5,7 @@ Most of the published game content is working... and mostly correctly.
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones / awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | Terraforming Mars | 9 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 10 / 10 | 3 / 3 | - | 9 / 9 | - |
-| Corporate Era | 2 / 2 | 70 / 71 | - | - | 4 / 4 | - | - | - | - | - | - |
+| Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Venus Next | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | 2 / 2 | 1 / 1 | - | 1 / 1 | - |
 | Prelude | 5 / 5 | 6 / 7 | 34 / 35 | - | - | - | - | - | - | 1 / 1 | - |
@@ -34,7 +34,6 @@ Most of the published game content is working... and mostly correctly.
 | Prelude | Prelude | Research Network (`P28`) | (Works on wildtag branch) |
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
 | Colonies | Corporation | Stormcraft Incorporated (`CC5`) | Payment rewrites |
-| Corporate Era | Project | Land Claim (`066`) | Non-tiles on map |
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |
 | Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
 | Amazonis & Vastitas | Global parameter | Extended tracks | Core replacement |

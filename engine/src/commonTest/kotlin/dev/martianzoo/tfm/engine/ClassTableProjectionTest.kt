@@ -48,12 +48,12 @@ internal class ClassTableProjectionTest {
     totals.shouldContainExactly(
         mapOf(
             "Base" to 146, // 148 minus BegCorp and Helion
-            "CorporateEraExpansion" to 146 + 72, // 73 minus Land Claim
-            "VenusNextExpansion" to 218 + 54,
-            "PreludeExpansion" to 272 + 47,
-            "ColoniesExpansion" to 319 + 52, // 54 minus Aridor and Stormcraft
-            "TurmoilCardPack" to 371 + 4,
-            "PromoCardPack" to 375 + 88,
+            "CorporateEraExpansion" to 146 + 73,
+            "VenusNextExpansion" to 219 + 54,
+            "PreludeExpansion" to 273 + 47,
+            "ColoniesExpansion" to 320 + 52, // 54 minus Aridor and Stormcraft
+            "TurmoilCardPack" to 372 + 4,
+            "PromoCardPack" to 376 + 88,
         )
     )
   }
