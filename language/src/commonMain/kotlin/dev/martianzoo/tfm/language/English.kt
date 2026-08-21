@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.CardDefinition
@@ -20,7 +21,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
 
   /** Returns complete English sentences describing [actions] as actions on [card]. */
   public fun describe(actions: List<Action>, card: CardDefinition): String =
-      describeOrNull(actions) ?: unsupported(actions)
+      describeOrNull(actions, card) ?: unsupported(actions)
 
   /** Returns complete, context-neutral English sentences describing [instructionTree]. */
   public fun describe(instructionTree: InstructionTree): String =
@@ -30,7 +31,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
    * Returns complete English sentences describing [instructionTree] as an instruction on [card].
    */
   public fun describe(instructionTree: InstructionTree, card: CardDefinition): String =
-      describeOrNull(instructionTree) ?: unsupported(instructionTree)
+      describeOrNull(instructionTree, card) ?: unsupported(instructionTree)
 
   /** Returns complete English sentences describing [requirement]. */
   public fun describe(requirement: Requirement): String =
@@ -46,11 +47,13 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
 
   // Of the card's Effects, only endgame scoring is printed below the artwork.
   private fun hasTopTextElement(card: CardDefinition): Boolean =
-      card.actions.isNotEmpty() || card.effects.any { !isEndEffect(it, describers) }
+      card.actions.isNotEmpty() ||
+          card.effects.any { !isEndEffect(it, describers) && !isImmediateSelfEffect(it) }
 
   private fun hasBottomTextElement(card: CardDefinition): Boolean =
       card.requirement != null ||
           card.immediate != null ||
+          card.effects.any(::isImmediateSelfEffect) ||
           card.effects.any { isEndEffect(it, describers) }
 
   private fun derivedBottomText(card: CardDefinition): String? {
@@ -58,12 +61,16 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
       return null
     }
     val requirement = card.requirement?.let { describeOrNull(it) ?: return null }
-    val instructions = card.immediate?.let { describeOrNull(it) ?: return null }
+    val immediateEffects =
+        card.effects.filter(::isImmediateSelfEffect).map {
+          describeOrNull(it.instruction, card) ?: return null
+        }
+    val instructions = card.immediate?.let { describeOrNull(it, card) ?: return null }
     val scoring =
         card.effects
             .filter { isEndEffect(it, describers) }
             .map { describeOrNull(it) ?: return null }
-    return (listOfNotNull(requirement, instructions) + scoring)
+    return (listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring)
         .takeIf { it.isNotEmpty() }
         ?.joinToString(" ")
   }
@@ -76,14 +83,14 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
         card.actions
             .takeIf { it.isNotEmpty() }
             ?.let {
-              "Action: ${describeOrNull(it) ?: return null}"
+              "Action: ${describeOrNull(it, card) ?: return null}"
             }
     val effects =
         card.effects
-            .filterNot { isEndEffect(it, describers) }
+            .filterNot { isEndEffect(it, describers) || isImmediateSelfEffect(it) }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
-              "Effect: ${renderEffects(list, describers) ?: return null}"
+              "Effect: ${renderEffects(list, describers, drawFilter(card)) ?: return null}"
             }
     return listOfNotNull(actions, effects).joinToString(" / ")
   }
@@ -92,11 +99,25 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
 
   private fun describeOrNull(actions: List<Action>): String? = renderActions(actions, describers)
 
+  private fun describeOrNull(actions: List<Action>, card: CardDefinition): String? =
+      renderActions(actions, describers, drawFilter(card))
+
   private fun describeOrNull(instructionTree: InstructionTree): String? =
       renderInstructionTree(instructionTree, describers)
 
+  private fun describeOrNull(
+      instructionTree: InstructionTree,
+      card: CardDefinition,
+  ): String? = renderInstructionTree(instructionTree, describers, drawFilter(card))
+
   private fun describeOrNull(requirement: Requirement): String? =
       renderRequirement(requirement, describers)
+
+  private fun drawFilter(card: CardDefinition) = EnglishFilteredDrawData.byCardId[card.id]
+
+  private fun isImmediateSelfEffect(effect: Effect): Boolean {
+    return effect.automatic && effect.trigger == WhenGain
+  }
 
   private fun unsupported(element: Any): Nothing =
       throw IllegalArgumentException("No English description for Pets element: $element")

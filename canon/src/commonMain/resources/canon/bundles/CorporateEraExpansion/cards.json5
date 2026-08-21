@@ -694,8 +694,11 @@
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
-      "immediate": "NextCardEffect { PlayCard:: -8 Owed<Class<Megacredit>> }",
+      "immediate": "Card195Effect",
       "effects": [ "End: -VictoryPoint" ],
+      "components": [
+        "CLASS Card195Effect : NextCardEffect { PlayCard:: -This!; PlayCard:: -8 Owed<Class<Megacredit>> }"
+      ],
     },
 
     // Lagrange Observatory

@@ -19,6 +19,7 @@ public data class ComponentDescriber(
     /** Whether [directChange] interprets the declared behavior of concrete direct subclasses. */
     public val directChangeForSubclasses: Boolean = false,
     public val production: Boolean? = null,
+    public val productionSelection: String? = null,
     public val requirement: Requirement? = null,
     public val directChange: DirectChange? = null,
     public val draw: Boolean? = null,
@@ -29,7 +30,6 @@ public data class ComponentDescriber(
     public val playTrigger: PlayTrigger? = null,
     public val playedCard: PlayedCard? = null,
     public val playedTagPhrase: String? = null,
-    public val operationTrigger: String? = null,
     public val usedActionTrigger: Boolean? = null,
     public val actionNumber: Int? = null,
     public val actionUse: ActionUse? = null,
@@ -162,8 +162,11 @@ public data class ComponentDescriber(
     /** Describes moving a fixed number of steps between two selected instances of one track. */
     public data class TrackTransfer(public val trackNoun: String) : DirectChange
 
-    /** Describes a gained component that discounts the next card played. */
-    public data object NextPlayedCardDiscount : DirectChange
+    /** Describes invoking one named operation, both as an imperative and as its event trigger. */
+    public data class Operation(public val verb: String) : DirectChange
+
+    /** Describes a gained component that adjusts the next card played. */
+    public data object NextPlayedCardAdjustment : DirectChange
 
     /** Describes copying the production box of the card selected by the gained expression. */
     public data object ProductionBoxCopy : DirectChange

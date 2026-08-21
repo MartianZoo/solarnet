@@ -43,7 +43,21 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun hasBehaviorBearingExtraClass(card: CardDefinition): Boolean =
-      card.extraClasses.any { !isTextNeutralExtraClass(it) && !directlyDescribesGain(it, card) }
+      card.extraClasses.any {
+        !isTextNeutralExtraClass(it) &&
+            !directlyDescribesGain(it, card) &&
+            !isDescribedProductionSelection(it)
+      }
+
+  private fun isDescribedProductionSelection(declaration: ClassDeclaration): Boolean {
+    val description = descriptions.getValue(classesByName.getValue(declaration.className))
+    return description.productionSelection != null &&
+        declaration.kind == ClassDeclaration.ClassKind.CONCRETE &&
+        declaration.invariants.isEmpty() &&
+        declaration.effects.isEmpty() &&
+        declaration.defaultsDeclaration == ClassDeclaration.DefaultsDeclaration() &&
+        declaration.properties.isEmpty()
+  }
 
   private fun directlyDescribesGain(
       declaration: ClassDeclaration,
@@ -221,7 +235,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun representedExpression(expression: Expression): Expression? {
     if (expression.arguments.size != 1) return null
-    val classExpression = expression.arguments.single()
+    return representedClassArgument(expression.arguments.single())
+  }
+
+  internal fun representedClassArgument(classExpression: Expression): Expression? {
     if (
         classExpression.className != CLASS ||
             classExpression.arguments.size != 1 ||

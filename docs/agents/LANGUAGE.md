@@ -29,6 +29,11 @@ by the all-card comparison. If a renderer gains behavior not exercised by any ca
 behavioral test for that behavior or defer the generalization; do not add a test whose only assertion
 is that the data file was not consulted.
 
+`english-filtered-draws.tsv` is a narrow transitional supplement for information that canonical Pets
+does not yet carry. It maps a card id to the tag or card-resource icon required by that card's draw.
+Only mapped `ProjectCard` gains are derived: an unqualified gain remains data-backed because the same
+Pets shape also stands in for top-card selection and other printed draw procedures.
+
 Keep every structurally supported End-scoring sentence canonical in the card-text data even when
 another part of that card keeps the whole region data-backed. The golden row should already contain
 the complete scoring text before an unrelated instruction shape becomes derivable.
@@ -95,8 +100,8 @@ inherit permission accidentally.
 `directChangeForSubclasses` is likewise a direct opt-in by one exact superclass. It permits the
 superclass's direct-change construction to inspect a gained concrete direct subclass. Each such
 construction must reject any subclass declaration whose behavior it does not completely account
-for; the next-played-card discount construction, for example, accepts exactly one automatic
-played-card payment reduction and obtains the amount and resource from that Effect.
+for; the next-played-card adjustment construction, for example, accepts exactly one automatic
+played-card payment reduction or requirement adjustment and obtains its details from that Effect.
 
 Instruction changes and requirements are retained as internal clauses, predicates, noun phrases,
 modifiers, and coordinations until their enclosing sentence or action has made its structural
@@ -165,6 +170,10 @@ card-resource cost to one `X`-scaled concrete standard-resource gain; the action
 the shared quantity when it says the same number, that amount, or an explicit multiple. An action
 may instead link an abstract standard-resource production cost to a fixed gain of the same abstract
 resource type; the renderer retains the shared type as “resources of that kind.” A Describer may
+identify a refinement as a named selection among the player's production tracks; this renders the
+selected production directly rather than inventing a concrete resource type. The selector may remain
+a local custom marker when its otherwise-empty declaration and description account for its complete
+printed role. A Describer may
 also identify the deferred-payment protocol: a fixed standard-resource amount owed, one accepted
 alternate standard resource, and a payment barrier guarding a supported result. This renders as
 an ordinary fixed-cost action with the alternate resource noted parenthetically. A Describer may
@@ -172,8 +181,11 @@ also supply the object phrase for gaining one chosen concrete member of an abstr
 category. A supported action may also invoke a component described as the optional top-card purchase
 procedure.
 That description supplies narrow component-level knowledge for behavior absent from the Pets
-change; it is not inferred from an ordinary optional gain. Supported non-End effects include a
-fixed M€ discount triggered by
+change; it is not inferred from an ordinary optional gain. A named operation may be invoked as an
+action result and recognized as an effect trigger. Two adjacent effects may use a described barrier
+solely to hold that operation open for one optional increase of its selected track; the barrier is
+validated and omitted from the printed effect. Supported non-End effects include a fixed M€
+discount triggered by
 playing a card or one concrete tag, and a supported instruction consequence triggered by playing
 concrete tags or one described tag group,
 placing a supported tile, including on a described site with a described placement bonus, raising a
@@ -255,7 +267,10 @@ An instruction metric may cap any otherwise supported count with a parenthetical
 One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
 component's Describer when its procedure is absent from the Pets change itself.
 Another supported direct-change construction gains a temporary component whose declaration says
-that the next card played receives one fixed standard-resource payment discount.
+that the next card played receives one fixed standard-resource payment discount or global-
+requirement adjustment. Canonical cards gain their own local concrete subclass directly; the shared
+`NextCardEffect` supplies the ownership and generational category, while each local class states its
+next-play lifecycle and adjustment together.
 A two-stage immediate instruction may instead play a card and then remove every generated global-
 requirement shortfall or remove up to one fixed owed amount, rendering the requirement waiver or
 card discount at the scope of that play.
@@ -347,8 +362,12 @@ described site and repeat the same consequence-free, one-component placement beh
 for that site; it renders as placing there when using a board that has such a site and otherwise
 placing normally. This board-qualified wording does not imply that occupied sites permit the
 fallback.
-Experimental Forest remains data-backed
-because its accompanying `ProjectCard` gain does not express the printed plant-tag filter.
+Filtered draws such as Experimental Forest obtain only their missing filter from the transitional
+card-id mapping. The ordinary instruction shape still supplies the count and draw operation.
+
+An automatic effect triggered by gaining its own host component is part of that card's immediate
+region rather than its persistent effect region. Its supported instruction is rendered before the
+card's authored immediate instruction, matching corporation setup order.
 
 An unrestricted gain of a concrete card resource says `any card`. Other narrowed card-resource
 targets remain data-backed.

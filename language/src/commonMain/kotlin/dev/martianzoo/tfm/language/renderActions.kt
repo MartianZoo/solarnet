@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -15,9 +16,10 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 internal fun renderActions(
     actions: List<Action>,
     describers: Describers,
+    drawFilter: ClassName? = null,
 ): String? {
   if (actions.isEmpty()) return ""
-  val rendered = actions.map { renderAction(it, describers) ?: return null }
+  val rendered = actions.map { renderAction(it, describers, drawFilter) ?: return null }
   if (rendered.size == 1) return rendered.single().asSentences()
   val alternatives = rendered.map { it.asAlternative() ?: return null }
   val joined =
@@ -155,7 +157,10 @@ private fun Describers.renderLinkedProductionResourceAction(action: Action): Ren
   return RenderedAction(cost, result)
 }
 
-private fun Describers.renderDeferredPaymentAction(action: Action): RenderedAction? {
+private fun Describers.renderDeferredPaymentAction(
+    action: Action,
+    drawFilter: ClassName?,
+): RenderedAction? {
   if (action.cost != null) return null
   val sequence = action.instruction as? Then ?: return null
   if (sequence.stages.size != 2) return null
@@ -182,7 +187,7 @@ private fun Describers.renderDeferredPaymentAction(action: Action): RenderedActi
   ) {
     return null
   }
-  val result = renderInstructions(gated.inner, this) ?: return null
+  val result = renderInstructions(gated.inner, this, drawFilter) ?: return null
   val cost =
       Predicate(
           "spend",
@@ -195,6 +200,7 @@ private fun Describers.renderDeferredPaymentAction(action: Action): RenderedActi
 private fun renderAction(
     action: Action,
     describers: Describers,
+    drawFilter: ClassName?,
 ): RenderedAction? {
   val lowered = lowerProductionSyntax(action)
   describers.renderLinkedXAction(lowered)?.let {
@@ -203,11 +209,11 @@ private fun renderAction(
   describers.renderLinkedProductionResourceAction(lowered)?.let {
     return it
   }
-  describers.renderDeferredPaymentAction(lowered)?.let {
+  describers.renderDeferredPaymentAction(lowered, drawFilter)?.let {
     return it
   }
   val cost = lowered.cost?.let { describers.renderCost(it) ?: return null }
-  val result = renderInstructions(lowered.instruction, describers) ?: return null
+  val result = renderInstructions(lowered.instruction, describers, drawFilter) ?: return null
   return RenderedAction(cost, result)
 }
 

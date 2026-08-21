@@ -1625,7 +1625,7 @@
       "tags": [ "ScienceTag" ],
       "immediate": "Card206Effect",
       "components": [
-        "CLASS Card206Effect : Owned, Generational { PlayCard: -This!; PlayCard: -2 Required<Class<GlobalParameter>>. }"
+        "CLASS Card206Effect : NextCardEffect { PlayCard: -This!; PlayCard: -2 Required<Class<GlobalParameter>>. }"
       ],
     },
   ],

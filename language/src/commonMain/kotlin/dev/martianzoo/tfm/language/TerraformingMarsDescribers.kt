@@ -392,7 +392,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("NextCardEffect") to
             ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.NextPlayedCardDiscount,
+                directChange = ComponentDescriber.DirectChange.NextPlayedCardAdjustment,
                 directChangeForSubclasses = true,
             ),
         klass("Mandate") to
@@ -405,16 +405,19 @@ internal object TerraformingMarsDescribers {
                 directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)
             ),
         klass("Production") to ComponentDescriber(production = true),
+        klass("LowestProduction") to
+            ComponentDescriber(productionSelection = "one of your lowest productions"),
         klass("ColonyProduction") to
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.TrackTransfer("colony tile track")
             ),
+        klass("Trade") to
+            ComponentDescriber(directChange = ComponentDescriber.DirectChange.Operation("trade")),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("End") to ComponentDescriber(endTrigger = true),
         klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
-        klass("Trade") to ComponentDescriber(operationTrigger = "trade"),
         klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
         klass("UseAction1") to ComponentDescriber(actionNumber = 1),
         klass("StandardProject") to

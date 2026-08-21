@@ -15,17 +15,20 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
-): String? = renderInstructions(instructionTree, describers)?.asSentences()
+    drawFilter: ClassName? = null,
+): String? = renderInstructions(instructionTree, describers, drawFilter)?.asSentences()
 
 internal fun renderInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
+    drawFilter: ClassName? = null,
 ): RenderedInstructions? =
-    renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers)
+    renderLoweredInstructions(lowerProductionSyntax(instructionTree), describers, drawFilter)
 
 private fun renderLoweredInstructions(
     instructionTree: InstructionTree,
     describers: Describers,
+    drawFilter: ClassName?,
 ): RenderedInstructions? {
   val instructions = InstructionGroup.of(instructionTree).instructions
   if (instructions.isEmpty()) {
@@ -34,7 +37,7 @@ private fun renderLoweredInstructions(
     )
   }
   val rendered = instructions.map { instruction ->
-    instruction to (renderInstruction(instruction, describers) ?: return null)
+    instruction to (renderInstruction(instruction, describers, drawFilter) ?: return null)
   }
   return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
@@ -42,18 +45,19 @@ private fun renderLoweredInstructions(
 private fun renderInstruction(
     instruction: Instruction,
     describers: Describers,
+    drawFilter: ClassName?,
 ): Clause? =
     when (instruction) {
       is Gain,
       is Remove,
-      is Instruction.Transmute -> renderChange(instruction, describers)
-      is Instruction.Or -> renderAlternatives(instruction, describers)
-      is Instruction.Per -> renderPer(instruction, describers)
-      is Instruction.Gated -> renderGated(instruction, describers)
+      is Instruction.Transmute -> renderChange(instruction, describers, drawFilter)
+      is Instruction.Or -> renderAlternatives(instruction, describers, drawFilter)
+      is Instruction.Per -> renderPer(instruction, describers, drawFilter)
+      is Instruction.Gated -> renderGated(instruction, describers, drawFilter)
       is Instruction.Then ->
           renderPlacementBonusProductionSequence(instruction, describers)
               ?: renderCardPlaySequence(instruction, describers)
-              ?: renderCardResourceCostSequence(instruction, describers)
+              ?: renderCardResourceCostSequence(instruction, describers, drawFilter)
       is NoOp,
       is Instruction.By,
       is Instruction.Transform -> null
@@ -162,6 +166,7 @@ private data class PlacementBonusProduction(
 private fun renderCardResourceCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
+    drawFilter: ClassName?,
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   if (
@@ -175,8 +180,9 @@ private fun renderCardResourceCostSequence(
   val count = (removal.count as? ActualScalar)?.value ?: return null
   val resource = describers.cardResourceNounPhrase(removal.removing.className, count) ?: return null
   val result =
-      renderLoweredInstructions(instruction.continuation, describers)?.clauses?.singleOrNull()
-          ?: return null
+      renderLoweredInstructions(instruction.continuation, describers, drawFilter)
+          ?.clauses
+          ?.singleOrNull() ?: return null
   return Clause.Simple(
       Predicate(
           "remove",
@@ -239,9 +245,10 @@ private fun renderCardPlaySequence(
 private fun renderGated(
     instruction: Instruction.Gated,
     describers: Describers,
+    drawFilter: ClassName?,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers)?.clauses?.singleOrNull()
+      renderLoweredInstructions(instruction.inner, describers, drawFilter)?.clauses?.singleOrNull()
           ?: return null
   val condition = describers.renderGateCondition(instruction.gate) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase(condition))
@@ -250,9 +257,10 @@ private fun renderGated(
 private fun renderPer(
     instruction: Instruction.Per,
     describers: Describers,
+    drawFilter: ClassName?,
 ): Clause? {
   val clause =
-      renderLoweredInstructions(instruction.inner, describers)?.clauses?.singleOrNull()
+      renderLoweredInstructions(instruction.inner, describers, drawFilter)?.clauses?.singleOrNull()
           ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
@@ -261,13 +269,15 @@ private fun renderPer(
 private fun renderAlternatives(
     instruction: Instruction.Or,
     describers: Describers,
+    drawFilter: ClassName?,
 ): Clause? {
   renderPlacementSiteFallback(instruction, describers)?.let {
     return it
   }
   val alternatives =
       instruction.instructions.map { option ->
-        renderLoweredInstructions(option, describers)?.clauses?.singleOrNull() ?: return null
+        renderLoweredInstructions(option, describers, drawFilter)?.clauses?.singleOrNull()
+            ?: return null
       }
   val simpleAlternatives = alternatives.map { it as? Clause.Simple }
   if (simpleAlternatives.all { it != null }) {

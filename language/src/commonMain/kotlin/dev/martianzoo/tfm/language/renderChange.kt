@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
@@ -18,6 +19,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 internal fun renderChange(
     instruction: Instruction,
     describers: Describers,
+    drawFilter: ClassName? = null,
 ): Clause? {
   val expression =
       when (instruction) {
@@ -27,7 +29,7 @@ internal fun renderChange(
         else -> return null
       }
   describers.fact(expression.className, ComponentDescriber::directChange)?.let {
-    renderDirectChange(instruction, it, describers)?.let { clause ->
+    renderDirectChange(instruction, it, describers, drawFilter)?.let { clause ->
       return clause
     }
   }
@@ -38,6 +40,8 @@ internal fun renderChange(
       return it
     }
   }
+  if (describers.fact(expression.className, ComponentDescriber::draw) == true)
+      return renderDraw(instruction, drawFilter, describers)
   if (describers.fact(expression.className, ComponentDescriber::cardResource) != null)
       return renderCardResourceChange(instruction, describers)
   if (describers.fact(expression.className, ComponentDescriber::production) == true)
@@ -62,6 +66,43 @@ private fun renderDiscard(
   if (!removal.removing.simple) return null
   val count = (removal.count as? ActualScalar)?.value ?: return null
   return clause("discard", describers.componentNounPhrase(removal.removing.className, count))
+}
+
+private fun renderDraw(
+    instruction: Instruction,
+    filter: ClassName?,
+    describers: Describers,
+): Clause.Simple? {
+  val gain = instruction as? Gain ?: return null
+  if (
+      (gain.intensity != null && gain.intensity != MANDATORY) ||
+          !gain.gaining.simple ||
+          !describers.concrete(gain.gaining.className)
+  ) {
+    return null
+  }
+  val count = (gain.count as? ActualScalar)?.value ?: return null
+  if (filter == null) return null
+  val cards =
+      when {
+        describers.tagName(filter) != null -> {
+          val (tag) = describers.tagName(filter) ?: return null
+          val card = if (count == 1) "card" else "cards"
+          NounPhrase.text("$count $card with ${describers.indefiniteArticle(tag)} $tag tag")
+        }
+        describers.cardResourceNoun(filter, 1) != null -> {
+          val resource = describers.cardResourceNoun(filter, 1) ?: return null
+          val text =
+              if (count == 1) {
+                "1 card with ${describers.indefiniteArticle(resource)} $resource icon"
+              } else {
+                "$count cards with $resource icons"
+              }
+          NounPhrase.text(text)
+        }
+        else -> return null
+      }
+  return clause("draw", cards)
 }
 
 internal fun isProductionChange(instruction: Instruction, describers: Describers): Boolean {
@@ -93,6 +134,7 @@ private fun renderDirectChange(
     instruction: Instruction,
     description: ComponentDescriber.DirectChange,
     describers: Describers,
+    drawFilter: ClassName?,
 ): Clause? {
   return when (description) {
     is ComponentDescriber.DirectChange.Gain -> {
@@ -116,14 +158,32 @@ private fun renderDirectChange(
     }
     is ComponentDescriber.DirectChange.TrackTransfer ->
         renderTrackTransfer(instruction, description)
-    ComponentDescriber.DirectChange.NextPlayedCardDiscount ->
-        renderNextPlayedCardDiscount(instruction, describers)
+    is ComponentDescriber.DirectChange.Operation -> renderOperation(instruction, description)
+    ComponentDescriber.DirectChange.NextPlayedCardAdjustment ->
+        renderNextPlayedCardAdjustment(instruction, describers)
     ComponentDescriber.DirectChange.ProductionBoxCopy ->
         renderProductionBoxCopy(instruction, describers)
-    ComponentDescriber.DirectChange.FirstAction -> renderFirstAction(instruction, describers)
+    ComponentDescriber.DirectChange.FirstAction ->
+        renderFirstAction(instruction, describers, drawFilter)
     ComponentDescriber.DirectChange.TopCardPurchase ->
         renderTopCardPurchase(instruction, describers)
   }
+}
+
+private fun renderOperation(
+    instruction: Instruction,
+    description: ComponentDescriber.DirectChange.Operation,
+): Clause.Simple? {
+  val gain = instruction as? Gain ?: return null
+  if (
+      (gain.intensity != null && gain.intensity != MANDATORY) ||
+          gain.gaining.refinement != null ||
+          gain.gaining.complement ||
+          (gain.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  return Clause.Simple(Predicate(description.verb))
 }
 
 private fun renderTrackTransfer(
@@ -149,6 +209,7 @@ private fun renderTrackTransfer(
 private fun renderFirstAction(
     instruction: Instruction,
     describers: Describers,
+    drawFilter: ClassName?,
 ): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
@@ -165,7 +226,8 @@ private fun renderFirstAction(
     return null
   }
   val result =
-      renderInstructions(effect.instruction, describers)?.clauses?.singleOrNull() ?: return null
+      renderInstructions(effect.instruction, describers, drawFilter)?.clauses?.singleOrNull()
+          ?: return null
   return Clause.Prefaced("as your first action", result)
 }
 
@@ -188,15 +250,22 @@ private fun renderProductionBoxCopy(
   return clause("duplicate", NounPhrase.text("the production box of $holder"))
 }
 
-private fun renderNextPlayedCardDiscount(
+private fun renderNextPlayedCardAdjustment(
     instruction: Instruction,
     describers: Describers,
 ): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
   val declaration = describers.directChangeSubclassDeclaration(className) ?: return null
-  val effect = declaration.effects.singleOrNull() ?: return null
-  if (!effect.automatic) return null
+  val lifecycle =
+      declaration.effects.singleOrNull { effect ->
+        val removal = effect.instruction as? Remove ?: return@singleOrNull false
+        removal.intensity == MANDATORY &&
+            removal.removing == describers.thisExpression &&
+            (removal.count as? ActualScalar)?.value == 1
+      } ?: return null
+  val effect = declaration.effects.singleOrNull { it !== lifecycle } ?: return null
+  if (lifecycle.trigger != effect.trigger || lifecycle.automatic != effect.automatic) return null
   val played = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (
       !played.simple ||
@@ -205,14 +274,44 @@ private fun renderNextPlayedCardDiscount(
   ) {
     return null
   }
-  val reduction = owedReduction(effect.instruction, describers) ?: return null
+  owedReduction(effect.instruction, describers)?.let { reduction ->
+    if (!effect.automatic) return null
+    return Clause.Simple(
+        predicate =
+            Predicate(
+                "costs",
+                Coordination.one(NounPhrase.text("${reduction.count} ${reduction.noun} less")),
+            ),
+        subject = NounPhrase.text("the next card you play this generation"),
+    )
+  }
+  if (effect.automatic) return null
+  val requirement = effect.instruction as? Remove ?: return null
+  if (
+      requirement.intensity != AMAP ||
+          requirement.removing.refinement != null ||
+          requirement.removing.complement ||
+          describers.fact(
+              requirement.removing.className,
+              ComponentDescriber::requirementShortfall,
+          ) != true
+  ) {
+    return null
+  }
+  val adjustment = (requirement.count as? ActualScalar)?.value ?: return null
+  val target = describers.representedClass(requirement.removing) ?: return null
+  val kind = describers.fact(target.className, ComponentDescriber::requirementKind) ?: return null
+  val steps = if (adjustment == 1) "step" else "steps"
   return Clause.Simple(
       predicate =
           Predicate(
-              "costs",
-              Coordination.one(NounPhrase.text("${reduction.count} ${reduction.noun} less")),
+              "may treat",
+              Coordination.one(
+                  NounPhrase.text("the $kind requirement of the next card you play this generation")
+              ),
+              listOf(Modifier.Phrase("as if it were $adjustment $steps lower or higher")),
           ),
-      subject = NounPhrase.text("the next card you play this generation"),
+      subject = NounPhrase.text("you"),
   )
 }
 
@@ -397,6 +496,9 @@ private fun renderProductionChange(
         is Transmute -> return renderProductionConversion(change, describers)
       }
   val expression = change.gaining ?: change.removing ?: return null
+  renderSelectedProductionChange(change, gaining, expression, describers)?.let {
+    return it
+  }
   val (ownerArguments, resourceClassName) =
       describers.productionExpression(expression) ?: return null
   val owner =
@@ -410,6 +512,43 @@ private fun renderProductionChange(
   val production =
       "$owner ${describers.componentNoun(resourceClassName, 1)} production $count $steps"
   return clause(if (gaining) "increase" else "decrease", NounPhrase.text(production))
+}
+
+private fun renderSelectedProductionChange(
+    change: Instruction.Change,
+    gaining: Boolean,
+    expression: Expression,
+    describers: Describers,
+): Clause.Simple? {
+  if (
+      describers.fact(expression.className, ComponentDescriber::production) != true ||
+          expression.refinement != null ||
+          expression.complement ||
+          expression.arguments.size != 1
+  ) {
+    return null
+  }
+  val resource = describers.representedClassArgument(expression.arguments.single()) ?: return null
+  if (
+      describers.fact(resource.className, ComponentDescriber::standardResource) != true ||
+          describers.concrete(resource.className) ||
+          resource.complement
+  ) {
+    return null
+  }
+  val refinement = resource.refinement?.takeIf { !it.forgiving } ?: return null
+  val minimum = refinement.requirement as? Requirement.Min ?: return null
+  if (minimum.target != 1) return null
+  val selector = (minimum.metric as? Metric.Count)?.expression ?: return null
+  if (!selector.simple) return null
+  val phrase =
+      describers.fact(selector.className, ComponentDescriber::productionSelection) ?: return null
+  val count = (change.count as? ActualScalar)?.value ?: return null
+  val steps = if (count == 1) "step" else "steps"
+  return clause(
+      if (gaining) "increase" else "decrease",
+      NounPhrase.text("$phrase $count $steps"),
+  )
 }
 
 private fun renderProductionConversion(

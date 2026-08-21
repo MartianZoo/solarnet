@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -23,7 +24,11 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
-internal fun renderEffect(effect: Effect, describers: Describers): String? {
+internal fun renderEffect(
+    effect: Effect,
+    describers: Describers,
+    drawFilter: ClassName? = null,
+): String? {
   val lowered = lowerProductionSyntax(effect)
   return if (isEndEffect(lowered, describers)) {
     renderEndEffect(lowered, describers)
@@ -34,9 +39,9 @@ internal fun renderEffect(effect: Effect, describers: Describers): String? {
         ?: renderResourcePaymentValue(lowered, describers)
         ?: renderCardResourcePaymentValue(lowered, describers)
         ?: renderRequirementFlexibility(lowered, describers)
-        ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
+        ?: renderLinkedPlayedTagResourceChoice(lowered, describers, drawFilter)
         ?: renderLinkedProductionReward(lowered, describers)
-        ?: renderTriggeredInstructions(lowered, describers)
+        ?: renderTriggeredInstructions(lowered, describers, drawFilter)
   }
 }
 
@@ -85,6 +90,7 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
 private fun renderLinkedPlayedTagResourceChoice(
     effect: Effect,
     describers: Describers,
+    drawFilter: ClassName?,
 ): String? {
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (trigger.refinement != null || trigger.complement) return null
@@ -96,7 +102,9 @@ private fun renderLinkedPlayedTagResourceChoice(
   val clauses = alternatives.map { alternative ->
     renderLinkedCardResourceGain(alternative, holder, describers)?.also {
       linkedDestination = true
-    } ?: renderInstructions(alternative, describers)?.clauses?.singleOrNull() ?: return null
+    }
+        ?: renderInstructions(alternative, describers, drawFilter)?.clauses?.singleOrNull()
+        ?: return null
   }
   if (!linkedDestination) return null
   val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
@@ -253,13 +261,23 @@ private fun protectedResourceNoun(expression: Expression, describers: Describers
   return describers.componentNoun(expression.className, 2)
 }
 
-internal fun renderEffects(effects: List<Effect>, describers: Describers): String? {
+internal fun renderEffects(
+    effects: List<Effect>,
+    describers: Describers,
+    drawFilter: ClassName? = null,
+): String? {
   val sentences = mutableListOf<String>()
   var index = 0
   while (index < effects.size) {
+    renderBarrierSequencedTrackChoice(effects.drop(index), describers)?.let { (sentence, consumed)
+      ->
+      sentences += sentence
+      index += consumed
+      continue
+    }
     val discount = paymentDiscount(effects[index], describers)
     if (discount == null) {
-      sentences += renderEffect(effects[index], describers) ?: return null
+      sentences += renderEffect(effects[index], describers, drawFilter) ?: return null
       index++
       continue
     }
@@ -275,6 +293,60 @@ internal fun renderEffects(effects: List<Effect>, describers: Describers): Strin
     index += run.size
   }
   return sentences.joinToString(" ")
+}
+
+private fun renderBarrierSequencedTrackChoice(
+    effects: List<Effect>,
+    describers: Describers,
+): Pair<String, Int>? {
+  val barrierEffect = effects.getOrNull(0) ?: return null
+  val trackEffect = effects.getOrNull(1) ?: return null
+  if (
+      !barrierEffect.automatic ||
+          trackEffect.automatic ||
+          barrierEffect.trigger != trackEffect.trigger
+  ) {
+    return null
+  }
+  val barrierGain =
+      InstructionGroup.of(barrierEffect.instruction).instructions.singleOrNull() as? Gain
+          ?: return null
+  if (
+      (barrierGain.intensity != null && barrierGain.intensity != MANDATORY) ||
+          !barrierGain.gaining.simple ||
+          (barrierGain.count as? ActualScalar)?.value != 1 ||
+          describers.fact(barrierGain.gaining.className, ComponentDescriber::paymentRole) !=
+              ComponentDescriber.PaymentRole.BARRIER
+  ) {
+    return null
+  }
+  val sequence = trackEffect.instruction as? Then ?: return null
+  val trackGain = sequence.stages.singleOrNull() as? Gain ?: return null
+  if (
+      trackGain.intensity != Instruction.Intensity.OPTIONAL ||
+          trackGain.gaining.refinement != null ||
+          trackGain.gaining.complement ||
+          (trackGain.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val track =
+      describers.fact(trackGain.gaining.className, ComponentDescriber::directChange)
+          as? ComponentDescriber.DirectChange.TrackTransfer ?: return null
+  val barrierRemoval = sequence.continuation as? Remove ?: return null
+  if (
+      (barrierRemoval.intensity != null && barrierRemoval.intensity != MANDATORY) ||
+          barrierRemoval.removing != barrierGain.gaining ||
+          (barrierRemoval.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val triggerExpression = (trackEffect.trigger as? OnGainOf)?.expression ?: return null
+  if (trackGain.gaining.arguments != triggerExpression.arguments) return null
+  val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
+  return completeSentence(
+      "when ${trigger.linearize()}, you may first increase that ${track.trackNoun} 1 step"
+  ) to 2
 }
 
 private fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
@@ -344,13 +416,24 @@ private fun renderResourcePaymentValue(effect: Effect, describers: Describers): 
 private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
   val events =
       when (trigger) {
-        is Trigger.Or -> trigger.triggers.map { renderEvent(it) ?: return null }
-        else -> listOf(renderEvent(trigger) ?: return null)
+        is Trigger.Or -> trigger.triggers.map { renderTriggerClause(it) ?: return null }
+        else -> listOf(renderTriggerClause(trigger) ?: return null)
       }
-  val clauses = events.map { it.renderTrigger() ?: return null }
-  if (clauses.size == 1) return clauses.single()
-  return coordinateClauseObjects(clauses, Conjunction.OR)
-      ?: Clause.Coordinated(Coordination(clauses, Conjunction.OR))
+  if (events.size == 1) return events.single()
+  return coordinateClauseObjects(events, Conjunction.OR)
+      ?: Clause.Coordinated(Coordination(events, Conjunction.OR))
+}
+
+private fun Describers.renderTriggerClause(trigger: Trigger): Clause.Simple? =
+    renderOperationTrigger(trigger) ?: renderEvent(trigger)?.renderTrigger()
+
+private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? {
+  val expression = (trigger as? OnGainOf)?.expression ?: return null
+  if (expression.refinement != null || expression.complement) return null
+  val operation =
+      fact(expression.className, ComponentDescriber::directChange)
+          as? ComponentDescriber.DirectChange.Operation ?: return null
+  return eventTrigger(subject = NounPhrase.text("you"), verb = operation.verb)
 }
 
 private fun Describers.renderSpentResource(trigger: Trigger): String? {
@@ -422,7 +505,6 @@ private enum class EventKind(
     private val passiveModifier: String? = null,
 ) {
   PLAY(activeVerb = "play", passiveVerb = "is played"),
-  PERFORM_OPERATION(activeVerb = ""),
   BUY(activeVerb = "buy"),
   USE_ACTION(activeVerb = "use"),
   PLACE(activeVerb = "place", passiveVerb = "is placed"),
@@ -492,11 +574,6 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.complement) return null
-  fact(expression.className, ComponentDescriber::operationTrigger)?.let {
-    if (expression.refinement == null && expression.arguments.all(Expression::simple)) {
-      return Event(EventKind.PERFORM_OPERATION, EventActor.YOU, it)
-    }
-  }
   relationshipEvent(expression, EventActor.YOU)?.let {
     return it
   }
@@ -760,9 +837,13 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
   return "${if (penalty) "-" else ""}$count ${if (count == 1) score.singular else score.plural}"
 }
 
-private fun renderTriggeredInstructions(effect: Effect, describers: Describers): String? {
+private fun renderTriggeredInstructions(
+    effect: Effect,
+    describers: Describers,
+    drawFilter: ClassName?,
+): String? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
-  val result = renderInstructions(effect.instruction, describers = describers) ?: return null
+  val result = renderInstructions(effect.instruction, describers, drawFilter) ?: return null
   return completeSentence("when ${trigger.linearize()}, ${result.asCoordinatedClause()}")
 }
 

@@ -392,10 +392,8 @@ CLASS Payment<Class<HasActions>> : Owned<Player>, Barrier {
 "Signals that a specific payment has been completed"
 CLASS CostPaid<Class<HasActions>> : Owned<Player>, Signal
 
-"Cards like Indentured Workers leave this in play until the next card-play"
-ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
-  PlayCard:: -This!
-}
+"A card-owned adjustment that remains in play until the next card-play"
+ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational
 
 // PHASES
 
