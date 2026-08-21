@@ -44,14 +44,16 @@ class BugsTest : CardTest() {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<ConvertHeatSA>")
+      doTask("8 Pay<Class<Heat>> FROM Heat")
       doTask("UseAction1<AquiferSP>")
+      doTask("18 Pay<Class<Megacredit>> FROM Megacredit")
       doTask("OceanTile<Tharsis_5_5>")
     }
   }
 
   // Solar Probe should count its own science tag and draw one card for all three tags.
   @Test
-  fun `Solar Probe incorrectly loses its card draw during normal play`() {
+  fun `Solar Probe incorrectly draws no card during normal play`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     engine.phase("Action")
     p1.manual("9, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
@@ -60,7 +62,7 @@ class BugsTest : CardTest() {
   }
 
   @Test
-  fun `stealing zero is incorrectly permitted, and even avoids Mons Insurance compensation`() {
+  fun `Stealing zero is incorrectly allowed and prevents Mons Insurance compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$MonsInsurance, 10 Megacredit")

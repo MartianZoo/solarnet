@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class MiningAreaTest : CardTest() {
   @Test
-  fun `with a steel area adjacent, plays Mining Area`() {
+  fun `Can be placed adjacent to a steel area`() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     p1.manual("$MiningArea") {
@@ -20,7 +20,7 @@ class MiningAreaTest : CardTest() {
   }
 
   @Test
-  fun `with a titanium area adjacent, plays Mining Area`() {
+  fun `Can be placed adjacent to a titanium area`() {
     newGame()
     p1.manual("CityTile<Tharsis_7_9>")
     p1.manual("$MiningArea") {
@@ -49,7 +49,7 @@ class MiningAreaTest : CardTest() {
   }
 
   @Test
-  fun `without an adjacent tile, tries to play Mining Area`() {
+  fun `Cannot be played without an adjacent owned tile`() {
     newGame()
     shouldThrow<DependencyException> {
       p1.manual("$MiningArea") { doTask("Card064_SpecialTile<Tharsis_1_1>") }
@@ -57,7 +57,7 @@ class MiningAreaTest : CardTest() {
   }
 
   @Test
-  fun `with a card-bonus area selected, tries to play Mining Area`() {
+  fun `Cannot select a card-bonus area`() {
     newGame()
     p1.manual("CityTile<Tharsis_2_1>")
     shouldThrow<NotNowException> {

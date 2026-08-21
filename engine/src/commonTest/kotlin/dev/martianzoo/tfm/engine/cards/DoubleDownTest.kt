@@ -18,13 +18,13 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `after Biosphere Support, plays Double Down`() {
+  fun `Can copy Biosphere Support`() {
     p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BiosphereSupport>") }
         .expect("PROD[-Megacredit, 0 Steel, 0 Titanium, 2 Plant, 0 Energy, 0 Heat]")
   }
 
   @Test
-  fun `without Martian Industries in play, tries to copy it using Double Down`() {
+  fun `Cannot copy an absent Prelude`() {
     p1.playPrelude(DoubleDown) {
       shouldThrow<DependencyException> { doTask("CopyPrelude<$MartianIndustries>") }
       abort()
@@ -32,7 +32,7 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `with Unmi Contractor owned by p2, tries to copy it using Double Down`() {
+  fun `Cannot copy another player's Prelude`() {
     requireP2().playPrelude(UnmiContractor)
     p1.playPrelude(DoubleDown) {
       shouldThrow<DependencyException> { doTask("CopyPrelude<$UnmiContractor>") }
@@ -41,7 +41,7 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `with Pharmacy Union in play, tries to copy it using Double Down`() {
+  fun `Cannot copy a corporation`() {
     p1.playPrelude(DoubleDown) {
       shouldThrow<NarrowingException> { doTask("CopyPrelude<$PharmacyUnion>") }
       abort()
@@ -49,7 +49,7 @@ class DoubleDownTest : CardTest() {
   }
 
   @Test
-  fun `while playing Double Down, tries to copy itself`() {
+  fun `Cannot copy itself`() {
     p1.playPrelude(DoubleDown) {
       shouldThrow<NarrowingException> { doTask("CopyPrelude<$DoubleDown>") }
       abort()

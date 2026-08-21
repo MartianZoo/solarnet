@@ -6,7 +6,7 @@ import kotlin.test.Test
 class OptimalAerobrakingTest : CardTest() {
 
   @Test
-  fun `with Optimal Aerobraking, plays an asteroid`() {
+  fun `Pays when its owner plays an asteroid event`() {
     newGame()
     engine.phase("Action")
     p1.manual("ProjectCard, $OptimalAerobraking, 14")

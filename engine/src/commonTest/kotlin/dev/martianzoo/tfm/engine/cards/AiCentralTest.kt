@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class AiCentralTest : CardTest() {
   @Test
-  fun `with its prerequisites, plays AI Central`() {
+  fun `Can be played with three science tags`() {
     newGame()
     engine.phase("Action")
     p1.manual(
@@ -19,7 +19,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `with AI Central, uses its action`() {
+  fun `Can use its action`() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], $AiCentral")
@@ -27,7 +27,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `after a generation, uses AI Central again`() {
+  fun `Can use its action again next generation`() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], $AiCentral")
@@ -37,7 +37,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `with two science tags, tries to play AI Central`() {
+  fun `Cannot be played with only two science tags`() {
     newGame()
     engine.phase("Action")
     p1.manual("21, ProjectCard, $SearchForLife, $InventorsGuild, PROD[Energy]")
@@ -45,7 +45,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `without energy production, tries to play AI Central`() {
+  fun `Cannot be played without energy production`() {
     newGame()
     engine.phase("Action")
     p1.manual("21, ProjectCard, $SearchForLife, $InventorsGuild, $DesignedMicroorganisms")
@@ -53,7 +53,7 @@ class AiCentralTest : CardTest() {
   }
 
   @Test
-  fun `after using AI Central, tries to use it again`() {
+  fun `Cannot use its action twice in one generation`() {
     newGame()
     engine.phase("Action")
     p1.manual("PROD[Energy], $AiCentral")

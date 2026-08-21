@@ -104,6 +104,20 @@
       "actions": [ "X Energy -> ProjectCard" ],
     },
 
+    // Kuiper Cooperative
+    {
+      "id": "XC10",
+      "deck": "CORPORATION",
+      "tags": [ "SpaceTag", "SpaceTag" ],
+      "resourceType": "Asteroid",
+      "immediate": "33, PROD[Titanium]",
+      "actions": [ "-> Asteroid<This> / SpaceTag" ],
+      "effects": [
+        "UseAction<AsteroidSP> OR UseAction<AquiferSP>: AcceptFromCard<This>",
+        "PayFromCard<This>:: -Owed"
+      ],
+    },
+
     // PolderTECH Dutch
     {
       "id": "XC11",
@@ -749,7 +763,8 @@
       "resourceType": "Graphene",
       "effects": [
         "ScienceTag<>: Graphene<This>",
-        "PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>: (-X Graphene<This>! THEN -4X Owed<Class<Megacredit>>.) OR Ok",
+        "PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>: AcceptFromCard<This>",
+        "PayFromCard<This>:: -4 Owed",
         "End: VictoryPoint"
       ],
     },

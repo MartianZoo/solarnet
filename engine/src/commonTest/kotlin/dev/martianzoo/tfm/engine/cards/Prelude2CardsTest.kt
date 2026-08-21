@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.Prelude2Expansion
+import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -45,7 +46,7 @@ class Prelude2CardsTest : CardTest() {
 
   @Test
   fun `Board of Directors remains in play and can play another prelude`() {
-    newGame(Prelude2Expansion)
+    newGame(Prelude2Expansion, PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("12, 2 PreludeCard")
     p1.playPrelude(BoardOfDirectors)
@@ -140,7 +141,7 @@ class Prelude2CardsTest : CardTest() {
 
   @Test
   fun `Suitable Infrastructure pays once for each action`() {
-    newGame(Prelude2Expansion)
+    newGame(Prelude2Expansion, PreludeExpansion)
     engine.phase("Prelude")
     p1.manual("$SuitableInfrastructure")
     val beforeTwoProductions = p1.count("Megacredit")
@@ -155,12 +156,14 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("NewTurn") {
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<PowerPlantSP>")
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
     }
     p1.count("Megacredit") shouldBe startingMoney - 9
 
     p1.manual("SecondAction") {
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<PowerPlantSP>")
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
     }
 
     p1.count("Megacredit") shouldBe startingMoney - 18

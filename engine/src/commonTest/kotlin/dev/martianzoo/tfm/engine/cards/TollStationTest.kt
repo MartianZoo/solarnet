@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class TollStationTest : CardTest() {
   @Test
-  fun `with opponent space tags, adds production for those tags`() {
+  fun `Counts opponents' space tags for its production gain`() {
     newGame()
     val p2 = requireP2()
     // Tags must be added with the cards they depend on.
@@ -16,7 +16,7 @@ class TollStationTest : CardTest() {
   }
 
   @Test
-  fun `with no opponent space tags, adds no production`() {
+  fun `Adds no production without an opponent's space tags`() {
     newGame()
 
     p1.manual("$TollStation").expect("PROD[0 Megacredit]")

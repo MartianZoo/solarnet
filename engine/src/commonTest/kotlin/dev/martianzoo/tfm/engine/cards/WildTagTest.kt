@@ -8,7 +8,25 @@ import kotlin.test.Test
 
 class WildTagTest : CardTest() {
   @Test
-  fun `temporary tags count normally without triggering printed-tag effects`() {
+  fun `Another player's earlier task does not change a wild tag offer's position`() {
+    newGame(PreludeExpansion)
+    val p2 = requireP2()
+    p1.manual("$ResearchCoordination")
+    engine.phase("Action")
+
+    val otherPlayerTask = p2.godMode().addTasks("UseAction<StandardAction>?").single()
+    p1.startTurn()
+
+    p1.stdAction("SellPatents") { abort() }
+
+    p2.godMode().dropTask(otherPlayerTask)
+    // The aborted synthetic action leaves its temporary holder; remove it before ending the test.
+    p1.godMode().manual("-WildTagUse<$ResearchCoordination>")
+    p1.count("WildTagUse") shouldBe 0
+  }
+
+  @Test
+  fun `Temporary tags count normally without triggering printed-tag effects`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     p1.manual(
         "$ResearchCoordination, $ResearchNetwork, $PointLuna, $MarsUniversity, 2 ProjectCard"
@@ -72,7 +90,7 @@ class WildTagTest : CardTest() {
   }
 
   @Test
-  fun `a per-tag production box counts the wild tag`() {
+  fun `A per-tag production box counts the wild tag`() {
     newGame(PreludeExpansion)
     p1.manual("2 PreludeCard")
     engine.phase("Prelude")

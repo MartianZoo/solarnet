@@ -8,14 +8,14 @@ import kotlin.test.Test
 
 class SkyDocksTest : ColoniesCardTest() {
   @Test
-  fun `with two Earth tags, plays Sky Docks`() {
+  fun `Can be played with two Earth tags`() {
     p1.manual("ProjectCard, 18, $LunaGovernor")
     p1.playProject(SkyDocks, 18).expect("TradeFleet")
     p1.assertCounts(2 to "TradeFleet")
   }
 
   @Test
-  fun `with Sky Docks, makes two trades`() {
+  fun `Allows a second trade in the same generation`() {
     p1.manual("$SkyDocks, 18")
     p1.stdAction("TradeSA", 1) { doTask("Trade<Luna>") }
     p1.stdAction("TradeSA", 1) { doTask("Trade<Triton>") }
@@ -23,7 +23,7 @@ class SkyDocksTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `with one Earth tag, tries to play Sky Docks`() {
+  fun `Cannot be played with only one Earth tag`() {
     p1.manual("ProjectCard, 18, $HeavyTaxation")
     shouldThrow<RequirementException> { p1.playProject(SkyDocks, 18) }
   }

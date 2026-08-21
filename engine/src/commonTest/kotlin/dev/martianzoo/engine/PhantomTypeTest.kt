@@ -67,7 +67,7 @@ internal class PhantomTypeTest {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS PhantomEffectProbe : AutoLoad {
+                      CLASS PhantomEffectProbe {
                         HAS =1 This
                         This: VenusTag?
                         This: VenusTag.

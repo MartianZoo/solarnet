@@ -185,6 +185,24 @@ class TransformersTest {
   }
 
   @Test
+  fun `specialization reaches a nested dependency when its containing class also specializes`() {
+    val general =
+        CanonClassesTest.table.resolve(
+            parse<Expression>("AcceptFromCard<Player1, ResourceCard<Player1, Class<CardResource>>>")
+        )
+    val specific =
+        CanonClassesTest.table.resolve(
+            parse<Expression>("AcceptFromCard<Player1, Card222<Player1>>")
+        )
+    val instruction = parse<Instruction>("CardResource<ResourceCard>")
+
+    transformers
+        .checkedSubstituter(general, specific)
+        .transformInstruction(instruction)
+        .toString() shouldBe "Floater<Card222>"
+  }
+
+  @Test
   fun `linkage specialization leaves an unlinked occurrence of the same class independent`() {
     val general =
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))

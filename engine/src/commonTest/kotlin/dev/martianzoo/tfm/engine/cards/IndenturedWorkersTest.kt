@@ -6,24 +6,24 @@ import kotlin.test.Test
 
 class IndenturedWorkersTest : CardTest() {
   @Test
-  fun `after Indentured Workers, plays a discounted card`() {
+  fun `Discounts the next card played`() {
     initializeGame("27, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     p1.playProject(Soletta, 27).expect("-27")
   }
 
   @Test
-  fun `after other actions, uses the Indentured Workers discount`() {
+  fun `Keeps its discount available through other actions`() {
     initializeGame("39, 4 ProjectCard, 8 Heat")
     p1.playProject(IndenturedWorkers, 0)
     p1.stdProject("AsteroidSP")
-    p1.stdAction("ConvertHeatSA")
+    p1.convertHeat()
     p1.sellPatents(2)
     p1.playProject(Soletta, 27).expect("-27")
   }
 
   @Test
-  fun `after using the Indentured Workers discount, plays another card`() {
+  fun `Discounts only one card`() {
     initializeGame("36, 3 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     p1.playProject(Soletta, 27)
@@ -31,7 +31,7 @@ class IndenturedWorkersTest : CardTest() {
   }
 
   @Test
-  fun `after the generation ends, plays a card after Indentured Workers`() {
+  fun `Expires at the end of the generation`() {
     initializeGame("35, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     engine.manual("Generation")

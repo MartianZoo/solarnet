@@ -7,8 +7,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * Unresolved user intent expressed as positive and negative class-name spellings, plus concrete
  * user-facing player names in seat order.
  *
- * An Authority applies defaults, implications, selection policies, and validation to cook this into
- * a complete [GamePremise].
+ * An Authority applies defaults, selection policies, and validation to cook this into a complete
+ * [GamePremise].
  */
 public data class GameConfig(
     public val includedClassNames: Set<ClassName>,

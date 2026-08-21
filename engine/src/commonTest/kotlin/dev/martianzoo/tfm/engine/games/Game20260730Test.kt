@@ -86,7 +86,7 @@ class Game20260730Test : AbstractSoloTest() {
       nextRound("VenusStep", 2)
 
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA").expect("TR")
+      convertHeat().expect("TR")
       // Player1 used Titan Shuttles action
       cardAction1(TitanShuttles) {
         // Player1 added 2 Floater(s) to Titan Shuttles
@@ -106,7 +106,7 @@ class Game20260730Test : AbstractSoloTest() {
       nextRound("VenusStep", 1)
 
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 played Cryo-Sleep
       playProject(CryoSleep, 10)
       // Player1 spent 2 energy to trade with Ceres
@@ -137,7 +137,7 @@ class Game20260730Test : AbstractSoloTest() {
 
       // Player1 used Convert Heat standard action
       // Player1 gained 1 heat production
-      stdAction("ConvertHeatSA").expect("-8 H, PROD[H]")
+      convertHeat().expect("-8 H, PROD[H]")
       // Player1 used Titan Shuttles action
       cardAction2(TitanShuttles) {
         // Player1 removed 8 resource(s) from Player1's Titan Shuttles
@@ -170,7 +170,7 @@ class Game20260730Test : AbstractSoloTest() {
       nextRound("OceanTile<Tharsis_6_9>", 1)
 
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
       cardAction1(ElectroCatapult) { doTask("-Plant") }
@@ -255,8 +255,8 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 used Convert Heat standard action
       // Player1 gained 1 heat production
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       // Player1 played Spin-off Department
       // Player1 gained 2 M€ production
       playProject(SpinOffDepartment, 4, steel = 2)
@@ -301,7 +301,7 @@ class Game20260730Test : AbstractSoloTest() {
           }
           .expect("TR")
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
       cardAction1(ElectroCatapult) { doTask("-Plant") }
@@ -335,7 +335,7 @@ class Game20260730Test : AbstractSoloTest() {
       // You drew Interplanetary Trade
       cardAction1(DevelopmentCenter)
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Electro Catapult action
       // Player1 gained 7 M€
       cardAction1(ElectroCatapult) { doTask("-Steel") }
@@ -515,7 +515,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 removed an asteroid resource to increase Venus scale 1 step
       cardAction2(RotatorImpacts)
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Titan Shuttles action
       // Player1 added 2 Floater(s) to Titan Shuttles
       cardAction1(TitanShuttles) { doTask("2 Floater<$TitanShuttles>") }
@@ -606,7 +606,7 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed ocean tile at 34
       // Player1 gained 2 plants
       // Player1 gained 4 M€ from 2 ocean(s)
-      stdAction("ConvertHeatSA") { doTask("OceanTile<Tharsis_5_6>") }
+      convertHeat() { doTask("OceanTile<Tharsis_5_6>") }
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile at 35
       // Player1 gained 2 plants
@@ -628,8 +628,8 @@ class Game20260730Test : AbstractSoloTest() {
       stdAction("TradeSA", 2) { doTask("Trade<Io>") }
       // Player1 used Convert Heat standard action
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
-      stdAction("ConvertHeatSA")
+      convertHeat()
+      convertHeat()
       // Player1 played Titan Floating Launch-pad
       // Player1 added 2 Floater(s) to Titan Shuttles
       playProject(TitanFloatingLaunchPad, 18) {

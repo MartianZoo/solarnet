@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class CuttingEdgeTechnologyTest : CardTest() {
   @Test
-  fun `with Cutting Edge Technology, plays cards with and without requirements`() {
+  fun `Discounts cards with and without requirements`() {
     newGame(VenusNextExpansion, PromoCardPack)
     engine.phase("Action")
     p1.manual(

@@ -279,7 +279,7 @@ class Game20260818Test : AbstractFullGameTest() {
       // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
       // production."
       playProject(Potatoes, 0) {
-            doTask("-Microbe<$Psychrophiles> THEN -2 Owed<Class<Megacredit>>")
+            doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
           }
           .expect("-Microbe, -2 P, PROD[2 M]")
     }
@@ -405,8 +405,8 @@ class Game20260818Test : AbstractFullGameTest() {
 
     ellie.turn {
       // Ellie's ledger records two eight-heat conversions after Big Asteroid.
-      stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, TR")
-      stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, PROD[H], TR")
+      convertHeat().expect("-8 H, TemperatureStep, TR")
+      convertHeat().expect("-8 H, TemperatureStep, PROD[H], TR")
     }
 
     dad.turn {
@@ -444,7 +444,7 @@ class Game20260818Test : AbstractFullGameTest() {
 
     ellie.pass()
     dad.turn {
-      stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, TR")
+      convertHeat().expect("-8 H, TemperatureStep, TR")
       pass()
     }
 
@@ -528,7 +528,7 @@ class Game20260818Test : AbstractFullGameTest() {
     }
     ellie.turn {
       // "Before I forget, I will heat boop."
-      stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, TR")
+      convertHeat().expect("-8 H, TemperatureStep, TR")
     }
     dad.turn {
       // "Use Energy Market to spend my last two money to get one energy resource."
@@ -698,7 +698,7 @@ class Game20260818Test : AbstractFullGameTest() {
       cardAction2(AsteroidRights) { doTask("PROD[Megacredit]") }.expect("-Asteroid, PROD[M]")
     }
 
-    ellie.turn { stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, TR") }
+    ellie.turn { convertHeat().expect("-8 H, TemperatureStep, TR") }
 
     dad.turn {
       // Dad: "I'll take the Martian Zoo action to take three money."
@@ -834,7 +834,7 @@ class Game20260818Test : AbstractFullGameTest() {
       cardAction2(EnergyMarket).expect("PROD[-E], 8")
     }
 
-    ellie.turn { stdAction("ConvertHeatSA").expect("-8 H, TemperatureStep, TR") }
+    ellie.turn { convertHeat().expect("-8 H, TemperatureStep, TR") }
 
     dad.turn {
       // Dad: "I lose two steel and I get four money back. All right, so in the end what happened is

@@ -6,6 +6,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 - Introduce a real `EventTag` for the printed event icon, then remove Sagitta Frontier Services'
   temporary `NonEventCard` / `EventCard` partition.
+- Let a game include Valley Trust and the Prelude-card pool without selecting `PreludeExpansion`;
+  `PreludeCard` must be drawable and playable while `PreludePhase` remains absent.
 - Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
   the ordinary unspecialized type name instead of an unresolved argument list.
 - Replace the `English` card-text data-file fallback incrementally with derivation from Pets
@@ -21,7 +23,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   extending `CardFront<Class<ProjectCard>>`, so the front-to-back relationship is represented in
   the type model and may subsume the separate deck check.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
-- Make Modules enumerate the AutoLoad Classes they require instead of implicitly activating every AutoLoad Class in their selected bundle content.
+- Let Modules directly own the protocol Classes currently kept active by compatibility Trigger
+  roots, then delete that compatibility activation edge.
 - After the first projection-policy change in
   [`docs/agents/OPTIONS.md`](docs/agents/OPTIONS.md#settled-projection-policy-direction) is coherent,
   extend premise viability beyond exact uninhabited-domain facts; Law Suit in solo is the canonical
@@ -88,7 +91,7 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54) — Resolve contextual ownership correctly and display the resolved player.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
 - Model Prelude plays as explicit first and second turns.
-- Rewrite removals as payments, covering standard projects and Kuiper Cooperative, Stormcraft, Water Import from Europa, and similar mechanics.
+- Derive `Owed` / `Payment` / `CostPaid` flows automatically from paid action instructions before applying that protocol to Water Import from Europa and similar cards; rewrite the resource removals needed before enabling Helion or Stormcraft.
 - Rethink task selection holistically; queue order has no domain meaning, so require an id or explicit match unless exactly one task applies.
 - Rethink autoexec as a coherent project: distinguish expected domain failures from defects and simplify `autoExecNext`.
 - Separate Authority data from premise resolution, and split `TfmAuthority`'s generic declaration aggregation/validation into `Authority` from the Terraforming Mars registries in `TfmAuthority`.

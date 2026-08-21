@@ -1,5 +1,7 @@
 "Adds official promotional project, corporation, and prelude cards"
-CLASS PromoCardPack : Module
+CLASS PromoCardPack : Module {
+  HAS =1 Class<ResourceRemovalWatcher>, =1 Class<ProductionDecreaseWatcher>
+}
 
 "Chooses to use Neptunian Power Consultants after an ocean is placed"
 CLASS NeptunianOption : Owned, Signal
@@ -14,12 +16,12 @@ CLASS MyResourceWasRemoved<Class<Resource>, Player> : Owned<Anyone>, Generationa
 // specializing the complemented !Player binding used by the watcher below.
 CLASS MyProductionWasDecreased<Class<StandardResource>, Player> : Owned<Anyone>, Generational, Hidden
 
-CLASS ResourceRemovalWatcher<Class<Resource>> : System, AutoLoad {
+CLASS ResourceRemovalWatcher<Class<Resource>> : System {
   HAS =1 This
   -X Resource<!Player> BY Player:: MyResourceWasRemoved<!Player, Class<Resource>, Player>.
 }
 
-CLASS ProductionDecreaseWatcher<Class<StandardResource>> : System, AutoLoad {
+CLASS ProductionDecreaseWatcher<Class<StandardResource>> : System {
   HAS =1 This
   -X Production<!Player, Class<StandardResource>> BY Player:: MyProductionWasDecreased<!Player, Class<StandardResource>, Player>.
 }

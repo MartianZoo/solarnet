@@ -224,7 +224,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           doTask("Card128_SpecialTile<Hellas_1_3>")
         }
         .expect("3 H, 2 Animal, 2 P")
-    mom.stdAction("ConvertHeatSA").expect("TR")
+    mom.convertHeat().expect("TR")
     // (Ellie already passed early)
     ellie.pass()
     mom.pass()
@@ -249,7 +249,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         }
         .expect("S, TR")
 
-    ellie.stdAction("ConvertHeatSA").expect("PROD[H], TR")
+    ellie.convertHeat().expect("PROD[H], TR")
     ellie
         .playProject(PublicPlans, 5) {
           doTask("6")
@@ -329,7 +329,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     mom.cardAction1(Psychrophiles).expect("Microbe")
     mom.stdProject("PowerPlantSP").expect("PROD[E]")
 
-    ellie.stdAction("ConvertHeatSA").expect("TR")
+    ellie.convertHeat().expect("TR")
     ellie.cardAction2(DirectedImpactors).expect("-Asteroid, TemperatureStep, PROD[H], TR")
 
     dad.playProject(WeatherBalloons, 11) { dad.draw(JovianEmbassy) }
@@ -355,7 +355,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.declineSecondAction()
 
     dad.playProject(CallistoPenalMines, titanium = 6).expect("PROD[3 M]")
-    dad.stdAction("ConvertHeatSA").expect("TR")
+    dad.convertHeat().expect("TR")
 
     // (Mom already passed early)
     mom.pass()
@@ -389,7 +389,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     mom.stdAction("ClaimMilestoneSA") { doTask("Trader") }
     mom.playProject(ProtectedValley, 9, steel = 5) {
-          doTask("-2 Microbe<$Psychrophiles> THEN -4 Owed<Class<Megacredit>>")
+          doTask("2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
           doTask("GreeneryTile<Hellas_1_1>")
         }
         .expect("PROD[2 M], 3 H, Animal, TR, 2 P, -7")
@@ -408,13 +408,13 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
     dad.playProject(Hackers, 3) { doTask("PROD[-2 M<Player2>]") }.expect("PROD[2 M, -E]")
 
-    mom.stdAction("ConvertHeatSA").expect("TR")
+    mom.convertHeat().expect("TR")
     mom.stdProject("AquiferSP") {
           doTask("OceanTile<Hellas_4_7>")
         }
         .expect("TR, P")
 
-    ellie.stdAction("ConvertHeatSA").expect("TR")
+    ellie.convertHeat().expect("TR")
     ellie.cardAction1(RobinsonIndustries) { doTask("PROD[P]") }
 
     // NOPE: missed my chance and didn't even realize it!
@@ -478,7 +478,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         }
         .expect("-2 T, -3 P<Player3>")
     dad.stdProject("AsteroidSP").expect("TR")
-    dad.stdAction("ConvertHeatSA") {
+    dad.convertHeat() {
           doTask("OceanTile<Hellas_3_1>")
         }
         .expect("2 TR, P, 2")
@@ -489,8 +489,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
           doTask("4 Microbe<$Recyclon>")
         }
         .expect("4 P")
-    ellie.stdAction("ConvertHeatSA")
-    ellie.stdAction("ConvertHeatSA")
+    ellie.convertHeat()
+    ellie.convertHeat()
 
     dad.playProject(SterlingVents, 1, steel = 2).expect("PROD[2 E, -2 H]")
     dad.playProject(Algae, 10).expect("PROD[2 P], 2 P")
@@ -531,7 +531,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.buyCards(ConvoyFromEuropa, VestaShipyard, LakeMarineris)
     dad.buyCards(InventorsGuild, CometAiming, EquatorialMagnetizer)
     mom.buyCards(EnergyTapping, InventionContest, FieldCappedCity)
-    ellie.stdAction("ConvertHeatSA")
+    ellie.convertHeat()
     ellie.cardAction2(DirectedImpactors).expect("-Asteroid, TemperatureStep, TR")
     dad.cardAction1(Ants) {
           doTask("-Microbe<Player1, $Recyclon<Player1>>")
@@ -672,7 +672,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.sellPatents(FusionPower)
 
     mom.playProject(AdaptedLichen, 3) {
-          doTask("-3 Microbe<$Psychrophiles> THEN -6 Owed<Class<Megacredit>>")
+          doTask("3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
         }
         .expect("PROD[P], 3 H, Animal")
     mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }

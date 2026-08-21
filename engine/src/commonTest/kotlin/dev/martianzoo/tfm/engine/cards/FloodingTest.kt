@@ -9,18 +9,18 @@ import kotlin.test.Test
 
 class FloodingTest : CardTest() {
   @Test
-  fun `can charge either neighboring owner`() {
+  fun `Can charge either neighboring owner`() {
     playFlooding("Player2", "-4 Megacredit<Player2>")
     playFlooding("Player3", "-4 Megacredit<Player3>")
   }
 
   @Test
-  fun `can charge no one`() {
+  fun `Can charge no one`() {
     playFlooding(null, null)
   }
 
   @Test
-  fun `cannot charge a non-neighboring owner`() {
+  fun `Cannot charge a non-neighboring owner`() {
     arrangeFlooding()
     p1.playProject(Flooding, 7) {
       shouldThrow<NarrowingException> {

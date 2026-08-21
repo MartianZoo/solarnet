@@ -8,7 +8,7 @@ import kotlin.test.Test
 class EnergyTappingTest : CardTest() {
   // With no other energy-production target, the increase makes the decrease executable.
   @Test
-  fun `with Manutech, adds Energy Tapping`() {
+  fun `Can be played when Manutech offsets its production loss`() {
     newGame(VenusNextExpansion)
     p1.manual("$Manutech")
     p1.manual("$EnergyTapping").expect("Energy")

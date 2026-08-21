@@ -45,7 +45,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
               paymentTask(currency) == prepared
             }
             ordered.forEach { (_, instruction) ->
-              repl.gameplay.tryTask(instruction)
+              repl.gameplay.doTask(instruction)
             }
             dismissUnusedAcceptsWhilePaused()
           } finally {

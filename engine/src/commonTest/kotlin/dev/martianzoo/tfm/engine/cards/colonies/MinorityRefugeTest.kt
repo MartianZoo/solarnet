@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class MinorityRefugeTest : ColoniesCardTest() {
   @Test
-  fun `at minimum megacredit production, tries to place its colony on Io`() {
+  fun `Cannot place its colony on Io at minimum megacredit production`() {
     initializeCard()
     p1.playProject(MinorityRefuge, 5) {
       shouldThrow<LimitsException> { doTask("Colony<Io>") }
@@ -18,7 +18,7 @@ class MinorityRefugeTest : ColoniesCardTest() {
   }
 
   @Test
-  fun `at minimum megacredit production, tries to place its colony on Triton`() {
+  fun `Cannot place its colony on Triton at minimum megacredit production`() {
     initializeCard()
     p1.playProject(MinorityRefuge, 5) {
       shouldThrow<LimitsException> { doTask("Colony<Triton>") }

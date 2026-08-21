@@ -106,15 +106,28 @@ public class TfmGameplay(
 
   public fun convertPlants(body: BodyLambda = {}): TaskResult {
     return stdAction("ConvertPlantsSA") {
-      val plantsOwed = this@TfmGameplay.count("Owed<Class<Plant>>")
-      doTask("$plantsOwed Pay<Class<Plant>> FROM Plant")
+      doTask("Pay<Class<Plant>> FROM Plant / Owed<Class<Plant>>")
       body()
     }
   }
 
-  public fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
+  public fun convertHeat(body: BodyLambda = {}): TaskResult {
+    return stdAction("ConvertHeatSA") {
+      doTask("Pay<Class<Heat>> FROM Heat / Owed<Class<Heat>>")
+      body()
+    }
+  }
+
+  public fun stdProject(
+      stdProject: String,
+      payment: BodyLambda = {
+        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+      },
+      body: BodyLambda = {},
+  ): TaskResult {
     return stdAction("UseStandardProjectSA") {
       doTask("UseAction1<$stdProject>")
+      payment()
       body()
     }
   }
@@ -156,6 +169,7 @@ public class TfmGameplay(
       declineWildTagOffers()
       body()
       autoExecNow()
+      declineWildTagOffers()
       removeWildTagUses()
     }
   }
@@ -165,10 +179,10 @@ public class TfmGameplay(
       val offer =
           game.tasks
               .extract { it }
+              .filter { it.assignee == actor }
               .withIndex()
-              .firstOrNull { (_, task) ->
-                task.assignee == actor && task.cause?.context?.className == cn("WildTagUse")
-              } ?: return
+              .firstOrNull { (_, task) -> task.cause?.context?.className == cn("WildTagUse") }
+              ?: return
       doTask("Ok", offer.index + 1)
     }
   }

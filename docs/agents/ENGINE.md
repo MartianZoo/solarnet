@@ -17,18 +17,31 @@ A live Game World is a `World` containing:
 | `ClassTable` | The closed vocabulary and type relationships |
 | Actor-scoped `Gameplay` | The supported mutation/query facade |
 
-`GameConfig` is unresolved user intent. Authority-specific resolution applies defaults,
-implications, selection policy, and validation to produce an immutable `GamePremise`. The premise
+`GameConfig` is unresolved user intent. Authority-specific resolution applies defaults, selection
+policy, and validation to produce an immutable `GamePremise`. The premise
 contains one Authority, selected Modules, signed class selections, seat-ordered display names, and
 exact non-singleton types to create once. See [OPTIONS.md](OPTIONS.md).
 
 Each Authority owns one validated master `ClassTable`. A game's table projects it: selected Classes
 are active and every other Authority-known Class is uninhabited. Occupied seats activate canonical
-`Player1` through `PlayerN`; configured player names are Vocabulary aliases.
+`Player1` through `PlayerN`; configured player names are Vocabulary aliases. Every premise Actor is
+an explicit projection root. Trigger protocols with inhabited arguments currently remain activation
+edges because external workflow creates signals such as `NewTurn`, concrete `UseAction` Types, and
+`SoloVictoryCheck`; Module ownership should eventually replace that compatibility rule.
+
+Module defaults and premise requirements are authored as Requirement-valued Pets properties. The
+Authority resolves defaults to a fixed point; the engine checks each selected Module's premise
+requirement and configuration-facing invariants against the resolved projection before creating the
+World.
 
 `Engine.newGame(premise)` wires the World, creates `Engine` and singleton components, marks
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.
 Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful operation.
+
+In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
+selected data families, Class representatives, and generic specialization fanout. A concrete
+component introduced by a live Module is instead created by that Module's effect and ordinarily has
+a maximum-one invariant; its event history then records the Module as its cause.
 
 ## Component graph
 

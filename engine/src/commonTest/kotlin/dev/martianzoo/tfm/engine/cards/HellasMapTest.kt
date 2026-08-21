@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 class HellasMapTest : CardTest() {
   @Test
-  fun `an unaffordable south pole remains a structurally available adjacent greenery area`() {
+  fun `An unaffordable south pole remains a structurally available adjacent greenery area`() {
     newGame(HellasMapOption)
     val p2 = requireP2()
     engine.phase("Action")
@@ -25,7 +25,7 @@ class HellasMapTest : CardTest() {
   }
 
   @Test
-  fun `ocean income from the south pole bonus can fund its payment`() {
+  fun `Ocean income from the south pole bonus can fund its payment`() {
     newGame(HellasMapOption, TurmoilCardPack)
     engine.phase("Action")
     p1.manual("$LakefrontResorts")

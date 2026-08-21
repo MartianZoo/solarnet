@@ -1,11 +1,16 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.types.ClassTable
 
@@ -105,12 +110,18 @@ public object Engine {
         }
       }
 
-      fun countActiveClasses(metric: Metric): Int {
-        require(metric is Count) { "bootstrap validation must count classes: $metric" }
-        require(metric.expression.simple) {
-          "bootstrap validation must count a simple class: $metric"
+      fun countActiveClasses(count: Count): Int {
+        if (count.expression.className == CLASS) {
+          val representedClass = count.expression.arguments.singleOrNull()
+          require(representedClass?.simple == true) {
+            "Module Class invariants must name one simple Class: $count"
+          }
+          return if (classTable.isActive(representedClass.className)) 1 else 0
         }
-        val type = classTable.findActiveClass(metric.expression.className)?.baseType ?: return 0
+        require(count.expression.simple) {
+          "Module invariants must count a simple class: $count"
+        }
+        val type = classTable.findActiveClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
           !klass.abstract &&
               klass.baseType.isSubtypeOf(type) &&
@@ -121,11 +132,31 @@ public object Engine {
         }
       }
 
-      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::countActiveClasses)
+      fun evaluateActiveClasses(metric: Metric): Int =
+          metric.evaluate(
+              ::countActiveClasses,
+              { property -> error("Module premise metrics cannot read properties: $property") },
+              { union -> error("Module premise metrics cannot use OR: $union") },
+          )
 
-      premise.authority.bootstrapValidations.forEach { alternatives ->
-        require(alternatives.any(::holds)) {
-          "game premise fails bootstrap validation: ${alternatives.joinToString(" OR ")}"
+      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)
+
+      premise.modules
+          .flatMap { moduleName -> classTable.getClass(moduleName).invariants() }
+          .filter { requirement ->
+            THIS !in requirement.descendantsOfType<ClassName>()
+          }
+          .forEach { requirement ->
+            require(holds(requirement)) {
+              "game premise fails Module invariant: $requirement"
+            }
+          }
+
+      premise.modules.forEach { moduleName ->
+        val property = classTable.getClass(moduleName).properties[PREMISE_REQUIREMENT]
+        val requirement = (property as? RequirementValue)?.value ?: return@forEach
+        require(holds(requirement)) {
+          "game premise fails $moduleName requirement: $requirement"
         }
       }
     }

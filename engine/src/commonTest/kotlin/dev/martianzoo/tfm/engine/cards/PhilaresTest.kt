@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 class PhilaresTest : CardTest() {
   @Test
-  fun `with Philares owned by p2, p1 places an adjacent greenery`() {
+  fun `Pays its owner when an opponent places an adjacent greenery`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares, GreeneryTile<Tharsis_3_2>")
@@ -20,7 +20,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `with Philares owned by p2, p1 creates adjacency`() {
+  fun `Pays its owner when an opponent creates an adjacency`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares")
@@ -29,7 +29,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `with Philares owned by p1 and a p2 tile, p1 creates adjacency`() {
+  fun `Pays its owner for creating adjacency to an opponent's tile`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.manual("$Philares")
@@ -39,7 +39,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `with Philares owned by p2, p1 joins two p1 tiles`() {
+  fun `Does not pay when an opponent joins two of their own tiles`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p2.manual("$Philares")
@@ -49,7 +49,7 @@ class PhilaresTest : CardTest() {
   }
 
   @Test
-  fun `with Philares and an own tile, p1 places an adjacent greenery`() {
+  fun `Does not pay its owner for adjacency to their own tile`() {
     newGame(PromoCardPack)
     p1.manual("$Philares")
     p1.manual("23")

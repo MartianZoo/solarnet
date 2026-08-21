@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class CommunityServicesTest : CardTest() {
   @Test
-  fun `with three tagless cards, adds Community Services`() {
+  fun `Can be played with three tagless cards`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
     p1.manual("$Airliners") { doTask("2 Floater<$AtmoCollectors>") }

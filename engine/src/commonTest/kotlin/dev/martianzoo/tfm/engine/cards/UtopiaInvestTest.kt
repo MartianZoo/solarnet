@@ -14,7 +14,7 @@ class UtopiaInvestTest : CardTest() {
   }
 
   @Test
-  fun `decreases and gains the same standard resource`() {
+  fun `Decreases and gains the same standard resource`() {
     p1.manual("PROD[2 Plant]")
 
     p1.cardAction1(UtopiaInvest) { doTask("PROD[-Plant]") }.expect("PROD[-Plant], 4 Plant")

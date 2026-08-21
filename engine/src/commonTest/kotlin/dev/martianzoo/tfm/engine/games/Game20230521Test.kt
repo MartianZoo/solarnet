@@ -403,7 +403,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Convert Heat standard action
     p1.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Asteroid:SP standard project
       // Player1's heat production increased by 1
       stdProject("AsteroidSP")
@@ -457,7 +457,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Convert Heat standard action
     p1.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 played Small Asteroid
       // Player1's heat production increased by 1
       // Player1's megacredits amount increased by 3 by Optimal Aerobraking
@@ -538,7 +538,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Convert Heat standard action
     p2.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
 
       // Player2 used Aquifer Pumping action
       // Player2 placed ocean tile on row 1 position 4
@@ -679,12 +679,12 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Convert Heat standard action
     p2.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
     }
 
     // Player1 used Convert Heat standard action
     p1.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Deuterium Export action
       cardAction1(DeuteriumExport)
     }
@@ -831,7 +831,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Convert Heat standard action
     p1.turn {
-      stdAction("ConvertHeatSA").expect("-8H, TemperatureStep, TR")
+      convertHeat().expect("-8H, TemperatureStep, TR")
       // Player1 played Stratospheric Birds
       // Player1 removed 1 resource(s) from Player1's Deuterium Export
       playProject(StratosphericBirds, 12).expect("-Floater<$DeuteriumExport>")
@@ -957,7 +957,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player2 used Convert Heat standard action
     p2.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 8 position 3
       // Player2 drew 1 card(s)
@@ -987,7 +987,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Convert Heat standard action
     p1.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Convert Plants standard action
       convertPlants {
         // Player1 placed greenery tile on row 3 position 5
@@ -1069,9 +1069,9 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 used Convert Heat standard action
     p1.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
     }
 
     // Player2 used Aquifer Pumping action
@@ -1286,12 +1286,12 @@ class Game20230521Test : AbstractFullGameTest() {
         doTask("2 Steel<Player2> FROM Steel<Player1>")
       }
       // Player2 used Convert Heat standard action
-      stdAction("ConvertHeatSA")
+      convertHeat()
     }
 
     // Player1 used Convert Heat standard action
     p1.turn {
-      stdAction("ConvertHeatSA")
+      convertHeat()
       // Player1 used City standard project
       stdProject("CitySP") {
         // Player1 placed city tile on row 7 position 4

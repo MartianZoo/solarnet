@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 class MarsUniversityTest : CardTest() {
   @Test
-  fun `two tag effects can discard twice before drawing twice`() {
+  fun `Two tag effects can discard twice before drawing twice`() {
     newGame(CorporateEraExpansion)
     p1.manual("5 ProjectCard, $MarsUniversity") { doTask("Ok") }
     val manual = p1.godMode().also { it.autoExecMode = NONE }
@@ -24,7 +24,7 @@ class MarsUniversityTest : CardTest() {
   }
 
   @Test
-  fun `two tag effects can each draw before the next discard`() {
+  fun `Two tag effects can each draw before the next discard`() {
     newGame(CorporateEraExpansion)
     p1.manual("5 ProjectCard, $MarsUniversity") { doTask("Ok") }
     val manual = p1.godMode().also { it.autoExecMode = NONE }

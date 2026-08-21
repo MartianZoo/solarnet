@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class RequirementAdjustmentCardsTest : CardTest() {
   @Test
-  fun `a satisfied printed requirement bypasses adjustment debt`() {
+  fun `A satisfied printed requirement bypasses adjustment debt`() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")
@@ -43,7 +43,7 @@ class RequirementAdjustmentCardsTest : CardTest() {
   }
 
   @Test
-  fun `requirement adjustments stack and Special Design expires on the next card`() {
+  fun `Requirement adjustments stack and Special Design expires on the next card`() {
     newGame()
     p1.playCorp(Inventrix, 0)
     engine.phase("Action")

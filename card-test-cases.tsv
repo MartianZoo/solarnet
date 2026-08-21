@@ -1,0 +1,353 @@
+Class name	Method name	Line number
+AdvertisingTest	Triggers on a 20-cost card but not a 19-cost card	11
+AiCentralTest	Can be played with three science tags	12
+AiCentralTest	Can use its action	22
+AiCentralTest	Can use its action again next generation	30
+AiCentralTest	Cannot be played with only two science tags	40
+AiCentralTest	Cannot be played without energy production	48
+AiCentralTest	Cannot use its action twice in one generation	56
+AirScrappingExpeditionTest	Can add floaters to another floater card	22
+AirScrappingExpeditionTest	Cannot add more floaters than the target card can hold	29
+AphroditeTest	Triggers when an opponent raises Venus	9
+ArcticAlgaeTest	Triggers when an opponent places an ocean	13
+ArcticAlgaeTest	Can resolve ocean placements and Arctic Algae before removing plants	21
+ArcticAlgaeTest	Can remove plants before resolving ocean placements and Arctic Algae	45
+ArtificialLakeTest	Cannot be played when every land area is occupied	20
+ArtificialLakeTest	Can be played with eight oceans	32
+ArtificialLakeTest	Can be played with nine oceans without placing another ocean	38
+ArtificialLakeTest	Cannot place its ocean on a water area	45
+ArtificialLakeTest	Cannot be played below -6 °C	54
+AsteroidDeflectionSystemTest	Reveals cards through Asteroid Deflection System when plants are protected	12
+AstraMechanicaTest	Can choose zero played events	10
+AtmoscoopTest	Can choose Venus when it is already maxed	10
+AtmoscoopTest	Can raise Venus once when it is at 28 percent	22
+AtmoscoopTest	Can raise Venus two steps	34
+BugsTest	Established Methods without its note dead-ends when no second project is affordable	18
+BugsTest	Head Start incorrectly allows its two actions to interleave	38
+BugsTest	Solar Probe incorrectly draws no card during normal play	56
+BugsTest	Stealing zero is incorrectly allowed and prevents Mons Insurance compensation	65
+BugsTest	Air Raid incorrectly remains playable when only its player has money	76
+BugsTest	Public Plans incorrectly remains playable while revealing no other cards	88
+CapitalTest	Places a city under normal restrictions and scores adjacent oceans	12
+CapitalTest	Does not count toward the Manager milestone	32
+CardXC3Test	Splice pays itself four megacredits	12
+CardXC3Test	When another player plays a microbe tag, Splice pays both players	25
+CardXC3Test	Pharmacy Union triggers Splice twice	35
+CardXC3Test	Can take a microbe instead of megacredits	47
+CardXC3Test	Must add the microbe to the card just played	57
+CelesticTest	Can pass the first generation and draw two cards in the second	20
+CelesticTest	Can play a project after resolving its mandatory card draw	26
+CelesticTest	Cannot play a project before resolving its mandatory card draw	33
+CelesticTest	Cannot buy a standard project before resolving its mandatory card draw	38
+CelesticTest	Cannot use a standard action before resolving its mandatory card draw	43
+CeosFavoriteTest	Can add a resource to Search for Life	13
+CeosFavoriteTest	Can be played without a resource-bearing card	23
+CeosFavoriteTest	Cannot skip its resource choice when an eligible card exists	31
+CommercialDistrictTest	Can be placed between two cities	14
+CommercialDistrictTest	Cannot be placed on a water area	28
+CommercialDistrictTest	Cannot be placed in a nonadjacent area	43
+CommunityServicesTest	Can be played with three tagless cards	10
+CommunityServicesTest	Ecology Experts is not tagless after playing its selected card	20
+CorroderSuitsTest	Can be played without another compatible Venus card	9
+CrashSiteCleanupTest	Can be played after removing an opponent's plant	22
+CrashSiteCleanupTest	Cannot be played without removing a plant	28
+CrashSiteCleanupTest	Cannot be played after losing one of its own plants	33
+CrashSiteCleanupTest	Cannot be played after an opponent removes its own plant	39
+CrashSiteCleanupTest	Cannot be played if the plant removal was in a previous generation	45
+CrashSiteCleanupTest	Only the player who removed the plant qualifies	52
+CredicorTest	Discounts both an expensive card and an expensive standard project	8
+CryoSleepTest	Discounts a megacredit-funded trade	8
+CryoSleepTest	Can fund a trade with energy	14
+CryoSleepTest	Can fund a trade with titanium	20
+CryoSleepTest	Stacks its trade discount with Rim Freighters	26
+CuttingEdgeTechnologyTest	Discounts cards with and without requirements	10
+CyberiaSystemsTest	Copies production boxes from two different building cards	18
+CyberiaSystemsTest	Cannot copy the same card twice	27
+CyberiaSystemsTest	Cannot copy itself	36
+DirigiblesTest	Can pay for a Venus card with two floaters	9
+DiversitySupportTest	Can be played with nine resource types	13
+DiversitySupportTest	Cannot be played with only eight resource types	20
+DoubleDownTest	Can copy Biosphere Support	21
+DoubleDownTest	Cannot copy an absent Prelude	27
+DoubleDownTest	Cannot copy another player's Prelude	35
+DoubleDownTest	Cannot copy a corporation	44
+DoubleDownTest	Cannot copy itself	52
+EcolineTest	Can convert seven plants into greenery	19
+EcolineTest	Cannot convert only six plants into greenery	30
+EcologyExpertsTest	Plays Decomposers while ignoring its global requirement	13
+EcologyExpertsTest	Splice money from Ecology Experts tags can pay for Decomposers	30
+EcologyExpertsTest	Can play a card without a bio tag	47
+EcologyExpertsTest	Viral Enhancers sees only its own plant tag	58
+EcologyExpertsTest	Ecological Zone sees only its own tags	71
+EnergyTappingTest	Can be played when Manutech offsets its production loss	11
+ExcentricSponsorTest	Can apply its full discount to the next card	17
+ExcentricSponsorTest	Can play a card costing less than its full discount	23
+FactorumTest	Can raise energy production when it has no energy	11
+FactorumTest	Cannot raise energy production while it has energy	20
+FloodingTest	Can charge either neighboring owner	12
+FloodingTest	Can charge no one	18
+FloodingTest	Cannot charge a non-neighboring owner	23
+FreyjaBiodomesTest	Can be played without another eligible Venus card	11
+HeadStartTest	Head Start grants two mandatory actions	12
+HeadStartTest	Head Start must use its first granted action to resolve a mandate	32
+HellasElysiumExpansionTest	Specialist uses printed megacredit production	11
+HellasMapTest	An unaffordable south pole remains a structurally available adjacent greenery area	13
+HellasMapTest	Ocean income from the south pole bonus can fund its payment	28
+HermeticOrderOfMarsTest	Gains money for each empty area adjacent to its own tiles	9
+IceAsteroidTest	Cannot select an occupied area when eight oceans are in play	11
+ImmigrantCityTest	Can be played at the production floor when Manutech offsets its loss	11
+IndenturedWorkersTest	Discounts the next card played	9
+IndenturedWorkersTest	Keeps its discount available through other actions	16
+IndenturedWorkersTest	Discounts only one card	26
+IndenturedWorkersTest	Expires at the end of the generation	34
+InsulationTest	Can be played with heat production	19
+InsulationTest	Can convert two of three heat production	25
+InsulationTest	Cannot convert zero heat production	31
+InsulationTest	Cannot skip its production conversion	39
+InsulationTest	Cannot convert another player's production	47
+InterplanetaryTradeTest	Counts three existing tag types and adds four production	9
+InterplanetaryTradeTest	Does not count a tag from a played event	17
+KuiperCooperativeTest	Starts with money and titanium production	23
+KuiperCooperativeTest	Action adds one asteroid per space tag	28
+KuiperCooperativeTest	Asteroids can help pay for an asteroid standard project	33
+KuiperCooperativeTest	Asteroids can help pay for an aquifer standard project	44
+KuiperCooperativeTest	Asteroids cannot pay for another standard project	54
+KuiperCooperativeTest	An asteroid on another card cannot make a Kuiper payment	63
+LakefrontResortsTest	Pays when its owner places a tile adjacent to an ocean	9
+LakefrontResortsTest	Does not pay when an opponent places a tile adjacent to an ocean	22
+LakefrontResortsTest	Pays once for each ocean adjacency	32
+LavaFlowsTest	Can place its tile on Tharsis	12
+LavaFlowsTest	Can place its tile on Hellas	19
+LavaFlowsTest	Cannot be played when every volcanic area is occupied	26
+LawSuitTest	Can be played after an opponent lowers the owner's production	22
+LawSuitTest	Can be played after an opponent removes the owner's resources	33
+LawSuitTest	Cannot be played without an opponent's attack	43
+LawSuitTest	Its player lowering their own production does not qualify	49
+LawSuitTest	Qualification expires at the next generation	57
+LawSuitTest	Steals only the money the responsible player has	65
+LawSuitTest	A penniless attacker remains selectable when another player has money	73
+LawSuitTest	Can choose among multiple responsible players	91
+LawSuitTest	Law Suit costs the responsible player one victory point	110
+LocalHeatTrappingTest	Can take plants when enough heat is available	18
+LocalHeatTrappingTest	Can add animals to Pets	27
+LocalHeatTrappingTest	Cannot choose abstract Animal instead of an eligible card	33
+LocalHeatTrappingTest	Can choose animals without a holder and gain nothing	42
+LocalHeatTrappingTest	Cannot evade an eligible holder by selecting an absent holder	49
+LocalHeatTrappingTest	Cannot be played without enough heat	59
+MangroveTest	Can be placed on an ocean area despite a distant city	9
+ManutechTest	Pays for every production increase	10
+ManutechTest	Pays when Nitrophilic Moss raises plant production	18
+MarketManipulationTest	Can raise one colony track and lower another	12
+MarketManipulationTest	Cannot lower a colony track already at its minimum	21
+MarketManipulationTest	Cannot raise a maxed colony track	33
+MarketManipulationTest	Cannot select the same colony track twice	45
+MarketManipulationTest	Cannot raise Titan's delayed colony track	56
+MarketManipulationTest	Cannot lower Titan's delayed colony track	67
+MarsUniversityTest	Two tag effects can discard twice before drawing twice	10
+MarsUniversityTest	Two tag effects can each draw before the next discard	27
+MartianRailsTest	Can be used when every city is off Mars	10
+MassiveDiscountsTest	Stacks with other card discounts	10
+MaxwellBaseTest	Can add a floater to another Venus card	9
+MergerTest	Can choose Celestic after Valley Trust	23
+MergerTest	Resolves both corporations' starting benefits	28
+MergerTest	Can pay for Merger before playing the second corporation	55
+MilestonesAwardsExpansionTest	Geologist counts owned tiles with owned neighbors	11
+MilestonesAwardsExpansionTest	Landscaper counts only the largest contiguous group owned by the player	23
+MilestonesAwardsExpansionTest	Merchant checks resources after the normal claim cost	47
+MiningAreaTest	Can be placed adjacent to a steel area	13
+MiningAreaTest	Can be placed adjacent to a titanium area	23
+MiningAreaTest	Robotic Workforce re-evaluates its production box instead of remembering steel	33
+MiningAreaTest	Cannot be played without an adjacent owned tile	52
+MiningAreaTest	Cannot select a card-bonus area	60
+MiningGuildTest	Raises steel production for metal areas but not card-bonus areas	9
+MiningRightsTest	Links production to its prior area choice without prioritizing it	14
+MiningRightsTest	Robotic Workforce re-evaluates its production box instead of remembering steel	30
+MiningRightsTest	Cannot select a card-bonus area	50
+MinorityRefugeTest	Cannot place its colony on Io at minimum megacredit production	12
+MinorityRefugeTest	Cannot place its colony on Triton at minimum megacredit production	21
+MinorityRefugeTest	Luna placement can enable Minority Refuge's production decrease	30
+MonsInsuranceTest	Starting production loss reaches every opponent but not its owner	17
+MonsInsuranceTest	Starting production loss does not target the solo opponent	30
+MonsInsuranceTest	Gains only four megacredits when Merger plays it after Manutech	38
+MonsInsuranceTest	Hired Raiders transfer finishes before Mons compensates the victim after each steal	55
+MonsInsuranceTest	An attack during the Prelude phase requires compensation	75
+MonsInsuranceTest	Mons owner pays the victim once for a multi-step production attack	87
+MonsInsuranceTest	Self-inflicted losses and Engine-run Global Events cause no payout	98
+MonsInsuranceTest	Payment is limited to the Mons owner's available megacredits	113
+MonsInsuranceTest	Zero payout is settled before the Mons owner gains money later in the action	127
+MonsInsuranceTest	Pharmacy Union's own loss does not require compensation from Mons	148
+MonsInsuranceTest	Declining an optional removal avoids compensation	170
+MonsInsuranceTest	Solo steals and production attacks make Mons pay the general supply	181
+MonsInsuranceTest	An attack on the Mons owner requires no transfer	194
+NewPromoCardsTest	Solar Logistics draws for space events played by its owner and either opponent	18
+NewPromoCardsTest	Icy Impactors lets the first player choose an ocean placed by the card owner	34
+NewPromoCardsTest	Icy Impactors owner chooses their own ocean when they are first player	51
+NewPromoCardsTest	Icy Impactors suspends its owner while a third-player start player chooses	63
+NewPromoCardsTest	Floyd Continuum pays for every completed parameter	80
+NewPromoCardsTest	Carbon Nanosystems graphene can pay for a space card	90
+NewPromoCardsTest	Martian Lumber Corporation plants can pay for a building card	105
+NewPromoCardsTest	Homeostasis Bureau lets each actor raise temperature	117
+NewPromoCardsTest	Kaguya Tech can replace a greenery with its city	131
+NewPromoCardsTest	St Joseph of Cupertino Mission scores beside an opponent's city	145
+NewPromoCardsTest	Red Ships counts each city or special tile beside an ocean	163
+NitrogenRichAsteroidTest	May choose the lesser production branch with three plant tags	9
+NoctisCityTest	Can be placed anywhere on Hellas	12
+NoctisCityTest	Must be placed on Noctis on Tharsis	22
+OptimalAerobrakingTest	Pays when its owner plays an asteroid event	9
+OutdoorSportsTest	Can be played with an opponent's city beside an ocean	19
+OutdoorSportsTest	Cannot be played without city-ocean adjacency	25
+PetsTest	Prevents Predators from removing its animal when another target exists	17
+PetsTest	Prevents Predators from acting when its animal is the only target	29
+PharmacyUnionTest	Starting money precedes both mandatory microbe-tag losses	12
+PharmacyUnionTest	A science tag must remove one disease and raise TR	21
+PharmacyUnionTest	Two science tags with one disease remove it and then flip Pharmacy Union	29
+PharmacyUnionTest	Two science tags can flip Pharmacy Union only once	51
+PharmacyUnionTest	Pending disease placement becomes its explicit fallback after Pharmacy Union flips	71
+PhilaresTest	Pays its owner when an opponent places an adjacent greenery	9
+PhilaresTest	Pays its owner when an opponent creates an adjacency	23
+PhilaresTest	Pays its owner for creating adjacency to an opponent's tile	32
+PhilaresTest	Does not pay when an opponent joins two of their own tiles	42
+PhilaresTest	Does not pay its owner for adjacency to their own tile	52
+PolderTechDutchTest	Initial action places adjacent ocean and greenery without an existing owned tile	12
+PolderTechDutchTest	Later ocean and greenery placements grant their resources	29
+PolyphemosTest	Applies its card-purchase surcharge to Inventors Guild	11
+PoseidonTest	Places its colony as the first action	12
+PredatorsTest	Cannot act when no animal can be removed	21
+PredatorsTest	Can remove an opponent's animal	26
+PredatorsTest	Removes exactly one of two animals on the target card	32
+PredatorsTest	Cannot decline to remove an opponent's animal	43
+PredatorsTest	Can remove an animal from another card its player owns	54
+PredatorsTest	Can remove and replace its own animal	64
+PredatorsTest	Predators can remove its own animal and trigger Meat Industry when replacing it	70
+PredatorsTest	Takes an animal from the neutral holder in solo play	79
+PristarTest	Pays its production bonus when TR did not increase	10
+PristarTest	Does not pay its production bonus after a TR increase	18
+ProductiveOutpostTest	Pays no bonuses without colonies	8
+ProductiveOutpostTest	Pays each bonus for colonies the player owns	13
+ProtectedHabitatsTest	Allows its owner to remove their own protected resources	12
+ProtectedHabitatsTest	Prevents an opponent from removing protected plants	20
+ProtectedHabitatsTest	Prevents an opponent from removing protected animals	29
+ProtectedHabitatsTest	Prevents an opponent from removing protected microbes	38
+PsychrophilesTest	Can play a plant-tag card without spending microbes	20
+PsychrophilesTest	Can decline to spend a microbe on a plant-tag card	26
+PsychrophilesTest	Can add a microbe with its action	34
+PsychrophilesTest	Can spend a microbe toward a plant-tag card	40
+PsychrophilesTest	Can spend five microbes toward a nine-cost card	49
+PsychrophilesTest	Cannot be played above its temperature limit	58
+RecyclonTest	Adds a microbe when it enters play	9
+RecyclonTest	Gains a microbe when its owner plays a building card	15
+RecyclonTest	Converts its accumulated microbes into plant production	22
+RequirementAdjustmentCardsTest	A satisfied printed requirement bypasses adjustment debt	12
+RequirementAdjustmentCardsTest	Inventrix adjusts minimum and maximum global requirements by two	28
+RequirementAdjustmentCardsTest	Requirement adjustments stack and Special Design expires on the next card	46
+RequirementAdjustmentCardsTest	Morning Star adjusts Venus requirements regardless of the card's tags	61
+ResearchColonyTest	Can be played when its player already has a colony on Luna	11
+ResearchColonyTest	Cannot build a second colony on the same colony tile	17
+ResearchColonyTest	Cannot be played on a colony tile that already has three colonies	25
+RobinsonIndustriesTest	Can raise uniquely lowest megacredit production	19
+RobinsonIndustriesTest	Can raise megacredit production from below the production floor	25
+RobinsonIndustriesTest	Can raise uniquely lowest titanium production	31
+RobinsonIndustriesTest	Can choose megacredit production when tied for lowest	37
+RobinsonIndustriesTest	Can choose titanium production when tied for lowest	47
+RobinsonIndustriesTest	Cannot choose a production that is higher than the minimum	53
+RoboticWorkforceTest	Can copy Strip Mine's production box	12
+RoboticWorkforceTest	Cannot copy a non-building card	21
+RoboticWorkforceTest	Cannot copy another player's building card	31
+RoboticWorkforceTest	Cannot copy a building card its player does not own	44
+SaturnSurfingTest	Converts one of six floaters into five megacredits	9
+SaturnSurfingTest	Converts one of five floaters into five megacredits	15
+SaturnSurfingTest	Converts one of four floaters into four megacredits	21
+SaturnSurfingTest	Converts one of three floaters into three megacredits	27
+SaturnSurfingTest	Converts one of two floaters into two megacredits	33
+SaturnSurfingTest	Converts its last floater into one megacredit	39
+SearchForLifeTest	Scores three points when it has a science resource	9
+SkyDocksTest	Can be played with two Earth tags	11
+SkyDocksTest	Allows a second trade in the same generation	18
+SkyDocksTest	Cannot be played with only one Earth tag	26
+SpinOffDepartmentTest	Triggers on a 20-cost card but not cheaper cards	11
+SponsoredAcademiesTest	Owner discards one and draws two while every opponent draws one	21
+SponsoredAcademiesTest	Cannot be played with only one card in hand	29
+StandardTechnologyTest	Rebates three megacredits without reducing the standard project payment	9
+SteelworksTest	Can be used when oxygen is already maxed	10
+SulphurEatingBacteriaTest	Can add a microbe with its first action	22
+SulphurEatingBacteriaTest	Can convert three microbes into nine megacredits	27
+SulphurEatingBacteriaTest	Cannot take more than three megacredits per microbe	35
+SulphurEatingBacteriaTest	Cannot take fewer than three megacredits per microbe	40
+SulphurEatingBacteriaTest	Cannot remove microbes without taking their payment	45
+SulphurEatingBacteriaTest	Must remove microbes from Sulphur-Eating Bacteria	50
+SulphurEatingBacteriaTest	Cannot spend more microbes than it has	55
+SulphurEatingBacteriaTest	Cannot spend zero microbes	60
+SulphurEatingBacteriaTest	Must spend microbes rather than an abstract resource	65
+SulphurEatingBacteriaTest	Must remove microbes before taking payment	70
+SulphurEatingBacteriaTest	Cannot add microbes in exchange for megacredits	75
+SulphurEatingBacteriaTest	Can convert one microbe into three megacredits	80
+SulphurEatingBacteriaTest	Can convert all four microbes into twelve megacredits	88
+SupercapacitorsTest	Can preserve some energy	11
+SupercapacitorsTest	Can preserve no energy	21
+SupercapacitorsTest	Can preserve all existing energy but not newly produced energy	31
+SymbioticFungusTest	Can use its action without an eligible target	9
+TerralabsTest	Buys project cards for one megacredit each	11
+TerralabsTest	Terralabs and Polyphemos cancel each other's card-purchase modifiers	18
+TfmGameplayTest	Declining a second action rejects an unrelated optional task	13
+TfmGameplayTest	Payment rejects leaving steel unspent at full value	23
+TfmGameplayTest	Underpayment permission applies to only one payment	45
+TfmGameplayTest	Payment rejects steel that cannot receive full value	58
+TfmGameplayTest	Overpayment permission applies to only one payment	75
+TharsisRepublicTest	Gains two megacredit production in solo mode	10
+TharsisRepublicTest	Does not gain starting megacredit production in multiplayer mode	17
+TharsisRepublicTest	Gains the solo megacredit production bonus when Merger plays it later	24
+ThorgateTest	Discounts power-production standard projects	20
+ThorgateTest	Cannot buy power production with only seven megacredits	36
+TitanFloatingLaunchPadTest	Can fund a trade with two floaters	8
+TitanShuttlesTest	Can convert five floaters into five titanium	10
+TitanShuttlesTest	Cannot underpay its floater cost	19
+TollStationTest	Counts opponents' space tags for its production gain	9
+TollStationTest	Adds no production without an opponent's space tags	19
+TradeEnvoysTest	Raises the track before trade income	10
+TradeEnvoysTest	Raises the track when Titan Floating Launch-Pad trades	27
+TradeEnvoysTest	Does not increase a maxed track	45
+TradeEnvoysTest	Trading Colony may decline the shared track increase	59
+TradeEnvoysTest	All track decisions precede the trade when both cards are active	79
+UnmiTest	Can use its action after raising TR	10
+UnmiTest	Can choose UNMI after raising TR earlier in the generation	17
+UnmiTest	Cannot use its action without raising TR	26
+UtopiaCimmeriaExpansionTest	MSL Curiosity bonus is inert without Colonies	14
+UtopiaCimmeriaExpansionTest	MSL Curiosity bonus can buy a colony with Colonies	25
+UtopiaCimmeriaExpansionTest	Incorporator rewards inexpensive active and automated projects, not events or corporations	42
+UtopiaCimmeriaExpansionTest	Suburbian rewards a tile on the map edge over an interior tile	57
+UtopiaCimmeriaExpansionTest	Founder counts a tile once when it neighbors multiple opponents' special tiles	72
+UtopiaCimmeriaExpansionTest	Claims Metallurgist for combined metal production and Trader for three resource types	90
+UtopiaCimmeriaExpansionTest	Fundraiser requires printed megacredit production of twelve	105
+UtopiaInvestTest	Decreases and gains the same standard resource	17
+ValleyTrustTest	Resolves Valley Trust's starting prelude	11
+ValleyTrustTest	Must resolve mandate before another standard action	23
+VariableAmountActionsTest	Power Infrastructure cannot choose zero energy	14
+VariableAmountActionsTest	Hi-Tech Lab cannot choose zero energy	23
+VariableAmountActionsTest	Sell Patents cannot choose zero cards	32
+VerminTest	City placement and both card actions add the appropriate resources	12
+VerminTest	Ten animals make every player lose one point per owned city	26
+VerminTest	Fewer than ten animals do not impose the city penalty	42
+ViralEnhancersTest	When Viral Enhancers enters play, adds a plant	11
+ViralEnhancersTest	Forces a plant when a bio card cannot hold resources	17
+ViralEnhancersTest	Triggers once for each bio tag on a card	24
+ViralEnhancersTest	Can choose a microbe when the entering card can hold it	32
+ViralEnhancersTest	Cannot add a microbe to a different card	40
+ViralEnhancersTest	Adds the chosen microbe to the entering card	49
+VironTest	Can repeat an action used earlier in the generation	13
+VironTest	Can choose a different action on the previously used card	20
+VironTest	Cannot use Viron to repeat Viron's own action	33
+VironTest	Cannot choose an action card that has not been used	43
+VironTest	Cannot repeat another player's action	55
+VironTest	Repeats an action on another corporation	75
+VirusTest	Cannot split animal removal across two cards	23
+VirusTest	Can remove animals from one of multiple eligible cards	32
+VitorTest	Funds an award for free in multiplayer	13
+VitorTest	In solo mode, plays Vitor without award funding	26
+VitorTest	Rebates a card with positive victory points	33
+VitorTest	Does not rebate a card without victory points	39
+VitorTest	Does not rebate a card with negative victory points	47
+WildTagTest	Another player's earlier task does not change a wild tag offer's position	11
+WildTagTest	Temporary tags count normally without triggering printed-tag effects	29
+WildTagTest	Robotic Workforce follows a claimed building wild tag	63
+WildTagTest	Excentric Sponsor can play a card whose requirement needs the wild tag	80
+WildTagTest	A per-tag production box counts the wild tag	93

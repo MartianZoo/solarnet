@@ -7,11 +7,9 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Verifies which classes are active in game-specific class-table projections. */
@@ -55,7 +53,7 @@ internal class ClassTableProjectionTest {
             "PreludeExpansion" to 272 + 47,
             "ColoniesExpansion" to 319 + 52, // 54 minus Aridor and Stormcraft
             "TurmoilCardPack" to 371 + 4,
-            "PromoCardPack" to 375 + 87,
+            "PromoCardPack" to 375 + 88,
         )
     )
   }
@@ -101,11 +99,10 @@ internal class ClassTableProjectionTest {
 
   @Test
   fun `concrete award definitions stay unloaded in solo`() {
-    baseSolo.classTable
-        .getClass(cn("Award"))
-        .allSubclasses()
-        .map { it.className }
-        .shouldContainExactly(cn("Award"))
+    val award = baseSolo.classTable.getClass(cn("Award"))
+
+    award.phantom shouldBe true
+    award.allSubclasses().shouldBeEmpty()
   }
 
   @Test
@@ -124,33 +121,20 @@ internal class ClassTableProjectionTest {
   }
 
   @Test
-  fun `abstract Award and its scoring machinery are incorrectly loaded in solo`() {
-    matchingClasses("award", baseSolo)
-        .shouldContainExactlyInAnyOrder(
-            cn("Award"),
-            cn("MeasureAward"),
-            cn("AwardTally"),
-            cn("AssignAwardPlaces"),
-        )
-    baseSolo.classNames.shouldContain(cn("FirstPlace"))
-    baseSolo.classNames.shouldContain(cn("SecondPlace"))
+  fun `award domain and scoring machinery stay uninhabited in solo`() {
+    matchingClasses("award", baseSolo).shouldBeEmpty()
+    baseSolo.classNames.shouldNotContain(cn("FirstPlace"))
+    baseSolo.classNames.shouldNotContain(cn("SecondPlace"))
   }
 
   @Test
-  fun `Vitor does not load concrete award classes in solo`() {
+  fun `Vitor does not activate the unreachable award domain in solo`() {
     val projection = preludeSolo
-    matchingClasses("award", projection)
-        .shouldContainExactlyInAnyOrder(
-            cn("MeasureAward"),
-            cn("AwardTally"),
-            cn("Award"),
-            cn("AssignAwardPlaces"),
-        )
-    projection.classTable
-        .getClass(cn("Award"))
-        .allSubclasses()
-        .map { it.className }
-        .shouldContainExactly(cn("Award"))
+
+    projection.classTable.isActive(cn("CardPC5")) shouldBe true
+    matchingClasses("award", projection).shouldBeEmpty()
+    projection.classNames.shouldNotContain(cn("FirstPlace"))
+    projection.classNames.shouldNotContain(cn("SecondPlace"))
   }
 
   private fun assertNotLoaded(className: String, projection: Projection) {

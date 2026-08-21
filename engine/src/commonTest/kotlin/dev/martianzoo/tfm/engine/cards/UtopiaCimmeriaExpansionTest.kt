@@ -87,7 +87,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
   }
 
   @Test
-  fun `claims Metallurgist for combined metal production and Trader for three resource types`() {
+  fun `Claims Metallurgist for combined metal production and Trader for three resource types`() {
     newGame(UtopiaPlanitiaMapOption)
     p1.manual(
         "16, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +

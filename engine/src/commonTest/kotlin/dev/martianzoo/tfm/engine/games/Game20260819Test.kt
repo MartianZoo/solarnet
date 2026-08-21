@@ -122,8 +122,10 @@ class Game20260819Test : CardTrackingFullGameTest() {
       playPrelude(FakeEstablishedMethods) {
             doTask("UseAction1<UseStandardProjectSA>")
             doTask("UseAction1<PowerPlantSP>")
+            pay(11)
             doTask("UseAction1<UseStandardProjectSA>")
             doTask("UseAction1<PowerPlantSP>")
+            pay(11)
           }
           .expect("8 M")
     }
@@ -559,7 +561,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // ER gained 3 energy production
     ER.playProject(GiantSpaceMirror, 5, titanium = 4).expect("-5 M, -4 T, PROD[3 E]")
     // JR used Convert Heat standard action
-    JR.stdAction("ConvertHeatSA")
+    JR.convertHeat()
     // JR played Field-Capped City
     // JR gained 2 M€ production
     // JR gained 1 energy production
@@ -574,10 +576,10 @@ class Game20260819Test : CardTrackingFullGameTest() {
     JR.playProject(FieldCappedCity, 29) { doTask("CityTile<Elysium_6_5>") }
         .expect("PROD[4 M], 4 P, Animal")
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // KB used Convert Heat standard action
     // KB gained 1 heat production
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // ER used Water Import From Europa action
     // ER placed ocean tile at 26
     // ER gained 1 plant
@@ -617,10 +619,10 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // JR gained 7 M€ production
     JR.playProject(Zeppelins, 13)
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // KB used Convert Heat standard action
     // KB gained 1 heat production
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // ER played Red Ships
     ER.playProject(RedShips, 2)
     // ER used Red Ships action
@@ -746,7 +748,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // KB sold 1 patents
     KB.sellPatents(LawSuit)
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // ER played Media Group
     ER.playProject(MediaGroup, 6)
     // ER played Asteroid
@@ -763,7 +765,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     engine.assertCounts(8 to "TemperatureStep")
     KB.playProject(DesignedMicroorganisms, 15)
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // ER played Solar Wind Power
     // ER gained 1 energy production
     // ER gained 2 titanium
@@ -868,9 +870,9 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // JR gained 6 M€ from 3 ocean(s)
     JR.convertPlants { doTask("GreeneryTile<Elysium_4_5>") }
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // KB used Convert Heat standard action
-    KB.stdAction("ConvertHeatSA")
+    KB.convertHeat()
     // ER used Inventors' Guild action
     // ER bought 0 card(s)
     ER.cardAction1(InventorsGuild) { doTask("Ok") }
@@ -1004,7 +1006,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
       doTask("-6 P<JR>")
     }
     // ER used Convert Heat standard action
-    ER.stdAction("ConvertHeatSA")
+    ER.convertHeat()
     // JR used Space Elevator action
     // JR gained 5 M€
     JR.cardAction1(SpaceElevator).expect("5 M, -S")

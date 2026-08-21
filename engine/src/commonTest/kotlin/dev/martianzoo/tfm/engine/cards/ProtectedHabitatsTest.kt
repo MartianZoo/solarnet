@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 class ProtectedHabitatsTest : CardTest() {
   @Test
-  fun `with p1 resources protected, p1 removes them`() {
+  fun `Allows its owner to remove their own protected resources`() {
     newGame()
     p1.manual("PROD[Plant], $ProtectedHabitats, Plant, $Fish, $Tardigrades")
     p1.manual("Animal<$Fish>, Microbe<$Tardigrades>")
@@ -17,7 +17,7 @@ class ProtectedHabitatsTest : CardTest() {
   }
 
   @Test
-  fun `with p2 plants protected, p1 tries to remove one`() {
+  fun `Prevents an opponent from removing protected plants`() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
@@ -26,7 +26,7 @@ class ProtectedHabitatsTest : CardTest() {
   }
 
   @Test
-  fun `with p2 animals protected, p1 tries to remove one`() {
+  fun `Prevents an opponent from removing protected animals`() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
@@ -35,7 +35,7 @@ class ProtectedHabitatsTest : CardTest() {
   }
 
   @Test
-  fun `with p2 microbes protected, p1 tries to remove one`() {
+  fun `Prevents an opponent from removing protected microbes`() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()

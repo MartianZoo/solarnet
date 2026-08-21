@@ -15,7 +15,7 @@ class LocalHeatTrappingTest : CardTest() {
   }
 
   @Test
-  fun `with enough heat, chooses plants from Local Heat Trapping`() {
+  fun `Can take plants when enough heat is available`() {
     p1.manual("6 Heat, $Pets")
     p1.manual("$LocalHeatTrapping") {
           doTask("4 Plant")
@@ -24,13 +24,13 @@ class LocalHeatTrappingTest : CardTest() {
   }
 
   @Test
-  fun `with Pets in play, chooses animals from Local Heat Trapping`() {
+  fun `Can add animals to Pets`() {
     p1.manual("6 Heat, $Pets")
     p1.manual("$LocalHeatTrapping") { doTask("2 Animal<$Pets>") }.expect("-5 Heat, 2 Animal")
   }
 
   @Test
-  fun `with Pets in play, tries an abstract animal choice from Local Heat Trapping`() {
+  fun `Cannot choose abstract Animal instead of an eligible card`() {
     p1.manual("6 Heat, $Pets")
     p1.manual("$LocalHeatTrapping") {
       shouldThrow<AbstractException> { doTask("2 Animal") }
@@ -39,14 +39,14 @@ class LocalHeatTrappingTest : CardTest() {
   }
 
   @Test
-  fun `without an animal holder, chooses animals and gains nothing`() {
+  fun `Can choose animals without a holder and gain nothing`() {
     p1.manual("6 Heat")
 
     p1.manual("$LocalHeatTrapping") { doTask("Ok") }.expect("-5 Heat, 0 Plant")
   }
 
   @Test
-  fun `with an animal holder, cannot evade it by selecting an absent holder`() {
+  fun `Cannot evade an eligible holder by selecting an absent holder`() {
     p1.manual("6 Heat, $Pets")
     p1.manual("$LocalHeatTrapping") {
           shouldThrow<NarrowingException> { doTask("2 Animal<$Fish>") }
@@ -56,7 +56,7 @@ class LocalHeatTrappingTest : CardTest() {
   }
 
   @Test
-  fun `without enough heat, tries to resolve Local Heat Trapping`() {
+  fun `Cannot be played without enough heat`() {
     p1.manual("4 Heat, ProjectCard, $Pets, 1")
     p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 

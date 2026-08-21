@@ -16,25 +16,25 @@ class RobinsonIndustriesTest : CardTest() {
   }
 
   @Test
-  fun `with megacredit uniquely lowest, uses Robinson Industries`() {
+  fun `Can raise uniquely lowest megacredit production`() {
     p1.manual("PROD[Steel, Titanium, Plant, Energy, Heat]")
     p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Megacredit]")
   }
 
   @Test
-  fun `with megacredit below the production floor, uses Robinson Industries`() {
+  fun `Can raise megacredit production from below the production floor`() {
     p1.manual("PROD[-Megacredit]")
     p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Megacredit]")
   }
 
   @Test
-  fun `with titanium uniquely lowest, uses Robinson Industries`() {
+  fun `Can raise uniquely lowest titanium production`() {
     p1.manual("PROD[Megacredit, Steel, Plant, Energy, Heat]")
     p1.cardAction1(RobinsonIndustries).expect("-4, PROD[Titanium]")
   }
 
   @Test
-  fun `with megacredit and titanium tied, chooses megacredit using Robinson Industries`() {
+  fun `Can choose megacredit production when tied for lowest`() {
     seedProductionTie()
 
     p1.cardAction1(RobinsonIndustries) {
@@ -44,13 +44,13 @@ class RobinsonIndustriesTest : CardTest() {
   }
 
   @Test
-  fun `with megacredit and titanium tied, chooses titanium using Robinson Industries`() {
+  fun `Can choose titanium production when tied for lowest`() {
     seedProductionTie()
     p1.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }.expect("-4, PROD[Titanium]")
   }
 
   @Test
-  fun `with megacredit and titanium tied, rejects every higher production`() {
+  fun `Cannot choose a production that is higher than the minimum`() {
     seedProductionTie()
 
     listOf("Steel", "Plant", "Energy", "Heat").forEach { resource ->

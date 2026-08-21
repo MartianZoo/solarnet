@@ -7,7 +7,7 @@ import kotlin.test.Test
 class MassiveDiscountsTest : CardTest() {
 
   @Test
-  fun `with stacked discounts, plays Space Elevator`() {
+  fun `Stacks with other card discounts`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
 
     engine.phase("Action")

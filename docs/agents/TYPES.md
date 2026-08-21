@@ -427,15 +427,22 @@ An active Class cannot have an uninhabited direct supertype or dependency bound.
 
 ### Current activation policy
 
-Loading an active declaration normally activates structurally mentioned Classes. A Class mentioned
-only as the represented value of a Class-literal metric may remain uninhabited, but it must be known
-to the Authority. Remaining known declarations become uninhabited when the projection freezes.
+Loading an active declaration activates structural supertypes, dependency and default Types,
+explicit ownership roots, Custom implementation dependencies, and destinations of reachable gains
+and transmutations. A positive Class invariant activates the inhabitants it explicitly requires;
+ordinary observational Requirements do not. Reachable Trigger roots with inhabited arguments
+currently remain compatibility activation edges for externally issued protocol signals; a Trigger
+with an uninhabited argument or false gate remains dormant. The loader rechecks every active
+declaration as the closure grows, so activating a Trigger domain can make its constructive body
+reachable later.
 
-This activation-edge rule is current implementation, not the desired final policy. It is almost
-entirely syntactic and can activate a Class referenced by an unreachable instruction. For example,
-Terra Cimmeria's Colonies-gated bonus currently leaves `ColoniesExpansion` uninhabited but activates
-`Colony` because the guarded instruction mentions a Colony gain. The target role- and
-viability-aware projection policy is specified in
+Reachability currently proves exact facts from uninhabited Count domains through `AND` and `OR`
+Requirements. Thus Vitor can remain active in solo while its `Class<Award>`-gated Mandate and the
+entire Award domain remain uninhabited. Anything the analysis cannot prove unreachable remains
+conservatively reachable. Known declarations outside the closure become uninhabited when the
+projection freezes.
+
+Activation requirements and premise viability remain the next parts of the policy specified in
 [OPTIONS.md](OPTIONS.md#settled-projection-policy-direction).
 
 ## 12. Known divergences

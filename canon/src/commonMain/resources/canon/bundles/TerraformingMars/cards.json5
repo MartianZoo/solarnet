@@ -77,8 +77,8 @@
       "tags": [ "PowerTag" ],
       "immediate": "48, PROD[Energy]",
       "effects": [
-        "PlayTag<Class<PowerTag>>:: -3 Owed<Class<Megacredit>>",
-        "UseAction<PowerPlantSP>: 3"
+        "PlayTag<Class<PowerTag>>:: -3 Owed",
+        "UseAction<PowerPlantSP>: -3 Owed"
       ],
     },
 

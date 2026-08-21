@@ -142,11 +142,11 @@ public class CardDefinition(data: CardData) : Definition {
     }
   }
 
+  private val componentClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
+
   /** Additional class declarations that come along with this card. */
   public val extraClasses: List<ClassDeclaration> =
-      data.components.map(::parseOneLinerClass) +
-          derivedClasses.declarations +
-          listOfNotNull(resourceClassDeclaration())
+      componentClasses + derivedClasses.declarations + listOfNotNull(resourceClassDeclaration())
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     val createTags =
@@ -182,7 +182,8 @@ public class CardDefinition(data: CardData) : Definition {
               put(COST_PROPERTY, NumberValue(cost))
               requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
             },
-        extraNodes = setOfNotNull(deck?.className) + extraClasses.flatMap { it.allNodes },
+        extraNodes =
+            setOfNotNull(deck?.className) + componentClasses.map(ClassDeclaration::className),
     )
   }
 

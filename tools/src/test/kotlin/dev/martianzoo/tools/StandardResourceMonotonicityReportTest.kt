@@ -20,7 +20,7 @@ internal class StandardResourceMonotonicityReportTest {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS ProductionPerProbe : AutoLoad {
+                      CLASS ProductionPerProbe {
                         HAS =1 This
                         This: PROD[Energy / Plant]
                       }
