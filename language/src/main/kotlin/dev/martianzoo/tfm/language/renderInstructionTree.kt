@@ -284,6 +284,20 @@ private fun renderGated(
   val clause =
       renderLoweredInstructions(instruction.inner, describers, drawFilter).clauses.singleOrNull()
           ?: return null
+  val selectedClass =
+      (instruction.gate as? Requirement.Min)
+          ?.takeIf { it.minimum == 1 }
+          ?.countedMetric
+          ?.let { it as? Metric.Count }
+          ?.expression
+          ?.let(describers::representedClassArgument)
+  if (
+      selectedClass != null &&
+          describers.fact(selectedClass.className, ComponentDescriber::directChange) is
+              ComponentDescriber.DirectChange.Imperative
+  ) {
+    return clause
+  }
   val condition = describers.renderGateCondition(instruction.gate) ?: return null
   return Clause.Prefaced(condition, clause)
 }
@@ -313,6 +327,13 @@ private fun renderAlternatives(
         renderLoweredInstructions(option, describers, drawFilter).clauses.singleOrNull()
             ?: return null
       }
+  if (alternatives.size == 2) {
+    val firstAction = alternatives.singleOrNull {
+      it is Clause.Prefaced && it.preface == "as your first action"
+    }
+    val decline = alternatives.singleOrNull { it !== firstAction }
+    if (firstAction != null && decline.isDoNothing()) return firstAction
+  }
   val simpleAlternatives = alternatives.map { it as? Clause.Simple }
   if (simpleAlternatives.all { it != null }) {
     coordinateClauseObjects(simpleAlternatives.filterNotNull(), Conjunction.OR)?.let {
@@ -330,6 +351,11 @@ private fun renderAlternatives(
       }
   return Clause.Coordinated(Coordination(alternatives, conjunction))
 }
+
+private fun Clause?.isDoNothing(): Boolean =
+    this is Clause.Simple &&
+        predicate.verb == "do" &&
+        predicate.objects?.members?.singleOrNull()?.linearize() == "nothing"
 
 private fun renderPlacementSiteFallback(
     instruction: Instruction.Or,

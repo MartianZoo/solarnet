@@ -50,13 +50,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
         card.effects.filter(::isImmediateSelfEffect).map { describe(it.instruction, card) }
     val instructions = card.immediate?.let { describe(it, card) }
     val scoring = card.effects.filter { isEndEffect(it, describers) }.map(::describe)
-    val extraClasses =
-        describers.behaviorBearingExtraClasses(card).map { rawSentence("CLASS ${it.className}") }
-    return (listOfNotNull(requirement) +
-            immediateEffects +
-            listOfNotNull(instructions) +
-            scoring +
-            extraClasses)
+    return (listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring)
         .joinToString(" ")
   }
 
@@ -66,7 +60,9 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
         card.effects
             .filterNot { isEndEffect(it, describers) || isImmediateSelfEffect(it) }
             .takeIf { it.isNotEmpty() }
-            ?.let { list -> "Effect: ${renderEffects(list, describers, drawFilter(card))}" }
+            ?.let { list ->
+              "Effect: ${renderEffects(list, describers, drawFilter(card), card.resourceType)}"
+            }
     return listOfNotNull(actions, effects).joinToString(" / ")
   }
 

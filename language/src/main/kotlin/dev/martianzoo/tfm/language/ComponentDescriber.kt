@@ -14,8 +14,6 @@ public data class ComponentDescriber(
     public val placementSite: PlacementSite? = null,
     public val placementBonus: PlacementBonus? = null,
     public val spatialRelation: SpatialRelation? = null,
-    /** Whether a structurally empty direct subclass adds no English text of its own. */
-    public val textNeutralSubclasses: Boolean = false,
     /** Whether [directChange] interprets the declared behavior of concrete direct subclasses. */
     public val directChangeForSubclasses: Boolean = false,
     public val production: Boolean? = null,
@@ -159,7 +157,7 @@ public data class ComponentDescriber(
     /** Describes gaining one abstract component whose concrete subtype is chosen by the player. */
     public data class GainChoice(public val objectPhrase: String) : DirectChange
 
-    /** Supplies an imperative construction for one otherwise-unmodeled concrete gain. */
+    /** Supplies an imperative construction for one otherwise-unmodeled gain. */
     public data class Imperative(public val verb: String, public val objectPhrase: String) :
         DirectChange
 
@@ -168,6 +166,9 @@ public data class ComponentDescriber(
 
     /** Describes invoking one named operation, both as an imperative and as its event trigger. */
     public data class Operation(public val verb: String) : DirectChange
+
+    /** Describes playing the one card category represented by the gained component. */
+    public data object PlayCard : DirectChange
 
     /** Describes a gained component that adjusts the next card played. */
     public data object NextPlayedCardAdjustment : DirectChange

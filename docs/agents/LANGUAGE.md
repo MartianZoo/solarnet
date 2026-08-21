@@ -94,12 +94,6 @@ compose, and differing values for the same fact from incomparable nearest provid
 Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
 shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
 
-The `textNeutralSubclasses` capability is deliberately direct rather than inherited. It permits an
-extra component declaration only when its one exact superclass opts in and the subclass is concrete
-and declares no dependency, invariant, effect, default, property, refinement, or other supertype.
-This replaces category-name exemptions without allowing a behavior-bearing intermediate class to
-inherit permission accidentally.
-
 `directChangeForSubclasses` is likewise a direct opt-in by one exact superclass. It permits the
 superclass's direct-change construction to inspect a gained concrete direct subclass. Each such
 construction must reject any subclass declaration whose behavior it does not completely account
@@ -218,6 +212,9 @@ removal of generated requirement shortfalls after a card play renders as permiss
 card's described global-parameter requirement as lower or higher by the fixed amount.
 A two-branch optional linked exchange may present card resources removed from this card as a fixed
 M€ payment value per resource.
+Adjacent acceptance and payment effects may instead say that the card's declared resource type can
+be used at one fixed M€ value each. The acceptance trigger supplies the scope and the card definition
+supplies the resource noun; a variable payment value remains unsupported.
 A pre-payment resource gain for an explicitly described action may be presented as the discount it
 implements; adjacent equal discounts combine under one trigger sentence. The action description
 may supply a shared counted
@@ -268,7 +265,7 @@ component.
 It may count a described component collection with an explicit ownership-sensitive suffix.
 An instruction metric may cap any otherwise supported count with a parenthetical literal numeric
 maximum. A cap supplied by another metric remains bracketed.
-One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
+One mandatory gain may instead use an imperative verb and object phrase supplied by that
 component's Describer when its procedure is absent from the Pets change itself.
 Another supported direct-change construction gains a temporary component whose declaration says
 that the next card played receives one fixed standard-resource payment discount or global-
@@ -285,7 +282,9 @@ A two-stage placement may instead link one of several described placement bonuse
 site to a one-step increase of the matching production.
 A gained component may instead declare exactly one described first action; its consequence is
 rendered through the ordinary instruction renderer, while unsupported consequences remain
-bracketed.
+bracketed. A class-selection gate around that mandate is omitted when the selected component's
+imperative already expresses the choice, as in funding an award. A no-op alternative used only to
+make that selection executable is likewise omitted from the printed instruction.
 A described production-box-copy component obtains the selected card and its concrete tag from its
 expression argument; the Describer does not contain that tag or a complete instruction.
 Ownership and location remain independent renderer facts. Because a component outside the game
@@ -338,12 +337,8 @@ move a shared count after several productions with `each`.
 An unsupported requirement or unsupported fixed part of an End-triggered scoring effect renders as
 one bracketed Pets element.
 Within instruction groups, supported siblings remain English while each unsupported instruction is
-bracketed independently. An unaccounted behavior-bearing extra component declaration adds a
-bracketed class marker to the bottom region because component declarations can encode printed setup
-behavior that is absent from `immediate`. An exact direct-change declaration,
-or an exact superclass's explicit and validated subclass construction, accounts for a gained extra
-component's printed procedure. A strictly empty direct subclass of
-CardResource, SpecialTile, or RemoteArea is declared text-neutral and does not prevent derivation.
+bracketed independently. Extra component declarations do not produce text themselves, but remain
+available to the renderer as structural evidence for instructions that refer to them.
 Actions and non-End effects are top elements and do not prevent bottom derivation.
 
 ## Known layout boundaries
@@ -352,8 +347,6 @@ Immediate instructions are printed below the artwork. The goal rows that split P
 Raid, or Stratospheric Birds across regions were data errors, not evidence for a layout distinction
 in `CardDefinition` or for dividing one authored immediate group.
 
-Keep an explicit bracketed marker for behavior-bearing extra component declarations. Mons Insurance
-shows why: its component declarations encode printed setup behavior that is absent from `immediate`.
 Filtered project-card draws still require the narrow supplemental table because Pets does not carry
 their filter. Tag filters render as adjective card names, while card-resource filters retain the
 explicit icon wording. A mandatory transmutation can say that card resources are removed from this

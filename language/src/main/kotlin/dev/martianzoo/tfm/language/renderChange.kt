@@ -165,13 +165,14 @@ private fun renderDirectChange(
     is ComponentDescriber.DirectChange.Imperative -> {
       val gain = instruction as? Gain ?: return null
       if (gain.intensity != null && gain.intensity != MANDATORY) return null
-      if (!gain.gaining.simple || !describers.concrete(gain.gaining.className)) return null
+      if (!gain.gaining.simple) return null
       if ((gain.count as? ActualScalar)?.value != 1) return null
       clause(description.verb, NounPhrase.text(description.objectPhrase))
     }
     is ComponentDescriber.DirectChange.TrackTransfer ->
         renderTrackTransfer(instruction, description)
     is ComponentDescriber.DirectChange.Operation -> renderOperation(instruction, description)
+    ComponentDescriber.DirectChange.PlayCard -> renderCardPlay(instruction, describers)
     ComponentDescriber.DirectChange.NextPlayedCardAdjustment ->
         renderNextPlayedCardAdjustment(instruction, describers)
     ComponentDescriber.DirectChange.ProductionBoxCopy ->
@@ -181,6 +182,21 @@ private fun renderDirectChange(
     ComponentDescriber.DirectChange.TopCardPurchase ->
         renderTopCardPurchase(instruction, describers)
   }
+}
+
+private fun renderCardPlay(instruction: Instruction, describers: Describers): Clause.Simple? {
+  val gain = instruction as? Gain ?: return null
+  if (
+      (gain.intensity != null && gain.intensity != MANDATORY) ||
+          gain.gaining.refinement != null ||
+          gain.gaining.complement ||
+          (gain.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val card = describers.representedClass(gain.gaining) ?: return null
+  val noun = describers.componentNoun(card.className, 1)
+  return clause("play", NounPhrase.text("${describers.indefiniteArticle(noun)} $noun"))
 }
 
 private fun renderOperation(

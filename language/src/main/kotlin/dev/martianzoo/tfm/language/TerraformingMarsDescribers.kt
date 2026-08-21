@@ -40,6 +40,12 @@ internal object TerraformingMarsDescribers {
                 discardable = true,
                 draw = true,
             ),
+        klass("PreludeCard") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("prelude card", "prelude cards"),
+                discardable = true,
+                draw = true,
+            ),
         klass("PlayedEvent") to
             ComponentDescriber(
                 metricCount =
@@ -53,7 +59,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
                 cardResource = ComponentDescriber.CardResource.SUFFIXED,
-                textNeutralSubclasses = true,
                 distinctKinds =
                     ComponentDescriber.Noun.Counted(
                         "different type of card resource",
@@ -96,7 +101,6 @@ internal object TerraformingMarsDescribers {
                         noun = ComponentDescriber.Noun.Fixed("reserved area outside Mars"),
                         article = "the",
                     ),
-                textNeutralSubclasses = true,
             ),
         klass("WaterArea") to
             ComponentDescriber(
@@ -177,7 +181,6 @@ internal object TerraformingMarsDescribers {
                         plural = "tiles",
                         allowsMultiple = false,
                     ),
-                textNeutralSubclasses = true,
             ),
         klass("Animal") to
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
@@ -400,6 +403,14 @@ internal object TerraformingMarsDescribers {
                 directChange = ComponentDescriber.DirectChange.FirstAction,
                 directChangeForSubclasses = true,
             ),
+        klass("Award") to
+            ComponentDescriber(
+                directChange =
+                    ComponentDescriber.DirectChange.Imperative(
+                        "fund",
+                        "an award for free",
+                    )
+            ),
         klass("ReserveTradeFleet") to
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)
@@ -416,7 +427,11 @@ internal object TerraformingMarsDescribers {
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("End") to ComponentDescriber(endTrigger = true),
-        klass("PlayCard") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.CARD),
+        klass("PlayCard") to
+            ComponentDescriber(
+                directChange = ComponentDescriber.DirectChange.PlayCard,
+                playTrigger = ComponentDescriber.PlayTrigger.CARD,
+            ),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),
         klass("UseAction") to ComponentDescriber(usedActionTrigger = true),
         klass("UseAction1") to ComponentDescriber(actionNumber = 1),
@@ -462,12 +477,15 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("Pay") to ComponentDescriber(spentResourceTrigger = true),
+        klass("PayFromCard") to ComponentDescriber(spentResourceTrigger = true),
         klass("Owed") to
             ComponentDescriber(
                 paymentRole = ComponentDescriber.PaymentRole.OWED,
                 implicitPaymentResource = ComponentDescriber.Noun.Fixed("M€"),
             ),
         klass("Accept") to
+            ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.ACCEPTANCE),
+        klass("AcceptFromCard") to
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.ACCEPTANCE),
         klass("Barrier") to
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.BARRIER),

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
@@ -264,10 +265,17 @@ internal fun renderEffects(
     effects: List<Effect>,
     describers: Describers,
     drawFilter: EnglishDrawFilter? = null,
+    cardResourceType: ClassName? = null,
 ): String {
   val sentences = mutableListOf<String>()
   var index = 0
   while (index < effects.size) {
+    renderAcceptedCardResourcePayment(effects.drop(index), cardResourceType, describers)?.let {
+        (sentence, consumed) ->
+      sentences += sentence
+      index += consumed
+      continue
+    }
     renderBarrierSequencedTrackChoice(effects.drop(index), describers)?.let { (sentence, consumed)
       ->
       sentences += sentence
@@ -293,6 +301,65 @@ internal fun renderEffects(
     index += run.size
   }
   return sentences.joinToString(" ")
+}
+
+private fun renderAcceptedCardResourcePayment(
+    effects: List<Effect>,
+    cardResourceType: ClassName?,
+    describers: Describers,
+): Pair<String, Int>? {
+  cardResourceType ?: return null
+  val acceptance = effects.getOrNull(0) ?: return null
+  val payment = effects.getOrNull(1) ?: return null
+  val accepted =
+      InstructionGroup.of(acceptance.instruction).instructions.singleOrNull() as? Gain
+          ?: return null
+  if (
+      (accepted.intensity != null && accepted.intensity != MANDATORY) ||
+          accepted.gaining.arguments != listOf(describers.thisExpression) ||
+          accepted.gaining.refinement != null ||
+          accepted.gaining.complement ||
+          describers.fact(accepted.gaining.className, ComponentDescriber::paymentRole) !=
+              ComponentDescriber.PaymentRole.ACCEPTANCE ||
+          (accepted.count as? ActualScalar)?.value != 1
+  ) {
+    return null
+  }
+  val paymentTrigger = (payment.trigger as? OnGainOf)?.expression ?: return null
+  if (
+      paymentTrigger.arguments != listOf(describers.thisExpression) ||
+          paymentTrigger.refinement != null ||
+          paymentTrigger.complement ||
+          describers.fact(paymentTrigger.className, ComponentDescriber::spentResourceTrigger) !=
+              true
+  ) {
+    return null
+  }
+  val removal = payment.instruction as? Remove ?: return null
+  if (
+      (removal.intensity != null && removal.intensity != MANDATORY) ||
+          !removal.removing.simple ||
+          describers.fact(removal.removing.className, ComponentDescriber::paymentRole) !=
+              ComponentDescriber.PaymentRole.OWED
+  ) {
+    return null
+  }
+  val rate = (removal.count as? ActualScalar)?.value ?: return null
+  val currency =
+      describers.fact(removal.removing.className, ComponentDescriber::implicitPaymentResource)
+          ?: return null
+  val currencyNoun =
+      when (currency) {
+        is ComponentDescriber.Noun.Counted -> if (rate == 1) currency.singular else currency.plural
+        is ComponentDescriber.Noun.Fixed -> currency.text
+        ComponentDescriber.Noun.ClassName -> return null
+      }
+  val resource = describers.cardResourceNoun(cardResourceType, 2) ?: return null
+  val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
+  return completeSentence(
+      "when ${trigger.linearize()}, $resource on this card may be used as " +
+          "$rate $currencyNoun each"
+  ) to 2
 }
 
 private fun renderBarrierSequencedTrackChoice(

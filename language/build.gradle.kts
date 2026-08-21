@@ -14,7 +14,7 @@ tasks.register<JavaExec>("writeEnglishCardTextCurrent") {
   mainClass = "dev.martianzoo.tfm.language.EnglishCardTextCurrentGenerator"
   args(
       layout.projectDirectory
-          .file("src/commonMain/resources/language/english-card-text-current.tsv")
+          .file("src/main/resources/language/english-card-text-current.tsv")
           .asFile
           .absolutePath
   )

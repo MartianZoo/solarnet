@@ -5,10 +5,8 @@ import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.types.Class
 
 /** Looks up the English description supplied for each component Class. */
@@ -42,38 +40,6 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return site.takeIf { direct != null }
   }
 
-  internal fun behaviorBearingExtraClasses(card: CardDefinition): List<ClassDeclaration> =
-      card.extraClasses.filter {
-        !isTextNeutralExtraClass(it) &&
-            !directlyDescribesGain(it, card) &&
-            !isDescribedProductionSelection(it)
-      }
-
-  private fun isDescribedProductionSelection(declaration: ClassDeclaration): Boolean {
-    val description = descriptions.getValue(classesByName.getValue(declaration.className))
-    return description.productionSelection != null &&
-        declaration.kind == ClassDeclaration.ClassKind.CONCRETE &&
-        declaration.invariants.isEmpty() &&
-        declaration.effects.isEmpty() &&
-        declaration.defaultsDeclaration == ClassDeclaration.DefaultsDeclaration() &&
-        declaration.properties.isEmpty()
-  }
-
-  private fun directlyDescribesGain(
-      declaration: ClassDeclaration,
-      card: CardDefinition,
-  ): Boolean {
-    val componentClass = classesByName.getValue(declaration.className)
-    val ownDescription = descriptions.getValue(componentClass)
-    val described =
-        ownDescription.directChange != null ||
-            directChangeSubclassDeclaration(declaration.className) != null
-    if (!described) return false
-    return card.immediate?.descendantsOfType<Gain>()?.any {
-      it.gaining.className == declaration.className
-    } == true
-  }
-
   internal fun directChangeSubclassDeclaration(className: ClassName): ClassDeclaration? {
     val componentClass = classesByName.getValue(className)
     if (componentClass.abstract) return null
@@ -100,25 +66,6 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       return null
     }
     return declaration
-  }
-
-  private fun isTextNeutralExtraClass(declaration: ClassDeclaration): Boolean {
-    val superclass = declaration.supertypes.singleOrNull() ?: return false
-    if (
-        declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||
-            declaration.custom ||
-            declaration.dependencies.isNotEmpty() ||
-            declaration.invariants.isNotEmpty() ||
-            declaration.effects.isNotEmpty() ||
-            declaration.defaultsDeclaration != ClassDeclaration.DefaultsDeclaration() ||
-            declaration.properties.isNotEmpty() ||
-            superclass.refinement != null ||
-            superclass.complement
-    ) {
-      return false
-    }
-    val superclassDescription = descriptions.getValue(classesByName.getValue(superclass.className))
-    return superclassDescription.textNeutralSubclasses
   }
 
   internal fun componentNoun(className: ClassName, count: Int): String =
