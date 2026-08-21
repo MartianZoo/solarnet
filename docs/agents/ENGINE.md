@@ -140,12 +140,19 @@ operation. Preparation reads the current World and:
 Preparation may replace one task with several group members. Once preparation has read state, the
 result is marked `next` and must execute before any other mutation.
 
+Explicit preparation checks a concrete result's complete execution in a reversible atomic preview.
+Immediate task execution skips that preview because the encompassing operation already provides
+failure atomicity. A task already marked `next` retains its prepared first stage rather than deriving
+it again; later linked stages still prepare when reached, against the state produced by earlier
+stages.
+
 ### Execution
 
-Execution accepts prepared concrete work. A `Change` goes through `Changer`, logging, automatic
-effects, and queued effects. `By` selects an Actor. A normalized `Then` inside inline execution
-runs its concrete stages; queued `THEN` tails were separated when the task was created. `NoOp`
-does nothing. An unresolved gate, `OR`, scalar, Type, or instruction group is an error.
+Execution accepts prepared concrete work without preparing its first stage again. A `Change` goes
+through `Changer`, logging, automatic effects, and queued effects. `By` selects an Actor. A
+normalized `Then` inside inline execution runs its concrete stages; queued `THEN` tails were
+separated when the task was created. `NoOp` does nothing. An unresolved gate, `OR`, scalar, Type, or
+instruction group is an error.
 
 Queued effects return `PendingTask` values and receive ids only when admitted. Inline automatic
 effects never receive task ids.
