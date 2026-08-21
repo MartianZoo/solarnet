@@ -13,7 +13,7 @@ internal object TerraformingMarsDescribers {
   }
 
   private val declarations: Map<Class, ComponentDescriber> by lazy {
-    mapOf(
+    uniqueDeclarations(
         klass("Component") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.ClassName,
@@ -33,6 +33,7 @@ internal object TerraformingMarsDescribers {
         klass("ProjectCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
+                discardable = true,
                 draw = true,
             ),
         klass("PlayedEvent") to
@@ -73,11 +74,6 @@ internal object TerraformingMarsDescribers {
                                     ComponentDescriber.MinimumProperty.Presence("requirement"),
                             )
                     ),
-            ),
-        klass("ProjectCard") to
-            ComponentDescriber(
-                noun = ComponentDescriber.Noun.Counted("card", "cards"),
-                discardable = true,
             ),
         klass("EventCard") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
         klass("MarsArea") to
@@ -469,6 +465,16 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(paymentRole = ComponentDescriber.PaymentRole.BARRIER),
         klass("Required") to ComponentDescriber(requirementShortfall = true),
     )
+  }
+
+  private fun uniqueDeclarations(
+      vararg entries: Pair<Class, ComponentDescriber>,
+  ): Map<Class, ComponentDescriber> = buildMap {
+    entries.forEach { (componentClass, describer) ->
+      check(put(componentClass, describer) == null) {
+        "Duplicate English component declaration for ${componentClass.className}"
+      }
+    }
   }
 
   private fun klass(name: String): Class = Canon.classTable.getClass(cn(name))

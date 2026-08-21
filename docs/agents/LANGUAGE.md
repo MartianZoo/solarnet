@@ -263,7 +263,8 @@ An instruction metric may count described distinct component kinds the player ow
 It may also count a described component refined by a strict zero maximum of another described
 component.
 It may count a described component collection with an explicit ownership-sensitive suffix.
-An instruction metric may cap any otherwise supported count with a parenthetical maximum.
+An instruction metric may cap any otherwise supported count with a parenthetical literal numeric
+maximum. A cap supplied by another metric remains data-backed.
 One mandatory concrete gain may instead use an imperative verb and object phrase supplied by that
 component's Describer when its procedure is absent from the Pets change itself.
 Another supported direct-change construction gains a temporary component whose declaration says
