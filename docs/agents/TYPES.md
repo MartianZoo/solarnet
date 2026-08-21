@@ -276,6 +276,9 @@ whether Complements are genuine difference Types.
 Every Type belongs to one frozen Class Table. Values from different tables are not comparable.
 Freezing compiles nominal subtype masks and sparse active-subclass indexes.
 
+[CLASS_TABLES.md](CLASS_TABLES.md) proposes replacing this committed ownership model with one
+Authority-wide Class/Type universe and explicit game-filtered views. It is not implemented.
+
 The Authority owns a master catalog. Each game projects it. A name has one of three states:
 
 - **active:** full behavior in this game;
