@@ -143,8 +143,10 @@ is the stronger form for restoring an invariant before player work appears.
 ### 3. Use source-local `A THEN B` when that source owns both stages
 
 `THEN` is appropriate when only particular authored A operations require B, no honest trigger or
-state gate distinguishes them, and that instruction conceptually owns the pair. Costs and payoffs,
-or a placement and a marker identifying that selected place, are normal examples.
+state gate distinguishes them, and that instruction conceptually owns the pair. A direct Pets
+Action cost followed by its numbered `CostPaid` signal, or a placement followed by a marker
+identifying that selected place, are normal examples. The Action payoff itself responds to
+`CostPaid`; see [ACTIONS.md](ACTIONS.md).
 
 Completing A enqueues B in A's place. B is not immediate and receives no priority over unrelated
 tasks. `A1, A2, B1, B2` may be a legal order for two `A THEN B` chains. `THEN` waits for the A
@@ -451,11 +453,14 @@ Mons Insurance. Any implementation must therefore test the three dimensions abov
 
 ## Settled families
 
+Pets Action lowering is under redesign. The settled direction separates cost satisfaction from the
+payoff with numbered `CostPaid` signals; the current generated cost-then-payoff chain is not a
+settled family. See [ACTIONS.md](ACTIONS.md).
+
 These current encodings are considered principled:
 
 - Global-parameter change before TR and threshold reactions.
 - Tile placement before adjacency, bonuses, and placement reactions; the reactions remain siblings.
-- Action costs before payoffs through generated `THEN`.
 - Direct spend-to-benefit offers on Olympus Conference, Recyclon, and St. Joseph of Cupertino
   Mission.
 - Neptunian Power Consultants using a named optional signal before creating its spend-to-benefit
