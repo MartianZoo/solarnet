@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -12,6 +14,8 @@ import kotlin.test.Test
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
 class Game20260818Test : AbstractFullGameTest() {
+  private val colonyTiles = listOf("Enceladus", "Miranda", "Europa", "Io", "Pluto")
+
   // "We are playing on the Utopia Planitia board."
   // "We have Preludes. We have Venus, Colonies, Promos, Milestones and Awards expansion."
   // The transcript includes Briber, which Solarnet does not implement; it is not claimed in this
@@ -26,7 +30,7 @@ class Game20260818Test : AbstractFullGameTest() {
 
           Ecologist, Merchant, Metallurgist, Tactician4, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
-          Enceladus, Miranda, Europa, Io, Pluto
+          ${colonyTiles.joinToString()}
           """,
           "Dad",
           "Ellie",
@@ -38,7 +42,10 @@ class Game20260818Test : AbstractFullGameTest() {
     val dad = game.tfm(Player.PLAYER1)
     val ellie = game.tfm(Player.PLAYER2)
 
-    engine.assertCounts(1 to "Generation")
+    // board-11-00-18.jpg: initial global state, before either corporation is played.
+    assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
+    dad.assertCounts(20 to "TR", 0 to "OwnedTile")
+    ellie.assertCounts(20 to "TR", 0 to "OwnedTile")
 
     // "I'm Point Luna... I get a titanium production." "I'm keeping seven cards."
     // "So I pay 21. I have 17 money remaining."
@@ -114,12 +121,14 @@ class Game20260818Test : AbstractFullGameTest() {
     with(dad) {
       assertProduction(m = 0, s = 0, t = 1, p = 1, e = 1, h = 0)
       assertResources(m = 37, s = 0, t = 1, p = 3, e = 1, h = 0)
-      assertCounts(5 to "CardFront")
+      assertCounts(20 to "TR", 5 to "CardFront")
+      assertCardResources(1 to Pets, 1 to AerialMappers)
     }
     with(ellie) {
       assertProduction(m = 0, s = 2, t = 0, p = 0, e = 4, h = 0)
       assertResources(m = 22, s = 6, t = 0, p = 0, e = 4, h = 0)
-      assertCounts(7 to "CardFront")
+      assertCounts(21 to "TR", 7 to "CardFront")
+      assertCardResources(1 to Psychrophiles, 1 to ForcedPrecipitation, 1 to ExtractorBalloons)
     }
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 0, venus = 2)
 
@@ -179,10 +188,19 @@ class Game20260818Test : AbstractFullGameTest() {
     with(dad) {
       assertProduction(m = 0, s = 0, t = 3, p = 1, e = 0, h = 0)
       assertResources(m = 20, s = 0, t = 6, p = 4, e = 0, h = 1)
+      assertCounts(20 to "TR", 6 to "CardFront")
+      assertCardResources(1 to Pets, 1 to AerialMappers)
     }
     with(ellie) {
       assertProduction(m = 0, s = 2, t = 1, p = 0, e = 5, h = 0)
       assertResources(m = 25, s = 4, t = 2, p = 0, e = 5, h = 4)
+      assertCounts(
+          21 to "TR",
+          9 to "CardFront",
+          1 to "OwnedTile",
+          1 to "SpecialTile<Utopia_3_6>",
+      )
+      assertCardResources(2 to Psychrophiles, 2 to ForcedPrecipitation, 2 to ExtractorBalloons)
     }
     assertSidebar(gen = 3, temp = -30, oxygen = 1, oceans = 0, venus = 4)
 
@@ -351,11 +369,21 @@ class Game20260818Test : AbstractFullGameTest() {
     with(dad) {
       assertProduction(m = 5, s = 0, t = 3, p = 1, e = 0, h = 0)
       assertResources(m = 27, s = 0, t = 7, p = 7, e = 0, h = 1)
+      assertCounts(21 to "TR", 13 to "CardFront")
+      assertCardResources(3 to Pets, 0 to AerialMappers, 1 to AsteroidRights)
     }
     with(ellie) {
       assertProduction(m = 2, s = 3, t = 1, p = 0, e = 8, h = 3)
       assertResources(m = 27, s = 3, t = 2, p = 1, e = 8, h = 20)
+      assertCounts(25 to "TR", 14 to "CardFront")
+      assertCardResources(
+          3 to Psychrophiles,
+          0 to NitriteReducingBacteria,
+          1 to ForcedPrecipitation,
+          1 to ExtractorBalloons,
+      )
     }
+    engine.assertCounts(1 to "OceanTile<Utopia_4_1>", 1 to "OceanTile<Utopia_3_1>")
     assertSidebar(gen = 5, temp = -28, oxygen = 1, oceans = 2, venus = 10)
 
     dad.buyCards(1)
@@ -568,24 +596,39 @@ class Game20260818Test : AbstractFullGameTest() {
       assertResources(m = 42, s = 0, t = 11, p = 2, e = 0, h = 8)
       assertCounts(
           26 to "TR",
+          17 to "CardFront",
+          1 to "Ecologist",
+          1 to "Metallurgist",
           1 to "$MarsUniversity",
-          5 to "Animal<$Pets>",
-          1 to "Asteroid<$AsteroidRights>",
+          2 to "OwnedTile",
+          1 to "GreeneryTile<Utopia_4_2>",
+          1 to "CityTile<RemoteArea>",
       )
+      assertCardResources(5 to Pets, 0 to AerialMappers, 1 to AsteroidRights)
     }
     with(ellie) {
       assertProduction(m = 7, s = 3, t = 1, p = 0, e = 7, h = 4)
       assertResources(m = 55, s = 3, t = 2, p = 0, e = 7, h = 14)
       assertCounts(
           33 to "TR",
+          17 to "CardFront",
+          1 to "Tactician4",
           1 to "$HermeticOrderOfMars",
-          5 to "Animal<$StratosphericBirds>",
-          3 to "Microbe<$NitriteReducingBacteria>",
-          5 to "Microbe<$Psychrophiles>",
-          1 to "Floater<$ForcedPrecipitation>",
-          0 to "Floater<$ExtractorBalloons>",
+          2 to "OwnedTile",
+          1 to "CityTile<Utopia_3_2>",
+      )
+      assertCardResources(
+          5 to StratosphericBirds,
+          3 to NitriteReducingBacteria,
+          5 to Psychrophiles,
+          1 to ForcedPrecipitation,
+          0 to ExtractorBalloons,
       )
     }
+    engine.assertCounts(
+        1 to "OceanTile<Utopia_9_8>",
+        1 to "OceanTile<Utopia_6_4>",
+    )
     assertSidebar(gen = 7, temp = -16, oxygen = 2, oceans = 4, venus = 16)
 
     // When we resumed the physical game, we knew about the errors found above, so we made this
@@ -739,7 +782,8 @@ class Game20260818Test : AbstractFullGameTest() {
     with(dad) {
       assertProduction(m = 18, s = 1, t = 6, p = 3, e = 3, h = 3)
       assertResources(m = 44, s = 2, t = 8, p = 7, e = 3, h = 12)
-      assertCounts(26 to "TR", 3 to "Animal<$MartianZoo>", 1 to "Microbe<$VenusianInsects>")
+      assertCounts(26 to "TR")
+      assertCardResources(3 to MartianZoo, 1 to VenusianInsects)
     }
     with(ellie) {
       assertProduction(m = 7, s = 3, t = 1, p = 0, e = 7, h = 4)
@@ -799,8 +843,12 @@ class Game20260818Test : AbstractFullGameTest() {
       playProject(KaguyaTech, 10) {
             doTask("CityTile<Utopia_5_3> FROM GreeneryTile<Utopia_5_3>")
           }
-          .expect("PROD[2 M], 0 ProjectCard, -GreeneryTile, CityTile, -8 M")
+          .expect("PROD[2 M], 0 ProjectCard, -GreeneryTile, CityTile, Animal<$Pets>, -8 M")
     }
+
+    // The Generation 9 photograph still has five animals on Pets, so Dad missed the animal caused
+    // by Kaguya Tech's city placement.
+    dad.exMachina("-Animal<$Pets>")
 
     ellie.turn {
       // Ellie: "Right. Venusian Animals." Dad: "Oh my god." Ellie: "Yep. It immediately adds an
@@ -900,15 +948,25 @@ class Game20260818Test : AbstractFullGameTest() {
     // Ellie uses World Government Terraforming to increase oxygen.
     ellie.doTask("OxygenStep! BY Engine").expect("0 TR")
 
-    // board-21-14-23.jpg and both player ledgers: after Generation 8 transition.
+    // board-21-13-43.jpg, board-21-14-23.jpg, and both player ledgers: after Generation 8
+    // transition.
     with(dad) {
       assertProduction(m = 19, s = 1, t = 6, p = 8, e = 2, h = 4)
       assertResources(m = 51, s = 1, t = 7, p = 15, e = 2, h = 19)
       assertCounts(
           30 to "TR",
-          5 to "Animal<$MartianZoo>",
-          1 to "Microbe<$VenusianInsects>",
-          1 to "Asteroid<$AsteroidRights>",
+          26 to "CardFront",
+          3 to "OwnedTile",
+          1 to "CityTile<Utopia_5_3>",
+          0 to "Colony",
+      )
+      // Pets scores one VP per two animals; this count does not mean five VP.
+      assertCardResources(
+          5 to Pets,
+          5 to MartianZoo,
+          1 to VenusianInsects,
+          0 to AerialMappers,
+          1 to AsteroidRights,
       )
     }
     with(ellie) {
@@ -916,14 +974,26 @@ class Game20260818Test : AbstractFullGameTest() {
       assertResources(m = 51, s = 9, t = 1, p = 6, e = 8, h = 12)
       assertCounts(
           42 to "TR",
-          10 to "Animal<$StratosphericBirds>",
-          1 to "Animal<$VenusianAnimals>",
-          1 to "Microbe<$NitriteReducingBacteria>",
-          7 to "Microbe<$Psychrophiles>",
-          0 to "Floater<$ForcedPrecipitation>",
-          2 to "Floater<$ExtractorBalloons>",
+          22 to "CardFront",
+          2 to "OwnedTile",
+          1 to "Colony<Miranda>",
+      )
+      assertCardResources(
+          10 to StratosphericBirds,
+          1 to VenusianAnimals,
+          1 to NitriteReducingBacteria,
+          7 to Psychrophiles,
+          0 to ForcedPrecipitation,
+          2 to ExtractorBalloons,
       )
     }
+    engine.assertCounts(
+        1 to "Traveller",
+        1 to "OceanTile<Utopia_8_7>",
+        2 to "ReserveTradeFleet",
+        0 to "FlownTradeFleet",
+    )
+    assertColonyProductions(3, 2, 1, 3, 2)
     assertSidebar(gen = 9, temp = -10, oxygen = 4, oceans = 5, venus = 26)
 
     // Before Generation 9 Research, both players reconciled the physical table against their
@@ -1089,13 +1159,47 @@ class Game20260818Test : AbstractFullGameTest() {
     with(dad) {
       assertProduction(m = 24, s = 1, t = 6, p = 15, e = 4, h = 4)
       assertResources(m = 64, s = 1, t = 6, p = 17, e = 4, h = 9)
-      assertCounts(37 to "TR")
+      assertCounts(
+          37 to "TR",
+          33 to "CardFront",
+          5 to "OwnedTile",
+      )
+      assertCardResources(
+          6 to Pets,
+          8 to MartianZoo,
+          2 to VenusianInsects,
+          0 to AerialMappers,
+          0 to AsteroidRights,
+      )
     }
     with(ellie) {
       assertProduction(m = 12, s = 3, t = 1, p = 0, e = 6, h = 2)
       assertResources(m = 64, s = 3, t = 1, p = 10, e = 6, h = 11)
-      assertCounts(48 to "TR")
+      assertCounts(
+          48 to "TR",
+          26 to "CardFront",
+          3 to "OwnedTile",
+      )
+      assertCardResources(
+          11 to StratosphericBirds,
+          3 to VenusianAnimals,
+          1 to NitriteReducingBacteria,
+          8 to Psychrophiles,
+          0 to ForcedPrecipitation,
+          0 to ExtractorBalloons,
+      )
     }
+    engine.assertCounts(
+        1 to "OceanTile<Utopia_7_6>",
+        1 to "OceanTile<Utopia_7_5>",
+        1 to "OceanTile<Utopia_8_6>",
+        1 to "OceanTile<Utopia_4_5>",
+    )
+    dad.assertCounts(
+        1 to "GreeneryTile<Utopia_6_3>",
+        1 to "GreeneryTile<Utopia_5_2>",
+    )
+    ellie.assertCounts(1 to "CityTile<Utopia_6_5>")
     assertSidebar(gen = 10, temp = -2, oxygen = 6, oceans = 9, venus = 30)
 
     // "Well, I'm buying three cards." "All right, Ellie buys three cards, and I'm going to stupidly
@@ -1274,13 +1378,51 @@ class Game20260818Test : AbstractFullGameTest() {
     with(dad) {
       assertProduction(m = 29, s = 2, t = 7, p = 13, e = 3, h = 4)
       assertResources(m = 69, s = 2, t = 10, p = 18, e = 3, h = 6)
-      assertCounts(40 to "TR")
+      assertCounts(
+          40 to "TR",
+          38 to "CardFront",
+          11 to "OwnedTile",
+      )
+      assertCardResources(
+          8 to Pets,
+          8 to MartianZoo,
+          3 to EcologicalZone,
+          3 to Herbivores,
+          3 to VenusianInsects,
+          0 to AerialMappers,
+          1 to AsteroidRights,
+      )
     }
     with(ellie) {
       assertProduction(m = 12, s = 3, t = 1, p = 0, e = 6, h = 2)
       assertResources(m = 69, s = 6, t = 1, p = 0, e = 6, h = 9)
-      assertCounts(55 to "TR")
+      assertCounts(
+          55 to "TR",
+          30 to "CardFront",
+          6 to "OwnedTile",
+      )
+      assertCardResources(
+          14 to StratosphericBirds,
+          5 to VenusianAnimals,
+          4 to NitriteReducingBacteria,
+          6 to Psychrophiles,
+          0 to ForcedPrecipitation,
+          1 to ExtractorBalloons,
+          4 to JovianLanterns,
+      )
     }
+    dad.assertCounts(
+        1 to "CityTile<Utopia_4_4>",
+        1 to "SpecialTile<Utopia_2_2>",
+        1 to "GreeneryTile<Utopia_4_3>",
+        1 to "GreeneryTile<Utopia_5_4>",
+        1 to "SpecialTile<Utopia_8_5>",
+    )
+    ellie.assertCounts(
+        1 to "GreeneryTile<Utopia_5_5>",
+        1 to "GreeneryTile<Utopia_2_1>",
+        1 to "GreeneryTile<Utopia_6_6>",
+    )
     assertSidebar(gen = 11, temp = 8, oxygen = 12, oceans = 9, venus = 30)
 
     // "Man. Yeah. I'm buying two. I'll buy one. I'm gonna actually buy it."
@@ -1568,5 +1710,20 @@ class Game20260818Test : AbstractFullGameTest() {
       assertProduction(m = 14, s = 3, t = 1, p = 2, e = 6, h = 2)
       assertResources(m = 73, s = 3, t = 1, p = 4, e = 6, h = 10)
     }
+  }
+
+  private fun assertColonyProductions(vararg productions: Int) {
+    require(productions.size == colonyTiles.size)
+    engine.assertCounts(
+        *productions
+            .zip(colonyTiles) { production, colony ->
+              production to "ColonyProduction<$colony>"
+            }
+            .toTypedArray()
+    )
+  }
+
+  private fun TfmGameplay.assertCardResources(vararg resources: Pair<Int, ClassName>) {
+    assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
   }
 }
