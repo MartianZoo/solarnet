@@ -11,7 +11,7 @@ Most of the published game content is working... and mostly correctly.
 | Prelude | 5 / 5 | 7 / 7 | 35 / 35 | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 3 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | 1 / 1 | 11 / 11 colony tiles |
 | Turmoil | 4 / 5 | 0 / 16 | - | - | - | 0 / 1 | 0 / 1 | - | 0 / 31 | 0 / 1 | 0 / 6 parties |
-| Prelude 2 | 3 / 5 | 12 / 24 | 22 / 25 | - | - | - | - | - | - | - | - |
+| Prelude 2 | 3 / 5 | 12 / 24 | 21 / 25 | - | - | - | - | - | - | - | - |
 | Amazonis & Vastitas | - | - | - | 0 / 2 | - | - | 0 / 20 | 0 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | the whole thing |
