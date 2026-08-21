@@ -8,12 +8,16 @@
     { "name": "UseStandardProjectSA", "action": "-> UseAction<StandardProject>" },
 
     // Claim milestone
-    { "name": "ClaimMilestoneSA", "action": "8 -> Milestone", "setupRequirement": "MAX 0 SoloMode" },
+    {
+      "name": "ClaimMilestoneSA",
+      "action": "-> Payment<Class<This>>",
+      "setupRequirement": "MAX 0 SoloMode"
+    },
 
     // Fund award
     {
       "name": "FundAwardSA",
-      "action": "(=0 Award: 8) OR (=1 Award: 14) OR (=2 Award: 20) -> Award",
+      "action": "-> Payment<Class<This>>",
       "setupRequirement": "MAX 0 SoloMode"
     },
 

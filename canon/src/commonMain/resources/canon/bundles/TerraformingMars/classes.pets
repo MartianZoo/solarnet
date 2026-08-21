@@ -16,6 +16,10 @@ CLASS TerraformingMars : Module {
 
   CostPaid<Class<ConvertPlantsSA>>: GreeneryTile<>
   CostPaid<Class<ConvertHeatSA>>: TemperatureStep
+  UseAction<ClaimMilestoneSA>:: 8 Owed<Class<Megacredit>>
+  CostPaid<Class<ClaimMilestoneSA>>: Milestone
+  UseAction<FundAwardSA>:: (=0 Award: 8 Owed<Class<Megacredit>>) OR (=1 Award: 14 Owed<Class<Megacredit>>) OR (=2 Award: 20 Owed<Class<Megacredit>>)
+  CostPaid<Class<FundAwardSA>>: Award
 }
 
 // PLAYERS AND OWNERSHIP

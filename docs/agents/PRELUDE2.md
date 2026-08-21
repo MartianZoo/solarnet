@@ -18,12 +18,10 @@ Turmoil are omitted entirely.
 
 ## Current boundary
 
-The executable manifest contains 36 cards: 3 corporations, 12 projects, and 21 Preludes. The three
+The executable manifest contains 37 cards: 4 corporations, 12 projects, and 21 Preludes. The two
 remaining non-Turmoil definitions stay in `cards-dont-work.json5` so their accurate data and
 specific blockers remain reviewable without loading incorrect behavior:
 
-- `PC01` Nirgal Enterprises needs milestone and award payments to bypass the standard actions'
-  up-front affordability checks.
 - `PC05` Spire needs its science resources to rewrite payment for standard projects only.
 - `P78` L1 Trade Terminal needs a clean way to select up to three distinct resource-bearing cards.
 

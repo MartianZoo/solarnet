@@ -1,6 +1,18 @@
 {
   "cards": [
 
+    // Nirgal Enterprises
+    {
+      "name": "NirgalEnterprises",
+      "deck": "CORPORATION",
+      "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
+      "immediate": "30, PROD[Energy, Plant, Steel]",
+      "effects": [
+        "UseAction<ClaimMilestoneSA>: -Owed / Owed",
+        "UseAction<FundAwardSA>: -Owed / Owed",
+      ],
+    },
+
     // Palladin Shipping
     {
       "name": "PalladinShipping",
