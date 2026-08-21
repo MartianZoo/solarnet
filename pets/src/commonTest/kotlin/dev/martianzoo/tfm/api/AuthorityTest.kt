@@ -110,7 +110,7 @@ internal class AuthorityTest {
               )
         }
     val card = CardDefinition(CardData(id = "123"))
-    val unrelated = parseOneLinerClass("CLASS Unrelated : AutoLoad")
+    val unrelated = parseOneLinerClass("CLASS Unrelated")
     val contentBundle =
         object : Bundle(cn("ContentProvider")) {
           override val explicitClassDeclarations = setOf(unrelated)

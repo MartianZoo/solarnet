@@ -260,7 +260,11 @@ private constructor(
         is OnRemoveOf -> collectProtocol(trigger.expression)
         is Or -> trigger.triggers.forEach(::collectTriggerProtocols)
         is ByTrigger -> collectTriggerProtocols(trigger.inner)
-        is IfTrigger -> collectTriggerProtocols(trigger.inner)
+        is IfTrigger -> {
+          if (truthOf(trigger.condition) != Truth.FALSE) {
+            collectTriggerProtocols(trigger.inner)
+          }
+        }
         is XTrigger -> collectTriggerProtocols(trigger.inner)
         is Transform -> collectTriggerProtocols(trigger.inner)
       }

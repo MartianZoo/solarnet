@@ -138,13 +138,13 @@ private object CustomClassDeclarations : TfmAuthority() {
   override val explicitClassDeclarations =
       parseClasses(
               """
-              CLASS BothBehavior : Custom, AutoLoad
-              CLASS SplitBehavior : Custom, AutoLoad
-              CLASS ConcreteOnlyMetric<Player> : Custom, AutoLoad
+              CLASS BothBehavior : Custom
+              CLASS SplitBehavior : Custom
+              CLASS ConcreteOnlyMetric<Player> : Custom
               CLASS PlantCount<Player> : Custom
-              CLASS BrokenMetric : Custom, AutoLoad
-              CLASS BrokenInstruction : Custom, AutoLoad
-              CLASS MetricTriggerObserver : AutoLoad {
+              CLASS BrokenMetric : Custom
+              CLASS BrokenInstruction : Custom
+              CLASS MetricTriggerObserver {
                 HAS =1 This
                 PlantCount<Player1>: Heat<Player1>
               }

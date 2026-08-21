@@ -113,7 +113,11 @@ ABSTRACT CLASS WorkflowPrecedence<
 Terraforming Mars would select `SetupPhase` as its entry point and describe core spans separately:
 
 ```pets
-CLASS TerraformingMarsWorkflow : Workflow<Class<SetupPhase>>, AutoLoad
+CLASS TerraformingMars : Module {
+  HAS =1 Class<TerraformingMarsWorkflow>
+}
+
+CLASS TerraformingMarsWorkflow : Workflow<Class<SetupPhase>>
 
 CLASS AfterCorporation :
     WorkflowSpan<Class<CorporationPhase>, Class<ActionPhase>>

@@ -430,10 +430,11 @@ An active Class cannot have an uninhabited direct supertype or dependency bound.
 Loading an active declaration activates structural supertypes, dependency and default Types,
 explicit ownership roots, Custom implementation dependencies, and destinations of reachable gains
 and transmutations. A positive Class invariant activates the inhabitants it explicitly requires;
-ordinary observational Requirements do not. Trigger roots with inhabited arguments currently
-remain compatibility activation edges for externally issued protocol signals; a Trigger with an
-uninhabited argument remains dormant. The loader rechecks every active declaration as the closure
-grows, so activating a Trigger domain can make its constructive body reachable later.
+ordinary observational Requirements do not. Reachable Trigger roots with inhabited arguments
+currently remain compatibility activation edges for externally issued protocol signals; a Trigger
+with an uninhabited argument or false gate remains dormant. The loader rechecks every active
+declaration as the closure grows, so activating a Trigger domain can make its constructive body
+reachable later.
 
 Reachability currently proves exact facts from uninhabited Count domains through `AND` and `OR`
 Requirements. Thus Vitor can remain active in solo while its `Class<Award>`-gated Mandate and the

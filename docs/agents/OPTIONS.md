@@ -10,7 +10,7 @@ An **Authority** is one coherent namespace containing everything Solarnet may kn
 - authored Rule-Class declarations;
 - structured definitions that generate Content-Class declarations;
 - vocabulary and descriptive metadata;
-- premise defaults, implications, and validity rules; and
+- premise defaults and validity rules; and
 - the exceptional custom metrics and instructions that cannot be expressed as data.
 
 An Authority is principally a data provider. It does not make live game-state decisions. Published
@@ -43,10 +43,16 @@ Each Module selects classes to activate or deactivate. Selection may depend on t
 configuration. Structural reachability may activate dependencies, but it may not activate an
 unselected Module or defeat an explicit exclusion.
 
+Module premise policy is authored with ordinary Requirement-valued Pets properties.
+`autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
+resolve to a fixed point and an explicit exclusion wins. `premiseRequirement` is checked against
+the completed projection when that Module is selected. Module invariants provide the ordinary
+exact-count rules that are also meaningful in the live World.
+
 ## Configuration and premise
 
 `GameConfig` is unresolved user intent: unordered included and excluded class-name sets plus player
-names in seat order. Defaults, implications, selection policy, and validation resolve it to a
+names in seat order. Defaults, selection policy, and validation resolve it to a
 `GamePremise`.
 
 A `GamePremise` is the complete immutable input needed to construct equivalent Game Worlds. It
@@ -64,15 +70,15 @@ Vocabulary aliases, not Class identities. Initial state is not an unrestricted P
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while setup creates only the chosen starting colony components.
 
-Defaults are evaluated against explicit inclusions. Naming a competing choice suppresses its
-default; an explicit exclusion defeats defaults and implications. Selecting named milestones or
+Defaults are evaluated against the growing Module selection. Naming a competing choice can make a
+default condition false; an explicit exclusion defeats it. Selecting named milestones or
 awards chooses that exact pool. Selecting colony tiles also requests their initial components.
 
 ## Bundle
 
 A **Bundle** is an internal unit of ownership, provenance, distribution, and loading. It may provide
-declarations, definitions, premise metadata, and custom implementations. It is not selected directly
-and never becomes a live component.
+declarations, definitions, and custom implementations. It is not selected directly and never
+becomes a live component.
 
 A Module may select a whole content category from a named bundle. This supports an expansion adding
 its cards or milestones without exposing arbitrary bundle selection. Otherwise bundle provenance has
@@ -173,9 +179,9 @@ For **projection closure**, classify references by what execution demands:
 
 The loader now applies this systemic role-and-reachability rule instead of treating every mention as
 an activation edge. It rechecks the closure as Classes activate, and currently proves false gates
-from exact zero counts over uninhabited Types. As a temporary exception, a Trigger whose arguments
-are inhabited activates its root protocol Class; this preserves externally issued workflow signals
-until Modules own them without bundle metadata. Activation requirements and viability diagnostics
+from exact zero counts over uninhabited Types. As a temporary exception, a reachable Trigger whose
+arguments are inhabited activates its root protocol Class; this preserves externally issued
+workflow signals until Modules own them directly. Activation requirements and viability diagnostics
 are not yet implemented.
 
 The important cases then fall out without card-specific rules:
@@ -214,7 +220,7 @@ projection change.
 
 The target premise pipeline is:
 
-1. Resolve Modules, defaults, implications, and explicit exclusions.
+1. Resolve Modules, defaults, and explicit exclusions.
 2. Derive automatic Definition conditions from all semantic references and filter bundle-selected
    content.
 3. Apply explicit individual content inclusions and exclusions.

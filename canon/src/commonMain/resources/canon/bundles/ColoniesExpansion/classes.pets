@@ -1,10 +1,13 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
+  premiseRequirement = HAS (=2 Player, =5 ColonyTile) OR =2 (ColonyTile - Player)
+
+  This:: BuildColonySP
   SetupPhase: ColoniesSetup
   SetupPhase IF =1 Player: PROD[-2 Megacredit<Player1>]
 }
 
-CLASS BuildColonySP : StandardProject, AutoLoad {
+CLASS BuildColonySP : StandardProject {
   cost = 17
   CostPaid<Class<This>>: Colony<>
 }

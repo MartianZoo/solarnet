@@ -3,7 +3,6 @@ package dev.martianzoo.types
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.data.BundleMetadata
 import dev.martianzoo.data.ClassSelection
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
@@ -24,6 +23,7 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.api.Bundle
 import dev.martianzoo.tfm.api.TfmAuthority
+import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 import io.kotest.assertions.throwables.shouldThrow
@@ -441,27 +441,16 @@ internal class ClassTest {
               parseClasses(
                       """
                       ABSTRACT CLASS Module
-                      CLASS Requested : Module
-                      CLASS Active<Conditional> : AutoLoad
-                      CLASS Conditional
+                      ABSTRACT CLASS StandardAction
+                      CLASS Requested : Module { This:: Active }
+                      CLASS Active<ConditionalAction>
                       CLASS Flag
                       """
                           .trimIndent()
                   )
                   .toSetStrict()
-          override val metadata =
-              BundleMetadata(
-                  moduleClassSelections =
-                      mapOf(
-                          cn("Requested") to
-                              setOf(
-                                  ClassSelection(
-                                      cn("Conditional"),
-                                      requirement = parse("Flag"),
-                                  )
-                              )
-                      )
-              )
+          override val standardActionDefinitions =
+              setOf(StandardActionDefinition(cn("ConditionalAction"), emptyList(), "Flag"))
         }
     val premise = authority.gamePremise(GameConfig("Requested"))
 

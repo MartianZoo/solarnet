@@ -32,7 +32,7 @@ class TriggerScalingTest {
                       CLASS ScaledResult
                       CLASS UnscaledResult
 
-                      CLASS TriggerScalingProbe : AutoLoad {
+                      CLASS TriggerScalingProbe {
                         HAS =1 This
                         ScalingSignal: ScaledResult
                         X ScalingSignal: UnscaledResult

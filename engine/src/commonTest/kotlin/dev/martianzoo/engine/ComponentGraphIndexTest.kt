@@ -41,7 +41,7 @@ private object IndexProbeDeclarations : TfmAuthority() {
               """
               ABSTRACT CLASS LeftBranch
               ABSTRACT CLASS RightBranch
-              CLASS BothBranches : LeftBranch, RightBranch, AutoLoad
+              CLASS BothBranches : LeftBranch, RightBranch
               """
                   .trimIndent()
           )

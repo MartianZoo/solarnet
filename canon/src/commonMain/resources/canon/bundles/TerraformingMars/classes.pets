@@ -1,6 +1,11 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
-  HAS =1 MarsMap
+  HAS =1 MarsMap, =1 Mode
+  HAS =1 Class<Production>
+  HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
+  autoSelectWhen = HAS MAX 0 TerraformingMars
+
+  This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
 
   SetupPhase IF 2 Player:: BeginGame
 
@@ -222,7 +227,7 @@ ABSTRACT CLASS Resource : Owned {
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
 // IMPL: This should narrow ownership to Owner, but bare production uses the same contextual
 // Owner binding as Resource and becomes incorrectly unbound when Owner is the declared bound.
-CLASS Production<Class<StandardResource>> : Owned, AutoLoad {
+CLASS Production<Class<StandardResource>> : Owned {
   ProductionPhase: StandardResource
 }
 
@@ -298,18 +303,18 @@ ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
 
 "A standard project, as the game defines it (but excluding Sell Patents)"
 ABSTRACT CLASS StandardProject : HasActions {
-  HAS =1 This
+  HAS MAX 1 This
   cost = Number
   UseAction<This>:: Owed<Class<Megacredit>> / This.cost
   -> Payment<Class<This>>
 }
 
-CLASS PowerPlantSP : StandardProject, AutoLoad {
+CLASS PowerPlantSP : StandardProject {
   cost = 11
   CostPaid<Class<This>>: PROD[Energy]
 }
 
-CLASS AsteroidSP : StandardProject, AutoLoad {
+CLASS AsteroidSP : StandardProject {
   cost = 14
   CostPaid<Class<This>>: TemperatureStep
 }
@@ -319,17 +324,17 @@ CLASS BufferGasSP : StandardProject {
   CostPaid<Class<This>>: TerraformRating
 }
 
-CLASS AquiferSP : StandardProject, AutoLoad {
+CLASS AquiferSP : StandardProject {
   cost = 18
   CostPaid<Class<This>>: OceanTile<>
 }
 
-CLASS GreenerySP : StandardProject, AutoLoad {
+CLASS GreenerySP : StandardProject {
   cost = 23
   CostPaid<Class<This>>: GreeneryTile<>
 }
 
-CLASS CitySP : StandardProject, AutoLoad {
+CLASS CitySP : StandardProject {
   cost = 25
   CostPaid<Class<This>>: PROD[1], CityTile<>
 }
@@ -392,7 +397,7 @@ ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
 // PHASES
 
 "The current game phase; exactly one exists from the start of SetupPhase onward"
-ABSTRACT CLASS Phase : AutoLoad, System {
+ABSTRACT CLASS Phase : System {
   HAS =1 Phase
 
   CLASS SetupPhase
@@ -452,15 +457,25 @@ CLASS StartToken : Owned<Player> {
 "An affirmative, immutable Module active in a playable game"
 ABSTRACT CLASS Module : System {
   HAS =1 This
+  autoSelectWhen = Requirement?
+  premiseRequirement = Requirement?
   -This:: Die!
+}
+
+"A mutually exclusive board selection Module"
+ABSTRACT CLASS MarsMapOption : Module {
+  premiseRequirement = HAS =1 TerraformingMars
 }
 
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS Mode : Module {
   HAS MAX 1 Mode
+  premiseRequirement = HAS =1 TerraformingMars
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
+    autoSelectWhen = HAS 2 Player
+
     GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
     EndPhase: End THEN FinalScore
     FinalScore: MultiplayerVictoryCheck
@@ -473,6 +488,10 @@ CLASS MultiplayerVictoryCheck : Custom
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
+  HAS =1 SoloVariant, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>
+  autoSelectWhen = HAS =1 Player
+
+  This:: SoloOpponent
   SetupPhase:: GenerationSetup THEN BeginGame
   GenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
@@ -487,12 +506,14 @@ ABSTRACT CLASS SoloVariant : Module {
 
   "The original solo victory objective: complete every required global parameter"
   CLASS StandardSoloVariant {
+    autoSelectWhen = HAS SoloMode, MAX 0 Tr63SoloVariant
+
     SoloVictoryCheck IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>, MAX 0 SoloVictoryRequirement: Victory<Player1>.
   }
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloVariant {
-    HAS =1 BufferGasSP
+    This:: BufferGasSP
 
     SetupPhase: Tr63SoloObjective
     SoloVictoryCheck IF 63 TerraformRating<Player1>: Victory<Player1>.
@@ -516,7 +537,7 @@ CLASS SoloVictoryCheck : Signal, System
 
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner {
-  HAS =1 This
+  HAS MAX 1 This
   SetupPhase: SoloStartingPlacement
 }
 
