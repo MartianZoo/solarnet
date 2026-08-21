@@ -310,7 +310,8 @@ Auto-execution modes are:
 - `FIRST`: choose the first preparable task in stable iteration order.
 
 Scanning is global. Assignee selects the queue; stored Actor controls attribution. Failed candidates
-receive `whyPending`.
+receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplication in the current
+scheduling boundaries and the proposed direction; it does not describe committed behavior.
 
 `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
 layers. Treat it as transitional; test conveniences and player-facing domain actions need not

@@ -63,6 +63,10 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Low priority:** Consider compiling Pets during the build into validated runtime artifacts, but
   only if one compiler can replace runtime parsing/validation without creating a second semantic
   model.
+- Replace projection-local Class and Type ownership with the Authority-wide identities and explicit
+  game-filtered views proposed in
+  [`docs/agents/CLASS_TABLES.md`](docs/agents/CLASS_TABLES.md); eliminate reverse navigation from
+  `Class` and `Type` to a game `ClassTable` and stop rebuilding every Class for every game.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do not award it TR,
   and whether adding and then removing those steps has any other observable consequences.
 
@@ -124,7 +128,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   — Resolve contextual ownership correctly and display the resolved player.
 - Reorganize Kotlin packages so each Gradle module owns a strong, recognizable package subtree; once ownership is unambiguous, consider merging physical source directories into shared package-shaped trees.
 - **Medium priority:** Model Prelude plays as explicit first and second turns.
-- Rethink autoexec as a coherent project: distinguish expected domain failures from defects and simplify `autoExecNext`.
+- Rethink autoexec as a coherent project: first centralize draining at one outer command boundary,
+  then distinguish expected domain failures from defects and simplify `autoExecNext`; see
+  [`docs/agents/AUTOEXEC.md`](docs/agents/AUTOEXEC.md).
 - **Medium priority:** Separate Authority data from premise resolution, and split `TfmAuthority`'s
   generic declaration aggregation/validation into `Authority` from the Terraforming Mars registries
   in `TfmAuthority`.
@@ -168,8 +174,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - Represent the printed region for immediate instruction groups explicitly enough to distinguish
   Stratospheric Birds (removal above the artwork beside its action) from cards such as Potatoes
   (the whole immediate group below) before expanding English card-resource removal derivation.
-- Rename the implementation's `phantom` vocabulary to the official `uninhabited` terminology,
-  keeping that API migration separate from the documentation change that settled the model.
+- Replace the implementation's `phantom` vocabulary with game-view inhabitation queries as part of
+  [`docs/agents/CLASS_TABLES.md`](docs/agents/CLASS_TABLES.md); avoid a standalone rename if that
+  ownership change is underway.
 - Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
   suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
   successful spec's console result and terminate the full run.
