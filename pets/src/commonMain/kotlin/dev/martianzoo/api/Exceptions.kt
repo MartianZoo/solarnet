@@ -14,7 +14,7 @@ public object Exceptions {
 
   internal fun classNotFound(className: ClassName) =
       ExpressionException(
-          "No class with name or id `$className` in current game (check bundles, check spelling)",
+          "No class named `$className` in current game (check bundles, check spelling)",
       )
 
   internal fun badExpression(specExpression: Expression, deps: String) =

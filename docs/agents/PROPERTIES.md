@@ -57,8 +57,8 @@ property is a fact about the Class, and inheritance accumulates and narrows fact
 A numeric class-property read is a Metric:
 
 ```text
-Card001.cost
-Class<Card001>.cost
+ColonizerTrainingCamp.cost
+Class<ColonizerTrainingCamp>.cost
 CardFront(HAS 20 cost)
 ```
 
@@ -83,8 +83,8 @@ A class property should be declared at the highest Class for which asking the qu
 not at a broader Class with a dummy value.
 
 `row` and `column` belong to `MarsArea`, not `Area`. Phobos Space Haven's derived
-`Card021_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
-`Card021_RemoteArea.row` is a nonsense question and fails
+`PhobosSpaceHaven_RemoteArea : RemoteArea` therefore has no such class properties. Asking for
+`PhobosSpaceHaven_RemoteArea.row` is a nonsense question and fails
 because the class property does not exist; it does not return zero or an absent value.
 
 Use a cardinality type only when the question applies to every member of the declaring Class but a

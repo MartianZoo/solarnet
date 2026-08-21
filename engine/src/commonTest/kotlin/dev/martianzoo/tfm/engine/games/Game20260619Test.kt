@@ -157,7 +157,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER drew 1 card(s)
     // You drew Immigrant City
     ER.turn {
-      playProject(RestrictedArea, 11) { doTask("Card199_SpecialTile<Tharsis_3_7>") }
+      playProject(RestrictedArea, 11) { doTask("RestrictedArea_SpecialTile<Tharsis_3_7>") }
           .expect("-7, Steel")
       cardAction1(RestrictedArea)
     }
@@ -245,7 +245,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // ER gained 2 plants
     // ER gained 2 M€ from 1 ocean(s)
     ER.turn {
-      playProject(NuclearZone, 7) { doTask("Card097_SpecialTile<Tharsis_5_9>") }
+      playProject(NuclearZone, 7) { doTask("NuclearZone_SpecialTile<Tharsis_5_9>") }
 
       // ER played Lagrange Observatory
       // ER drew 1 card(s)
@@ -346,7 +346,7 @@ class Game20260619Test : AbstractFullGameTest() {
     // You drew Large Convoy
     // ER ended turn
     ER.turn {
-      playProject(MoholeArea, 18, steel = 1) { doTask("Card142_SpecialTile<Tharsis_1_4>") }
+      playProject(MoholeArea, 18, steel = 1) { doTask("MoholeArea_SpecialTile<Tharsis_1_4>") }
     }
 
     // KB played Ore Processor

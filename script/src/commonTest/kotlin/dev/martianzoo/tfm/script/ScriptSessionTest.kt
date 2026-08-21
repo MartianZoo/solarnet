@@ -30,7 +30,7 @@ internal class ScriptSessionTest {
   fun descIncludesCanonicalAndAlternateClassNames() {
     val description = ScriptSession().command("desc Birds").single()
 
-    assertContains(description, "Class `Card072`:")
+    assertContains(description, "Class `Birds`:")
     assertContains(description, "alt name:    Birds")
   }
 
@@ -452,7 +452,7 @@ internal class ScriptSessionTest {
     )
     repl.command(
         "as Player2 exec GreeneryTile<Tharsis_4_5>, CityTile<Tharsis_6_6>, " +
-            "Card142_SpecialTile<Tharsis_9_9>"
+            "MoholeArea_SpecialTile<Tharsis_9_9>"
     )
     assertTrue(repl.command("tasks").isEmpty())
     assertEquals(8, repl.gameplay.count("Tile"))

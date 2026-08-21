@@ -16,17 +16,17 @@ internal class MilestoneDefinitionTest {
               "groups": [{
                 "setupRequirement": "DemoMapOption",
                 "milestones": [
-                  { "id": "BM1", "requirement": "35 TerraformRating" },
+                  { "name": "Terraformer35", "requirement": "35 TerraformRating" },
                 ],
                 "groups": [{
                   "setupRequirement": "VenusNextExpansion",
-                  "milestones": [{ "id": "VM1", "requirement": "3 VenusTag" }],
+                  "milestones": [{ "name": "Hoverlord", "requirement": "3 VenusTag" }],
                 }],
               }, {
                 "setupRequirement": "UtopiaPlanitiaMapOption",
                 "milestones": [
                 {
-                  "id": "UM1",
+                  "name": "Pioneer3",
                   "setupRequirement": "ColoniesExpansion",
                   "requirement": "3 Colony",
                 },
@@ -36,13 +36,13 @@ internal class MilestoneDefinitionTest {
             """
         )
 
-    val terraformer = milestones.single { it.className == cn("MilestoneBM1") }
+    val terraformer = milestones.single { it.className == cn("Terraformer35") }
     terraformer.setupRequirement.toString() shouldBe "DemoMapOption"
     terraformer.asClassDeclaration.properties[PropertyName("requirement")] shouldBe
         RequirementValue(terraformer.requirement)
-    milestones.single { it.className == cn("MilestoneVM1") }.setupRequirement.toString() shouldBe
+    milestones.single { it.className == cn("Hoverlord") }.setupRequirement.toString() shouldBe
         "DemoMapOption, VenusNextExpansion"
-    milestones.single { it.className == cn("MilestoneUM1") }.setupRequirement.toString() shouldBe
+    milestones.single { it.className == cn("Pioneer3") }.setupRequirement.toString() shouldBe
         "UtopiaPlanitiaMapOption, ColoniesExpansion"
   }
 }

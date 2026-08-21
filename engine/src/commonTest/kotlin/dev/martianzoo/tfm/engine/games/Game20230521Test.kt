@@ -745,7 +745,7 @@ class Game20230521Test : AbstractFullGameTest() {
 
     // Player1 claimed Builder milestone
     p1.turn {
-      stdAction("ClaimMilestoneSA") { doTask("Builder") }.expect("Milestone")
+      stdAction("ClaimMilestoneSA") { doTask("Builder8") }.expect("Milestone")
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
       // You drew Quantum Extractor
@@ -952,7 +952,7 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject(MoholeLake, 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
           .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TR, -7")
       // Player1 claimed Terraformer milestone
-      stdAction("ClaimMilestoneSA") { doTask("Terraformer") }.expect("-8")
+      stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }.expect("-8")
     }
 
     // Player2 used Convert Heat standard action
@@ -1051,12 +1051,12 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 played Deimos Down:promo
     // Player2's steel amount increased by 4
     p2.turn {
-      playProject(DeimosDown, 9, titanium = 5) {
+      playProject(DeimosDownPromo, 9, titanium = 5) {
         // Player2 placed ocean tile on row 6 position 6
         // Player2's plants amount increased by 1
         p2.doTask("OceanTile<Tharsis_6_7>")
         // Player2 placed Deimos Down tile on row 2 position 5
-        p2.doTask("CardX31_SpecialTile<Tharsis_2_5>")
+        p2.doTask("DeimosDownPromo_SpecialTile<Tharsis_2_5>")
         // Player1's plants amount decreased by 4 by Player2
         p2.doTask("-4 Plant<Player1>")
         // Player2 gained 2 plants from Arctic Algae
@@ -1131,7 +1131,7 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject(EcologicalZone, 10) {
             // Player2 placed Ecological Zone tile on row 4 position 5
             // Player2's plants amount increased by 2
-            doTask("Card128_SpecialTile<Tharsis_4_5>")
+            doTask("EcologicalZone_SpecialTile<Tharsis_4_5>")
           }
           .expect("2 Animal, 2 Plant")
 
@@ -1191,7 +1191,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2 placed Natural Preserve tile on row 3 position 1
         // Player2 drew 1 card(s)
         // You drew Black Polar Dust
-        doTask("Card044_SpecialTile<Tharsis_3_1>")
+        doTask("NaturalPreserve_SpecialTile<Tharsis_3_1>")
       }
     }
 
@@ -1593,9 +1593,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2's plants production increased by 2
     // Player2's energy production decreased by 4
     p2.turn {
-      playProject(MagneticFieldGenerators, 2, steel = 6) {
+      playProject(MagneticFieldGeneratorsPromo, 2, steel = 6) {
             // Player2 placed Magnetic Field Generators tile on row 6 position 5
-            doTask("CardX33_SpecialTile<Tharsis_6_6>")
+            doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_6_6>")
             // Player2's plants amount increased by 1
           }
           .expect("PROD[-4 Energy, 2 Plant], 3 TR, Plant")

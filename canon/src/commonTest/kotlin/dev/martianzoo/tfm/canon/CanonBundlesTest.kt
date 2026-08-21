@@ -18,10 +18,10 @@ internal class CanonBundlesTest {
 
     hellas.isActive(cn("Hellas")) shouldBe true
     hellas.isActive(cn("Elysium")) shouldBe false
-    hellas.isActive(cn("MilestoneHM0")) shouldBe true
-    hellas.isActive(cn("MilestoneHM5")) shouldBe false
-    hellas.isActive(cn("AwardHA0")) shouldBe true
-    hellas.isActive(cn("AwardHA5")) shouldBe false
+    hellas.isActive(cn("Diversifier")) shouldBe true
+    hellas.isActive(cn("Generalist")) shouldBe false
+    hellas.isActive(cn("Cultivator")) shouldBe true
+    hellas.isActive(cn("Celebrity")) shouldBe false
   }
 
   @Test
@@ -40,8 +40,8 @@ internal class CanonBundlesTest {
     val withoutColonies = table(cn("UtopiaPlanitiaMapOption"))
     val withColonies = table(cn("UtopiaPlanitiaMapOption"), cn("ColoniesExpansion"))
 
-    withoutColonies.isActive(cn("MilestoneUM1")) shouldBe false
-    withColonies.isActive(cn("MilestoneUM1")) shouldBe true
+    withoutColonies.isActive(cn("Pioneer3")) shouldBe false
+    withColonies.isActive(cn("Pioneer3")) shouldBe true
   }
 
   @Test
@@ -49,8 +49,8 @@ internal class CanonBundlesTest {
     val base = table(cn("TharsisMapOption"))
     val venus = table(cn("TharsisMapOption"), cn("VenusNextExpansion"))
 
-    base.isActive(cn("MilestoneVM1")) shouldBe false
-    venus.isActive(cn("MilestoneVM1")) shouldBe true
+    base.isActive(cn("Hoverlord")) shouldBe false
+    venus.isActive(cn("Hoverlord")) shouldBe true
   }
 
   @Test
@@ -58,32 +58,32 @@ internal class CanonBundlesTest {
     val base = table(cn("TharsisMapOption"))
     val expanded = table(cn("TharsisMapOption"), cn("MilestonesAwardsExpansion"))
 
-    base.isActive(cn("MilestoneMM02")) shouldBe false
-    base.isActive(cn("MilestoneBM4")) shouldBe true
-    expanded.isActive(cn("MilestoneMM02")) shouldBe true
-    expanded.isActive(cn("MilestoneBM4")) shouldBe false
-    expanded.isActive(cn("AwardMA01")) shouldBe true
-    expanded.isActive(cn("AwardMA21")) shouldBe true
+    base.isActive(cn("Builder7")) shouldBe false
+    base.isActive(cn("Builder8")) shouldBe true
+    expanded.isActive(cn("Builder7")) shouldBe true
+    expanded.isActive(cn("Builder8")) shouldBe false
+    expanded.isActive(cn("Administrator")) shouldBe true
+    expanded.isActive(cn("Landscaper")) shouldBe true
   }
 
   @Test
   fun promoModuleReplacesCardsWithoutRemovingEitherFromTheAuthority() {
     val relevant =
         setOf(
-            cn("Card039"),
-            cn("Card136"),
-            cn("Card165"),
-            cn("CardX31"),
-            cn("CardX32"),
-            cn("CardX33"),
+            cn("DeimosDown"),
+            cn("GreatDam"),
+            cn("MagneticFieldGenerators"),
+            cn("DeimosDownPromo"),
+            cn("GreatDamPromo"),
+            cn("MagneticFieldGeneratorsPromo"),
         )
     val withoutPromos = table(cn("TharsisMapOption"))
     val withPromos = table(cn("TharsisMapOption"), cn("PromoCardPack"))
 
     relevant.filterTo(linkedSetOf(), withoutPromos::isActive) shouldBe
-        setOf(cn("Card039"), cn("Card136"), cn("Card165"))
+        setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
     relevant.filterTo(linkedSetOf(), withPromos::isActive) shouldBe
-        setOf(cn("CardX31"), cn("CardX32"), cn("CardX33"))
+        setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
     Canon.allClassNames.containsAll(relevant) shouldBe true
   }
 

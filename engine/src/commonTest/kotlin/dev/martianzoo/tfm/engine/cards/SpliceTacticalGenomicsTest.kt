@@ -7,7 +7,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class CardXC3Test : CardTest() {
+class SpliceTacticalGenomicsTest : CardTest() {
   @Test
   fun `Splice pays itself four megacredits`() {
     newGame(PromoCardPack)

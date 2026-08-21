@@ -232,3 +232,40 @@ The target premise pipeline is:
 One analysis result should explain every decision: which reference derived an automatic exclusion,
 which hard-reference path activated a Class, or which permanently false condition made selected
 content unviable.
+
+## Non-Canon Kotlin expansion-coupling audit
+
+**Status:** verified current production code. This inventory excludes the `canon` module, tests,
+and benchmarks. Severity describes pressure on the design boundary, not a conclusion that every
+named domain concept should become generic.
+
+1. **Severe — workflow hard-coding.** `engine/.../TfmWorkflow.kt` exposes `PreludePhase`, tests for
+   `PreludeExpansion`, and grants the two Prelude plays itself. This is the clearest architectural
+   leak: the base Kotlin workflow knows how one optional Module changes phase topology. The native
+   workflow direction in `WORKFLOW.md` should remove this dependency.
+2. **Significant — Colonies is privileged throughout premise infrastructure.**
+   `pets/.../TfmAuthority.kt` recognizes colony definitions during naming, configuration,
+   validation, initial-Type construction, lookup, bundle selection, and Authority composition.
+   `pets/.../BundleContentSelection.kt` adds `COLONY_TILES` as a dedicated content kind;
+   `pets/.../ColonyTileDefinition.kt` generates Colonies-specific declarations; and
+   `pets/.../JsonReader.kt` has a dedicated colony format. Some structured colony metadata is an
+   honest domain boundary, but selection and premise assembly should not acquire an expansion
+   exception merely because that metadata produces initial components.
+3. **Moderate — expansion concepts appear in engine and card APIs.**
+   `engine/.../TfmGameplay.kt` publishes `playPrelude` and `venusPercent`.
+   `pets/.../CardDefinition.kt` and `pets/.../TfmClasses.kt` make Prelude a built-in deck kind and
+   give it special validation. These are real dependencies, but `PreludeCard` and `VenusStep` are
+   legitimate Terraforming Mars concepts; removing their names is not inherently a simplification.
+4. **Low — the legacy script boundary enumerates concrete products.**
+   `script/.../OptionCodeTranslation.kt` names Corporate Era, the map products, Milestones and
+   Awards, Venus, Prelude, Colonies, Turmoil, and Promos. `script/.../ScriptSession.kt` and
+   `script/.../commands/NewGameCommand.kt` carry a separate selected-colonies input path. Explicit
+   product names are reasonable in this adapter, while that separate colony path reflects the
+   deeper premise asymmetry above.
+5. **Minimal — descriptions, samples, reports, and comments.**
+   `language/.../TerraformingMarsDescribers.kt` describes Venus and colony concepts;
+   `script/.../tfm/script/SampleGames.kt` and `script/.../tfm/script/commands/TfmSampleCommand.kt`
+   demonstrate Prelude and Venus play; `tools/.../TypeStructureReport.kt` and
+   `tools/.../StandardResourceMonotonicityReport.kt` deliberately select expansions for reports;
+   and `pets/.../ast/Expression.kt` mentions `VenusTag` only in documentation. These do not put
+   expansion policy into reusable runtime behavior.

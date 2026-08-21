@@ -65,7 +65,7 @@ The component graph says what **is** or what **is happening**. This includes tra
 an operation when their identity, cardinality, or individual changes matter. `Owed` records the
 current debt and lets the event history attribute each reduction to Earth Catapult, Advanced
 Alloys, a payment, or another cause. `Required` similarly records a quantitative global-parameter
-shortfall. `CardX53FirstChoice` carries one selected card identity into a later choice, and
+shortfall. `CyberiaSystemsFirstChoice` carries one selected card identity into a later choice, and
 `AwardTally` carries measured values into award comparison. Their temporary or process-local nature
 does not make them task metadata.
 
@@ -326,7 +326,7 @@ different needs that should not be collapsed into one vague â€œautomatic `THEN`â
 
 Marking an action card before `UseAction` prevents a second use but makes Viron's own marker visible
 to Viron's target Requirement, producing the awkward
-`ActionUsedMarker<!CardVC5>` Complement. Marking it afterward as ordinary queued work makes the
+`ActionUsedMarker<!Viron>` Complement. Marking it afterward as ordinary queued work makes the
 marker deferrable and can permit another use.
 
 An author-local automatic tail might help with hidden bookkeeping, but it would not by itself solve

@@ -267,9 +267,9 @@ internal class CanonClassesTest {
     checkConcreteSubtypeCount("CityTile", 63 * 2)
     checkConcreteSubtypeCount("OceanTile", 61)
     checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
-    checkConcreteSubtypeCount("Card044_SpecialTile", 48 * 2)
-    checkConcreteSubtypeCount("Card085_SpecialTile", 61 * 2)
-    checkConcreteSubtypeCount("Card142_SpecialTile", 12 * 2)
+    checkConcreteSubtypeCount("NaturalPreserve_SpecialTile", 48 * 2)
+    checkConcreteSubtypeCount("CommercialDistrict_SpecialTile", 61 * 2)
+    checkConcreteSubtypeCount("MoholeArea_SpecialTile", 12 * 2)
     val landConstrainedSpecialTiles = 4 * 48
     val unconstrainedSpecialTiles = 5 * 61
     val waterConstrainedSpecialTiles = 12

@@ -6,12 +6,12 @@ import kotlin.test.Test
 
 internal class StandardActionDefinitionTest {
   @Test
-  fun jsonIdIsTheCanonicalClassName() {
+  fun jsonNameIsTheCanonicalClassName() {
     val definition =
         JsonReader.readActions(
                 """
                 {
-                  actions: [{ id: "ExampleSA", action: "-> Plant" }],
+                  actions: [{ name: "ExampleSA", action: "-> Plant" }],
                 }
                 """
             )

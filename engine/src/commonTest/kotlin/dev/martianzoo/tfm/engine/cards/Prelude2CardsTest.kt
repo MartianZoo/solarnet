@@ -186,16 +186,14 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("$EarlyColonization") { doTask("Colony<Luna>") }
 
     colonyTiles.forEach { tile ->
-      engine.count("ColonyProduction<$tile>") shouldBe
-          if (tile.toString() == "ColonyTile07") 6 else 3
+      engine.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 3
     }
     p1.count("Energy") shouldBe 3
 
     engine.phase("Production")
     TfmWorkflow.Manual(game).solarPhase()
     colonyTiles.forEach { tile ->
-      engine.count("ColonyProduction<$tile>") shouldBe
-          if (tile.toString() == "ColonyTile07") 6 else 4
+      engine.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 4
     }
   }
 

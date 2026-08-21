@@ -73,7 +73,7 @@ class UtopiaCimmeriaExpansionTest : CardTest() {
     newGame(TerraCimmeriaMapOption)
     val p2 = requireP2()
     p1.manual("8, CityTile<Cimmeria_3_3>")
-    p2.manual("Card067_SpecialTile<Cimmeria_3_2>, Card044_SpecialTile<Cimmeria_3_4>")
+    p2.manual("MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>")
     engine.phase("Action")
 
     p1.stdAction("FundAwardSA") { doTask("Founder") }

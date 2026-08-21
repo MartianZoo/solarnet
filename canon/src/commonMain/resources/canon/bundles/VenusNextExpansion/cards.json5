@@ -1,18 +1,16 @@
 {
   "cards": [
 
-    // Aphrodite
     {
-      "id": "VC1",
+      "name": "Aphrodite",
       "deck": "CORPORATION",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "47, PROD[Plant]",
       "effects": [ "VenusStep BY Anyone: 2" ],
     },
 
-    // Celestic[F]
     {
-      "id": "VC2F",
+      "name": "Celestic",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
       "resourceType": "Floater",
@@ -21,36 +19,32 @@
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
     },
 
-    // Manutech
     {
-      "id": "VC3",
+      "name": "Manutech",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "35, PROD[Steel]",
       "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
-    // Morning Star Inc.[F]
     {
-      "id": "VC4F",
+      "name": "MorningStarInc",
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
       "immediate": "50, Mandate { -> 3 ProjectCard }",
       "effects": [ "PlayCard: -2 Required<Class<VenusStep>>." ],
     },
 
-    // Viron
     {
-      "id": "VC5",
+      "name": "Viron",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": "48",
-      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!CardVC5>)>" ],
+      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker<!Viron>)>" ],
     },
 
-    // Aerial Mappers
     {
-      "id": "213",
+      "name": "AerialMappers",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -63,9 +57,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Aerosport Tournament
     {
-      "id": "214",
+      "name": "AerosportTournament",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "5 Floater",
@@ -74,9 +67,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Air-Scrapping Expedition
     {
-      "id": "215",
+      "name": "AirScrappingExpedition",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 13,
@@ -84,9 +76,8 @@
       "immediate": "VenusStep, 3 Floater<CardFront(HAS VenusTag)>",
     },
 
-    // Atalanta Planitia Lab
     {
-      "id": "216",
+      "name": "AtalantaPlanitiaLab",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 ScienceTag",
@@ -96,9 +87,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Atmoscoop
     {
-      "id": "217",
+      "name": "Atmoscoop",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 ScienceTag",
@@ -108,9 +98,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Comet For Venus
     {
-      "id": "218",
+      "name": "CometForVenus",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 11,
@@ -118,9 +107,8 @@
       "immediate": "VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?",
     },
 
-    // Corroder Suits
     {
-      "id": "219",
+      "name": "CorroderSuits",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 8,
@@ -128,9 +116,8 @@
       "immediate": "PROD[2], CardResource<CardFront(HAS VenusTag)>",
     },
 
-    // Dawn City
     {
-      "id": "220",
+      "name": "DawnCity",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 ScienceTag",
@@ -140,9 +127,8 @@
       "effects": [ "End: 3 VictoryPoint" ],
     },
 
-    // Deuterium Export
     {
-      "id": "221",
+      "name": "DeuteriumExport",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -154,9 +140,8 @@
       ],
     },
 
-    // Dirigibles
     {
-      "id": "222",
+      "name": "Dirigibles",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -169,9 +154,8 @@
       ],
     },
 
-    // Extractor Balloons
     {
-      "id": "223",
+      "name": "ExtractorBalloons",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 21,
@@ -184,9 +168,8 @@
       ],
     },
 
-    // Extremophiles
     {
-      "id": "224",
+      "name": "Extremophiles",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",
@@ -197,9 +180,8 @@
       "effects": [ "End: VictoryPoint / 3 Microbe<This>" ],
     },
 
-    // Floating Habs
     {
-      "id": "225",
+      "name": "FloatingHabs",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",
@@ -210,9 +192,8 @@
       "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
     },
 
-    // Forced Precipitation
     {
-      "id": "226",
+      "name": "ForcedPrecipitation",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
@@ -224,9 +205,8 @@
       ],
     },
 
-    // Freyja Biodomes
     {
-      "id": "227",
+      "name": "FreyjaBiodomes",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "5 VenusStep",
@@ -236,9 +216,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // GHG Import From Venus
     {
-      "id": "228",
+      "name": "GhgImportFromVenus",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 23,
@@ -246,9 +225,8 @@
       "immediate": "VenusStep, PROD[3 Heat]",
     },
 
-    // Giant Solar Shade
     {
-      "id": "229",
+      "name": "GiantSolarShade",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 27,
@@ -256,9 +234,8 @@
       "immediate": "3 VenusStep",
     },
 
-    // Gyropolis
     {
-      "id": "230",
+      "name": "Gyropolis",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 20,
@@ -266,9 +243,8 @@
       "immediate": "PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag], CityTile<>",
     },
 
-    // Hydrogen To Venus
     {
-      "id": "231",
+      "name": "HydrogenToVenus",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 11,
@@ -276,9 +252,8 @@
       "immediate": "VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag",
     },
 
-    // Io Sulphur Research
     {
-      "id": "232",
+      "name": "IoSulphurResearch",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 17,
@@ -287,9 +262,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Ishtar Mining
     {
-      "id": "233",
+      "name": "IshtarMining",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 VenusStep",
@@ -298,9 +272,8 @@
       "immediate": "PROD[Titanium]",
     },
 
-    // Jet Stream Microscrappers
     {
-      "id": "234",
+      "name": "JetStreamMicroscrappers",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 12,
@@ -312,9 +285,8 @@
       ],
     },
 
-    // Local Shading
     {
-      "id": "235",
+      "name": "LocalShading",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -326,9 +298,8 @@
       ],
     },
 
-    // Luna Metropolis
     {
-      "id": "236",
+      "name": "LunaMetropolis",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 21,
@@ -337,9 +308,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Luxury Foods
     {
-      "id": "237",
+      "name": "LuxuryFoods",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
@@ -347,9 +317,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Maxwell Base
     {
-      "id": "238",
+      "name": "MaxwellBase",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "6 VenusStep",
@@ -360,9 +329,8 @@
       "effects": [ "End: 3 VictoryPoint" ],
     },
 
-    // Mining Quota
     {
-      "id": "239",
+      "name": "MiningQuota",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
@@ -371,9 +339,8 @@
       "immediate": "PROD[2 Steel]",
     },
 
-    // Neutralizer Factory
     {
-      "id": "240",
+      "name": "NeutralizerFactory",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "5 VenusStep",
@@ -382,9 +349,8 @@
       "immediate": "VenusStep",
     },
 
-    // Omnicourt
     {
-      "id": "241",
+      "name": "Omnicourt",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
@@ -393,9 +359,8 @@
       "immediate": "2 TerraformRating",
     },
 
-    // Orbital Reflectors
     {
-      "id": "242",
+      "name": "OrbitalReflectors",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 26,
@@ -403,9 +368,8 @@
       "immediate": "2 VenusStep, PROD[2 Heat]",
     },
 
-    // Rotator Impacts
     {
-      "id": "243",
+      "name": "RotatorImpacts",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "MAX 7 VenusStep",
@@ -419,9 +383,8 @@
       ],
     },
 
-    // Sister Planet Support
     {
-      "id": "244",
+      "name": "SisterPlanetSupport",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag",
@@ -430,9 +393,8 @@
       "immediate": "PROD[3]",
     },
 
-    // Solarnet
     {
-      "id": "245",
+      "name": "Solarnet",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "VenusTag, EarthTag, JovianTag",
@@ -441,9 +403,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Spin-Inducing Asteroid
     {
-      "id": "246",
+      "name": "SpinInducingAsteroid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "MAX 5 VenusStep",
@@ -452,9 +413,8 @@
       "immediate": "2 VenusStep",
     },
 
-    // Sponsored Academies
     {
-      "id": "247",
+      "name": "SponsoredAcademies",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 9,
@@ -462,13 +422,12 @@
       "immediate": "-ProjectCard THEN (2 ProjectCard, Signal {})",
       "effects": [ "End: VictoryPoint" ],
       "components": [
-        "CLASS Card247Watcher : Owned<Player> { HAS =1 This; Card247_Signal BY Anyone: ProjectCard }"
+        "CLASS SponsoredAcademiesWatcher : Owned<Player> { HAS =1 This; SponsoredAcademies_Signal BY Anyone: ProjectCard }"
       ],
     },
 
-    // Stratopolis
     {
-      "id": "248",
+      "name": "Stratopolis",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",
@@ -480,9 +439,8 @@
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
     },
 
-    // Stratospheric Birds
     {
-      "id": "249",
+      "name": "StratosphericBirds",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "6 VenusStep",
@@ -494,9 +452,8 @@
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
 
-    // Sulphur Exports
     {
-      "id": "250",
+      "name": "SulphurExports",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 21,
@@ -504,9 +461,8 @@
       "immediate": "VenusStep, PROD[1 / VenusTag]",
     },
 
-    // Sulphur-Eating Bacteria
     {
-      "id": "251",
+      "name": "SulphurEatingBacteria",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "3 VenusStep",
@@ -519,9 +475,8 @@
       ],
     },
 
-    // Terraforming Contract
     {
-      "id": "252",
+      "name": "TerraformingContract",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "25 TerraformRating",
@@ -530,9 +485,8 @@
       "immediate": "PROD[4]",
     },
 
-    // Thermophiles
     {
-      "id": "253",
+      "name": "Thermophiles",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "3 VenusStep",
@@ -545,9 +499,8 @@
       ],
     },
 
-    // Water To Venus
     {
-      "id": "254",
+      "name": "WaterToVenus",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 9,
@@ -555,9 +508,8 @@
       "immediate": "VenusStep",
     },
 
-    // Venus Governor
     {
-      "id": "255",
+      "name": "VenusGovernor",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 VenusTag",
@@ -566,9 +518,8 @@
       "immediate": "PROD[2]",
     },
 
-    // Venus Magnetizer
     {
-      "id": "256",
+      "name": "VenusMagnetizer",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "5 VenusStep",
@@ -577,9 +528,8 @@
       "actions": [ "PROD[Energy] -> VenusStep" ],
     },
 
-    // Venus Soils
     {
-      "id": "257",
+      "name": "VenusSoils",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 20,
@@ -587,9 +537,8 @@
       "immediate": "VenusStep, PROD[Plant], 2 Microbe",
     },
 
-    // Venus Waystation
     {
-      "id": "258",
+      "name": "VenusWaystation",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 9,
@@ -600,9 +549,8 @@
       ],
     },
 
-    // Venusian Animals
     {
-      "id": "259",
+      "name": "VenusianAnimals",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "9 VenusStep",
@@ -615,9 +563,8 @@
       ],
     },
 
-    // Venusian Insects
     {
-      "id": "260",
+      "name": "VenusianInsects",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "6 VenusStep",
@@ -628,9 +575,8 @@
       "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
     },
 
-    // Venusian Plants
     {
-      "id": "261",
+      "name": "VenusianPlants",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "8 VenusStep",

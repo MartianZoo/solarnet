@@ -29,7 +29,7 @@ class BugsTest : CardTest() {
             p1.autoExecNow()
           }
         }
-    deadEnd.message shouldContain "CardX54F"
+    deadEnd.message shouldContain "FakeEstablishedMethods"
   }
 
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start

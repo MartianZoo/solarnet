@@ -453,7 +453,7 @@ class Game20260809Test : AbstractFullGameTest() {
       playProject(IndustrialCenter, 4) {
             // "Let's just get in your business over here. So I'm placing row two, column five, and"
             // "getting just one plant."
-            doTask("Card123_SpecialTile<Hellas_2_5>")
+            doTask("IndustrialCenter_SpecialTile<Hellas_2_5>")
           }
           .expect("P")
       assertCounts(1 to "M") // ledger entry 72
@@ -655,7 +655,7 @@ class Game20260809Test : AbstractFullGameTest() {
             // "It holds animals, so Miranda finally comes into play."
             // "I place the tile adjacent to a greenery on the almost-rightmost space in the fourth"
             // "row. That's four money and a plant."
-            doTask("Card128_SpecialTile<Hellas_4_8>")
+            doTask("EcologicalZone_SpecialTile<Hellas_4_8>")
             assertCounts(30 to "M") // ledger entry 169
           }
           .expect("-8, P, Miranda, 2 Animal")
@@ -1232,7 +1232,7 @@ class Game20260809Test : AbstractFullGameTest() {
             // "I'm going to place Restricted Area on the one-card space that is two above the south
             // pole"
             // "so that I can take a card."
-            doTask("Card199_SpecialTile<Hellas_7_6>")
+            doTask("RestrictedArea_SpecialTile<Hellas_7_6>")
           }
           .expect("0 ProjectCard")
     }

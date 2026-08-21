@@ -45,7 +45,7 @@ internal class EnglishTest {
     val animalCard =
         CardDefinition(
             CardData(
-                id = "AnimalHolder",
+                name = "AnimalHolder",
                 deck = "PROJECT",
                 projectKind = "ACTIVE",
                 resourceType = "Animal",
@@ -60,7 +60,7 @@ internal class EnglishTest {
     val requirementOnly =
         CardDefinition(
             CardData(
-                id = "RequirementOnly",
+                name = "RequirementOnly",
                 deck = "PROJECT",
                 projectKind = "AUTOMATED",
                 requirement = "OxygenStep",
@@ -75,7 +75,7 @@ internal class EnglishTest {
     val actionOnly =
         CardDefinition(
             CardData(
-                id = "ActionOnly",
+                name = "ActionOnly",
                 deck = "PROJECT",
                 projectKind = "ACTIVE",
                 actions = listOf("-> ProjectCard"),
