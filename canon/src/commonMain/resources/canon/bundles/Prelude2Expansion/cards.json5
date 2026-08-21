@@ -17,8 +17,8 @@
       "deck": "CORPORATION",
       "immediate": "31, PROD[Energy, 2], ProjectCard",
       "effects": [
-        "NonEventCard(HAS MAX 0 Tag): 4",
-        "NonEventCard(HAS =1 Tag) OR EventCard(HAS MAX 0 Tag): 1",
+        "CardFront(HAS MAX 0 Tag): 4",
+        "CardFront(HAS =1 Tag): 1",
       ],
     },
 
@@ -225,7 +225,8 @@
       "id": "P64",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      // horrible hack
+      // Preservation cancels a TR after its gain event; compensate Terraforming Deal for that
+      // canceled increase without depending on sibling trigger order.
       "effects": [ "TerraformRating: 2", "HasSkippedTr: -2" ],
     },
 

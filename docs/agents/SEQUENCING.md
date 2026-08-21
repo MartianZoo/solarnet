@@ -519,9 +519,9 @@ These are domain constraints even where the current workflow approximates them:
    all players pass.
 3. Existing energy converts before new production; production payouts are simultaneous for game
    rules unless evidence says otherwise.
-4. Solar checks game end before World Government Terraforming, Colonies, or Turmoil.
-5. Colonies fleet return and track advance follow World Government Terraforming. Current Canon does
-   them in Production/Generation and is incomplete.
+4. Solar checks game end before triggering World Government Terraforming, Colonies, and Turmoil
+   together; their relative order has no game significance.
+5. Colonies fleet return still happens in Generation and should move to the Solar trigger.
 6. Solo victory is tested before final greeneries.
 7. Final greenery fully drains one player before the next; scoring follows all consequences.
 

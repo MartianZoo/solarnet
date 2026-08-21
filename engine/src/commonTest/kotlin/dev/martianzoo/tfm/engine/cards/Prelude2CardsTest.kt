@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.Prelude2Expansion
-import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -46,7 +45,7 @@ class Prelude2CardsTest : CardTest() {
 
   @Test
   fun `Board of Directors remains in play and can play another prelude`() {
-    newGame(Prelude2Expansion, PreludeExpansion)
+    newGame(Prelude2Expansion)
     engine.phase("Prelude")
     p1.manual("12, 2 PreludeCard")
     p1.playPrelude(BoardOfDirectors)
@@ -55,12 +54,12 @@ class Prelude2CardsTest : CardTest() {
     p1.cardAction1(BoardOfDirectors) {
       doTask(
           "-12 THEN -Director<$BoardOfDirectors> THEN " +
-              "PlayCard<Class<PreludeCard>, Class<$Donation>>"
+              "PlayCard<Class<PreludeCard>, Class<$Recession>>"
       )
     }
 
     p1.count("Director<$BoardOfDirectors>") shouldBe 3
-    p1.count("$Donation") shouldBe 1
+    p1.count("$Recession") shouldBe 1
   }
 
   @Test
@@ -141,12 +140,12 @@ class Prelude2CardsTest : CardTest() {
 
   @Test
   fun `Suitable Infrastructure pays once for each action`() {
-    newGame(Prelude2Expansion, PreludeExpansion)
+    newGame(Prelude2Expansion)
     engine.phase("Prelude")
     p1.manual("$SuitableInfrastructure")
     val beforeTwoProductions = p1.count("Megacredit")
 
-    p1.manual("$DomeFarming")
+    p1.manual("PROD[Energy], PROD[Heat]")
     p1.count("Megacredit") shouldBe beforeTwoProductions + 2
 
     p1.manual("50")

@@ -16,7 +16,6 @@ import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -72,14 +71,29 @@ internal class CardDefinitionTest {
   }
 
   @Test
-  fun nonEventCardsHaveTheMarkerWithoutLosingTheirOrdinaryCardSupertype() {
+  fun eventTagIsDerivedOnlyForEventCards() {
     val prelude = CardDefinition(CardData(id = "P00", deck = "PRELUDE"))
     val event = CardDefinition(CardData(id = "E00", deck = "PROJECT", projectKind = "EVENT"))
 
     prelude.immediate shouldBe null
-    prelude.asClassDeclaration.supertypes.shouldContain(parse<Expression>("CardFront"))
-    prelude.asClassDeclaration.supertypes.shouldContain(parse<Expression>("NonEventCard"))
+    prelude.tags.toStrings().shouldBeEmpty()
+    prelude.asClassDeclaration.supertypes.shouldContainExactly(parse<Expression>("CardFront"))
+    event.tags.toStrings().shouldContainExactly("EventTag")
     event.asClassDeclaration.supertypes.shouldContainExactly(parse<Expression>("EventCard"))
+
+    assertFailsWith<IllegalArgumentException> {
+      CardDefinition(CardData(id = "P01", deck = "PRELUDE", tags = listOf("EventTag")))
+    }
+    assertFailsWith<IllegalArgumentException> {
+      CardDefinition(
+          CardData(
+              id = "E01",
+              deck = "PROJECT",
+              projectKind = "EVENT",
+              tags = listOf("EventTag"),
+          )
+      )
+    }
   }
 
   @Test

@@ -4,8 +4,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
-- Introduce a real `EventTag` for the printed event icon, then remove Sagitta Frontier Services'
-  temporary `NonEventCard` / `EventCard` partition.
 - Let a game include Valley Trust and the Prelude-card pool without selecting `PreludeExpansion`;
   `PreludeCard` must be drawable and playable while `PreludePhase` remains absent.
 - Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`; expectations should use
@@ -122,6 +120,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Replace Terraforming Deal's compensation for Preservation Program if the engine gains a systemic
+  way for effects to observe committed net changes rather than sibling gain/removal events.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone
   reconciliation for a patent sale taken beyond the normal action allowance.

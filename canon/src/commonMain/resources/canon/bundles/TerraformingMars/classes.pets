@@ -155,6 +155,7 @@ ABSTRACT CLASS Card : Owned<Player> {
 
     "A red *project* card"
     ABSTRACT CLASS EventCard {
+      HAS =1 EventTag<This>
       This: PlayedEvent<Class<This>> FROM This.
     }
   }
@@ -196,6 +197,8 @@ ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
   DEFAULT Tag<CardFront>:
 
   CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
+  "The printed event icon, derived for every EventCard and forbidden in authored card tags"
+  CLASS EventTag : Tag<EventCard>
   ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }
   ABSTRACT CLASS PlanetTag { CLASS EarthTag, JovianTag }
 }

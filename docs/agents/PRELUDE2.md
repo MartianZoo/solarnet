@@ -26,13 +26,15 @@ specific blockers remain reviewable without loading incorrect behavior:
 - `PC05` Spire needs its science resources to rewrite payment for standard projects only.
 - `P78` L1 Trade Terminal needs a clean way to select up to three distinct resource-bearing cards.
 
-Prelude 2 implies the original Prelude module. The ordinary Prelude phase already models the
-rulebook's failed-Prelude fallback as discard plus 15 M€. Active Preludes compose with the existing
-action-card machinery, and active/effect-only Preludes may naturally omit an immediate instruction.
+Prelude and Prelude 2 are independent modules. Each owns the shared Prelude setup and phase protocol,
+so selecting either activates it once; selecting both changes only the eligible card pool. The
+ordinary Prelude phase already models the rulebook's failed-Prelude fallback as discard plus 15 M€.
+Active Preludes compose with the existing action-card machinery, and active/effect-only Preludes
+may naturally omit an immediate instruction.
 Identifiers ending in `F` mark follow-mode cards whose hidden filtered draw or reveal result must be
 supplied by the client.
 
 The focused card tests cover the genuinely new behavior, including multi-step TR cancellation,
 World Government option combinations, production floors, all-colony-track advancement, minimum
-tag metrics, event-icon tag counting, opponent-authored Recession losses, and the two follow-mode
+tag metrics, the derived `EventTag`, opponent-authored Recession losses, and the two follow-mode
 Venus Orbital Survey outcomes.

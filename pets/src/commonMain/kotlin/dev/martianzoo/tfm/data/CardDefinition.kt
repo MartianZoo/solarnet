@@ -33,7 +33,7 @@ import dev.martianzoo.tfm.data.TfmClasses.CARD_FRONT
 import dev.martianzoo.tfm.data.TfmClasses.CORPORATION_CARD
 import dev.martianzoo.tfm.data.TfmClasses.END
 import dev.martianzoo.tfm.data.TfmClasses.EVENT_CARD
-import dev.martianzoo.tfm.data.TfmClasses.NON_EVENT_CARD
+import dev.martianzoo.tfm.data.TfmClasses.EVENT_TAG
 import dev.martianzoo.tfm.data.TfmClasses.PRELUDE_CARD
 import dev.martianzoo.tfm.data.TfmClasses.PROJECT_CARD
 import dev.martianzoo.tfm.data.TfmClasses.RESOURCE_CARD
@@ -86,9 +86,15 @@ public class CardDefinition(data: CardData) : Definition {
   /**
    * The tags on the card. The list can contain duplicates (for example, Venus Governor has two
    * Venus tags). Order is irrelevant for gameplay purposes (canon data should preserve tag order
-   * from printed cards just because).
+   * from printed cards just because). Every event card additionally receives the derived
+   * [EVENT_TAG].
    */
-  public val tags: Multiset<ClassName> = HashMultiset.of(data.tags.map(::cn))
+  public val tags: Multiset<ClassName> =
+      HashMultiset.of(
+          data.tags.map(::cn).also { authoredTags ->
+            require(EVENT_TAG !in authoredTags) { "EventTag is derived from projectKind: $id" }
+          } + listOfNotNull(if (projectInfo?.kind == ProjectKind.EVENT) EVENT_TAG else null)
+      )
 
   /** The card's immediate instruction, if any. */
   public val immediate: InstructionGroup? =
@@ -165,11 +171,7 @@ public class CardDefinition(data: CardData) : Definition {
             resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
             if (actions.any()) ACTION_CARD.expression else null,
         )
-    val supertypes =
-        cardSupertypes.ifEmpty { setOf(CARD_FRONT.expression) } +
-            setOfNotNull(
-                if (projectInfo?.kind != ProjectKind.EVENT) NON_EVENT_CARD.expression else null
-            )
+    val supertypes = cardSupertypes.ifEmpty { setOf(CARD_FRONT.expression) }
 
     ClassDeclaration(
         className = className,

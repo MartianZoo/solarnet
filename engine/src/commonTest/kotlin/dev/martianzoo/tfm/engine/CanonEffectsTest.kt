@@ -60,6 +60,7 @@ internal class CanonEffectsTest {
     classEffectsOf(Sabotage)
         .shouldContainExactlyInAnyOrder(
             "This: PlayedEvent<Owner, Class<This>> FROM This.",
+            "This:: EventTag<Owner, This>!",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
         )
   }
