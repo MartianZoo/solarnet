@@ -1657,6 +1657,17 @@ class Game20260818Test : AbstractFullGameTest() {
     // the completed action generation numbered 11.
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
 
+    // Reconcile the mistakes still present in the physical game so final greenery and scoring use
+    // the ordinary-rules state. This net delta is characterized by the separate exMachina-free
+    // replay, not by the ledgers: retain Lava Flows' two TR and Kaguya Tech's Pets animal, retain
+    // Immigrant City's M€-production trigger, and retain Energy Market's production decrease.
+    dad.exMachina("4, 2 TR, PROD[M, -E], -E, Animal<$Pets>")
+    with(dad) {
+      assertProduction(m = 35, s = 2, t = 7, p = 16, e = 1, h = 6)
+      assertResources(m = 87, s = 3, t = 7, p = 17, e = 1, h = 16)
+      assertCounts(44 to "TR", 11 to "Animal<$Pets>")
+    }
+
     // "So I'm going to 1-2 and 1-3."
     dad.convertPlants { doTask("GreeneryTile<Utopia_1_2>") }.expect("-8 P")
     dad.convertPlants { doTask("GreeneryTile<Utopia_1_3>") }.expect("-8 P")
@@ -1665,9 +1676,9 @@ class Game20260818Test : AbstractFullGameTest() {
 
     val score = Summarizer(game)
     dad.assertCounts(
-        33 to "AwardTally<Dad, Mogul>",
+        32 to "AwardTally<Dad, Mogul>",
         11 to "AwardTally<Dad, Traveller>",
-        42 to "TR",
+        44 to "TR",
     )
     ellie.assertCounts(
         14 to "AwardTally<Ellie, Mogul>",
@@ -1697,14 +1708,15 @@ class Game20260818Test : AbstractFullGameTest() {
     score.net("$VenusianAnimals", "VP<Ellie>") shouldBe 8
     score.net("$StratosphericBirds", "VP<Ellie>") shouldBe 15
 
-    // The spoken 118-115 tally omitted Dad's four Herbivores points. Ellie's spoken total is also
-    // one point below the complete replay categories, which sum to 116.
-    dad.assertCounts(122 to "VP", 1 to "Victory")
+    // The spoken 118-115 tally omitted Dad's four Herbivores points and the two Lava Flows TR that
+    // the corrected scoring state retains. Ellie's spoken total is one point below the complete
+    // replay categories, which sum to 116.
+    dad.assertCounts(124 to "VP", 1 to "Victory")
     ellie.assertCounts(116 to "VP", 0 to "Victory")
 
     with(dad) {
-      assertProduction(m = 34, s = 2, t = 7, p = 16, e = 2, h = 6)
-      assertResources(m = 83, s = 3, t = 7, p = 1, e = 4, h = 16)
+      assertProduction(m = 35, s = 2, t = 7, p = 16, e = 1, h = 6)
+      assertResources(m = 87, s = 3, t = 7, p = 1, e = 3, h = 16)
     }
     with(ellie) {
       assertProduction(m = 14, s = 3, t = 1, p = 2, e = 6, h = 2)
