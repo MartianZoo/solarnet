@@ -63,23 +63,50 @@ internal class Instructor(
     doExecute(instruction, cause, this, actor)
   }
 
+  /**
+   * Executes a prepared first stage; later linked stages prepare against the state they inherit.
+   */
+  internal fun executePrepared(
+      instruction: Instruction,
+      cause: Cause?,
+      actor: Actor = checkNotNull(defaultActor),
+  ): List<PendingTask> = buildList {
+    doExecutePrepared(instruction, cause, this, actor)
+  }
+
   private fun doExecute(
       instruction: Instruction,
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
   ) {
-    when (val prepped = prepare(instruction)) { // idempotent?
-      is Change -> executeChange(prepped, cause, deferred, actor)
-      is By -> doExecute(prepped.inner, cause, deferred, actorFor(prepped))
+    when (val prepared = prepare(instruction)) {
+      is Instruction -> doExecutePrepared(prepared, cause, deferred, actor)
+      is InstructionGroup -> throw abstractInstruction(prepared)
+    }
+  }
+
+  private fun doExecutePrepared(
+      prepared: Instruction,
+      cause: Cause?,
+      deferred: MutableList<PendingTask>,
+      actor: Actor,
+  ) {
+    when (prepared) {
+      is Change -> executeChange(prepared, cause, deferred, actor)
+      is By -> doExecutePrepared(prepared.inner, cause, deferred, actorFor(prepared))
       is Then ->
-          prepped.instructions.forEach {
-            doExecute(it as? Instruction ?: throw abstractInstruction(it), cause, deferred, actor)
+          prepared.instructions.forEachIndexed { index, tree ->
+            val instruction = tree as? Instruction ?: throw abstractInstruction(tree)
+            if (index == 0) {
+              doExecutePrepared(instruction, cause, deferred, actor)
+            } else {
+              doExecute(instruction, cause, deferred, actor)
+            }
           }
-      is Or -> throw orWithoutChoice(prepped)
+      is Or -> throw orWithoutChoice(prepared)
       is NoOp -> {}
-      is InstructionGroup -> throw abstractInstruction(prepped)
-      else -> error("somehow a ${prepped::class.simpleName} was enqueued: $prepped")
+      else -> error("somehow a ${prepared::class.simpleName} was enqueued: $prepared")
     }
   }
 
