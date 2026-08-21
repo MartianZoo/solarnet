@@ -38,6 +38,11 @@ World.
 initialization complete, and commits the pre-setup baseline. It does not create a Phase.
 Terraforming Mars workflow later creates `SetupPhase` as an ordinary effectful operation.
 
+In Canon, exact-`This` singleton bootstrapping remains appropriate for premise-selected identities,
+selected data families, Class representatives, and generic specialization fanout. A concrete
+component introduced by a live Module is instead created by that Module's effect and ordinarily has
+a maximum-one invariant; its event history then records the Module as its cause.
+
 ## Component graph
 
 The component graph is only a multiset of concrete Types. Components have no fields or instance

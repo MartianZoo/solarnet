@@ -448,9 +448,10 @@ CLASS MultiplayerVictoryCheck : Custom
 
 "Solo play with a neutral opponent and a fixed generation limit"
 CLASS SoloMode : Mode {
-  HAS =1 SoloVariant, =1 Class<SoloOpponent>, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>
+  HAS =1 SoloVariant, =1 Class<FakeResourceGiver>, =1 Class<FakeResourceHolder>
   autoSelectWhen = HAS =1 Player
 
+  This:: SoloOpponent
   SetupPhase:: GenerationSetup THEN BeginGame
   GenerationSetup: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft.
@@ -496,7 +497,7 @@ CLASS SoloVictoryCheck : Signal, System
 
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner {
-  HAS =1 This
+  HAS MAX 1 This
   SetupPhase: SoloStartingPlacement
 }
 
