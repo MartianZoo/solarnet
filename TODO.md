@@ -120,8 +120,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Replace Terraforming Deal's compensation for Preservation Program if the engine gains a systemic
-  way for effects to observe committed net changes rather than sibling gain/removal events.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone
   reconciliation for a patent sale taken beyond the normal action allowance.

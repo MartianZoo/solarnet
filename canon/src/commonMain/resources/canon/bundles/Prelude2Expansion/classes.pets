@@ -2,6 +2,3 @@
 CLASS Prelude2Expansion : Module {
   HAS =1 Class<PreludeSetup>, =1 Class<PreludePhase>
 }
-
-"Records that Preservation Program has skipped this generation's first action-phase TR"
-CLASS HasSkippedTr : Owned<Player>, Generational, Hidden { HAS MAX 1 This }

@@ -156,16 +156,6 @@
       "immediate": "2 TerraformRating, ProjectCard, ProjectCard",
     },
 
-    // Preservation Program
-    {
-      "id": "P57",
-      "deck": "PRELUDE",
-      "immediate": "5 TerraformRating",
-      "effects": [
-        "X TerraformRating IF ActionPhase, MAX 0 HasSkippedTr: HasSkippedTr, -TerraformRating",
-      ],
-    },
-
     // Project Eden
     {
       "id": "P58",
@@ -225,9 +215,7 @@
       "id": "P64",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      // Preservation cancels a TR after its gain event; compensate Terraforming Deal for that
-      // canceled increase without depending on sibling trigger order.
-      "effects": [ "TerraformRating: 2", "HasSkippedTr: -2" ],
+      "effects": [ "TerraformRating: 2" ],
     },
 
     // Venus Contract[F]

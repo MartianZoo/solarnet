@@ -12,12 +12,13 @@ without treating them as blue cards, filters cards by their required expansion i
 
 Card identifiers, names, costs, tags, kinds, and English text were reconciled against
 `terraforming-mars/terraforming-mars` commit `7dfdbb353d362f38e6f77e50096c7463e431404c`.
-The English data file contains all 40 cards that do not require Turmoil. Per the selected scope, the
-11 projects and 3 Preludes whose manifest compatibility includes Turmoil are omitted entirely.
+The source set contains 40 cards that do not require Turmoil. Per the selected scope, Preservation
+Program is unsupported, and the 11 projects and 3 Preludes whose manifest compatibility includes
+Turmoil are omitted entirely.
 
 ## Current boundary
 
-The executable manifest contains 37 cards: 3 corporations, 12 projects, and 22 Preludes. The three
+The executable manifest contains 36 cards: 3 corporations, 12 projects, and 21 Preludes. The three
 remaining non-Turmoil definitions stay in `cards-dont-work.json5` so their accurate data and
 specific blockers remain reviewable without loading incorrect behavior:
 
@@ -34,7 +35,7 @@ may naturally omit an immediate instruction.
 Identifiers ending in `F` mark follow-mode cards whose hidden filtered draw or reveal result must be
 supplied by the client.
 
-The focused card tests cover the genuinely new behavior, including multi-step TR cancellation,
-World Government option combinations, production floors, all-colony-track advancement, minimum
+The focused card tests cover the genuinely new behavior, including World Government option
+combinations, production floors, all-colony-track advancement, minimum
 tag metrics, the derived `EventTag`, opponent-authored Recession losses, and the two follow-mode
 Venus Orbital Survey outcomes.
