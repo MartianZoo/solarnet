@@ -28,6 +28,13 @@ translation, while the foundational declarations live in Terraforming Mars canon
 documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
 under Terraforming Mars. The half-generic placement is the defect.
 
+The desired [Pets Action model](ACTIONS.md) makes this seam more explicit: every Action uses a
+numbered `CostPaid` bridge, but only fixed and X-scaled Terraforming Mars `StandardResource` costs
+open invoices. That conversion is domain semantics, not a generic spelling change. Decide the
+ownership of Action signaling and standard-resource-aware lowering together. Do not teach generic
+Pets about `StandardResource`, duplicate the protocol on both sides, or add a broad extension
+framework solely to erase this dependency.
+
 ### `PROD[...]` is installed by generic pipelines
 
 **Priority when boundary work is selected: P1.**
@@ -103,8 +110,9 @@ cleanup, the dependencies suggest this order:
 
 1. Decide whether bare-number currency is preserved in the AST or supplied by one small
    game-specific language profile.
-2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, then
-   colocate its code and declarations.
+2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, and
+   with it where the narrow standard-resource Action lowering in [ACTIONS.md](ACTIONS.md) belongs;
+   then colocate the selected policy, code, and declarations.
 3. Replace hard-coded `Prod` calls with the smallest configured transformer seam that the selected
    design needs.
 4. Split generic Authority assembly/validation from Terraforming Mars registries.
