@@ -18,6 +18,19 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class Prelude2CardsTest : CardTest() {
+  @Test
+  fun `Nirgal pays nothing for milestones and awards`() {
+    newGame(Prelude2Expansion)
+    p1.manual("$NirgalEnterprises, 16 ProjectCard")
+    val startingMoney = p1.count("Megacredit")
+    engine.phase("Action")
+
+    p1.stdAction("ClaimMilestoneSA") { doTask("Planner") }.expect("Milestone")
+    p1.stdAction("FundAwardSA") { doTask("Landlord") }.expect("Award")
+
+    p1.count("Megacredit") shouldBe startingMoney
+  }
+
   // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
   @Test
   fun `Prelude and Prelude 2 share one setup and phase`() {

@@ -290,6 +290,7 @@ public val NeptunianPowerConsultants: ClassName = cn("NeptunianPowerConsultants"
 public val NeutralizerFactory: ClassName = cn("NeutralizerFactory")
 public val NewPartner: ClassName = cn("NewPartner")
 public val NitriteReducingBacteria: ClassName = cn("NitriteReducingBacteria")
+public val NirgalEnterprises: ClassName = cn("NirgalEnterprises")
 public val NitrogenFromTitan: ClassName = cn("NitrogenFromTitan")
 public val NitrogenRichAsteroid: ClassName = cn("NitrogenRichAsteroid")
 public val NitrogenShipment: ClassName = cn("NitrogenShipment")

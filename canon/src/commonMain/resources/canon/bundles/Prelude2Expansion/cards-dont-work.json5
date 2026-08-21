@@ -1,15 +1,6 @@
 {
   "cards": [
 
-    // Nirgal Enterprises cannot bypass the up-front affordability check of the standard actions.
-    {
-      "name": "NirgalEnterprises",
-      "deck": "CORPORATION",
-      "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
-      "immediate": "30, PROD[Energy, Plant, Steel]",
-      "actions": [ "-> Milestone", "-> Award" ],
-    },
-
     // Spire needs payment restricted to standard projects.
     {
       "name": "Spire",
