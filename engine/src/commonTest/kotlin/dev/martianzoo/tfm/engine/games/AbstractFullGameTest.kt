@@ -23,10 +23,11 @@ abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p3: TfmGameplay
 
   protected abstract val config: GameConfig
+  protected open val inputOnlySynonyms: List<Pair<String, String>> = TEST_CLASS_SYNONYMS
 
   @BeforeTest
   open fun commonSetup() {
-    game = Engine.newGame(Canon.gamePremise(config), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
+    game = Engine.newGame(Canon.gamePremise(config), inputOnlySynonyms = inputOnlySynonyms)
     val players = game.actors.filterIsInstance<Player>()
     p1 = game.tfm(players[0]).requireExplicitPaymentChoices()
     if (players.size > 1) p2 = game.tfm(players[1]).requireExplicitPaymentChoices()
@@ -45,11 +46,25 @@ abstract class AbstractFullGameTest : TfmTest() {
   // Script-local counterparts live in
   // script/src/commonTest/kotlin/dev/martianzoo/tfm/script/StinaScriptTest.kt.
   protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    assertProds(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
+    assertProds(
+        m to "Megacredit",
+        s to "Steel",
+        t to "Titanium",
+        p to "Plant",
+        e to "Energy",
+        h to "Heat",
+    )
   }
 
   protected fun TfmGameplay.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    assertCounts(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
+    assertCounts(
+        m to "Megacredit",
+        s to "Steel",
+        t to "Titanium",
+        p to "Plant",
+        e to "Energy",
+        h to "Heat",
+    )
   }
 
   protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: ClassName) {

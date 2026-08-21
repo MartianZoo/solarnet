@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
@@ -94,6 +95,19 @@ internal class CardDefinitionTest {
               tags = listOf("EventTag"),
           )
       )
+    }
+  }
+
+  @Test
+  fun cardTagsMustActuallyBeTags() {
+    val badCard = CardDefinition(CardData(name = "BadCard", tags = listOf("WildTag")))
+    val badSource =
+        object : TfmAuthority() {
+          override val cardDefinitions = setOf(badCard)
+        }
+
+    assertFailsWith<IllegalArgumentException> {
+      TfmAuthority.compose(Canon, badSource).classTable
     }
   }
 

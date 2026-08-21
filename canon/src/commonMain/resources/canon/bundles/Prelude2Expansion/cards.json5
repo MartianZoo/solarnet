@@ -47,9 +47,8 @@
     {
       "name": "AppliedScience",
       "deck": "PRELUDE",
-      "tags": [ "WildTag" ],
       "resourceType": "Science",
-      "immediate": "6 Science<This>",
+      "immediate": "WildTag<This>, 6 Science<This>",
       "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
     },
 
@@ -145,8 +144,7 @@
     {
       "name": "NobelPrize",
       "deck": "PRELUDE",
-      "tags": [ "WildTag" ],
-      "immediate": "5, 2 ProjectCard",
+      "immediate": "WildTag<This>, 5, 2 ProjectCard",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 

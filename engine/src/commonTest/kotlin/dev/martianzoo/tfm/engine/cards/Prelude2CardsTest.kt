@@ -305,6 +305,19 @@ class Prelude2CardsTest : CardTest() {
     p1.count("Megacredit") shouldBe 41
   }
 
+  @Test
+  fun `Sagitta ignores cards played by another player`() {
+    newGame(Prelude2Expansion, players = 2)
+    val p2 = requireP2()
+    p1.manual("$SagittaFrontierServices")
+    val startingMoney = p1.count("Megacredit")
+    engine.phase("Prelude")
+
+    p2.playPrelude(NobelPrize)
+
+    p1.count("Megacredit") shouldBe startingMoney
+  }
+
   // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg
   @Test
   fun `A prelude remains playable when its global parameter is already maximized`() {

@@ -31,7 +31,20 @@ import dev.martianzoo.util.associateByStrict
 
 /** A Terraforming Mars Authority with typed registries for its structured definitions. */
 public open class TfmAuthority : Authority {
-  final override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+  final override val classTable: ClassTable by lazy {
+    ClassLoader(this).loadEverything().also(::validateCardTags)
+  }
+
+  private fun validateCardTags(table: ClassTable) {
+    val tagClass = table.findClass(TAG_CLASS) ?: return
+    cardDefinitions.forEach { card ->
+      card.tags.elements.forEach { tagName ->
+        require(table.getClass(tagName).isSubtypeOf(tagClass)) {
+          "${card.className} names non-Tag class $tagName as a tag"
+        }
+      }
+    }
+  }
 
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
     (cardDefinitions + milestoneDefinitions + awardDefinitions + colonyTileDefinitions).mapTo(
@@ -419,6 +432,7 @@ public open class TfmAuthority : Authority {
 
     private val MODULE_CLASS = cn("Module")
     private val PLAYER_CLASS = cn("Player")
+    private val TAG_CLASS = cn("Tag")
     private val DELAYED_COLONY_TILE = cn("DelayedColonyTile")
 
     private fun <D : Definition> validateReplacements(
