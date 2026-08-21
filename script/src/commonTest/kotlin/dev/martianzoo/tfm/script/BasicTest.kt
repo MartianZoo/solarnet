@@ -27,7 +27,7 @@ internal class BasicTest {
 
     session.manual("PROD[5, 4 E]")
     session.manual("ProjectCard")
-    session.manual("Card138")
+    session.manual("StripMine")
     session.manual("PROD[-2 E, 2 S, T]")
 
     assertEquals(0, session.count("PROD[E]"))

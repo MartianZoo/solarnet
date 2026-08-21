@@ -164,7 +164,7 @@ class NewPromoCardsTest : CardTest() {
     newGame(PromoCardPack)
     engine.phase("Action")
     p1.manual("$RedShips, CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
-    p1.manual("Card067_SpecialTile<Tharsis_2_2>")
+    p1.manual("MiningRights_SpecialTile<Tharsis_2_2>")
 
     p1.cardAction1(RedShips).expect("2 Megacredit")
   }

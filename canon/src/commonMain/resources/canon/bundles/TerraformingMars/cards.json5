@@ -1,9 +1,8 @@
 {
   "cards": [
 
-    // CrediCor
     {
-      "id": "B01",
+      "name": "CrediCor",
       "deck": "CORPORATION",
       "immediate": "57",
       "effects": [
@@ -11,36 +10,32 @@
       ],
     },
 
-    // Ecoline
     {
-      "id": "B02",
+      "name": "Ecoline",
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": "36, 3 Plant, PROD[2 Plant]",
       "effects": [ "UseAction<ConvertPlantsSA>: -Owed<Class<Plant>>" ],
     },
 
-    // Interplanetary Cinematics
     {
-      "id": "B04",
+      "name": "InterplanetaryCinematics",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "30, 20 Steel",
       "effects": [ "EventCard: 2" ],
     },
 
-    // Inventrix
     {
-      "id": "B05",
+      "name": "Inventrix",
       "deck": "CORPORATION",
       "tags": [ "ScienceTag" ],
       "immediate": "45, Mandate { -> 3 ProjectCard }",
       "effects": [ "PlayCard: -2 Required<Class<GlobalParameter>>." ],
     },
 
-    // Mining Guild
     {
-      "id": "B06",
+      "name": "MiningGuild",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag", "BuildingTag" ],
       "immediate": "30, 5 Steel, PROD[Steel]",
@@ -49,18 +44,16 @@
       ],
     },
 
-    // Phobolog
     {
-      "id": "B07",
+      "name": "Phobolog",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "23, 10 Titanium",
       "effects": [ "Pay<Class<Titanium>>:: -Owed<Class<Megacredit>>" ],
     },
 
-    // Tharsis Republic
     {
-      "id": "B08",
+      "name": "TharsisRepublic",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "40, Mandate { -> CityTile<> }, (=1 Player: PROD[2]) OR Ok",
@@ -70,9 +63,8 @@
       ],
     },
 
-    // ThorGate
     {
-      "id": "B09",
+      "name": "ThorGate",
       "deck": "CORPORATION",
       "tags": [ "PowerTag" ],
       "immediate": "48, PROD[Energy]",
@@ -82,9 +74,8 @@
       ],
     },
 
-    // United Nations Mars Initiative
     {
-      "id": "B10",
+      "name": "UnitedNationsMarsInitiative",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "40",
@@ -95,9 +86,8 @@
       ],
     },
 
-    // Colonizer Training Camp
     {
-      "id": "001",
+      "name": "ColonizerTrainingCamp",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 5 OxygenStep",
@@ -106,9 +96,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Deep Well Heating
     {
-      "id": "003",
+      "name": "DeepWellHeating",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 13,
@@ -116,9 +105,8 @@
       "immediate": "PROD[Energy], TemperatureStep",
     },
 
-    // Cloud Seeding
     {
-      "id": "004",
+      "name": "CloudSeeding",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 OceanTile",
@@ -126,9 +114,8 @@
       "immediate": "PROD[-1, -Heat<Anyone>, 2 Plant]",
     },
 
-    // Search For Life[F]
     {
-      "id": "005F",
+      "name": "SearchForLife",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "MAX 6 OxygenStep",
@@ -139,9 +126,8 @@
       "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
     },
 
-    // Martian Rails
     {
-      "id": "007",
+      "name": "MartianRails",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 13,
@@ -149,9 +135,8 @@
       "actions": [ "Energy -> 1 / CityTile<MarsArea, Anyone>" ],
     },
 
-    // Capital
     {
-      "id": "008",
+      "name": "Capital",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 4 OceanTile",
@@ -166,9 +151,8 @@
       ],
     },
 
-    // Asteroid
     {
-      "id": "009",
+      "name": "AsteroidCard",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 14,
@@ -176,9 +160,8 @@
       "immediate": "TemperatureStep, 2 Titanium, -3 Plant<Anyone>?",
     },
 
-    // Comet
     {
-      "id": "010",
+      "name": "Comet",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 21,
@@ -186,9 +169,8 @@
       "immediate": "TemperatureStep, OceanTile<>, -3 Plant<Anyone>?",
     },
 
-    // Big Asteroid
     {
-      "id": "011",
+      "name": "BigAsteroid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 27,
@@ -196,9 +178,8 @@
       "immediate": "2 TemperatureStep, 4 Titanium, -4 Plant<Anyone>?",
     },
 
-    // Water Import From Europa
     {
-      "id": "012",
+      "name": "WaterImportFromEuropa",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 25,
@@ -212,9 +193,8 @@
       ],
     },
 
-    // Equatorial Magnetizer
     {
-      "id": "015",
+      "name": "EquatorialMagnetizer",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -222,9 +202,8 @@
       "actions": [ "PROD[Energy] -> TerraformRating" ],
     },
 
-    // Domed Crater
     {
-      "id": "016",
+      "name": "DomedCrater",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 7 OxygenStep",
@@ -234,9 +213,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Noctis City
     {
-      "id": "017",
+      "name": "NoctisCity",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 18,
@@ -244,9 +222,8 @@
       "immediate": "PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile<>)",
     },
 
-    // Methane From Titan
     {
-      "id": "018",
+      "name": "MethaneFromTitan",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 OxygenStep",
@@ -256,9 +233,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Imported Hydrogen
     {
-      "id": "019",
+      "name": "ImportedHydrogen",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 16,
@@ -266,9 +242,8 @@
       "immediate": "3 Plant OR 3 Microbe OR 2 Animal, OceanTile<>",
     },
 
-    // Research Outpost
     {
-      "id": "020",
+      "name": "ResearchOutpost",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 18,
@@ -277,9 +252,8 @@
       "effects": [ "PlayCard: -Owed<Class<Megacredit>>" ],
     },
 
-    // Phobos Space Haven
     {
-      "id": "021",
+      "name": "PhobosSpaceHaven",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 25,
@@ -288,9 +262,8 @@
       "effects": [ "End: 3 VictoryPoint" ],
     },
 
-    // Black Polar Dust
     {
-      "id": "022",
+      "name": "BlackPolarDust",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 15,
@@ -298,9 +271,8 @@
       "immediate": "OceanTile<>, PROD[-2, 3 Heat]",
     },
 
-    // Arctic Algae
     {
-      "id": "023",
+      "name": "ArcticAlgae",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "MAX 9 TemperatureStep",
@@ -310,9 +282,8 @@
       "effects": [ "OceanTile BY Anyone: 2 Plant" ],
     },
 
-    // Predators
     {
-      "id": "024",
+      "name": "Predators",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "11 OxygenStep",
@@ -323,9 +294,8 @@
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
 
-    // Eos Chasma National Park
     {
-      "id": "026",
+      "name": "EosChasmaNationalPark",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "9 TemperatureStep",
@@ -335,9 +305,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Cupola City
     {
-      "id": "029",
+      "name": "CupolaCity",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 9 OxygenStep",
@@ -347,9 +316,8 @@
       "immediate": "CityTile<>, PROD[-Energy, 3]",
     },
 
-    // Lunar Beam
     {
-      "id": "030",
+      "name": "LunarBeam",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 13,
@@ -357,9 +325,8 @@
       "immediate": "PROD[-2, 2 Heat, 2 Energy]",
     },
 
-    // Optimal Aerobraking
     {
-      "id": "031",
+      "name": "OptimalAerobraking",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 7,
@@ -367,9 +334,8 @@
       "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
     },
 
-    // Underground City
     {
-      "id": "032",
+      "name": "UndergroundCity",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 18,
@@ -378,9 +344,8 @@
       "immediate": "CityTile<>, PROD[-2 Energy, 2 Steel]",
     },
 
-    // Regolith Eaters
     {
-      "id": "033",
+      "name": "RegolithEaters",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 13,
@@ -392,9 +357,8 @@
       ],
     },
 
-    // GHG Producing Bacteria
     {
-      "id": "034",
+      "name": "GhgProducingBacteria",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "4 OxygenStep",
@@ -407,9 +371,8 @@
       ],
     },
 
-    // Ants
     {
-      "id": "035",
+      "name": "Ants",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "4 OxygenStep",
@@ -420,18 +383,16 @@
       "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
     },
 
-    // Release Of Inert Gases
     {
-      "id": "036",
+      "name": "ReleaseOfInertGases",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 14,
       "immediate": "2 TerraformRating",
     },
 
-    // Nitrogen-Rich Asteroid
     {
-      "id": "037",
+      "name": "NitrogenRichAsteroid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 31,
@@ -440,9 +401,8 @@
       "immediate": "2 TerraformRating, TemperatureStep, PROD[Plant OR (3 PlantTag: 4 Plant)]",
     },
 
-    // Rover Construction
     {
-      "id": "038",
+      "name": "RoverConstruction",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
@@ -453,9 +413,8 @@
       ],
     },
 
-    // Deimos Down (original)
     {
-      "id": "039",
+      "name": "DeimosDown",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 31,
@@ -463,9 +422,8 @@
       "immediate": "3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?",
     },
 
-    // Asteroid Mining
     {
-      "id": "040",
+      "name": "AsteroidMining",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 30,
@@ -474,9 +432,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Food Factory
     {
-      "id": "041",
+      "name": "FoodFactory",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 12,
@@ -485,9 +442,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Archaebacteria
     {
-      "id": "042",
+      "name": "Archaebacteria",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 6 TemperatureStep",
@@ -496,9 +452,8 @@
       "immediate": "PROD[Plant]",
     },
 
-    // Carbonate Processing
     {
-      "id": "043",
+      "name": "CarbonateProcessing",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 6,
@@ -506,9 +461,8 @@
       "immediate": "PROD[-Energy, 3 Heat]",
     },
 
-    // Natural Preserve
     {
-      "id": "044",
+      "name": "NaturalPreserve",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 4 OxygenStep",
@@ -518,9 +472,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Nuclear Power
     {
-      "id": "045",
+      "name": "NuclearPower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 10,
@@ -528,9 +481,8 @@
       "immediate": "PROD[-2, 3 Energy]",
     },
 
-    // Algae
     {
-      "id": "047",
+      "name": "Algae",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "5 OceanTile",
@@ -539,9 +491,8 @@
       "immediate": "Plant, PROD[2 Plant]",
     },
 
-    // Adapted Lichen
     {
-      "id": "048",
+      "name": "AdaptedLichen",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 9,
@@ -549,9 +500,8 @@
       "immediate": "PROD[Plant]",
     },
 
-    // Fish
     {
-      "id": "052",
+      "name": "Fish",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "16 TemperatureStep",
@@ -563,9 +513,8 @@
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
 
-    // Lake Marineris
     {
-      "id": "053",
+      "name": "LakeMarineris",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "15 TemperatureStep",
@@ -574,9 +523,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Small Animals
     {
-      "id": "054",
+      "name": "SmallAnimals",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "6 OxygenStep",
@@ -588,9 +536,8 @@
       "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
     },
 
-    // Kelp Farming
     {
-      "id": "055",
+      "name": "KelpFarming",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "6 OceanTile",
@@ -600,9 +547,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Beam From A Thorium Asteroid
     {
-      "id": "058",
+      "name": "BeamFromAThoriumAsteroid",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "JovianTag",
@@ -612,9 +558,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Mangrove
     {
-      "id": "059",
+      "name": "Mangrove",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "17 TemperatureStep",
@@ -624,9 +569,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Trees
     {
-      "id": "060",
+      "name": "Trees",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "13 TemperatureStep",
@@ -636,28 +580,25 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Mining Expedition
     {
-      "id": "063",
+      "name": "MiningExpedition",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 12,
       "immediate": "OxygenStep, -2 Plant<Anyone>?, 2 Steel",
     },
 
-    // Mining Rights
     {
-      "id": "067",
+      "name": "MiningRights",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 9,
       "tags": [ "BuildingTag" ],
-      "immediate": "SpecialTile<> {} THEN PROD[(LandArea(HAS Card067_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card067_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
+      "immediate": "SpecialTile<> {} THEN PROD[(LandArea(HAS MiningRights_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
     },
 
-    // Birds
     {
-      "id": "072",
+      "name": "Birds",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "13 OxygenStep",
@@ -669,9 +610,8 @@
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
 
-    // Towing A Comet
     {
-      "id": "075",
+      "name": "TowingAComet",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 23,
@@ -679,9 +619,8 @@
       "immediate": "2 Plant, OxygenStep, OceanTile<>",
     },
 
-    // Space Mirrors
     {
-      "id": "076",
+      "name": "SpaceMirrors",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 3,
@@ -689,9 +628,8 @@
       "actions": [ "7 -> PROD[Energy]" ],
     },
 
-    // Solar Wind Power
     {
-      "id": "077",
+      "name": "SolarWindPower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -699,9 +637,8 @@
       "immediate": "PROD[Energy], 2 Titanium",
     },
 
-    // Ice Asteroid
     {
-      "id": "078",
+      "name": "IceAsteroid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 23,
@@ -709,9 +646,8 @@
       "immediate": "2 OceanTile<>",
     },
 
-    // Giant Ice Asteroid
     {
-      "id": "080",
+      "name": "GiantIceAsteroid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 36,
@@ -719,9 +655,8 @@
       "immediate": "2 TemperatureStep, 2 OceanTile<>, -6 Plant<Anyone>?",
     },
 
-    // Ganymede Colony
     {
-      "id": "081",
+      "name": "GanymedeColony",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 20,
@@ -730,9 +665,8 @@
       "effects": [ "End: VictoryPoint / JovianTag" ],
     },
 
-    // Giant Space Mirror
     {
-      "id": "083",
+      "name": "GiantSpaceMirror",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 17,
@@ -740,9 +674,8 @@
       "immediate": "PROD[3 Energy]",
     },
 
-    // Grass
     {
-      "id": "087",
+      "name": "Grass",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "7 TemperatureStep",
@@ -751,9 +684,8 @@
       "immediate": "PROD[Plant], 3 Plant",
     },
 
-    // Heather
     {
-      "id": "088",
+      "name": "Heather",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "8 TemperatureStep",
@@ -762,9 +694,8 @@
       "immediate": "PROD[Plant], Plant",
     },
 
-    // Peroxide Power
     {
-      "id": "089",
+      "name": "PeroxidePower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 7,
@@ -772,9 +703,8 @@
       "immediate": "PROD[-1, 2 Energy]",
     },
 
-    // Bushes
     {
-      "id": "093",
+      "name": "Bushes",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "10 TemperatureStep",
@@ -783,9 +713,8 @@
       "immediate": "PROD[2 Plant], 2 Plant",
     },
 
-    // Greenhouses
     {
-      "id": "096",
+      "name": "Greenhouses",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 6,
@@ -793,9 +722,8 @@
       "immediate": "Plant / CityTile<Anyone>",
     },
 
-    // Nuclear Zone
     {
-      "id": "097",
+      "name": "NuclearZone",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 10,
@@ -804,9 +732,8 @@
       "effects": [ "End: -2 VictoryPoint" ],
     },
 
-    // Fueled Generators
     {
-      "id": "100",
+      "name": "FueledGenerators",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 1,
@@ -814,9 +741,8 @@
       "immediate": "PROD[-1, Energy]",
     },
 
-    // Ironworks
     {
-      "id": "101",
+      "name": "Ironworks",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -824,9 +750,8 @@
       "actions": [ "4 Energy -> Steel, OxygenStep" ],
     },
 
-    // Power Grid
     {
-      "id": "102",
+      "name": "PowerGrid",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 18,
@@ -834,9 +759,8 @@
       "immediate": "PROD[Energy / PowerTag]",
     },
 
-    // Steelworks
     {
-      "id": "103",
+      "name": "Steelworks",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 15,
@@ -844,9 +768,8 @@
       "actions": [ "4 Energy -> 2 Steel, OxygenStep" ],
     },
 
-    // Ore Processor
     {
-      "id": "104",
+      "name": "OreProcessor",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 13,
@@ -854,9 +777,8 @@
       "actions": [ "4 Energy -> Titanium, OxygenStep" ],
     },
 
-    // Open City
     {
-      "id": "108",
+      "name": "OpenCity",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "12 OxygenStep",
@@ -866,9 +788,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Solar Power
     {
-      "id": "113",
+      "name": "SolarPower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -877,9 +798,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Breathing Filters
     {
-      "id": "114",
+      "name": "BreathingFilters",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "7 OxygenStep",
@@ -888,9 +808,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Artificial Photosynthesis
     {
-      "id": "115",
+      "name": "ArtificialPhotosynthesis",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 12,
@@ -898,9 +817,8 @@
       "immediate": "PROD[Plant OR 2 Energy]",
     },
 
-    // Artificial Lake
     {
-      "id": "116",
+      "name": "ArtificialLake",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "12 TemperatureStep",
@@ -910,9 +828,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Geothermal Power
     {
-      "id": "117",
+      "name": "GeothermalPower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -920,9 +837,8 @@
       "immediate": "PROD[2 Energy]",
     },
 
-    // Farming
     {
-      "id": "118",
+      "name": "Farming",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "17 TemperatureStep",
@@ -932,9 +848,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Dust Seals
     {
-      "id": "119",
+      "name": "DustSeals",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 3 OceanTile",
@@ -942,9 +857,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Urbanized Area
     {
-      "id": "120",
+      "name": "UrbanizedArea",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 10,
@@ -952,9 +866,8 @@
       "immediate": "PROD[-Energy, 2], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>",
     },
 
-    // Moss
     {
-      "id": "122",
+      "name": "Moss",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 OceanTile",
@@ -963,9 +876,8 @@
       "immediate": "PROD[Plant], -Plant",
     },
 
-    // GHG Factories
     {
-      "id": "126",
+      "name": "GhgFactories",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -973,18 +885,16 @@
       "immediate": "PROD[-Energy, 4 Heat]",
     },
 
-    // Subterranean Reservoir
     {
-      "id": "127",
+      "name": "SubterraneanReservoir",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 11,
       "immediate": "OceanTile<>",
     },
 
-    // Ecological Zone
     {
-      "id": "128",
+      "name": "EcologicalZone",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "GreeneryTile",
@@ -998,9 +908,8 @@
       ],
     },
 
-    // Zeppelins
     {
-      "id": "129",
+      "name": "Zeppelins",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "5 OxygenStep",
@@ -1009,9 +918,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Worms
     {
-      "id": "130",
+      "name": "Worms",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 OxygenStep",
@@ -1020,9 +928,8 @@
       "immediate": "PROD[Plant / 2 MicrobeTag]",
     },
 
-    // Decomposers
     {
-      "id": "131",
+      "name": "Decomposers",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "3 OxygenStep",
@@ -1035,9 +942,8 @@
       ],
     },
 
-    // Fusion Power
     {
-      "id": "132",
+      "name": "FusionPower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 PowerTag",
@@ -1046,9 +952,8 @@
       "immediate": "PROD[3 Energy]",
     },
 
-    // Symbiotic Fungus
     {
-      "id": "133",
+      "name": "SymbioticFungus",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "8 TemperatureStep",
@@ -1057,9 +962,8 @@
       "actions": [ "-> Microbe" ],
     },
 
-    // Extreme-Cold Fungus
     {
-      "id": "134",
+      "name": "ExtremeColdFungus",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "MAX 10 TemperatureStep",
@@ -1071,9 +975,8 @@
       ],
     },
 
-    // Advanced Ecosystems
     {
-      "id": "135",
+      "name": "AdvancedEcosystems",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "PlantTag, MicrobeTag, AnimalTag",
@@ -1082,9 +985,8 @@
       "effects": [ "End: 3 VictoryPoint" ],
     },
 
-    // Great Dam (original)
     {
-      "id": "136",
+      "name": "GreatDam",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 OceanTile",
@@ -1094,9 +996,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Strip Mine
     {
-      "id": "138",
+      "name": "StripMine",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 25,
@@ -1104,9 +1005,8 @@
       "immediate": "PROD[-2 Energy, 2 Steel, Titanium], 2 OxygenStep",
     },
 
-    // Wave Power
     {
-      "id": "139",
+      "name": "WavePower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 OceanTile",
@@ -1116,19 +1016,17 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Lava Flows
     {
-      "id": "140",
+      "name": "LavaFlows",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 18,
-      "immediate": "2 TemperatureStep, Card140_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: Card140_SpecialTile<>)",
-      "components": [ "CLASS Card140_SpecialTile : SpecialTile" ],
+      "immediate": "2 TemperatureStep, LavaFlows_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: LavaFlows_SpecialTile<>)",
+      "components": [ "CLASS LavaFlows_SpecialTile : SpecialTile" ],
     },
 
-    // Power Plant
     {
-      "id": "141",
+      "name": "PowerPlant",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 4,
@@ -1136,9 +1034,8 @@
       "immediate": "PROD[Energy]",
     },
 
-    // Mohole Area
     {
-      "id": "142",
+      "name": "MoholeArea",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 20,
@@ -1146,9 +1043,8 @@
       "immediate": "PROD[4 Heat], SpecialTile<WaterArea> {}",
     },
 
-    // Large Convoy
     {
-      "id": "143",
+      "name": "LargeConvoy",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 36,
@@ -1157,9 +1053,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Tectonic Stress Power
     {
-      "id": "145",
+      "name": "TectonicStressPower",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 ScienceTag",
@@ -1169,9 +1064,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Nitrophilic Moss
     {
-      "id": "146",
+      "name": "NitrophilicMoss",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 OceanTile",
@@ -1180,9 +1074,8 @@
       "immediate": "PROD[2 Plant], -2 Plant",
     },
 
-    // Herbivores
     {
-      "id": "147",
+      "name": "Herbivores",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "8 OxygenStep",
@@ -1196,9 +1089,8 @@
       ],
     },
 
-    // Insects
     {
-      "id": "148",
+      "name": "Insects",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "6 OxygenStep",
@@ -1207,18 +1099,16 @@
       "immediate": "PROD[Plant / PlantTag]",
     },
 
-    // Insulation
     {
-      "id": "152",
+      "name": "Insulation",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 2,
       "immediate": "PROD[X Megacredit FROM Heat]",
     },
 
-    // Adaptation Technology
     {
-      "id": "153",
+      "name": "AdaptationTechnology",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 12,
@@ -1229,9 +1119,8 @@
       ],
     },
 
-    // Designed Microorganisms
     {
-      "id": "155",
+      "name": "DesignedMicroorganisms",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 8 TemperatureStep",
@@ -1240,9 +1129,8 @@
       "immediate": "PROD[2 Plant]",
     },
 
-    // Nitrite Reducing Bacteria
     {
-      "id": "157",
+      "name": "NitriteReducingBacteria",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -1255,9 +1143,8 @@
       ],
     },
 
-    // Industrial Microbes
     {
-      "id": "158",
+      "name": "IndustrialMicrobes",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 12,
@@ -1265,9 +1152,8 @@
       "immediate": "PROD[Energy, Steel]",
     },
 
-    // Lichen
     {
-      "id": "159",
+      "name": "Lichen",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 TemperatureStep",
@@ -1276,9 +1162,8 @@
       "immediate": "PROD[Plant]",
     },
 
-    // Convoy From Europa
     {
-      "id": "161",
+      "name": "ConvoyFromEuropa",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 15,
@@ -1286,9 +1171,8 @@
       "immediate": "OceanTile<>, ProjectCard",
     },
 
-    // Imported GHG
     {
-      "id": "162",
+      "name": "ImportedGhg",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
@@ -1296,9 +1180,8 @@
       "immediate": "PROD[Heat], 3 Heat",
     },
 
-    // Imported Nitrogen
     {
-      "id": "163",
+      "name": "ImportedNitrogen",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 23,
@@ -1306,18 +1189,16 @@
       "immediate": "TerraformRating, 4 Plant, 3 Microbe, 2 Animal",
     },
 
-    // Micro-Mills
     {
-      "id": "164",
+      "name": "MicroMills",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 3,
       "immediate": "PROD[Heat]",
     },
 
-    // Magnetic Field Generators (original)
     {
-      "id": "165",
+      "name": "MagneticFieldGenerators",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 20,
@@ -1325,9 +1206,8 @@
       "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating",
     },
 
-    // Shuttles
     {
-      "id": "166",
+      "name": "Shuttles",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "5 OxygenStep",
@@ -1340,9 +1220,8 @@
       ],
     },
 
-    // Import Of Advanced GHG
     {
-      "id": "167",
+      "name": "ImportOfAdvancedGhg",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 9,
@@ -1350,9 +1229,8 @@
       "immediate": "PROD[2 Heat]",
     },
 
-    // Windmills
     {
-      "id": "168",
+      "name": "Windmills",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "7 OxygenStep",
@@ -1362,9 +1240,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Tundra Farming
     {
-      "id": "169",
+      "name": "TundraFarming",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "12 TemperatureStep",
@@ -1374,9 +1251,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Aerobraked Ammonia Asteroid
     {
-      "id": "170",
+      "name": "AerobrakedAmmoniaAsteroid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 26,
@@ -1384,9 +1260,8 @@
       "immediate": "2 Microbe, PROD[3 Heat, Plant]",
     },
 
-    // Magnetic Field Dome
     {
-      "id": "171",
+      "name": "MagneticFieldDome",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 5,
@@ -1394,9 +1269,8 @@
       "immediate": "PROD[-2 Energy, Plant], TerraformRating",
     },
 
-    // Pets
     {
-      "id": "172",
+      "name": "Pets",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -1410,9 +1284,8 @@
       ],
     },
 
-    // Protected Valley
     {
-      "id": "174",
+      "name": "ProtectedValley",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 23,
@@ -1420,9 +1293,8 @@
       "immediate": "PROD[2], GreeneryTile<WaterArea>",
     },
 
-    // Noctis Farming
     {
-      "id": "176",
+      "name": "NoctisFarming",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "5 TemperatureStep",
@@ -1432,9 +1304,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Water Splitting Plant
     {
-      "id": "177",
+      "name": "WaterSplittingPlant",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 OceanTile",
@@ -1443,9 +1314,8 @@
       "actions": [ "3 Energy -> OxygenStep" ],
     },
 
-    // Heat Trappers
     {
-      "id": "178",
+      "name": "HeatTrappers",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 6,
@@ -1454,9 +1324,8 @@
       "effects": [ "End: -VictoryPoint" ],
     },
 
-    // Soil Factory
     {
-      "id": "179",
+      "name": "SoilFactory",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 9,
@@ -1465,9 +1334,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Ice Cap Melting
     {
-      "id": "181",
+      "name": "IceCapMelting",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "16 TemperatureStep",
@@ -1475,9 +1343,8 @@
       "immediate": "OceanTile<>",
     },
 
-    // Biomass Combustors
     {
-      "id": "183",
+      "name": "BiomassCombustors",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "6 OxygenStep",
@@ -1487,9 +1354,8 @@
       "effects": [ "End: -VictoryPoint" ],
     },
 
-    // Livestock
     {
-      "id": "184",
+      "name": "Livestock",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "9 OxygenStep",
@@ -1501,9 +1367,8 @@
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
 
-    // Aquifer Pumping
     {
-      "id": "187",
+      "name": "AquiferPumping",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 18,
@@ -1514,9 +1379,8 @@
       ],
     },
 
-    // Flooding
     {
-      "id": "188",
+      "name": "Flooding",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
@@ -1524,9 +1388,8 @@
       "effects": [ "End: -VictoryPoint" ],
     },
 
-    // Energy Saving
     {
-      "id": "189",
+      "name": "EnergySaving",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 15,
@@ -1534,18 +1397,16 @@
       "immediate": "PROD[Energy / CityTile<Anyone>]",
     },
 
-    // Local Heat Trapping
     {
-      "id": "190",
+      "name": "LocalHeatTrapping",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
       "immediate": "-5 Heat, 4 Plant OR 2 Animal",
     },
 
-    // Permafrost Extraction
     {
-      "id": "191",
+      "name": "PermafrostExtraction",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "11 TemperatureStep",
@@ -1553,9 +1414,8 @@
       "immediate": "OceanTile<>",
     },
 
-    // Plantation
     {
-      "id": "193",
+      "name": "Plantation",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 ScienceTag",
@@ -1564,9 +1424,8 @@
       "immediate": "GreeneryTile<>",
     },
 
-    // Immigration Shuttles
     {
-      "id": "198",
+      "name": "ImmigrationShuttles",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 31,
@@ -1575,9 +1434,8 @@
       "effects": [ "End: VictoryPoint / 3 CityTile<Anyone>" ],
     },
 
-    // Immigrant City
     {
-      "id": "200",
+      "name": "ImmigrantCity",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 13,
@@ -1586,9 +1444,8 @@
       "effects": [ "CityTile<Anyone>: PROD[1]" ],
     },
 
-    // Underground Detonations
     {
-      "id": "202",
+      "name": "UndergroundDetonations",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 6,
@@ -1596,9 +1453,8 @@
       "actions": [ "10 -> PROD[2 Heat]" ],
     },
 
-    // Soletta
     {
-      "id": "203",
+      "name": "Soletta",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 35,
@@ -1606,9 +1462,8 @@
       "immediate": "PROD[7 Heat]",
     },
 
-    // Rad-Chem Factory
     {
-      "id": "205",
+      "name": "RadChemFactory",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 8,
@@ -1616,16 +1471,15 @@
       "immediate": "PROD[-Energy], 2 TerraformRating",
     },
 
-    // Special Design
     {
-      "id": "206",
+      "name": "SpecialDesign",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 4,
       "tags": [ "ScienceTag" ],
-      "immediate": "Card206Effect",
+      "immediate": "SpecialDesignEffect",
       "components": [
-        "CLASS Card206Effect : Owned, Generational { PlayCard: -This!; PlayCard: -2 Required<Class<GlobalParameter>>. }"
+        "CLASS SpecialDesignEffect : Owned, Generational { PlayCard: -This!; PlayCard: -2 Required<Class<GlobalParameter>>. }"
       ],
     },
   ],

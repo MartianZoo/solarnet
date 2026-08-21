@@ -10,7 +10,7 @@ class MaxwellBaseTest : CardTest() {
     newGame(VenusNextExpansion)
     engine.phase("Action")
     p1.manual("PROD[Energy], $ForcedPrecipitation")
-    p1.manual("$MaxwellBase").expect("CityTile<Card238_RemoteArea>, PROD[-Energy]")
+    p1.manual("$MaxwellBase").expect("CityTile<MaxwellBase_RemoteArea>, PROD[-Energy]")
     p1.cardAction1(MaxwellBase) { doTask("Floater<$ForcedPrecipitation>") }.expect("Floater")
   }
 }

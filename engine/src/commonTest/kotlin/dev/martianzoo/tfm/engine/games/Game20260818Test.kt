@@ -22,7 +22,7 @@ class Game20260818Test : AbstractFullGameTest() {
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, MilestonesAwardsExpansion
           PromoCardPack
 
-          Ecologist, Merchant, Metallurgist, MilestoneMM30, Hoverlord
+          Ecologist, Merchant, Metallurgist, Tactician4, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
           Enceladus, Miranda, Europa, Io, Pluto
           """,
@@ -129,7 +129,7 @@ class Game20260818Test : AbstractFullGameTest() {
     ellie.turn {
       // "I'm going to play Mining Rights... row three, column six. I get two cards and a
       // titanium... and increase titanium production."
-      playProject(MiningRights, 1, steel = 4) { doTask("Card067_SpecialTile<Utopia_3_6>") }
+      playProject(MiningRights, 1, steel = 4) { doTask("MiningRights_SpecialTile<Utopia_3_6>") }
           .expect("ProjectCard, T, PROD[T]")
       // "I play Energy Tapping... Dad loses an energy production."
       playProject(EnergyTapping, 3) { doTask("PROD[-E<Dad>]") }.expect("PROD[E]")
@@ -500,7 +500,7 @@ class Game20260818Test : AbstractFullGameTest() {
       stdAction("ClaimMilestoneSA") { doTask("Metallurgist") }
     }
     ellie.turn {
-      stdAction("ClaimMilestoneSA") { doTask("Tactician") }
+      stdAction("ClaimMilestoneSA") { doTask("Tactician4") }
     }
     dad.turn {
       // "Use Floating Habs to spend two money to put a floater on Aerial Mappers, and use that to

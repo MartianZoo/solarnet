@@ -62,7 +62,7 @@ delegation mechanism exists.
 ## Multiplicity
 
 Fanout selects concrete Types, not component occurrences. If the snapshot contains three equal
-`Animal<Player1, CardX75<Player1>>` components, `EACH Animal { -Animal }` produces one branch whose
+`Animal<Player1, Vermin<Player1>>` components, `EACH Animal { -Animal }` produces one branch whose
 selected exact Animal Type is removed three times. There are not three occurrence branches, and
 Pets gains no synthetic component identity.
 
@@ -97,7 +97,7 @@ An automatic triggering Effect already provides the automatic form of fanout. Do
 | `PreludeSetup<Player>` singleton listeners | `EACH Player { 2 PreludeCard<Player> }` | Pure recipient fanout |
 | Award tallying through every `Player` | `EACH Player { AwardTally<Player, This> / EVAL This.metric }` | Pure scoring fanout |
 | Sponsored Academies' owner-local `Signal` and Player watchers | `-ProjectCard THEN (3 ProjectCard, EACH (Player except Owner) { ProjectCard<Player> })` | Schematic opponent fanout; difference-selector syntax unresolved |
-| Mons Insurance setup watchers | `EACH Player { MAX 0 CardXC05<Player>: PROD[-2 Megacredit<Player>] BY Player }` | Must name Player so solo opponent is excluded |
+| Mons Insurance setup watchers | `EACH Player { MAX 0 MonsInsurance<Player>: PROD[-2 Megacredit<Player>] BY Player }` | Must name Player so solo opponent is excluded |
 | Vermin's end-game Player watchers | `EACH Player { -VictoryPoint<Player> / CityTile<Player> }` | Pure scoring fanout |
 | Kotlin `ColoniesSetup` fleet loop | `EACH Player { ReserveTradeFleet<Player> }` | Pure setup fanout |
 | Turmoil Global Events affecting Resource Cards | `EACH ResourceCard { ... ResourceCard ... }` | Confirms the selector cannot be Player-specific |

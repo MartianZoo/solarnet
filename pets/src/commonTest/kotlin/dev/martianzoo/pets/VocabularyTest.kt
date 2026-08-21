@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -9,6 +10,19 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class VocabularyTest {
+  @Test
+  fun englishDisplayNamesSeparateClassNameWords() {
+    defaultEnglishDisplayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"
+    defaultEnglishDisplayName(cn("BeamFromAThoriumAsteroid")) shouldBe "Beam From AThorium Asteroid"
+    defaultEnglishDisplayName(cn("Builder7")) shouldBe "Builder 7"
+    defaultEnglishDisplayName(cn("NaturalPreserve_SpecialTile")) shouldBe
+        "Natural Preserve Special Tile"
+    defaultEnglishDisplayName(cn("UseCardActionSA")) shouldBe "Use Card Action SA"
+
+    val vocabulary = Vocabulary.create(setOf(cn("ColonizerTrainingCamp")), emptyMap())
+    vocabulary.displayName(cn("ColonizerTrainingCamp")) shouldBe "Colonizer Training Camp"
+  }
+
   @Test
   fun petsNamesUseOneCamelCaseDerivation() {
     petsClassName("XML HTTP request") shouldBe cn("XmlHttpRequest")
@@ -25,30 +39,34 @@ internal class VocabularyTest {
   fun requestedLocaleFallsBackToEnglishPerEntry() {
     val vocabulary =
         Vocabulary.create(
-            setOf(cn("Card001"), cn("Card002")),
+            setOf(cn("ColonizerTrainingCamp"), cn("AsteroidMiningConsortium")),
             mapOf(
-                "en" to mapOf(cn("Card001") to "First Card", cn("Card002") to "Second Card"),
-                "fr" to mapOf(cn("Card001") to "Premiere carte"),
+                "en" to
+                    mapOf(
+                        cn("ColonizerTrainingCamp") to "First Card",
+                        cn("AsteroidMiningConsortium") to "Second Card",
+                    ),
+                "fr" to mapOf(cn("ColonizerTrainingCamp") to "Premiere carte"),
             ),
             locale = "fr-CA",
         )
 
-    vocabulary.displayName(cn("Card001")) shouldBe "Premiere carte"
-    vocabulary.displayName(cn("Card002")) shouldBe "Second Card"
+    vocabulary.displayName(cn("ColonizerTrainingCamp")) shouldBe "Premiere carte"
+    vocabulary.displayName(cn("AsteroidMiningConsortium")) shouldBe "Second Card"
   }
 
   @Test
   fun localizedNamesAreAcceptedAndRenderedForTheirContext() {
     val vocabulary =
         Vocabulary.create(
-            setOf(cn("Card072")),
-            mapOf("fr" to mapOf(cn("Card072") to "Oiseaux d'ete")),
+            setOf(cn("Birds")),
+            mapOf("fr" to mapOf(cn("Birds") to "Oiseaux d'ete")),
             locale = "fr",
         )
 
-    vocabulary.canonicalName(cn("OiseauxDete")) shouldBe cn("Card072")
-    vocabulary.displayName(cn("Card072")) shouldBe "Oiseaux d'ete"
-    vocabulary.renderPets(parse<Expression>("Card072")) shouldBe "OiseauxDete"
+    vocabulary.canonicalName(cn("OiseauxDete")) shouldBe cn("Birds")
+    vocabulary.displayName(cn("Birds")) shouldBe "Oiseaux d'ete"
+    vocabulary.renderPets(parse<Expression>("Birds")) shouldBe "OiseauxDete"
   }
 
   @Test
@@ -67,17 +85,18 @@ internal class VocabularyTest {
   }
 
   @Test
-  fun collisionsAreRejected() {
+  fun localizedNameCollisionsAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
-          setOf(cn("Card001"), cn("Card002")),
+          setOf(cn("ColonizerTrainingCamp"), cn("AsteroidMiningConsortium")),
           mapOf(
-              "en" to
+              "fr" to
                   mapOf(
-                      cn("Card001") to "Same name",
-                      cn("Card002") to "Same-name",
+                      cn("ColonizerTrainingCamp") to "Same name",
+                      cn("AsteroidMiningConsortium") to "Same-name",
                   )
           ),
+          locale = "fr",
       )
     }
   }
@@ -86,8 +105,8 @@ internal class VocabularyTest {
   fun nonAsciiDisplayNamesAreRejected() {
     shouldThrow<IllegalArgumentException> {
       Vocabulary.create(
-          setOf(cn("Card001")),
-          mapOf("en" to mapOf(cn("Card001") to "Premi\u00e8re carte")),
+          setOf(cn("ColonizerTrainingCamp")),
+          mapOf("en" to mapOf(cn("ColonizerTrainingCamp") to "Premi\u00e8re carte")),
       )
     }
   }

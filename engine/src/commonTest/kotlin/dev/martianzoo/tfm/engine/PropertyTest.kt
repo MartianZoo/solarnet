@@ -23,15 +23,15 @@ internal class PropertyTest {
 
     p1.count("Hellas_8_4.row") shouldBe 8
     p1.count("Hellas_8_4.column") shouldBe 4
-    p1.count("Card001.cost") shouldBe 8
-    p1.count("Class<Card001>.cost") shouldBe 8
+    p1.count("ColonizerTrainingCamp.cost") shouldBe 8
+    p1.count("Class<ColonizerTrainingCamp>.cost") shouldBe 8
     p1.count("PowerPlantSP.cost") shouldBe 11
     p1.count("Component") shouldBe componentCount
 
     shouldThrow<ExpressionException> { p1.count("MaxwellBaseArea.row") }
     shouldThrow<ExpressionException> { p1.count("CardFront.cost") }
     shouldThrow<ExpressionException> { p1.count("cost") }
-    shouldThrow<PetSyntaxException> { p1.count("cost<Card001>") }
+    shouldThrow<PetSyntaxException> { p1.count("cost<ColonizerTrainingCamp>") }
   }
 
   @Test

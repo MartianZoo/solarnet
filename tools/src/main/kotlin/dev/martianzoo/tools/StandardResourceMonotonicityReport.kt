@@ -6,6 +6,7 @@ import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
+import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -541,7 +542,8 @@ internal object StandardResourceMonotonicityReport {
       )
 
   private fun displayName(premise: GamePremise, className: ClassName): String =
-      premise.authority.displayNamesByLanguage["en"]?.get(className) ?: className.toString()
+      premise.authority.displayNamesByLanguage["en"]?.get(className)
+          ?: defaultEnglishDisplayName(className)
 
   fun maximalSoloPremise(): GamePremise =
       Canon.gamePremise(
@@ -555,9 +557,9 @@ internal object StandardResourceMonotonicityReport {
                           "TurmoilCardPack",
                           "PromoCardPack",
                           "MilestonesAwardsExpansion",
-                          "ColonyTile01",
-                          "ColonyTile02",
-                          "ColonyTile11",
+                          "Callisto",
+                          "Ceres",
+                          "Triton",
                       )
                       .map(::cn),
               playerNames = listOf(cn("SoloPlayer")),

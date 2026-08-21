@@ -50,7 +50,9 @@ class FirstPartialGameTest : TfmTest() {
         playProject(AsteroidMining, 30)
       }
       p2.turn {
-        playProject(NaturalPreserve, 1, steel = 4) { doTask("Card044_SpecialTile<Elysium_3_7>") }
+        playProject(NaturalPreserve, 1, steel = 4) {
+          doTask("NaturalPreserve_SpecialTile<Elysium_3_7>")
+        }
       }
       p1.pass()
       p2.turn {

@@ -29,7 +29,7 @@ class BugsTest : CardTest() {
             p1.autoExecNow()
           }
         }
-    deadEnd.message shouldContain "CardX54F"
+    deadEnd.message shouldContain "FakeEstablishedMethods"
   }
 
   // FAQ: "Those actions are considered distinct actions, but within the action of playing Head

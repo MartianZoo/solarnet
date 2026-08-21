@@ -10,7 +10,7 @@ merely to begin this project.
 
 ## Scope boundaries
 
-The generated `CardXC03FWatcher<Player>` components used by Splice are working regression
+The generated `SpliceTacticalGenomicsWatcher<Player>` components used by Splice are working regression
 constraints, not unfinished Type-variable infrastructure. Replacing them would be optional data and
 task-assignment cleanup.
 

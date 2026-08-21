@@ -3,7 +3,7 @@
 
     // Trade
     {
-      "id": "TradeSA",
+      "name": "TradeSA",
       "actions": [
         "9 -> Trade",
         "3 Energy -> Trade",

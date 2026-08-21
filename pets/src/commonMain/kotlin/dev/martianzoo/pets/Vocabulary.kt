@@ -26,7 +26,8 @@ private constructor(
   public fun canonicalName(name: ClassName): ClassName = inputNames[name] ?: name
 
   /** Returns the localized natural-language name used in ordinary UI. */
-  public fun displayName(name: ClassName): String = displayNames[name] ?: name.toString()
+  public fun displayName(name: ClassName): String =
+      displayNames[name] ?: defaultEnglishDisplayName(name)
 
   /** Returns the localized identifier used when rendering Pets source. */
   public fun petsName(name: ClassName): ClassName = petsNames[name] ?: name
@@ -157,13 +158,12 @@ private constructor(
               .toList() + ENGLISH
       val effectiveDisplayNames = buildMap {
         canonicalNames.forEach { canonical ->
-          fallbackChain
-              .firstNotNullOfOrNull { normalizedLanguages[it]?.get(canonical) }
-              ?.let {
-                require(it.isNotBlank()) { "Blank display name for $canonical" }
-                requireAscii(it)
-                put(canonical, it)
-              }
+          val displayName =
+              fallbackChain.firstNotNullOfOrNull { normalizedLanguages[it]?.get(canonical) }
+                  ?: defaultEnglishDisplayName(canonical)
+          require(displayName.isNotBlank()) { "Blank display name for $canonical" }
+          requireAscii(displayName)
+          put(canonical, displayName)
         }
         petsNameAliases.forEach { (canonical, petsName) ->
           require(canonical in canonicalNames) {
@@ -175,14 +175,21 @@ private constructor(
       require(canonicalNames.containsAll(derivedPetsNameClassNames)) {
         "Pets-name derivation requested for unknown classes: ${derivedPetsNameClassNames - canonicalNames}"
       }
-      val missingDisplayNames = derivedPetsNameClassNames - effectiveDisplayNames.keys
-      require(missingDisplayNames.isEmpty()) {
-        "No localized or English display name for structured classes: $missingDisplayNames"
-      }
       val effectivePetsNames = buildMap {
         effectiveDisplayNames
             .filterKeys { it in derivedPetsNameClassNames }
-            .mapValuesTo(this) { (_, displayName) -> petsClassName(displayName) }
+            .mapValuesTo(this) { (canonicalName, displayName) ->
+              if (normalizedLocale.substringBefore('-') == ENGLISH) {
+                canonicalName
+              } else {
+                val localizedName = petsClassName(displayName)
+                if (localizedName in canonicalNames && localizedName != canonicalName) {
+                  canonicalName
+                } else {
+                  localizedName
+                }
+              }
+            }
         putAll(petsNameAliases)
       }
 
@@ -222,6 +229,25 @@ private constructor(
           normalizedInputOnlySynonyms,
           inputOwners.filter { (input, canonical) -> input != canonical },
       )
+    }
+
+    /** Derives ordinary English display text by separating the words in [className]. */
+    public fun defaultEnglishDisplayName(className: ClassName): String {
+      val source = className.toString()
+      return buildString {
+        source.forEachIndexed { index, character ->
+          val previous = source.getOrNull(index - 1)
+          val startsWord =
+              index > 0 &&
+                  character != '_' &&
+                  previous != '_' &&
+                  ((character.isUpperCase() && previous?.isLowerCase() == true) ||
+                      (character.isDigit() && previous?.isDigit() == false) ||
+                      (!character.isDigit() && previous?.isDigit() == true))
+          if ((character == '_' || startsWord) && lastOrNull() != ' ') append(' ')
+          if (character != '_') append(character)
+        }
+      }
     }
 
     /** Derives the sole Pets-compatible spelling allowed for the ASCII [displayName]. */

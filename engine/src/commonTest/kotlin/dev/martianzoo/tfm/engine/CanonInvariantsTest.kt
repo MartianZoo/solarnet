@@ -48,7 +48,7 @@ internal class CanonInvariantsTest {
     checkComponentLimit("VenusStep", 0..15)
 
     checkComponentLimit("ActionUsedMarker<Player1, $Ants<Player1>>", 0..1)
-    checkComponentLimit("CardB08_Mandate<Player1>", 0..1)
+    checkComponentLimit("TharsisRepublic_Mandate<Player1>", 0..1)
     checkComponentLimit("PowerTag<Player1, $Ants<Player1>>", 0..2)
     checkComponentLimit("Accept<Player1, Class<Steel>>", 0..1)
     checkComponentLimit("Pass<Player1>", 0..1)
@@ -88,8 +88,8 @@ internal class CanonInvariantsTest {
     checkSimple("Tharsis_5_5", range = 1..1)
     checkSimple("GreeneryTile", "Tile<Tharsis_5_5>", range = 0..1)
 
-    checkSimple("FlownTradeFleet", "FlownTradeFleet<ColonyTile01>", range = 0..1)
-    checkSimple("Colony", "Colony<ColonyTile01>", range = 0..3)
+    checkSimple("FlownTradeFleet", "FlownTradeFleet<Callisto>", range = 0..1)
+    checkSimple("Colony", "Colony<Callisto>", range = 0..3)
 
     checkUnbound("Pass", THIS.expression, 0..1)
     checkUnbound("VenusTag", THIS.expression, 0..2)

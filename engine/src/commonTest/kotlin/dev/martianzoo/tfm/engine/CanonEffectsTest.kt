@@ -66,7 +66,7 @@ internal class CanonEffectsTest {
 
   @Test
   fun terraformer() {
-    classEffectsOf(cn("MilestoneBM1"))
+    classEffectsOf(cn("Terraformer35"))
         .shouldContainExactlyInAnyOrder(
             "This:: (35 TerraformRating<Owner>: Ok)",
             "End: 5 VictoryPoint<Owner>!",

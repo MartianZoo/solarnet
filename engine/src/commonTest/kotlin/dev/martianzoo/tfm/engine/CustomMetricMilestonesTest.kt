@@ -25,12 +25,12 @@ internal class CustomMetricMilestonesTest {
         )
 
     p1.count("ActiveCard OR AutomatedCard") shouldBe 14
-    shouldThrow<RequirementException> { p1.godMode().manual("Tycoon") }
+    shouldThrow<RequirementException> { p1.godMode().manual("Tycoon15") }
 
     p1.godMode().sneak("$EosChasmaNationalPark")
     p1.count("ActiveCard OR AutomatedCard") shouldBe 15
-    p1.godMode().manual("Tycoon")
-    p1.count("Tycoon") shouldBe 1
+    p1.godMode().manual("Tycoon15")
+    p1.count("Tycoon15") shouldBe 1
   }
 
   @Test
@@ -82,11 +82,11 @@ internal class CustomMetricMilestonesTest {
     p1.godMode().sneak("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
 
     p1.count("CardFront(HAS requirement)") shouldBe 4
-    shouldThrow<RequirementException> { p1.godMode().manual("Tactician") }
+    shouldThrow<RequirementException> { p1.godMode().manual("Tactician5") }
 
     p1.godMode().sneak("$BreathingFilters")
     p1.count("CardFront(HAS requirement)") shouldBe 5
-    p1.godMode().manual("Tactician")
-    p1.count("Tactician") shouldBe 1
+    p1.godMode().manual("Tactician5")
+    p1.count("Tactician5") shouldBe 1
   }
 }

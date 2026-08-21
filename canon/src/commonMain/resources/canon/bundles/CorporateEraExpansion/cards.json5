@@ -1,27 +1,24 @@
 {
   "cards": [
 
-    // Saturn Systems
     {
-      "id": "B11",
+      "name": "SaturnSystems",
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
       "immediate": "42, PROD[Titanium]",
       "effects": [ "JovianTag<Anyone, CardFront<Anyone>>: PROD[1]" ],
     },
 
-    // Teractor
     {
-      "id": "B12",
+      "name": "Teractor",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "60",
       "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<Class<Megacredit>>" ],
     },
 
-    // Asteroid Mining Consortium
     {
-      "id": "002",
+      "name": "AsteroidMiningConsortium",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "PROD[Titanium]",
@@ -31,9 +28,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Inventors' Guild[F]
     {
-      "id": "006F",
+      "name": "InventorsGuild",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 9,
@@ -41,9 +37,8 @@
       "actions": [ "-> BuyCard?" ],
     },
 
-    // Space Elevator
     {
-      "id": "013",
+      "name": "SpaceElevator",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 27,
@@ -53,9 +48,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Development Center
     {
-      "id": "014",
+      "name": "DevelopmentCenter",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -63,9 +57,8 @@
       "actions": [ "Energy -> ProjectCard" ],
     },
 
-    // Space Station
     {
-      "id": "025",
+      "name": "SpaceStation",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -76,9 +69,8 @@
       ],
     },
 
-    // Interstellar Colony Ship
     {
-      "id": "027",
+      "name": "InterstellarColonyShip",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "5 ScienceTag",
@@ -87,9 +79,8 @@
       "effects": [ "End: 4 VictoryPoint" ],
     },
 
-    // Security Fleet
     {
-      "id": "028",
+      "name": "SecurityFleet",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 12,
@@ -99,9 +90,8 @@
       "effects": [ "End: VictoryPoint / Fighter<This>" ],
     },
 
-    // Lightning Harvest
     {
-      "id": "046",
+      "name": "LightningHarvest",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 ScienceTag",
@@ -111,9 +101,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Tardigrades
     {
-      "id": "049",
+      "name": "Tardigrades",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -123,9 +112,8 @@
       "effects": [ "End: VictoryPoint / 4 Microbe<This>" ],
     },
 
-    // Virus
     {
-      "id": "050",
+      "name": "Virus",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
@@ -133,9 +121,8 @@
       "immediate": "-2 Animal<Anyone>? OR -5 Plant<Anyone>?",
     },
 
-    // Miranda Resort
     {
-      "id": "051",
+      "name": "MirandaResort",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 12,
@@ -144,9 +131,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Mine
     {
-      "id": "056",
+      "name": "Mine",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 4,
@@ -154,9 +140,8 @@
       "immediate": "PROD[Steel]",
     },
 
-    // Vesta Shipyard
     {
-      "id": "057",
+      "name": "VestaShipyard",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 15,
@@ -165,9 +150,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Great Escarpment Consortium
     {
-      "id": "061",
+      "name": "GreatEscarpmentConsortium",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "PROD[Steel]",
@@ -175,28 +159,25 @@
       "immediate": "PROD[-Steel<Anyone>, Steel]",
     },
 
-    // Mineral Deposit
     {
-      "id": "062",
+      "name": "MineralDeposit",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 5,
       "immediate": "5 Steel",
     },
 
-    // Mining Area
     {
-      "id": "064",
+      "name": "MiningArea",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 4,
       "tags": [ "BuildingTag" ],
-      "immediate": "SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} THEN PROD[(LandArea(HAS Card064_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS Card064_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
+      "immediate": "SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} THEN PROD[(LandArea(HAS MiningArea_SpecialTile, MapBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, MapBonus<Class<Titanium>>): Titanium)]",
     },
 
-    // Building Industries
     {
-      "id": "065",
+      "name": "BuildingIndustries",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 6,
@@ -204,9 +185,8 @@
       "immediate": "PROD[-Energy, 2 Steel]",
     },
 
-    // Sponsors
     {
-      "id": "068",
+      "name": "Sponsors",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 6,
@@ -214,9 +194,8 @@
       "immediate": "PROD[2]",
     },
 
-    // Electro Catapult
     {
-      "id": "069",
+      "name": "ElectroCatapult",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "MAX 8 OxygenStep",
@@ -227,9 +206,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Earth Catapult
     {
-      "id": "070",
+      "name": "EarthCatapult",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 23,
@@ -240,9 +218,8 @@
       ],
     },
 
-    // Advanced Alloys
     {
-      "id": "071",
+      "name": "AdvancedAlloys",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 9,
@@ -250,9 +227,8 @@
       "effects": [ "Pay<Class<Metal>>:: -Owed<Class<Megacredit>>" ],
     },
 
-    // Mars University
     {
-      "id": "073",
+      "name": "MarsUniversity",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
@@ -263,9 +239,8 @@
       ],
     },
 
-    // Viral Enhancers
     {
-      "id": "074",
+      "name": "ViralEnhancers",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 9,
@@ -273,9 +248,8 @@
       "effects": [ "BioTag<CardFront>: Plant OR CardResource<CardFront>" ],
     },
 
-    // Quantum Extractor
     {
-      "id": "079",
+      "name": "QuantumExtractor",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "4 ScienceTag",
@@ -285,9 +259,8 @@
       "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>" ],
     },
 
-    // Callisto Penal Mines
     {
-      "id": "082",
+      "name": "CallistoPenalMines",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 24,
@@ -296,9 +269,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Trans-Neptune Probe
     {
-      "id": "084",
+      "name": "TransNeptuneProbe",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 6,
@@ -306,20 +278,18 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Commercial District
     {
-      "id": "085",
+      "name": "CommercialDistrict",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 16,
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 4], SpecialTile<> {}",
-      "effects": [ "End: VictoryPoint / Adjacency<Card085_SpecialTile, CityTile<Anyone>>" ],
+      "effects": [ "End: VictoryPoint / Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>" ],
     },
 
-    // Robotic Workforce
     {
-      "id": "086",
+      "name": "RoboticWorkforce",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 9,
@@ -327,9 +297,8 @@
       "immediate": "CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))>",
     },
 
-    // Research
     {
-      "id": "090",
+      "name": "Research",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -338,9 +307,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Gene Repair
     {
-      "id": "091",
+      "name": "GeneRepair",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 ScienceTag",
@@ -350,9 +318,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Io Mining Industries
     {
-      "id": "092",
+      "name": "IoMiningIndustries",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 41,
@@ -361,9 +328,8 @@
       "effects": [ "End: VictoryPoint / JovianTag" ],
     },
 
-    // Mass Converter
     {
-      "id": "094",
+      "name": "MassConverter",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "5 ScienceTag",
@@ -373,9 +339,8 @@
       "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>" ],
     },
 
-    // Physics Complex
     {
-      "id": "095",
+      "name": "PhysicsComplex",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 12,
@@ -385,9 +350,8 @@
       "effects": [ "End: 2 VictoryPoint / Science<This>" ],
     },
 
-    // Tropical Resort
     {
-      "id": "098",
+      "name": "TropicalResort",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 13,
@@ -396,9 +360,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Toll Station
     {
-      "id": "099",
+      "name": "TollStation",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 12,
@@ -406,9 +369,8 @@
       "immediate": "PROD[1 / SpaceTag<!Owner>]",
     },
 
-    // Earth Office
     {
-      "id": "105",
+      "name": "EarthOffice",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 1,
@@ -416,9 +378,8 @@
       "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed<Class<Megacredit>>" ],
     },
 
-    // Acquired Company
     {
-      "id": "106",
+      "name": "AcquiredCompany",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 10,
@@ -426,9 +387,8 @@
       "immediate": "PROD[3]",
     },
 
-    // Media Archives
     {
-      "id": "107",
+      "name": "MediaArchives",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 8,
@@ -436,9 +396,8 @@
       "immediate": "1 / PlayedEvent<Anyone>",
     },
 
-    // Media Group
     {
-      "id": "109",
+      "name": "MediaGroup",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 6,
@@ -446,9 +405,8 @@
       "effects": [ "EventCard: 3" ],
     },
 
-    // Business Network[F]
     {
-      "id": "110F",
+      "name": "BusinessNetwork",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -457,9 +415,8 @@
       "actions": [ "-> BuyCard?" ],
     },
 
-    // Business Contacts[F]
     {
-      "id": "111F",
+      "name": "BusinessContacts",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
@@ -467,9 +424,8 @@
       "immediate": "2 ProjectCard",
     },
 
-    // Bribed Committee
     {
-      "id": "112",
+      "name": "BribedCommittee",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 7,
@@ -478,18 +434,16 @@
       "effects": [ "End: -2 VictoryPoint" ],
     },
 
-    // Sabotage
     {
-      "id": "121",
+      "name": "Sabotage",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
       "immediate": "-3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
     },
 
-    // Industrial Center
     {
-      "id": "123",
+      "name": "IndustrialCenter",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -498,18 +452,16 @@
       "actions": [ "7 -> PROD[Steel]" ],
     },
 
-    // Hired Raiders
     {
-      "id": "124",
+      "name": "HiredRaiders",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
       "immediate": "2 Steel<Owner> FROM Steel<Anyone>? OR 3 Megacredit<Owner> FROM Megacredit<Anyone>?",
     },
 
-    // Hackers
     {
-      "id": "125",
+      "name": "Hackers",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 3,
@@ -519,9 +471,8 @@
       ],
     },
 
-    // Cartel
     {
-      "id": "137",
+      "name": "Cartel",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 8,
@@ -529,9 +480,8 @@
       "immediate": "PROD[1 / EarthTag]",
     },
 
-    // Titanium Mine
     {
-      "id": "144",
+      "name": "TitaniumMine",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 7,
@@ -539,18 +489,16 @@
       "immediate": "PROD[Titanium]",
     },
 
-    // CEO's Favorite Project
     {
-      "id": "149",
+      "name": "CeosFavoriteProject",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
       "immediate": "CardResource<CardFront(HAS CardResource)>",
     },
 
-    // Anti-Gravity Technology
     {
-      "id": "150",
+      "name": "AntiGravityTechnology",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "7 ScienceTag",
@@ -562,9 +510,8 @@
       ],
     },
 
-    // Investment Loan
     {
-      "id": "151",
+      "name": "InvestmentLoan",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 3,
@@ -572,9 +519,8 @@
       "immediate": "PROD[-1], 10",
     },
 
-    // Caretaker Contract
     {
-      "id": "154",
+      "name": "CaretakerContract",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "15 TemperatureStep",
@@ -582,9 +528,8 @@
       "actions": [ "8 Heat -> TerraformRating" ],
     },
 
-    // Standard Technology
     {
-      "id": "156",
+      "name": "StandardTechnology",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 6,
@@ -592,9 +537,8 @@
       "effects": [ "UseAction<StandardProject>: 3" ],
     },
 
-    // Power Supply Consortium
     {
-      "id": "160",
+      "name": "PowerSupplyConsortium",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 PowerTag",
@@ -603,18 +547,16 @@
       "immediate": "PROD[-Energy<Anyone>, Energy]",
     },
 
-    // Protected Habitats
     {
-      "id": "173",
+      "name": "ProtectedHabitats",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 5,
       "effects": [ "-Plant OR -Animal OR -Microbe BY !Owner:: Die" ],
     },
 
-    // Satellites
     {
-      "id": "175",
+      "name": "Satellites",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 10,
@@ -622,9 +564,8 @@
       "immediate": "PROD[1 / SpaceTag]",
     },
 
-    // Fuel Factory
     {
-      "id": "180",
+      "name": "FuelFactory",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 6,
@@ -632,9 +573,8 @@
       "immediate": "PROD[-Energy, Titanium, 1]",
     },
 
-    // Corporate Stronghold
     {
-      "id": "182",
+      "name": "CorporateStronghold",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -643,9 +583,8 @@
       "effects": [ "End: -2 VictoryPoint" ],
     },
 
-    // Olympus Conference
     {
-      "id": "185",
+      "name": "OlympusConference",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -657,9 +596,8 @@
       ],
     },
 
-    // Rad-Suits
     {
-      "id": "186",
+      "name": "RadSuits",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 CityTile<Anyone>",
@@ -668,9 +606,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Invention Contest[F]
     {
-      "id": "192F",
+      "name": "InventionContest",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 2,
@@ -678,9 +615,8 @@
       "immediate": "ProjectCard",
     },
 
-    // Power Infrastructure
     {
-      "id": "194",
+      "name": "PowerInfrastructure",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -688,9 +624,8 @@
       "actions": [ "X Energy -> X" ],
     },
 
-    // Indentured Workers
     {
-      "id": "195",
+      "name": "IndenturedWorkers",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
@@ -698,9 +633,8 @@
       "effects": [ "End: -VictoryPoint" ],
     },
 
-    // Lagrange Observatory
     {
-      "id": "196",
+      "name": "LagrangeObservatory",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 9,
@@ -709,9 +643,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Terraforming Ganymede
     {
-      "id": "197",
+      "name": "TerraformingGanymede",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 33,
@@ -720,9 +653,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Restricted Area
     {
-      "id": "199",
+      "name": "RestrictedArea",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -731,9 +663,8 @@
       "actions": [ "2 -> ProjectCard" ],
     },
 
-    // Energy Tapping
     {
-      "id": "201",
+      "name": "EnergyTapping",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 3,
@@ -742,9 +673,8 @@
       "effects": [ "End: -VictoryPoint" ],
     },
 
-    // Technology Demonstration
     {
-      "id": "204",
+      "name": "TechnologyDemonstration",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 5,
@@ -752,9 +682,8 @@
       "immediate": "2 ProjectCard",
     },
 
-    // Medical Lab
     {
-      "id": "207",
+      "name": "MedicalLab",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 13,
@@ -763,9 +692,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // AI Central
     {
-      "id": "208",
+      "name": "AiCentral",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "3 ScienceTag",

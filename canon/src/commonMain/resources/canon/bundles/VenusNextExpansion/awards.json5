@@ -1,6 +1,6 @@
 {
   "awards": [
     // Venuphile
-    { "id": "VA1", "metric": "VenusTag" },
+    { "name": "Venuphile", "metric": "VenusTag" },
   ]
 }

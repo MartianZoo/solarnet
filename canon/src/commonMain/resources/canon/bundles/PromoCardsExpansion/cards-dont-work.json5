@@ -1,9 +1,8 @@
 {
   "cards": [
 
-    // Self-Replicating Robots
     {
-      "id": "210",
+      "name": "SelfReplicatingRobots",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",

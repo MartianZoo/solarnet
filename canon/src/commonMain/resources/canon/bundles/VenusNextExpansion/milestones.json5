@@ -1,6 +1,6 @@
 {
   "milestones": [
     // Hoverlord
-    { "id": "VM1", "requirement": "7 Floater" },
+    { "name": "Hoverlord", "requirement": "7 Floater" },
   ],
 }

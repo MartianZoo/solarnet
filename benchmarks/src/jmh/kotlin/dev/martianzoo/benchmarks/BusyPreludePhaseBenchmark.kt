@@ -38,8 +38,8 @@ public open class BusyPreludePhaseBenchmark {
             Canon.gamePremise(
                 GameConfig(
                     "TerraformingMars, TharsisMapOption, PreludeExpansion, " +
-                        "ColoniesExpansion, PromoCardPack, ColonyTile01, ColonyTile05, " +
-                        "ColonyTile07",
+                        "ColoniesExpansion, PromoCardPack, Callisto, Ganymede, " +
+                        "Luna",
                     "Me",
                 )
             )

@@ -272,8 +272,8 @@ internal constructor(
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
    * that is, no other [Class] in this [ClassTable] is a subclass of all of them unless it is also a
    * subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award count
-   * `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile` (which
-   * is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
+   * `OwnedTile` components, it would be a bug if a component like `CommercialDistrict_SpecialTile`
+   * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
   public fun isIntersectionType(): Boolean = intersectionType
 

@@ -29,7 +29,7 @@ internal class AuthorityTest {
               setOf(
                   CardDefinition(
                       CardData(
-                          id = "123",
+                          name = "ExampleCard",
                           deck = "PRELUDE",
                           immediate = "Plant",
                           components = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"),
@@ -38,7 +38,7 @@ internal class AuthorityTest {
               )
         }
 
-    authority.classDeclaration(cn("Card123")).abstract shouldBe false
+    authority.classDeclaration(cn("ExampleCard")).abstract shouldBe false
     authority.classDeclaration(cn("Foo")).dependencies.shouldHaveSize(1)
   }
 
@@ -109,7 +109,7 @@ internal class AuthorityTest {
                       setOf(BundleContentSelection(cn("ContentProvider"), setOf(CARDS)))
               )
         }
-    val card = CardDefinition(CardData(id = "123"))
+    val card = CardDefinition(CardData(name = "ExampleCard"))
     val unrelated = parseOneLinerClass("CLASS Unrelated")
     val contentBundle =
         object : Bundle(cn("ContentProvider")) {
@@ -128,8 +128,8 @@ internal class AuthorityTest {
   fun replacementsRemainKnownWhileTheSelectedModuleActivatesOnlyTheReplacement() {
     val moduleBundle =
         bundle("Base", "ABSTRACT CLASS Module\nABSTRACT CLASS CardFront\nCLASS Base : Module")
-    val original = CardDefinition(CardData(id = "039"))
-    val replacement = CardDefinition(CardData(id = "X31", replaces = "039"))
+    val original = CardDefinition(CardData(name = "DeimosDown"))
+    val replacement = CardDefinition(CardData(name = "DeimosDownPromo", replaces = "DeimosDown"))
     val baseCards = cardBundle("BaseCards", original)
     val replacementCards = cardBundle("ReplacementCards", replacement)
     val configuredModuleBundle =
@@ -148,9 +148,10 @@ internal class AuthorityTest {
 
     val table = ClassTable.forPremise(source.gamePremise(GameConfig("Base")))
 
-    source.cardDefinitions.map { it.className }.toSet() shouldBe setOf(cn("Card039"), cn("CardX31"))
-    table.isActive(cn("Card039")) shouldBe false
-    table.isActive(cn("CardX31")) shouldBe true
+    source.cardDefinitions.map { it.className }.toSet() shouldBe
+        setOf(cn("DeimosDown"), cn("DeimosDownPromo"))
+    table.isActive(cn("DeimosDown")) shouldBe false
+    table.isActive(cn("DeimosDownPromo")) shouldBe true
   }
 
   @Test
@@ -175,9 +176,10 @@ internal class AuthorityTest {
                   cn("Latest") to setOf(BundleContentSelection(cn("LatestCards"), setOf(CARDS))),
               )
         }
-    val original = CardDefinition(CardData(id = "001"))
-    val intermediate = CardDefinition(CardData(id = "002", replaces = "001"))
-    val latest = CardDefinition(CardData(id = "003", replaces = "002"))
+    val original = CardDefinition(CardData(name = "OriginalCard"))
+    val intermediate =
+        CardDefinition(CardData(name = "IntermediateCard", replaces = "OriginalCard"))
+    val latest = CardDefinition(CardData(name = "LatestCard", replaces = "IntermediateCard"))
     val source =
         TfmAuthority.compose(
             moduleBundle,
@@ -215,9 +217,9 @@ internal class AuthorityTest {
                   cn("Second") to setOf(BundleContentSelection(cn("SecondCards"), setOf(CARDS))),
               )
         }
-    val original = CardDefinition(CardData(id = "001"))
-    val first = CardDefinition(CardData(id = "002", replaces = "001"))
-    val second = CardDefinition(CardData(id = "003", replaces = "001"))
+    val original = CardDefinition(CardData(name = "OriginalCard"))
+    val first = CardDefinition(CardData(name = "FirstReplacement", replaces = "OriginalCard"))
+    val second = CardDefinition(CardData(name = "SecondReplacement", replaces = "OriginalCard"))
     val source =
         TfmAuthority.compose(
             moduleBundle,
@@ -239,12 +241,12 @@ internal class AuthorityTest {
                 "Base",
                 "ABSTRACT CLASS Module\nABSTRACT CLASS CardFront\nCLASS Base : Module",
             ),
-            cardBundle("Cards", CardDefinition(CardData(id = "123"))),
+            cardBundle("Cards", CardDefinition(CardData(name = "ExampleCard"))),
         )
 
-    val premise = source.gamePremise(GameConfig("Card123"))
+    val premise = source.gamePremise(GameConfig("ExampleCard"))
 
-    ClassTable.forPremise(premise).isActive(cn("Card123")) shouldBe true
+    ClassTable.forPremise(premise).isActive(cn("ExampleCard")) shouldBe true
   }
 
   private fun authority(vararg declarations: ClassDeclaration): TfmAuthority =

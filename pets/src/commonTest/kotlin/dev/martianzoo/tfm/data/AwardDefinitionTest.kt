@@ -16,9 +16,9 @@ internal class AwardDefinitionTest {
               "groups": [{
                 "setupRequirement": "DemoMapOption",
                 "awards": [
-                  { "id": "HA1", "replaces": "BA1", "metric": "TerraformRating" },
+                  { "name": "Magnate", "replaces": "Landlord", "metric": "TerraformRating" },
                   {
-                    "id": "HA2",
+                    "name": "SpaceBaron",
                     "metric": "VenusTag",
                     "setupRequirement": "VenusNextExpansion",
                   },
@@ -28,12 +28,12 @@ internal class AwardDefinitionTest {
             """
         )
 
-    val replacement = awards.single { it.className == cn("AwardHA1") }
-    replacement.replaces shouldBe "BA1"
+    val replacement = awards.single { it.className == cn("Magnate") }
+    replacement.replaces shouldBe cn("Landlord")
     replacement.setupRequirement.toString() shouldBe "MAX 0 SoloMode, DemoMapOption"
     replacement.asClassDeclaration.properties[PropertyName("metric")] shouldBe
         MetricValue(replacement.metric)
-    awards.single { it.className == cn("AwardHA2") }.setupRequirement.toString() shouldBe
+    awards.single { it.className == cn("SpaceBaron") }.setupRequirement.toString() shouldBe
         "MAX 0 SoloMode, DemoMapOption, VenusNextExpansion"
   }
 }

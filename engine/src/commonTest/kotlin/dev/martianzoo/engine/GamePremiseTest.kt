@@ -137,12 +137,12 @@ internal class GamePremiseTest {
         )
     val table = Engine.newGame(premise).classTable
 
-    table.isActive(cn("MilestoneUM7")) shouldBe true
-    table.isActive(cn("MilestoneMM15")) shouldBe true
-    table.isActive(cn("MilestoneHM0")) shouldBe false
-    table.isActive(cn("AwardUA2")) shouldBe true
-    table.isActive(cn("AwardUA6")) shouldBe true
-    table.isActive(cn("AwardHA0")) shouldBe false
+    table.isActive(cn("Coastguard")) shouldBe true
+    table.isActive(cn("Landshaper")) shouldBe true
+    table.isActive(cn("Diversifier")) shouldBe false
+    table.isActive(cn("Botanist")) shouldBe true
+    table.isActive(cn("Founder")) shouldBe true
+    table.isActive(cn("Cultivator")) shouldBe false
   }
 
   @Test
