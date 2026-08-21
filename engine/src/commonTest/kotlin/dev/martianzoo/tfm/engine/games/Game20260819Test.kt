@@ -610,9 +610,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     ER.assertCounts(25 to "TR")
     JR.assertCounts(25 to "TR")
     KB.assertCounts(23 to "TR")
-    ER.cardsInHand.size shouldBe 10
-    JR.cardsInHand.size shouldBe 6
-    KB.cardsInHand.size shouldBe 15
+    checkHandSizes()
 
     // JR played Zeppelins
     // JR gained 7 M€ production
