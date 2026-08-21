@@ -4,15 +4,15 @@
       "setupRequirement": "UtopiaPlanitiaMapOption",
       "milestones": [
         // Manager
-        { "id": "UM0", "requirement": "3 SpecialTile" },
+        { "name": "Manager", "requirement": "3 SpecialTile" },
         // Pioneer
-        { "id": "UM1", "setupRequirement": "ColoniesExpansion", "requirement": "3 Colony" },
+        { "name": "Pioneer3", "setupRequirement": "ColoniesExpansion", "requirement": "3 Colony" },
         // Trader
-        { "id": "UM2", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
+        { "name": "Trader", "requirement": "3 Class<CardResource>(HAS CardResource<Owner>)" },
         // Metallurgist
-        { "id": "UM3", "requirement": "6 PROD[Metal]" },
+        { "name": "Metallurgist", "requirement": "6 PROD[Metal]" },
         // Researcher
-        { "id": "UM4", "requirement": "4 ScienceTag" },
+        { "name": "Researcher", "requirement": "4 ScienceTag" },
       ],
     },
     {
@@ -20,19 +20,19 @@
       "milestones": [
         // Planetologist
         {
-          "id": "UM5",
+          "name": "Planetologist",
           "requirement": "2 EarthTag, 2 VenusTag, 2 JovianTag",
           "setupRequirement": "VenusNextExpansion",
         },
         // Architect
-        { "id": "UM6", "requirement": "3 CityTag" },
+        { "name": "Architect", "requirement": "3 CityTag" },
         // Coastguard
-        { "id": "UM7", "requirement": "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
+        { "name": "Coastguard", "requirement": "3 OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" },
         // Forester
-        { "id": "UM8", "requirement": "PROD[3 Plant]" },
+        { "name": "Forester", "requirement": "PROD[3 Plant]" },
         // Fundraiser
         // Search for GrossHack to understand this nonsense
-        { "id": "UM9", "requirement": "PROD[12 (Megacredit - 5)]" },
+        { "name": "Fundraiser", "requirement": "PROD[12 (Megacredit - 5)]" },
       ],
     },
   ],

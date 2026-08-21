@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.TaskException
+import dev.martianzoo.tfm.engine.cardnames.AquiferPumping
 import dev.martianzoo.tfm.engine.cardnames.Mine
 import dev.martianzoo.tfm.engine.cardnames.PowerPlant
 import dev.martianzoo.tfm.engine.cards.CardTest
@@ -69,6 +71,22 @@ class TfmGameplayTest : CardTest() {
     p1.manual("3 Steel, ProjectCard")
     p1.intentionalOverpay()
     p1.playProject(Mine, steel = 3)
+  }
+
+  @Test
+  fun `Payment rejects megacredits beyond the remainder after steel`() {
+    newGame()
+    engine.phase("Action")
+    p1.manual("30 Megacredit, 5 Steel, ProjectCard")
+
+    shouldThrow<LimitsException> {
+      p1.playProject(AquiferPumping, megacredits = 18, steel = 5)
+    }
+
+    p1.count("Megacredit") shouldBe 30
+    p1.count("Steel") shouldBe 5
+    p1.count("ProjectCard") shouldBe 1
+    p1.count("$AquiferPumping") shouldBe 0
   }
 
   @Test

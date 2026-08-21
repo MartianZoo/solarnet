@@ -56,10 +56,10 @@ Exact syntax and draft-location names are not settled. The semantics are:
 Example lifecycle:
 
 ```text
-ProjectCard<Class<Card131>, Deck>
-ProjectCard<Class<Card131>, Hand<Player2>>
-Card131<Player2>
-ProjectCard<Class<Card131>, Events<Player2>>
+ProjectCard<Class<Decomposers>, Deck>
+ProjectCard<Class<Decomposers>, Hand<Player2>>
+Decomposers<Player2>
+ProjectCard<Class<Decomposers>, Events<Player2>>
 ```
 
 The represented Class is immutable. Playing transmutates the hand back into the front. Event cleanup
@@ -218,7 +218,7 @@ the latest irrevocably published checkpoint remains abstract even to its eventua
 a normally public location. Before commit:
 
 ```text
-master:  ProjectCard<Class<Card131>, Hand<Player1>>
+master:  ProjectCard<Class<Decomposers>, Hand<Player1>>
 viewer:  ProjectCard<Class<CardFront>, Hand<Player1>>
 ```
 
@@ -259,8 +259,8 @@ hand, that its represented Class is the front being played, and that its back ki
 right deck family:
 
 ```text
-Card131<Player2>
-  FROM ProjectCard<Class<Card131>, Hand<Player2>>
+Decomposers<Player2>
+  FROM ProjectCard<Class<Decomposers>, Hand<Player2>>
 ```
 
 The real-mode path would no longer need `CheckCardDeck`; the exact source Type authenticates the

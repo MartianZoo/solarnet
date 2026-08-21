@@ -301,7 +301,7 @@ public class ScriptSession(
   }
 
   internal fun player(name: String): Player {
-    // In case a configured synonym or definition id was used
+    // In case a configured synonym was used
     val type: Type = gameplay.resolve(name)
     return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
         ?: throw UsageException("not a participating Player: $name")

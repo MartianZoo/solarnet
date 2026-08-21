@@ -12,7 +12,6 @@ import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.GamePremise
 import dev.martianzoo.data.ModuleProperties.AUTO_SELECT_WHEN
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.Vocabulary.Companion.petsClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
@@ -32,7 +31,20 @@ import dev.martianzoo.util.associateByStrict
 
 /** A Terraforming Mars Authority with typed registries for its structured definitions. */
 public open class TfmAuthority : Authority {
-  final override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+  final override val classTable: ClassTable by lazy {
+    ClassLoader(this).loadEverything().also(::validateCardTags)
+  }
+
+  private fun validateCardTags(table: ClassTable) {
+    val tagClass = table.findClass(TAG_CLASS) ?: return
+    cardDefinitions.forEach { card ->
+      card.tags.elements.forEach { tagName ->
+        require(table.getClass(tagName).isSubtypeOf(tagClass)) {
+          "${card.className} names non-Tag class $tagName as a tag"
+        }
+      }
+    }
+  }
 
   final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
     (cardDefinitions + milestoneDefinitions + awardDefinitions + colonyTileDefinitions).mapTo(
@@ -154,12 +166,7 @@ public open class TfmAuthority : Authority {
   private fun resolveConfigurationName(configuredName: ClassName): ClassName? {
     // Canonical PlayerN seat classes are activated only by the ordered player-name list.
     if (Player.isValid(configuredName)) return null
-    if (configuredName in allClassNames) return configuredName
-    val matches = derivedPetsNameClassNames.filter { canonicalName ->
-      displayNamesByLanguage["en"]?.get(canonicalName)?.let(::petsClassName) == configuredName
-    }
-    require(matches.size <= 1) { "ambiguous configuration class $configuredName: $matches" }
-    return matches.singleOrNull()
+    return configuredName.takeIf { it in allClassNames }
   }
 
   private fun addExactDefinitionSelections(
@@ -182,13 +189,13 @@ public open class TfmAuthority : Authority {
   }
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
-    validateReplacements(cardDefinitions, CardDefinition::id, CardDefinition::replaces)
+    validateReplacements(cardDefinitions, CardDefinition::className, CardDefinition::replaces)
     validateReplacements(
         milestoneDefinitions,
-        MilestoneDefinition::id,
+        MilestoneDefinition::className,
         MilestoneDefinition::replaces,
     )
-    validateReplacements(awardDefinitions, AwardDefinition::id, AwardDefinition::replaces)
+    validateReplacements(awardDefinitions, AwardDefinition::className, AwardDefinition::replaces)
     try {
       (systemClassDeclarations.toList() + contributedClassDeclarations)
           .distinct()
@@ -263,7 +270,7 @@ public open class TfmAuthority : Authority {
       addReplacementExclusions(
           bundle.cardDefinitions,
           cardDefinitions,
-          CardDefinition::id,
+          CardDefinition::className,
           CardDefinition::replaces,
       )
     }
@@ -281,7 +288,7 @@ public open class TfmAuthority : Authority {
       addReplacementExclusions(
           bundle.milestoneDefinitions,
           milestoneDefinitions,
-          MilestoneDefinition::id,
+          MilestoneDefinition::className,
           MilestoneDefinition::replaces,
       )
     }
@@ -290,7 +297,7 @@ public open class TfmAuthority : Authority {
       addReplacementExclusions(
           bundle.awardDefinitions,
           awardDefinitions,
-          AwardDefinition::id,
+          AwardDefinition::className,
           AwardDefinition::replaces,
       )
     }
@@ -306,14 +313,14 @@ public open class TfmAuthority : Authority {
   private fun <D : Definition> MutableSet<ClassSelection>.addReplacementExclusions(
       selected: Collection<D>,
       known: Collection<D>,
-      id: (D) -> String,
-      replaces: (D) -> String?,
+      name: (D) -> ClassName,
+      replaces: (D) -> ClassName?,
   ) {
-    val knownById = known.associateByStrict(id)
+    val knownByName = known.associateByStrict(name)
     selected.forEach { replacement ->
       var target = replaces(replacement)
       while (target != null) {
-        val replaced = knownById.getValue(target)
+        val replaced = knownByName.getValue(target)
         add(
             ClassSelection(
                 className = replaced.className,
@@ -337,32 +344,32 @@ public open class TfmAuthority : Authority {
             .mapTo(hashSetOf(), ClassSelection::className)
     validateSelectedReplacements(
         cardDefinitions.filter { it.className in selectedDefinitionNames },
-        CardDefinition::id,
+        CardDefinition::className,
         CardDefinition::replaces,
     )
     validateSelectedReplacements(
         milestoneDefinitions.filter { it.className in selectedDefinitionNames },
-        MilestoneDefinition::id,
+        MilestoneDefinition::className,
         MilestoneDefinition::replaces,
     )
     validateSelectedReplacements(
         awardDefinitions.filter { it.className in selectedDefinitionNames },
-        AwardDefinition::id,
+        AwardDefinition::className,
         AwardDefinition::replaces,
     )
   }
 
-  private fun <D> validateSelectedReplacements(
+  private fun <D : Definition> validateSelectedReplacements(
       selected: Collection<D>,
-      id: (D) -> String,
-      replaces: (D) -> String?,
+      name: (D) -> ClassName,
+      replaces: (D) -> ClassName?,
   ) {
     selected
         .mapNotNull { replacement -> replaces(replacement)?.let { it to replacement } }
         .groupBy({ it.first }, { it.second })
         .forEach { (target, replacements) ->
           require(replacements.size == 1) {
-            "multiple selected replacements for $target: ${replacements.map(id)}"
+            "multiple selected replacements for $target: ${replacements.map(name)}"
           }
         }
   }
@@ -425,25 +432,28 @@ public open class TfmAuthority : Authority {
 
     private val MODULE_CLASS = cn("Module")
     private val PLAYER_CLASS = cn("Player")
+    private val TAG_CLASS = cn("Tag")
     private val DELAYED_COLONY_TILE = cn("DelayedColonyTile")
 
-    private fun <D> validateReplacements(
+    private fun <D : Definition> validateReplacements(
         definitions: Collection<D>,
-        id: (D) -> String,
-        replaces: (D) -> String?,
+        name: (D) -> ClassName,
+        replaces: (D) -> ClassName?,
     ) {
-      val knownById = definitions.associateByStrict(id)
+      val knownByName = definitions.associateByStrict(name)
       definitions.forEach { definition ->
         replaces(definition)?.let { target ->
-          require(target in knownById) { "${id(definition)} replaces unknown definition $target" }
+          require(target in knownByName) {
+            "${name(definition)} replaces unknown definition $target"
+          }
         }
       }
       definitions.forEach { start ->
-        val path = mutableSetOf<String>()
+        val path = mutableSetOf<ClassName>()
         var current: D? = start
         while (current != null && replaces(current) != null) {
-          require(path.add(id(current))) { "replacement cycle involving ${id(current)}" }
-          current = knownById.getValue(replaces(current)!!)
+          require(path.add(name(current))) { "replacement cycle involving ${name(current)}" }
+          current = knownByName.getValue(replaces(current)!!)
         }
       }
     }

@@ -1,18 +1,9 @@
 {
   "cards": [
 
-    // Nirgal Enterprises cannot bypass the up-front affordability check of the standard actions.
-    {
-      "id": "PC01",
-      "deck": "CORPORATION",
-      "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
-      "immediate": "30, PROD[Energy, Plant, Steel]",
-      "actions": [ "-> Milestone", "-> Award" ],
-    },
-
     // Spire needs payment restricted to standard projects.
     {
-      "id": "PC05",
+      "name": "Spire",
       "deck": "CORPORATION",
       "tags": [ "CityTag", "EarthTag" ],
       "resourceType": "Science",
@@ -25,7 +16,7 @@
 
     // L1 Trade Terminal needs a clean way to select up to three distinct resource-holding cards.
     {
-      "id": "P78",
+      "name": "LagrangeOneTradeTerminal",
       "setupRequirement": "ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",

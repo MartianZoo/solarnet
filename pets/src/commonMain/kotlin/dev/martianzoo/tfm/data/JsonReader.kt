@@ -25,7 +25,7 @@ public object JsonReader {
   @Serializable
   private data class AwardList(
       val setupRequirement: String? = null,
-      val awards: List<AwardDefinition> = emptyList(),
+      val awards: List<AwardImport> = emptyList(),
       val groups: List<AwardList> = emptyList(),
   ) {
     init {
@@ -35,10 +35,24 @@ public object JsonReader {
 
     fun complete(inheritedRequirement: String? = null): List<AwardDefinition> {
       val requirement = combineRequirements(inheritedRequirement, setupRequirement)
-      return awards.map { definition ->
-        requirement?.let(definition::withSetupRequirement) ?: definition
-      } + groups.flatMap { it.complete(requirement) }
+      return awards.map { it.complete(requirement) } + groups.flatMap { it.complete(requirement) }
     }
+  }
+
+  @Serializable
+  private data class AwardImport(
+      val name: String,
+      val replaces: String? = null,
+      val metric: String,
+      val setupRequirement: String? = null,
+  ) {
+    fun complete(groupSetupRequirement: String?): AwardDefinition =
+        AwardDefinition(
+            cn(name),
+            replaces?.let(::cn),
+            metric,
+            listOfNotNull(groupSetupRequirement, setupRequirement).joinToString().ifEmpty { null },
+        )
   }
 
   // CARDS
@@ -72,7 +86,7 @@ public object JsonReader {
 
   @Serializable
   private data class MilestoneImport(
-      val id: String,
+      val name: String,
       val replaces: String? = null,
       val requirement: String,
       val setupRequirement: String? = null,
@@ -83,8 +97,8 @@ public object JsonReader {
 
     fun complete(groupSetupRequirement: String?): MilestoneDefinition =
         MilestoneDefinition(
-            id,
-            replaces,
+            cn(name),
+            replaces?.let(::cn),
             requirement,
             listOfNotNull(groupSetupRequirement, setupRequirement).joinToString().ifEmpty { null },
         )
@@ -102,7 +116,7 @@ public object JsonReader {
 
     @Serializable
     data class IncompleteActionDef(
-        val id: String,
+        val name: String,
         val action: String? = null,
         val actions: List<String>? = null,
         val setupRequirement: String? = null,
@@ -116,7 +130,7 @@ public object JsonReader {
               require(actions == null)
               listOf(action)
             }
-        return StandardActionDefinition(cn(id), realActions, setupRequirement)
+        return StandardActionDefinition(cn(name), realActions, setupRequirement)
       }
     }
   }

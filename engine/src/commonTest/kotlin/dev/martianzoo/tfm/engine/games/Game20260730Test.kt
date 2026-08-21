@@ -273,9 +273,9 @@ class Game20260730Test : AbstractSoloTest() {
       // Player1 placed Deimos Down tile at 51
       // Player1 gained 1 plant
       // Player1 gained 4 M€ from 2 ocean(s)
-      playProject(DeimosDown, 23, titanium = 2) {
+      playProject(DeimosDownPromo, 23, titanium = 2) {
             doTask("Ok")
-            doTask("CardX31_SpecialTile<Tharsis_7_8>")
+            doTask("DeimosDownPromo_SpecialTile<Tharsis_7_8>")
           }
           .expect("4 S, P, 3 TR")
       // Player1 used Power Plant:SP standard project

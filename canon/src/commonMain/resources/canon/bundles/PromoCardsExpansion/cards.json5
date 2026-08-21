@@ -1,9 +1,8 @@
 {
   "cards": [
 
-    // Recyclon
     {
-      "id": "XC02",
+      "name": "Recyclon",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "resourceType": "Microbe",
@@ -11,22 +10,20 @@
       "effects": [ "BuildingTag<>: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
     },
 
-    // Splice Tactical Genomics[F]
     {
-      "id": "XC03F",
+      "name": "SpliceTacticalGenomics",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "resourceType": "Microbe",
       "immediate": "44, Mandate { -> ProjectCard }",
       "effects": [ "MicrobeTag<Anyone, CardFront<Anyone>>: 2" ],
       "components": [
-        "CLASS CardXC03FWatcher : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF CardXC03F<Anyone>: Microbe<CardFront> OR 2 }"
+        "CLASS SpliceTacticalGenomicsWatcher : Owned<Player> { HAS =1 This; MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 }"
       ],
     },
 
-    // Factorum[F]
     {
-      "id": "XC04F",
+      "name": "Factorum",
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "37, PROD[Steel]",
@@ -36,22 +33,20 @@
       ],
     },
 
-    // Mons Insurance
     {
-      "id": "XC05",
+      "name": "MonsInsurance",
       "deck": "CORPORATION",
       "immediate": "48, PROD[4]",
       "effects": [
         "MyResourceWasRemoved<Anyone, Player> OR MyProductionWasDecreased<Anyone, Player>: 3 Megacredit<Anyone> FROM Megacredit.",
       ],
       "components": [
-        "CLASS MonsInsuranceWatcher : Owned<Player> { HAS =1 This; CardXC05<Anyone> IF MAX 0 CardXC05<Owner>: PROD[-2] BY Owner }",
+        "CLASS MonsInsuranceWatcher : Owned<Player> { HAS =1 This; MonsInsurance<Anyone> IF MAX 0 MonsInsurance<Owner>: PROD[-2] BY Owner }",
       ],
     },
 
-    // Philares
     {
-      "id": "XC06",
+      "name": "Philares",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "47, Mandate { -> GreeneryTile<> }",
@@ -60,9 +55,8 @@
       ],
     },
 
-    // AstroDrill
     {
-      "id": "XC07",
+      "name": "AstroDrill",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "resourceType": "Asteroid",
@@ -73,9 +67,8 @@
       ],
     },
 
-    // Pharmacy Union[F]
     {
-      "id": "XC08F",
+      "name": "PharmacyUnion",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "MicrobeTag" ],
       "resourceType": "Disease",
@@ -95,18 +88,16 @@
       ],
     },
 
-    // Tycho Magnetics
     {
-      "id": "XC09", // The app marks XC02 as a placeholder to rename.
+      "name": "TychoMagnetics",
       "deck": "CORPORATION",
       "tags": [ "PowerTag", "ScienceTag" ],
       "immediate": "42, PROD[Energy]",
       "actions": [ "X Energy -> ProjectCard" ],
     },
 
-    // Kuiper Cooperative
     {
-      "id": "XC10",
+      "name": "KuiperCooperative",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag", "SpaceTag" ],
       "resourceType": "Asteroid",
@@ -118,9 +109,8 @@
       ],
     },
 
-    // PolderTECH Dutch
     {
-      "id": "XC11",
+      "name": "PolderTechDutch",
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "35, Mandate { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
@@ -130,88 +120,77 @@
       ],
     },
 
-    // Corporate Archives[F]
     {
-      "id": "X39F",
+      "name": "CorporateArchives",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
       "immediate": "13, 2 ProjectCard",
     },
 
-    // Double Down
     {
-      "id": "X40",
+      "name": "DoubleDown",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "CopyPrelude",
       "components": [ "CLASS CopyPrelude<CardFront<Player>> : Owned<Player>, Custom" ],
     },
 
-    // Merger
     {
-      "id": "X41",
+      "name": "Merger",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "4 CorporationCard THEN -3 CorporationCard THEN PlayCard<Class<CorporationCard>>, -42",
     },
 
-    // New Partner
     {
-      "id": "X42",
+      "name": "NewPartner",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "PROD[1], 2 PreludeCard THEN -PreludeCard THEN PlayCard<Class<PreludeCard>>",
     },
 
-    // Head Start
     {
-      "id": "X43",
+      "name": "HeadStart",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       // officially, you're not supposed to be able to intermingle all the effects like this
       "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
-    // Anti-desertification Techniques
     {
-      "id": "X49",
+      "name": "AntiDesertificationTechniques",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag", "PlantTag" ],
       "immediate": "3, PROD[Plant, Steel]",
     },
 
-    // NOTE: Fake Established Methods
-    // NOTE: Omits the card's fallback note for players unable to afford two standard projects.
     {
-      "id": "X54F",
+      "name": "FakeEstablishedMethods",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "immediate": "30, UseAction<StandardAction>!, UseAction<StandardAction>!",
     },
 
-    // Giant Solar Collector
     {
-      "id": "X55",
+      "name": "GiantSolarCollector",
       "setupRequirement": "PreludeExpansion, VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "PowerTag", "SpaceTag" ],
       "immediate": "PROD[2 Energy], VenusStep",
     },
 
-    // Strategic Base Planning
     {
-      "id": "X65",
+      "name": "StrategicBasePlanning",
       "setupRequirement": "PreludeExpansion, ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
       "immediate": "-3, CityTile<>, Colony<>",
     },
 
-    // Albedo Plants
     {
-      "id": "X78",
+      "name": "AlbedoPlants",
       "setupRequirement": "PreludeExpansion",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
@@ -219,9 +198,8 @@
       "effects": [ "PlantTag<>: 3 Heat" ],
     },
 
-    // Small Asteroid
     {
-      "id": "209",
+      "name": "SmallAsteroid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 10,
@@ -229,9 +207,8 @@
       "immediate": "TemperatureStep, -2 Plant<Anyone>?",
     },
 
-    // Snow Algae
     {
-      "id": "211",
+      "name": "SnowAlgae",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 OceanTile",
@@ -240,9 +217,8 @@
       "immediate": "PROD[Plant, Heat]",
     },
 
-    // Penguins
     {
-      "id": "212",
+      "name": "Penguins",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "8 OceanTile",
@@ -253,9 +229,8 @@
       "effects": [ "End: VictoryPoint / Animal<This>" ],
     },
 
-    // Dusk Laser Mining
     {
-      "id": "X01",
+      "name": "DuskLaserMining",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 ScienceTag",
@@ -264,18 +239,16 @@
       "immediate": "PROD[-Energy, Titanium], 4 Titanium",
     },
 
-    // Project Inspection
     {
-      "id": "X02",
+      "name": "ProjectInspection",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
       "immediate": "UseAction<ActionCard(HAS ActionUsedMarker)>",
     },
 
-    // Energy Market
     {
-      "id": "X03",
+      "name": "EnergyMarket",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 3,
@@ -286,9 +259,8 @@
       ],
     },
 
-    // Hi-Tech Lab[F]
     {
-      "id": "X04F",
+      "name": "HiTechLab",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 17,
@@ -297,9 +269,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Interplanetary Trade
     {
-      "id": "X05",
+      "name": "InterplanetaryTrade",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 27,
@@ -308,9 +279,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Law Suit
     {
-      "id": "X06",
+      "name": "LawSuit",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 2,
@@ -318,9 +288,8 @@
       "effects": [ "End: -VictoryPoint" ],
     },
 
-    // Mercurian Alloys
     {
-      "id": "X07",
+      "name": "MercurianAlloys",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",
@@ -329,9 +298,8 @@
       "effects": [ "Pay<Class<Titanium>>:: -Owed<Class<Megacredit>>" ],
     },
 
-    // Orbital Cleanup
     {
-      "id": "X08",
+      "name": "OrbitalCleanup",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 14,
@@ -341,9 +309,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Rego Plastics
     {
-      "id": "X10",
+      "name": "RegoPlastics",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -354,9 +321,8 @@
       ],
     },
 
-    // Saturn Surfing
     {
-      "id": "X11",
+      "name": "SaturnSurfing",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 13,
@@ -367,9 +333,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Stanford Torus
     {
-      "id": "X12",
+      "name": "StanfordTorus",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 12,
@@ -378,9 +343,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Advertising
     {
-      "id": "X13",
+      "name": "Advertising",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -388,9 +352,8 @@
       "effects": [ "CardFront(HAS 20 cost): PROD[1]" ],
     },
 
-    // Asteroid Deflection System[F]
     {
-      "id": "X14F",
+      "name": "AsteroidDeflectionSystem",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 13,
@@ -404,9 +367,8 @@
       ],
     },
 
-    // Asteroid Hollowing
     {
-      "id": "X15",
+      "name": "AsteroidHollowing",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 16,
@@ -416,9 +378,8 @@
       "effects": [ "End: VictoryPoint / 2 Asteroid<This>" ],
     },
 
-    // Comet Aiming
     {
-      "id": "X16",
+      "name": "CometAiming",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 17,
@@ -430,9 +391,8 @@
       ],
     },
 
-    // Crash Site Cleanup
     {
-      "id": "X17",
+      "name": "CrashSiteCleanup",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Owner>",
@@ -441,9 +401,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Cutting Edge Technology
     {
-      "id": "X18",
+      "name": "CuttingEdgeTechnology",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 12,
@@ -454,9 +413,8 @@
       ],
     },
 
-    // Directed Impactors
     {
-      "id": "X19",
+      "name": "DirectedImpactors",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
@@ -468,9 +426,8 @@
       ],
     },
 
-    // Diversity Support
     {
-      "id": "X20",
+      "name": "DiversitySupport",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "9 Class<Resource>(HAS Resource<Owner>)",
@@ -478,9 +435,8 @@
       "immediate": "TerraformRating",
     },
 
-    // Field-Capped City
     {
-      "id": "X21",
+      "name": "FieldCappedCity",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 29,
@@ -488,9 +444,8 @@
       "immediate": "PROD[2, Energy], 3 Plant, CityTile<>",
     },
 
-    // Imported Nutrients
     {
-      "id": "X22",
+      "name": "ImportedNutrients",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 14,
@@ -498,9 +453,8 @@
       "immediate": "4 Plant, 4 Microbe",
     },
 
-    // Jovian Embassy
     {
-      "id": "X23",
+      "name": "JovianEmbassy",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 14,
@@ -509,9 +463,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Magnetic Shield
     {
-      "id": "X24",
+      "name": "MagneticShield",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 PowerTag",
@@ -520,9 +473,8 @@
       "immediate": "4 TerraformRating",
     },
 
-    // Meat Industry
     {
-      "id": "X25",
+      "name": "MeatIndustry",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 5,
@@ -530,9 +482,8 @@
       "effects": [ "Animal: 2" ],
     },
 
-    // Meltworks
     {
-      "id": "X26",
+      "name": "Meltworks",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -540,9 +491,8 @@
       "actions": [ "5 Heat -> 3 Steel" ],
     },
 
-    // Mohole Lake
     {
-      "id": "X27",
+      "name": "MoholeLake",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 31,
@@ -552,9 +502,8 @@
       "actions": [ "-> Microbe OR Animal" ],
     },
 
-    // Potatoes
     {
-      "id": "X28",
+      "name": "Potatoes",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 2,
@@ -562,9 +511,8 @@
       "immediate": "-2 Plant, PROD[2]",
     },
 
-    // Sub-Crust Measurements
     {
-      "id": "X29",
+      "name": "SubCrustMeasurements",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 ScienceTag",
@@ -574,9 +522,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Topsoil Contract
     {
-      "id": "X30",
+      "name": "TopsoilContract",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
@@ -585,10 +532,9 @@
       "effects": [ "Microbe: 1" ],
     },
 
-    // Deimos Down (promo)
     {
-      "id": "X31",
-      "replaces": "039",
+      "name": "DeimosDownPromo",
+      "replaces": "DeimosDown",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 31,
@@ -596,10 +542,9 @@
       "immediate": "3 TemperatureStep, SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> {}, 4 Steel, -6 Plant<Anyone>?",
     },
 
-    // Great Dam (promo)
     {
-      "id": "X32",
-      "replaces": "136",
+      "name": "GreatDamPromo",
+      "replaces": "GreatDam",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 OceanTile",
@@ -609,10 +554,9 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Magnetic Field Generators (promo)
     {
-      "id": "X33",
-      "replaces": "165",
+      "name": "MagneticFieldGeneratorsPromo",
+      "replaces": "MagneticFieldGenerators",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 22,
@@ -620,9 +564,8 @@
       "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<> {}",
     },
 
-    // Asteroid Rights
     {
-      "id": "X34",
+      "name": "AsteroidRights",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -635,9 +578,8 @@
       ],
     },
 
-    // Bactoviral Research
     {
-      "id": "X35",
+      "name": "BactoviralResearch",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 10,
@@ -645,9 +587,8 @@
       "immediate": "ProjectCard, Microbe / ScienceTag",
     },
 
-    // Bio Printing Facility
     {
-      "id": "X36",
+      "name": "BioPrintingFacility",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 7,
@@ -655,9 +596,8 @@
       "actions": [ "2 Energy -> 2 Plant OR Animal" ],
     },
 
-    // Harvest
     {
-      "id": "X37",
+      "name": "Harvest",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "3 GreeneryTile",
@@ -666,9 +606,8 @@
       "immediate": "12",
     },
 
-    // Outdoor Sports
     {
-      "id": "X38",
+      "name": "OutdoorSports",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "Adjacency<CityTile<Anyone>, OceanTile>",
@@ -676,9 +615,8 @@
       "immediate": "PROD[2]",
     },
 
-    // Sixteen Psyche
     {
-      "id": "X44",
+      "name": "SixteenPsyche",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 31,
@@ -687,9 +625,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Robot Pollinators
     {
-      "id": "X45",
+      "name": "RobotPollinators",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 OxygenStep",
@@ -697,9 +634,8 @@
       "immediate": "PROD[Plant], Plant / PlantTag",
     },
 
-    // Supercapacitors
     {
-      "id": "X46",
+      "name": "Supercapacitors",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -708,9 +644,8 @@
       "effects": [ "-Energy IF ProductionPhase: Energy FROM Heat?" ],
     },
 
-    // Icy Impactors
     {
-      "id": "X47",
+      "name": "IcyImpactors",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 15,
@@ -722,18 +657,16 @@
       ],
     },
 
-    // Directed Heat Usage
     {
-      "id": "X48",
+      "name": "DirectedHeatUsage",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 1,
       "actions": [ "3 Heat -> 4 OR 2 Plant" ],
     },
 
-    // Aqueduct Systems
     {
-      "id": "X50",
+      "name": "AqueductSystems",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "Adjacency<CityTile, OceanTile>",
@@ -743,9 +676,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Astra Mechanica[F]
     {
-      "id": "X51F",
+      "name": "AstraMechanica",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 7,
@@ -753,9 +685,8 @@
       "immediate": "2 ProjectCard FROM PlayedEvent?",
     },
 
-    // Carbon Nanosystems
     {
-      "id": "X52",
+      "name": "CarbonNanosystems",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 14,
@@ -769,21 +700,19 @@
       ],
     },
 
-    // Cyberia Systems
     {
-      "id": "X53",
+      "name": "CyberiaSystems",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 16,
-      "immediate": "PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CardX53FirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CardX53FirstChoice)> THEN -CardX53FirstChoice",
+      "immediate": "PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice",
       "components": [
-        "CLASS CardX53FirstChoice : Cardbound, Temporary"
+        "CLASS CyberiaSystemsFirstChoice : Cardbound, Temporary"
       ],
     },
 
-    // Hermetic Order of Mars
     {
-      "id": "X56",
+      "name": "HermeticOrderOfMars",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 4 OxygenStep",
@@ -791,9 +720,8 @@
       "immediate": "PROD[2], 1 / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)",
     },
 
-    // Homeostasis Bureau
     {
-      "id": "X57",
+      "name": "HomeostasisBureau",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 16,
@@ -802,9 +730,8 @@
       "effects": [ "TemperatureStep: 3" ],
     },
 
-    // Kaguya Tech
     {
-      "id": "X58",
+      "name": "KaguyaTech",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 10,
@@ -813,9 +740,8 @@
       "immediate": "PROD[2], ProjectCard, CityTile<LandArea> FROM GreeneryTile<LandArea>",
     },
 
-    // Martian Lumber Corp
     {
-      "id": "X60",
+      "name": "MartianLumberCorp",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 GreeneryTile",
@@ -825,9 +751,8 @@
       "effects": [ "PlayTag<Class<BuildingTag>>: (-X Plant! THEN -3X Owed<Class<Megacredit>>.) OR Ok" ],
     },
 
-    // Neptunian Power Consultants
     {
-      "id": "X61",
+      "name": "NeptunianPowerConsultants",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 14,
@@ -840,9 +765,8 @@
       ],
     },
 
-    // Red Ships
     {
-      "id": "X62",
+      "name": "RedShips",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "4 OxygenStep",
@@ -852,9 +776,8 @@
       ],
     },
 
-    // Solar Logistics
     {
-      "id": "X63",
+      "name": "SolarLogistics",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 20,
@@ -867,9 +790,8 @@
       ],
     },
 
-    // St. Joseph of Cupertino Mission
     {
-      "id": "X64",
+      "name": "StJosephOfCupertinoMission",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 7,
@@ -880,9 +802,8 @@
       "components": [ "CLASS Cathedral<CityTile<Owner>> : Owned<Owner> { HAS MAX 1 This; This: (-2 THEN ProjectCard) OR Ok }" ],
     },
 
-    // Teslaract
     {
-      "id": "X66",
+      "name": "Teslaract",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 14,
@@ -891,9 +812,8 @@
       "actions": [ "PROD[Energy] -> PROD[Plant]" ],
     },
 
-    // Soil Enrichment
     {
-      "id": "X67",
+      "name": "SoilEnrichment",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 6,
@@ -901,9 +821,8 @@
       "immediate": "-Microbe, 5 Plant",
     },
 
-    // Supermarkets
     {
-      "id": "X68",
+      "name": "Supermarkets",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 CityTile<Anyone>",
@@ -912,9 +831,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Hospitals
     {
-      "id": "X69",
+      "name": "Hospitals",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
@@ -928,9 +846,8 @@
       ],
     },
 
-    // Public Baths
     {
-      "id": "X70",
+      "name": "PublicBaths",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "6 OceanTile",
@@ -940,9 +857,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // City Parks
     {
-      "id": "X71",
+      "name": "CityParks",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 CityTile",
@@ -952,9 +868,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Casinos
     {
-      "id": "X72",
+      "name": "Casinos",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "CityTile",
@@ -963,9 +878,8 @@
       "immediate": "PROD[-Energy, 4]",
     },
 
-    // Protected Growth
     {
-      "id": "X73",
+      "name": "ProtectedGrowth",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "MAX 7 OxygenStep",
@@ -974,9 +888,8 @@
       "immediate": "Plant / PowerTag",
     },
 
-    // Static Harvesting
     {
-      "id": "X74",
+      "name": "StaticHarvesting",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 3 OceanTile",
@@ -985,9 +898,8 @@
       "immediate": "PROD[Energy], 1 / BuildingTag",
     },
 
-    // Vermin
     {
-      "id": "X75",
+      "name": "Vermin",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 8,
@@ -996,13 +908,12 @@
       "actions": [ "-> Animal<This> OR Microbe" ],
       "effects": [ "CityTile<Anyone>: Animal<This>" ],
       "components": [
-        "CLASS CardX75Watcher : Owned<Player> { HAS =1 This; End IF 10 Animal<Anyone, CardX75<Anyone>>: -VictoryPoint / CityTile<Owner> }"
+        "CLASS VerminWatcher : Owned<Player> { HAS =1 This; End IF 10 Animal<Anyone, Vermin<Anyone>>: -VictoryPoint / CityTile<Owner> }"
       ],
     },
 
-    // Weather Balloons
     {
-      "id": "X76", // The app's current metadata says 033, which conflicts with Regolith Eaters.
+      "name": "WeatherBalloons",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 11,
@@ -1015,9 +926,8 @@
       ],
     },
 
-    // Public Plans[F]
     {
-      "id": "X77F",
+      "name": "PublicPlans",
       "deck": "PROJECT",
       // NOTE: The player chooses how many cards to reveal and gains that much.
       "projectKind": "EVENT",
@@ -1026,9 +936,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Sterling Vents
     {
-      "id": "X79",
+      "name": "SterlingVents",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 5,
@@ -1037,9 +946,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Floyd Continuum
     {
-      "id": "XM1",
+      "name": "FloydContinuum",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,

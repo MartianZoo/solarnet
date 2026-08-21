@@ -53,6 +53,6 @@ internal class GameConfigTest {
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, -TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars", "Mom", "Mom") }
     shouldThrow<IllegalArgumentException> { GameConfig("2 Player") }
-    shouldThrow<IllegalArgumentException> { GameConfig("Select<Class<Card001>>") }
+    shouldThrow<IllegalArgumentException> { GameConfig("Select<Class<ColonizerTrainingCamp>>") }
   }
 }

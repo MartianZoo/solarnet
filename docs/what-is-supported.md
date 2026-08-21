@@ -5,13 +5,13 @@ Most of the published game content is working... and mostly correctly.
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones / awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
 | Terraforming Mars | 9 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 10 / 10 | 3 / 3 | - | 9 / 9 | - |
-| Corporate Era | 2 / 2 | 70 / 71 | - | - | 4 / 4 | - | - | - | - | - | - |
+| Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Venus Next | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | 2 / 2 | 1 / 1 | - | 1 / 1 | - |
 | Prelude | 5 / 5 | 7 / 7 | 35 / 35 | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 3 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | 1 / 1 | 11 / 11 colony tiles |
 | Turmoil | 4 / 5 | 0 / 16 | - | - | - | 0 / 1 | 0 / 1 | - | 0 / 31 | 0 / 1 | 0 / 6 parties |
-| Prelude 2 | 3 / 5 | 12 / 24 | 22 / 25 | - | - | - | - | - | - | - | - |
+| Prelude 2 | 4 / 5 | 12 / 24 | 21 / 25 | - | - | - | - | - | - | - | - |
 | Amazonis & Vastitas | - | - | - | 0 / 2 | - | - | 0 / 20 | 0 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 20 / 20 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | the whole thing |
@@ -32,11 +32,9 @@ Most of the published game content is working... and mostly correctly.
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
 | Colonies | Corporation | Stormcraft Incorporated (`CC5`) | Payment rewrites |
-| Corporate Era | Project | Land Claim (`066`) | Non-tiles on map |
 | Promos through 2026-08 | Corporation | Arcadian Communities | Non-tiles on map |
 | Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
 | Amazonis & Vastitas | Global parameter | Extended tracks | Core replacement |
-| Prelude 2 | Corporation | Nirgal Enterprises (`PC01`) | Payment rewrites: deferred milestone and award affordability |
 | Prelude 2 | Corporation | Spire (`PC05`) | Payment rewrites: science restricted to standard-project payments |
 | Prelude 2 | Project | L1 Trade Terminal (`P78`) | Selecting up to three distinct resource-bearing cards |
 | Prelude 2 | Turmoil-linked cards | 11 projects and 3 preludes | Turmoil |

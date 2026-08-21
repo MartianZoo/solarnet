@@ -2,14 +2,14 @@
   "setupRequirement": "TharsisMapOption",
   "milestones": [
     // Terraformer
-    { "id": "BM1", "requirement": "35 TerraformRating" },
+    { "name": "Terraformer35", "requirement": "35 TerraformRating" },
     // Mayor
-    { "id": "BM2", "requirement": "3 CityTile" },
+    { "name": "Mayor", "requirement": "3 CityTile" },
     // Gardener
-    { "id": "BM3", "requirement": "3 GreeneryTile" },
+    { "name": "Gardener", "requirement": "3 GreeneryTile" },
     // Builder
-    { "id": "BM4", "requirement": "8 BuildingTag" },
+    { "name": "Builder8", "requirement": "8 BuildingTag" },
     // Planner
-    { "id": "BM5", "requirement": "16 ProjectCard" },
+    { "name": "Planner", "requirement": "16 ProjectCard" },
   ],
 }

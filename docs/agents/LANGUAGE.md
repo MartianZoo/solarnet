@@ -30,7 +30,7 @@ behavioral test for that behavior or defer the generalization; do not add a test
 is that the data file was not consulted.
 
 `english-filtered-draws.tsv` is a narrow transitional supplement for information that canonical Pets
-does not yet carry. It maps a card id to the tag or card-resource icon required by that card's draw.
+does not yet carry. It maps a card's Class name to the tag or card-resource icon required by that card's draw.
 Only mapped `ProjectCard` gains are derived: an unqualified gain remains data-backed because the same
 Pets shape also stands in for top-card selection and other printed draw procedures.
 
@@ -364,7 +364,7 @@ for that site; it renders as placing there when using a board that has such a si
 placing normally. This board-qualified wording does not imply that occupied sites permit the
 fallback.
 Filtered draws such as Experimental Forest obtain only their missing filter from the transitional
-card-id mapping. The ordinary instruction shape still supplies the count and draw operation.
+card-Class mapping. The ordinary instruction shape still supplies the count and draw operation.
 
 An automatic effect triggered by gaining its own host component is part of that card's immediate
 region rather than its persistent effect region. Its supported instruction is rendered before the

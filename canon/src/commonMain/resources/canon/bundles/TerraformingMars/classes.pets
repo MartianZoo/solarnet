@@ -16,6 +16,10 @@ CLASS TerraformingMars : Module {
 
   CostPaid<Class<ConvertPlantsSA>>: GreeneryTile<>
   CostPaid<Class<ConvertHeatSA>>: TemperatureStep
+  UseAction<ClaimMilestoneSA>:: 8 Owed<Class<Megacredit>>
+  CostPaid<Class<ClaimMilestoneSA>>: Milestone
+  UseAction<FundAwardSA>:: (=0 Award: 8 Owed<Class<Megacredit>>) OR (=1 Award: 14 Owed<Class<Megacredit>>) OR (=2 Award: 20 Owed<Class<Megacredit>>)
+  CostPaid<Class<FundAwardSA>>: Award
 }
 
 // PLAYERS AND OWNERSHIP
@@ -64,6 +68,11 @@ ABSTRACT CLASS Area {
 
   "An area not on Mars (yes, it includes one for Stanford Torus)"
   ABSTRACT CLASS RemoteArea
+}
+
+"A player's reservation of one land area"
+CLASS LandClaimMarker<LandArea> : Owned<Player> {
+  Tile<LandArea> BY !Owner:: Die
 }
 
 // TILES AND ADJACENCY
@@ -220,7 +229,7 @@ ABSTRACT CLASS Resource : Owned {
     CLASS Heat
   }
 
-  "A resource cube living on a compatible card or neutral holder, such as `Animal<Card172>`"
+  "A resource cube living on a compatible card or neutral holder, such as `Animal<Pets>`"
   // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
   ABSTRACT CLASS CardResource<ResourceHolder<Class<CardResource>, Owner>> : Owned<Owner> {
     DEFAULT +CardResource.

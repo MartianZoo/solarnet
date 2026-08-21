@@ -17,6 +17,7 @@ import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 
@@ -97,12 +98,35 @@ public class TfmGameplay(
     return trigger?.change?.gaining?.className == cn("SecondAction")
   }
 
-  public fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
+  public fun stdAction(
+      stdAction: String,
+      which: Int = 1,
+      payment: BodyLambda = {
+        if (hasMegacreditPaymentOffer()) {
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+        }
+      },
+      body: BodyLambda = {},
+  ): TaskResult {
     return inTfmTurn {
       doTask("UseAction$which<$stdAction>")
+      payment()
       body()
     }
   }
+
+  private fun hasMegacreditPaymentOffer(): Boolean =
+      game.tasks
+          .extract { it }
+          .any { task ->
+            task.assignee == actor &&
+                task.instruction.descendantsOfType<Change>().any { change ->
+                  change.gaining?.let { gaining ->
+                    gaining.className == cn("Pay") &&
+                        MEGACREDIT in gaining.descendantsOfType<ClassName>()
+                  } == true
+                }
+          }
 
   public fun convertPlants(body: BodyLambda = {}): TaskResult {
     return stdAction("ConvertPlantsSA") {

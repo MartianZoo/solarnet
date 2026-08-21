@@ -113,7 +113,7 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
   private fun describeOrNull(requirement: Requirement): String? =
       renderRequirement(requirement, describers)
 
-  private fun drawFilter(card: CardDefinition) = EnglishFilteredDrawData.byCardId[card.id]
+  private fun drawFilter(card: CardDefinition) = EnglishFilteredDrawData.byCardFront[card.className]
 
   private fun isImmediateSelfEffect(effect: Effect): Boolean {
     return effect.automatic && effect.trigger == WhenGain

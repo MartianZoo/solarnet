@@ -29,11 +29,10 @@ class BugsTest : CardTest() {
             p1.autoExecNow()
           }
         }
-    deadEnd.message shouldContain "CardX54F"
+    deadEnd.message shouldContain "FakeEstablishedMethods"
   }
 
-  // FAQ: "Those actions are considered distinct actions, but within the action of playing Head
-  // Start."
+  // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
   fun `Head Start incorrectly allows its two actions to interleave`() {
     newGame(PreludeExpansion, TurmoilCardPack, PromoCardPack)

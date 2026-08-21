@@ -32,7 +32,7 @@
 - **Class Header:** The Class Name, declared supertypes, and newly introduced Dependencies, excluding body elements such as defaults, Invariants, and Effects.
 - **Class Literal:** A Type such as `Class<Steel>` that denotes the Class `Steel` without depending on a `Steel` Component; its angle-bracketed argument is represented data, not a Dependency target.
 - **Class Loading:** The process that validates Class Declarations and creates an immutable Type universe of mutually compatible Classes with Type-system behavior.
-- **Class Name:** A Class's sole stable engine identity within an Authority. Rule Classes may use semantic English names such as `GreeneryTile`, while Content Classes use language-neutral names such as `Card070` and `MilestoneHM6`. Configuration never changes the Declaration denoted by a given Class Name.
+- **Class Name:** A Class's sole stable engine identity within an Authority. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer29`. Configuration never changes the Declaration denoted by a given Class Name.
 - **Class Synonym:** A configured, input-only convenience spelling such as `TR` for `TerraformRating`. It is never rendered or stored.
 - **Class Table:** An immutable set of mutually compatible Classes that resolves Type Expressions into Types. An Authority has one universal catalog; each Game World uses a Class-table Projection containing Active Classes plus Authority-known Uninhabited Classes.
 - **Class-table Projection:** A game-specific Class Table derived from an Authority's universal Class catalog. Active Classes carry behavior and enumerate concrete possibilities, while other Authority-known identities remain resolvable as Uninhabited Classes.

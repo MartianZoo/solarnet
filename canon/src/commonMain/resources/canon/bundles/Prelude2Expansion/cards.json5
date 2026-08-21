@@ -1,9 +1,21 @@
 {
   "cards": [
 
+    // Nirgal Enterprises
+    {
+      "name": "NirgalEnterprises",
+      "deck": "CORPORATION",
+      "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
+      "immediate": "30, PROD[Energy, Plant, Steel]",
+      "effects": [
+        "UseAction<ClaimMilestoneSA>: -Owed / Owed",
+        "UseAction<FundAwardSA>: -Owed / Owed",
+      ],
+    },
+
     // Palladin Shipping
     {
-      "id": "PC02",
+      "name": "PalladinShipping",
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "36, 5 Titanium",
@@ -13,7 +25,7 @@
 
     // Sagitta Frontier Services[F]
     {
-      "id": "PC03F",
+      "name": "SagittaFrontierServices",
       "deck": "CORPORATION",
       "immediate": "31, PROD[Energy, 2], ProjectCard",
       "effects": [
@@ -24,7 +36,7 @@
 
     // EcoTec
     {
-      "id": "PC04",
+      "name": "EcoTec",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "PlantTag" ],
       "immediate": "42, PROD[Plant]",
@@ -33,17 +45,16 @@
 
     // Applied Science
     {
-      "id": "P43",
+      "name": "AppliedScience",
       "deck": "PRELUDE",
-      "tags": [ "WildTag" ],
       "resourceType": "Science",
-      "immediate": "6 Science<This>",
+      "immediate": "WildTag<This>, 6 Science<This>",
       "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
     },
 
     // Atmospheric Enhancers[F]
     {
-      "id": "P44F",
+      "name": "AtmosphericEnhancers",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "VenusTag" ],
@@ -52,7 +63,7 @@
 
     // Board of Directors
     {
-      "id": "P45",
+      "name": "BoardOfDirectors",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
       "resourceType": "Director",
@@ -64,7 +75,7 @@
 
     // Colony Trade Hub
     {
-      "id": "P46",
+      "name": "ColonyTradeHub",
       "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
@@ -74,7 +85,7 @@
 
     // Early Colonization
     {
-      "id": "P48",
+      "name": "EarlyColonization",
       "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
@@ -83,7 +94,7 @@
 
     // Floating Trade Hub
     {
-      "id": "P49",
+      "name": "FloatingTradeHub",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "resourceType": "Floater",
@@ -95,20 +106,20 @@
 
     // Focused Organization
     {
-      "id": "P50",
+      "name": "FocusedOrganization",
       "deck": "PRELUDE",
       "immediate": "ProjectCard, StandardResource",
       "actions": [
-        "-> -ProjectCard THEN -StandardResource THEN CardP50Gain",
+        "-> -ProjectCard THEN -StandardResource THEN FocusedOrganizationGain",
       ],
       "components": [
-        "CLASS CardP50Gain : Owned<Player>, Signal { This: ProjectCard, StandardResource }",
+        "CLASS FocusedOrganizationGain : Owned<Player>, Signal { This: ProjectCard, StandardResource }",
       ],
     },
 
     // Industrial Complex
     {
-      "id": "P52",
+      "name": "IndustrialComplex",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       // GrossHack contributes five synthetic M€ production components, so 6 models 1 M€ production.
@@ -117,7 +128,7 @@
 
     // Main Belt Asteroids
     {
-      "id": "P53",
+      "name": "MainBeltAsteroids",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "resourceType": "Asteroid",
@@ -131,16 +142,15 @@
 
     // Nobel Prize[F]
     {
-      "id": "P54F",
+      "name": "NobelPrize",
       "deck": "PRELUDE",
-      "tags": [ "WildTag" ],
-      "immediate": "5, 2 ProjectCard",
+      "immediate": "WildTag<This>, 5, 2 ProjectCard",
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
     // Old Mining Colony
     {
-      "id": "P55",
+      "name": "OldMiningColony",
       "setupRequirement": "ColoniesExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
@@ -149,26 +159,16 @@
 
     // Planetary Alliance[F]
     {
-      "id": "P56F",
+      "name": "PlanetaryAlliance",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
       "immediate": "2 TerraformRating, ProjectCard, ProjectCard",
     },
 
-    // Preservation Program
-    {
-      "id": "P57",
-      "deck": "PRELUDE",
-      "immediate": "5 TerraformRating",
-      "effects": [
-        "X TerraformRating IF ActionPhase, MAX 0 HasSkippedTr: HasSkippedTr, -TerraformRating",
-      ],
-    },
-
     // Project Eden
     {
-      "id": "P58",
+      "name": "ProjectEden",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "PlantTag" ],
       "immediate": "OceanTile<>, CityTile<>, GreeneryTile<>, -3 ProjectCard",
@@ -176,17 +176,17 @@
 
     // Recession
     {
-      "id": "P59",
+      "name": "Recession",
       "deck": "PRELUDE",
       "immediate": "10",
       "components": [
-        "CLASS RecessionWatcher : Owned<Player> { HAS =1 This; CardP59<Anyone> IF MAX 0 CardP59<Owner>: (-5 Megacredit<Owner>., PROD[-Megacredit<Owner>.]) BY Owner }",
+        "CLASS RecessionWatcher : Owned<Player> { HAS =1 This; Recession<Anyone> IF MAX 0 Recession<Owner>: (-5 Megacredit<Owner>., PROD[-Megacredit<Owner>.]) BY Owner }",
       ],
     },
 
     // Soil Bacteria[F]
     {
-      "id": "P61F",
+      "name": "SoilBacteria",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag" ],
       "immediate": "2 ProjectCard, 3 Plant",
@@ -195,7 +195,7 @@
 
     // Space Lanes
     {
-      "id": "P62",
+      "name": "SpaceLanes",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
       "immediate": "3 Titanium",
@@ -206,7 +206,7 @@
 
     // Suitable Infrastructure
     {
-      "id": "P63",
+      "name": "SuitableInfrastructure",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
       "immediate": "5 Steel",
@@ -222,17 +222,15 @@
 
     // Terraforming Deal
     {
-      "id": "P64",
+      "name": "TerraformingDeal",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      // Preservation cancels a TR after its gain event; compensate Terraforming Deal for that
-      // canceled increase without depending on sibling trigger order.
-      "effects": [ "TerraformRating: 2", "HasSkippedTr: -2" ],
+      "effects": [ "TerraformRating: 2" ],
     },
 
     // Venus Contract[F]
     {
-      "id": "P65F",
+      "name": "VenusContract",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "VenusTag" ],
@@ -242,7 +240,7 @@
 
     // Venus L1 Shade
     {
-      "id": "P66",
+      "name": "VenusL1Shade",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
@@ -251,7 +249,7 @@
 
     // World Government Advisor
     {
-      "id": "P67",
+      "name": "WorldGovernmentAdvisor",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
       "immediate": "2 TerraformRating, ProjectCard",
@@ -260,7 +258,7 @@
 
     // Ceres Tech Market
     {
-      "id": "P68",
+      "name": "CeresTechMarket",
       "setupRequirement": "ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
@@ -273,7 +271,7 @@
 
     // Cloud Tourism
     {
-      "id": "P69",
+      "name": "CloudTourism",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
@@ -287,7 +285,7 @@
 
     // Floating Refinery
     {
-      "id": "P73",
+      "name": "FloatingRefinery",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
@@ -303,7 +301,7 @@
 
     // Ishtar Expedition[F]
     {
-      "id": "P76F",
+      "name": "IshtarExpedition",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
@@ -315,7 +313,7 @@
 
     // Microgravity Nutrition
     {
-      "id": "P79",
+      "name": "MicrogravityNutrition",
       "setupRequirement": "ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
@@ -327,7 +325,7 @@
 
     // Soil Studies
     {
-      "id": "P81",
+      "name": "SoilStudies",
       "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
@@ -339,7 +337,7 @@
 
     // Stratospheric Expedition[F]
     {
-      "id": "P84F",
+      "name": "StratosphericExpedition",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
@@ -351,7 +349,7 @@
 
     // Unexpected Application
     {
-      "id": "P86",
+      "name": "UnexpectedApplication",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "EVENT",
@@ -362,7 +360,7 @@
 
     // Venus Allies
     {
-      "id": "P87",
+      "name": "VenusAllies",
       "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
@@ -374,7 +372,7 @@
 
     // Venus Orbital Survey[F]
     {
-      "id": "P88F",
+      "name": "VenusOrbitalSurvey",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
@@ -385,7 +383,7 @@
 
     // Venus Shuttles
     {
-      "id": "P89",
+      "name": "VenusShuttles",
       "setupRequirement": "VenusNextExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
@@ -399,7 +397,7 @@
 
     // Venus Trade Hub
     {
-      "id": "P90",
+      "name": "VenusTradeHub",
       "setupRequirement": "VenusNextExpansion, ColoniesExpansion",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",

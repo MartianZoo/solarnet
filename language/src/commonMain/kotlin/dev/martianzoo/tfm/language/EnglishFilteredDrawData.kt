@@ -5,9 +5,9 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /** Card-specific draw filters that canonical Pets instructions do not yet represent. */
 internal object EnglishFilteredDrawData {
-  internal val byCardId: Map<String, ClassName> by lazy { parse(readEnglishFilteredDraws()) }
+  internal val byCardFront: Map<ClassName, ClassName> by lazy { parse(readEnglishFilteredDraws()) }
 
-  private fun parse(source: String): Map<String, ClassName> {
+  private fun parse(source: String): Map<ClassName, ClassName> {
     val lines = source.trimEnd('\r', '\n').lineSequence().toList()
     require(lines.firstOrNull() == HEADER) { "Unexpected English filtered-draw header" }
 
@@ -15,14 +15,14 @@ internal object EnglishFilteredDrawData {
         lines.drop(1).associate { line ->
           val columns = line.split('\t')
           require(columns.size == COLUMN_COUNT) { "Malformed English filtered-draw row: $line" }
-          columns[CARD_ID] to cn(columns[FILTER_CLASS])
+          cn(columns[CARD_FRONT]) to cn(columns[FILTER_CLASS])
         }
-    require(result.size == lines.size - 1) { "Duplicate English filtered-draw card id" }
+    require(result.size == lines.size - 1) { "Duplicate English filtered-draw card front" }
     return result
   }
 
-  private const val HEADER = "card_id\tfilter_class"
+  private const val HEADER = "class_name\tfilter_class"
   private const val COLUMN_COUNT = 2
-  private const val CARD_ID = 0
+  private const val CARD_FRONT = 0
   private const val FILTER_CLASS = 1
 }

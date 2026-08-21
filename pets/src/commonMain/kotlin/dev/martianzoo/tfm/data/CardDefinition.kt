@@ -42,18 +42,12 @@ import dev.martianzoo.util.Multiset
 import kotlinx.serialization.Serializable
 
 /**
- * Everything there is to know about a Terraforming Mars card, except for text (including the card
- * name). It's theoretically possible to reconstruct acceptable instruction text from this data,
- * just not the original wording.
+ * Everything there is to know about a Terraforming Mars card except its localized display text.
+ * It's theoretically possible to reconstruct acceptable instruction text from this data, just not
+ * the original wording.
  */
 public class CardDefinition(data: CardData) : Definition {
-  /**
-   * This card's unique id string. A number of id ranges, such as `"000"`-`"999"`, should be
-   * reserved for canon (officially published) cards.
-   */
-  public val id: String by data::id
-
-  override val className: ClassName = cn("Card$id")
+  override val className: ClassName = cn(data.name)
 
   private val derivedClasses = DerivedClassLowerer(className)
 
@@ -67,11 +61,8 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val deck: Deck? = data.deck?.let(Deck::valueOf)
 
-  /**
-   * The id of the card this card replaces, if any. For example, the `"X31"` Deimos Down replaces
-   * the `"039"` Deimos Down.
-   */
-  public val replaces: String? by data::replaces
+  /** The card this card replaces, if any. For example, `DeimosDownPromo` replaces `DeimosDown`. */
+  public val replaces: ClassName? = data.replaces?.let(::cn)
 
   /** Configuration condition that must hold for this card to be active. */
   override val setupRequirement: Requirement? = data.setupRequirement?.let(::parseOwned)
@@ -92,7 +83,9 @@ public class CardDefinition(data: CardData) : Definition {
   public val tags: Multiset<ClassName> =
       HashMultiset.of(
           data.tags.map(::cn).also { authoredTags ->
-            require(EVENT_TAG !in authoredTags) { "EventTag is derived from projectKind: $id" }
+            require(EVENT_TAG !in authoredTags) {
+              "EventTag is derived from projectKind: $className"
+            }
           } + listOfNotNull(if (projectInfo?.kind == ProjectKind.EVENT) EVENT_TAG else null)
       )
 
@@ -165,13 +158,13 @@ public class CardDefinition(data: CardData) : Definition {
 
     val allEffects: List<Effect> = automaticFx + onPlayFx + effects + actionListToEffects(actions)
 
-    val cardSupertypes =
+    val supertypes =
         setOfNotNull(
-            projectInfo?.kind?.className?.expression,
-            resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
-            if (actions.any()) ACTION_CARD.expression else null,
-        )
-    val supertypes = cardSupertypes.ifEmpty { setOf(CARD_FRONT.expression) }
+                projectInfo?.kind?.className?.expression,
+                resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
+                if (actions.any()) ACTION_CARD.expression else null,
+            )
+            .ifEmpty { setOf(CARD_FRONT.expression) }
 
     ClassDeclaration(
         className = className,
@@ -206,7 +199,7 @@ public class CardDefinition(data: CardData) : Definition {
   /** The *raw* imported form of a [CardDefinition]; not really meant to be widely consumed. */
   @Serializable
   public data class CardData(
-      val id: String,
+      val name: String,
       val deck: String? = null,
       val replaces: String? = null,
       val setupRequirement: String? = null,
@@ -221,7 +214,7 @@ public class CardDefinition(data: CardData) : Definition {
       val projectKind: String? = null,
   ) {
     init {
-      require(id.isNotEmpty())
+      cn(name)
       require(replaces?.isNotEmpty() != false)
       require(setupRequirement?.isNotBlank() != false)
       require(resourceType?.isNotEmpty() != false)
@@ -231,9 +224,9 @@ public class CardDefinition(data: CardData) : Definition {
       if (deck == "PROJECT") {
         require(projectKind != null)
       } else {
-        require(projectKind == null) { "not a project: $id" }
-        require(requirement == null) { "can't have requirement: $id" }
-        require(cost == 0) { "can't have nonzero cost: $id" }
+        require(projectKind == null) { "not a project: $name" }
+        require(requirement == null) { "can't have requirement: $name" }
+        require(cost == 0) { "can't have nonzero cost: $name" }
       }
     }
   }

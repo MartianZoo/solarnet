@@ -5,6 +5,7 @@ import dev.martianzoo.data.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
@@ -48,12 +49,12 @@ internal class ClassTableProjectionTest {
     totals.shouldContainExactly(
         mapOf(
             "Base" to 146, // 148 minus BegCorp and Helion
-            "CorporateEraExpansion" to 146 + 72, // 73 minus Land Claim
-            "VenusNextExpansion" to 218 + 54,
-            "PreludeExpansion" to 272 + 47,
-            "ColoniesExpansion" to 319 + 52, // 54 minus Aridor and Stormcraft
-            "TurmoilCardPack" to 371 + 4,
-            "PromoCardPack" to 375 + 88,
+            "CorporateEraExpansion" to 146 + 73,
+            "VenusNextExpansion" to 219 + 54,
+            "PreludeExpansion" to 273 + 47,
+            "ColoniesExpansion" to 320 + 52, // 54 minus Aridor and Stormcraft
+            "TurmoilCardPack" to 372 + 4,
+            "PromoCardPack" to 376 + 88,
         )
     )
   }
@@ -61,8 +62,16 @@ internal class ClassTableProjectionTest {
   @Test
   fun `Colonies classes stay unloaded without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
-    matchingClasses("colon(y|ie)", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
-    matchingClasses("trade", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
+    val bundle = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
+    fun contributedNames(authority: TfmAuthority): Set<ClassName> = buildSet {
+      authority.explicitClassDeclarations.mapTo(this) { it.className }
+      authority.allDefinitions.mapTo(this) { it.className }
+      authority.cardDefinitions.flatMapTo(this) { card -> card.extraClasses.map { it.className } }
+    }
+    val namesUniqueToColonies =
+        contributedNames(bundle) -
+            Canon.bundles.filterNot { it == bundle }.flatMapTo(linkedSetOf(), ::contributedNames)
+    (promosUtopiaWithoutCorporateEra.classNames intersect namesUniqueToColonies).shouldBeEmpty()
   }
 
   @Test
@@ -131,7 +140,7 @@ internal class ClassTableProjectionTest {
   fun `Vitor does not activate the unreachable award domain in solo`() {
     val projection = preludeSolo
 
-    projection.classTable.isActive(cn("CardPC5")) shouldBe true
+    projection.classTable.isActive(cn("Vitor")) shouldBe true
     matchingClasses("award", projection).shouldBeEmpty()
     projection.classNames.shouldNotContain(cn("FirstPlace"))
     projection.classNames.shouldNotContain(cn("SecondPlace"))

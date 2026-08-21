@@ -23,7 +23,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           HellasMapOption
           PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
 
-          Mayor, Diversifier, Trader, Sponsor, MilestoneMM35
+          Mayor, Diversifier, Trader, Sponsor, Tycoon10
           Biologist, SpaceBaron, Forecaster, Botanist, Collector
           """,
           "Player1",
@@ -161,7 +161,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.pass()
     ellie
         .playProject(MiningRights, 5, steel = 1) {
-          doTask("Card067_SpecialTile<Hellas_8_8>")
+          doTask("MiningRights_SpecialTile<Hellas_8_8>")
         }
         .expect("PROD[T], T")
     ellie.playProject(DirectedImpactors, 3, titanium = 1)
@@ -203,7 +203,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
 
     mom.playProject(IndustrialCenter, 4) {
-          doTask("Card123_SpecialTile<Hellas_2_3>")
+          doTask("IndustrialCenter_SpecialTile<Hellas_2_3>")
           doTask("-2 Microbe<$Recyclon> THEN PROD[P]")
         }
         .expect("P")
@@ -221,7 +221,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.pass()
 
     mom.playProject(EcologicalZone, 12) {
-          doTask("Card128_SpecialTile<Hellas_1_3>")
+          doTask("EcologicalZone_SpecialTile<Hellas_1_3>")
         }
         .expect("3 H, 2 Animal, 2 P")
     mom.convertHeat().expect("TR")
@@ -270,7 +270,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("PROD[E]")
 
     mom.playProject(NaturalPreserve, 5, steel = 2) {
-          doTask("Card044_SpecialTile<Hellas_3_7>")
+          doTask("NaturalPreserve_SpecialTile<Hellas_3_7>")
           mom.draw(Psychrophiles)
         }
         .expect("PROD[M], P")
@@ -315,10 +315,10 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     // NOPE: almost there, not quite
     shouldThrow<RequirementException> {
-      ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon") }
+      ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
     }
     ellie.playProject(HermeticOrderOfMars, 8).expect("PROD[2 M], -2")
-    ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon") }
+    ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
 
     dad.playProject(Ants, 9) { doTask("2") }.expect("-5")
     dad.cardAction1(Ants) {
@@ -396,7 +396,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     ellie
         .playProject(LavaFlows, 16) {
-          doTask("Card140_SpecialTile<Hellas_2_2>")
+          doTask("LavaFlows_SpecialTile<Hellas_2_2>")
         }
         .expect("2 TR, 2 P, -11")
     ellie
@@ -578,7 +578,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     ellie
         .playProject(ConvoyFromEuropa, 1, titanium = 4) {
-          ellie.draw(MagneticFieldGenerators)
+          ellie.draw(MagneticFieldGeneratorsPromo)
           dad.draw(LocalHeatTrapping)
           doTask("OceanTile<Hellas_5_8>")
         }
@@ -691,8 +691,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
     mom.cardAction1(Hospitals).expect("-Disease, 5")
 
     ellie
-        .playProject(MagneticFieldGenerators, steel = 10) {
-          doTask("CardX33_SpecialTile<Hellas_5_1>")
+        .playProject(MagneticFieldGeneratorsPromo, steel = 10) {
+          doTask("MagneticFieldGeneratorsPromo_SpecialTile<Hellas_5_1>")
           ellie.draw(AsteroidHollowing)
         }
         .expect("PROD[2 P, -4 E], 2 M")

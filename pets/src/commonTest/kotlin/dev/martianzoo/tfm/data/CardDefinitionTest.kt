@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
@@ -25,7 +26,7 @@ import kotlin.test.assertFailsWith
 internal class CardDefinitionTest {
   private val birds =
       CardData(
-          id = "072",
+          name = "Birds",
           deck = "PROJECT",
           tags = listOf("AnimalTag"),
           immediate = "PROD[-2 Plant<Anyone>]",
@@ -40,7 +41,7 @@ internal class CardDefinitionTest {
   @Test
   fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
-    birds.className shouldBe cn("Card072")
+    birds.className shouldBe cn("Birds")
     birds.deck shouldBe PROJECT
     birds.tags.toStrings().shouldContainExactlyInAnyOrder("AnimalTag")
     birds.immediate!!.toString() shouldBe "PROD[-2 Plant<Anyone>]"
@@ -61,7 +62,7 @@ internal class CardDefinitionTest {
     val card =
         CardDefinition(
             CardData(
-                id = "001",
+                name = "ExampleCard",
                 deck = "PROJECT",
                 projectKind = "AUTOMATED",
             )
@@ -72,8 +73,9 @@ internal class CardDefinitionTest {
 
   @Test
   fun eventTagIsDerivedOnlyForEventCards() {
-    val prelude = CardDefinition(CardData(id = "P00", deck = "PRELUDE"))
-    val event = CardDefinition(CardData(id = "E00", deck = "PROJECT", projectKind = "EVENT"))
+    val prelude = CardDefinition(CardData(name = "ExamplePrelude", deck = "PRELUDE"))
+    val event =
+        CardDefinition(CardData(name = "ExampleEvent", deck = "PROJECT", projectKind = "EVENT"))
 
     prelude.immediate shouldBe null
     prelude.tags.toStrings().shouldBeEmpty()
@@ -82,17 +84,30 @@ internal class CardDefinitionTest {
     event.asClassDeclaration.supertypes.shouldContainExactly(parse<Expression>("EventCard"))
 
     assertFailsWith<IllegalArgumentException> {
-      CardDefinition(CardData(id = "P01", deck = "PRELUDE", tags = listOf("EventTag")))
+      CardDefinition(CardData(name = "TaggedPrelude", deck = "PRELUDE", tags = listOf("EventTag")))
     }
     assertFailsWith<IllegalArgumentException> {
       CardDefinition(
           CardData(
-              id = "E01",
+              name = "TaggedEvent",
               deck = "PROJECT",
               projectKind = "EVENT",
               tags = listOf("EventTag"),
           )
       )
+    }
+  }
+
+  @Test
+  fun cardTagsMustActuallyBeTags() {
+    val badCard = CardDefinition(CardData(name = "BadCard", tags = listOf("WildTag")))
+    val badSource =
+        object : TfmAuthority() {
+          override val cardDefinitions = setOf(badCard)
+        }
+
+    assertFailsWith<IllegalArgumentException> {
+      TfmAuthority.compose(Canon, badSource).classTable
     }
   }
 
@@ -103,7 +118,7 @@ internal class CardDefinitionTest {
       {
         "cards": [
           {
-            "id": "072",
+            "name": "Birds",
             "deck": "PROJECT",
             "tags": [ "AnimalTag" ],
             "immediate": "PROD[-2 Plant<Anyone>]",
@@ -127,7 +142,7 @@ internal class CardDefinitionTest {
         """
           {
             "cards": [{
-              "id": "X40",
+              "name": "ExamplePrelude",
               "setupRequirement": "PreludeExpansion, VenusNextExpansion",
               "deck": "PRELUDE",
               "immediate": "Plant"
@@ -142,11 +157,12 @@ internal class CardDefinitionTest {
 
   @Test
   fun derivedClassAtPointOfUseLowersToAnOrdinaryCardLocalClass() {
-    val card = CardDefinition(CardData(id = "T1", immediate = "Mandate { -> 3 ProjectCard }"))
+    val card =
+        CardDefinition(CardData(name = "TestCard1", immediate = "Mandate { -> 3 ProjectCard }"))
 
-    card.immediate.toString() shouldBe "CardT1_Mandate"
+    card.immediate.toString() shouldBe "TestCard1_Mandate"
     val declaration = card.extraClasses.single()
-    declaration.className shouldBe cn("CardT1_Mandate")
+    declaration.className shouldBe cn("TestCard1_Mandate")
     declaration.supertypes.shouldContainExactly(parse<Expression>("Mandate"))
     declaration.effects.shouldContainExactly(parse<Effect>("UseAction1<This>: 3 ProjectCard"))
   }
@@ -156,7 +172,7 @@ internal class CardDefinitionTest {
     val card =
         CardDefinition(
             CardData(
-                id = "T2",
+                name = "TestCard2",
                 deck = "PROJECT",
                 projectKind = "AUTOMATED",
                 immediate =
@@ -166,12 +182,13 @@ internal class CardDefinitionTest {
         )
 
     card.immediate.toString() shouldBe
-        "CityTile<CardT2_RemoteArea>, " + "CardT2_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>"
+        "CityTile<TestCard2_RemoteArea>, " +
+            "TestCard2_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>"
     card.extraClasses
         .map { it.className }
         .shouldContainExactly(
-            cn("CardT2_RemoteArea"),
-            cn("CardT2_SpecialTile"),
+            cn("TestCard2_RemoteArea"),
+            cn("TestCard2_SpecialTile"),
         )
     val specialTile = card.extraClasses.last()
     specialTile.supertypes.shouldContainExactly(parse<Expression>("SpecialTile<LandArea>"))
@@ -181,12 +198,12 @@ internal class CardDefinitionTest {
   @Test
   fun derivedClassBodyMustFollowTheCompleteExpressionAndCannotContainDefaults() {
     assertFailsWith<PetSyntaxException> {
-      CardDefinition(CardData(id = "T3", immediate = "SpecialTile {}<LandArea>"))
+      CardDefinition(CardData(name = "TestCard3", immediate = "SpecialTile {}<LandArea>"))
     }
     assertFailsWith<PetSyntaxException> {
       CardDefinition(
           CardData(
-              id = "T3",
+              name = "TestCard3",
               immediate = "SpecialTile<LandArea> { DEFAULT +SpecialTile<LandArea> }",
           )
       )
@@ -198,12 +215,12 @@ internal class CardDefinitionTest {
     val card =
         CardDefinition(
             CardData(
-                id = "T3",
-                immediate = "Mandate { -> ProjectCard } THEN Link<CardT3_Mandate>",
+                name = "TestCard3",
+                immediate = "Mandate { -> ProjectCard } THEN Link<TestCard3_Mandate>",
             )
         )
 
-    card.immediate.toString() shouldBe "CardT3_Mandate THEN Link<CardT3_Mandate>"
+    card.immediate.toString() shouldBe "TestCard3_Mandate THEN Link<TestCard3_Mandate>"
   }
 
   @Test
@@ -211,7 +228,7 @@ internal class CardDefinitionTest {
     assertFailsWith<PetSyntaxException> {
       CardDefinition(
           CardData(
-              id = "T4",
+              name = "TestCard4",
               deck = "PROJECT",
               projectKind = "AUTOMATED",
               requirement = "Mandate {} OR Mandate { HAS MAX 1 This }",
@@ -228,13 +245,13 @@ internal class CardDefinitionTest {
         )
         .forEach { source ->
           assertFailsWith<PetSyntaxException>(source) {
-            CardDefinition(CardData(id = "T5", immediate = source))
+            CardDefinition(CardData(name = "TestCard5", immediate = source))
           }
         }
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val card: CardData = CardData("123")
+  private val card: CardData = CardData("TestCard")
 
   @Test
   fun emptyStrings() {

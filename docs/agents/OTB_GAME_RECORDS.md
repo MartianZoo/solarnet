@@ -33,7 +33,9 @@ procedure here and game-specific uncertainties in the source inventory or tempor
 Evidence in a physical game is complementary rather than interchangeable:
 
 - A transcript proves the order and content of clearly spoken actions. It may omit silent
-  bookkeeping, mishear card names, or faithfully record a player's mistaken arithmetic.
+  bookkeeping, mishear card names, or faithfully record a player's mistaken arithmetic. Never
+  trust a guess about who is speaking: establish the player from that player's ledger first, then
+  use the transcript to interpret the ledger-backed action.
 - A player-board log proves stable personal resources and production at its recorded checkpoints.
   Fine-grained entry grouping may reflect data-entry timing rather than action chronology.
 - A board photograph proves visible point-in-time state: board tiles, tracks, colonies, cards,
@@ -96,9 +98,10 @@ Follow the current full-game test style rather than copying an old revision:
   when the workflow permits; and
 - keep literal source comments immediately beside the operation they prove.
 
-Transcript comments may normalize filler and repetition while retaining gameplay-relevant
-personality, uncertainty, corrections, and admitted mistakes. If a spoken consequence is provably
-wrong, preserve the useful quote with `[sic]` and assert the stronger evidence separately. Put a
+Preserve gameplay-bearing transcript lines verbatim beside the operations they support. Omit only
+speech that provides no gameplay information; do not replace primary evidence with a paraphrase.
+Retain uncertainty, corrections, and admitted mistakes. If a spoken consequence is provably wrong,
+preserve the useful quote with `[sic]` and assert the stronger evidence separately. Put a
 photograph's exact local filename at its timeline anchor.
 
 ## Work checkpoint to checkpoint
@@ -133,6 +136,12 @@ net effects, so they may differ from spoken gross effects.
 
 When new expectations explain a mismatch, reassess every existing manual adjustment. Better
 localization often proves that a repair should move, shrink, or disappear.
+
+Do not put an expectation on `exMachina()` merely to restate the adjustment. Start at the
+reconciliation, identify the affected type, and walk backward over the real gameplay operations
+that could have changed it. Put partial expectations for that type on those operations until the
+remaining unexplained delta is bounded at its actual source. For example, a plant reconciliation
+calls for plant expectations on the preceding card plays, placements, and actions.
 
 ## Represent physical mistakes honestly
 

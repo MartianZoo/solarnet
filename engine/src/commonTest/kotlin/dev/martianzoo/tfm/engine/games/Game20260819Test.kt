@@ -13,15 +13,14 @@ class Game20260819Test : CardTrackingFullGameTest() {
   // NOTE: The archived metadata specifies Elysium, Corporate Era, Prelude, promo cards, drafting,
   // NOTE: fast mode, three players, and the following limited-synergy milestone and award pools.
   // NOTE: Hydrologist is not implemented; unclaimed Terraformer is a same-role setup substitute.
-  // NOTE: Builder and Terraformer retain canonical IDs because those English names are ambiguous
-  // NOTE: with milestones supplied by other active bundles; the unique names are in English.
+  // NOTE: Thresholds distinguish Builder and Terraformer from the variants in other active bundles.
   override val config =
       GameConfig(
           """
           ElysiumMapOption
           PreludeExpansion, MilestonesAwardsExpansion, PromoCardPack
 
-          MilestoneMM02, Philantropist, Spacefarer, MilestoneMM31, Energizer
+          Builder7, Philantropist, Spacefarer, Terraformer29, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
           """,
           "JR",
@@ -167,7 +166,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // ER gained 1 plant
     // ER gained 1 steel
     // ER gained 2 M€ from 1 ocean(s)
-    ER.playProject(IndustrialCenter, 4) { doTask("Card123_SpecialTile<Elysium_4_8>") }
+    ER.playProject(IndustrialCenter, 4) { doTask("IndustrialCenter_SpecialTile<Elysium_4_8>") }
         .expect("P, S")
     // ER used Industrial Center action
     // ER gained 1 steel production
@@ -186,7 +185,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // You drew Peroxide Power
     KB.playProject(RestrictedArea, 10) {
       KB.draw(PeroxidePower)
-      doTask("Card199_SpecialTile<Elysium_9_8>")
+      doTask("RestrictedArea_SpecialTile<Elysium_9_8>")
     }
     // KB used Restricted Area action
     // KB drew 1 card(s)
@@ -302,9 +301,9 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // JR gained 1 M€ production
     // JR placed Natural Preserve tile at 53
     // JR gained 2 steel
-    JR.playProject(NaturalPreserve, 9) { doTask("Card044_SpecialTile<Elysium_8_4>") }
+    JR.playProject(NaturalPreserve, 9) { doTask("NaturalPreserve_SpecialTile<Elysium_8_4>") }
     // JR claimed Builder7 milestone
-    JR.stdAction("ClaimMilestoneSA") { doTask("Builder") }
+    JR.stdAction("ClaimMilestoneSA") { doTask("Builder7") }
     // KB used Restricted Area action
     // KB drew 1 card(s)
     // You drew Martian Lumber Corp
@@ -530,7 +529,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // ER gained 1 plant
     // ER gained 4 M€ from 2 ocean(s)
     ER.playProject(CommercialDistrict, 0, steel = 8) {
-      doTask("Card085_SpecialTile<Elysium_4_3>")
+      doTask("CommercialDistrict_SpecialTile<Elysium_4_3>")
     }
     JR.pass()
     // KB used Equatorial Magnetizer action
@@ -710,7 +709,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // You drew Deimos Down:promo
     ER.cardAction1(TychoMagnetics) {
       doTask("-E")
-      ER.draw(DeimosDown)
+      ER.draw(DeimosDownPromo)
     }
     // ER used Inventors' Guild action
     // ER bought 0 card(s)
@@ -805,7 +804,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // First player this generation is KB
     // ER bought 4 card(s)
     // You bought Mars University,Great Dam:promo,GHG Factories,Meltworks
-    ER.buyCards(MarsUniversity, GreatDam, GhgFactories, Meltworks)
+    ER.buyCards(MarsUniversity, GreatDamPromo, GhgFactories, Meltworks)
     // JR bought 3 card(s)
     // You bought Algae,Phobos Space Haven,Robot Pollinators
     JR.buyCards(Algae, PhobosSpaceHaven, RobotPollinators)
@@ -855,7 +854,7 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // ER drew 1 card(s)
     // You drew Solar Logistics
     // ER gained 4 M€ from 2 ocean(s)
-    ER.playProject(GreatDam, steel = 5) { doTask("CardX32_SpecialTile<Elysium_1_5>") }
+    ER.playProject(GreatDamPromo, steel = 5) { doTask("GreatDamPromo_SpecialTile<Elysium_1_5>") }
         .expect("4 M, PROD[2 E], 0 ProjectCard")
     // ER played Solar Logistics
     // ER gained 2 titanium
@@ -1000,9 +999,9 @@ class Game20260819Test : CardTrackingFullGameTest() {
     // JR lost 6 plants because of ER
     // JR received 3 M€ from Mons Insurance owner (KB)
     // ER gained 3 M€
-    ER.playProject(DeimosDown, 9, titanium = 5) {
+    ER.playProject(DeimosDownPromo, 9, titanium = 5) {
       ER.draw(BiomassCombustors, HeatTrappers)
-      doTask("CardX31_SpecialTile<Elysium_9_7>")
+      doTask("DeimosDownPromo_SpecialTile<Elysium_9_7>")
       doTask("-6 P<JR>")
     }
     // ER used Convert Heat standard action

@@ -12,7 +12,7 @@ import kotlin.test.Test
 class ValleyTrustTest : CardTest() {
   @Test
   fun `Valley Trust activates its card back without the Prelude phase`() {
-    val game = newGame(GameConfig("CardPC4", "Player1", "Player2"))
+    val game = newGame(GameConfig("ValleyTrust", "Player1", "Player2"))
 
     game.classTable.isActive(cn("PreludeExpansion")) shouldBe false
     game.classTable.isActive(cn("PreludePhase")) shouldBe false

@@ -44,13 +44,13 @@ negative.
 A card definition can declare a component Class at its point of use without choosing its canonical
 name explicitly. For example, a card instruction can gain `Mandate { -> 3 ProjectCard }`, or use
 `CityTile<RemoteArea {}>`. Card-definition construction lowers these to ordinary declarations with
-stable owner-derived names such as `CardB05_Mandate` and `Card021_RemoteArea` before building the
+stable owner-derived names such as `Inventrix_Mandate` and `PhobosSpaceHaven_RemoteArea` before building the
 Class Table. They have exactly the existing Class and component semantics; there is no runtime
 anonymous identity.
 
 The body follows the complete expression. For example,
 `SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}` becomes the use-site expression
-`Card064_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>` and declares its superclass as
+`MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>` and declares its superclass as
 `SpecialTile<LandArea>`. Arguments therefore specialize both the occurrence and the generated
 Class's superclass. Refinements constrain only the occurrence and are removed recursively from the
 declared superclass because refinement types cannot be supertypes.

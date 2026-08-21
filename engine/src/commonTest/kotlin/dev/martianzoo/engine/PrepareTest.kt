@@ -78,7 +78,7 @@ internal class PrepareTest {
     checkPrepare("3 Microbe?", "Ok")
     checkPrepare("-3 Microbe.", "Ok")
     checkPrepare("-3 Microbe?", "Ok")
-    shouldThrow<DependencyException> { preprocessAndPrepare("Microbe<Card035>.") }
+    shouldThrow<DependencyException> { preprocessAndPrepare("Microbe<Ants>.") }
     shouldThrow<DependencyException> { preprocessAndPrepare("3 Microbe!") }
     shouldThrow<LimitsException> { preprocessAndPrepare("-3 Microbe!") }
     // shouldThrow<LimitsException> { preprocessAndPrepare("15 OxygenStep!") }

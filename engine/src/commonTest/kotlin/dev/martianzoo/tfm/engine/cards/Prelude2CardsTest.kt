@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.Prelude2Expansion
+import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -17,6 +18,31 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class Prelude2CardsTest : CardTest() {
+  @Test
+  fun `Nirgal pays nothing for milestones and awards`() {
+    newGame(Prelude2Expansion)
+    p1.manual("$NirgalEnterprises, 16 ProjectCard")
+    val startingMoney = p1.count("Megacredit")
+    engine.phase("Action")
+
+    p1.stdAction("ClaimMilestoneSA") { doTask("Planner") }.expect("Milestone")
+    p1.stdAction("FundAwardSA") { doTask("Landlord") }.expect("Award")
+
+    p1.count("Megacredit") shouldBe startingMoney
+  }
+
+  // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
+  @Test
+  fun `Prelude and Prelude 2 share one setup and phase`() {
+    newGame(PreludeExpansion, Prelude2Expansion)
+
+    engine.phase("Prelude")
+
+    engine.count("PreludePhase") shouldBe 1
+    p1.count("PreludeCard") shouldBe 2
+    requireP2().count("PreludeCard") shouldBe 2
+  }
+
   @Test
   fun `Applied Science supplies a wild tag and converts its science`() {
     newGame(Prelude2Expansion)
@@ -63,35 +89,17 @@ class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  fun `Preservation Program cancels only the first TR increase each action phase`() {
+  fun `Terraforming Deal pays two per TR step`() {
     newGame(Prelude2Expansion)
-    p1.manual("$PreservationProgram")
-    engine.phase("Action")
-    val startingTr = p1.count("TerraformRating")
-
-    p1.manual("2 TerraformRating")
-    p1.count("TerraformRating") shouldBe startingTr + 1
-
-    p1.manual("TemperatureStep")
-    p1.count("TerraformRating") shouldBe startingTr + 2
-
-    engine.nextGeneration(0, 0)
-    p1.manual("TemperatureStep")
-    p1.count("TerraformRating") shouldBe startingTr + 2
-  }
-
-  @Test
-  fun `Terraforming Deal pays only for TR that Preservation does not skip`() {
-    newGame(Prelude2Expansion)
-    p1.manual("20, $PreservationProgram, $TerraformingDeal")
+    p1.manual("20, $TerraformingDeal")
     engine.phase("Action")
     val startingTr = p1.count("TerraformRating")
     val startingMoney = p1.count("Megacredit")
 
     p1.manual("2 TerraformRating")
 
-    p1.count("TerraformRating") shouldBe startingTr + 1
-    p1.count("Megacredit") shouldBe startingMoney + 2
+    p1.count("TerraformRating") shouldBe startingTr + 2
+    p1.count("Megacredit") shouldBe startingMoney + 4
   }
 
   @Test
@@ -138,14 +146,15 @@ class Prelude2CardsTest : CardTest() {
     p1.count("Plant") shouldBe 2
   }
 
+  // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
   @Test
   fun `Suitable Infrastructure pays once for each action`() {
-    newGame(Prelude2Expansion)
+    newGame(PreludeExpansion, Prelude2Expansion)
     engine.phase("Prelude")
     p1.manual("$SuitableInfrastructure")
     val beforeTwoProductions = p1.count("Megacredit")
 
-    p1.manual("PROD[Energy], PROD[Heat]")
+    p1.playPrelude(DomeFarming)
     p1.count("Megacredit") shouldBe beforeTwoProductions + 2
 
     p1.manual("50")
@@ -190,16 +199,14 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("$EarlyColonization") { doTask("Colony<Luna>") }
 
     colonyTiles.forEach { tile ->
-      engine.count("ColonyProduction<$tile>") shouldBe
-          if (tile.toString() == "ColonyTile07") 6 else 3
+      engine.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 3
     }
     p1.count("Energy") shouldBe 3
 
     engine.phase("Production")
     TfmWorkflow.Manual(game).solarPhase()
     colonyTiles.forEach { tile ->
-      engine.count("ColonyProduction<$tile>") shouldBe
-          if (tile.toString() == "ColonyTile07") 6 else 4
+      engine.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 4
     }
   }
 
@@ -268,6 +275,7 @@ class Prelude2CardsTest : CardTest() {
     p1.production(cn("Megacredit")) shouldBe secondStartingProduction + 2
   }
 
+  // https://boardgamegeek.com/thread/3154781/do-event-tags-count-for-sagitta
   @Test
   fun `Sagitta treats the event icon as an additional printed tag`() {
     newGame(
@@ -295,6 +303,35 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("$Research")
     p1.manual("$SmallAsteroid")
     p1.count("Megacredit") shouldBe 41
+  }
+
+  @Test
+  fun `Sagitta ignores cards played by another player`() {
+    newGame(Prelude2Expansion, players = 2)
+    val p2 = requireP2()
+    p1.manual("$SagittaFrontierServices")
+    val startingMoney = p1.count("Megacredit")
+    engine.phase("Prelude")
+
+    p2.playPrelude(NobelPrize)
+
+    p1.count("Megacredit") shouldBe startingMoney
+  }
+
+  // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg
+  @Test
+  fun `A prelude remains playable when its global parameter is already maximized`() {
+    newGame(PreludeExpansion, Prelude2Expansion)
+    engine.phase("Prelude")
+    val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
+    p1.manual("5, 19 TemperatureStep, $oceans")
+    val startingMoney = p1.count("Megacredit")
+
+    p1.playPrelude(HugeAsteroid)
+
+    engine.count("TemperatureStep") shouldBe 19
+    p1.count("Megacredit") shouldBe startingMoney - 5
+    p1.count("$HugeAsteroid") shouldBe 1
   }
 
   @Test

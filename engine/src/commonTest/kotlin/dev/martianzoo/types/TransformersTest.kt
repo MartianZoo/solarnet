@@ -33,7 +33,7 @@ class TransformersTest {
     checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
     checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
     checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea>.")
-    checkApplyDefaults("Card142_SpecialTile<>", "Card142_SpecialTile<Owner>!")
+    checkApplyDefaults("MoholeArea_SpecialTile<>", "MoholeArea_SpecialTile<Owner>!")
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
         "CityTile<>",
@@ -161,7 +161,7 @@ class TransformersTest {
   @Test
   fun `invalid atomic change after trigger specialization becomes Die`() {
     val general = CanonClassesTest.table.resolve(parse<Expression>("CardFront(HAS BioTag)"))
-    val specific = CanonClassesTest.table.resolve(parse<Expression>("Card158<Player1>"))
+    val specific = CanonClassesTest.table.resolve(parse<Expression>("IndustrialMicrobes<Player1>"))
     val instruction = parse<Instruction>("Plant OR CardResource<CardFront(HAS BioTag)>")
 
     transformers
@@ -175,13 +175,15 @@ class TransformersTest {
     val general =
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
-        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, Card131<Player1>>"))
+        CanonClassesTest.table.resolve(
+            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
+        )
     val instruction = parse<Instruction>("Microbe<CardFront<Player1>>")
 
     transformers
         .checkedSubstituter(general, specific)
         .transformInstruction(instruction)
-        .toString() shouldBe "Microbe<Card131<Player1>>"
+        .toString() shouldBe "Microbe<Decomposers<Player1>>"
   }
 
   @Test
@@ -192,14 +194,14 @@ class TransformersTest {
         )
     val specific =
         CanonClassesTest.table.resolve(
-            parse<Expression>("AcceptFromCard<Player1, Card222<Player1>>")
+            parse<Expression>("AcceptFromCard<Player1, Dirigibles<Player1>>")
         )
     val instruction = parse<Instruction>("CardResource<ResourceCard>")
 
     transformers
         .checkedSubstituter(general, specific)
         .transformInstruction(instruction)
-        .toString() shouldBe "Floater<Card222>"
+        .toString() shouldBe "Floater<Dirigibles>"
   }
 
   @Test
@@ -207,7 +209,9 @@ class TransformersTest {
     val general =
         CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, CardFront<Player1>>"))
     val specific =
-        CanonClassesTest.table.resolve(parse<Expression>("MicrobeTag<Player1, Card131<Player1>>"))
+        CanonClassesTest.table.resolve(
+            parse<Expression>("MicrobeTag<Player1, Decomposers<Player1>>")
+        )
     val instruction =
         parse<Instruction>("Microbe<CardFront<Player1>> OR Microbe<CardFront<Player2>>")
 
@@ -218,7 +222,7 @@ class TransformersTest {
             setOf(parse("CardFront<Player1>")),
         )
         .transformInstruction(instruction)
-        .toString() shouldBe "Microbe<Card131<Player1>> OR Microbe<CardFront<Player2>>"
+        .toString() shouldBe "Microbe<Decomposers<Player1>> OR Microbe<CardFront<Player2>>"
   }
 
   @Test

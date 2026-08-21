@@ -1,9 +1,8 @@
 {
   "cards": [
 
-    // Arklight
     {
-      "id": "CC2",
+      "name": "Arklight",
       "deck": "CORPORATION",
       "tags": [ "AnimalTag" ],
       "resourceType": "Animal",
@@ -14,25 +13,22 @@
       ],
     },
 
-    // Polyphemos
     {
-      "id": "CC3",
+      "name": "Polyphemos",
       "deck": "CORPORATION",
       "immediate": "50, 5 Titanium, PROD[5]",
       "effects" : [ "BuyCard: -2" ],
     },
 
-    // Poseidon
     {
-      "id": "CC4",
+      "name": "Poseidon",
       "deck": "CORPORATION",
       "immediate": "45, Mandate { -> Colony<> }",
       "effects": [ "Colony<Anyone>: PROD[1]" ],
     },
 
-    // Airliners
     {
-      "id": "C01",
+      "name": "Airliners",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 Floater",
@@ -41,18 +37,16 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Air Raid
     {
-      "id": "C02",
+      "name": "AirRaid",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 0,
       "immediate": "-Floater, 5 Megacredit<Owner> FROM Megacredit<Anyone>?",
     },
 
-    // Atmo Collectors
     {
-      "id": "C03",
+      "name": "AtmoCollectors",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 15,
@@ -64,9 +58,8 @@
       ],
     },
 
-    // Community Services
     {
-      "id": "C04",
+      "name": "CommunityServices",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 13,
@@ -74,9 +67,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Conscription
     {
-      "id": "C05",
+      "name": "Conscription",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "2 EarthTag",
@@ -89,9 +81,8 @@
       ],
     },
 
-    // Corona Extractor
     {
-      "id": "C06",
+      "name": "CoronaExtractor",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 ScienceTag",
@@ -100,9 +91,8 @@
       "immediate": "PROD[4 Energy]",
     },
 
-    // Cryo-Sleep
     {
-      "id": "C07",
+      "name": "CryoSleep",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -117,9 +107,8 @@
       ],
     },
 
-    // Earth Elevator
     {
-      "id": "C08",
+      "name": "EarthElevator",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 43,
@@ -128,9 +117,8 @@
       "effects": [ "End: 4 VictoryPoint" ],
     },
 
-    // Ecology Research
     {
-      "id": "C09",
+      "name": "EcologyResearch",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 21,
@@ -139,18 +127,16 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Floater Leasing
     {
-      "id": "C10",
+      "name": "FloaterLeasing",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 3,
       "immediate": "PROD[1 / 3 Floater]",
     },
 
-    // Floater Prototypes
     {
-      "id": "C11",
+      "name": "FloaterPrototypes",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 2,
@@ -158,9 +144,8 @@
       "immediate": "2 Floater",
     },
 
-    // Floater Technology
     {
-      "id": "C12",
+      "name": "FloaterTechnology",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 7,
@@ -168,9 +153,8 @@
       "actions": [ "-> Floater" ],
     },
 
-    // Galilean Waystation
     {
-      "id": "C13",
+      "name": "GalileanWaystation",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 15,
@@ -179,9 +163,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Heavy Taxation
     {
-      "id": "C14",
+      "name": "HeavyTaxation",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "2 EarthTag",
@@ -191,9 +174,8 @@
       "effects": [ "End: -VictoryPoint" ],
     },
 
-    // Ice Moon Colony
     {
-      "id": "C15",
+      "name": "IceMoonColony",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 23,
@@ -201,9 +183,8 @@
       "immediate": "Colony<>, OceanTile<>",
     },
 
-    // Impactor Swarm
     {
-      "id": "C16",
+      "name": "ImpactorSwarm",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "requirement": "2 JovianTag",
@@ -212,9 +193,8 @@
       "immediate": "12 Heat, -2 Plant<Anyone>?",
     },
 
-    // Interplanetary Colony Ship
     {
-      "id": "C17",
+      "name": "InterplanetaryColonyShip",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 12,
@@ -222,9 +202,8 @@
       "immediate": "Colony<>",
     },
 
-    // Jovian Lanterns
     {
-      "id": "C18",
+      "name": "JovianLanterns",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "JovianTag",
@@ -236,9 +215,8 @@
       "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
     },
 
-    // Jupiter Floating Station
     {
-      "id": "C19",
+      "name": "JupiterFloatingStation",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "3 ScienceTag",
@@ -252,9 +230,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Luna Governor
     {
-      "id": "C20",
+      "name": "LunaGovernor",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "3 EarthTag",
@@ -263,9 +240,8 @@
       "immediate": "PROD[2]",
     },
 
-    // Lunar Exports
     {
-      "id": "C21",
+      "name": "LunarExports",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 19,
@@ -273,9 +249,8 @@
       "immediate": "PROD[2 Plant OR 5]",
     },
 
-    // Lunar Mining
     {
-      "id": "C22",
+      "name": "LunarMining",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -283,9 +258,8 @@
       "immediate": "PROD[Titanium / 2 EarthTag]",
     },
 
-    // Market Manipulation
     {
-      "id": "C23",
+      "name": "MarketManipulation",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 1,
@@ -293,9 +267,8 @@
       "immediate": "ColonyProduction FROM ColonyProduction",
     },
 
-    // Martian Zoo
     {
-      "id": "C24",
+      "name": "MartianZoo",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 CityTile<Anyone>",
@@ -309,9 +282,8 @@
       ],
     },
 
-    // Mining Colony
     {
-      "id": "C25",
+      "name": "MiningColony",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 20,
@@ -319,9 +291,8 @@
       "immediate": "PROD[Titanium], Colony<>",
     },
 
-    // Minority Refuge
     {
-      "id": "C26",
+      "name": "MinorityRefuge",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 5,
@@ -329,9 +300,8 @@
       "immediate": "PROD[-2], Colony<>",
     },
 
-    // Molecular Printing
     {
-      "id": "C27",
+      "name": "MolecularPrinting",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 11,
@@ -340,9 +310,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Nitrogen From Titan
     {
-      "id": "C28",
+      "name": "NitrogenFromTitan",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 25,
@@ -351,9 +320,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Pioneer Settlement
     {
-      "id": "C29",
+      "name": "PioneerSettlement",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "MAX 1 Colony",
@@ -363,18 +331,16 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Productive Outpost
     {
-      "id": "C30",
+      "name": "ProductiveOutpost",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 0,
       "immediate": "GiveColonyBonuses",
     },
 
-    // Quantum Communications
     {
-      "id": "C31",
+      "name": "QuantumCommunications",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "4 ScienceTag",
@@ -383,9 +349,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Red Spot Observatory
     {
-      "id": "C32",
+      "name": "RedSpotObservatory",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "3 ScienceTag",
@@ -400,9 +365,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Refugee Camps
     {
-      "id": "C33",
+      "name": "RefugeeCamps",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -412,9 +376,8 @@
       "effects": [ "End: VictoryPoint / Camp<This>" ],
     },
 
-    // Research Colony
     {
-      "id": "C34",
+      "name": "ResearchColony",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 20,
@@ -422,9 +385,8 @@
       "immediate": "Colony<ColonyTile>, 2 ProjectCard",
     },
 
-    // Rim Freighters
     {
-      "id": "C35",
+      "name": "RimFreighters",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 4,
@@ -437,9 +399,8 @@
       ],
     },
 
-    // Sky Docks
     {
-      "id": "C36",
+      "name": "SkyDocks",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "2 EarthTag",
@@ -452,9 +413,8 @@
       ],
     },
 
-    // Solar Probe
     {
-      "id": "C37",
+      "name": "SolarProbe",
       "deck": "PROJECT",
       "projectKind": "EVENT",
       "cost": 9,
@@ -463,9 +423,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Solar Reflectors
     {
-      "id": "C38",
+      "name": "SolarReflectors",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "cost": 23,
@@ -473,9 +432,8 @@
       "immediate": "PROD[5 Heat]",
     },
 
-    // Space Port
     {
-      "id": "C39",
+      "name": "SpacePort",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "Colony",
@@ -484,9 +442,8 @@
       "immediate": "ReserveTradeFleet, CityTile<>, PROD[-Energy, 4]",
     },
 
-    // Space Port Colony
     {
-      "id": "C40",
+      "name": "SpacePortColony",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "Colony",
@@ -496,9 +453,8 @@
       "effects": [ "End: VictoryPoint / 2 Colony<Anyone>" ],
     },
 
-    // Spin-Off Department
     {
-      "id": "C41",
+      "name": "SpinOffDepartment",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 10,
@@ -507,9 +463,8 @@
       "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
     },
 
-    // Sub-Zero Salt Fish
     {
-      "id": "C42",
+      "name": "SubZeroSaltFish",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "12 TemperatureStep",
@@ -521,9 +476,8 @@
       "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
     },
 
-    // Titan Air-Scrapping
     {
-      "id": "C43",
+      "name": "TitanAirScrapping",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 21,
@@ -536,9 +490,8 @@
       "effects": [ "End: 2 VictoryPoint" ],
     },
 
-    // Titan Floating Launch-Pad
     {
-      "id": "C44",
+      "name": "TitanFloatingLaunchPad",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 18,
@@ -552,9 +505,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Titan Shuttles
     {
-      "id": "C45",
+      "name": "TitanShuttles",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 23,
@@ -567,9 +519,8 @@
       "effects": [ "End: VictoryPoint" ],
     },
 
-    // Trade Envoys
     {
-      "id": "C46",
+      "name": "TradeEnvoys",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 6,
@@ -579,9 +530,8 @@
       ],
     },
 
-    // Trading Colony
     {
-      "id": "C47",
+      "name": "TradingColony",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 18,
@@ -593,9 +543,8 @@
       ],
     },
 
-    // Urban Decomposers
     {
-      "id": "C48",
+      "name": "UrbanDecomposers",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
       "requirement": "CityTile, Colony",
@@ -604,9 +553,8 @@
       "immediate": "PROD[Plant], 2 Microbe",
     },
 
-    // Warp Drive
     {
-      "id": "C49",
+      "name": "WarpDrive",
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "requirement": "5 ScienceTag",
