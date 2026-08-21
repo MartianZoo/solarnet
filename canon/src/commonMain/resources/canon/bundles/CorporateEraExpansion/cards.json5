@@ -185,6 +185,15 @@
       "immediate": "PROD[-Energy, 2 Steel]",
     },
 
+    // Land Claim
+    {
+      "name": "LandClaim",
+      "deck": "PROJECT",
+      "projectKind": "EVENT",
+      "cost": 1,
+      "immediate": "LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>",
+    },
+
     {
       "name": "Sponsors",
       "deck": "PROJECT",

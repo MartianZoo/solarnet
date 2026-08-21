@@ -139,7 +139,7 @@
       "name": "Capital",
       "deck": "PROJECT",
       "projectKind": "AUTOMATED",
-      "requirement": "MAX 4 OceanTile",
+      "requirement": "4 OceanTile",
       "cost": 26,
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "CityTile<> THEN CapitalMarker<CityTile>, PROD[-2 Energy, 5]",

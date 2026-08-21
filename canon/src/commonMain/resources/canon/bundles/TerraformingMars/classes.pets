@@ -66,6 +66,11 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea
 }
 
+"A player's reservation of one land area"
+CLASS LandClaimMarker<LandArea> : Owned<Player> {
+  Tile<LandArea> BY !Owner:: Die
+}
+
 // TILES AND ADJACENCY
 
 // A tile; if it's not on an Area / not in play, it doesn't exist yet

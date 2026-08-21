@@ -9,6 +9,21 @@ import kotlin.test.Test
 
 class CapitalTest : CardTest() {
   @Test
+  fun `Requires at least four oceans`() {
+    newGame()
+    p1.manual(
+        "26 Megacredit, ProjectCard, PROD[2 Energy], " +
+            "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
+    )
+    engine.manual("OceanTile<Tharsis_6_8>")
+    engine.phase("Action")
+
+    shouldThrow<RequirementException> {
+      p1.playProject(Capital, 26) { doTask("CityTile<Tharsis_3_3>") }
+    }
+  }
+
+  @Test
   fun `Places a city under normal restrictions and scores adjacent oceans`() {
     newGame()
     p1.manual(
