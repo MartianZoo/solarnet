@@ -1,0 +1,15 @@
+class_name	draw_filter
+Celestic	icon:Floater
+MorningStarInc	tag:VenusTag
+SpliceTacticalGenomics	tag:MicrobeTag
+Factorum	tag:BuildingTag
+PharmacyUnion	tag:ScienceTag
+ExperimentalForest	tag:PlantTag
+AcquiredSpaceAgency	tag:SpaceTag
+AtmosphericEnhancers	icon:Floater
+SoilBacteria	tag:MicrobeTag
+VenusContract	tag:VenusTag
+IshtarExpedition	tag:VenusTag
+StratosphericExpedition	tag:VenusTag
+AqueductSystems	tag:BuildingTag
+NobelPrize	requirements

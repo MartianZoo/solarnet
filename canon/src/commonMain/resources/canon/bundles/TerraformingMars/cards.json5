@@ -79,7 +79,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "40",
-      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
+      "actions": [ "HasRaisedTr: 3 -> TerraformRating" ],
       "components": [
         "CLASS HasRaisedTr : Owned, Generational, Hidden { HAS MAX 1 This }",
         "CLASS TrWatcher : Owned<Player>, System { HAS =1 This; TerraformRating IF MAX 0 SetupPhase:: HasRaisedTr. }"

@@ -10,6 +10,9 @@ best effort without consulting whole-card text data. When a renderer cannot safe
 node, it emits that node's canonical Pets source in square brackets at the narrowest safe structural
 boundary. An incremental result containing bracketed regions is expected and honest.
 
+The language module currently targets the JVM only. Its source and resource loading use the
+ordinary JVM source sets even though the Pets and Canon dependencies remain multiplatform.
+
 `english-card-text-goals.tsv` is fallible, reviewed target text. `english-card-text-current.tsv` is
 generated characterization of what the renderer produces for canonical cards that have a
 `CardDefinition`. Neither file is an answer source for production code. Run
@@ -30,9 +33,9 @@ empty text. If a renderer gains behavior not exercised by any canonical card, ad
 for that behavior or defer the generalization.
 
 `english-filtered-draws.tsv` is a narrow transitional supplement for information that canonical Pets
-does not yet carry. It maps a card's Class name to the tag or card-resource icon required by that card's draw.
-Only mapped `ProjectCard` gains are derived: an unqualified gain remains bracketed because the same
-Pets shape also stands in for top-card selection and other printed draw procedures.
+does not yet carry. It maps a card's Class name to a tag, card-resource icon, or printed-requirement
+filter. An unqualified `ProjectCard` gain is an ordinary project-card draw; distinct top-card
+procedures use their own described component construction.
 
 Keep every structurally supported End-scoring sentence canonical in the goal data even when
 another part of that card remains bracketed. The goal row should already contain
@@ -275,8 +278,9 @@ next-play lifecycle and adjustment together.
 A two-stage immediate instruction may instead play a card and then remove every generated global-
 requirement shortfall or remove up to one fixed owed amount, rendering the requirement waiver or
 card discount at the scope of that play.
-A two-stage instruction may instead remove a fixed card-resource cost from this card before one
-supported consequence.
+A two-stage instruction may instead remove a fixed card-resource cost or discard a project card
+before one supported consequence, using `to` for that exchange. Other `THEN` sequences retain
+their authored order and expose unsupported stages independently.
 A two-stage placement may instead link one of several described placement bonuses on the selected
 site to a one-step increase of the matching production.
 A gained component may instead declare exactly one described first action; its consequence is
@@ -289,18 +293,20 @@ does not exist in Solarnet's model, generated metric phrases do not say `in play
 cards use that phrase to contrast any player's components with the acting player's own components.
 A counted spatial relation may also name the event created between its two described placement
 participants, retaining contextual ownership of each participant.
-One supported clause may be gated by a concrete minimum number of a tag the player owns.
+One supported clause may be gated by a concrete minimum number of a tag the player owns, a
+described state component, the solo player count, or a described component count. A described
+state inherited from a generation-scoped component adds `this generation` to its condition.
 Supported instructions are rendered in authored order. Adjacent standard-resource gains coalesce,
 and adjacent production changes remain coordinated in one sentence. Separate card-resource gains
 retain separate clauses because each may choose a different destination card. Alternatives factor
 a shared predicate only when its subject, verb, destination, and modifiers agree; otherwise each
 alternative retains its whole clause. The same predicate-object compatibility rule governs
 instruction aggregation and alternative action costs. Each alternative retains its own scalar. A
-concrete fixed VP gain or
-penalty triggered by `End` is also derived,
-either unscaled or for each simple tag the player owns, card resource on the scoring card, or
-complete concrete group of one card-resource type on the scoring card, or each described component
-in one counted spatial relationship. An unscaled fixed VP gain or penalty may be conditional on the
+concrete fixed VP gain or penalty triggered by `End` is also derived. A per-metric score says
+`Worth N VPs per ...`; when the metric itself is unsupported, only that metric remains bracketed.
+Supported metrics include a simple tag the player owns, a card resource on the scoring card, a
+complete concrete group of one card-resource type on the scoring card, or a described component in
+one counted spatial relationship. An unscaled fixed VP gain or penalty may be conditional on the
 player having a concrete minimum number of one resource type on the scoring card.
 
 A mandatory removal of concrete project cards renders as discarding cards. A supported effect may
@@ -329,7 +335,8 @@ ocean tile`. Counts above one remain numeric. Resource quantities and track or p
 remain numeric even when the count is one. Attach a step count to every production named; do not
 move a shared count after several productions with `each`.
 
-An unsupported requirement or End-triggered scoring effect renders as one bracketed Pets element.
+An unsupported requirement or unsupported fixed part of an End-triggered scoring effect renders as
+one bracketed Pets element.
 Within instruction groups, supported siblings remain English while each unsupported instruction is
 bracketed independently. An unaccounted behavior-bearing extra component declaration adds a
 bracketed class marker to the bottom region because component declarations can encode printed setup
@@ -347,12 +354,12 @@ in `CardDefinition` or for dividing one authored immediate group.
 
 Keep an explicit bracketed marker for behavior-bearing extra component declarations. Mons Insurance
 shows why: its component declarations encode printed setup behavior that is absent from `immediate`.
-Likewise,
-do not infer a generic draw sentence from a `ProjectCard` gain. The same Pets shape backs both plain
-draws and cards whose printed procedure selects from or filters viewed cards, so the current data is
-not structurally sufficient. A mandatory transmutation can say that card resources are removed from
-this card to draw a declared drawable component; this deliberately does not cover optional
-`PlayedEvent` retrieval.
+Filtered project-card draws still require the narrow supplemental table because Pets does not carry
+their filter. Tag filters render as adjective card names, while card-resource filters retain the
+explicit icon wording. A mandatory transmutation can say that card resources are removed from this
+card to draw a declared drawable component; a same-component transmutation instead renders the
+directional transfer as stealing from or paying to its other participant. This deliberately does
+not cover optional `PlayedEvent` retrieval.
 
 A plain mandatory placement of one greenery tile renders its implicit oxygen increase. A strict
 placement-site refinement can express a minimum adjacency count or the absence of adjacent tiles;
