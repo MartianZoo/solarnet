@@ -85,11 +85,11 @@ private fun Describers.renderRequirementGroup(requirement: Requirement.And): Cla
 private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Clause? {
   if (minimum.target != 1) return null
   val metric = minimum.metric as? Metric.Count ?: return null
-  val (owners, resourceClassName) = productionExpression(metric.expression) ?: return null
-  if (owners.isNotEmpty()) return null
+  val production = productionExpression(metric.expression) ?: return null
+  if (production.owner != null) return null
   return requirementClause(
       "requires",
-      "that you have ${componentNoun(resourceClassName, 1)} production",
+      "that you have ${componentNoun(production.resource, 1)} production",
   )
 }
 

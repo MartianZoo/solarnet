@@ -791,10 +791,10 @@ private fun Describers.purchaseEvent(expression: Expression): Event? {
 }
 
 private fun Describers.productionEvent(expression: Expression): Event? {
-  val (owners, resource) = productionCategoryExpression(expression) ?: return null
-  if (owners.isNotEmpty()) return null
+  val production = productionCategoryExpression(expression) ?: return null
+  if (production.owner != null) return null
   val objectPhrase =
-      if (concrete(resource)) "your ${componentNoun(resource, 1)} production"
+      if (concrete(production.resource)) "your ${componentNoun(production.resource, 1)} production"
       else "one of your productions"
   return Event(EventKind.INCREASE_PRODUCTION, EventActor.YOU, objectPhrase)
 }
@@ -939,11 +939,11 @@ private fun renderTriggeredInstructions(
 
 private fun renderLinkedProductionReward(effect: Effect, describers: Describers): String? {
   val expression = (effect.trigger as? OnGainOf)?.expression ?: return null
-  val (owners, resource) = describers.productionCategoryExpression(expression) ?: return null
-  if (owners.isNotEmpty() || describers.concrete(resource)) return null
+  val production = describers.productionCategoryExpression(expression) ?: return null
+  if (production.owner != null || describers.concrete(production.resource)) return null
   val gain = effect.instruction as? Gain ?: return null
   if (gain.intensity.modality() != Modality.REQUIRED) return null
-  if (!gain.gaining.simple || gain.gaining.className != resource) return null
+  if (!gain.gaining.simple || gain.gaining.className != production.resource) return null
   val count = gain.count.fixedQuantity() ?: return null
   val objectPhrase = "$count ${if (count == 1) "resource" else "resources"} of that type"
   val result = Clause.Simple(Predicate("gain", Coordination.one(NounPhrase.text(objectPhrase))))

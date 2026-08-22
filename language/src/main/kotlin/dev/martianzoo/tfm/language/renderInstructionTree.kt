@@ -170,9 +170,8 @@ private fun renderPlacementBonusProductionSequence(
     ) {
       return null
     }
-    val (owners, producedResource) =
-        describers.productionExpression(production.gaining) ?: return null
-    if (owners.isNotEmpty() || producedResource != resource.className) return null
+    val produced = describers.productionExpression(production.gaining) ?: return null
+    if (produced.owner != null || produced.resource != resource.className) return null
     PlacementBonusProduction(site.className, resource.className, bonusDescription.noun)
   }
   val siteClassName =
@@ -371,16 +370,16 @@ private fun productionFloorResource(
   val threshold = shortfall.minuend as? Metric.Constant ?: return null
   if (threshold.value == 0) return null
   val current = shortfall.subtrahend as? Metric.Count ?: return null
-  val (gainingOwners, gainingResource) =
-      describers.productionExpression(gain.gaining) ?: return null
-  val (currentOwners, currentResource) =
-      describers.productionExpression(current.expression) ?: return null
+  val gaining = describers.productionExpression(gain.gaining) ?: return null
+  val currentProduction = describers.productionExpression(current.expression) ?: return null
   if (
-      gainingOwners.isNotEmpty() || currentOwners.isNotEmpty() || gainingResource != currentResource
+      gaining.owner != null ||
+          currentProduction.owner != null ||
+          gaining.resource != currentProduction.resource
   ) {
     return null
   }
-  return gainingResource
+  return gaining.resource
 }
 
 private fun renderAlternatives(

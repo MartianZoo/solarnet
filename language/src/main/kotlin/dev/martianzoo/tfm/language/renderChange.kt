@@ -632,19 +632,18 @@ private fun renderProductionChange(
   renderSelectedProductionChange(change, gaining, expression, describers)?.let {
     return it
   }
-  val (ownerArguments, resourceClassName) =
-      describers.productionExpression(expression) ?: return null
+  val production = describers.productionExpression(expression) ?: return null
   val owner =
       when {
-        ownerArguments.isEmpty() -> "your"
-        !gaining && ownerArguments == listOf(describers.anyoneExpression) -> "any player's"
+        production.owner == null -> "your"
+        !gaining && production.owner == describers.anyoneExpression -> "any player's"
         else -> return null
       }
   val count = change.count.fixedQuantity() ?: return null
   val steps = if (count == 1) "step" else "steps"
-  val production =
-      "$owner ${describers.componentNoun(resourceClassName, 1)} production $count $steps"
-  return clause(if (gaining) "increase" else "decrease", NounPhrase.text(production))
+  val productionPhrase =
+      "$owner ${describers.componentNoun(production.resource, 1)} production $count $steps"
+  return clause(if (gaining) "increase" else "decrease", NounPhrase.text(productionPhrase))
 }
 
 private fun renderSelectedProductionChange(
@@ -654,14 +653,11 @@ private fun renderSelectedProductionChange(
     describers: Describers,
 ): Clause.Simple? {
   if (
-      !describers.isProduction(expression.className) ||
-          expression.refinement != null ||
-          expression.complement ||
-          expression.arguments.size != 1
+      expression.refinement != null || expression.complement
   ) {
     return null
   }
-  val resource = describers.representedClassArgument(expression.arguments.single()) ?: return null
+  val resource = describers.selectedProductionResource(expression) ?: return null
   if (
       !describers.isStandardResource(resource.className) ||
           describers.concrete(resource.className) ||
@@ -690,14 +686,12 @@ private fun renderProductionConversion(
 ): Clause? {
   val scalar = transmute.count.variableQuantity() ?: return null
   if (scalar.multiple != 1) return null
-  val (gainingOwners, gainingResource) =
-      describers.productionExpression(transmute.gaining) ?: return null
-  val (removingOwners, removingResource) =
-      describers.productionExpression(transmute.removing) ?: return null
+  val gaining = describers.productionExpression(transmute.gaining) ?: return null
+  val removing = describers.productionExpression(transmute.removing) ?: return null
   if (
-      gainingOwners.isNotEmpty() ||
-          removingOwners.isNotEmpty() ||
-          gainingResource == removingResource
+      gaining.owner != null ||
+          removing.owner != null ||
+          gaining.resource == removing.resource
   ) {
     return null
   }
@@ -705,14 +699,14 @@ private fun renderProductionConversion(
       clause(
           "decrease",
           NounPhrase.text(
-              "your ${describers.componentNoun(removingResource, 1)} production one or more steps"
+              "your ${describers.componentNoun(removing.resource, 1)} production one or more steps"
           ),
       )
   val increase =
       clause(
           "increase",
           NounPhrase.text(
-              "your ${describers.componentNoun(gainingResource, 1)} production the same number of steps"
+              "your ${describers.componentNoun(gaining.resource, 1)} production the same number of steps"
           ),
       )
   return Clause.Coordinated(Coordination(listOf(decrease, increase), Conjunction.AND))

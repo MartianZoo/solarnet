@@ -250,21 +250,21 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun productionExpression(
       expression: Expression,
-  ): Pair<List<Expression>, ClassName>? =
-      parseProductionExpression(expression)?.takeIf { (_, resource) ->
-        plainGainNoun(resource, 1) != null
+  ): ProductionExpression? =
+      parseProductionExpression(expression)?.takeIf { production ->
+        plainGainNoun(production.resource, 1) != null
       }
 
   internal fun productionCategoryExpression(
       expression: Expression,
-  ): Pair<List<Expression>, ClassName>? =
-      parseProductionExpression(expression)?.takeIf { (_, resource) ->
-        plainGainCategoryNoun(resource, 1) != null
+  ): ProductionExpression? =
+      parseProductionExpression(expression)?.takeIf { production ->
+        plainGainCategoryNoun(production.resource, 1) != null
       }
 
   private fun parseProductionExpression(
       expression: Expression,
-  ): Pair<List<Expression>, ClassName>? {
+  ): ProductionExpression? {
     val resolved =
         resolveExpression(expression) ?: return parseContextualProductionExpression(expression)
     val type = resolved.type
@@ -273,16 +273,16 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         resolved.dependency(Key(PRODUCTION, 0))?.representedType()?.takeIf { it.refinement == null }
             ?: return null
     val ownerKey = Key(OWNED, 0)
-    val owner = resolved.dependency(ownerKey) ?: return null
-    val owners = if (owner.expression == ownerExpression) emptyList() else listOf(owner.expression)
-    return owners to resource.className
+    if (resolved.dependency(ownerKey) == null) return null
+    val owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == ownerExpression }
+    return ProductionExpression(owner, resource.className)
   }
 
   // TODO: Resolve contextual This through linked type sources, then delete this positional
   // fallback.
   private fun parseContextualProductionExpression(
       expression: Expression,
-  ): Pair<List<Expression>, ClassName>? {
+  ): ProductionExpression? {
     if (
         !isProduction(expression.className) ||
             expression.refinement != null ||
@@ -301,7 +301,17 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     }
     val resource = resourceDependency.arguments.single()
     if (!resource.simple) return null
-    return expression.arguments.dropLast(1) to resource.className
+    val owner = expression.arguments.dropLast(1).singleOrNull()
+    if (expression.arguments.size > 2) return null
+    return ProductionExpression(owner, resource.className)
+  }
+
+  internal fun selectedProductionResource(expression: Expression): Expression? {
+    if (!isProduction(expression.className) || expression.complement) return null
+    val resolved = resolveExpression(expression) ?: return null
+    val resourceKey = Key(PRODUCTION, 0)
+    if (resolved.sourceDependencies.keys != setOf(resourceKey)) return null
+    return resolved.dependency(resourceKey)?.representedExpression()
   }
 
   internal fun representedClass(expression: Expression): Expression? {
@@ -460,6 +470,11 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal val ownerExpression = cn("Owner").expression
   internal val playerExpression = cn("Player").expression
   internal val thisExpression = cn("This").expression
+
+  internal data class ProductionExpression(
+      val owner: Expression?,
+      val resource: ClassName,
+  )
 
   private companion object {
     val CARD_RESOURCE = cn("CardResource")
