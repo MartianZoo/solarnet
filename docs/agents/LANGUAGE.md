@@ -84,8 +84,9 @@ receives the linked source needed to resolve it.
 Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, and `PlanetTag` is read from
 the Class hierarchy and is not duplicated in `ComponentDescriber`. Card-resource number forms
 remain lexical data.
-Pets scalars are resolved once into fixed or variable `Quantity` values; family renderers do not
-inspect `ActualScalar` or `XScalar`.
+Pets scalars are resolved once into fixed or variable `Quantity` values, and intensities into
+required, best-effort, or optional `Modality` values. Family renderers do not inspect the Pets
+scalar or intensity variants.
 
 Structural renderers only identify the component Class, ask `Describers` for the applicable
 inherited phrase or capability, and compose the answer. They do not name component Classes or

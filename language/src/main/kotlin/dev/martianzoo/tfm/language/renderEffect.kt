@@ -10,8 +10,6 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
@@ -62,7 +60,7 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
   if (InstructionGroup.of(decline).instructions.singleOrNull() !is NoOp) return null
   val resourceRemoval = sequence.stages.singleOrNull() as? Remove ?: return null
   if (
-      resourceRemoval.intensity != MANDATORY ||
+      resourceRemoval.intensity.modality() != Modality.REQUIRED ||
           resourceRemoval.removing.arguments != listOf(describers.thisExpression) ||
           resourceRemoval.removing.refinement != null ||
           resourceRemoval.removing.complement ||
@@ -73,7 +71,11 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
   val resourceScalar = resourceRemoval.count.variableQuantity() ?: return null
   if (resourceScalar.multiple != 1) return null
   val owed = sequence.continuation as? Remove ?: return null
-  if (owed.intensity != AMAP || owed.removing.refinement != null || owed.removing.complement) {
+  if (
+      owed.intensity.modality() != Modality.BEST_EFFORT ||
+          owed.removing.refinement != null ||
+          owed.removing.complement
+  ) {
     return null
   }
   if (
@@ -124,7 +126,7 @@ private fun renderLinkedCardResourceGain(
 ): Clause.Simple? {
   val gain = InstructionGroup.of(instruction).instructions.singleOrNull() as? Gain ?: return null
   if (
-      (gain.intensity != null && gain.intensity != MANDATORY) ||
+      gain.intensity.modality() != Modality.REQUIRED ||
           gain.gaining.arguments != listOf(holder) ||
           gain.gaining.refinement != null ||
           gain.gaining.complement
@@ -153,7 +155,7 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
   }
   val removal = effect.instruction as? Remove ?: return null
   if (
-      removal.intensity != AMAP ||
+      removal.intensity.modality() != Modality.BEST_EFFORT ||
           removal.removing.refinement != null ||
           removal.removing.complement ||
           describers.fact(
@@ -183,7 +185,7 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
       return null
   val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   val change = effect.instruction as? Instruction.Change ?: return null
-  if (change.intensity != null && change.intensity != MANDATORY) return null
+  if (change.intensity.modality() != Modality.REQUIRED) return null
   val expression = change.gaining ?: change.removing ?: return null
   if (!expression.simple || !describers.concrete(expression.className)) return null
   if (!describers.isStandardResource(expression.className)) {
@@ -243,7 +245,7 @@ private fun isDeadEndInstruction(
     describers: Describers,
 ): Boolean {
   val gain = instruction as? Gain ?: return false
-  if (gain.intensity != null && gain.intensity != MANDATORY) return false
+  if (gain.intensity.modality() != Modality.REQUIRED) return false
   return gain.gaining.simple &&
       describers.concrete(gain.gaining.className) &&
       describers.fact(gain.gaining.className, ComponentDescriber::deadEndSignal) == true &&
@@ -324,7 +326,7 @@ private fun renderAcceptedCardResourcePayment(
       InstructionGroup.of(acceptance.instruction).instructions.singleOrNull() as? Gain
           ?: return null
   if (
-      (accepted.intensity != null && accepted.intensity != MANDATORY) ||
+      accepted.intensity.modality() != Modality.REQUIRED ||
           accepted.gaining.arguments != listOf(describers.thisExpression) ||
           accepted.gaining.refinement != null ||
           accepted.gaining.complement ||
@@ -346,7 +348,7 @@ private fun renderAcceptedCardResourcePayment(
   }
   val removal = payment.instruction as? Remove ?: return null
   if (
-      (removal.intensity != null && removal.intensity != MANDATORY) ||
+      removal.intensity.modality() != Modality.REQUIRED ||
           !removal.removing.simple ||
           describers.fact(removal.removing.className, ComponentDescriber::paymentRole) !=
               ComponentDescriber.PaymentRole.OWED
@@ -388,7 +390,7 @@ private fun renderBarrierSequencedTrackChoice(
       InstructionGroup.of(barrierEffect.instruction).instructions.singleOrNull() as? Gain
           ?: return null
   if (
-      (barrierGain.intensity != null && barrierGain.intensity != MANDATORY) ||
+      barrierGain.intensity.modality() != Modality.REQUIRED ||
           !barrierGain.gaining.simple ||
           barrierGain.count.fixedQuantity() != 1 ||
           describers.fact(barrierGain.gaining.className, ComponentDescriber::paymentRole) !=
@@ -399,7 +401,7 @@ private fun renderBarrierSequencedTrackChoice(
   val sequence = trackEffect.instruction as? Then ?: return null
   val trackGain = sequence.stages.singleOrNull() as? Gain ?: return null
   if (
-      trackGain.intensity != Instruction.Intensity.OPTIONAL ||
+      trackGain.intensity.modality() != Modality.OPTIONAL ||
           trackGain.gaining.refinement != null ||
           trackGain.gaining.complement ||
           trackGain.count.fixedQuantity() != 1
@@ -411,7 +413,7 @@ private fun renderBarrierSequencedTrackChoice(
           as? ComponentDescriber.DirectChange.TrackTransfer ?: return null
   val barrierRemoval = sequence.continuation as? Remove ?: return null
   if (
-      (barrierRemoval.intensity != null && barrierRemoval.intensity != MANDATORY) ||
+      barrierRemoval.intensity.modality() != Modality.REQUIRED ||
           barrierRemoval.removing != barrierGain.gaining ||
           barrierRemoval.count.fixedQuantity() != 1
   ) {
@@ -897,7 +899,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
   val (className, count, penalty) =
       when (instruction) {
         is Gain -> {
-          if (instruction.intensity != null && instruction.intensity != MANDATORY) return null
+          if (instruction.intensity.modality() != Modality.REQUIRED) return null
           if (!instruction.gaining.simple) return null
           Triple(
               instruction.gaining.className,
@@ -906,7 +908,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
           )
         }
         is Remove -> {
-          if (instruction.intensity != null && instruction.intensity != MANDATORY) return null
+          if (instruction.intensity.modality() != Modality.REQUIRED) return null
           if (!instruction.removing.simple) return null
           Triple(
               instruction.removing.className,
@@ -935,7 +937,7 @@ private fun renderLinkedProductionReward(effect: Effect, describers: Describers)
   val (owners, resource) = describers.productionCategoryExpression(expression) ?: return null
   if (owners.isNotEmpty() || describers.concrete(resource)) return null
   val gain = effect.instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (gain.intensity.modality() != Modality.REQUIRED) return null
   if (!gain.gaining.simple || gain.gaining.className != resource) return null
   val count = gain.count.fixedQuantity() ?: return null
   val objectPhrase = "$count ${if (count == 1) "resource" else "resources"} of that type"

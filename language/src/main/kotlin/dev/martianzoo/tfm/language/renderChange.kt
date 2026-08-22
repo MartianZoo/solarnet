@@ -5,9 +5,6 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
@@ -63,7 +60,7 @@ private fun renderDiscard(
     describers: Describers,
 ): Clause? {
   val removal = instruction as? Remove ?: return null
-  if (removal.intensity != null && removal.intensity != MANDATORY) return null
+  if (removal.intensity.modality() != Modality.REQUIRED) return null
   if (!removal.removing.simple) return null
   val count = removal.count.fixedQuantity() ?: return null
   val discarded = describers.componentNounPhrase(removal.removing.className, count)
@@ -80,7 +77,7 @@ private fun renderDraw(
 ): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
   if (
-      (gain.intensity != null && gain.intensity != MANDATORY) ||
+      gain.intensity.modality() != Modality.REQUIRED ||
           !gain.gaining.simple ||
           !describers.concrete(gain.gaining.className)
   ) {
@@ -154,14 +151,14 @@ private fun renderDirectChange(
     }
     is ComponentDescriber.DirectChange.GainChoice -> {
       val gain = instruction as? Gain ?: return null
-      if (gain.intensity != null && gain.intensity != MANDATORY) return null
+      if (gain.intensity.modality() != Modality.REQUIRED) return null
       if (!gain.gaining.simple || describers.concrete(gain.gaining.className)) return null
       if (gain.count.fixedQuantity() != 1) return null
       clause("gain", NounPhrase.text(description.objectPhrase))
     }
     is ComponentDescriber.DirectChange.Imperative -> {
       val gain = instruction as? Gain ?: return null
-      if (gain.intensity != null && gain.intensity != MANDATORY) return null
+      if (gain.intensity.modality() != Modality.REQUIRED) return null
       if (!gain.gaining.simple) return null
       if (gain.count.fixedQuantity() != 1) return null
       clause(description.verb, NounPhrase.text(description.objectPhrase))
@@ -184,7 +181,7 @@ private fun renderDirectChange(
 private fun renderCardPlay(instruction: Instruction, describers: Describers): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
   if (
-      (gain.intensity != null && gain.intensity != MANDATORY) ||
+      gain.intensity.modality() != Modality.REQUIRED ||
           gain.gaining.refinement != null ||
           gain.gaining.complement ||
           gain.count.fixedQuantity() != 1
@@ -202,7 +199,7 @@ private fun renderOperation(
 ): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
   if (
-      (gain.intensity != null && gain.intensity != MANDATORY) ||
+      gain.intensity.modality() != Modality.REQUIRED ||
           gain.gaining.refinement != null ||
           gain.gaining.complement ||
           gain.count.fixedQuantity() != 1
@@ -218,7 +215,7 @@ private fun renderTrackTransfer(
 ): Clause? {
   val transmute = instruction as? Transmute ?: return null
   if (
-      (transmute.intensity != null && transmute.intensity != MANDATORY) ||
+      transmute.intensity.modality() != Modality.REQUIRED ||
           !transmute.gaining.simple ||
           transmute.removing != transmute.gaining
   ) {
@@ -262,7 +259,7 @@ private fun renderProductionBoxCopy(
     describers: Describers,
 ): Clause? {
   val gain = instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (gain.intensity.modality() != Modality.REQUIRED) return null
   if (
       !describers.concrete(gain.gaining.className) ||
           gain.gaining.refinement != null ||
@@ -286,7 +283,7 @@ private fun renderNextPlayedCardAdjustment(
   val lifecycle =
       declaration.effects.singleOrNull { effect ->
         val removal = effect.instruction as? Remove ?: return@singleOrNull false
-        removal.intensity == MANDATORY &&
+        removal.intensity.modality() == Modality.REQUIRED &&
             removal.removing == describers.thisExpression &&
             removal.count.fixedQuantity() == 1
       } ?: return null
@@ -314,7 +311,7 @@ private fun renderNextPlayedCardAdjustment(
   if (effect.automatic) return null
   val requirement = effect.instruction as? Remove ?: return null
   if (
-      requirement.intensity != AMAP ||
+      requirement.intensity.modality() != Modality.BEST_EFFORT ||
           requirement.removing.refinement != null ||
           requirement.removing.complement ||
           describers.fact(
@@ -347,7 +344,7 @@ private fun renderTopCardPurchase(
 ): Clause? {
   val gain = instruction as? Gain ?: return null
   if (
-      gain.intensity != OPTIONAL ||
+      gain.intensity.modality() != Modality.OPTIONAL ||
           !gain.gaining.simple ||
           !describers.concrete(gain.gaining.className) ||
           gain.count.fixedQuantity() != 1
@@ -372,7 +369,7 @@ private fun renderCardResourceDrawExchange(
     transmute: Transmute,
     describers: Describers,
 ): Clause? {
-  if (transmute.intensity != null && transmute.intensity != MANDATORY) return null
+  if (transmute.intensity.modality() != Modality.REQUIRED) return null
   val count = transmute.count.fixedQuantity() ?: return null
   val gaining = transmute.gaining
   if (!gaining.simple || !describers.concrete(gaining.className)) return null
@@ -413,11 +410,11 @@ private fun renderStandardResourceChange(
   val count = removal.count.fixedQuantity() ?: return null
   if (!describers.concrete(expression.className)) return null
   if (!describers.isStandardResource(expression.className)) return null
-  if (expression.simple && (removal.intensity == null || removal.intensity == MANDATORY)) {
+  if (expression.simple && removal.intensity.modality() == Modality.REQUIRED) {
     return clause("remove", describers.componentNounPhrase(expression.className, count))
   }
   val player = expression.arguments.singleOrNull()?.let { describers.renderEligiblePlayer(it) }
-  if (player != null && removal.intensity == OPTIONAL) {
+  if (player != null && removal.intensity.modality() == Modality.OPTIONAL) {
     val noun = describers.componentNoun(expression.className, count)
     return clause(
         "remove",
@@ -476,9 +473,13 @@ private fun renderStandardResourceTransfer(
       }
   val count = transmute.count.fixedQuantity() ?: return null
   val noun = describers.componentNoun(gaining.className, count)
-  val amount = if (transmute.intensity == OPTIONAL) "up to $count $noun" else "$count $noun"
+  val amount =
+      if (transmute.intensity.modality() == Modality.OPTIONAL) "up to $count $noun"
+      else "$count $noun"
   val completion =
-      if (transmute.intensity == AMAP) Modifier.Supplement("or as much as possible") else null
+      if (transmute.intensity.modality() == Modality.BEST_EFFORT)
+          Modifier.Supplement("or as much as possible")
+      else null
   return clause(
       verb,
       NounPhrase.text(amount),
@@ -516,9 +517,10 @@ private fun renderCardResourceChange(
   val noun = describers.cardResourceNounPhrase(expression.className, count) ?: return null
   if (instruction is Remove) {
     return when {
-      expression.simple && (change.intensity == null || change.intensity == MANDATORY) ->
+      expression.simple && change.intensity.modality() == Modality.REQUIRED ->
           clause("remove", noun, Modifier.Phrase("from any card"))
-      expression.arguments == listOf(describers.anyoneExpression) && change.intensity == OPTIONAL ->
+      expression.arguments == listOf(describers.anyoneExpression) &&
+          change.intensity.modality() == Modality.OPTIONAL ->
           clause(
               "remove",
               NounPhrase.text("up to $count ${noun.noun()}"),
@@ -527,14 +529,17 @@ private fun renderCardResourceChange(
       else -> null
     }
   }
-  if (change.intensity == OPTIONAL && expression.arguments == listOf(describers.thisExpression)) {
+  if (
+      change.intensity.modality() == Modality.OPTIONAL &&
+          expression.arguments == listOf(describers.thisExpression)
+  ) {
     return clause(
         "add",
         NounPhrase.text("up to $count ${noun.noun()}"),
         Modifier.Phrase("to this card"),
     )
   }
-  if (change.intensity != null && change.intensity != MANDATORY) return null
+  if (change.intensity.modality() != Modality.REQUIRED) return null
   val target =
       when {
         expression.arguments == listOf(describers.thisExpression) -> "this card"
@@ -551,7 +556,7 @@ private fun renderProductionChange(
     describers: Describers,
 ): Clause? {
   val change = instruction as? Instruction.Change ?: return null
-  if (change.intensity != null && change.intensity != MANDATORY) return null
+  if (change.intensity.modality() != Modality.REQUIRED) return null
   val gaining =
       when (change) {
         is Gain -> true
@@ -664,7 +669,7 @@ private fun renderTrackChange(
 
 private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int>? {
   val gain = instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (gain.intensity.modality() != Modality.REQUIRED) return null
   if (!gain.gaining.simple) return null
   val count = gain.count.fixedQuantity() ?: return null
   return gain.gaining.className to count
@@ -672,7 +677,7 @@ private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int
 
 private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
   val removal = instruction as? Remove ?: return null
-  if (removal.intensity != null && removal.intensity != MANDATORY) return null
+  if (removal.intensity.modality() != Modality.REQUIRED) return null
   if (!removal.removing.simple) return null
   val count = removal.count.fixedQuantity() ?: return null
   return removal.removing.className to count

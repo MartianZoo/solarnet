@@ -2,8 +2,6 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
@@ -16,7 +14,7 @@ internal fun owedReduction(
     describers: Describers,
 ): ResourceAmount? {
   val removal = instruction as? Remove ?: return null
-  if (removal.intensity != null && removal.intensity != MANDATORY) return null
+  if (removal.intensity.modality() != Modality.REQUIRED) return null
   return paymentResourceAmount(
       removal.removing,
       removal.count,
@@ -30,7 +28,7 @@ internal fun maximumOwedReduction(
     describers: Describers,
 ): ResourceAmount? {
   val removal = instruction as? Remove ?: return null
-  if (removal.intensity != AMAP) return null
+  if (removal.intensity.modality() != Modality.BEST_EFFORT) return null
   return paymentResourceAmount(
       removal.removing,
       removal.count,
@@ -45,7 +43,7 @@ internal fun paymentResourceGain(
     describers: Describers,
 ): ResourceAmount? {
   val gain = instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (gain.intensity.modality() != Modality.REQUIRED) return null
   return paymentResourceAmount(gain.gaining, gain.count, role, describers)
 }
 

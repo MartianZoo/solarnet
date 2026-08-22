@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.language
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -119,7 +118,7 @@ private fun renderPlacementBonusProductionSequence(
 ): Clause? {
   val placement = instruction.stages.singleOrNull() as? Gain ?: return null
   if (
-      (placement.intensity != null && placement.intensity != MANDATORY) ||
+      placement.intensity.modality() != Modality.REQUIRED ||
           placement.gaining.refinement != null ||
           placement.gaining.complement ||
           placement.count.fixedQuantity() != 1
@@ -154,7 +153,7 @@ private fun renderPlacementBonusProductionSequence(
     val production =
         InstructionGroup.of(gated.inner).instructions.singleOrNull() as? Gain ?: return null
     if (
-        (production.intensity != null && production.intensity != MANDATORY) ||
+        production.intensity.modality() != Modality.REQUIRED ||
             production.count.fixedQuantity() != 1
     ) {
       return null
@@ -220,7 +219,7 @@ private fun renderCardResourceCostSequence(
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   if (
-      (removal.intensity != null && removal.intensity != MANDATORY) ||
+      removal.intensity.modality() != Modality.REQUIRED ||
           removal.removing.arguments != listOf(describers.thisExpression) ||
           removal.removing.refinement != null ||
           removal.removing.complement
@@ -251,7 +250,7 @@ private fun renderCardPlaySequence(
 ): Clause.Simple? {
   val play = instruction.stages.singleOrNull() as? Gain ?: return null
   if (
-      (play.intensity != null && play.intensity != MANDATORY) ||
+      play.intensity.modality() != Modality.REQUIRED ||
           !play.gaining.simple ||
           play.count.fixedQuantity() != 1 ||
           describers.fact(play.gaining.className, ComponentDescriber::playTrigger) !=
@@ -265,7 +264,7 @@ private fun renderCardPlaySequence(
           val removal = continuation.inner as? Remove ?: return null
           val counted = continuation.metric as? Metric.Count ?: return null
           if (
-              (removal.intensity != null && removal.intensity != MANDATORY) ||
+              removal.intensity.modality() != Modality.REQUIRED ||
                   !removal.removing.simple ||
                   removal.removing != counted.expression ||
                   removal.count.fixedQuantity() != 1 ||
@@ -393,7 +392,7 @@ private fun renderPlacementSiteFallback(
           unrestricted.gaining.arguments.isNotEmpty() ||
           unrestricted.gaining.refinement != null ||
           unrestricted.gaining.complement ||
-          preferred.intensity != unrestricted.intensity ||
+          preferred.intensity.modality() != unrestricted.intensity.modality() ||
           preferred.count != unrestricted.count ||
           preferred.count.fixedQuantity() != 1
   ) {

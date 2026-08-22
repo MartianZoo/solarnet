@@ -5,7 +5,6 @@ import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -119,7 +118,7 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   val spend = action.cost as? Cost.Spend ?: return null
   val costScalar = spend.scaledEx.scalar.variableQuantity() ?: return null
   val gain = action.instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (gain.intensity.modality() != Modality.REQUIRED) return null
   val gainScalar = gain.count.variableQuantity() ?: return null
   val gaining = gain.gaining
   if (!gaining.simple || !concrete(gaining.className) || !isStandardResource(gaining.className)) {
@@ -159,7 +158,7 @@ private fun Describers.renderLinkedProductionResourceAction(action: Action): Ren
       productionCategoryExpression(spend.scaledEx.expression) ?: return null
   if (owners.isNotEmpty() || concrete(resourceClassName)) return null
   val gain = action.instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (gain.intensity.modality() != Modality.REQUIRED) return null
   if (!gain.gaining.simple || gain.gaining.className != resourceClassName) return null
   val gainCount = gain.count.fixedQuantity() ?: return null
   val steps = if (costCount == 1) "step" else "steps"

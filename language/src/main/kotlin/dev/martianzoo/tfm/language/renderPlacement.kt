@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.language
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
@@ -14,7 +13,7 @@ internal fun renderPlacement(
     describers: Describers,
 ): Clause? {
   val gain = instruction as? Gain ?: return null
-  if (gain.intensity != null && gain.intensity != MANDATORY) return null
+  if (gain.intensity.modality() != Modality.REQUIRED) return null
   if (!describers.concrete(gain.gaining.className)) return null
   if (gain.gaining.refinement != null || gain.gaining.complement) return null
 
