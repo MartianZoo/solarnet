@@ -136,7 +136,8 @@ public class Transformers(public val classTable: ClassTable) {
                     "Class `${propertyClass.className}` has no property " +
                         "`${contextualProperty.propertyName}`"
                 )
-        if (deferAbstract && value.abstract) return node
+        if (deferAbstract && (value.abstract || (propertyType.abstract && THIS in value)))
+            return node
         val syntax: PetNode =
             when (node) {
               is Metric.Eval ->
