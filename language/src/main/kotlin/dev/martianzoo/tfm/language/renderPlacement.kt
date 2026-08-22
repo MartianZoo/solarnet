@@ -6,7 +6,6 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 /** Renders a placed component and any structurally described restriction on its site. */
 internal fun renderPlacement(
@@ -20,7 +19,7 @@ internal fun renderPlacement(
   if (gain.gaining.refinement != null || gain.gaining.complement) return null
 
   val siteModifiers = renderPlacementSites(gain.gaining.arguments, describers) ?: return null
-  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val count = gain.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
   if (count != 1 && !description.allowsMultiple) return null
   val noun =

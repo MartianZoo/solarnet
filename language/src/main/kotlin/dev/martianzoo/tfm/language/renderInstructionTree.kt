@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
@@ -123,7 +122,7 @@ private fun renderPlacementBonusProductionSequence(
       (placement.intensity != null && placement.intensity != MANDATORY) ||
           placement.gaining.refinement != null ||
           placement.gaining.complement ||
-          (placement.count as? ActualScalar)?.value != 1
+          placement.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -156,7 +155,7 @@ private fun renderPlacementBonusProductionSequence(
         InstructionGroup.of(gated.inner).instructions.singleOrNull() as? Gain ?: return null
     if (
         (production.intensity != null && production.intensity != MANDATORY) ||
-            (production.count as? ActualScalar)?.value != 1
+            production.count.fixedQuantity() != 1
     ) {
       return null
     }
@@ -228,7 +227,7 @@ private fun renderCardResourceCostSequence(
   ) {
     return null
   }
-  val count = (removal.count as? ActualScalar)?.value ?: return null
+  val count = removal.count.fixedQuantity() ?: return null
   val resource = describers.cardResourceNounPhrase(removal.removing.className, count) ?: return null
   val result =
       renderLoweredInstructions(instruction.continuation, describers, drawFilter)
@@ -254,7 +253,7 @@ private fun renderCardPlaySequence(
   if (
       (play.intensity != null && play.intensity != MANDATORY) ||
           !play.gaining.simple ||
-          (play.count as? ActualScalar)?.value != 1 ||
+          play.count.fixedQuantity() != 1 ||
           describers.fact(play.gaining.className, ComponentDescriber::playTrigger) !=
               ComponentDescriber.PlayTrigger.CARD
   ) {
@@ -269,7 +268,7 @@ private fun renderCardPlaySequence(
               (removal.intensity != null && removal.intensity != MANDATORY) ||
                   !removal.removing.simple ||
                   removal.removing != counted.expression ||
-                  (removal.count as? ActualScalar)?.value != 1 ||
+                  removal.count.fixedQuantity() != 1 ||
                   describers.fact(
                       removal.removing.className,
                       ComponentDescriber::requirementShortfall,
@@ -396,7 +395,7 @@ private fun renderPlacementSiteFallback(
           unrestricted.gaining.complement ||
           preferred.intensity != unrestricted.intensity ||
           preferred.count != unrestricted.count ||
-          (preferred.count as? ActualScalar)?.value != 1
+          preferred.count.fixedQuantity() != 1
   ) {
     return null
   }

@@ -12,8 +12,6 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 /** Interprets one Pets state change from passive component construction facts. */
 internal fun renderChange(
@@ -67,7 +65,7 @@ private fun renderDiscard(
   val removal = instruction as? Remove ?: return null
   if (removal.intensity != null && removal.intensity != MANDATORY) return null
   if (!removal.removing.simple) return null
-  val count = (removal.count as? ActualScalar)?.value ?: return null
+  val count = removal.count.fixedQuantity() ?: return null
   val discarded = describers.componentNounPhrase(removal.removing.className, count)
   return clause(
       "discard",
@@ -88,7 +86,7 @@ private fun renderDraw(
   ) {
     return null
   }
-  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val count = gain.count.fixedQuantity() ?: return null
   if (filter == null) {
     val noun = describers.componentNoun(gain.gaining.className, count)
     val amount = if (count == 1) "${describers.indefiniteArticle(noun)} $noun" else "$count $noun"
@@ -158,14 +156,14 @@ private fun renderDirectChange(
       val gain = instruction as? Gain ?: return null
       if (gain.intensity != null && gain.intensity != MANDATORY) return null
       if (!gain.gaining.simple || describers.concrete(gain.gaining.className)) return null
-      if ((gain.count as? ActualScalar)?.value != 1) return null
+      if (gain.count.fixedQuantity() != 1) return null
       clause("gain", NounPhrase.text(description.objectPhrase))
     }
     is ComponentDescriber.DirectChange.Imperative -> {
       val gain = instruction as? Gain ?: return null
       if (gain.intensity != null && gain.intensity != MANDATORY) return null
       if (!gain.gaining.simple) return null
-      if ((gain.count as? ActualScalar)?.value != 1) return null
+      if (gain.count.fixedQuantity() != 1) return null
       clause(description.verb, NounPhrase.text(description.objectPhrase))
     }
     is ComponentDescriber.DirectChange.TrackTransfer ->
@@ -189,7 +187,7 @@ private fun renderCardPlay(instruction: Instruction, describers: Describers): Cl
       (gain.intensity != null && gain.intensity != MANDATORY) ||
           gain.gaining.refinement != null ||
           gain.gaining.complement ||
-          (gain.count as? ActualScalar)?.value != 1
+          gain.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -207,7 +205,7 @@ private fun renderOperation(
       (gain.intensity != null && gain.intensity != MANDATORY) ||
           gain.gaining.refinement != null ||
           gain.gaining.complement ||
-          (gain.count as? ActualScalar)?.value != 1
+          gain.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -226,7 +224,7 @@ private fun renderTrackTransfer(
   ) {
     return null
   }
-  val count = (transmute.count as? ActualScalar)?.value ?: return null
+  val count = transmute.count.fixedQuantity() ?: return null
   val steps = if (count == 1) "step" else "steps"
   val increase = clause("increase", NounPhrase.text("one ${description.trackNoun} $count $steps"))
   val decrease =
@@ -269,7 +267,7 @@ private fun renderProductionBoxCopy(
       !describers.concrete(gain.gaining.className) ||
           gain.gaining.refinement != null ||
           gain.gaining.complement ||
-          (gain.count as? ActualScalar)?.value != 1
+          gain.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -290,7 +288,7 @@ private fun renderNextPlayedCardAdjustment(
         val removal = effect.instruction as? Remove ?: return@singleOrNull false
         removal.intensity == MANDATORY &&
             removal.removing == describers.thisExpression &&
-            (removal.count as? ActualScalar)?.value == 1
+            removal.count.fixedQuantity() == 1
       } ?: return null
   val effect = declaration.effects.singleOrNull { it !== lifecycle } ?: return null
   if (lifecycle.trigger != effect.trigger || lifecycle.automatic != effect.automatic) return null
@@ -326,7 +324,7 @@ private fun renderNextPlayedCardAdjustment(
   ) {
     return null
   }
-  val adjustment = (requirement.count as? ActualScalar)?.value ?: return null
+  val adjustment = requirement.count.fixedQuantity() ?: return null
   val target = describers.representedClass(requirement.removing) ?: return null
   val kind = describers.fact(target.className, ComponentDescriber::requirementKind) ?: return null
   val steps = if (adjustment == 1) "step" else "steps"
@@ -352,7 +350,7 @@ private fun renderTopCardPurchase(
       gain.intensity != OPTIONAL ||
           !gain.gaining.simple ||
           !describers.concrete(gain.gaining.className) ||
-          (gain.count as? ActualScalar)?.value != 1
+          gain.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -375,7 +373,7 @@ private fun renderCardResourceDrawExchange(
     describers: Describers,
 ): Clause? {
   if (transmute.intensity != null && transmute.intensity != MANDATORY) return null
-  val count = (transmute.count as? ActualScalar)?.value ?: return null
+  val count = transmute.count.fixedQuantity() ?: return null
   val gaining = transmute.gaining
   if (!gaining.simple || !describers.concrete(gaining.className)) return null
   val removing = transmute.removing
@@ -412,7 +410,7 @@ private fun renderStandardResourceChange(
   val removal = instruction as? Remove ?: return null
   val expression = removal.removing
   if (expression.refinement != null || expression.complement) return null
-  val count = (removal.count as? ActualScalar)?.value ?: return null
+  val count = removal.count.fixedQuantity() ?: return null
   if (!describers.concrete(expression.className)) return null
   if (!describers.isStandardResource(expression.className)) return null
   if (expression.simple && (removal.intensity == null || removal.intensity == MANDATORY)) {
@@ -476,7 +474,7 @@ private fun renderStandardResourceTransfer(
             Triple("pay", "to", recipient)
         else -> return null
       }
-  val count = (transmute.count as? ActualScalar)?.value ?: return null
+  val count = transmute.count.fixedQuantity() ?: return null
   val noun = describers.componentNoun(gaining.className, count)
   val amount = if (transmute.intensity == OPTIONAL) "up to $count $noun" else "$count $noun"
   val completion =
@@ -514,7 +512,7 @@ private fun renderCardResourceChange(
   val change = instruction as? Instruction.Change ?: return null
   val expression = change.gaining ?: change.removing ?: return null
   if (expression.refinement != null || expression.complement) return null
-  val count = (change.count as? ActualScalar)?.value ?: return null
+  val count = change.count.fixedQuantity() ?: return null
   val noun = describers.cardResourceNounPhrase(expression.className, count) ?: return null
   if (instruction is Remove) {
     return when {
@@ -572,7 +570,7 @@ private fun renderProductionChange(
         !gaining && ownerArguments == listOf(describers.anyoneExpression) -> "any player's"
         else -> return null
       }
-  val count = (change.count as? ActualScalar)?.value ?: return null
+  val count = change.count.fixedQuantity() ?: return null
   val steps = if (count == 1) "step" else "steps"
   val production =
       "$owner ${describers.componentNoun(resourceClassName, 1)} production $count $steps"
@@ -608,7 +606,7 @@ private fun renderSelectedProductionChange(
   if (!selector.simple) return null
   val phrase =
       describers.fact(selector.className, ComponentDescriber::productionSelection) ?: return null
-  val count = (change.count as? ActualScalar)?.value ?: return null
+  val count = change.count.fixedQuantity() ?: return null
   val steps = if (count == 1) "step" else "steps"
   return clause(
       if (gaining) "increase" else "decrease",
@@ -620,7 +618,7 @@ private fun renderProductionConversion(
     transmute: Transmute,
     describers: Describers,
 ): Clause? {
-  val scalar = transmute.count as? XScalar ?: return null
+  val scalar = transmute.count.variableQuantity() ?: return null
   if (scalar.multiple != 1) return null
   val (gainingOwners, gainingResource) =
       describers.productionExpression(transmute.gaining) ?: return null
@@ -668,7 +666,7 @@ private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int
   val gain = instruction as? Gain ?: return null
   if (gain.intensity != null && gain.intensity != MANDATORY) return null
   if (!gain.gaining.simple) return null
-  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val count = gain.count.fixedQuantity() ?: return null
   return gain.gaining.className to count
 }
 
@@ -676,7 +674,7 @@ private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, 
   val removal = instruction as? Remove ?: return null
   if (removal.intensity != null && removal.intensity != MANDATORY) return null
   if (!removal.removing.simple) return null
-  val count = (removal.count as? ActualScalar)?.value ?: return null
+  val count = removal.count.fixedQuantity() ?: return null
   return removal.removing.className to count
 }
 

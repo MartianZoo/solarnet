@@ -21,8 +21,6 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 internal fun renderEffect(
     effect: Effect,
@@ -72,7 +70,7 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
   ) {
     return null
   }
-  val resourceScalar = resourceRemoval.count as? XScalar ?: return null
+  val resourceScalar = resourceRemoval.count.variableQuantity() ?: return null
   if (resourceScalar.multiple != 1) return null
   val owed = sequence.continuation as? Remove ?: return null
   if (owed.intensity != AMAP || owed.removing.refinement != null || owed.removing.complement) {
@@ -85,7 +83,7 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
     return null
   }
   val currency = describers.representedClass(owed.removing) ?: return null
-  val rate = (owed.count as? XScalar)?.multiple ?: return null
+  val rate = owed.count.variableQuantity()?.multiple ?: return null
   val currencyNoun = describers.plainGainNoun(currency.className, rate) ?: return null
   val resources = describers.cardResourceNoun(resourceRemoval.removing.className, 2) ?: return null
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
@@ -133,7 +131,7 @@ private fun renderLinkedCardResourceGain(
   ) {
     return null
   }
-  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val count = gain.count.fixedQuantity() ?: return null
   val resource = describers.cardResourceNounPhrase(gain.gaining.className, count) ?: return null
   return Clause.Simple(
       Predicate(
@@ -165,7 +163,7 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
   ) {
     return null
   }
-  val count = (removal.count as? ActualScalar)?.value ?: return null
+  val count = removal.count.fixedQuantity() ?: return null
   val target = describers.representedClass(removal.removing) ?: return null
   val requirementKind =
       describers.fact(target.className, ComponentDescriber::track)?.subject
@@ -191,7 +189,7 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
   if (!describers.isStandardResource(expression.className)) {
     return null
   }
-  val adjustment = (change.count as? ActualScalar)?.value ?: return null
+  val adjustment = change.count.fixedQuantity() ?: return null
   val direction =
       when (change) {
         is Gain -> "less"
@@ -249,7 +247,7 @@ private fun isDeadEndInstruction(
   return gain.gaining.simple &&
       describers.concrete(gain.gaining.className) &&
       describers.fact(gain.gaining.className, ComponentDescriber::deadEndSignal) == true &&
-      (gain.count as? ActualScalar)?.value == 1
+      gain.count.fixedQuantity() == 1
 }
 
 private fun protectedResourceNoun(expression: Expression, describers: Describers): String? {
@@ -332,7 +330,7 @@ private fun renderAcceptedCardResourcePayment(
           accepted.gaining.complement ||
           describers.fact(accepted.gaining.className, ComponentDescriber::paymentRole) !=
               ComponentDescriber.PaymentRole.ACCEPTANCE ||
-          (accepted.count as? ActualScalar)?.value != 1
+          accepted.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -355,7 +353,7 @@ private fun renderAcceptedCardResourcePayment(
   ) {
     return null
   }
-  val rate = (removal.count as? ActualScalar)?.value ?: return null
+  val rate = removal.count.fixedQuantity() ?: return null
   val currency =
       describers.fact(removal.removing.className, ComponentDescriber::implicitPaymentResource)
           ?: return null
@@ -392,7 +390,7 @@ private fun renderBarrierSequencedTrackChoice(
   if (
       (barrierGain.intensity != null && barrierGain.intensity != MANDATORY) ||
           !barrierGain.gaining.simple ||
-          (barrierGain.count as? ActualScalar)?.value != 1 ||
+          barrierGain.count.fixedQuantity() != 1 ||
           describers.fact(barrierGain.gaining.className, ComponentDescriber::paymentRole) !=
               ComponentDescriber.PaymentRole.BARRIER
   ) {
@@ -404,7 +402,7 @@ private fun renderBarrierSequencedTrackChoice(
       trackGain.intensity != Instruction.Intensity.OPTIONAL ||
           trackGain.gaining.refinement != null ||
           trackGain.gaining.complement ||
-          (trackGain.count as? ActualScalar)?.value != 1
+          trackGain.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -415,7 +413,7 @@ private fun renderBarrierSequencedTrackChoice(
   if (
       (barrierRemoval.intensity != null && barrierRemoval.intensity != MANDATORY) ||
           barrierRemoval.removing != barrierGain.gaining ||
-          (barrierRemoval.count as? ActualScalar)?.value != 1
+          barrierRemoval.count.fixedQuantity() != 1
   ) {
     return null
   }
@@ -903,7 +901,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
           if (!instruction.gaining.simple) return null
           Triple(
               instruction.gaining.className,
-              (instruction.count as? ActualScalar)?.value ?: return null,
+              instruction.count.fixedQuantity() ?: return null,
               false,
           )
         }
@@ -912,7 +910,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
           if (!instruction.removing.simple) return null
           Triple(
               instruction.removing.className,
-              (instruction.count as? ActualScalar)?.value ?: return null,
+              instruction.count.fixedQuantity() ?: return null,
               true,
           )
         }
@@ -939,7 +937,7 @@ private fun renderLinkedProductionReward(effect: Effect, describers: Describers)
   val gain = effect.instruction as? Gain ?: return null
   if (gain.intensity != null && gain.intensity != MANDATORY) return null
   if (!gain.gaining.simple || gain.gaining.className != resource) return null
-  val count = (gain.count as? ActualScalar)?.value ?: return null
+  val count = gain.count.fixedQuantity() ?: return null
   val objectPhrase = "$count ${if (count == 1) "resource" else "resources"} of that type"
   val result = Clause.Simple(Predicate("gain", Coordination.one(NounPhrase.text(objectPhrase))))
   val trigger =

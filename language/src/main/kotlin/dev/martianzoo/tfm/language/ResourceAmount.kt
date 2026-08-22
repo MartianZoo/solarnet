@@ -7,7 +7,6 @@ import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 
 /** A concrete standard-resource amount retained across payment constructions. */
 internal data class ResourceAmount(val count: Int, val noun: String)
@@ -58,7 +57,7 @@ private fun paymentResourceAmount(
 ): ResourceAmount? {
   if (expression.refinement != null || expression.complement) return null
   if (describers.fact(expression.className, ComponentDescriber::paymentRole) != role) return null
-  val count = (scalar as? ActualScalar)?.value ?: return null
+  val count = scalar.fixedQuantity() ?: return null
   val represented = describers.representedClass(expression)
   val noun =
       if (represented != null) {
