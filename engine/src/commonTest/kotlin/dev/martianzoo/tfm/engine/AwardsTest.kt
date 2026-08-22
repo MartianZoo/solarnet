@@ -95,7 +95,7 @@ internal class AwardsTest : TfmTest() {
 
     val first =
         p1.godMode().manual("UseAction1<FundAwardSA>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Landlord")
         }
     first.expect("-8")
@@ -103,7 +103,7 @@ internal class AwardsTest : TfmTest() {
 
     shouldThrow<LimitsException> {
       p1.godMode().manual("UseAction1<FundAwardSA>") {
-        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
         doTask("Landlord")
       }
     }
@@ -111,7 +111,7 @@ internal class AwardsTest : TfmTest() {
 
     val second =
         p1.godMode().manual("UseAction1<FundAwardSA>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Scientist")
         }
     second.expect("-14")
@@ -119,7 +119,7 @@ internal class AwardsTest : TfmTest() {
 
     val third =
         p1.godMode().manual("UseAction1<FundAwardSA>") {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Thermalist")
         }
     third.expect("-20")

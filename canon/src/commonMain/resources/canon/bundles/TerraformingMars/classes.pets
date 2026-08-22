@@ -11,15 +11,8 @@ CLASS TerraformingMars : Module {
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accept<Class<Titanium>>
-  Pay<Class<Steel>>:: -2 Owed<Class<Megacredit>>
-  Pay<Class<Titanium>>:: -3 Owed<Class<Megacredit>>
-
-  CostPaid<Class<ConvertPlantsSA>>: GreeneryTile<>
-  CostPaid<Class<ConvertHeatSA>>: TemperatureStep
-  UseAction<ClaimMilestoneSA>:: 8 Owed<Class<Megacredit>>
-  CostPaid<Class<ClaimMilestoneSA>>: Milestone
-  UseAction<FundAwardSA>:: (=0 Award: 8 Owed<Class<Megacredit>>) OR (=1 Award: 14 Owed<Class<Megacredit>>) OR (=2 Award: 20 Owed<Class<Megacredit>>)
-  CostPaid<Class<FundAwardSA>>: Award
+  Pay<Class<Steel>>:: -2 Owed<>
+  Pay<Class<Titanium>>:: -3 Owed<>
 }
 
 // PLAYERS AND OWNERSHIP
@@ -317,7 +310,7 @@ ABSTRACT CLASS StandardAction : HasActions { HAS =1 This }
 ABSTRACT CLASS StandardProject : HasActions {
   HAS MAX 1 This
   cost = Number
-  UseAction<This>:: Owed<Class<Megacredit>> / This.cost
+  UseAction<This>:: Owed<> / This.cost
   -> Payment<Class<This>>
 }
 
@@ -360,7 +353,7 @@ CLASS BuyCard : Owned<Player>, Signal {
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned<Player>, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
   This:: (EVAL CardFront.requirement: Ok) OR HandlePossibleGpRequirement<Class<CardFront>>
-  This:: Owed<Class<Megacredit>> / CardFront.cost
+  This:: Owed<> / CardFront.cost
   This:: HandleCardTags<Class<CardFront>>
   This: MAX 0 Barrier: CardFront FROM CardBack
 }
@@ -369,7 +362,8 @@ CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
 
 ABSTRACT CLASS PaymentMechanic<Class<StandardResource>> : Owned<Player>, Temporary {
   CLASS Owed : Barrier {
-    DEFAULT -Owed.
+    DEFAULT +Owed<Class<Megacredit>>
+    DEFAULT -Owed<Class<Megacredit>>.
     X This:: Accept<Class<StandardResource>>
   }
 

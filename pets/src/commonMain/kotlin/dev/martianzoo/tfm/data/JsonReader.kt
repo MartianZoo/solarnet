@@ -119,6 +119,7 @@ public object JsonReader {
         val name: String,
         val action: String? = null,
         val actions: List<String>? = null,
+        val effects: List<String> = emptyList(),
         val setupRequirement: String? = null,
     ) {
       fun complete(): StandardActionDefinition {
@@ -130,7 +131,12 @@ public object JsonReader {
               require(actions == null)
               listOf(action)
             }
-        return StandardActionDefinition(cn(name), realActions, setupRequirement)
+        return StandardActionDefinition(
+            className = cn(name),
+            actions = realActions,
+            setupRequirementText = setupRequirement,
+            effects = effects,
+        )
       }
     }
   }

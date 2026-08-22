@@ -103,7 +103,7 @@ public class TfmGameplay(
       which: Int = 1,
       payment: BodyLambda = {
         if (hasMegacreditPaymentOffer()) {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
         }
       },
       body: BodyLambda = {},
@@ -145,7 +145,7 @@ public class TfmGameplay(
   public fun stdProject(
       stdProject: String,
       payment: BodyLambda = {
-        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+        doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
       },
       body: BodyLambda = {},
   ): TaskResult {
@@ -299,7 +299,7 @@ public class TfmGameplay(
   private fun paymentValue(currency: String): Int {
     val checkpoint = game.timeline.checkpoint()
     return try {
-      godMode().sneak("100 Owed<Class<Megacredit>>, $currency")
+      godMode().sneak("100 Owed<>, $currency")
       val owed = count("Owed")
       doTask("Pay<Class<$currency>> FROM $currency")
       owed - count("Owed")

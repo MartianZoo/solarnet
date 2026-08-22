@@ -187,7 +187,7 @@ class Prelude2CardsTest : CardTest() {
             "PowerPlantSP",
             payment = {
               doTask("PayFromCard<$Spire> FROM Science<$Spire>")
-              doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+              doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
             },
         )
         .expect("-Science<$Spire>, -9 Megacredit, PROD[Energy]")
@@ -199,7 +199,7 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("$Spire, Science<$Spire>")
 
     shouldThrow<NarrowingException> {
-      p1.manual("10 Owed<Class<Megacredit>>") {
+      p1.manual("10 Owed<>") {
         doTask("PayFromCard<$Spire> FROM Science<$Spire>")
       }
     }
@@ -223,14 +223,14 @@ class Prelude2CardsTest : CardTest() {
     p1.manual("NewTurn") {
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<PowerPlantSP>")
-      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
     }
     p1.count("Megacredit") shouldBe startingMoney - 9
 
     p1.manual("SecondAction") {
       doTask("UseAction1<UseStandardProjectSA>")
       doTask("UseAction1<PowerPlantSP>")
-      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<Class<Megacredit>>")
+      doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
     }
 
     p1.count("Megacredit") shouldBe startingMoney - 18

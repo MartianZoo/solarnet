@@ -6,7 +6,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "44, PROD[3]",
-      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed<>" ],
     },
 
     {
@@ -30,7 +30,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "37, Mandate { -> 3 PreludeCard THEN -2 PreludeCard THEN PlayCard<Class<PreludeCard>> }",
-      "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed<>" ],
     },
 
     {
@@ -118,7 +118,7 @@
     {
       "name": "ExcentricSponsor",
       "deck": "PRELUDE",
-      "immediate": "PlayCard THEN -25 Owed<Class<Megacredit>>.",
+      "immediate": "PlayCard THEN -25 Owed<>.",
     },
 
     {
@@ -320,7 +320,7 @@
       "actions": [ "-> Microbe<This>" ],
       "effects": [
         "PlayTag<Class<PlantTag>>: AcceptFromCard<This>",
-        "PayFromCard<This>:: -2 Owed"
+        "PayFromCard<This>:: -2 Owed<>"
       ],
     },
 

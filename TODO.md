@@ -167,6 +167,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Let invoice lowering compose a fixed base with a per-component increment as one exact debt;
+  `FundAwardSA` must retain its gated 8/14/20 gains until separate `Owed` gains cannot expose
+  payment and `CostPaid` between invoice parts.
 - Decide whether `Ok` narrows a gated instruction; `Gated.ensureIsNarrowedBy` currently throws a
   `ClassCastException` instead of expressing the semantic result.
 - Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately

@@ -108,7 +108,7 @@ class NewPromoCardsTest : CardTest() {
     engine.phase("Action")
     p1.manual("ProjectCard, $MartianLumberCorp, 2 Plant, 20")
     p1.playProject(Mine, 1) {
-          doTask("-Plant! THEN -3 Owed<Class<Megacredit>>.")
+          doTask("-Plant! THEN -3 Owed<>.")
         }
         .expect("-Plant")
   }

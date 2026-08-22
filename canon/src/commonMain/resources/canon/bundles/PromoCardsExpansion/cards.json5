@@ -105,7 +105,7 @@
       "actions": [ "-> Asteroid<This> / SpaceTag" ],
       "effects": [
         "UseAction<AsteroidSP> OR UseAction<AquiferSP>: AcceptFromCard<This>",
-        "PayFromCard<This>:: -Owed"
+        "PayFromCard<This>:: -Owed<>"
       ],
     },
 
@@ -295,7 +295,7 @@
       "requirement": "2 ScienceTag",
       "cost": 3,
       "tags": [ "SpaceTag" ],
-      "effects": [ "Pay<Class<Titanium>>:: -Owed<Class<Megacredit>>" ],
+      "effects": [ "Pay<Class<Titanium>>:: -Owed<>" ],
     },
 
     {
@@ -316,7 +316,7 @@
       "cost": 10,
       "tags": [ "BuildingTag" ],
       "effects": [
-        "Pay<Class<Steel>>:: -Owed<Class<Megacredit>>",
+        "Pay<Class<Steel>>:: -Owed<>",
         "End: VictoryPoint"
       ],
     },
@@ -408,7 +408,7 @@
       "cost": 12,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed<Class<Megacredit>>",
+        "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed<>",
         "End: VictoryPoint"
       ],
     },
@@ -421,7 +421,7 @@
       "tags": [ "SpaceTag" ],
       "resourceType": "Asteroid",
       "actions": [
-        "-> 6 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid",
+        "-> 6 Owed<> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid",
         "Asteroid<This> -> TemperatureStep"
       ],
     },
@@ -652,7 +652,7 @@
       "tags": [ "SpaceTag" ],
       "resourceType": "Asteroid",
       "actions": [
-        "-> 10 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: 2 Asteroid<This>",
+        "-> 10 Owed<> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: 2 Asteroid<This>",
         "Asteroid<This> -> FirstPlayerOcean<Owner>"
       ],
     },
@@ -695,7 +695,7 @@
       "effects": [
         "ScienceTag<>: Graphene<This>",
         "PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>: AcceptFromCard<This>",
-        "PayFromCard<This>:: -4 Owed",
+        "PayFromCard<This>:: -4 Owed<>",
         "End: VictoryPoint"
       ],
     },
@@ -748,7 +748,7 @@
       "cost": 6,
       "tags": [ "BuildingTag", "PlantTag" ],
       "immediate": "PROD[Plant]",
-      "effects": [ "PlayTag<Class<BuildingTag>>: (-X Plant! THEN -3X Owed<Class<Megacredit>>.) OR Ok" ],
+      "effects": [ "PlayTag<Class<BuildingTag>>: (-X Plant! THEN -3X Owed<>.) OR Ok" ],
     },
 
     {
@@ -760,7 +760,7 @@
       "resourceType": "Hydroelectric",
       "effects": [
         "OceanTile BY Anyone: NeptunianOption?",
-        "NeptunianOption: 5 Owed<Class<Megacredit>> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: (PROD[Energy], Hydroelectric<This>)",
+        "NeptunianOption: 5 Owed<> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: (PROD[Energy], Hydroelectric<This>)",
         "End: VictoryPoint / Hydroelectric<This>"
       ],
     },
@@ -784,7 +784,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "2 Titanium",
       "effects": [
-        "PlayTag<Class<EarthTag>>:: -2 Owed<Class<Megacredit>>",
+        "PlayTag<Class<EarthTag>>:: -2 Owed<>",
         "EventCard<Anyone>(HAS SpaceTag<Anyone>): ProjectCard",
         "End: VictoryPoint"
       ],
@@ -795,7 +795,7 @@
       "deck": "PROJECT",
       "projectKind": "ACTIVE",
       "cost": 7,
-      "actions": [ "-> 5 Owed<Class<Megacredit>> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: Cathedral<Anyone, CityTile<Anyone>>" ],
+      "actions": [ "-> 5 Owed<> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: Cathedral<Anyone, CityTile<Anyone>>" ],
       "effects": [ "End: VictoryPoint / Cathedral<Anyone>" ],
       // The city owner owns the Cathedral and therefore receives its pay-2-to-draw offer. The
       // Mission owner still receives the endgame VP through the effect above.

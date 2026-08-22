@@ -41,7 +41,7 @@ class WildTagTest : CardTest() {
               val instruction = it.instruction.toString()
               "Pay" in instruction && "Megacredit" in instruction
             } shouldBe true
-        p1.count("Owed<Class<Megacredit>>") shouldBe 11
+        p1.count("Owed<>") shouldBe 11
         p1.count("WildTagUse<$ResearchNetwork>") shouldBe 1
 
         p1.pay(11)

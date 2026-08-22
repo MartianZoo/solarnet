@@ -19,7 +19,7 @@ internal class ActionSequencingTest {
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
     manual.beginManual("UseAction1<CitySP>")
-    p1.count("Owed<Class<Megacredit>>") shouldBe 25
+    p1.count("Owed<>") shouldBe 25
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("Production<") } shouldBe
         true
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
@@ -33,7 +33,7 @@ internal class ActionSequencingTest {
         true
 
     manual.doTask("25 Pay<Class<Megacredit>> FROM Megacredit")
-    p1.count("Owed<Class<Megacredit>>") shouldBe 0
+    p1.count("Owed<>") shouldBe 0
     manual.doTask("CostPaid<Class<CitySP>> FROM Payment<Class<CitySP>>")
 
     val results =

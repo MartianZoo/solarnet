@@ -13,6 +13,7 @@ public data class StandardActionDefinition(
     override val className: ClassName,
     val actions: List<String>,
     private val setupRequirementText: String? = null,
+    val effects: List<String> = emptyList(),
 ) : Definition {
   init {
     require(setupRequirementText?.isNotBlank() != false)
@@ -26,7 +27,7 @@ public data class StandardActionDefinition(
         className = className,
         kind = CONCRETE,
         supertypes = setOf(STANDARD_ACTION.expression),
-        effects = actionListToEffects(actions.map(::parse)),
+        effects = actionListToEffects(actions.map(::parse)) + effects.map(::parse),
     )
   }
 }

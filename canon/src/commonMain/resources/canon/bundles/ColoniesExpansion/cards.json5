@@ -74,7 +74,7 @@
       "requirement": "2 EarthTag",
       "cost": 5,
       "tags": [ "EarthTag" ],
-      "immediate": "NextCardEffect { PlayCard:: -16 Owed<Class<Megacredit>> }",
+      "immediate": "NextCardEffect { PlayCard:: -16 Owed<> }",
       "effects": [ "End: -VictoryPoint" ],
     },
 
@@ -405,7 +405,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "ReserveTradeFleet",
       "effects": [
-        "PlayCard: -Owed<Class<Megacredit>>",
+        "PlayCard: -Owed<>",
         "End: 2 VictoryPoint"
       ],
     },
@@ -558,7 +558,7 @@
       "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -4 Owed<Class<Megacredit>>",
+        "PlayTag<Class<SpaceTag>>:: -4 Owed<>",
         "End: 2 VictoryPoint"
       ],
     },

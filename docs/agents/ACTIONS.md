@@ -182,3 +182,19 @@ This direction does not decide:
 
 Those questions may interact with Pets Actions, but folding them into cost lowering would recreate
 the overgrown “action model” this separation is intended to avoid.
+
+## Current implementation foothold
+
+`StandardActionDefinition` can attach ordinary Effects to the Class it generates. The claim
+milestone, fund award, convert plants, and convert heat definitions now use that ability to keep
+their invoice opening, payment barrier, and result on the standard-action Class instead of placing
+part of the workflow on the global `TerraformingMars` Module. In particular,
+`ClaimMilestoneSA` once again contains its `Milestone` instruction.
+
+This is a locality correction, not the semantic lowering described above. These definitions still
+construct `Owed` and `Payment` explicitly and still use the existing unnumbered `CostPaid` signal.
+`Owed<>` accepts the default M€ debt type for gains and removals; non-M€ occurrences remain
+explicit, while bare `Owed` in triggers and requirements remains resource-generic.
+The numbered protocol and standard-resource Action lowering therefore remain unresolved work. In
+particular, `8 Plant -> ...` and `8 Heat -> ...` should eventually lower to the manual conversion
+invoices now present in the standard-action definitions.

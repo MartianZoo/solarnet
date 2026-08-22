@@ -150,7 +150,7 @@
       "actions": [ "-> Floater" ],
       "effects": [
         "PlayTag<Class<VenusTag>>: AcceptFromCard<This>",
-        "PayFromCard<This>:: -3 Owed"
+        "PayFromCard<This>:: -3 Owed<>"
       ],
     },
 
@@ -378,7 +378,7 @@
       "resourceType": "Asteroid",
       "actions": [
         // 6[Titanium] -> Asteroid<This>
-        "-> 6 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
+        "-> 6 Owed<> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
     },
@@ -544,7 +544,7 @@
       "cost": 9,
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>:: -2 Owed<Class<Megacredit>>",
+        "PlayTag<Class<VenusTag>>:: -2 Owed<>",
         "End: VictoryPoint"
       ],
     },

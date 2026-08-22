@@ -106,11 +106,10 @@ internal class CanonEffectsTest {
   }
 
   @Test
-  fun convertHeat() {
-    classEffectsOf(cn("ConvertHeatSA"))
-        .shouldContainExactlyInAnyOrder(
-            "UseAction1<Owner, This>: 8 Owed<Owner, Class<Heat>>! THEN Payment<Owner, Class<This>>!"
-        )
+  fun claimMilestoneActionOwnsItsResult() {
+    Canon.action(cn("ClaimMilestoneSA")).asClassDeclaration.effects.any {
+      cn("Milestone") in it.instruction
+    } shouldBe true
   }
 
   @Test

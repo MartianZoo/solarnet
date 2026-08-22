@@ -1,6 +1,9 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -19,5 +22,27 @@ internal class StandardActionDefinitionTest {
 
     definition.className shouldBe cn("ExampleSA")
     definition.asClassDeclaration.className shouldBe cn("ExampleSA")
+  }
+
+  @Test
+  fun actionEffectsBelongToTheGeneratedClass() {
+    val definition =
+        JsonReader.readActions(
+                """
+                {
+                  actions: [{
+                    name: "ExampleSA",
+                    action: "-> Payment<Class<This>>",
+                    effects: ["CostPaid<Class<This>>: Plant"],
+                  }],
+                }
+                """
+            )
+            .single()
+
+    definition.asClassDeclaration.effects.shouldContainExactly(
+        parse<Effect>("UseAction1<This>: Payment<Class<This>>"),
+        parse<Effect>("CostPaid<Class<This>>: Plant"),
+    )
   }
 }

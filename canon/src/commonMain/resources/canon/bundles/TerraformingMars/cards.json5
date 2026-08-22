@@ -49,7 +49,7 @@
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "23, 10 Titanium",
-      "effects": [ "Pay<Class<Titanium>>:: -Owed<Class<Megacredit>>" ],
+      "effects": [ "Pay<Class<Titanium>>:: -Owed<>" ],
     },
 
     {
@@ -69,8 +69,8 @@
       "tags": [ "PowerTag" ],
       "immediate": "48, PROD[Energy]",
       "effects": [
-        "PlayTag<Class<PowerTag>>:: -3 Owed",
-        "UseAction<PowerPlantSP>: -3 Owed"
+        "PlayTag<Class<PowerTag>>:: -3 Owed<>",
+        "UseAction<PowerPlantSP>: -3 Owed<>"
       ],
     },
 
@@ -186,7 +186,7 @@
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [
         // 12[Titanium] -> OceanTile
-        "-> 12 Owed<Class<Megacredit>> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: OceanTile<>"
+        "-> 12 Owed<> THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: OceanTile<>"
       ],
       "effects": [
           "End: VictoryPoint / JovianTag"
@@ -249,7 +249,7 @@
       "cost": 18,
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
       "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
-      "effects": [ "PlayCard: -Owed<Class<Megacredit>>" ],
+      "effects": [ "PlayCard: -Owed<>" ],
     },
 
     {
@@ -1215,7 +1215,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-Energy, 2]",
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -2 Owed<Class<Megacredit>>",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed<>",
         "End: VictoryPoint"
       ],
     },
@@ -1375,7 +1375,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [
         // 8[Steel] -> OceanTile
-        "-> 8 Owed<Class<Megacredit>> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: OceanTile<>"
+        "-> 8 Owed<> THEN Accept<Class<Steel>> THEN MAX 0 Barrier: OceanTile<>"
       ],
     },
 
