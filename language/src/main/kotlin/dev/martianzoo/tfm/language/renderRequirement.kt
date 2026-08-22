@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Dependency.Key
 
 internal fun renderRequirement(
     requirement: Requirement,
@@ -163,13 +165,14 @@ private fun Describers.renderRequirementBound(
       }
     }
     is ComponentDescriber.Requirement.Bound.Count -> {
+      val resolved = resolveExpression(expression) ?: return null
+      val ownerKey = Key(OWNED, 0)
       val unrestricted =
-          expression.arguments == listOf(anyoneExpression) &&
-              expression.refinement == null &&
-              !expression.complement
+          resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) &&
+              expression.refinement == null
       val syntax =
           when {
-            expression.simple -> bound.syntax
+            resolved.sourceDependencies.isEmpty() && expression.refinement == null -> bound.syntax
             unrestricted -> bound.anyoneSyntax ?: return null
             else -> return null
           }

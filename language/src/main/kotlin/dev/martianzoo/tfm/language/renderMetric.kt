@@ -81,10 +81,12 @@ private fun Describers.renderComponentCount(
 ): String? {
   if (expression.refinement != null || expression.complement) return null
   val description = fact(expression.className, ComponentDescriber::metricCount) ?: return null
+  val resolved = resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
   val suffix =
-      when (expression.arguments) {
-        emptyList<Expression>() -> description.unqualifiedSuffix
-        listOf(anyoneExpression) -> description.anyoneSuffix
+      when {
+        resolved.sourceDependencies.isEmpty() -> description.unqualifiedSuffix
+        resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) -> description.anyoneSuffix
         else -> return null
       } ?: return null
   val noun = if (count == 1) description.noun.singular else description.noun.plural
@@ -117,11 +119,15 @@ private fun renderTagMetric(
 ): String? {
   if (expression.refinement != null || expression.complement) return null
   val (name) = describers.tagName(expression.className) ?: return null
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
   val ownership =
       when {
-        expression.simple -> "you have"
-        expression.arguments == listOf(describers.anyoneExpression) -> "among all players"
-        expression.arguments == listOf(describers.notOwnerExpression) -> "your opponents have"
+        resolved.sourceDependencies.isEmpty() -> "you have"
+        resolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) ->
+            "among all players"
+        resolved.hasOnlySourceDependency(ownerKey, describers.notOwnerExpression) ->
+            "your opponents have"
         else -> return null
       }
   return "$prefix $name ${if (unit == null) "tag" else "tags"} $ownership"

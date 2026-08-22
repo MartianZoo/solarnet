@@ -310,15 +310,37 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   internal fun resolveExpression(expression: Expression): ResolvedExpression? {
     if (expression.complement) return null
-    val sourceType =
+    val declaredClass = classesByName[expression.className] ?: return null
+    val playerOwned = declaredClass.isSubtypeOf(classesByName.getValue(OWNED))
+    val directSourceType =
         try {
           classTable.resolve(expression)
         } catch (_: ExpressionException) {
-          return null
+          null
         }
+    val semanticSourceArguments =
+        if (directSourceType != null) {
+          expression.arguments
+        } else {
+          expression.arguments.map { argument ->
+            if (playerOwned && (argument == anyoneExpression || argument == notOwnerExpression)) {
+              playerExpression
+            } else {
+              argument
+            }
+          }
+        }
+    val sourceType =
+        directSourceType
+            ?: try {
+              classTable.resolve(expression.copy(arguments = semanticSourceArguments))
+            } catch (_: ExpressionException) {
+              return null
+            }
     val rootClass = sourceType.rootClass
-    val sourceDependencies =
-        rootClass.matchDependencyKeys(expression.arguments).zip(expression.arguments).toMap()
+    val sourceKeys = rootClass.matchDependencyKeys(semanticSourceArguments)
+    val sourceDependencies = sourceKeys.zip(expression.arguments).toMap()
+    val semanticSourceDependencies = sourceKeys.zip(semanticSourceArguments).toMap()
     val defaultArguments = rootClass.defaultType.expressionFull.arguments
     val defaults = rootClass.matchDependencyKeys(defaultArguments).zip(defaultArguments).toMap()
     val defaultedKeys =
@@ -327,7 +349,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
           rootClass.defaultType.dependencies.at(path) != rootClass.baseType.dependencies.at(path)
         }
     val semanticArguments =
-        rootClass.dependencies.keys.map { sourceDependencies[it] ?: defaults.getValue(it) }
+        rootClass.dependencies.keys.map { semanticSourceDependencies[it] ?: defaults.getValue(it) }
     val semanticExpression = expression.copy(arguments = semanticArguments)
     val semanticType =
         try {

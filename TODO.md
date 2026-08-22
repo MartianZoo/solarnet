@@ -160,8 +160,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
-- Resolve contextual bindings such as `This` and complemented `Owner` in the English renderer
-  through their linked type sources, then delete their remaining positional recognition.
+- Resolve contextual `This` in the English renderer through its linked holder or site type source,
+  then delete its remaining positional recognition.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone
   reconciliation for a patent sale taken beyond the normal action allowance.
