@@ -54,6 +54,39 @@ spell out `public` and their public types; declarations used only within one mod
 
 ## Test design
 
+### Test categories we care about
+
+These are the repository's protected test categories. Test placement may evolve, but preserving
+clear coverage of these contracts matters more than preserving every current test class:
+
+1. **Pure Pets language tests.** Parser, preprocessing, transformation, and rendering behavior,
+   exercised without Terraforming Mars content.
+2. **Pure Pets type-system tests.** Class loading, type relationships, metrics, requirements, and
+   related semantics, using small declarations owned by the test rather than Canon.
+3. **GameWorld coordination tests.** Terraforming-independent scenarios proving that components,
+   effects, tasks, event history, revision, checkpoints, and gameplay operations form one coherent
+   world. Failure atomicity belongs here: a failed operation must restore present state, pending
+   work, and recorded history together while retaining a fresh revision identity.
+4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
+   observations available to a player rather than internal state or implementation details.
+   `CoreRulesTest` documents game-wide rules in this same style.
+5. **Whole-game tests.** Long scenarios that prove the workflow and many rules operate together,
+   especially when reconstructed from independent game records.
+6. **Canon admissibility tests.** A compact gate proving that the complete authority loads and that
+   representative supported configurations compose into usable projected class tables and worlds.
+   This is not a demand to restate the contents of every card or bundle in assertions.
+7. **Known-defect scenarios.** Focused passing characterizations of important behavior known to be
+   wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
+8. **Script-command contract tests.** Terraforming-independent checks of each command's public
+   contract. These are useful boundary coverage even though they are not a development priority.
+9. **Cross-runtime packaging smoke coverage.** One representative browser game proving that the
+   JavaScript artifact, packaged Canon resources, and engine work together outside the JVM.
+10. **Real-terminal REPL smoke coverage.** One Expect-driven scenario proving the packaged REPL can
+    be launched and used through an actual terminal.
+
+This list does not itself decide which current tests should be retained. Test-deletion proposals
+are a separate review.
+
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test merely to detect that the list changed. Test observable behavior through the normal
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
@@ -63,6 +96,9 @@ Keep scenarios minimal and legible. Card tests use the base game and two players
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
+`CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
+than any individual card. Its scenarios should reproduce only the important preconditions observed
+in whole games and should use the ordinary `TfmGameplay` actions and result expectations.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Authority-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMapOption`; the parser already trims each

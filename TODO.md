@@ -4,6 +4,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- **Medium priority:** Reorganize the automated tests around the explicitly valued suites. Move
+  `CoreRulesTest` out of the `cards` package when the final functional-test layout is settled, and
+  keep core-rule scenarios at the player-action and observation boundary.
 - **High priority:** Implement Class activation requirements and exact uninhabited-domain premise
   viability diagnostics. Only afterward consider stronger proofs such as Law Suit being unviable
   in solo because no opponent-dependent attack record can inhabit the projected Type universe.
