@@ -416,8 +416,8 @@ class Game20260819Test : CardTrackingFullGameTest() {
       ER.draw(Shuttles)
       doTask("-2 Plant<JR>")
     }
-    // Payment inference: ER spent a fourth steel for the remaining two so the later Gene Repair
-    // payment and final dashboard can both be reproduced.
+    // Payment reconstruction: ER spent a fourth steel for the remaining two so the later Gene
+    // Repair payment and final dashboard can both be reproduced.
     ER.intentionalOverpay()
     ER.playProject(GhgFactories, steel = 4)
     ER.playProject(RoboticWorkforce, 9) {
@@ -478,8 +478,8 @@ class Game20260819Test : CardTrackingFullGameTest() {
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
     KB.cardAction1(Tardigrades)
-    // Payment inference: ER spent a second steel for the remaining two so the later Callisto Penal
-    // Mines payment and final dashboard can both be reproduced.
+    // Payment reconstruction: ER spent a second steel for the remaining two so the later Callisto
+    // Penal Mines payment and final dashboard can both be reproduced.
     ER.intentionalOverpay()
     ER.playProject(MagneticFieldDome, steel = 2)
     ER.cardAction1(SmallAnimals)
@@ -579,8 +579,14 @@ class Game20260819Test : CardTrackingFullGameTest() {
     score.net("Card", "VictoryPoint<KB>") shouldBe 13
     score.net("Card", "VictoryPoint<ER>") shouldBe 21
 
-    JR.assertCounts(33 to "TerraformRating", 84 to "VictoryPoint", 1 to "Victory")
-    KB.assertCounts(43 to "TerraformRating", 75 to "VictoryPoint", 0 to "Victory")
-    ER.assertCounts(38 to "TerraformRating", 67 to "VictoryPoint", 0 to "Victory")
+    JR.assertCounts(33 to "TerraformRating")
+    KB.assertCounts(43 to "TerraformRating")
+    ER.assertCounts(38 to "TerraformRating")
+    JR.assertCounts(84 to "VictoryPoint")
+    KB.assertCounts(75 to "VictoryPoint")
+    ER.assertCounts(67 to "VictoryPoint")
+    JR.assertCounts(1 to "Victory")
+    KB.assertCounts(0 to "Victory")
+    ER.assertCounts(0 to "Victory")
   }
 }

@@ -358,15 +358,14 @@ class Game20260730Test : AbstractSoloTest() {
       sellPatents(Ants)
 
       pass()
-      has("Victory") shouldBe true
       doTask("Ok")
 
       assertCardTrackingComplete()
       cardsInHand shouldBe emptySet()
 
-      assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)
       assertResources(m = 106, s = 4, t = 6, p = 4, e = 1, h = 17)
-      assertCounts(0 to "ProjectCard", 75 to "TerraformRating", 58 to "CardFront OR PlayedEvent")
+      assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)
+      assertCounts(0 to "ProjectCard", 58 to "CardFront OR PlayedEvent")
       assertDashRight(events = 10, tagless = 3, cities = 5, colonies = 1)
       assertSidebar(gen = 12, temp = 8, oxygen = 10, oceans = 9, venus = 30)
       assertTags(15, 16, 10, 5, eat = 3, jot = 8, vet = 4, plt = 1, mit = 4, ant = 0, cit = 4)
@@ -403,7 +402,10 @@ class Game20260730Test : AbstractSoloTest() {
       sum.net("GreeneryTile", "VictoryPoint") shouldBe 6
       sum.net("CityTile", "VictoryPoint") shouldBe 7
       sum.net("Card", "VictoryPoint") shouldBe 43
+
+      assertCounts(75 to "TerraformRating")
       assertCounts(131 to "VictoryPoint")
+      assertCounts(1 to "Victory")
     }
   }
 }

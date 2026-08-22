@@ -10,11 +10,11 @@ import kotlin.test.Test
 // Synthetic Magnet Burst (ga5237bd2fb08)
 // https://terraforming-mars.herokuapp.com/the-end?id=pa9f45e80d897
 class Game20260820Test : CardTrackingFullGameTest() {
-  // The archived metadata specifies Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting,
-  // World Government, two players, and the following full-random milestone and award pools.
-  // Thawer and Briber are unsupported; Builder7 and Sponsor are same-role setup substitutes.
-  // Merger was dealt despite the archive reporting that promo cards were disabled, so it is
-  // included individually without enabling PromoCardPack.
+  // Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
+  // Government, two players, and these full-random milestone and award pools.
+  // Unsupported component: Builder7 and Sponsor substitute for unsupported Thawer and Briber.
+  // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
+  // individually without enabling PromoCardPack.
   override val config =
       GameConfig(
           """
