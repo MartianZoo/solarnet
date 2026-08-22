@@ -32,6 +32,12 @@ The explicit empty-region tests establish that structurally absent top or bottom
 empty text. If a renderer gains behavior not exercised by any canonical card, add a behavioral test
 for that behavior or defer the generalization.
 
+Every active family entry point now returns total text together with explicit `Unresolved` records
+for Pets retained as source. `writeEnglishCardTextCurrent` writes a ranked refusal histogram to
+`english-card-text-refusals.tsv` while preserving `english-card-text-current.tsv` as the wording
+characterization. The initial reasons identify which legacy family renderer declined; replacing
+those broad reasons with the exact declining guard is the next Stage 1 migration slice.
+
 `english-filtered-draws.tsv` is a narrow transitional supplement for information that canonical Pets
 does not yet carry. It maps a card's Class name to a tag, card-resource icon, or printed-requirement
 filter. An unqualified `ProjectCard` gain is an ordinary project-card draw; distinct top-card

@@ -13,82 +13,94 @@ public class English public constructor(descriptions: Map<Class, ComponentDescri
   private val describers = Describers(descriptions)
 
   /** Returns complete English sentences describing [effect]. */
-  public fun describe(effect: Effect): String = describeOrNull(effect) ?: rawSentence(effect)
+  public fun describe(effect: Effect): String = renderEffect(effect, describers).value
 
   /** Returns complete English sentences describing [actions] as one action region. */
-  public fun describe(actions: List<Action>): String =
-      describeOrNull(actions) ?: rawSentence(actions.joinToString(" OR "))
+  public fun describe(actions: List<Action>): String = renderActions(actions, describers).value
 
   /** Returns complete English sentences describing [actions] as actions on [card]. */
   public fun describe(actions: List<Action>, card: CardDefinition): String =
-      describeOrNull(actions, card) ?: rawSentence(actions.joinToString(" OR "))
+      renderActions(actions, describers, drawFilter(card)).value
 
   /** Returns complete, context-neutral English sentences describing [instructionTree]. */
   public fun describe(instructionTree: InstructionTree): String =
-      describeOrNull(instructionTree) ?: rawSentence(instructionTree)
+      renderInstructionTree(instructionTree, describers).value
 
   /**
    * Returns complete English sentences describing [instructionTree] as an instruction on [card].
    */
   public fun describe(instructionTree: InstructionTree, card: CardDefinition): String =
-      describeOrNull(instructionTree, card) ?: rawSentence(instructionTree)
+      renderInstructionTree(instructionTree, describers, drawFilter(card)).value
 
   /** Returns complete English sentences describing [requirement]. */
   public fun describe(requirement: Requirement): String =
-      describeOrNull(requirement) ?: rawSentence(requirement)
+      renderRequirement(requirement, describers).value
 
   /** Returns the best available text above [card]'s artwork. */
-  public fun topText(card: CardDefinition): String = derivedTopText(card)
+  public fun topText(card: CardDefinition): String = renderTopText(card).value
 
   /** Returns the best available text below [card]'s artwork. */
-  public fun bottomText(card: CardDefinition): String = derivedBottomText(card)
+  public fun bottomText(card: CardDefinition): String = renderBottomText(card).value
 
-  // Of the card's Effects, only endgame scoring is printed below the artwork.
-  private fun derivedBottomText(card: CardDefinition): String {
-    val requirement = card.requirement?.let(::describe)
-    val immediateEffects =
-        card.effects.filter(::isImmediateSelfEffect).map { describe(it.instruction, card) }
-    val instructions = card.immediate?.let { describe(it, card) }
-    val scoring = card.effects.filter { isEndEffect(it, describers) }.map(::describe)
-    return (listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring)
-        .joinToString(" ")
+  internal fun renderCard(card: CardDefinition): EnglishCardRendering {
+    val top = renderTopText(card)
+    val bottom = renderBottomText(card)
+    return EnglishCardRendering(top.value, bottom.value, top.unresolved + bottom.unresolved)
   }
 
-  private fun derivedTopText(card: CardDefinition): String {
-    val actions = card.actions.takeIf { it.isNotEmpty() }?.let { "Action: ${describe(it, card)}" }
+  // Of the card's Effects, only endgame scoring is printed below the artwork.
+  private fun renderBottomText(card: CardDefinition): Rendering<String> {
+    val requirement = card.requirement?.let { renderRequirement(it, describers) }
+    val immediateEffects =
+        card.effects.filter(::isImmediateSelfEffect).map {
+          renderInstructionTree(it.instruction, describers, drawFilter(card))
+        }
+    val instructions =
+        card.immediate?.let { renderInstructionTree(it, describers, drawFilter(card)) }
+    val scoring =
+        card.effects.filter { isEndEffect(it, describers) }.map { renderEffect(it, describers) }
+    return joinRenderings(
+        listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring
+    )
+  }
+
+  private fun renderTopText(card: CardDefinition): Rendering<String> {
+    val actions =
+        card.actions
+            .takeIf { it.isNotEmpty() }
+            ?.let {
+              renderActions(it, describers, drawFilter(card)).map { text -> "Action: $text" }
+            }
     val effects =
         card.effects
             .filterNot { isEndEffect(it, describers) || isImmediateSelfEffect(it) }
             .takeIf { it.isNotEmpty() }
             ?.let { list ->
-              "Effect: ${renderEffects(list, describers, drawFilter(card), card.resourceType)}"
+              renderEffects(list, describers, drawFilter(card), card.resourceType).map { text ->
+                "Effect: $text"
+              }
             }
-    return listOfNotNull(actions, effects).joinToString(" / ")
+    return joinRenderings(listOfNotNull(actions, effects), " / ")
   }
 
-  private fun describeOrNull(effect: Effect): String? = renderEffect(effect, describers)
-
-  private fun describeOrNull(actions: List<Action>): String? = renderActions(actions, describers)
-
-  private fun describeOrNull(actions: List<Action>, card: CardDefinition): String? =
-      renderActions(actions, describers, drawFilter(card))
-
-  private fun describeOrNull(instructionTree: InstructionTree): String? =
-      renderInstructionTree(instructionTree, describers)
-
-  private fun describeOrNull(
-      instructionTree: InstructionTree,
-      card: CardDefinition,
-  ): String? = renderInstructionTree(instructionTree, describers, drawFilter(card))
-
-  private fun describeOrNull(requirement: Requirement): String? =
-      renderRequirement(requirement, describers)
+  private fun joinRenderings(
+      renderings: List<Rendering<String>>,
+      separator: String = " ",
+  ): Rendering<String> =
+      Rendering(
+          renderings.joinToString(separator) { it.value },
+          renderings.flatMap { it.unresolved },
+      )
 
   private fun drawFilter(card: CardDefinition) = EnglishFilteredDrawData.byCardFront[card.className]
 
   private fun isImmediateSelfEffect(effect: Effect): Boolean {
     return effect.automatic && effect.trigger == WhenGain
   }
-
-  private fun rawSentence(element: Any): String = completeSentence("[$element]")
 }
+
+internal data class EnglishCardRendering(
+    val top: String,
+    val bottom: String,
+    val unresolved: List<Unresolved>,
+)

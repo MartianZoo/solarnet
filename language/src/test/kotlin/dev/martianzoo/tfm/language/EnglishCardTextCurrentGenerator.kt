@@ -7,28 +7,46 @@ import java.io.File
 internal object EnglishCardTextCurrentGenerator {
   @JvmStatic
   fun main(args: Array<String>) {
-    val output = File(args.single())
+    require(args.size == 2)
+    val output = File(args[0])
+    val refusalOutput = File(args[1])
     val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
     val english = English(TerraformingMarsDescribers.descriptions)
-    val rows =
-        Canon.cardDefinitions.map { card ->
-          listOf(
-                  card.className.toString(),
-                  goals[card.className]?.englishName ?: defaultEnglishDisplayName(card.className),
-                  english.bottomText(card),
-                  english.topText(card),
-              )
-              .also { columns ->
-                require(columns.none { '\t' in it || '\n' in it || '\r' in it })
-              }
-              .joinToString("\t")
-              .trimEnd('\t')
-        }
+    val renderedCards = Canon.cardDefinitions.map { it to english.renderCard(it) }
+    val rows = renderedCards.map { (card, rendering) ->
+      listOf(
+              card.className.toString(),
+              goals[card.className]?.englishName ?: defaultEnglishDisplayName(card.className),
+              rendering.bottom,
+              rendering.top,
+          )
+          .also { columns ->
+            require(columns.none { '\t' in it || '\n' in it || '\r' in it })
+          }
+          .joinToString("\t")
+          .trimEnd('\t')
+    }
     output.writeText(
         (listOf("class_name\tenglish_name\tbottom_text\ttop_text") + rows).joinToString(
             "\n",
             postfix = "\n",
         )
+    )
+    val refusalRows =
+        renderedCards
+            .flatMap { it.second.unresolved }
+            .groupingBy(Unresolved::reason)
+            .eachCount()
+            .entries
+            .sortedWith(
+                compareByDescending<Map.Entry<RefusalReason, Int>> { it.value }
+                    .thenBy {
+                      it.key.name
+                    }
+            )
+            .map { (reason, count) -> "$count\t$reason" }
+    refusalOutput.writeText(
+        (listOf("count\treason") + refusalRows).joinToString("\n", postfix = "\n")
     )
   }
 }

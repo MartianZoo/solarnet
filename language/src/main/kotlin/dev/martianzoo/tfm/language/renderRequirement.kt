@@ -4,10 +4,21 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
-internal fun renderRequirement(requirement: Requirement, describers: Describers): String? =
-    renderLoweredRequirement(lowerProductionSyntax(requirement), describers)
-        ?.let(::Sentence)
-        ?.linearize()
+internal fun renderRequirement(
+    requirement: Requirement,
+    describers: Describers,
+): Rendering<String> {
+  val rendered =
+      renderLoweredRequirement(lowerProductionSyntax(requirement), describers)
+          ?.let(::Sentence)
+          ?.linearize()
+  return rendered?.let { Rendering.resolved(it) }
+      ?: Rendering.unresolved(
+          requirement,
+          RefusalReason.LEGACY_REQUIREMENT_RENDERER_DECLINED,
+          completeSentence("[$requirement]"),
+      )
+}
 
 private fun renderLoweredRequirement(requirement: Requirement, describers: Describers): Clause? =
     when (requirement) {

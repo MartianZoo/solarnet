@@ -16,7 +16,11 @@ tasks.register<JavaExec>("writeEnglishCardTextCurrent") {
       layout.projectDirectory
           .file("src/main/resources/language/english-card-text-current.tsv")
           .asFile
-          .absolutePath
+          .absolutePath,
+      layout.projectDirectory
+          .file("src/main/resources/language/english-card-text-refusals.tsv")
+          .asFile
+          .absolutePath,
   )
   outputs.upToDateWhen { false }
 }

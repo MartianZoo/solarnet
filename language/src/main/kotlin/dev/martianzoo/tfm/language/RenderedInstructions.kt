@@ -9,6 +9,9 @@ internal data class RenderedInstructions(val clauses: List<Clause>) {
   internal fun asSentences(): String = clauses.joinToString(" ") { Sentence(it).linearize() }
 
   internal fun asCoordinatedClause(): String = clauses.joinToString(" and ") { it.linearize() }
+
+  internal val unresolved: List<Unresolved>
+    get() = clauses.flatMap(Clause::unresolved)
 }
 
 internal fun completeSentence(clause: String, punctuation: String = "."): String =

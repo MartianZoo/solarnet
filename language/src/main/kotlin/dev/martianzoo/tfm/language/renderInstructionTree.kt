@@ -16,7 +16,10 @@ internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
     drawFilter: EnglishDrawFilter? = null,
-): String = renderInstructions(instructionTree, describers, drawFilter).asSentences()
+): Rendering<String> {
+  val rendered = renderInstructions(instructionTree, describers, drawFilter)
+  return Rendering(rendered.asSentences(), rendered.unresolved)
+}
 
 internal fun renderInstructions(
     instructionTree: InstructionTree,
@@ -39,7 +42,9 @@ private fun renderLoweredInstructions(
   val rendered = instructions.map { instruction ->
     instruction to
         (renderInstruction(instruction, describers, drawFilter)
-            ?: Clause.RawPets(instruction.toString()))
+            ?: Clause.RawPets(
+                Unresolved(instruction, RefusalReason.LEGACY_INSTRUCTION_RENDERER_DECLINED)
+            ))
   }
   return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }

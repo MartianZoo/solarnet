@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Finish the English renderer's Stage 1 refusal migration by replacing the broad legacy family
+  reasons with exact guard-level reasons and making the remaining nullable interpreters total.
 - **High priority:** Implement Class activation requirements and exact uninhabited-domain premise
   viability diagnostics. Only afterward consider stronger proofs such as Law Suit being unviable
   in solo because no opponent-dependent attack record can inhabit the projected Type universe.

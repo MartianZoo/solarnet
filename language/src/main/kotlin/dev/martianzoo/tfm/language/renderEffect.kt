@@ -28,21 +28,28 @@ internal fun renderEffect(
     effect: Effect,
     describers: Describers,
     drawFilter: EnglishDrawFilter? = null,
-): String? {
+): Rendering<String> {
   val lowered = lowerProductionSyntax(effect)
-  return if (isEndEffect(lowered, describers)) {
-    renderEndEffect(lowered, describers)
-  } else {
-    renderRemovalPrevention(lowered, describers)
-        ?: renderPurchaseAdjustment(lowered, describers)
-        ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
-        ?: renderResourcePaymentValue(lowered, describers)
-        ?: renderCardResourcePaymentValue(lowered, describers)
-        ?: renderRequirementFlexibility(lowered, describers)
-        ?: renderLinkedPlayedTagResourceChoice(lowered, describers, drawFilter)
-        ?: renderLinkedProductionReward(lowered, describers)
-        ?: renderTriggeredInstructions(lowered, describers, drawFilter)
-  }
+  val rendered =
+      if (isEndEffect(lowered, describers)) {
+        renderEndEffect(lowered, describers)
+      } else {
+        renderRemovalPrevention(lowered, describers)
+            ?: renderPurchaseAdjustment(lowered, describers)
+            ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
+            ?: renderResourcePaymentValue(lowered, describers)
+            ?: renderCardResourcePaymentValue(lowered, describers)
+            ?: renderRequirementFlexibility(lowered, describers)
+            ?: renderLinkedPlayedTagResourceChoice(lowered, describers, drawFilter)
+            ?: renderLinkedProductionReward(lowered, describers)
+            ?: renderTriggeredInstructions(lowered, describers, drawFilter)
+      }
+  return rendered?.let(Rendering.Companion::resolved)
+      ?: Rendering.unresolved(
+          effect,
+          RefusalReason.LEGACY_EFFECT_RENDERER_DECLINED,
+          completeSentence("[$effect]"),
+      )
 }
 
 private fun renderCardResourcePaymentValue(effect: Effect, describers: Describers): String? {
@@ -266,8 +273,9 @@ internal fun renderEffects(
     describers: Describers,
     drawFilter: EnglishDrawFilter? = null,
     cardResourceType: ClassName? = null,
-): String {
+): Rendering<String> {
   val sentences = mutableListOf<String>()
+  val unresolved = mutableListOf<Unresolved>()
   var index = 0
   while (index < effects.size) {
     renderAcceptedCardResourcePayment(effects.drop(index), cardResourceType, describers)?.let {
@@ -285,7 +293,9 @@ internal fun renderEffects(
     val discount = paymentDiscount(effects[index], describers)
     if (discount == null) {
       val effect = effects[index]
-      sentences += renderEffect(effect, describers, drawFilter) ?: completeSentence("[$effect]")
+      val rendering = renderEffect(effect, describers, drawFilter)
+      sentences += rendering.value
+      unresolved += rendering.unresolved
       index++
       continue
     }
@@ -300,7 +310,7 @@ internal fun renderEffects(
     sentences += renderPaymentDiscount(run.filterNotNull())
     index += run.size
   }
-  return sentences.joinToString(" ")
+  return Rendering(sentences.joinToString(" "), unresolved)
 }
 
 private fun renderAcceptedCardResourcePayment(

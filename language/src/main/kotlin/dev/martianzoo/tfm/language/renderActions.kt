@@ -16,15 +16,33 @@ internal fun renderActions(
     actions: List<Action>,
     describers: Describers,
     drawFilter: EnglishDrawFilter? = null,
-): String? {
-  if (actions.isEmpty()) return ""
-  val rendered = actions.map { renderAction(it, describers, drawFilter) ?: return null }
-  if (rendered.size == 1) return rendered.single().asSentences()
-  val alternatives = rendered.map { it.asAlternative() ?: return null }
+): Rendering<String> {
+  if (actions.isEmpty()) return Rendering.resolved("")
+  val rendered = actions.map { action ->
+    renderAction(action, describers, drawFilter)
+        ?: return Rendering.unresolved(
+            action,
+            RefusalReason.LEGACY_ACTION_RENDERER_DECLINED,
+            completeSentence("[${actions.joinToString(" OR ")}]"),
+        )
+  }
+  val unresolved = rendered.flatMap(RenderedAction::unresolved)
+  if (rendered.size == 1) return Rendering(rendered.single().asSentences(), unresolved)
+  val alternatives = rendered.mapIndexed { index, action ->
+    action.asAlternative()
+        ?: return Rendering(
+            completeSentence("[${actions.joinToString(" OR ")}]"),
+            unresolved +
+                Unresolved(
+                    actions[index],
+                    RefusalReason.LEGACY_ACTION_RENDERER_DECLINED,
+                ),
+        )
+  }
   val joined =
       if (alternatives.size == 2) alternatives.joinToString(", or ")
       else englishAlternatives(alternatives)
-  return completeSentence(joined)
+  return Rendering(completeSentence(joined), unresolved)
 }
 
 private fun Describers.renderCost(cost: Cost): Predicate? =
@@ -223,6 +241,9 @@ private data class RenderedAction(
     val result: RenderedInstructions,
     val condition: String? = null,
 ) {
+  val unresolved: List<Unresolved>
+    get() = result.unresolved
+
   fun asSentences(): String {
     if (condition == null) {
       return cost?.let { completeSentence("${it.linearize()} to ${result.asCoordinatedClause()}") }

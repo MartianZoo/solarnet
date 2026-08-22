@@ -96,5 +96,13 @@ internal class EnglishTest {
   fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
     english.describe(parse<InstructionTree>("2 Steel, 3 VictoryPoint")) shouldBe
         "Gain 2 steel. [3 VictoryPoint]."
+
+    val rendering =
+        renderInstructionTree(
+            parse("2 Steel, 3 VictoryPoint"),
+            Describers(TerraformingMarsDescribers.descriptions),
+        )
+    rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
+        listOf("3 VictoryPoint" to RefusalReason.LEGACY_INSTRUCTION_RENDERER_DECLINED)
   }
 }
