@@ -22,7 +22,7 @@ CLASS WorldGovernmentOption : Module {
 CLASS VenusStep : GlobalParameter {
   HAS MAX 15 This
 
-  This IF =15 This: GpComplete<Class<VenusStep>>
+  This IF =15 This:: GpComplete<Class<This>>
   This IF =4 This: ProjectCard
   This IF =8 This: TerraformRating
 }

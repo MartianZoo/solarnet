@@ -101,7 +101,7 @@ ABSTRACT CLASS Tile<Area> {
     HAS MAX 9 OceanTile
     DEFAULT +OceanTile<WaterArea>
 
-    This IF =9 OceanTile: GpComplete<Class<OceanTile>>
+    This IF =9 OceanTile:: GpComplete<Class<This>>
     ForwardAdjacency<This, Tile>: 2
   }
 }
@@ -122,7 +122,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     This IF =3 This: PROD[Heat]
     This IF =5 This: PROD[Heat]
     This IF =15 This: OceanTile<>
-    This IF =19 This: GpComplete<Class<TemperatureStep>>
+    This IF =19 This:: GpComplete<Class<This>>
   }
 
   "Represents a 1% increase in oxygen level"
@@ -130,7 +130,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     HAS MAX 14 This
 
     This IF =8 This: TemperatureStep
-    This IF =14 This: GpComplete<Class<OxygenStep>>
+    This IF =14 This:: GpComplete<Class<This>>
   }
 }
 
@@ -389,7 +389,7 @@ CLASS PayFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Si
 
 "Becomes a payment-specific signal when the owner's final debt is removed"
 CLASS Payment<Class<HasActions>> : Owned<Player>, Barrier {
-  -X Owed IF MAX 0 Owed: CostPaid<Class<HasActions>> FROM This
+  -X Owed IF MAX 0 Owed:: CostPaid<Class<HasActions>> FROM This
 }
 
 "Signals that a specific payment has been completed"
@@ -485,7 +485,7 @@ ABSTRACT CLASS Mode : Module {
   CLASS MultiplayerMode {
     autoSelectWhen = HAS 2 Player
 
-    GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>: LastCall.
+    GpComplete IF GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>:: LastCall.
     EndPhase: End THEN FinalScore
     FinalScore: MultiplayerVictoryCheck
   }
@@ -562,18 +562,18 @@ CLASS FakeResourceGiver<Class<StandardResource>> : Owned<SoloOpponent> {
   HAS =1 This
   SetupPhase: 11 StandardResource
   SetupPhase: PROD[11 StandardResource]
-  -StandardResource BY Player: StandardResource BY Engine
-  StandardResource BY Player: -StandardResource BY Engine
-  PROD[-StandardResource] BY Player: PROD[StandardResource] BY Engine
-  PROD[StandardResource] BY Player: PROD[-StandardResource] BY Engine
+  -StandardResource BY Player:: StandardResource BY Engine
+  StandardResource BY Player:: -StandardResource BY Engine
+  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Engine
+  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Engine
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
 CLASS FakeResourceHolder : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent> {
   HAS =1 This
   SetupPhase: 11 CardResource<This>
-  -CardResource<This> BY Player: CardResource<This> BY Engine
-  CardResource<This> BY Player: -CardResource<This> BY Engine
+  -CardResource<This> BY Player:: CardResource<This> BY Engine
+  CardResource<This> BY Player:: -CardResource<This> BY Engine
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created

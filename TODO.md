@@ -36,6 +36,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   Resolve ownership of that Terraforming Mars-aware lowering without moving `UseAction` into
   `system.pets` merely to erase the current package tension. Keep Head Start completion scopes and
   action-use marker behavior as separate design questions.
+- Convert card purchases to the payment workflow so BuyCard price modifiers adjust Owed instead of
+  creating separate money changes.
 - **High priority:** Allow a partial instruction to narrow the matching portion of exactly one
   pending task while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
@@ -89,11 +91,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Soon
 
-- **Medium priority:** Use [`docs/agents/SEQUENCING.md`](docs/agents/SEQUENCING.md) to audit and
-  normalize real A-before-B rules; next settle the action-marker/Viron tension, temporary cleanup at
-  the engine boundary, and the mixed automatic/queued phase triggers, and keep the verdict buckets
-  current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline
-  continuation, frozen trigger-time choice, and descendant-completion semantics.
+- **Medium priority:** Continue the unresolved sequencing work identified by the canon effect-mode
+  audit: settle the action-marker/Viron tension, event and Mandate context lifetime, scoring
+  completion, same-trigger action-cost dependencies, and the remaining mixed phase triggers,
+  including existing automatic effects triggered only by Engine workflow events. Before inventing
+  an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and
+  descendant-completion semantics.
 - Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
 - **High priority:** Make Artificial Lake's concrete legal ocean placement refine and execute
   normally, without the solo whole-game test's mandatory `!` override.

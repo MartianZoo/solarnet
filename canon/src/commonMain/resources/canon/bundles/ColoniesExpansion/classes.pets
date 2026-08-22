@@ -29,7 +29,7 @@ ABSTRACT CLASS ColonyTile {
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<ColonyTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses: GiveColonyBonus<ColonyTile>
+  FlownTradeFleet<Anyone, ColonyTile> OR GiveColonyBonuses:: GiveColonyBonus<ColonyTile>
 }
 
 // A player's trade fleet, either in reserve or flown to a ColonyTile this generation
@@ -69,6 +69,6 @@ CLASS AddColonyTile<Class<ColonyTile>> : Custom
 "If a ColonyTile gives card resources, one of these is created first instead"
 CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
   HAS MAX 1 This
-  This IF ResourceCard<Class<CardResource>>: ColonyTile FROM This
-  ResourceCard<Class<CardResource>>: ColonyTile FROM This
+  This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This
+  ResourceCard<Class<CardResource>>:: ColonyTile FROM This
 }

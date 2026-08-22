@@ -281,7 +281,30 @@ Settled uses include:
 - hidden adjacency creation before area bonuses and tile reactions;
 - old energy-to-heat conversion before production payouts;
 - fixed card requirement/cost/payment bookkeeping before gated choices; and
-- invisible marker creation that users should never execute manually.
+- invisible marker creation that users should never execute manually;
+- completion and last-call flags derived from already-committed state changes that players can
+  cause; and
+- helper Signals caused by player activity whose only purpose is to fan out later gameplay work.
+
+Effects triggered only by Engine workflow events, such as `SetupPhase`, use queued `:` by default.
+The workflow already determines when those effects become available, and there is no end-user
+decision whose queue entry must be suppressed. Use `::` there only when exposing the World between
+the trigger and its consequence would violate a concrete invariant.
+
+The canon single-colon audit leaves queued effects only when their right side is a recognizable
+gameplay event or choice, or when current sequencing semantics require a task boundary. Several
+implementation-shaped cases are intentionally still queued:
+
+- moving an EventCard to PlayedEvent must wait for the event's immediate work and tags;
+- removing a Mandate must not destroy the context that supplies its selected action;
+- End and played-event scoring must remain reorderable until all score-producing work is present;
+- action-cost adjustments must wait for the base action's Owed components, because sibling
+  automatic effects have no order; and
+- the solo production correction must wait for production payouts before removing M€.
+
+These are limitations of the current completion model, not evidence that those operations are
+meaningful user decisions. Do not turn them automatic until their required lifetime or dependency
+is expressed directly.
 
 Trade Envoys and Trading Colony deliberately create a `TradeBarrier` automatically while their
 queued optional production decision later removes it.

@@ -34,7 +34,7 @@ internal class ActionSequencingTest {
 
     manual.doTask("25 Pay<Class<Megacredit>> FROM Megacredit")
     p1.count("Owed<>") shouldBe 0
-    manual.doTask("CostPaid<Class<CitySP>> FROM Payment<Class<CitySP>>")
+    p1.count("Payment<Class<CitySP>>") shouldBe 0
 
     val results =
         game.tasks
