@@ -1,6 +1,8 @@
 # What is supported
 
-Most of the published game content is working... and mostly correctly.
+Most of the published game content is working... and mostly correctly.[^heroku-settings]
+
+[^heroku-settings]: When changing the supported cards or modes documented here, update `herokuapp_settings.json` and `herokuapp_settings_solo.json` too.
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones / awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
