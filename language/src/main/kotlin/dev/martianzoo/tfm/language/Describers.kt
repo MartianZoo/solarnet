@@ -108,16 +108,23 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun isStandardResource(className: ClassName): Boolean =
-      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(STANDARD_RESOURCE))
+      isSubtypeOf(className, STANDARD_RESOURCE)
 
-  internal fun isCardResource(className: ClassName): Boolean =
-      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(CARD_RESOURCE))
+  internal fun isCardResource(className: ClassName): Boolean = isSubtypeOf(className, CARD_RESOURCE)
 
-  private fun isTag(className: ClassName): Boolean =
-      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(TAG))
+  private fun isTag(className: ClassName): Boolean = isSubtypeOf(className, TAG)
 
-  internal fun isProduction(className: ClassName): Boolean =
-      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(PRODUCTION))
+  internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
+
+  internal fun isGameParticipant(className: ClassName): Boolean = isSubtypeOf(className, PLAYER)
+
+  internal fun isGenerationScoped(className: ClassName): Boolean =
+      isSubtypeOf(className, GENERATIONAL)
+
+  internal fun isEndTrigger(className: ClassName): Boolean = isSubtypeOf(className, END)
+
+  private fun isSubtypeOf(className: ClassName, superclassName: ClassName): Boolean =
+      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(superclassName))
 
   internal fun componentNounPhrase(className: ClassName, count: Int): NounPhrase {
     val noun = fact(className, ComponentDescriber::noun)
@@ -136,8 +143,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal fun tagName(className: ClassName): Pair<String, Boolean>? {
     if (!concrete(className) || !isTag(className)) return null
     val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-    val isPlanetTag =
-        classesByName.getValue(className).isSubtypeOf(classesByName.getValue(PLANET_TAG))
+    val isPlanetTag = isSubtypeOf(className, PLANET_TAG)
     val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
     return name to isPlanetTag
   }
@@ -325,7 +331,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
 
   private companion object {
     val CARD_RESOURCE = cn("CardResource")
+    val END = cn("End")
+    val GENERATIONAL = cn("Generational")
     val PLANET_TAG = cn("PlanetTag")
+    val PLAYER = cn("Player")
     val TAG = cn("Tag")
   }
 }

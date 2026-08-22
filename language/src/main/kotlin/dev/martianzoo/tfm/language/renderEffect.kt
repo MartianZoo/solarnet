@@ -893,7 +893,7 @@ private fun Describers.renderScoringCondition(requirement: Requirement): String?
 }
 
 private fun Describers.isEndTrigger(expression: Expression): Boolean =
-    expression.simple && fact(expression.className, ComponentDescriber::endTrigger) == true
+    expression.simple && isEndTrigger(expression.className)
 
 private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
   val (className, count, penalty) =

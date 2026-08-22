@@ -18,8 +18,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.ClassName,
             ),
-        klass("Player") to ComponentDescriber(gameParticipant = true),
-        klass("Generational") to ComponentDescriber(generationScoped = true),
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
         klass("StandardResource") to
@@ -421,7 +419,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(directChange = ComponentDescriber.DirectChange.Operation("trade")),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
-        klass("End") to ComponentDescriber(endTrigger = true),
         klass("PlayCard") to
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.PlayCard,

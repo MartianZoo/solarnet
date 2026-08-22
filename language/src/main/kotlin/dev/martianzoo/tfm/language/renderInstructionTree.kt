@@ -480,7 +480,7 @@ internal fun Describers.renderGateCondition(requirement: Requirement): String? {
   if (
       requirement is Requirement.Exact &&
           requirement.expected == 1 &&
-          fact(expression.className, ComponentDescriber::gameParticipant) == true
+          isGameParticipant(expression.className)
   ) {
     return "if this is a solo game"
   }
@@ -488,7 +488,7 @@ internal fun Describers.renderGateCondition(requirement: Requirement): String? {
   fact(expression.className, ComponentDescriber::presenceCondition)?.let { condition ->
     if (requirement.minimum != 1) return null
     val scope =
-        if (fact(expression.className, ComponentDescriber::generationScoped) == true) {
+        if (isGenerationScoped(expression.className)) {
           " this generation"
         } else {
           ""

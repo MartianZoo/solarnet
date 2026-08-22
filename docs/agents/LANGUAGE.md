@@ -82,9 +82,9 @@ Class. Production and class-literal interpretation consume those keys rather tha
 resource, or represented-Class roles from argument positions. Contextual `This` still has one
 explicitly marked production fallback until rendering receives the linked source needed to resolve
 it.
-Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, and `PlanetTag` is read from
-the Class hierarchy and is not duplicated in `ComponentDescriber`. Card-resource number forms
-remain lexical data.
+Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, `PlanetTag`, `Player`,
+`Generational`, and `End` is read from the Class hierarchy and is not duplicated in
+`ComponentDescriber`. Card-resource number forms remain lexical data.
 Pets scalars are resolved once into fixed or variable `Quantity` values, and intensities into
 required, best-effort, or optional `Modality` values. Family renderers do not inspect the Pets
 scalar or intensity variants.
