@@ -57,7 +57,8 @@ public interface Gameplay {
    *
    * @param [revised] the new instruction tree; may be abstract or a grouped arm selected from an
    *   `OR`; a group replaces this one task with one task per member; if identical to the current
-   *   instruction this method does nothing
+   *   instruction this method does nothing; an omitted intensity retains a stronger pending
+   *   intensity when the Class default would weaken it
    * @throws [TaskException] if there is no task by this id assigned to this gameplay's Actor
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
@@ -109,7 +110,9 @@ public interface Gameplay {
    *
    * A prepared task always wins. Otherwise, the revision must match exactly one task, except that
    * fully identical tasks are interchangeable. [taskNumber], when supplied, selects the 1-based
-   * position in this Actor's current task list.
+   * position in this Actor's current task list. When the revision omits an intensity and its Class
+   * default would weaken the pending task's intensity, the pending intensity is retained; an
+   * explicitly written intensity must narrow normally.
    *
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be prepared

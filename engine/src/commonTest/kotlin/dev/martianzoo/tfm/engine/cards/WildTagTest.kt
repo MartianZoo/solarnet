@@ -2,11 +2,68 @@ package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.tfm.engine.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.engine.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.engine.TestOption.PromoCardPack
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class WildTagTest : CardTest() {
+  @Test
+  fun `Nested standard projects preserve pending payments offer positions and wild tags`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    p1.manual("2 PreludeCard")
+    engine.phase("Prelude")
+    p1.startTurn()
+
+    p1.playPrelude(ResearchNetwork)
+    p1.startTurn()
+    p1.doTask("PowerTag<WildTagUse<$ResearchNetwork>>")
+    p1.playPrelude(FakeEstablishedMethods) {
+      val offers =
+          game.tasks
+              .extract { it }
+              .filter {
+                val instruction = it.instruction.toString()
+                it.assignee == p1.actor &&
+                    "UseAction" in instruction &&
+                    "StandardAction" in instruction
+              }
+              .map { it.id }
+      offers.size shouldBe 2
+
+      repeat(2) { projectIndex ->
+        doTask("UseAction1<UseStandardProjectSA>")
+        doTask("UseAction1<PowerPlantSP>")
+
+        tasks
+            .extract { it }
+            .any {
+              val instruction = it.instruction.toString()
+              "Pay" in instruction && "Megacredit" in instruction
+            } shouldBe true
+        p1.count("Owed<Class<Megacredit>>") shouldBe 11
+        p1.count("WildTagUse<$ResearchNetwork>") shouldBe 1
+
+        p1.pay(11)
+
+        p1.count("WildTagUse<$ResearchNetwork>") shouldBe 1
+        val remainingOffers =
+            game.tasks
+                .extract { it }
+                .filter {
+                  val instruction = it.instruction.toString()
+                  it.assignee == p1.actor &&
+                      "UseAction" in instruction &&
+                      "StandardAction" in instruction
+                }
+                .map { it.id }
+        remainingOffers shouldBe offers.drop(projectIndex + 1)
+      }
+    }
+
+    p1.count("WildTagUse") shouldBe 0
+  }
+
   @Test
   fun `Another player's earlier task does not change a wild tag offer's position`() {
     newGame(PreludeExpansion)

@@ -43,6 +43,20 @@
       "effects": [ "BioTag<>: Plant OR Microbe" ],
     },
 
+    // Spire
+    {
+      "name": "Spire",
+      "deck": "CORPORATION",
+      "tags": [ "CityTag", "EarthTag" ],
+      "resourceType": "Science",
+      "immediate": "50, Mandate { -> 4 ProjectCard THEN -3 ProjectCard }",
+      "effects": [
+        "CardFront(HAS 2 Tag): Science<This>",
+        "UseAction<StandardProject>: AcceptFromCard<This>",
+        "PayFromCard<This>:: -2 Owed<Class<Megacredit>>",
+      ],
+    },
+
     // Applied Science
     {
       "name": "AppliedScience",

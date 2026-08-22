@@ -3,9 +3,7 @@ package dev.martianzoo.tfm.engine.games
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.data.GameConfig
 import dev.martianzoo.data.Player
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.cardnames.*
@@ -13,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
-class Game20260818Test : AbstractFullGameTest() {
+class OtbGame20260818Test : AbstractFullGameTest() {
   private val colonyTiles = listOf("Enceladus", "Miranda", "Europa", "Io", "Pluto")
 
   // "We are playing on the Utopia Planitia board."
@@ -37,7 +35,7 @@ class Game20260818Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun game20260818() {
+  fun otbGame20260818() {
     TfmWorkflow.Auto(game).launch()
     val dad = game.tfm(Player.PLAYER1)
     val ellie = game.tfm(Player.PLAYER2)
@@ -1733,9 +1731,5 @@ class Game20260818Test : AbstractFullGameTest() {
             }
             .toTypedArray()
     )
-  }
-
-  private fun TfmGameplay.assertCardResources(vararg resources: Pair<Int, ClassName>) {
-    assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
   }
 }

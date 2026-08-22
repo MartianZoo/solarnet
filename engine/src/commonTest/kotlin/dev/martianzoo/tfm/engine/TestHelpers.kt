@@ -150,8 +150,17 @@ object TestHelpers {
     // through the normal parser and transformers before restoring it as an expected count.
     val parseableExpectations =
         expectedAsInstructions.replace(ZERO_SCALAR_REGEX, ZERO_SCALAR_SENTINEL.toString())
-    val instruction =
-        preprocessor.transformInstructionTree(Parsing.parse<InstructionTree>(parseableExpectations))
+    val parsedExpectations = Parsing.parse<InstructionTree>(parseableExpectations)
+    val emptyArgumentList =
+        parsedExpectations.descendantsOfType<Expression>().firstOrNull {
+          it.argumentsSpecified && it.arguments.isEmpty()
+        }
+    if (emptyArgumentList != null) {
+      throw IllegalArgumentException(
+          "empty argument lists are not allowed in net-change expectations; write `${emptyArgumentList.className}` instead of `$emptyArgumentList`"
+      )
+    }
+    val instruction = preprocessor.transformInstructionTree(parsedExpectations)
 
     val expectedCountsToTypes: List<Pair<Int, Expression>> =
         InstructionGroup.of(instruction).instructions.map {
@@ -197,7 +206,7 @@ object TestHelpers {
   }
 
   private const val ZERO_SCALAR_SENTINEL = 987_654_321
-  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|\\])")
+  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|\\]|$)")
 
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")

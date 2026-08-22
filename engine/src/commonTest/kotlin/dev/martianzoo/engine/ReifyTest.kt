@@ -36,7 +36,6 @@ class ReifyTest {
     test("Plant: 2 StandardResource?", "Plant: 2 Heat!")
     test("Plant: 2 StandardResource?", "Plant: Heat!")
     test("Plant: 2 StandardResource?", "Plant: Ok")
-    // test("Plant: 2 StandardResource?", "Ok") TODO
     test("Plant: 2 StandardResource?", "Plant: StandardResource!")
     test("5 OxygenStep! / Plant<Anyone>", "5 OxygenStep! / Plant<Anyone>")
     test("5 OxygenStep. / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")

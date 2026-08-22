@@ -1,16 +1,61 @@
 package dev.martianzoo.tfm.engine.cards
 
 import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.TaskException
+import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.Task
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.engine.TestOption.*
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 class BugsTest : CardTest() {
+  @Test
+  fun `Philares incorrectly gives its owner the resource choice immediately`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.manual("$Philares")
+    p2.manual("CityTile<Tharsis_2_3>")
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+
+    manual.beginManual("CityTile<Tharsis_3_3>")
+    manual.addTasks("Plant?")
+
+    val reward = philaresReward()
+    reward.assignee shouldBe PLAYER2
+    shouldThrow<TaskException> { manual.prepareTask(reward.id) }
+
+    p2.doTask("Steel")
+    manual.doTask("Plant")
+    p2.count("Steel") shouldBe 1
+    p1.count("Plant") shouldBe 1
+  }
+
+  @Test
+  fun `Philares incorrectly lets the active player continue while its reward is unresolved`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.manual("$Philares")
+    p2.manual("CityTile<Tharsis_2_3>")
+    val manual = p1.godMode().also { it.autoExecMode = NONE }
+
+    manual.beginManual("CityTile<Tharsis_3_3>")
+    manual.addTasks("Heat?")
+    philaresReward().assignee shouldBe PLAYER2
+
+    manual.doTask("Heat")
+    p2.doTask("Steel")
+
+    p1.count("Heat") shouldBe 1
+    p2.count("Steel") shouldBe 1
+  }
+
   // NOTE: Established Methods says that an unaffordable second standard project is replaced by
   // NOTE: losing 10 M€ (or as much as possible). Fake Established Methods intentionally omits
   // NOTE: that fallback.
@@ -93,4 +138,11 @@ class BugsTest : CardTest() {
 
     p1.assertCounts(0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
   }
+
+  private fun philaresReward(): Task =
+      game.tasks
+          .extract { it }
+          .single {
+            it.instruction.toString().startsWith("StandardResource<Player2>")
+          }
 }

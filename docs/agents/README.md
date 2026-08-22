@@ -21,6 +21,7 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Class-property values, cardinality, defaults, and groups | [PROPERTIES.md](PROPERTIES.md) | Current model plus working rules and proposals |
 | Authorities, Modules, configuration, and premises | [OPTIONS.md](OPTIONS.md) | Current model |
 | Task ordering, completion, `THEN`, automatic effects, and barriers | [SEQUENCING.md](SEQUENCING.md) | Working rules and audit |
+| Pets `Action` costs, invoices, and numbered `CostPaid` signals | [ACTIONS.md](ACTIONS.md) | Settled design direction with unresolved ownership |
 | Commands and test design | [TESTING.md](TESTING.md) | Current procedure |
 | Reconstructing herokuapp game logs | [HEROKUAPP_GAME_LOGS.md](HEROKUAPP_GAME_LOGS.md) | Current procedure |
 | Reconstructing recorded physical games | [OTB_GAME_RECORDS.md](OTB_GAME_RECORDS.md) | Current procedure |
@@ -34,6 +35,8 @@ Read this page before using the rest of `docs/agents`. These documents have diff
 | Actor, assignee, context owner, and future delegation | [IDENTITY.md](IDENTITY.md) | Current model plus proposal |
 | Component fanout through proposed `EACH` syntax | [EACHPLAYER.md](EACHPLAYER.md) | Proposal |
 | Flattening the engine workhorse and later client boundary | [API.md](API.md) | Proposal |
+| Repeated auto-execution scheduling and preparation | [AUTOEXEC.md](AUTOEXEC.md) | Audit |
+| Authority-wide Class identity and game-filtered views | [CLASS_TABLES.md](CLASS_TABLES.md) | Proposal |
 | Generic/Terraforming Mars package seams | [BOUNDARIES.md](BOUNDARIES.md) | Audit |
 | Native Pets-driven phase workflow | [WORKFLOW.md](WORKFLOW.md) | Proposal with settled game requirements |
 | Remaining implicit-variable work | [LINKAGES.md](LINKAGES.md) | Focused implementation note |

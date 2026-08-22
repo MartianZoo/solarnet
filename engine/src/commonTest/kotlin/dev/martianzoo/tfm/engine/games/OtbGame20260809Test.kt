@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Game played Sun 2026-08-09 11:19 am. Quotes are transcript-derived and sometimes normalized. */
-class Game20260809Test : AbstractFullGameTest() {
+class OtbGame20260809Test : AbstractFullGameTest() {
   // "This is a two-player game on the Hellas board."
   // "Our colonies are Callisto, Luna, Triton, Miranda, and Enceladus."
   // "We're using the Venus expansion. We're using promo cards. We're using the Prelude
@@ -35,7 +35,7 @@ class Game20260809Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun game20260809() {
+  fun otbGame20260809() {
     TfmWorkflow.Auto(game).launch()
     val ellie = game.tfm(Player.PLAYER1)
     val dad = game.tfm(Player.PLAYER2)
@@ -1118,7 +1118,7 @@ class Game20260809Test : AbstractFullGameTest() {
     // "Maxwell Edison... I'm sorry, Maxwell Base, costs all 16 money that I have."
     // "It gives me a negative energy production, taking me down to four."
     // "And I place a shitty tile on the Maxwell Base space area and put a delegate on it."
-    dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile<>") }
+    dad.turn { playProject(MaxwellBase, 16).expect("PROD[-E], CityTile") }
 
     // (8:12 pm) "I raise the temperature to −8°C with eight heat. I get a TR."
     ellie.turn { convertHeat().expect("TR") }

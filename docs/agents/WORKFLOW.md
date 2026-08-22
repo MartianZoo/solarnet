@@ -4,8 +4,10 @@
 are a proposal. Committed `TfmWorkflow.Auto` still sequences phases in Kotlin and waits for
 whole-world idleness.
 
-This project is an architectural replacement, not a prerequisite for currently working Philares,
-Splice, Icy Impactors, Enceladus, or World Government Terraforming behavior.
+This project is an architectural replacement, not a prerequisite for current Splice, Icy
+Impactors, Enceladus, or World Government Terraforming behavior. Philares is not a working
+precedent: its required preparation-time delegation remains a known gap described in
+[IDENTITY.md](IDENTITY.md).
 
 ## Domain requirements
 

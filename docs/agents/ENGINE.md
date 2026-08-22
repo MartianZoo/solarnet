@@ -122,6 +122,12 @@ There is no parent/child queue suspension or delegated control scope. One prepar
 locks preparation of competitors. `TfmWorkflow.Auto` starts Player operations directly and waits
 for whole-world idleness instead.
 
+This is a known correctness gap for Philares. The current trigger-time assignment gives the
+Philares owner its resource choice immediately and does not let the active Player choose when to
+prepare that reward. The target preparation-time handoff and its blocking requirement are specified
+in [IDENTITY.md](IDENTITY.md); `BugsTest` preserves the two current incorrect behaviors until that
+handoff exists.
+
 ### Preparation
 
 A task can be abstract because of a Type, Quantifier, `OR`, refinement, or unresolved custom
@@ -310,7 +316,8 @@ Auto-execution modes are:
 - `FIRST`: choose the first preparable task in stable iteration order.
 
 Scanning is global. Assignee selects the queue; stored Actor controls attribution. Failed candidates
-receive `whyPending`.
+receive `whyPending`. [AUTOEXEC.md](AUTOEXEC.md) records the measured duplication in the current
+scheduling boundaries and the proposed direction; it does not describe committed behavior.
 
 `TfmGameplay` adds card, payment, production, parameter, and phase conveniences around the generic
 layers. Treat it as transitional; test conveniences and player-facing domain actions need not

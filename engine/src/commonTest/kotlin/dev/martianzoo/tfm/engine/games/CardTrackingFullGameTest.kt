@@ -8,6 +8,8 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
 abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
@@ -36,7 +38,11 @@ abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   protected fun TfmGameplay.discard(vararg cardClasses: ClassName) {
     installObserver()
-    cardClasses.forEach { check(it in hand(player)) { "$player does not have $it in hand" } }
+    cardClasses.forEach {
+      check(it in hand(player) || it in expectedDraws[player].orEmpty()) {
+        "$player does not have $it in hand or queued to draw"
+      }
+    }
     expect(cardClasses, expectedDiscards)
   }
 
@@ -50,6 +56,10 @@ abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   protected fun assertCardTrackingComplete() {
     check(expectedDraws.values.all { it.isEmpty() }) { "unconsumed draws: $expectedDraws" }
     check(expectedDiscards.values.all { it.isEmpty() }) { "unconsumed discards: $expectedDiscards" }
+  }
+
+  protected fun checkHandSizes() {
+    hands.forEach { (player, hand) -> game.tfm(player).count("ProjectCard") shouldBe hand.size }
   }
 
   protected val TfmGameplay.cardsInHand: Set<ClassName>

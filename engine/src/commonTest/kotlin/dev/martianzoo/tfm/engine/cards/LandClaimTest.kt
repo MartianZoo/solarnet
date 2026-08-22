@@ -28,9 +28,9 @@ class LandClaimTest : CardTest() {
     p1.manual("$LandClaim") { doTask("LandClaimMarker<Tharsis_1_3>") }
 
     shouldThrow<DeadEndException> {
-      p2.manual("$ArtificialLake") { doTask("OceanTile<Tharsis_1_3>!") }
+      p2.manual("$ArtificialLake") { doTask("OceanTile<Tharsis_1_3>") }
     }
-    p1.manual("$ArtificialLake") { doTask("OceanTile<Tharsis_1_3>!") }
+    p1.manual("$ArtificialLake") { doTask("OceanTile<Tharsis_1_3>") }
     p1.assertCounts(1 to "OceanTile<Tharsis_1_3>")
   }
 

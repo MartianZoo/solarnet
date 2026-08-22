@@ -67,6 +67,10 @@ abstract class AbstractFullGameTest : TfmTest() {
     )
   }
 
+  protected fun TfmGameplay.assertCardResources(vararg resources: Pair<Int, ClassName>) {
+    assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
+  }
+
   protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: ClassName) {
     val expectedUnusedActionCards = cardNames.toSet()
     val unusedActionCards =

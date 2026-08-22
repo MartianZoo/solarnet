@@ -66,7 +66,7 @@ internal class PrepareTest {
     checkPrepare("2 Plant?", "2 Plant<Player1>?")
     checkPrepare("-Plant", "-Plant<Player1>!")
     checkPrepare("-9 Plant.", "-Plant<Player1>!")
-    // checkPrepare("55 OxygenStep.", "14 OxygenStep!")
+    checkPrepare("55 OxygenStep.", "14 OxygenStep!")
     checkPrepare("-4 Heat.", "Ok")
     checkPrepare("-4 Heat?", "Ok")
     checkPrepare("-CardFront.", "Ok")
@@ -81,7 +81,7 @@ internal class PrepareTest {
     shouldThrow<DependencyException> { preprocessAndPrepare("Microbe<Ants>.") }
     shouldThrow<DependencyException> { preprocessAndPrepare("3 Microbe!") }
     shouldThrow<LimitsException> { preprocessAndPrepare("-3 Microbe!") }
-    // shouldThrow<LimitsException> { preprocessAndPrepare("15 OxygenStep!") }
+    shouldThrow<LimitsException> { preprocessAndPrepare("15 OxygenStep!") }
     shouldThrow<LimitsException> { preprocessAndPrepare("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndPrepare("Plant FROM Heat") }
     shouldThrow<LimitsException> { preprocessAndPrepare("2 Heat FROM Plant") }
