@@ -63,7 +63,7 @@ internal class ScriptSessionTest {
         listOf("1 MilestonesAwardsExpansion"),
         repl.command("count MilestonesAwardsExpansion"),
     )
-    assertEquals(listOf("1 Tharsis"), repl.command("count Tharsis"))
+    assertEquals(listOf("1 TharsisMap"), repl.command("count TharsisMap"))
   }
 
   @Test

@@ -14,7 +14,8 @@
 
   "maps": [
     {
-      "name": "Hellas",
+      "name": "HellasMap",
+      "areaPrefix": "Hellas",
       "setupRequirement": "HellasMapOption",
       "rows": [
         [

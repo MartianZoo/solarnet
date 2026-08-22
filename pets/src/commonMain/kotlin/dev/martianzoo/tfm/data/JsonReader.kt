@@ -150,6 +150,7 @@ public object JsonReader {
     @Serializable
     data class MapImport(
         val name: String,
+        val areaPrefix: String? = null,
         val setupRequirement: String? = null,
         val rows: List<List<String>>,
     ) {
@@ -157,6 +158,7 @@ public object JsonReader {
           legend: Legend,
       ): MarsMapDefinition {
         val mapName = cn(name)
+        val mapAreaPrefix = cn(areaPrefix ?: name)
         fun mapArea(
             row0Index: Int,
             col0Index: Int,
@@ -166,7 +168,7 @@ public object JsonReader {
           val compactCode = code.filterNot { it.isWhitespace() }
           if (compactCode.isEmpty()) return null
           return AreaDefinition(
-              mapName,
+              mapAreaPrefix,
               row0Index + 1,
               col0Index + 1,
               legend.getType(compactCode),

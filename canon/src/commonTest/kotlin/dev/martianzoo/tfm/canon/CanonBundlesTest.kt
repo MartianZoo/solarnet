@@ -12,12 +12,18 @@ internal class CanonBundlesTest {
   @Test
   fun oneAuthorityKnowsEveryMapWhileOneModuleSelectsOneMap() {
     Canon.marsMapDefinitions.map { it.className }.toSet() shouldBe
-        setOf(cn("Tharsis"), cn("Hellas"), cn("Elysium"), cn("Utopia"), cn("Cimmeria"))
+        setOf(
+            cn("TharsisMap"),
+            cn("HellasMap"),
+            cn("ElysiumMap"),
+            cn("UtopiaMap"),
+            cn("CimmeriaMap"),
+        )
 
     val hellas = table(cn("HellasMapOption"))
 
-    hellas.isActive(cn("Hellas")) shouldBe true
-    hellas.isActive(cn("Elysium")) shouldBe false
+    hellas.isActive(cn("HellasMap")) shouldBe true
+    hellas.isActive(cn("ElysiumMap")) shouldBe false
     hellas.isActive(cn("Diversifier")) shouldBe true
     hellas.isActive(cn("Generalist")) shouldBe false
     hellas.isActive(cn("Cultivator")) shouldBe true
@@ -29,10 +35,10 @@ internal class CanonBundlesTest {
     val utopia = table(cn("UtopiaPlanitiaMapOption"))
     val cimmeria = table(cn("TerraCimmeriaMapOption"))
 
-    utopia.isActive(cn("Utopia")) shouldBe true
-    utopia.isActive(cn("Cimmeria")) shouldBe false
-    cimmeria.isActive(cn("Cimmeria")) shouldBe true
-    cimmeria.isActive(cn("Utopia")) shouldBe false
+    utopia.isActive(cn("UtopiaMap")) shouldBe true
+    utopia.isActive(cn("CimmeriaMap")) shouldBe false
+    cimmeria.isActive(cn("CimmeriaMap")) shouldBe true
+    cimmeria.isActive(cn("UtopiaMap")) shouldBe false
   }
 
   @Test
@@ -131,7 +137,7 @@ internal class CanonBundlesTest {
         )
 
     (cn("MapProvider") in bundle.allClassNames) shouldBe false
-    bundle.marsMapDefinitions.single().className shouldBe cn("Tharsis")
+    bundle.marsMapDefinitions.single().className shouldBe cn("TharsisMap")
   }
 
   @Test

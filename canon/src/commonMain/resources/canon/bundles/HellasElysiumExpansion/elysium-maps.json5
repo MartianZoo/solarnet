@@ -13,7 +13,8 @@
   "maps": [
 
     {
-      "name": "Elysium",
+      "name": "ElysiumMap",
+      "areaPrefix": "Elysium",
       "setupRequirement": "ElysiumMapOption",
       "rows": [
         [

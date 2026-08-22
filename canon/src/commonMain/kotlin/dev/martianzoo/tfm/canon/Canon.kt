@@ -27,9 +27,9 @@ public object Canon :
             "ColoniesExpansion",
             coloniesCustomClasses,
         ),
-        StandardFormBundle("TurmoilExpansion"),
+        StandardFormBundle("TurmoilCardPack"),
         StandardFormBundle(
-            "PromoCardsExpansion",
-            promoCardsCustomClasses,
+            "PromoCardPack",
+            promoCardPackCustomClasses,
         ),
     )

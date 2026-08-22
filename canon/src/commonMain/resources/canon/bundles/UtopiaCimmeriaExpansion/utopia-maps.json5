@@ -12,7 +12,8 @@
 
   "maps": [
     {
-      "name": "Utopia",
+      "name": "UtopiaMap",
+      "areaPrefix": "Utopia",
       "setupRequirement": "UtopiaPlanitiaMapOption",
       "rows": [
         [
