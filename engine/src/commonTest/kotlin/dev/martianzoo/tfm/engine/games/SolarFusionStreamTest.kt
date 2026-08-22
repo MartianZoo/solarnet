@@ -91,11 +91,11 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
       playPrelude(FakeEstablishedMethods) {
-            doTask("UseAction1<UseStandardProjectSA>")
-            doTask("UseAction1<PowerPlantSP>")
+            doTask("UseAction<UseStandardProjectSA, First>")
+            doTask("UseAction<PowerPlantSP, First>")
             pay(11)
-            doTask("UseAction1<UseStandardProjectSA>")
-            doTask("UseAction1<PowerPlantSP>")
+            doTask("UseAction<UseStandardProjectSA, First>")
+            doTask("UseAction<PowerPlantSP, First>")
             pay(11)
           }
           .expect("8")

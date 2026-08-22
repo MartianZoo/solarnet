@@ -32,8 +32,8 @@ class WildTagTest : CardTest() {
       offers.size shouldBe 2
 
       repeat(2) { projectIndex ->
-        doTask("UseAction1<UseStandardProjectSA>")
-        doTask("UseAction1<PowerPlantSP>")
+        doTask("UseAction<UseStandardProjectSA, First>")
+        doTask("UseAction<PowerPlantSP, First>")
 
         tasks
             .extract { it }

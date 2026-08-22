@@ -114,10 +114,10 @@ internal class CanonEffectsTest {
 
   @Test
   fun convertHeat() {
-    classEffectsOf(cn("ConvertHeatSA"), cn("UseAction1"))
+    classEffectsOf(cn("ConvertHeatSA"), cn("UseAction"))
         .shouldContainExactlyInAnyOrder(
-            "UseAction1<Owner, This>: 8 Owed<Owner, Class<Heat>>! THEN Payment<Owner, Class<This>>!",
-            "CostPaid<Owner, Class<This>>: TemperatureStep.",
+            "UseAction<Owner, This, First>: 8 Owed<Owner, Class<Heat>>! THEN Payment<Owner, This, First>!",
+            "CostPaid<Owner, This>: TemperatureStep.",
         )
   }
 
@@ -147,8 +147,8 @@ internal class CanonEffectsTest {
     classEffectsOf(TitanAirScrapping)
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
-            "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<This>.",
-            "UseAction2<Owner, This>: -2 Floater<This>! THEN TerraformRating<Owner>!",
+            "UseAction<Owner, This, First>: -Titanium<Owner>! THEN 2 Floater<This>.",
+            "UseAction<Owner, This, Second>: -2 Floater<This>! THEN TerraformRating<Owner>!",
             "End: 2 VictoryPoint<Owner>!",
         )
   }

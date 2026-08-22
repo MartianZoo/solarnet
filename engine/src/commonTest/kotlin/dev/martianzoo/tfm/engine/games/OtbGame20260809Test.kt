@@ -1543,7 +1543,7 @@ class OtbGame20260809Test : AbstractFullGameTest() {
     // "And, for zero, Project Inspection."
     // "I use Nitrite Reducing Bacteria to turn in three microbes and get another TR."
     ellie.turn {
-      playProject(ProjectInspection, 0) { doTask("UseAction2<$NitriteReducingBacteria>") }
+      playProject(ProjectInspection, 0) { doTask("UseAction<$NitriteReducingBacteria, Second>") }
           .expect("-3 Microbe, TR")
     }
 

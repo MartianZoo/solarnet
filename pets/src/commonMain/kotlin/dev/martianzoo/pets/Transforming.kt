@@ -5,6 +5,7 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
@@ -49,9 +50,9 @@ public object Transforming {
       }
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
-    require(index1Ref >= 1) { index1Ref }
+    val whichAction = whichAction(index1Ref)
     val instruction = action.toInstruction()
-    val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").of(THIS))
+    val trigger = OnGainOf.create(USE_ACTION.of(THIS, whichAction))
     return Effect(trigger, instruction, automatic = false)
   }
 
@@ -59,6 +60,13 @@ public object Transforming {
       actions.withIndex().map { (index0Ref, action) ->
         actionToEffect(action, index1Ref = index0Ref + 1)
       }
+
+  internal fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
+      actions.indices.mapTo(linkedSetOf()) { whichAction(it + 1) }
+
+  private fun whichAction(index1Ref: Int): ClassName =
+      listOf(cn("First"), cn("Second"), cn("Third")).getOrNull(index1Ref - 1)
+          ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
 
   internal fun immediateToEffect(
       instruction: InstructionTree,

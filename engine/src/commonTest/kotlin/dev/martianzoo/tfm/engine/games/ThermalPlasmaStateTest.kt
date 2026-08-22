@@ -90,7 +90,7 @@ class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(AiCentral) { draw(ForcedPrecipitation, ProjectInspection) }
       playProject(MediaGroup, 6)
       playProject(ProjectInspection, 0) {
-            doTask("UseAction1<$AiCentral>")
+            doTask("UseAction<$AiCentral, First>")
             draw(GreatEscarpmentConsortium, RestrictedArea)
           }
           .expect("3 M")

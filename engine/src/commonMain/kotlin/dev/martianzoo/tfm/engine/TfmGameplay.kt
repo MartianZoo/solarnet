@@ -4,7 +4,6 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.data.Actor
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.GameEvent.ChangeEvent
@@ -13,6 +12,7 @@ import dev.martianzoo.data.Task
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Gameplay
+import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -102,44 +102,42 @@ public class TfmGameplay(
       stdAction: String,
       which: Int = 1,
       payment: BodyLambda = {
-        if (hasMegacreditPaymentOffer()) {
-          doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
-        }
+        payInvoiceFromItsResourceIfOffered()
       },
       body: BodyLambda = {},
   ): TaskResult {
     return inTfmTurn {
-      doTask("UseAction$which<$stdAction>")
+      doTask("UseAction<$stdAction, ${whichAction(which)}>")
       payment()
       body()
     }
   }
 
-  private fun hasMegacreditPaymentOffer(): Boolean =
+  private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
+    val standardResources =
+        listOf(MEGACREDIT, cn("Steel"), cn("Titanium"), cn("Plant"), cn("Energy"), cn("Heat"))
+    val offeredResource = standardResources.singleOrNull { resource ->
       game.tasks
           .extract { it }
-          .any { task ->
-            task.assignee == actor &&
-                task.instruction.descendantsOfType<Change>().any { change ->
-                  change.gaining?.let { gaining ->
-                    gaining.className == cn("Pay") &&
-                        MEGACREDIT in gaining.descendantsOfType<ClassName>()
-                  } == true
-                }
+          .filter { it.assignee == actor }
+          .flatMap { it.instruction.descendantsOfType<Change>() }
+          .any { change ->
+            change.gaining?.let { gaining ->
+              gaining.className == cn("Pay") && resource in gaining.descendantsOfType<ClassName>()
+            } == true
           }
-
-  public fun convertPlants(body: BodyLambda = {}): TaskResult {
-    return stdAction("ConvertPlantsSA") {
-      doTask("Pay<Class<Plant>> FROM Plant / Owed<Class<Plant>>")
-      body()
+    }
+    if (offeredResource != null) {
+      doTask("Pay<Class<$offeredResource>> FROM $offeredResource / Owed<Class<$offeredResource>>")
     }
   }
 
+  public fun convertPlants(body: BodyLambda = {}): TaskResult {
+    return stdAction("ConvertPlantsSA", body = body)
+  }
+
   public fun convertHeat(body: BodyLambda = {}): TaskResult {
-    return stdAction("ConvertHeatSA") {
-      doTask("Pay<Class<Heat>> FROM Heat / Owed<Class<Heat>>")
-      body()
-    }
+    return stdAction("ConvertHeatSA", body = body)
   }
 
   public fun stdProject(
@@ -150,7 +148,7 @@ public class TfmGameplay(
       body: BodyLambda = {},
   ): TaskResult {
     return stdAction("UseStandardProjectSA") {
-      doTask("UseAction1<$stdProject>")
+      doTask("UseAction<$stdProject, First>")
       payment()
       body()
     }
@@ -177,7 +175,7 @@ public class TfmGameplay(
   ): TaskResult {
     return inTfmTurn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
-        doTask("UseAction1<PlayCardSA>")
+        doTask("UseAction<PlayCardSA, First>")
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
@@ -317,10 +315,18 @@ public class TfmGameplay(
   private fun cardAction(which: Int, cardName: ClassName, body: BodyLambda = {}): TaskResult {
     return stdAction("UseCardActionSA") {
       doTask("ActionUsedMarker<$cardName>")
-      doTask("$USE_ACTION$which<$cardName>")
+      doTask("UseAction<$cardName, ${whichAction(which)}>")
       body()
     }
   }
+
+  private fun whichAction(which: Int): String =
+      when (which) {
+        1 -> "First"
+        2 -> "Second"
+        3 -> "Third"
+        else -> throw IllegalArgumentException("A component can offer only three actions: $which")
+      }
 
   public fun sellPatents(count: Int): TaskResult =
       stdAction("SellPatents") { doTask("-$count ProjectCard THEN $count") }

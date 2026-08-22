@@ -22,9 +22,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   [`docs/agents/REAL_CARDS_MODE.md`](docs/agents/REAL_CARDS_MODE.md): `CardBack` carries its exact
   `Class<CardFront>`, while `CardFront` carries its `Class<CardBack>` family.
 - Decide whether the administrative `Engine` Actor should instead be named `Npc` or `Admin`.
-- **Medium-high priority:** Implement the Pets Action semantics settled in
-  [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): numbered `CostPaid` signals separate every
-  cost from its result, while only fixed and X-scaled standard-resource costs become invoices.
+- **Medium-high priority:** Complete the Pets Action semantics settled in
+  [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): lower every Action through its provider- and
+  action-qualified `CostPaid` signal, while only fixed and X-scaled standard-resource costs become invoices.
   Resolve ownership of that Terraforming Mars-aware lowering without moving `UseAction` into
   `system.pets` merely to erase the current package tension. Keep Head Start completion scopes and
   action-use marker behavior as separate design questions.

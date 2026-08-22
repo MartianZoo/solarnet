@@ -145,7 +145,7 @@ internal class CardDefinitionTest {
     val declaration = card.extraClasses.single()
     declaration.className shouldBe cn("TestCard1_Mandate")
     declaration.supertypes.shouldContainExactly(parse<Expression>("Mandate"))
-    declaration.effects.shouldContainExactly(parse<Effect>("UseAction1<This>: 3 ProjectCard"))
+    declaration.effects.shouldContainExactly(parse<Effect>("UseAction<This, First>: 3 ProjectCard"))
   }
 
   @Test

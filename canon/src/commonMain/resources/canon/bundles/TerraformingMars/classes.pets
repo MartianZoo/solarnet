@@ -3,7 +3,7 @@ CLASS TerraformingMars : Module {
   HAS =1 Mode
   HAS =1 Class<Production>
   HAS =1 Class<SetupPhase>, =1 Class<CorporationPhase>, =1 Class<ResearchPhase>, =1 Class<ActionPhase>, =1 Class<ProductionPhase>, =1 Class<SolarPhase>, =1 Class<FinalGreeneryPhase>, =1 Class<EndPhase>
-  HAS =1 Class<UseAction1>, =1 Class<UseAction2>, =1 Class<UseAction3>, =1 Class<NewTurn>, =1 Class<SecondAction>
+  HAS =1 Class<UseAction>, =1 Class<NewTurn>, =1 Class<SecondAction>
   autoSelectWhen = HAS MAX 0 TerraformingMars
 
   This:: PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
@@ -281,17 +281,20 @@ CLASS SecondPlace<Award> : Owned<Player> {
 // Any component that responds to `UseAction` signals
 ABSTRACT CLASS HasActions
 
-"A Signal a player sends to indicate an action they want to perform"
-ABSTRACT CLASS UseAction<HasActions> : Owned<Player>, Signal {
-  This: MAX 0 Mandate: Ok
+"Identifies one of the actions offered by a component"
+ABSTRACT CLASS WhichAction {
+  HAS =1 This
+  CLASS First, Second, Third
+}
 
-  "A component can offer up to three actions; the digit (1, 2, 3) indicates which one"
-  CLASS UseAction1, UseAction2, UseAction3
+"A Signal a player sends to indicate an action they want to perform"
+CLASS UseAction<HasActions, WhichAction> : Owned<Player>, Signal {
+  This: MAX 0 Mandate: Ok
 }
 
 ABSTRACT CLASS Mandate : Owned<Player>, HasActions {
   HAS MAX 1 This
-  MandateSignal: UseAction1<This>
+  MandateSignal: UseAction<This, First>
   MandateSignal: -This!
 }
 
@@ -314,37 +317,37 @@ ABSTRACT CLASS StandardProject : HasActions {
   HAS MAX 1 This
   cost = Number
   UseAction<This>:: Owed<> / This.cost
-  -> Payment<Class<This>>
+  -> Payment<This, First>
 }
 
 CLASS PowerPlantSP : StandardProject {
   cost = 11
-  CostPaid<Class<This>>: PROD[Energy]
+  CostPaid<This>: PROD[Energy]
 }
 
 CLASS AsteroidSP : StandardProject {
   cost = 14
-  CostPaid<Class<This>>: TemperatureStep
+  CostPaid<This>: TemperatureStep
 }
 
 CLASS BufferGasSP : StandardProject {
   cost = 16
-  CostPaid<Class<This>>: TerraformRating
+  CostPaid<This>: TerraformRating
 }
 
 CLASS AquiferSP : StandardProject {
   cost = 18
-  CostPaid<Class<This>>: OceanTile<>
+  CostPaid<This>: OceanTile<>
 }
 
 CLASS GreenerySP : StandardProject {
   cost = 23
-  CostPaid<Class<This>>: GreeneryTile<>
+  CostPaid<This>: GreeneryTile<>
 }
 
 CLASS CitySP : StandardProject {
   cost = 25
-  CostPaid<Class<This>>: PROD[1], CityTile<>
+  CostPaid<This>: PROD[1], CityTile<>
 }
 
 // PAY AND PLAY
@@ -391,12 +394,12 @@ CLASS AcceptFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>,
 CLASS PayFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal
 
 "Becomes a payment-specific signal when the owner's final debt is removed"
-CLASS Payment<Class<HasActions>> : Owned<Player>, Barrier {
-  -X Owed IF MAX 0 Owed: CostPaid<Class<HasActions>> FROM This
+CLASS Payment<HasActions, WhichAction> : Owned<Player>, Barrier {
+  -X Owed IF MAX 0 Owed: CostPaid<HasActions, WhichAction> FROM This
 }
 
-"Signals that a specific payment has been completed"
-CLASS CostPaid<Class<HasActions>> : Owned<Player>, Signal
+"Signals that payment for one action offered by a specific component has been completed"
+CLASS CostPaid<HasActions, WhichAction> : Owned<Player>, Signal
 
 "Cards like Indentured Workers leave this in play until the next card-play"
 ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
@@ -421,7 +424,7 @@ ABSTRACT CLASS Phase : System {
   CLASS ProductionPhase
   CLASS SolarPhase
   CLASS FinalGreeneryPhase {
-    NewTurn: UseAction1<ConvertPlantsSA>?
+    NewTurn: UseAction<ConvertPlantsSA, First>?
   }
   CLASS EndPhase
 }

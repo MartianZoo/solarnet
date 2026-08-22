@@ -119,7 +119,7 @@ class SoloGame20230721Test : AbstractSoloTest() {
       // me played Project Inspection
       playProject(ProjectInspection, 0) {
         // me used United Nations Mars Initiative action with Project Inspection
-        doTask("UseAction1<$UnitedNationsMarsInitiative>")
+        doTask("UseAction<$UnitedNationsMarsInitiative, First>")
       }
       // me played Energy Tapping
       playProject(EnergyTapping, 3)

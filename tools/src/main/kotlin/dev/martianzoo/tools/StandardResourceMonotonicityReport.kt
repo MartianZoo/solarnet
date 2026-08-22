@@ -351,13 +351,17 @@ internal object StandardResourceMonotonicityReport {
   }
 
   private fun effectLocation(effect: Effect, index: Int): RuleLocation {
+    val action =
+        (effect.trigger as? Effect.Trigger.OnGainOf)?.expression?.takeIf {
+          it.className == USE_ACTION
+        }
     val actionIndex =
-        (effect.trigger as? Effect.Trigger.OnGainOf)
-            ?.expression
-            ?.className
-            ?.toString()
-            ?.removePrefix(USE_ACTION.toString())
-            ?.toIntOrNull()
+        when (action?.arguments?.lastOrNull()?.className?.toString()) {
+          "First" -> 1
+          "Second" -> 2
+          "Third" -> 3
+          else -> null
+        }
     return if (actionIndex == null) {
       RuleLocation(RuleLocationKind.EFFECT, index)
     } else {

@@ -222,7 +222,7 @@ internal class ScriptSessionTest {
             .trimIndent(),
     )
     command(
-        "task UseAction1<ConvertHeatSA>",
+        "task UseAction<ConvertHeatSA, First>",
         """
         New tasks pending:
         * [Player2] X Pay<Player2, Class<Heat>> FROM Heat<Player2>? (abstract)
@@ -278,7 +278,7 @@ internal class ScriptSessionTest {
         phase Action
 
         become Player1
-        turn; task UseAction1<PlayCardSA>; tfm_play InventorsGuild; tfm_pay 9
+        turn; task UseAction<PlayCardSA, First>; tfm_play InventorsGuild; tfm_pay 9
         """
             .trimIndent()
             .split(Regex(" *[\n;] *"))

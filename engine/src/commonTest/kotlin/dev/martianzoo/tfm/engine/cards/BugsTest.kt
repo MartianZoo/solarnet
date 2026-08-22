@@ -69,8 +69,8 @@ class BugsTest : CardTest() {
         shouldThrow<AbstractException> {
           p1.playPrelude(FakeEstablishedMethods) {
             p1.manual("-20")
-            doTask("UseAction1<UseStandardProjectSA>")
-            doTask("UseAction1<GreenerySP>")
+            doTask("UseAction<UseStandardProjectSA, First>")
+            doTask("UseAction<GreenerySP, First>")
             p1.autoExecNow()
           }
         }
@@ -86,10 +86,10 @@ class BugsTest : CardTest() {
 
     p1.playPrelude(HeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "Megacredit")
-      doTask("UseAction1<UseStandardProjectSA>")
-      doTask("UseAction1<ConvertHeatSA>")
+      doTask("UseAction<UseStandardProjectSA, First>")
+      doTask("UseAction<ConvertHeatSA, First>")
       doTask("8 Pay<Class<Heat>> FROM Heat")
-      doTask("UseAction1<AquiferSP>")
+      doTask("UseAction<AquiferSP, First>")
       doTask("18 Pay<Class<Megacredit>> FROM Megacredit")
       doTask("OceanTile<Tharsis_5_5>")
     }

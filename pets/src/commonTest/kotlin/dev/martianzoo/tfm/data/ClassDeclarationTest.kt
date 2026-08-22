@@ -12,7 +12,6 @@ import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -65,6 +64,7 @@ internal class ClassDeclarationTest {
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
     val trigger = cn("Trigger").expression
+    val first = cn("First")
 
     decl.className shouldBe foo
     decl.abstract shouldBe true
@@ -76,10 +76,21 @@ internal class ClassDeclarationTest {
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
     decl.defaultsDeclaration.triggerOnly.specs.shouldContainExactlyInAnyOrder(trigger)
     decl.defaultsDeclaration.gainOnly.intensity shouldBe Intensity.OPTIONAL
-    decl.extraNodes.shouldBeEmpty()
+    decl.extraNodes.shouldContainExactlyInAnyOrder(first)
 
     decl.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("Baz"))
 
-    decl.allNodes.shouldContainExactlyInAnyOrder(foo, dep, sup, inv, eff, act, gain, univ, trigger)
+    decl.allNodes.shouldContainExactlyInAnyOrder(
+        foo,
+        dep,
+        sup,
+        inv,
+        eff,
+        act,
+        gain,
+        univ,
+        trigger,
+        first,
+    )
   }
 }

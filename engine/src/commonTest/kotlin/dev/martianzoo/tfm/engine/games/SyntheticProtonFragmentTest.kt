@@ -576,7 +576,7 @@ class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     mom.playProject(InventionContest, 2) { mom.draw(WaterImportFromEuropa) }
     mom.playProject(ProjectInspection, megacredits = 0) {
-      doTask("UseAction1<$Hospitals>")
+      doTask("UseAction<$Hospitals, First>")
     }
 
     ellie.cardAction1(SaturnSurfing)

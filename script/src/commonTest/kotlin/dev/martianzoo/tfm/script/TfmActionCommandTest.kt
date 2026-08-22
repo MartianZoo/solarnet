@@ -23,7 +23,7 @@ internal class TfmActionCommandTest {
     repl.command("become Player1")
     repl.gameplay.godMode().manual("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.gameplay.godMode().beginManual("UseAction1<UseCardActionSA>")
+    repl.gameplay.godMode().beginManual("UseAction<UseCardActionSA, First>")
     repl.command("auto safe")
 
     val output = repl.command("tfm_action AiCentral 1")

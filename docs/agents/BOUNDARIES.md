@@ -23,13 +23,13 @@ profile system unless this seam is actually being fixed.
 
 **Priority when boundary work is selected: P0.**
 
-Generic Pets and engine code know `Action`, `UseAction1..3`, `NewTurn`, and turn-start
+Generic Pets and engine code know `Action`, `UseAction`, `WhichAction`, `NewTurn`, and turn-start
 translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
 documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
 under Terraforming Mars. The half-generic placement is the defect.
 
 The desired [Pets Action model](ACTIONS.md) makes this seam more explicit: every Action uses a
-numbered `CostPaid` bridge, but only fixed and X-scaled Terraforming Mars `StandardResource` costs
+provider- and action-qualified `CostPaid` bridge, but only fixed and X-scaled Terraforming Mars `StandardResource` costs
 open invoices. That conversion is domain semantics, not a generic spelling change. Decide the
 ownership of Action signaling and standard-resource-aware lowering together. Do not teach generic
 Pets about `StandardResource`, duplicate the protocol on both sides, or add a broad extension
