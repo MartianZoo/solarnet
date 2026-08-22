@@ -20,12 +20,13 @@ generated characterization of what the renderer produces for canonical cards tha
 the current-versus-goal diff. Correct a goal row when card data or a systemic rule shows that it is
 mistaken.
 
-`english-published-wording-evidence.tsv` indexes wording occurrences harvested from the official
-expansion directories in `terraforming-mars/terraforming-mars` at the recorded commit. It stores
-source locations and short normalized forms rather than whole card text. Use its frequency evidence
-to choose one consistent style; it is not semantic authority. The current evidence favors `VP per`
-for proportional scoring, contains no scoring construction beginning with `Worth`, and is nearly
-even between `draw 1 card` and `draw a card`.
+`english-published-wording-evidence.tsv` records published English card text. Its preferred source
+is columns B, AP, and AQ of the `Cards` tab in
+`https://docs.google.com/spreadsheets/d/12FF6VyIKr8HArRR9zjkaIR-PEUql6QnNBbngvI3Fzjo/edit?gid=5502005#gid=5502005`.
+Canonical cards absent from that sheet retain the wording previously collected from the deployed
+Terraforming Mars card catalog or supplied directly. Empty regions generally mean that the
+published card communicates that region only through icons. This file is wording evidence, not
+semantic authority or a production answer source.
 
 ## Verification while replacing the data file
 
