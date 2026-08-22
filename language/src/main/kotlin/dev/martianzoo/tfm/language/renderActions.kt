@@ -124,11 +124,7 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   if (gain.intensity != null && gain.intensity != MANDATORY) return null
   val gainScalar = gain.count as? XScalar ?: return null
   val gaining = gain.gaining
-  if (
-      !gaining.simple ||
-          !concrete(gaining.className) ||
-          fact(gaining.className, ComponentDescriber::standardResource) != true
-  ) {
+  if (!gaining.simple || !concrete(gaining.className) || !isStandardResource(gaining.className)) {
     return null
   }
   val cost =

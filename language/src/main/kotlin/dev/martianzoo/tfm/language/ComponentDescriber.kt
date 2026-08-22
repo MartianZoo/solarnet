@@ -4,7 +4,6 @@ package dev.martianzoo.tfm.language
 public data class ComponentDescriber(
     public val noun: Noun? = null,
     public val discardable: Boolean? = null,
-    public val standardResource: Boolean? = null,
     public val cardResource: CardResource? = null,
     public val cardResourceHolder: Noun.Counted? = null,
     public val metricLocation: String? = null,
@@ -16,7 +15,6 @@ public data class ComponentDescriber(
     public val spatialRelation: SpatialRelation? = null,
     /** Whether [directChange] interprets the declared behavior of concrete direct subclasses. */
     public val directChangeForSubclasses: Boolean = false,
-    public val production: Boolean? = null,
     public val productionSelection: String? = null,
     public val requirement: Requirement? = null,
     public val directChange: DirectChange? = null,

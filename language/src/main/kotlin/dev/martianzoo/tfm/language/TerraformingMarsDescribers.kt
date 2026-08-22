@@ -24,7 +24,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
         klass("StandardResource") to
             ComponentDescriber(
-                standardResource = true,
                 directChange = ComponentDescriber.DirectChange.GainChoice("a standard resource"),
             ),
         klass("Metal") to
@@ -414,7 +413,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)
             ),
-        klass("Production") to ComponentDescriber(production = true),
         klass("LowestProduction") to
             ComponentDescriber(productionSelection = "one of your lowest productions"),
         klass("ColonyProduction") to

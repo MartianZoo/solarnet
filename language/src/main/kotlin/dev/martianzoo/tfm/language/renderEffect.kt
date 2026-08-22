@@ -191,7 +191,7 @@ private fun renderPurchaseAdjustment(effect: Effect, describers: Describers): St
   if (change.intensity != null && change.intensity != MANDATORY) return null
   val expression = change.gaining ?: change.removing ?: return null
   if (!expression.simple || !describers.concrete(expression.className)) return null
-  if (describers.fact(expression.className, ComponentDescriber::standardResource) != true) {
+  if (!describers.isStandardResource(expression.className)) {
     return null
   }
   val adjustment = (change.count as? ActualScalar)?.value ?: return null
@@ -266,7 +266,7 @@ private fun protectedResourceNoun(expression: Expression, describers: Describers
   describers.cardResourceNoun(expression.className, 2)?.let {
     return it
   }
-  if (describers.fact(expression.className, ComponentDescriber::standardResource) != true) {
+  if (!describers.isStandardResource(expression.className)) {
     return null
   }
   return describers.componentNoun(expression.className, 2)

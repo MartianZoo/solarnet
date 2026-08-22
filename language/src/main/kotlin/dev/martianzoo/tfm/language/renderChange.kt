@@ -47,7 +47,7 @@ internal fun renderChange(
       return renderDraw(instruction, drawFilter, describers)
   if (describers.fact(expression.className, ComponentDescriber::cardResource) != null)
       return renderCardResourceChange(instruction, describers)
-  if (describers.fact(expression.className, ComponentDescriber::production) == true)
+  if (describers.isProduction(expression.className))
       return renderProductionChange(instruction, describers)
   describers.fact(expression.className, ComponentDescriber::track)?.let {
     return renderTrackChange(instruction, it)
@@ -55,7 +55,7 @@ internal fun renderChange(
   describers.fact(expression.className, ComponentDescriber::placement)?.let {
     return renderPlacement(instruction, it, describers)
   }
-  if (describers.fact(expression.className, ComponentDescriber::standardResource) == true)
+  if (describers.isStandardResource(expression.className))
       return renderStandardResourceChange(instruction, describers)
   return null
 }
@@ -121,7 +121,7 @@ private fun renderDraw(
 internal fun isProductionChange(instruction: Instruction, describers: Describers): Boolean {
   val expression =
       (instruction as? Instruction.Change)?.let { it.gaining ?: it.removing } ?: return false
-  return describers.fact(expression.className, ComponentDescriber::production) == true
+  return describers.isProduction(expression.className)
 }
 
 internal fun isCoalescibleStandardResourceGain(
@@ -129,7 +129,7 @@ internal fun isCoalescibleStandardResourceGain(
     describers: Describers,
 ): Boolean {
   val expression = (instruction as? Gain)?.gaining ?: return false
-  return describers.fact(expression.className, ComponentDescriber::standardResource) == true
+  return describers.isStandardResource(expression.className)
 }
 
 internal fun standardResourceGain(
@@ -138,8 +138,7 @@ internal fun standardResourceGain(
 ): Pair<ClassName, Int>? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   return (className to count).takeIf {
-    describers.concrete(className) &&
-        describers.fact(className, ComponentDescriber::standardResource) == true
+    describers.concrete(className) && describers.isStandardResource(className)
   }
 }
 
@@ -415,8 +414,7 @@ private fun renderStandardResourceChange(
   if (expression.refinement != null || expression.complement) return null
   val count = (removal.count as? ActualScalar)?.value ?: return null
   if (!describers.concrete(expression.className)) return null
-  if (describers.fact(expression.className, ComponentDescriber::standardResource) != true)
-      return null
+  if (!describers.isStandardResource(expression.className)) return null
   if (expression.simple && (removal.intensity == null || removal.intensity == MANDATORY)) {
     return clause("remove", describers.componentNounPhrase(expression.className, count))
   }
@@ -467,7 +465,7 @@ private fun renderStandardResourceTransfer(
     return null
   }
   if (!describers.concrete(gaining.className)) return null
-  if (describers.fact(gaining.className, ComponentDescriber::standardResource) != true) return null
+  if (!describers.isStandardResource(gaining.className)) return null
   val recipient = renderTransferParty(gaining, describers) ?: return null
   val payer = renderTransferParty(removing, describers) ?: return null
   val (verb, preposition, otherParty) =
@@ -588,7 +586,7 @@ private fun renderSelectedProductionChange(
     describers: Describers,
 ): Clause.Simple? {
   if (
-      describers.fact(expression.className, ComponentDescriber::production) != true ||
+      !describers.isProduction(expression.className) ||
           expression.refinement != null ||
           expression.complement ||
           expression.arguments.size != 1
@@ -597,7 +595,7 @@ private fun renderSelectedProductionChange(
   }
   val resource = describers.representedClassArgument(expression.arguments.single()) ?: return null
   if (
-      describers.fact(resource.className, ComponentDescriber::standardResource) != true ||
+      !describers.isStandardResource(resource.className) ||
           describers.concrete(resource.className) ||
           resource.complement
   ) {

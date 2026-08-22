@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
+import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
@@ -105,8 +106,14 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       componentNoun(className, count).takeIf { isPlainGain(className) }
 
   internal fun isPlainGain(className: ClassName): Boolean {
-    return fact(className, ComponentDescriber::standardResource) == true
+    return isStandardResource(className)
   }
+
+  internal fun isStandardResource(className: ClassName): Boolean =
+      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(STANDARD_RESOURCE))
+
+  internal fun isProduction(className: ClassName): Boolean =
+      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(PRODUCTION))
 
   internal fun componentNounPhrase(className: ClassName, count: Int): NounPhrase {
     val noun = fact(className, ComponentDescriber::noun)
@@ -188,7 +195,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       expression: Expression,
   ): Pair<List<Expression>, ClassName>? {
     if (
-        fact(expression.className, ComponentDescriber::production) != true ||
+        !isProduction(expression.className) ||
             expression.refinement != null ||
             expression.complement
     ) {

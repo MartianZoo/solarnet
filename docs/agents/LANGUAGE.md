@@ -81,6 +81,8 @@ Table. It uses dependency keys returned by the declaring Class to distinguish su
 from defaults; renderers do not infer owner, resource, or represented-Class roles from argument
 positions. Contextual `This` still has one explicitly marked production fallback until rendering
 receives the linked source needed to resolve it.
+Membership in `Production` and `StandardResource` is read from the Class hierarchy and is not
+duplicated in `ComponentDescriber`.
 
 Structural renderers only identify the component Class, ask `Describers` for the applicable
 inherited phrase or capability, and compose the answer. They do not name component Classes or
