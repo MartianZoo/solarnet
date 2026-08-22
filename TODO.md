@@ -29,11 +29,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   though no selected Module activates them. Make their owning Modules activate them explicitly,
   then remove the `ClassLoader` rule that activates every reachable Trigger root.
 - **Medium-high priority:** Complete the Pets Action semantics settled in
-  [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): lower every Action through its provider- and
-  action-qualified `CostPaid` signal, while only fixed and X-scaled standard-resource costs become invoices.
-  Resolve ownership of that Terraforming Mars-aware lowering without moving `UseAction` into
-  `system.pets` merely to erase the current package tension. Keep Head Start completion scopes and
-  action-use marker behavior as separate design questions.
+  [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): standard-resource costs now become invoices;
+  lower costless and direct-cost Actions through their provider- and action-qualified
+  `CostPaid` signals. Keep Head Start completion scopes and action-use marker behavior separate.
 - **High priority:** Allow a partial instruction to narrow the matching portion of exactly one
   pending task while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
@@ -167,6 +165,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Decide whether `Summarizer` should attribute invoice settlement back through `Payment` and
+  `Owed` to the Action provider; standard-resource Action costs are currently attributed to the
+  payment machinery rather than cards such as Search for Life.
 - Let invoice lowering compose a fixed base with a per-component increment as one exact debt;
   `FundAwardSA` must retain its gated 8/14/20 gains until separate `Owed` gains cannot expose
   payment and `CostPaid` between invoice parts.

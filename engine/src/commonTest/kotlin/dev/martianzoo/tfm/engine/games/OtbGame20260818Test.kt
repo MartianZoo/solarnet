@@ -407,7 +407,7 @@ class OtbGame20260818Test : AbstractFullGameTest() {
     dad.turn {
       // "Use my Energy Market to pay six, which gives me three energy, and then use that three
       // energy to send my little boat to Io and take ten heat."
-      cardAction1(EnergyMarket) { doTask("-6 THEN 3 Energy") }
+      cardAction1(EnergyMarket, x = 3)
       stdAction("TradeSA", 2) { doTask("Trade<Io>") }.expect("-3 E, 10 H")
     }
 
@@ -560,7 +560,7 @@ class OtbGame20260818Test : AbstractFullGameTest() {
     }
     dad.turn {
       // "Use Energy Market to spend my last two money to get one energy resource."
-      cardAction1(EnergyMarket) { doTask("-2 THEN 1 Energy") }.expect("-2 M, Energy")
+      cardAction1(EnergyMarket, x = 1).expect("-2 M, Energy")
       // "I'm going to convert plants and get in this spot where I get a plant and four money."
       convertPlants {
             doTask("GreeneryTile<Utopia_4_2>")

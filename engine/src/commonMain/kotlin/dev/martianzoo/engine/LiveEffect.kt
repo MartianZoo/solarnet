@@ -14,6 +14,7 @@ import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName
@@ -168,9 +169,10 @@ private constructor(
           val triggerBindings =
               effect.linkedTypeSources.filterTo(mutableSetOf()) { it.className == ANYONE }
           val checkedBinding =
-              transformers.checkedSubstituterPreserving(
+              transformers.checkedEffectSubstituter(
                   component.type.rootClass.defaultType,
                   component.type,
+                  effect,
                   triggerBindings,
                   ownerBinding,
                   thisBinding,
@@ -256,7 +258,7 @@ private constructor(
             when (trigger) {
               is ByTrigger -> Personal(inner, trigger.by)
               is IfTrigger -> Conditional(inner, trigger.condition)
-              is XTrigger -> Unscaled(inner)
+              is XTrigger -> CountBinding(inner)
               is Transform -> error("should have been transformed by now: $trigger")
             }
           }
@@ -505,20 +507,15 @@ private constructor(
           )
     }
 
-    private data class Unscaled(val inner: Subscription) : Subscription() {
+    private data class CountBinding(val inner: Subscription) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
           contextualOwner: Player?,
           isSelf: Boolean,
           reader: GameReader,
       ): Hit? {
-        // Just fake it like only one happened.
-        return inner.checkForHit(
-            currentEvent.copy(change = currentEvent.change.copy(count = 1)),
-            contextualOwner,
-            isSelf,
-            reader,
-        )
+        val hit = inner.checkForHit(currentEvent, contextualOwner, isSelf, reader) ?: return null
+        return hit.bindCount(currentEvent.change.count)
       }
 
       override val classToCheck = inner.classToCheck
@@ -536,6 +533,12 @@ private constructor(
         transformers.fold(instruction) { current, transformer ->
           transformer.transformInstructionTree(current)
         } * count
+
+    fun bindCount(value: Int): Hit =
+        Hit(
+            transformers + bindXTo(value),
+            count = 1,
+        )
 
     fun specialize(expression: Expression): Expression =
         transformers.fold(expression) { current, transformer ->

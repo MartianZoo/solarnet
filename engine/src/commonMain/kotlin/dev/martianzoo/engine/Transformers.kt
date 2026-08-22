@@ -530,15 +530,54 @@ public class Transformers(public val classTable: ClassTable) {
     )
   }
 
-  /** Specializes a component while leaving trigger-local linked expressions to the event match. */
-  internal fun checkedSubstituterPreserving(
+  /**
+   * Specializes a class effect while retaining complete values for abstract class-header
+   * dependencies used by that effect. Those occurrences are variables linked to the header, not
+   * ordinary requests to replace every instance of the same abstract Class.
+   */
+  internal fun checkedEffectSubstituter(
       general: Type,
       specific: Type,
-      preserved: Set<Expression>,
+      effect: Effect,
+      eventLinkedSources: Set<Expression>,
       vararg afterSubstitution: PetTransformer?,
   ): PetTransformer {
+    val expressions = effect.descendantsOfType<Expression>().toSet()
+    val commonPaths =
+        general.dependencies.flatten().keys.intersect(specific.dependencies.flatten().keys)
+    val dependencyBindings =
+        commonPaths
+            .mapNotNull { path ->
+              val source = general.dependencies.at(path).expression
+              val replacement = specific.dependencies.at(path).expressionFull
+              if (
+                  source.simple &&
+                      classTable.getClass(source.className).abstract &&
+                      source in expressions &&
+                      source !in eventLinkedSources &&
+                      replacement != source
+              ) {
+                source to replacement
+              } else {
+                null
+              }
+            }
+            .groupBy({ it.first }, { it.second })
+            .mapNotNull { (source, replacements) ->
+              replacements.distinct().singleOrNull()?.let { source to it }
+            }
+            .toMap()
+
     return chain(
-        listOf(substituter(specializationSubstitutions(general, specific), preserved)) +
+        listOf(
+            substituter(
+                specializationSubstitutions(general, specific),
+                eventLinkedSources + dependencyBindings.keys,
+            )
+        ) +
+            dependencyBindings.map { (source, replacement) ->
+              PetNode.replacer(source, replacement)
+            } +
             afterSubstitution +
             invalidChangesToDie()
     )

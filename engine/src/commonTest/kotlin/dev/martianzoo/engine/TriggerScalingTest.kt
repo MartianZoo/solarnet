@@ -18,7 +18,12 @@ class TriggerScalingTest {
     gameplay.beginManual("5 ScalingSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
-          .shouldContainExactlyInAnyOrder("5 ScaledResult!", "UnscaledResult!")
+          .shouldContainExactlyInAnyOrder(
+              "5 ScaledResult!",
+              "UnscaledResult!",
+              "10 BoundResult!",
+              "FixedResult!",
+          )
     }
   }
 
@@ -31,11 +36,14 @@ class TriggerScalingTest {
                       CLASS ScalingSignal
                       CLASS ScaledResult
                       CLASS UnscaledResult
+                      CLASS BoundResult
+                      CLASS FixedResult
 
                       CLASS TriggerScalingProbe {
                         HAS =1 This
                         ScalingSignal: ScaledResult
                         X ScalingSignal: UnscaledResult
+                        X ScalingSignal: 2X BoundResult, FixedResult
                       }
                       """
                           .trimIndent()

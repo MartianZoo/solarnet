@@ -38,15 +38,13 @@
     // Convert plants
     {
       "name": "ConvertPlantsSA",
-      "action": "-> 8 Owed<Class<Plant>> THEN Payment<This, First>",
-      "effects": [ "CostPaid<This>: GreeneryTile<>" ]
+      "action": "8 Plant -> GreeneryTile<>"
     },
 
     // Convert heat
     {
       "name": "ConvertHeatSA",
-      "action": "-> 8 Owed<Class<Heat>> THEN Payment<This, First>",
-      "effects": [ "CostPaid<This>: TemperatureStep" ]
+      "action": "8 Heat -> TemperatureStep"
     },
 
     // Sell patents - yes, it's technically a project, but that makes things annoying

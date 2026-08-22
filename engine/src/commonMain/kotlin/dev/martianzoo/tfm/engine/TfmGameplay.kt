@@ -15,11 +15,14 @@ import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
+import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE_CLASSES
 
 /**
  * Wraps and extends a [Gameplay] instance to provide much more convenient functions specific to
@@ -114,9 +117,7 @@ public class TfmGameplay(
   }
 
   private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
-    val standardResources =
-        listOf(MEGACREDIT, cn("Steel"), cn("Titanium"), cn("Plant"), cn("Energy"), cn("Heat"))
-    val offeredResource = standardResources.singleOrNull { resource ->
+    val offeredResource = STANDARD_RESOURCE_CLASSES.singleOrNull { resource ->
       game.tasks
           .extract { it }
           .filter { it.assignee == actor }
@@ -220,6 +221,9 @@ public class TfmGameplay(
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      plant: Int = 0,
+      energy: Int = 0,
+      heat: Int = 0,
   ): TaskResult {
     val underpaymentAllowed = allowUnderpayment
     val overpaymentAllowed = allowOverpayment
@@ -261,6 +265,9 @@ public class TfmGameplay(
         if (cost > 0) doTask("$cost Pay<Class<$currency>> FROM $currency")
       }
 
+      payNonMoneyResource(plant, "Plant")
+      payNonMoneyResource(energy, "Energy")
+      payNonMoneyResource(heat, "Heat")
       payNonMoneyResource(titanium, "Titanium")
       payNonMoneyResource(steel, "Steel")
 
@@ -307,17 +314,44 @@ public class TfmGameplay(
   }
 
   public fun cardAction1(cardName: ClassName, body: BodyLambda = {}): TaskResult =
-      cardAction(1, cardName, body)
+      cardAction(1, cardName, body = body)
+
+  public fun cardAction1(cardName: ClassName, x: Int, body: BodyLambda = {}): TaskResult =
+      cardAction(1, cardName, x, body)
 
   public fun cardAction2(cardName: ClassName, body: BodyLambda = {}): TaskResult =
-      cardAction(2, cardName, body)
+      cardAction(2, cardName, body = body)
 
-  private fun cardAction(which: Int, cardName: ClassName, body: BodyLambda = {}): TaskResult {
+  public fun cardAction2(cardName: ClassName, x: Int, body: BodyLambda = {}): TaskResult =
+      cardAction(2, cardName, x, body)
+
+  private fun cardAction(
+      which: Int,
+      cardName: ClassName,
+      x: Int? = null,
+      body: BodyLambda = {},
+  ): TaskResult {
     return stdAction("UseCardActionSA") {
       doTask("ActionUsedMarker<$cardName>")
       doTask("UseAction<$cardName, ${whichAction(which)}>")
+      x?.let { chooseVariableInvoiceAmount(this, it) }
+      payInvoiceFromItsResourceIfOffered()
       body()
     }
+  }
+
+  private fun chooseVariableInvoiceAmount(operation: OperationBody, x: Int) {
+    require(x > 0) { "An action's X must be positive: $x" }
+    val invoice =
+        game.tasks
+            .extract { it }
+            .filter { it.assignee == actor }
+            .single { task ->
+              task.instruction.descendantsOfType<Change>().any { change ->
+                change.gaining?.className == cn("Owed")
+              } && task.instruction.descendantsOfType<Scalar>().any(Scalar::abstract)
+            }
+    operation.doTask(bindXTo(x).transformInstructionTree(invoice.instruction).toString())
   }
 
   private fun whichAction(which: Int): String =

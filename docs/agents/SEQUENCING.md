@@ -219,8 +219,8 @@ Current strong examples are:
   the corresponding `Pay` removes the owner's final `Owed`, the barrier is transmuted into that
   conversion's `CostPaid` signal and only that conversion's result responds.
 - Every concrete `StandardProject` inherits the same payment protocol: one automatic rule creates
-  M€ debt from its `cost` property, and its shared action creates `Payment<Class<This>>`. The
-  concrete project says only how it responds to `CostPaid<Class<This>>`. Discounts reduce `Owed`;
+  M€ debt from its `cost` property, and its shared action creates `Payment<This>`. The concrete
+  project says only how it responds to `CostPaid<This>`. Discounts reduce `Owed`;
   Standard Technology's separate 3 M€ reaction remains a rebate rather than reducing the debt.
 - `AcceptFromCard<ResourceCard>` offers an optional card-resource payment whose
   `PayFromCard<ResourceCard>` signal and removed `CardResource<ResourceCard>` are specialized to
@@ -453,9 +453,9 @@ Mons Insurance. Any implementation must therefore test the three dimensions abov
 
 ## Settled families
 
-Pets Action lowering is under redesign. The settled direction separates cost satisfaction from the
-payoff with action-qualified `CostPaid` signals; the current generated cost-then-payoff chain is not a
-settled family. See [ACTIONS.md](ACTIONS.md).
+Pets Action lowering is partly normalized. Fixed and X-scaled standard-resource costs now separate
+invoice settlement from the payoff with action-qualified `CostPaid` signals; costless and direct
+costs still use the older generated chain. See [ACTIONS.md](ACTIONS.md).
 
 These current encodings are considered principled:
 

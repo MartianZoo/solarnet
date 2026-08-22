@@ -136,10 +136,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
 
     KB.cardAction1(RestrictedArea) { KB.draw(AdaptedLichen) }
     KB.playProject(PeroxidePower, 6)
-    ER.cardAction1(TychoMagnetics) {
-      doTask("-2 Energy")
-      ER.draw(RedShips)
-    }
+    ER.cardAction1(TychoMagnetics, x = 2) { ER.draw(RedShips) }
     ER.playProject(VestaShipyard, 9, titanium = 2)
     // Consequence reconstruction: JR lost one energy production and two money production.
     JR.playProject(ImmigrantCity, 3, steel = 5) {
@@ -165,10 +162,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.buyCards(RoboticWorkforce, StripMine)
     KB.buyCards(SoilFactory, QuantumExtractor, NitrogenRichAsteroid)
 
-    ER.cardAction1(TychoMagnetics) {
-      doTask("-2 Energy")
-      ER.draw(LightningHarvest)
-    }
+    ER.cardAction1(TychoMagnetics, x = 2) { ER.draw(LightningHarvest) }
     ER.cardAction1(IndustrialCenter)
     JR.playProject(NaturalPreserve, 9) { doTask("NaturalPreserve_SpecialTile<Elysium_8_4>") }
     JR.stdAction("ClaimMilestoneSA") { doTask("Builder7") }
@@ -199,10 +193,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.doTask("ScienceTag<WildTagUse<$ResearchNetwork>>")
     KB.playProject(MassConverter, 7)
     KB.playProject(InvestmentLoan, 0)
-    ER.cardAction1(TychoMagnetics) {
-      doTask("-2 Energy")
-      ER.draw(GiantSpaceMirror)
-    }
+    ER.cardAction1(TychoMagnetics, x = 2) { ER.draw(GiantSpaceMirror) }
     ER.playProject(InventorsGuild, 9)
     JR.playProject(LavaTubeSettlement, 3, steel = 6) { doTask("CityTile<Elysium_3_1>") }
     JR.playProject(HermeticOrderOfMars, 10)
@@ -237,10 +228,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
 
     KB.cardAction1(RestrictedArea) { KB.draw(EquatorialMagnetizer) }
     KB.playProject(BusinessContacts, 3) { KB.draw(TitaniumMine, LawSuit) }
-    ER.cardAction1(TychoMagnetics) {
-      doTask("-Energy")
-      ER.draw(SolarWindPower)
-    }
+    ER.cardAction1(TychoMagnetics, x = 1) { ER.draw(SolarWindPower) }
     ER.cardAction1(InventorsGuild) { doTask("Ok") }
     JR.stdAction("ClaimMilestoneSA") { doTask("Philantropist") }
     JR.playProject(SpaceElevator, 27)
@@ -332,10 +320,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.stdAction("FundAwardSA") { doTask("Banker") }
     KB.convertPlants { doTask("GreeneryTile<Elysium_5_2>") }
     KB.cardAction1(RestrictedArea) { KB.draw(Potatoes) }
-    ER.cardAction1(TychoMagnetics) {
-      doTask("-Energy")
-      ER.draw(DeimosDownPromo)
-    }
+    ER.cardAction1(TychoMagnetics, x = 1) { ER.draw(DeimosDownPromo) }
     ER.cardAction1(InventorsGuild) { doTask("Ok") }
     JR.playProject(Mine, 4)
     JR.playProject(Supermarkets, 9)
@@ -379,10 +364,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
 
     KB.cardAction1(RestrictedArea) { KB.draw(DomedCrater) }
     KB.cardAction1(EquatorialMagnetizer)
-    ER.cardAction1(TychoMagnetics) {
-      doTask("-3 Energy")
-      ER.draw(BioPrintingFacility)
-    }
+    ER.cardAction1(TychoMagnetics, x = 3) { ER.draw(BioPrintingFacility) }
     ER.cardAction1(WaterImportFromEuropa) {
       ER.pay(titanium = 3)
       ER.draw(SolarLogistics)
