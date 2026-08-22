@@ -32,8 +32,8 @@ internal class StandardActionDefinitionTest {
                 {
                   actions: [{
                     name: "ExampleSA",
-                    action: "-> Payment<Class<This>>",
-                    effects: ["CostPaid<Class<This>>: Plant"],
+                    action: "-> Payment<This, First>",
+                    effects: ["CostPaid<This>: Plant"],
                   }],
                 }
                 """
@@ -41,8 +41,8 @@ internal class StandardActionDefinitionTest {
             .single()
 
     definition.asClassDeclaration.effects.shouldContainExactly(
-        parse<Effect>("UseAction1<This>: Payment<Class<This>>"),
-        parse<Effect>("CostPaid<Class<This>>: Plant"),
+        parse<Effect>("UseAction<This, First>: Payment<This, First>"),
+        parse<Effect>("CostPaid<This>: Plant"),
     )
   }
 }

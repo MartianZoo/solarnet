@@ -39,6 +39,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val match = Regex("""^(.+?)\s+([123])$""").matchEntire(actionArgs) ?: throw UsageException()
     val cardName = repl.game.vocabulary.canonicalName(cn(match.groupValues[1]))
     val actionNumber = match.groupValues[2]
+    val whichAction = listOf("First", "Second", "Third")[actionNumber.toInt() - 1]
     val action =
         repl.game.reader.tfmAuthority.card(cardName).actions.getOrNull(actionNumber.toInt() - 1)
             ?: throw UsageException("$cardName has no action $actionNumber")
@@ -53,7 +54,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
                     .matching { it.instruction.toString().contains("StandardAction") }
                     .any()
             if (choosingStandardAction) {
-              TaskCommand(repl).withArgs("UseAction1<UseCardActionSA>")
+              TaskCommand(repl).withArgs("UseAction<UseCardActionSA, First>")
             }
             TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
             if (pauseForDirectCost) {
@@ -61,7 +62,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
               directCostPaused = true
             }
             val taskIdsBeforeAction = repl.game.tasks.ids()
-            TaskCommand(repl).withArgs("UseAction$actionNumber<$cardName>")
+            TaskCommand(repl).withArgs("UseAction<$cardName, $whichAction>")
             if (payment.isNotEmpty()) {
               if (pauseForDirectCost) payDirectActionCost(payment, taskIdsBeforeAction)
               else TfmPayCommand(repl).withArgs(payment)

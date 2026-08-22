@@ -32,7 +32,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
                   .matching { it.instruction.toString().contains("StandardAction") }
                   .any()
           if (choosingStandardAction) {
-            TaskCommand(repl).withArgs("UseAction1<PlayCardSA>")
+            TaskCommand(repl).withArgs("UseAction<PlayCardSA, First>")
           }
           TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardName>>")
           if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)

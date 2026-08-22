@@ -176,7 +176,7 @@ internal object SampleGames {
     p2.playProject(cn("BioPrintingFacility"), 1, steel = 2)
     p2.cardAction1(cn("BioPrintingFacility"))
     p1.cardAction2(cn("DeuteriumExport"))
-    p1.playProject(cn("ProjectInspection"), 0) { doTask("UseAction1<DevelopmentCenter>") }
+    p1.playProject(cn("ProjectInspection"), 0) { doTask("UseAction<DevelopmentCenter, First>") }
     p2.cardAction1(cn("Factorum"))
     p2.playProject(cn("PowerSupplyConsortium"), 3) { doTask("PROD[-E<Player1>]") }
     p1.playProject(cn("FloatingHabs"), 5)

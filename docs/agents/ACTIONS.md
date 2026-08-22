@@ -13,11 +13,14 @@ A **Pets Action** is the declaration node written `[cost] -> result`. Use that p
 the next. This document is about the declaration node, not that operation boundary, turn structure,
 Head Start, or action-use markers.
 
-One component may declare up to three Pets Actions. Their identities remain explicit throughout the
-protocol: `UseAction1`, `UseAction2`, and `UseAction3` begin them, and `CostPaid1`, `CostPaid2`, and
-`CostPaid3` respectively complete their costs. The separate numbered `CostPaid` Classes are an
-intentional part of the model; collapsing them would save vocabulary only by making action identity
-implicit elsewhere.
+One component may declare up to three Pets Actions. `First`, `Second`, and `Third` are concrete
+members of the singleton `WhichAction` family. `UseAction`, `Payment`, and `CostPaid` each depend
+first on the actual `HasActions` provider component and then on its `WhichAction`; action identity
+therefore remains explicit without parallel numbered protocol Classes.
+
+The provider is deliberately a component rather than `Class<HasActions>`. The Action belongs to a
+particular card or other provider, and using its Class would discard that identity merely because
+most current providers happen to be singleton-like.
 
 ## The semantic normal form
 
@@ -26,30 +29,35 @@ The arrow separates two different roles:
 - the left side is an obligation that must be satisfied; and
 - the right side is the result unlocked by satisfying it.
 
-The result of Action N should therefore respond to `CostPaidN<This>`, not directly to
-`UseActionN<This>`. `UseActionN` selects the offer and starts cost satisfaction. `CostPaidN` is the
-single bridge saying that this activation's obligation has been satisfied. A truly costless Action
-satisfies its empty obligation immediately and therefore emits `CostPaidN` immediately.
+The result of an Action should therefore respond to `CostPaid<This, WhichAction>`, not directly to
+`UseAction<This, WhichAction>`. `UseAction` selects the provider and offer and starts cost
+satisfaction. `CostPaid` is the single bridge saying that this activation's obligation has been
+satisfied. A truly costless Action satisfies its empty obligation immediately and therefore emits
+the matching `CostPaid` immediately.
 
-This gives `CostPaidN` one honest meaning across all cost families. In particular, a direct cost
-must not emit `CostPaidN` first and put both its removal and payoff on that signal: at that moment
+An owning Class with only one Action may trigger on `CostPaid<This>`: this retains the exact
+provider while leaving only the trailing `WhichAction` dependency unrestricted. A Class with
+different results for multiple Actions names `First`, `Second`, or `Third` explicitly.
+
+This gives `CostPaid` one honest meaning across all cost families. In particular, a direct cost
+must not emit `CostPaid` first and put both its removal and payoff on that signal: at that moment
 the cost would not yet have been paid. Its conceptual shape is instead:
 
 ```text
-UseActionN -> satisfy cost THEN CostPaidN
-CostPaidN  -> declared result
+UseAction<provider, which> -> satisfy cost THEN CostPaid<provider, which>
+CostPaid<provider, which>  -> declared result
 ```
 
 This is a semantic normal form, not a required intermediate AST or a commitment about which
-compiler pass constructs it. The signal should retain the acting owner and Action provider needed
-to distinguish the activation; its exact type signature is an implementation question.
+compiler pass constructs it. The protocol retains the acting owner, exact Action provider, and
+`WhichAction` value needed to distinguish the activation.
 
 “Costless” here is semantic, not merely syntactic. Several current declarations omit the left side
 but manually construct `Owed`, `Payment`, or direct removal on the right. Those are existing
 lowering workarounds, not genuinely free Actions. Normalizing Water Import from Europa to a nominal
 12 M€ left side is one example of recovering the real obligation before applying these rules.
 
-`CostPaidN` establishes causality only. It does not by itself make the result immediate, atomic,
+`CostPaid` establishes causality only. It does not by itself make the result immediate, atomic,
 higher-priority than unrelated tasks, or the completion boundary of the encompassing Terraforming
 Mars operation. Those questions remain governed by [sequencing and completion](SEQUENCING.md).
 
@@ -68,13 +76,13 @@ not itself the invoice. It is one way to reduce an invoice denominated in a stan
 Conversely, an Action whose printed cost is a card resource should not acquire an invoice merely
 because card resources can sometimes be tender elsewhere.
 
-For a fixed standard-resource cost, `UseActionN` opens the exact nominal invoice. Its modifiers and
+For a fixed standard-resource cost, `UseAction<provider, which>` opens the exact nominal invoice. Its modifiers and
 accepted tenders may change how that invoice is settled. Final settlement emits one
-`CostPaidN<This>` event, and only that event unlocks the declared result.
+`CostPaid<provider, which>` event, and only that event unlocks the declared result.
 
 This family includes both Electro Catapult choices, represented as two Pets Actions: one
 invoices one Plant and the other invoices one Steel. Both unlock the same payoff through their own
-numbered `CostPaid` signal. The authored `OR` is not valuable enough to preserve as a special Action
+action-qualified `CostPaid` signal. The authored `OR` is not valuable enough to preserve as a special Action
 cost mechanism when it is the sole corpus case and obscures which invoice is being opened.
 
 Venus Shuttles points toward the same normalization. Its nominal cost can be an invoice for 12 M€,
@@ -83,7 +91,7 @@ can likewise declare its nominal M€ invoice while a separate rule says that Ti
 The Action string need not grow syntax for every discount or alternate tender.
 
 These rules need a reliable point after the exact invoice exists and before payment settles where
-Action-specific modifiers can act. Whether that point is `UseActionN`, a distinct invoice-opened
+Action-specific modifiers can act. Whether that point is `UseAction`, a distinct invoice-opened
 signal, or another existing component event is deliberately unresolved. The important rule is that
 such effects modify an actual obligation and cannot announce payment or the result prematurely.
 
@@ -96,14 +104,14 @@ selection that the operation needs. `PROD[...]` is likewise a transformation of 
 not fungible tender for a debt.
 
 For these Actions, using the Action creates the ordinary removal or transformed-cost task. When
-that task completes, `THEN` emits the corresponding `CostPaidN`; the result remains a separate
+that task completes, `THEN` emits the corresponding `CostPaid`; the result remains a separate
 effect subscribed to that signal. This preserves the current direct cost mechanism without
 pretending it is a second kind of invoice.
 
 This distinction also prevents the payment model from expanding simply because the grammar can
 express an unusual left side. Gates, holder choices, card selections, and production changes can
 retain their ordinary Pets meaning. They need special Action treatment only when something must be
-carried across the `CostPaidN` boundary.
+carried across the `CostPaid` boundary.
 
 ## X is chosen before an invoice exists
 
@@ -118,23 +126,23 @@ For the illustrative Action:
 ```
 
 where Foo is a standard resource, choosing X = 5 creates an invoice for 10 Foo. Settlement then
-emits one grouped effect containing `5 CostPaid1<ThatCard>`. The result has the conceptual
+emits one grouped effect containing `5 CostPaid<ThatCard, First>`. The result has the conceptual
 subscription:
 
 ```text
-X CostPaid1<ThatCard>: 3X Bar, 1 Steel
+X CostPaid<ThatCard, First>: 3X Bar, 1 Steel
 ```
 
 Here X on the trigger observes and binds the group's multiplicity. It runs the right side once with
-X = 5: the result is 15 Bar and 1 Steel, not five Steel. The five `CostPaid1` components encode the
+X = 5: the result is 15 Bar and 1 Steel, not five Steel. The five `CostPaid` components encode the
 selected scalar; they are not five independently completed Actions or five payment installments.
 
-This is why a fixed cost emits one `CostPaidN` regardless of the number of resources paid, while an
+This is why a fixed cost emits one `CostPaid` regardless of the number of resources paid, while an
 X-scaled Action emits the selected X multiplicity. The same value must survive discounts,
 substitutions, and split tender.
 
 An X-scaled direct cost can obtain X from its own removal or selection task instead of opening an
-invoice. It should still emit X `CostPaidN` as one group when that direct cost completes so the same
+invoice. It should still emit X `CostPaid` as one group when that direct cost completes so the same
 result subscription works. No additional payment abstraction is needed for that family.
 
 ## Why the boundary is narrow
@@ -148,7 +156,7 @@ alternative standard-resource cost is Electro Catapult, which is better expresse
 
 The useful generalization is therefore not “all left sides are payments.” It is:
 
-1. every Pets Action separates cost satisfaction from its result with numbered `CostPaid`;
+1. every Pets Action separates cost satisfaction from its result with provider- and action-qualified `CostPaid`;
 2. exact standard-resource debts use the invoice/payment protocol; and
 3. everything else satisfies its cost through ordinary Pets instructions.
 
@@ -157,15 +165,15 @@ case rather than adding speculative kinds now.
 
 ## The ownership problem remains real
 
-`Action` is currently a Pets AST concept, but `StandardResource`, the numbered `UseAction` protocol,
+`Action` is currently a Pets AST concept, but `StandardResource`, the `UseAction` protocol,
 and the invoice declarations are Terraforming Mars concepts. Recognizing standard-resource costs
 during lowering therefore cannot be presented as a wholly generic Pets transformation. Unlike
 `PROD[...]` lowering, the invoice conversion is not merely like-for-like syntax expansion; it adds
 game-specific cost semantics and extension points for discounts and tender.
 
 The desired semantics do not settle which package owns that knowledge. Plausible boundaries
-include a narrow Authority/application-supplied Action lowering policy or moving the whole
-numbered Action protocol under Terraforming Mars. A general plugin framework, a generic
+include a narrow Authority/application-supplied Action lowering policy or moving the whole Action
+protocol under Terraforming Mars. A general plugin framework, a generic
 `StandardResource` concept, and duplicate generic/domain Action protocols would all be larger than
 the demonstrated need. Resolve ownership as one boundary decision when this behavior is selected
 for implementation; see [BOUNDARIES.md](BOUNDARIES.md#turnaction-protocol-is-split-across-layers).
@@ -192,9 +200,16 @@ part of the workflow on the global `TerraformingMars` Module. In particular,
 `ClaimMilestoneSA` once again contains its `Milestone` instruction.
 
 This is a locality correction, not the semantic lowering described above. These definitions still
-construct `Owed` and `Payment` explicitly and still use the existing unnumbered `CostPaid` signal.
+construct `Owed` and `Payment` explicitly. `UseAction`, `Payment`, and `CostPaid` carry the actual
+provider and a `WhichAction` value throughout the protocol. Existing one-action invoice workflows
+create `Payment<This, First>` but may subscribe to `CostPaid<This>` because only one action can
+complete for that provider.
+Trade supplies the current multi-Action example: each choice opens an invoice in its printed
+standard resource, passes its selector through `Payment`, and unlocks `Trade` from the matching
+`CostPaid`. Cryo-Sleep and Rim Freighters now lower those invoices directly instead of granting a
+resource when the Action is selected.
 `Owed<>` accepts the default M€ debt type for gains and removals; non-M€ occurrences remain
 explicit, while bare `Owed` in triggers and requirements remains resource-generic.
-The numbered protocol and standard-resource Action lowering therefore remain unresolved work. In
-particular, `8 Plant -> ...` and `8 Heat -> ...` should eventually lower to the manual conversion
-invoices now present in the standard-action definitions.
+Automatic standard-resource Action lowering remains unresolved work. In particular, `8 Plant ->
+...` and `8 Heat -> ...` should eventually lower to the manual conversion invoices now present in
+the standard-action definitions.

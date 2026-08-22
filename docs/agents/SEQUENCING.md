@@ -144,7 +144,7 @@ is the stronger form for restoring an invariant before player work appears.
 
 `THEN` is appropriate when only particular authored A operations require B, no honest trigger or
 state gate distinguishes them, and that instruction conceptually owns the pair. A direct Pets
-Action cost followed by its numbered `CostPaid` signal, or a placement followed by a marker
+Action cost followed by its action-qualified `CostPaid` signal, or a placement followed by a marker
 identifying that selected place, are normal examples. The Action payoff itself responds to
 `CostPaid`; see [ACTIONS.md](ACTIONS.md).
 
@@ -229,7 +229,7 @@ Current strong examples are:
 Two related families should not be described more strongly than the implementation supports:
 
 - `UseActionN<HasActions>` commits to that authored action instruction, and Cryo-Sleep and Sky
-  Docks use the numbered Trade action signals to supply the selected payment resource. This is
+  Docks use the action-qualified Trade signals to supply the selected payment resource. This is
   generic action dispatch, however, not a promise of one uniform later component Type.
 - `BuyCard` distinguishes a purchase from any other `ProjectCard` gain, allowing Polyphemos and
   Terralabs Research to change the purchase cost. Its intrinsic cost and card gain are queued
@@ -454,7 +454,7 @@ Mons Insurance. Any implementation must therefore test the three dimensions abov
 ## Settled families
 
 Pets Action lowering is under redesign. The settled direction separates cost satisfaction from the
-payoff with numbered `CostPaid` signals; the current generated cost-then-payoff chain is not a
+payoff with action-qualified `CostPaid` signals; the current generated cost-then-payoff chain is not a
 settled family. See [ACTIONS.md](ACTIONS.md).
 
 These current encodings are considered principled:

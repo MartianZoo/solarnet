@@ -74,7 +74,7 @@ internal class SoloGenerationCountdownTest {
     game.classTable.getClass(cn("BufferGasSP")).phantom shouldBe false
 
     player.godMode().manual("16 Megacredit")
-    player.godMode().manual("UseAction1<BufferGasSP>") {
+    player.godMode().manual("UseAction<BufferGasSP, First>") {
       doTask("16 Pay<Class<Megacredit>> FROM Megacredit")
     }
     player.count("Megacredit<Me>") shouldBe 0

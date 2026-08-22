@@ -340,7 +340,7 @@ class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction2(Thermophiles)
       cardAction1(EquatorialMagnetizer)
       playProject(ProjectInspection, 0) {
-        doTask("UseAction1<$ElectroCatapult>")
+        doTask("UseAction<$ElectroCatapult, First>")
       }
       playProject(MediaArchives, 8)
       stdProject("CitySP") { doTask("CityTile<Tharsis_4_4>") }
@@ -380,10 +380,10 @@ class ThermalMatterWaveTest : AbstractSoloTest() {
       // Discounts earned
       sum.net("$AdvancedAlloys", "Owed<Player1>") shouldBe -92
       sum.net("$Shuttles", "Owed<Player1>") shouldBe -14
+      sum.net("$CryoSleep", "Owed<Player1, Class<Energy>>") shouldBe -2
+      sum.net("$CryoSleep", "Owed<Player1, Class<Titanium>>") shouldBe -2
 
       // Resources and cards gained from active cards
-      sum.net("$CryoSleep", "Energy") shouldBe 2
-      sum.net("$CryoSleep", "Titanium") shouldBe 2
       sum.net("$DevelopmentCenter", "ProjectCard") shouldBe 6
       sum.net("$ElectroCatapult", "Plant") shouldBe -6
       sum.net("$ElectroCatapult", "Steel") shouldBe -3

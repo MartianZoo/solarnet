@@ -13,7 +13,7 @@ class VironTest : CardTest() {
   fun `Can repeat an action used earlier in the generation`() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
-    p1.cardAction1(Viron) { doTask("UseAction1<$AtmoCollectors>") }.expect("Floater")
+    p1.cardAction1(Viron) { doTask("UseAction<$AtmoCollectors, First>") }.expect("Floater")
   }
 
   @Test
@@ -23,7 +23,7 @@ class VironTest : CardTest() {
     p1.cardAction1(AtmoCollectors)
 
     p1.cardAction1(Viron) {
-          doTask("UseAction2<$AtmoCollectors>")
+          doTask("UseAction<$AtmoCollectors, Second>")
           doTask("2 Titanium")
         }
         .expect("-Floater")
@@ -34,7 +34,7 @@ class VironTest : CardTest() {
     initializeGame()
     p1.cardAction1(AtmoCollectors)
     p1.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction1<$Viron>") }
+      shouldThrow<NarrowingException> { doTask("UseAction<$Viron, First>") }
       abort()
     }
   }
@@ -46,7 +46,7 @@ class VironTest : CardTest() {
     p1.cardAction1(AtmoCollectors)
 
     p1.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction1<$ExtractorBalloons>") }
+      shouldThrow<NarrowingException> { doTask("UseAction<$ExtractorBalloons, First>") }
       abort()
     }
   }
@@ -66,7 +66,7 @@ class VironTest : CardTest() {
     p2.cardAction1(AtmoCollectors)
 
     p1.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction1<$AtmoCollectors<Player2>>") }
+      shouldThrow<NarrowingException> { doTask("UseAction<$AtmoCollectors<Player2>, First>") }
       abort()
     }
   }
@@ -80,7 +80,7 @@ class VironTest : CardTest() {
     p1.cardAction1(Celestic) { doTask("Floater<$Celestic>") }
 
     p1.cardAction1(Viron) {
-      doTask("UseAction1<$Celestic>")
+      doTask("UseAction<$Celestic, First>")
       doTask("Floater<$Celestic>")
     }
     p1.count("Floater<$Celestic>") shouldBe 2

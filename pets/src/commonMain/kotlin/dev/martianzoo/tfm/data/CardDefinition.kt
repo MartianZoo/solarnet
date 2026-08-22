@@ -8,6 +8,7 @@ import dev.martianzoo.pets.DerivedClassLowerer
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Transforming.actionListToEffects
+import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.Transforming.immediateToEffect
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -178,7 +179,9 @@ public class CardDefinition(data: CardData) : Definition {
               requirement?.let { put(REQUIREMENT_PROPERTY, RequirementValue(it)) }
             },
         extraNodes =
-            setOfNotNull(deck?.className) + componentClasses.map(ClassDeclaration::className),
+            setOfNotNull(deck?.className) +
+                componentClasses.map(ClassDeclaration::className) +
+                actionSelectors(actions),
     )
   }
 

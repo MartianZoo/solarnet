@@ -332,8 +332,9 @@ private constructor(
         return if (changeType.narrows(matchType, reader)) {
           // TODO: Replace this compatibility binding with an explicit Pets representation for
           // contextual Owner.
-          // Resolving a Player-bounded expression such as UseAction1<Owner, Foo> correctly
-          // intersects its type to UseAction1<Player, Foo>. Keep the original Owner token's other
+          // Resolving a Player-bounded expression such as UseAction<Owner, Foo, First> correctly
+          // intersects its type to UseAction<Player, Foo, First>. Keep the original Owner token's
+          // other
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerSubstitution =
               if (OWNER in match) contextualOwner?.let(::replaceOwnerWith) else null

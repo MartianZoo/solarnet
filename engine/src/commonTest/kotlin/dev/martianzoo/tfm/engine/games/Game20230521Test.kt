@@ -797,7 +797,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Development Center action with Project Inspection
       // Player1 drew 1 card(s)
       // You drew Floating Habs
-      playProject(ProjectInspection, 0) { doTask("UseAction1<$DevelopmentCenter>") }
+      playProject(ProjectInspection, 0) { doTask("UseAction<$DevelopmentCenter, First>") }
           .expect("PlayedEvent, Card, -E")
     }
 

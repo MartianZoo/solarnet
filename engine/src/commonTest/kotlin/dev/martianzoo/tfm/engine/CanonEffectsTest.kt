@@ -138,8 +138,8 @@ internal class CanonEffectsTest {
     classEffectsOf(TitanAirScrapping)
         .shouldContainExactlyInAnyOrder(
             "This:: JovianTag<Owner, This>!",
-            "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<This>.",
-            "UseAction2<Owner, This>: -2 Floater<This>! THEN TerraformRating<Owner>!",
+            "UseAction<Owner, This, First>: -Titanium<Owner>! THEN 2 Floater<This>.",
+            "UseAction<Owner, This, Second>: -2 Floater<This>! THEN TerraformRating<Owner>!",
             "End: 2 VictoryPoint<Owner>!",
         )
   }

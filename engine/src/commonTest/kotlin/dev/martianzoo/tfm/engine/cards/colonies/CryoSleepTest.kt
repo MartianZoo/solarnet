@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class CryoSleepTest : ColoniesCardTest() {
@@ -14,6 +16,19 @@ class CryoSleepTest : ColoniesCardTest() {
   fun `Can fund a trade with energy`() {
     p1.manual("$CryoSleep, 2 Energy")
     p1.stdAction("TradeSA", 2) { doTask("Trade<Io>") }.expect("-2 Energy, 3 Heat")
+  }
+
+  @Test
+  fun `Discount lowers the energy invoice before payment`() {
+    p1.manual("$CryoSleep, 2 Energy")
+    p1.godMode()
+        .also { it.autoExecMode = NONE }
+        .beginManual("UseAction<TradeSA, Second>") {
+          doTask("-Owed<Class<Energy>>")
+          p1.count("Energy") shouldBe 2
+          p1.count("Owed<Class<Energy>>") shouldBe 2
+          abort()
+        }
   }
 
   @Test

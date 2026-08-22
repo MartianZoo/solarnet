@@ -34,11 +34,11 @@ class SoloGame20230710Test : AbstractSoloTest() {
       }
 
       playPrelude(HeadStart) {
-        doTask("UseAction1<PlayCardSA>")
+        doTask("UseAction<PlayCardSA, First>")
         doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>>")
         pay(4, steel = 3)
 
-        doTask("UseAction1<PlayCardSA>")
+        doTask("UseAction<PlayCardSA, First>")
         doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>")
         pay(6)
         doTask("ProjectCard FROM Science<$OlympusConference>")

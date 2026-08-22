@@ -10,10 +10,10 @@
     // Claim milestone
     {
       "name": "ClaimMilestoneSA",
-      "action": "-> Payment<Class<This>>",
+      "action": "-> Payment<This, First>",
       "effects": [
         "UseAction<This>:: 8 Owed<>",
-        "CostPaid<Class<This>>: Milestone"
+        "CostPaid<This>: Milestone"
       ],
       "setupRequirement": "MAX 0 SoloMode"
     },
@@ -21,10 +21,10 @@
     // Fund award
     {
       "name": "FundAwardSA",
-      "action": "-> Payment<Class<This>>",
+      "action": "-> Payment<This, First>",
       "effects": [
         "UseAction<This>:: (=0 Award: 8 Owed<>) OR (=1 Award: 14 Owed<>) OR (=2 Award: 20 Owed<>)",
-        "CostPaid<Class<This>>: Award"
+        "CostPaid<This>: Award"
       ],
       "setupRequirement": "MAX 0 SoloMode"
     },
@@ -38,15 +38,15 @@
     // Convert plants
     {
       "name": "ConvertPlantsSA",
-      "action": "-> 8 Owed<Class<Plant>> THEN Payment<Class<This>>",
-      "effects": [ "CostPaid<Class<This>>: GreeneryTile<>" ]
+      "action": "-> 8 Owed<Class<Plant>> THEN Payment<This, First>",
+      "effects": [ "CostPaid<This>: GreeneryTile<>" ]
     },
 
     // Convert heat
     {
       "name": "ConvertHeatSA",
-      "action": "-> 8 Owed<Class<Heat>> THEN Payment<Class<This>>",
-      "effects": [ "CostPaid<Class<This>>: TemperatureStep" ]
+      "action": "-> 8 Owed<Class<Heat>> THEN Payment<This, First>",
+      "effects": [ "CostPaid<This>: TemperatureStep" ]
     },
 
     // Sell patents - yes, it's technically a project, but that makes things annoying

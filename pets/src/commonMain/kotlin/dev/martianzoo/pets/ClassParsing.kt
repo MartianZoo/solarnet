@@ -30,6 +30,7 @@ import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.pets.ClassParsing.Signatures.signature
 import dev.martianzoo.pets.Transforming.actionListToEffects
+import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
@@ -308,6 +309,7 @@ internal object ClassParsing : PetTokenizer() {
                 effects = body.effects + actionListToEffects(body.actions),
                 defaultsDeclaration = mergedDefaults,
                 properties = body.properties,
+                extraNodes = actionSelectors(body.actions),
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested

@@ -3,14 +3,46 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.engine.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ActionSequencingTest {
+  @Test
+  fun `payment completion emits only its matching action selector`() {
+    listOf(
+            Triple("First", "Megacredit", 9),
+            Triple("Second", "Energy", 3),
+            Triple("Third", "Titanium", 3),
+        )
+        .forEach { (selector, resource, amount) ->
+          val game = setUpGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
+          val p1 = game.tfm(PLAYER1)
+          p1.godMode().manual("$amount $resource")
+          val manual = p1.godMode().also { it.autoExecMode = NONE }
+
+          manual.beginManual("UseAction<TradeSA, $selector>") {
+            doTask("Payment<TradeSA, $selector>")
+            doTask("$amount Pay<Class<$resource>> FROM $resource")
+
+            game.tasks
+                .extract { it.instruction.toString() }
+                .filter { it.startsWith("CostPaid<") }
+                .shouldContainExactly(
+                    "CostPaid<Player1, TradeSA, $selector> FROM " +
+                        "Payment<Player1, TradeSA, $selector>!"
+                )
+            abort()
+          }
+        }
+  }
+
   @Test
   fun `city standard project creates independent production and placement tasks after payment`() {
     val game = setUpGame()
@@ -18,15 +50,15 @@ internal class ActionSequencingTest {
     p1.godMode().manual("25 Megacredit")
     val manual = p1.godMode().also { it.autoExecMode = NONE }
 
-    manual.beginManual("UseAction1<CitySP>")
+    manual.beginManual("UseAction<CitySP, First>")
     p1.count("Owed<>") shouldBe 25
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("Production<") } shouldBe
         true
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
         true
 
-    manual.doTask("Payment<Class<CitySP>>")
-    p1.count("Payment<Class<CitySP>>") shouldBe 1
+    manual.doTask("Payment<CitySP, First>")
+    p1.count("Payment<CitySP, First>") shouldBe 1
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("Production<") } shouldBe
         true
     game.tasks.extract { it }.none { it.instruction.toString().startsWith("CityTile<") } shouldBe
@@ -34,7 +66,7 @@ internal class ActionSequencingTest {
 
     manual.doTask("25 Pay<Class<Megacredit>> FROM Megacredit")
     p1.count("Owed<>") shouldBe 0
-    manual.doTask("CostPaid<Class<CitySP>> FROM Payment<Class<CitySP>>")
+    manual.doTask("CostPaid<CitySP, First> FROM Payment<CitySP, First>")
 
     val results =
         game.tasks
@@ -55,7 +87,7 @@ internal class ActionSequencingTest {
     val manual = game.tfm(PLAYER1).godMode().also { it.autoExecMode = NONE }
     manual.manual("$SymbioticFungus, $Ants")
 
-    manual.beginManual("UseAction1<UseCardActionSA>") {
+    manual.beginManual("UseAction<UseCardActionSA, First>") {
       doTask("ActionUsedMarker<$SymbioticFungus>")
       shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()

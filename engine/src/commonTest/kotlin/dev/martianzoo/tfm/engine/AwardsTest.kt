@@ -94,7 +94,7 @@ internal class AwardsTest : TfmTest() {
     p1.godMode().sneak("100 Megacredit")
 
     val first =
-        p1.godMode().manual("UseAction1<FundAwardSA>") {
+        p1.godMode().manual("UseAction<FundAwardSA, First>") {
           doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Landlord")
         }
@@ -102,7 +102,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
     shouldThrow<LimitsException> {
-      p1.godMode().manual("UseAction1<FundAwardSA>") {
+      p1.godMode().manual("UseAction<FundAwardSA, First>") {
         doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
         doTask("Landlord")
       }
@@ -110,7 +110,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "Megacredit", 1 to "Landlord")
 
     val second =
-        p1.godMode().manual("UseAction1<FundAwardSA>") {
+        p1.godMode().manual("UseAction<FundAwardSA, First>") {
           doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Scientist")
         }
@@ -118,7 +118,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(78 to "Megacredit", 1 to "Scientist")
 
     val third =
-        p1.godMode().manual("UseAction1<FundAwardSA>") {
+        p1.godMode().manual("UseAction<FundAwardSA, First>") {
           doTask("Pay<Class<Megacredit>> FROM Megacredit / Owed<>")
           doTask("Thermalist")
         }
@@ -126,7 +126,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(58 to "Megacredit", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<NotNowException> {
-      p1.godMode().manual("UseAction1<FundAwardSA>") { doTask("Miner") }
+      p1.godMode().manual("UseAction<FundAwardSA, First>") { doTask("Miner") }
     }
   }
 
