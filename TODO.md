@@ -86,8 +86,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   the engine boundary, and the mixed automatic/queued phase triggers, and keep the verdict buckets
   current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline
   continuation, frozen trigger-time choice, and descendant-completion semantics.
-- **High priority:** Make Artificial Lake's concrete legal ocean placement refine and execute
-  normally, without the solo whole-game test's mandatory `!` override.
 - Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
 - When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - **Medium priority:** Model the solo setup choice that selects four colony tiles and removes one

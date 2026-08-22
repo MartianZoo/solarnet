@@ -16,6 +16,7 @@ import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -92,6 +93,14 @@ internal class ApiTranslation(
       preprocessor.transformElement(Parsing.parse(type, text))
 
   private fun parseInstructionTree(text: String): InstructionTree = parse(text)
+
+  private fun parseTaskRevision(text: String): ParsedTaskRevision {
+    val parsed = Parsing.parse<InstructionTree>(text)
+    return ParsedTaskRevision(
+        preprocessor.transformInstructionTree(parsed),
+        intensityOmitted = parsed is Change && parsed.intensity == null,
+    )
+  }
 
   private fun parseInstructionGroup(text: String): InstructionGroup =
       InstructionGroup.of(parseInstructionTree(text))
@@ -171,11 +180,13 @@ internal class ApiTranslation(
   // task in their queue at any given time
 
   override fun reviseTask(taskId: TaskId, revised: String) = timeline.atomic {
-    impl.reviseTask(taskId, parseInstructionTree(revised))
+    val parsed = parseTaskRevision(revised)
+    impl.reviseTask(taskId, parsed.instruction, parsed.intensityOmitted)
   }
 
   override fun reviseTask(current: String, revised: String) = timeline.atomic {
-    impl.reviseTask(parse<Instruction>(current), parseInstructionTree(revised))
+    val parsed = parseTaskRevision(revised)
+    impl.reviseTask(parse<Instruction>(current), parsed.instruction, parsed.intensityOmitted)
   }
 
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
@@ -185,11 +196,13 @@ internal class ApiTranslation(
   override fun prepareTask(instruction: String) = impl.prepareTask(parse<Instruction>(instruction))
 
   override fun doTask(revised: String, taskNumber: Int?) = atomic {
-    impl.doTask(parseInstructionTree(revised), taskNumber)
+    val parsed = parseTaskRevision(revised)
+    impl.doTask(parsed.instruction, taskNumber, parsed.intensityOmitted)
   }
 
   override fun tryTask(revised: String, taskNumber: Int?) = atomic {
-    impl.tryTask(parseInstructionTree(revised), taskNumber)
+    val parsed = parseTaskRevision(revised)
+    impl.tryTask(parsed.instruction, taskNumber, parsed.intensityOmitted)
   }
 
   override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
@@ -200,4 +213,9 @@ internal class ApiTranslation(
     block()
     impl.autoExecNow(autoExecMode)
   }
+
+  private data class ParsedTaskRevision(
+      val instruction: InstructionTree,
+      val intensityOmitted: Boolean,
+  )
 }

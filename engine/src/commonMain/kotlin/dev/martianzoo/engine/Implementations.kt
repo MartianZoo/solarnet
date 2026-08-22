@@ -22,9 +22,12 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -219,48 +222,58 @@ internal class Implementations(
 
   // GAMES LAYER
 
-  internal fun reviseTask(taskId: TaskId, revised: InstructionTree) {
+  internal fun reviseTask(
+      taskId: TaskId,
+      revised: InstructionTree,
+      intensityOmitted: Boolean = false,
+  ) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
       throw TaskException("$actor can't revise a task assigned to ${task.assignee}")
     }
 
-    if (revised == task.instruction) return
-    val directlyNarrows = revised.narrows(task.instruction, reader)
+    val effectiveRevision = effectiveRevision(revised, task.instruction, intensityOmitted)
+    if (effectiveRevision == task.instruction) return
+    val directlyNarrows = effectiveRevision.narrows(task.instruction, reader)
     val selectedThen =
-        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, revised)
-    if (selectedThen == null) revised.ensureNarrows(task.instruction, reader)
+        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, effectiveRevision)
+    if (selectedThen == null) effectiveRevision.ensureNarrows(task.instruction, reader)
 
     if (selectedThen != null && task.then != null) {
       throw TaskException("can't select the first stage of a THEN with an outer continuation")
     }
     val continuation = selectedThen?.continuationAfterFirst() ?: task.then
 
-    val selectsAmApTarget = instructor.validateAmApSelection(task.instruction, revised)
+    val selectsAmApTarget = instructor.validateAmApSelection(task.instruction, effectiveRevision)
     if (selectsAmApTarget && !task.next) {
-      if (revised is Instruction) {
+      if (effectiveRevision is Instruction) {
         replace1WithN(
             tasks,
             task,
-            instructor.prepare(revised),
+            instructor.prepare(effectiveRevision),
             next = true,
             then = continuation,
         )
         return
       }
       val prepared = prepareTask(taskId) ?: return
-      reviseTask(prepared, revised)
+      reviseTask(prepared, effectiveRevision)
       return
     }
 
     // A selected group must split before its children are prepared against successive worlds.
     val replacement =
-        if (task.next && revised is Instruction) instructor.prepare(revised) else revised
+        if (task.next && effectiveRevision is Instruction) instructor.prepare(effectiveRevision)
+        else effectiveRevision
     replace1WithN(tasks, task, replacement, task.next, continuation)
   }
 
-  internal fun reviseTask(current: Instruction, revised: InstructionTree) {
-    reviseTask(taskWithInstruction(current), revised)
+  internal fun reviseTask(
+      current: Instruction,
+      revised: InstructionTree,
+      intensityOmitted: Boolean = false,
+  ) {
+    reviseTask(taskWithInstruction(current), revised, intensityOmitted)
   }
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
@@ -374,21 +387,29 @@ internal class Implementations(
     doTask(queueForAnyTask(taskId), taskId)
   }
 
-  internal fun doTask(revised: InstructionTree, taskNumber: Int? = null) {
+  internal fun doTask(
+      revised: InstructionTree,
+      taskNumber: Int? = null,
+      intensityOmitted: Boolean = false,
+  ) {
     val evaluated = evaluatePer(revised)
-    val id = matchingTask(evaluated, taskNumber)
+    val id = matchingTask(evaluated, taskNumber, intensityOmitted)
     val selectsLinkedFirstStage =
         selectFirstStageOrNull(tasks.getTaskData(id).instruction, evaluated) != null
-    if (selectsLinkedFirstStage) reviseTask(id, evaluated)
+    if (selectsLinkedFirstStage) reviseTask(id, evaluated, intensityOmitted)
     if (id in tasks) doPrepare(tasks, tasks.getTaskData(id))
-    if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, evaluated)
+    if (id in tasks && !selectsLinkedFirstStage) reviseTask(id, evaluated, intensityOmitted)
     if (id in tasks) doTask(id)
   }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
       if (instruction is Per) instructor.prepare(instruction) else instruction
 
-  private fun matchingTask(revised: InstructionTree, taskNumber: Int? = null): TaskId {
+  private fun matchingTask(
+      revised: InstructionTree,
+      taskNumber: Int? = null,
+      intensityOmitted: Boolean = false,
+  ): TaskId {
     tasks.preparedTask()?.let {
       return it
     }
@@ -402,9 +423,9 @@ internal class Implementations(
     fun weCanReviseIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
       val instruction = taskData.instruction
-      if (narrowsTask(revised, instruction)) return true
+      if (narrowsTask(revised, instruction, intensityOmitted)) return true
       return try {
-        narrowsTask(revised, instructor.prepare(instruction))
+        narrowsTask(revised, instructor.prepare(instruction), intensityOmitted)
       } catch (_: NotNowException) {
         false
       }
@@ -413,8 +434,32 @@ internal class Implementations(
     return uniqueMatchingTask(tasks.extract { it }.filter(::weCanReviseIt))
   }
 
-  private fun narrowsTask(revised: InstructionTree, existing: InstructionTree): Boolean =
-      revised.narrows(existing, reader) || selectFirstStageOrNull(existing, revised) != null
+  private fun narrowsTask(
+      revised: InstructionTree,
+      existing: InstructionTree,
+      intensityOmitted: Boolean,
+  ): Boolean {
+    val effectiveRevision = effectiveRevision(revised, existing, intensityOmitted)
+    return effectiveRevision.narrows(existing, reader) ||
+        selectFirstStageOrNull(existing, effectiveRevision) != null
+  }
+
+  private fun effectiveRevision(
+      revised: InstructionTree,
+      existing: InstructionTree,
+      intensityOmitted: Boolean,
+  ): InstructionTree {
+    if (!intensityOmitted || revised !is Change || existing !is Change) return revised
+    if (revised.narrows(existing, reader)) return revised
+
+    val inherited =
+        when (revised) {
+          is Gain -> Gain.gain(revised.scaledEx, existing.intensity)
+          is Remove -> Remove.remove(revised.scaledEx, existing.intensity)
+          is Transmute -> revised.copy(intensity = existing.intensity)
+        }
+    return if (inherited.narrows(existing, reader)) inherited else revised
+  }
 
   private fun selectFirstStageOrNull(
       instruction: InstructionTree,
@@ -477,11 +522,15 @@ internal class Implementations(
     }
   }
 
-  internal fun tryTask(revised: InstructionTree, taskNumber: Int? = null) {
+  internal fun tryTask(
+      revised: InstructionTree,
+      taskNumber: Int? = null,
+      intensityOmitted: Boolean = false,
+  ) {
     val evaluated = evaluatePer(revised)
-    val id = matchingTask(evaluated, taskNumber)
+    val id = matchingTask(evaluated, taskNumber, intensityOmitted)
     try {
-      doTask(evaluated, taskNumber)
+      doTask(evaluated, taskNumber, intensityOmitted)
     } catch (_: AbstractException) {
       explainTask(id, "abstract")
     } catch (_: NotNowException) {
