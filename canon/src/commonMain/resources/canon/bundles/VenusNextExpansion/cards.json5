@@ -32,7 +32,7 @@
       "deck": "CORPORATION",
       "tags": [ "VenusTag" ],
       "immediate": "50, Mandate { -> 3 ProjectCard }",
-      "effects": [ "PlayCard: -2 Required<Class<VenusStep>>." ],
+      "effects": [ "PlayCard:: -2 Required<Class<VenusStep>>." ],
     },
 
     {

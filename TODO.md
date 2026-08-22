@@ -27,6 +27,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   [`docs/agents/ACTIONS.md`](docs/agents/ACTIONS.md): standard-resource costs now become invoices;
   lower costless and direct-cost Actions through their provider- and action-qualified
   `CostPaid` signals. Keep Head Start completion scopes and action-use marker behavior separate.
+- Convert card purchases to the payment workflow so BuyCard price modifiers adjust Owed instead of
+  creating separate money changes.
 - **High priority:** Allow a partial instruction to narrow the matching portion of exactly one
   pending task while preserving the task's untouched structure
   ([#30](https://github.com/MartianZoo/solarnet/issues/30)).
@@ -77,11 +79,12 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ### Soon
 
-- **Medium priority:** Use [`docs/agents/SEQUENCING.md`](docs/agents/SEQUENCING.md) to audit and
-  normalize real A-before-B rules; next settle the action-marker/Viron tension, temporary cleanup at
-  the engine boundary, and the mixed automatic/queued phase triggers, and keep the verdict buckets
-  current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline
-  continuation, frozen trigger-time choice, and descendant-completion semantics.
+- **Medium priority:** Continue the unresolved sequencing work identified by the canon effect-mode
+  audit: settle the action-marker/Viron tension, event and Mandate context lifetime, scoring
+  completion, same-trigger action-cost dependencies, and the remaining mixed phase triggers,
+  including existing automatic effects triggered only by Engine workflow events. Before inventing
+  an automatic `THEN`, distinguish inline continuation, frozen trigger-time choice, and
+  descendant-completion semantics.
 - **High priority:** Make Artificial Lake's concrete legal ocean placement refine and execute
   normally, without the solo whole-game test's mandatory `!` override.
 - **Low priority:** When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.

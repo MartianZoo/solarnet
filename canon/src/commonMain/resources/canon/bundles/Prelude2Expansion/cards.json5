@@ -222,7 +222,7 @@
       "effects": [
         "UseAction<StandardAction>:: -SuitableInfrastructurePaid.",
         "NewTurn IF PreludePhase:: -SuitableInfrastructurePaid.",
-        "X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase: SuitableInfrastructurePaid.",
+        "X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.",
       ],
       "components": [
         "CLASS SuitableInfrastructurePaid : Owned<Player>, Hidden, Atomized { HAS MAX 1 This; This:: 2 }",

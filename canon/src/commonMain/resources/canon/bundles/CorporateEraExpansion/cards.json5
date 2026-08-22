@@ -222,7 +222,7 @@
       "cost": 23,
       "tags": [ "EarthTag" ],
       "effects": [
-        "PlayCard: -2 Owed<>",
+        "PlayCard:: -2 Owed<>",
         "End: 2 VictoryPoint"
       ],
     },
@@ -514,7 +514,7 @@
       "cost": 14,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard: -2 Owed<>",
+        "PlayCard:: -2 Owed<>",
         "End: 3 VictoryPoint"
       ],
     },

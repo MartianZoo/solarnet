@@ -17,7 +17,7 @@
       "name": "Polyphemos",
       "deck": "CORPORATION",
       "immediate": "50, 5 Titanium, PROD[5]",
-      "effects" : [ "BuyCard: -2" ],
+      "effects" : [ "BuyCard:: -2" ],
     },
 
     {
@@ -402,7 +402,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "ReserveTradeFleet",
       "effects": [
-        "PlayCard: -Owed<>",
+        "PlayCard:: -Owed<>",
         "End: 2 VictoryPoint"
       ],
     },

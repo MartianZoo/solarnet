@@ -31,7 +31,7 @@
       "deck": "CORPORATION",
       "tags": [ "ScienceTag" ],
       "immediate": "45, Mandate { -> 3 ProjectCard }",
-      "effects": [ "PlayCard: -2 Required<Class<GlobalParameter>>." ],
+      "effects": [ "PlayCard:: -2 Required<Class<GlobalParameter>>." ],
     },
 
     {
@@ -249,7 +249,7 @@
       "cost": 18,
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
       "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
-      "effects": [ "PlayCard: -Owed<>" ],
+      "effects": [ "PlayCard:: -Owed<>" ],
     },
 
     {
@@ -1114,7 +1114,7 @@
       "cost": 12,
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard: -2 Required<Class<GlobalParameter>>.",
+        "PlayCard:: -2 Required<Class<GlobalParameter>>.",
         "End: VictoryPoint"
       ],
     },
@@ -1479,7 +1479,7 @@
       "tags": [ "ScienceTag" ],
       "immediate": "SpecialDesignEffect",
       "components": [
-        "CLASS SpecialDesignEffect : Owned, Generational { PlayCard: -This!; PlayCard: -2 Required<Class<GlobalParameter>>. }"
+        "CLASS SpecialDesignEffect : Owned, Generational { PlayCard:: -This!; PlayCard:: -2 Required<Class<GlobalParameter>>. }"
       ],
     },
   ],
