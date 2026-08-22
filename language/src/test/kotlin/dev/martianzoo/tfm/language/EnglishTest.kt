@@ -42,6 +42,8 @@ internal class EnglishTest {
         "Worth 1 VP per animal on this card."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
         "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
+    english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe
+        "Remove 1 animal from this card to gain 1 steel."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
     english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe

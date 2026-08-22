@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Expression
@@ -8,6 +9,7 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Dependency.Key
 
 internal fun renderActions(
     actions: List<Action>,
@@ -95,11 +97,13 @@ private fun Describers.renderResourceSpend(
 ): Predicate? {
   if (expression.refinement == null && !expression.complement) {
     cardResourceNounPhrase(expression.className, 1)?.let { noun ->
+      val resolved = resolveCardResource(expression) ?: return null
       val holder =
-          when (expression.arguments) {
-            listOf(thisExpression) -> "this card"
-            listOf(anyoneExpression) -> "any player's card"
-            emptyList<Expression>() -> "any of your cards"
+          when {
+            cardResourceHasHolder(resolved, thisExpression) -> "this card"
+            resolved.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) ->
+                "any player's card"
+            resolved.sourceDependencies.isEmpty() -> "any of your cards"
             else -> return null
           }
       return Predicate(
