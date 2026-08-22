@@ -15,7 +15,7 @@ internal fun renderRequirement(
   return rendered?.let { Rendering.resolved(it) }
       ?: Rendering.unresolved(
           requirement,
-          RefusalReason.LEGACY_REQUIREMENT_RENDERER_DECLINED,
+          RefusalReason.UNKNOWN_REQUIREMENT_FRAME,
           completeSentence("[$requirement]"),
       )
 }

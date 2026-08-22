@@ -22,7 +22,7 @@ internal fun renderActions(
     renderAction(action, describers, drawFilter)
         ?: return Rendering.unresolved(
             action,
-            RefusalReason.LEGACY_ACTION_RENDERER_DECLINED,
+            actionRefusalReason(action, describers),
             completeSentence("[${actions.joinToString(" OR ")}]"),
         )
   }
@@ -35,7 +35,7 @@ internal fun renderActions(
             unresolved +
                 Unresolved(
                     actions[index],
-                    RefusalReason.LEGACY_ACTION_RENDERER_DECLINED,
+                    RefusalReason.ACTION_ALTERNATIVES_NOT_COMBINABLE,
                 ),
         )
   }
@@ -43,6 +43,21 @@ internal fun renderActions(
       if (alternatives.size == 2) alternatives.joinToString(", or ")
       else englishAlternatives(alternatives)
   return Rendering(completeSentence(joined), unresolved)
+}
+
+private fun actionRefusalReason(action: Action, describers: Describers): RefusalReason {
+  val lowered = lowerProductionSyntax(action)
+  val gatedCost = lowered.cost as? Cost.Gated
+  if (
+      (gatedCost?.cost ?: lowered.cost)?.let { describers.renderCost(it) } == null &&
+          lowered.cost != null
+  ) {
+    return RefusalReason.UNSUPPORTED_ACTION_COST
+  }
+  if (gatedCost?.let { describers.renderGateCondition(it.gate) } == null && gatedCost != null) {
+    return RefusalReason.UNSUPPORTED_ACTION_CONDITION
+  }
+  return RefusalReason.UNKNOWN_ACTION_FRAME
 }
 
 private fun Describers.renderCost(cost: Cost): Predicate? =

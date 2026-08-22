@@ -47,7 +47,11 @@ internal fun renderEffect(
   return rendered?.let(Rendering.Companion::resolved)
       ?: Rendering.unresolved(
           effect,
-          RefusalReason.LEGACY_EFFECT_RENDERER_DECLINED,
+          if (isEndEffect(lowered, describers)) {
+            RefusalReason.UNSUPPORTED_END_EFFECT
+          } else {
+            RefusalReason.UNSUPPORTED_EFFECT_TRIGGER
+          },
           completeSentence("[$effect]"),
       )
 }

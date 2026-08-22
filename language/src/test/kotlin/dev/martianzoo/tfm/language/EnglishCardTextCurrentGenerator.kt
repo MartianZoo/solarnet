@@ -32,21 +32,28 @@ internal object EnglishCardTextCurrentGenerator {
             postfix = "\n",
         )
     )
+    val refusals = renderedCards.flatMap { (card, rendering) ->
+      rendering.unresolved.map { CardRefusal(card.className.toString(), it) }
+    }
     val refusalRows =
-        renderedCards
-            .flatMap { it.second.unresolved }
-            .groupingBy(Unresolved::reason)
-            .eachCount()
+        refusals
+            .groupBy { it.unresolved.reason }
             .entries
             .sortedWith(
-                compareByDescending<Map.Entry<RefusalReason, Int>> { it.value }
-                    .thenBy {
-                      it.key.name
-                    }
+                compareByDescending<Map.Entry<RefusalReason, List<CardRefusal>>> { it.value.size }
+                    .thenBy { it.key.name }
             )
-            .map { (reason, count) -> "$count\t$reason" }
+            .map { (reason, entries) ->
+              val examples =
+                  entries.take(2).joinToString(" | ") {
+                    "${it.cardClass}: ${it.unresolved.node}"
+                  }
+              listOf(entries.size, reason, examples).joinToString("\t")
+            }
     refusalOutput.writeText(
-        (listOf("count\treason") + refusalRows).joinToString("\n", postfix = "\n")
+        (listOf("count\treason\texamples") + refusalRows).joinToString("\n", postfix = "\n")
     )
   }
 }
+
+private data class CardRefusal(val cardClass: String, val unresolved: Unresolved)

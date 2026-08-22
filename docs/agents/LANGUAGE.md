@@ -35,8 +35,9 @@ for that behavior or defer the generalization.
 Every active family entry point now returns total text together with explicit `Unresolved` records
 for Pets retained as source. `writeEnglishCardTextCurrent` writes a ranked refusal histogram to
 `english-card-text-refusals.tsv` while preserving `english-card-text-current.tsv` as the wording
-characterization. The initial reasons identify which legacy family renderer declined; replacing
-those broad reasons with the exact declining guard is the next Stage 1 migration slice.
+characterization. Refusal reasons identify the active boundary that could not interpret the node,
+such as its change frame, effect trigger, action cost, gate, or scaling form. Nullable private
+matchers remain branch attempts inside those interpreters and do not create anonymous report rows.
 
 `english-filtered-draws.tsv` is a narrow transitional supplement for information that canonical Pets
 does not yet carry. It maps a card's Class name to a tag, card-resource icon, or printed-requirement

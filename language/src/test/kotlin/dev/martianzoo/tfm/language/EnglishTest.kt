@@ -103,6 +103,6 @@ internal class EnglishTest {
             Describers(TerraformingMarsDescribers.descriptions),
         )
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
-        listOf("3 VictoryPoint" to RefusalReason.LEGACY_INSTRUCTION_RENDERER_DECLINED)
+        listOf("3 VictoryPoint" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 }

@@ -42,12 +42,24 @@ private fun renderLoweredInstructions(
   val rendered = instructions.map { instruction ->
     instruction to
         (renderInstruction(instruction, describers, drawFilter)
-            ?: Clause.RawPets(
-                Unresolved(instruction, RefusalReason.LEGACY_INSTRUCTION_RENDERER_DECLINED)
-            ))
+            ?: Clause.RawPets(Unresolved(instruction, instructionRefusalReason(instruction))))
   }
   return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
 }
+
+private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
+    when (instruction) {
+      is Gain,
+      is Remove,
+      is Instruction.Transmute -> RefusalReason.UNKNOWN_CHANGE_FRAME
+      is Instruction.Or -> RefusalReason.UNSUPPORTED_ALTERNATIVES
+      is Instruction.Per -> RefusalReason.UNSUPPORTED_SCALING
+      is Instruction.Gated -> RefusalReason.UNSUPPORTED_GATE
+      is Instruction.Then -> RefusalReason.UNSUPPORTED_SEQUENCE
+      is Instruction.By,
+      is Instruction.Transform -> RefusalReason.UNSUPPORTED_INSTRUCTION_KIND
+      is NoOp -> error("NoOp is always renderable")
+    }
 
 private fun renderInstruction(
     instruction: Instruction,

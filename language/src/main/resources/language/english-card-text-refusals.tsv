@@ -1,5 +1,9 @@
-count	reason
-45	LEGACY_INSTRUCTION_RENDERER_DECLINED
-16	LEGACY_EFFECT_RENDERER_DECLINED
-5	LEGACY_ACTION_RENDERER_DECLINED
-1	LEGACY_REQUIREMENT_RENDERER_DECLINED
+count	reason	examples
+28	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | LandClaim: LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>
+16	UNSUPPORTED_EFFECT_TRIGGER	Vitor: CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 | NirgalEnterprises: UseAction<ClaimMilestoneSA>: -Owed / Owed
+13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<Megacredit>> / 6 - Production<Class<Megacredit>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
+5	UNSUPPORTED_ACTION_COST	FloatingTradeHub: X Floater<This> -> X StandardResource | CeresTechMarket: X ProjectCard -> 2X
+2	UNSUPPORTED_GATE	Factorum: MAX 0 Energy: Production<Class<Energy>> | LawSuit: (MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): PlayedEvent<Player, Class<This>> FROM PlayedEvent<Class<This>>
+1	UNKNOWN_REQUIREMENT_FRAME	CrashSiteCleanup: MyResourceWasRemoved<Anyone, Class<Plant>, Owner>
+1	UNSUPPORTED_INSTRUCTION_KIND	WorldGovernmentAdvisor: WorldGovernmentTerraforming BY Engine
+1	UNSUPPORTED_SEQUENCE	SponsoredAcademies: -ProjectCard THEN (2 ProjectCard, SponsoredAcademies_Signal)
