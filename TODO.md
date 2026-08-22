@@ -10,9 +10,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Let a game include Valley Trust and the Prelude-card pool without selecting
   `PreludeExpansion`; `PreludeCard` must be drawable and playable while `PreludePhase` remains
   absent.
-- **High priority:** Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`;
-  expectations should use the ordinary unspecialized type name instead of an unresolved argument
-  list.
 - Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
