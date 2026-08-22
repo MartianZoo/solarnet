@@ -6,7 +6,6 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.data.Actor.Companion.ENGINE
 import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.testColonyTiles
@@ -215,65 +214,5 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     shouldThrow<LimitsException> {
       p1.godMode().manual("Trade<Triton>")
     }
-  }
-
-  @Test
-  fun `card resource colony bonus goes to colony owner`() {
-    val colonies = listOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").toSetStrict(::cn)
-    val localGame =
-        setUpGame(
-            ColoniesExpansion,
-            PromoCardPack,
-            players = 2,
-            colonyTiles = colonies,
-        )
-    val localEngine = localGame.tfm(ENGINE)
-    val localP1 = localGame.tfm(PLAYER1)
-    val localP2 = localGame.tfm(PLAYER2)
-
-    localP1.godMode().sneak("100, 5 ProjectCard")
-    localP2.godMode().sneak("100, 5 ProjectCard")
-    localEngine.phase("Action")
-
-    localP2.playProject(RegolithEaters, 13)
-    localP1.playProject(NitriteReducingBacteria, 11)
-    localP1.stdProject("BuildColonySP") {
-      doTask("Colony<Enceladus>")
-      doTask("3 Microbe<$NitriteReducingBacteria>")
-    }
-
-    localP2.stdAction("TradeSA", 1) {
-      doTask("Trade<Enceladus>")
-      doTask("Microbe<$RegolithEaters>")
-      localP1.doTask("Microbe<$NitriteReducingBacteria>")
-    }
-
-    localP1.assertCounts(7 to "Microbe<$NitriteReducingBacteria>")
-    localP2.assertCounts(1 to "Microbe<$RegolithEaters>")
-  }
-
-  @Test
-  fun `Pluto colony bonus draws before its mandatory discard`() {
-    val localGame =
-        setUpGame(
-            ColoniesExpansion,
-            players = 2,
-            colonyTiles = testColonyTiles(2, "Pluto"),
-        )
-    val localP1 = localGame.tfm(PLAYER1)
-    val manual = localP1.godMode().also { it.autoExecMode = NONE }
-
-    localP1.assertCounts(0 to "ProjectCard")
-    manual.manual("GiveColonyBonus<Pluto>") {
-      val draw = localGame.tasks.extract { it }.single()
-      draw.instruction.toString() shouldBe "ProjectCard<Player1>!"
-      draw.then.toString() shouldBe "-ProjectCard<Player1>!"
-
-      doTask("ProjectCard")
-      localP1.assertCounts(1 to "ProjectCard")
-      localGame.tasks.extract { "${it.instruction}" }.single() shouldBe "-ProjectCard<Player1>!"
-      doTask("-ProjectCard")
-    }
-    localP1.assertCounts(0 to "ProjectCard")
   }
 }

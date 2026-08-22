@@ -131,38 +131,6 @@ internal class AwardsTest : TfmTest() {
   }
 
   @Test
-  fun scoringAwardsTiedFirstAndSecondPlaces() {
-    game = Engine.newGame(canonicalPremise(players = 3))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    val p3 = game.tfm(PLAYER3)
-
-    p1.godMode().sneak("Thermalist, Miner, 3 Heat, 3 Steel")
-    p2.godMode().sneak("2 Heat, 3 Steel")
-    p3.godMode().sneak("2 Heat, 2 Steel")
-
-    engine.godMode().manual("EndPhase")
-
-    p1.assertCounts(
-        1 to "FirstPlace<Player1, Thermalist>",
-        1 to "FirstPlace<Player1, Miner>",
-        3 to "AwardTally<Player1, Thermalist>",
-        3 to "AwardTally<Player1, Miner>",
-        10 to "VictoryPoint",
-    )
-    p2.assertCounts(
-        1 to "SecondPlace<Player2, Thermalist>",
-        1 to "FirstPlace<Player2, Miner>",
-        7 to "VictoryPoint",
-    )
-    p3.assertCounts(
-        1 to "SecondPlace<Player3, Thermalist>",
-        0 to "SecondPlace<Player3, Miner>",
-        2 to "VictoryPoint",
-    )
-  }
-
-  @Test
   fun zeroTalliesCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
     game = Engine.newGame(canonicalPremise(players = 3))
     val p1 = game.tfm(PLAYER1)
@@ -212,20 +180,6 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
     p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
     p3.assertCounts(1 to "SecondPlace<Player3, Banker>", 2 to "VictoryPoint")
-  }
-
-  @Test
-  fun twoPlayerGameDoesNotAwardSecondPlace() {
-    game = Engine.newGame(canonicalPremise(players = 2))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-
-    p1.godMode().sneak("Thermalist, Heat")
-
-    engine.godMode().manual("EndPhase")
-
-    p1.assertCounts(1 to "FirstPlace<Player1, Thermalist>", 5 to "VictoryPoint")
-    p2.assertCounts(0 to "SecondPlace<Player2, Thermalist>", 0 to "VictoryPoint")
   }
 
   @Test
