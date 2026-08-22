@@ -3,21 +3,14 @@ package dev.martianzoo.tfm.language
 /** Sparse English-language facts declared for one component Class. */
 public data class ComponentDescriber(
     public val noun: Noun? = null,
-    public val discardable: Boolean? = null,
-    public val cardResource: CardResource? = null,
+    public val changeFrame: ChangeFrame? = null,
     public val cardResourceHolder: Noun.Counted? = null,
     public val metricLocation: String? = null,
-    public val track: Track? = null,
-    public val placement: Placement? = null,
     public val placementSite: PlacementSite? = null,
     public val placementBonus: PlacementBonus? = null,
     public val spatialRelation: SpatialRelation? = null,
-    /** Whether [directChange] interprets the declared behavior of concrete direct subclasses. */
-    public val directChangeForSubclasses: Boolean = false,
     public val productionSelection: String? = null,
     public val requirement: Requirement? = null,
-    public val directChange: DirectChange? = null,
-    public val draw: Boolean? = null,
     public val purchase: Purchase? = null,
     public val score: Score? = null,
     public val deadEndSignal: Boolean? = null,
@@ -45,22 +38,35 @@ public data class ComponentDescriber(
     public data class Counted(public val singular: String, public val plural: String) : Noun
   }
 
-  public enum class CardResource {
-    ORDINARY,
-    SUFFIXED,
+  /** The English construction used to describe a change to this component. */
+  public sealed interface ChangeFrame {
+    public data object Countable : ChangeFrame
+
+    public data class Held(public val suffixed: Boolean) : ChangeFrame
+
+    public data class Scale(public val subject: String) : ChangeFrame
+
+    public data class Positioned(
+        public val article: String,
+        public val singular: String,
+        public val plural: String,
+        public val consequence: String? = null,
+        public val allowsMultiple: Boolean = true,
+        public val unqualifiedMetricOwner: MetricOwner? = null,
+        public val anyoneMetricOwner: MetricOwner? = null,
+    ) : ChangeFrame
+
+    public data object Deck : ChangeFrame
+
+    public data class Procedure(
+        public val verb: String,
+        public val objectPhrase: String? = null,
+    ) : ChangeFrame
+
+    public data class Wrapper(public val preface: String) : ChangeFrame
+
+    public data object Play : ChangeFrame
   }
-
-  public data class Track(public val subject: String)
-
-  public data class Placement(
-      public val article: String,
-      public val singular: String,
-      public val plural: String,
-      public val consequence: String? = null,
-      public val allowsMultiple: Boolean = true,
-      public val unqualifiedMetricOwner: MetricOwner? = null,
-      public val anyoneMetricOwner: MetricOwner? = null,
-  )
 
   public data class PlacementSite(
       public val noun: Noun,
@@ -138,38 +144,6 @@ public data class ComponentDescriber(
       THERE_MUST_BE_COUNT_OR_FEWER,
       YOU_MUST_HAVE_NO_MORE_THAN_COUNT,
     }
-  }
-
-  public sealed interface DirectChange {
-    public data class Gain(public val noun: String, public val count: Int) : DirectChange
-
-    /** Describes gaining one abstract component whose concrete subtype is chosen by the player. */
-    public data class GainChoice(public val objectPhrase: String) : DirectChange
-
-    /** Supplies an imperative construction for one otherwise-unmodeled gain. */
-    public data class Imperative(public val verb: String, public val objectPhrase: String) :
-        DirectChange
-
-    /** Describes moving a fixed number of steps between two selected instances of one track. */
-    public data class TrackTransfer(public val trackNoun: String) : DirectChange
-
-    /** Describes invoking one named operation, both as an imperative and as its event trigger. */
-    public data class Operation(public val verb: String) : DirectChange
-
-    /** Describes playing the one card category represented by the gained component. */
-    public data object PlayCard : DirectChange
-
-    /** Describes a gained component that adjusts the next card played. */
-    public data object NextPlayedCardAdjustment : DirectChange
-
-    /** Describes copying the production box of the card selected by the gained expression. */
-    public data object ProductionBoxCopy : DirectChange
-
-    /** Describes a gained component whose one declared effect grants the player's first action. */
-    public data object FirstAction : DirectChange
-
-    /** Supplies the otherwise-unmodeled review, purchase, or discard procedure for the top card. */
-    public data object TopCardPurchase : DirectChange
   }
 
   public data class Score(public val singular: String, public val plural: String)

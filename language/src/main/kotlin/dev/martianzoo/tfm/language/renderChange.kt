@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.language
 
 import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
@@ -41,35 +42,28 @@ private fun renderChangeOrNull(
     describers: Describers,
     drawFilter: EnglishDrawFilter?,
 ): Clause? {
-  describers.fact(expression.className, ComponentDescriber::directChange)?.let {
-    renderDirectChange(instruction, it, describers, drawFilter)?.let { clause ->
-      return clause
-    }
-  }
-  if (describers.fact(expression.className, ComponentDescriber::discardable) == true) {
-    renderDiscard(instruction, describers)?.let {
-      return it
-    }
-  }
   if (instruction is Transmute) {
     renderCardResourceDrawExchange(instruction, describers)?.let {
       return it
     }
   }
-  if (describers.fact(expression.className, ComponentDescriber::draw) == true)
-      return renderDraw(instruction, drawFilter, describers)
-  if (describers.isCardResource(expression.className))
-      return renderCardResourceChange(instruction, describers)
   if (describers.isProduction(expression.className))
       return renderProductionChange(instruction, describers)
-  describers.fact(expression.className, ComponentDescriber::track)?.let {
-    return renderTrackChange(instruction, it)
+  describers.changeFrame(expression.className)?.let { frame ->
+    return when (frame) {
+      ComponentDescriber.ChangeFrame.Countable -> renderCountableChange(instruction, describers)
+      is ComponentDescriber.ChangeFrame.Held -> renderCardResourceChange(instruction, describers)
+      is ComponentDescriber.ChangeFrame.Scale -> renderScaleChange(instruction, frame)
+      is ComponentDescriber.ChangeFrame.Positioned ->
+          renderPlacement(instruction, frame, describers)
+      ComponentDescriber.ChangeFrame.Deck ->
+          renderDiscard(instruction, describers) ?: renderDraw(instruction, drawFilter, describers)
+      is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame)
+      is ComponentDescriber.ChangeFrame.Wrapper ->
+          renderWrapper(instruction, frame, describers, drawFilter)
+      ComponentDescriber.ChangeFrame.Play -> renderCardPlay(instruction, describers)
+    }
   }
-  describers.fact(expression.className, ComponentDescriber::placement)?.let {
-    return renderPlacement(instruction, it, describers)
-  }
-  if (describers.isStandardResource(expression.className))
-      return renderStandardResourceChange(instruction, describers)
   return null
 }
 
@@ -84,23 +78,21 @@ private fun changeRefusalReason(
   if (instruction is Instruction.Change && instruction.count.fixedQuantity() == null) {
     return RefusalReason.UNSUPPORTED_CHANGE_QUANTITY
   }
-  return when {
-    describers.fact(expression.className, ComponentDescriber::directChange) != null ->
-        RefusalReason.UNSUPPORTED_DECLARED_CHANGE
-    describers.fact(expression.className, ComponentDescriber::discardable) == true ->
-        RefusalReason.UNSUPPORTED_DISCARD
-    describers.fact(expression.className, ComponentDescriber::draw) == true ->
-        RefusalReason.UNSUPPORTED_DRAW
-    describers.isCardResource(expression.className) ->
-        RefusalReason.UNSUPPORTED_CARD_RESOURCE_CHANGE
-    describers.isProduction(expression.className) -> RefusalReason.UNSUPPORTED_PRODUCTION_CHANGE
-    describers.fact(expression.className, ComponentDescriber::track) != null ->
-        RefusalReason.UNSUPPORTED_TRACK_CHANGE
-    describers.fact(expression.className, ComponentDescriber::placement) != null ->
-        RefusalReason.UNSUPPORTED_PLACEMENT_CHANGE
-    describers.isStandardResource(expression.className) ->
-        RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
-    else -> RefusalReason.UNKNOWN_CHANGE_FRAME
+  if (describers.isProduction(expression.className)) {
+    return RefusalReason.UNSUPPORTED_PRODUCTION_CHANGE
+  }
+  return when (describers.changeFrame(expression.className)) {
+    ComponentDescriber.ChangeFrame.Deck ->
+        if (instruction is Gain) RefusalReason.UNSUPPORTED_DRAW
+        else RefusalReason.UNSUPPORTED_DISCARD
+    is ComponentDescriber.ChangeFrame.Held -> RefusalReason.UNSUPPORTED_CARD_RESOURCE_CHANGE
+    is ComponentDescriber.ChangeFrame.Scale -> RefusalReason.UNSUPPORTED_TRACK_CHANGE
+    is ComponentDescriber.ChangeFrame.Positioned -> RefusalReason.UNSUPPORTED_PLACEMENT_CHANGE
+    ComponentDescriber.ChangeFrame.Countable -> RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
+    is ComponentDescriber.ChangeFrame.Procedure,
+    is ComponentDescriber.ChangeFrame.Wrapper,
+    ComponentDescriber.ChangeFrame.Play -> RefusalReason.UNSUPPORTED_DECLARED_CHANGE
+    null -> RefusalReason.UNKNOWN_CHANGE_FRAME
   }
 }
 
@@ -186,45 +178,20 @@ internal fun standardResourceGain(
   }
 }
 
-private fun renderDirectChange(
+private fun renderProcedure(
     instruction: Instruction,
-    description: ComponentDescriber.DirectChange,
-    describers: Describers,
-    drawFilter: EnglishDrawFilter?,
-): Clause? {
-  return when (description) {
-    is ComponentDescriber.DirectChange.Gain -> {
-      val (_, count) = concreteMandatoryGain(instruction) ?: return null
-      if (count != description.count) return null
-      clause("gain", NounPhrase(description.noun, count = count))
-    }
-    is ComponentDescriber.DirectChange.GainChoice -> {
-      val gain = instruction as? Gain ?: return null
-      if (gain.intensity.modality() != Modality.REQUIRED) return null
-      if (!gain.gaining.simple || describers.concrete(gain.gaining.className)) return null
-      if (gain.count.fixedQuantity() != 1) return null
-      clause("gain", NounPhrase.text(description.objectPhrase))
-    }
-    is ComponentDescriber.DirectChange.Imperative -> {
-      val gain = instruction as? Gain ?: return null
-      if (gain.intensity.modality() != Modality.REQUIRED) return null
-      if (!gain.gaining.simple) return null
-      if (gain.count.fixedQuantity() != 1) return null
-      clause(description.verb, NounPhrase.text(description.objectPhrase))
-    }
-    is ComponentDescriber.DirectChange.TrackTransfer ->
-        renderTrackTransfer(instruction, description)
-    is ComponentDescriber.DirectChange.Operation -> renderOperation(instruction, description)
-    ComponentDescriber.DirectChange.PlayCard -> renderCardPlay(instruction, describers)
-    ComponentDescriber.DirectChange.NextPlayedCardAdjustment ->
-        renderNextPlayedCardAdjustment(instruction, describers)
-    ComponentDescriber.DirectChange.ProductionBoxCopy ->
-        renderProductionBoxCopy(instruction, describers)
-    ComponentDescriber.DirectChange.FirstAction ->
-        renderFirstAction(instruction, describers, drawFilter)
-    ComponentDescriber.DirectChange.TopCardPurchase ->
-        renderTopCardPurchase(instruction, describers)
+    frame: ComponentDescriber.ChangeFrame.Procedure,
+): Clause.Simple? {
+  val gain = instruction as? Gain ?: return null
+  if (
+      gain.intensity.modality() != Modality.REQUIRED ||
+          !gain.gaining.simple ||
+          gain.count.fixedQuantity() != 1
+  ) {
+    return null
   }
+  return frame.objectPhrase?.let { clause(frame.verb, NounPhrase.text(it)) }
+      ?: Clause.Simple(Predicate(frame.verb))
 }
 
 private fun renderCardPlay(instruction: Instruction, describers: Describers): Clause.Simple? {
@@ -242,50 +209,15 @@ private fun renderCardPlay(instruction: Instruction, describers: Describers): Cl
   return clause("play", NounPhrase.text("${describers.indefiniteArticle(noun)} $noun"))
 }
 
-private fun renderOperation(
+private fun renderWrapper(
     instruction: Instruction,
-    description: ComponentDescriber.DirectChange.Operation,
-): Clause.Simple? {
-  val gain = instruction as? Gain ?: return null
-  if (
-      gain.intensity.modality() != Modality.REQUIRED ||
-          gain.gaining.refinement != null ||
-          gain.gaining.complement ||
-          gain.count.fixedQuantity() != 1
-  ) {
-    return null
-  }
-  return Clause.Simple(Predicate(description.verb))
-}
-
-private fun renderTrackTransfer(
-    instruction: Instruction,
-    description: ComponentDescriber.DirectChange.TrackTransfer,
-): Clause? {
-  val transmute = instruction as? Transmute ?: return null
-  if (
-      transmute.intensity.modality() != Modality.REQUIRED ||
-          !transmute.gaining.simple ||
-          transmute.removing != transmute.gaining
-  ) {
-    return null
-  }
-  val count = transmute.count.fixedQuantity() ?: return null
-  val steps = if (count == 1) "step" else "steps"
-  val increase = clause("increase", NounPhrase.text("one ${description.trackNoun} $count $steps"))
-  val decrease =
-      clause("decrease", NounPhrase.text("another ${description.trackNoun} $count $steps"))
-  return Clause.Coordinated(Coordination(listOf(increase, decrease), Conjunction.AND))
-}
-
-private fun renderFirstAction(
-    instruction: Instruction,
+    frame: ComponentDescriber.ChangeFrame.Wrapper,
     describers: Describers,
     drawFilter: EnglishDrawFilter?,
 ): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
-  val declaration = describers.directChangeSubclassDeclaration(className) ?: return null
+  val declaration = wrapperSubclassDeclaration(className, describers) ?: return null
   val effect = declaration.effects.singleOrNull() ?: return null
   if (effect.automatic) return null
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
@@ -302,121 +234,34 @@ private fun renderFirstAction(
   val result =
       renderInstructions(effect.instruction, describers, drawFilter).clauses.singleOrNull()
           ?: return null
-  return Clause.Prefaced("as your first action", result)
+  return Clause.Prefaced(frame.preface, result)
 }
 
-private fun renderProductionBoxCopy(
-    instruction: Instruction,
+private fun wrapperSubclassDeclaration(
+    className: ClassName,
     describers: Describers,
-): Clause? {
-  val gain = instruction as? Gain ?: return null
-  if (gain.intensity.modality() != Modality.REQUIRED) return null
+): ClassDeclaration? {
+  val componentClass = describers.expressions.classesByName.getValue(className)
+  if (componentClass.abstract) return null
+  val superclass = componentClass.directSuperclasses.singleOrNull() ?: return null
+  if (describers.changeFrame(superclass.className) !is ComponentDescriber.ChangeFrame.Wrapper) {
+    return null
+  }
+  val declaration = componentClass.declaration
+  val supertype = declaration.supertypes.singleOrNull()
   if (
-      !describers.concrete(gain.gaining.className) ||
-          gain.gaining.refinement != null ||
-          gain.gaining.complement ||
-          gain.count.fixedQuantity() != 1
+      declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||
+          declaration.custom ||
+          declaration.dependencies.isNotEmpty() ||
+          supertype?.simple != true ||
+          supertype.className != superclass.className ||
+          declaration.invariants.isNotEmpty() ||
+          declaration.defaultsDeclaration != ClassDeclaration.DefaultsDeclaration() ||
+          declaration.properties.isNotEmpty()
   ) {
     return null
   }
-  val cardKey = Key(ClassName.cn("CopyProductionBox"), 0)
-  val resolved = describers.resolveExpression(gain.gaining) ?: return null
-  val card = resolved.sourceDependency(cardKey) ?: return null
-  if (!resolved.hasOnlySourceDependency(cardKey, card)) return null
-  val holder = describers.renderOwnedCardResourceHolder(card) ?: return null
-  return clause("duplicate", NounPhrase.text("the production box of $holder"))
-}
-
-private fun renderNextPlayedCardAdjustment(
-    instruction: Instruction,
-    describers: Describers,
-): Clause? {
-  val (className, count) = concreteMandatoryGain(instruction) ?: return null
-  if (count != 1) return null
-  val declaration = describers.directChangeSubclassDeclaration(className) ?: return null
-  val lifecycle =
-      declaration.effects.singleOrNull { effect ->
-        val removal = effect.instruction as? Remove ?: return@singleOrNull false
-        removal.intensity.modality() == Modality.REQUIRED &&
-            removal.removing == describers.thisExpression &&
-            removal.count.fixedQuantity() == 1
-      } ?: return null
-  val effect = declaration.effects.singleOrNull { it !== lifecycle } ?: return null
-  if (lifecycle.trigger != effect.trigger || lifecycle.automatic != effect.automatic) return null
-  val played = (effect.trigger as? OnGainOf)?.expression ?: return null
-  if (
-      !played.simple ||
-          describers.fact(played.className, ComponentDescriber::playTrigger) !=
-              ComponentDescriber.PlayTrigger.CARD
-  ) {
-    return null
-  }
-  owedReduction(effect.instruction, describers)?.let { reduction ->
-    if (!effect.automatic) return null
-    return Clause.Simple(
-        predicate =
-            Predicate(
-                "costs",
-                Coordination.one(NounPhrase.text("${reduction.count} ${reduction.noun} less")),
-            ),
-        subject = NounPhrase.text("the next card you play this generation"),
-    )
-  }
-  if (effect.automatic) return null
-  val requirement = effect.instruction as? Remove ?: return null
-  if (
-      requirement.intensity.modality() != Modality.BEST_EFFORT ||
-          requirement.removing.refinement != null ||
-          requirement.removing.complement ||
-          describers.fact(
-              requirement.removing.className,
-              ComponentDescriber::requirementShortfall,
-          ) != true
-  ) {
-    return null
-  }
-  val adjustment = requirement.count.fixedQuantity() ?: return null
-  val target = describers.representedClass(requirement.removing) ?: return null
-  val kind = describers.fact(target.className, ComponentDescriber::requirementKind) ?: return null
-  val steps = if (adjustment == 1) "step" else "steps"
-  return Clause.Simple(
-      predicate =
-          Predicate(
-              "may treat",
-              Coordination.one(
-                  NounPhrase.text("the $kind requirement of the next card you play this generation")
-              ),
-              listOf(Modifier.Phrase("as if it is $adjustment $steps lower or higher")),
-          ),
-      subject = NounPhrase.text("you"),
-  )
-}
-
-private fun renderTopCardPurchase(
-    instruction: Instruction,
-    describers: Describers,
-): Clause? {
-  val gain = instruction as? Gain ?: return null
-  if (
-      gain.intensity.modality() != Modality.OPTIONAL ||
-          !gain.gaining.simple ||
-          !describers.concrete(gain.gaining.className) ||
-          gain.count.fixedQuantity() != 1
-  ) {
-    return null
-  }
-  val look = clause("look at", NounPhrase.text("the top card"))
-  val decision =
-      Clause.Coordinated(
-          Coordination(
-              listOf(
-                  clause("buy", NounPhrase.text("it")),
-                  clause("discard", NounPhrase.text("it")),
-              ),
-              Conjunction.EITHER_OR,
-          )
-      )
-  return Clause.Coordinated(Coordination(listOf(look, decision), Conjunction.AND))
+  return declaration
 }
 
 private fun renderCardResourceDrawExchange(
@@ -437,7 +282,7 @@ private fun renderCardResourceDrawExchange(
     return null
   }
   val resource = describers.cardResourceNounPhrase(removing.className, count) ?: return null
-  if (describers.fact(gaining.className, ComponentDescriber::draw) != true) return null
+  if (describers.changeFrame(gaining.className) !is ComponentDescriber.ChangeFrame.Deck) return null
   val cards = describers.componentNounPhrase(gaining.className, count)
   val drawPhrase =
       if (count == 1) cards.copy(count = null, determiner = "a").linearize() else cards.linearize()
@@ -449,12 +294,17 @@ private fun renderCardResourceDrawExchange(
   )
 }
 
-private fun renderStandardResourceChange(
+private fun renderCountableChange(
     instruction: Instruction,
     describers: Describers,
 ): Clause? {
-  standardResourceGain(instruction, describers)?.let { (className, count) ->
-    return clause("gain", describers.componentNounPhrase(className, count))
+  concreteMandatoryGain(instruction)?.let { (className, count) ->
+    val noun = describers.componentNounPhrase(className, count)
+    return clause(
+        "gain",
+        if (describers.concrete(className)) noun
+        else noun.copy(count = null, determiner = describers.indefiniteArticle(noun.noun())),
+    )
   }
   (instruction as? Transmute)?.let {
     return renderStandardResourceTransfer(it, describers)
@@ -464,7 +314,6 @@ private fun renderStandardResourceChange(
   if (expression.refinement != null || expression.complement) return null
   val count = removal.count.fixedQuantity() ?: return null
   if (!describers.concrete(expression.className)) return null
-  if (!describers.isStandardResource(expression.className)) return null
   if (expression.simple && removal.intensity.modality() == Modality.REQUIRED) {
     return clause("remove", describers.componentNounPhrase(expression.className, count))
   }
@@ -637,7 +486,7 @@ private fun renderProductionChange(
   renderSelectedProductionChange(change, gaining, expression, describers)?.let {
     return it
   }
-  val production = describers.productionExpression(expression) ?: return null
+  val production = productionExpression(expression, describers) ?: return null
   val owner =
       when {
         production.owner == null -> "your"
@@ -660,7 +509,7 @@ private fun renderSelectedProductionChange(
   if (expression.refinement != null || expression.complement) {
     return null
   }
-  val resource = describers.selectedProductionResource(expression) ?: return null
+  val resource = selectedProductionResource(expression, describers) ?: return null
   if (
       !describers.isStandardResource(resource.className) ||
           describers.concrete(resource.className) ||
@@ -689,8 +538,8 @@ private fun renderProductionConversion(
 ): Clause? {
   val scalar = transmute.count.variableQuantity() ?: return null
   if (scalar.multiple != 1) return null
-  val gaining = describers.productionExpression(transmute.gaining) ?: return null
-  val removing = describers.productionExpression(transmute.removing) ?: return null
+  val gaining = productionExpression(transmute.gaining, describers) ?: return null
+  val removing = productionExpression(transmute.removing, describers) ?: return null
   if (gaining.owner != null || removing.owner != null || gaining.resource == removing.resource) {
     return null
   }
@@ -711,17 +560,31 @@ private fun renderProductionConversion(
   return Clause.Coordinated(Coordination(listOf(decrease, increase), Conjunction.AND))
 }
 
-private fun renderTrackChange(
+private fun renderScaleChange(
     instruction: Instruction,
-    description: ComponentDescriber.Track,
+    frame: ComponentDescriber.ChangeFrame.Scale,
 ): Clause? {
+  if (instruction is Transmute) {
+    if (
+        instruction.intensity.modality() != Modality.REQUIRED ||
+            !instruction.gaining.simple ||
+            instruction.removing != instruction.gaining
+    ) {
+      return null
+    }
+    val count = instruction.count.fixedQuantity() ?: return null
+    val steps = if (count == 1) "step" else "steps"
+    val increase = clause("increase", NounPhrase.text("one ${frame.subject} $count $steps"))
+    val decrease = clause("decrease", NounPhrase.text("another ${frame.subject} $count $steps"))
+    return Clause.Coordinated(Coordination(listOf(increase, decrease), Conjunction.AND))
+  }
   val gain = concreteMandatoryGain(instruction)
   val removal = concreteMandatoryRemoval(instruction)
   val (_, count) = gain ?: removal ?: return null
   val steps = if (count == 1) "step" else "steps"
   return clause(
       if (gain != null) "raise" else "lower",
-      NounPhrase.text("${description.subject} $count $steps"),
+      NounPhrase.text("${frame.subject} $count $steps"),
   )
 }
 

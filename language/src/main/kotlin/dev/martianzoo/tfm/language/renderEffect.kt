@@ -175,7 +175,7 @@ private fun renderRequirementFlexibility(effect: Effect, describers: Describers)
   val count = removal.count.fixedQuantity() ?: return null
   val target = describers.representedClass(removal.removing) ?: return null
   val requirementKind =
-      describers.fact(target.className, ComponentDescriber::track)?.subject
+      describers.scaleFrame(target.className)?.subject
           ?: describers.fact(target.className, ComponentDescriber::requirementKind)
           ?: return null
   val steps = if (count == 1) "step" else "steps"
@@ -426,9 +426,7 @@ private fun renderBarrierSequencedTrackChoice(
   ) {
     return null
   }
-  val track =
-      describers.fact(trackGain.gaining.className, ComponentDescriber::directChange)
-          as? ComponentDescriber.DirectChange.TrackTransfer ?: return null
+  val track = describers.scaleFrame(trackGain.gaining.className) ?: return null
   val barrierRemoval = sequence.continuation as? Remove ?: return null
   if (
       barrierRemoval.intensity.modality() != Modality.REQUIRED ||
@@ -444,7 +442,7 @@ private fun renderBarrierSequencedTrackChoice(
   if (resolvedTrigger.sourceDependencies.values.singleOrNull() != selectedTrack) return null
   val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
   return completeSentence(
-      "when ${trigger.linearize()}, you may first increase that ${track.trackNoun} 1 step"
+      "when ${trigger.linearize()}, you may first increase that ${track.subject} 1 step"
   ) to 2
 }
 
@@ -526,8 +524,9 @@ private fun Describers.renderOperationTrigger(trigger: Trigger): Clause.Simple? 
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
   val operation =
-      fact(expression.className, ComponentDescriber::directChange)
-          as? ComponentDescriber.DirectChange.Operation ?: return null
+      (changeFrame(expression.className) as? ComponentDescriber.ChangeFrame.Procedure)?.takeIf {
+        it.objectPhrase == null
+      } ?: return null
   return eventTrigger(subject = NounPhrase.text("you"), verb = operation.verb)
 }
 
@@ -659,7 +658,7 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       return it
     }
     if (!expression.simple) return null
-    return fact(expression.className, ComponentDescriber::track)?.let {
+    return scaleFrame(expression.className)?.let {
       Event(EventKind.RAISE, EventActor.UNRESTRICTED, it.subject)
     }
   }
@@ -720,7 +719,7 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       )
     }
   }
-  if (resolvePlacementExpression(expression)?.owner == anyoneExpression) {
+  if (resolvePlacementExpression(expression, this)?.owner == anyoneExpression) {
     placementEvent(expression, EventActor.UNRESTRICTED)?.let {
       return it
     }
@@ -794,7 +793,7 @@ private fun Describers.relationshipEvent(
 
 private fun Describers.relationshipParticipant(expression: Expression): String? {
   if (expression.refinement != null || expression.complement) return null
-  val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
+  val placement = positionedFrame(expression.className) ?: return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   return when {
@@ -834,7 +833,7 @@ private fun Describers.purchaseEvent(expression: Expression): Event? {
 }
 
 private fun Describers.productionEvent(expression: Expression): Event? {
-  val production = productionCategoryExpression(expression) ?: return null
+  val production = productionCategoryExpression(expression, this) ?: return null
   if (production.owner != null) return null
   val objectPhrase =
       if (concrete(production.resource)) "your ${componentNoun(production.resource, 1)} production"
@@ -899,7 +898,7 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
 
 private fun Describers.placementEvent(expression: Expression, actor: EventActor): Event? {
   if (expression.refinement != null || expression.complement) return null
-  val resolvedPlacement = resolvePlacementExpression(expression) ?: return null
+  val resolvedPlacement = resolvePlacementExpression(expression, this) ?: return null
   if (resolvedPlacement.unknownDependencies.isNotEmpty()) return null
   if (actor == EventActor.YOU && resolvedPlacement.owner != null) return null
   if (
@@ -909,7 +908,7 @@ private fun Describers.placementEvent(expression: Expression, actor: EventActor)
   ) {
     return null
   }
-  val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
+  val placement = positionedFrame(expression.className) ?: return null
   val location =
       resolvedPlacement.sites
           .singleOrNull()
@@ -986,7 +985,7 @@ private fun renderTriggeredInstructions(
 
 private fun renderLinkedProductionReward(effect: Effect, describers: Describers): String? {
   val expression = (effect.trigger as? OnGainOf)?.expression ?: return null
-  val production = describers.productionCategoryExpression(expression) ?: return null
+  val production = productionCategoryExpression(expression, describers) ?: return null
   if (production.owner != null || describers.concrete(production.resource)) return null
   val gain = effect.instruction as? Gain ?: return null
   if (gain.intensity.modality() != Modality.REQUIRED) return null

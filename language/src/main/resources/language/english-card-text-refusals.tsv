@@ -1,9 +1,8 @@
 count	reason	examples
-20	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | LandClaim: LandClaimMarker<LandArea(HAS MAX 0 Tile, MAX 0 LandClaimMarker<Anyone>)>
+30	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile> | SpecialDesign: SpecialDesignEffect
 16	UNSUPPORTED_EFFECT_TRIGGER	Vitor: CardFront(HAS CitationsIgnoringRemoves<Class<VictoryPoint>>): 3 | NirgalEnterprises: UseAction<ClaimMilestoneSA>: -Owed / Owed
-7	UNSUPPORTED_SCALING	CloudTourism: Production<Class<Megacredit>> / EarthTag MAX VenusTag | SoilStudies: Plant / (VenusTag OR PlantTag OR Colony)
+13	UNSUPPORTED_SCALING	IndustrialComplex: Production<Class<Megacredit>> / 6 - Production<Class<Megacredit>> | IndustrialComplex: Production<Class<Steel>> / 1 - Production<Class<Steel>>
 5	UNSUPPORTED_ACTION_COST	FloatingTradeHub: X Floater<This> -> X StandardResource | CeresTechMarket: X ProjectCard -> 2X
-3	UNSUPPORTED_DECLARED_CHANGE	RoboticWorkforce: CopyProductionBox<CardFront(HAS BuildingTag OR WildTagUse(HAS BuildingTag))> | FocusedOrganization: -StandardResource
 3	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
 2	UNSUPPORTED_GATE	Factorum: MAX 0 Energy: Production<Class<Energy>> | LawSuit: (MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): PlayedEvent<Player, Class<This>> FROM PlayedEvent<Class<This>>
 1	UNKNOWN_REQUIREMENT_FRAME	CrashSiteCleanup: MyResourceWasRemoved<Anyone, Class<Plant>, Owner>
@@ -11,3 +10,4 @@ count	reason	examples
 1	UNSUPPORTED_DISCARD	AstraMechanica: 2 ProjectCard FROM PlayedEvent?
 1	UNSUPPORTED_INSTRUCTION_KIND	WorldGovernmentAdvisor: WorldGovernmentTerraforming BY Engine
 1	UNSUPPORTED_SEQUENCE	SponsoredAcademies: -ProjectCard THEN (2 ProjectCard, SponsoredAcademies_Signal)
+1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	FocusedOrganization: -StandardResource

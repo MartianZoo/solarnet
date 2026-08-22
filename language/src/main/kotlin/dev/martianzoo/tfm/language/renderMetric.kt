@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -39,7 +40,7 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   renderCountedRelation(expression, this)?.let { relation ->
     return "$prefix ${relation.countedObject(count)}"
   }
-  distinctOwnedKinds(expression)?.let { noun ->
+  distinctOwnedKinds(expression, this)?.let { noun ->
     return "$prefix ${if (count == 1) noun.singular else noun.plural} you have"
   }
   renderZeroMaximumFilter(expression, prefix, count)?.let {
@@ -73,6 +74,32 @@ internal fun Describers.renderMetric(expression: Expression, unit: Int? = null):
   }
   val noun = cardResourceNoun(expression.className, count) ?: return null
   return "$prefix $noun on this card"
+}
+
+internal fun distinctOwnedKinds(
+    expression: Expression,
+    describers: Describers,
+): ComponentDescriber.Noun.Counted? {
+  if (expression.className != CLASS || expression.complement) return null
+  val classKey = Key(CLASS, 0)
+  val resolvedClass = describers.resolveExpression(expression) ?: return null
+  val kind = resolvedClass.sourceDependency(classKey) ?: return null
+  if (!resolvedClass.hasOnlySourceDependency(classKey, kind) || !kind.simple) return null
+  val refinement = expression.refinement?.takeIf { !it.forgiving } ?: return null
+  val minimum = refinement.requirement as? Requirement.Min ?: return null
+  if (minimum.target != 1) return null
+  val member = (minimum.metric as? Metric.Count)?.expression ?: return null
+  val resolvedMember = describers.resolveExpression(member) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  if (
+      member.className != kind.className ||
+          !resolvedMember.hasOnlySourceDependency(ownerKey, describers.ownerExpression) ||
+          member.refinement != null ||
+          member.complement
+  ) {
+    return null
+  }
+  return describers.fact(kind.className, ComponentDescriber::distinctKinds)
 }
 
 private fun Describers.renderComponentCount(
@@ -137,7 +164,7 @@ private fun renderTagMetric(
 
 private fun Describers.placementCountPhrase(expression: Expression, count: Int): String? {
   if (expression.refinement != null || expression.complement) return null
-  val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
+  val placement = positionedFrame(expression.className) ?: return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   val siteKey = Key(TILE, 0)

@@ -11,7 +11,7 @@ import dev.martianzoo.types.Dependency.Key
 /** Renders a placed component and any structurally described restriction on its site. */
 internal fun renderPlacement(
     instruction: Instruction,
-    description: ComponentDescriber.Placement,
+    description: ComponentDescriber.ChangeFrame.Positioned,
     describers: Describers,
 ): Clause? {
   val gain = instruction as? Gain ?: return null
@@ -19,7 +19,7 @@ internal fun renderPlacement(
   if (!describers.concrete(gain.gaining.className)) return null
   if (gain.gaining.refinement != null || gain.gaining.complement) return null
 
-  val placement = describers.resolvePlacementExpression(gain.gaining) ?: return null
+  val placement = resolvePlacementExpression(gain.gaining, describers) ?: return null
   if (placement.owner != null || placement.unknownDependencies.isNotEmpty()) return null
   val siteModifiers = renderPlacementSites(placement, describers) ?: return null
   val count = gain.count.fixedQuantity() ?: return null
@@ -35,8 +35,28 @@ internal fun renderPlacement(
   return placementClause(noun, siteModifiers + listOfNotNull(consequence))
 }
 
+internal fun resolvePlacementExpression(
+    expression: Expression,
+    describers: Describers,
+): PlacementExpression? {
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  val siteDependencies =
+      resolved.sourceDependencies.filterKeys { key ->
+        val siteClassName =
+            resolved.dependency(key)?.rootClass?.className ?: return@filterKeys false
+        describers.placementSite(siteClassName) != null
+      }
+  val recognizedKeys = siteDependencies.keys + ownerKey
+  return PlacementExpression(
+      owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == describers.ownerExpression },
+      sites = siteDependencies.values.toList(),
+      unknownDependencies = resolved.sourceDependencies.keys - recognizedKeys,
+  )
+}
+
 internal fun renderPlacementSites(
-    placement: Describers.PlacementExpression,
+    placement: PlacementExpression,
     describers: Describers,
 ): List<Modifier>? {
   // No dependencies, including an explicitly authored <>, accept the placement defaults.
@@ -151,7 +171,7 @@ private fun renderSpatialTarget(
   ) {
     return null
   }
-  val placement = describers.fact(target.className, ComponentDescriber::placement) ?: return null
+  val placement = describers.positionedFrame(target.className) ?: return null
   return SpatialTarget(
       ComponentDescriber.Noun.Counted(placement.singular, placement.plural),
       ownedByYou =

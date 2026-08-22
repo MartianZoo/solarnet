@@ -144,11 +144,11 @@ ImmigrantCity	Immigrant City	Decrease your energy production 1 step and your M�
 UndergroundDetonations	Underground Detonations		Action: Spend 10 M€ to increase your heat production 2 steps.
 Soletta	Soletta	Increase your heat production 7 steps.
 RadChemFactory	Rad-Chem Factory	Decrease your energy production 1 step. Raise your terraform rating 2 steps.
-SpecialDesign	Special Design	You may treat the global parameter requirement of the next card you play this generation as if it is 2 steps lower or higher.
+SpecialDesign	Special Design	[SpecialDesignEffect].
 SaturnSystems	Saturn Systems	Gain 42 M€. Increase your titanium production 1 step.	Effect: When any Jovian tag is played, increase your M€ production 1 step.
 Teractor	Teractor	Gain 60 M€.	Effect: When you play an Earth tag, pay 3 M€ less.
 AsteroidMiningConsortium	Asteroid Mining Consortium	Requires that you have titanium production. Decrease any player's titanium production 1 step and increase your titanium production 1 step. 1 VP.
-InventorsGuild	Inventors' Guild		Action: Look at the top card and either buy it or discard it.
+InventorsGuild	Inventors' Guild		Action: [BuyCard?].
 SpaceElevator	Space Elevator	Increase your titanium production 1 step. 2 VPs.	Action: Spend 1 steel to gain 5 M€.
 DevelopmentCenter	Development Center		Action: Spend 1 energy to draw a card.
 SpaceStation	Space Station	1 VP.	Effect: When you play a space tag, pay 2 M€ less.
@@ -187,7 +187,7 @@ EarthOffice	Earth Office		Effect: When you play an Earth tag, pay 3 M€ less.
 AcquiredCompany	Acquired Company	Increase your M€ production 3 steps.
 MediaArchives	Media Archives	Gain 1 M€ for each card in all players' event piles.
 MediaGroup	Media Group		Effect: When you play an event card, gain 3 M€.
-BusinessNetwork	Business Network	Decrease your M€ production 1 step.	Action: Look at the top card and either buy it or discard it.
+BusinessNetwork	Business Network	Decrease your M€ production 1 step.	Action: [BuyCard?].
 BusinessContacts	Business Contacts	Draw 2 cards.
 BribedCommittee	Bribed Committee	Raise your terraform rating 2 steps. -2 VPs.
 Sabotage	Sabotage	Remove up to 3 titanium, up to 4 steel, or up to 7 M€ from any player.
@@ -210,7 +210,7 @@ OlympusConference	Olympus Conference	1 VP.	Effect: When you play a science tag, 
 RadSuits	Rad-Suits	Requires any 2 city tiles. Increase your M€ production 1 step. 1 VP.
 InventionContest	Invention Contest	Draw a card.
 PowerInfrastructure	Power Infrastructure		Action: Spend one or more energy to gain that amount of M€.
-IndenturedWorkers	Indentured Workers	The next card you play this generation costs 8 M€ less. -1 VP.
+IndenturedWorkers	Indentured Workers	[Card195Effect]. -1 VP.
 LagrangeObservatory	Lagrange Observatory	Draw a card. 1 VP.
 TerraformingGanymede	Terraforming Ganymede	Raise your terraform rating 1 step for each Jovian tag you have. 2 VPs.
 RestrictedArea	Restricted Area	Place this tile.	Action: Spend 2 M€ to draw a card.
@@ -330,7 +330,7 @@ ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 t
 EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. [2 AdvanceColonyTracks].
 FloatingTradeHub	Floating Trade Hub		Action: [-> 2 Floater OR X Floater<This> -> X StandardResource].
 FocusedOrganization	Focused Organization	Draw a card. Gain a standard resource.	Action: Discard a card, then [-StandardResource], then [FocusedOrganizationGain].
-IndustrialComplex	Industrial Complex	Remove 18 M€. Increase each of your productions below 1 to 1.
+IndustrialComplex	Industrial Complex	Remove 18 M€. [Production<Class<Megacredit>> / 6 - Production<Class<Megacredit>>]. [Production<Class<Steel>> / 1 - Production<Class<Steel>>]. [Production<Class<Titanium>> / 1 - Production<Class<Titanium>>]. [Production<Class<Plant>> / 1 - Production<Class<Plant>>]. [Production<Class<Energy>> / 1 - Production<Class<Energy>>]. [Production<Class<Heat>> / 1 - Production<Class<Heat>>].
 MainBeltAsteroids	Main Belt Asteroids	Remove 5 M€. Worth 1 VP per 2 asteroids on this card.	Action: Add 1 asteroid to any card. / Effect: When you add an asteroid to this card, gain 1 titanium.
 NobelPrize	Nobel Prize	[WildTag<This>]. Gain 5 M€. Draw 2 cards with requirements. 2 VPs.
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard a card.
@@ -353,7 +353,7 @@ SoilStudies	Soil Studies	Temperature must be -4°C or colder. [Plant / (VenusTag
 StratosphericExpedition	Stratospheric Expedition	Add 2 floaters to any card. Draw 2 Venus cards. 1 VP.
 UnexpectedApplication	Unexpected Application	Discard a card to raise Venus 1 step.
 VenusAllies	Venus Allies	Raise Venus 2 steps. Gain 4 M€ for each colony you own. 2 VPs.
-VenusOrbitalSurvey	Venus Orbital Survey		Action: Draw a card or look at the top card and either buy it or discard it. Draw a card or look at the top card and either buy it or discard it.
+VenusOrbitalSurvey	Venus Orbital Survey		Action: Draw a card or [BuyCard?]. Draw a card or [BuyCard?].
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: [1 / 12 - VenusTag -> VenusStep].
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags. 1 VP.	Effect: When you trade, gain 3 M€.
 Arklight	Arklight	Gain 45 M€. Increase your M€ production 2 steps. Worth 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
@@ -363,7 +363,7 @@ Airliners	Airliners	Requires that you have 3 floaters. Increase your M€ produc
 AirRaid	Air Raid	Remove 1 floater from any card. Steal up to 5 M€ from any player.
 AtmoCollectors	Atmo Collectors	Add 2 floaters to any card.	Action: Add 1 floater to this card, or remove 1 floater from this card to gain 2 titanium, 3 energy, or 4 heat.
 CommunityServices	Community Services	Increase your M€ production 1 step for each card with no tags. 1 VP.
-Conscription	Conscription	Requires 2 Earth tags. The next card you play this generation costs 16 M€ less. -1 VP.
+Conscription	Conscription	Requires 2 Earth tags. [CardC05Effect]. -1 VP.
 CoronaExtractor	Corona Extractor	Requires 4 science tags. Increase your energy production 4 steps.
 CryoSleep	Cryo-Sleep	1 VP.	Effect: When you use the Trade standard action, pay 1 less resource.
 EarthElevator	Earth Elevator	Increase your titanium production 3 steps. 4 VPs.
@@ -480,7 +480,7 @@ DirectedHeatUsage	Directed Heat Usage		Action: Spend 3 heat to gain 4 M€ or 2 
 AqueductSystems	Aqueduct Systems	Requires that you have a city tile adjacent to an ocean tile. Draw 3 building cards. 1 VP.
 AstraMechanica	Astra Mechanica	[2 ProjectCard FROM PlayedEvent?].
 CarbonNanosystems	Carbon Nanosystems	1 VP.	Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space tag or a city tag, graphene resources on this card may be used as 4 M€ each.
-CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. Duplicate the production box of one of your building cards, then [CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)>], then [CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)>], then [-CyberiaSystemsFirstChoice].
+CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. [CopyProductionBox<CardFront(HAS BuildingTag)>], then [CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)>], then [CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)>], then [-CyberiaSystemsFirstChoice].
 HermeticOrderOfMars	Hermetic Order Of Mars	Oxygen must be 4% or less. Increase your M€ production 2 steps. [1 / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)].
 HomeostasisBureau	Homeostasis Bureau	Increase your heat production 2 steps.	Effect: [TemperatureStep: 3].
 KaguyaTech	Kaguya Tech	Increase your M€ production 2 steps. Draw a card. [CityTile<LandArea> FROM GreeneryTile<LandArea>].

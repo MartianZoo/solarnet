@@ -228,6 +228,11 @@ arguments when the resolved dependency retains their meaning.
 
 ### Stage 3 · Verb frames
 
+**Status:** The change-frame migration and wrapper rule are implemented. `DirectChange` and the
+production-floor recognizer are gone, and expression resolution has its own component. The
+requirement syntax enums and per-bundle registry work below remain; do not describe Stage 3 as
+complete until those completion criteria are met.
+
 Replace the 38 fields and the ten `DirectChange` variants with the frame table (§3.3). Derive
 structural membership by subtype test against existing engine classes; declare only what a language
 knows. Implement **Wrapper** as a general rule and delete `directChangeForSubclasses`,

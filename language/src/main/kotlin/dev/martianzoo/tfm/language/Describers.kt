@@ -1,32 +1,18 @@
 package dev.martianzoo.tfm.language
 
-import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.api.SystemClasses.OWNED
-import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Class
 import dev.martianzoo.types.Dependency.Key
-import dev.martianzoo.types.Dependency.TypeDependency
-import dev.martianzoo.types.DependencySet.DependencyPath
-import dev.martianzoo.types.Type
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers(private val descriptions: Map<Class, ComponentDescriber>) {
-  private val classTable =
-      requireNotNull(descriptions.keys.firstOrNull()?.classTable) {
-        "English descriptions must include at least one Class"
-      }
-  private val classesByName = classTable.allClasses().associateBy { it.className }
+  internal val expressions = ExpressionResolver(descriptions.keys)
+  private val classesByName = expressions.classesByName
 
   init {
-    require(descriptions.keys.all { it.classTable === classTable })
     validateInheritedFacts()
   }
 
@@ -54,19 +40,14 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     val facts: List<(ComponentDescriber) -> Any?> =
         listOf(
             ComponentDescriber::noun,
-            ComponentDescriber::discardable,
-            ComponentDescriber::cardResource,
+            ComponentDescriber::changeFrame,
             ComponentDescriber::cardResourceHolder,
             ComponentDescriber::metricLocation,
-            ComponentDescriber::track,
-            ComponentDescriber::placement,
             ComponentDescriber::placementSite,
             ComponentDescriber::placementBonus,
             ComponentDescriber::spatialRelation,
             ComponentDescriber::productionSelection,
             ComponentDescriber::requirement,
-            ComponentDescriber::directChange,
-            ComponentDescriber::draw,
             ComponentDescriber::purchase,
             ComponentDescriber::score,
             ComponentDescriber::deadEndSignal,
@@ -107,33 +88,54 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
     return site.takeIf { direct != null }
   }
 
-  internal fun directChangeSubclassDeclaration(className: ClassName): ClassDeclaration? {
-    val componentClass = classesByName.getValue(className)
-    if (componentClass.abstract) return null
-    val superclass = componentClass.directSuperclasses.singleOrNull() ?: return null
-    val superclassDescription = descriptions[superclass] ?: return null
-    if (
-        superclassDescription.directChange == null ||
-            !superclassDescription.directChangeForSubclasses
-    ) {
-      return null
-    }
-    val declaration = componentClass.declaration
-    val supertype = declaration.supertypes.singleOrNull()
-    if (
-        declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||
-            declaration.custom ||
-            declaration.dependencies.isNotEmpty() ||
-            supertype?.simple != true ||
-            supertype.className != superclass.className ||
-            declaration.invariants.isNotEmpty() ||
-            declaration.defaultsDeclaration != ClassDeclaration.DefaultsDeclaration() ||
-            declaration.properties.isNotEmpty()
-    ) {
-      return null
-    }
-    return declaration
-  }
+  internal fun changeFrame(className: ClassName): ComponentDescriber.ChangeFrame? =
+      fact(className, ComponentDescriber::changeFrame)
+
+  internal fun positionedFrame(className: ClassName): ComponentDescriber.ChangeFrame.Positioned? =
+      changeFrame(className) as? ComponentDescriber.ChangeFrame.Positioned
+
+  internal fun scaleFrame(className: ClassName): ComponentDescriber.ChangeFrame.Scale? =
+      changeFrame(className) as? ComponentDescriber.ChangeFrame.Scale
+
+  internal fun resolveExpression(expression: Expression): ResolvedExpression? =
+      expressions.resolve(expression)
+
+  internal fun resolveExpression(
+      expression: Expression,
+      contextualThisKey: Key,
+  ): ResolvedExpression? = expressions.resolve(expression, contextualThisKey)
+
+  internal fun representedClass(expression: Expression): Expression? =
+      expressions.representedClass(expression)
+
+  internal fun representedExpression(expression: Expression): Expression? =
+      expressions.representedExpression(expression)
+
+  internal fun representedClassArgument(expression: Expression): Expression? =
+      expressions.representedClassArgument(expression)
+
+  internal fun concrete(className: ClassName): Boolean = expressions.concrete(className)
+
+  internal fun isStandardResource(className: ClassName): Boolean =
+      expressions.isStandardResource(className)
+
+  internal fun isCardResource(className: ClassName): Boolean = expressions.isCardResource(className)
+
+  internal fun isProduction(className: ClassName): Boolean = expressions.isProduction(className)
+
+  internal fun isGameParticipant(className: ClassName): Boolean =
+      expressions.isGameParticipant(className)
+
+  internal fun isGenerationScoped(className: ClassName): Boolean =
+      expressions.isGenerationScoped(className)
+
+  internal fun isEndTrigger(className: ClassName): Boolean = expressions.isEndTrigger(className)
+
+  internal val anyoneExpression: Expression = expressions.anyoneExpression
+  internal val notOwnerExpression: Expression = expressions.notOwnerExpression
+  internal val ownerExpression: Expression = expressions.ownerExpression
+  internal val playerExpression: Expression = expressions.playerExpression
+  internal val thisExpression: Expression = expressions.thisExpression
 
   internal fun componentNoun(className: ClassName, count: Int): String =
       describedNoun(className, fact(className, ComponentDescriber::noun), count)
@@ -151,75 +153,26 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
       }
 
   internal fun plainGainNoun(className: ClassName, count: Int): String? =
-      componentNoun(className, count).takeIf { concrete(className) && isPlainGain(className) }
+      componentNoun(className, count).takeIf {
+        expressions.concrete(className) && expressions.isStandardResource(className)
+      }
 
   internal fun plainGainCategoryNoun(className: ClassName, count: Int): String? =
-      componentNoun(className, count).takeIf { isPlainGain(className) }
-
-  internal fun isPlainGain(className: ClassName): Boolean {
-    return isStandardResource(className)
-  }
-
-  internal fun isStandardResource(className: ClassName): Boolean =
-      isSubtypeOf(className, STANDARD_RESOURCE)
-
-  internal fun concreteStandardResources(): Set<ClassName> =
-      classesByName.values
-          .filter { !it.abstract && it.isSubtypeOf(classesByName.getValue(STANDARD_RESOURCE)) }
-          .mapTo(linkedSetOf(), Class::className)
-
-  internal fun isCardResource(className: ClassName): Boolean = isSubtypeOf(className, CARD_RESOURCE)
+      componentNoun(className, count).takeIf { expressions.isStandardResource(className) }
 
   internal fun resolveCardResource(expression: Expression): ResolvedExpression? {
-    if (!isCardResource(expression.className)) return null
-    return resolveExpression(expression, Key(CARD_RESOURCE, 0))
+    return expressions.resolveCardResource(expression)
   }
 
   internal fun cardResourceHolder(resolved: ResolvedExpression): Expression? =
-      resolved.sourceDependency(Key(CARD_RESOURCE, 0))
+      expressions.cardResourceHolder(resolved)
 
   internal fun cardResourceHasHolder(
       resolved: ResolvedExpression,
       holder: Expression,
   ): Boolean {
-    val holderKey = Key(CARD_RESOURCE, 0)
-    val ownerKey = Key(OWNED, 0)
-    if (resolved.sourceDependency(holderKey) != holder) return false
-    return resolved.sourceDependencies.all { (key, source) ->
-      key == holderKey || (key == ownerKey && source == ownerExpression)
-    }
+    return expressions.cardResourceHasHolder(resolved, holder)
   }
-
-  internal fun resolvePlacementExpression(expression: Expression): PlacementExpression? {
-    val resolved = resolveExpression(expression) ?: return null
-    val ownerKey = Key(OWNED, 0)
-    val siteDependencies =
-        resolved.sourceDependencies.filterKeys { key ->
-          val siteClassName =
-              resolved.dependency(key)?.rootClass?.className ?: return@filterKeys false
-          placementSite(siteClassName) != null
-        }
-    val recognizedKeys = siteDependencies.keys + ownerKey
-    return PlacementExpression(
-        owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == ownerExpression },
-        sites = siteDependencies.values.toList(),
-        unknownDependencies = resolved.sourceDependencies.keys - recognizedKeys,
-    )
-  }
-
-  private fun isTag(className: ClassName): Boolean = isSubtypeOf(className, TAG)
-
-  internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
-
-  internal fun isGameParticipant(className: ClassName): Boolean = isSubtypeOf(className, PLAYER)
-
-  internal fun isGenerationScoped(className: ClassName): Boolean =
-      isSubtypeOf(className, GENERATIONAL)
-
-  internal fun isEndTrigger(className: ClassName): Boolean = isSubtypeOf(className, END)
-
-  private fun isSubtypeOf(className: ClassName, superclassName: ClassName): Boolean =
-      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(superclassName))
 
   internal fun componentNounPhrase(className: ClassName, count: Int): NounPhrase {
     val noun = fact(className, ComponentDescriber::noun)
@@ -236,9 +189,9 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun tagName(className: ClassName): Pair<String, Boolean>? {
-    if (!concrete(className) || !isTag(className)) return null
+    if (!expressions.concrete(className) || !expressions.isTag(className)) return null
     val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-    val isPlanetTag = isSubtypeOf(className, PLANET_TAG)
+    val isPlanetTag = expressions.isPlanetTag(className)
     val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
     return name to isPlanetTag
   }
@@ -250,218 +203,16 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {
-    val style = fact(className, ComponentDescriber::cardResource) ?: return null
-    if (!concrete(className)) {
+    val frame = changeFrame(className) as? ComponentDescriber.ChangeFrame.Held ?: return null
+    if (!expressions.concrete(className)) {
       val noun =
           fact(className, ComponentDescriber::noun) as? ComponentDescriber.Noun.Counted
               ?: return null
       return NounPhrase(noun.singular, noun.plural, count)
     }
     val noun = unCamelCase(className.toString())
-    return when (style) {
-      ComponentDescriber.CardResource.ORDINARY -> NounPhrase(noun, "${noun}s", count)
-      ComponentDescriber.CardResource.SUFFIXED ->
-          NounPhrase("$noun resource", "$noun resources", count)
-    }
-  }
-
-  internal fun productionExpression(
-      expression: Expression,
-  ): ProductionExpression? =
-      parseProductionExpression(expression)?.takeIf { production ->
-        plainGainNoun(production.resource, 1) != null
-      }
-
-  internal fun productionCategoryExpression(
-      expression: Expression,
-  ): ProductionExpression? =
-      parseProductionExpression(expression)?.takeIf { production ->
-        plainGainCategoryNoun(production.resource, 1) != null
-      }
-
-  private fun parseProductionExpression(
-      expression: Expression,
-  ): ProductionExpression? {
-    val resolved =
-        resolveExpression(expression) ?: return parseContextualProductionExpression(expression)
-    val type = resolved.type
-    if (!type.rootClass.isSubtypeOf(classesByName.getValue(PRODUCTION))) return null
-    val resource =
-        resolved.dependency(Key(PRODUCTION, 0))?.representedType()?.takeIf { it.refinement == null }
-            ?: return null
-    val ownerKey = Key(OWNED, 0)
-    if (resolved.dependency(ownerKey) == null) return null
-    val owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == ownerExpression }
-    return ProductionExpression(owner, resource.className)
-  }
-
-  // TODO: Resolve contextual This through linked type sources, then delete this positional
-  // fallback.
-  private fun parseContextualProductionExpression(
-      expression: Expression,
-  ): ProductionExpression? {
-    if (
-        !isProduction(expression.className) ||
-            expression.refinement != null ||
-            expression.complement
-    ) {
-      return null
-    }
-    val resourceDependency = expression.arguments.lastOrNull() ?: return null
-    if (
-        resourceDependency.className != CLASS ||
-            resourceDependency.arguments.size != 1 ||
-            resourceDependency.refinement != null ||
-            resourceDependency.complement
-    ) {
-      return null
-    }
-    val resource = resourceDependency.arguments.single()
-    if (!resource.simple) return null
-    val owner = expression.arguments.dropLast(1).singleOrNull()
-    if (expression.arguments.size > 2) return null
-    return ProductionExpression(owner, resource.className)
-  }
-
-  internal fun selectedProductionResource(expression: Expression): Expression? {
-    if (!isProduction(expression.className) || expression.complement) return null
-    val resolved = resolveExpression(expression) ?: return null
-    val resourceKey = Key(PRODUCTION, 0)
-    if (resolved.sourceDependencies.keys != setOf(resourceKey)) return null
-    return resolved.dependency(resourceKey)?.representedExpression()
-  }
-
-  internal fun representedClass(expression: Expression): Expression? {
-    val classType = representedClassType(expression) ?: return null
-    val represented = classType.representedClass ?: return null
-    if (classType.refinement != null) return null
-    return represented.className.expression
-  }
-
-  internal fun representedExpression(expression: Expression): Expression? {
-    val classType = representedClassType(expression) ?: return null
-    return classType.representedExpression()
-  }
-
-  private fun representedClassType(expression: Expression): Type? {
-    val resolved = resolveExpression(expression) ?: return null
-    val key =
-        resolved.type.rootClass.dependencies.keys.singleOrNull {
-          resolved.selectedDependency(it)?.rootClass?.className == CLASS
-        } ?: return null
-    return resolved.dependency(key)
-  }
-
-  internal fun representedClassArgument(classExpression: Expression): Expression? {
-    return resolveExpression(classExpression)?.type?.representedExpression()
-  }
-
-  internal fun resolveExpression(expression: Expression): ResolvedExpression? =
-      resolveExpression(expression, contextualThisKey = null)
-
-  internal fun resolveExpression(
-      expression: Expression,
-      contextualThisKey: Key?,
-  ): ResolvedExpression? {
-    if (expression.complement) return null
-    val declaredClass = classesByName[expression.className] ?: return null
-    val playerOwned = declaredClass.isSubtypeOf(classesByName.getValue(OWNED))
-    val directSourceType =
-        try {
-          classTable.resolve(expression)
-        } catch (_: ExpressionException) {
-          null
-        }
-    val semanticSourceArguments =
-        if (directSourceType != null) {
-          expression.arguments
-        } else {
-          val contextualThisType = contextualThisKey?.let { key ->
-            if (key !in declaredClass.baseType.dependencies.keys) return@let null
-            (declaredClass.baseType.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency)
-                ?.boundType
-          }
-          expression.arguments.map { argument ->
-            when {
-              argument == thisExpression && contextualThisType != null ->
-                  contextualThisType.expression
-              playerOwned && (argument == anyoneExpression || argument == notOwnerExpression) ->
-                  playerExpression
-              else -> argument
-            }
-          }
-        }
-    val sourceType =
-        directSourceType
-            ?: try {
-              classTable.resolve(expression.copy(arguments = semanticSourceArguments))
-            } catch (_: ExpressionException) {
-              return null
-            }
-    val rootClass = sourceType.rootClass
-    val sourceKeys = rootClass.matchDependencyKeys(semanticSourceArguments)
-    val sourceDependencies = sourceKeys.zip(expression.arguments).toMap()
-    val semanticSourceDependencies = sourceKeys.zip(semanticSourceArguments).toMap()
-    val defaultArguments = rootClass.defaultType.expressionFull.arguments
-    val defaults = rootClass.matchDependencyKeys(defaultArguments).zip(defaultArguments).toMap()
-    val defaultedKeys =
-        rootClass.dependencies.keys.filterTo(linkedSetOf()) { key ->
-          val path = DependencyPath(listOf(key))
-          rootClass.defaultType.dependencies.at(path) != rootClass.baseType.dependencies.at(path)
-        }
-    val semanticArguments =
-        rootClass.dependencies.keys.map { semanticSourceDependencies[it] ?: defaults.getValue(it) }
-    val semanticExpression = expression.copy(arguments = semanticArguments)
-    val semanticType =
-        try {
-          classTable.resolve(semanticExpression)
-        } catch (_: ExpressionException) {
-          return null
-        }
-    return ResolvedExpression(
-        semanticType,
-        sourceDependencies.keys + defaultedKeys,
-        sourceDependencies,
-    )
-  }
-
-  private fun Type.representedType(): Type? {
-    return representedClass?.baseType
-  }
-
-  private fun Type.representedExpression(): Expression? {
-    val represented = representedType() ?: return null
-    return represented.expression.copy(refinement = refinement)
-  }
-
-  internal fun distinctOwnedKinds(expression: Expression): ComponentDescriber.Noun.Counted? {
-    if (expression.className != CLASS || expression.complement) return null
-    val classKey = Key(CLASS, 0)
-    val resolvedClass = resolveExpression(expression) ?: return null
-    val kind = resolvedClass.sourceDependency(classKey) ?: return null
-    if (!resolvedClass.hasOnlySourceDependency(classKey, kind)) return null
-    if (!kind.simple) return null
-    val refinement = expression.refinement ?: return null
-    if (refinement.forgiving) return null
-    val minimum = refinement.requirement as? Requirement.Min ?: return null
-    if (minimum.target != 1) return null
-    val member = (minimum.metric as? Metric.Count)?.expression ?: return null
-    val resolvedMember = resolveExpression(member) ?: return null
-    val ownerKey = Key(OWNED, 0)
-    if (
-        member.className != kind.className ||
-            !resolvedMember.hasOnlySourceDependency(ownerKey, ownerExpression) ||
-            member.refinement != null ||
-            member.complement
-    ) {
-      return null
-    }
-    return fact(kind.className, ComponentDescriber::distinctKinds)
-  }
-
-  internal fun concrete(className: ClassName): Boolean {
-    val componentClass = classesByName[className] ?: return false
-    return !componentClass.abstract
+    return if (frame.suffixed) NounPhrase("$noun resource", "$noun resources", count)
+    else NounPhrase(noun, "${noun}s", count)
   }
 
   internal fun indefiniteArticle(noun: String): String =
@@ -484,31 +235,5 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
         append(character.lowercaseChar())
       }
     }
-  }
-
-  internal val anyoneExpression = cn("Anyone").expression
-  internal val notOwnerExpression = cn("Owner").expression.copy(complement = true)
-  internal val ownerExpression = cn("Owner").expression
-  internal val playerExpression = cn("Player").expression
-  internal val thisExpression = cn("This").expression
-
-  internal data class ProductionExpression(
-      val owner: Expression?,
-      val resource: ClassName,
-  )
-
-  internal data class PlacementExpression(
-      val owner: Expression?,
-      val sites: List<Expression>,
-      val unknownDependencies: Set<Key>,
-  )
-
-  private companion object {
-    val CARD_RESOURCE = cn("CardResource")
-    val END = cn("End")
-    val GENERATIONAL = cn("Generational")
-    val PLANET_TAG = cn("PlanetTag")
-    val PLAYER = cn("Player")
-    val TAG = cn("Tag")
   }
 }

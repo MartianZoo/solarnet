@@ -101,7 +101,7 @@ private fun renderDiscardCostSequence(
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   val discarded =
       renderChange(removal, describers, drawFilter).value as? Clause.Simple ?: return null
-  if (describers.fact(removal.removing.className, ComponentDescriber::discardable) != true) {
+  if (describers.changeFrame(removal.removing.className) !is ComponentDescriber.ChangeFrame.Deck) {
     return null
   }
   val result =
@@ -137,8 +137,7 @@ private fun renderPlacementBonusProductionSequence(
   ) {
     return null
   }
-  val placementDescription =
-      describers.fact(placement.gaining.className, ComponentDescriber::placement) ?: return null
+  val placementDescription = describers.positionedFrame(placement.gaining.className) ?: return null
   val alternatives = (instruction.continuation as? Instruction.Or)?.instructions ?: return null
   val bonuses = alternatives.map { alternative ->
     val gated = alternative as? Instruction.Gated ?: return null
@@ -171,7 +170,7 @@ private fun renderPlacementBonusProductionSequence(
     ) {
       return null
     }
-    val produced = describers.productionExpression(production.gaining) ?: return null
+    val produced = productionExpression(production.gaining, describers) ?: return null
     if (produced.owner != null || produced.resource != resource.className) return null
     PlacementBonusProduction(site.className, resource.className, bonusDescription.noun)
   }
@@ -179,7 +178,7 @@ private fun renderPlacementBonusProductionSequence(
       bonuses.map(PlacementBonusProduction::siteClassName).distinct().singleOrNull() ?: return null
   val bonusNoun =
       bonuses.map(PlacementBonusProduction::bonusNoun).distinct().singleOrNull() ?: return null
-  val resolvedPlacement = describers.resolvePlacementExpression(placement.gaining) ?: return null
+  val resolvedPlacement = resolvePlacementExpression(placement.gaining, describers) ?: return null
   if (resolvedPlacement.owner != null || resolvedPlacement.unknownDependencies.isNotEmpty()) {
     return null
   }
@@ -325,8 +324,8 @@ private fun renderGated(
           ?.let(describers::representedClassArgument)
   if (
       selectedClass != null &&
-          describers.fact(selectedClass.className, ComponentDescriber::directChange) is
-              ComponentDescriber.DirectChange.Imperative
+          describers.changeFrame(selectedClass.className) is
+              ComponentDescriber.ChangeFrame.Procedure
   ) {
     return clause
   }
@@ -339,52 +338,11 @@ private fun renderPer(
     describers: Describers,
     drawFilter: EnglishDrawFilter?,
 ): Clause? {
-  renderProductionFloor(instruction, describers)?.let {
-    return it
-  }
   val clause =
       renderLoweredInstructions(instruction.inner, describers, drawFilter).clauses.singleOrNull()
           ?: return null
   val metric = renderMetricPhrase(instruction.metric, describers) ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Phrase("for $metric"))
-}
-
-private fun renderProductionFloor(
-    instruction: Instruction.Per,
-    describers: Describers,
-): Clause.Simple? {
-  val resourceClassName = productionFloorResource(instruction, describers) ?: return null
-  val resource = describers.componentNoun(resourceClassName, 1)
-  return Clause.Simple(
-      Predicate(
-          "increase",
-          Coordination.one(NounPhrase.text("your $resource production to 1")),
-          listOf(Modifier.Phrase("if it is below 1")),
-      )
-  )
-}
-
-private fun productionFloorResource(
-    instruction: Instruction,
-    describers: Describers,
-): ClassName? {
-  val per = instruction as? Instruction.Per ?: return null
-  val gain = per.inner as? Gain ?: return null
-  if (gain.intensity.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1) return null
-  val shortfall = per.metric as? Metric.Subtract ?: return null
-  val threshold = shortfall.minuend as? Metric.Constant ?: return null
-  if (threshold.value == 0) return null
-  val current = shortfall.subtrahend as? Metric.Count ?: return null
-  val gaining = describers.productionExpression(gain.gaining) ?: return null
-  val currentProduction = describers.productionExpression(current.expression) ?: return null
-  if (
-      gaining.owner != null ||
-          currentProduction.owner != null ||
-          gaining.resource != currentProduction.resource
-  ) {
-    return null
-  }
-  return gaining.resource
 }
 
 private fun renderAlternatives(
@@ -443,9 +401,9 @@ private fun renderPlacementSiteFallback(
           as? Instruction.Gated ?: return null
   val unrestricted =
       InstructionGroup.of(fallback.inner).instructions.singleOrNull() as? Gain ?: return null
-  val preferredPlacement = describers.resolvePlacementExpression(preferred.gaining) ?: return null
+  val preferredPlacement = resolvePlacementExpression(preferred.gaining, describers) ?: return null
   val unrestrictedPlacement =
-      describers.resolvePlacementExpression(unrestricted.gaining) ?: return null
+      resolvePlacementExpression(unrestricted.gaining, describers) ?: return null
   if (
       preferred.gaining.refinement != null ||
           preferred.gaining.complement ||
@@ -465,8 +423,7 @@ private fun renderPlacementSiteFallback(
   }
   val site = preferredPlacement.sites.singleOrNull()?.takeIf { it.simple } ?: return null
   if (describers.placementSite(site.className) == null) return null
-  val placement =
-      describers.fact(preferred.gaining.className, ComponentDescriber::placement) ?: return null
+  val placement = describers.positionedFrame(preferred.gaining.className) ?: return null
   if (placement.consequence != null) return null
   val absence = fallback.gate as? Requirement.Max ?: return null
   val countedSite = absence.countedMetric as? Metric.Count ?: return null
@@ -487,29 +444,6 @@ private fun coalesceAdjacentChanges(
   var index = 0
   while (index < rendered.size) {
     val (instruction, renderedClause) = rendered[index]
-    if (productionFloorResource(instruction, describers) != null) {
-      val run =
-          rendered.drop(index).takeWhile { (candidate) ->
-            productionFloorResource(candidate, describers) != null
-          }
-      val resources = run.mapNotNull { (candidate) ->
-        productionFloorResource(candidate, describers)
-      }
-      if (resources.toSet() == describers.concreteStandardResources()) {
-        result +=
-            Clause.Simple(
-                Predicate(
-                    "increase",
-                    Coordination.one(NounPhrase.text("each of your productions below 1")),
-                    listOf(Modifier.Phrase("to 1")),
-                )
-            )
-      } else {
-        result += run.map { (_, clause) -> clause }
-      }
-      index += run.size
-      continue
-    }
     if (isProductionChange(instruction, describers)) {
       val run =
           rendered.drop(index).takeWhile { (candidate) ->

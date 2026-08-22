@@ -48,8 +48,7 @@ private fun renderParticipant(
     describers: Describers,
 ): CountedRelation.Participant? {
   if (expression.refinement != null || expression.complement) return null
-  val placement =
-      describers.fact(expression.className, ComponentDescriber::placement) ?: return null
+  val placement = describers.positionedFrame(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   val (determiner, ownedByYou) =
@@ -71,7 +70,7 @@ private fun renderParticipant(
 private val ADJACENCY = cn("Adjacency")
 
 private fun Describers.isUnqualifiedPlacementOwned(expression: Expression): Boolean {
-  val placement = fact(expression.className, ComponentDescriber::placement) ?: return false
+  val placement = positionedFrame(expression.className) ?: return false
   if (placement.unqualifiedMetricOwner == ComponentDescriber.MetricOwner.YOU) return true
   val requirement = fact(expression.className, ComponentDescriber::requirement) ?: return false
   if (requirement.ownedCount != null) return true

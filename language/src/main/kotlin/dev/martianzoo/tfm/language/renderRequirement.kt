@@ -67,7 +67,7 @@ private fun Describers.renderDistinctKindsRequirement(
     requirement: Requirement.Min,
 ): Clause? {
   val metric = requirement.metric as? Metric.Count ?: return null
-  val noun = distinctOwnedKinds(metric.expression) ?: return null
+  val noun = distinctOwnedKinds(metric.expression, this) ?: return null
   val kinds = if (requirement.target == 1) noun.singular else noun.plural
   return requirementClause("requires", "that you have ${requirement.target} $kinds")
 }
@@ -85,7 +85,7 @@ private fun Describers.renderRequirementGroup(requirement: Requirement.And): Cla
 private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Clause? {
   if (minimum.target != 1) return null
   val metric = minimum.metric as? Metric.Count ?: return null
-  val production = productionExpression(metric.expression) ?: return null
+  val production = productionExpression(metric.expression, this) ?: return null
   if (production.owner != null) return null
   return requirementClause(
       "requires",

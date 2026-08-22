@@ -78,7 +78,7 @@ private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
       ?.let {
         return it
       }
-  productionExpression(expression)?.let { production ->
+  productionExpression(expression, this)?.let { production ->
     if (production.owner != null) return null
     val steps = if (count == 1) "step" else "steps"
     return Predicate(
@@ -159,7 +159,7 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
 private fun Describers.renderLinkedProductionResourceAction(action: Action): RenderedAction? {
   val spend = action.cost as? Cost.Spend ?: return null
   val costCount = spend.scaledEx.scalar.fixedQuantity() ?: return null
-  val production = productionCategoryExpression(spend.scaledEx.expression) ?: return null
+  val production = productionCategoryExpression(spend.scaledEx.expression, this) ?: return null
   if (production.owner != null || concrete(production.resource)) return null
   val gain = action.instruction as? Gain ?: return null
   if (gain.intensity.modality() != Modality.REQUIRED) return null

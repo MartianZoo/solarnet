@@ -76,7 +76,7 @@ declarations: `Describers` resolves each requested fact independently through th
 every undeclared canonical Class, keeping its map complete without copying inherited facts into
 each value.
 
-`Describers` resolves expressions through the shared Class Table into `ResolvedExpression`: the
+`ExpressionResolver` resolves expressions through the shared Class Table into `ResolvedExpression`: the
 resolved `Type` plus authored dependency expressions indexed by the keys returned by the declaring
 Class. Production and class-literal interpretation consume those keys rather than inferring owner,
 resource, or represented-Class roles from argument positions. In card ownership context, an
@@ -86,7 +86,7 @@ used as a card-resource holder resolves against the holder dependency's declared
 the authored `This` at that key. Contextual placement sites still cannot always resolve without their
 linked source; the remaining positional recognition stays visible until rendering receives it.
 Family renderers do not inspect `Expression.arguments`; dependency matching and the explicitly
-documented contextual-production fallback are confined to `Describers`.
+documented contextual-production fallback are confined to expression-role resolution.
 Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, `PlanetTag`, `Player`,
 `Generational`, and `End` is read from the Class hierarchy and is not duplicated in
 `ComponentDescriber`. Card-resource number forms remain lexical data.
@@ -95,7 +95,11 @@ required, best-effort, or optional `Modality` values. Family renderers do not in
 scalar or intensity variants.
 
 Structural renderers only identify the component Class, ask `Describers` for the applicable
-inherited phrase or capability, and compose the answer. They do not name component Classes or
+inherited phrase or capability, and compose the answer. Change rendering uses one inherited
+`ChangeFrame`: countable, held, scale, positioned, deck, procedure, wrapper, or play. Production is
+identified structurally. The frame contains the construction and its lexical words rather than a
+second classification field or a component-shaped renderer variant. Structural renderers do not
+name component Classes or
 enumerate categories such as city tiles and colonies. In particular, requirement descriptions own
 their minimum, maximum, and compound-owned wording rather than exposing a centralized
 component-category value for `Describers` to switch over.
@@ -120,11 +124,10 @@ compose, and differing values for the same fact from incomparable nearest provid
 Equal values from those providers coalesce. This keeps structural rendering closed over Pets AST
 shapes while allowing a newly loaded component Class to reuse the descriptions of its supertypes.
 
-`directChangeForSubclasses` is likewise a direct opt-in by one exact superclass. It permits the
-superclass's direct-change construction to inspect a gained concrete direct subclass. Each such
-construction must reject any subclass declaration whose behavior it does not completely account
-for; the next-played-card adjustment construction, for example, accepts exactly one automatic
-played-card payment reduction or requirement adjustment and obtains its details from that Effect.
+A wrapper frame may interpret a gained concrete direct subclass of its declaring superclass. The
+subclass must be a plain concrete declaration with one supported effect; the ordinary instruction
+renderer handles that effect and the wrapper contributes only its preface. `Mandate` currently uses
+this construction for `as your first action`. More specialized temporary effects remain bracketed.
 
 Instruction changes and requirements are retained as internal clauses, predicates, noun phrases,
 modifiers, and coordinations until their enclosing sentence or action has made its structural
@@ -201,10 +204,7 @@ also identify the deferred-payment protocol: a fixed standard-resource amount ow
 alternate standard resource, and a payment barrier guarding a supported result. This renders as
 an ordinary fixed-cost action with the alternate resource noted parenthetically. A Describer may
 also supply the object phrase for gaining one chosen concrete member of an abstract component
-category. A supported action may also invoke a component described as the optional top-card purchase
-procedure.
-That description supplies narrow component-level knowledge for behavior absent from the Pets
-change; it is not inferred from an ordinary optional gain. A named operation may be invoked as an
+category. A named operation may be invoked as an
 action result and recognized as an effect trigger. Two adjacent effects may use a described barrier
 solely to hold that operation open for one optional increase of its selected track; the barrier is
 validated and omitted from the printed effect. Supported non-End effects include a fixed M€
@@ -290,13 +290,11 @@ component.
 It may count a described component collection with an explicit ownership-sensitive suffix.
 An instruction metric may cap any otherwise supported count with a parenthetical literal numeric
 maximum. A cap supplied by another metric remains bracketed.
-One mandatory gain may instead use an imperative verb and object phrase supplied by that
-component's Describer when its procedure is absent from the Pets change itself.
-Another supported direct-change construction gains a temporary component whose declaration says
-that the next card played receives one fixed standard-resource payment discount or global-
-requirement adjustment. Canonical cards gain their own local concrete subclass directly; the shared
-`NextCardEffect` supplies the ownership and generational category, while each local class states its
-next-play lifecycle and adjustment together.
+One mandatory gain may instead use a procedure frame's imperative verb and optional object phrase
+when its procedure is absent from the Pets change itself. Optional top-card purchase procedures,
+production-box copying, and temporary next-card adjustments remain bracketed rather than being
+recognized from their current declaration shapes. A `Per` whose metric is a subtraction likewise
+uses the ordinary scaling boundary; production floors are not a separate instruction idiom.
 A two-stage immediate instruction may instead play a card and then remove every generated global-
 requirement shortfall or remove up to one fixed owed amount, rendering the requirement waiver or
 card discount at the scope of that play.

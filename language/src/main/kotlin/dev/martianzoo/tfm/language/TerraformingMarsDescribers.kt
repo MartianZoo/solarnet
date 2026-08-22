@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.language
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.language.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.types.Class
 
 private typealias RequirementCount = ComponentDescriber.Requirement.CountSyntax
@@ -20,10 +21,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
-        klass("StandardResource") to
-            ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.GainChoice("a standard resource"),
-            ),
+        klass("StandardResource") to ComponentDescriber(changeFrame = Frame.Countable),
         klass("Metal") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("titanium or steel")),
         klass("Steel") to ComponentDescriber(noun = ComponentDescriber.Noun.ClassName),
@@ -34,14 +32,12 @@ internal object TerraformingMarsDescribers {
         klass("ProjectCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
-                discardable = true,
-                draw = true,
+                changeFrame = Frame.Deck,
             ),
         klass("PreludeCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("prelude card", "prelude cards"),
-                discardable = true,
-                draw = true,
+                changeFrame = Frame.Deck,
             ),
         klass("PlayedEvent") to
             ComponentDescriber(
@@ -55,7 +51,7 @@ internal object TerraformingMarsDescribers {
         klass("CardResource") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("resource", "resources"),
-                cardResource = ComponentDescriber.CardResource.SUFFIXED,
+                changeFrame = Frame.Held(suffixed = true),
                 distinctKinds =
                     ComponentDescriber.Noun.Counted(
                         "different type of card resource",
@@ -157,12 +153,12 @@ internal object TerraformingMarsDescribers {
             ),
         klass("Tile") to
             ComponentDescriber(
-                placement = ComponentDescriber.Placement("a", "tile", "tiles"),
+                changeFrame = Frame.Positioned("a", "tile", "tiles"),
             ),
         klass("OwnedTile") to
             ComponentDescriber(
-                placement =
-                    ComponentDescriber.Placement(
+                changeFrame =
+                    Frame.Positioned(
                         "a",
                         "tile",
                         "tiles",
@@ -171,22 +167,18 @@ internal object TerraformingMarsDescribers {
             ),
         klass("SpecialTile") to
             ComponentDescriber(
-                placement =
-                    ComponentDescriber.Placement(
+                changeFrame =
+                    Frame.Positioned(
                         article = "this",
                         singular = "tile",
                         plural = "tiles",
                         allowsMultiple = false,
                     ),
             ),
-        klass("Animal") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
-        klass("Asteroid") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
-        klass("Floater") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
-        klass("Microbe") to
-            ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
+        klass("Animal") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
+        klass("Asteroid") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
+        klass("Floater") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
+        klass("Microbe") to ComponentDescriber(changeFrame = Frame.Held(suffixed = false)),
         klass("Tag") to
             ComponentDescriber(
                 countNoun = ComponentDescriber.Noun.Counted("tag", "tags"),
@@ -206,7 +198,7 @@ internal object TerraformingMarsDescribers {
         klass("MicrobeTag") to ComponentDescriber(playedTagPhrase = "a microbe tag"),
         klass("OxygenStep") to
             ComponentDescriber(
-                track = ComponentDescriber.Track("oxygen"),
+                changeFrame = Frame.Scale("oxygen"),
                 requirement =
                     ComponentDescriber.Requirement(
                         minimum =
@@ -227,7 +219,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("TemperatureStep") to
             ComponentDescriber(
-                track = ComponentDescriber.Track("temperature"),
+                changeFrame = Frame.Scale("temperature"),
                 requirement =
                     ComponentDescriber.Requirement(
                         minimum =
@@ -248,7 +240,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("VenusStep") to
             ComponentDescriber(
-                track = ComponentDescriber.Track("Venus"),
+                changeFrame = Frame.Scale("Venus"),
                 requirement =
                     ComponentDescriber.Requirement(
                         minimum =
@@ -269,7 +261,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("TerraformRating") to
             ComponentDescriber(
-                track = ComponentDescriber.Track("your terraform rating"),
+                changeFrame = Frame.Scale("your terraform rating"),
                 requirement =
                     ComponentDescriber.Requirement(
                         minimum =
@@ -283,7 +275,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("OceanTile") to
             ComponentDescriber(
-                placement = ComponentDescriber.Placement("an", "ocean tile", "ocean tiles"),
+                changeFrame = Frame.Positioned("an", "ocean tile", "ocean tiles"),
                 requirement =
                     ComponentDescriber.Requirement(
                         minimum =
@@ -298,8 +290,8 @@ internal object TerraformingMarsDescribers {
             ),
         klass("GreeneryTile") to
             ComponentDescriber(
-                placement =
-                    ComponentDescriber.Placement(
+                changeFrame =
+                    Frame.Positioned(
                         "a",
                         "greenery tile",
                         "greenery tiles",
@@ -318,8 +310,8 @@ internal object TerraformingMarsDescribers {
             ),
         klass("CityTile") to
             ComponentDescriber(
-                placement =
-                    ComponentDescriber.Placement(
+                changeFrame =
+                    Frame.Positioned(
                         "a",
                         "city tile",
                         "city tiles",
@@ -339,8 +331,8 @@ internal object TerraformingMarsDescribers {
             ),
         klass("Colony") to
             ComponentDescriber(
-                placement =
-                    ComponentDescriber.Placement(
+                changeFrame =
+                    Frame.Positioned(
                         "a",
                         "colony",
                         "colonies",
@@ -361,7 +353,6 @@ internal object TerraformingMarsDescribers {
             ),
         klass("BuyCard") to
             ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.TopCardPurchase,
                 purchase =
                     ComponentDescriber.Purchase(
                         noun = ComponentDescriber.Noun.Counted("card", "cards")
@@ -369,59 +360,28 @@ internal object TerraformingMarsDescribers {
             ),
         klass("CopyPrelude") to
             ComponentDescriber(
-                directChange =
-                    ComponentDescriber.DirectChange.Imperative(
-                        "copy",
-                        "your other Prelude's direct effect",
-                    )
-            ),
-        klass("CopyProductionBox") to
-            ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.ProductionBoxCopy,
+                changeFrame = Frame.Procedure("copy", "your other Prelude's direct effect")
             ),
         klass("GiveColonyBonuses") to
-            ComponentDescriber(
-                directChange =
-                    ComponentDescriber.DirectChange.Imperative(
-                        "gain",
-                        "all your colony bonuses",
-                    )
-            ),
-        klass("NextCardEffect") to
-            ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.NextPlayedCardAdjustment,
-                directChangeForSubclasses = true,
-            ),
-        klass("Mandate") to
-            ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.FirstAction,
-                directChangeForSubclasses = true,
-            ),
+            ComponentDescriber(changeFrame = Frame.Procedure("gain", "all your colony bonuses")),
+        klass("Mandate") to ComponentDescriber(changeFrame = Frame.Wrapper("as your first action")),
         klass("Award") to
-            ComponentDescriber(
-                directChange =
-                    ComponentDescriber.DirectChange.Imperative(
-                        "fund",
-                        "an award for free",
-                    )
-            ),
+            ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),
         klass("ReserveTradeFleet") to
             ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.Gain("Trade Fleet", 1)
+                noun = ComponentDescriber.Noun.Counted("Trade Fleet", "Trade Fleets"),
+                changeFrame = Frame.Countable,
             ),
         klass("LowestProduction") to
             ComponentDescriber(productionSelection = "one of your lowest productions"),
         klass("ColonyProduction") to
-            ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.TrackTransfer("colony tile track")
-            ),
-        klass("Trade") to
-            ComponentDescriber(directChange = ComponentDescriber.DirectChange.Operation("trade")),
+            ComponentDescriber(changeFrame = Frame.Scale("colony tile track")),
+        klass("Trade") to ComponentDescriber(changeFrame = Frame.Procedure("trade")),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("PlayCard") to
             ComponentDescriber(
-                directChange = ComponentDescriber.DirectChange.PlayCard,
+                changeFrame = Frame.Play,
                 playTrigger = ComponentDescriber.PlayTrigger.CARD,
             ),
         klass("PlayTag") to ComponentDescriber(playTrigger = ComponentDescriber.PlayTrigger.TAG),

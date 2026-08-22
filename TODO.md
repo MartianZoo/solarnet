@@ -4,6 +4,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Finish the remaining English renderer Stage 3 work in `docs/agents/LANGUAGE_REVIEW.md`: replace
+  `ThresholdSyntax` and `CountSyntax`, then move canonical English declarations into their owning
+  bundles and remove `TerraformingMarsDescribers`.
 - **High priority:** Implement Class activation requirements and exact uninhabited-domain premise
   viability diagnostics. Only afterward consider stronger proofs such as Law Suit being unviable
   in solo because no opponent-dependent attack record can inhabit the projected Type universe.
