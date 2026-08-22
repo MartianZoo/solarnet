@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 // Complete archive replay: Synthetic Proton Fragment (g9ea8656f1c7e)
 // https://terraforming-mars.herokuapp.com/the-end?id=p9d6d3ff25b39
-class Game20260811Test : CardTrackingFullGameTest() {
+class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, no Venus/Colonies/Turmoil, and these full-random milestone and award pools.
   override val config =
@@ -46,12 +46,12 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     engine.assertCounts(1 to "Generation")
 
-    // Player-record inference: Mom's dealt projects plus her later plays identify these four.
+    // Test inference: Mom's dealt projects plus her later plays identify these four.
     mom.playCorp(Recyclon) {
       mom.buyCards(EcologicalZone, ReleaseOfInertGases, DeepWellHeating, IndustrialCenter)
     }
 
-    // Player-record inference: Ellie's dealt projects plus her later plays identify these five.
+    // Test inference: Ellie's dealt projects plus her later plays identify these five.
     ellie.playCorp(RobinsonIndustries) {
       ellie.buyCards(
           LagrangeObservatory,
@@ -719,16 +719,25 @@ class Game20260811Test : CardTrackingFullGameTest() {
     mom.cardsInHand shouldBe emptySet()
     ellie.cardsInHand shouldBe emptySet()
     dad.cardsInHand shouldBe emptySet()
-    val score = Summarizer(game)
 
-    mom.assertCounts(42 to "TerraformRating")
-    ellie.assertCounts(44 to "TerraformRating")
-    dad.assertCounts(34 to "TerraformRating")
+    with(mom) {
+      assertResources(m = 56, s = 5, t = 0, p = 6, e = 4, h = 13)
+      assertProduction(m = 13, s = 3, t = 0, p = 8, e = 4, h = 1)
+    }
+    with(ellie) {
+      assertResources(m = 63, s = 5, t = 7, p = 3, e = 0, h = 29)
+      assertProduction(m = 4, s = 4, t = 7, p = 4, e = 0, h = 13)
+    }
+    with(dad) {
+      assertResources(m = 57, s = 1, t = 3, p = 1, e = 0, h = 4)
+      assertProduction(m = 10, s = 1, t = 0, p = 6, e = 0, h = 0)
+    }
 
     mom.assertCounts(1 to "FirstPlace<Player1>", 0 to "SecondPlace<Player1>")
     ellie.assertCounts(1 to "FirstPlace<Player2>", 1 to "SecondPlace<Player2>")
     dad.assertCounts(1 to "FirstPlace<Player3>", 2 to "SecondPlace<Player3>")
 
+    val score = Summarizer(game)
     score.net("Milestone", "VictoryPoint<Player1>") shouldBe 5
     score.net("Milestone", "VictoryPoint<Player2>") shouldBe 5
     score.net("Milestone", "VictoryPoint<Player3>") shouldBe 5
@@ -747,26 +756,19 @@ class Game20260811Test : CardTrackingFullGameTest() {
     score.net("Card", "VictoryPoint<Player1>") shouldBe 4
     score.net("Card", "VictoryPoint<Player2>") shouldBe 12
     score.net("Card", "VictoryPoint<Player3>") shouldBe 5
-
     score.net("$EcologicalZone", "VictoryPoint<Player1>") shouldBe 3
     score.net("$IoMiningIndustries", "VictoryPoint<Player2>") shouldBe 4
     score.net("$SaturnSurfing", "VictoryPoint<Player2>") shouldBe 1
     score.net("$Ants", "VictoryPoint<Player3>") shouldBe 4
 
-    with(mom) {
-      assertResources(m = 56, s = 5, t = 0, p = 6, e = 4, h = 13)
-      assertProduction(m = 13, s = 3, t = 0, p = 8, e = 4, h = 1)
-    }
-    with(ellie) {
-      assertResources(m = 63, s = 5, t = 7, p = 3, e = 0, h = 29)
-      assertProduction(m = 4, s = 4, t = 7, p = 4, e = 0, h = 13)
-    }
-    with(dad) {
-      assertResources(m = 57, s = 1, t = 3, p = 1, e = 0, h = 4)
-      assertProduction(m = 10, s = 1, t = 0, p = 6, e = 0, h = 0)
-    }
-    mom.assertCounts(74 to "VictoryPoint", 0 to "Victory")
-    ellie.assertCounts(74 to "VictoryPoint", 1 to "Victory")
-    dad.assertCounts(67 to "VictoryPoint", 0 to "Victory")
+    mom.assertCounts(42 to "TerraformRating")
+    ellie.assertCounts(44 to "TerraformRating")
+    dad.assertCounts(34 to "TerraformRating")
+    mom.assertCounts(74 to "VictoryPoint")
+    ellie.assertCounts(74 to "VictoryPoint")
+    dad.assertCounts(67 to "VictoryPoint")
+    mom.assertCounts(0 to "Victory")
+    ellie.assertCounts(1 to "Victory")
+    dad.assertCounts(0 to "Victory")
   }
 }
