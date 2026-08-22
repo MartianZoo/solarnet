@@ -63,6 +63,10 @@ Keep scenarios minimal and legible. Card tests use the base game and two players
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
+Use `placeTile(row, column)`, `addCardResources(card)`, `wgt(choice)`, and `assignWildTag(card, tag)`
+instead of spelling their routine task expressions. The tile and card-resource helpers require a
+single matching pending choice; keep raw `doTask()` calls where multiple placements are pending.
+Use `declineTask()` only when exactly one pending task accepts `Ok`, and comment what is declined.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Authority-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMapOption`; the parser already trims each

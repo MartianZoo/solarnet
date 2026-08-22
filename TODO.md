@@ -4,6 +4,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## User Ideas and Agreed Directions
 
+- Derive `CardDefinition.resourceType` from the card's authored content instead of storing it as
+  independent imported data.
 - **High priority:** Implement Class activation requirements and exact uninhabited-domain premise
   viability diagnostics. Only afterward consider stronger proofs such as Law Suit being unviable
   in solo because no opponent-dependent attack record can inhabit the projected Type universe.

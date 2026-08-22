@@ -51,7 +51,7 @@ class FirstPartialGameTest : TfmTest() {
       }
       p2.turn {
         playProject(NaturalPreserve, 1, steel = 4) {
-          doTask("NaturalPreserve_SpecialTile<Elysium_3_7>")
+          placeTile(3, 7)
         }
       }
       p1.pass()
@@ -118,7 +118,8 @@ class FirstPartialGameTest : TfmTest() {
         }
         playProject(ArtificialPhotosynthesis, 10) {
           doTask("PROD[2 Energy]")
-          doTask("Ok")
+          // Decline Mars University's discard-and-draw effect for the science tag.
+          declineTask()
         }
 
         playProject(BribedCommittee, 5)
@@ -136,12 +137,15 @@ class FirstPartialGameTest : TfmTest() {
       }
 
       p1.turn {
-        playProject(ResearchOutpost, 14, steel = 2) { doTask("CityTile<Elysium_5_6>") }
+        playProject(ResearchOutpost, 14, steel = 2) { placeTile(5, 6) }
         playProject(IoMiningIndustries, 1, titanium = 13)
       }
 
       p2.turn {
-        playProject(TransNeptuneProbe, 1, titanium = 1) { doTask("Ok") }
+        playProject(TransNeptuneProbe, 1, titanium = 1) {
+          // Decline Mars University's discard-and-draw effect for the science tag.
+          declineTask()
+        }
         playProject(Hackers, 1) { doTask("PROD[-2 M<Player1>]") }
       }
 
@@ -151,7 +155,7 @@ class FirstPartialGameTest : TfmTest() {
 
       p2.turn {
         playProject(SolarPower, 1, steel = 4)
-        stdProject("CitySP") { doTask("CityTile<Elysium_6_5>") }
+        stdProject("CitySP") { placeTile(6, 5) }
       }
 
       workflow.shutdown()

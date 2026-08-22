@@ -15,10 +15,10 @@ class PolderTechDutchTest : CardTest() {
     engine.phase("Action")
 
     p1.stdAction("HandleMandates") {
-          doTask("OceanTile<Tharsis_1_4>")
+          placeTile(1, 4)
           shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_1_5>") }
           shouldThrow<NarrowingException> { doTask("GreeneryTile<Tharsis_2_1>") }
-          doTask("GreeneryTile<Tharsis_1_3>")
+          placeTile(1, 3)
         }
         .expect("OceanTile, GreeneryTile, OxygenStep, Energy, Plant")
 
@@ -31,8 +31,8 @@ class PolderTechDutchTest : CardTest() {
     p1.playCorp(PolderTechDutch, 0)
     engine.phase("Action")
     p1.stdAction("HandleMandates") {
-      doTask("OceanTile<Tharsis_1_4>")
-      doTask("GreeneryTile<Tharsis_1_3>")
+      placeTile(1, 4)
+      placeTile(1, 3)
     }
 
     p1.manual("OceanTile<Tharsis_2_3>").expect("Energy")

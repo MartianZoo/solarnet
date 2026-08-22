@@ -263,7 +263,14 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1(Factorum).expect("PROD[E<Player2>]")
       // Player2 played Asteroid
       // Player2's titanium amount increased by 2
-      playProject(AsteroidCard, 2, steel = 0, titanium = 4) { doTask("Ok") }
+      playProject(
+          AsteroidCard,
+          2,
+          steel = 0,
+          titanium = 4,
+      ) { /* Decline removing an opponent's plants. */
+        declineTask()
+      }
     }
 
     // Player1 played Corporate Stronghold
@@ -272,7 +279,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 placed city tile on row 4 position 6
     // Player1's plants amount increased by 1
     p1.turn {
-      playProject(CorporateStronghold, 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
+      playProject(CorporateStronghold, 5, steel = 3) { placeTile(4, 6) }
           .expect("PROD[3, -E], -2, Plant<Player1>")
       // Player1 played Optimal Aerobraking
       playProject(OptimalAerobraking, 7)
@@ -368,7 +375,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2 drew 2 card(s)
         // You drew Deimos Down:promo and Kelp Farming
         // Player2 gained 2 plants from Arctic Algae
-        doTask("OceanTile<Tharsis_2_6>")
+        placeTile(2, 6)
       }
       // Player2 played Search For Life
       playProject(SearchForLife, 3) {
@@ -396,7 +403,8 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 used Search For Life action
       cardAction1(SearchForLife) {
             // Player2 revealed and discarded Cartel
-            doTask("Ok")
+            // Decline the science resource.
+            declineTask()
           }
           .expect("-1")
     }
@@ -511,7 +519,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1's plants amount increased by 3
       playProject(DomedCrater, 18, steel = 3) {
         // Player1 placed city tile on row 3 position 4
-        doTask("CityTile<Tharsis_3_4>")
+        placeTile(3, 4)
       }
     }
 
@@ -520,7 +528,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1(DirectedImpactors) {
         p2.pay(6)
         // Player2 added 1 asteroid(s) to Rotator Impacts
-        doTask("Asteroid<$RotatorImpacts>")
+        addCardResources(RotatorImpacts)
       }
       // Player2 used Rotator Impacts action
       // Player2 removed 1 resource(s) from Player2's Rotator Impacts
@@ -547,7 +555,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 gained 2 plants from Arctic Algae
       cardAction1(AquiferPumping) {
         p2.pay(6, steel = 1)
-        doTask("OceanTile<Tharsis_1_4>")
+        placeTile(1, 4)
       }
     }
 
@@ -589,7 +597,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2 placed greenery tile on row 8 position 4
         // Player2 drew 1 card(s)
         // You drew Medical Lab
-        doTask("GreeneryTile<Tharsis_8_7>") // r-5 + c
+        placeTile(8, 7) // r-5 + c
       }
       // Player2 used Factorum action
       // 3 card(s) were discarded
@@ -620,7 +628,7 @@ class Game20230521Test : AbstractFullGameTest() {
         p2.pay(8)
         // Player2 placed ocean tile on row 1 position 5
         // Player2 gained 2 plants from Arctic Algae
-        doTask("OceanTile<Tharsis_1_5>")
+        placeTile(1, 5)
       }
     }
 
@@ -637,7 +645,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1(DirectedImpactors) {
         p2.pay(3, titanium = 1)
         // Player2 added 1 asteroid(s) to Rotator Impacts
-        doTask("Asteroid<$RotatorImpacts>")
+        addCardResources(RotatorImpacts)
       }
       // Player2 used Rotator Impacts action
       // Player2 removed 1 resource(s) from Player2's Rotator Impacts
@@ -663,7 +671,8 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 used Search For Life action
       cardAction1(SearchForLife) {
         // Player2 revealed and discarded Comet
-        doTask("Ok")
+        // Decline the science resource.
+        declineTask()
       }
     }
 
@@ -818,7 +827,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Floating Habs action
       cardAction1(FloatingHabs) {
             // Player1 added 1 floater(s) to Deuterium Export
-            doTask("Floater<$DeuteriumExport>")
+            addCardResources(DeuteriumExport)
           }
           .expect("-2, Floater")
     }
@@ -917,7 +926,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1(DirectedImpactors) {
         p2.pay(2, titanium = 1)
         // Player2 added 1 asteroid(s) to Rotator Impacts
-        doTask("Asteroid<$RotatorImpacts>")
+        addCardResources(RotatorImpacts)
       }
     }
 
@@ -949,7 +958,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1's plants amount increased by 2
     // Player2 gained 2 plants from Arctic Algae
     p1.turn {
-      playProject(MoholeLake, 7, steel = 12) { doTask("OceanTile<Tharsis_5_5>") }
+      playProject(MoholeLake, 7, steel = 12) { placeTile(5, 5) }
           .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TR, -7")
       // Player1 claimed Terraformer milestone
       stdAction("ClaimMilestoneSA") { doTask("Terraformer35") }.expect("-8")
@@ -963,7 +972,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 drew 1 card(s)
       // You drew Herbivores
       convertPlants {
-            doTask("GreeneryTile<Tharsis_8_6>") // r+c-5
+            placeTile(8, 6) // r+c-5
           }
           .expect("-8 Plant, Card")
     }
@@ -991,7 +1000,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Convert Plants standard action
       convertPlants {
         // Player1 placed greenery tile on row 3 position 5
-        doTask("GreeneryTile<Tharsis_3_5>")
+        placeTile(3, 5)
       }
     }
 
@@ -1003,7 +1012,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1(StratosphericBirds).expect("Animal")
       // Player1 used Mohole Lake action
       // Player1 added 1 animal(s) to Stratospheric Birds
-      cardAction1(MoholeLake) { doTask("Animal<$StratosphericBirds>") }
+      cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
       // Player1 passed
       pass()
     }
@@ -1056,7 +1065,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2's plants amount increased by 1
         p2.doTask("OceanTile<Tharsis_6_7>")
         // Player2 placed Deimos Down tile on row 2 position 5
-        p2.doTask("DeimosDownPromo_SpecialTile<Tharsis_2_5>")
+        p2.placeTile(2, 5)
         // Player1's plants amount decreased by 4 by Player2
         p2.doTask("-4 Plant<Player1>")
         // Player2 gained 2 plants from Arctic Algae
@@ -1082,12 +1091,12 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2 placed ocean tile on row 5 position 6
         // Player2's plants amount increased by 2
         // Player2 gained 2 plants from Arctic Algae
-        doTask("OceanTile<Tharsis_5_6>")
+        placeTile(5, 6)
       }
       // Player2 used Convert Plants standard action
       convertPlants {
         // Player2 placed greenery tile on row 9 position 3
-        doTask("GreeneryTile<Tharsis_9_7>")
+        placeTile(9, 7)
       }
     }
 
@@ -1109,7 +1118,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1(DirectedImpactors) {
         p2.pay(6)
         // Player2 added 1 asteroid(s) to Rotator Impacts
-        doTask("Asteroid<$RotatorImpacts>")
+        addCardResources(RotatorImpacts)
       }
     }
 
@@ -1117,7 +1126,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       cardAction1(FloatingHabs) {
         // Player1 added 1 floater(s) to Extractor Balloons
-        doTask("Floater<$ExtractorBalloons>")
+        addCardResources(ExtractorBalloons)
       }
       // Player1 used Extractor Balloons action
       // Player1 removed 2 resource(s) from Player1's Extractor Balloons
@@ -1131,7 +1140,7 @@ class Game20230521Test : AbstractFullGameTest() {
       playProject(EcologicalZone, 10) {
             // Player2 placed Ecological Zone tile on row 4 position 5
             // Player2's plants amount increased by 2
-            doTask("EcologicalZone_SpecialTile<Tharsis_4_5>")
+            placeTile(4, 5)
           }
           .expect("2 Animal, 2 Plant")
 
@@ -1156,7 +1165,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       cardAction1(BioPrintingFacility) {
         // Player2 added 1 animal(s) to Ecological Zone
-        doTask("Animal<$EcologicalZone>")
+        addCardResources(EcologicalZone)
       }
       // Player2 used Rotator Impacts action
       // Player2 removed 1 resource(s) from Player2's Rotator Impacts
@@ -1168,7 +1177,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       cardAction1(MoholeLake) {
             // Player1 added 1 animal(s) to Stratospheric Birds
-            doTask("Animal<$StratosphericBirds>")
+            addCardResources(StratosphericBirds)
           }
           .expect("Animal")
       // Player1 used Stratospheric Birds action
@@ -1191,7 +1200,7 @@ class Game20230521Test : AbstractFullGameTest() {
         // Player2 placed Natural Preserve tile on row 3 position 1
         // Player2 drew 1 card(s)
         // You drew Black Polar Dust
-        doTask("NaturalPreserve_SpecialTile<Tharsis_3_1>")
+        placeTile(3, 1)
       }
     }
 
@@ -1230,7 +1239,8 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       cardAction1(SearchForLife) {
         // Player2 revealed and discarded Fusion Power
-        doTask("Ok")
+        // Decline the science resource.
+        declineTask()
       }
     }
 
@@ -1295,7 +1305,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used City standard project
       stdProject("CitySP") {
         // Player1 placed city tile on row 7 position 4
-        doTask("CityTile<Tharsis_7_6>")
+        placeTile(7, 6)
       }
     }
 
@@ -1303,7 +1313,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       convertPlants {
             // Player2 placed greenery tile on row 9 position 2
-            doTask("GreeneryTile<Tharsis_9_6>")
+            placeTile(9, 6)
             // Player2's steel amount increased by 2
           }
           .expect("2 Steel")
@@ -1335,20 +1345,19 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 placed city tile on row 2 position 2
     // Player1's steel amount increased by 1
     p1.turn {
-      playProject(LavaTubeSettlement, 6, steel = 3) { doTask("CityTile<Tharsis_2_2>") }
-          .expect("-2 Steel")
+      playProject(LavaTubeSettlement, 6, steel = 3) { placeTile(2, 2) }.expect("-2 Steel")
       // Player1 played Urbanized Area
       // Player1's megacredits production increased by 2
       // Player1's energy production decreased by 1
       // Player1 placed city tile on row 2 position 3
-      playProject(UrbanizedArea, 7, steel = 1) { doTask("CityTile<Tharsis_2_3>") }
+      playProject(UrbanizedArea, 7, steel = 1) { placeTile(2, 3) }
     }
     // Player2 played Atmoscoop
     // Player2 added 2 floater(s) to Aerial Mappers
     p2.turn {
       playProject(Atmoscoop, 5, titanium = 3) {
         doTask("2 VenusStep")
-        doTask("2 Floater<$AerialMappers>")
+        addCardResources(AerialMappers)
       }
 
       // Player2 used Aerial Mappers action
@@ -1367,18 +1376,18 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Convert Plants standard action
       // Player1 placed greenery tile on row 3 position 3
       convertPlants {
-        doTask("GreeneryTile<Tharsis_3_3>")
+        placeTile(3, 3)
       }
     }
     // Player2 used Bio Printing Facility action
     // Player2 added 1 animal(s) to Ecological Zone
     p2.turn {
-      cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
+      cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
       // Player2 used Directed Impactors action
       // Player2 added 1 asteroid(s) to Rotator Impacts
       cardAction1(DirectedImpactors) {
         p2.pay(6)
-        doTask("Asteroid<$RotatorImpacts>")
+        addCardResources(RotatorImpacts)
       }
     }
     // Player1 used Venusian Insects action
@@ -1398,7 +1407,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 gained 2 plants from Arctic Algae
       cardAction1(AquiferPumping) {
             p2.pay(2, steel = 2)
-            doTask("OceanTile<Tharsis_9_9>")
+            placeTile(9, 9)
           }
           .expect("2 Titanium, 2 Plant")
     }
@@ -1437,10 +1446,10 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 used Floating Habs action
     // Player1 added 1 floater(s) to Floating Habs
     p1.turn {
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
       // Player1 used Mohole Lake action
       // Player1 added 1 animal(s) to Stratospheric Birds
-      cardAction1(MoholeLake) { doTask("Animal<$StratosphericBirds>") }
+      cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
     }
     // Player2 played Nuclear Power
     // Player2's megacredits production decreased by 2
@@ -1459,7 +1468,9 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Search For Life action
     // Player2 revealed and discarded Geothermal Power
     p2.turn {
-      cardAction1(SearchForLife) { doTask("Ok") }
+      cardAction1(SearchForLife) { /* Decline the science resource. */
+        declineTask()
+      }
       // Player2 passed
       pass()
     }
@@ -1478,8 +1489,8 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 added 2 animal(s) to Stratospheric Birds
     p1.turn {
       playProject(ImportedNitrogen, 15, titanium = 1) {
-        doTask("3 Microbe<$VenusianInsects>")
-        doTask("2 Animal<$StratosphericBirds>")
+        addCardResources(VenusianInsects)
+        addCardResources(StratosphericBirds)
       }
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
@@ -1500,7 +1511,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 placed greenery tile on row 2 position 4
     p1.turn {
       convertPlants {
-        doTask("GreeneryTile<Tharsis_2_4>")
+        placeTile(2, 4)
       }
       // Player1 used Inventors' Guild action
       // Player1 bought 0 card(s)
@@ -1526,14 +1537,14 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Bio Printing Facility action
     // Player2 added 1 animal(s) to Ecological Zone
     p2.turn {
-      cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
+      cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
       // Player2 used Aquifer Pumping action
       // Player2 placed ocean tile on row 5 position 4
       // Player2's plants amount increased by 2
       // Player2 gained 2 plants from Arctic Algae
       cardAction1(AquiferPumping) {
         p2.pay(2, steel = 2)
-        doTask("OceanTile<Tharsis_5_4>")
+        placeTile(5, 4)
       }
     }
     // Player1 played Business Network
@@ -1549,12 +1560,12 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player2 placed city tile on row 8 position 2
     p2.turn {
       stdProject("CitySP") {
-        doTask("CityTile<Tharsis_8_5>")
+        placeTile(8, 5)
       }
       // Player2 used Convert Plants standard action
       convertPlants {
             // Player2 placed greenery tile on row 8 position 1
-            doTask("GreeneryTile<Tharsis_8_4>")
+            placeTile(8, 4)
             // Player2's steel amount increased by 2
           }
           .expect("2 Steel")
@@ -1566,13 +1577,13 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction2(DeuteriumExport).expect("PROD[Energy]")
       // Player1 used Floating Habs action
       // Player1 added 1 floater(s) to Floating Habs
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
     }
     // Player2 used Convert Plants standard action
     p2.turn {
       convertPlants {
             // Player2 placed greenery tile on row 9 position 1
-            doTask("GreeneryTile<Tharsis_9_5>")
+            placeTile(9, 5)
             // Player2's steel amount increased by 1
           }
           .expect("Steel")
@@ -1587,7 +1598,7 @@ class Game20230521Test : AbstractFullGameTest() {
       cardAction1(StratosphericBirds)
       // Player1 used Mohole Lake action
       // Player1 added 1 animal(s) to Stratospheric Birds
-      cardAction1(MoholeLake) { doTask("Animal<$StratosphericBirds>") }
+      cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
     }
     // Player2 played Magnetic Field Generators:promo
     // Player2's plants production increased by 2
@@ -1595,7 +1606,7 @@ class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       playProject(MagneticFieldGeneratorsPromo, 2, steel = 6) {
             // Player2 placed Magnetic Field Generators tile on row 6 position 5
-            doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_6_6>")
+            placeTile(6, 6)
             // Player2's plants amount increased by 1
           }
           .expect("PROD[-4 Energy, 2 Plant], 3 TR, Plant")
@@ -1603,7 +1614,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2's plants amount increased by 2
       playProject(TowingAComet, 1, titanium = 4) {
             // Player2 placed ocean tile on row 6 position 7
-            doTask("OceanTile<Tharsis_6_8>")
+            placeTile(6, 8)
             // Player2's plants amount increased by 1
             // Player2 gained 2 plants from Arctic Algae
           }
@@ -1644,7 +1655,7 @@ class Game20230521Test : AbstractFullGameTest() {
     // Player1 added 4 animal(s) to Stratospheric Birds
     p1.turn {
       playProject(LargeConvoy, 31) {
-            doTask("4 Animal<$StratosphericBirds>")
+            addCardResources(StratosphericBirds)
           }
           .expect("ProjectCard, 3 Heat, 4 Animal")
       // Player1 played Water Splitting Plant
@@ -1658,7 +1669,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 7 position 2
       convertPlants {
-        doTask("GreeneryTile<Tharsis_7_4>")
+        placeTile(7, 4)
       }
     }
     // Player1 played Media Archives
@@ -1669,7 +1680,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1's megacredits amount increased by 3
       stdProject("GreenerySP") {
         // Player1 placed greenery tile on row 5 position 7
-        doTask("GreeneryTile<Tharsis_5_7>")
+        placeTile(5, 7)
         // Player1's plants amount increased by 2
       }
     }
@@ -1681,7 +1692,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player2 used Convert Plants standard action
       // Player2 placed greenery tile on row 9 position 4
       convertPlants {
-        doTask("GreeneryTile<Tharsis_9_8>")
+        placeTile(9, 8)
       }
     }
     // Player1 funded Thermalist award
@@ -1690,7 +1701,7 @@ class Game20230521Test : AbstractFullGameTest() {
       // Player1 used Convert Plants standard action
       convertPlants {
             // Player1 placed greenery tile on row 4 position 4
-            doTask("GreeneryTile<Tharsis_4_4>")
+            placeTile(4, 4)
             // Player1's plants amount increased by 1
           }
           .expect("-7 Plant")
@@ -1726,15 +1737,17 @@ class Game20230521Test : AbstractFullGameTest() {
     // Final greenery placement
     p1.convertPlants {
       // Player1 placed greenery tile on row 6 position 4
-      doTask("GreeneryTile<Tharsis_6_5>")
+      placeTile(6, 5)
     }
     // Player1's plants amount increased by 1
-    p1.doTask("Ok")
+    // Decline another final greenery placement.
+    p1.declineTask()
     p2.convertPlants {
       // Player2 placed greenery tile on row 8 position 5
-      doTask("GreeneryTile<Tharsis_8_8>")
+      placeTile(8, 8)
     }
-    p2.doTask("Ok")
+    // Decline another final greenery placement.
+    p2.declineTask()
     // This game id was gf386a4cd5de1
 
     val summ = Summarizer(game)

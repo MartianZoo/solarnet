@@ -11,7 +11,7 @@ class ImmigrantCityTest : CardTest() {
   fun `Can be played at the production floor when Manutech offsets its loss`() {
     newGame(VenusNextExpansion)
     p1.manual("$Manutech, PROD[-4, Energy]")
-    p1.manual("$ImmigrantCity") { doTask("CityTile<Tharsis_7_4>") }
+    p1.manual("$ImmigrantCity") { placeTile(7, 4) }
         .expect("PROD[-Megacredit, -Energy], Megacredit, CityTile<Tharsis_7_4>")
     p1.assertProds(-5 to "Megacredit", 0 to "Energy")
   }

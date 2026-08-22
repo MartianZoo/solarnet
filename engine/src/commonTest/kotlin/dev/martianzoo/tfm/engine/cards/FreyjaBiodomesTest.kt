@@ -13,7 +13,10 @@ class FreyjaBiodomesTest : CardTest() {
     p1.manual("PROD[Energy]")
     p1.manual("$VenusianAnimals")
     p1.assertCounts(1 to "Animal<$VenusianAnimals>")
-    p1.manual("$FreyjaBiodomes") { doTask("Ok") }
+    p1.manual("$FreyjaBiodomes") {
+          // Decline adding animals to Venusian Animals by choosing the unavailable microbe gain.
+          declineTask()
+        }
         .expect("PROD[-Energy, 2 Megacredit], 0 Animal<$VenusianAnimals>")
   }
 }

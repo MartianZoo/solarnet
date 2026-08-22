@@ -20,7 +20,7 @@ class InterplanetaryTradeTest : CardTest() {
     p1.manual("100, 2 ProjectCard, $Ecoline, $Mine, $SearchForLife")
     p1.playProject(ImportedHydrogen, 16) {
       doTask("3 Plant")
-      doTask("OceanTile<Tharsis_1_2>")
+      placeTile(1, 2)
     }
 
     p1.playProject(InterplanetaryTrade, 27).expect("PROD[4]")

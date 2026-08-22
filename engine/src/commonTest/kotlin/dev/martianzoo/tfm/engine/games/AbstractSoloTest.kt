@@ -27,9 +27,9 @@ abstract class AbstractSoloTest : CardTrackingFullGameTest() {
     engine.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
   }
 
-  protected fun nextRound(wgt: String, cardsBought: Int) {
+  protected fun nextRound(worldGovernmentChoice: String, cardsBought: Int) {
     p1.pass()
-    me.doTask("$wgt! BY Engine")
+    me.wgt(worldGovernmentChoice)
     p1.buyCards(cardsBought)
   }
 

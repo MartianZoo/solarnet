@@ -110,9 +110,9 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink took the first action of Tharsis Republic corporation
       stdAction("HandleMandates") {
             // Pink placed city tile at 61
-            doTask("CityTile<Hellas_9_7>")
+            placeTile(9, 7)
             // Pink placed ocean tile at 34
-            doTask("OceanTile<Hellas_5_6>")
+            placeTile(5, 6)
             // Pink drew 1 card(s)
             // You drew Industrial Center
             draw(IndustrialCenter)
@@ -175,7 +175,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       cardAction1(AquiferPumping) {
             pay(steel = 4)
             // Green placed ocean tile at 46
-            doTask("OceanTile<Hellas_7_3>")
+            placeTile(7, 3)
             // Green gained 2 titanium
           }
           .expect("2 Titanium")
@@ -187,7 +187,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.pass()
     // Pink placed ocean tile at 08
     // Pink acted as World Government and placed an ocean
-    pink.doTask("OceanTile<Hellas_2_1>! BY Engine")
+    pink.wgt("OceanTile<Hellas_2_1>")
 
     // Generation 2
     // First player this generation is Green
@@ -222,7 +222,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.turn {
       // Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
       // tag.
-      doTask("PowerTag<WildTagUse<$NobelPrize>>")
+      assignWildTag(NobelPrize, "PowerTag")
       // Green played Power Supply Consortium
       playProject(PowerSupplyConsortium, 5) {
         // Green stole 1 energy production from Pink
@@ -242,7 +242,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       cardAction1(AquiferPumping) {
             pay(8)
             // Green placed ocean tile at 35
-            doTask("OceanTile<Hellas_5_7>")
+            placeTile(5, 7)
             // Green gained 3 heat
             // Green gained 2 M€ from 1 ocean(s)
           }
@@ -260,7 +260,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // Green passed
     green.pass()
     // Green acted as World Government and increased oxygen level
-    green.doTask("OxygenStep! BY Engine")
+    green.wgt("OxygenStep")
 
     // Generation 3
     // First player this generation is Pink
@@ -320,7 +320,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       cardAction1(AquiferPumping) {
         pay(8)
         // Green placed ocean tile at 26
-        doTask("OceanTile<Hellas_4_6>")
+        placeTile(4, 6)
         // Green gained 1 plant
         // Green gained 4 M€ from 2 ocean(s)
       }
@@ -328,7 +328,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // Green passed
     green.pass()
     // Pink acted as World Government and increased Venus scale
-    pink.doTask("VenusStep! BY Engine")
+    pink.wgt("VenusStep")
 
     // Generation 4
     // First player this generation is Green
@@ -358,12 +358,12 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.turn {
       // Green played Miranda Resort
       // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
-      doTask("EarthTag<WildTagUse<$NobelPrize>>")
+      assignWildTag(NobelPrize, "EarthTag")
       // Green gained 3 M€ production
       // Green gained 2 M€ from Suitable Infrastructure
       playProject(MirandaResort, 12).expect("PROD[3], -10")
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
-      doTask("MicrobeTag<WildTagUse<$NobelPrize>>")
+      assignWildTag(NobelPrize, "MicrobeTag")
       // Green claimed Diversifier milestone
       stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
     }
@@ -379,7 +379,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // Pink passed
     pink.pass()
     // Green acted as World Government and increased oxygen level
-    green.doTask("OxygenStep! BY Engine")
+    green.wgt("OxygenStep")
 
     // Generation 5
     // First player this generation is Pink
@@ -402,7 +402,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink used Convert Plants standard action
       // Pink placed greenery tile at 56
       // Pink gained 2 heat
-      convertPlants { doTask("GreeneryTile<Hellas_8_7>") }.expect("2 Heat")
+      convertPlants { placeTile(8, 7) }.expect("2 Heat")
       // Pink ended turn
     }
     green.turn {
@@ -444,7 +444,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink drew 1 card(s)
       // You drew Earth Catapult
       playProject(NuclearZone, 10) {
-            doTask("NuclearZone_SpecialTile<Hellas_3_7>")
+            placeTile(3, 7)
             draw(EarthCatapult)
           }
           .expect("Plant")
@@ -454,7 +454,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.pass()
     // Pink placed ocean tile at 27
     // Pink acted as World Government and placed an ocean
-    pink.doTask("OceanTile<Hellas_4_7>! BY Engine")
+    pink.wgt("OceanTile<Hellas_4_7>")
 
     // Generation 6
     // First player this generation is Green
@@ -532,7 +532,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink drew 1 card(s)
       // You drew Zeppelins
       playProject(EcologicalZone, 10) {
-            doTask("EcologicalZone_SpecialTile<Hellas_7_6>")
+            placeTile(7, 6)
             draw(Zeppelins)
           }
           .expect("2 Microbe<$Decomposers>, 2 Animal<$EcologicalZone>")
@@ -558,13 +558,13 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       sellPatents(WaterSplittingPlant)
       // Pink sold 1 patents
       // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
       // Pink added 1 Floater to Floating Habs
     }
     // Pink passed
     pink.pass()
     // Green acted as World Government and increased temperature
-    green.doTask("TemperatureStep! BY Engine")
+    green.wgt("TemperatureStep")
 
     // Generation 7
     // First player this generation is Pink
@@ -635,7 +635,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       cardAction1(AquiferPumping) {
         pay(4, steel = 2)
         // Green placed ocean tile at 36
-        doTask("OceanTile<Hellas_5_8>")
+        placeTile(5, 8)
         // Green gained 4 M€ from 2 ocean(s)
       }
       // Green ended turn
@@ -645,7 +645,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.turn {
       // Green played Tectonic Stress Power
       // Nobel Prize's wild icon counts as Green's second science tag.
-      doTask("ScienceTag<WildTagUse<$NobelPrize>>")
+      assignWildTag(NobelPrize, "ScienceTag")
       // Green gained 3 energy production
       // Green gained 2 M€ from Suitable Infrastructure
       playProject(TectonicStressPower, 18)
@@ -653,7 +653,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       pass()
     }
     // Pink acted as World Government and increased temperature
-    pink.doTask("TemperatureStep! BY Engine")
+    pink.wgt("TemperatureStep")
 
     // Generation 8
     // First player this generation is Green
@@ -704,7 +704,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       intentionalUnderpay()
       playProject(ImmigrantCity, 3, steel = 4) {
             // Pink placed city tile at 12
-            doTask("CityTile<Hellas_2_5>")
+            placeTile(2, 5)
             // Pink gained 1 plant
             // Pink gained 3 M€
             // Pink gained 1 M€ production
@@ -776,7 +776,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
       // Pink added 1 Floater to Floating Habs
       // Pink ended turn
     }
@@ -788,7 +788,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 3 heat production
       // Pink added 2 Microbe(s) to GHG Producing Bacteria
       playProject(AerobrakedAmmoniaAsteroid, 15, titanium = 3) {
-            doTask("2 Microbe<$GhgProducingBacteria>")
+            addCardResources(GhgProducingBacteria)
           }
           .expect("PROD[Plant, 3 Heat], 2 Microbe<$GhgProducingBacteria>")
       // Pink used GHG Producing Bacteria action
@@ -798,7 +798,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       pass()
     }
     // Green acted as World Government and increased temperature
-    green.doTask("TemperatureStep! BY Engine")
+    green.wgt("TemperatureStep")
 
     // Generation 9
     // First player this generation is Pink
@@ -814,11 +814,11 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink placed greenery tile at 19
       // Pink gained 2 plants
       // Pink gained 4 M€ from 2 ocean(s)
-      stdProject("GreenerySP", { pay(23) }) { doTask("GreeneryTile<Hellas_3_6>") }
+      stdProject("GreenerySP", { pay(23) }) { placeTile(3, 6) }
       // Pink used Convert Plants standard action
       // Pink placed greenery tile at 55
       // Pink gained 2 heat
-      convertPlants { doTask("GreeneryTile<Hellas_8_6>") }.expect("2 Heat")
+      convertPlants { placeTile(8, 6) }.expect("2 Heat")
     }
     green.turn {
       // Green used Convert Heat standard action
@@ -853,7 +853,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 2 heat
       // Pink gained 1 M€ for playing Industrial Center, which has exactly 1 tag.
       playProject(IndustrialCenter, steel = 1) {
-            doTask("IndustrialCenter_SpecialTile<Hellas_9_8>")
+            placeTile(9, 8)
           }
           .expect("2 Heat")
       // Pink used Convert Heat standard action
@@ -895,7 +895,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
       // Pink added 1 Floater to Floating Habs
       // Pink ended turn
     }
@@ -948,7 +948,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     checkHandSizes()
 
     // Pink acted as World Government and increased oxygen level
-    pink.doTask("OxygenStep! BY Engine")
+    pink.wgt("OxygenStep")
 
     // Generation 10
     // First player this generation is Green
@@ -973,7 +973,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 1 M€ production
       // Pink gained 1 M€ production
       playProject(LavaTubeSettlement, 11, steel = 2) {
-            doTask("CityTile<Hellas_8_5>")
+            placeTile(8, 5)
             draw(VenusianInsects)
           }
           .expect("PROD[2 Megacredit<Pink>]")
@@ -1008,12 +1008,15 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 3 M€
       // Pink gained 1 M€ production
       // Pink gained 1 M€ production
-      playProject(Gyropolis, 18) { doTask("CityTile<Hellas_1_3>") }.expect("PROD[8], 2 Plant")
+      playProject(Gyropolis, 18) { placeTile(1, 3) }.expect("PROD[8], 2 Plant")
     }
     green.turn {
       // Green used Business Network action
       // Green bought 0 card(s)
-      cardAction1(BusinessNetwork) { doTask("Ok") }.expect("0 ProjectCard")
+      cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
+            declineTask()
+          }
+          .expect("0 ProjectCard")
       // Green played Research
       playProject(Research, 11) {
         // Green drew 2 card(s)
@@ -1044,7 +1047,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 1 plant
       // Pink gained 1 steel
       // Pink added 1 Animal to Herbivores
-      convertPlants { doTask("GreeneryTile<Hellas_1_4>") }.expect("Steel, Animal<$Herbivores>")
+      convertPlants { placeTile(1, 4) }.expect("Steel, Animal<$Herbivores>")
     }
 
     green.turn {
@@ -1054,7 +1057,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       playProject(HousePrinting, 10)
       // Green played Insects
       // Nobel Prize's wild icon counts as Green's second plant tag.
-      doTask("PlantTag<WildTagUse<$NobelPrize>>")
+      assignWildTag(NobelPrize, "PlantTag")
       // Green gained 2 plant production
       // Green gained 2 M€ from Suitable Infrastructure
       playProject(Insects, 9)
@@ -1084,7 +1087,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.pass()
     pink.turn {
       // Pink used Floating Habs action
-      cardAction1(FloatingHabs) { doTask("Floater<$FloatingHabs>") }
+      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
       // Pink added 1 Floater to Floating Habs
       // Pink used GHG Producing Bacteria action
       cardAction1(GhgProducingBacteria)
@@ -1102,7 +1105,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     checkHandSizes()
 
     // Green acted as World Government and increased Venus scale
-    green.doTask("VenusStep! BY Engine")
+    green.wgt("VenusStep")
 
     // Generation 11
     // First player this generation is Pink
@@ -1118,22 +1121,25 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink placed greenery tile at 04
       // Pink gained 2 plants
       // Pink added 1 Animal to Herbivores
-      stdProject("GreenerySP") { doTask("GreeneryTile<Hellas_1_2>") }
+      stdProject("GreenerySP") { placeTile(1, 2) }
       // Pink used Convert Plants standard action
       // Pink placed greenery tile at 13
       // Pink gained 1 plant
       // Pink added 1 Animal to Herbivores
-      convertPlants { doTask("GreeneryTile<Hellas_2_6>") }
+      convertPlants { placeTile(2, 6) }
     }
     green.turn {
       // Green used Convert Plants standard action
       // Green placed greenery tile at 53
       // Green gained 1 steel
       // Green gained 2 M€ from 1 ocean(s)
-      convertPlants { doTask("GreeneryTile<Hellas_8_4>") }
+      convertPlants { placeTile(8, 4) }
       // Green used Business Network action
       // Green bought 0 card(s)
-      cardAction1(BusinessNetwork) { doTask("Ok") }.expect("0 ProjectCard")
+      cardAction1(BusinessNetwork) { /* Decline buying the revealed card. */
+            declineTask()
+          }
+          .expect("0 ProjectCard")
     }
     pink.turn {
       // Pink played Technology Demonstration
@@ -1157,7 +1163,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green gained 1 plant
       // Green gained 1 steel
       playProject(CommercialDistrict, 10, steel = 3) {
-        doTask("CommercialDistrict_SpecialTile<Hellas_2_4>")
+        placeTile(2, 4)
       }
     }
     pink.turn {
@@ -1226,7 +1232,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green gained 2 M€ from 1 ocean(s)
       // Pink gained 1 M€ production
       // Pink gained 1 M€ production
-      playProject(NoctisCity, 16, steel = 1) { doTask("CityTile<Hellas_2_2>") }
+      playProject(NoctisCity, 16, steel = 1) { placeTile(2, 2) }
       // Green ended turn
     }
     pink.turn {
@@ -1256,7 +1262,7 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.pass()
     pink.turn {
       // Pink played CEO's Favorite Project
-      playProject(CeosFavoriteProject, 0) { doTask("Animal<$Birds>") }
+      playProject(CeosFavoriteProject, 0) { addCardResources(Birds) }
       // Pink added 1 Animal to Birds
       // Pink gained 1 M€ for playing CEO's Favorite Project, which has exactly 1 tag.
       // Pink used Sell Patents standard project
@@ -1269,8 +1275,10 @@ class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
 
     // Final greenery placement
-    pink.doTask("Ok")
-    green.doTask("Ok")
+    // Pink declines the final greenery placement.
+    pink.declineTask()
+    // Green declines the final greenery placement.
+    green.declineTask()
 
     // This game id was ga5237bd2fb08
     assertCardTrackingComplete()

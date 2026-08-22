@@ -79,7 +79,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       playPrelude(SmeltingPlant)
       playPrelude(SelfSufficientSettlement) {
         draw(KaguyaTech, SpaceElevator, MagneticShield)
-        doTask("CityTile<Elysium_3_7>")
+        placeTile(3, 7)
       }
     }
 
@@ -105,23 +105,20 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       // Payment reconstruction: ER spent five.
       playPrelude(GalileanMining)
       // Payment reconstruction: ER spent three.
-      playPrelude(AquiferTurbines) { doTask("OceanTile<Elysium_4_7>") }
-          .expect("PROD[2 Energy], Plant")
+      playPrelude(AquiferTurbines) { placeTile(4, 7) }.expect("PROD[2 Energy], Plant")
     }
 
-    JR.stdAction("HandleMandates") { doTask("CityTile<Elysium_5_6>") }.expect("3 Plant, 3, PROD[1]")
+    JR.stdAction("HandleMandates") { placeTile(5, 6) }.expect("3 Plant, 3, PROD[1]")
     JR.playProject(MethaneFromTitan, 28)
-    KB.playProject(ResearchOutpost, 18) { doTask("CityTile<Elysium_5_3>") }
-        .expect("PROD[Megacredit<JR>]")
+    KB.playProject(ResearchOutpost, 18) { placeTile(5, 3) }.expect("PROD[Megacredit<JR>]")
     KB.playProject(AcquiredCompany, 9)
-    ER.playProject(IndustrialCenter, 4) { doTask("IndustrialCenter_SpecialTile<Elysium_4_8>") }
-        .expect("Plant, Steel")
+    ER.playProject(IndustrialCenter, 4) { placeTile(4, 8) }.expect("Plant, Steel")
     ER.cardAction1(IndustrialCenter)
     JR.playProject(TechnologyDemonstration, 5) { JR.draw(EnergyMarket, SterlingVents) }
     JR.playProject(FueledGenerators, 1)
     KB.playProject(RestrictedArea, 10) {
       KB.draw(PeroxidePower)
-      doTask("RestrictedArea_SpecialTile<Elysium_9_8>")
+      placeTile(9, 8)
     }
     KB.cardAction1(RestrictedArea) { KB.draw(DesignedMicroorganisms) }
     ER.pass()
@@ -144,10 +141,10 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     // Consequence reconstruction: JR lost one energy production and two money production.
     JR.playProject(ImmigrantCity, 3, steel = 5) {
       JR.draw(Pets)
-      doTask("CityTile<Elysium_3_3>")
+      placeTile(3, 3)
     }
     JR.playProject(Pets, 10)
-    KB.doTask("BuildingTag<WildTagUse<$ResearchNetwork>>")
+    KB.assignWildTag(ResearchNetwork, "BuildingTag")
     KB.playProject(StaticHarvesting, 4).expect("-1")
     KB.stdAction("ClaimMilestoneSA") { doTask("Energizer") }
     ER.cardAction1(IndustrialCenter)
@@ -170,14 +167,14 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       ER.draw(LightningHarvest)
     }
     ER.cardAction1(IndustrialCenter)
-    JR.playProject(NaturalPreserve, 9) { doTask("NaturalPreserve_SpecialTile<Elysium_8_4>") }
+    JR.playProject(NaturalPreserve, 9) { placeTile(8, 4) }
     JR.stdAction("ClaimMilestoneSA") { doTask("Builder7") }
     KB.cardAction1(RestrictedArea) { KB.draw(MartianLumberCorp) }
     KB.playProject(OlympusConference, 9, steel = 0)
     ER.pass()
     JR.playProject(EnergyMarket, 3)
     JR.declineSecondAction()
-    KB.doTask("ScienceTag<WildTagUse<$ResearchNetwork>>")
+    KB.assignWildTag(ResearchNetwork, "ScienceTag")
     KB.playProject(QuantumExtractor, 12) {
       KB.draw(EarthOffice)
       doTask("ProjectCard FROM Science<$OlympusConference>")
@@ -191,12 +188,12 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.buyCards(InterplanetaryTrade)
     ER.buyCards(Greenhouses, DuskLaserMining, InventorsGuild, DeepWellHeating)
 
-    JR.convertPlants { doTask("GreeneryTile<Elysium_2_6>") }
+    JR.convertPlants { placeTile(2, 6) }
     JR.playProject(KaguyaTech, 10) {
       JR.draw(HermeticOrderOfMars)
       doTask("CityTile<Elysium_2_6> FROM GreeneryTile<Elysium_2_6>")
     }
-    KB.doTask("ScienceTag<WildTagUse<$ResearchNetwork>>")
+    KB.assignWildTag(ResearchNetwork, "ScienceTag")
     KB.playProject(MassConverter, 7)
     KB.playProject(InvestmentLoan, 0)
     ER.cardAction1(TychoMagnetics) {
@@ -204,14 +201,16 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       ER.draw(GiantSpaceMirror)
     }
     ER.playProject(InventorsGuild, 9)
-    JR.playProject(LavaTubeSettlement, 3, steel = 6) { doTask("CityTile<Elysium_3_1>") }
+    JR.playProject(LavaTubeSettlement, 3, steel = 6) { placeTile(3, 1) }
     JR.playProject(HermeticOrderOfMars, 10)
     KB.cardAction1(RestrictedArea) { KB.draw(Capital) }
     KB.playProject(StandardTechnology, 5) {
       KB.draw(Hackers)
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
-    ER.cardAction1(InventorsGuild) { doTask("Ok") }
+    ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
+      declineTask()
+    }
     ER.playProject(DuskLaserMining, 2, titanium = 2)
     JR.playProject(InterplanetaryTrade, 21, titanium = 2)
     JR.declineSecondAction()
@@ -226,7 +225,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.pass()
     ER.cardAction1(WaterImportFromEuropa) {
           ER.pay(12)
-          doTask("OceanTile<Elysium_4_4>")
+          placeTile(4, 4)
         }
         .expect("2 Plant")
     ER.pass()
@@ -241,7 +240,9 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
       doTask("-Energy")
       ER.draw(SolarWindPower)
     }
-    ER.cardAction1(InventorsGuild) { doTask("Ok") }
+    ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
+      declineTask()
+    }
     JR.stdAction("ClaimMilestoneSA") { doTask("Philantropist") }
     JR.playProject(SpaceElevator, 27)
     KB.playProject(HiredRaiders, 0) { doTask("2 Steel<KB> FROM Steel<ER>") }
@@ -256,10 +257,10 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.playProject(EquatorialMagnetizer, 10)
     ER.cardAction1(WaterImportFromEuropa) {
       ER.pay(titanium = 4)
-      doTask("OceanTile<Elysium_5_4>")
+      placeTile(5, 4)
     }
     ER.playProject(CommercialDistrict, 0, steel = 8) {
-          doTask("CommercialDistrict_SpecialTile<Elysium_4_3>")
+          placeTile(4, 3)
         }
         .expect("4, Plant")
     JR.pass()
@@ -272,18 +273,20 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.buyCards(AiCentral, EarthCatapult, RegolithEaters, SmallAsteroid)
     JR.buyCards(SpaceMirrors, Zeppelins)
 
-    ER.cardAction1(InventorsGuild) { doTask("Ok") }
+    ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
+      declineTask()
+    }
     ER.playProject(GiantSpaceMirror, 5, titanium = 4).expect("PROD[3 Energy]")
     JR.convertHeat()
-    JR.playProject(FieldCappedCity, 29) { doTask("CityTile<Elysium_6_5>") }
+    JR.playProject(FieldCappedCity, 29) { placeTile(6, 5) }
     KB.convertHeat()
     KB.convertHeat()
     ER.cardAction1(WaterImportFromEuropa) {
       ER.pay(12)
-      doTask("OceanTile<Elysium_4_6>")
+      placeTile(4, 6)
     }
-    ER.convertPlants { doTask("GreeneryTile<Elysium_5_8>") }
-    JR.convertPlants { doTask("GreeneryTile<Elysium_5_5>") }
+    ER.convertPlants { placeTile(5, 8) }
+    JR.convertPlants { placeTile(5, 5) }
 
     // Screenshot evidence: Game20260819-dashboard-gen6.png was taken here, after JR's generation-6
     // greenery and before JR played Zeppelins.
@@ -309,7 +312,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.cardAction1(RestrictedArea) { KB.draw(IndustrialMicrobes) }
     KB.cardAction1(EquatorialMagnetizer)
     ER.playProject(Greenhouses, 0, steel = 3)
-    ER.convertPlants { doTask("GreeneryTile<Elysium_5_9>") }.expect("Titanium")
+    ER.convertPlants { placeTile(5, 9) }.expect("Titanium")
     JR.pass()
     // Test inference: Corporate Stronghold is KB's other unidentified opening keep.
     KB.sellPatents(CorporateStronghold)
@@ -330,13 +333,15 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
 
     JR.cardAction1(SpaceMirrors)
     JR.stdAction("FundAwardSA") { doTask("Banker") }
-    KB.convertPlants { doTask("GreeneryTile<Elysium_5_2>") }
+    KB.convertPlants { placeTile(5, 2) }
     KB.cardAction1(RestrictedArea) { KB.draw(Potatoes) }
     ER.cardAction1(TychoMagnetics) {
       doTask("-Energy")
       ER.draw(DeimosDownPromo)
     }
-    ER.cardAction1(InventorsGuild) { doTask("Ok") }
+    ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
+      declineTask()
+    }
     JR.playProject(Mine, 4)
     JR.playProject(Supermarkets, 9)
     KB.cardAction1(EquatorialMagnetizer)
@@ -346,7 +351,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(WaterImportFromEuropa) {
           ER.pay(titanium = 3)
           ER.draw(GeneRepair)
-          doTask("OceanTile<Elysium_1_3>")
+          placeTile(1, 3)
         }
         .expect("TerraformRating, ProjectCard")
     JR.playProject(MagneticShield, 21, titanium = 1)
@@ -365,7 +370,7 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     // Consequence reconstruction: KB lost two plants.
     KB.playProject(Potatoes, 1)
     KB.sellPatents(IndustrialMicrobes)
-    ER.playProject(SubterraneanReservoir, 11) { doTask("OceanTile<Elysium_2_5>") }
+    ER.playProject(SubterraneanReservoir, 11) { placeTile(2, 5) }
     ER.playProject(MirandaResort, 4, titanium = 2).expect("-4, -2 Titanium")
     KB.pass()
     // Test inference: Cyberia Systems is ER's only unplayed card not needed later.
@@ -386,20 +391,24 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(WaterImportFromEuropa) {
       ER.pay(titanium = 3)
       ER.draw(SolarLogistics)
-      doTask("OceanTile<Elysium_1_4>")
+      placeTile(1, 4)
     }
     JR.cardAction1(SpaceMirrors)
     JR.cardAction1(SpaceElevator)
     KB.playProject(EarthCatapult, 19)
-    KB.playProject(BigAsteroid, 14, titanium = 2) { doTask("Ok") }.expect("2 Titanium")
-    ER.playProject(GreatDamPromo, steel = 5) { doTask("GreatDamPromo_SpecialTile<Elysium_1_5>") }
-        .expect("0 ProjectCard")
+    KB.playProject(BigAsteroid, 14, titanium = 2) { /* Decline removing an opponent's plants. */
+          declineTask()
+        }
+        .expect("2 Titanium")
+    ER.playProject(GreatDamPromo, steel = 5) { placeTile(1, 5) }.expect("0 ProjectCard")
     ER.playProject(SolarLogistics, 12, titanium = 2).expect("0 Titanium")
     JR.playProject(Algae, 10).expect("0 ProjectCard<ER>")
-    JR.convertPlants { doTask("GreeneryTile<Elysium_4_5>") }
+    JR.convertPlants { placeTile(4, 5) }
     KB.convertHeat()
     KB.convertHeat()
-    ER.cardAction1(InventorsGuild) { doTask("Ok") }
+    ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
+      declineTask()
+    }
     ER.playProject(MarsUniversity, 2, steel = 2) {
       ER.draw(AqueductSystems)
       doTask("-ProjectCard")
@@ -452,26 +461,26 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
 
     ER.playProject(DeimosDownPromo, 9, titanium = 5) {
       ER.draw(BiomassCombustors, HeatTrappers)
-      doTask("DeimosDownPromo_SpecialTile<Elysium_9_7>")
+      placeTile(9, 7)
       doTask("-6 Plant<JR>")
     }
     ER.convertHeat()
     JR.cardAction1(SpaceElevator)
     JR.cardAction1(SpaceMirrors)
-    KB.convertPlants { doTask("GreeneryTile<Elysium_6_3>") }
+    KB.convertPlants { placeTile(6, 3) }
     KB.cardAction1(RestrictedArea) { KB.draw(KelpFarming) }
     ER.cardAction1(InventorsGuild) { ER.buyCards(MagneticFieldDome) }
     ER.playProject(SmallAnimals, 6) { doTask("PROD[-Plant<KB>]") }
-    JR.stdProject("GreenerySP") { doTask("GreeneryTile<Elysium_6_6>") }
-    JR.stdProject("GreenerySP") { doTask("GreeneryTile<Elysium_3_2>") }
+    JR.stdProject("GreenerySP") { placeTile(6, 6) }
+    JR.stdProject("GreenerySP") { placeTile(3, 2) }
     KB.playProject(Research, 8) {
       KB.draw(PublicPlans, InventionContest, RegoPlastics)
       doTask("ProjectCard FROM Science<$OlympusConference>")
     }
     KB.cardAction1(EquatorialMagnetizer)
     ER.playProject(BioPrintingFacility, 1, steel = 2)
-    ER.cardAction1(BioPrintingFacility) { doTask("Animal<$SmallAnimals>") }
-    JR.stdProject("GreenerySP") { doTask("GreeneryTile<Elysium_4_2>") }
+    ER.cardAction1(BioPrintingFacility) { addCardResources(SmallAnimals) }
+    JR.stdProject("GreenerySP") { placeTile(4, 2) }
     JR.declineSecondAction()
     KB.playProject(InventionContest, megacredits = 0) {
       KB.draw(MartianRails, ImportedNutrients)
@@ -493,10 +502,10 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.stdAction("FundAwardSA") { doTask("Benefactor") }
     ER.sellPatents(SpecialDesign)
     ER.sellPatents(Trees)
-    KB.doTask("ScienceTag<WildTagUse<$ResearchNetwork>>")
+    KB.assignWildTag(ResearchNetwork, "ScienceTag")
     KB.playProject(BactoviralResearch, 7) {
       KB.draw(PermafrostExtraction)
-      doTask("11 Microbe<$Ants>")
+      addCardResources(Ants)
     }
     KB.sellPatents(MiningRights)
     ER.sellPatents(Insulation)
@@ -505,12 +514,12 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.sellPatents(RegolithEaters)
     ER.sellPatents(BiomassCombustors)
     // Consequence reconstruction: ER gained one money production.
-    ER.stdProject("CitySP") { doTask("CityTile<Elysium_6_2>") }
-    KB.doTask("MicrobeTag<WildTagUse<$ResearchNetwork>>")
+    ER.stdProject("CitySP") { placeTile(6, 2) }
+    KB.assignWildTag(ResearchNetwork, "MicrobeTag")
     KB.playProject(Worms, 5)
     KB.playProject(ImportedNutrients, 1, titanium = 1) {
       ER.draw(TransNeptuneProbe)
-      doTask("4 Microbe<$Ants>")
+      addCardResources(Ants)
     }
     ER.sellPatents(HeatTrappers)
     ER.playProject(CallistoPenalMines, 22)
@@ -525,12 +534,15 @@ class SolarFusionStreamTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 9, temp = 8, oxygen = 14, oceans = 9)
     KB.pass()
 
-    ER.doTask("Ok")
-    JR.convertPlants { doTask("GreeneryTile<Elysium_5_7>") }
-    JR.doTask("Ok")
-    KB.convertPlants { doTask("GreeneryTile<Elysium_7_4>") }
-    KB.convertPlants { doTask("GreeneryTile<Elysium_8_5>") }
-    KB.doTask("Ok")
+    // Decline ER's final greenery placement.
+    ER.declineTask()
+    JR.convertPlants { placeTile(5, 7) }
+    // Decline another final greenery placement for JR.
+    JR.declineTask()
+    KB.convertPlants { placeTile(7, 4) }
+    KB.convertPlants { placeTile(8, 5) }
+    // Decline another final greenery placement for KB.
+    KB.declineTask()
 
     assertCardTrackingComplete()
     JR.cardsInHand shouldBe setOf(CloudSeeding)

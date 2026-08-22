@@ -16,7 +16,7 @@ class CommercialDistrictTest : CardTest() {
     val p2 = requireP2()
 
     p1.manual("PROD[Energy], CityTile<Tharsis_3_2>")
-    p1.manual("$CommercialDistrict") { doTask("CommercialDistrict_SpecialTile<Tharsis_3_3>") }
+    p1.manual("$CommercialDistrict") { placeTile(3, 3) }
     p2.manual("CityTile<Tharsis_3_4>")
 
     engine.phase("End")
@@ -31,7 +31,7 @@ class CommercialDistrictTest : CardTest() {
 
     p1.manual("$CommercialDistrict") {
       shouldThrow<NarrowingException> {
-        doTask("CommercialDistrict_SpecialTile<Tharsis_1_2>")
+        placeTile(1, 2)
       }
       abort()
     }

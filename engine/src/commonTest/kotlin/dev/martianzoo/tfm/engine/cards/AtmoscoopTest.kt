@@ -13,7 +13,7 @@ class AtmoscoopTest : CardTest() {
 
     p1.manual("$Atmoscoop") {
           doTask("2 VenusStep")
-          doTask("2 Floater<$AerialMappers>")
+          addCardResources(AerialMappers)
         }
         .expect("0 TemperatureStep, 0 VenusStep, 2 Floater<$AerialMappers>")
   }
@@ -25,7 +25,7 @@ class AtmoscoopTest : CardTest() {
 
     p1.manual("$Atmoscoop") {
           doTask("2 VenusStep")
-          doTask("2 Floater<$AerialMappers>")
+          addCardResources(AerialMappers)
         }
         .expect("VenusStep, TerraformRating, 2 Floater<$AerialMappers>")
   }
@@ -37,7 +37,7 @@ class AtmoscoopTest : CardTest() {
 
     p1.manual("$Atmoscoop") {
           doTask("2 VenusStep")
-          doTask("2 Floater<$AerialMappers>")
+          addCardResources(AerialMappers)
         }
         .expect("2 VenusStep, 2 TerraformRating, 2 Floater<$AerialMappers>")
   }

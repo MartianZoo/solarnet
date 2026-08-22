@@ -9,8 +9,8 @@ class CommunityServicesTest : CardTest() {
   @Test
   fun `Can be played with three tagless cards`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.manual("$AtmoCollectors") { doTask("2 Floater<$AtmoCollectors>") }
-    p1.manual("$Airliners") { doTask("2 Floater<$AtmoCollectors>") }
+    p1.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
+    p1.manual("$Airliners") { addCardResources(AtmoCollectors) }
     p1.manual("PROD[2]")
     // Three tagless cards: Atmo Collectors, Airliners, and Community Services itself.
     p1.manual("$CommunityServices").expect("PROD[3]")

@@ -23,7 +23,7 @@ class AsteroidDeflectionSystemTest : CardTest() {
     p1.manual("-Plant<Player1>").expect("-Plant")
 
     p1.cardAction1(AsteroidDeflectionSystem) {
-      doTask("Asteroid<$AsteroidDeflectionSystem>")
+      addCardResources(AsteroidDeflectionSystem)
     }
     engine.phase("End")
     p1.assertCounts(21 to "VictoryPoint")
