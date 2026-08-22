@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -19,6 +20,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Dependency.Key
 
 internal fun renderEffect(
     effect: Effect,
@@ -103,7 +105,10 @@ private fun renderLinkedPlayedTagResourceChoice(
 ): String? {
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (trigger.refinement != null || trigger.complement) return null
-  val holder = trigger.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
+  val holderKey = Key(ClassName.cn("Tag"), 0)
+  val resolvedTrigger = describers.resolveExpression(trigger) ?: return null
+  val holder = resolvedTrigger.sourceDependency(holderKey)?.takeIf { it.simple } ?: return null
+  if (!resolvedTrigger.hasOnlySourceDependency(holderKey, holder)) return null
   val tagPhrase =
       describers.fact(trigger.className, ComponentDescriber::playedTagPhrase) ?: return null
   val alternatives = (effect.instruction as? Instruction.Or)?.instructions ?: return null
@@ -330,23 +335,32 @@ private fun renderAcceptedCardResourcePayment(
       InstructionGroup.of(acceptance.instruction).instructions.singleOrNull() as? Gain
           ?: return null
   if (
+      describers.fact(accepted.gaining.className, ComponentDescriber::paymentRole) !=
+          ComponentDescriber.PaymentRole.ACCEPTANCE
+  ) {
+    return null
+  }
+  val acceptedKey = Key(ClassName.cn("AcceptFromCard"), 0)
+  val resolvedAccepted = describers.resolveExpression(accepted.gaining, acceptedKey) ?: return null
+  if (
       accepted.intensity.modality() != Modality.REQUIRED ||
-          accepted.gaining.arguments != listOf(describers.thisExpression) ||
+          !resolvedAccepted.hasOnlySourceDependency(acceptedKey, describers.thisExpression) ||
           accepted.gaining.refinement != null ||
           accepted.gaining.complement ||
-          describers.fact(accepted.gaining.className, ComponentDescriber::paymentRole) !=
-              ComponentDescriber.PaymentRole.ACCEPTANCE ||
           accepted.count.fixedQuantity() != 1
   ) {
     return null
   }
   val paymentTrigger = (payment.trigger as? OnGainOf)?.expression ?: return null
+  if (describers.fact(paymentTrigger.className, ComponentDescriber::spentResourceTrigger) != true) {
+    return null
+  }
+  val paymentKey = Key(ClassName.cn("PayFromCard"), 0)
+  val resolvedPayment = describers.resolveExpression(paymentTrigger, paymentKey) ?: return null
   if (
-      paymentTrigger.arguments != listOf(describers.thisExpression) ||
+      !resolvedPayment.hasOnlySourceDependency(paymentKey, describers.thisExpression) ||
           paymentTrigger.refinement != null ||
-          paymentTrigger.complement ||
-          describers.fact(paymentTrigger.className, ComponentDescriber::spentResourceTrigger) !=
-              true
+          paymentTrigger.complement
   ) {
     return null
   }
@@ -424,7 +438,10 @@ private fun renderBarrierSequencedTrackChoice(
     return null
   }
   val triggerExpression = (trackEffect.trigger as? OnGainOf)?.expression ?: return null
-  if (trackGain.gaining.arguments != triggerExpression.arguments) return null
+  val resolvedGain = describers.resolveExpression(trackGain.gaining) ?: return null
+  val resolvedTrigger = describers.resolveExpression(triggerExpression) ?: return null
+  val selectedTrack = resolvedGain.sourceDependencies.values.singleOrNull() ?: return null
+  if (resolvedTrigger.sourceDependencies.values.singleOrNull() != selectedTrack) return null
   val trigger = describers.renderEventTrigger(trackEffect.trigger) ?: return null
   return completeSentence(
       "when ${trigger.linearize()}, you may first increase that ${track.trackNoun} 1 step"
@@ -533,7 +550,10 @@ private fun Describers.renderActionPaymentDiscountTrigger(
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null || expression.complement) return null
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) != true) return null
-  val action = expression.arguments.singleOrNull()?.takeIf { it.simple } ?: return null
+  val actionKey = Key(ClassName.cn("UseAction"), 0)
+  val resolved = resolveExpression(expression) ?: return null
+  val action = resolved.sourceDependency(actionKey)?.takeIf { it.simple } ?: return null
+  if (!resolved.hasOnlySourceDependency(actionKey, action)) return null
   val use = fact(action.className, ComponentDescriber::actionUse) ?: return null
   val predicate = use.refundDiscountPredicate ?: return null
   return ActionPaymentDiscountTrigger(
@@ -675,18 +695,23 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
     null -> Unit
   }
   fact(expression.className, ComponentDescriber::playedTagPhrase)?.let {
-    if (expression.arguments.isNotEmpty() || expression.refinement != null) return null
+    val resolved = resolveExpression(expression) ?: return null
+    if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) return null
     return Event(EventKind.PLAY, EventActor.YOU, it)
   }
   if (fact(expression.className, ComponentDescriber::usedActionTrigger) == true) {
-    val action = expression.arguments.singleOrNull() ?: return null
+    val actionKey = Key(ClassName.cn("UseAction"), 0)
+    val resolved = resolveExpression(expression) ?: return null
+    val action = resolved.sourceDependency(actionKey) ?: return null
+    if (!resolved.hasOnlySourceDependency(actionKey, action)) return null
     return Event(
         EventKind.USE_ACTION,
         EventActor.YOU,
         renderActionUse(action) ?: return null,
     )
   }
-  if (expression.arguments == listOf(thisExpression)) {
+  val resolvedCardResource = resolveCardResource(expression)
+  if (resolvedCardResource != null && cardResourceHasHolder(resolvedCardResource, thisExpression)) {
     cardResourceNoun(expression.className, 1)?.let {
       return Event(
           EventKind.ADD_TO_THIS_CARD,
@@ -703,7 +728,8 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
   placementEvent(expression, EventActor.YOU)?.let {
     return it
   }
-  if (expression.arguments.isEmpty() && expression.refinement == null) {
+  val resolved = resolveExpression(expression)
+  if (resolved?.sourceDependencies?.isEmpty() == true && expression.refinement == null) {
     tagName(expression.className)?.let { (name) ->
       return Event(EventKind.PLAY, EventActor.YOU, "${indefiniteArticle(name)} $name tag")
     }
@@ -711,7 +737,7 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
       return Event(EventKind.ADD_TO_CARD, EventActor.YOU, "${indefiniteArticle(it)} $it")
     }
   }
-  if (expression.arguments == listOf(anyoneExpression)) {
+  if (resolved?.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) == true) {
     tagName(expression.className)?.let { (name) ->
       return Event(EventKind.PLAY, EventActor.UNRESTRICTED, "any $name tag")
     }
@@ -721,10 +747,19 @@ private fun Describers.renderEvent(trigger: Trigger): Event? {
 
 private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event? {
   if (expression.refinement != null || expression.complement) return null
-  val (owner, holder) = expression.arguments.takeIf { it.size == 2 } ?: return null
-  if (owner != anyoneExpression) return null
+  val resolved = resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  val holderKey = Key(ClassName.cn("Tag"), 0)
+  val holder = resolved.sourceDependency(holderKey) ?: return null
   if (
-      holder.arguments != listOf(anyoneExpression) ||
+      resolved.sourceDependency(ownerKey) != anyoneExpression ||
+          resolved.sourceDependencies.keys != setOf(ownerKey, holderKey)
+  ) {
+    return null
+  }
+  val resolvedHolder = resolveExpression(holder) ?: return null
+  if (
+      !resolvedHolder.hasOnlySourceDependency(ownerKey, anyoneExpression) ||
           holder.refinement != null ||
           holder.complement ||
           fact(holder.className, ComponentDescriber::cardResourceHolder) == null
@@ -742,28 +777,39 @@ private fun Describers.relationshipEvent(
   if (expression.refinement != null || expression.complement) return null
   val relation = fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
   val noun = relation.eventNoun ?: return null
-  val participants = expression.arguments.map { relationshipParticipant(it) ?: return null }
-  if (participants.size != 2) return null
+  val resolved = resolveExpression(expression) ?: return null
+  val sourceKey = Key(ClassName.cn("Adjacency"), 0)
+  val targetKey = Key(ClassName.cn("Adjacency"), 1)
+  if (resolved.sourceDependencies.keys != setOf(sourceKey, targetKey)) return null
+  val source =
+      resolved.sourceDependency(sourceKey)?.let { relationshipParticipant(it) } ?: return null
+  val target =
+      resolved.sourceDependency(targetKey)?.let { relationshipParticipant(it) } ?: return null
   return Event(
       EventKind.CREATE,
       actor,
-      "${indefiniteArticle(noun)} $noun between ${participants[0]} and ${participants[1]}",
+      "${indefiniteArticle(noun)} $noun between $source and $target",
   )
 }
 
 private fun Describers.relationshipParticipant(expression: Expression): String? {
   if (expression.refinement != null || expression.complement) return null
   val placement = fact(expression.className, ComponentDescriber::placement) ?: return null
-  return when (expression.arguments) {
-    emptyList<Expression>() -> "${indefiniteArticle(placement.singular)} ${placement.singular}"
-    listOf(ownerExpression) -> "one of your ${placement.plural}"
-    listOf(notOwnerExpression) -> "an opponent's ${placement.singular}"
+  val resolved = resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  return when {
+    resolved.sourceDependencies.isEmpty() ->
+        "${indefiniteArticle(placement.singular)} ${placement.singular}"
+    resolved.hasOnlySourceDependency(ownerKey, ownerExpression) -> "one of your ${placement.plural}"
+    resolved.hasOnlySourceDependency(ownerKey, notOwnerExpression) ->
+        "an opponent's ${placement.singular}"
     else -> null
   }
 }
 
 private fun Describers.renderActionUse(expression: Expression): String? {
-  if (expression.arguments.isNotEmpty() || expression.complement) return null
+  val resolved = resolveExpression(expression) ?: return null
+  if (resolved.sourceDependencies.isNotEmpty() || expression.complement) return null
   val use = fact(expression.className, ComponentDescriber::actionUse) ?: return null
   val refinement = expression.refinement ?: return use.objectPhrase
   if (refinement.forgiving) return null
@@ -798,10 +844,12 @@ private fun Describers.productionEvent(expression: Expression): Event? {
 
 private fun Describers.playedCardEvent(expression: Expression): Event? {
   val description = fact(expression.className, ComponentDescriber::playedCard) ?: return null
+  val resolved = resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
   val actor =
-      when (expression.arguments) {
-        emptyList<Expression>() -> EventActor.YOU
-        listOf(anyoneExpression) -> EventActor.UNRESTRICTED
+      when {
+        resolved.sourceDependencies.isEmpty() -> EventActor.YOU
+        resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) -> EventActor.UNRESTRICTED
         else -> return null
       }
   val card = componentNoun(expression.className, 1)
@@ -817,8 +865,10 @@ private fun Describers.playedCardEvent(expression: Expression): Event? {
             if (
                 tagExpression.refinement != null ||
                     tagExpression.complement ||
-                    (tagExpression.arguments.isNotEmpty() &&
-                        tagExpression.arguments != listOf(anyoneExpression))
+                    resolveExpression(tagExpression)?.let { tag ->
+                      tag.sourceDependencies.isNotEmpty() &&
+                          !tag.hasOnlySourceDependency(ownerKey, anyoneExpression)
+                    } != false
             ) {
               return null
             }

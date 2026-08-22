@@ -99,7 +99,8 @@ private fun Describers.renderZeroMaximumFilter(
     prefix: String,
     count: Int,
 ): String? {
-  if (expression.arguments.isNotEmpty() || expression.complement) return null
+  val resolved = resolveExpression(expression) ?: return null
+  if (resolved.sourceDependencies.isNotEmpty() || expression.complement) return null
   val outer = fact(expression.className, ComponentDescriber::countNoun) ?: return null
   val refinement = expression.refinement ?: return null
   if (refinement.forgiving) return null

@@ -193,10 +193,12 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal fun resolvePlacementExpression(expression: Expression): PlacementExpression? {
     val resolved = resolveExpression(expression) ?: return null
     val ownerKey = Key(OWNED, 0)
-    val siteDependencies = resolved.sourceDependencies.filterKeys { key ->
-      val siteClassName = resolved.dependency(key)?.rootClass?.className ?: return@filterKeys false
-      placementSite(siteClassName) != null
-    }
+    val siteDependencies =
+        resolved.sourceDependencies.filterKeys { key ->
+          val siteClassName =
+              resolved.dependency(key)?.rootClass?.className ?: return@filterKeys false
+          placementSite(siteClassName) != null
+        }
     val recognizedKeys = siteDependencies.keys + ownerKey
     return PlacementExpression(
         owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == ownerExpression },
@@ -357,7 +359,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal fun resolveExpression(expression: Expression): ResolvedExpression? =
       resolveExpression(expression, contextualThisKey = null)
 
-  private fun resolveExpression(
+  internal fun resolveExpression(
       expression: Expression,
       contextualThisKey: Key?,
   ): ResolvedExpression? {
@@ -375,6 +377,7 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
           expression.arguments
         } else {
           val contextualThisType = contextualThisKey?.let { key ->
+            if (key !in declaredClass.baseType.dependencies.keys) return@let null
             (declaredClass.baseType.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency)
                 ?.boundType
           }
@@ -432,19 +435,22 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun distinctOwnedKinds(expression: Expression): ComponentDescriber.Noun.Counted? {
-    if (expression.className != CLASS || expression.arguments.size != 1 || expression.complement) {
-      return null
-    }
-    val kind = expression.arguments.single()
+    if (expression.className != CLASS || expression.complement) return null
+    val classKey = Key(CLASS, 0)
+    val resolvedClass = resolveExpression(expression) ?: return null
+    val kind = resolvedClass.sourceDependency(classKey) ?: return null
+    if (!resolvedClass.hasOnlySourceDependency(classKey, kind)) return null
     if (!kind.simple) return null
     val refinement = expression.refinement ?: return null
     if (refinement.forgiving) return null
     val minimum = refinement.requirement as? Requirement.Min ?: return null
     if (minimum.target != 1) return null
     val member = (minimum.metric as? Metric.Count)?.expression ?: return null
+    val resolvedMember = resolveExpression(member) ?: return null
+    val ownerKey = Key(OWNED, 0)
     if (
         member.className != kind.className ||
-            member.arguments != listOf(ownerExpression) ||
+            !resolvedMember.hasOnlySourceDependency(ownerKey, ownerExpression) ||
             member.refinement != null ||
             member.complement
     ) {

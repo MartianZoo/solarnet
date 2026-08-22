@@ -103,8 +103,7 @@ private fun Describers.renderResourceSpend(
       val holder =
           when {
             cardResourceHasHolder(resolved, thisExpression) -> "this card"
-            resolved.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) ->
-                "any player's card"
+            resolved.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) -> "any player's card"
             resolved.sourceDependencies.isEmpty() -> "any of your cards"
             else -> return null
           }

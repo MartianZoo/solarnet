@@ -61,7 +61,9 @@ private fun paymentResourceAmount(
       if (represented != null) {
         describers.plainGainNoun(represented.className, count) ?: return null
       } else {
-        if (expression.arguments.isNotEmpty()) return null
+        if (describers.resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false) {
+          return null
+        }
         val implicit =
             describers.fact(expression.className, ComponentDescriber::implicitPaymentResource)
                 ?: return null

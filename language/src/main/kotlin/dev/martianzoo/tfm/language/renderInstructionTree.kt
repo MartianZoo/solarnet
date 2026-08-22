@@ -145,7 +145,8 @@ private fun renderPlacementBonusProductionSequence(
     val minimum = gated.gate as? Requirement.Min ?: return null
     if (minimum.target != 1) return null
     val site = (minimum.metric as? Metric.Count)?.expression ?: return null
-    if (site.arguments.isNotEmpty() || site.complement) return null
+    val resolvedSite = describers.resolveExpression(site) ?: return null
+    if (resolvedSite.sourceDependencies.isNotEmpty() || site.complement) return null
     val requirements =
         (site.refinement?.takeIf { !it.forgiving }?.requirement as? Requirement.And)?.requirements
             ?: return null
@@ -561,7 +562,12 @@ internal fun Describers.renderGateCondition(requirement: Requirement): String? {
   val counting = requirement as? Requirement.Counting ?: return null
   val metric = counting.metric as? Metric.Count ?: return null
   val expression = metric.expression
-  if (expression.arguments.isNotEmpty() || expression.refinement != null || expression.complement) {
+  val resolved = resolveExpression(expression) ?: return null
+  if (
+      resolved.sourceDependencies.isNotEmpty() ||
+          expression.refinement != null ||
+          expression.complement
+  ) {
     return null
   }
   if (

@@ -85,6 +85,8 @@ player domain while its authored expression remains indexed by dependency key. A
 used as a card-resource holder resolves against the holder dependency's declared Type while retaining
 the authored `This` at that key. Contextual placement sites still cannot always resolve without their
 linked source; the remaining positional recognition stays visible until rendering receives it.
+Family renderers do not inspect `Expression.arguments`; dependency matching and the explicitly
+documented contextual-production fallback are confined to `Describers`.
 Membership in `Production`, `StandardResource`, `CardResource`, `Tag`, `PlanetTag`, `Player`,
 `Generational`, and `End` is read from the Class hierarchy and is not duplicated in
 `ComponentDescriber`. Card-resource number forms remain lexical data.

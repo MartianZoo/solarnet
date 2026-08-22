@@ -289,11 +289,13 @@ private fun renderFirstAction(
   val effect = declaration.effects.singleOrNull() ?: return null
   if (effect.automatic) return null
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
+  if (describers.fact(trigger.className, ComponentDescriber::actionNumber) != 1) return null
+  val actionKey = Key(ClassName.cn("UseAction"), 0)
+  val resolvedTrigger = describers.resolveExpression(trigger, actionKey) ?: return null
   if (
-      trigger.arguments != listOf(describers.thisExpression) ||
+      !resolvedTrigger.hasOnlySourceDependency(actionKey, describers.thisExpression) ||
           trigger.refinement != null ||
-          trigger.complement ||
-          describers.fact(trigger.className, ComponentDescriber::actionNumber) != 1
+          trigger.complement
   ) {
     return null
   }
@@ -317,7 +319,10 @@ private fun renderProductionBoxCopy(
   ) {
     return null
   }
-  val card = gain.gaining.arguments.singleOrNull() ?: return null
+  val cardKey = Key(ClassName.cn("CopyProductionBox"), 0)
+  val resolved = describers.resolveExpression(gain.gaining) ?: return null
+  val card = resolved.sourceDependency(cardKey) ?: return null
+  if (!resolved.hasOnlySourceDependency(cardKey, card)) return null
   val holder = describers.renderOwnedCardResourceHolder(card) ?: return null
   return clause("duplicate", NounPhrase.text("the production box of $holder"))
 }
@@ -652,9 +657,7 @@ private fun renderSelectedProductionChange(
     expression: Expression,
     describers: Describers,
 ): Clause.Simple? {
-  if (
-      expression.refinement != null || expression.complement
-  ) {
+  if (expression.refinement != null || expression.complement) {
     return null
   }
   val resource = describers.selectedProductionResource(expression) ?: return null
@@ -688,11 +691,7 @@ private fun renderProductionConversion(
   if (scalar.multiple != 1) return null
   val gaining = describers.productionExpression(transmute.gaining) ?: return null
   val removing = describers.productionExpression(transmute.removing) ?: return null
-  if (
-      gaining.owner != null ||
-          removing.owner != null ||
-          gaining.resource == removing.resource
-  ) {
+  if (gaining.owner != null || removing.owner != null || gaining.resource == removing.resource) {
     return null
   }
   val decrease =
@@ -754,7 +753,8 @@ private fun Describers.renderCardResourceHolder(
     expression: Expression,
     owned: Boolean,
 ): String? {
-  if (expression.arguments.isNotEmpty() || expression.complement) return null
+  val resolved = resolveExpression(expression) ?: return null
+  if (resolved.sourceDependencies.isNotEmpty() || expression.complement) return null
   val holder = fact(expression.className, ComponentDescriber::cardResourceHolder) ?: return null
   val refinement = expression.refinement ?: return null
   if (refinement.forgiving) return null

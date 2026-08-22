@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Dependency.Key
 
 /** Renders a placed component and any structurally described restriction on its site. */
 internal fun renderPlacement(
@@ -134,12 +136,16 @@ private fun renderSpatialTarget(
     relation: ComponentDescriber.SpatialRelation,
     describers: Describers,
 ): SpatialTarget? {
-  if (relationExpression.arguments.isEmpty()) {
+  val resolvedRelation = describers.resolveExpression(relationExpression) ?: return null
+  if (resolvedRelation.sourceDependencies.isEmpty()) {
     return relation.defaultTarget?.let { SpatialTarget(it, ownedByYou = false) }
   }
-  val target = relationExpression.arguments.singleOrNull() ?: return null
+  val target = resolvedRelation.sourceDependencies.values.singleOrNull() ?: return null
+  val resolvedTarget = describers.resolveExpression(target) ?: return null
+  val ownerKey = Key(OWNED, 0)
   if (
-      (target.arguments.isNotEmpty() && target.arguments != listOf(describers.anyoneExpression)) ||
+      (resolvedTarget.sourceDependencies.isNotEmpty() &&
+          !resolvedTarget.hasOnlySourceDependency(ownerKey, describers.anyoneExpression)) ||
           target.refinement != null ||
           target.complement
   ) {
@@ -149,7 +155,7 @@ private fun renderSpatialTarget(
   return SpatialTarget(
       ComponentDescriber.Noun.Counted(placement.singular, placement.plural),
       ownedByYou =
-          target.arguments.isEmpty() &&
+          resolvedTarget.sourceDependencies.isEmpty() &&
               placement.unqualifiedMetricOwner == ComponentDescriber.MetricOwner.YOU,
   )
 }
