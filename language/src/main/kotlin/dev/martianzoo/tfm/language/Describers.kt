@@ -112,6 +112,12 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal fun isStandardResource(className: ClassName): Boolean =
       classesByName.getValue(className).isSubtypeOf(classesByName.getValue(STANDARD_RESOURCE))
 
+  internal fun isCardResource(className: ClassName): Boolean =
+      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(CARD_RESOURCE))
+
+  private fun isTag(className: ClassName): Boolean =
+      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(TAG))
+
   internal fun isProduction(className: ClassName): Boolean =
       classesByName.getValue(className).isSubtypeOf(classesByName.getValue(PRODUCTION))
 
@@ -130,10 +136,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   }
 
   internal fun tagName(className: ClassName): Pair<String, Boolean>? {
-    if (!concrete(className)) return null
-    val style = fact(className, ComponentDescriber::tag) ?: return null
+    if (!concrete(className) || !isTag(className)) return null
     val ordinaryName = className.toString().removeSuffix("Tag").lowercase()
-    val isPlanetTag = style == ComponentDescriber.Tag.PLANET
+    val isPlanetTag =
+        classesByName.getValue(className).isSubtypeOf(classesByName.getValue(PLANET_TAG))
     val name = if (isPlanetTag) ordinaryName.replaceFirstChar(Char::uppercaseChar) else ordinaryName
     return name to isPlanetTag
   }
@@ -316,4 +322,10 @@ internal class Describers(private val descriptions: Map<Class, ComponentDescribe
   internal val ownerExpression = cn("Owner").expression
   internal val playerExpression = cn("Player").expression
   internal val thisExpression = cn("This").expression
+
+  private companion object {
+    val CARD_RESOURCE = cn("CardResource")
+    val PLANET_TAG = cn("PlanetTag")
+    val TAG = cn("Tag")
+  }
 }

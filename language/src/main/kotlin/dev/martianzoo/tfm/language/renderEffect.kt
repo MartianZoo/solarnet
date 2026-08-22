@@ -68,10 +68,7 @@ private fun renderCardResourcePaymentValue(effect: Effect, describers: Describer
           resourceRemoval.removing.arguments != listOf(describers.thisExpression) ||
           resourceRemoval.removing.refinement != null ||
           resourceRemoval.removing.complement ||
-          describers.fact(
-              resourceRemoval.removing.className,
-              ComponentDescriber::cardResource,
-          ) == null
+          !describers.isCardResource(resourceRemoval.removing.className)
   ) {
     return null
   }

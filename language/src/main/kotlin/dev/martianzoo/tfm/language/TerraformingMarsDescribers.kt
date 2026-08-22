@@ -191,7 +191,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(cardResource = ComponentDescriber.CardResource.ORDINARY),
         klass("Tag") to
             ComponentDescriber(
-                tag = ComponentDescriber.Tag.ORDINARY,
                 countNoun = ComponentDescriber.Noun.Counted("tag", "tags"),
                 distinctKinds = ComponentDescriber.Noun.Counted("different tag", "different tags"),
             ),
@@ -203,7 +202,6 @@ internal object TerraformingMarsDescribers {
                         "different types of resources",
                     )
             ),
-        klass("PlanetTag") to ComponentDescriber(tag = ComponentDescriber.Tag.PLANET),
         klass("BioTag") to ComponentDescriber(playedTagPhrase = "a bio tag"),
         klass("AnimalTag") to ComponentDescriber(playedTagPhrase = "an animal tag"),
         klass("PlantTag") to ComponentDescriber(playedTagPhrase = "a plant tag"),

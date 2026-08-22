@@ -7,7 +7,6 @@ public data class ComponentDescriber(
     public val cardResource: CardResource? = null,
     public val cardResourceHolder: Noun.Counted? = null,
     public val metricLocation: String? = null,
-    public val tag: Tag? = null,
     public val track: Track? = null,
     public val placement: Placement? = null,
     public val placementSite: PlacementSite? = null,
@@ -52,11 +51,6 @@ public data class ComponentDescriber(
   public enum class CardResource {
     ORDINARY,
     SUFFIXED,
-  }
-
-  public enum class Tag {
-    ORDINARY,
-    PLANET,
   }
 
   public data class Track(public val subject: String)

@@ -45,7 +45,7 @@ internal fun renderChange(
   }
   if (describers.fact(expression.className, ComponentDescriber::draw) == true)
       return renderDraw(instruction, drawFilter, describers)
-  if (describers.fact(expression.className, ComponentDescriber::cardResource) != null)
+  if (describers.isCardResource(expression.className))
       return renderCardResourceChange(instruction, describers)
   if (describers.isProduction(expression.className))
       return renderProductionChange(instruction, describers)
