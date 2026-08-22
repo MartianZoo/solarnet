@@ -155,8 +155,8 @@ revision must remain explicit so analysis is never applied to a changed state.
 
 ## Performance contract
 
-The present implementation pays for autoexecution repeatedly inside nested engine/API boundaries.
-A JFR trace of `ThermalMatterWaveTest` after immediate execution stopped using reversible execution
+The implementation historically paid for autoexecution after every nested engine/API boundary. A
+JFR trace of `ThermalMatterWaveTest` after immediate execution stopped using reversible execution
 preview recorded 3,158 `autoExecNext` calls, 5,413 candidate-preparation probes, and 1,272 atomic API
 entries. There were more than five autoexecution passes and nine preparation probes per explicit
 task selection on average.
@@ -191,12 +191,33 @@ This is a broad destination, not a required migration order. Intermediate work m
 behavior and proposed behavior clearly labeled and must not make arbitrary autoexecution choices
 look safe merely to keep tests concise.
 
+## First implemented seam
+
+Nested facade re-entry no longer starts an implicit drain. `AtomicOperationBoundary` now invokes
+the configured autoexecution only before the outermost command completes. Explicit `OperationBody`
+task commands still advance between body statements, and the operation lifecycle still has its own
+pre-body and post-body drains because current completion validation depends on them.
+
+This is not the client-policy boundary yet: modes and the policy loop remain in the engine. It does
+establish one outer command seam, removes incidental cross-Actor re-entry as a scheduling boundary,
+and makes the remaining operation coupling explicit enough to extract deliberately.
+
+An attempted direct removal of `FIRST` demonstrated why that extraction must come first. With the
+default changed to `SAFE`, 21 of 54 script tests failed and failures immediately spread across the
+engine's card, workflow, and full-game scenarios. Independent consequences commonly coexist in the
+task pool, so `SAFE` leaves operations unfinished even where ordering is semantically immaterial.
+Encoding those decomposition details as explicit choices throughout clients would be the wrong
+migration. A proof of semantic equivalence, or a more direct representation of independent
+automatic consequences, is required before arbitrary ordering can disappear without transferring
+engine internals into client scripts.
+
 ## Current implementation divergence
 
 Committed code still stores `AutoExecMode` on `Gameplay`, defaults it to `FIRST`, invokes draining
-from engine-side API boundaries, scans pending tasks globally, and uses stable iteration order to
-choose among multiple candidates. Candidate discovery catches every `Exception`, conflating
-ordinary ineligibility with defects, and overlapping nested drains repeat the same analysis.
+from the outer engine-side API boundary and operation lifecycle, scans pending tasks globally, and
+uses stable iteration order to choose among multiple candidates. Candidate discovery catches every
+`Exception`, conflating ordinary ineligibility with defects, and operation-level drains can still
+repeat analysis.
 
 Those facts describe debt, not compatibility requirements. The project has no known client whose
 dependence on `FIRST` outweighs the core model above.
