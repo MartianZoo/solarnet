@@ -10,9 +10,6 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 - **Medium priority:** Let a game include Valley Trust and the Prelude-card pool without selecting
   `PreludeExpansion`; `PreludeCard` must be drawable and playable while `PreludePhase` remains
   absent.
-- **High priority:** Reject diamond syntax such as `GreeneryTile<>` in `TaskResult.expect()`;
-  expectations should use the ordinary unspecialized type name instead of an unresolved argument
-  list.
 - Settle and prototype the generic `EACH Type { ... }` fanout proposed in
   [`docs/agents/EACHPLAYER.md`](docs/agents/EACHPLAYER.md), keeping delegation and distributed
   completion separate.
@@ -93,9 +90,9 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
   the engine boundary, and the mixed automatic/queued phase triggers, and keep the verdict buckets
   current as each case is resolved. Before inventing an automatic `THEN`, distinguish inline
   continuation, frozen trigger-time choice, and descendant-completion semantics.
+- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
 - **High priority:** Make Artificial Lake's concrete legal ocean placement refine and execute
   normally, without the solo whole-game test's mandatory `!` override.
-- Reconstruct the omitted steel/titanium payments in the 2026-07-30 source game, or obtain a log that records payment composition, so its whole-game test no longer needs an 8 M€ reconciliation injection.
 - When Helion is implemented, settle whether AMAP for a Mons Insurance payment considers heat before determining the payable amount; do not allow payment substitution to short the victim while preserving M€.
 - **Medium priority:** Model the solo setup choice that selects four colony tiles and removes one
   before assembling the playable Game World.
@@ -170,6 +167,8 @@ Only current work belongs here; issue links provide background. Inline TODOs sho
 
 ## Autonomous Follow-ups
 
+- Implement Established Methods' unaffordable-second-project fallback, then replace the deliberately
+  incomplete substitute used by Game20260819.
 - Decide how source-backed physical-game turn-order violations or transcript gaps should be
   represented without reordering or inventing actions; Game20260818 currently uses a standalone
   reconciliation for a patent sale taken beyond the normal action allowance.

@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.data.GameEvent
 import dev.martianzoo.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.data.GameEvent.TaskRemovedEvent
@@ -209,6 +210,17 @@ class TaskRevisionTest {
 
     tasks.extract { it.next }.shouldContainExactly(true)
     tasksAsText().shouldContainExactly("OceanTile<Tharsis_1_4>!")
+  }
+
+  @Test
+  fun `an omitted selection intensity preserves a stronger pending intensity`() {
+    initiate("OceanTile<LandArea>!")
+
+    shouldThrow<TaskException> { writer.doTask("OceanTile<Tharsis_2_3>.") }
+    writer.doTask("OceanTile<Tharsis_2_3>")
+
+    writer.count("OceanTile<Tharsis_2_3>") shouldBe 1
+    tasks.isEmpty() shouldBe true
   }
 
   @Test

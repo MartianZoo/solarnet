@@ -31,7 +31,7 @@ class ArtificialLakeTest : CardTest() {
   @Test
   fun `Can be played with eight oceans`() {
     seedGame("12 TemperatureStep", oceanTiles(8))
-    p1.playProject(ArtificialLake, 15) { doTask("OceanTile<Tharsis_2_3>!") }.expect("Tile")
+    p1.playProject(ArtificialLake, 15) { doTask("OceanTile<Tharsis_2_3>") }.expect("Tile")
   }
 
   @Test
@@ -45,8 +45,8 @@ class ArtificialLakeTest : CardTest() {
   fun `Cannot place its ocean on a water area`() {
     seedGame("12 TemperatureStep")
     p1.playProject(ArtificialLake, 15) {
-      shouldThrow<NarrowingException> { doTask("OceanTile<Tharsis_1_2>!") }
-      doTask("OceanTile<Tharsis_2_3>!")
+      shouldThrow<NarrowingException> { doTask("OceanTile<Tharsis_1_2>") }
+      doTask("OceanTile<Tharsis_2_3>")
     }
   }
 

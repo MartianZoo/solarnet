@@ -1,8 +1,11 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmAuthority
@@ -12,6 +15,7 @@ import dev.martianzoo.tfm.engine.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class PropertyTest {
@@ -66,6 +70,55 @@ internal class PropertyTest {
     shouldThrow<ExpressionException> { p1.count("MetricPropertyProbe.score") }
     shouldThrow<PetSyntaxException> { p1.count("EVAL MetricPropertyProbe.score") }
   }
+
+  @Test
+  fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
+    val authority = TfmAuthority.Composite(Canon, RequirementPropertyProbeAuthority)
+    val game = Engine.newGame(canonicalPremise(authority = authority, players = 2))
+    val p1 = game.tfm(PLAYER1).godMode()
+    val p2 = game.tfm(PLAYER2).godMode()
+
+    p1.manual("RequirementPropertyMarker")
+    p1.manual("OptionalRequirementPropertyProbe") {
+      doTask("RequirementPropertyStarted<Player1>")
+      doTask("RequirementPropertyPassed<Player1>")
+      doTask("RequirementPropertyFinished<Player1>")
+    }
+    p1.manual("RequiredRequirementPropertyProbe") {
+      doTask("RequirementPropertyStarted<Player1>")
+      doTask("RequirementPropertyPassed<Player1>")
+      doTask("RequirementPropertyFinished<Player1>")
+    }
+    p2.manual("OptionalRequirementPropertyProbe") {
+      doTask("RequirementPropertyStarted<Player2>")
+      doTask("RequirementPropertyPassed<Player2>")
+      doTask("RequirementPropertyFinished<Player2>")
+    }
+    p2.autoExecMode = NONE
+    p2.manual("RequiredRequirementPropertyProbe") {
+      doTask("RequirementPropertyStarted<Player2>")
+      val gatedResult =
+          tasks
+              .extract { it }
+              .single {
+                "RequirementPropertyPassed<Player2>" in it.instruction.toString()
+              }
+      gatedResult.instruction.toString() shouldBe
+          "(RequiredRequirementPropertyProbe<Player2>, RequirementPropertyMarker<Player2>): RequirementPropertyPassed<Player2>?"
+      p2.dropTask(gatedResult.id)
+      doTask("RequirementPropertyFinished<Player2>")
+    }
+
+    p1.count("RequirementPropertyStarted") shouldBe 2
+    p1.count("RequirementPropertyPassed") shouldBe 2
+    p1.count("RequirementPropertyFinished") shouldBe 2
+    p2.count("RequirementPropertyStarted") shouldBe 2
+    p2.count("RequirementPropertyPassed") shouldBe 1
+    p2.count("RequirementPropertyFinished") shouldBe 2
+
+    shouldThrow<PetException> { p1.manual("RecursiveRequirementPropertyProbe") }
+        .message shouldContain "is recursive"
+  }
 }
 
 private object MetricPropertyProbeAuthority : TfmAuthority() {
@@ -84,6 +137,31 @@ private object MetricPropertyProbeAuthority : TfmAuthority() {
                 This:: MetricPropertyResult / EVAL This.score
                 This:: FixedMetricPropertyResult / EVAL This.fixedScore
               }
+              """
+                  .trimIndent()
+          )
+          .toSet()
+}
+
+private object RequirementPropertyProbeAuthority : TfmAuthority() {
+  override val explicitClassDeclarations =
+      parseClasses(
+              """
+              ABSTRACT CLASS RequirementPropertyProbe : Owned<Player> {
+                requirement = Requirement?
+                This: RequirementPropertyStarted<Owner>? THEN (EVAL This.requirement: RequirementPropertyPassed<Owner>?, RequirementPropertyFinished<Owner>?)
+              }
+              CLASS OptionalRequirementPropertyProbe : RequirementPropertyProbe
+              CLASS RequiredRequirementPropertyProbe : RequirementPropertyProbe {
+                requirement = HAS This, RequirementPropertyMarker<Owner>
+              }
+              CLASS RecursiveRequirementPropertyProbe : RequirementPropertyProbe {
+                requirement = HAS EVAL This.requirement
+              }
+              CLASS RequirementPropertyMarker : Owned<Player>
+              CLASS RequirementPropertyStarted : Owned<Player>
+              CLASS RequirementPropertyPassed : Owned<Player>
+              CLASS RequirementPropertyFinished : Owned<Player>
               """
                   .trimIndent()
           )

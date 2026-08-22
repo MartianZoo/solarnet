@@ -192,8 +192,7 @@ class SoloGame0710Test : AbstractSoloTest() {
       }
       cardAction2(GhgProducingBacteria) { doTask("OceanTile<Tharsis_1_2>") }
 
-      // TODO: this ! really should not be necessary
-      playProject(ArtificialLake, 2, steel = 4) { doTask("OceanTile<Tharsis_6_6>!") }
+      playProject(ArtificialLake, 2, steel = 4) { doTask("OceanTile<Tharsis_6_6>") }
       convertPlants {
         doTask("GreeneryTile<Tharsis_5_2>")
       }
