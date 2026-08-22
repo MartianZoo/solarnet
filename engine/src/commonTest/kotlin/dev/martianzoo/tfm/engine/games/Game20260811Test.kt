@@ -13,10 +13,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-// Synthetic Proton Fragment - https://terraforming-mars.herokuapp.com/the-end?id=p9d6d3ff25b39
+// Complete archive replay: Synthetic Proton Fragment (g9ea8656f1c7e)
+// https://terraforming-mars.herokuapp.com/the-end?id=p9d6d3ff25b39
 class Game20260811Test : CardTrackingFullGameTest() {
-  // The archived metadata specifies Hellas, Corporate Era, Prelude, promo cards, three players,
-  // no Venus/Colonies/Turmoil, and the following full-random milestone and award pools.
+  // Player-record evidence: Hellas, Corporate Era, Prelude, promo cards, drafting, fast mode,
+  // three players, no Venus/Colonies/Turmoil, and these full-random milestone and award pools.
   override val config =
       GameConfig(
           """
@@ -30,6 +31,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           "Player2",
           "Player3",
       )
+  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
   fun game20260811() {
@@ -39,82 +41,82 @@ class Game20260811Test : CardTrackingFullGameTest() {
     val ellie = p2
     val dad = p3
 
-    // Mom gets a handicap
-    mom.exMachina("5 TR")
+    // Player-record evidence: Mom has a five-TR handicap, which GameConfig cannot express.
+    mom.exMachina("5 TerraformRating")
 
     engine.assertCounts(1 to "Generation")
 
     // Player-record inference: Mom's dealt projects plus her later plays identify these four.
     mom.playCorp(Recyclon) {
-          mom.buyCards(EcologicalZone, ReleaseOfInertGases, DeepWellHeating, IndustrialCenter)
-        }
-        .expect("PROD[S], 26")
+      mom.buyCards(EcologicalZone, ReleaseOfInertGases, DeepWellHeating, IndustrialCenter)
+    }
 
     // Player-record inference: Ellie's dealt projects plus her later plays identify these five.
-    ellie
-        .playCorp(RobinsonIndustries) {
-          ellie.buyCards(
-              LagrangeObservatory,
-              SolarWindPower,
-              EarthCatapult,
-              Sabotage,
-              MediaGroup,
-          )
-        }
-        .expect("32")
+    ellie.playCorp(RobinsonIndustries) {
+      ellie.buyCards(
+          LagrangeObservatory,
+          SolarWindPower,
+          EarthCatapult,
+          Sabotage,
+          MediaGroup,
+      )
+    }
 
     // User recollection recorded in _local/Game20260811/sources.md: Dad's otherwise-unidentified
     // seventh project was Cyberia Systems; the player record and later plays identify the other
     // six.
     dad.playCorp(SpliceTacticalGenomics) {
-          doTask("2")
-          dad.buyCards(
-              Lichen,
-              MercurianAlloys,
-              Archaebacteria,
-              RoboticWorkforce,
-              HeatTrappers,
-              IceAsteroid,
-              CyberiaSystems,
-          )
-        }
-        .expect("27")
-
-    mom.playPrelude(AlbedoPlants).expect("PROD[P], P, 3 H")
-    mom.playPrelude(SocietySupport).expect("PROD[-M, P, E, H]")
-
-    ellie.playPrelude(MetalsCompany).expect("PROD[M, S, T]")
-    ellie
-        .playPrelude(Biolab) { ellie.draw(HiredRaiders, MeatIndustry, MiningRights) }
-        .expect("PROD[P]")
-
-    dad.playPrelude(Merger) {
-      doTask("PlayCard<Class<CorporationCard>, Class<$Inventrix>>")
+      doTask("2")
+      dad.buyCards(
+          Lichen,
+          MercurianAlloys,
+          Archaebacteria,
+          RoboticWorkforce,
+          HeatTrappers,
+          IceAsteroid,
+          CyberiaSystems,
+      )
     }
-    dad.playPrelude(MoholeExcavation).expect("PROD[S, 2 H], 2 H")
 
-    mom.playProject(DeepWellHeating, 13).expect("PROD[E], TR")
+    mom.turn {
+      playPrelude(AlbedoPlants).expect("PROD[Plant], Plant, 3 Heat")
+      playPrelude(SocietySupport).expect("PROD[-1, Plant, Energy, Heat]")
+    }
+
+    ellie.turn {
+      playPrelude(MetalsCompany).expect("PROD[1, Steel, Titanium]")
+      playPrelude(Biolab) { draw(HiredRaiders, MeatIndustry, MiningRights) }
+    }
+
+    dad.turn {
+      playPrelude(Merger) {
+        doTask("PlayCard<Class<CorporationCard>, Class<$Inventrix>>")
+      }
+      playPrelude(MoholeExcavation).expect("PROD[Steel, 2 Heat], 2 Heat")
+    }
+
+    mom.playProject(DeepWellHeating, 13)
     mom.declineSecondAction()
 
     ellie.playProject(EarthCatapult, 23)
     ellie.cardAction1(RobinsonIndustries) {
-      // NOPE: gotta pick a lower one
-      shouldThrow<NarrowingException> { doTask("PROD[T]") }
-      doTask("PROD[H]")
+      // Titanium production is not tied for lowest, so Robinson Industries cannot raise it.
+      shouldThrow<NarrowingException> { doTask("PROD[Titanium]") }
+      doTask("PROD[Heat]")
     }
 
-    // NOPE: can't choose any other first action
+    // Splice Tactical Genomics' mandatory first action prevents Dad from playing Lichen first.
     shouldThrow<RequirementException> { dad.playProject(Lichen, 7) }
 
     dad.stdAction("HandleMandates") {
       dad.draw(Ants, CorporateStronghold, SolarLogistics, DiversitySupport)
     }
-    dad.playProject(Lichen, 7).expect("PROD[P]")
+    dad.playProject(Lichen, 7)
 
     // (Mom already passed early)
     mom.pass()
     ellie.pass()
-    dad.playProject(SolarLogistics, 20).expect("2 T")
+    dad.playProject(SolarLogistics, 20)
     dad.pass()
 
     // Game20260811-dashboards-gen2.png was taken before cards were bought.
@@ -131,39 +133,37 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.playProject(MediaGroup, 4)
     ellie
         .playProject(Sabotage, 0) {
-          doTask("-7 M<Player1>")
+          doTask("-7 Megacredit<Player1>")
         }
-        .expect("3 M")
+        .expect("3")
 
-    dad.playProject(AsteroidRights, 2, titanium = 2).expect("2 Asteroid")
-    dad.cardAction2(AsteroidRights) { doTask("2 T") }.expect("-Asteroid")
+    dad.playProject(AsteroidRights, 2, titanium = 2)
+    dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
-    mom.playProject(ReleaseOfInertGases, 14).expect("2 TR")
+    mom.playProject(ReleaseOfInertGases, 14)
     mom.playProject(MagneticFieldDome, 3, steel = 1) {
-          doTask("-2 Microbe<$Recyclon> THEN PROD[P]")
+          doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
         }
-        .expect("PROD[2 P, -2 E]")
+        .expect("PROD[2 Plant, -2 Energy]")
 
-    ellie.playProject(SolarWindPower, 6, titanium = 1).expect("PROD[E], T")
+    ellie.playProject(SolarWindPower, 6, titanium = 1).expect("PROD[Energy], Titanium")
     ellie
         .playProject(HiredRaiders, 0) {
-          doTask("3 M<Player2> FROM M<Player3>")
+          doTask("3 Megacredit<Player2> FROM Megacredit<Player3>")
         }
-        .expect("6 M")
+        .expect("6")
 
-    dad.playProject(Archaebacteria, 6).expect("PROD[P], -2")
+    dad.playProject(Archaebacteria, 6)
     dad.declineSecondAction()
     mom.pass()
 
     ellie.playProject(LagrangeObservatory, 1, titanium = 2) { ellie.draw(CloudSeeding) }
-    ellie.cardAction1(RobinsonIndustries) { doTask("PROD[T]") }
+    ellie.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }
     // (Dad already passed early)
     dad.pass()
-    ellie
-        .playProject(MiningRights, 5, steel = 1) {
-          doTask("MiningRights_SpecialTile<Hellas_8_8>")
-        }
-        .expect("PROD[T], T")
+    ellie.playProject(MiningRights, 5, steel = 1) {
+      doTask("MiningRights_SpecialTile<Hellas_8_8>")
+    }
     ellie.playProject(DirectedImpactors, 3, titanium = 1)
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(6)
@@ -182,36 +182,34 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.buyCards(ProtectedGrowth, GhgFactories, Soletta)
     dad.buyCards(FueledGenerators, CupolaCity, DesignedMicroorganisms)
 
-    dad.playProject(FueledGenerators, 1).expect("PROD[-M, E]")
-    dad.cardAction2(AsteroidRights) { doTask("2 T") }.expect("-Asteroid")
+    dad.playProject(FueledGenerators, 1).expect("PROD[-1, Energy]")
+    dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
-    mom.playProject(PeroxidePower, 5, steel = 1).expect("PROD[-M, 2 E]")
-    mom.playProject(Hospitals, 8).expect("PROD[-E]")
+    mom.playProject(PeroxidePower, 5, steel = 1).expect("PROD[-1, 2 Energy]")
+    mom.playProject(Hospitals, 8)
 
-    ellie.cardAction1(RobinsonIndustries) { doTask("PROD[S]") }
-    ellie.playProject(GhgFactories, 7, steel = 1).expect("PROD[-E, 4 H]")
+    ellie.cardAction1(RobinsonIndustries) { doTask("PROD[Steel]") }
+    ellie.playProject(GhgFactories, 7, steel = 1).expect("PROD[-Energy, 4 Heat]")
 
-    // NOPE: almost there, not quite
+    // Dad does not meet Diversifier before Corporate Stronghold enters play.
     shouldThrow<RequirementException> {
       dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
     }
     dad.playProject(CorporateStronghold, 7, steel = 2) {
           doTask("CityTile<Hellas_2_4>")
         }
-        .expect("PROD[3 M, -E], P, -S, Disease<Player1>")
-    mom.assertCounts(7 to "P")
+        .expect("Disease<Player1>")
+    mom.assertCounts(7 to "Plant")
     dad.stdAction("ClaimMilestoneSA") { doTask("Diversifier") }
 
     mom.playProject(IndustrialCenter, 4) {
-          doTask("IndustrialCenter_SpecialTile<Hellas_2_3>")
-          doTask("-2 Microbe<$Recyclon> THEN PROD[P]")
-        }
-        .expect("P")
-    mom.assertCounts(8 to "P")
+      doTask("IndustrialCenter_SpecialTile<Hellas_2_3>")
+      doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
+    }
+    mom.assertCounts(8 to "Plant")
     mom.convertPlants {
-          doTask("GreeneryTile<Hellas_1_2>")
-        }
-        .expect("-6 P, TR")
+      doTask("GreeneryTile<Hellas_1_2>")
+    }
 
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(titanium = 2)
@@ -223,8 +221,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
     mom.playProject(EcologicalZone, 12) {
           doTask("EcologicalZone_SpecialTile<Hellas_1_3>")
         }
-        .expect("3 H, 2 Animal, 2 P")
-    mom.convertHeat().expect("TR")
+        .expect("2 Plant")
+    mom.convertHeat()
     // (Ellie already passed early)
     ellie.pass()
     mom.pass()
@@ -241,15 +239,13 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.buyCards(LunarBeam, WeatherBalloons)
 
     mom.stdProject("AquiferSP") {
-          doTask("OceanTile<Hellas_2_1>")
-        }
-        .expect("TR, 2 P")
+      doTask("OceanTile<Hellas_2_1>")
+    }
     mom.convertPlants {
-          doTask("GreeneryTile<Hellas_3_3>")
-        }
-        .expect("S, TR")
+      doTask("GreeneryTile<Hellas_3_3>")
+    }
 
-    ellie.convertHeat().expect("PROD[H], TR")
+    ellie.convertHeat()
     ellie
         .playProject(PublicPlans, 5) {
           doTask("6")
@@ -257,28 +253,26 @@ class Game20260811Test : CardTrackingFullGameTest() {
         .expect("4")
 
     dad.playProject(HeatTrappers, 2, steel = 2) {
-          // NOPE: Mom had only 1 heat production, so Dad could not choose her instead.
-          shouldThrow<LimitsException> { doTask("PROD[-2 H<Player1>]") }
-          shouldThrow<NarrowingException> { doTask("PROD[-H<Player1>]") }
-          doTask("PROD[-2 H<Player2>]")
-        }
-        .expect("PROD[E]")
+      // Mom has only one heat production, so Dad cannot choose her instead.
+      shouldThrow<LimitsException> { doTask("PROD[-2 Heat<Player1>]") }
+      shouldThrow<NarrowingException> { doTask("PROD[-Heat<Player1>]") }
+      doTask("PROD[-2 Heat<Player2>]")
+    }
     dad.playProject(RoboticWorkforce, 9) {
-          doTask("CopyProductionBox<$HeatTrappers>")
-          doTask("PROD[-2 Heat<Player2>]")
-        }
-        .expect("PROD[E]")
+      doTask("CopyProductionBox<$HeatTrappers>")
+      doTask("PROD[-2 Heat<Player2>]")
+    }
 
     mom.playProject(NaturalPreserve, 5, steel = 2) {
           doTask("NaturalPreserve_SpecialTile<Hellas_3_7>")
           mom.draw(Psychrophiles)
         }
-        .expect("PROD[M], P")
+        .expect("PROD[1], Plant")
     // Test inference: the log gives only the count; Optimal Aerobraking is never played later.
     mom.sellPatents(OptimalAerobraking)
 
-    ellie.playProject(ProtectedGrowth, megacredits = 0).expect("P, 3")
-    ellie.playProject(Soletta, 21, titanium = 4).expect("PROD[7 H]")
+    ellie.playProject(ProtectedGrowth, megacredits = 0)
+    ellie.playProject(Soletta, 21, titanium = 4).expect("PROD[7 Heat]")
 
     dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
     // Reason 3: Mercurian Alloys makes Dad's retained titanium worth more after this payment; the
@@ -286,17 +280,17 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.intentionalUnderpay()
     dad.playProject(MercurianAlloys, 3)
 
-    mom.cardAction1(Hospitals).expect("-Disease, 1")
+    mom.cardAction1(Hospitals)
     mom.playProject(Psychrophiles, 2) {
           doTask("Microbe<$Psychrophiles>!")
         }
-        .expect("2 M<Player3>")
+        .expect("2 Megacredit<Player3>")
 
-    ellie.playProject(Mine, steel = 1).expect("PROD[S]")
+    ellie.playProject(Mine, steel = 1)
     ellie.declineSecondAction()
     dad.pass()
 
-    mom.cardAction1(Psychrophiles).expect("Microbe")
+    mom.cardAction1(Psychrophiles)
     mom.declineSecondAction()
     // (Ellie already passed early)
     ellie.pass()
@@ -313,58 +307,55 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.buyCards(HermeticOrderOfMars, MiningExpedition, LavaFlows)
     dad.buyCards(AntiGravityTechnology, Hackers, CallistoPenalMines)
 
-    // NOPE: almost there, not quite
+    // Ellie does not meet Tycoon before Hermetic Order of Mars enters play.
     shouldThrow<RequirementException> {
       ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
     }
-    ellie.playProject(HermeticOrderOfMars, 8).expect("PROD[2 M], -2")
+    ellie.playProject(HermeticOrderOfMars, 8).expect("PROD[2], -2")
     ellie.stdAction("ClaimMilestoneSA") { doTask("Tycoon10") }
 
-    dad.playProject(Ants, 9) { doTask("2") }.expect("-5")
+    dad.playProject(Ants, 9) { doTask("2") }
     dad.cardAction1(Ants) {
-          doTask("-Microbe<Player1, $Recyclon<Player1>>")
-        }
-        .expect("Microbe<$Ants>")
+      doTask("-Microbe<Player1, $Recyclon<Player1>>")
+    }
 
-    mom.cardAction1(Psychrophiles).expect("Microbe")
-    mom.stdProject("PowerPlantSP").expect("PROD[E]")
+    mom.cardAction1(Psychrophiles)
+    mom.stdProject("PowerPlantSP")
 
-    ellie.convertHeat().expect("TR")
-    ellie.cardAction2(DirectedImpactors).expect("-Asteroid, TemperatureStep, PROD[H], TR")
+    ellie.convertHeat()
+    ellie.cardAction2(DirectedImpactors)
 
     dad.playProject(WeatherBalloons, 11) { dad.draw(JovianEmbassy) }
-    dad.cardAction1(WeatherBalloons).expect("Floater")
+    dad.cardAction1(WeatherBalloons)
 
-    mom.playProject(TollStation, 12).expect("PROD[7 M]")
+    mom.playProject(TollStation, 12).expect("PROD[7]")
     mom.convertPlants {
-          doTask("GreeneryTile<Hellas_4_4>")
-        }
-        .expect("2 S, TR")
+      doTask("GreeneryTile<Hellas_4_4>")
+    }
 
-    ellie.playProject(BribedCommittee, 5).expect("-2")
+    ellie.playProject(BribedCommittee, 5)
     // Test inference: the log gives only the count; Meat Industry is never played later.
     ellie.sellPatents(MeatIndustry)
 
     dad.playProject(DiversitySupport, 1)
-    dad.cardAction2(AsteroidRights) { doTask("2 T") }.expect("-Asteroid")
+    dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
-    mom.cardAction1(IndustrialCenter).expect("PROD[S]")
+    mom.cardAction1(IndustrialCenter)
     mom.declineSecondAction()
 
-    ellie.cardAction1(RobinsonIndustries).expect("PROD[E]")
+    ellie.cardAction1(RobinsonIndustries)
     ellie.declineSecondAction()
 
-    dad.playProject(CallistoPenalMines, titanium = 6).expect("PROD[3 M]")
-    dad.convertHeat().expect("TR")
+    dad.playProject(CallistoPenalMines, titanium = 6)
+    dad.convertHeat()
 
     // (Mom already passed early)
     mom.pass()
     // (Ellie already passed early)
     ellie.pass()
     dad.convertPlants {
-          doTask("GreeneryTile<Hellas_1_4>")
-        }
-        .expect("-7 P, S, TR")
+      doTask("GreeneryTile<Hellas_1_4>")
+    }
     dad.doTask("Pass")
 
     // Game20260811-dashboards-gen6.png was taken before cards were bought.
@@ -379,59 +370,52 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.buyCards(RadChemFactory, SaturnSurfing, IoMiningIndustries)
 
     dad.playProject(CupolaCity, 10, steel = 3) {
-          doTask("CityTile<Hellas_4_3>")
-        }
-        .expect("PROD[3 M, -E], -2 S, Disease<Player1>")
+      doTask("CityTile<Hellas_4_3>")
+    }
     dad.cardAction1(Ants) {
-          doTask("-Microbe<Player1, $Psychrophiles<Player1>>")
-        }
-        .expect("Microbe<$Ants>")
+      doTask("-Microbe<Player1, $Psychrophiles<Player1>>")
+    }
 
     mom.stdAction("ClaimMilestoneSA") { doTask("Trader") }
     mom.playProject(ProtectedValley, 9, steel = 5) {
           doTask("2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
           doTask("GreeneryTile<Hellas_1_1>")
         }
-        .expect("PROD[2 M], 3 H, Animal, TR, 2 P, -7")
+        .expect("2 Plant, -5 Steel")
 
-    ellie
-        .playProject(LavaFlows, 16) {
-          doTask("LavaFlows_SpecialTile<Hellas_2_2>")
-        }
-        .expect("2 TR, 2 P, -11")
-    ellie
-        .convertPlants {
-          doTask("GreeneryTile<Hellas_8_7>")
-        }
-        .expect("2 H, TR")
+    ellie.playProject(LavaFlows, 16) {
+      doTask("LavaFlows_SpecialTile<Hellas_2_2>")
+    }
+    ellie.convertPlants {
+      doTask("GreeneryTile<Hellas_8_7>")
+    }
 
     dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
-    dad.playProject(Hackers, 3) { doTask("PROD[-2 M<Player2>]") }.expect("PROD[2 M, -E]")
+    dad.playProject(Hackers, 3) { doTask("PROD[-2 Megacredit<Player2>]") }
 
-    mom.convertHeat().expect("TR")
+    mom.convertHeat()
     mom.stdProject("AquiferSP") {
-          doTask("OceanTile<Hellas_4_7>")
-        }
-        .expect("TR, P")
+      doTask("OceanTile<Hellas_4_7>")
+    }
 
-    ellie.convertHeat().expect("TR")
-    ellie.cardAction1(RobinsonIndustries) { doTask("PROD[P]") }
+    ellie.convertHeat()
+    ellie.cardAction1(RobinsonIndustries) { doTask("PROD[Plant]") }
 
-    // NOPE: missed my chance and didn't even realize it!
+    // The temperature is now too high for Designed Microorganisms.
     shouldThrow<RequirementException> {
       dad.playProject(DesignedMicroorganisms, 9)
     }
-    dad.playProject(ViralEnhancers, 9).expect("P, -5")
-    dad.cardAction2(WeatherBalloons).expect("-Floater, 2")
+    // Viral Enhancers reacts to its own tag.
+    dad.playProject(ViralEnhancers, 9).expect("Plant")
+    dad.cardAction2(WeatherBalloons)
 
-    mom.cardAction1(Psychrophiles).expect("Microbe")
+    mom.cardAction1(Psychrophiles)
     mom.convertPlants {
-          doTask("GreeneryTile<Hellas_3_6>")
-        }
-        .expect("-6 P, 2, TR")
+      doTask("GreeneryTile<Hellas_3_6>")
+    }
 
-    ellie.cardAction2(DirectedImpactors).expect("-Asteroid, TemperatureStep, TR")
-    ellie.playProject(RadChemFactory, megacredits = 0, steel = 3).expect("PROD[-E], 2 TR")
+    ellie.cardAction2(DirectedImpactors)
+    ellie.playProject(RadChemFactory, megacredits = 0, steel = 3)
 
     dad.pass()
     mom.pass()
@@ -450,58 +434,52 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.buyCards(Algae, BactoviralResearch)
 
     mom.stdProject("CitySP") {
-          doTask("CityTile<Hellas_4_5>")
-        }
-        .expect("S, Disease")
+      doTask("CityTile<Hellas_4_5>")
+    }
     mom.convertPlants {
-          doTask("GreeneryTile<Hellas_5_5>")
-        }
-        .expect("2 TR")
+      doTask("GreeneryTile<Hellas_5_5>")
+    }
 
-    ellie.cardAction1(RobinsonIndustries).expect("PROD[E]")
-    ellie.playProject(DuskLaserMining, titanium = 2).expect("PROD[T, -E], 2 T")
+    ellie.cardAction1(RobinsonIndustries)
+    ellie.playProject(DuskLaserMining, titanium = 2).expect("PROD[Titanium, -Energy], 2 Titanium")
 
     dad.cardAction1(Ants) {
-          doTask("-Microbe<Player1, $Recyclon<Player1>>")
-        }
-        .expect("Microbe<$Ants>")
-    dad.cardAction2(AsteroidRights) { doTask("2 T") }.expect("-Asteroid")
+      doTask("-Microbe<Player1, $Recyclon<Player1>>")
+    }
+    dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
-    mom.cardAction1(Psychrophiles).expect("Microbe")
-    mom.playProject(BioPrintingFacility, 1, steel = 3).expect("Microbe")
+    mom.cardAction1(Psychrophiles)
+    mom.playProject(BioPrintingFacility, 1, steel = 3)
 
     ellie.stdAction("FundAwardSA") { doTask("SpaceBaron") }
-    ellie
-        .playProject(AsteroidCard, titanium = 4) {
-          dad.draw(SterlingVents)
-          doTask("-3 P<Player3>")
-        }
-        .expect("-2 T, -3 P<Player3>")
-    dad.stdProject("AsteroidSP").expect("TR")
+    ellie.playProject(AsteroidCard, titanium = 4) {
+      dad.draw(SterlingVents)
+      doTask("-3 Plant<Player3>")
+    }
+    dad.stdProject("AsteroidSP")
     dad.convertHeat() {
-          doTask("OceanTile<Hellas_3_1>")
-        }
-        .expect("2 TR, P, 2")
+      doTask("OceanTile<Hellas_3_1>")
+    }
 
     mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
     mom.playProject(ImportedNutrients, 14) {
           dad.draw(Grass)
           doTask("4 Microbe<$Recyclon>")
         }
-        .expect("4 P")
+        .expect("4 Plant")
     ellie.convertHeat()
     ellie.convertHeat()
 
-    dad.playProject(SterlingVents, 1, steel = 2).expect("PROD[2 E, -2 H]")
-    dad.playProject(Algae, 10).expect("PROD[2 P], 2 P")
+    dad.playProject(SterlingVents, 1, steel = 2).expect("PROD[2 Energy, -2 Heat]")
+    dad.playProject(Algae, 10).expect("PROD[2 Plant], 2 Plant")
 
     mom.playProject(Supercapacitors, 4) {
           doTask("-2 Microbe<$Recyclon>")
         }
-        .expect("PROD[M, P]")
-    mom.cardAction1(Hospitals).expect("-Disease, 3")
+        .expect("PROD[1, Plant]")
+    mom.cardAction1(Hospitals)
 
-    ellie.playProject(IoMiningIndustries, 12, titanium = 9).expect("PROD[2 M, 2 T]")
+    ellie.playProject(IoMiningIndustries, 12, titanium = 9).expect("PROD[2, 2 Titanium]")
     ellie.cardAction1(DirectedImpactors) {
       ellie.pay(6)
       doTask("Asteroid<$DirectedImpactors>")
@@ -509,15 +487,14 @@ class Game20260811Test : CardTrackingFullGameTest() {
 
     // Test inference: the log gives only the count; Cyberia Systems is never played later.
     dad.sellPatents(CyberiaSystems)
-    dad.playProject(Grass, 11).expect("PROD[P], 4 P")
+    dad.playProject(Grass, 11).expect("PROD[Plant], 4 Plant")
 
     mom.pass()
     ellie.pass()
     dad.convertPlants {
-          doTask("GreeneryTile<Hellas_3_2>")
-        }
-        .expect("-7 P, 4, TR")
-    dad.cardAction1(WeatherBalloons).expect("Floater")
+      doTask("GreeneryTile<Hellas_3_2>")
+    }
+    dad.cardAction1(WeatherBalloons)
     dad.doTask("Pass")
 
     // Game20260811-dashboards-gen8.png was taken before cards were bought.
@@ -532,49 +509,46 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.buyCards(InventorsGuild, CometAiming, EquatorialMagnetizer)
     mom.buyCards(EnergyTapping, InventionContest, FieldCappedCity)
     ellie.convertHeat()
-    ellie.cardAction2(DirectedImpactors).expect("-Asteroid, TemperatureStep, TR")
+    ellie.cardAction2(DirectedImpactors)
     dad.cardAction1(Ants) {
-          doTask("-Microbe<Player1, $Recyclon<Player1>>")
-        }
-        .expect("Microbe<$Ants>")
+      doTask("-Microbe<Player1, $Recyclon<Player1>>")
+    }
     dad.stdAction("FundAwardSA") { doTask("Forecaster") }
 
     mom.stdProject("AquiferSP") {
-          doTask("OceanTile<Hellas_5_6>")
-          mom.draw(ProjectInspection)
-        }
-        .expect("TR")
+      doTask("OceanTile<Hellas_5_6>")
+      mom.draw(ProjectInspection)
+    }
     mom.convertPlants {
-          doTask("GreeneryTile<Hellas_6_6>")
-        }
-        .expect("2, TR")
+      doTask("GreeneryTile<Hellas_6_6>")
+    }
 
     ellie
         .playProject(LakeMarineris, 16) {
           doTask("OceanTile<Hellas_4_6>")
           doTask("OceanTile<Hellas_5_7>")
         }
-        .expect("2 TR, P, -6, 3 H")
+        .expect("Plant, -6, 3 Heat")
     ellie
         .playProject(MiningExpedition, 10) {
-          doTask("-2 P<Player3>")
+          doTask("-2 Plant<Player3>")
         }
-        .expect("TR, 2 S, -7")
+        .expect("2 Steel, -7")
 
     dad.playProject(IceAsteroid, 15, titanium = 2) {
           dad.draw(RobotPollinators)
           doTask("OceanTile<Hellas_7_3>")
           doTask("OceanTile<Hellas_4_1>")
         }
-        .expect("2 TR, 0 T, P, -13")
+        .expect("0 Titanium")
     dad.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidRights>") }
 
     mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
     mom.playProject(FieldCappedCity, 25, steel = 2) {
           doTask("CityTile<Hellas_6_5>")
-          doTask("-2 Microbe<$Recyclon> THEN PROD[P]")
+          doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]")
         }
-        .expect("PROD[2 M, E, P], 3 P, Disease")
+        .expect("PROD[2, Energy, Plant], 3 Plant, Disease")
 
     ellie
         .playProject(ConvoyFromEuropa, 1, titanium = 4) {
@@ -582,32 +556,30 @@ class Game20260811Test : CardTrackingFullGameTest() {
           dad.draw(LocalHeatTrapping)
           doTask("OceanTile<Hellas_5_8>")
         }
-        .expect("TR, 6 M")
-    ellie.playProject(VestaShipyard, 7, titanium = 2).expect("PROD[T]")
+        .expect("6")
+    ellie.playProject(VestaShipyard, 7, titanium = 2)
 
-    dad.cardAction2(WeatherBalloons).expect("-Floater, 4")
+    dad.cardAction2(WeatherBalloons)
     // Test inference: the log gives only the count; Medical Lab is never played later.
     dad.sellPatents(MedicalLab)
 
-    mom.cardAction1(Psychrophiles).expect("Microbe")
-    mom.cardAction1(Hospitals).expect("-Disease, 4")
+    mom.cardAction1(Psychrophiles)
+    mom.cardAction1(Hospitals)
 
-    ellie.cardAction1(RobinsonIndustries).expect("PROD[E]")
+    ellie.cardAction1(RobinsonIndustries)
     ellie.playProject(SaturnSurfing, 11).expect("3 Floater")
 
-    dad.playProject(RobotPollinators, 9).expect("PROD[P], 3 P")
+    dad.playProject(RobotPollinators, 9)
     dad.convertPlants {
-          doTask("GreeneryTile<Hellas_4_2>")
-        }
-        .expect("-7 P, 4, TR")
+      doTask("GreeneryTile<Hellas_4_2>")
+    }
 
     mom.playProject(InventionContest, 2) { mom.draw(WaterImportFromEuropa) }
     mom.playProject(ProjectInspection, megacredits = 0) {
-          doTask("UseAction1<$Hospitals>")
-        }
-        .expect("-Disease, 4")
+      doTask("UseAction1<$Hospitals>")
+    }
 
-    ellie.cardAction1(SaturnSurfing).expect("3")
+    ellie.cardAction1(SaturnSurfing)
     ellie.declineSecondAction()
     // Test inference: the log gives only the count; none of these cards is played later.
     dad.sellPatents(
@@ -619,11 +591,11 @@ class Game20260811Test : CardTrackingFullGameTest() {
     )
     dad.playProject(EquatorialMagnetizer, 9, steel = 1)
 
-    mom.playProject(EnergyTapping, 3) { doTask("PROD[-E<Player3>]") }.expect("PROD[E]")
+    mom.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Player3>]") }
     mom.declineSecondAction()
     // (Ellie already passed early)
     ellie.pass()
-    dad.cardAction1(EquatorialMagnetizer).expect("PROD[-E], TR")
+    dad.cardAction1(EquatorialMagnetizer)
     dad.declineSecondAction()
     // (Mom already passed early)
     mom.pass()
@@ -643,19 +615,17 @@ class Game20260811Test : CardTrackingFullGameTest() {
     ellie.buyCards(HousePrinting, BeamFromAThoriumAsteroid)
 
     dad.stdProject("GreenerySP") {
-          doTask("GreeneryTile<Hellas_2_5>")
-        }
-        .expect("P, TR")
+      doTask("GreeneryTile<Hellas_2_5>")
+    }
     dad.convertPlants {
-          doTask("GreeneryTile<Hellas_5_3>")
-        }
-        .expect("TR")
+      doTask("GreeneryTile<Hellas_5_3>")
+    }
 
     mom.convertPlants {
           doTask("GreeneryTile<Hellas_7_6>")
           mom.draw(LightningHarvest)
         }
-        .expect("0 TR")
+        .expect("0 TerraformRating")
     mom.playProject(ProtectedHabitats, 5)
 
     ellie
@@ -663,7 +633,7 @@ class Game20260811Test : CardTrackingFullGameTest() {
           doTask("CityTile<Hellas_7_7>")
         }
         .expect("Disease<Player1>")
-    ellie.playProject(HousePrinting, steel = 4).expect("PROD[S]")
+    ellie.playProject(HousePrinting, steel = 4)
 
     dad.playProject(TechnologyDemonstration, 1, titanium = 1) {
       dad.draw(MartianRails, AcquiredCompany, Windmills)
@@ -674,56 +644,54 @@ class Game20260811Test : CardTrackingFullGameTest() {
     mom.playProject(AdaptedLichen, 3) {
           doTask("3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
         }
-        .expect("PROD[P], 3 H, Animal")
+        .expect("Animal")
     mom.cardAction1(BioPrintingFacility) { doTask("Animal<$EcologicalZone>") }
 
-    ellie.cardAction1(SaturnSurfing).expect("2")
-    ellie.playProject(BeamFromAThoriumAsteroid, 9, titanium = 7).expect("PROD[3 E, 3 H]")
+    ellie.cardAction1(SaturnSurfing)
+    ellie.playProject(BeamFromAThoriumAsteroid, 9, titanium = 7)
 
-    dad.playProject(Windmills, 4, steel = 1).expect("PROD[E]")
+    dad.playProject(Windmills, 4, steel = 1)
     dad.playProject(BactoviralResearch, 10) {
-          dad.draw(Potatoes)
-          doTask("5 Microbe<$Ants>")
-        }
-        .expect("P, -6")
+      dad.draw(Potatoes)
+      doTask("5 Microbe<$Ants>")
+    }
 
-    mom.cardAction1(Psychrophiles).expect("Microbe")
-    mom.cardAction1(Hospitals).expect("-Disease, 5")
+    mom.cardAction1(Psychrophiles)
+    mom.cardAction1(Hospitals)
 
     ellie
         .playProject(MagneticFieldGeneratorsPromo, steel = 10) {
           doTask("MagneticFieldGeneratorsPromo_SpecialTile<Hellas_5_1>")
           ellie.draw(AsteroidHollowing)
         }
-        .expect("PROD[2 P, -4 E], 2 M")
+        .expect("PROD[2 Plant, -4 Energy], 2")
     // Test inference: the log gives only the count; Cloud Seeding is never played later.
     ellie.sellPatents(CloudSeeding)
 
     dad.cardAction1(Ants) {
-          // NOPE: Mom is protected now, so this was pointless?
+          // Protected Habitats now prevents Dad from removing Mom's microbe.
           shouldThrow<DeadEndException> { doTask("-Microbe<Player1, $Psychrophiles<Player1>>") }
           doTask("-Microbe<Player3, $Ants<Player3>>")
         }
         .expect("0 Microbe<$Ants>")
-    dad.cardAction1(EquatorialMagnetizer).expect("PROD[-E], TR")
+    dad.cardAction1(EquatorialMagnetizer)
 
     // Test inference: the log gives only the count; none of these cards is played later.
     mom.sellPatents(WaterImportFromEuropa, PhysicsComplex, LightningHarvest)
     mom.stdProject("CitySP") {
-          doTask("CityTile<Hellas_1_5>")
-        }
-        .expect("P, Disease")
+      doTask("CityTile<Hellas_1_5>")
+    }
 
     // Test inference: the log gives only the count; Methane From Titan is never played later.
     ellie.sellPatents(MethaneFromTitan)
     // Test inference: the log gives only the count; Asteroid Hollowing is never played later.
     ellie.sellPatents(AsteroidHollowing)
 
-    dad.cardAction2(AsteroidRights) { doTask("2 T") }.expect("-Asteroid")
-    dad.cardAction1(WeatherBalloons).expect("Floater")
+    dad.cardAction2(AsteroidRights) { doTask("2 Titanium") }
+    dad.cardAction1(WeatherBalloons)
 
     mom.stdAction("FundAwardSA") { doTask("Botanist") }
-    mom.cardAction1(IndustrialCenter).expect("PROD[S]")
+    mom.cardAction1(IndustrialCenter)
 
     ellie.pass()
     // Test inference: the log gives only the count; these are Dad's remaining tracked cards.
@@ -753,37 +721,37 @@ class Game20260811Test : CardTrackingFullGameTest() {
     dad.cardsInHand shouldBe emptySet()
     val score = Summarizer(game)
 
-    mom.assertCounts(42 to "TR")
-    ellie.assertCounts(44 to "TR")
-    dad.assertCounts(34 to "TR")
+    mom.assertCounts(42 to "TerraformRating")
+    ellie.assertCounts(44 to "TerraformRating")
+    dad.assertCounts(34 to "TerraformRating")
 
     mom.assertCounts(1 to "FirstPlace<Player1>", 0 to "SecondPlace<Player1>")
     ellie.assertCounts(1 to "FirstPlace<Player2>", 1 to "SecondPlace<Player2>")
     dad.assertCounts(1 to "FirstPlace<Player3>", 2 to "SecondPlace<Player3>")
 
-    score.net("Milestone", "VP<Player1>") shouldBe 5
-    score.net("Milestone", "VP<Player2>") shouldBe 5
-    score.net("Milestone", "VP<Player3>") shouldBe 5
-    score.net("FirstPlace", "VP<Player1>") shouldBe 5
-    score.net("SecondPlace", "VP<Player1>") shouldBe 0
-    score.net("FirstPlace", "VP<Player2>") shouldBe 5
-    score.net("SecondPlace", "VP<Player2>") shouldBe 2
-    score.net("FirstPlace", "VP<Player3>") shouldBe 5
-    score.net("SecondPlace", "VP<Player3>") shouldBe 4
-    score.net("GreeneryTile", "VP<Player1>") shouldBe 9
-    score.net("GreeneryTile", "VP<Player2>") shouldBe 2
-    score.net("GreeneryTile", "VP<Player3>") shouldBe 6
-    score.net("CityTile", "VP<Player1>") shouldBe 9
-    score.net("CityTile", "VP<Player2>") shouldBe 4
-    score.net("CityTile", "VP<Player3>") shouldBe 8
-    score.net("Card", "VP<Player1>") shouldBe 4
-    score.net("Card", "VP<Player2>") shouldBe 12
-    score.net("Card", "VP<Player3>") shouldBe 5
+    score.net("Milestone", "VictoryPoint<Player1>") shouldBe 5
+    score.net("Milestone", "VictoryPoint<Player2>") shouldBe 5
+    score.net("Milestone", "VictoryPoint<Player3>") shouldBe 5
+    score.net("FirstPlace", "VictoryPoint<Player1>") shouldBe 5
+    score.net("SecondPlace", "VictoryPoint<Player1>") shouldBe 0
+    score.net("FirstPlace", "VictoryPoint<Player2>") shouldBe 5
+    score.net("SecondPlace", "VictoryPoint<Player2>") shouldBe 2
+    score.net("FirstPlace", "VictoryPoint<Player3>") shouldBe 5
+    score.net("SecondPlace", "VictoryPoint<Player3>") shouldBe 4
+    score.net("GreeneryTile", "VictoryPoint<Player1>") shouldBe 9
+    score.net("GreeneryTile", "VictoryPoint<Player2>") shouldBe 2
+    score.net("GreeneryTile", "VictoryPoint<Player3>") shouldBe 6
+    score.net("CityTile", "VictoryPoint<Player1>") shouldBe 9
+    score.net("CityTile", "VictoryPoint<Player2>") shouldBe 4
+    score.net("CityTile", "VictoryPoint<Player3>") shouldBe 8
+    score.net("Card", "VictoryPoint<Player1>") shouldBe 4
+    score.net("Card", "VictoryPoint<Player2>") shouldBe 12
+    score.net("Card", "VictoryPoint<Player3>") shouldBe 5
 
-    score.net("$EcologicalZone", "VP<Player1>") shouldBe 3
-    score.net("$IoMiningIndustries", "VP<Player2>") shouldBe 4
-    score.net("$SaturnSurfing", "VP<Player2>") shouldBe 1
-    score.net("$Ants", "VP<Player3>") shouldBe 4
+    score.net("$EcologicalZone", "VictoryPoint<Player1>") shouldBe 3
+    score.net("$IoMiningIndustries", "VictoryPoint<Player2>") shouldBe 4
+    score.net("$SaturnSurfing", "VictoryPoint<Player2>") shouldBe 1
+    score.net("$Ants", "VictoryPoint<Player3>") shouldBe 4
 
     with(mom) {
       assertResources(m = 56, s = 5, t = 0, p = 6, e = 4, h = 13)
@@ -797,8 +765,8 @@ class Game20260811Test : CardTrackingFullGameTest() {
       assertResources(m = 57, s = 1, t = 3, p = 1, e = 0, h = 4)
       assertProduction(m = 10, s = 1, t = 0, p = 6, e = 0, h = 0)
     }
-    mom.assertCounts(74 to "VP", 0 to "Victory")
-    ellie.assertCounts(74 to "VP", 1 to "Victory")
-    dad.assertCounts(67 to "VP", 0 to "Victory")
+    mom.assertCounts(74 to "VictoryPoint", 0 to "Victory")
+    ellie.assertCounts(74 to "VictoryPoint", 1 to "Victory")
+    dad.assertCounts(67 to "VictoryPoint", 0 to "Victory")
   }
 }
