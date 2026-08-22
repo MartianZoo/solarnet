@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.language
 
+import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
@@ -9,6 +10,7 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.types.Dependency.Key
 
 /** Interprets one Pets state change from passive component construction facts. */
 internal fun renderChange(
@@ -460,7 +462,15 @@ private fun renderStandardResourceChange(
   if (expression.simple && removal.intensity.modality() == Modality.REQUIRED) {
     return clause("remove", describers.componentNounPhrase(expression.className, count))
   }
-  val player = expression.arguments.singleOrNull()?.let { describers.renderEligiblePlayer(it) }
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  val player =
+      resolved
+          .sourceDependency(ownerKey)
+          ?.takeIf {
+            resolved.sourceDependencies.size == 1
+          }
+          ?.let { describers.renderEligiblePlayer(it) }
   if (player != null && removal.intensity.modality() == Modality.OPTIONAL) {
     val noun = describers.componentNoun(expression.className, count)
     return clause(
@@ -476,7 +486,7 @@ private fun Describers.renderEligiblePlayer(expression: Expression): String? {
   if (expression == anyoneExpression) return "any player"
   if (
       expression.className != anyoneExpression.className ||
-          expression.arguments.isNotEmpty() ||
+          resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false ||
           expression.complement
   ) {
     return null
@@ -544,14 +554,19 @@ private enum class TransferParty(val objectPhrase: String) {
 private fun renderTransferParty(
     expression: Expression,
     describers: Describers,
-): TransferParty? =
-    when (expression.arguments) {
-      emptyList<Expression>(),
-      listOf(describers.ownerExpression) -> TransferParty.YOU
-      listOf(describers.anyoneExpression) -> TransferParty.ANY_PLAYER
-      listOf(describers.playerExpression) -> TransferParty.THAT_PLAYER
-      else -> null
-    }
+): TransferParty? {
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  return when {
+    resolved.sourceDependencies.isEmpty() -> TransferParty.YOU
+    resolved.hasOnlySourceDependency(ownerKey, describers.ownerExpression) -> TransferParty.YOU
+    resolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) ->
+        TransferParty.ANY_PLAYER
+    resolved.hasOnlySourceDependency(ownerKey, describers.playerExpression) ->
+        TransferParty.THAT_PLAYER
+    else -> null
+  }
+}
 
 private fun renderCardResourceChange(
     instruction: Instruction,
