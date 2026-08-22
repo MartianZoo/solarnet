@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class SoloGame0721Test : AbstractSoloTest() {
+class SoloGame20230721Test : AbstractSoloTest() {
   // Enceladus was removed because solo Colonies uses only three selected tiles.
   override val config =
       GameConfig(
@@ -33,7 +33,7 @@ class SoloGame0721Test : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Elysium_1_5" to "Elysium_7_8"
 
   @Test
-  fun soloGame0721() {
+  fun soloGame20230721() {
     with(me) {
       // The id of this game is gf33a06d07a1c
       // Good luck me!

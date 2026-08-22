@@ -9,7 +9,7 @@ import kotlin.test.Test
 
 // Complete archive replay: Thermal Matter Wave (gafda6ee74f34)
 // https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
-class Game20260730Test : AbstractSoloTest() {
+class ThermalMatterWaveTest : AbstractSoloTest() {
   override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   override val config =

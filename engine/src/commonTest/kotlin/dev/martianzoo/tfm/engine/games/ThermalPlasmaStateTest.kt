@@ -10,7 +10,7 @@ import kotlin.test.Test
 // Sources: _local/Game20260817/full-log-pb64886c6e682.txt and
 // _local/Game20260817/player-pb64886c6e682.json. The complete Research offers come from the
 // earlier clone of the same source game at /the-end?id=pe59a6b631bd6.
-class SoloGame0816Test : AbstractSoloTest() {
+class ThermalPlasmaStateTest : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
@@ -31,7 +31,7 @@ class SoloGame0816Test : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Elysium_7_5" to "Elysium_9_8"
 
   @Test
-  fun soloGame0816() {
+  fun thermalPlasmaState() {
     with(me) {
       playCorp(TerraLabsResearch) {
         buyCards(

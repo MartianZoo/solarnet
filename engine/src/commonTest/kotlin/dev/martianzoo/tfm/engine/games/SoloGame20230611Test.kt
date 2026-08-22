@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.engine.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-class SoloGame0611Test : AbstractSoloTest() {
+class SoloGame20230611Test : AbstractSoloTest() {
   // @Test // for profiling
   fun fifty() {
     repeat(50) {

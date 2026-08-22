@@ -16,7 +16,7 @@ remain pending are reconsidered on later passes and later commands.
 
 ## Measured repeated work
 
-JFR method tracing of `Game20260730Test` after immediate execution stopped using the reversible
+JFR method tracing of `ThermalMatterWaveTest` after immediate execution stopped using the reversible
 execution preview recorded these invocation counts:
 
 | Method or entry path | Calls |

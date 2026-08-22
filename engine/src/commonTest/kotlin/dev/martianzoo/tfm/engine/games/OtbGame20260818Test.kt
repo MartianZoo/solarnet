@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
-class Game20260818Test : AbstractFullGameTest() {
+class OtbGame20260818Test : AbstractFullGameTest() {
   private val colonyTiles = listOf("Enceladus", "Miranda", "Europa", "Io", "Pluto")
 
   // "We are playing on the Utopia Planitia board."
@@ -37,7 +37,7 @@ class Game20260818Test : AbstractFullGameTest() {
       )
 
   @Test
-  fun game20260818() {
+  fun otbGame20260818() {
     TfmWorkflow.Auto(game).launch()
     val dad = game.tfm(Player.PLAYER1)
     val ellie = game.tfm(Player.PLAYER2)

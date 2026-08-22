@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 // Complete archive replay: Synthetic Proton Fragment (g9ea8656f1c7e)
 // https://terraforming-mars.herokuapp.com/the-end?id=p9d6d3ff25b39
-class Game20260811Test : CardTrackingFullGameTest() {
+class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, no Venus/Colonies/Turmoil, and these full-random milestone and award pools.
   override val config =
